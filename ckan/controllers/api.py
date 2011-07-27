@@ -474,12 +474,18 @@ class ApiController(BaseController):
         return params        
 
     def tag_counts(self, ver=None):
-        log.debug('tag counts')
-        tags = model.Session.query(model.Tag).all()
+        c.q = request.params.get('q', '')
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        data_dict = {'all_fields': True}
+
+        tag_list = get.tag_list(context, data_dict)
         results = []
-        for tag in tags:
-            tag_count = len(tag.package_tags)
-            results.append((tag.name, tag_count))
+        for tag in tag_list:
+            tag_count = len(tag['packages'])
+            results.append((tag['name'], tag_count))
         return self._finish_ok(results)
 
     def throughput(self, ver=None):
@@ -555,26 +561,21 @@ class ApiController(BaseController):
         return self._finish_ok(response_data)
 
     def tag_autocomplete(self):
-        incomplete = request.params.get('incomplete', '')
-        if incomplete:
-            query = query_for('tag', backend='sql')
-            query.run(query=incomplete,
-                      return_objects=True,
-                      limit=10,
-                      username=c.user)
-            tagNames = [t.name for t in query.results]
-        else:
-            tagNames = []
+        q = request.params.get('incomplete', '')
+        tag_names = []
+        if q:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+
+            data_dict = {'q':q,'limit':10}
+
+            tag_names = get.tag_autocomplete(context,data_dict)
+
         resultSet = {
-            "ResultSet": {
-                "Result": []
+            'ResultSet': {
+                'Result': [{'Name': tag} for tag in tag_names]
             }
         }
-        for tagName in tagNames[:10]:
-            result = {
-                "Name": tagName
-            }
-            resultSet["ResultSet"]["Result"].append(result)
         return self._finish_ok(resultSet)
 
 

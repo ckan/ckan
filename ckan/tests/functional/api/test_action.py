@@ -122,9 +122,21 @@ class TestAction(WsgiAppCase):
     def test_06_tag_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/tag_list', params=postparams)
-        assert json.loads(res.body) == {'help': 'Lists tags by name',
+        assert json.loads(res.body) == {'help': 'Returns a list of tags',
                                         'success': True,
                                         'result': ['russian', 'tolstoy']}
+        #Get all fields
+        postparams = '%s=1' % json.dumps({'all_fields':True})
+        res = self.app.post('/api/action/tag_list', params=postparams)
+        res_obj = json.loads(res.body)
+        pprint(res_obj)
+        assert res_obj['success'] == True
+        assert res_obj['result'][0]['name'] == 'russian'
+        assert len(res_obj['result'][0]['packages']) == 3
+        assert res_obj['result'][1]['name'] == 'tolstoy'
+        assert len(res_obj['result'][1]['packages']) == 2
+        assert 'id' in res_obj['result'][0]
+        assert 'id' in res_obj['result'][1]
 
     def test_07_tag_show(self):
         postparams = '%s=1' % json.dumps({'id':'russian'})
@@ -336,4 +348,24 @@ class TestAction(WsgiAppCase):
             'success': False
         }
 
+    def test_15_tag_autocomplete(self):
+        #Empty query
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'help': 'Returns tags containing the provided string', 
+            'result': [], 
+            'success': True
+        }
+
+        #Normal query
+        postparams = '%s=1' % json.dumps({'q':'r'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'help': 'Returns tags containing the provided string', 
+            'result': ['russian'], 
+            'success': True
+        }
 

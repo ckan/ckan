@@ -155,9 +155,12 @@ def licence_list(context, data_dict):
     return licences
 
 def tag_list(context, data_dict):
-    '''Lists tags by name'''
+    '''Returns a list of tags'''
+
     model = context['model']
     user = context['user']
+
+    all_fields = data_dict.get('all_fields',None)
 
     q = data_dict.get('q','')
     if q:
@@ -173,9 +176,16 @@ def tag_list(context, data_dict):
                   username=user)
         tags = query.results
     else:
-        tags = model.Session.query(model.Tag).all() #TODO
+        tags = model.Session.query(model.Tag).all() 
+    
+    tag_list = []
+    if all_fields:
+        for tag in tags:
+            result_dict = tag_dictize(tag, context)
+            tag_list.append(result_dict)
+    else:
+        tag_list = [tag.name for tag in tags]
 
-    tag_list = [tag.name for tag in tags]
     return tag_list
 
 def user_list(context, data_dict):
@@ -420,6 +430,28 @@ def package_autocomplete(context, data_dict):
         pkg_list.append(result_dict)
 
     return pkg_list
+
+def tag_autocomplete(context, data_dict):
+    '''Returns tags containing the provided string'''
+    model = context['model']
+    session = context['session']
+    user = context['user']
+
+    q = data_dict.get('q',None)
+    if not q:
+        return []
+
+    limit = data_dict.get('limit',10)
+
+    like_q = u"%s%%" % q
+
+    query = query_for('tag', backend='sql')
+    query.run(query=like_q,
+              return_objects=True,
+              limit=10,
+              username=user)
+
+    return [tag.name for tag in query.results]
 
 def package_search(context, data_dict):
     model = context['model']
