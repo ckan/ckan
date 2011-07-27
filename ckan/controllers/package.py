@@ -284,14 +284,12 @@ class PackageController(BaseController):
                 language=unicode(get_lang()),
             )
             for revision_dict in c.pkg_revisions:
+                revision_date = datetime.datetime.strptime(revision_dict['timestamp'], '%Y-%m-%dT%H:%M:%S.%f')
                 try:
                     dayHorizon = int(request.params.get('days'))
                 except:
                     dayHorizon = 30
-                try:
-                    dayAge = (datetime.now() - revision_dict['timestamp']).days
-                except:
-                    dayAge = 0
+                dayAge = (datetime.datetime.now() - revision_date).days
                 if dayAge >= dayHorizon:
                     break
                 if revision_dict['message']:
@@ -302,7 +300,7 @@ class PackageController(BaseController):
                 item_description = _('Log message: ')
                 item_description += '%s' % (revision_dict['message'] or '')
                 item_author_name = revision_dict['author']
-                item_pubdate = datetime.datetime.strptime(revision_dict['timestamp'], '%Y-%m-%dT%H:%M:%S.%f')
+                item_pubdate = revision_date
                 feed.add_item(
                     title=item_title,
                     link=item_link,
