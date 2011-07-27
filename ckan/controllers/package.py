@@ -77,7 +77,7 @@ class PackageController(BaseController):
             raise DataError(data_dict)
 
     def _setup_template_variables(self, context, data_dict):
-        c.groups = get.group_list_availible(context, data_dict)
+        c.groups = get.group_list_available(context, data_dict)
         c.groups_authz = get.group_list_authz(context, data_dict)
         c.licences = [('', '')] + model.Package.get_license_options()
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)

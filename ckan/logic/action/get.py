@@ -119,7 +119,7 @@ def group_list_authz(context, data_dict):
     groups = set(query.all())
     return dict((group.id, group.name) for group in groups)
 
-def group_list_availible(context, data_dict):
+def group_list_available(context, data_dict):
     model = context['model']
     user = context['user']
     pkg = context.get('package')
