@@ -453,6 +453,29 @@ def tag_autocomplete(context, data_dict):
 
     return [tag.name for tag in query.results]
 
+def user_autocomplete(context, data_dict):
+    '''Returns users containing the provided string'''
+    model = context['model']
+    session = context['session']
+    user = context['user']
+    q = data_dict.get('q',None)
+    if not q:
+        return []
+
+    limit = data_dict.get('limit',20)
+
+    query = model.User.search(q).limit(limit)
+
+    user_list = []
+    for user in query.all():
+        result_dict = {}
+        for k in ['id', 'name', 'fullname']:
+                result_dict[k] = getattr(user,k)
+
+        user_list.append(result_dict)
+
+    return user_list
+
 def package_search(context, data_dict):
     model = context['model']
     session = context['session']

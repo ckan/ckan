@@ -369,3 +369,21 @@ class TestAction(WsgiAppCase):
             'success': True
         }
 
+    def test_16_user_autocomplete(self):
+        #Empty query
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/user_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'help': 'Returns users containing the provided string', 
+            'result': [], 
+            'success': True
+        }
+
+        #Normal query
+        postparams = '%s=1' % json.dumps({'q':'joe'})
+        res = self.app.post('/api/action/user_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['result'][0]['name'] == 'joeadmin'
+        assert 'id','fullname' in res_obj['result'][0]
+

@@ -511,21 +511,15 @@ class ApiController(BaseController):
     def user_autocomplete(self):
         q = request.params.get('q', '')
         limit = request.params.get('limit', 20)
-        try:
-            limit = int(limit)
-        except:
-            limit = 20
-        limit = min(50, limit)
-    
-        query = model.User.search(q)
-        def convert_to_dict(user):
-            out = {}
-            for k in ['id', 'name', 'fullname']:
-                out[k] = getattr(user, k)
-            return out
-        query = query.limit(limit)
-        out = map(convert_to_dict, query.all())
-        return out
+        user_list = []
+        if q:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+
+            data_dict = {'q':q,'limit':limit}
+
+            user_list = get.user_autocomplete(context,data_dict)
+        return user_list
 
 
     @jsonpify
@@ -562,12 +556,13 @@ class ApiController(BaseController):
 
     def tag_autocomplete(self):
         q = request.params.get('incomplete', '')
+        limit = request.params.get('limit', 10)
         tag_names = []
         if q:
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
 
-            data_dict = {'q':q,'limit':10}
+            data_dict = {'q':q,'limit':limit}
 
             tag_names = get.tag_autocomplete(context,data_dict)
 
