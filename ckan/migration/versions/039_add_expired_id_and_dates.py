@@ -28,7 +28,7 @@ insert into group_revision (id,name,title,description,created,state,revision_id,
 
 insert into package_revision (id,name,title,url,notes,license_id,revision_id,version,author,author_email,maintainer,maintainer_email,state,continuity_id) select id,name,title,url,notes,license_id, '%(id)s',version,author,author_email,maintainer,maintainer_email,state, id from package where package.id not in (select id from package_revision);
 
-''' % dict(id=id, timestamp=datetime.datetime.now().isoformat())
+''' % dict(id=id, timestamp=datetime.datetime.utcnow().isoformat())
 
 
     update_schema = '''

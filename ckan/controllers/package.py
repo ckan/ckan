@@ -171,24 +171,30 @@ class PackageController(BaseController):
         # revision may have more than one package in it.
         return str(hash((pkg.id, pkg.latest_related_revision.id, c.user, pkg.get_average_rating())))
 
-    def _clear_pkg_cache(self, pkg):
-        read_cache = cache.get_cache('package/read.html', type='dbm')
-        read_cache.remove_value(self._pkg_cache_key(pkg))
-
     @proxy_cache()
     def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'schema': self._form_to_db_schema()}
         data_dict = {'id': id}
+
+        # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
         if len(split) == 2:
-            data_dict['id'], revision = split
-            try:
-                date = datetime.datetime(*map(int, re.split('[^\d]', revision)))
-                context['revision_date'] = date
-            except ValueError:
-                context['revision_id'] = revision
+            data_dict['id'], revision_ref = split
+            if model.is_id(revision_ref):
+                context['revision_id'] = revision_ref
+            else:
+                try:
+                    date = model.strptimestamp(revision_ref)
+                    context['revision_date'] = date
+                except TypeError, e:
+                    abort(400, _('Invalid revision format: %r') % e.args)
+                except ValueError, e:
+                    abort(400, _('Invalid revision format: %r') % e.args)
+        elif len(split) > 2:
+            abort(400, _('Invalid revision format: %r') % 'Too many "@" symbols')
+            
         #check if package exists
         try:
             c.pkg_dict = get.package_show(context, data_dict)
@@ -727,7 +733,7 @@ class PackageController(BaseController):
         package = model.Package.get(package_name)
         if package is None:
             abort(404, gettext('Package Not Found'))
-        self._clear_pkg_cache(package)
+        #self._clear_pkg_cache(package)
         rating = request.params.get('rating', '')
         if rating:
             try:

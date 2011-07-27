@@ -111,15 +111,16 @@ class UserController(BaseController):
         return render('user/register.html')
 
     def login(self):
+        if 'error' in request.params:
+            h.flash_error(request.params['error'])
         return render('user/login.html')
     
     def logged_in(self):
-        if c.user:
-            userobj = model.User.by_name(c.user)
-            response.set_cookie("ckan_user", userobj.name)
-            response.set_cookie("ckan_display_name", userobj.display_name)
-            response.set_cookie("ckan_apikey", userobj.apikey)
-            h.flash_success(_("Welcome back, %s") % userobj.display_name)
+        if c.userobj:
+            response.set_cookie("ckan_user", c.userobj.name)
+            response.set_cookie("ckan_display_name", c.userobj.display_name)
+            response.set_cookie("ckan_apikey", c.userobj.apikey)
+            h.flash_success(_("Welcome back, %s") % c.userobj.display_name)
             h.redirect_to(controller='user', action='me', id=None)
         else:
             h.flash_error('Login failed. Bad username or password.')
@@ -136,10 +137,10 @@ class UserController(BaseController):
         if id is not None:
             user = model.User.get(id)
         else:
-            user = model.User.by_name(c.user)
+            user = c.userobj
         if user is None:
             abort(404)
-        currentuser = model.User.by_name(c.user)
+        currentuser = c.userobj
         if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user)) or user == currentuser):
             abort(401)
         c.userobj = user
@@ -188,8 +189,17 @@ class UserController(BaseController):
         if request.method == 'POST':
             id = request.params.get('user')
             user = model.User.get(id)
+            if user is None and id and len(id)>2:
+                q = model.User.search(id)
+                if q.count() == 1:
+                    user = q.one()
+                elif q.count() > 1:
+                    users = ' '.join([user.name for user in q])
+                    h.flash_error(_('"%s" matched several users') % (id))
+                    return render("user/request_reset.html")
             if user is None:
                 h.flash_error(_('No such user: %s') % id)
+                return render("user/request_reset.html")
             try:
                 mailer.send_reset_link(user)
                 h.flash_success(_('Please check your inbox for a reset code.'))
@@ -204,8 +214,9 @@ class UserController(BaseController):
             abort(404)
         c.reset_key = request.params.get('key')
         if not mailer.verify_reset_link(user, c.reset_key):
-            h.flash_error(_('Invalid reset key. Please try again.'))
-            abort(403)
+            msg = _('Invalid reset key. Please try again.')
+            h.flash_error(msg)
+            abort(403, msg.encode('utf8'))
         if request.method == 'POST':
             try:
                 user.password = self._get_form_password()

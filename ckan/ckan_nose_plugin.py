@@ -4,8 +4,7 @@ import os
 import sys
 import pkg_resources
 from paste.deploy import loadapp
-
-pylonsapp = None
+from pylons import config
 
 class CkanNose(Plugin):
     settings = None
@@ -28,6 +27,15 @@ class CkanNose(Plugin):
             # when you use an in-memory sqlite db, it appears that
             # the db is destroyed after every test when you Session.Remove().
             model.repo.init_db()
+
+            ## This is to make sure the configuration is run again.
+            ## Plugins use configure to make their own tables and they
+            ## may need to be recreated to make tests work.
+            from ckan.plugins import PluginImplementations
+            from ckan.plugins.interfaces import IConfigurable
+            for plugin in PluginImplementations(IConfigurable):
+                plugin.configure(config)
+            
 
     def options(self, parser, env):
         parser.add_option(

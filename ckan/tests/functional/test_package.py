@@ -1,4 +1,5 @@
 import cgi
+import datetime
 
 from paste.fixture import AppError
 from pylons import config
@@ -427,6 +428,178 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         assert plugin.calls['read'] == 1, plugin.calls
         plugins.unload(plugin)
 
+
+class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
+
+    @classmethod
+    def setup_class(cls):
+        cls.before = datetime.datetime(2010, 1, 1)
+        cls.date1 = datetime.datetime(2011, 1, 1)
+        cls.date2 = datetime.datetime(2011, 1, 2)
+        cls.date3 = datetime.datetime(2011, 1, 3)
+        cls.today = datetime.datetime.now()
+        cls.pkg_name = u'testpkg'
+        
+        # create package
+        rev = model.repo.new_revision()
+        rev.timestamp = cls.date1
+        pkg = model.Package(name=cls.pkg_name, title=u'title1')
+        model.Session.add(pkg)
+        model.setup_default_user_roles(pkg)
+        model.repo.commit_and_remove()
+
+        # edit package
+        rev = model.repo.new_revision()
+        rev.timestamp = cls.date2
+        pkg = model.Package.by_name(cls.pkg_name)
+        pkg.title = u'title2'
+        pkg.add_tag_by_name(u'tag2')
+        pkg.extras = {'key2': u'value2'}
+        model.repo.commit_and_remove()
+
+        # edit package again
+        rev = model.repo.new_revision()
+        rev.timestamp = cls.date3
+        pkg = model.Package.by_name(cls.pkg_name)
+        pkg.title = u'title3'
+        pkg.add_tag_by_name(u'tag3')
+        pkg.extras['key2'] = u'value3'
+        model.repo.commit_and_remove()
+
+        cls.offset = url_for(controller='package',
+                             action='read',
+                             id=cls.pkg_name)
+        pkg = model.Package.by_name(cls.pkg_name)
+        cls.revision_ids = [rev[0].id for rev in pkg.all_related_revisions[::-1]]
+                        # revision order is reversed to be chronological
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def test_read_normally(self):
+        res = self.app.get(self.offset, status=200)
+        pkg_html = self.named_div('package', res)
+        side_html = self.named_div('primary', res)
+        print 'PKG', pkg_html
+        assert 'title3' in pkg_html
+        assert 'key2' in pkg_html
+        assert 'value3' in pkg_html
+        print 'SIDE', side_html
+        assert 'tag3' in side_html
+        assert 'tag2' in side_html
+
+    def test_read_date1(self):
+        offset = self.offset + self.date1.strftime('@%Y-%m-%d')
+        res = self.app.get(offset, status=200)
+        pkg_html = self.named_div('package', res)
+        side_html = self.named_div('primary', res)
+        print 'PKG', pkg_html
+        assert 'title1' in pkg_html
+        assert 'key2' not in pkg_html
+        assert 'value3' not in pkg_html
+        print 'SIDE', side_html
+        assert 'tag3' not in side_html
+        assert 'tag2' not in side_html
+
+    def test_read_date2(self):
+        date2_plus_3h = self.date2 + datetime.timedelta(hours=3)
+        offset = self.offset + date2_plus_3h.strftime('@%Y-%m-%d')
+        res = self.app.get(offset, status=200)
+        pkg_html = self.named_div('package', res)
+        side_html = self.named_div('primary', res)
+        print 'PKG', pkg_html
+        assert 'title2' in pkg_html
+        assert 'key2' in pkg_html
+        assert 'value2' in pkg_html
+        print 'SIDE', side_html
+        assert 'tag3' not in side_html
+        assert 'tag2' in side_html
+
+    def test_read_date3(self):
+        offset = self.offset + self.date3.strftime('@%Y-%m-%d-%H-%M')
+        res = self.app.get(offset, status=200)
+        pkg_html = self.named_div('package', res)
+        side_html = self.named_div('primary', res)
+        print 'PKG', pkg_html
+        assert 'title3' in pkg_html
+        assert 'key2' in pkg_html
+        assert 'value3' in pkg_html
+        print 'SIDE', side_html
+        assert 'tag3' in side_html
+        assert 'tag2' in side_html
+
+    def test_read_date_before_created(self):
+        offset = self.offset + self.before.strftime('@%Y-%m-%d')
+        res = self.app.get(offset, status=404)
+
+    def test_read_date_invalid(self):
+        res = self.app.get(self.offset + self.date3.strftime('@%Y-%m'),
+                           status=400)
+        res = self.app.get(self.offset + self.date3.strftime('@%Y'),
+                           status=400)
+        res = self.app.get(self.offset + self.date3.strftime('@%Y@%m'),
+                           status=400)
+
+    def test_read_revision1(self):
+        offset = self.offset + '@%s' % self.revision_ids[0]
+        res = self.app.get(offset, status=200)
+        main_html = self.main_div(res)
+        pkg_html = self.named_div('package', res)
+        side_html = self.named_div('primary', res)
+        print 'MAIN', main_html
+        assert 'This is an old revision of this package' in main_html
+        assert 'at 2011-01-01 00:00' in main_html
+        self.check_named_element(main_html, 'a', 'href="/package/%s"' % self.pkg_name)
+        print 'PKG', pkg_html
+        assert 'title1' in pkg_html
+        assert 'key2' not in pkg_html
+        assert 'value3' not in pkg_html
+        print 'SIDE', side_html
+        assert 'tag3' not in side_html
+        assert 'tag2' not in side_html
+
+    def test_read_revision2(self):
+        offset = self.offset + '@%s' % self.revision_ids[1]
+        res = self.app.get(offset, status=200)
+        main_html = self.main_div(res)
+        pkg_html = self.named_div('package', res)
+        side_html = self.named_div('primary', res)
+        print 'MAIN', main_html
+        assert 'This is an old revision of this package' in main_html
+        assert 'at 2011-01-02 00:00' in main_html
+        self.check_named_element(main_html, 'a', 'href="/package/%s"' % self.pkg_name)
+        print 'PKG', pkg_html
+        assert 'title2' in pkg_html
+        assert 'key2' in pkg_html
+        assert 'value2' in pkg_html
+        print 'SIDE', side_html
+        assert 'tag3' not in side_html
+        assert 'tag2' in side_html
+
+    def test_read_revision3(self):
+        offset = self.offset + '@%s' % self.revision_ids[2]
+        res = self.app.get(offset, status=200)
+        main_html = self.main_div(res)
+        pkg_html = self.named_div('package', res)
+        side_html = self.named_div('primary', res)
+        print 'MAIN', main_html
+        assert 'This is an old revision of this package' not in main_html
+        assert 'This is the current revision of this package' in main_html
+        assert 'at 2011-01-03 00:00' in main_html
+        self.check_named_element(main_html, 'a', 'href="/package/%s"' % self.pkg_name)
+        print 'PKG', pkg_html
+        assert 'title3' in pkg_html
+        assert 'key2' in pkg_html
+        assert 'value3' in pkg_html
+        print 'SIDE', side_html
+        assert 'tag3' in side_html
+        assert 'tag2' in side_html
+
+    def test_read_bad_revision(self):
+        # this revision doesn't exist in the db
+        offset = self.offset + '@ccab6798-1f4b-4a22-bcf5-462703aa4594'
+        res = self.app.get(offset, status=404)
         
 class TestEdit(TestPackageForm):
     editpkg_name = u'editpkgtest'
@@ -1277,36 +1450,39 @@ class TestNonActivePackages(TestPackageBase):
 
 class TestRevisions(TestPackageBase):
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
         model.Session.remove()
         model.repo.init_db()
-        self.name = u'revisiontest1'
+        cls.name = u'revisiontest1'
 
         # create pkg
-        self.notes = [u'Written by Puccini', u'Written by Rossini', u'Not written at all', u'Written again', u'Written off']
+        cls.notes = [u'Written by Puccini', u'Written by Rossini', u'Not written at all', u'Written again', u'Written off']
         rev = model.repo.new_revision()
-        self.pkg1 = model.Package(name=self.name)
-        self.pkg1.notes = self.notes[0]
-        model.Session.add(self.pkg1)
-        model.setup_default_user_roles(self.pkg1)
+        cls.pkg1 = model.Package(name=cls.name)
+        cls.pkg1.notes = cls.notes[0]
+        model.Session.add(cls.pkg1)
+        model.setup_default_user_roles(cls.pkg1)
         model.repo.commit_and_remove()
 
         # edit pkg
         for i in range(5)[1:]:
             rev = model.repo.new_revision()
-            pkg1 = model.Package.by_name(self.name)
-            pkg1.notes = self.notes[i]
+            pkg1 = model.Package.by_name(cls.name)
+            pkg1.notes = cls.notes[i]
             model.repo.commit_and_remove()
 
-        self.pkg1 = model.Package.by_name(self.name)        
+        cls.pkg1 = model.Package.by_name(cls.name)        
+        cls.revision_ids = [rev[0].id for rev in cls.pkg1.all_related_revisions]
+                           # revision ids are newest first
+        cls.revision_timestamps = [rev[0].timestamp for rev in cls.pkg1.all_related_revisions]
+        cls.offset = url_for(controller='package', action='history', id=cls.pkg1.name)
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
         model.repo.rebuild_db()
     
     def test_0_read_history(self):
-        offset = url_for(controller='package', action='history', id=self.pkg1.name)
-        res = self.app.get(offset)
+        res = self.app.get(self.offset)
         main_res = self.main_div(res)
         assert self.pkg1.name in main_res, main_res
         assert 'radio' in main_res, main_res
@@ -1318,8 +1494,7 @@ class TestRevisions(TestPackageBase):
         assert last_radio_checked_html in main_res, '%s %s' % (last_radio_checked_html, main_res)
 
     def test_1_do_diff(self):
-        offset = url_for(controller='package', action='history', id=self.pkg1.name)
-        res = self.app.get(offset)
+        res = self.app.get(self.offset)
         form = res.forms['package-revisions']
         res = form.submit()
         res = res.follow()
@@ -1330,12 +1505,25 @@ class TestRevisions(TestPackageBase):
         assert '<tr><td>notes</td><td><pre>- Written by Puccini\n+ Written off</pre></td></tr>' in main_res, main_res
 
     def test_2_atom_feed(self):
-        offset = url_for(controller='package', action='history', id=self.pkg1.name)
-        offset = "%s?format=atom" % offset
+        offset = "%s?format=atom" % self.offset
         res = self.app.get(offset)
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
+
+    def test_3_history_revision_link(self):
+        res = self.app.get(self.offset)
+        res = res.click('%s' % self.revision_ids[2][:4])
+        main_res = self.main_div(res)
+        assert 'Revision: %s' % self.revision_ids[2] in main_res
+
+    def test_4_history_revision_package_link(self):
+        res = self.app.get(self.offset)
+        url = str(self.revision_timestamps[1])[-6:]
+        res = res.click(href=url)
+        main_html = self.main_div(res)
+        assert 'This is an old revision of this package' in main_html
+        assert 'at %s' % str(self.revision_timestamps[1])[:6] in main_html
 
    
 class TestMarkdownHtmlWhitelist(TestPackageForm):

@@ -357,6 +357,13 @@ a:hover {
   display: inline-block;
   margin-top: 0;
   margin-right: 10px;
+  /* 
+   * IE 6 & 7 don't support inline-block, but we can use the hasLayout 
+   * magical property. 
+   * http://blog.mozilla.com/webdev/2009/02/20/cross-browser-inline-block/ 
+   */ 
+  zoom: 1; 
+  *display: inline; 
 }
 
 #footer-widget-area .widget-container .textwidget {
@@ -377,6 +384,13 @@ a:hover {
   margin: 0 1em 0 0;
   padding: 0;
   display: inline-block;
+  /* 
+   * IE 6 & 7 don't support inline-block, but we can use the hasLayout 
+   * magical property. 
+   * http://blog.mozilla.com/webdev/2009/02/20/cross-browser-inline-block/ 
+   */ 
+  zoom: 1; 
+  *display: inline; 
 }
 
 #footer-widget-area #fourth {
@@ -941,6 +955,20 @@ p.atom-feed-link a {
 
 p.atom-feed-link.package-history-link {
   float: none;
+}
+
+#revision.widget-container
+{
+  background: #f9f2ce;
+  color: #333;
+  margin: 0 0 1em 0;
+  padding: 10px;
+	border: 1px solid #ebd897;
+	border-left: none;
+	border-top: none;
+	border-radius: 0.5em;
+	-moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
 }
 
 /* ===================== */

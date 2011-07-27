@@ -16,6 +16,7 @@ from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
+import datetime
 from ckan.i18n import get_available_locales
 
 try:
@@ -202,10 +203,22 @@ class Page(paginate.Page):
 
 
 def render_datetime(datetime_):
-    '''Render a datetime object as a string in a reasonable way (Y-m-d H:m).
+    '''Render a datetime object or timestamp string as a pretty string
+    (Y-m-d H:m).
+    If timestamp is badly formatted, then a blank string is returned.
     '''
-    if datetime_:
-        return datetime_.strftime('%Y-%m-%d %H:%M')
+    from ckan import model
+    date_format = '%Y-%m-%d %H:%M'
+    if isinstance(datetime_, datetime.datetime):
+        return datetime_.strftime(date_format)
+    elif isinstance(datetime_, basestring):
+        try:
+            datetime_ = model.strptimestamp(datetime_)
+        except TypeError:
+            return ''
+        except ValueError:
+            return ''
+        return datetime_.strftime(date_format)
     else:
         return ''
 
