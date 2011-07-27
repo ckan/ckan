@@ -29,6 +29,7 @@ try:
 except ImportError:
     import simplejson as json
 
+ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -210,5 +211,8 @@ def render_datetime(datetime_):
     else:
         return ''
 
-def time_ago_in_words_from_str(date_str, format='%Y-%m-%dT%H:%M:%S.%f',granularity='month'):
+def date_str_to_datetime(date_str, format=ISO_DATE_FORMAT):
+    return datetime.strptime(date_str, format)
+
+def time_ago_in_words_from_str(date_str, format=ISO_DATE_FORMAT, granularity='month'):
     return date.time_ago_in_words(datetime.strptime(date_str, format), granularity=granularity)

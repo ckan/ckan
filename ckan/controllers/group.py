@@ -441,7 +441,7 @@ class GroupController(BaseController):
                 language=unicode(get_lang()),
             )
             for revision_dict in c.group_revisions:
-                revision_date = datetime.datetime.strptime(revision_dict['timestamp'], '%Y-%m-%dT%H:%M:%S.%f')
+                revision_date = h.date_str_to_datetime(revision_dict['timestamp'])
                 try:
                     dayHorizon = int(request.params.get('days'))
                 except:
