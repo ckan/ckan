@@ -268,6 +268,10 @@ class PackageController(BaseController):
         try:
             c.pkg_dict = get.package_show(context, data_dict)
             c.pkg_revisions = get.package_revision_list(context, data_dict)
+            #TODO: remove
+            # Still necessary for the authz check in group/layout.html
+            c.pkg = context['package']
+
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
