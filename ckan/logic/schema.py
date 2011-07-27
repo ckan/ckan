@@ -44,6 +44,10 @@ def default_resource_schema():
 
     return schema
 
+def default_update_resource_schema():
+    schema = default_resource_schema()
+    return schema
+
 def default_tags_schema():
 
     schema = {

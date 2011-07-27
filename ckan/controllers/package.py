@@ -506,6 +506,7 @@ class PackageController(BaseController):
         pkg = model.Package.get(id)
         if pkg is None:
             abort(404, gettext('Package not found'))
+        c.pkg = pkg # needed to add in the tab bar to the top of the auth page
         c.pkgname = pkg.name
         c.pkgtitle = pkg.title
 
