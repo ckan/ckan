@@ -132,6 +132,21 @@ def group_list_availible(context, data_dict):
 
     return [(group.id, group.name) for group in groups]
 
+def group_revision_list(context, data_dict):
+    model = context['model']
+    id = data_dict['id']
+    group = model.Group.get(id)
+    if group is None:
+        raise NotFound
+    check_access(group, model.Action.READ, context)
+
+    revision_dicts = []
+    for revision, object_revisions in group.all_related_revisions:
+        revision_dicts.append(model.revision_as_dict(revision,
+                                                     include_packages=False,
+                                                     include_groups=False))
+    return revision_dicts
+
 def licence_list(context, data_dict):
     model = context["model"]
     license_register = model.Package.get_license_register()

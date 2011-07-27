@@ -1,4 +1,5 @@
 import genshi
+import datetime
 
 from sqlalchemy.orm import eagerload_all
 from ckan.lib.base import BaseController, c, model, request, render, h
@@ -397,12 +398,6 @@ class GroupController(BaseController):
         c.authz_groups_role_dict = authz_groups_role_dict
 
         return render('group/authz.html')
-
-
-
-
-
-
        
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -419,10 +414,19 @@ class GroupController(BaseController):
                 params['diff_entity'] = 'group'
                 h.redirect_to(controller='revision', action='diff', **params)
 
-        c.group = model.Group.get(id)
-        if not c.group:
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._form_to_db_schema()}
+        data_dict = {'id': id}
+        try:
+            c.group_dict = get.group_show(context, data_dict)
+            c.group_revisions = get.group_revision_list(context, data_dict)
+            #TODO: remove
+            # Still necessary for the authz check in group/layout.html
+            c.group = context['group']
+        except NotFound:
             abort(404, _('Group not found'))
-        if not self.authorizer.am_authorized(c, model.Action.READ, c.group):
+        except NotAuthorized:
             abort(401, _('User %r not authorized to edit %r') % (c.user, id))
 
         format = request.params.get('format', '')
@@ -431,31 +435,29 @@ class GroupController(BaseController):
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
-                link=h.url_for(controller='group', action='read', id=c.group.name),
+                link=h.url_for(controller='group', action='read', id=c.group_dict['name']),
                 description=_(u'Recent changes to CKAN Group: ') +
-                    c.group.display_name,
+                    c.group_dict['display_name'],
                 language=unicode(get_lang()),
             )
-            for revision, obj_rev in c.group.all_related_revisions:
+            for revision_dict in c.group_revisions:
+                revision_date = datetime.datetime.strptime(revision_dict['timestamp'], '%Y-%m-%dT%H:%M:%S.%f')
                 try:
                     dayHorizon = int(request.params.get('days'))
                 except:
                     dayHorizon = 30
-                try:
-                    dayAge = (datetime.now() - revision.timestamp).days
-                except:
-                    dayAge = 0
+                dayAge = (datetime.datetime.now() - revision_date).days
                 if dayAge >= dayHorizon:
                     break
-                if revision.message:
-                    item_title = u'%s' % revision.message.split('\n')[0]
+                if revision_dict['message']:
+                    item_title = u'%s' % revision_dict['message'].split('\n')[0]
                 else:
-                    item_title = u'%s' % revision.id
-                item_link = h.url_for(controller='revision', action='read', id=revision.id)
+                    item_title = u'%s' % revision_dict['id']
+                item_link = h.url_for(controller='revision', action='read', id=revision_dict['id'])
                 item_description = _('Log message: ')
-                item_description += '%s' % (revision.message or '')
-                item_author_name = revision.author
-                item_pubdate = revision.timestamp
+                item_description += '%s' % (revision_dict['message'] or '')
+                item_author_name = revision_dict['author']
+                item_pubdate = revision_date
                 feed.add_item(
                     title=item_title,
                     link=item_link,
@@ -465,7 +467,6 @@ class GroupController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        c.group_revisions = c.group.all_related_revisions
         return render('group/history.html')
 
     def _render_edit_form(self, fs):
