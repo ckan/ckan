@@ -34,6 +34,39 @@ This defines the database that CKAN is to use. The format is::
 Front-End Settings
 ------------------
 
+
+.. index::
+   single: site_description
+
+site_description
+^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.site_description=
+
+Default value:  (none)
+
+This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
+
+.. index::
+   single: site_logo
+
+site_logo
+^^^^^^^^^
+
+Example::
+
+ ckan.site_logo=/images/ckan_logo_fullname_long.png
+
+Default value:  (none)
+
+This sets the logo used in the title bar.
+
+.. index::
+   single: site_url
+
+
 .. index::
    single: package_hide_extras
 
@@ -67,6 +100,22 @@ Configure this if you have an RDF store of the same packages as are in your CKAN
 2. Embedded links for browsers that are aware. e.g. `<link rel="alternate" type="application/rdf+xml" href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
 
 3. A visible RDF link on the page. e.g. `<a href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
+
+.. index::
+   single: dumps_url, dumps_format
+
+dumps_url & dumps_format
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.dumps_url = http://ckan.net/dump/
+  ckan.dumps_format = CSV/JSON
+
+If there is a page which allows you to download a dump of the entire catalogue then specify the URL and the format here, so that it can be advertised in the web interface. ``dumps_format`` is just a string for display.
+
+For more information on using dumpfiles, see :doc:`database_dumps`.
+
 
 Cache Settings
 --------------
@@ -137,31 +186,6 @@ Default value:  ``True``
 CKAN operates a delegated authentication model based on `OpenID <http://openid.net/>`_.
 
 Setting this option to False turns off OpenID for login.
-
-Licensing Settings
-------------------
-
-.. index::
-   single: licenses_group_url
-
-licenses_group_url
-^^^^^^^^^^^^^^^^^^
-
-A url pointing to a JSON file containing a list of licence objects. This list
-determines the licences offered by the system to users, for example when
-creating or editing a package.
-
-This is entirely optional - by default, the system will use the CKAN list of
-licences available in the `Python licenses package <http://pypi.python.org/pypi/licenses>`_.
-
-More details about the CKAN license objects - including the licence format and some
-example licence lists - can be found at the `Open Licenses Service 
-<http://licenses.opendefinition.org/>`_.
-
-Examples::
- 
- licenses_group_url = file:///path/to/my/local/json-list-of-licenses.js
- licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_original
 
 
 .. _config-i18n:
@@ -250,6 +274,29 @@ Example::
 If integrating the Edit Package and New Package forms into a third-party interface, setting these options allows you to set the return address. When the user has completed the form and presses 'commit', the user is redirected to the URL specified.
 
 The ``<NAME>`` string is replaced with the name of the package edited. Full details of this process are given in :doc:`form-integration`.
+
+
+.. index::
+   single: licenses_group_url
+
+licenses_group_url
+^^^^^^^^^^^^^^^^^^
+
+A url pointing to a JSON file containing a list of licence objects. This list
+determines the licences offered by the system to users, for example when
+creating or editing a package.
+
+This is entirely optional - by default, the system will use the CKAN list of
+licences available in the `Python licenses package <http://pypi.python.org/pypi/licenses>`_.
+
+More details about the CKAN license objects - including the licence format and some
+example licence lists - can be found at the `Open Licenses Service 
+<http://licenses.opendefinition.org/>`_.
+
+Examples::
+ 
+ licenses_group_url = file:///path/to/my/local/json-list-of-licenses.js
+ licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_original
 
 
 Messaging Settings
@@ -359,34 +406,6 @@ Default value:  ``CKAN``
 This sets the name of the site, as displayed in the CKAN web interface.
 
 .. index::
-   single: site_description
-
-site_description
-^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.site_description=
-
-Default value:  (none)
-
-This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
-
-.. index::
-   single: site_logo
-
-site_logo
-^^^^^^^^^
-
-Example::
-
- ckan.site_logo=/images/ckan_logo_fullname_long.png
-
-Default value:  (none)
-
-This sets the logo used in the title bar.
-
-.. index::
    single: site_url
 
 site_url
@@ -459,24 +478,6 @@ Specify which CKAN extensions are to be enabled.
 
 Format as a space-separated list of the extension names. The extension name is the key in the [ckan.plugins] section of the extension's ``setup.py``. For more information on extensions, see :doc:`extensions`.
 
-
-Dumpfile Settings
------------------
-
-.. index::
-   single: dumps_url, dumps_format
-
-dumps_url & dumps_format
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.dumps_url = http://ckan.net/dump/
-  ckan.dumps_format = CSV/JSON
-
-If there is a page which allows you to download a dump of the entire catalogue then specify the URL and the format here, so that it can be advertised in the web interface. ``dumps_format`` is just a string for display.
-
-For more information on using dumpfiles, see :doc:`database_dumps`.
 
 
 Directory Settings

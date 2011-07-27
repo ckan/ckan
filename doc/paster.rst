@@ -101,7 +101,7 @@ db: Manage databases
 
 Lets you initialise, upgrade, and dump database files in various formats. 
 
-For example, to initialise the CKAN database, creating the tables that CKAN uses (you don't need to do this if you have run )::
+For example, to initialise the CKAN database, creating the tables that CKAN uses (note that you don't need to do this during setup if you have run ``create-test-data``)::
 
  paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
 
@@ -109,11 +109,7 @@ When you upgrade CKAN software by any method *other* than the package update des
 
  paster --plugin=ckan db upgrade --config=/etc/ckan/std/std.ini
 
-
-
-To write a simple dump to a CSV file::
-
- sudo paster --plugin=ckan db simple-dump-csv ./db.csv --config=/etc/ckan/std/std.ini
+For information on using ``db`` to create dumpfiles, see :doc:`database_dumps`.
 
 
 ratings: Manage package ratings

@@ -1,8 +1,10 @@
-============
-Use Buildbot
-============
+================
+Install Buildbot
+================
 
 This section provides information for CKAN core developers setting up buildbot on an Ubuntu Lucid machine.
+
+If you simply want to check the status of the latest CKAN builds, visit http://buildbot.okfn.org/.
 
 Apt Installs
 ============

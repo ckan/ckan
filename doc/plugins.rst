@@ -10,7 +10,7 @@ To meet the need to customize CKAN efficiently, we have introduced the concepts 
 interfaces and workers. These work together to provide a simple mechanism to
 extend core CKAN functionality.
 
-.. warning:: This is an advanced topic. At the moment, you need to have installed a developer version of CKAN to work with extensions, as described in :doc:`developer-install`. If you need help, contact the `ckan-discuss mailing list <http://lists.okfn.org/mailman/listinfo/ckan-discuss>`_. 
+.. warning:: This is an advanced topic. At the moment, you need to have prepared your system to work with extensions, as described in :doc:`prepare-extensions`. We are working to make the most popular extensions more easily available as Debian packages. 
 
 .. note:: The terms **extension**, **plugin interface** and **worker** have very precise meanings: the use of the generic word **plugin** to describe any way in which CKAN might be extended is deprecated.
 
@@ -89,12 +89,35 @@ virtual environment so you can import it:
 
 To build useful extensions you need to be able to "hook into" different parts
 of CKAN in order to extend its functionality. You do this using CKAN's plugin
-architeture. We'll look at this in the next section. 
+architecture. We'll look at this in the next section. 
 
+Testing Extensions
+``````````````````
 
-If you do write a CKAN
-extension you may well want to publish it so others can use it too.
-See the `Publishing your extension`_ section below for details.
+CKAN extensions ordinarily have their own ``test.ini`` that refers to the CKAN ``test.ini``, so you can run them in exactly the same way. For example::
+
+    cd ckanext-dgu
+    nosetests ckanext/dgu/tests --ckan
+    nosetests ckanext/dgu/tests --ckan --with-pylons=test-core.ini
+
+To test your changes you'll need to use the ``paster serve`` command from the ``ckan`` directory:
+
+::
+
+    cd /home/ubuntu/pyenv/src/ckan
+    . ../../bin/activate
+    paster make-config ckan development.ini
+
+Then make any changes to the ``development.ini`` file that you need before continuing:
+
+::
+
+    paster db upgrade
+    paster serve --reload
+
+You should also make sure that your CKAN installation passes the developer tests, as described in :doc:`test`.
+
+Finally, if you write a CKAN, extension you may well want to publish it so others can use it too. See the `Publishing your extension`_ section below for details.
 
 Plugins
 -------
@@ -723,7 +746,7 @@ printing this message:
 
 
 Working with CKANext Queue
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Rather than working with carrot publishers and consumers directly,
 ``ckanext-queue`` provides two useful Python objects to help you:

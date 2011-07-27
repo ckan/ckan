@@ -29,7 +29,7 @@ import sys, os
 extensions = ['sphinx.ext.autodoc']
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['.templates']
+templates_path = ['_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -42,7 +42,9 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'CKAN (Comprehensive Knowledge Archive Network)'
+project_short_name = u'CKAN'
 copyright = u'2009, Open Knowledge Foundation'
+html_show_sphinx = False
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -111,7 +113,7 @@ html_theme_options = {
 html_title = "%s v%s Administration Guide" % (project, release)
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-#html_short_title = None
+html_short_title = "%s Admin Guide" % (project_short_name)
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.

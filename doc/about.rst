@@ -6,9 +6,9 @@ Development
 
 CKAN is an open source project and contributions are welcome! 
 
-We discuss large changes and new features on the `ckan-discuss mailing list <http://lists.okfn.org/mailman/listinfo/ckan-discuss>`_.
+We discuss large changes and new features on the `ckan-discuss <http://lists.okfn.org/mailman/listinfo/ckan-discuss>`_ mailing list, and technical issues on the `ckan-dev <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_ mailing list. Please join us there.  
 
-Proposed changes should be made on a personal CKAN fork (e.g. on BitBucket), then merges should be requested with the mainline via the ckan-discuss list.
+You can find developer resources and links to our ticketing system on the `CKAN wiki <http://wiki.ckan.net/Main_Page>`_.
 
 Acknowledgements
 ----------------
@@ -20,7 +20,7 @@ been possible:
   * `Pylons <http://pylonshq.com/>`_
   * CKAN logo: "angry hamster" by http://www.maedelmaedel.com/ and
     http://www.villainous.biz/
-  * `famfamfam.com silk icons <http://www.famfamfam.com/lab/icons/silk/>`_
+  * `FamFamFam silk icons <http://www.famfamfam.com/lab/icons/silk/>`_
 
 Copying and Licence
 -------------------

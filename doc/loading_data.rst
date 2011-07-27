@@ -1,11 +1,99 @@
-===============
-Import Datasets
-===============
+=============
+Load Datasets
+=============
 
-If you have many datasets to add to CKAN, there are various ways to automate the process. 
+You can upload individual datasets through the CKAN front-end, but for importing datasets on masse, you have two choices: 
 
-* **Loader scripts**. We provide standard loading scripts for data. 
-* **CKAN API**. You can use the CKAN API to upload datasets. See :doc:`api`.
-* **Harvester extension**. The harvester extension is useful for loading datasets that need to be scraped (found at https://bitbucket.org/okfn/ckanext-harvest/).
+* :ref:`load-data-api`. You can use the `CKAN API <api.html>`_ to script import. To simplify matters, we offer provide standard loading scripts for Google Spreadsheets, CSV and Excel. 
 
-The most appropriate method will depend on the nature of your datasets. Hence, rather than attempting to provide detailed documentation, here, we recommend you `contact the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_ for advice.  
+*  :ref:`load-data-harvester`.  The `CKAN harvester extension <https://bitbucket.org/okfn/ckanext-harvest/>`_ provides web and command-line interfaces for larger import tasks. 
+
+If you need advice on data import, `contact the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.  
+
+.. note :: If loading your data requires scraping a web page regularly, you may find it best to write a scraper on `ScraperWiki <http://www.scraperwiki.com>`_ and combine this with either of the methods above. 
+
+.. _load-data-api:
+
+Import Data with the CKAN API
+-----------------------------
+
+You can use the `CKAN API <api.html>`_ to upload datasets directly into your CKAN instance.
+
+The Simplest Approach - ckanclient
+++++++++++++++++++++++++++++++++++
+
+The most basic way to automate package loading is with a Python script using the `ckanclient library <http://pypi.python.org/pypi/ckanclient>`_. You will need to register for an API key first. 
+
+You can install ckanclient with::
+
+ pip install ckanclient
+
+Here is an example script to register a new package::
+
+  import ckanclient
+  # Instantiate the CKAN client.
+  ckan = ckanclient.CkanClient(api_key=my_api_key, base_location="http://myckaninstance.com/api")
+  # Describe the package.
+  package_entity = {
+        'name': my_package_name,
+        'url': my_package_url,
+        'download_url': my_package_download_url,
+        'tags': my_package_keywords,
+        'notes': my_package_long_description,
+  }
+  # Register the package.
+  ckan.package_register_post(package_entity)
+
+Loader Scripts
+++++++++++++++
+
+'Loader scripts' provide a simple way to take any format metadata and bulk upload it to a remote CKAN instance.
+
+Essentially each set of loader scripts converts the dataset metadata to the standard 'package' format, and then loads it into CKAN. 
+
+Loader scripts are generally stored into the `ckanext` repository. To get a flavour of what loader scripts look like, take a look at `the ONS scripts <https://bitbucket.org/okfn/ckanext-dgu/src/default/ckanext/dgu/ons/>`_.
+
+Loader Scripts for CSV and Excel
+********************************
+
+For CSV and Excel formats, the `SpreadsheetPackageImporter` (found in ``ckan/lib/spreadsheet_importer.py``) loader script wraps the file in `SpreadsheetData` before extracting the records into `SpreadsheetDataRecords`.
+
+SpreadsheetPackageImporter copes with multiple title rows, data on multiple sheets, dates. The loader can reload packages based on a unique key column in the spreadsheet, choose unique names for packages if there is a clash, add/merge new resources for existing packages and manage package groups.
+
+Loader Scripts for Google Spreadsheets
+**************************************
+
+The `GoogleSpreadsheetReader` class (found in ``ckanclient.loaders``) simplifies the process of loading data from Google Spreadsheets. 
+
+`This script <https://bitbucket.org/okfn/ckanext/src/default/bin/ckanload-italy-nexa>`_ has a simple example of loading data from Google Spreadsheets. 
+
+Write Your Own Loader Script
+****************************
+
+## this needs work ##
+
+First, you need an importer that derives from `PackageImporter` (found in ``ckan/lib/importer.py``). This takes whatever format the metadata is in and sorts it into records of type `DataRecord`. 
+
+Next, each DataRecord is converted into the correct fields for a package using the `record_2_package` method. This results in package dictionaries.
+
+The `PackageLoader` takes the package dictionaries and loads them onto a CKAN instance using the ckanclient. There are various settings to determine:
+
+ * ##how to identify the same package, previously been loaded into CKAN.## This can be simply by name or by an identifier stored in another field.
+ * how to merge in changes to an existing packages. It can simply replace it or maybe merge in resources etc.
+
+The loader should be given a command-line interface using the `Command` base class (``ckanext/command.py``). 
+
+You need to add a line to the CKAN ``setup.py`` (under ``[console_scripts]``) and when you run ``python setup.py develop`` it creates a script for you in your Python environment.
+
+.. _load-data-harvester:
+
+Import Data with the Harvester Extension
+----------------------------------------
+
+The `CKAN harvester extension <https://bitbucket.org/okfn/ckanext-harvest/>`_ provides useful tools for more advanced data imports.
+
+These include a command-line interface and a web user interface for running harvesting jobs. 
+
+To use the harvester extension, derive from the `base class of the harvester extension <https://bitbucket.org/okfn/ckanext-harvest/src/61844c8d2374/ckanext/harvest/harvesters/base.py>`_ and then write a custom ``_create_or_update_package`` method for your data.
+
+For more information on working with extensions, see :doc:`extensions`.

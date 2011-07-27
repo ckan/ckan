@@ -1,24 +1,34 @@
-===================
+==============================
+Option 1: Package Installation
+==============================
+
+This section describes how to install CKAN from packages. This is the recommended and by far the easiest way to install CKAN.
+
+It requires you to use Ubuntu 10.04. If you don't have access to Ubuntu 10.04, we provide support for two options:
+
+* :ref:`using-virtualbox`. This is suitable if you want to host your CKAN instance on a machine running any other OS. 
+* :ref:`using-amazon`. This is suitable if you want to host your CKAN instance in the cloud, on a readymade Ubuntu OS.
+
+.. note:: We recommend you use this method unless you are an experimental user, a core CKAN developer, or you have no access to Ubuntu 10.04 through either of the methods above, in which 
+
+For support during installation, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_. 
+
 Prepare your System
-===================
+--------------------
 
 CKAN runs on Ubuntu 10.04 (either 64-bit or 32-bit). If you are already using Ubuntu 10.04, you can continue straight to :doc:`install`.
 
-However, if you're not, you should first set up Ubuntu 10.04. You have two options: 
-
-* :ref:`using-virtualbox`. This is suitable if you want to host your CKAN instance on a machine running any other OS. 
-* :ref:`using-amazon`. This is suitable if you want to host your CKAN instance in the cloud, on a readymade Ubuntu OS.  
-
+However, if you're not, you can either use VirtualBox to set up an Ubuntu VM, or an Amazon EC2 instance.
 
 .. _using-virtualbox:
 
-Option 1: Using VirtualBox
-==========================
+Option A: Using VirtualBox
+++++++++++++++++++++++++++
 
 This option is suitable if you want to install CKAN on a machine running an OS other than Ubuntu 10.04. `VirtualBox <http://www.virtualbox.org>`_ lets you set up a virtual machine to run Ubuntu 10.04. 
 
 Pre-requisites and Downloads
-----------------------------
+****************************
 
 First, check your machine meets `the pre-requisites for VirtualBox <http://www.virtualbox.org/wiki/End-user_documentation>`_. These include a fairly recent processor and some spare memory.
 
@@ -28,7 +38,7 @@ Then download the installation files.
 * `Download the Ubuntu image <http://www.ubuntu.com/download/ubuntu/download>`_ - make sure you choose Ubuntu 10.04, and 64-bit or 32-bit as appropriate for your current operating system.
 
 Install VirtualBox
-------------------
+******************
 
 .. note::
 
@@ -43,7 +53,7 @@ To install, double-click on the VirtualBox installer:
 Click Continue to begin the installation process. Enter your password when required, and wait for the installation to finish.
 
 Create Your Virtual Machine
----------------------------
+***************************
 
 Go to Applications and open VirtualBox, then click New:
 
@@ -86,7 +96,7 @@ After clicking **Continue**, you'll see **Select Installation Media**. This is w
 Click **Done**, wait for a few seconds, and you will see your Ubuntu VM booting. 
 
 Set Up Ubuntu
---------------
+*************
 
 During boot, you will be asked if you want to try Ubuntu, or install it. Choose **Install Ubuntu**:
 
@@ -100,23 +110,22 @@ After Ubuntu is installed, from the main menu, choose **System > Administration 
 
 When all the updates have been downloaded and installed, you'll be prompted to reboot Ubuntu. 
 
-You can now proceed to :doc:`install`.
+At this point, you can begin installing CKAN. 
 
 .. _using-amazon:
 
-Option 2: Using Amazon EC2
-==========================
+Option B: Using Amazon EC2
+++++++++++++++++++++++++++
 
-
-If you prefer to run your CKAN instance in the cloud, you can use an Amazon EC2 instance, which is a fairly cheap and lightweight way to set up a server.
+If you prefer to run your CKAN package install in the cloud, you can use an Amazon EC2 instance, which is a fairly cheap and lightweight way to set up a server.
 
 Create an Amazon Account
-------------------------
+************************
 
 If you don't already have an Amazon AWS account you'll need to create one first.  You can `create an Amazon AWS account for EC2 here <http://aws.amazon.com/ec2/>`_.
 
 Configure EC2
--------------
+*************
 
 Once you have an EC2 account, you'll need to configure settings for your CKAN instance. 
 
@@ -162,7 +171,7 @@ somewhere safe.
 
 
 Boot the EC2 Image
-------------------
+******************
 
 CKAN requires Ubuntu 10.04 to run (either the i386 or amd64
 architectures). Luckily Canonical provide a `range of suitable images <http://uec-images.ubuntu.com/releases/10.04/release/>`_.
@@ -330,7 +339,7 @@ Once the tools are installed, run this command:
 .. _log-in-to-instance:
 
 Log in to the Instance
-----------------------
+**********************
 
 Once your instance has booted, you will need to find out its public DNS. Give it
 a second or two for the instance to load then browse to the running instance in
@@ -365,62 +374,55 @@ The first time you connect you'll see this, choose ``yes``:
     Are you sure you want to continue connecting (yes/no)? yes
     Warning: Permanently added 'ec2-79-125-86-107.eu-west-1.compute.amazonaws.com,79.125.86.107' (RSA) to the list of known hosts.
 
-When you log in you'll see a welcome message:
+When you log in you'll see a welcome message. You can now proceed to :ref:`run-package-installer`.
+
+
+.. note ::
+
+   If this is a test install of CKAN, when you have finished using CKAN, you can shut down your EC2 instance through the AWS console. 
+
+.. warning ::
+
+   Shutting down your EC2 instance will lose all your data. Also, Amazon charge you for a minimum usage of one hour, so don't create and  destroy lots of EC2 instances unless you want to be charged a lot!
+
+
+.. _run-package-installer:
+
+Run the Package Installer
+-------------------------
+
+On your Ubuntu 10.04 system, open a terminal window and switch to the root user: 
 
 ::
 
-    Linux ip-10-226-201-129 2.6.32-316-ec2 #31-Ubuntu SMP Wed May 18 14:09:06 UTC 2011 i686 GNU/Linux
-    Ubuntu 10.04.2 LTS
-    
-    Welcome to Ubuntu!
-     * Documentation:  https://help.ubuntu.com/
-    
-      System information as of Wed Jun 22 20:13:11 UTC 2011
-    
-      System load:  0.01             Processes:           78
-      Usage of /:   5.8% of 9.84GB   Users logged in:     0
-      Memory usage: 1%               IP address for eth0: 10.226.201.129
-      Swap usage:   0%
-    
-      Graph this data and manage this system at https://landscape.canonical.com/
-    ---------------------------------------------------------------------
-    At the moment, only the core of the system is installed. To tune the 
-    system to your needs, you can choose to install one or more          
-    predefined collections of software by running the following          
-    command:                                                             
-                                                                         
-       sudo tasksel --section server                                     
-    ---------------------------------------------------------------------
-    
-    0 packages can be updated.
-    0 updates are security updates.
-    
-    
-    The programs included with the Ubuntu system are free software;
-    the exact distribution terms for each program are described in the
-    individual files in /usr/share/doc/*/copyright.
-    
-    Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
-    applicable law.
-    
-    To run a command as administrator (user "root"), use "sudo <command>".
-    See "man sudo_root" for details.
-    
-    ubuntu@ip-10-226-201-129:~$ 
+    sudo -s
 
-You can now proceed to :doc:`install`.
+Install the CKAN packages as follows:
 
+::
 
-Note: Shutting Down Your Instance
----------------------------------
+	echo 'deb http://apt.okfn.org/ubuntu_ckan-std_dev lucid universe' > /etc/apt/sources.list.d/okfn.list
+	wget -qO-  http://apt.okfn.org/packages.okfn.key | sudo apt-key add -
+	apt-get update
+	apt-get install ckan-std
 
-If this is a test install of CKAN, when you have finished using CKAN, you can shut down your EC2 instance through the AWS console. 
+Wait for the output to finish, then create your CKAN instance:
 
-.. warning ::
+::
 
-   Shutting down your EC2 instance will lose all your data. 
+    ckan-std-install
 
-.. warning ::
+If you are using Amazon EC2, you will additionally need to set the hostname of your server. To do this, run the command below, replacing ``ec2-46-51-149-132.eu-west-1.compute.amazonaws.com`` with the public DNS of your EC2 instance. Leave the ``/`` at the end, as it is part of the ``sed`` command. Then restart Apache. You can skip this if installing on VirtualBox or a local server. 
 
-   Amazon charge you for a minimum usage of one hour, so don't create and
-   destroy lots of EC2 instances unless you want to be charged a lot!
+::
+
+    sudo sed -e "s/ServerAlias \(.*\)/ServerAlias ec2-46-51-149-132.eu-west-1.compute.amazonaws.com/" \
+             -i /etc/apache2/sites-available/std.common
+    sudo /etc/init.d/apache2 restart
+
+Finally visit your CKAN instance - either at your Amazon EC2 hostname, or at http://localhost. You'll be redirected to the login screen because you won't have set up any permissions yet, so the welcome screen will look something like this. 
+
+.. image :: images/9.png
+  :width: 807px
+
+You can now proceed to :doc:`post-installation`.
