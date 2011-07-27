@@ -163,6 +163,7 @@ def make_latest_pending_package_active(context):
 
 def resource_update(data_dict, context):
     model = context['model']
+    session = context['session']
     user = context['user']
     id = context["id"]
     schema = context.get('schema') or default_update_resource_schema()
@@ -171,13 +172,20 @@ def resource_update(data_dict, context):
     resource = model.Resource.get(id)
     context["resource"] = resource
 
-    if resource is None:
+    if not resource:
         raise NotFound(_('Resource was not found.'))
     context["id"] = resource.id
 
-    # TODO: check_access needs to be called against the package 
-    #       rather than the resource
-    check_access(resource, model.Action.EDIT, context)
+    # TODO: can check_access be used against a resource?
+    query = session.query(model.Package
+    ).join(model.ResourceGroup
+    ).join(model.Resource
+    ).filter(model.ResourceGroup.id == resource.resource_group_id)
+    pkg = query.first()
+    if not pkg:
+        raise NotFound(_('No package found for this resource, cannot check auth.'))
+
+    check_access(pkg, model.Action.EDIT, context)
 
     data, errors = validate(data_dict, schema, context)
 
