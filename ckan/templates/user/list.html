@@ -25,25 +25,24 @@
     <hr />
     
     <ul class="userlist">
-      <li py:for="(user,count) in c.page.items" class="user">
+      <li py:for="user in c.page.items" class="user">
         <ul>
           <li class="username">
-          ${h.linked_user(user, maxlength=20)}
+          ${h.linked_user(user['name'], maxlength=20)}
           </li>
           <li class="created">
-            Member for ${h.date.time_ago_in_words(user.created,
-              granularity='month')}
+            Member for ${h.time_ago_in_words_from_str(user['created'],granularity='month')}
           </li>
           <li>
-            <span class="edits" title="${user.number_of_edits()} Edits">
-              ${user.number_of_edits()}
+            <span class="edits" title="${user['number_of_edits']} Edits">
+              ${user['number_of_edits']}
             </span>
             <span class="administered"
-              title="${user.number_administered_packages()} Administered">
+              title="${user['number_administered_packages']} Administered">
               <span class="badge">
                 ●
               </span>
-              ${user.number_administered_packages()}
+              ${user['number_administered_packages']}
             </span>
           </li>
         </ul>

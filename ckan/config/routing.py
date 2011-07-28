@@ -104,6 +104,8 @@ def make_map():
     
     map.connect('/api/rest', controller='api', action='index')
 
+    map.connect('/api/action/{logic_function}', controller='api', action='action')
+
     map.connect('/api/rest/{register}', controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET'])

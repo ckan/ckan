@@ -1,6 +1,7 @@
 from routes import url_for
 from nose.tools import assert_equal
 
+from pprint import pprint
 from ckan.tests import search_related, CreateTestData
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
@@ -191,12 +192,12 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert 'Register' in main_res, main_res
-        fv = res.forms['register_form']
-        fv['login'] = username
+        fv = res.forms['user-edit']
+        fv['name'] = username
         fv['fullname'] = fullname
         fv['password1'] = password
         fv['password2'] = password
-        res = fv.submit('signup')
+        res = fv.submit('save')
         
         # view user
         assert res.status == 302, self.main_div(res).encode('utf8')
@@ -209,7 +210,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
             res = res.follow()
         assert res.status == 200, res
         main_res = self.main_div(res)
-        assert username in main_res, main_res
         assert fullname in main_res, main_res
 
         user = model.User.by_name(unicode(username))
@@ -229,12 +229,12 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert 'Register' in main_res, main_res
-        fv = res.forms['register_form']
-        fv['login'] = username
+        fv = res.forms['user-edit']
+        fv['name'] = username
         fv['fullname'] = fullname.encode('utf8')
         fv['password1'] = password.encode('utf8')
         fv['password2'] = password.encode('utf8')
-        res = fv.submit('signup')
+        res = fv.submit('save')
         
         # view user
         assert res.status == 302, self.main_div(res).encode('utf8')
@@ -247,7 +247,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
             res = res.follow()
         assert res.status == 200, res
         main_res = self.main_div(res)
-        assert username in main_res, main_res
         assert fullname in main_res, main_res
 
         user = model.User.by_name(unicode(username))
@@ -264,13 +263,13 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert 'Register' in main_res, main_res
-        fv = res.forms['register_form']
+        fv = res.forms['user-edit']
         fv['password1'] = password
         fv['password2'] = password
-        res = fv.submit('signup')
+        res = fv.submit('save')
         assert res.status == 200, res
         main_res = self.main_div(res)
-        assert 'Please enter a login name' in main_res, main_res
+        assert 'Name: Missing value' in main_res, main_res
 
     def test_user_create_bad_name(self):
         # create/register user
@@ -281,15 +280,15 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert 'Register' in main_res, main_res
-        fv = res.forms['register_form']
-        fv['login'] = username
+        fv = res.forms['user-edit']
+        fv['name'] = username
         fv['password1'] = password
         fv['password2'] = password
-        res = fv.submit('signup')
+        res = fv.submit('save')
         assert res.status == 200, res
         main_res = self.main_div(res)
         assert 'login name is not valid' in main_res, main_res
-        self.check_named_element(main_res, 'input', 'name="login"', 'value="%s"' % username)
+        self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
 
     def test_user_create_bad_password(self):
         # create/register user
@@ -300,15 +299,15 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert 'Register' in main_res, main_res
-        fv = res.forms['register_form']
-        fv['login'] = username
+        fv = res.forms['user-edit']
+        fv['name'] = username
         fv['password1'] = password
         fv['password2'] = password
-        res = fv.submit('signup')
+        res = fv.submit('save')
         assert res.status == 200, res
         main_res = self.main_div(res)
         assert 'password must be 4 characters or longer' in main_res, main_res
-        self.check_named_element(main_res, 'input', 'name="login"', 'value="%s"' % username)
+        self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
 
     def test_user_create_without_password(self):
         # create/register user
@@ -319,14 +318,54 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert 'Register' in main_res, main_res
-        fv = res.forms['register_form']
-        fv['login'] = username
+        fv = res.forms['user-edit']
+        fv['name'] = username
         # no password
-        res = fv.submit('signup')
+        res = fv.submit('save')
         assert res.status == 200, res
         main_res = self.main_div(res)
-        assert 'Please enter a password' in main_res, main_res
-        self.check_named_element(main_res, 'input', 'name="login"', 'value="%s"' % username)
+        assert 'Password: Please enter both passwords' in main_res, main_res
+        self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
+
+    def test_user_create_only_one_password(self):
+        # create/register user
+        username = 'testcreate4'
+        password = u'testpassword'
+        user = model.User.by_name(unicode(username))
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['user-edit']
+        fv['name'] = username
+        fv['password1'] = password
+        # Only password1
+        res = fv.submit('save')
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert 'Password: Please enter both passwords' in main_res, main_res
+        self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
+
+    def test_user_invalid_password(self):
+        # create/register user
+        username = 'testcreate4'
+        password = u'tes' # Too short
+        user = model.User.by_name(unicode(username))
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['user-edit']
+        fv['name'] = username
+        fv['password1'] = password
+        fv['password2'] = password
+        res = fv.submit('save')
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert 'Password: Your password must be 4 characters or longer' in main_res, main_res
+        self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
 
     def test_user_edit(self):
         # create user
@@ -356,8 +395,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # preview
         main_res = self.main_div(res)
         assert 'Edit User: testedit' in main_res, main_res
-        before_preview = main_res[:main_res.find('Preview')]
-        assert new_about in before_preview, before_preview
         in_preview = main_res[main_res.find('Preview'):]
         assert new_about in in_preview, in_preview
 

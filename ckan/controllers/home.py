@@ -50,7 +50,8 @@ class HomeController(BaseController):
         c.package_count = query.count
         c.latest_packages = current_package_list_with_resources({'model': model,
                                                                 'user': c.user,
-                                                                'limit': 5})      
+                                                                'limit': 5},
+                                                                 {})      
         return render('home/index.html', cache_key=cache_key,
                 cache_expire=cache_expires)
 

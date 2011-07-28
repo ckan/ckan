@@ -11,7 +11,7 @@ import json
 
 ## package save
 
-def group_list_dictize(obj_list, context, sort_key=lambda x:x):
+def group_list_dictize(obj_list, context, sort_key=lambda x:x['display_name']):
 
     active = context.get('active', True)
 
@@ -22,6 +22,10 @@ def group_list_dictize(obj_list, context, sort_key=lambda x:x):
         group_dict.pop('created')
         if active and obj.state not in ('active', 'pending'):
             continue
+
+        group_dict['display_name'] = obj.display_name
+
+        group_dict['packages'] = len(obj.packages)
 
         result_list.append(group_dict)
     return sorted(result_list, key=sort_key)
@@ -155,15 +159,37 @@ def package_dictize(pkg, context):
 def group_dictize(group, context):
 
     result_dict = table_dictize(group, context)
+    
+    result_dict['display_name'] = group.display_name
 
-    result_dict["extras"] = extras_dict_dictize(
+    result_dict['extras'] = extras_dict_dictize(
         group._extras, context)
 
-    result_dict["packages"] = obj_list_dictize(
+    result_dict['packages'] = obj_list_dictize(
         group.packages, context)
 
     return result_dict
 
+def tag_dictize(tag, context):
+
+    result_dict = table_dictize(tag, context)
+
+    result_dict["packages"] = obj_list_dictize(
+        tag.packages_ordered, context)
+    
+    return result_dict 
+
+def user_dictize(user, context):
+
+    result_dict = table_dictize(user, context)
+
+    del result_dict['password']
+    
+    result_dict['display_name'] = user.display_name
+    result_dict['number_of_edits'] = user.number_of_edits()
+    result_dict['number_administered_packages'] = user.number_administered_packages()
+
+    return result_dict 
 
 ## conversion to api
 
@@ -183,6 +209,15 @@ def group_to_api2(group, context):
     dictized["packages"] = sorted([package["id"] for package in dictized["packages"]])
     return dictized
 
+def tag_to_api1(tag, context):
+    
+    dictized = tag_dictize(tag, context)
+    return sorted([package["name"] for package in dictized["packages"]])
+
+def tag_to_api2(tag, context):
+
+    dictized = tag_dictize(tag, context)
+    return sorted([package["id"] for package in dictized["packages"]])
 
 def resource_dict_to_api(res_dict, package_id, context):
     res_dict.pop("revision_id")

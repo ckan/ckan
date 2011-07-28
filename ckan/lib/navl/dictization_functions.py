@@ -81,7 +81,7 @@ def get_all_key_combinations(data, flattented_schema):
 
 def make_full_schema(data, schema):
     '''make schema by getting all valid combinations and making sure that all keys
-    are availible'''
+    are available'''
 
     flattented_schema = flatten_schema(schema)
 

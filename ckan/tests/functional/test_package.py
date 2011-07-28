@@ -1651,4 +1651,8 @@ class TestEtags(PylonsTestCase, TestPackageBase):
                            extra_environ={'REMOTE_USER':c.user})
         anna_hash = str(PackageController._pkg_cache_key(self.anna))
         self.assert_equal(res.header_dict['ETag'], anna_hash)
-    
+
+    def test_package_autocomplete(self):
+        query = 'a'
+        res = self.app.get('/package/autocomplete?q=%s' % query)
+        assert res.body == "annakarenina|annakarenina\nA Wonderful Story (warandpeace)|warandpeace"
