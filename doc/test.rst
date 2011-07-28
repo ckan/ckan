@@ -2,9 +2,46 @@
 Testing for Developers
 ======================
 
-Basic CKAN tests are run as described in :ref:`run-tests`.
+If you are installing CKAN from source, or developing extensions, then you need to know how to run CKAN tests.
 
-This section describes advanced testing topics for developers, including migration testing and testing against PostgreSQL. 
+This section describes testing topics for developers, including basic tests, migration testing and testing against PostgreSQL. 
+
+.. _basic-tests:
+
+Basic Tests
+-----------
+
+After completing your source installation of CKAN, you should check that tests pass. You should also check this before checking in changes to CKAN code. 
+
+Make sure you've created a config file at ``pyenv/ckan/development.ini``. Then activate the Python environment::
+
+    . pyenv/bin/activate
+
+Install nose into your virtual environment::
+
+    pip install --ignore-installed nose
+
+At this point you will need to deactivate and then re-activate your
+virtual environment to ensure that all the scripts point to the correct
+locations:
+
+::
+
+    deactivate
+    . pyenv/bin/activate
+
+Then run the quick development tests::
+
+    cd pyenv/src/ckan
+    nosetests ckan/tests --ckan
+
+You *must* run the tests from the CKAN directory as shown above, otherwise the
+``--ckan`` plugin won't work correctly. 
+
+.. warning ::
+
+   By default, the test run is 'quick and dirty' - only good enough as an initial check. 
+
 
 Testing against PostgreSQL
 --------------------------
