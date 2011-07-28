@@ -4,7 +4,7 @@ Option 2: Install from Source
 
 This section describes how to install CKAN from source. This removes the requirement for Ubuntu 10.04 that exists with :doc:`install-from-package`.
 
-.. warning:: Installing from source is complex and recommended only for users with no access to Ubuntu 10.04 and core CKAN developers. 
+.. warning:: Installing from source is complex and recommended only for CKAN developers or for distributions other than Ubuntu 10.04, for which these instructions provide a basis.
 
 For support during installation, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_. 
 
@@ -19,32 +19,36 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
 1. Ensure the required packages are installed.
 
-   =====================  ===============================================
-   Package                Description
-   =====================  ===============================================
-   mercurial              Source control
-   python-dev             Python interpreter v2.5 - v2.7 and dev headers
-   postgresql             PostgreSQL database
-   libpq-dev              PostgreSQL library
-   python-psycopg2        PostgreSQL python module
-   libxml2-dev            XML library development files
-   libxslt-dev            XSLT library development files
-   python-virtualenv      Python virtual environments
-   wget                   Command line tool for downloading from the web
-   build-essential        Tools for building source code
-   git-core               Git source control (for getting MarkupSafe src)
-   subversion             Subversion source control (for pyutilib)
-   =====================  ===============================================
-
    If you have access to ``apt-get``, you can install these packages as follows:
-   
+
    ::
-   
+
        sudo apt-get install build-essential libxml2-dev libxslt-dev 
        sudo apt-get install wget mercurial postgresql libpq-dev git-core
        sudo apt-get install python-dev python-psycopg2 python-virtualenv
        sudo apt-get install subversion
+
+   Otherwise, you should install these packages from source. 
+
+   =====================  ===============================================
+   Package                Description
+   =====================  ===============================================
+   mercurial              `Source control <http://mercurial.selenic.com/>`_
+   python                 `Python interpreter v2.5 - v2.7 and dev headers <http://www.python.org/getit/>`_
+   postgresql             `PostgreSQL database <http://www.postgresql.org/download/>`_
+   libpq                  `PostgreSQL library <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
+   psycopg2               `PostgreSQL python module <http://initd.org/psycopg/install/>`_
+   libxml2                `XML library development files <http://xmlsoft.org/>`_
+   libxslt                `XSLT library development files <http://www.linuxfromscratch.org/blfs/view/6.3/general/libxslt.html>`_
+   virtualenv             `Python virtual environments <http://pypi.python.org/pypi/virtualenv>`_
+   wget                   `Command line tool for downloading from the web <http://www.gnu.org/s/wget/>`_
+   build-essential        Tools for building source code
+   git                    `Git source control (for getting MarkupSafe src) <http://book.git-scm.com/2_installing_git.html>`_
+   subversion             `Subversion source control (for pyutilib) <http://subversion.apache.org/packages.html>`_
+   =====================  ===============================================
+
    
+
 2. Create a Python virtual environment.
    
    In your home directory run the command below. It is currently important to
@@ -261,41 +265,6 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
     The CKAN homepage should load.
 
-.. _run-tests:
-
-Run Tests
----------
-
-After completing your source installation of CKAN, you should check that tests run. Tests should be re-run (and amended if necessary) before checking in changes. 
-
-Make sure you've created a config file at ``pyenv/ckan/development.ini``. Then activate the Python environment::
-
-    . pyenv/bin/activate
-
-Install nose into your virtual environment::
-
-    pip install --ignore-installed nose
-
-At this point you will need to deactivate and then re-activate your
-virtual environment to ensure that all the scripts point to the correct
-locations:
-
-::
-
-    deactivate
-    . pyenv/bin/activate
-
-Then run the quick development tests::
-
-    cd pyenv/src/ckan
-    nosetests ckan/tests --ckan
-
-You *must* run the tests from the CKAN directory as shown above, otherwise the
-``--ckan`` plugin won't work correctly. 
-
-.. caution ::
-
-   By default, the test run is 'quick and dirty' - only good enough as an initial check. 
-   See :doc:`test` for information on full developer tests.
+Finally, make sure that tests pass, as described in :ref:`basic-tests`.
 
 You can now proceed to :doc:`post-installation`.
