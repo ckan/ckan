@@ -84,9 +84,6 @@ class UserController(BaseController):
         try:
             user_dict = get.user_show(context,data_dict)
         except NotFound:
-             abort(404, _('User not found'))
- 
-        if not user_dict:
             h.redirect_to(controller='user', action='login', id=None)
 
         c.user_dict = user_dict
@@ -253,22 +250,38 @@ class UserController(BaseController):
                        'user': c.user}
 
             data_dict = {'id':id}
-
+            user_obj = None
             try:
                 user_dict = get.user_show(context,data_dict)
                 user_obj = context['user_obj']
+            except NotFound:
+                # Try searching the user
+                del data_dict['id']
+                data_dict['q'] = id
 
-                if user_dict is None:
+                if id and len(id) > 2:
+                    user_list = get.user_list(context,data_dict)
+                    if len(user_list) == 1:
+                        # This is ugly, but we need the user object for the mailer,
+                        # and user_list does not return them
+                        del data_dict['q']
+                        data_dict['id'] = user_list[0]['id']
+                        user_dict = get.user_show(context,data_dict)
+                        user_obj = context['user_obj']
+                    elif len(user_list) > 1:
+                        h.flash_error(_('"%s" matched several users') % (id))
+                    else:
+                        h.flash_error(_('No such user: %s') % id)
+                else:
                     h.flash_error(_('No such user: %s') % id)
+
+            if user_obj:
                 try:
                     mailer.send_reset_link(user_obj)
                     h.flash_success(_('Please check your inbox for a reset code.'))
                     redirect('/')
                 except mailer.MailerException, e:
                     h.flash_error(_('Could not send reset link: %s') % unicode(e))
-
-            except NotFound:
-                h.flash_error(_('No such user: %s') % id)
         return render('user/request_reset.html')
 
     def perform_reset(self, id):

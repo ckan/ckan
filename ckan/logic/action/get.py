@@ -358,7 +358,7 @@ def user_show(context, data_dict):
     elif provided_user:
         context['user_obj'] = user = provided_user
     else:
-        return None
+        raise NotFound
 
     user_dict = user_dictize(user,context)
 
