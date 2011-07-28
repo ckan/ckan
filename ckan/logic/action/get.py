@@ -2,6 +2,7 @@ from sqlalchemy.sql import select
 from sqlalchemy import or_, func, desc
 
 from ckan.logic import NotFound, check_access
+from ckan.model import Session
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
@@ -30,7 +31,9 @@ def package_list(context, data_dict):
     api = context.get("api_version", '1')
     ref_package_by = 'id' if api == '2' else 'name'
 
-    query = ckan.authz.Authorizer().authorized_query(user, model.Package)
+    query = Session.query(model.PackageRevision)
+    query = query.filter(model.PackageRevision.state=='active')
+    query = query.filter(model.PackageRevision.current==True)
     packages = query.all()
     return [getattr(p, ref_package_by) for p in packages]
 
@@ -39,7 +42,7 @@ def current_package_list_with_resources(context, data_dict):
     user = context["user"]
     limit = data_dict.get("limit")
 
-    q = ckan.authz.Authorizer().authorized_query(user, model.PackageRevision)
+    q = Session.query(model.PackageRevision)
     q = q.filter(model.PackageRevision.state=='active')
     q = q.filter(model.PackageRevision.current==True)
 
@@ -59,8 +62,12 @@ def current_package_list_with_resources(context, data_dict):
         result_dict["resources"] = resource_list_dictize(result, context)
         license_id = result_dict['license_id']
         if license_id:
-            isopen = model.Package.get_license_register()[license_id].isopen()
-            result_dict['isopen'] = isopen
+            try:
+                isopen = model.Package.get_license_register()[license_id].isopen()
+                result_dict['isopen'] = isopen
+            except KeyError:
+                # TODO: create a log message this error?
+                result_dict['isopen'] = False 
         else:
             result_dict['isopen'] = False
         package_list.append(result_dict)

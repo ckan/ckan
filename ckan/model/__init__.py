@@ -220,10 +220,20 @@ Revision.groups = property(_get_groups)
 Revision.user = property(_get_revision_user)
 
 def strptimestamp(s):
+    '''Convert a string of an ISO date into a datetime.datetime object.
+    
+    raises TypeError if the number of numbers in the string is not between 3
+                     and 7 (see datetime constructor).
+    raises ValueError if any of the numbers are out of range.
+    '''
+    
     import datetime, re
     return datetime.datetime(*map(int, re.split('[^\d]', s)))
 
 def strftimestamp(t):
+    '''Takes a datetime.datetime and returns it as an ISO string. For
+    a pretty printed string, use ckan.lib.helpers.render_datetime.
+    '''
     return t.isoformat()
 
 def revision_as_dict(revision, include_packages=True, include_groups=True,ref_package_by='name'):
@@ -242,3 +252,8 @@ def revision_as_dict(revision, include_packages=True, include_groups=True,ref_pa
                                      for grp in revision.groups]
        
     return revision_dict
+
+def is_id(id_string):
+    '''Tells the client if the string looks like a revision id or not'''
+    import re
+    return bool(re.match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', id_string))

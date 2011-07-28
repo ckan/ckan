@@ -1,4 +1,5 @@
 from sqlalchemy.orm import eagerload_all
+from sqlalchemy import and_
 import vdm.sqlalchemy
 
 from types import make_uuid
@@ -60,15 +61,21 @@ class Tag(DomainObject):
     @classmethod
     def all(cls):
         q = Session.query(cls)
-        q = q.distinct().join(cls.package_tags)
-        q = q.filter(PackageTag.state == 'active')
+        q = q.distinct().join(PackageTagRevision)
+        q = q.filter(and_(
+            PackageTagRevision.state == 'active', PackageTagRevision.current == True
+        ))
         return q
 
     @property
     def packages_ordered(self):
-        ## make sure packages are active
-        packages = [package for package in self.packages 
-                    if package.state == State.ACTIVE]
+        q = Session.query(Package)
+        q = q.join(PackageTagRevision)
+        q = q.filter(PackageTagRevision.tag_id == self.id)
+        q = q.filter(and_(
+            PackageTagRevision.state == 'active', PackageTagRevision.current == True
+        ))
+        packages = [p for p in q]
         ourcmp = lambda pkg1, pkg2: cmp(pkg1.name, pkg2.name)
         return sorted(packages, cmp=ourcmp)
 

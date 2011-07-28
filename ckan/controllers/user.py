@@ -216,6 +216,8 @@ class UserController(BaseController):
 
 
     def login(self):
+        if 'error' in request.params:
+            h.flash_error(request.params['error'])
         return render('user/login.html')
     
     def logged_in(self):

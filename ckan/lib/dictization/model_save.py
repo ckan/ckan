@@ -5,17 +5,15 @@ import json
 ##package saving
 
 def resource_dict_save(res_dict, context):
-
     model = context["model"]
     session = context["session"]
 
-    obj = None
-
+    # try to get resource object directly from context, then by ID
+    # if not found, create a new resource object
     id = res_dict.get("id")
-    
-    if id:
+    obj = context.get("resource")
+    if (not obj) and id:
         obj = session.query(model.Resource).get(id)
-
     if not obj:
         obj = model.Resource()
 
@@ -30,14 +28,17 @@ def resource_dict_save(res_dict, context):
         if key in fields:
             setattr(obj, key, value)
         else:
+            # resources save extras directly onto the object, instead
+            # of in a separate extras field like packages and groups
             obj.extras[key] = value
 
     if context.get('pending'):
         if session.is_modified(obj, include_collections=False):
-            obj.state = 'pending'
+            obj.state = u'pending'
+    else:
+        obj.state = u'active'
 
     session.add(obj)
-
     return obj
 
 def package_resource_list_save(res_dicts, package, context):
@@ -126,7 +127,6 @@ def group_extras_save(extras_dicts, context):
     return result_dict
 
 def package_tag_list_save(tag_dicts, package, context):
-
     
     allow_partial_update = context.get("allow_partial_update", False)
     if not tag_dicts and allow_partial_update:

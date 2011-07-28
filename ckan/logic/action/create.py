@@ -79,6 +79,25 @@ def package_create(context, data_dict):
     else:
         return data
 
+def package_create_validate(context, data_dict):
+    model = context['model']
+    user = context['user']
+    preview = context.get('preview', False)
+    schema = context.get('schema') or default_create_package_schema()
+    model.Session.remove()
+    model.Session()._context = context
+
+    check_access(model.System(), model.Action.PACKAGE_CREATE, context)
+    check_group_auth(context, data_dict)
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, package_error_summary(errors))
+    else:
+        return data
+
 def resource_create(context, data_dict):
     model = context['model']
     user = context['user']

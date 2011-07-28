@@ -78,7 +78,11 @@ def resource_dictize(res, context):
     return resource
 
 def _execute_with_revision(q, rev_table, context):
+    '''
+    Raises NotFound if the context['revision_id'] does not exist.
+    Returns [] if there are no results.
 
+    '''
     model = context['model']
     meta = model.meta
     session = model.Session
@@ -87,8 +91,11 @@ def _execute_with_revision(q, rev_table, context):
     pending = context.get('pending')
 
     if revision_id:
-        revision_date = session.query(context['model'].Revision).filter_by(
-            id=revision_id).one().timestamp
+        revision = session.query(context['model'].Revision).filter_by(
+            id=revision_id).first()
+        if not revision:
+            raise NotFound
+        revision_date = revision.timestamp
     
     if revision_date:
         q = q.where(rev_table.c.revision_timestamp <= revision_date)

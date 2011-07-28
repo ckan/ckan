@@ -39,7 +39,7 @@
 
       <table>
         <tr>
-          <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
+          <th></th><th>Revision ID</th><th>Package with timestamp</th><th>Author</th><th>Log Message</th>
         </tr>
         <py:for each="index, rev in enumerate(c.pkg_revisions)">
           <tr>
@@ -48,9 +48,10 @@
               ${h.radio("selected2", rev.id, checked=(index == len(c.pkg_revisions)-1))}
             </td>
             <td>
-              <a href="${h.url_for(controller='revision',action='read',id=rev['id'])}">${rev['id']}</a>
+              <a href="${h.url_for(controller='revision',action='read',id=rev['id'])}">${rev['id'][:4]}&#8230;</a>
             </td>
-            <td>${rev['timestamp']}</td>
+            <td>
+              <a href="${h.url_for(controller='package',action='read',id='%s@%s' % (c.pkg_dict['name'], rev['timestamp']))}" title="${'Read package as of %s' % rev['timestamp']}">${h.render_datetime(rev['timestamp'])}</a></td>
             <td>${h.linked_user(rev['author'])}</td>
             <td>${rev['message']}</td>
           </tr> 

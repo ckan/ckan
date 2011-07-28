@@ -15,6 +15,7 @@ from babel.dates import format_date, format_datetime, format_time
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
 import ckan.logic.action.get as get
+from ckan.logic import get_action
 from ckan.logic.schema import package_form_schema
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import etag_cache, response, redirect, gettext
@@ -173,24 +174,30 @@ class PackageController(BaseController):
         # revision may have more than one package in it.
         return str(hash((pkg.id, pkg.latest_related_revision.id, c.user, pkg.get_average_rating())))
 
-    def _clear_pkg_cache(self, pkg):
-        read_cache = cache.get_cache('package/read.html', type='dbm')
-        read_cache.remove_value(self._pkg_cache_key(pkg))
-
     @proxy_cache()
     def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'schema': self._form_to_db_schema()}
         data_dict = {'id': id}
+
+        # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
         if len(split) == 2:
-            data_dict['id'], revision = split
-            try:
-                date = datetime.datetime(*map(int, re.split('[^\d]', revision)))
-                context['revision_date'] = date
-            except ValueError:
-                context['revision_id'] = revision
+            data_dict['id'], revision_ref = split
+            if model.is_id(revision_ref):
+                context['revision_id'] = revision_ref
+            else:
+                try:
+                    date = model.strptimestamp(revision_ref)
+                    context['revision_date'] = date
+                except TypeError, e:
+                    abort(400, _('Invalid revision format: %r') % e.args)
+                except ValueError, e:
+                    abort(400, _('Invalid revision format: %r') % e.args)
+        elif len(split) > 2:
+            abort(400, _('Invalid revision format: %r') % 'Too many "@" symbols')
+            
         #check if package exists
         try:
             c.pkg_dict = get.package_show(context, data_dict)
@@ -437,7 +444,7 @@ class PackageController(BaseController):
                 tuplize_dict(parse_params(request.POST))))
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
-            pkg = create.package_create(context, data_dict)
+            pkg = get_action('package_create')(context, data_dict)
 
             if context['preview']:
                 PackageSaver().render_package(pkg, context)
@@ -468,7 +475,7 @@ class PackageController(BaseController):
             if not context['moderated']:
                 context['pending'] = False
             data_dict['id'] = id
-            pkg = update.package_update(context, data_dict)
+            pkg = get_action('package_update')(context, data_dict)
             if request.params.get('save', '') == 'Approve':
                 update.make_latest_pending_package_active(context, data_dict)
             c.pkg = context['package']
@@ -522,6 +529,7 @@ class PackageController(BaseController):
         pkg = model.Package.get(id)
         if pkg is None:
             abort(404, gettext('Package not found'))
+        c.pkg = pkg # needed to add in the tab bar to the top of the auth page
         c.pkgname = pkg.name
         c.pkgtitle = pkg.title
 
