@@ -3,6 +3,7 @@
 
 .. include:: title.rst.inc
 .. include:: purpose.rst.inc
+.. include:: warning.rst.inc
 .. include:: overview.rst.inc
 .. include:: interfaces1.rst.inc
 .. include:: location.rst.inc

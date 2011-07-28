@@ -1,0 +1,20 @@
+{% extends '!layout.html' %}
+
+{% block footer %}
+    <div class="footer">
+    {% if hasdoc('copyright') %}
+      {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
+    {% else %}
+      {% trans copyright=copyright|e %}&copy; Copyright {{ copyright }}.{% endtrans %}
+    {% endif %}
+    {% if last_updated %}
+      {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
+    {% endif %}
+    {% if show_sphinx %}
+      {% trans sphinx_version=sphinx_version|e %}Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+    {% endif %}
+     <br/>
+     Please contact the <a href="http://lists.okfn.org/mailman/listinfo/ckan-dev">ckan-dev mailing list</a>
+     with any questions.
+    </div>
+{% endblock %}

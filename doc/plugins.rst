@@ -1,44 +1,24 @@
-CKAN Extensions, Plugins Interfaces and Workers
-+++++++++++++++++++++++++++++++++++++++++++++++
+===============================
+Understand and Write Extensions
+===============================
 
-**Note: the terms "extension", "plugin interface" and "worker"
-now have very precise meanings and that the use of the generic word "plugin" to
-describe any way in which CKAN might be extended is deprecated.**
+If you want to extend CKAN core functionality, the best way to do so is by writing extensions. 
 
-.. contents ::
+Extensions allow you to customise CKAN for your own requirements, without interfering with the basic CKAN system.
 
-Background
-----------
-
-The CKAN codebase is open source so that different organisations can customise
-it for their own needs. As CKAN has grown in popularity it has become
-especially important to organise the code in a way that can accommodate the
-customisations which different organisations require without those changes
-interfering with customizations required by other organisations. 
-
-To meet this need we have introduced the concepts of CKAN extensions, plugin
+To meet the need to customize CKAN efficiently, we have introduced the concepts of CKAN extensions, plugin
 interfaces and workers. These work together to provide a simple mechanism to
 extend core CKAN functionality.
 
-Let's start by looking at extensions.
+.. warning:: This is an advanced topic. At the moment, you need to have prepared your system to work with extensions, as described in :doc:`prepare-extensions`. We are working to make the most popular extensions more easily available as Debian packages. 
+
+.. note:: The terms **extension**, **plugin interface** and **worker** have very precise meanings: the use of the generic word **plugin** to describe any way in which CKAN might be extended is deprecated.
+
+.. contents ::
 
 CKAN Extensions
 ---------------
 
-CKAN currently has the following extensions:
-
-* disqus_ extension for user comments
-* Solr extension for full text search and result faceting
-* Asyncronous queue extension based on AMQP for model update, harvesting and other operations
-* Custom form extensions for different governments
-
-.. note ::
-
-   The form extension does not currently behave quite the same way as the other
-   extensions, it will do soon.
-
-All CKAN extensions have package names of the form ``ckanext-name`` so the
-queue extension code is stored in the package ``ckanext-queue`` for example.
 Extensions are implemented as *namespace packages* under the ``ckanext``
 package which means that they can be imported like this:
 
@@ -47,48 +27,11 @@ package which means that they can be imported like this:
     $ python
     >>> import ckanext.queue
 
-Extensions are used for any code that is not required for the core CKAN code to
-operate but which are nethertheless and important part of one or more CKAN
-instances.
-
 Individual CKAN *extensions* may implement one or more *plugin interfaces* or
 *workers* to provide their functionality. You'll learn about these later on.
-All CKAN extensions are described on the CKAN public wiki at
-http://wiki.okfn.org/ckan/extensions. If you write an extension then do share
-details of it there but also document the plugin interfaces the extension
-implements so that when people install it, they will know which plugin
-interfaces they need to set up in their config file.
 
-Installing an extension
-~~~~~~~~~~~~~~~~~~~~~~~
-
-To install an extension on a CKAN instance:
-
-1. Install the extension package code using pip. The -E parameter is for your
-CKAN python environment (e.g. ``~/var/srvc/ckan.net/pyenv``). Prefix the source
-url with the repo type (``hg+`` for Mercurial, ``git+`` for Git). For example::
-
-       $ pip install -E ~/var/srvc/ckan.net/pyenv hg+http://bitbucket.org/okfn/ckanext-disqus
-
-2. Add the names of any plugin implementations the extension uses to the CKAN
-config. The config file may have a filepath something like:
-``~/var/srvc/ckan.net/ckan.net.ini``. The plugins variable is in the '[app:main]'
-section under 'ckan.plugins'. e.g.::
-
-       [app:main]
-       ckan.plugins = disqus
-
-   If your extension implemented multiple different plugin interfaces, separate them with spaces::
-
-       ckan.plugins = disqus amqp myplugin
-
-3. Restart WSGI, which usually means restarting Apache::
-
-       $ sudo /etc/init.d/apache2 restart
-
-
-Creating your own extension
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create Your Own Extension
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All CKAN extensions must start with the name ``ckanext-``. You can create your
 own CKAN extension like this:
@@ -146,9 +89,35 @@ virtual environment so you can import it:
 
 To build useful extensions you need to be able to "hook into" different parts
 of CKAN in order to extend its functionality. You do this using CKAN's plugin
-architeture. We'll look at this in the next section. If you do write a CKAN
-extension you may well want to publish it publicly so others can use it too.
-See the `Publishing your extension`_ section below to find out how.
+architecture. We'll look at this in the next section. 
+
+Testing Extensions
+``````````````````
+
+CKAN extensions ordinarily have their own ``test.ini`` that refers to the CKAN ``test.ini``, so you can run them in exactly the same way. For example::
+
+    cd ckanext-dgu
+    nosetests ckanext/dgu/tests --ckan
+    nosetests ckanext/dgu/tests --ckan --with-pylons=test-core.ini
+
+To test your changes you'll need to use the ``paster serve`` command from the ``ckan`` directory:
+
+::
+
+    cd /home/ubuntu/pyenv/src/ckan
+    . ../../bin/activate
+    paster make-config ckan development.ini
+
+Then make any changes to the ``development.ini`` file that you need before continuing:
+
+::
+
+    paster db upgrade
+    paster serve --reload
+
+You should also make sure that your CKAN installation passes the developer tests, as described in :doc:`test`.
+
+Finally, if you write a CKAN, extension you may well want to publish it so others can use it too. See the `Publishing your extension`_ section below for details.
 
 Plugins
 -------
@@ -232,11 +201,11 @@ HTML to the page.
 
 .. tip ::
 
-   This example is based on real code used to implement the ``ckanext-discus`` plugin
+   This example is based on real code used to implement the ``ckanext-disqus`` plugin
    to add commenting to packages. You can see the latest version of this code at
    http://bitbucket.org/okfn/ckanext-disqus/src/tip/ckanext/plugins/disqus/__init__.py.
 
-First we set up logging and some helpers we'll need from Genshi to transfor the stream:
+First we set up logging and some helpers we'll need from Genshi to transfer the stream:
 
 ::
 
@@ -256,11 +225,11 @@ Then we import the CKAN plugin code:
     from ckan.plugins.interfaces import IConfigurable, IGenshiStreamFilter
 
 In this case we are implementing both the ``IConfigurable`` and
-``IGenshiStreamFilter`` plugin interfaces in out plugin class. The
+``IGenshiStreamFilter`` plugin interfaces in our plugin class. The
 ``IConfigurable`` plugin interface defines a ``configure()`` method which will
 be is called on out plugin to let it know about configuration options. The
 ``IGenshiStreamFilter`` plugin interface defines a ``filter()`` method which
-will be called on the plugin to give it the oppurtunity to change the template
+will be called on the plugin to give it the opportunity to change the template
 before the HTML is returned to the browser.
 
 Let's have a look at the code:
@@ -337,7 +306,7 @@ lots of parts of CKAN. Later on you'll see how to write your own plugin
 interfaces to define your own "hooks". Before we can use the ``Disqus`` plugin
 there is one more thing to do: add it to the extension and set an *entry point*.
 
-Setting the entry point
+Setting the Entry Point
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Imagine the code above was saved into a file named ``disqus.py`` in the
@@ -358,7 +327,6 @@ entry point is just a feature of setuptools that links a string in the form
 
 
 CKAN finds plugins by searching for entry points in the group ``ckan.plugin``.
-
 
 Entry points are defined in a package's ``setup.py`` file. If you look in the
 ``setup.py`` file for the ``ckanext-myname`` extension you'll see these
@@ -411,10 +379,10 @@ extension implements you need to add another entry point (remembering to re-run
 ``python setup.py develop`` if needed). Your users will then need to add the
 new entry point name to their ``ckan.plugins`` config option too.
 
-Writing a database plugin
+Writing a Database Plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You've seen how to use ``IConfigurable`` and ``IGenshiStreamFilter``, here's
+You've seen how to use ``IConfigurable`` and ``IGenshiStreamFilter``. Here's
 another example which implements ``IMapperExtension`` to log messages after any
 record is inserted into the database.
 
@@ -447,10 +415,11 @@ http://bitbucket.org/okfn/ckanextiati/src/tip/ckanext/iati/authz.py
 Publishing Your Extension
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-At this point you might want to share your extension with the public. First
-check you have chosen an open source license (`MIT
-<http://opensource.org/licenses/mit-license.html>`_ license is fine for
-example) and then update the ``long_description`` variable in ``setup.py`` to
+At this point you might want to share your extension with the public. 
+
+First check you have chosen an open source licence (e.g. the `MIT
+<http://opensource.org/licenses/mit-license.html>`_ licence) and then 
+update the ``long_description`` variable in ``setup.py`` to
 explain what the extension does and which entry point names a user of the
 extension will need to add to their ``ckan.plugins`` configuration.
 
@@ -462,14 +431,14 @@ the Python Package Index:
     python setup.py register
     python setup.py sdist upload
 
-You'll then see your extension at http://pypi.python.org/pypi. Others will then
+You'll then see your extension at http://pypi.python.org/pypi. Others will
 be able to install your plugin with ``pip``.
 
-You should also add a summary of your extension and its entry points to
-http://wiki.okfn.org/ckan/extensions. You can create a new account if you need
-to.
+Finally, please also add a summary of your extension and its entry points to the Extensions page on 
+http://wiki.ckan.net.
 
-Writing a plugin interface
+
+Writing a Plugin Interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This describes how to add a plugin interface to make core CKAN code pluggable. 
@@ -509,11 +478,11 @@ Any registered plugins that implement ``IDataMunger`` will then be available in
 your class via ``self.plugin``.
 
 See the pyutilib_ documentation for more information on creating interfaces and
-plugins. Be aware though that pyutilib uses slightly different terminology. It
+plugins. However, be aware that pyutilib uses slightly different terminology. It
 calls ``PluginImplementations`` ``ExtensionPoint`` and it calls instances of a
 plugin object a *service*.
 
-Testing plugins
+Testing Plugins
 ~~~~~~~~~~~~~~~
 
 When writing tests for your plugin code you will need setup and teardown code
@@ -552,23 +521,22 @@ Here is an example test set-up::
             cls.app = paste.fixture.TestApp(wsgiapp)
 
 At this point you should be able to write your own plugins and extensions
-together with their tests. Over time we hope to move more functionality out
-into CKAN extensions.
+together with their tests.
 
-Ordering of extensions
+Ordering of Extensions
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. caution ::
  
-  The order that extensions are initially loaded is **different** to the order that their plugins are run.
+  The order in which extensions are initially loaded is **different** to the order that their plugins are run.
 
-The order that extensions are initially loaded is as follows:
+The order in which extensions are initially loaded is as follows:
 
 1. System plugins (in setup.py under ``ckan.system_plugins``).
 
 2. In order of the plugins specified in the config file: ``plugins =``.
 
-3. If more than one module has a plug-in with the same name specified in the config, then all those are loaded, in the order the modules appear in ``sys.path``.
+3. If more than one module has a plugin with the same name specified in the config, then all those are loaded, in the order the modules appear in ``sys.path``.
 
 The order that a plugins are run in, for example the order that IRoutes extensions have their ``before_map`` method run, is alphabetical by the plugin class.
 
@@ -577,7 +545,7 @@ e.g. here is the order for these four extensions: ``<Plugin DguInventoryPlugin>`
 (This alphabetical ordering is done by ``pyutilib.component.core:ExtensionPoint.extensions()``)
 
 
-Plugin API documentation
+Plugin API Documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: ckan.plugins.core
@@ -595,8 +563,8 @@ Plugin API documentation
 The Queue Extension
 -------------------
 
-** Note: the queue extension currently isn't working correctly. These docs
-may not work for you**
+.. warning:: The queue extension is currently under development. These docs may not work for you.
+
 
 Certain tasks that CKAN performs lend themselves to the use of a queue system.
 Queue systems can be very simple. At their heart is the idea that you have two
@@ -641,7 +609,7 @@ First you need to install Erlang. To do that first install its dependencies:
     yum install ncurses-devel flex.x86_64 m4.x86_64 openssl-devel.x86_64 unixODBC-devel.x86_64
 
 
-Install erlang like this:
+Install Erlang like this:
 
 ::
 
@@ -661,7 +629,7 @@ Next download and install RabbitMQ:
     wget http://www.rabbitmq.com/releases/rabbitmq-server/v2.2.0/rabbitmq-server-2.2.0-1.noarch.rpm
     rpm -Uhv --no-deps rabbitmq-server-2.2.0-1.noarch.rpm
 
-Finally edit the ``/etc/init.d/rabbitmq-server`` script so that it uses the correct path for your erlang install. Change this line
+Finally edit the ``/etc/init.d/rabbitmq-server`` script so that it uses the correct path for your Erlang install. Change this line
 
 ::
 
@@ -691,7 +659,7 @@ Just run:
 Working Directly with Carrot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As you learned earlier, CKAN uses carrot with the ``pyamqplib`` backend. Carrot is well documented at this URL:
+As you learned earlier, CKAN uses carrot with the ``pyamqplib`` backend. Carrot is well-documented at this URL:
 
 http://ask.github.com/carrot/introduction.html
 
@@ -778,7 +746,7 @@ printing this message:
 
 
 Working with CKANext Queue
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Rather than working with carrot publishers and consumers directly,
 ``ckanext-queue`` provides two useful Python objects to help you:
@@ -799,16 +767,16 @@ Rather than working with carrot publishers and consumers directly,
 ``ckanext.queue.worker.Worker``
 
     This is a base class which you can inherit from. You can override its
-    ``consume()`` method to asyncronously pull items from the queue to do useful
+    ``consume()`` method to asynchronously pull items from the queue to do useful
     things
 
 
 .. note ::
 
-   To use the queue extension you don't need to implenent any new plugin
+   To use the queue extension you don't need to implement any new plugin
    interfaces, you just need to use the ``get_publisher(config).send()`` method and the
    ``Worker`` class. Of course your own extension might use plugins to hook into
-   other parts of CKAN to get information to put or retireve from the queue.
+   other parts of CKAN to get information to put or retrieve from the queue.
 
 The worker implementation runs outside the CKAN server process, interacting
 directly with both the AMQP queue and the CKAN API (to get CKAN data). The
@@ -862,7 +830,7 @@ With the ``consumer.py`` script still running, execute the new script:
 
 You'll see that once again the consumer picks up the message.
 
-Writing a worker
+Writing a Worker
 ````````````````
 
 Now let's replace the consumer with a worker.
@@ -1000,17 +968,3 @@ workers and producers also set their ``ckan.site_id`` to the same value.
 
 Now that you know about extensions, plugins and workers you should be able to
 extend CKAN in lots of new and interesting ways.
-
-.. Links
-.. -----
-.. 
-.. Etherpad discussion: http://ckan.okfnpad.org/plugins
-.. 
-.. Existing plugin implementations (using the old API), comments from are pudo:
-.. 
-.. - Comments: http://bitbucket.org/pudo/ckandisqus
-.. - Weird stuff: http://bitbucket.org/pudo/ckanextdeliverance
-.. - Shouldn't be a plugin, but typical for localized versions: http://bitbucket.org/pudo/offenedaten
-.. - and probably the largest yet least plugin-ish: http://bitbucket.org/okfn/ckanextiati
-.. - this is what I want to avoid: http://bitbucket.org/okfn/ckanextiati/src/tip/ckanext/iati/authz.py
-
