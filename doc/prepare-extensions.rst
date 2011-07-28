@@ -1,6 +1,6 @@
-===========================
-Prepare to Write Extensions
-===========================
+=========================
+Prepare to Use Extensions
+=========================
 
 If you are running a package installation of CKAN, before you start using and testing extensions (described in :doc:`extensions`) you need to prepare your system. 
 
