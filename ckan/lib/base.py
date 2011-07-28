@@ -146,14 +146,27 @@ class BaseController(WSGIController):
         '''
         cls.log.debug('Retrieving request params: %r' % request.params)
         cls.log.debug('Retrieving request POST: %r' % request.POST)
-        try:
-            request_data = request.POST.keys()
-        except Exception, inst:
-            msg = _("Could not find the POST data: %r : %s") % \
-                  (request.POST, inst)
-            raise ValueError, msg
-        if request_data:
+        request_data = None
+        if request.POST:
+            try:
+                request_data = request.POST.keys()
+            except Exception, inst:
+                msg = _("Could not find the POST data: %r : %s") % \
+                      (request.POST, inst)
+                raise ValueError, msg
             request_data = request_data[0]
+        else:
+            try:
+                request_data = request.body
+            except Exception, inst:
+                msg = _("Could not extract request body data: %s") % \
+                      (inst)
+                raise ValueError, msg
+            cls.log.debug('Retrieved request body: %r' % request.body)
+            if not request_data:
+                msg = _("No request body data")
+                raise ValueError, msg
+        if request_data:
             request_data = json.loads(request_data, encoding='utf8')
             if not isinstance(request_data, dict):
                 raise ValueError, _("Request params must be in form of a json encoded dictionary.")

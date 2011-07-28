@@ -146,6 +146,20 @@ to look like this::
        ProxyPreserveHost On
   </VirtualHost>
 
+or the old one had::
+
+  <VirtualHost *:80>
+      ServerAdmin sysadmin@okfn.org
+      ServerName buildbot.okfn.org
+      DocumentRoot /var/www/
+      <Location />
+          Order allow,deny
+          allow from all
+      </Location>
+      RewriteEngine On   
+      RewriteRule /(.*) http://localhost:8010/$1 [P,L]
+  </VirtualHost>
+
 Then::
 
   sudo apt-get install libapache2-mod-proxy-html

@@ -1,5 +1,8 @@
 import logging
 import ckan.authz
+from ckan.lib.navl.dictization_functions import flatten_dict
+from ckan.plugins import PluginImplementations
+from ckan.plugins.interfaces import IActions
 
 class ActionError(Exception):
     def __init__(self, extra_msg=None):
@@ -65,6 +68,11 @@ def untuplize_dict(tuplized_dict):
         data_dict[new_key] = value
     return data_dict
 
+def flatten_to_string_key(dict):
+
+    flattented = flatten_dict(dict)
+    return untuplize_dict(flattented)
+
 def check_access(entity, action, context):
     model = context["model"]
     user = context.get("user")
@@ -84,4 +92,42 @@ def check_access(entity, action, context):
         log.debug("No valid API key provided.")
         raise NotAuthorized
     log.debug("Access OK.")
-    return True                
+    return True             
+
+_actions = {}
+
+def get_action(action):
+    if _actions:
+        return _actions.get(action)
+    # Otherwise look in all the plugins to resolve all possible
+    # First get the default ones in the ckan/logic/action directory
+    # Rather than writing them out in full will use __import__
+    # to load anything from ckan.logic.action that looks like it might
+    # be an action 
+    for action_module_name in ['get', 'create', 'update']:
+        module_path = 'ckan.logic.action.'+action_module_name
+        module = __import__(module_path)
+        for part in module_path.split('.')[1:]:
+            module = getattr(module, part)
+        for k, v in module.__dict__.items():
+            if not k.startswith('_'):
+                _actions[k] = v
+    # Then overwrite them with any specific ones in the plugins:
+    resolved_action_plugins = {}
+    fetched_actions = {}
+    for plugin in PluginImplementations(IActions):
+        for name, auth_function in plugin.get_actions().items():
+            if name in resolved_action_plugins:
+                raise Exception(
+                    'The action %r is already implemented in %r' % (
+                        name,
+                        resolved_action_plugins[name]
+                    )
+                )
+            log.debug('Auth function %r was inserted', plugin.name)
+            resolved_action_plugins[name] = plugin.name
+            fetched_actions[name] = auth_function
+    # Use the updated ones in preference to the originals.
+    _actions.update(fetched_actions)
+    return _actions.get(action)
+

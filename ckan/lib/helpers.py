@@ -5,6 +5,7 @@
 Consists of functions to typically be used within templates, but also
 available to Controllers. This module is available to templates as 'h'.
 """
+from datetime import datetime
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
 from webhelpers.html.tags import *
@@ -28,6 +29,7 @@ try:
 except ImportError:
     import simplejson as json
 
+ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -202,10 +204,27 @@ class Page(paginate.Page):
 
 
 def render_datetime(datetime_):
-    '''Render a datetime object as a string in a reasonable way (Y-m-d H:m).
+    '''Render a datetime object or timestamp string as a pretty string
+    (Y-m-d H:m).
+    If timestamp is badly formatted, then a blank string is returned.
     '''
-    if datetime_:
-        return datetime_.strftime('%Y-%m-%d %H:%M')
+    from ckan import model
+    date_format = '%Y-%m-%d %H:%M'
+    if isinstance(datetime_, datetime):
+        return datetime_.strftime(date_format)
+    elif isinstance(datetime_, basestring):
+        try:
+            datetime_ = model.strptimestamp(datetime_)
+        except TypeError:
+            return ''
+        except ValueError:
+            return ''
+        return datetime_.strftime(date_format)
     else:
         return ''
 
+def date_str_to_datetime(date_str, format=ISO_DATE_FORMAT):
+    return datetime.strptime(date_str, format)
+
+def time_ago_in_words_from_str(date_str, format=ISO_DATE_FORMAT, granularity='month'):
+    return date.time_ago_in_words(datetime.strptime(date_str, format), granularity=granularity)

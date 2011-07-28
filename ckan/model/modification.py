@@ -26,20 +26,6 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
     implements(ISession, inherit=True)
     observers = PluginImplementations(IDomainObjectModification)
 
-    def before_flush(self, session, flush_context, instances):
-
-        if not hasattr(session, '_object_cache'):
-            session._object_cache= {'new': set(),
-                                    'deleted': set(),
-                                    'changed': set()}
-
-        changed = [obj for obj in session.dirty if 
-            session.is_modified(obj, include_collections=False)]
-
-        session._object_cache['new'].update(session.new)
-        session._object_cache['deleted'].update(session.deleted)
-        session._object_cache['changed'].update(changed)
-
     def before_commit(self, session):
 
         session.flush()
@@ -66,6 +52,8 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
                     related_packages = obj.related_packages()
                 except AttributeError:
                     continue
+                if 'pending' in obj.state:
+                    continue
                 # this is needed to sort out vdm bug where pkg.as_dict does not
                 # work when the package is deleted.
                 for package in related_packages:
@@ -73,7 +61,6 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
                         changed_pkgs.add(package)
         for obj in changed_pkgs:
             self.notify(obj, DomainObjectOperation.changed)
-        del session._object_cache
 
 
     def notify(self, entity, operation):

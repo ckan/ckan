@@ -11,7 +11,8 @@ from ckan.model import extension
 from sqlalchemy.ext.associationproxy import association_proxy
 
 __all__ = ['group_table', 'Group', 'package_revision_table',
-           'PackageGroup', 'GroupRevision', 'PackageGroupRevision']
+           'PackageGroup', 'GroupRevision', 'PackageGroupRevision',
+           'package_group_revision_table']
 
 package_group_table = Table('package_group', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
@@ -20,7 +21,7 @@ package_group_table = Table('package_group', metadata,
     )
     
 vdm.sqlalchemy.make_table_stateful(package_group_table)
-package_group_revision_table = vdm.sqlalchemy.make_revisioned_table(package_group_table)
+package_group_revision_table = make_revisioned_table(package_group_table)
 
 group_table = Table('group', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
@@ -31,7 +32,7 @@ group_table = Table('group', metadata,
     )
 
 vdm.sqlalchemy.make_table_stateful(group_table)
-group_revision_table = vdm.sqlalchemy.make_revisioned_table(group_table)
+group_revision_table = make_revisioned_table(group_table)
 
 
 class PackageGroup(vdm.sqlalchemy.RevisionedObjectMixin,

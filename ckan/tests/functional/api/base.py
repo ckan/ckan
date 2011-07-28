@@ -1,8 +1,13 @@
 import re
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 from pylons import config
 import webhelpers.util
 from nose.tools import assert_equal
+from paste.fixture import TestRequest
 
 from ckan.tests import *
 import ckan.model as model
@@ -64,7 +69,7 @@ class ApiTestCase(object):
         return '%s%s' % (base, path)
 
     def package_offset(self, package_name=None):
-        if package_name == None:
+        if package_name is None:
             # Package Register
             return self.offset('/rest/package')
         else:
@@ -74,14 +79,14 @@ class ApiTestCase(object):
 
     def package_ref_from_name(self, package_name):
         package = self.get_package_by_name(unicode(package_name))
-        if package == None:
+        if package is None:
             return package_name
         else:
             return self.ref_package(package)
 
     def package_id_from_ref(self, package_name):
         package = self.get_package_by_name(unicode(package_name))
-        if package == None:
+        if package is None:
             return package_name
         else:
             return self.ref_package(package)
@@ -91,7 +96,7 @@ class ApiTestCase(object):
         return getattr(package, self.ref_package_by)
 
     def group_offset(self, group_name=None):
-        if group_name == None:
+        if group_name is None:
             # Group Register
             return self.offset('/rest/group')
         else:
@@ -101,7 +106,7 @@ class ApiTestCase(object):
 
     def group_ref_from_name(self, group_name):
         group = self.get_group_by_name(unicode(group_name))
-        if group == None:
+        if group is None:
             return group_name
         else:
             return self.ref_group(group)
@@ -110,11 +115,52 @@ class ApiTestCase(object):
         assert self.ref_group_by in ['id', 'name']
         return getattr(group, self.ref_group_by)
 
+    def revision_offset(self, revision_id=None):
+        if revision_id is None:
+            # Revision Register
+            return self.offset('/rest/revision')
+        else:
+            # Revision Entity
+            return self.offset('/rest/revision/%s' % revision_id)
+
+    def rating_offset(self, package_name=None):
+        if package_name is None:
+            # Revision Register
+            return self.offset('/rest/rating')
+        else:
+            # Revision Entity
+            package_ref = self.package_ref_from_name(package_name)
+            return self.offset('/rest/rating/%s' % package_ref)
+
+    def relationship_offset(self, package_1_name=None,
+                            relationship_type=None,
+                            package_2_name=None,
+                            ):
+        assert package_1_name
+        package_1_ref = self.package_ref_from_name(package_1_name)
+        if package_2_name is None:
+            if not relationship_type:
+                return self.offset('/rest/package/%s/relationships' % \
+                                   package_1_ref)
+            else:
+                return self.offset('/rest/package/%s/%s' %
+                                   (package_1_ref, relationship_type))
+        else:
+            package_2_ref = self.package_ref_from_name(package_2_name)
+            if not relationship_type:
+                return self.offset('/rest/package/%s/relationships/%s' % \
+                                   (package_1_ref, package_2_ref))
+            else:
+                return self.offset('/rest/package/%s/%s/%s' % \
+                                   (package_1_ref,
+                                    relationship_type,
+                                    package_2_ref))
+
     def anna_offset(self, postfix=''):
         return self.package_offset('annakarenina') + postfix
 
     def tag_offset(self, tag_name=None):
-        if tag_name == None:
+        if tag_name is None:
             # Tag Register
             return self.offset('/rest/tag')
         else:
@@ -124,7 +170,7 @@ class ApiTestCase(object):
 
     def tag_ref_from_name(self, tag_name):
         tag = self.get_tag_by_name(unicode(tag_name))
-        if tag == None:
+        if tag is None:
             return tag_name
         else:
             return self.ref_tag(tag)
@@ -194,9 +240,10 @@ class ApiTestCase(object):
     def assert_msg_represents_russian(self, msg):
         data = self.loads(msg)
         pkgs = set(data)
-        expected_pkgs = set(['annakarenina', 'warandpeace'])
-        missing_pkgs = expected_pkgs - pkgs
-        assert not missing_pkgs, missing_pkgs
+        expected_pkgs = set([self.package_ref_from_name('annakarenina'),
+                             self.package_ref_from_name('warandpeace')])
+        differences = expected_pkgs ^ pkgs
+        assert not differences, '%r != %r' % (pkgs, expected_pkgs)
 
     def data_from_res(self, res):
         return self.loads(res.body)
@@ -212,6 +259,16 @@ class ApiTestCase(object):
             return json.loads(chars)
         except ValueError, inst:
             raise Exception, "Couldn't loads string '%s': %s" % (chars, inst)
+
+    def assert_json_response(self, res, expected_in_body=None):
+        content_type = res.header_dict['Content-Type']
+        assert 'application/json' in content_type, content_type
+        res_json = self.loads(res.body)
+        if expected_in_body:
+            assert expected_in_body in res_json or \
+                   expected_in_body in str(res_json), \
+                   'Expected to find %r in JSON response %r' % \
+                   (expected_in_body, res_json)
 
 # Todo: Rename to Version1TestCase.
 class Api1TestCase(ApiTestCase):
@@ -292,11 +349,54 @@ class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
     def teardown(self):
         model.Session.remove()
         model.repo.rebuild_db()
-        #self.delete_common_fixtures()
-        #self.commit_remove()
         super(BaseModelApiTestCase, self).teardown()
 
     def init_extra_environ(self):
         self.user = model.User.by_name(self.user_name)
         self.extra_environ={'Authorization' : str(self.user.apikey)}
 
+    def post_json(self, offset, data, status=None, extra_environ=None):
+        ''' Posts data in the body in application/json format, used by
+        javascript libraries.
+        (rather than Paste Fixture\'s default format of
+        application/x-www-form-urlencoded)
+
+        '''
+        return self.http_request(offset, data, content_type='application/json',
+                                 request_method='POST',
+                                 content_length=len(data),
+                                 status=status, extra_environ=extra_environ)
+
+    def delete_request(self, offset, status=None, extra_environ=None):
+        ''' Sends a delete request. Similar to the paste.delete but it
+        does not send the content type or content length.
+        '''
+        return self.http_request(offset, data='', content_type=None,
+                                 request_method='DELETE',
+                                 content_length=None,
+                                 status=status,
+                                 extra_environ=extra_environ)
+
+    def http_request(self, offset, data,
+                     content_type='application/json',
+                     request_method='POST',
+                     content_length=None,
+                     status=None,
+                     extra_environ=None):
+        ''' Posts data in the body in a user-specified format.
+        (rather than Paste Fixture\'s default Content-Type of
+        application/x-www-form-urlencoded)
+
+        '''
+        environ = self.app._make_environ()
+        if content_type:
+            environ['CONTENT_TYPE'] = content_type
+        if content_length is not None:
+            environ['CONTENT_LENGTH'] = str(content_length)
+        environ['REQUEST_METHOD'] = request_method
+        environ['wsgi.input'] = StringIO(data)
+        if extra_environ:
+            environ.update(extra_environ)
+        self.app._set_headers({}, environ)
+        req = TestRequest(offset, environ, expect_errors=False)
+        return self.app.do_request(req, status=status)        

@@ -4,11 +4,9 @@ import ckan.lib.helpers as h
 from ckan.lib.base import *
 import ckan.rating
 from pylons import g
+from ckan.lib.dictization import table_dictize
 
 # Todo: Factor out unused original_name argument.
-
-class ValidationException(Exception):
-    pass
 
 class PackageSaver(object):
     '''Use this to validate, preview and save packages to the db.
@@ -22,36 +20,53 @@ class PackageSaver(object):
         Note that the actual calling of render('package/read') is left
         to the caller.'''
         pkg = cls._preview_pkg(fs, log_message, author, client=client)
-        cls.render_package(pkg)
+
+        pkg_dict = table_dictize(pkg, {'model': model})
+        pkg_dict['extras'] = []
+        c.pkg = pkg
+        for key, value in pkg.extras.iteritems():
+            pkg_dict['extras'].append(dict(key=key, value=value))
+
+        cls.render_package(pkg_dict, {'package': pkg})
 
     # TODO: rename to something more correct like prepare_for_render
     @classmethod
-    def render_package(cls, pkg):
+    def render_package(cls, pkg, context):
         '''Prepares for rendering a package. Takes a Package object and
         formats it for the various context variables required to call
         render. 
         Note that the actual calling of render('package/read') is left
         to the caller.'''
-        c.pkg = pkg
         try:
-            notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.notes)
+            notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.get('notes',''))
             c.pkg_notes_formatted = genshi.HTML(notes_formatted)
         except Exception, e:
             error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render package description")
             c.pkg_notes_formatted = genshi.HTML(error_msg)
-        c.current_rating, c.num_ratings = ckan.rating.get_rating(pkg)
-        c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url, rel='foaf:homepage', target='_blank') \
-                if c.pkg.url else _("No web page given")
-        c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
-        c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
-        c.package_relationships = pkg.get_relationships_printable()
+        c.current_rating, c.num_ratings = ckan.rating.get_rating(context['package'])
+        url = pkg.get('url', '')
+        c.pkg_url_link = h.link_to(url, url, rel='foaf:homepage', target='_blank') \
+                if url else _("No web page given")
+        c.pkg_author_link = cls._person_email_link(pkg.get('author', ''), pkg.get('author_email', ''), "Author")
+        maintainer = pkg.get('maintainer', '')
+        maintainer_email = pkg.get('maintainer_email', '')
+        c.pkg_maintainer_link = cls._person_email_link(maintainer, maintainer_email, "Maintainer")
+        c.package_relationships = context['package'].get_relationships_printable()
         c.pkg_extras = []
-        for k, v in sorted(pkg.extras.items()):
+        for extra in sorted(pkg.get('extras',[]), key=lambda x:x['key']):
+            if extra.get('state') == 'deleted':
+                continue
+            k, v = extra['key'], extra['value']
             if k in g.package_hide_extras:
                 continue
             if isinstance(v, (list, tuple)):
                 v = ", ".join(map(unicode, v))
             c.pkg_extras.append((k, v))
+        if context.get('revision_id') or context.get('revision_date'):
+            # request was for a specific revision id or date
+            c.pkg_revision_id = c.pkg_dict[u'revision_id']
+            c.pkg_revision_timestamp = c.pkg_dict[u'revision_timestamp']
+            c.pkg_revision_not_latest = c.pkg_dict[u'revision_id'] != c.pkg.revision.id
 
     @classmethod
     def _preview_pkg(cls, fs, log_message=None, author=None, client=None):

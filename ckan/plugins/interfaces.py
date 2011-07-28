@@ -10,7 +10,8 @@ __all__ = [
     'IMiddleware',
     'IDomainObjectModification', 'IGroupController', 
     'IPackageController', 'IPluginObserver',
-    'IConfigurable', 'IConfigurer', 'IAuthorizer'
+    'IConfigurable', 'IConfigurer', 'IAuthorizer',
+    'IActions'
 ]
 
 from inspect import isclass
@@ -300,4 +301,12 @@ class IAuthorizer(Interface):
         other Authorizers to run; True will shortcircuit and return.
         """
         
-
+class IActions(Interface):
+    """
+    Allow adding of actions to the logic layer.
+    """
+    def get_actions(self):
+        """
+        Should return a dict, the keys being the name of the logic 
+        function and the values being the functions themselves.
+        """

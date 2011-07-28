@@ -98,3 +98,21 @@ By default, tests are run using the model defined in ``ckan/model``, but by usin
 .. warning ::
 
    A common error when wanting to run tests against a particular database is to change ``sqlalchemy.url`` in ``test.ini`` or ``test-core.ini``. The problem is that these are versioned files and people have checked in these by mistake, creating problems for other developers and the CKAN buildbot. This is easily avoided by only changing ``sqlalchemy.url`` in your local ``development.ini`` and testing ``--with-pylons=test-core.ini``.
+
+Common problems running tests
+-----------------------------
+
+* `nose.config.ConfigError: Error reading config file 'setup.cfg': no such option 'with-pylons'`
+
+   This error can result when you run nosetests for two reasons:
+
+   1. Pylons nose plugin failed to run. If this is the case, then within a couple of lines of running `nosetests` you'll see this warning: `Unable to load plugin pylons` followed by an error message. Fix the error here first.
+
+   2. The Python module 'Pylons' is not installed into you Python environment. Confirm this with::
+
+        python -c "import pylons"
+
+* `OperationalError: (OperationalError) no such function: plainto_tsquery ...`
+
+   This error usually results from running a test which involves search functionality, which requires using a PostgreSQL database, but another (such as SQLite) is configured. The particular test is either missing a `@search_related` decorator or there is a mixup with the test configuration files leading to the wrong database being used.
+

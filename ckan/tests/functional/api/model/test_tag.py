@@ -23,6 +23,10 @@ class TagsTestCase(BaseModelApiTestCase):
         res = self.app.get(offset, status=self.STATUS_200_OK)
         self.assert_msg_represents_russian(msg=res.body)
 
+    def test_entity_get_not_found(self):
+        offset = self.tag_offset('doesntexist')
+        res = self.app.get(offset, status=404)
+        self.assert_json_response(res, 'Not found')
 
 class TestTagsVersion1(Version1TestCase, TagsTestCase): pass
 class TestTagsVersion2(Version2TestCase, TagsTestCase): pass

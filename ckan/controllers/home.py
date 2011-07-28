@@ -5,6 +5,7 @@ from pylons import cache, config
 from genshi.template import NewTextTemplate
 
 from ckan.authz import Authorizer
+from ckan.logic.action.get import current_package_list_with_resources
 from ckan.i18n import set_session_locale
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache, get_cache_expires
@@ -42,14 +43,15 @@ class HomeController(BaseController):
 
         query = query_for(model.Package)
         query.run(query='*:*', facet_by=g.facets,
-                  limit=0, offset=0, username=c.user)
+                  limit=0, offset=0, username=c.user,
+                  order_by=None)
         c.facets = query.facets
         c.fields = []
         c.package_count = query.count
-        c.latest_packages = self.authorizer.authorized_query(c.user, model.Package)\
-            .join('revision').order_by(model.Revision.timestamp.desc())\
-            .limit(5).all()
-        
+        c.latest_packages = current_package_list_with_resources({'model': model,
+                                                                'user': c.user,
+                                                                'limit': 5},
+                                                                 {})      
         return render('home/index.html', cache_key=cache_key,
                 cache_expire=cache_expires)
 
@@ -73,7 +75,7 @@ class HomeController(BaseController):
                 abort(400, _('Invalid language specified'))
             h.flash_notice(_("Language has been set to: English"))
         else:
-            h.flash_notice(_("No language given!"))
+            abort(400, _("No language given!"))
         return_to = get_redirect()
         if not return_to:
             # no need for error, just don't redirect

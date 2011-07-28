@@ -48,7 +48,7 @@ The position of paster parameters matters.
 
 Meanwhile, ``--config`` is a parameter to CKAN, so needs to come after the CKAN command. This specifies the CKAN config file for the instance you want to use, e.g. ``--config=/etc/ckan/std/std.ini``
 
-.. note:: The default value for ``--config`` is ``development.ini`` in the current directory. If you are running a package install of CKAN (as described in :doc:`install`), you should explicitly specify ``std.ini``.
+.. note:: The default value for ``--config`` is ``development.ini`` in the current directory. If you are running a package install of CKAN (as described in :doc:`install-from-package`), you should explicitly specify ``std.ini``.
 
 The position of the CKAN command itself is less important, as longs as it follows ``--plugin``. For example, both the following commands have the same effect:::
 

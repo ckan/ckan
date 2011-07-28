@@ -1,17 +1,39 @@
 CKAN CHANGELOG
 ++++++++++++++
 
-v1.4.1 2011-XX-XX
+v1.4.2 2011-XX-XX
 =================
+Major:
+  * Packages revisions can be marked as 'moderated' (#1141)
+  * Password reset facility (#1186/#1198)
+
+Minor:
+  * Viewing of a package at any revision (#1141)
+  * API POSTs can be of Content-Type "application/json" as alternative to existing "application/x-www-form-urlencoded" (#1206)
+  * Caching of static files (#1223)
+
+Bug fixes:
+  * When you removed last row of resource table, you could't add it again - since 1.0 (#1215)
+  * Exception if you had any Groups and migrated between CKAN v1.0.2 to v1.2 (migration 29) - since v1.0.2 (#1205)
+  * API Package edit requests returned the Package in a different format to usual - since 1.4 (#1214)
+  * API error responses were not all JSON format and didn't have correct Content-Type (#1214)
+  * API package delete doesn't require a Content-Length header (#1214)
+
+
+v1.4.1 2011-06-27
+=================
+Major:
+  * Refactor Web interface to use logic layer rather than model objects directly (#1078)
+
 Minor:
   * Links in user-supplied text made less attractive to spammers (nofollow) #1181 
   * Package change notifications - remove duplicates (#1149)
   * Metadata dump linked to (#1169)
   * Refactor authorization code to be common across Package, Group and Authorization Group (#1074)
-  * Refactor Web interface to use logic layer rather than model objects directly (#1078)
 
 Bug fixes
   * Duplicate authorization roles were difficult to delete (#1083)
+
 
 v1.4 2011-05-19
 ===============

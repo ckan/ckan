@@ -15,15 +15,21 @@ def table_dictize(obj, context):
     result_dict = {}
 
     model = context["model"]
-    session = context["session"]
+    session = model.Session
 
-    ModelClass = obj.__class__
-    table = class_mapper(ModelClass).mapped_table
-
-    fields = [field.name for field in table.c]
+    if isinstance(obj, sqlalchemy.engine.base.RowProxy):
+        fields = obj.keys()
+    else:
+        ModelClass = obj.__class__
+        table = class_mapper(ModelClass).mapped_table
+        fields = [field.name for field in table.c]
 
     for field in fields:
         name = field
+        if name in ('current', 'expired_timestamp', 'expired_id'):
+            continue
+        if name == 'continuity_id':
+            continue
         value = getattr(obj, name)
         if value is None:
             result_dict[name] = value
@@ -45,8 +51,11 @@ def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
     '''Get a list of model object and represent it as a list of dicts'''
 
     result_list = []
+    active = context.get('active', True)
 
     for obj in obj_list:
+        if active and obj.state not in ('active', 'pending'):
+            continue
         result_list.append(table_dictize(obj, context))
 
     return sorted(result_list, key=sort_key)
@@ -110,6 +119,13 @@ def table_dict_save(table_dict, ModelClass, context):
         if isinstance(value, list):
             continue
         setattr(obj, key, value)
+
+    if context.get('pending'):
+        if session.is_modified(obj, include_collections=False):
+            if table_dict.get('state', '') == 'deleted':
+                obj.state = 'pending-deleted'
+            else:
+                obj.state = 'pending'
 
     session.add(obj)
 

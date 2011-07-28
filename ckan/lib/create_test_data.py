@@ -259,7 +259,7 @@ class CreateTestData(cli.CkanCommand):
             changeset_ids = ChangesetRegister().commit()
 
     @classmethod
-    def create_groups(cls, group_dicts, admin_user_name):
+    def create_groups(cls, group_dicts, admin_user_name=None):
         '''A more featured interface for creating groups.
         All group fields can be filled, packages added and they can
         have an admin user.'''
@@ -267,13 +267,19 @@ class CreateTestData(cli.CkanCommand):
         rev = model.repo.new_revision()
         # same name as user we create below
         rev.author = cls.author
-        admin_user = model.User.by_name(admin_user_name)
+        if admin_user_name:
+            admin_users = [model.User.by_name(admin_user_name)]
+        else:
+            admin_users = []
         assert isinstance(group_dicts, (list, tuple))
+        group_attributes = set(('name', 'title', 'description', 'parent_id'))
         for group_dict in group_dicts:
             group = model.Group(name=unicode(group_dict['name']))
-            for key in ('title', 'description'):
-                if group_dict.has_key(key):
+            for key in group_dict:
+                if key in group_attributes:
                     setattr(group, key, group_dict[key])
+                else:
+                    group.extras[key] = group_dict[key]
             pkg_names = group_dict.get('packages', [])
             assert isinstance(pkg_names, (list, tuple))
             for pkg_name in pkg_names:
@@ -281,7 +287,7 @@ class CreateTestData(cli.CkanCommand):
                 assert pkg, pkg_name
                 pkg.groups.append(group)
             model.Session.add(group)
-            model.setup_default_user_roles(group, [admin_user])
+            model.setup_default_user_roles(group, admin_users)
             cls.group_names.add(group_dict['name'])
         model.repo.commit_and_remove()
 
@@ -370,10 +376,12 @@ left arrow <
                              description=u'Roger likes these books.')
         for obj in [david, roger]:
             model.Session.add(obj)
+        
         cls.group_names.add(u'david')
         cls.group_names.add(u'roger')
-        david.packages = [pkg1, pkg2]
-        roger.packages = [pkg1]
+        model.Session.add(model.PackageGroup(package=pkg1, group=david))
+        model.Session.add(model.PackageGroup(package=pkg2, group=david))
+        model.Session.add(model.PackageGroup(package=pkg1, group=roger))
         # authz
         model.Session.add_all([
             model.User(name=u'tester', apikey=u'tester', password=u'tester'),

@@ -39,10 +39,10 @@ resource_group_table = Table(
     )
 
 vdm.sqlalchemy.make_table_stateful(resource_table)
-resource_revision_table = vdm.sqlalchemy.make_revisioned_table(resource_table)
+resource_revision_table = make_revisioned_table(resource_table)
 
 vdm.sqlalchemy.make_table_stateful(resource_group_table)
-resource_group_revision_table = vdm.sqlalchemy.make_revisioned_table(resource_group_table)
+resource_group_revision_table = make_revisioned_table(resource_group_table)
 
 class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,
@@ -81,6 +81,15 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
         if self.resource_group and not core_columns_only:
             _dict["package_id"] = self.resource_group.package_id
         return _dict
+
+    @classmethod
+    def get(cls, reference):
+        '''Returns a resource object referenced by its id.'''
+        query = Session.query(ResourceRevision).filter(ResourceRevision.id==reference)
+        query = query.filter(and_(
+            ResourceRevision.state == u'active', ResourceRevision.current == True
+        ))
+        return query.first()
         
     @classmethod
     def get_columns(cls, extra_columns=True):

@@ -2,14 +2,15 @@ import datetime
 from time import gmtime
 from calendar import timegm
 
-from sqlalchemy.sql import select, and_, union, expression
+from sqlalchemy.sql import select, and_, union, expression, or_
 from sqlalchemy.orm import eagerload_all
+from sqlalchemy import types, Column, Table
 from pylons import config
-from meta import *
+from meta import metadata, Session
 import vdm.sqlalchemy
 
 from types import make_uuid
-from core import *
+from core import make_revisioned_table, Revision, State
 from license import License, LicenseRegister
 from domain_object import DomainObject
 import ckan.misc
@@ -37,7 +38,7 @@ package_table = Table('package', metadata,
 
 
 vdm.sqlalchemy.make_table_stateful(package_table)
-package_revision_table = vdm.sqlalchemy.make_revisioned_table(package_table)
+package_revision_table = make_revisioned_table(package_table)
 
 ## -------------------
 ## Mapped classes
@@ -224,7 +225,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             subject = related_package
             object_ = self
         else:
-            raise NotImplementedError, 'Package relationship type: %r' % type_
+            raise KeyError, 'Package relationship type: %r' % type_
 
         rels = self.get_relationships(with_package=related_package,
                                       type=type_, active=False, direction="forward")

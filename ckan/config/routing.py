@@ -104,6 +104,8 @@ def make_map():
     
     map.connect('/api/rest', controller='api', action='index')
 
+    map.connect('/api/action/{logic_function}', controller='api', action='action')
+
     map.connect('/api/rest/{register}', controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET'])
@@ -179,11 +181,14 @@ def make_map():
             ]))
         )
     map.connect('/package', controller='package', action='index')
+    map.connect('/package/{action}/{id}/{revision}', controller='package', action='read_ajax')
     map.connect('/package/{action}/{id}', controller='package',
         requirements=dict(action='|'.join([
         'edit',
         'authz',
-        'history'
+        'history',
+        'read_ajax',
+        'history_ajax',
         ]))
         )
     map.connect('/package/{id}', controller='package', action='read')
@@ -227,10 +232,12 @@ def make_map():
     # Note: openid users have slashes in their ids, so need the wildcard
     # in the route.
     map.connect('/user/edit/{id:.*}', controller='user', action='edit')
+    map.connect('/user/reset/{id:.*}', controller='user', action='perform_reset')
     map.connect('/user/register', controller='user', action='register')
     map.connect('/user/login', controller='user', action='login')
     map.connect('/user/logged_in', controller='user', action='logged_in')
     map.connect('/user/logged_out', controller='user', action='logged_out')
+    map.connect('/user/reset', controller='user', action='request_reset')
     map.connect('/user/me', controller='user', action='me')
     map.connect('/user/{id:.*}', controller='user', action='read')
     map.connect('/user', controller='user', action='index')
