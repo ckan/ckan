@@ -11,6 +11,8 @@ Extensions allow you to customise CKAN for your own requirements, without interf
 Finding Extensions
 ------------------
 
+Many CKAN extensions are listed on the CKAN wiki's `List of Extensions <http://wiki.ckan.net/List_of_Extensions>`_. All CKAN extensions can be found at `OKFN's bitbucket page <https://bitbucket.org/okfn/>`_, prefaced with ``ckanext-``.
+
 Some popular extensions include: 
 
 * `ckanext-admin <https://bitbucket.org/okfn/ckanext-admin>`_: Admin web interface for CKAN.
@@ -24,14 +26,16 @@ Some popular extensions include:
 * `ckanext-stats <https://bitbucket.org/okfn/ckanext-stats>`_: Statistics (and visuals) about the datasets in a CKAN instance.
 * `ckanext-wordpresser <https://bitbucket.org/okfn/ckanext-wordpresser>`_: CKAN plugin / WSGI middleware for combining CKAN with a Wordpress site. 
 
-Many CKAN extensions are listed on the `CKAN wiki <http://wiki.ckan.net/Main_Page>`_. All CKAN extensions can be found at `OKFN's bitbucket page <https://bitbucket.org/okfn/>`_, prefaced with ``ckanext-``.
-
 Installing an Extension
 -----------------------
 
-To install an extension on a CKAN instance:
+You can install an extension on a CKAN instance as follows.
 
-1. Install the extension package code using ``pip``.
+1. First, ensure you are working within your virtualenv (see :doc:`prepare-extensions` if you are not sure what this means)::
+
+   . /home/ubuntu/pyenv/bin/activate
+
+2. Install the extension package code using ``pip``.
 
  For example, to install the Disqus extension, which allows users to comment on datasets::
 
@@ -43,7 +47,7 @@ To install an extension on a CKAN instance:
  
  The dependency you've installed will appear in the ``src/`` directory under your Python environment. 
 
-2. Add the names of any plugin implementations the extension uses to the CKAN
+3. Add the names of any plugin implementations the extension uses to the CKAN
 config file. You can find these in the plugin's ``setup.py`` file under ``[ckan.plugins]``.
 
  The config plugins variable is in the '[app:main]' section under 'ckan.plugins'. e.g.::
@@ -55,7 +59,7 @@ config file. You can find these in the plugin's ``setup.py`` file under ``[ckan.
 
        ckan.plugins = disqus amqp myplugin
 
-3. If necessary, restart WSGI, which usually means restarting Apache::
+4. If necessary, restart WSGI, which usually means restarting Apache::
 
        sudo /etc/init.d/apache2 restart
 
