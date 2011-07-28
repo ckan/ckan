@@ -378,7 +378,7 @@ class PackageController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context, {'id':'id'})
+        self._setup_template_variables(context, {'id': id})
         c.form = render(self.package_form, extra_vars=vars)
         return render('package/edit.html')
 
