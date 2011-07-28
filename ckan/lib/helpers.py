@@ -5,6 +5,7 @@
 Consists of functions to typically be used within templates, but also
 available to Controllers. This module is available to templates as 'h'.
 """
+from datetime import datetime
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
 from webhelpers.html.tags import *
@@ -16,7 +17,6 @@ from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
-import datetime
 from ckan.i18n import get_available_locales
 
 try:
@@ -29,6 +29,7 @@ try:
 except ImportError:
     import simplejson as json
 
+ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -209,7 +210,7 @@ def render_datetime(datetime_):
     '''
     from ckan import model
     date_format = '%Y-%m-%d %H:%M'
-    if isinstance(datetime_, datetime.datetime):
+    if isinstance(datetime_, datetime):
         return datetime_.strftime(date_format)
     elif isinstance(datetime_, basestring):
         try:
@@ -222,3 +223,8 @@ def render_datetime(datetime_):
     else:
         return ''
 
+def date_str_to_datetime(date_str, format=ISO_DATE_FORMAT):
+    return datetime.strptime(date_str, format)
+
+def time_ago_in_words_from_str(date_str, format=ISO_DATE_FORMAT, granularity='month'):
+    return date.time_ago_in_words(datetime.strptime(date_str, format), granularity=granularity)

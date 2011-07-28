@@ -12,14 +12,17 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_dictize,
                                                 group_dictize,
                                                 group_to_api1,
-                                                group_to_api2)
+                                                group_to_api2,
+                                                user_dictize)
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_api_to_dict,
                                              group_dict_save,
+                                             user_dict_save,
                                              package_dict_save,
                                              resource_dict_save)
 from ckan.logic.schema import (default_update_group_schema,
                                default_update_package_schema,
+                               default_update_user_schema,
                                default_update_resource_schema)
 from ckan.lib.navl.dictization_functions import validate
 log = logging.getLogger(__name__)
@@ -359,6 +362,45 @@ def group_update(context, data_dict):
         raise ValidationError(errors)
 
     return group_dictize(group, context)
+
+def user_update(context, data_dict):
+    '''Updates the user's details'''
+
+    model = context['model']
+    user = context['user']
+    preview = context.get('preview', False)
+    schema = context.get('schema') or default_update_user_schema() 
+    id = data_dict['id']
+
+    user_obj = model.User.get(id)
+    context['user_obj'] = user_obj
+    if user_obj is None:
+        raise NotFound('User was not found.')
+
+    if not (ckan.authz.Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name) and \
+       not ('reset_key' in data_dict and data_dict['reset_key'] == user_obj.reset_key):
+        raise NotAuthorized( _('User %s not authorized to edit %s') % (str(user), id))
+
+    data, errors = validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, group_error_summary(errors))
+
+    if not preview:
+        rev = model.repo.new_revision()
+        rev.author = user
+        if 'message' in context:
+            rev.message = context['message']
+        else:
+            rev.message = _(u'REST API: Update user %s') % data.get('name')
+
+    user = user_dict_save(data, context)
+    
+    if not preview:
+        model.repo.commit()        
+        return user_dictize(user, context)
+
+    return data
 
 ## Modifications for rest api
 

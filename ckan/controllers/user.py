@@ -1,12 +1,20 @@
 import logging
 
 import genshi
-from sqlalchemy import or_, func, desc
 from urllib import quote
 
 import ckan.misc
 from ckan.lib.base import *
 from ckan.lib import mailer
+from ckan.authz import Authorizer
+from ckan.lib.navl.dictization_functions import DataError, unflatten
+from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import tuplize_dict, clean_dict, parse_params
+from ckan.logic.schema import user_new_form_schema, user_edit_form_schema 
+
+import ckan.logic.action.get as get
+import ckan.logic.action.create as create
+import ckan.logic.action.update as update
 
 log = logging.getLogger(__name__)
 
@@ -15,7 +23,30 @@ def login_form():
 
 class UserController(BaseController):
 
-    def index(self, id=None):
+    ## hooks for subclasses 
+    new_user_form = 'user/new_user_form.html'
+    edit_user_form = 'user/edit_user_form.html'
+
+    def _new_form_to_db_schema(self):
+        return user_new_form_schema()
+
+    def _db_to_new_form_schema(self):
+        '''This is an interface to manipulate data from the database
+        into a format suitable for the form (optional)'''
+
+    def _edit_form_to_db_schema(self):
+        return user_edit_form_schema()
+
+    def _db_to_edit_form_schema(self):
+        '''This is an interface to manipulate data from the database
+        into a format suitable for the form (optional)'''
+
+    def _setup_template_variables(self, context):
+        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+
+    ## end hooks
+
+    def index(self):
         LIMIT = 20
 
         if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
@@ -25,25 +56,18 @@ class UserController(BaseController):
         c.q  = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
-        query = model.Session.query(model.User, func.count(model.User.id))
-        if c.q:
-            query = model.User.search(c.q, query)
+        context = {'model': model,
+                   'user': c.user or c.author}
 
-        if c.order_by == 'edits':
-            query = query.join((model.Revision, or_(
-                    model.Revision.author==model.User.name,
-                    model.Revision.author==model.User.openid
-                    )))
-            query = query.group_by(model.User)
-            query = query.order_by(desc(func.count(model.User.id)))
-        else:
-            query = query.group_by(model.User)
-            query = query.order_by(model.User.name)
+        data_dict = {'q':c.q,
+                     'order_by':c.order_by}
+
+        users_list = get.user_list(context,data_dict)
 
         c.page = h.Page(
-            collection=query,
+            collection=users_list,
             page=page,
-            item_count=query.count(),
+            item_count=len(users_list),
             items_per_page=LIMIT
             )
         return render('user/list.html')
@@ -51,21 +75,21 @@ class UserController(BaseController):
     def read(self, id=None):
         if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
             abort(401, _('Not authorized to see this page'))
-        if id:
-            user = model.User.get(id)
-        else:
-            user = c.userobj
-        if not user:
+
+        context = {'model': model,
+                   'user': c.user or c.author}
+
+        data_dict = {'id':id,
+                     'user_obj':c.userobj}
+        try:
+            user_dict = get.user_show(context,data_dict)
+        except NotFound:
             h.redirect_to(controller='user', action='login', id=None)
-        c.read_user = user.display_name
-        c.is_myself = user.name == c.user
-        c.api_key = user.apikey
-        c.about_formatted = self._format_about(user.about)
-        revisions_q = model.Session.query(model.Revision
-                ).filter_by(author=user.name)
-        c.num_edits = user.number_of_edits()
-        c.num_pkg_admin = user.number_administered_packages()
-        c.activity = revisions_q.limit(20).all()
+
+        c.user_dict = user_dict
+        c.is_myself = user_dict['name'] == c.user
+        c.about_formatted = self._format_about(user_dict['about'])
+
         return render('user/read.html')
     
     def me(self):
@@ -74,41 +98,119 @@ class UserController(BaseController):
         user_ref = c.userobj.get_reference_preferred_for_uri()
         h.redirect_to(controller='user', action='read', id=user_ref)
 
-    def register(self):
-        if not self.authorizer.am_authorized(c, model.Action.USER_CREATE, model.System):
-            abort(401, _('Not authorized to see this page'))
-        if request.method == 'POST':
-            try:
-                c.login = request.params.getone('login')
-                c.fullname = request.params.getone('fullname')
-                c.email = request.params.getone('email')
-            except KeyError, e:
-                abort(401, _('Missing parameter: %r') % e)
-            if not c.login:
-                h.flash_error(_("Please enter a login name."))
-                return render("user/register.html")
-            if not model.User.check_name_valid(c.login):
-                h.flash_error(_('That login name is not valid. It must be at least 3 characters, restricted to alphanumerics and these symbols: %s') % '_\-')
-                return render("user/register.html")
-            if not model.User.check_name_available(c.login):
-                h.flash_error(_("That login name is not available."))
-                return render("user/register.html")
-            if not request.params.getone('password1'):
-                h.flash_error(_("Please enter a password."))
-                return render("user/register.html")                
-            try:
-                password = self._get_form_password()
-            except ValueError, ve:
-                h.flash_error(ve)
-                return render('user/register.html')
-            user = model.User(name=c.login, fullname=c.fullname,
-                              email=c.email, password=password)
-            model.Session.add(user)
-            model.Session.commit() 
-            model.Session.remove()
-            h.redirect_to('/login_generic?login=%s&password=%s' % (str(c.login), quote(password.encode('utf-8'))))
+    def register(self, data=None, errors=None, error_summary=None):
+        return self.new(data, errors, error_summary)
 
-        return render('user/register.html')
+    def new(self, data=None, errors=None, error_summary=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._new_form_to_db_schema(),
+                   'save': 'save' in request.params}
+
+        auth_for_create = Authorizer().am_authorized(c, model.Action.USER_CREATE, model.System())
+        if not auth_for_create:
+            abort(401, _('Unauthorized to create a user'))
+
+        if context['save'] and not data:
+            return self._save_new(context)
+        
+        data = data or {}
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+
+        self._setup_template_variables(context)
+        c.form = render(self.new_user_form, extra_vars=vars)
+        return render('user/new.html')
+
+    def _save_new(self, context):
+        try:
+            data_dict = clean_dict(unflatten(
+                tuplize_dict(parse_params(request.params))))
+            context['message'] = data_dict.get('log_message', '')
+            user = create.user_create(context, data_dict)
+            h.redirect_to(controller='user', action='read', id=user['name'])
+        except NotAuthorized:
+            abort(401, _('Unauthorized to create user %s') % '')
+        except NotFound, e:
+            abort(404, _('User not found'))
+        except DataError:
+            abort(400, _(u'Integrity Error'))
+        except ValidationError, e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.new(data_dict, errors, error_summary)
+
+    def edit(self, id, data=None, errors=None, error_summary=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'preview': 'preview' in request.params,
+                   'save': 'save' in request.params,
+                   'schema': self._edit_form_to_db_schema(),
+                   }
+        data_dict = {'id': id}
+
+        if (context['save'] or context['preview']) and not data:
+            return self._save_edit(id, context)
+
+        try:
+            old_data = get.user_show(context, data_dict)
+
+            schema = self._db_to_edit_form_schema()
+            if schema:
+                old_data, errors = validate(old_data, schema)
+
+            c.display_name = old_data.get('display_name')
+            c.user_name = old_data.get('name')
+
+            data = data or old_data
+
+        except NotAuthorized:
+            abort(401, _('Unauthorized to edit user %s') % '')
+
+        user_obj = context.get('user_obj')
+        
+        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user)) or c.user == user_obj.name):
+            abort(401, _('User %s not authorized to edit %s') % (str(c.user), id))
+        
+        errors = errors or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+
+        self._setup_template_variables(context)
+
+        c.form = render(self.edit_user_form, extra_vars=vars)
+
+        return render('user/edit.html')
+
+    def _save_edit(self, id, context):
+        try:
+            data_dict = clean_dict(unflatten(
+                tuplize_dict(parse_params(request.params))))
+            context['message'] = data_dict.get('log_message', '')
+            data_dict['id'] = id
+            user = update.user_update(context, data_dict)
+
+            if context['preview']:
+                about = request.params.getone('about')
+                c.preview = self._format_about(about)
+                c.user_about = about
+                c.full_name = request.params.get('fullname','')
+                c.email = request.params.getone('email')
+
+                return self.edit(id, data_dict)
+
+            h.redirect_to(controller='user', action='read', id=user['id'])
+        except NotAuthorized:
+            abort(401, _('Unauthorized to edit user %s') % id)
+        except NotFound, e:
+            abort(404, _('User not found'))
+        except DataError:
+            abort(400, _(u'Integrity Error'))
+        except ValidationError, e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.edit(id, data_dict, errors, error_summary)
+
 
     def login(self):
         if 'error' in request.params:
@@ -116,11 +218,18 @@ class UserController(BaseController):
         return render('user/login.html')
     
     def logged_in(self):
-        if c.userobj:
-            response.set_cookie("ckan_user", c.userobj.name)
-            response.set_cookie("ckan_display_name", c.userobj.display_name)
-            response.set_cookie("ckan_apikey", c.userobj.apikey)
-            h.flash_success(_("Welcome back, %s") % c.userobj.display_name)
+        if c.user:
+            context = {'model': model,
+                       'user': c.user}
+
+            data_dict = {'id':c.user}
+
+            user_dict = get.user_show(context,data_dict)
+
+            response.set_cookie("ckan_user", user_dict['name'])
+            response.set_cookie("ckan_display_name", user_dict['display_name'])
+            response.set_cookie("ckan_apikey", user_dict['apikey'])
+            h.flash_success(_("Welcome back, %s") % user_dict['display_name'])
             h.redirect_to(controller='user', action='me', id=None)
         else:
             h.flash_error('Login failed. Bad username or password.')
@@ -132,98 +241,84 @@ class UserController(BaseController):
         response.delete_cookie("ckan_display_name")
         response.delete_cookie("ckan_apikey")
         return render('user/logout.html')
-
-    def edit(self, id=None):
-        if id is not None:
-            user = model.User.get(id)
-        else:
-            user = c.userobj
-        if user is None:
-            abort(404)
-        currentuser = c.userobj
-        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user)) or user == currentuser):
-            abort(401)
-        c.userobj = user
-        if not 'save' in request.params and not 'preview' in request.params:
-            c.user_about = user.about
-            c.user_fullname = user.fullname
-            c.user_email = user.email
-        elif 'preview' in request.params:
-            about = request.params.getone('about')
-            c.preview = self._format_about(about)
-            c.user_about = about
-            c.user_fullname = request.params.getone('fullname')
-            c.user_email = request.params.getone('email')
-        elif 'save' in request.params:
-            try:
-                about = request.params.getone('about')
-                if 'http://' in about or 'https://' in about:
-                    msg = _('Edit not allowed as it looks like spam. Please avoid links in your description.')
-                    h.flash_error(msg)
-                    c.user_about = about
-                    c.user_fullname = request.params.getone('fullname')
-                    c.user_email = request.params.getone('email')
-                    return render('user/edit.html')
-                user.about = about
-                user.fullname = request.params.getone('fullname')
-                user.email = request.params.getone('email')
-                try:
-                    password = self._get_form_password()
-                    if password: 
-                        user.password = password
-                except ValueError, ve:
-                    h.flash_error(ve)
-                    return render('user/edit.html')
-            except Exception, inst:
-                model.Session.rollback()
-                raise
-            else:
-                model.Session.commit()
-                h.flash_notice(_("Your account has been updated."))
-            response.set_cookie("ckan_display_name", user.display_name)
-            h.redirect_to(controller='user', action='read', id=user.id)
-            
-        return render('user/edit.html')
     
     def request_reset(self):
         if request.method == 'POST':
             id = request.params.get('user')
-            user = model.User.get(id)
-            if user is None and id and len(id)>2:
-                q = model.User.search(id)
-                if q.count() == 1:
-                    user = q.one()
-                elif q.count() > 1:
-                    users = ' '.join([user.name for user in q])
-                    h.flash_error(_('"%s" matched several users') % (id))
-                    return render("user/request_reset.html")
-            if user is None:
-                h.flash_error(_('No such user: %s') % id)
-                return render("user/request_reset.html")
+
+            context = {'model': model,
+                       'user': c.user}
+
+            data_dict = {'id':id}
+            user_obj = None
             try:
-                mailer.send_reset_link(user)
-                h.flash_success(_('Please check your inbox for a reset code.'))
-                redirect('/')
-            except mailer.MailerException, e:
-                h.flash_error(_('Could not send reset link: %s') % unicode(e))
+                user_dict = get.user_show(context,data_dict)
+                user_obj = context['user_obj']
+            except NotFound:
+                # Try searching the user
+                del data_dict['id']
+                data_dict['q'] = id
+
+                if id and len(id) > 2:
+                    user_list = get.user_list(context,data_dict)
+                    if len(user_list) == 1:
+                        # This is ugly, but we need the user object for the mailer,
+                        # and user_list does not return them
+                        del data_dict['q']
+                        data_dict['id'] = user_list[0]['id']
+                        user_dict = get.user_show(context,data_dict)
+                        user_obj = context['user_obj']
+                    elif len(user_list) > 1:
+                        h.flash_error(_('"%s" matched several users') % (id))
+                    else:
+                        h.flash_error(_('No such user: %s') % id)
+                else:
+                    h.flash_error(_('No such user: %s') % id)
+
+            if user_obj:
+                try:
+                    mailer.send_reset_link(user_obj)
+                    h.flash_success(_('Please check your inbox for a reset code.'))
+                    redirect('/')
+                except mailer.MailerException, e:
+                    h.flash_error(_('Could not send reset link: %s') % unicode(e))
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
-        user = model.User.get(id)
-        if user is None:
-            abort(404)
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user}
+
+        data_dict = {'id':id}
+
+        try:
+            user_dict = get.user_show(context,data_dict)
+            user_obj = context['user_obj']
+        except NotFound, e:
+            abort(404, _('User not found'))
+
         c.reset_key = request.params.get('key')
-        if not mailer.verify_reset_link(user, c.reset_key):
-            msg = _('Invalid reset key. Please try again.')
-            h.flash_error(msg)
-            abort(403, msg.encode('utf8'))
+        if not mailer.verify_reset_link(user_obj, c.reset_key):
+            h.flash_error(_('Invalid reset key. Please try again.'))
+            abort(403)
+
         if request.method == 'POST':
             try:
-                user.password = self._get_form_password()
-                model.Session.add(user)
-                model.Session.commit()
+                context['reset_password'] = True 
+                new_password = self._get_form_password()
+                user_dict['password'] = new_password
+                user_dict['reset_key'] = c.reset_key
+                user = update.user_update(context, user_dict)
+
                 h.flash_success(_("Your password has been reset."))
                 redirect('/')
+            except NotAuthorized:
+                h.flash_error(_('Unauthorized to edit user %s') % id)
+            except NotFound, e:
+                h.flash_error(_('User not found'))
+            except DataError:
+                h.flash_error(_(u'Integrity Error'))
+            except ValidationError, e:
+                h.flash_error(u'%r'% e.error_dict)
             except ValueError, ve:
                 h.flash_error(unicode(ve))
         return render('user/perform_reset.html')

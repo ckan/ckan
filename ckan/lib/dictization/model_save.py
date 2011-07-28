@@ -297,6 +297,19 @@ def group_dict_save(group_dict, context):
 
     return group
 
+def user_dict_save(user_dict, context):
+
+    model = context['model']
+    session = context['session']
+    user = context.get('user_obj')
+    
+    User = model.User
+    if user:
+        user_dict['id'] = user.id
+
+    user = table_dict_save(user_dict, User, context)
+
+    return user
 
 def package_api_to_dict(api1_dict, context):
 

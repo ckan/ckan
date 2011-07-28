@@ -2,19 +2,19 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">${c.group.display_name} - Groups - History</py:def>
+  <py:def function="page_title">${c.group_dict['display_name']} - Groups - History</py:def>
 
   <div py:match="content" class="group">
     <h2 class="head">
-      ${c.group.display_name}
+      ${c.group_dict['display_name']}
     </h2>
 
     <h3>
       Revisions
       <p class="atom-feed-link group-history-link">
         <a
-          href="${url(controller='group', action='history', id=c.group.name, format='atom', days=7)}"
-          title="${g.site_title} - Group History - ${c.group.name}"
+          href="${url(controller='group', action='history', id=c.group_dict['name'], format='atom', days=7)}"
+          title="${g.site_title} - Group History - ${c.group_dict['name']}"
           >
           Subscribe &raquo;</a>
       </p>
@@ -28,24 +28,24 @@
         Error: ${c.error}
       </h3>
 
-      <input type="hidden" name="group_name" value="${c.group.name}"/>
+      <input type="hidden" name="group_name" value="${c.group_dict['name']}"/>
 
       <table>
         <tr>
           <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
         </tr>
-        <py:for each="index, rev in enumerate([rev for rev, obj_revs in c.group_revisions])">
+        <py:for each="index, revision_dict in enumerate(c.group_revisions)">
           <tr>
             <td nowrap="nowrap">
-              ${h.radio("selected1", rev.id, checked=(index == 0))}
-              ${h.radio("selected2", rev.id, checked=(index == len(c.group_revisions)-1))}
+              ${h.radio("selected1", revision_dict['id'], checked=(index == 0))}
+              ${h.radio("selected2", revision_dict['id'], checked=(index == len(c.group_revisions)-1))}
             </td>
             <td>
-              <a href="${h.url_for(controller='revision',action='read',id=rev.id)}">${rev.id}</a>
+              <a href="${h.url_for(controller='revision',action='read',id=revision_dict['id'])}">${revision_dict['id']}</a>
             </td>
-            <td>${rev.timestamp}</td>
-            <td>${h.linked_user(rev.author)}</td>
-            <td>${rev.message}</td>
+            <td>${revision_dict['timestamp']}</td>
+            <td>${h.linked_user(revision_dict['author'])}</td>
+            <td>${revision_dict['message']}</td>
           </tr> 
         </py:for>
       </table>
@@ -55,7 +55,7 @@
 
   <py:def function="optional_feed">
     <link rel="alternate" type="application/atom+xml" title="Group History"
-      href="${url(controller='group', action='history', id=c.group.name, format='atom', days=7)}" />
+      href="${url(controller='group', action='history', id=c.group_dict['name'], format='atom', days=7)}" />
   </py:def>
 
   <xi:include href="layout.html" />

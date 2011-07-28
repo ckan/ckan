@@ -6,9 +6,24 @@ from pprint import pprint, pformat
 
 class TestAction(WsgiAppCase):
 
+    STATUS_200_OK = 200
+    STATUS_201_CREATED = 201
+    STATUS_400_BAD_REQUEST = 400
+    STATUS_403_ACCESS_DENIED = 403
+    STATUS_404_NOT_FOUND = 404
+    STATUS_409_CONFLICT = 409
+
+    sysadmin_user = None
+    
+    normal_user = None
+
     @classmethod
     def setup_class(self):
         CreateTestData.create()
+
+        self.sysadmin_user = model.User.get('testsysadmin')
+
+        self.normal_user = model.User.get('annafan')
 
     @classmethod
     def teardown_class(self):
@@ -21,7 +36,14 @@ class TestAction(WsgiAppCase):
                                         "success": True,
                                         "result": ["annakarenina", "warandpeace"]}
 
-    def test_02_create_update_package(self):
+    def test_02_package_autocomplete(self):
+        postparams = '%s=1' % json.dumps({'q':'a'})
+        res = self.app.post('/api/action/package_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success'] == True
+        assert res_obj['result'][0]['name'] == 'annakarenina'
+
+    def test_03_create_update_package(self):
 
         package = {
             'author': None,
@@ -69,4 +91,299 @@ class TestAction(WsgiAppCase):
         package_created.pop('revision_id')
         package_created.pop('revision_timestamp')
         assert package_updated == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))
+
+    def test_04_user_list(self):
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/user_list', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Lists the current users'
+        assert res_obj['success'] == True
+        assert len(res_obj['result']) == 7
+        assert res_obj['result'][0]['name'] == 'annafan'
+        assert res_obj['result'][0]['about'] == 'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>'
+        assert not 'apikey' in res_obj['result'][0]
+
+    def test_05_user_show(self):
+        postparams = '%s=1' % json.dumps({'id':'annafan'})
+        res = self.app.post('/api/action/user_show', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Shows user details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['name'] == 'annafan'
+        assert result['about'] == 'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>'
+        assert 'apikey' in result
+        assert 'activity' in result
+        assert 'created' in result
+        assert 'display_name' in result
+        assert 'number_administered_packages' in result
+        assert 'number_of_edits' in result
+
+    def test_06_tag_list(self):
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/tag_list', params=postparams)
+        assert json.loads(res.body) == {'help': 'Returns a list of tags',
+                                        'success': True,
+                                        'result': ['russian', 'tolstoy']}
+        #Get all fields
+        postparams = '%s=1' % json.dumps({'all_fields':True})
+        res = self.app.post('/api/action/tag_list', params=postparams)
+        res_obj = json.loads(res.body)
+        pprint(res_obj)
+        assert res_obj['success'] == True
+        assert res_obj['result'][0]['name'] == 'russian'
+        assert len(res_obj['result'][0]['packages']) == 3
+        assert res_obj['result'][1]['name'] == 'tolstoy'
+        assert len(res_obj['result'][1]['packages']) == 2
+        assert 'id' in res_obj['result'][0]
+        assert 'id' in res_obj['result'][1]
+
+    def test_07_tag_show(self):
+        postparams = '%s=1' % json.dumps({'id':'russian'})
+        res = self.app.post('/api/action/tag_show', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Shows tag details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['name'] == 'russian'
+        assert 'id' in result
+        assert 'packages' in result and len(result['packages']) == 3
+        assert [package['name'] for package in result['packages']].sort() == ['annakarenina', 'warandpeace', 'moo'].sort()
+
+    def test_08_user_create_not_authorized(self):
+        postparams = '%s=1' % json.dumps({'name':'test_create_from_action_api', 'password':'testpass'})
+        res = self.app.post('/api/action/user_create', params=postparams,
+                            status=self.STATUS_403_ACCESS_DENIED)
+        res_obj = json.loads(res.body)
+        assert res_obj == {'help': 'Creates a new user',
+                           'success': False,
+                           'error': {'message': 'Access denied', '__type': 'Authorization Error'}}
+
+    def test_09_user_create(self):
+        user_dict = {'name':'test_create_from_action_api',
+                      'about': 'Just a test user',
+                      'password':'testpass'}
+
+        postparams = '%s=1' % json.dumps(user_dict)
+        res = self.app.post('/api/action/user_create', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Creates a new user'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['name'] == user_dict['name']
+        assert result['about'] == user_dict['about']
+        assert 'apikey' in result
+        assert 'created' in result
+        assert 'display_name' in result
+        assert 'number_administered_packages' in result
+        assert 'number_of_edits' in result
+        assert not 'password' in result
+
+    def test_10_user_create_parameters_missing(self):
+        user_dict = {}
+
+        postparams = '%s=1' % json.dumps(user_dict)
+        res = self.app.post('/api/action/user_create', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=self.STATUS_409_CONFLICT)
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'error': {
+                '__type': 'Validation Error',
+                'name': ['Missing value'],
+                'password': ['Missing value']
+            },
+            'help': 'Creates a new user',
+            'success': False
+        }
+
+    def test_11_user_create_wrong_password(self):
+        user_dict = {'name':'test_create_from_action_api_2',
+                      'password':'tes'} #Too short
+
+        postparams = '%s=1' % json.dumps(user_dict)
+        res = self.app.post('/api/action/user_create', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=self.STATUS_409_CONFLICT)
+
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'error': {
+                '__type': 'Validation Error',
+                'password': ['Your password must be 4 characters or longer']
+            },
+            'help': 'Creates a new user',
+            'success': False
+        }
+
+    def test_12_user_update(self):
+        normal_user_dict = {'id': self.normal_user.id,
+                            'fullname': 'Updated normal user full name',
+                            'about':'Updated normal user about'}
+
+        sysadmin_user_dict = {'id': self.sysadmin_user.id,
+                            'fullname': 'Updated sysadmin user full name',
+                            'about':'Updated sysadmin user about'} 
+
+        #Normal users can update themselves
+        postparams = '%s=1' % json.dumps(normal_user_dict)
+        res = self.app.post('/api/action/user_update', params=postparams,
+                            extra_environ={'Authorization': str(self.normal_user.apikey)})
+
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['id'] == self.normal_user.id
+        assert result['name'] == self.normal_user.name
+        assert result['fullname'] == normal_user_dict['fullname']
+        assert result['about'] == normal_user_dict['about']
+        assert 'apikey' in result
+        assert 'created' in result
+        assert 'display_name' in result
+        assert 'number_administered_packages' in result
+        assert 'number_of_edits' in result
+        assert not 'password' in result
+
+        #Sysadmin users can update themselves
+        postparams = '%s=1' % json.dumps(sysadmin_user_dict)
+        res = self.app.post('/api/action/user_update', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['id'] == self.sysadmin_user.id
+        assert result['name'] == self.sysadmin_user.name
+        assert result['fullname'] == sysadmin_user_dict['fullname']
+        assert result['about'] == sysadmin_user_dict['about']
+
+        #Sysadmin users can update all users
+        postparams = '%s=1' % json.dumps(normal_user_dict)
+        res = self.app.post('/api/action/user_update', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['id'] == self.normal_user.id
+        assert result['name'] == self.normal_user.name
+        assert result['fullname'] == normal_user_dict['fullname']
+        assert result['about'] == normal_user_dict['about']
+
+        #Normal users can not update other users
+        postparams = '%s=1' % json.dumps(sysadmin_user_dict)
+        res = self.app.post('/api/action/user_update', params=postparams,
+                            extra_environ={'Authorization': str(self.normal_user.apikey)},
+                            status=self.STATUS_403_ACCESS_DENIED)
+
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'error': {
+                '__type': 'Authorization Error',
+                'message': 'Access denied'
+            },
+            'help': 'Updates the user\'s details',
+            'success': False
+        }
+
+    def test_13_group_list(self):
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/group_list', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'result': [
+                'david',
+                'roger'
+            ],
+            'help': 'Returns a list of groups',
+            'success': True
+        }
+        
+        #Get all fields
+        postparams = '%s=1' % json.dumps({'all_fields':True})
+        res = self.app.post('/api/action/group_list', params=postparams)
+        res_obj = json.loads(res.body)
+
+        assert res_obj['success'] == True
+        assert res_obj['result'][0]['name'] == 'david'
+        assert res_obj['result'][0]['display_name'] == 'Dave\'s books'
+        assert res_obj['result'][0]['packages'] == 2
+        assert res_obj['result'][1]['name'] == 'roger'
+        assert res_obj['result'][1]['packages'] == 1
+        assert 'id' in res_obj['result'][0]
+        assert 'revision_id' in res_obj['result'][0]
+        assert 'state' in res_obj['result'][0]
+
+    def test_14_group_show(self):
+        postparams = '%s=1' % json.dumps({'id':'david'})
+        res = self.app.post('/api/action/group_show', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Shows group details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['name'] == 'david'
+        assert result['title'] == result['display_name'] == 'Dave\'s books'
+        assert result['state'] == 'active'
+        assert 'id' in result
+        assert 'revision_id' in result
+        assert len(result['packages']) == 2
+
+        #Group not found
+        postparams = '%s=1' % json.dumps({'id':'not_present_in_the_db'})
+        res = self.app.post('/api/action/group_show', params=postparams,
+                            status=self.STATUS_404_NOT_FOUND)
+
+        res_obj = json.loads(res.body)
+        pprint(res_obj)
+        assert res_obj == {
+            'error': {
+                '__type': 'Not Found Error',
+                'message': 'Not found'
+            },
+            'help': 'Shows group details',
+            'success': False
+        }
+
+    def test_15_tag_autocomplete(self):
+        #Empty query
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'help': 'Returns tags containing the provided string', 
+            'result': [], 
+            'success': True
+        }
+
+        #Normal query
+        postparams = '%s=1' % json.dumps({'q':'r'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'help': 'Returns tags containing the provided string', 
+            'result': ['russian'], 
+            'success': True
+        }
+
+    def test_16_user_autocomplete(self):
+        #Empty query
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/user_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'help': 'Returns users containing the provided string', 
+            'result': [], 
+            'success': True
+        }
+
+        #Normal query
+        postparams = '%s=1' % json.dumps({'q':'joe'})
+        res = self.app.post('/api/action/user_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['result'][0]['name'] == 'joeadmin'
+        assert 'id','fullname' in res_obj['result'][0]
 

@@ -14,15 +14,17 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              group_dict_save,
                                              package_api_to_dict,
-                                             package_dict_save)
+                                             package_dict_save,
+                                             user_dict_save)
 
 from ckan.lib.dictization.model_dictize import (group_dictize,
-                                                package_dictize)
+                                                package_dictize,
+                                                user_dictize)
 
 
 from ckan.logic.schema import default_create_package_schema, default_resource_schema
 
-from ckan.logic.schema import default_group_schema
+from ckan.logic.schema import default_group_schema, default_user_schema
 from ckan.lib.navl.dictization_functions import validate 
 from ckan.logic.action.update import (_update_package_relationship,
                                       package_error_summary,
@@ -213,6 +215,36 @@ def rating_create(context, data_dict):
                 'rating count': len(package.ratings)}
     return ret_dict
 
+def user_create(context, data_dict):
+    '''Creates a new user'''
+
+    model = context['model']
+    user = context['user']
+    schema = context.get('schema') or default_user_schema()
+
+    check_access(model.System(), model.Action.USER_CREATE, context)
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, group_error_summary(errors))
+
+    rev = model.repo.new_revision()
+    rev.author = user
+
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'REST API: Create user %s') % data.get('name')
+
+    user = user_dict_save(data, context)
+
+    model.repo.commit()        
+    context['user'] = user
+    context['id'] = user.id
+    log.debug('Created user %s' % str(user.name))
+    return user_dictize(user, context)
 
 ## Modifications for rest api
 
