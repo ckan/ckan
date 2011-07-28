@@ -4,21 +4,22 @@ Option 1: Package Installation
 
 This section describes how to install CKAN from packages. This is the recommended and by far the easiest way to install CKAN.
 
-It requires you to use Ubuntu 10.04. If you don't have access to Ubuntu 10.04, we provide support for two options:
+Package install requires you to use 64-bit Ubuntu 10.04: either locally, through a virtual machine or Amazon EC2. Your options are as follows:
 
+* Using 64-bit Ubuntu 10.04 directly. 
 * :ref:`using-virtualbox`. This is suitable if you want to host your CKAN instance on a machine running any other OS. 
-* :ref:`using-amazon`. This is suitable if you want to host your CKAN instance in the cloud, on a readymade Ubuntu OS.
+* :ref:`using-amazon`. This is suitable if you want to host your CKAN instance in the cloud, on a ready-made Ubuntu OS.
 
-.. note:: We recommend you use this method unless you are an experimental user, a core CKAN developer, or you have no access to Ubuntu 10.04 through either of the methods above, in which 
+.. note:: We recommend you use package installation unless you are a core CKAN developer or have no access to Ubuntu 10.04 through any of the methods above, in which case, you should use :doc:`install-from-source`.
 
 For support during installation, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_. 
 
 Prepare your System
 --------------------
 
-CKAN runs on Ubuntu 10.04 (either 64-bit or 32-bit). If you are already using Ubuntu 10.04, you can continue straight to :doc:`install`.
+CKAN runs on 64-bit Ubuntu 10.04. If you are already using Ubuntu 10.04, you can continue straight to :ref:`run-package-installer`.
 
-However, if you're not, you can either use VirtualBox to set up an Ubuntu VM, or an Amazon EC2 instance.
+However, if you're not, you can either use VirtualBox to set up an Ubuntu VM on Windows, Linux, Macintosh and Solaris. Alternatively, you can use an Amazon EC2 instance.
 
 .. _using-virtualbox:
 
@@ -35,7 +36,7 @@ First, check your machine meets `the pre-requisites for VirtualBox <http://www.v
 Then download the installation files. 
 
 * `Download the VirtualBox installer <http://www.virtualbox.org/wiki/Downloads>`_.
-* `Download the Ubuntu image <http://www.ubuntu.com/download/ubuntu/download>`_ - make sure you choose Ubuntu 10.04, and 64-bit or 32-bit as appropriate for your current operating system.
+* `Download the Ubuntu image <http://www.ubuntu.com/download/ubuntu/download>`_ - make sure you choose Ubuntu 10.04 and 64-bit.
 
 Install VirtualBox
 ******************
@@ -61,7 +62,7 @@ Go to Applications and open VirtualBox, then click New:
    :width: 807px
    :alt: The VirtualBox installer - the New Virtual Machine Wizard
 
-Give your VM a name - we'll call ours ``ubuntu_ckan``. Under **OS Type**, choose **Linux** and **Ubuntu** (or **Ubuntu 64-bit** if you plan to install 64-bit Ubuntu).
+Give your VM a name - we'll call ours ``ubuntu_ckan``. Under **OS Type**, choose **Linux** and **Ubuntu 64-bit**.
 
 .. image:: images/virtualbox5-vmtype.png
    :width: 807px
@@ -110,7 +111,7 @@ After Ubuntu is installed, from the main menu, choose **System > Administration 
 
 When all the updates have been downloaded and installed, you'll be prompted to reboot Ubuntu. 
 
-At this point, you can begin installing CKAN. 
+At this point, you can proceed to :ref:`run-package-installer`.
 
 .. _using-amazon:
 
