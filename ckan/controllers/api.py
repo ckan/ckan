@@ -551,4 +551,19 @@ class ApiController(BaseController):
         }
         return self._finish_ok(resultSet)
 
+    def format_autocomplete(self):
+        q = request.params.get('incomplete', '')
+        limit = request.params.get('limit', 5)
+        formats = []
+        if q:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+            data_dict = {'q': q, 'limit': limit}
+            formats = get.format_autocomplete(context, data_dict)
 
+        resultSet = {
+            'ResultSet': {
+                'Result': [{'Format': format} for format in formats]
+            }
+        }
+        return self._finish_ok(resultSet)
