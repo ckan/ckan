@@ -1,8 +1,10 @@
+import json
+from pprint import pprint, pformat
+
 from ckan.lib.create_test_data import CreateTestData
 import ckan.model as model
 from ckan.tests import WsgiAppCase
-import json
-from pprint import pprint, pformat
+from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering, change_lists_to_sets
 
 class TestAction(WsgiAppCase):
 
@@ -32,10 +34,12 @@ class TestAction(WsgiAppCase):
     def test_01_package_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/package_list', params=postparams)
-        assert json.loads(res.body) == {"help": "Lists the package by name",
-                                        "success": True,
-                                        "result": ["annakarenina", "warandpeace"]}
-
+        assert_dicts_equal_ignoring_ordering(
+            json.loads(res.body),
+            {"help": "Lists the package by name",
+             "success": True,
+             "result": ["annakarenina", "warandpeace"]})
+        
     def test_02_package_autocomplete(self):
         postparams = '%s=1' % json.dumps({'q':'a'})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
@@ -122,19 +126,27 @@ class TestAction(WsgiAppCase):
     def test_06_tag_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/tag_list', params=postparams)
-        assert json.loads(res.body) == {'help': 'Returns a list of tags',
-                                        'success': True,
-                                        'result': ['russian', 'tolstoy']}
+        assert_dicts_equal_ignoring_ordering(
+            json.loads(res.body),
+            {'help': 'Returns a list of tags',
+             'success': True,
+             'result': ['russian', 'tolstoy']})
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
         res = self.app.post('/api/action/tag_list', params=postparams)
         res_obj = json.loads(res.body)
         pprint(res_obj)
         assert res_obj['success'] == True
-        assert res_obj['result'][0]['name'] == 'russian'
-        assert len(res_obj['result'][0]['packages']) == 3
-        assert res_obj['result'][1]['name'] == 'tolstoy'
-        assert len(res_obj['result'][1]['packages']) == 2
+        if res_obj['result'][0]['name'] == 'russian':
+            russian_index = 0
+            tolstoy_index = 1
+        else:
+            russian_index = 1
+            tolstoy_index = 0
+        assert res_obj['result'][russian_index]['name'] == 'russian'
+        assert len(res_obj['result'][russian_index]['packages']) - \
+               len(res_obj['result'][tolstoy_index]['packages']) == 1
+        assert res_obj['result'][tolstoy_index]['name'] == 'tolstoy'
         assert 'id' in res_obj['result'][0]
         assert 'id' in res_obj['result'][1]
 
@@ -294,14 +306,16 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/group_list', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj == {
-            'result': [
-                'david',
-                'roger'
-            ],
-            'help': 'Returns a list of groups',
-            'success': True
-        }
+        assert_dicts_equal_ignoring_ordering(
+            res_obj,
+            {
+                'result': [
+                    'david',
+                    'roger'
+                    ],
+                'help': 'Returns a list of groups',
+                'success': True
+            })
         
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
