@@ -34,7 +34,7 @@ tests <http://buildbot.okfn.org/waterfall>`_.
    Package                Description
    =====================  ===============================================
    mercurial              `Source control <http://mercurial.selenic.com/>`_
-   python                 `Python interpreter v2.5 - v2.7 and dev headers <http://www.python.org/getit/>`_
+   python                 `Python v2.5-2.7 <http://www.python.org/getit/>`_
    postgresql             `PostgreSQL database <http://www.postgresql.org/download/>`_
    libpq                  `PostgreSQL library <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
    psycopg2               `PostgreSQL python module <http://initd.org/psycopg/install/>`_
@@ -42,7 +42,7 @@ tests <http://buildbot.okfn.org/waterfall>`_.
    libxslt                `XSLT library development files <http://www.linuxfromscratch.org/blfs/view/6.3/general/libxslt.html>`_
    virtualenv             `Python virtual environments <http://pypi.python.org/pypi/virtualenv>`_
    wget                   `Command line tool for downloading from the web <http://www.gnu.org/s/wget/>`_
-   build-essential        Tools for building source code
+   build-essential        Tools for building source code (or up-to-date Xcode on Mac)
    git                    `Git source control (for getting MarkupSafe src) <http://book.git-scm.com/2_installing_git.html>`_
    subversion             `Subversion source control (for pyutilib) <http://subversion.apache.org/packages.html>`_
    =====================  ===============================================
