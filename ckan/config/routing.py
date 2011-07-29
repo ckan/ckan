@@ -156,6 +156,8 @@ def make_map():
                 conditions=dict(method=['GET']))
     map.connect('/api/2/util/tag/autocomplete', controller='api', action='tag_autocomplete',
                 conditions=dict(method=['GET']))
+    map.connect('/api/2/util/resource/format_autocomplete', controller='api', action='format_autocomplete',
+                conditions=dict(method=['GET']))
 
     map.connect('/api/2/util/authorizationgroup/autocomplete', controller='api',
         action='authorizationgroup_autocomplete')
