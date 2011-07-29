@@ -1,1 +1,0 @@
-.. warning:: This version is now deprecated in favour of :doc:`version2`.
