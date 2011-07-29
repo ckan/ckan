@@ -469,10 +469,6 @@ def format_autocomplete(context, data_dict):
 
     limit = data_dict.get('limit', 5)
     like_q = u'%' + q + u'%'
-    query = session.query(model.ResourceRevision.format)\
-        .filter(model.ResourceRevision.format.ilike(like_q))\
-        .limit(limit)\
-        .distinct()
 
     query = session.query(model.ResourceRevision.format,
         func.count(model.ResourceRevision.format).label('total'))\
