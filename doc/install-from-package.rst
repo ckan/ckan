@@ -59,19 +59,16 @@ Create Your Virtual Machine
 Go to Applications and open VirtualBox, then click New:
 
 .. image:: images/virtualbox4-newvm.png
-   :width: 807px
    :alt: The VirtualBox installer - the New Virtual Machine Wizard
 
 Give your VM a name - we'll call ours ``ubuntu_ckan``. Under **OS Type**, choose **Linux** and **Ubuntu 64-bit**.
 
 .. image:: images/virtualbox5-vmtype.png
-   :width: 807px
    :alt: The VirtualBox installer - choosing your operating system
 
 Leave the memory size as 512MB, and choose **Create new hard disk**. This will open a new wizard:
 
 .. image:: images/virtualbox6-vmloc.png
-   :width: 807px
    :alt: The VirtualBox installer - creating a new hard disk
 
 You can leave the defaults unchanged here too - click **Continue**, and then **Done**, and **Done** again, to create a new VM. 
@@ -79,19 +76,16 @@ You can leave the defaults unchanged here too - click **Continue**, and then **D
 Next, choose your VM from the left-hand menu, and click **Start**:
 
 .. image:: images/virtualbox7-startvm.png
-   :width: 807px
    :alt: Starting your new VM
 
 This will open the First Run Wizard:
 
 .. image:: images/virtualbox8-firstrun.png
-   :width: 807px
    :alt: The VirtualBox First Run Wizard
 
 After clicking **Continue**, you'll see **Select Installation Media**. This is where we need to tell our VM to boot from Ubuntu. Click on the file icon, and find your Ubuntu ``.iso`` file: 
 
 .. image:: images/virtualbox9-iso.png
-   :width: 807px
    :alt: When you get to Select Installation Media, choose your Ubuntu .iso file
 
 Click **Done**, wait for a few seconds, and you will see your Ubuntu VM booting. 
