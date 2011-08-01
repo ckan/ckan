@@ -4,9 +4,9 @@ Option 1: Package Installation
 
 This section describes how to install CKAN from packages. This is the recommended and by far the easiest way to install CKAN.
 
-Package install requires you to use 64-bit Ubuntu 10.04: either locally, through a virtual machine or Amazon EC2. Your options are as follows:
+Package install requires you to use Ubuntu 10.04: either locally, through a virtual machine or Amazon EC2. Your options are as follows:
 
-* Using 64-bit Ubuntu 10.04 directly. 
+* Using Ubuntu 10.04 directly.
 * :ref:`using-virtualbox`. This is suitable if you want to host your CKAN instance on a machine running any other OS. 
 * :ref:`using-amazon`. This is suitable if you want to host your CKAN instance in the cloud, on a ready-made Ubuntu OS.
 
@@ -17,7 +17,7 @@ For support during installation, please contact `the ckan-dev mailing list <http
 Prepare your System
 --------------------
 
-CKAN runs on 64-bit Ubuntu 10.04. If you are already using Ubuntu 10.04, you can continue straight to :ref:`run-package-installer`.
+CKAN runs on Ubuntu 10.04. If you are already using Ubuntu 10.04, you can continue straight to :ref:`run-package-installer`.
 
 However, if you're not, you can either use VirtualBox to set up an Ubuntu VM on Windows, Linux, Macintosh and Solaris. Alternatively, you can use an Amazon EC2 instance.
 
@@ -36,7 +36,7 @@ First, check your machine meets `the pre-requisites for VirtualBox <http://www.v
 Then download the installation files. 
 
 * `Download the VirtualBox installer <http://www.virtualbox.org/wiki/Downloads>`_.
-* `Download the Ubuntu image <http://www.ubuntu.com/download/ubuntu/download>`_ - make sure you choose Ubuntu 10.04 and 64-bit.
+* `Download the Ubuntu image <http://www.ubuntu.com/download/ubuntu/download>`_ - make sure you choose Ubuntu 10.04.
 
 Install VirtualBox
 ******************
