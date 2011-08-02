@@ -1,8 +1,22 @@
 import logging
 import ckan.authz
+import ckan.new_authz as new_authz
 from ckan.lib.navl.dictization_functions import flatten_dict
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IActions
+
+class AttributeDict(dict):
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError('No such attribute %r'%name)
+
+    def __setattr__(self, name, value):
+        raise AttributeError(
+            'You cannot set attributes of this object directly'
+        )
+
 
 class ActionError(Exception):
     def __init__(self, extra_msg=None):
@@ -72,6 +86,33 @@ def flatten_to_string_key(dict):
 
     flattented = flatten_dict(dict)
     return untuplize_dict(flattented)
+
+def check_access_new(action, context, data_dict):
+    model = context['model']
+    user = context.get('user')
+
+    log.debug('check access - user %r' % user)
+    
+    #if action and data_dict and object_type != 'package_relationship':
+    if action and data_dict:
+
+        #if action != model.Action.READ and user in (model.PSEUDO_USER__VISITOR, ''):
+        #    # XXX Check the API key is valid at some point too!
+        #    log.debug("Valid API key needed to make changes")
+        #    raise NotAuthorized
+        logic_authorization = new_authz.is_authorized(action, context, data_dict)
+
+        '''
+        if not logic_authorization['success']:
+            if not new_authz.check_overridden(context, action, object_id, object_type):
+                return AttributeDict(logic_authorization)
+        '''
+    elif not user:
+        log.debug("No valid API key provided.")
+        return AttributeDict(success=False, msg="No valid API key provided.")
+    log.debug("Access OK.")
+    return AttributeDict(success=True)
+
 
 def check_access(entity, action, context):
     model = context["model"]

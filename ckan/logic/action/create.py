@@ -4,7 +4,9 @@ import ckan.authz
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
-from ckan.logic import NotFound, check_access, NotAuthorized, ValidationError
+from ckan.logic import NotFound, NotAuthorized, ValidationError
+# check_access will be renamed to check_access_old
+from ckan.logic import check_access_new, check_access
 from ckan.lib.base import _
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
@@ -41,7 +43,7 @@ def package_create(context, data_dict):
     model.Session.remove()
     model.Session()._context = context
 
-    check_access(model.System(), model.Action.PACKAGE_CREATE, context)
+    check_access_new("package_create",context,data_dict)
     check_group_auth(context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
