@@ -535,3 +535,16 @@ Returns:
 ::
 
     {"ResultSet": {"Result": [{"Name": "russian"}]}}
+
+Similarly, there is an autocomplete API for the resource format field
+which is available at:
+
+::
+
+    /api/2/util/resource/format_autocomplete?incomplete=cs
+
+This returns:
+
+::
+
+    {"ResultSet": {"Result": [{"Format": "csv"}]}}
