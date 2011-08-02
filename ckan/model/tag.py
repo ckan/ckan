@@ -132,6 +132,7 @@ vdm.sqlalchemy.modify_base_object_mapper(PackageTag, Revision, State)
 PackageTagRevision = vdm.sqlalchemy.create_object_version(mapper, PackageTag,
         package_tag_revision_table)
 
+PackageTagRevision.related_packages = lambda self: [self.continuity.package]
 
 from vdm.sqlalchemy.base import add_stateful_versioned_m2m 
 vdm.sqlalchemy.add_stateful_versioned_m2m(Package, PackageTag, 'tags', 'tag',
