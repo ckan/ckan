@@ -49,11 +49,10 @@ class HomeController(BaseController):
         c.fields = []
         c.package_count = query.count
         c.latest_packages = current_package_list_with_resources({'model': model,
-                                                                'user': c.user,
-                                                                'limit': 5},
-                                                                 {})      
+                                                                 'user': c.user},
+                                                                 {'limit': 5})      
         return render('home/index.html', cache_key=cache_key,
-                cache_expire=cache_expires)
+                      cache_expire=cache_expires)
 
     def license(self):
         return render('home/license.html', cache_expire=cache_expires)
