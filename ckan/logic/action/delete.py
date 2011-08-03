@@ -1,6 +1,8 @@
-from ckan.logic import NotFound, check_access, NotAuthorized
+from ckan.logic import NotFound
 from ckan.lib.base import _
-import ckan.authz
+# check_access will be renamed to check_access_old
+from ckan.logic import check_access_new, check_access
+
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
 
 
@@ -11,11 +13,12 @@ def package_delete(context):
     id = context["id"]
 
     entity = model.Package.get(id)
-    check_access(entity, model.Action.PURGE, context)
 
     if entity is None:
         raise NotFound
-    
+
+    check_access_new('package_delete',context)
+
     rev = model.repo.new_revision()
     rev.author = user
     rev.message = _(u'REST API: Delete Package: %s') % entity.name
@@ -23,7 +26,7 @@ def package_delete(context):
     for item in PluginImplementations(IPackageController):
         item.delete(entity)
     entity.delete()
-    model.repo.commit()        
+    model.repo.commit()
 
 
 def package_relationship_delete(context):
@@ -41,12 +44,7 @@ def package_relationship_delete(context):
     if not pkg2:
         return NotFound('Second package named in address was not found.')
 
-    am_authorized = ckan.authz.Authorizer().\
-                    authorized_package_relationship(\
-                    user, pkg1, pkg2, action=model.Action.EDIT)
-
-    if not am_authorized:
-        raise NotAuthorized
+    check_access_new('package_relationship_delete', context)
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
@@ -55,7 +53,8 @@ def package_relationship_delete(context):
     relationship = existing_rels[0]
     revisioned_details = 'Package Relationship: %s %s %s' % (id, rel, id2)
 
-    check_access(relationship, model.Action.PURGE, context)
+    context['relationship'] = relationship
+    check_access_new('relationship_delete', context)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -77,7 +76,7 @@ def group_delete(context):
 
     revisioned_details = 'Group: %s' % group.name
 
-    check_access(group, model.Action.PURGE, context)
+    check_access_new('group_delete', context)
 
     rev = model.repo.new_revision()
     rev.author = user

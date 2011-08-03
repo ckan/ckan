@@ -1,4 +1,5 @@
 import logging
+from ckan.lib.base import _
 import ckan.authz
 import ckan.new_authz as new_authz
 from ckan.lib.navl.dictization_functions import flatten_dict
@@ -87,7 +88,7 @@ def flatten_to_string_key(dict):
     flattented = flatten_dict(dict)
     return untuplize_dict(flattented)
 
-def check_access_new(action, context, data_dict):
+def check_access_new(action, context, data_dict=None):
     model = context['model']
     user = context.get('user')
 
@@ -100,14 +101,19 @@ def check_access_new(action, context, data_dict):
         #    log.debug('Valid API key needed to make changes')
         #    raise NotAuthorized
         logic_authorization = new_authz.is_authorized(action, context, data_dict)
-
-        return logic_authorization
+        if not logic_authorization['success']:
+            msg = logic_authorization.get('msg','')
+            raise NotAuthorized(msg)
 
     elif not user:
-        log.debug('No valid API key provided.')
-        return AttributeDict(success=False, msg='No valid API key provided.')
+        msg = _('No valid API key provided.')
+        log.debug(msg)
+        raise NotAuthorized(msg)       
+        #return AttributeDict(success=False, msg='No valid API key provided.')
+
     log.debug('Access OK.')
-    return AttributeDict(success=True)
+    return True
+    #return AttributeDict(success=True)
 
 
 def check_access(entity, action, context):
@@ -119,15 +125,19 @@ def check_access(entity, action, context):
     if action and entity and not isinstance(entity, model.PackageRelationship):
         if action != model.Action.READ and user in (model.PSEUDO_USER__VISITOR, ''):
             log.debug('Valid API key needed to make changes')
-            raise NotAuthorized
+            return False
+            #raise NotAuthorized
         
         am_authz = ckan.authz.Authorizer().is_authorized(user, action, entity)
         if not am_authz:
             log.debug('User is not authorized to %s %s' % (action, entity))
-            raise NotAuthorized
+            return False
+            #raise NotAuthorized
     elif not user:
         log.debug('No valid API key provided.')
-        raise NotAuthorized
+        return False
+        #raise NotAuthorized
+
     log.debug('Access OK.')
     return True             
 

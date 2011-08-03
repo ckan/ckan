@@ -1,15 +1,22 @@
 #This will be check_access_old
 from ckan.logic import check_access
 from ckan.authz import Authorizer
-
+from ckan.lib.base import _
 
 
 def package_create(context, data_dict=None):
     model = context['model']
+    user = context['user']
 
-    success = (check_access(model.System(), model.Action.PACKAGE_CREATE, context) and
-               check_group_auth(context,data_dict))
-    return {'success':  success}
+    check1 = check_access(model.System(), model.Action.PACKAGE_CREATE, context)
+    if not check1:
+        return {'success': False, 'msg': _('User %s not authorized to create packages') % str(user)}
+    else:
+        check2 = check_group_auth(context,data_dict)
+        if not check2:
+            return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
+
+    return {'success': True}
 
 def resource_create(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
@@ -26,13 +33,21 @@ def package_relationship_create(context, data_dict):
     authorized = Authorizer().\
                     authorized_package_relationship(\
                     user, pkg1, pkg2, action=model.Action.EDIT)
-
-    return {'success': authorized}
+    
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to edit these packages') % str(user)}
+    else:
+        return {'success': True}
 
 def group_create(context, data_dict=None):
     model = context['model']
-
-    return {'success':  check_access(model.System(), model.Action.GROUP_CREATE, context)}
+    user = context['user']
+   
+    authorized = check_access(model.System(), model.Action.GROUP_CREATE, context)
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
+    else:
+        return {'success': True}
 
 def rating_create(context, data_dict):
     # No authz check in the logic function
@@ -40,8 +55,13 @@ def rating_create(context, data_dict):
 
 def user_create(context, data_dict=None):
     model = context['model']
-
-    return {'success': check_access(model.System(), model.Action.USER_CREATE, context)}
+    user = context['user']
+   
+    authorized = check_access(model.System(), model.Action.USER_CREATE, context)
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to create users') % str(user)}
+    else:
+        return {'success': True}
 
 def check_group_auth(context, data_dict):
     model = context['model']
@@ -66,7 +86,8 @@ def check_group_auth(context, data_dict):
         groups = groups - set(pkg.groups)
 
     for group in groups:
-        check_access(group, model.Action.EDIT, context)
+        if not check_access(group, model.Action.EDIT, context):
+            return False
 
     return True
 

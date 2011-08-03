@@ -4,7 +4,7 @@ import ckan.rating as ratings
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
-from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import NotFound, ValidationError
 # check_access will be renamed to check_access_old
 from ckan.logic import check_access_new, check_access
 from ckan.lib.base import _
