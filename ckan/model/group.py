@@ -38,7 +38,8 @@ group_revision_table = make_revisioned_table(group_table)
 class PackageGroup(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
-    pass
+    def related_packages(self):
+        return [self.package]
 
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
@@ -153,6 +154,8 @@ Group.packages = association_proxy('package_group_all', 'package', creator=_crea
 vdm.sqlalchemy.modify_base_object_mapper(PackageGroup, Revision, State)
 PackageGroupRevision = vdm.sqlalchemy.create_object_version(mapper, PackageGroup,
         package_group_revision_table)
+
+PackageGroupRevision.related_packages = lambda self: [self.continuity.package]
 
 
 from vdm.sqlalchemy.base import add_stateful_versioned_m2m 
