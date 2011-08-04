@@ -52,12 +52,10 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
                     related_packages = obj.related_packages()
                 except AttributeError:
                     continue
-                if 'pending' in obj.state:
-                    continue
                 # this is needed to sort out vdm bug where pkg.as_dict does not
                 # work when the package is deleted.
                 for package in related_packages:
-                    if package not in deleted | new:
+                    if package and package not in deleted | new:
                         changed_pkgs.add(package)
         for obj in changed_pkgs:
             self.notify(obj, DomainObjectOperation.changed)

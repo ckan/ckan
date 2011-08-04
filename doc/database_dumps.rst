@@ -1,24 +1,47 @@
-Database dumps
+Database Dumps
 ==============
 
-It's often useful to allow users to download the complete CKAN database in a dumpfile. For example, you can download ckan.net daily dump at: http://ckan.net/dump/ in JSON format: ckan.net-daily.json.gz
+It's often useful to allow users to download a complete CKAN database in a dumpfile. 
 
+For example, you can download ckan.net's daily dump at: http://ckan.net/dump/ in JSON format. The file is called ``ckan.net-daily.json.gz``.
 
-Creating a dump
+Creating a Dump
 -----------------
 
-Your dump script needs to enable the python environment and run the paster command. For example you could create `/home/okfn/var/srvc/ckan.net/dump.sh`::
+We provide two ``paster`` methods to create dumpfiles.
+
+* ``db simple-dump-json`` - A simple dumpfile, useful to create a public listing of the packages with no user information. All packages are dumped, including deleted packages and ones with strict authorization.
+* ``db dump`` -  A more complicated dumpfile, useful for backups. Replicates the database completely, including users, their personal info and API keys, and hence should be kept private.
+
+For more information on paster, see :doc:`paster`.
+
+Using db simple-dump-json 
++++++++++++++++++++++++++
+
+If you are using a Python environment, as part of a development installation, first enable the environment::
 
  . /home/okfn/var/srvc/ckan.net/pyenv/bin/activate || exit 1
- paster --plugin=ckan db simple-dump-json /home/okfn/var/srvc/ckan.net/dumps/ckan.net-daily.json --config=/home/okfn/var/srvc/ckan.net/ckan.net.ini
- gzip /home/okfn/var/srvc/ckan.net/dumps/ckan.net-daily.json
 
-You could change simple-dump-json to simple-dump-csv if you want CSV format instead of JSON. Or you could run both!
+Then create and zip the dumpfile::
 
-These dump functions dump the entire database as it is stored in CKAN, omitting user account details.
+ paster --plugin=ckan db simple-dump-json /var/srvc/ckan/dumps/ckan.net-daily.json --config=/etc/ckan/std/std.ini
+ gzip /var/srvc/ckan/dumps/ckan.net-daily.json
 
+Change ``simple-dump-json`` to ``simple-dump-csv`` if you want CSV format instead of JSON. 
 
-Daily dumps
+Using db dump
++++++++++++++
+
+If you are using a Python environment, as part of a development installation, first enable the environment::
+
+ . /var/srvc/ckan/pyenv/bin/activate || exit 1
+
+Then create and zip the dumpfile::
+
+ paster --plugin=ckan db dump /var/srvc/ckan/dumps/ckan.net-daily --config=/etc/ckan/std/std.ini
+ gzip /var/srvc/ckan/dumps/ckan.net-daily
+
+Daily Dumps
 -----------
 
 You can set the dump to be created daily with a cron job.
@@ -31,13 +54,12 @@ Now add a line such as this::
 
  0 21 * * * /home/okfn/var/srvc/ckan.net/dump.sh
 
-
-Serving the files
+Serving the Files
 -----------------
 
 Some simple additions to the Apache config can serve the files to users in a directory listing. 
 
-To do this, add these lines to the virtual host config (e.g. `/etc/apache2/sites-enabled/ckan.net`)::
+To do this, add these lines to your virtual host config (e.g. ``/etc/apache2/sites-enabled/ckan.net``)::
 
     Alias /dump/ /home/okfn/var/srvc/ckan.net/dumps/
 
@@ -46,4 +68,3 @@ To do this, add these lines to the virtual host config (e.g. `/etc/apache2/sites
         SetHandler None
         Options +Indexes
     </Location>
-

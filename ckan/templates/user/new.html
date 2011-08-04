@@ -1,0 +1,35 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Register - User</py:def>
+
+  <py:def function="optional_head">
+    <link rel="stylesheet" href="${g.site_url}/css/forms.css" type="text/css" media="screen, print" />
+  </py:def>
+
+  <py:match path="primarysidebar">
+    <li class="widget-container widget_text">
+      <h2>Have an OpenID?</h2>
+      <p>
+        If you have an account with Google, Yahoo or one of many other 
+        OpenID providers, you can log in without signing up. 
+      </p>
+      <ul>
+        <li>${h.link_to(_('Log in now'), h.url_for(action='login'))}</li>
+      </ul>
+    </li>
+  </py:match>
+
+  <div py:match="content">
+    <h2>
+      Join the community
+    </h2>
+
+    ${Markup(c.form)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

@@ -49,10 +49,10 @@ class HomeController(BaseController):
         c.fields = []
         c.package_count = query.count
         c.latest_packages = current_package_list_with_resources({'model': model,
-                                                                'user': c.user,
-                                                                'limit': 5})      
+                                                                 'user': c.user},
+                                                                 {'limit': 5})      
         return render('home/index.html', cache_key=cache_key,
-                cache_expire=cache_expires)
+                      cache_expire=cache_expires)
 
     def license(self):
         return render('home/license.html', cache_expire=cache_expires)
@@ -74,7 +74,7 @@ class HomeController(BaseController):
                 abort(400, _('Invalid language specified'))
             h.flash_notice(_("Language has been set to: English"))
         else:
-            h.flash_notice(_("No language given!"))
+            abort(400, _("No language given!"))
         return_to = get_redirect()
         if not return_to:
             # no need for error, just don't redirect

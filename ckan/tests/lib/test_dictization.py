@@ -516,9 +516,8 @@ class TestBasicDictize:
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
         context = {"model": model,
                    "session": model.Session,
-                   'user': 'testsysadmin',
-                   "id": anna1.id}
-        make_latest_pending_package_active(context)
+                   'user': 'testsysadmin'}
+        make_latest_pending_package_active(context, {'id': anna1.id})
 
         pkgrevisions = model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()
         sorted_packages = sorted(pkgrevisions, key=lambda x:x.revision_timestamp)[::-1]
@@ -772,6 +771,7 @@ class TestBasicDictize:
                     'extras': [{'key': u'genre', 'state': u'active', 'value': u'"horror"'},
                                {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
                     'name': u'help',
+                    'display_name': u'help',
                     'packages': [{'author': None,
                                   'author_email': None,
                                   'license_id': u'other-open',

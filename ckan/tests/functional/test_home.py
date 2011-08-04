@@ -5,10 +5,11 @@ from ckan.controllers.home import HomeController
 import ckan.model as model
 
 from ckan.tests import *
+from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
 from ckan.tests import search_related
 
-class TestHomeController(TestController, PylonsTestCase):
+class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(cls):
         PylonsTestCase.setup_class()
@@ -99,6 +100,18 @@ class TestHomeController(TestController, PylonsTestCase):
             assert 'Willkommen' in res.body
         finally:
             res = res.click('English')
+
+    def test_locale_change_invalid(self):
+        offset = url_for(controller='home', action='locale', locale='')
+        res = self.app.get(offset, status=400)
+        main_res = self.main_div(res)
+        assert 'Invalid language specified' in main_res, main_res
+
+    def test_locale_change_blank(self):
+        offset = url_for(controller='home', action='locale')
+        res = self.app.get(offset, status=400)
+        main_res = self.main_div(res)
+        assert 'No language given!' in main_res, main_res
 
     def test_locale_change_with_false_hash(self):
         offset = url_for('home')

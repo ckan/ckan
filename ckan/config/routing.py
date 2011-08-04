@@ -104,6 +104,8 @@ def make_map():
     
     map.connect('/api/rest', controller='api', action='index')
 
+    map.connect('/api/action/{logic_function}', controller='api', action='action')
+
     map.connect('/api/rest/{register}', controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET'])
@@ -153,6 +155,8 @@ def make_map():
     map.connect('/api/2/util/package/create_slug', controller='api', action='create_slug',
                 conditions=dict(method=['GET']))
     map.connect('/api/2/util/tag/autocomplete', controller='api', action='tag_autocomplete',
+                conditions=dict(method=['GET']))
+    map.connect('/api/2/util/resource/format_autocomplete', controller='api', action='format_autocomplete',
                 conditions=dict(method=['GET']))
 
     map.connect('/api/2/util/authorizationgroup/autocomplete', controller='api',

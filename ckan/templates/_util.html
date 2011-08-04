@@ -30,7 +30,15 @@
       ${h.link_to(tag['name'], h.url_for(controller='tag', action='read', id=tag['name']))}
     </li>
   </ul>
-  
+
+  <!--! List of tags: pass in a list of tag name and this renders the standard
+        tag listing -->
+  <ul py:def="tag_list_from_name(tags)" class="tags clearfix">
+    <li py:for="tag in tags">
+      ${h.link_to(tag, h.url_for(controller='tag', action='read', id=tag))}
+    </li>
+  </ul>
+ 
   <!--! List of users: pass in a collection of users and this renders the standard
           user listing -->
     <ul py:def="user_list(users)" class="users">
@@ -153,7 +161,20 @@
     </tr>
     </py:for>
   </table>
-  
+
+  <!--! List of data package groups: pass in a collection of data package groups 
+        and this renders the standard group listing. Same as the above, but using dictionaries -->
+  <table py:def="group_list_from_dict(groups)" class="groups">
+    <tr><th>Title</th><th>Number of packages</th><th>Description</th></tr>
+    <py:for each="group in groups">
+    <tr>
+      <td><a href="${h.url_for(controller='group', action='read', id=group['name'])}">${group['display_name']}</a></td>
+      <td>${group['packages']}</td>
+      <td>${h.truncate(group['description'], length=80, whole_word=True)}</td>
+    </tr>
+    </py:for>
+  </table>
+ 
   <!--! List of authorization groups: pass in a collection of authorization groups and 
         this renders the standard group listing -->
   <table py:def="authorization_group_list(authorization_groups)" class="authorization_groups">
@@ -373,6 +394,56 @@
         </py:for>
       </td>
       <td>${revision.message}</td>
+    </tr>
+  </table>
+
+  
+  <table py:def="revision_list_from_dict(revisions, allow_compare=False)">
+    <tr>
+      <th>Revision</th><th>Timestamp</th><th>Author</th><th>Entity</th><th>Log Message</th>
+    </tr>
+    <tr
+      class="state-${revision['state']}"
+      py:for="revision in revisions"
+      >
+      <td>
+        ${
+          h.link_to(revision['id'],
+            h.url_for(
+              controller='revision',
+              action='read',
+              id=revision['id'])
+            )
+        }
+        <py:if test="c.revision_change_state_allowed">
+        <div class="actions">
+          <form
+            method="POST"
+            action="${h.url_for(controller='revision',
+                action='edit',
+                id=revision['id'])}"
+            >
+            <py:if test="revision['state']!='deleted'">
+            <button type="submit" name="action" value="delete">Delete</button>
+            </py:if>
+            <py:if test="revision['state']=='deleted'">
+            <button type="submit" name="action" value="undelete">Undelete</button>
+            </py:if>
+          </form>
+        </div>
+        </py:if>
+      </td>
+      <td>${revision['timestamp']}</td>
+      <td>${h.linked_user(revision['author'])}</td>
+      <td>
+        <py:for each="pkg in revision['packages']">
+          <a href="${h.url_for(controller='package', action='read', id=pkg)}">${pkg}</a>
+        </py:for>
+        <py:for each="grp in revision['groups']">
+          <a href="${h.url_for(controller='group', action='read', id=grp)}">${grp}</a>
+        </py:for>
+      </td>
+      <td>${revision['message']}</td>
     </tr>
   </table>
 

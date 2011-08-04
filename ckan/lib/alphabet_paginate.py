@@ -13,7 +13,7 @@ Based on webhelpers.paginator, but each page is for items beginning
         ${c.page.pager()}
 '''
 from itertools import dropwhile
-
+import re
 from sqlalchemy import  __version__ as sqav
 from sqlalchemy.orm.query import Query
 from pylons.i18n import _
@@ -92,7 +92,18 @@ class AlphaPage(object):
                     # regexp search
                     query = query.filter(attribute.op('~')(u'^[^a-zA-Z].*'))
             query.order_by(attribute)
-            return query.all()                                   
+            return query.all()
+        elif isinstance(self.collection,list):
+            if self.item_count >= self.paging_threshold:
+                if self.page != self.other_text:
+                    items = [x for x in self.collection if x[0:1].lower() == self.page.lower()]
+                else:
+                    # regexp search
+                    items = [x for x in self.collection if re.match('^[^a-zA-Z].*',x)]
+                items.sort()
+            else:
+                items = self.collection
+            return items
         else:
             raise NotImplementedError
 
@@ -100,5 +111,7 @@ class AlphaPage(object):
     def item_count(self):
         if isinstance(self.collection, Query):
             return self.collection.count()
+        elif isinstance(self.collection,list):
+            return len(self.collection)
         else:
             raise NotImplementedError

@@ -62,6 +62,11 @@ class PackageSaver(object):
             if isinstance(v, (list, tuple)):
                 v = ", ".join(map(unicode, v))
             c.pkg_extras.append((k, v))
+        if context.get('revision_id') or context.get('revision_date'):
+            # request was for a specific revision id or date
+            c.pkg_revision_id = c.pkg_dict[u'revision_id']
+            c.pkg_revision_timestamp = c.pkg_dict[u'revision_timestamp']
+            c.pkg_revision_not_latest = c.pkg_dict[u'revision_id'] != c.pkg.revision.id
 
     @classmethod
     def _preview_pkg(cls, fs, log_message=None, author=None, client=None):

@@ -1,0 +1,42 @@
+<form id="user-edit" action="" method="post"
+    py:attrs="{'class':'has-errors'} if errors else {}"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<div class="error-explanation" py:if="error_summary">
+<h2>Errors in form</h2>
+<p>The form contains invalid entries:</p>
+<ul>
+  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}</li>
+</ul>
+</div>
+
+<fieldset>
+    <legend i18n:msg="site_title">Register with CKAN</legend>
+    <dl>
+        <dt><label class="field_opt" for="name">Login:</label></dt>
+        <dd><input type="text" name="name" value="${data.get('name','')}" /></dd>
+        <dd class="instructions basic">3+ chars, using only 'a-z0-9' and '-_'</dd>
+        <dd class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
+
+        <dt><label class="field_opt" for="fullname">Full name (optional):</label></dt>
+        <dd><input type="text" name="fullname" value="${data.get('fullname','')}" /></dd>
+        <dd class="field_error" py:if="errors.get('fullname', '')">${errors.get('fullname', '')}</dd>
+
+        <dt><label class="field_opt" for="email">E-Mail (optional):</label></dt>
+        <dd><input type="text" name="email" value="${data.get('email','')}" /></dd>
+
+        <dt><label class="field_opt" for="password1">Password:</label></dt>
+        <dd><input type="password" name="password1" value="" /></dd>
+        <dd class="field_error" py:if="errors.get('password1', '')">${errors.get('password1', '')}</dd>
+
+        <dt><label class="field_opt" for="password2">Password (repeat):</label></dt>
+        <dd><input type="password" name="password2" value="" /></dd>
+
+    </dl>
+</fieldset>
+
+  <br />
+  <input id="save" name="save" type="submit" value="Save" />
+</form>
