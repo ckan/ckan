@@ -1,5 +1,6 @@
 import json
 from pprint import pprint, pformat
+from nose.tools import assert_equal
 
 from ckan.lib.create_test_data import CreateTestData
 import ckan.model as model
@@ -122,6 +123,27 @@ class TestAction(WsgiAppCase):
         assert 'display_name' in result
         assert 'number_administered_packages' in result
         assert 'number_of_edits' in result
+
+    def test_05_user_show_edits(self):
+        postparams = '%s=1' % json.dumps({'id':'tester'})
+        res = self.app.post('/api/action/user_show', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Shows user details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['name'] == 'tester'
+        assert_equal(result['about'], None)
+        assert result['number_of_edits'] >= 1
+        edit = result['activity'][-1] # first edit chronologically
+        assert_equal(edit['author'], 'tester')
+        assert 'timestamp' in edit
+        assert_equal(edit['state'], 'active')
+        assert_equal(edit['approved_timestamp'], None)
+        assert_equal(set(edit['groups']), set(('roger', 'david')))
+        assert_equal(edit['state'], 'active')
+        assert edit['message'].startswith('Creating test data.')
+        assert_equal(set(edit['packages']), set(('warandpeace', 'annakarenina')))
+        assert 'id' in edit
 
     def test_06_tag_list(self):
         postparams = '%s=1' % json.dumps({})
@@ -400,4 +422,12 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert res_obj['result'][0]['name'] == 'joeadmin'
         assert 'id','fullname' in res_obj['result'][0]
+
+    def test_17_bad_action(self):
+        #Empty query
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/bad_action_name', params=postparams,
+                            status=400)
+        res_obj = json.loads(res.body)
+        assert_equal(res_obj, u'Bad request - Action name not known: bad_action_name')
 

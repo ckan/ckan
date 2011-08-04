@@ -133,6 +133,9 @@ class ApiController(BaseController):
     
     def action(self, logic_function):
         function = get_action(logic_function)
+        if not function:
+            return self._finish_bad_request(
+                gettext('Action name not known: %s') % str(logic_function))
         
         context = {'model': model, 'session': model.Session, 'user': c.user}
         model.Session()._context = context
