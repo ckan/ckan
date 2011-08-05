@@ -531,7 +531,10 @@ def _extend_package_dict(package_dict,context):
         package_dict['resources'] = []
     license_id = package_dict['license_id']
     if license_id:
-        isopen = model.Package.get_license_register()[license_id].isopen()
+        try:
+            isopen = model.Package.get_license_register()[license_id].isopen()
+        except KeyError:
+            isopen = False
         package_dict['isopen'] = isopen
     else:
         package_dict['isopen'] = False
