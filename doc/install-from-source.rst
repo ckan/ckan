@@ -4,7 +4,7 @@ Option 2: Install from Source
 
 This section describes how to install CKAN from source. This removes the requirement for Ubuntu 10.04 that exists with :doc:`install-from-package`.
 
-.. warning:: This option is more complex than :doc:`install-from-package`, so we suggest only doing it this way if you plan to work on CKAN core, or have no access to Ubuntu 10.04 via any of the suggested methods. 
+.. warning:: This option is more complex than :doc:`install-from-package`, so f you prefer simplicity we suggest installing from package. 
 
 For support during installation, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_. 
 
