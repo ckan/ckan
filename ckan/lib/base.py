@@ -99,6 +99,13 @@ class BaseController(WSGIController):
         if c.user:
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
+            if c.userobj is None:
+                # This occurs when you are logged in with openid, clean db
+                # and then restart i.e. only really for testers. There is no
+                # user object, so even though repoze thinks you are logged in
+                # and your cookie has ckan_display_name, we need to force user
+                # to login again to get the User object.
+                c.user = None
         else:
             c.userobj = self._get_user_for_apikey()
             if c.userobj is not None:

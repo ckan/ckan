@@ -1646,7 +1646,8 @@ class TestEtags(PylonsTestCase, TestPackageBase):
         self.assert_not_equal(hash_7, hash_6)
 
     def test_etags_in_response(self):
-        c.user = 'test user'
+        c.user = 'annafan'
+        c.userobj = model.User.by_name(u'annafan')
         res = self.app.get('/package/annakarenina',
                            extra_environ={'REMOTE_USER':c.user})
         anna_hash = str(PackageController._pkg_cache_key(self.anna))

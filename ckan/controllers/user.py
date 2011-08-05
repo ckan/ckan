@@ -141,13 +141,18 @@ class UserController(BaseController):
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
 
-    def edit(self, id, data=None, errors=None, error_summary=None):
+    def edit(self, id=None, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
                    'schema': self._edit_form_to_db_schema(),
                    }
+        if id is None:
+            if c.userobj:
+                id = c.userobj.id
+            else:
+                abort(400, _('No user specified'))
         data_dict = {'id': id}
 
         if (context['save'] or context['preview']) and not data:
@@ -167,6 +172,8 @@ class UserController(BaseController):
 
         except NotAuthorized:
             abort(401, _('Unauthorized to edit user %s') % '')
+        except NotFound, e:
+            abort(404, _('User not found'))
 
         user_obj = context.get('user_obj')
         

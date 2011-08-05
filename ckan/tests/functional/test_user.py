@@ -62,6 +62,10 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         offset = '/user/'
         res = self.app.get(offset, status=302)
 
+    def test_user_read_me_without_id(self):
+        offset = '/user/me'
+        res = self.app.get(offset, status=302)
+
     def test_user_read_without_id_but_logged_in(self):
         user = model.User.by_name(u'annafan')
         offset = '/user/'
@@ -411,6 +415,30 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert new_about in main_res, main_res
+
+    def test_user_edit_no_user(self):
+        offset = url_for(controller='user', action='edit', id=None)
+        res = self.app.get(offset, status=400)
+        assert 'No user specified' in res, res
+
+    def test_user_edit_unknown_user(self):
+        offset = url_for(controller='user', action='edit', id='unknown_person')
+        res = self.app.get(offset, status=404)
+        assert 'User not found' in res, res
+
+    def test_user_edit_not_logged_in(self):
+        # create user
+        username = 'testedit'
+        about = u'Test About'
+        user = model.User.by_name(unicode(username))
+        if not user:
+            model.Session.add(model.User(name=unicode(username), about=about,
+                                         password='letmein'))
+            model.repo.commit_and_remove()
+            user = model.User.by_name(unicode(username))
+
+        offset = url_for(controller='user', action='edit', id=username)
+        res = self.app.get(offset, status=302)
 
     def test_edit_spammer(self):
         # create user
