@@ -93,6 +93,13 @@
   </py:match>
 
   <div py:match="content">
+    <py:if test="c.pkg_revision_id">
+      <div id="revision" class="widget-container">
+            <p py:if="c.pkg_revision_not_latest">This is an old revision of this package, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp)}. It may differ significantly from the <a href="${url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
+            <p py:if="not c.pkg_revision_not_latest">This is the current revision of this package, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp)}.</p>
+      </div>
+    </py:if>
+
     <xi:include href="read_core.html" />
   </div>
 

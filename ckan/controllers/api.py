@@ -11,6 +11,7 @@ from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTION
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
+from ckan.logic import get_action
 import ckan.logic.action.get as get 
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
@@ -29,6 +30,8 @@ CONTENT_TYPES = {
     'json': 'application/json;charset=utf-8',
     }
 class ApiController(BaseController):
+
+    _actions = {}
 
     def __call__(self, environ, start_response):
         self._identify_user()
@@ -127,10 +130,53 @@ class ApiController(BaseController):
         response_data = {}
         response_data['version'] = ver or '1'
         return self._finish_ok(response_data) 
+    
+    def action(self, logic_function):
+        function = get_action(logic_function)
+        if not function:
+            return self._finish_bad_request(
+                gettext('Action name not known: %s') % str(logic_function))
+        
+        context = {'model': model, 'session': model.Session, 'user': c.user}
+        model.Session()._context = context
+        return_dict = {'help': function.__doc__}
+
+        try:
+            request_data = self._get_request_data()
+        except ValueError, inst:
+
+            return self._finish_bad_request(
+                gettext('JSON Error: %s') % str(inst))
+        try:
+            result = function(context, request_data)
+            return_dict['success'] = True
+            return_dict['result'] = result
+        except DataError:
+            log.error('Format incorrect: %s' % request_data)
+            #TODO make better error message
+            return self._finish(400, _(u'Integrity Error') % request_data)
+        except NotAuthorized:
+            return_dict['error'] = {'__type': 'Authorization Error',
+                                    'message': _('Access denied')}
+            return_dict['success'] = False
+            return self._finish(403, return_dict, content_type='json')
+        except NotFound:
+            return_dict['error'] = {'__type': 'Not Found Error',
+                                    'message': _('Not found')}
+            return_dict['success'] = False
+            return self._finish(404, return_dict, content_type='json')
+        except ValidationError, e:
+            error_dict = e.error_dict 
+            error_dict['__type'] = 'Validation Error'
+            return_dict['error'] = error_dict
+            return_dict['success'] = False
+            log.error('Validation error: %r' % str(e.error_dict))
+            return self._finish(409, return_dict, content_type='json')
+        return self._finish_ok(return_dict)
 
     def list(self, ver=None, register=None, subregister=None, id=None):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'id': id, 'api_version': ver}
+                   'user': c.user, 'api_version': ver}
         log.debug('listing: %s' % context)
         action_map = {
             'revision': get.revision_list,
@@ -149,7 +195,7 @@ class ApiController(BaseController):
             return self._finish_bad_request(
                 gettext('Cannot list entity of this type: %s') % register)
         try:
-            return self._finish_ok(action(context))
+            return self._finish_ok(action(context, {'id': id}))
         except NotFound, e:
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
@@ -160,14 +206,15 @@ class ApiController(BaseController):
         action_map = {
             'revision': get.revision_show,
             'group': get.group_show_rest,
-            'tag': get.tag_show,
+            'tag': get.tag_show_rest,
             'package': get.package_show_rest,
             ('package', 'relationships'): get.package_relationships_list,
         }
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'id': id, 'id2': id2, 'rel': subregister,
                    'api_version': ver}
+        data_dict = {'id': id, 'id2': id2, 'rel': subregister}
+
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = get.package_relationships_list
         log.debug('show: %s' % context)
@@ -180,7 +227,7 @@ class ApiController(BaseController):
                 gettext('Cannot read entity of this type: %s') % register)
         try:
             
-            return self._finish_ok(action(context))
+            return self._finish_ok(action(context, data_dict))
         except NotFound, e:
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
@@ -193,22 +240,22 @@ class ApiController(BaseController):
     def create(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
-            ('package', 'relationships'): create.package_relationship_create,
-             'group': create.group_create_rest,
-             'package': create.package_create_rest,
-             'rating': create.rating_create,
+            ('package', 'relationships'): get_action('package_relationship_create'),
+             'group': get_action('group_create_rest'),
+             'package': get_action('package_create_rest'),
+             'rating': get_action('rating_create'),
         }
 
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = create.package_relationship_create
 
-
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'id': id, 'id2': id2, 'rel': subregister,
                    'api_version': ver}
         log.debug('create: %s' % (context))
         try:
             request_data = self._get_request_data()
+            data_dict = {'id': id, 'id2': id2, 'rel': subregister}
+            data_dict.update(request_data)
         except ValueError, inst:
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
@@ -221,10 +268,10 @@ class ApiController(BaseController):
                 gettext('Cannot create new entity of this type: %s %s') % \
                 (register, subregister))
         try:
-            response_data = action(request_data, context)
+            response_data = action(context, data_dict)
             location = None
-            if "id" in context:
-                location = str('%s/%s' % (request.path, context.get("id")))
+            if "id" in data_dict:
+                location = str('%s/%s' % (request.path, data_dict.get("id")))
             return self._finish_ok(response_data,
                                    resource_location=location)
         except NotAuthorized:
@@ -243,19 +290,20 @@ class ApiController(BaseController):
     def update(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
-            ('package', 'relationships'): update.package_relationship_update,
-             'package': update.package_update_rest,
-             'group': update.group_update_rest,
+            ('package', 'relationships'): get_action('package_relationship_update'),
+             'package': get_action('package_update_rest'),
+             'group': get_action('group_update_rest'),
         }
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = update.package_relationship_update
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': ver}
+                   'api_version': ver, 'id': id}
         log.debug('update: %s' % (context))
         try:
             request_data = self._get_request_data()
+            data_dict = {'id': id, 'id2': id2, 'rel': subregister}
+            data_dict.update(request_data)
         except ValueError, inst:
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
@@ -267,7 +315,7 @@ class ApiController(BaseController):
                 gettext('Cannot update entity of this type: %s') % \
                     register.encode('utf-8'))
         try:
-            response_data = action(request_data, context)
+            response_data = action(context, data_dict)
             return self._finish_ok(response_data)
         except NotAuthorized:
             return self._finish_not_authz()
@@ -407,12 +455,18 @@ class ApiController(BaseController):
         return params        
 
     def tag_counts(self, ver=None):
-        log.debug('tag counts')
-        tags = model.Session.query(model.Tag).all()
+        c.q = request.params.get('q', '')
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        data_dict = {'all_fields': True}
+
+        tag_list = get.tag_list(context, data_dict)
         results = []
-        for tag in tags:
-            tag_count = len(tag.package_tags)
-            results.append((tag.name, tag_count))
+        for tag in tag_list:
+            tag_count = len(tag['packages'])
+            results.append((tag['name'], tag_count))
         return self._finish_ok(results)
 
     def throughput(self, ver=None):
@@ -438,21 +492,15 @@ class ApiController(BaseController):
     def user_autocomplete(self):
         q = request.params.get('q', '')
         limit = request.params.get('limit', 20)
-        try:
-            limit = int(limit)
-        except:
-            limit = 20
-        limit = min(50, limit)
-    
-        query = model.User.search(q)
-        def convert_to_dict(user):
-            out = {}
-            for k in ['id', 'name', 'fullname']:
-                out[k] = getattr(user, k)
-            return out
-        query = query.limit(limit)
-        out = map(convert_to_dict, query.all())
-        return out
+        user_list = []
+        if q:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+
+            data_dict = {'q':q,'limit':limit}
+
+            user_list = get.user_autocomplete(context,data_dict)
+        return user_list
 
 
     @jsonpify
@@ -488,25 +536,37 @@ class ApiController(BaseController):
         return self._finish_ok(response_data)
 
     def tag_autocomplete(self):
-        incomplete = request.params.get('incomplete', '')
-        if incomplete:
-            query = query_for('tag', backend='sql')
-            query.run(query=incomplete,
-                      return_objects=True,
-                      limit=10,
-                      username=c.user)
-            tagNames = [t.name for t in query.results]
-        else:
-            tagNames = []
+        q = request.params.get('incomplete', '')
+        limit = request.params.get('limit', 10)
+        tag_names = []
+        if q:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+
+            data_dict = {'q':q,'limit':limit}
+
+            tag_names = get.tag_autocomplete(context,data_dict)
+
         resultSet = {
-            "ResultSet": {
-                "Result": []
+            'ResultSet': {
+                'Result': [{'Name': tag} for tag in tag_names]
             }
         }
-        for tagName in tagNames[:10]:
-            result = {
-                "Name": tagName
-            }
-            resultSet["ResultSet"]["Result"].append(result)
         return self._finish_ok(resultSet)
 
+    def format_autocomplete(self):
+        q = request.params.get('incomplete', '')
+        limit = request.params.get('limit', 5)
+        formats = []
+        if q:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+            data_dict = {'q': q, 'limit': limit}
+            formats = get.format_autocomplete(context, data_dict)
+
+        resultSet = {
+            'ResultSet': {
+                'Result': [{'Format': format} for format in formats]
+            }
+        }
+        return self._finish_ok(resultSet)

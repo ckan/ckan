@@ -6,7 +6,6 @@ import datetime
 import re
 
 from sqlalchemy.orm import eagerload_all
-from sqlalchemy import or_
 import genshi
 from pylons import config, cache
 from pylons.i18n import get_lang, _
@@ -16,11 +15,12 @@ from babel.dates import format_date, format_datetime, format_time
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
 import ckan.logic.action.get as get
+from ckan.logic import get_action
 from ckan.logic.schema import package_form_schema
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import etag_cache, response, redirect, gettext
 from ckan.authz import Authorizer
-from ckan.lib.search import query_for, SearchError
+from ckan.lib.search import SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
@@ -77,9 +77,9 @@ class PackageController(BaseController):
             log.info('incorrect form fields posted')
             raise DataError(data_dict)
 
-    def _setup_template_variables(self, context):
-        c.groups = get.group_list_availible(context)
-        c.groups_authz = get.group_list_authz(context)
+    def _setup_template_variables(self, context, data_dict):
+        c.groups = get.group_list_available(context, data_dict)
+        c.groups_authz = get.group_list_authz(context, data_dict)
         c.licences = [('', '')] + model.Package.get_license_options()
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         c.resource_columns = model.Resource.get_columns()
@@ -107,7 +107,6 @@ class PackageController(BaseController):
         except ValueError, e:
             abort(400, ('"page" parameter must be an integer'))
         limit = 20
-        query = query_for(model.Package)
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
@@ -138,25 +137,30 @@ class PackageController(BaseController):
                         and len(value) and not param.startswith('_'):
                     c.fields.append((param, value))
 
-            query.run(query=q,
-                      fields=c.fields,
-                      facet_by=g.facets,
-                      limit=limit,
-                      offset=(page-1)*limit,
-                      return_objects=True,
-                      filter_by_openness=c.open_only,
-                      filter_by_downloadable=c.downloadable_only,
-                      username=c.user)
-                       
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+
+            data_dict = {'q':q,
+                         'fields':c.fields,
+                         'facet_by':g.facets,
+                         'limit':limit,
+                         'offset':(page-1)*limit,
+                         'return_objects':True,
+                         'filter_by_openness':c.open_only,
+                         'filter_by_downloadable':c.downloadable_only,
+                        }
+
+            query = get.package_search(context,data_dict)
+
             c.page = h.Page(
-                collection=query.results,
+                collection=query['results'],
                 page=page,
                 url=pager_url,
-                item_count=query.count,
+                item_count=query['count'],
                 items_per_page=limit
             )
-            c.facets = query.facets
-            c.page.items = query.results
+            c.facets = query['facets']
+            c.page.items = query['results']
         except SearchError, se:
             c.query_error = True
             c.facets = {}
@@ -170,27 +174,33 @@ class PackageController(BaseController):
         # revision may have more than one package in it.
         return str(hash((pkg.id, pkg.latest_related_revision.id, c.user, pkg.get_average_rating())))
 
-    def _clear_pkg_cache(self, pkg):
-        read_cache = cache.get_cache('package/read.html', type='dbm')
-        read_cache.remove_value(self._pkg_cache_key(pkg))
-
     @proxy_cache()
     def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(),
-                   'id': id}
+                   'schema': self._form_to_db_schema()}
+        data_dict = {'id': id}
+
+        # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
         if len(split) == 2:
-            context['id'], revision = split
-            try:
-                date = datetime.datetime(*map(int, re.split('[^\d]', revision)))
-                context['revision_date'] = date
-            except ValueError:
-                context['revision_id'] = revision
+            data_dict['id'], revision_ref = split
+            if model.is_id(revision_ref):
+                context['revision_id'] = revision_ref
+            else:
+                try:
+                    date = model.strptimestamp(revision_ref)
+                    context['revision_date'] = date
+                except TypeError, e:
+                    abort(400, _('Invalid revision format: %r') % e.args)
+                except ValueError, e:
+                    abort(400, _('Invalid revision format: %r') % e.args)
+        elif len(split) > 2:
+            abort(400, _('Invalid revision format: %r') % 'Too many "@" symbols')
+            
         #check if package exists
         try:
-            c.pkg_dict = get.package_show(context)
+            c.pkg_dict = get.package_show(context, data_dict)
             c.pkg = context['package']
         except NotFound:
             abort(404, _('Package not found'))
@@ -221,12 +231,11 @@ class PackageController(BaseController):
     def comments(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(),
-                   'id': id}
+                   'schema': self._form_to_db_schema()}
 
         #check if package exists
         try:
-            c.pkg_dict = get.package_show(context)
+            c.pkg_dict = get.package_show(context, {'id':id})
             c.pkg = context['package']
         except NotFound:
             abort(404, _('Package not found'))
@@ -259,39 +268,50 @@ class PackageController(BaseController):
                 params['diff_entity'] = 'package'
                 h.redirect_to(controller='revision', action='diff', **params)
 
-        c.pkg = model.Package.get(id)
-        if not c.pkg:
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'extras_as_string': True,}
+        data_dict = {'id':id}
+        try:
+            c.pkg_dict = get.package_show(context, data_dict)
+            c.pkg_revisions = get.package_revision_list(context, data_dict)
+            #TODO: remove
+            # Still necessary for the authz check in group/layout.html
+            c.pkg = context['package']
+
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % '')
+        except NotFound:
             abort(404, _('Package not found'))
+
         format = request.params.get('format', '')
         if format == 'atom':
             # Generate and return Atom 1.0 document.
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
                 title=_(u'CKAN Package Revision History'),
-                link=h.url_for(controller='revision', action='read', id=c.pkg.name),
-                description=_(u'Recent changes to CKAN Package: ') + (c.pkg.title or ''),
+                link=h.url_for(controller='revision', action='read', id=c.pkg_dict['name']),
+                description=_(u'Recent changes to CKAN Package: ') + (c.pkg_dict['title'] or ''),
                 language=unicode(get_lang()),
             )
-            for revision, obj_rev in c.pkg.all_related_revisions:
+            for revision_dict in c.pkg_revisions:
+                revision_date = h.date_str_to_datetime(revision_dict['timestamp'])
                 try:
                     dayHorizon = int(request.params.get('days'))
                 except:
                     dayHorizon = 30
-                try:
-                    dayAge = (datetime.now() - revision.timestamp).days
-                except:
-                    dayAge = 0
+                dayAge = (datetime.datetime.now() - revision_date).days
                 if dayAge >= dayHorizon:
                     break
-                if revision.message:
-                    item_title = u'%s' % revision.message.split('\n')[0]
+                if revision_dict['message']:
+                    item_title = u'%s' % revision_dict['message'].split('\n')[0]
                 else:
-                    item_title = u'%s' % revision.id
-                item_link = h.url_for(controller='revision', action='read', id=revision.id)
+                    item_title = u'%s' % revision_dict['id']
+                item_link = h.url_for(controller='revision', action='read', id=revision_dict['id'])
                 item_description = _('Log message: ')
-                item_description += '%s' % (revision.message or '')
-                item_author_name = revision.author
-                item_pubdate = revision.timestamp
+                item_description += '%s' % (revision_dict['message'] or '')
+                item_author_name = revision_dict['author']
+                item_pubdate = revision_date
                 feed.add_item(
                     title=item_title,
                     link=item_link,
@@ -301,7 +321,6 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        c.pkg_revisions = c.pkg.all_related_revisions
         return render('package/history.html')
 
     def new(self, data=None, errors=None, error_summary=None):
@@ -323,7 +342,7 @@ class PackageController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context)
+        self._setup_template_variables(context, {'id': id})
         c.form = render(self.package_form, extra_vars=vars)
         return render('package/new.html')
 
@@ -333,14 +352,14 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
-                   'id': id, 'moderated': config.get('moderated'),
+                   'moderated': config.get('moderated'),
                    'pending': True,
                    'schema': self._form_to_db_schema()}
 
         if (context['save'] or context['preview']) and not data:
             return self._save_edit(id, context)
         try:
-            old_data = get.package_show(context)
+            old_data = get.package_show(context, {'id':id})
             schema = self._db_to_form_schema()
             if schema:
                 old_data, errors = validate(old_data, schema)
@@ -359,19 +378,19 @@ class PackageController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context)
+        self._setup_template_variables(context, {'id': id})
         c.form = render(self.package_form, extra_vars=vars)
         return render('package/edit.html')
 
     def read_ajax(self, id, revision=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'id': id, 'extras_as_string': True,
+                   'extras_as_string': True,
                    'schema': self._form_to_db_schema(),
                    'revision_id': revision}
 
         try:
-            data = get.package_show(context)
+            data = get.package_show(context, {'id': id})
             schema = self._db_to_form_schema()
             if schema:
                 data, errors = validate(data, schema)
@@ -391,22 +410,29 @@ class PackageController(BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'id': id, 'extras_as_string': True}
-        pkg = model.Package.get(id)
+                   'extras_as_string': True,}
+        data_dict = {'id':id}
+        try:
+            pkg_revisions = get.package_revision_list(context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % '')
+        except NotFound:
+            abort(404, _('Package not found'))
+
+
         data = []
         approved = False
-        for num, (revision, revision_obj) in enumerate(pkg.all_related_revisions):
-            if not approved and revision.approved_timestamp:
+        for num, revision in enumerate(pkg_revisions):
+            if not approved and revision['approved_timestamp']:
                 current_approved, approved = True, True
             else:
                 current_approved = False
             
-            data.append({'revision_id': revision.id,
-                         'message': revision.message,
-                         'timestamp': format_datetime(revision.timestamp, 
-                                                      locale=(get_lang() or ['en'])[0]),
-                         'author': revision.author,
-                         'approved': bool(revision.approved_timestamp),
+            data.append({'revision_id': revision['id'],
+                         'message': revision['message'],
+                         'timestamp': revision['timestamp'],
+                         'author': revision['author'],
+                         'approved': bool(revision['approved_timestamp']),
                          'current_approved': current_approved})
                 
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
@@ -418,7 +444,7 @@ class PackageController(BaseController):
                 tuplize_dict(parse_params(request.POST))))
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
-            pkg = create.package_create(data_dict, context)
+            pkg = get_action('package_create')(context, data_dict)
 
             if context['preview']:
                 PackageSaver().render_package(pkg, context)
@@ -448,9 +474,10 @@ class PackageController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             if not context['moderated']:
                 context['pending'] = False
-            pkg = update.package_update(data_dict, context)
+            data_dict['id'] = id
+            pkg = get_action('package_update')(context, data_dict)
             if request.params.get('save', '') == 'Approve':
-                update.make_latest_pending_package_active(context)
+                update.make_latest_pending_package_active(context, data_dict)
             c.pkg = context['package']
             c.pkg_dict = pkg
 
@@ -502,6 +529,7 @@ class PackageController(BaseController):
         pkg = model.Package.get(id)
         if pkg is None:
             abort(404, gettext('Package not found'))
+        c.pkg = pkg # needed to add in the tab bar to the top of the auth page
         c.pkgname = pkg.name
         c.pkgtitle = pkg.title
 
@@ -721,38 +749,24 @@ class PackageController(BaseController):
 
         return render('package/authz.html')
 
-
-
-
-    def rate(self, id):
-        package_name = id
-        package = model.Package.get(package_name)
-        if package is None:
-            abort(404, gettext('Package Not Found'))
-        self._clear_pkg_cache(package)
-        rating = request.params.get('rating', '')
-        if rating:
-            try:
-                ckan.rating.set_my_rating(c, package, rating)
-            except ckan.rating.RatingValueException, e:
-                abort(400, gettext('Rating value invalid'))
-        h.redirect_to(controller='package', action='read', id=package_name, rating=str(rating))
-
     def autocomplete(self):
         q = unicode(request.params.get('q', ''))
         if not len(q): 
             return ''
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        data_dict = {'q':q}
+
+        packages = get.package_autocomplete(context,data_dict)
+
         pkg_list = []
-        like_q = u"%s%%" % q
-        pkg_query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-        pkg_query = pkg_query.filter(or_(model.Package.name.ilike(like_q),
-                                         model.Package.title.ilike(like_q)))
-        pkg_query = pkg_query.limit(10)
-        for pkg in pkg_query:
-            if pkg.name.lower().startswith(q.lower()):
-                pkg_list.append('%s|%s' % (pkg.name, pkg.name))
+        for pkg in packages:
+            if pkg['name'].lower().startswith(q.lower()):
+                pkg_list.append('%s|%s' % (pkg['name'], pkg['name']))
             else:
-                pkg_list.append('%s (%s)|%s' % (pkg.title.replace('|', ' '), pkg.name, pkg.name))
+                pkg_list.append('%s (%s)|%s' % (pkg['title'].replace('|', ' '), pkg['name'], pkg['name']))
         return '\n'.join(pkg_list)
 
     def _render_edit_form(self, fs, params={}, clear_session=False):

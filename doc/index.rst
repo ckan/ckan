@@ -1,34 +1,40 @@
-==========================================
-Welcome to CKAN's Developer Documentation!
-==========================================
+=======================================
+Welcome to CKAN's Administration Guide
+=======================================
 
-This Developer Documentation provides more advanced help for `CKAN <http://ckan.org>`_ development and administration. The latest released version of this documentation is found at: http://packages.python.org/ckan/
+This Administration Guide covers how to set up and manage `CKAN <http://ckan.org>`_ (Comprehensive Knowledge Archive Network) software. 
 
+* The first two sections cover your two options for installing CKAN: package or source install.
+* The rest of the first half of the Guide, up to :doc:`authorization`, cover setup and basic admin. 
+* The second half of the Guide, from :doc:`prepare-extensions` onwards, covers advanced tasks, including extensions and forms. 
+
+For high-level information on what CKAN is, see the `CKAN website <http://ckan.org>`_.
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
-   README
-   deployment
-   configuration
+   install-from-package
+   install-from-source
+   post-installation
+   theming
+   loading_data
    paster
-   api
+   authorization
+   prepare-extensions
+   extensions
    plugins
-   feeds
-   loader_scripts
-   importer
    forms
    form-integration
-   model
-   authentication
-   authorization
-   load_testing
    database_dumps
-   deb
-   vm
+   upgrade
+   i18n
+   configuration
+   api
+   test
    buildbot
+   about
 
 Other material
 ==============

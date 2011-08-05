@@ -48,6 +48,7 @@ class PackagesTestCase(BaseModelApiTestCase):
 
         # Check the value of the Location header.
         location = res.header('Location')
+        
         assert offset in location
         res = self.app.get(location, status=self.STATUS_200_OK)
         # Check the database record.
@@ -506,7 +507,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 1, len(revisions)
-        expected_keys = set(('id', 'message', 'author', 'timestamp'))
+        expected_keys = set(('id', 'message', 'author', 'timestamp', 'approved_timestamp'))
         keys = set(revisions[0].keys())
         assert_equal(keys, expected_keys)
 

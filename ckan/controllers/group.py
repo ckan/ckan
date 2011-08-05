@@ -1,4 +1,5 @@
 import genshi
+import datetime
 
 from sqlalchemy.orm import eagerload_all
 from ckan.lib.base import BaseController, c, model, request, render, h
@@ -39,21 +40,21 @@ class GroupController(BaseController):
                 c, model.Action.CHANGE_STATE, group)
 
     ## end hooks
-
-    def __init__(self):
-        BaseController.__init__(self)
-        self.extensions = PluginImplementations(IGroupController)
     
     def index(self):
-        
+
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
             abort(401, _('Not authorized to see this page'))
-        
-        query = authz.Authorizer().authorized_query(c.user, model.Group)
-        query = query.order_by(model.Group.name.asc())
-        query = query.order_by(model.Group.title.asc())
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        data_dict = {'all_fields': True}
+               
+        results = get.group_list(context,data_dict)
+
         c.page = Page(
-            collection=query,
+            collection=results,
             page=request.params.get('page', 1),
             items_per_page=20
         )
@@ -61,17 +62,21 @@ class GroupController(BaseController):
 
 
     def read(self, id):
-        c.group = model.Group.get(id)
-        if c.group is None:
-            abort(404)
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.group)
-        if not auth_for_read:
-            abort(401, _('Not authorized to read %s') % id.encode('utf8'))
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._form_to_db_schema()}
+        data_dict = {'id': id}
+        try:
+            c.group_dict = get.group_show(context, data_dict)
+            c.group = context['group']
+        except NotFound:
+            abort(404, _('Group not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read group %s') % id)
         
-        import ckan.misc
-        format = ckan.misc.MarkdownFormat()
-        desc_formatted = format.to_html(c.group.description)
-        try: 
+        try:
+ 
+            desc_formatted = ckan.misc.MarkdownFormat().to_html(c.group.description)
             desc_formatted = genshi.HTML(desc_formatted)
         except genshi.ParseError, e:
             log.error('Could not print group description: %r Error: %r', c.group.description, e)
@@ -84,8 +89,7 @@ class GroupController(BaseController):
             page=request.params.get('page', 1),
             items_per_page=50
         )
-        for extension in self.extensions:
-            extension.read(c.group)
+
         return render('group/read.html')
 
     def new(self, data=None, errors=None, error_summary=None):
@@ -115,13 +119,14 @@ class GroupController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema(),
-                   'id': id}
+                   }
+        data_dict = {'id': id}
 
         if context['save'] and not data:
             return self._save_edit(id, context)
 
         try:
-            old_data = get.group_show(context)
+            old_data = get.group_show(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
             schema = self._db_to_form_schema()
@@ -151,7 +156,7 @@ class GroupController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
-            group = create.group_create(data_dict, context)
+            group = create.group_create(context, data_dict)
             h.redirect_to(controller='group', action='read', id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % '')
@@ -169,7 +174,8 @@ class GroupController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
-            group = update.group_update(data_dict, context)
+            data_dict['id'] = id
+            group = update.group_update(context, data_dict)
             h.redirect_to(controller='group', action='read', id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
@@ -392,12 +398,6 @@ class GroupController(BaseController):
         c.authz_groups_role_dict = authz_groups_role_dict
 
         return render('group/authz.html')
-
-
-
-
-
-
        
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -414,10 +414,19 @@ class GroupController(BaseController):
                 params['diff_entity'] = 'group'
                 h.redirect_to(controller='revision', action='diff', **params)
 
-        c.group = model.Group.get(id)
-        if not c.group:
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._form_to_db_schema()}
+        data_dict = {'id': id}
+        try:
+            c.group_dict = get.group_show(context, data_dict)
+            c.group_revisions = get.group_revision_list(context, data_dict)
+            #TODO: remove
+            # Still necessary for the authz check in group/layout.html
+            c.group = context['group']
+        except NotFound:
             abort(404, _('Group not found'))
-        if not self.authorizer.am_authorized(c, model.Action.READ, c.group):
+        except NotAuthorized:
             abort(401, _('User %r not authorized to edit %r') % (c.user, id))
 
         format = request.params.get('format', '')
@@ -426,31 +435,29 @@ class GroupController(BaseController):
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
-                link=h.url_for(controller='group', action='read', id=c.group.name),
+                link=h.url_for(controller='group', action='read', id=c.group_dict['name']),
                 description=_(u'Recent changes to CKAN Group: ') +
-                    c.group.display_name,
+                    c.group_dict['display_name'],
                 language=unicode(get_lang()),
             )
-            for revision, obj_rev in c.group.all_related_revisions:
+            for revision_dict in c.group_revisions:
+                revision_date = h.date_str_to_datetime(revision_dict['timestamp'])
                 try:
                     dayHorizon = int(request.params.get('days'))
                 except:
                     dayHorizon = 30
-                try:
-                    dayAge = (datetime.now() - revision.timestamp).days
-                except:
-                    dayAge = 0
+                dayAge = (datetime.datetime.now() - revision_date).days
                 if dayAge >= dayHorizon:
                     break
-                if revision.message:
-                    item_title = u'%s' % revision.message.split('\n')[0]
+                if revision_dict['message']:
+                    item_title = u'%s' % revision_dict['message'].split('\n')[0]
                 else:
-                    item_title = u'%s' % revision.id
-                item_link = h.url_for(controller='revision', action='read', id=revision.id)
+                    item_title = u'%s' % revision_dict['id']
+                item_link = h.url_for(controller='revision', action='read', id=revision_dict['id'])
                 item_description = _('Log message: ')
-                item_description += '%s' % (revision.message or '')
-                item_author_name = revision.author
-                item_pubdate = revision.timestamp
+                item_description += '%s' % (revision_dict['message'] or '')
+                item_author_name = revision_dict['author']
+                item_pubdate = revision_date
                 feed.add_item(
                     title=item_title,
                     link=item_link,
@@ -460,7 +467,6 @@ class GroupController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        c.group_revisions = c.group.all_related_revisions
         return render('group/history.html')
 
     def _render_edit_form(self, fs):

@@ -23,6 +23,7 @@ from package_relationship import *
 from changeset import Changeset, Change, Changemask
 import ckan.migration
 from ckan.lib.helpers import OrderedDict
+from vdm.sqlalchemy.base import SQLAlchemySession
 
 # set up in init_model after metadata is bound
 version_table = None
@@ -180,6 +181,63 @@ class Repository(vdm.sqlalchemy.Repository):
         metadata.reflect()
         return bool(metadata.tables)
 
+    def purge_revision(self, revision, leave_record=False):
+        '''Purge all changes associated with a revision.
+
+        @param leave_record: if True leave revision in existence but change message
+            to "PURGED: {date-time-of-purge}". If false delete revision object as
+            well.
+
+        Summary of the Algorithm
+        ------------------------
+
+        1. list all RevisionObjects affected by this revision
+        2. check continuity objects and cascade on everything else ?
+            1. crudely get all object revisions associated with this
+            2. then check whether this is the only revision and delete the
+            continuity object
+
+            3. ALTERNATIVELY delete all associated object revisions then do a
+            select on continutity to check which have zero associated revisions
+            (should only be these ...)
+        '''
+        to_purge = []
+        SQLAlchemySession.setattr(self.session, 'revisioning_disabled', True)
+        self.session.autoflush = False
+        for o in self.versioned_objects:
+            revobj = o.__revision_class__
+            items = self.session.query(revobj).filter_by(revision=revision).all()
+            for item in items:
+                continuity = item.continuity
+
+                if continuity.revision == revision: # need to change continuity
+                    trevobjs = self.session.query(revobj).join('revision').  filter(
+                            revobj.continuity==continuity
+                            ).order_by(Revision.timestamp.desc()).all()
+                    if len(trevobjs) == 0:
+                        raise Exception('Should have at least one revision.')
+                    if len(trevobjs) == 1:
+                        to_purge.append(continuity)
+                    else:
+                        self.revert(continuity, trevobjs[1])
+                        for num, obj in enumerate(trevobjs):
+                            if num == 0:
+                                continue
+                            if 'pending' not in obj.state:
+                                obj.current = True
+                                self.session.add(obj)
+                                break
+                # now delete revision object
+                self.session.delete(item)
+            for cont in to_purge:
+                self.session.delete(cont)
+        if leave_record:
+            import datetime
+            revision.message = u'PURGED: %s' % datetime.datetime.now()
+        else:
+            self.session.delete(revision)
+        self.commit_and_remove()
+
 
 repo = Repository(metadata, Session,
         versioned_objects=[Package, PackageTag, Resource, ResourceGroup, PackageExtra, PackageGroup, Group]
@@ -220,20 +278,40 @@ Revision.groups = property(_get_groups)
 Revision.user = property(_get_revision_user)
 
 def strptimestamp(s):
+    '''Convert a string of an ISO date into a datetime.datetime object.
+    
+    raises TypeError if the number of numbers in the string is not between 3
+                     and 7 (see datetime constructor).
+    raises ValueError if any of the numbers are out of range.
+    '''
+    
     import datetime, re
     return datetime.datetime(*map(int, re.split('[^\d]', s)))
 
 def strftimestamp(t):
+    '''Takes a datetime.datetime and returns it as an ISO string. For
+    a pretty printed string, use ckan.lib.helpers.render_datetime.
+    '''
     return t.isoformat()
 
-def revision_as_dict(revision, include_packages=True, ref_package_by='name'):
+def revision_as_dict(revision, include_packages=True, include_groups=True,ref_package_by='name'):
     revision_dict = OrderedDict((
         ('id', revision.id),
         ('timestamp', strftimestamp(revision.timestamp)),
         ('message', revision.message),
         ('author', revision.author),
+        ('approved_timestamp',revision.approved_timestamp)
         ))
     if include_packages:
         revision_dict['packages'] = [getattr(pkg, ref_package_by) \
                                      for pkg in revision.packages]
+    if include_groups:
+        revision_dict['groups'] = [getattr(grp, ref_package_by) \
+                                     for grp in revision.groups]
+       
     return revision_dict
+
+def is_id(id_string):
+    '''Tells the client if the string looks like a revision id or not'''
+    import re
+    return bool(re.match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', id_string))

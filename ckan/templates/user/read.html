@@ -2,18 +2,18 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">${c.read_user} - User</py:def>
+  <py:def function="page_title">${c.user_dict['display_name']} - User</py:def>
   <py:def function="body_class">user-view</py:def>
 
   <div py:match="content">
 
-    <h2>${c.read_user}</h2>
+    <h2>${c.user_dict['display_name']}</h2>
     <py:if test="c.is_myself">
       <h3>My Account</h3>
 
       <p>You are logged in.</p>
       <ul>
-        <li>Your API key is: ${c.api_key}</li>
+        <li>Your API key is: ${c.user_dict['apikey']}</li>
         <li><a href="${h.url_for(controller='user', action='edit')}">Edit your profile</a></li>
         <li><a href="${h.url_for('/user/logout')}">Log out</a></li>
       </ul>
@@ -26,14 +26,14 @@
     <div class="activity">
       <h3>Activity</h3>
       <ul>
-        <li><strong>Number of edits:</strong> ${c.num_edits}</li>
-        <li><strong>Number of packages administered:</strong> ${c.num_pkg_admin}</li>
+        <li><strong>Number of edits:</strong> ${c.user_dict['number_of_edits']}</li>
+        <li><strong>Number of packages administered:</strong> ${c.user_dict['number_administered_packages']}</li>
       </ul>
     </div>
 
     <div class="changes">
       <h3>Recent changes</h3>
-      ${revision_list(c.activity)}
+      ${revision_list_from_dict(c.user_dict['activity'])}
     </div>
   </div>
 
