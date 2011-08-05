@@ -184,6 +184,26 @@ class TestAction(WsgiAppCase):
         assert 'packages' in result and len(result['packages']) == 3
         assert [package['name'] for package in result['packages']].sort() == ['annakarenina', 'warandpeace', 'moo'].sort()
 
+    def test_07_tag_show_unknown_license(self):
+        # create a tagged package which has an invalid license
+        CreateTestData.create_arbitrary([{
+            'name': u'tag_test',
+            'tags': u'tolstoy',
+            'license': 'never_heard_of_it',
+            }])
+        postparams = '%s=1' % json.dumps({'id':'tolstoy'})
+        res = self.app.post('/api/action/tag_show', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        for pkg in result['packages']:
+            if pkg['name'] == 'tag_test':
+                break
+        else:
+            assert 0, 'tag_test not among packages'
+        assert_equal(pkg['license_id'], 'never_heard_of_it')
+        assert_equal(pkg['isopen'], False)
+
     def test_08_user_create_not_authorized(self):
         postparams = '%s=1' % json.dumps({'name':'test_create_from_action_api', 'password':'testpass'})
         res = self.app.post('/api/action/user_create', params=postparams,
