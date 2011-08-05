@@ -108,6 +108,7 @@ class TestAction(WsgiAppCase):
         assert not 'apikey' in res_obj['result'][0]
 
     def test_05_user_show(self):
+        # Anonymous request
         postparams = '%s=1' % json.dumps({'id':'annafan'})
         res = self.app.post('/api/action/user_show', params=postparams)
         res_obj = json.loads(res.body)
@@ -116,12 +117,33 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'annafan'
         assert result['about'] == 'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>'
-        assert 'apikey' in result
         assert 'activity' in result
         assert 'created' in result
         assert 'display_name' in result
         assert 'number_administered_packages' in result
         assert 'number_of_edits' in result
+        assert not 'apikey' in result
+        assert not 'reset_key' in result
+
+        # Same user can see his api key
+        res = self.app.post('/api/action/user_show', params=postparams,
+                            extra_environ={'Authorization': str(self.normal_user.apikey)})
+
+        res_obj = json.loads(res.body)
+        result = res_obj['result']
+        assert result['name'] == 'annafan'
+        assert 'apikey' in result
+        assert 'reset_key' in result
+
+        # Sysadmin user can see everyone's api key
+        res = self.app.post('/api/action/user_show', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+
+        res_obj = json.loads(res.body)
+        result = res_obj['result']
+        assert result['name'] == 'annafan'
+        assert 'apikey' in result
+        assert 'reset_key' in result
 
     def test_06_tag_list(self):
         postparams = '%s=1' % json.dumps({})

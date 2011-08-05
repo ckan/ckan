@@ -367,6 +367,11 @@ def user_show(context, data_dict):
 
     user_dict = user_dictize(user_obj,context)
 
+    if not (Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name):
+        # If not sysadmin or the same user, strip sensible info
+        del user_dict['apikey']
+        del user_dict['reset_key']
+
     revisions_q = model.Session.query(model.Revision
             ).filter_by(author=user_obj.name)
 
