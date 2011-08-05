@@ -6,6 +6,7 @@ import ckan.authz
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
 from ckan.logic import NotFound, check_access, NotAuthorized, ValidationError
 from ckan.lib.base import _
+from vdm.sqlalchemy.base import SQLAlchemySession
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
@@ -107,7 +108,9 @@ def _make_latest_rev_active(context, q):
     latest_rev.current = True
     if latest_rev.state in ('pending-deleted', 'deleted'):
         latest_rev.state = 'deleted'
+        latest_rev.continuity.state = 'deleted'
     else:
+        latest_rev.continuity.state = 'active'
         latest_rev.state = 'active'
 
     session.add(latest_rev)
@@ -127,6 +130,7 @@ def make_latest_pending_package_active(context, data_dict):
 
     model = context['model']
     session = model.Session
+    SQLAlchemySession.setattr(session, 'revisioning_disabled', True)
     id = data_dict["id"]
     pkg = model.Package.get(id)
 

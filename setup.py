@@ -34,8 +34,10 @@ setup(
     message_extractors = {'ckan': [
             ('**.py', 'python', None),
             ('templates/importer/**', 'ignore', None),
-            ('templates/**.html', 'genshi', None),
-            ('templates/**.js', 'genshi', {
+            ('templates/**.html', 'genshi', {
+                'ignore_tags': 'script'
+            }),
+            ('ckan/templates/home/language.js', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
             ('templates/**.txt', 'genshi', {

@@ -1,7 +1,9 @@
 import logging
 
+import ckan.model as model
 from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
+from ckan.lib.dictization.model_dictize import package_to_api1
 from common import SearchError
 
 log = logging.getLogger(__name__)
@@ -31,10 +33,11 @@ class SynchronousSearchPlugin(SingletonPlugin):
     implements(IDomainObjectModification, inherit=True)
 
     def notify(self, entity, operation):
-        
-        if hasattr(entity, 'as_dict') and operation != DomainObjectOperation.deleted:
+
+        if operation != DomainObjectOperation.deleted:
             dispatch_by_operation(entity.__class__.__name__, 
-                                  entity.as_dict(), operation)
+                                  package_to_api1(entity, {'model': model}),
+                                  operation)
         elif operation == DomainObjectOperation.deleted:
             dispatch_by_operation(entity.__class__.__name__, 
                                   {'id': entity.id}, operation)
