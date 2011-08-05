@@ -15,16 +15,15 @@ def site_read(context, data_dict):
     return {'success': True}
 
 def package_search(context, data_dict):
-    """\
-    Everyone can search by default
-    """
+    # Everyone can search by default
     return {'success': True}
 
 def package_list(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+    # List of all active packages are visible by default
+    return {'success': True}
 
 def current_package_list_with_resources(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+    return package_list(context, data_dict)
 
 def revision_list(context, data_dict):
     """\
@@ -32,31 +31,36 @@ def revision_list(context, data_dict):
     if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System): abort
     -> In our new model everyone can read the revison list
     """
+    # In our new model everyone can read the revison list
     return {'success': True}
 
-def revision_diff(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
-
 def group_revision_list(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+    return group_show(context, data_dict)
 
 def package_revision_list(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+    return package_show(context, data_dict)
 
 def group_list(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+    # List of all active groups is visible by default
+    return {'success': True}
 
 def group_list_authz(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+    return group_list(context, data_dict)
 
-def group_list_availible(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+def group_list_available(context, data_dict):
+    return group_list(context, data_dict)
 
 def licence_list(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+    # Licences list is visible by default
+    return {'success': True}
 
 def tag_list(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+    # Tags list is visible by default
+    return {'success': True}
+
+def user_list(context, data_dict):
+    # Users list is visible by default
+    return {'success': True}
 
 def package_relationship_list(context, data_dict):
     model = context['model']
@@ -70,7 +74,7 @@ def package_relationship_list(context, data_dict):
     authorized = Authorizer().\
                     authorized_package_relationship(\
                     user, pkg1, pkg2, action=model.Action.READ)
-    
+
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read these packages') % str(user)}
     else:
@@ -121,6 +125,21 @@ def tag_show(context, data_dict):
 def user_show(context, data_dict):
     # By default, user details can be read by anyone, but some properties like
     # the API key are stripped at the action level if not not logged in.
+    return {'success': True}
+
+def package_autocomplete(context, data_dict):
+    return package_list(context, data_dict)
+
+def group_autocomplete(context, data_dict):
+    return group_list(context, data_dict)
+
+def tag_autocomplete(context, data_dict):
+    return tag_list(context, data_dict)
+
+def user_autocomplete(context, data_dict):
+    return user_list(context, data_dict)
+
+def format_autocomplete(context, data_dict):
     return {'success': True}
 
 ## Modifications for rest api

@@ -36,16 +36,17 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/package_list', params=postparams)
         assert_dicts_equal_ignoring_ordering(
             json.loads(res.body),
-            {"help": "Lists the package by name",
+            {"help": "Lists packages by name or id",
              "success": True,
              "result": ["annakarenina", "warandpeace"]})
         
     def test_02_package_autocomplete(self):
-        postparams = '%s=1' % json.dumps({'q':'a'})
+        postparams = '%s=1' % json.dumps({'q':'war'})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert res_obj['success'] == True
-        assert res_obj['result'][0]['name'] == 'annakarenina'
+        pprint(res_obj['result'][0]['name'])
+        assert res_obj['result'][0]['name'] == 'warandpeace'
 
     def test_03_create_update_package(self):
 

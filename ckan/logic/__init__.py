@@ -104,13 +104,14 @@ def check_access_new(action, context, data_dict=None):
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg','')
             raise NotAuthorized(msg)
-
+    #TODO: Is this really necessary?
+    '''
     elif not user:
         msg = _('No valid API key provided.')
         log.debug(msg)
         raise NotAuthorized(msg)       
         #return AttributeDict(success=False, msg='No valid API key provided.')
-
+    '''
     log.debug('Access OK.')
     return True
     #return AttributeDict(success=True)

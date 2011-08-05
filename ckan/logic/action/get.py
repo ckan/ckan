@@ -24,13 +24,19 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
 from ckan.lib.search import query_for
 
 def package_list(context, data_dict):
-    '''Lists the package by name'''
+    '''Lists packages by name or id'''
+
     model = context["model"]
     user = context["user"]
     api = context.get("api_version", '1')
     ref_package_by = 'id' if api == '2' else 'name'
+    
+    check_access_new('package_list', context, data_dict)
 
-    query = Authorizer().authorized_query(user, model.Package)
+    query = model.Session.query(model.PackageRevision)
+    query = query.filter(model.PackageRevision.state=='active')
+    query = query.filter(model.PackageRevision.current==True)
+
     packages = query.all()
     return [getattr(p, ref_package_by) for p in packages]
 
@@ -39,23 +45,25 @@ def current_package_list_with_resources(context, data_dict):
     user = context["user"]
     limit = data_dict.get("limit")
 
-    q = Authorizer().authorized_query(user, model.PackageRevision)
-    q = q.filter(model.PackageRevision.state=='active')
-    q = q.filter(model.PackageRevision.current==True)
+    check_access_new('current_package_list_with_resources', context, data_dict)
 
-    q = q.order_by(model.package_revision_table.c.revision_timestamp.desc())
+    query = model.Session.query(model.PackageRevision)
+    query = query.filter(model.PackageRevision.state=='active')
+    query = query.filter(model.PackageRevision.current==True)
+
+    query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit:
-        q = q.limit(limit)
-    pack_rev = q.all()
+        query = query.limit(limit)
+    pack_rev = query.all()
     package_list = []
     for package in pack_rev:
         result_dict = table_dictize(package, context)
         res_rev = model.resource_revision_table
         resource_group = model.resource_group_table
-        q = select([res_rev], from_obj = res_rev.join(resource_group,
+        query = select([res_rev], from_obj = res_rev.join(resource_group,
                    resource_group.c.id == res_rev.c.resource_group_id))
-        q = q.where(resource_group.c.package_id == package.id)
-        result = q.where(res_rev.c.current == True).execute()
+        query = query.where(resource_group.c.package_id == package.id)
+        result = query.where(res_rev.c.current == True).execute()
         result_dict["resources"] = resource_list_dictize(result, context)
         license_id = result_dict['license_id']
         if license_id:
@@ -72,7 +80,10 @@ def current_package_list_with_resources(context, data_dict):
 
 def revision_list(context, data_dict):
 
-    model = context["model"]
+    model = context['model']
+
+    check_access_new('revision_list', context, data_dict)
+
     revs = model.Session.query(model.Revision).all()
     return [rev.id for rev in revs]
 
@@ -83,7 +94,7 @@ def package_revision_list(context, data_dict):
     if pkg is None:
         raise NotFound
 
-    check_access_new('package_show',context, data_dict)
+    check_access_new('package_revision_list',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in pkg.all_related_revisions:
@@ -101,10 +112,16 @@ def group_list(context, data_dict):
     ref_group_by = 'id' if api == '2' else 'name';
 
     all_fields = data_dict.get('all_fields',None)
+   
+    check_access_new('group_list',context, data_dict)
 
-    query = Authorizer().authorized_query(user, model.Group)
+    # We need Groups for group_list_dictize
+    query = model.Session.query(model.Group).join(model.GroupRevision)
+    query = query.filter(model.GroupRevision.state=='active')
+    query = query.filter(model.GroupRevision.current==True)
     query = query.order_by(model.Group.name.asc())
     query = query.order_by(model.Group.title.asc())
+
 
     groups = query.all()
 
@@ -118,9 +135,13 @@ def group_list(context, data_dict):
 def group_list_authz(context, data_dict):
     model = context['model']
     user = context['user']
-    pkg = context.get('package')
 
-    query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
+    check_access_new('group_list_authz',context, data_dict)
+
+    query = model.Session.query(model.GroupRevision)
+    query = query.filter(model.GroupRevision.state=='active')
+    query = query.filter(model.GroupRevision.current==True)
+
     groups = set(query.all())
     return dict((group.id, group.name) for group in groups)
 
@@ -129,7 +150,12 @@ def group_list_available(context, data_dict):
     user = context['user']
     pkg = context.get('package')
 
-    query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
+    check_access_new('group_list_available',context, data_dict)
+
+    query = model.Session.query(model.GroupRevision)
+    query = query.filter(model.GroupRevision.state=='active')
+    query = query.filter(model.GroupRevision.current==True)
+
     groups = set(query.all())
 
     if pkg:
@@ -144,7 +170,7 @@ def group_revision_list(context, data_dict):
     if group is None:
         raise NotFound
 
-    check_access_new('group_show',context, data_dict)
+    check_access_new('group_revision_list',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in group.all_related_revisions:
@@ -155,6 +181,9 @@ def group_revision_list(context, data_dict):
 
 def licence_list(context, data_dict):
     model = context["model"]
+
+    check_access_new('licence_list',context, data_dict)
+
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
     licences = [l.as_dict() for l in licenses]
@@ -167,6 +196,8 @@ def tag_list(context, data_dict):
     user = context['user']
 
     all_fields = data_dict.get('all_fields',None)
+
+    check_access_new('tag_list',context, data_dict)
 
     q = data_dict.get('q','')
     if q:
@@ -198,6 +229,8 @@ def user_list(context, data_dict):
     '''Lists the current users'''
     model = context['model']
     user = context['user']
+
+    check_access_new('user_list',context, data_dict)
 
     q = data_dict.get('q','')
     order_by = data_dict.get('order_by','name')
@@ -249,6 +282,9 @@ def package_relationships_list(context, data_dict):
     if rel == 'relationships':
         rel = None
 
+    check_access_new('package_relationships_list',context, data_dict)
+    
+    # TODO: How to handle this object level authz?
     relationships = Authorizer().\
                     authorized_package_relationships(\
                     user, pkg1, pkg2, rel, model.Action.READ)
@@ -433,6 +469,7 @@ def tag_show_rest(context, data_dict):
 
 def package_autocomplete(context, data_dict):
     '''Returns packages containing the provided string'''
+
     model = context['model']
     session = context['session']
     user = context['user']
@@ -440,25 +477,30 @@ def package_autocomplete(context, data_dict):
 
     like_q = u"%s%%" % q
 
-    #TODO: Auth
-    pkg_query = Authorizer().authorized_query(user, model.Package)
-    pkg_query = session.query(model.Package) \
-                    .filter(or_(model.Package.name.ilike(like_q),
-                                model.Package.title.ilike(like_q)))
-    pkg_query = pkg_query.limit(10)
+    check_access_new('package_autocomplete', context, data_dict)
+
+    query = model.Session.query(model.PackageRevision)
+    query = query.filter(model.PackageRevision.state=='active')
+    query = query.filter(model.PackageRevision.current==True)
+    query = query.filter(or_(model.PackageRevision.name.ilike(like_q),
+                                model.PackageRevision.title.ilike(like_q)))
+    query = query.limit(10)
 
     pkg_list = []
-    for package in pkg_query:
-        result_dict = table_dictize(package, context)
+    for package in query:
+        result_dict = {'name':package.name,'title':package.title}
         pkg_list.append(result_dict)
 
     return pkg_list
 
 def tag_autocomplete(context, data_dict):
     '''Returns tags containing the provided string'''
+
     model = context['model']
     session = context['session']
     user = context['user']
+
+    check_access_new('tag_autocomplete', context, data_dict)
 
     q = data_dict.get('q',None)
     if not q:
@@ -481,6 +523,8 @@ def format_autocomplete(context, data_dict):
     model = context['model']
     session = context['session']
     user = context['user']
+
+    check_access_new('format_autocomplete', context, data_dict)
 
     q = data_dict.get('q', None)
     if not q:
@@ -510,6 +554,8 @@ def user_autocomplete(context, data_dict):
     q = data_dict.get('q',None)
     if not q:
         return []
+
+    check_access_new('user_autocomplete', context, data_dict)
 
     limit = data_dict.get('limit',20)
 
