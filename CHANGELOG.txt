@@ -1,7 +1,7 @@
 CKAN CHANGELOG
 ++++++++++++++
 
-v1.4.2 2011-XX-XX
+v1.4.2 2011-08-05
 =================
 Major:
   * Packages revisions can be marked as 'moderated' (#1141)
@@ -14,6 +14,8 @@ Minor:
 
 Bug fixes:
   * When you removed last row of resource table, you could't add it again - since 1.0 (#1215)
+  * Adding a tag to package that had it previously didn't work - since 1.4.1 in UI and 1.4.0 in API (#1239)
+  * Search index was not updated if you added a package to a group - since 1.1 (#1140)
   * Exception if you had any Groups and migrated between CKAN v1.0.2 to v1.2 (migration 29) - since v1.0.2 (#1205)
   * API Package edit requests returned the Package in a different format to usual - since 1.4 (#1214)
   * API error responses were not all JSON format and didn't have correct Content-Type (#1214)
