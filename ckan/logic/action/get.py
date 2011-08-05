@@ -1,12 +1,12 @@
 from sqlalchemy.sql import select
 from sqlalchemy import or_, and_, func, desc
 
-from ckan.logic import NotFound, check_access
+from ckan.logic import NotFound
+from ckan.logic import check_access_new, check_access
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
-import ckan.authz
-
+from ckan.authz import Authorizer
 from ckan.lib.dictization import table_dictize
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_list_dictize,
@@ -30,7 +30,7 @@ def package_list(context, data_dict):
     api = context.get("api_version", '1')
     ref_package_by = 'id' if api == '2' else 'name'
 
-    query = ckan.authz.Authorizer().authorized_query(user, model.Package)
+    query = Authorizer().authorized_query(user, model.Package)
     packages = query.all()
     return [getattr(p, ref_package_by) for p in packages]
 
@@ -39,7 +39,7 @@ def current_package_list_with_resources(context, data_dict):
     user = context["user"]
     limit = data_dict.get("limit")
 
-    q = ckan.authz.Authorizer().authorized_query(user, model.PackageRevision)
+    q = Authorizer().authorized_query(user, model.PackageRevision)
     q = q.filter(model.PackageRevision.state=='active')
     q = q.filter(model.PackageRevision.current==True)
 
@@ -52,7 +52,7 @@ def current_package_list_with_resources(context, data_dict):
         result_dict = table_dictize(package, context)
         res_rev = model.resource_revision_table
         resource_group = model.resource_group_table
-        q = select([res_rev], from_obj = res_rev.join(resource_group, 
+        q = select([res_rev], from_obj = res_rev.join(resource_group,
                    resource_group.c.id == res_rev.c.resource_group_id))
         q = q.where(resource_group.c.package_id == package.id)
         result = q.where(res_rev.c.current == True).execute()
@@ -64,7 +64,7 @@ def current_package_list_with_resources(context, data_dict):
                 result_dict['isopen'] = isopen
             except KeyError:
                 # TODO: create a log message this error?
-                result_dict['isopen'] = False 
+                result_dict['isopen'] = False
         else:
             result_dict['isopen'] = False
         package_list.append(result_dict)
@@ -82,7 +82,8 @@ def package_revision_list(context, data_dict):
     pkg = model.Package.get(id)
     if pkg is None:
         raise NotFound
-    check_access(pkg, model.Action.READ, context)
+
+    check_access_new('package_show',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in pkg.all_related_revisions:
@@ -101,7 +102,7 @@ def group_list(context, data_dict):
 
     all_fields = data_dict.get('all_fields',None)
 
-    query = ckan.authz.Authorizer().authorized_query(user, model.Group)
+    query = Authorizer().authorized_query(user, model.Group)
     query = query.order_by(model.Group.name.asc())
     query = query.order_by(model.Group.title.asc())
 
@@ -111,7 +112,7 @@ def group_list(context, data_dict):
         group_list = [getattr(p, ref_group_by) for p in groups]
     else:
         group_list = group_list_dictize(groups,context)
-    
+
     return group_list
 
 def group_list_authz(context, data_dict):
@@ -119,7 +120,7 @@ def group_list_authz(context, data_dict):
     user = context['user']
     pkg = context.get('package')
 
-    query = ckan.authz.Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
+    query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
     groups = set(query.all())
     return dict((group.id, group.name) for group in groups)
 
@@ -128,7 +129,7 @@ def group_list_available(context, data_dict):
     user = context['user']
     pkg = context.get('package')
 
-    query = ckan.authz.Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
+    query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
     groups = set(query.all())
 
     if pkg:
@@ -142,7 +143,8 @@ def group_revision_list(context, data_dict):
     group = model.Group.get(id)
     if group is None:
         raise NotFound
-    check_access(group, model.Action.READ, context)
+
+    check_access_new('group_show',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in group.all_related_revisions:
@@ -180,8 +182,8 @@ def tag_list(context, data_dict):
                   username=user)
         tags = query.results
     else:
-        tags = model.Session.query(model.Tag).all() 
-    
+        tags = model.Session.query(model.Tag).all()
+
     tag_list = []
     if all_fields:
         for tag in tags:
@@ -247,15 +249,15 @@ def package_relationships_list(context, data_dict):
     if rel == 'relationships':
         rel = None
 
-    relationships = ckan.authz.Authorizer().\
+    relationships = Authorizer().\
                     authorized_package_relationships(\
                     user, pkg1, pkg2, rel, model.Action.READ)
 
     if rel and not relationships:
         raise NotFound('Relationship "%s %s %s" not found.'
                                  % (id, rel, id2))
-    
-    relationship_dicts = [rel.as_dict(pkg1, ref_package_by=ref_package_by) 
+
+    relationship_dicts = [rel.as_dict(pkg1, ref_package_by=ref_package_by)
                           for rel in relationships]
 
     return relationship_dicts
@@ -272,7 +274,8 @@ def package_show(context, data_dict):
 
     if pkg is None:
         raise NotFound
-    check_access(pkg, model.Action.READ, context)
+
+    check_access_new('package_show',context, data_dict)
 
     package_dict = package_dictize(pkg, context)
 
@@ -309,7 +312,7 @@ def group_show(context, data_dict):
     if group is None:
         raise NotFound
 
-    check_access(group, model.Action.READ, context)
+    check_access_new('group_show',context, data_dict)
 
     group_dict = group_dictize(group, context)
 
@@ -332,6 +335,8 @@ def tag_show(context, data_dict):
     if tag is None:
         raise NotFound
 
+    check_access_new('tag_show',context, data_dict)
+
     tag_dict = tag_dictize(tag,context)
     extended_packages = []
     for package in tag_dict['packages']:
@@ -344,24 +349,27 @@ def tag_show(context, data_dict):
 def user_show(context, data_dict):
     '''Shows user details'''
     model = context['model']
+    user = context['user']
 
     id = data_dict.get('id',None)
     provided_user = data_dict.get('user_obj',None)
     if id:
-        user = model.User.get(id)
-        context['user_obj'] = user
-        if user is None:
+        user_obj = model.User.get(id)
+        context['user_obj'] = user_obj
+        if user_obj is None:
             raise NotFound
     elif provided_user:
-        context['user_obj'] = user = provided_user
+        context['user_obj'] = user_obj = provided_user
     else:
         raise NotFound
 
-    user_dict = user_dictize(user,context)
+    check_access_new('user_show',context, data_dict)
+
+    user_dict = user_dictize(user_obj,context)
 
     revisions_q = model.Session.query(model.Revision
-            ).filter_by(author=user.name)
-    
+            ).filter_by(author=user_obj.name)
+
     revisions_list = []
     for revision in revisions_q.limit(20).all():
         revision_dict = revision_show(context,{'id':revision.id})
@@ -373,6 +381,8 @@ def user_show(context, data_dict):
     return user_dict
 
 def package_show_rest(context, data_dict):
+
+    check_access_new('package_show_rest',context, data_dict)
 
     package_show(context, data_dict)
 
@@ -388,6 +398,8 @@ def package_show_rest(context, data_dict):
 
 def group_show_rest(context, data_dict):
 
+    check_access_new('group_show_rest',context, data_dict)
+
     group_show(context, data_dict)
     api = context.get('api_version') or '1'
     group = context['group']
@@ -400,6 +412,8 @@ def group_show_rest(context, data_dict):
     return group_dict
 
 def tag_show_rest(context, data_dict):
+
+    check_access_new('tag_show_rest',context, data_dict)
 
     tag_show(context, data_dict)
     api = context.get('api_version') or '1'
@@ -422,7 +436,7 @@ def package_autocomplete(context, data_dict):
     like_q = u"%s%%" % q
 
     #TODO: Auth
-    pkg_query = ckan.authz.Authorizer().authorized_query(user, model.Package)
+    pkg_query = Authorizer().authorized_query(user, model.Package)
     pkg_query = session.query(model.Package) \
                     .filter(or_(model.Package.name.ilike(like_q),
                                 model.Package.title.ilike(like_q)))
@@ -511,6 +525,8 @@ def package_search(context, data_dict):
     session = context['session']
     user = context['user']
 
+    check_access_new('package_search', context, data_dict)
+
     q=data_dict.get('q','')
     fields=data_dict.get('fields',[])
     facet_by=data_dict.get('facet_by',[])
@@ -530,7 +546,7 @@ def package_search(context, data_dict):
               filter_by_openness=filter_by_openness,
               filter_by_downloadable=filter_by_downloadable,
               username=user)
-    
+
     results = []
     for package in query.results:
         result_dict = table_dictize(package, context)
