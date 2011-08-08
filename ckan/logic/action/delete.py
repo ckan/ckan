@@ -6,18 +6,18 @@ from ckan.logic import check_access_new, check_access
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
 
 
-def package_delete(context):
+def package_delete(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = context["id"]
+    id = data_dict['id']
 
     entity = model.Package.get(id)
 
     if entity is None:
         raise NotFound
 
-    check_access_new('package_delete',context)
+    check_access_new('package_delete',context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -29,13 +29,13 @@ def package_delete(context):
     model.repo.commit()
 
 
-def package_relationship_delete(context):
+def package_relationship_delete(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = context["id"]
-    id2 = context["id2"]
-    rel = context["rel"]
+    id = data_dict['id']
+    id2 = data_dict['id2']
+    rel = data_dict['rel']
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
@@ -44,7 +44,7 @@ def package_relationship_delete(context):
     if not pkg2:
         return NotFound('Second package named in address was not found.')
 
-    check_access_new('package_relationship_delete', context)
+    check_access_new('package_relationship_delete', context, data_dict)
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
@@ -54,7 +54,7 @@ def package_relationship_delete(context):
     revisioned_details = 'Package Relationship: %s %s %s' % (id, rel, id2)
 
     context['relationship'] = relationship
-    check_access_new('relationship_delete', context)
+    check_access_new('relationship_delete', context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -63,20 +63,20 @@ def package_relationship_delete(context):
     relationship.delete()
     model.repo.commit()
 
-def group_delete(context):
+def group_delete(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = context["id"]
+    id = data_dict['id']
 
     group = model.Group.get(id)
-    context["group"] = group
+    context['group'] = group
     if group is None:
         raise NotFound('Group was not found.')
 
     revisioned_details = 'Group: %s' % group.name
 
-    check_access_new('group_delete', context)
+    check_access_new('group_delete', context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user

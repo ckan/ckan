@@ -92,10 +92,9 @@ def check_access_new(action, context, data_dict=None):
     model = context['model']
     user = context.get('user')
 
-    log.debug('check access - user %r' % user)
-    
-    if action and data_dict:
-
+    log.debug('check access - user %r, action %s' % (user,action))
+       
+    if action:
         #if action != model.Action.READ and user in (model.PSEUDO_USER__VISITOR, ''):
         #    # TODO Check the API key is valid at some point too!
         #    log.debug('Valid API key needed to make changes')
@@ -105,13 +104,12 @@ def check_access_new(action, context, data_dict=None):
             msg = logic_authorization.get('msg','')
             raise NotAuthorized(msg)
     #TODO: Is this really necessary?
-    '''
     elif not user:
         msg = _('No valid API key provided.')
         log.debug(msg)
         raise NotAuthorized(msg)       
         #return AttributeDict(success=False, msg='No valid API key provided.')
-    '''
+
     log.debug('Access OK.')
     return True
     #return AttributeDict(success=True)

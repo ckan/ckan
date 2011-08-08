@@ -337,8 +337,10 @@ class ApiController(BaseController):
             action_map[('package', type)] = delete.package_relationship_delete
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'id': id, 'id2': id2, 'rel': subregister,
                    'api_version': ver}
+
+        data_dict = {'id': id, 'id2': id2, 'rel': subregister}
+
         log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
 
         action = action_map.get((register, subregister)) 
@@ -349,7 +351,7 @@ class ApiController(BaseController):
                 gettext('Cannot delete entity of this type: %s %s') %\
                 (register, subregister or ''))
         try:
-            response_data = action(context)
+            response_data = action(context, data_dict)
             return self._finish_ok(response_data)
         except NotAuthorized:
             return self._finish_not_authz()

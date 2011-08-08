@@ -24,7 +24,7 @@ def _get_auth_function(action):
     # Rather than writing them out in full will use __import__
     # to load anything from ckan.auth that looks like it might
     # be an authorisation function
-    for auth_module_name in ['get', 'create', 'update']:
+    for auth_module_name in ['get', 'create', 'update','delete']:
         module_path = 'ckan.logic.auth.'+auth_module_name
         try:
             module = __import__(module_path)
@@ -37,6 +37,7 @@ def _get_auth_function(action):
         for k, v in module.__dict__.items():
             if not k.startswith('_'):
                 _auth_functions[k] = v
+
     # Then overwrite them with any specific ones in the plugins:
     resolved_auth_function_plugins = {}
     fetched_auth_functions = {}
