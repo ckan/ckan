@@ -226,7 +226,7 @@ def strptimestamp(s):
                      and 7 (see datetime constructor).
     raises ValueError if any of the numbers are out of range.
     '''
-    
+    # TODO: METHOD DEPRECATED - use ckan.lib.helpers.date_str_to_datetime
     import datetime, re
     return datetime.datetime(*map(int, re.split('[^\d]', s)))
 
@@ -234,6 +234,7 @@ def strftimestamp(t):
     '''Takes a datetime.datetime and returns it as an ISO string. For
     a pretty printed string, use ckan.lib.helpers.render_datetime.
     '''
+    # TODO: METHOD DEPRECATED - use ckan.lib.helpers.datetime_to_date_str
     return t.isoformat()
 
 def revision_as_dict(revision, include_packages=True, include_groups=True,ref_package_by='name'):

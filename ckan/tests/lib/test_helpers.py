@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
+import datetime
+from nose.tools import assert_equal
 
 from ckan.tests import *
 from ckan.lib import helpers as h
@@ -17,3 +19,34 @@ class TestHelpers(TestController):
     def test_extract_markdown(self):
         assert "Data exposed" in h.markdown_extract(WITH_HTML)
         assert "collects information" in h.markdown_extract(WITH_UNICODE)
+
+    def test_render_datetime(self):
+        res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
+        assert_equal(res, '2008-04-13 20:40')
+
+    def test_render_datetime_but_from_string(self):
+        res = h.render_datetime('2008-04-13T20:40:20.123456')
+        assert_equal(res, '2008-04-13 20:40')
+
+    def test_render_datetime_blank(self):
+        res = h.render_datetime(None)
+        assert_equal(res, '')
+
+    def test_datetime_to_date_str(self):
+        res = h.datetime_to_date_str(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
+        assert_equal(res, '2008-04-13T20:40:20.123456')
+
+    def test_date_str_to_datetime(self):
+        res = h.date_str_to_datetime('2008-04-13T20:40:20.123456')
+        assert_equal(res, datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
+
+    def test_date_str_to_datetime_without_microseconds(self):
+        # This occurs in ckan.net timestamps - not sure how they appeared
+        res = h.date_str_to_datetime('2008-04-13T20:40:20')
+        assert_equal(res, datetime.datetime(2008, 4, 13, 20, 40, 20))
+
+    def test_time_ago_in_words_from_str(self):
+        two_months_ago = datetime.datetime.now() - datetime.timedelta(days=65)
+        two_months_ago_str = h.datetime_to_date_str(two_months_ago)
+        res = h.time_ago_in_words_from_str(two_months_ago_str)
+        assert_equal(res, '2 months')
