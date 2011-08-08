@@ -351,11 +351,8 @@ class TestUsage(TestController, AuthzTestBase):
     
     def test_list(self):
         # NB there is no listing of package in wui interface any more
-        self._test_can('list', [self.testsysadmin, self.pkggroupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
-        self._test_can('list', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
-        self._test_can('list', self.visitor, ['rr', 'wr', 'ww'], interfaces=['rest'])
-        self._test_cant('list', self.mrloggedin, ['xx'], interfaces=['rest'])
-        self._test_cant('list', self.visitor, ['xx', 'rx', 'wx'], interfaces=['rest'])
+        # NB under the new model all active packages are always visible in listings by default
+        self._test_can('list', [self.testsysadmin, self.pkggroupadmin, self.mrloggedin, self.visitor], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
 
     def test_admin_edit_deleted(self):
         self._test_can('edit', self.pkggroupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'])
