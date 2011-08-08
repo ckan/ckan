@@ -5,7 +5,9 @@
 Consists of functions to typically be used within templates, but also
 available to Controllers. This module is available to templates as 'h'.
 """
-from datetime import datetime
+import datetime
+import re
+
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
 from webhelpers.html.tags import *
@@ -28,8 +30,7 @@ try:
     import json
 except ImportError:
     import simplejson as json
-
-ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
+    
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -210,11 +211,11 @@ def render_datetime(datetime_):
     '''
     from ckan import model
     date_format = '%Y-%m-%d %H:%M'
-    if isinstance(datetime_, datetime):
+    if isinstance(datetime_, datetime.datetime):
         return datetime_.strftime(date_format)
     elif isinstance(datetime_, basestring):
         try:
-            datetime_ = model.strptimestamp(datetime_)
+            datetime_ = date_str_to_datetime(datetime_)
         except TypeError:
             return ''
         except ValueError:
@@ -223,8 +224,20 @@ def render_datetime(datetime_):
     else:
         return ''
 
-def date_str_to_datetime(date_str, format=ISO_DATE_FORMAT):
-    return datetime.strptime(date_str, format)
+def datetime_to_date_str(datetime_):
+    '''Takes a datetime.datetime object and returns a string of it
+    in ISO format.
+    '''
+    return datetime_.isoformat()
 
-def time_ago_in_words_from_str(date_str, format=ISO_DATE_FORMAT, granularity='month'):
-    return date.time_ago_in_words(datetime.strptime(date_str, format), granularity=granularity)
+def date_str_to_datetime(date_str):
+    '''Takes an ISO format timestamp and returns the equivalent
+    datetime.datetime object.
+    '''
+    # Doing this split is more accepting of input variations than doing
+    # a strptime. Also avoids problem with Python 2.5 not having %f.
+    return datetime.datetime(*map(int, re.split('[^\d]', date_str)))
+
+def time_ago_in_words_from_str(date_str, granularity='month'):
+    return date.time_ago_in_words(date_str_to_datetime(date_str), granularity=granularity)
+
