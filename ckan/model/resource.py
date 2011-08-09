@@ -203,6 +203,9 @@ vdm.sqlalchemy.modify_base_object_mapper(ResourceGroup, Revision, State)
 ResourceGroupRevision = vdm.sqlalchemy.create_object_version(
     mapper, ResourceGroup, resource_group_revision_table)
 
+ResourceGroupRevision.related_packages = lambda self: [self.continuity.package]
+ResourceRevision.related_packages = lambda self: [self.continuity.resouce_group.package]
+
 import vdm.sqlalchemy.stateful
 # TODO: move this into vdm
 def add_stateful_m21(object_to_alter, m21_property_name,

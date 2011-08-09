@@ -1,5 +1,5 @@
 from sqlalchemy.sql import select
-from sqlalchemy import or_, func, desc
+from sqlalchemy import or_, and_, func, desc
 
 from ckan.logic import NotFound, check_access
 from ckan.plugins import (PluginImplementations,
@@ -456,6 +456,32 @@ def tag_autocomplete(context, data_dict):
               username=user)
 
     return [tag.name for tag in query.results]
+
+def format_autocomplete(context, data_dict):
+    '''Returns formats containing the provided string'''
+    model = context['model']
+    session = context['session']
+    user = context['user']
+
+    q = data_dict.get('q', None)
+    if not q:
+        return []
+
+    limit = data_dict.get('limit', 5)
+    like_q = u'%' + q + u'%'
+
+    query = session.query(model.ResourceRevision.format,
+        func.count(model.ResourceRevision.format).label('total'))\
+        .filter(and_(
+            model.ResourceRevision.state == 'active',
+            model.ResourceRevision.current == True
+        ))\
+        .filter(model.ResourceRevision.format.ilike(like_q))\
+        .group_by(model.ResourceRevision.format)\
+        .order_by('total DESC')\
+        .limit(limit)
+
+    return [resource.format for resource in query]
 
 def user_autocomplete(context, data_dict):
     '''Returns users containing the provided string'''
