@@ -88,7 +88,7 @@ def flatten_to_string_key(dict):
     flattented = flatten_dict(dict)
     return untuplize_dict(flattented)
 
-def check_access_new(action, context, data_dict=None):
+def check_access(action, context, data_dict=None):
     model = context['model']
     user = context.get('user')
 
@@ -103,19 +103,16 @@ def check_access_new(action, context, data_dict=None):
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg','')
             raise NotAuthorized(msg)
-    #TODO: Is this really necessary?
     elif not user:
         msg = _('No valid API key provided.')
         log.debug(msg)
         raise NotAuthorized(msg)       
-        #return AttributeDict(success=False, msg='No valid API key provided.')
 
     log.debug('Access OK.')
     return True
-    #return AttributeDict(success=True)
 
 
-def check_access(entity, action, context):
+def check_access_old(entity, action, context):
     model = context['model']
     user = context.get('user')
 

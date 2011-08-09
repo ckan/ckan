@@ -4,8 +4,7 @@ import datetime
 
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
 from ckan.logic import NotFound, ValidationError
-# check_access will be renamed to check_access_old
-from ckan.logic import check_access_new, check_access
+from ckan.logic import check_access
 
 from ckan.lib.base import _
 from vdm.sqlalchemy.base import SQLAlchemySession
@@ -111,7 +110,7 @@ def make_latest_pending_package_active(context, data_dict):
     id = data_dict["id"]
     pkg = model.Package.get(id)
 
-    check_access_new('make_latest_pending_package_active', context, data_dict)
+    check_access('make_latest_pending_package_active', context, data_dict)
 
     #packages
     q = session.query(model.PackageRevision).filter_by(id=pkg.id)
@@ -169,7 +168,7 @@ def resource_update(context, data_dict):
     if not pkg:
         raise NotFound(_('No package found for this resource, cannot check auth.'))
 
-    check_access_new('package_update', context, data_dict)
+    check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -206,7 +205,7 @@ def package_update(context, data_dict):
         raise NotFound(_('Package was not found.'))
     data_dict["id"] = pkg.id
 
-    check_access_new('package_update', context, data_dict)
+    check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
     
@@ -249,7 +248,7 @@ def package_update_validate(context, data_dict):
         raise NotFound(_('Package was not found.'))
     data_dict["id"] = pkg.id
 
-    check_access_new('package_update', context, data_dict)
+    check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -293,7 +292,7 @@ def package_relationship_update(context, data_dict):
     if not pkg2:
         return NotFound('Second package named in address was not found.')
 
-    check_access_new('package_relationship_update', context, data_dict)
+    check_access('package_relationship_update', context, data_dict)
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
@@ -314,7 +313,7 @@ def group_update(context, data_dict):
     if group is None:
         raise NotFound('Group was not found.')
 
-    check_access_new('group_update', context, data_dict)
+    check_access('group_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
     if errors:
@@ -354,7 +353,7 @@ def user_update(context, data_dict):
     if user_obj is None:
         raise NotFound('User was not found.')
 
-    check_access_new('user_update', context, data_dict)
+    check_access('user_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
     if errors:
@@ -402,7 +401,7 @@ def package_update_rest(context, data_dict):
     context["allow_partial_update"] = True
     dictized_package = package_api_to_dict(data_dict, context)
 
-    check_access_new('package_update_rest', context, dictized_package)
+    check_access('package_update_rest', context, dictized_package)
 
     dictized_after = package_update(context, dictized_package)
 
@@ -426,7 +425,7 @@ def group_update_rest(context, data_dict):
     context["allow_partial_update"] = True
     dictized_group = group_api_to_dict(data_dict, context)
 
-    check_access_new('group_update_rest', context, dictized_group)
+    check_access('group_update_rest', context, dictized_group)
 
     dictized_after = group_update(context, dictized_group)
 

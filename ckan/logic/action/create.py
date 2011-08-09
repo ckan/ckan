@@ -5,8 +5,7 @@ from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
 from ckan.logic import NotFound, ValidationError
-# check_access will be renamed to check_access_old
-from ckan.logic import check_access_new, check_access
+from ckan.logic import check_access
 from ckan.lib.base import _
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
@@ -42,7 +41,7 @@ def package_create(context, data_dict):
     model.Session.remove()
     model.Session()._context = context
 
-    check_access_new('package_create',context,data_dict)
+    check_access('package_create',context,data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -87,7 +86,7 @@ def package_create_validate(context, data_dict):
     model.Session.remove()
     model.Session()._context = context
     
-    check_access_new('package_create',context,data_dict)
+    check_access('package_create',context,data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -125,7 +124,7 @@ def package_relationship_create(context, data_dict):
     if not pkg2:
         return NotFound('Second package named in address was not found.')
 
-    check_access_new('package_relationship_create', context, data_dict)
+    check_access('package_relationship_create', context, data_dict)
 
     ##FIXME should have schema
     comment = data_dict.get('comment', u'')
@@ -147,7 +146,7 @@ def group_create(context, data_dict):
     user = context['user']
     schema = context.get('schema') or default_group_schema()
 
-    check_access_new('group_create',context,data_dict)
+    check_access('group_create',context,data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -219,7 +218,7 @@ def user_create(context, data_dict):
     user = context['user']
     schema = context.get('schema') or default_user_schema()
 
-    check_access_new('user_create', context, data_dict)
+    check_access('user_create', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -249,7 +248,7 @@ def package_create_rest(context, data_dict):
     
     api = context.get('api_version') or '1'
 
-    check_access_new('package_create_rest', context, data_dict)
+    check_access('package_create_rest', context, data_dict)
 
     dictized_package = package_api_to_dict(data_dict, context)
     dictized_after = package_create(context, dictized_package) 
@@ -269,7 +268,7 @@ def group_create_rest(context, data_dict):
 
     api = context.get('api_version') or '1'
 
-    check_access_new('group_create_rest', context, data_dict)
+    check_access('group_create_rest', context, data_dict)
 
     dictized_group = group_api_to_dict(data_dict, context)
     dictized_after = group_create(context, dictized_group) 

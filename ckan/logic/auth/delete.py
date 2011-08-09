@@ -1,5 +1,4 @@
-#This will be check_access_old
-from ckan.logic import check_access
+from ckan.logic import check_access_old
 from ckan.logic.auth.create import package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
@@ -16,7 +15,7 @@ def package_delete(context, data_dict):
         package = context['package']
 
     #TODO: model.Action.CHANGE_STATE or model.Action.PURGE?
-    authorized = check_access(package, model.Action.PURGE, context)
+    authorized = check_access_old(package, model.Action.PURGE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete package %s') % (str(user),package.id)}
     else:
@@ -30,7 +29,7 @@ def relationship_delete(context, data_dict):
     user = context['user']
     relationship = context['relationship']
 
-    authorized = check_access(relationship, model.Action.PURGE, context)
+    authorized = check_access_old(relationship, model.Action.PURGE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete relationship %s') % (str(user),relationship.id)}
     else:
@@ -47,7 +46,7 @@ def group_delete(context, data_dict):
     else:
         group = context['group']
 
-    authorized = check_access(group, model.Action.PURGE, context)
+    authorized = check_access_old(group, model.Action.PURGE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete group %s') % (str(user),group.id)}
     else:

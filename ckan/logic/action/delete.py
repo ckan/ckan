@@ -1,7 +1,6 @@
 from ckan.logic import NotFound
 from ckan.lib.base import _
-# check_access will be renamed to check_access_old
-from ckan.logic import check_access_new, check_access
+from ckan.logic import check_access
 
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
 
@@ -17,7 +16,7 @@ def package_delete(context, data_dict):
     if entity is None:
         raise NotFound
 
-    check_access_new('package_delete',context, data_dict)
+    check_access('package_delete',context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -44,7 +43,7 @@ def package_relationship_delete(context, data_dict):
     if not pkg2:
         return NotFound('Second package named in address was not found.')
 
-    check_access_new('package_relationship_delete', context, data_dict)
+    check_access('package_relationship_delete', context, data_dict)
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
@@ -54,7 +53,7 @@ def package_relationship_delete(context, data_dict):
     revisioned_details = 'Package Relationship: %s %s %s' % (id, rel, id2)
 
     context['relationship'] = relationship
-    check_access_new('relationship_delete', context, data_dict)
+    check_access('relationship_delete', context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -76,7 +75,7 @@ def group_delete(context, data_dict):
 
     revisioned_details = 'Group: %s' % group.name
 
-    check_access_new('group_delete', context, data_dict)
+    check_access('group_delete', context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user

@@ -2,7 +2,7 @@ from sqlalchemy.sql import select
 from sqlalchemy import or_, and_, func, desc
 
 from ckan.logic import NotFound
-from ckan.logic import check_access_new, check_access
+from ckan.logic import check_access
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
@@ -31,7 +31,7 @@ def package_list(context, data_dict):
     api = context.get("api_version", '1')
     ref_package_by = 'id' if api == '2' else 'name'
     
-    check_access_new('package_list', context, data_dict)
+    check_access('package_list', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
@@ -45,7 +45,7 @@ def current_package_list_with_resources(context, data_dict):
     user = context["user"]
     limit = data_dict.get("limit")
 
-    check_access_new('current_package_list_with_resources', context, data_dict)
+    check_access('current_package_list_with_resources', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
@@ -82,7 +82,7 @@ def revision_list(context, data_dict):
 
     model = context['model']
 
-    check_access_new('revision_list', context, data_dict)
+    check_access('revision_list', context, data_dict)
 
     revs = model.Session.query(model.Revision).all()
     return [rev.id for rev in revs]
@@ -94,7 +94,7 @@ def package_revision_list(context, data_dict):
     if pkg is None:
         raise NotFound
 
-    check_access_new('package_revision_list',context, data_dict)
+    check_access('package_revision_list',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in pkg.all_related_revisions:
@@ -113,7 +113,7 @@ def group_list(context, data_dict):
 
     all_fields = data_dict.get('all_fields',None)
    
-    check_access_new('group_list',context, data_dict)
+    check_access('group_list',context, data_dict)
 
     # We need Groups for group_list_dictize
     query = model.Session.query(model.Group).join(model.GroupRevision)
@@ -136,7 +136,7 @@ def group_list_authz(context, data_dict):
     model = context['model']
     user = context['user']
 
-    check_access_new('group_list_authz',context, data_dict)
+    check_access('group_list_authz',context, data_dict)
 
     query = model.Session.query(model.GroupRevision)
     query = query.filter(model.GroupRevision.state=='active')
@@ -150,7 +150,7 @@ def group_list_available(context, data_dict):
     user = context['user']
     pkg = context.get('package')
 
-    check_access_new('group_list_available',context, data_dict)
+    check_access('group_list_available',context, data_dict)
 
     query = model.Session.query(model.GroupRevision)
     query = query.filter(model.GroupRevision.state=='active')
@@ -170,7 +170,7 @@ def group_revision_list(context, data_dict):
     if group is None:
         raise NotFound
 
-    check_access_new('group_revision_list',context, data_dict)
+    check_access('group_revision_list',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in group.all_related_revisions:
@@ -182,7 +182,7 @@ def group_revision_list(context, data_dict):
 def licence_list(context, data_dict):
     model = context["model"]
 
-    check_access_new('licence_list',context, data_dict)
+    check_access('licence_list',context, data_dict)
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
@@ -197,7 +197,7 @@ def tag_list(context, data_dict):
 
     all_fields = data_dict.get('all_fields',None)
 
-    check_access_new('tag_list',context, data_dict)
+    check_access('tag_list',context, data_dict)
 
     q = data_dict.get('q','')
     if q:
@@ -230,7 +230,7 @@ def user_list(context, data_dict):
     model = context['model']
     user = context['user']
 
-    check_access_new('user_list',context, data_dict)
+    check_access('user_list',context, data_dict)
 
     q = data_dict.get('q','')
     order_by = data_dict.get('order_by','name')
@@ -282,7 +282,7 @@ def package_relationships_list(context, data_dict):
     if rel == 'relationships':
         rel = None
 
-    check_access_new('package_relationships_list',context, data_dict)
+    check_access('package_relationships_list',context, data_dict)
     
     # TODO: How to handle this object level authz?
     relationships = Authorizer().\
@@ -311,7 +311,7 @@ def package_show(context, data_dict):
     if pkg is None:
         raise NotFound
 
-    check_access_new('package_show',context, data_dict)
+    check_access('package_show',context, data_dict)
 
     package_dict = package_dictize(pkg, context)
 
@@ -348,7 +348,7 @@ def group_show(context, data_dict):
     if group is None:
         raise NotFound
 
-    check_access_new('group_show',context, data_dict)
+    check_access('group_show',context, data_dict)
 
     group_dict = group_dictize(group, context)
 
@@ -371,7 +371,7 @@ def tag_show(context, data_dict):
     if tag is None:
         raise NotFound
 
-    check_access_new('tag_show',context, data_dict)
+    check_access('tag_show',context, data_dict)
 
     tag_dict = tag_dictize(tag,context)
     extended_packages = []
@@ -399,7 +399,7 @@ def user_show(context, data_dict):
     else:
         raise NotFound
 
-    check_access_new('user_show',context, data_dict)
+    check_access('user_show',context, data_dict)
 
     user_dict = user_dictize(user_obj,context)
 
@@ -423,7 +423,7 @@ def user_show(context, data_dict):
 
 def package_show_rest(context, data_dict):
 
-    check_access_new('package_show_rest',context, data_dict)
+    check_access('package_show_rest',context, data_dict)
 
     package_show(context, data_dict)
 
@@ -439,7 +439,7 @@ def package_show_rest(context, data_dict):
 
 def group_show_rest(context, data_dict):
 
-    check_access_new('group_show_rest',context, data_dict)
+    check_access('group_show_rest',context, data_dict)
 
     group_show(context, data_dict)
     api = context.get('api_version') or '1'
@@ -454,7 +454,7 @@ def group_show_rest(context, data_dict):
 
 def tag_show_rest(context, data_dict):
 
-    check_access_new('tag_show_rest',context, data_dict)
+    check_access('tag_show_rest',context, data_dict)
 
     tag_show(context, data_dict)
     api = context.get('api_version') or '1'
@@ -477,7 +477,7 @@ def package_autocomplete(context, data_dict):
 
     like_q = u"%s%%" % q
 
-    check_access_new('package_autocomplete', context, data_dict)
+    check_access('package_autocomplete', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
@@ -500,7 +500,7 @@ def tag_autocomplete(context, data_dict):
     session = context['session']
     user = context['user']
 
-    check_access_new('tag_autocomplete', context, data_dict)
+    check_access('tag_autocomplete', context, data_dict)
 
     q = data_dict.get('q',None)
     if not q:
@@ -524,7 +524,7 @@ def format_autocomplete(context, data_dict):
     session = context['session']
     user = context['user']
 
-    check_access_new('format_autocomplete', context, data_dict)
+    check_access('format_autocomplete', context, data_dict)
 
     q = data_dict.get('q', None)
     if not q:
@@ -555,7 +555,7 @@ def user_autocomplete(context, data_dict):
     if not q:
         return []
 
-    check_access_new('user_autocomplete', context, data_dict)
+    check_access('user_autocomplete', context, data_dict)
 
     limit = data_dict.get('limit',20)
 
@@ -576,7 +576,7 @@ def package_search(context, data_dict):
     session = context['session']
     user = context['user']
 
-    check_access_new('package_search', context, data_dict)
+    check_access('package_search', context, data_dict)
 
     q=data_dict.get('q','')
     fields=data_dict.get('fields',[])

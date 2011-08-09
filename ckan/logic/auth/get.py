@@ -1,5 +1,4 @@
-#This will be check_access_old
-from ckan.logic import check_access, NotFound
+from ckan.logic import check_access_old, NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
@@ -91,7 +90,7 @@ def package_show(context, data_dict):
     else:
         package = context['package']
 
-    authorized =  check_access(package, model.Action.READ, context)
+    authorized =  check_access_old(package, model.Action.READ, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
     else:
@@ -112,7 +111,7 @@ def group_show(context, data_dict):
     else:
         group = context['group']
 
-    authorized =  check_access(group, model.Action.READ, context)
+    authorized =  check_access_old(group, model.Action.READ, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read group %s') % (str(user),group.id)}
     else:

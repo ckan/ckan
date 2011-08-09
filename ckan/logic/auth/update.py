@@ -1,5 +1,4 @@
-#This will be check_access_old
-from ckan.logic import check_access
+from ckan.logic import check_access_old
 from ckan.logic.auth.create import check_group_auth, package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
@@ -13,7 +12,7 @@ def package_update(context, data_dict):
     id = data_dict['id']
     pkg = model.Package.get(id)
 
-    check1 = check_access(pkg, model.Action.EDIT, context)
+    check1 = check_access_old(pkg, model.Action.EDIT, context)
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), pkg.id)}
     else:
@@ -32,7 +31,7 @@ def group_update(context, data_dict):
     group = model.Group.get(id)
     user = context['user']
 
-    authorized = check_access(group, model.Action.EDIT, context)
+    authorized = check_access_old(group, model.Action.EDIT, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit group %s') % (str(user),id)}
     else:

@@ -1,5 +1,4 @@
-#This will be check_access_old
-from ckan.logic import check_access
+from ckan.logic import check_access_old
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
@@ -8,7 +7,7 @@ def package_create(context, data_dict=None):
     model = context['model']
     user = context['user']
 
-    check1 = check_access(model.System(), model.Action.PACKAGE_CREATE, context)
+    check1 = check_access_old(model.System(), model.Action.PACKAGE_CREATE, context)
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % str(user)}
     else:
@@ -43,7 +42,7 @@ def group_create(context, data_dict=None):
     model = context['model']
     user = context['user']
    
-    authorized = check_access(model.System(), model.Action.GROUP_CREATE, context)
+    authorized = check_access_old(model.System(), model.Action.GROUP_CREATE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
     else:
@@ -57,7 +56,7 @@ def user_create(context, data_dict=None):
     model = context['model']
     user = context['user']
    
-    authorized = check_access(model.System(), model.Action.USER_CREATE, context)
+    authorized = check_access_old(model.System(), model.Action.USER_CREATE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to create users') % str(user)}
     else:
@@ -86,7 +85,7 @@ def check_group_auth(context, data_dict):
         groups = groups - set(pkg.groups)
 
     for group in groups:
-        if not check_access(group, model.Action.EDIT, context):
+        if not check_access_old(group, model.Action.EDIT, context):
             return False
 
     return True
