@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 
 from pylons.i18n import get_lang
 
+from ckan.logic import NotAuthorized
+import ckan.logic.action.get as get
+
 from ckan.lib.base import *
 from ckan.lib.helpers import Page
 import ckan.authz
@@ -18,7 +21,10 @@ class RevisionController(BaseController):
             self.authorizer.is_authorized(c.user, model.Action.CHANGE_STATE,
                 model.Revision)
             )
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            get.site_read(context)
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
     def index(self):

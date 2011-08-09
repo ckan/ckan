@@ -15,7 +15,7 @@ from babel.dates import format_date, format_datetime, format_time
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
 import ckan.logic.action.get as get
-from ckan.logic import get_action
+from ckan.logic import get_action, check_access
 from ckan.logic.schema import package_form_schema
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import etag_cache, response, redirect, gettext
@@ -95,8 +95,11 @@ class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
     extensions = PluginImplementations(IPackageController)
 
-    def search(self):        
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+    def search(self):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            get.site_read(context)
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
         q = c.q = request.params.get('q') # unicode format (decoded from utf8)
         c.open_only = request.params.get('open_only')

@@ -42,8 +42,10 @@ class GroupController(BaseController):
     ## end hooks
     
     def index(self):
-
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            get.site_read(context)
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
         context = {'model': model, 'session': model.Session,

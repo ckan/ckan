@@ -23,6 +23,10 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 tag_to_api2)
 from ckan.lib.search import query_for
 
+def site_read(context,data_dict=None):
+    check_access('site_read',context,data_dict)
+    return True
+
 def package_list(context, data_dict):
     '''Lists packages by name or id'''
 

@@ -11,6 +11,7 @@ def package_create(context, data_dict=None):
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % str(user)}
     else:
+        
         check2 = check_group_auth(context,data_dict)
         if not check2:
             return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
@@ -63,6 +64,9 @@ def user_create(context, data_dict=None):
         return {'success': True}
 
 def check_group_auth(context, data_dict):
+    if not data_dict:
+        return True
+
     model = context['model']
     pkg = context.get("package")
 

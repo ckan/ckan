@@ -35,7 +35,10 @@ class ApiController(BaseController):
 
     def __call__(self, environ, start_response):
         self._identify_user()
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            get.site_read(context)
+        except NotAuthorized:
             response_msg = self._finish(403, _('Not authorized to see this page'))
             # Call start_response manually instead of the parent __call__
             # because we want to end the request instead of continuing.
@@ -43,10 +46,10 @@ class ApiController(BaseController):
             body = '%i %s' % (response.status_int, response_msg)
             start_response(body, response.headers.items())
             return [response_msg]
-        else:
-            # avoid status_code_redirect intercepting error responses
-            environ['pylons.status_code_redirect'] = True
-            return BaseController.__call__(self, environ, start_response)
+
+        # avoid status_code_redirect intercepting error responses
+        environ['pylons.status_code_redirect'] = True
+        return BaseController.__call__(self, environ, start_response)
 
     def _finish(self, status_int, response_data=None,
                 content_type='text'):

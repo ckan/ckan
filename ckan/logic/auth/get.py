@@ -11,6 +11,11 @@ def site_read(context, data_dict):
 
     ./ckan/controllers/api.py
     """
+    model = context['model']
+    user = context['user']
+    if not Authorizer().is_authorized(user, model.Action.SITE_READ, model.System):
+        return {'success': False, 'msg': _('Not authorized to see this page')}
+
     return {'success': True}
 
 def package_search(context, data_dict):
