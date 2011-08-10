@@ -6,7 +6,7 @@ from genshi.template import NewTextTemplate
 
 from ckan.authz import Authorizer
 import ckan.logic.action.get as get
-from ckan.logic import NotAuthorized
+from ckan.logic import NotAuthorized,check_access
 from ckan.i18n import set_session_locale
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache, get_cache_expires
@@ -23,7 +23,7 @@ class HomeController(BaseController):
         BaseController.__before__(self, action, **env)
         try:
             context = {'model':model,'user': c.user or c.author}
-            get.site_read(context)
+            check_access('site_read',context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 

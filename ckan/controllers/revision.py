@@ -3,8 +3,7 @@ from datetime import datetime, timedelta
 
 from pylons.i18n import get_lang
 
-from ckan.logic import NotAuthorized
-import ckan.logic.action.get as get
+from ckan.logic import NotAuthorized, check_access
 
 from ckan.lib.base import *
 from ckan.lib.helpers import Page
@@ -23,7 +22,7 @@ class RevisionController(BaseController):
             )
         try:
             context = {'model':model,'user': c.user or c.author}
-            get.site_read(context)
+            check_access('site_read',context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 

@@ -7,7 +7,7 @@ from ckan.lib.search import query_for
 from ckan.lib.cache import proxy_cache
 from ckan.lib.helpers import AlphaPage, Page
 
-from ckan.logic import NotFound, NotAuthorized
+from ckan.logic import NotFound, NotAuthorized, check_access
 import ckan.logic.action.get as get
 
 LIMIT = 25
@@ -18,7 +18,7 @@ class TagController(BaseController):
         BaseController.__before__(self, action, **env)
         try:
             context = {'model':model,'user': c.user or c.author}
-            get.site_read(context)
+            check_access('site_read',context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 

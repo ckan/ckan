@@ -11,7 +11,7 @@ from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTION
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
-from ckan.logic import get_action
+from ckan.logic import get_action, check_access
 import ckan.logic.action.get as get 
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
@@ -37,7 +37,7 @@ class ApiController(BaseController):
         self._identify_user()
         try:
             context = {'model':model,'user': c.user or c.author}
-            get.site_read(context)
+            check_access('site_read',context)
         except NotAuthorized:
             response_msg = self._finish(403, _('Not authorized to see this page'))
             # Call start_response manually instead of the parent __call__

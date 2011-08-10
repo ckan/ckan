@@ -34,9 +34,12 @@ class GroupController(BaseController):
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
-        group = context.get('group') or c.group
+        context_group = context.get('group',None)
+        group = context_group or c.group
         if group:
             try:
+                if not context_group:
+                    context['group'] = group
                 check_access('group_change_state',context)
                 c.auth_for_change_state = True
             except NotAuthorized:
@@ -45,17 +48,17 @@ class GroupController(BaseController):
     ## end hooks
     
     def index(self):
-        try:
-            context = {'model':model,'user': c.user or c.author}
-            get.site_read(context)
-        except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
         data_dict = {'all_fields': True}
-               
+
+        try:
+            check_access('site_read',context)
+        except NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
+        
         results = get.group_list(context,data_dict)
 
         c.page = Page(
@@ -202,8 +205,8 @@ class GroupController(BaseController):
         c.grouptitle = group.display_name
 
         try:
-            context = {'model':model,'user':c.user or c.author, 'package':pkg}
-            check_access('package_edit_permissions',context)
+            context = {'model':model,'user':c.user or c.author, 'group':group}
+            check_access('group_edit_permissions',context)
             c.authz_editable = True
         except NotAuthorized:
             c.authz_editable = False

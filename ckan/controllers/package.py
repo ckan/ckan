@@ -85,9 +85,12 @@ class PackageController(BaseController):
         c.resource_columns = model.Resource.get_columns()
 
         ## This is messy as auths take domain object not data_dict
-        pkg = context.get('package') or c.pkg
+        context_pkg = context.get('package',None)
+        pkg = context_pkg or c.pkg
         if pkg:
             try:
+                if not context_pkg:
+                    context['package'] = pkg
                 check_access('package_change_state',context)
                 c.auth_for_change_state = True
             except NotAuthorized:
@@ -101,9 +104,10 @@ class PackageController(BaseController):
     def search(self):
         try:
             context = {'model':model,'user': c.user or c.author}
-            get.site_read(context)
+            check_access('site_read',context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
+
         q = c.q = request.params.get('q') # unicode format (decoded from utf8)
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
