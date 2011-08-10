@@ -88,7 +88,6 @@ class PackageController(BaseController):
         pkg = context.get('package') or c.pkg
         if pkg:
             try:
-                context = {'model':model,'user':c.user or c.author, 'package':pkg}
                 check_access('package_change_state',context)
                 c.auth_for_change_state = True
             except NotAuthorized:
