@@ -15,6 +15,8 @@ class RevisionController(BaseController):
 
     def __before__(self, action, **env):
         BaseController.__before__(self, action, **env)
+
+        context = {'model':model,'user': c.user or c.author}
         if c.user:
             try:
                 check_access('revision_change_state',context)
@@ -23,9 +25,7 @@ class RevisionController(BaseController):
                 c.revision_change_state_allowed = False
         else:
             c.revision_change_state_allowed = False
-
         try:
-            context = {'model':model,'user': c.user or c.author}
             check_access('site_read',context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))

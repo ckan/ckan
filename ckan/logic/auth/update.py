@@ -109,7 +109,7 @@ def revision_change_state(context, data_dict):
 
     authorized = Authorizer().is_authorized(user, model.Action.CHANGE_STATE, model.Revision)
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to change state of revision %s') % (str(user),revision.id)}
+        return {'success': False, 'msg': _('User %s not authorized to change state of revision' ) % str(user)}
     else:
         return {'success': True}
 
