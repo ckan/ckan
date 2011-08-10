@@ -26,6 +26,7 @@ def dispatch_by_operation(entity_type, entity, operation, backend=None):
             log.warn("Unknown operation: %s" % operation)
     except Exception, ex:
         log.exception(ex)
+        raise
 
 
 class SynchronousSearchPlugin(SingletonPlugin):
