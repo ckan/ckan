@@ -54,13 +54,40 @@ def package_edit_permissions(context, data_dict):
 
 def group_update(context, data_dict):
     model = context['model']
-    id = data_dict['id']
-    group = model.Group.get(id)
     user = context['user']
+    if not 'group' in context:
+        id = data_dict.get('id',None)
+        group = model.Group.get(id)
+        if not group:
+            raise NotFound
+    else:
+        group = context['group']
 
     authorized = check_access_old(group, model.Action.EDIT, context)
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to edit group %s') % (str(user),id)}
+        return {'success': False, 'msg': _('User %s not authorized to edit group %s') % (str(user),group.id)}
+    else:
+        return {'success': True}
+
+def group_change_state(context, data_dict):
+    model = context['model']
+    group = context['group']
+    user = context['user']
+
+    authorized = check_access_old(group, model.Action.CHANGE_STATE, context)
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to change state of group %s') % (str(user),group.id)}
+    else:
+        return {'success': True}
+
+def group_edit_permissions(context, data_dict):
+    model = context['model']
+    group = context['group']
+    user = context['user']
+
+    authorized = check_access_old(group, model.Action.EDIT_PERMISSIONS, context)
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to edit permissions of group %s') % (str(user),group.id)}
     else:
         return {'success': True}
 

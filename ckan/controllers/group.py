@@ -13,7 +13,7 @@ import ckan.logic.action.create as create
 import ckan.logic.action.update as update
 import ckan.logic.action.get as get
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
-from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import NotFound, NotAuthorized, ValidationError, check_access
 from ckan.logic.schema import group_form_schema
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 import ckan.forms
@@ -34,10 +34,13 @@ class GroupController(BaseController):
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
-        group = context.get('group') or c.pkg
+        group = context.get('group') or c.group
         if group:
-            c.auth_for_change_state = Authorizer().am_authorized(
-                c, model.Action.CHANGE_STATE, group)
+            try:
+                check_access('group_change_state',context)
+                c.auth_for_change_state = True
+            except NotAuthorized:
+                c.auth_for_change_state = False
 
     ## end hooks
     
@@ -99,9 +102,9 @@ class GroupController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'schema': self._form_to_db_schema(),
                    'save': 'save' in request.params}
-
-        auth_for_create = Authorizer().am_authorized(c, model.Action.GROUP_CREATE, model.System())
-        if not auth_for_create:
+        try:
+            check_access('group_create',context)
+        except NotAuthorized:
             abort(401, _('Unauthorized to create a group'))
 
         if context['save'] and not data:
@@ -142,8 +145,9 @@ class GroupController(BaseController):
 
         group = context.get("group")
 
-        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, group)
-        if not am_authz:
+        try:
+            check_access('group_update',context)
+        except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
@@ -197,10 +201,15 @@ class GroupController(BaseController):
         c.groupname = group.name
         c.grouptitle = group.display_name
 
-        c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, group)
+        try:
+            context = {'model':model,'user':c.user or c.author, 'package':pkg}
+            check_access('package_edit_permissions',context)
+            c.authz_editable = True
+        except NotAuthorized:
+            c.authz_editable = False
+
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
- 
 
         #see package.py for comments
         def get_userobjectroles():
