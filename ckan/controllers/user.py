@@ -8,7 +8,7 @@ from ckan.lib.base import *
 from ckan.lib import mailer
 from ckan.authz import Authorizer
 from ckan.lib.navl.dictization_functions import DataError, unflatten
-from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import NotFound, NotAuthorized, ValidationError, check_access
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.logic.schema import user_new_form_schema, user_edit_form_schema 
 
@@ -49,9 +49,6 @@ class UserController(BaseController):
     def index(self):
         LIMIT = 20
 
-        if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
-            abort(401, _('Not authorized to see this page'))
-
         page = int(request.params.get('page', 1))
         c.q  = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
@@ -61,6 +58,10 @@ class UserController(BaseController):
 
         data_dict = {'q':c.q,
                      'order_by':c.order_by}
+        try:
+            check_access('user_list',context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
 
         users_list = get.user_list(context,data_dict)
 
@@ -73,14 +74,18 @@ class UserController(BaseController):
         return render('user/list.html')
 
     def read(self, id=None):
-        if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
-            abort(401, _('Not authorized to see this page'))
 
         context = {'model': model,
                    'user': c.user or c.author}
 
         data_dict = {'id':id,
                      'user_obj':c.userobj}
+
+        try:
+            check_access('user_show',context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
+
         try:
             user_dict = get.user_show(context,data_dict)
         except NotFound:
@@ -107,8 +112,9 @@ class UserController(BaseController):
                    'schema': self._new_form_to_db_schema(),
                    'save': 'save' in request.params}
 
-        auth_for_create = Authorizer().am_authorized(c, model.Action.USER_CREATE, model.System())
-        if not auth_for_create:
+        try:
+            check_access('user_create',context)
+        except NotAuthorized:
             abort(401, _('Unauthorized to create a user'))
 
         if context['save'] and not data:
