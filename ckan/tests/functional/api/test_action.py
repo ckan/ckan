@@ -98,6 +98,25 @@ class TestAction(WsgiAppCase):
         package_created.pop('revision_timestamp')
         assert package_updated == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))
 
+    def test_18_create_package_not_authorized(self):
+
+        package = {
+            'extras': [{'key': u'original media','value': u'"book"'}],
+            'license_id': u'other-open',
+            'maintainer': None,
+            'maintainer_email': None,
+            'name': u'annakareninanew_not_authorized',
+            'notes': u'Some test now',
+            'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
+            'title': u'A Novel By Tolstoy',
+            'url': u'http://www.annakarenina.com',
+        }
+
+        wee = json.dumps(package)
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                                     status=self.STATUS_403_ACCESS_DENIED)
+
     def test_04_user_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/user_list', params=postparams)

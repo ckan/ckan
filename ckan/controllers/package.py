@@ -87,8 +87,12 @@ class PackageController(BaseController):
         ## This is messy as auths take domain object not data_dict
         pkg = context.get('package') or c.pkg
         if pkg:
-            c.auth_for_change_state = Authorizer().am_authorized(
-                c, model.Action.CHANGE_STATE, pkg)
+            try:
+                context = {'model':model,'user':c.user or c.author, 'package':pkg}
+                check_access('package_change_state',context)
+                c.auth_for_change_state = True
+            except NotAuthorized:
+                c.auth_for_change_state = False
 
     ## end hooks
 
@@ -332,9 +336,9 @@ class PackageController(BaseController):
                    'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema()}
-
-        auth_for_create = Authorizer().am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
-        if not auth_for_create:
+        try:
+            check_access('package_create',context)
+        except NotAuthorized:
             abort(401, _('Unauthorized to create a package'))
 
         if (context['save'] or context['preview']) and not data:
@@ -374,8 +378,9 @@ class PackageController(BaseController):
 
         c.pkg = context.get("package")
 
-        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
-        if not am_authz:
+        try:
+            check_access('package_update',context)
+        except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
@@ -535,8 +540,13 @@ class PackageController(BaseController):
         c.pkg = pkg # needed to add in the tab bar to the top of the auth page
         c.pkgname = pkg.name
         c.pkgtitle = pkg.title
+        try:
+            context = {'model':model,'user':c.user or c.author, 'package':pkg}
+            check_access('package_edit_permissions',context)
+            c.authz_editable = True
+        except NotAuthorized:
+            c.authz_editable = False
 
-        c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 

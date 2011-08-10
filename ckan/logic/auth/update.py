@@ -9,12 +9,17 @@ def make_latest_pending_package_active(context, data_dict):
 def package_update(context, data_dict):
     model = context['model']
     user = context.get('user')
-    id = data_dict['id']
-    pkg = model.Package.get(id)
+    if not 'package' in context:
+        id = data_dict.get('id',None)
+        package = model.Package.get(id)
+        if not package:
+            raise NotFound
+    else:
+        package = context['package']
 
-    check1 = check_access_old(pkg, model.Action.EDIT, context)
+    check1 = check_access_old(package, model.Action.EDIT, context)
     if not check1:
-        return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), pkg.id)}
+        return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), package.id)}
     else:
         check2 = check_group_auth(context,data_dict)
         if not check2:
@@ -24,6 +29,28 @@ def package_update(context, data_dict):
 
 def package_relationship_update(context, data_dict):
     return package_relationship_create(context, data_dict)
+
+def package_change_state(context, data_dict):
+    model = context['model']
+    package = context['package']
+    user = context['user']
+
+    authorized = check_access_old(package, model.Action.CHANGE_STATE, context)
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to change state of package %s') % (str(user),package.id)}
+    else:
+        return {'success': True}
+
+def package_edit_permissions(context, data_dict):
+    model = context['model']
+    package = context['package']
+    user = context['user']
+
+    authorized = check_access_old(package, model.Action.EDIT_PERMISSIONS, context)
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to edit permissions of package %s') % (str(user),package.id)}
+    else:
+        return {'success': True}
 
 def group_update(context, data_dict):
     model = context['model']
@@ -53,8 +80,18 @@ def user_update(context, data_dict):
 ## Modifications for rest api
 
 def package_update_rest(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if user in (model.PSEUDO_USER__VISITOR, ''):
+        return {'success': False, 'msg': _('Valid API key needed to edit a package')}
+
     return package_update(context, data_dict)
 
 def group_update_rest(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if user in (model.PSEUDO_USER__VISITOR, ''):
+        return {'success': False, 'msg': _('Valid API key needed to edit a group')}
+
     return group_update(context, data_dict)
 

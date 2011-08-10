@@ -116,14 +116,12 @@ def check_access_old(entity, action, context):
     model = context['model']
     user = context.get('user')
 
-    log.debug('check access - user %r' % user)
-    
+    log.debug('check access - user %r, action %s' % (user,action))
     if action and entity and not isinstance(entity, model.PackageRelationship):
-        if action != model.Action.READ and user in (model.PSEUDO_USER__VISITOR, ''):
+        if action != model.Action.READ and user == '':
             log.debug('Valid API key needed to make changes')
             return False
             #raise NotAuthorized
-        
         am_authz = ckan.authz.Authorizer().is_authorized(user, action, entity)
         if not am_authz:
             log.debug('User is not authorized to %s %s' % (action, entity))
