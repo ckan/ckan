@@ -157,7 +157,9 @@ class ManageDb(CkanCommand):
 
     def _run_cmd(self, command_line):
         import subprocess    
-        subprocess.call(command_line, shell=True)
+        retcode = subprocess.call(command_line, shell=True)
+        if retcode != 0:
+            raise SystemError('Command exited with errorcode: %i' % retcode)
 
     def dump_or_load(self, cmd):
         if len(self.args) < 2:
