@@ -23,6 +23,15 @@ def login_form():
 
 class UserController(BaseController):
 
+    def __before__(self, action, **env):
+        BaseController.__before__(self, action, **env)
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            check_access('site_read',context)
+        except NotAuthorized:
+            if c.action not in ('login','request_reset','perform_reset',):
+                abort(401, _('Not authorized to see this page'))
+
     ## hooks for subclasses 
     new_user_form = 'user/new_user_form.html'
     edit_user_form = 'user/edit_user_form.html'
