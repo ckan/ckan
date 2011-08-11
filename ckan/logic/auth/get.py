@@ -1,7 +1,7 @@
 from ckan.logic import check_access_old, NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
-
+from ckan.logic.auth import get_package_object, get_group_object
 
 
 def site_read(context, data_dict):
@@ -30,11 +30,6 @@ def current_package_list_with_resources(context, data_dict):
     return package_list(context, data_dict)
 
 def revision_list(context, data_dict):
-    """\
-    from controller/revision __before__
-    if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System): abort
-    -> In our new model everyone can read the revison list
-    """
     # In our new model everyone can read the revison list
     return {'success': True}
 
@@ -87,13 +82,7 @@ def package_relationship_list(context, data_dict):
 def package_show(context, data_dict):
     model = context['model']
     user = context['user']
-    if not 'package' in context:
-        id = data_dict.get('id',None)
-        package = model.Package.get(id)
-        if not package:
-            raise NotFound
-    else:
-        package = context['package']
+    package = get_package_object(context, data_dict)
 
     authorized =  check_access_old(package, model.Action.READ, context)
     if not authorized:
@@ -108,13 +97,7 @@ def revision_show(context, data_dict):
 def group_show(context, data_dict):
     model = context['model']
     user = context['user']
-    if not 'group' in context:
-        id = data_dict.get('id',None)
-        group = model.Group.get(id)
-        if not group:
-            raise NotFound
-    else:
-        group = context['group']
+    group = get_group_object(context, data_dict)
 
     authorized =  check_access_old(group, model.Action.READ, context)
     if not authorized:
