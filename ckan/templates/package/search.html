@@ -10,7 +10,7 @@
 
   <py:match path="primarysidebar">
     
-    <li class="widget-container widget_text" py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">
+    <li class="widget-container widget_text" py:if="h.check_access('package_create')">
         <h4>Add a package</h4>
         <p>
             Do you know of a dataset that should be added to ${g.site_title}?

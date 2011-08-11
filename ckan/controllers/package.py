@@ -339,10 +339,12 @@ class PackageController(BaseController):
                    'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema()}
-        try:
-            check_access('package_create',context)
-        except NotAuthorized:
-            abort(401, _('Unauthorized to create a package'))
+
+        if not context['preview']:
+            try:
+                check_access('package_create',context)
+            except NotAuthorized:
+                abort(401, _('Unauthorized to create a package'))
 
         if (context['save'] or context['preview']) and not data:
             return self._save_new(context)

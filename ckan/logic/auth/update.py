@@ -1,4 +1,4 @@
-from ckan.logic import check_access_old
+from ckan.logic import check_access_old, NotFound
 from ckan.logic.auth.create import check_group_auth, package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
@@ -32,8 +32,14 @@ def package_relationship_update(context, data_dict):
 
 def package_change_state(context, data_dict):
     model = context['model']
-    package = context['package']
     user = context['user']
+    if not 'package' in context:
+        id = data_dict.get('id',None)
+        package = model.Package.get(id)
+        if not package:
+            raise NotFound
+    else:
+        package = context['package']
 
     authorized = check_access_old(package, model.Action.CHANGE_STATE, context)
     if not authorized:
@@ -43,8 +49,14 @@ def package_change_state(context, data_dict):
 
 def package_edit_permissions(context, data_dict):
     model = context['model']
-    package = context['package']
     user = context['user']
+    if not 'package' in context:
+        id = data_dict.get('id',None)
+        package = model.Package.get(id)
+        if not package:
+            raise NotFound
+    else:
+        package = context['package']
 
     authorized = check_access_old(package, model.Action.EDIT_PERMISSIONS, context)
     if not authorized:
@@ -71,8 +83,14 @@ def group_update(context, data_dict):
 
 def group_change_state(context, data_dict):
     model = context['model']
-    group = context['group']
     user = context['user']
+    if not 'group' in context:
+        id = data_dict.get('id',None)
+        group = model.Group.get(id)
+        if not group:
+            raise NotFound
+    else:
+        group = context['group']
 
     authorized = check_access_old(group, model.Action.CHANGE_STATE, context)
     if not authorized:
@@ -82,12 +100,54 @@ def group_change_state(context, data_dict):
 
 def group_edit_permissions(context, data_dict):
     model = context['model']
-    group = context['group']
     user = context['user']
+    if not 'group' in context:
+        id = data_dict.get('id',None)
+        group = model.Group.get(id)
+        if not group:
+            raise NotFound
+    else:
+        group = context['group']
 
     authorized = check_access_old(group, model.Action.EDIT_PERMISSIONS, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit permissions of group %s') % (str(user),group.id)}
+    else:
+        return {'success': True}
+
+def authorization_group_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if not 'authorization_group' in context:
+        id = data_dict.get('id',None)
+        # Auth groups don't have get method
+        authorization_group = model.Session.query(model.AuthorizationGroup).filter(model.AuthorizationGroup.id==id).first()
+        if not authorization_group:
+            raise NotFound
+    else:
+        authorization_group = context['authorization_group']
+
+    authorized = check_access_old(authorization_group, model.Action.EDIT, context)
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to edit permissions of authorization group %s') % (str(user),authorization_group.id)}
+    else:
+        return {'success': True}
+
+def authorization_group_edit_permissions(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if not 'authorization_group' in context:
+        id = data_dict.get('id',None)
+        # Auth groups don't have get method
+        authorization_group = model.Session.query(model.AuthorizationGroup).filter(model.AuthorizationGroup.id==id).first()
+        if not authorization_group:
+            raise NotFound
+    else:
+        authorization_group = context['authorization_group']
+
+    authorized = check_access_old(authorization_group, model.Action.EDIT_PERMISSIONS, context)
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to edit permissions of authorization group %s') % (str(user),authorization_group.id)}
     else:
         return {'success': True}
 

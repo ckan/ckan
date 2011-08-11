@@ -41,7 +41,8 @@ def package_create(context, data_dict):
     model.Session.remove()
     model.Session()._context = context
 
-    check_access('package_create',context,data_dict)
+    if not preview:
+        check_access('package_create',context,data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
