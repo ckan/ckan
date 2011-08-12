@@ -8,13 +8,10 @@ from ckan.lib.base import *
 from ckan.lib import mailer
 from ckan.authz import Authorizer
 from ckan.lib.navl.dictization_functions import DataError, unflatten
-from ckan.logic import NotFound, NotAuthorized, ValidationError, check_access
+from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.logic.schema import user_new_form_schema, user_edit_form_schema 
-
-import ckan.logic.action.get as get
-import ckan.logic.action.create as create
-import ckan.logic.action.update as update
 
 log = logging.getLogger(__name__)
 
@@ -72,7 +69,7 @@ class UserController(BaseController):
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
-        users_list = get.user_list(context,data_dict)
+        users_list = get_action('user_list')(context,data_dict)
 
         c.page = h.Page(
             collection=users_list,
@@ -96,7 +93,7 @@ class UserController(BaseController):
             abort(401, _('Not authorized to see this page'))
 
         try:
-            user_dict = get.user_show(context,data_dict)
+            user_dict = get_action('user_show')(context,data_dict)
         except NotFound:
             h.redirect_to(controller='user', action='login', id=None)
 
@@ -143,7 +140,7 @@ class UserController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
-            user = create.user_create(context, data_dict)
+            user = get_action('user_create')(context, data_dict)
             h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to create user %s') % '')
@@ -174,7 +171,7 @@ class UserController(BaseController):
             return self._save_edit(id, context)
 
         try:
-            old_data = get.user_show(context, data_dict)
+            old_data = get_action('user_show')(context, data_dict)
 
             schema = self._db_to_edit_form_schema()
             if schema:
@@ -210,7 +207,7 @@ class UserController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
-            user = update.user_update(context, data_dict)
+            user = get_action('user_update')(context, data_dict)
 
             if context['preview']:
                 about = request.params.getone('about')
@@ -246,7 +243,7 @@ class UserController(BaseController):
 
             data_dict = {'id':c.user}
 
-            user_dict = get.user_show(context,data_dict)
+            user_dict = get_action('user_show')(context,data_dict)
 
             response.set_cookie("ckan_user", user_dict['name'])
             response.set_cookie("ckan_display_name", user_dict['display_name'])
@@ -274,7 +271,7 @@ class UserController(BaseController):
             data_dict = {'id':id}
             user_obj = None
             try:
-                user_dict = get.user_show(context,data_dict)
+                user_dict = get_action('user_show')(context,data_dict)
                 user_obj = context['user_obj']
             except NotFound:
                 # Try searching the user
@@ -282,13 +279,13 @@ class UserController(BaseController):
                 data_dict['q'] = id
 
                 if id and len(id) > 2:
-                    user_list = get.user_list(context,data_dict)
+                    user_list = get_action('user_list')(context,data_dict)
                     if len(user_list) == 1:
                         # This is ugly, but we need the user object for the mailer,
                         # and user_list does not return them
                         del data_dict['q']
                         data_dict['id'] = user_list[0]['id']
-                        user_dict = get.user_show(context,data_dict)
+                        user_dict = get_action('user_show')(context,data_dict)
                         user_obj = context['user_obj']
                     elif len(user_list) > 1:
                         h.flash_error(_('"%s" matched several users') % (id))
@@ -313,7 +310,7 @@ class UserController(BaseController):
         data_dict = {'id':id}
 
         try:
-            user_dict = get.user_show(context,data_dict)
+            user_dict = get_action('user_show')(context,data_dict)
             user_obj = context['user_obj']
         except NotFound, e:
             abort(404, _('User not found'))
@@ -329,7 +326,7 @@ class UserController(BaseController):
                 new_password = self._get_form_password()
                 user_dict['password'] = new_password
                 user_dict['reset_key'] = c.reset_key
-                user = update.user_update(context, user_dict)
+                user = get_action('user_update')(context, user_dict)
 
                 h.flash_success(_("Your password has been reset."))
                 redirect('/')

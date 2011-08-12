@@ -12,10 +12,6 @@ from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, check_access
-import ckan.logic.action.get as get 
-import ckan.logic.action.create as create
-import ckan.logic.action.update as update
-import ckan.logic.action.delete as delete
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.lib.jsonp import jsonpify
 from ckan.forms.common import package_exists
@@ -182,13 +178,13 @@ class ApiController(BaseController):
                    'user': c.user, 'api_version': ver}
         log.debug('listing: %s' % context)
         action_map = {
-            'revision': get.revision_list,
-            'group': get.group_list,
-            'package': get.package_list,
-            'tag': get.tag_list,
-            'licenses': get.licence_list,
-            ('package', 'relationships'): get.package_relationships_list,
-            ('package', 'revisions'): get.package_revision_list,
+            'revision': get_action('revision_list'),
+            'group': get_action('group_list'),
+            'package': get_action('package_list'),
+            'tag': get_action('tag_list'),
+            'licenses': get_action('licence_list'),
+            ('package', 'relationships'): get_action('package_relationships_list'),
+            ('package', 'revisions'): get_action('package_revision_list'),
         }
 
         action = action_map.get((register, subregister)) 
@@ -207,11 +203,11 @@ class ApiController(BaseController):
 
     def show(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
-            'revision': get.revision_show,
-            'group': get.group_show_rest,
-            'tag': get.tag_show_rest,
-            'package': get.package_show_rest,
-            ('package', 'relationships'): get.package_relationships_list,
+            'revision': get_action('revision_show'),
+            'group': get_action('group_show_rest'),
+            'tag': get_action('tag_show_rest'),
+            'package': get_action('package_show_rest'),
+            ('package', 'relationships'): get_action('package_relationships_list'),
         }
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
@@ -219,7 +215,7 @@ class ApiController(BaseController):
         data_dict = {'id': id, 'id2': id2, 'rel': subregister}
 
         for type in model.PackageRelationship.get_all_types():
-            action_map[('package', type)] = get.package_relationships_list
+            action_map[('package', type)] = get_action('package_relationships_list')
         log.debug('show: %s' % context)
 
         action = action_map.get((register, subregister)) 
@@ -250,7 +246,7 @@ class ApiController(BaseController):
         }
 
         for type in model.PackageRelationship.get_all_types():
-            action_map[('package', type)] = create.package_relationship_create
+            action_map[('package', type)] = get_action('package_relationship_create')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver}
@@ -298,7 +294,7 @@ class ApiController(BaseController):
              'group': get_action('group_update_rest'),
         }
         for type in model.PackageRelationship.get_all_types():
-            action_map[('package', type)] = update.package_relationship_update
+            action_map[('package', type)] = get_action('package_relationship_update')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver, 'id': id}
@@ -335,12 +331,12 @@ class ApiController(BaseController):
 
     def delete(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
-            ('package', 'relationships'): delete.package_relationship_delete,
-             'group': delete.group_delete,
-             'package': delete.package_delete,
+            ('package', 'relationships'): get_action('package_relationship_delete'),
+             'group': get_action('group_delete'),
+             'package': get_action('package_delete'),
         }
         for type in model.PackageRelationship.get_all_types():
-            action_map[('package', type)] = delete.package_relationship_delete
+            action_map[('package', type)] = get_action('package_relationship_delete')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver}
@@ -467,7 +463,7 @@ class ApiController(BaseController):
 
         data_dict = {'all_fields': True}
 
-        tag_list = get.tag_list(context, data_dict)
+        tag_list = get_action('tag_list')(context, data_dict)
         results = []
         for tag in tag_list:
             tag_count = len(tag['packages'])
@@ -504,7 +500,7 @@ class ApiController(BaseController):
 
             data_dict = {'q':q,'limit':limit}
 
-            user_list = get.user_autocomplete(context,data_dict)
+            user_list = get_action('user_autocomplete')(context,data_dict)
         return user_list
 
 
@@ -550,7 +546,7 @@ class ApiController(BaseController):
 
             data_dict = {'q':q,'limit':limit}
 
-            tag_names = get.tag_autocomplete(context,data_dict)
+            tag_names = get_action('tag_autocomplete')(context,data_dict)
 
         resultSet = {
             'ResultSet': {
@@ -567,7 +563,7 @@ class ApiController(BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
             data_dict = {'q': q, 'limit': limit}
-            formats = get.format_autocomplete(context, data_dict)
+            formats = get_action('format_autocomplete')(context, data_dict)
 
         resultSet = {
             'ResultSet': {

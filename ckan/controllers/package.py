@@ -12,9 +12,6 @@ from pylons.i18n import get_lang, _
 from autoneg.accept import negotiate
 from babel.dates import format_date, format_datetime, format_time
 
-import ckan.logic.action.create as create
-import ckan.logic.action.update as update
-import ckan.logic.action.get as get
 from ckan.logic import get_action, check_access
 from ckan.logic.schema import package_form_schema
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
@@ -78,9 +75,9 @@ class PackageController(BaseController):
             raise DataError(data_dict)
 
     def _setup_template_variables(self, context, data_dict):
-        c.groups_authz = get.group_list_authz(context, data_dict)
+        c.groups_authz = get_action('group_list_authz')(context, data_dict)
         data_dict.update({'available_only':True})
-        c.groups_available = get.group_list_authz(context, data_dict)
+        c.groups_available = get_action('group_list_authz')(context, data_dict)
         c.licences = [('', '')] + model.Package.get_license_options()
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         c.resource_columns = model.Resource.get_columns()
@@ -161,7 +158,7 @@ class PackageController(BaseController):
                          'filter_by_downloadable':c.downloadable_only,
                         }
 
-            query = get.package_search(context,data_dict)
+            query = get_action('package_search')(context,data_dict)
 
             c.page = h.Page(
                 collection=query['results'],
@@ -211,7 +208,7 @@ class PackageController(BaseController):
             
         #check if package exists
         try:
-            c.pkg_dict = get.package_show(context, data_dict)
+            c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
         except NotFound:
             abort(404, _('Package not found'))
@@ -246,7 +243,7 @@ class PackageController(BaseController):
 
         #check if package exists
         try:
-            c.pkg_dict = get.package_show(context, {'id':id})
+            c.pkg_dict = get_action('package_show')(context, {'id':id})
             c.pkg = context['package']
         except NotFound:
             abort(404, _('Package not found'))
@@ -284,8 +281,8 @@ class PackageController(BaseController):
                    'extras_as_string': True,}
         data_dict = {'id':id}
         try:
-            c.pkg_dict = get.package_show(context, data_dict)
-            c.pkg_revisions = get.package_revision_list(context, data_dict)
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg_revisions = get_action('package_revision_list')(context, data_dict)
             #TODO: remove
             # Still necessary for the authz check in group/layout.html
             c.pkg = context['package']
@@ -372,7 +369,7 @@ class PackageController(BaseController):
         if (context['save'] or context['preview']) and not data:
             return self._save_edit(id, context)
         try:
-            old_data = get.package_show(context, {'id':id})
+            old_data = get_action('package_show')(context, {'id':id})
             schema = self._db_to_form_schema()
             if schema:
                 old_data, errors = validate(old_data, schema)
@@ -405,7 +402,7 @@ class PackageController(BaseController):
                    'revision_id': revision}
 
         try:
-            data = get.package_show(context, {'id': id})
+            data = get_action('package_show')(context, {'id': id})
             schema = self._db_to_form_schema()
             if schema:
                 data, errors = validate(data, schema)
@@ -428,7 +425,7 @@ class PackageController(BaseController):
                    'extras_as_string': True,}
         data_dict = {'id':id}
         try:
-            pkg_revisions = get.package_revision_list(context, data_dict)
+            pkg_revisions = get_action('package_revision_list')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
@@ -492,7 +489,7 @@ class PackageController(BaseController):
             data_dict['id'] = id
             pkg = get_action('package_update')(context, data_dict)
             if request.params.get('save', '') == 'Approve':
-                update.make_latest_pending_package_active(context, data_dict)
+                get_action('make_latest_pending_package_active')(context, data_dict)
             c.pkg = context['package']
             c.pkg_dict = pkg
 
@@ -779,7 +776,7 @@ class PackageController(BaseController):
 
         data_dict = {'q':q}
 
-        packages = get.package_autocomplete(context,data_dict)
+        packages = get_action('package_autocomplete')(context,data_dict)
 
         pkg_list = []
         for pkg in packages:

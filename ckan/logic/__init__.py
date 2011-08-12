@@ -145,7 +145,7 @@ def get_action(action):
     # Rather than writing them out in full will use __import__
     # to load anything from ckan.logic.action that looks like it might
     # be an action 
-    for action_module_name in ['get', 'create', 'update']:
+    for action_module_name in ['get', 'create', 'update','delete']:
         module_path = 'ckan.logic.action.'+action_module_name
         module = __import__(module_path)
         for part in module_path.split('.')[1:]:

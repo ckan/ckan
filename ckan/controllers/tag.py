@@ -7,8 +7,8 @@ from ckan.lib.search import query_for
 from ckan.lib.cache import proxy_cache
 from ckan.lib.helpers import AlphaPage, Page
 
-from ckan.logic import NotFound, NotAuthorized, check_access
-import ckan.logic.action.get as get
+from ckan.logic import NotFound, NotAuthorized
+from ckan.logic import check_access, get_action
 
 LIMIT = 25
 
@@ -37,7 +37,7 @@ class TagController(BaseController):
             data_dict['offset'] = (page-1)*LIMIT
             data_dict['return_objects'] = True
                
-        results = get.tag_list(context,data_dict)
+        results = get_action('tag_list')(context,data_dict)
          
         if c.q:
             c.page = h.Page(
@@ -64,7 +64,7 @@ class TagController(BaseController):
         
         data_dict = {'id':id}
         try:
-            c.tag = get.tag_show(context,data_dict)
+            c.tag = get_action('tag_show')(context,data_dict)
         except NotFound:
             abort(404, _('Tag not found'))
 
