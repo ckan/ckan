@@ -137,35 +137,29 @@ def group_list(context, data_dict):
     return group_list
 
 def group_list_authz(context, data_dict):
+    '''
+    Returns a list of groups which the user is allowed to edit
+
+    If 'available_only' is specified, the existing groups in the package are
+    removed.
+
+    '''
     model = context['model']
     user = context['user']
+    available_only = data_dict.get('available_only',False)
 
     check_access('group_list_authz',context, data_dict)
 
-    query = model.Session.query(model.GroupRevision)
-    query = query.filter(model.GroupRevision.state=='active')
-    query = query.filter(model.GroupRevision.current==True)
-
+    from ckan.authz import Authorizer
+    query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
     groups = set(query.all())
-    return dict((group.id, group.name) for group in groups)
+    
+    if available_only:
+        package = context.get('package')
+        if package:
+            groups = groups - set(package.groups)
 
-def group_list_available(context, data_dict):
-    model = context['model']
-    user = context['user']
-    pkg = context.get('package')
-
-    check_access('group_list_available',context, data_dict)
-
-    query = model.Session.query(model.GroupRevision)
-    query = query.filter(model.GroupRevision.state=='active')
-    query = query.filter(model.GroupRevision.current==True)
-
-    groups = set(query.all())
-
-    if pkg:
-        groups = groups - set(pkg.groups)
-
-    return [(group.id, group.name) for group in groups]
+    return [{'id':group.id,'name':group.name} for group in groups]
 
 def group_revision_list(context, data_dict):
     model = context['model']

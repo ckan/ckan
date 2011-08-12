@@ -78,8 +78,9 @@ class PackageController(BaseController):
             raise DataError(data_dict)
 
     def _setup_template_variables(self, context, data_dict):
-        c.groups = get.group_list_available(context, data_dict)
         c.groups_authz = get.group_list_authz(context, data_dict)
+        data_dict.update({'available_only':True})
+        c.groups_available = get.group_list_authz(context, data_dict)
         c.licences = [('', '')] + model.Package.get_license_options()
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         c.resource_columns = model.Resource.get_columns()
@@ -392,6 +393,7 @@ class PackageController(BaseController):
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context, {'id': id})
+
         c.form = render(self.package_form, extra_vars=vars)
         return render('package/edit.html')
 
