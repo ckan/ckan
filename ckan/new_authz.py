@@ -2,6 +2,7 @@ from logging import getLogger
 from ckan.plugins import implements, SingletonPlugin
 from ckan.plugins import IAuthFunctions
 from ckan.plugins import PluginImplementations
+from ckan.lib.base import _
 
 log = getLogger(__name__)
 
@@ -14,7 +15,7 @@ def is_authorized(action, context,data_dict=None):
     if auth_function:
         return auth_function(context, data_dict)
     else:
-        return {'success': True}
+        raise ValueError(_('Authorization function not found: %s' % action))
 
 def _get_auth_function(action):
     if _auth_functions:
