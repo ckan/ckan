@@ -61,12 +61,12 @@ def user_list(context, data_dict):
     # Users list is visible by default
     return {'success': True}
 
-def package_relationship_list(context, data_dict):
+def package_relationships_list(context, data_dict):
     model = context['model']
     user = context['user']
 
     id = data_dict['id']
-    id2 = data_dict['id2']
+    id2 = data_dict.get('id2')
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
 
