@@ -1,10 +1,11 @@
 import logging
 
-import ckan.authz
+import ckan.rating as ratings
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
-from ckan.logic import NotFound, check_access, NotAuthorized, ValidationError
+from ckan.logic import NotFound, ValidationError
+from ckan.logic import check_access
 from ckan.lib.base import _
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
@@ -28,8 +29,7 @@ from ckan.logic.schema import default_group_schema, default_user_schema
 from ckan.lib.navl.dictization_functions import validate 
 from ckan.logic.action.update import (_update_package_relationship,
                                       package_error_summary,
-                                      group_error_summary,
-                                      check_group_auth)
+                                      group_error_summary)
 log = logging.getLogger(__name__)
 
 def package_create(context, data_dict):
@@ -41,8 +41,8 @@ def package_create(context, data_dict):
     model.Session.remove()
     model.Session()._context = context
 
-    check_access(model.System(), model.Action.PACKAGE_CREATE, context)
-    check_group_auth(context, data_dict)
+    if not preview:
+        check_access('package_create',context,data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -86,9 +86,8 @@ def package_create_validate(context, data_dict):
     schema = context.get('schema') or default_create_package_schema()
     model.Session.remove()
     model.Session()._context = context
-
-    check_access(model.System(), model.Action.PACKAGE_CREATE, context)
-    check_group_auth(context, data_dict)
+    
+    check_access('package_create',context,data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -99,6 +98,8 @@ def package_create_validate(context, data_dict):
         return data
 
 def resource_create(context, data_dict):
+    #TODO This doesn't actually do anything
+
     model = context['model']
     user = context['user']
 
@@ -124,11 +125,7 @@ def package_relationship_create(context, data_dict):
     if not pkg2:
         return NotFound('Second package named in address was not found.')
 
-    am_authorized = ckan.authz.Authorizer().\
-                    authorized_package_relationship(\
-                    user, pkg1, pkg2, action=model.Action.EDIT)
-    if not am_authorized:
-        raise NotAuthorized
+    check_access('package_relationship_create', context, data_dict)
 
     ##FIXME should have schema
     comment = data_dict.get('comment', u'')
@@ -150,7 +147,7 @@ def group_create(context, data_dict):
     user = context['user']
     schema = context.get('schema') or default_group_schema()
 
-    check_access(model.System(), model.Action.GROUP_CREATE, context)
+    check_access('group_create',context,data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -200,15 +197,15 @@ def rating_create(context, data_dict):
             opts_err = _('Rating must be an integer value.')
         else:
             package = model.Package.get(package_ref)
-            if rating < ckan.rating.MIN_RATING or rating > ckan.rating.MAX_RATING:
-                opts_err = _('Rating must be between %i and %i.') % (ckan.rating.MIN_RATING, ckan.rating.MAX_RATING)
+            if rating < ratings.MIN_RATING or rating > ratings.MAX_RATING:
+                opts_err = _('Rating must be between %i and %i.') % (ratings.MIN_RATING, ratings.MAX_RATING)
             elif not package:
                 opts_err = _('Package with name %r does not exist.') % package_ref
     if opts_err:
         raise ValidationError(opts_err)
 
     user = model.User.by_name(user)
-    ckan.rating.set_rating(user, package, rating_int)
+    ratings.set_rating(user, package, rating_int)
 
     package = model.Package.get(package_ref)
     ret_dict = {'rating average':package.get_average_rating(),
@@ -222,7 +219,7 @@ def user_create(context, data_dict):
     user = context['user']
     schema = context.get('schema') or default_user_schema()
 
-    check_access(model.System(), model.Action.USER_CREATE, context)
+    check_access('user_create', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -249,8 +246,10 @@ def user_create(context, data_dict):
 ## Modifications for rest api
 
 def package_create_rest(context, data_dict):
-
+    
     api = context.get('api_version') or '1'
+
+    check_access('package_create_rest', context, data_dict)
 
     dictized_package = package_api_to_dict(data_dict, context)
     dictized_after = package_create(context, dictized_package) 
@@ -269,6 +268,8 @@ def package_create_rest(context, data_dict):
 def group_create_rest(context, data_dict):
 
     api = context.get('api_version') or '1'
+
+    check_access('group_create_rest', context, data_dict)
 
     dictized_group = group_api_to_dict(data_dict, context)
     dictized_after = group_create(context, dictized_group) 

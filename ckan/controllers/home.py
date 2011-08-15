@@ -5,7 +5,8 @@ from pylons import cache, config
 from genshi.template import NewTextTemplate
 
 from ckan.authz import Authorizer
-from ckan.logic.action.get import current_package_list_with_resources
+from ckan.logic import NotAuthorized
+from ckan.logic import check_access, get_action
 from ckan.i18n import set_session_locale
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache, get_cache_expires
@@ -20,7 +21,10 @@ class HomeController(BaseController):
 
     def __before__(self, action, **env):
         BaseController.__before__(self, action, **env)
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            check_access('site_read',context)
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
     @staticmethod
@@ -48,7 +52,7 @@ class HomeController(BaseController):
         c.facets = query.facets
         c.fields = []
         c.package_count = query.count
-        c.latest_packages = current_package_list_with_resources({'model': model,
+        c.latest_packages = get_action('current_package_list_with_resources')({'model': model,
                                                                  'user': c.user},
                                                                  {'limit': 5})      
         return render('home/index.html', cache_key=cache_key,

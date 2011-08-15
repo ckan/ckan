@@ -7,7 +7,7 @@ import ckan.logic.action.create as create
 import ckan.logic.action.update as update
 import ckan.logic.action.get as get
 from ckan.lib.navl.dictization_functions import DataError, unflatten
-from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import NotFound, NotAuthorized, ValidationError, check_access
 from ckan.logic.schema import group_form_schema
 from ckan.logic import tuplize_dict, clean_dict
 from ckan.authz import Authorizer
@@ -24,8 +24,10 @@ class GroupFormalchemyController(GroupController):
         record = model.Group
         c.error = ''
         
-        auth_for_create = self.authorizer.am_authorized(c, model.Action.GROUP_CREATE, model.System())
-        if not auth_for_create:
+        try:
+            context = {'model': model, 'user': c.user or c.author}
+            check_access('group_create',context)
+        except NotAuthorized:
             abort(401, _('Unauthorized to create a group'))
         
         is_admin = self.authorizer.is_sysadmin(c.user)
@@ -78,11 +80,17 @@ class GroupFormalchemyController(GroupController):
         group = model.Group.get(id)
         if group is None:
             abort(404, '404 Not Found')
-        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, group)
-        if not am_authz:
-            abort(401, _('User %r not authorized to edit %r') % (c.user, id))
-            
-        auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, group)
+
+        context = {'model': model, 'user': c.user or c.author, 'group':group}
+        try:
+            check_access('group_update',context)
+        except NotAuthorized:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, group.id))
+        try:
+            check_access('group_change_state',context)
+            auth_for_change_state = True
+        except NotAuthorized:
+            auth_for_change_state = False
         
         if not 'save' in request.params:
             c.group = group
