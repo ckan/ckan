@@ -6,6 +6,7 @@ from pylons.i18n import get_lang, _
 import ckan.authz as authz
 import ckan.forms
 from ckan.lib.helpers import Page
+from ckan.logic import NotAuthorized, check_access
 
 class AuthorizationGroupController(BaseController):
     
@@ -14,8 +15,10 @@ class AuthorizationGroupController(BaseController):
     
     def index(self):
         from ckan.lib.helpers import Page
-
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            check_access('site_read',context)
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
         query = ckan.authz.Authorizer().authorized_query(c.user, model.AuthorizationGroup)
