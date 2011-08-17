@@ -4,7 +4,9 @@ import ckan.model as model
 from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from ckan.lib.dictization.model_dictize import package_to_api1
-from common import SearchError
+# Needed for SolrIndexingWorker:
+# from ckanext.queue.worker import Worker 
+# from indexing import index_package, delete_package
 
 log = logging.getLogger(__name__)
 
@@ -45,3 +47,17 @@ class SynchronousSearchPlugin(SingletonPlugin):
             log.warn("Discarded Sync. indexing for: %s" % entity)
             
 
+# class SolrIndexingWorker(Worker):
+#     """
+#     SolrIndexingWorker. Requires ckanext-queue >= 0.1.
+#     """
+    
+#     def consume(self, routing_key, operation, payload):
+#         assert 'solr_url' in self.config
+#         assert 'ckan.site_id' in self.config
+        
+#         if routing_key == 'Package':
+#             if operation in ['new', 'changed']:
+#                 index_package(payload, self.config) 
+#             elif operation == 'deleted':
+#                 delete_package(payload, self.config) 
