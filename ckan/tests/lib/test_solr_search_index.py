@@ -29,6 +29,7 @@ class TestSearchIndex(TestController):
     """
     @classmethod
     def setup_class(cls):
+        config['search_backend'] = 'solr'
         CreateTestData.create()
         cls.solr = solr.SolrConnection(config.get('solr_url'))
         cls.fq = " +site_id:\"%s\" " % config.get('ckan.site_id')

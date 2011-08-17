@@ -250,7 +250,6 @@ class TestSearchOverall(TestController):
             assert expected_pkg in pkgs, '%s : %s' % (expected_pkg, result)
 
     def test_overall(self):
-        print 'test_overall'
         self._check_search_results('annakarenina', 1, ['annakarenina'])
         self._check_search_results('warandpeace', 1, ['warandpeace'])
         self._check_search_results('', 2)
