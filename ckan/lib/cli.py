@@ -235,6 +235,7 @@ class SearchIndexCommand(CkanCommand):
       search-index rebuild                 - indexes all packages (default)
       search-index check                   - checks for packages not indexed
       search-index show {package-name}     - shows index of a package
+      search-index clear                   - clears the search index for this ckan instance
     '''
 
     summary = __doc__.split('\n')[0]
@@ -244,7 +245,7 @@ class SearchIndexCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan.lib.search import rebuild, check, show
+        from ckan.lib.search import rebuild, check, show, clear
 
         if not self.args:
             # default to run
@@ -261,6 +262,8 @@ class SearchIndexCommand(CkanCommand):
                 import pdb; pdb.set_trace()
                 self.args
             show(self.args[1])
+        elif cmd == 'clear':
+            clear()
         else:
             print 'Command %s not recognized' % cmd
 

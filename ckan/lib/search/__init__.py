@@ -2,6 +2,7 @@ import logging
 import pkg_resources
 from pylons import config
 from common import QueryOptions, SearchError, SearchQuery, SearchBackend, SearchIndex
+from solr_backend import SolrSearchBackend
 from worker import dispatch_by_operation
 
 log = logging.getLogger(__name__)
@@ -68,6 +69,13 @@ def show(package_reference):
     backend = get_backend()
     package_index = backend.index_for(model.Package)
     print package_index.get_index(package_reference)
+
+def clear():
+    from ckan import model
+    backend = get_backend()
+    log.debug("Clearing search index...")
+    package_index = backend.index_for(model.Package)
+    package_index.clear()
 
 def query_for(_type, backend=None):
     """ Query for entities of a specified type (name, class, instance). """
