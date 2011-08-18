@@ -12,17 +12,13 @@ class TestSolrConfig(TestController):
     def setup_class(cls):
         config['search_backend'] = 'solr'
 
-    def test_solr_backend_returned(self):
-        assert isinstance(search.get_backend(), search.SolrSearchBackend),\
-            search.get_backend()
-
     def test_solr_url_exists(self):
         assert config.get('solr_url')
         # solr.SolrConnection will throw an exception if it can't connect
         solr.SolrConnection(config.get('solr_url'))
 
 
-class TestSearchIndex(TestController):
+class TestSolrSearchIndex(TestController):
     """
     Tests that a package is indexed when the packagenotification is
     received by the indexer.
@@ -41,7 +37,7 @@ class TestSearchIndex(TestController):
 
     def teardown(self):
         # clear the search index after every test
-        search.get_backend().index_for('Package').clear()
+        search.index_for('Package').clear()
 
     def test_index(self):
         pkg_dict = {
@@ -71,7 +67,7 @@ class TestSearchIndex(TestController):
         search.dispatch_by_operation('Package', pkg_dict, 'new')
         response = self.solr.query('title:penguin', fq=self.fq)
         assert len(response) == 1, len(response)
-        search.get_backend().index_for('Package').clear()
+        search.index_for('Package').clear()
         response = self.solr.query('title:penguin', fq=self.fq)
         assert len(response) == 0
 
@@ -88,7 +84,7 @@ class TestSolrSearch:
     def teardown_class(cls):
         model.repo.rebuild_db()
         cls.solr.close()
-        search.get_backend().index_for('Package').clear()
+        search.index_for('Package').clear()
 
     def test_0_indexing(self):
         """

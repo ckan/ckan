@@ -1,9 +1,13 @@
 import logging
 import pkg_resources
 from pylons import config
-from common import QueryOptions, SearchError, SearchQuery, SearchBackend, SearchIndex
-from solr_backend import SolrSearchBackend
-from worker import dispatch_by_operation
+from ckan import model
+from ckan.model import DomainObjectOperation
+from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
+from ckan.lib.dictization.model_dictize import package_to_api1
+from common import QueryOptions, SearchQuery, SearchBackend, SearchIndex
+# from solr_backend import SolrSearchBackend
+from index import PackageSearchIndex, NoopSearchIndex
 
 log = logging.getLogger(__name__)
 
@@ -21,29 +25,68 @@ DEFAULT_OPTIONS = {
     'callback': None, # simply passed through
     }
 
-# TODO make sure all backends are thread-safe! 
-INSTANCE_CACHE = {}
+_INDICES = {
+    'package': PackageSearchIndex
+}
 
-def get_backend(backend=None):
-    if backend is None:
-        backend = config.get('search_backend', 'sql')
-    klass = None
-    for ep in pkg_resources.iter_entry_points("ckan.search", backend.strip().lower()):
-        klass = ep.load()
-    if klass is None:
-        raise KeyError("No search backend called %s" % (backend,))
-    if not klass in INSTANCE_CACHE.keys():
-        log.debug("Creating search backend: %s" % klass.__name__)
-        INSTANCE_CACHE[klass] = klass()
-    return INSTANCE_CACHE.get(klass)
+def _normalize_type(_type):
+    if isinstance(_type, model.DomainObject):
+        _type = _type.__class__
+    if isinstance(_type, type):
+        _type = _type.__name__
+    return _type.strip().lower()
+
+def index_for(_type):
+    """ Get a SearchIndex instance sub-class suitable for the specified type. """
+    try:
+        _type_n = _normalize_type(_type)
+        return _INDICES[_type_n]()
+    except KeyError, ke:
+        log.warn("Unknown search type: %s" % _type)
+        return NoopSearchIndex()
+
+def query_for(_type):
+    """ Query for entities of a specified type (name, class, instance). """
+    raise Exception("NotYetImplemented")
+
+def dispatch_by_operation(entity_type, entity, operation):
+    """Call the appropriate index method for a given notification."""
+    try:
+        index = index_for(entity_type)
+        if operation == DomainObjectOperation.new:
+            index.insert_dict(entity)
+        elif operation == DomainObjectOperation.changed:
+            index.update_dict(entity)
+        elif operation == DomainObjectOperation.deleted:
+            index.remove_dict(entity)
+        else:
+            log.warn("Unknown operation: %s" % operation)
+    except Exception, ex:
+        log.exception(ex)
+
+class SearchError(Exception): pass
+
+class SynchronousSearchPlugin(SingletonPlugin):
+    """Update the search index automatically."""
+    implements(IDomainObjectModification, inherit=True)
+
+    def notify(self, entity, operation):
+        if operation != DomainObjectOperation.deleted:
+            dispatch_by_operation(entity.__class__.__name__, 
+                                  package_to_api1(entity, {'model': model}),
+                                  operation)
+        elif operation == DomainObjectOperation.deleted:
+            dispatch_by_operation(entity.__class__.__name__, 
+                                  {'id': entity.id}, operation)
+        else:
+            log.warn("Discarded Sync. indexing for: %s" % entity)
 
 def rebuild():
     from ckan import model
-    backend = get_backend()
     log.debug("Rebuilding search index...")
     
     # Packages
-    package_index = backend.index_for(model.Package)
+    package_index = index_for(model.Package)
     package_index.clear()
     for pkg in model.Session.query(model.Package).all():
         package_index.insert_entity(pkg)
@@ -51,8 +94,7 @@ def rebuild():
 
 def check():
     from ckan import model
-    backend = get_backend()
-    package_index = backend.index_for(model.Package)
+    package_index = index_for(model.Package)
 
     log.debug("Checking packages search index...")
     pkgs_q = model.Session.query(model.Package).filter_by(state=model.State.ACTIVE)
@@ -66,18 +108,11 @@ def check():
 
 def show(package_reference):
     from ckan import model
-    backend = get_backend()
-    package_index = backend.index_for(model.Package)
+    package_index = index_for(model.Package)
     print package_index.get_index(package_reference)
 
 def clear():
     from ckan import model
-    backend = get_backend()
     log.debug("Clearing search index...")
-    package_index = backend.index_for(model.Package)
+    package_index = index_for(model.Package)
     package_index.clear()
-
-def query_for(_type, backend=None):
-    """ Query for entities of a specified type (name, class, instance). """
-    return get_backend(backend=backend).query_for(_type)
-
