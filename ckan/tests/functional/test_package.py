@@ -10,13 +10,14 @@ from nose.plugins.skip import SkipTest
 from nose.tools import assert_equal
 
 from ckan.tests import *
-from ckan.tests import search_related
+from ckan.tests import search_related, is_search_supported
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
+import ckan.lib.search as search
 from ckan.controllers.package import PackageController
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan import plugins
@@ -259,17 +260,22 @@ class TestPackageForm(TestPackageBase):
                     pkg.purge()
                 model.repo.commit_and_remove()
 
-class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsTestCase):
+class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
 
     @classmethod
     def setup_class(cls):
+        if not is_search_supported():
+            raise SkipTest("Search not supported")
+
         PylonsTestCase.setup_class()
-        cls.tsi = TestSearchIndexer()
+        search.clear()
+        plugins.load('synchronous_search')
         CreateTestData.create()
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
+        search.clear()
 
     @search_related
     def test_minornavigation_2(self):

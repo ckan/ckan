@@ -420,9 +420,8 @@ class ApiController(BaseController):
             if register == 'package':
                 options.ref_entity_with_attr = 'id' if ver == '2' else 'name'
             try:
-                backend = None
                 if register == 'resource': 
-                    query = query_for(model.Resource, backend='sql')
+                    query = query_for(model.Resource)
                 else:
                     query = query_for(model.Package)
                 results = query.run(query=params.get('q'), 
