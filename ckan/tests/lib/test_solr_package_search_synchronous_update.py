@@ -15,10 +15,8 @@ class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
         gc.collect()
 
         CreateTestData.create()
-        config['search_backend'] = 'solr'
         search.rebuild()
         plugins.load('synchronous_search')
-        cls.backend = search.get_backend()
 
         cls.new_pkg_dict = {
             "name": "council-owned-litter-bins",
@@ -53,7 +51,7 @@ class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        search.get_backend().index_for('Package').clear()
+        search.index_for('Package').clear()
 
     def _create_package(self, package=None):
         rev = model.repo.new_revision()

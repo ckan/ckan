@@ -1,13 +1,11 @@
 import logging
-import pkg_resources
-from pylons import config
 from ckan import model
 from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from ckan.lib.dictization.model_dictize import package_to_api1
-from common import QueryOptions, SearchQuery, SearchBackend, SearchIndex
-# from solr_backend import SolrSearchBackend
+from common import SearchError
 from index import PackageSearchIndex, NoopSearchIndex
+from query import PackageSearchQuery, QueryOptions
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +27,10 @@ _INDICES = {
     'package': PackageSearchIndex
 }
 
+_QUERIES = {
+    'package': PackageSearchQuery
+}
+
 def _normalize_type(_type):
     if isinstance(_type, model.DomainObject):
         _type = _type.__class__
@@ -45,9 +47,13 @@ def index_for(_type):
         log.warn("Unknown search type: %s" % _type)
         return NoopSearchIndex()
 
-def query_for(_type):
-    """ Query for entities of a specified type (name, class, instance). """
-    raise Exception("NotYetImplemented")
+def query_for( _type):
+    """ Get a SearchQuery instance sub-class suitable for the specified type. """
+    try:
+        _type_n = _normalize_type(_type)
+        return _QUERIES[_type_n]()
+    except KeyError, ke:
+        raise SearchError("Unknown search type: %s" % _type)
 
 def dispatch_by_operation(entity_type, entity, operation):
     """Call the appropriate index method for a given notification."""
@@ -63,8 +69,6 @@ def dispatch_by_operation(entity_type, entity, operation):
             log.warn("Unknown operation: %s" % operation)
     except Exception, ex:
         log.exception(ex)
-
-class SearchError(Exception): pass
 
 class SynchronousSearchPlugin(SingletonPlugin):
     """Update the search index automatically."""
