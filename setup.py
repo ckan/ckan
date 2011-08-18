@@ -84,7 +84,7 @@ setup(
     solr = ckan.lib.search.solr_backend:SolrSearchBackend
 
     [ckan.plugins]
-    synchronous_search = ckan.lib.search.worker:SynchronousSearchPlugin
+    synchronous_search = ckan.lib.search:SynchronousSearchPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
