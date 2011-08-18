@@ -1,7 +1,7 @@
 from pylons import config
 import itertools
 import string
-from solr import SolrConnection # == solrpy
+from common import make_connection
 import logging
 log = logging.getLogger(__name__)
 
@@ -19,16 +19,6 @@ RELATIONSHIP_TYPES = [
     (u'child_of', u'parent_of'),
 ]
 
-def make_connection(config):
-    url = config.get('solr_url', 'http://localhost:8983/solr')
-    user = config.get('solr_user')
-    password = config.get('solr_password')
-
-    if user is not None and password is not None:
-        return SolrConnection(url, http_user=user, http_pass=password)
-    else:
-        return SolrConnection(url)
-    
 def clear_index(config):
     conn = make_connection(config)
     query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
