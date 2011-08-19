@@ -3,11 +3,11 @@ from babel import Locale
 
 
 # TODO: Figure out a nicer way to get this. From the .ini? 
-_KNOWN_LOCALES = ['en', 'ca', 'de', 'el',
-                  'es', 'fi', 'fr', 'hu',
-                  'it', 'lt', 'nl', 'no',
-                  'pl', 'pt_BR', 'ro', 'ru',
-                  'sl', 'sq']
+_KNOWN_LOCALES = ['en', 'de',
+                  'es', 'fi', 'fr', 
+                  'it', 'nl', 'no',
+                  'pt_BR', 'ro', 'ru',
+                  'sq']
 
 def get_available_locales():
     return map(Locale.parse, _KNOWN_LOCALES)
