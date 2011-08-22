@@ -1,3 +1,4 @@
+from sqlalchemy import or_
 from pylons import config
 from paste.util.multidict import MultiDict 
 from paste.deploy.converters import asbool
@@ -229,40 +230,39 @@ class TagSearchQuery(SearchQuery):
         self._db_query(q)
 
 
-# class ResourceSqlSearchQuery(SqlSearchQuery):
-#     """ Search for resources in plain SQL. """
+class ResourceSearchQuery(SearchQuery):
+    """ Search for resources in plain SQL. """
+    def _run(self):
+        q = model.Session.query(model.Resource) # TODO authz
+        if self.query.terms:
+            raise SearchError('Only field specific terms allowed in resource search.')
+        self.options.ref_entity_with_attr = 'id' # has no name
+        resource_fields = model.Resource.get_columns()
+        for field, terms in self.query.fields.items():
+            if isinstance(terms, basestring):
+                terms = terms.split()
+            if field not in resource_fields:
+                raise SearchError('Field "%s" not recognised in Resource search.' % field)
+            for term in terms:
+                model_attr = getattr(model.Resource, field)
+                if field == 'hash':                
+                    q = q.filter(model_attr.ilike(unicode(term) + '%'))
+                elif field in model.Resource.get_extra_columns():
+                    model_attr = getattr(model.Resource, 'extras')
 
-#     def _run(self):
-#         q = model.Session.query(model.Resource) # TODO authz
-#         if self.query.terms:
-#             raise SearchError('Only field specific terms allowed in resource search.')
-#         #self._check_options_specified_are_allowed('resource search', ['all_fields', 'offset', 'limit'])
-#         self.options.ref_entity_with_attr = 'id' # has no name
-#         resource_fields = model.Resource.get_columns()
-#         for field, terms in self.query.fields.items():
-#             if isinstance(terms, basestring):
-#                 terms = terms.split()
-#             if field not in resource_fields:
-#                 raise SearchError('Field "%s" not recognised in Resource search.' % field)
-#             for term in terms:
-#                 model_attr = getattr(model.Resource, field)
-#                 if field == 'hash':                
-#                     q = q.filter(model_attr.ilike(unicode(term) + '%'))
-#                 elif field in model.Resource.get_extra_columns():
-#                     model_attr = getattr(model.Resource, 'extras')
-
-#                     like = or_(model_attr.ilike(u'''%%"%s": "%%%s%%",%%''' % (field, term)),
-#                                model_attr.ilike(u'''%%"%s": "%%%s%%"}''' % (field, term))
-#                               )
-#                     q = q.filter(like)
-#                 else:
-#                     q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
+                    like = or_(
+                        model_attr.ilike(u'''%%"%s": "%%%s%%",%%''' % (field, term)),
+                        model_attr.ilike(u'''%%"%s": "%%%s%%"}''' % (field, term))
+                    )
+                    q = q.filter(like)
+                else:
+                    q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
         
-#         order_by = self.options.order_by
-#         if order_by is not None:
-#             if hasattr(model.Resource, order_by):
-#                 q = q.order_by(getattr(model.Resource, order_by))
-#         self._db_query(q)
+        order_by = self.options.order_by
+        if order_by is not None:
+            if hasattr(model.Resource, order_by):
+                q = q.order_by(getattr(model.Resource, order_by))
+        self._db_query(q)
 
 
 class PackageSearchQuery(SearchQuery):
