@@ -171,10 +171,42 @@ For more help on either of these commands, you can use ``--help`` (as described 
 
 .. _permissions-publisher-mode:
 
-Publisher Mode
+Openness Modes
 --------------
 
-Although the `Data Hub <http://datahub.org>`_ prefers the Wikipedia-style model of allowing anyone to add and improve metadata, some CKAN instances prefer to operate in 'publisher mode'. 
+CKAN instances can be configured to operate in a range of authorization modes, with varying openness to edit. Here are some examples with details of how to set-up and convert between them.
+
+
+1. Anonymous Edit Mode
+++++++++++++++++++++++
+
+Anyone can edit and create packages without logging in. This is the default for CKAN out of the box.
+
+
+2. Logged-in Edit Mode
+++++++++++++++++++++++
+
+You need to log-in and create/edit packages. Anyone can create an account.
+
+To operate in this mode:
+
+1. First, change the visitor (any non-logged in user) rights from being able to create and edit packages to just reading them::
+
+     paster rights make visitor reader system
+     paster rights make visitor reader package:all
+     paster rights remove visitor anon_editor package:all
+     paster rights remove visitor anon_editor system
+
+2. Change the default rights for newly created packages. Do this by using these values in your config file (see :doc:`configuration`)::
+
+     ckan.default_roles.Package = {"visitor": ["reader"], "logged_in": ["editor"]}
+     ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["editor"]}
+     ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["editor"]}
+     ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["editor"]} 
+
+
+3. Publisher Mode
++++++++++++++++++
 
 This allows edits only from authorized users. It is designed for installations where you wish to limit write access to CKAN and orient the system around specific publishing groups (e.g. government departments or specific institutions). 
 
