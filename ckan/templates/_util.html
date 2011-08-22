@@ -62,7 +62,6 @@
           <ul class="package_formats">
             <py:for each="resource in package.resources">
               <py:if test="resource.format and not resource.format == ''">
-                <li>${resource.format}</li>
                 <li><a href="${resource.url}"
                   title="${resource.description}">${resource.format}</a></li>
               </py:if>
