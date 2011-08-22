@@ -71,7 +71,7 @@ class QueryParser(object):
                 parts.append(term.strip())
                 
             for field, value in self._fields.items():
-                if value.find(' ') != -1:
+                if field != 'tags' and value.find(' ') != -1:
                     value = u"\"%s\"" % value
                 parts.append(u"%s:%s" % (field.strip(), value.strip()))
                 
@@ -203,6 +203,9 @@ class PackageSearchQuery(SearchQuery):
         if order_by == 'rank' or order_by is None: 
             order_by = 'score'
 
+        # sort in descending order if sorting by score
+        sort = 'desc' if order_by == 'score' else 'asc'
+
         # show only results from this CKAN instance:
         fq = fq + " +site_id:\"%s\" " % config.get('ckan.site_id')
 
@@ -214,7 +217,7 @@ class PackageSearchQuery(SearchQuery):
 
         # query
         query = self.query.query
-        if (not query) or (not query.strip()):
+        if (not query) or (not query.strip()) or (query == '""') or (query == "''"):
             # no query terms, i.e. all documents
             query = '*:*'
         
@@ -230,7 +233,7 @@ class PackageSearchQuery(SearchQuery):
                               start=self.options.offset, 
                               rows=self.options.limit,
                               fields='id,score', 
-                              sort_order='desc', 
+                              sort_order=sort, 
                               sort=order_by)
             
         except Exception, e:
