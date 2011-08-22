@@ -182,9 +182,87 @@ class SearchQuery(object):
         
     def _run(self):
         raise SearchError("SearchQuery._run() not implemented!")
+
+    def _db_query(self, q):
+        # Run the query
+        self.count = q.count()
+        q = q.offset(self.options.get('offset'))
+        q = q.limit(self.options.get('limit'))
+        
+        self.results = []
+        for result in q:
+            if isinstance(result, tuple) and isinstance(result[0], model.DomainObject):
+                # This is the case for order_by rank due to the add_column.
+                self.results.append(result[0])
+            else:
+                self.results.append(result)
         
     # convenience, allows to query(..)
     __call__ = run
+
+
+# TODO: is this code used anywhere? If so, fix it write some tests for it.
+# class GroupSqlSearchQuery(SearchQuery):
+#     """ Search for groups in plain SQL. """
+#     def _run(self):
+#         if not self.query.terms:
+#             return
+#         q = authz.Authorizer().authorized_query(username, model.Group)
+#         for term in self.query.terms:
+#             q = query.filter(model.Group.name.contains(term.lower()))
+#         self._db_query(q)
+
+
+class TagSearchQuery(SearchQuery):
+    """Search for tags in plain SQL."""
+    def _run(self):
+        q = model.Session.query(model.Tag)
+        q = q.distinct().join(model.Tag.package_tags)
+        terms = list(self.query.terms)
+        for field, value in self.query.fields.items():
+            if field in ('tag', 'tags'):
+                terms.append(value)
+        if not len(terms):
+            return
+        for term in terms:
+            q = q.filter(model.Tag.name.contains(term.lower()))
+        self._db_query(q)
+
+
+# class ResourceSqlSearchQuery(SqlSearchQuery):
+#     """ Search for resources in plain SQL. """
+
+#     def _run(self):
+#         q = model.Session.query(model.Resource) # TODO authz
+#         if self.query.terms:
+#             raise SearchError('Only field specific terms allowed in resource search.')
+#         #self._check_options_specified_are_allowed('resource search', ['all_fields', 'offset', 'limit'])
+#         self.options.ref_entity_with_attr = 'id' # has no name
+#         resource_fields = model.Resource.get_columns()
+#         for field, terms in self.query.fields.items():
+#             if isinstance(terms, basestring):
+#                 terms = terms.split()
+#             if field not in resource_fields:
+#                 raise SearchError('Field "%s" not recognised in Resource search.' % field)
+#             for term in terms:
+#                 model_attr = getattr(model.Resource, field)
+#                 if field == 'hash':                
+#                     q = q.filter(model_attr.ilike(unicode(term) + '%'))
+#                 elif field in model.Resource.get_extra_columns():
+#                     model_attr = getattr(model.Resource, 'extras')
+
+#                     like = or_(model_attr.ilike(u'''%%"%s": "%%%s%%",%%''' % (field, term)),
+#                                model_attr.ilike(u'''%%"%s": "%%%s%%"}''' % (field, term))
+#                               )
+#                     q = q.filter(like)
+#                 else:
+#                     q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
+        
+#         order_by = self.options.order_by
+#         if order_by is not None:
+#             if hasattr(model.Resource, order_by):
+#                 q = q.order_by(getattr(model.Resource, order_by))
+#         self._db_query(q)
 
 
 class PackageSearchQuery(SearchQuery):

@@ -2,6 +2,8 @@ import json
 from pprint import pprint, pformat
 from nose.tools import assert_equal
 
+from ckan import plugins
+import ckan.lib.search as search
 from ckan.lib.create_test_data import CreateTestData
 import ckan.model as model
 from ckan.tests import WsgiAppCase
@@ -22,15 +24,16 @@ class TestAction(WsgiAppCase):
 
     @classmethod
     def setup_class(self):
+        search.clear()
+        plugins.load('synchronous_search')
         CreateTestData.create()
-
         self.sysadmin_user = model.User.get('testsysadmin')
-
         self.normal_user = model.User.get('annafan')
 
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
+        search.clear()
 
     def test_01_package_list(self):
         postparams = '%s=1' % json.dumps({})
@@ -461,6 +464,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'q':'r'})
         res = self.app.post('/api/action/tag_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
+        print res_obj
         assert res_obj == {
             'help': 'Returns tags containing the provided string', 
             'result': ['russian'], 

@@ -5,7 +5,7 @@ from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from ckan.lib.dictization.model_dictize import package_to_api1
 from common import SearchError
 from index import PackageSearchIndex, NoopSearchIndex
-from query import PackageSearchQuery, QueryOptions
+from query import TagSearchQuery, PackageSearchQuery, QueryOptions
 
 log = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ _INDICES = {
 }
 
 _QUERIES = {
+    'tag': TagSearchQuery,
     'package': PackageSearchQuery
 }
 
