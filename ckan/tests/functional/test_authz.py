@@ -597,10 +597,9 @@ class TestLockedDownViaRoles(TestController):
             model.Session.delete(role_action)
         
         model.repo.commit_and_remove()
-        indexer = TestSearchIndexer()
         TestUsage._create_test_data()
         model.Session.remove()
-        indexer.index()
+        search.rebuild()
         self.user_name = TestUsage.mrloggedin.name.encode('utf-8')
     
     def _check_logged_in_users_authorized_only(self, offset):
@@ -636,3 +635,4 @@ class TestLockedDownViaRoles(TestController):
     def teardown_class(self):
         model.repo.rebuild_db()
         model.Session.remove()
+        search.clear()
