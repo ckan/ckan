@@ -10,8 +10,10 @@ class TestSolrConfig(TestController):
     """
     def test_solr_url_exists(self):
         assert config.get('solr_url')
-        # solr.SolrConnection will throw an exception if it can't connect
-        solr.SolrConnection(config.get('solr_url'))
+        # solr.SolrConnection.query will throw an exception if it can't connect
+        conn = solr.SolrConnection(config.get('solr_url'))
+        q = conn.query("*:*", rows=1)
+        conn.close()
 
 
 class TestSolrSearchIndex(TestController):

@@ -3,7 +3,7 @@ from ckan import model
 from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from ckan.lib.dictization.model_dictize import package_to_api1
-from common import SearchError
+from common import SearchError, make_connection, is_available
 from index import PackageSearchIndex, NoopSearchIndex
 from query import TagSearchQuery, ResourceSearchQuery, PackageSearchQuery, QueryOptions
 
@@ -21,7 +21,7 @@ DEFAULT_OPTIONS = {
     'all_fields': False,
     'search_tags': True,
     'callback': None, # simply passed through
-    }
+}
 
 _INDICES = {
     'package': PackageSearchIndex
@@ -71,6 +71,10 @@ def dispatch_by_operation(entity_type, entity, operation):
             log.warn("Unknown operation: %s" % operation)
     except Exception, ex:
         log.exception(ex)
+        # we really need to know about any exceptions, so reraise
+        # (see #1172)
+        raise
+        
 
 class SynchronousSearchPlugin(SingletonPlugin):
     """Update the search index automatically."""

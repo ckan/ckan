@@ -1,7 +1,7 @@
 from pylons import config
 import itertools
 import string
-from common import make_connection
+from common import is_enabled, make_connection
 import logging
 log = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ class PackageSearchIndex(SearchIndex):
         self.index_package(pkg_dict, config)
 
     def index_package(self, pkg_dict, config):
-        if pkg_dict is None:  
+        if (not is_enabled()) or (pkg_dict is None):  
             return 
         if (not pkg_dict.get('state')) or ('active' not in pkg_dict.get('state')):
             return self.delete_package(pkg_dict, config)
@@ -140,6 +140,9 @@ class PackageSearchIndex(SearchIndex):
         log.debug("Updated index for %s" % pkg_dict.get('name'))
 
     def delete_package(self, pkg_dict, config):
+        if not is_enabled():
+            return
+
         conn = make_connection(config)
         query = "+%s:%s +id:\"%s\" +site_id:\"%s\"" % (TYPE_FIELD, PACKAGE_TYPE,
                                                        pkg_dict.get('id'),

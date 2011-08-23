@@ -4,7 +4,7 @@ from paste.util.multidict import MultiDict
 from paste.deploy.converters import asbool
 from ckan import model
 from ckan.authz import Authorizer
-from common import make_connection, SearchError
+from common import is_enabled, make_connection, SearchError
 import logging
 log = logging.getLogger(__name__)
 
@@ -267,6 +267,9 @@ class ResourceSearchQuery(SearchQuery):
 
 class PackageSearchQuery(SearchQuery):
     def _run(self):
+        if not is_enabled():
+            return
+
         fq = ""
 
         # Filter for options
