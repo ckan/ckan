@@ -29,6 +29,8 @@ class Globals(object):
         self.site_id = config.get('ckan.site_id')
 
         self.template_footer_end = config.get('ckan.template_footer_end', '')
+
+        self.search_enabled = config.get('search_enabled', True)
         
         # hide these extras fields on package read
         self.package_hide_extras = config.get('package_hide_extras', '').split()

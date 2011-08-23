@@ -72,6 +72,14 @@ def load_environment(global_conf, app_conf):
         if ':' in ckan_host:
             ckan_host, port = ckan_host.split(':')
         config['ckan.site_id'] = ckan_host
+
+    # check that search is available, disable if not
+    import ckan.lib.search as search
+    if not config.get('search_enabled', '') == 'False':
+        config['search_enabled'] = search.is_available()
+    else:
+        # save this as a boolean rather than a string
+        config['search_enabled'] = False
     
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
@@ -103,14 +111,6 @@ def load_environment(global_conf, app_conf):
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)    
-
-    # check that search is available, disable if not
-    import ckan.lib.search as search
-    if not config.get('search_enabled', '') == 'False':
-        config['search_enabled'] = search.is_available()
-    else:
-        # save this as a boolean rather than a string
-        config['search_enabled'] = False
 
     # Setup the SQLAlchemy database engine
     engine = engine_from_config(config, 'sqlalchemy.')
