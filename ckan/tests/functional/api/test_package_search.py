@@ -2,7 +2,7 @@ from nose.tools import assert_raises
 
 from ckan import plugins
 import ckan.lib.search as search
-from ckan.tests import is_search_supported
+from ckan.tests import setup_test_search_index
 from ckan.tests.functional.api.base import *
 from ckan.tests import TestController as ControllerTestCase
 from ckan.controllers.api import ApiController
@@ -12,12 +12,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def setup_class(self):
-        if not is_search_supported():
-            import nose
-            raise nose.SkipTest
-
-        search.clear()
-        plugins.load('synchronous_search')
+        setup_test_search_index()
         CreateTestData.create()
         self.package_fixture_data = {
             'name' : u'testpkg',

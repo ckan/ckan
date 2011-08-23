@@ -1,4 +1,4 @@
-from ckan.tests import TestController, CreateTestData
+from ckan.tests import TestController, CreateTestData, setup_test_search_index
 from ckan import model
 import ckan.lib.search as search
 
@@ -10,6 +10,7 @@ class TestSearch(TestController):
     @classmethod
     def setup_class(cls):
         model.Session.remove()
+        setup_test_search_index()
         CreateTestData.create_search_test_data()
         # now remove a tag so we can test search with deleted tags
         model.repo.new_revision()
@@ -19,12 +20,11 @@ class TestSearch(TestController):
         idx = [t.name for t in gils.tags].index(cls.tagname)
         del gils.tags[idx]
         model.repo.commit_and_remove()
-        search.rebuild()
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        search.index_for('Package').clear()
+        search.clear()
 
     def _pkg_names(self, result):
         return ' '.join(result['results'])
@@ -224,13 +224,13 @@ class TestSearch(TestController):
 class TestSearchOverall(TestController):
     @classmethod
     def setup_class(cls):
+        setup_test_search_index()
         CreateTestData.create()
-        search.rebuild()
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        search.index_for('Package').clear()
+        search.clear()
 
     def _check_search_results(self, terms, expected_count, expected_packages=[], only_open=False, only_downloadable=False):
         options = search.QueryOptions()
@@ -262,6 +262,7 @@ class TestSearchOverall(TestController):
 class TestGeographicCoverage(TestController):
     @classmethod
     def setup_class(cls):
+        setup_test_search_index()
         init_data = [
             {'name':'eng',
              'extras':{'geographic_coverage':'100000: England'},},
@@ -275,12 +276,11 @@ class TestGeographicCoverage(TestController):
              'extras':{'geographic_coverage':'000000:'},},
         ]
         CreateTestData.create_arbitrary(init_data)
-        search.rebuild()
 
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-        search.index_for('Package').clear()
+        search.clear()
     
     def _do_search(self, q, expected_pkgs, count=None):
         options = search.QueryOptions()
@@ -322,6 +322,7 @@ class TestGeographicCoverage(TestController):
 class TestExtraFields(TestController):
     @classmethod
     def setup_class(cls):
+        setup_test_search_index()
         init_data = [
             {'name':'a',
              'extras':{'department':'abc',
@@ -335,12 +336,11 @@ class TestExtraFields(TestController):
              'extras':{'department':''},},
             ]
         CreateTestData.create_arbitrary(init_data)
-        search.rebuild()
 
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-        search.index_for('Package').clear()
+        search.clear()
     
     def _do_search(self, department, expected_pkgs, count=None):
         result = search.query_for(model.Package).run(fields={'department': department})
@@ -369,6 +369,7 @@ class TestExtraFields(TestController):
 class TestRank(TestController):
     @classmethod
     def setup_class(cls):
+        setup_test_search_index()
         init_data = [{'name':u'test1-penguin-canary',
                       'tags':u'canary goose squirrel wombat wombat'},
                      {'name':u'test2-squirrel-squirrel-canary-goose',
@@ -379,12 +380,11 @@ class TestRank(TestController):
             u'test1-penguin-canary',
             u'test2-squirrel-squirrel-canary-goose'
         ]
-        search.rebuild()
 
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-        search.index_for('Package').clear()
+        search.clear()
     
     def _do_search(self, q, wanted_results):
         options = search.QueryOptions()

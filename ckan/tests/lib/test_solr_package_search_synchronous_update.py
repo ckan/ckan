@@ -1,7 +1,7 @@
 from pylons import config
 from ckan import plugins, model
 import ckan.lib.search as search
-from ckan.tests import CreateTestData
+from ckan.tests import CreateTestData, setup_test_search_index
 from test_solr_package_search import TestSearchOverall
 
 class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
@@ -10,13 +10,12 @@ class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
 
     @classmethod
     def setup_class(cls):
+        setup_test_search_index()
         # Force a garbage collection to trigger issue #695
         import gc
         gc.collect()
 
         CreateTestData.create()
-        search.rebuild()
-        plugins.load('synchronous_search')
 
         cls.new_pkg_dict = {
             "name": "council-owned-litter-bins",
@@ -51,7 +50,7 @@ class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        search.index_for('Package').clear()
+        search.clear()
 
     def _create_package(self, package=None):
         rev = model.repo.new_revision()
