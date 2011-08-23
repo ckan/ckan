@@ -6,7 +6,7 @@ import sqlalchemy as sa
 
 import ckan.model as model
 from ckan import plugins
-from ckan.tests import TestController, url_for
+from ckan.tests import TestController, url_for, setup_test_search_index
 from ckan.lib.base import *
 import ckan.lib.search as search
 from ckan.lib.create_test_data import CreateTestData
@@ -22,8 +22,7 @@ class AuthzTestBase(object):
         
     @classmethod
     def setup_class(self):
-        search.clear()
-        plugins.load('synchronous_search')
+        setup_test_search_index()
         self._create_test_data()
         model.Session.remove()
 
@@ -597,9 +596,9 @@ class TestLockedDownViaRoles(TestController):
             model.Session.delete(role_action)
         
         model.repo.commit_and_remove()
+        setup_test_search_index()
         TestUsage._create_test_data()
         model.Session.remove()
-        search.rebuild()
         self.user_name = TestUsage.mrloggedin.name.encode('utf-8')
     
     def _check_logged_in_users_authorized_only(self, offset):

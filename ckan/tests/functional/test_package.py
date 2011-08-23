@@ -10,7 +10,7 @@ from nose.plugins.skip import SkipTest
 from nose.tools import assert_equal
 
 from ckan.tests import *
-from ckan.tests import search_related, is_search_supported
+from ckan.tests import search_related, setup_test_search_index
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
@@ -264,12 +264,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
 
     @classmethod
     def setup_class(cls):
-        if not is_search_supported():
-            raise SkipTest("Search not supported")
-
         PylonsTestCase.setup_class()
-        search.clear()
-        plugins.load('synchronous_search')
+        setup_test_search_index()
         CreateTestData.create()
 
     @classmethod

@@ -2,16 +2,12 @@ import solr
 from pylons import config
 from ckan import model
 import ckan.lib.search as search 
-from ckan.tests import TestController, CreateTestData
+from ckan.tests import TestController, CreateTestData, setup_test_search_index
 
 class TestSolrConfig(TestController):
     """
     Make sure that solr is enabled for this ckan instance.
     """
-    @classmethod
-    def setup_class(cls):
-        config['search_backend'] = 'solr'
-
     def test_solr_url_exists(self):
         assert config.get('solr_url')
         # solr.SolrConnection will throw an exception if it can't connect
@@ -25,7 +21,7 @@ class TestSolrSearchIndex(TestController):
     """
     @classmethod
     def setup_class(cls):
-        config['search_backend'] = 'solr'
+        setup_test_search_index()
         CreateTestData.create()
         cls.solr = solr.SolrConnection(config.get('solr_url'))
         cls.fq = " +site_id:\"%s\" " % config.get('ckan.site_id')
@@ -75,6 +71,7 @@ class TestSolrSearchIndex(TestController):
 class TestSolrSearch:
     @classmethod
     def setup_class(cls):
+        setup_test_search_index()
         CreateTestData.create_search_test_data()
         cls.solr = solr.SolrConnection(config.get('solr_url'))
         cls.fq = " +site_id:\"%s\" " % config.get('ckan.site_id')
