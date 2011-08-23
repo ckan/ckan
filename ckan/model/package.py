@@ -333,9 +333,13 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return [(l.title, l.id) for l in register.values()]
 
     def get_license(self):
-        license = None
         if self.license_id:
-            license = self.get_license_register()[self.license_id]
+            try:
+                license = self.get_license_register()[self.license_id]
+            except KeyError:
+                license = None
+        else:
+            license = None
         return license
 
     def set_license(self, license):

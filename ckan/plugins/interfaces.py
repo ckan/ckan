@@ -166,7 +166,7 @@ class ISession(Interface):
 
 class IDomainObjectModification(Interface):
     """
-    Receives notification of new, changed and deleted domain objects
+    Receives notification of new, changed and deleted domain objects.
     """
 
     def notify(self, entity, operation):
