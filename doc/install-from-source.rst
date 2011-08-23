@@ -26,7 +26,7 @@ tests <http://buildbot.okfn.org/waterfall>`_.
        sudo apt-get install build-essential libxml2-dev libxslt-dev 
        sudo apt-get install wget mercurial postgresql libpq-dev git-core
        sudo apt-get install python-dev python-psycopg2 python-virtualenv
-       sudo apt-get install subversion
+       sudo apt-get install subversion solr-jetty openjdk-6-jdk
 
    Otherwise, you should install these packages from source. 
 
@@ -45,6 +45,7 @@ tests <http://buildbot.okfn.org/waterfall>`_.
    build-essential        Tools for building source code (or up-to-date Xcode on Mac)
    git                    `Git source control (for getting MarkupSafe src) <http://book.git-scm.com/2_installing_git.html>`_
    subversion             `Subversion source control (for pyutilib) <http://subversion.apache.org/packages.html>`_
+   solr                   `Search engine <http://lucene.apache.org/solr>`_
    =====================  ===============================================
 
    
@@ -250,7 +251,40 @@ tests <http://buildbot.okfn.org/waterfall>`_.
       mkdir data
 
 
-9. Run the CKAN webserver.
+9. Setup Solr.
+
+   Edit the jetty config file (/etc/default/jetty by default on Ubuntu),
+   changing the following:
+
+   ::
+
+       NO_START=0            # (line 4)
+       JETTY_HOST=127.0.0.1  # (line 15)
+
+   Then create a symlink from the schema.xml file in your ckan config
+   directory to the solr directory:
+
+   ::
+    
+       sudo ln -s ~/pyenv/src/ckan/ckan/config/schema.xml /usr/share/solr/config/schema.xml
+
+   Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:
+
+   ::
+
+       ckan.site_id=my_ckan_instance
+       solr_url=http://127.0.0.1:8080/solr
+
+   You should now be able to start solr:
+
+   ::
+
+       sudo service jetty start
+
+   For more information on Solr setup and configuration, see the CKAN wiki:
+   http://wiki.ckan.net/Solr_Search
+
+10. Run the CKAN webserver.
 
   NB If you've started a new shell, you'll have to activate the environment
   again first - see step 3.
@@ -261,7 +295,7 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
       paster serve development.ini
 
-10. Point your web browser at: http://127.0.0.1:5000/
+11. Point your web browser at: http://127.0.0.1:5000/
 
     The CKAN homepage should load.
 
