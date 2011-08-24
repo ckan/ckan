@@ -2,20 +2,14 @@
 Option 2: Install from Source
 =============================
 
-This section describes how to install CKAN from source. This removes the requirement for Ubuntu 10.04 that exists with :doc:`install-from-package`.
+This section describes how to install CKAN from source. This removes the requirement for Ubuntu 10.04 that exists with :doc:`install-from-package`. It is also the option to use if you are going to develop the CKAN source.
 
-.. warning:: This option is more complex than :doc:`install-from-package`, so f you prefer simplicity we suggest installing from package. 
+.. warning:: This option is more complex than :doc:`install-from-package`.
 
 For support during installation, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_. 
 
 Install the Source
 ------------------
-
-These are instructions to get developing with CKAN.
-
-Before you start, it may be worth `checking CKAN has passed the auto build and
-tests <http://buildbot.okfn.org/waterfall>`_. 
-
 
 1. Ensure the required packages are installed.
 
@@ -94,13 +88,15 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
    An activated shell looks in your virtual environment first when choosing
    which commands to run. If you enter ``python`` now it will actually 
-   run ``~/pyenv/bin/python`` which is what you want.
+   run ``~/pyenv/bin/python``, not the default ``/usr/bin/python`` which is what you want for CKAN. You can install python packages install this new environment and they won't affect the default ``/usr/bin/python``. This is necessary so you can use particular versions of python packages, rather than the ones installed with default paython, and these installs do not affect other python software on your system that may not be compatible with these packages.
 
-4. Install CKAN code and required Python packages into the new environment.
+4. Install CKAN code and other required Python packages into the new environment.
 
-   First you'll need to install CKAN. For the latest version run:
+   Choose which version of CKAN to install. Released versions are listed at https://bitbucket.org/okfn/ckan - click on the list of tags. For example: ``ckan-1.4.2``
 
-   ::
+       pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan@ckan-1.4.2#egg=ckan
+
+   Alternatively, if you are to develop CKAN, then you will probably want to use the latest 'bleeding edge' code. If using this version, we suggest you `check CKAN has passed the automatic tests <http://buildbot.okfn.org/waterfall>`_. Here is how to install the latest code::
 
        pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan#egg=ckan
 
@@ -184,16 +180,12 @@ tests <http://buildbot.okfn.org/waterfall>`_.
   Paste and other modules are put on the python path (your command prompt will
   start with ``(pyenv)`` if you have) then change into the ``ckan`` directory
   which will have been created when you installed CKAN in step 4 and create the
-  config file ``development.ini`` using Paste:
+  CKAN config file using Paste. These instructions call it ``development.ini`` since that is the required name for running the CKAN tests. But for a server deployment then you might want to call it say after the server hostname e.g. ``test.ckan.net.ini``.
 
   ::
 
       cd pyenv/src/ckan
       paster make-config ckan development.ini
-
-  You can give your config file a different name but the tests will expect you
-  to have used ``development.ini`` so it is strongly recommended you use this
-  name, at least to start with.
 
   If you used a different database name or password when creating the database
   in step 5 you'll need to now edit ``development.ini`` and change the
@@ -209,10 +201,9 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
   .. caution ::
 
-     Advanced users: If you are using CKAN's fab file capability you currently need to create
-     your config file as ``pyenv/ckan.net.ini`` so you will probably have 
-     ignored the advice about creating a ``development.ini`` file in the 
-     ``pyenv/src/ckan`` directory. This is fine but CKAN probably won't be 
+     Advanced users: If you have installed CKAN using the Fabric file capability (deprecated),
+     your config file will be called something like ``pyenv/ckan.net.ini``. 
+     This is fine but CKAN probably won't be 
      able to find your ``who.ini`` file. To fix this edit ``pyenv/ckan.net.ini``, 
      search for the line ``who.config_file = %(here)s/who.ini`` and change it
      to ``who.config_file = who.ini``.
