@@ -1,3 +1,5 @@
+import logging
+
 from vdm.sqlalchemy import State
 
 from sqlalchemy.orm import object_session
@@ -14,6 +16,7 @@ from ckan.model.resource import ResourceGroup, Resource
 from ckan.model.package_extra import PackageExtra
 from ckan.model.tag import PackageTag
 
+log = logging.getLogger(__name__)
 
 class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
     """
@@ -63,4 +66,10 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
 
     def notify(self, entity, operation):
         for observer in self.observers:
-            observer.notify(entity, operation)
+            try:
+                observer.notify(entity, operation)
+            except Exception, ex:
+                log.exception(ex)
+                # We reraise all exceptions so they are obvious there
+                # is something wrong
+                raise

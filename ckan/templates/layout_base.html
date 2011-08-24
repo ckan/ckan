@@ -51,8 +51,9 @@
   </py:if>
 </head>
 
-<body class="${value_of('body_class', default=lambda: c.body_class)()}">
-
+<body class="${value_of('body_class', default=lambda: c.body_class)()}
+             ${request.environ.get('pylons.routes_dict', {}).get('action')} 
+             ${request.environ.get('pylons.routes_dict', {}).get('controller').split(':')[-1]}">
 <div id="wrapper" class="hfeed">
   <div id="header">
   <div id="masthead">
