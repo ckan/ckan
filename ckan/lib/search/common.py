@@ -23,7 +23,7 @@ def is_enabled():
     """
     Return true if search is enabled in ckan config.
     """
-    return config.get('search_enabled')
+    return config.get('search_enabled', True)
 
 def make_connection(config):
     url = config.get('solr_url', 'http://localhost:8983/solr')
