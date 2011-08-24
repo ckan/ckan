@@ -13,11 +13,11 @@ def is_available():
         conn = make_connection(config)
         conn.query("*:*", rows=1)
         conn.close()
-        return True
     except Exception, e:
-        log.error("Solr not available, disabling package search.")
         log.exception(e)
         return False
+
+    return True
 
 def is_enabled():
     """
