@@ -10,13 +10,14 @@ from nose.plugins.skip import SkipTest
 from nose.tools import assert_equal
 
 from ckan.tests import *
-from ckan.tests import search_related
+from ckan.tests import search_related, setup_test_search_index
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
+import ckan.lib.search as search
 from ckan.controllers.package import PackageController
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan import plugins
@@ -259,17 +260,18 @@ class TestPackageForm(TestPackageBase):
                     pkg.purge()
                 model.repo.commit_and_remove()
 
-class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsTestCase):
+class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
 
     @classmethod
     def setup_class(cls):
         PylonsTestCase.setup_class()
-        cls.tsi = TestSearchIndexer()
+        setup_test_search_index()
         CreateTestData.create()
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
+        search.clear()
 
     @search_related
     def test_minornavigation_2(self):
@@ -395,7 +397,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         results_page = self.app.get(offset)
         assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)
-        assert '<strong>0</strong>' in results_page, results_page
+        assert 'error while searching' in results_page, results_page
 
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
         form = page.forms['package-search']
