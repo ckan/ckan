@@ -49,7 +49,7 @@
     </p>
     
     <div py:if="g.search_enabled">
-      <p i18n:msg="package_count"><strong>${c.package_count} registered data packages</strong> available.</p>
+      <p py:if="not c.query_error" i18n:msg="package_count"><strong>${c.package_count} registered data packages</strong> available.</p>
 
       <xi:include href="../package/search_form.html" />
     </div>

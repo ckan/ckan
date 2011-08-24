@@ -44,17 +44,25 @@ class HomeController(BaseController):
     def index(self):
         cache_key = self._home_cache_key()
         etag_cache(cache_key)
-
-        query = query_for(model.Package)
-        query.run(query='*:*', facet_by=g.facets,
-                  limit=0, offset=0, username=c.user,
-                  order_by=None)
-        c.facets = query.facets
+        c.query_error = False
         c.fields = []
-        c.package_count = query.count
-        c.latest_packages = get_action('current_package_list_with_resources')({'model': model,
-                                                                 'user': c.user},
-                                                                 {'limit': 5})      
+
+        try:
+            query = query_for(model.Package)
+            query.run(query='*:*', facet_by=g.facets,
+                      limit=0, offset=0, username=c.user,
+                      order_by=None)
+            c.facets = query.facets
+            c.package_count = query.count
+        except SearchError, se:
+            c.query_error = True
+            c.facets = {}
+            c.package_count = 0
+
+        c.latest_packages = get_action('current_package_list_with_resources')(
+            {'model': model, 'user': c.user},
+            {'limit': 5}
+        )      
         return render('home/index.html', cache_key=cache_key,
                       cache_expire=cache_expires)
 

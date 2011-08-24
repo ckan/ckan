@@ -397,7 +397,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         results_page = self.app.get(offset)
         assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)
-        assert '<strong>0</strong>' in results_page, results_page
+        assert 'error while searching' in results_page, results_page
 
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
         form = page.forms['package-search']
