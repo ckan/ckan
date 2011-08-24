@@ -12,10 +12,7 @@ from pylons.i18n import get_lang, _
 from autoneg.accept import negotiate
 from babel.dates import format_date, format_datetime, format_time
 
-import ckan.logic.action.create as create
-import ckan.logic.action.update as update
-import ckan.logic.action.get as get
-from ckan.logic import get_action
+from ckan.logic import get_action, check_access
 from ckan.logic.schema import package_form_schema
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import etag_cache, response, redirect, gettext
@@ -78,26 +75,37 @@ class PackageController(BaseController):
             raise DataError(data_dict)
 
     def _setup_template_variables(self, context, data_dict):
-        c.groups = get.group_list_available(context, data_dict)
-        c.groups_authz = get.group_list_authz(context, data_dict)
+        c.groups_authz = get_action('group_list_authz')(context, data_dict)
+        data_dict.update({'available_only':True})
+        c.groups_available = get_action('group_list_authz')(context, data_dict)
         c.licences = [('', '')] + model.Package.get_license_options()
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         c.resource_columns = model.Resource.get_columns()
 
         ## This is messy as auths take domain object not data_dict
-        pkg = context.get('package') or c.pkg
+        context_pkg = context.get('package',None)
+        pkg = context_pkg or c.pkg
         if pkg:
-            c.auth_for_change_state = Authorizer().am_authorized(
-                c, model.Action.CHANGE_STATE, pkg)
+            try:
+                if not context_pkg:
+                    context['package'] = pkg
+                check_access('package_change_state',context)
+                c.auth_for_change_state = True
+            except NotAuthorized:
+                c.auth_for_change_state = False
 
     ## end hooks
 
     authorizer = ckan.authz.Authorizer()
     extensions = PluginImplementations(IPackageController)
 
-    def search(self):        
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+    def search(self):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            check_access('site_read',context)
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
+
         q = c.q = request.params.get('q') # unicode format (decoded from utf8)
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
@@ -150,7 +158,7 @@ class PackageController(BaseController):
                          'filter_by_downloadable':c.downloadable_only,
                         }
 
-            query = get.package_search(context,data_dict)
+            query = get_action('package_search')(context,data_dict)
 
             c.page = h.Page(
                 collection=query['results'],
@@ -200,7 +208,7 @@ class PackageController(BaseController):
             
         #check if package exists
         try:
-            c.pkg_dict = get.package_show(context, data_dict)
+            c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
         except NotFound:
             abort(404, _('Package not found'))
@@ -235,7 +243,7 @@ class PackageController(BaseController):
 
         #check if package exists
         try:
-            c.pkg_dict = get.package_show(context, {'id':id})
+            c.pkg_dict = get_action('package_show')(context, {'id':id})
             c.pkg = context['package']
         except NotFound:
             abort(404, _('Package not found'))
@@ -273,8 +281,8 @@ class PackageController(BaseController):
                    'extras_as_string': True,}
         data_dict = {'id':id}
         try:
-            c.pkg_dict = get.package_show(context, data_dict)
-            c.pkg_revisions = get.package_revision_list(context, data_dict)
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg_revisions = get_action('package_revision_list')(context, data_dict)
             #TODO: remove
             # Still necessary for the authz check in group/layout.html
             c.pkg = context['package']
@@ -330,9 +338,11 @@ class PackageController(BaseController):
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema()}
 
-        auth_for_create = Authorizer().am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
-        if not auth_for_create:
-            abort(401, _('Unauthorized to create a package'))
+        if not context['preview']:
+            try:
+                check_access('package_create',context)
+            except NotAuthorized:
+                abort(401, _('Unauthorized to create a package'))
 
         if (context['save'] or context['preview']) and not data:
             return self._save_new(context)
@@ -359,7 +369,7 @@ class PackageController(BaseController):
         if (context['save'] or context['preview']) and not data:
             return self._save_edit(id, context)
         try:
-            old_data = get.package_show(context, {'id':id})
+            old_data = get_action('package_show')(context, {'id':id})
             schema = self._db_to_form_schema()
             if schema:
                 old_data, errors = validate(old_data, schema)
@@ -371,14 +381,16 @@ class PackageController(BaseController):
 
         c.pkg = context.get("package")
 
-        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
-        if not am_authz:
+        try:
+            check_access('package_update',context)
+        except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context, {'id': id})
+
         c.form = render(self.package_form, extra_vars=vars)
         return render('package/edit.html')
 
@@ -390,7 +402,7 @@ class PackageController(BaseController):
                    'revision_id': revision}
 
         try:
-            data = get.package_show(context, {'id': id})
+            data = get_action('package_show')(context, {'id': id})
             schema = self._db_to_form_schema()
             if schema:
                 data, errors = validate(data, schema)
@@ -413,7 +425,7 @@ class PackageController(BaseController):
                    'extras_as_string': True,}
         data_dict = {'id':id}
         try:
-            pkg_revisions = get.package_revision_list(context, data_dict)
+            pkg_revisions = get_action('package_revision_list')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
@@ -477,7 +489,7 @@ class PackageController(BaseController):
             data_dict['id'] = id
             pkg = get_action('package_update')(context, data_dict)
             if request.params.get('save', '') == 'Approve':
-                update.make_latest_pending_package_active(context, data_dict)
+                get_action('make_latest_pending_package_active')(context, data_dict)
             c.pkg = context['package']
             c.pkg_dict = pkg
 
@@ -532,8 +544,13 @@ class PackageController(BaseController):
         c.pkg = pkg # needed to add in the tab bar to the top of the auth page
         c.pkgname = pkg.name
         c.pkgtitle = pkg.title
+        try:
+            context = {'model':model,'user':c.user or c.author, 'package':pkg}
+            check_access('package_edit_permissions',context)
+            c.authz_editable = True
+        except NotAuthorized:
+            c.authz_editable = False
 
-        c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
@@ -759,7 +776,7 @@ class PackageController(BaseController):
 
         data_dict = {'q':q}
 
-        packages = get.package_autocomplete(context,data_dict)
+        packages = get_action('package_autocomplete')(context,data_dict)
 
         pkg_list = []
         for pkg in packages:

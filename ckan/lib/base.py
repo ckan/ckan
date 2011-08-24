@@ -41,6 +41,9 @@ ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 def abort(status_code=None, detail='', headers=None, comment=None):
     if detail:
         h.flash_error(detail)
+    # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
+    # with Lucid) causes an exception when unicode is received.
+    detail = detail.encode('utf8')
     return _abort(status_code=status_code, 
                   detail=detail,
                   headers=headers, 
@@ -99,6 +102,13 @@ class BaseController(WSGIController):
         if c.user:
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
+            if c.userobj is None:
+                # This occurs when you are logged in with openid, clean db
+                # and then restart i.e. only really for testers. There is no
+                # user object, so even though repoze thinks you are logged in
+                # and your cookie has ckan_display_name, we need to force user
+                # to login again to get the User object.
+                c.user = None
         else:
             c.userobj = self._get_user_for_apikey()
             if c.userobj is not None:
@@ -120,7 +130,12 @@ class BaseController(WSGIController):
             model.Session.remove()
 
     def __after__(self, action, **params):
-        return
+        self._set_cors()
+
+    def _set_cors(self):
+        response.headers['Access-Control-Allow-Origin'] = "*"
+        response.headers['Access-Control-Allow-Methods'] = "POST, PUT, GET, OPTIONS"
+        response.headers['Access-Control-Allow-Headers'] = "X-CKAN-API-KEY, Content-Type"
 
     def _get_user(self, reference):
         return model.User.by_name(reference)

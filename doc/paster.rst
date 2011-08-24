@@ -99,15 +99,37 @@ As the name suggests, this command lets you load test data when first setting up
 db: Manage databases
 --------------------
 
-Lets you initialise, upgrade, and dump database files in various formats. 
+Lets you initialise, upgrade, and dump the CKAN database. 
 
-For example, to initialise the CKAN database, creating the tables that CKAN uses (note that you don't need to do this during setup if you have run ``create-test-data``)::
+Initialisation
+~~~~~~~~~~~~~~
+
+Before you can run CKAN for the first time, you need to run "db init" to create the tables in the database and the default authorization settings::
 
  paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
 
-When you upgrade CKAN software by any method *other* than the package update described in :doc:`upgrade`, before you restart it, you should run 'db upgrade', to migrate the database tables if necessary::
+If you forget to do this then CKAN won't serve requests and you will see errors such as this in the logs::
+
+ ProgrammingError: (ProgrammingError) relation "user" does not exist
+
+Cleaning
+~~~~~~~~
+
+You can delete everything in the CKAN database, including the tables, to start from scratch::
+
+ paster --plugin=ckan db clean --config=/etc/ckan/std/std.ini
+
+The next logical step from this point is to do a "db init" step before starting CKAN again.
+
+Upgrade migration
+~~~~~~~~~~~~~~~~~
+
+When you upgrade CKAN software by any method *other* than the package update described in :doc:`upgrade`, before you restart it, you should run 'db upgrade', which will do any necessary migrations to the database tables::
 
  paster --plugin=ckan db upgrade --config=/etc/ckan/std/std.ini
+
+Creating dump files
+~~~~~~~~~~~~~~~~~~~
 
 For information on using ``db`` to create dumpfiles, see :doc:`database_dumps`.
 

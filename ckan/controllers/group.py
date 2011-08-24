@@ -9,11 +9,9 @@ import ckan.authz as authz
 from ckan.authz import Authorizer
 from ckan.lib.helpers import Page
 from ckan.plugins import PluginImplementations, IGroupController
-import ckan.logic.action.create as create
-import ckan.logic.action.update as update
-import ckan.logic.action.get as get
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import check_access, get_action
 from ckan.logic.schema import group_form_schema
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 import ckan.forms
@@ -34,24 +32,32 @@ class GroupController(BaseController):
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
-        group = context.get('group') or c.pkg
+        context_group = context.get('group',None)
+        group = context_group or c.group
         if group:
-            c.auth_for_change_state = Authorizer().am_authorized(
-                c, model.Action.CHANGE_STATE, group)
+            try:
+                if not context_group:
+                    context['group'] = group
+                check_access('group_change_state',context)
+                c.auth_for_change_state = True
+            except NotAuthorized:
+                c.auth_for_change_state = False
 
     ## end hooks
     
     def index(self):
 
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
-            abort(401, _('Not authorized to see this page'))
-
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
         data_dict = {'all_fields': True}
-               
-        results = get.group_list(context,data_dict)
+
+        try:
+            check_access('site_read',context)
+        except NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
+        
+        results = get_action('group_list')(context,data_dict)
 
         c.page = Page(
             collection=results,
@@ -67,7 +73,7 @@ class GroupController(BaseController):
                    'schema': self._form_to_db_schema()}
         data_dict = {'id': id}
         try:
-            c.group_dict = get.group_show(context, data_dict)
+            c.group_dict = get_action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
             abort(404, _('Group not found'))
@@ -97,9 +103,9 @@ class GroupController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'schema': self._form_to_db_schema(),
                    'save': 'save' in request.params}
-
-        auth_for_create = Authorizer().am_authorized(c, model.Action.GROUP_CREATE, model.System())
-        if not auth_for_create:
+        try:
+            check_access('group_create',context)
+        except NotAuthorized:
             abort(401, _('Unauthorized to create a group'))
 
         if context['save'] and not data:
@@ -126,7 +132,7 @@ class GroupController(BaseController):
             return self._save_edit(id, context)
 
         try:
-            old_data = get.group_show(context, data_dict)
+            old_data = get_action('group_show')(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
             schema = self._db_to_form_schema()
@@ -140,8 +146,9 @@ class GroupController(BaseController):
 
         group = context.get("group")
 
-        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, group)
-        if not am_authz:
+        try:
+            check_access('group_update',context)
+        except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
@@ -156,7 +163,7 @@ class GroupController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
-            group = create.group_create(context, data_dict)
+            group = get_action('group_create')(context, data_dict)
             h.redirect_to(controller='group', action='read', id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % '')
@@ -175,7 +182,7 @@ class GroupController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
-            group = update.group_update(context, data_dict)
+            group = get_action('group_update')(context, data_dict)
             h.redirect_to(controller='group', action='read', id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
@@ -195,10 +202,15 @@ class GroupController(BaseController):
         c.groupname = group.name
         c.grouptitle = group.display_name
 
-        c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, group)
+        try:
+            context = {'model':model,'user':c.user or c.author, 'group':group}
+            check_access('group_edit_permissions',context)
+            c.authz_editable = True
+        except NotAuthorized:
+            c.authz_editable = False
+
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
- 
 
         #see package.py for comments
         def get_userobjectroles():
@@ -419,8 +431,8 @@ class GroupController(BaseController):
                    'schema': self._form_to_db_schema()}
         data_dict = {'id': id}
         try:
-            c.group_dict = get.group_show(context, data_dict)
-            c.group_revisions = get.group_revision_list(context, data_dict)
+            c.group_dict = get_action('group_show')(context, data_dict)
+            c.group_revisions = get_action('group_revision_list')(context, data_dict)
             #TODO: remove
             # Still necessary for the authz check in group/layout.html
             c.group = context['group']

@@ -8,7 +8,7 @@ from ckan.lib.cache import proxy_cache
 from ckan.lib.helpers import AlphaPage, Page
 
 from ckan.logic import NotFound, NotAuthorized
-import ckan.logic.action.get as get
+from ckan.logic import check_access, get_action
 
 LIMIT = 25
 
@@ -16,7 +16,10 @@ class TagController(BaseController):
 
     def __before__(self, action, **env):
         BaseController.__before__(self, action, **env)
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            check_access('site_read',context)
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
     def index(self):
@@ -34,7 +37,7 @@ class TagController(BaseController):
             data_dict['offset'] = (page-1)*LIMIT
             data_dict['return_objects'] = True
                
-        results = get.tag_list(context,data_dict)
+        results = get_action('tag_list')(context,data_dict)
          
         if c.q:
             c.page = h.Page(
@@ -61,7 +64,7 @@ class TagController(BaseController):
         
         data_dict = {'id':id}
         try:
-            c.tag = get.tag_show(context,data_dict)
+            c.tag = get_action('tag_show')(context,data_dict)
         except NotFound:
             abort(404, _('Tag not found'))
 
