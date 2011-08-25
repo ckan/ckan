@@ -17,10 +17,11 @@ def is_available():
     try:
         conn = make_connection()
         conn.query("*:*", rows=1)
-        conn.close()
     except Exception, e:
         log.exception(e)
         return False
+    finally:
+        conn.close()
 
     return True
 
