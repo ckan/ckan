@@ -3,6 +3,7 @@ import sys
 
 from pylons import cache, config
 from genshi.template import NewTextTemplate
+import sqlalchemy.exc
 
 from ckan.authz import Authorizer
 from ckan.logic import NotAuthorized
@@ -26,6 +27,18 @@ class HomeController(BaseController):
             check_access('site_read',context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
+        except (sqlalchemy.exc.ProgrammingError,
+                sqlalchemy.exc.OperationalError), e:
+            # postgres and sqlite errors for missing tables
+            msg = str(e)
+            if ('relation' in msg and 'does not exist' in msg) or \
+                   ('no such table' in msg) :
+                # table missing, major database problem
+                abort(503, _('This site is currently off-line. Database is not initialised.'))
+                # TODO: send an email to the admin person (#1285)
+            else:
+                raise
+            
 
     @staticmethod
     def _home_cache_key(latest_revision_id=None):
