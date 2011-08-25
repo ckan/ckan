@@ -165,6 +165,12 @@ class SearchQuery(object):
             else:
                 attr_name = self.options.ref_entity_with_attr
                 self.results = [getattr(entity, attr_name) for entity in self.results]
+
+    def get_all_entity_ids(self, max_results=1000):
+        """
+        Return a list of the IDs of all indexed packages.
+        """
+        return []
     
     def run(self, query=None, terms=[], fields={}, facet_by=[], options=None, **kwargs):
         if options is None:
@@ -266,6 +272,22 @@ class ResourceSearchQuery(SearchQuery):
 
 
 class PackageSearchQuery(SearchQuery):
+    def get_all_entity_ids(self, max_results=1000):
+        """
+        Return a list of the IDs of all indexed packages.
+        """
+        query = "*:*"
+        fq = "+site_id:\"%s\" " % config.get('ckan.site_id')
+        fq += "+state:active "
+
+        conn = make_connection()
+        try:
+            data = conn.query(query, fq=fq, rows=max_results, fields='id')
+        finally:
+            conn.close()
+
+        return [r.get('id') for r in data.results]
+
     def _run(self):
         fq = ""
 
