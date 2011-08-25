@@ -3,7 +3,7 @@ from ckan import model
 from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from ckan.lib.dictization.model_dictize import package_to_api1
-from common import SearchError, make_connection, is_available
+from common import SearchIndexError, SearchError, make_connection, is_available
 from index import PackageSearchIndex, NoopSearchIndex
 from query import TagSearchQuery, ResourceSearchQuery, PackageSearchQuery, QueryOptions
 

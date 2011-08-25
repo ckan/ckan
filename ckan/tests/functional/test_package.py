@@ -1084,6 +1084,21 @@ u with umlaut \xc3\xbc
         self.offset = url_for(controller='package', action='edit', id='random_name')
         self.res = self.app.get(self.offset, status=404)
 
+    def test_edit_indexerror(self):
+        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        solr_url = search.common.solr_url
+        search.common.solr_url = bad_solr_url
+        plugins.load('synchronous_search')
+
+        fv = self.res.forms['package-edit']
+        prefix = ''
+        fv['log_message'] = u'Test log message'
+        res = fv.submit('save', status=500)
+        assert 'Unable to update search index' in res, res
+
+        plugins.unload('synchronous_search')
+        search.common.solr_url = solr_url
+
 
 class TestNew(TestPackageForm):
     pkg_names = []
@@ -1366,6 +1381,28 @@ class TestNew(TestPackageForm):
         assert plugin.calls['edit'] == 0, plugin.calls
         assert plugin.calls['create'] == 1, plugin.calls
         plugins.unload(plugin)
+
+    def test_new_indexerror(self):
+        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        solr_url = search.common.solr_url
+        search.common.solr_url = bad_solr_url
+        plugins.load('synchronous_search')
+        new_package_name = u'new-package-missing-solr'
+
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset)
+        fv = res.forms['package-edit']
+        fv['name'] = new_package_name
+
+        # this package shouldn't actually be created but
+        # add it to the list to purge just in case
+        self.pkg_names.append(new_package_name)
+
+        res = fv.submit('save', status=500)
+        assert 'Unable to add package to search index' in res, res
+
+        plugins.unload('synchronous_search')
+        search.common.solr_url = solr_url
 
 class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'

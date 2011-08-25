@@ -3,7 +3,12 @@ from solr import SolrConnection
 import logging
 log = logging.getLogger(__name__)
 
+class SearchIndexError(Exception): pass
 class SearchError(Exception): pass
+
+solr_url = config.get('solr_url', 'http://127.0.0.1:8983/solr')
+solr_user = config.get('solr_user')
+solr_password = config.get('solr_password')
 
 def is_available():
     """
@@ -26,11 +31,7 @@ def is_enabled():
     return config.get('search_enabled', True)
 
 def make_connection(config):
-    url = config.get('solr_url', 'http://localhost:8983/solr')
-    user = config.get('solr_user')
-    password = config.get('solr_password')
-
-    if user is not None and password is not None:
-        return SolrConnection(url, http_user=user, http_pass=password)
+    if solr_user is not None and solr_password is not None:
+        return SolrConnection(solr_url, http_user=solr_user, http_pass=solr_password)
     else:
-        return SolrConnection(url)
+        return SolrConnection(solr_url)

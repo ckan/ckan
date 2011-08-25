@@ -1,7 +1,7 @@
 from pylons import config
 import itertools
 import string
-from common import is_enabled, make_connection
+from common import SearchIndexError, is_enabled, make_connection
 import logging
 log = logging.getLogger(__name__)
 
@@ -84,8 +84,10 @@ class PackageSearchIndex(SearchIndex):
     def index_package(self, pkg_dict, config):
         if (not is_enabled()) or (pkg_dict is None):  
             return 
+
         if (not pkg_dict.get('state')) or ('active' not in pkg_dict.get('state')):
             return self.delete_package(pkg_dict, config)
+
         conn = make_connection(config)
         index_fields = RESERVED_FIELDS + pkg_dict.keys()
             
@@ -134,6 +136,9 @@ class PackageSearchIndex(SearchIndex):
         try:
             conn.add_many([pkg_dict])
             conn.commit(wait_flush=False, wait_searcher=False)
+        except Exception, e:
+            log.exception(e)
+            raise SearchIndexError(e)
         finally:
             conn.close()  
         
@@ -150,5 +155,8 @@ class PackageSearchIndex(SearchIndex):
         try:
             conn.delete_query(query)
             conn.commit()
+        except Exception, e:
+            log.exception(e)
+            raise SearchIndexError(e)
         finally:
             conn.close()

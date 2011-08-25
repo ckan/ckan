@@ -17,7 +17,7 @@ from ckan.logic.schema import package_form_schema
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import etag_cache, response, redirect, gettext
 from ckan.authz import Authorizer
-from ckan.lib.search import SearchError
+from ckan.lib.search import SearchIndexError, SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
@@ -473,6 +473,8 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
+        except SearchIndexError:
+            abort(500, _(u'Unable to add package to search index.'))
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -506,6 +508,8 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
+        except SearchIndexError:
+            abort(500, _(u'Unable to update search index.'))
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
