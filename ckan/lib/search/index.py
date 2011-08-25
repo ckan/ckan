@@ -19,8 +19,8 @@ RELATIONSHIP_TYPES = [
     (u'child_of', u'parent_of'),
 ]
 
-def clear_index(config):
-    conn = make_connection(config)
+def clear_index():
+    conn = make_connection()
     query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
     try:
         conn.delete_query(query)
@@ -66,7 +66,7 @@ class SearchIndex(object):
         
     def clear(self):
         """ Delete the complete index. """
-        clear_index(config)
+        clear_index()
 
     def get_all_entity_ids(self):
         """ Return a list of entity IDs in the index. """
@@ -76,19 +76,19 @@ class NoopSearchIndex(SearchIndex): pass
 
 class PackageSearchIndex(SearchIndex):
     def remove_dict(self, pkg_dict):
-        self.delete_package(pkg_dict, config)
+        self.delete_package(pkg_dict)
     
     def update_dict(self, pkg_dict):
-        self.index_package(pkg_dict, config)
+        self.index_package(pkg_dict)
 
-    def index_package(self, pkg_dict, config):
+    def index_package(self, pkg_dict):
         if (not is_enabled()) or (pkg_dict is None):  
             return 
 
         if (not pkg_dict.get('state')) or ('active' not in pkg_dict.get('state')):
-            return self.delete_package(pkg_dict, config)
+            return self.delete_package(pkg_dict)
 
-        conn = make_connection(config)
+        conn = make_connection()
         index_fields = RESERVED_FIELDS + pkg_dict.keys()
             
         # include the extras in the main namespace
@@ -144,11 +144,11 @@ class PackageSearchIndex(SearchIndex):
         
         log.debug("Updated index for %s" % pkg_dict.get('name'))
 
-    def delete_package(self, pkg_dict, config):
+    def delete_package(self, pkg_dict):
         if not is_enabled():
             return
 
-        conn = make_connection(config)
+        conn = make_connection()
         query = "+%s:%s +id:\"%s\" +site_id:\"%s\"" % (TYPE_FIELD, PACKAGE_TYPE,
                                                        pkg_dict.get('id'),
                                                        config.get('ckan.site_id'))

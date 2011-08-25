@@ -15,7 +15,7 @@ def is_available():
     Return true if we can successfully connect to Solr.
     """
     try:
-        conn = make_connection(config)
+        conn = make_connection()
         conn.query("*:*", rows=1)
         conn.close()
     except Exception, e:
@@ -30,7 +30,7 @@ def is_enabled():
     """
     return config.get('search_enabled', True)
 
-def make_connection(config):
+def make_connection():
     if solr_user is not None and solr_password is not None:
         return SolrConnection(solr_url, http_user=solr_user, http_pass=solr_password)
     else:

@@ -299,7 +299,7 @@ class PackageSearchQuery(SearchQuery):
             # no query terms, i.e. all documents
             query = '*:*'
         
-        conn = make_connection(config)
+        conn = make_connection()
         try:
             data = conn.query(query,
                               fq=fq, 
@@ -315,7 +315,6 @@ class PackageSearchQuery(SearchQuery):
                               sort=order_by)
             
         except Exception, e:
-            # this wrapping will be caught further up in the WUI.
             log.exception(e)
             raise SearchError(e)
         finally:
