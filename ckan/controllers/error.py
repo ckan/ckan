@@ -25,6 +25,10 @@ class ErrorController(BaseController):
         """Render the error document"""
         original_request = request.environ.get('pylons.original_request')
         original_response = request.environ.get('pylons.original_response')
+        # When a request (e.g. from a web-bot) is direct, not a redirect
+        # from a page. #1176
+        if not original_response:
+            return 'There is no error.'
         # Bypass error template for API operations.
         if original_request and original_request.path.startswith('/api'):
             return original_response.body
