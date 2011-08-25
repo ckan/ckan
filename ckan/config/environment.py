@@ -73,12 +73,8 @@ def load_environment(global_conf, app_conf):
             ckan_host, port = ckan_host.split(':')
         config['ckan.site_id'] = ckan_host
 
-    # check that search is available, disable if not
-    import ckan.lib.search as search
-    config['search_enabled'] = search.is_available()
-    if not config.get('search_enabled'):
-        log = logging.getLogger(__name__)
-        log.error("Solr not available, disabling package search.")
+    # hide search widgets if search is not enabled (save as boolean)
+    config['search_enabled'] = config.get('search_enabled', '').lower() != 'false'
     
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()

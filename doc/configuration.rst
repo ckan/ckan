@@ -389,6 +389,20 @@ This configures Solr search (if selected with `search_backend`_). Running Solr w
 
 Optionally, ``solr_user`` and ``solr_password`` can also be passed along to specify HTTP Basic authentication details for all Solr requests. 
 
+.. index::
+   single: search_enabled
+
+search_enabled
+^^^^^^^^^^^^^^
+
+Example::
+
+ search_enabled = False
+ 
+Optional. Default = True.
+
+This allows you to hide the search widgets and disables indexing of packages if it is set to False.
+
 
 Site Settings
 -------------
