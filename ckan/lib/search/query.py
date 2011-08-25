@@ -208,18 +208,6 @@ class SearchQuery(object):
     __call__ = run
 
 
-# TODO: is this code used anywhere? If so, fix it write some tests for it.
-# class GroupSqlSearchQuery(SearchQuery):
-#     """ Search for groups in plain SQL. """
-#     def _run(self):
-#         if not self.query.terms:
-#             return
-#         q = authz.Authorizer().authorized_query(username, model.Group)
-#         for term in self.query.terms:
-#             q = query.filter(model.Group.name.contains(term.lower()))
-#         self._db_query(q)
-
-
 class TagSearchQuery(SearchQuery):
     """Search for tags in plain SQL."""
     def _run(self):
