@@ -519,6 +519,6 @@ backup_dir
 
 Example::
 
-  ckan.backup_dir = /var/backup/ckan/
+  ckan.backup_dir = /var/backups/ckan/
 
 This is a directory where SQL database backups are to be written, assuming a script has been installed to do this.

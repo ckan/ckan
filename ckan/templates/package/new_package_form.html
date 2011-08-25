@@ -78,8 +78,11 @@
       <py:for each="num, res in enumerate(data.get('resources', []) + [{}])">
       <tr>
         <py:for each="col in c.resource_columns">
-        <td class="resource-${col}">
-          <input name="resources__${num}__${col}" type="text" value="${res.get(col, '')}" class="${'medium-width' if col=='description' else 'short'}" />
+        <td py:choose="" class="resource-${col}">
+          <input py:when="col == 'format'" name="resources__${num}__${col}" 
+                 type="text" value="${res.get(col, '')}" class="format-autocomplete short"
+                 data-format-autocomplete-url="/api/2/util/resource/format_autocomplete" />
+          <input py:otherwise="" name="resources__${num}__${col}" type="text" value="${res.get(col, '')}" class="${'medium-width' if col=='description' else 'short'}" />
         </td>
         </py:for>
         <td class="resource-id"><input name="resources__${num}__id" type="hidden" value="${res.get('id', '')}" /></td>
@@ -98,23 +101,28 @@
   <legend>Groups</legend>
   <dl>
     <py:for each="num, group in enumerate(data.get('groups', []))">
+        <?python
+        authorized_group = [group_authz for group_authz in c.groups_authz if group_authz['id'] == group['id']]
+        authorized_group = authorized_group[0] if authorized_group else None
+        ?>
+
       <dt py:if="'id' in group">
-      <input type="${'checkbox' if group['id'] in c.groups_authz else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}" />
-      <input type="hidden" name="groups__${num}__name" value="${group.get('name', c.groups_authz.get(group['id']))}" />
+      <input type="${'checkbox' if authorized_group else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}" />
+      <input type="hidden" name="groups__${num}__name" value="${group.get('name', authorized_group['name'] if authorized_group else '')}" />
       </dt>     
-      <dd py:if="'id' in group"><label for="groups__${num}__checked">${group.get('name', c.groups_authz.get(group['id']))}</label></dd>
+      <dd py:if="'id' in group"><label for="groups__${num}__checked">${group.get('name', authorized_group['name'] if authorized_group else '')}</label></dd>
     </py:for>
 
     <dt>Group</dt>
-    <dd py:if="c.groups"> 
+    <dd py:if="c.groups_available"> 
       <select id="groups__${len(data.get('groups', []))}__id" name="groups__${len(data.get('groups', []))}__id">
         <option selected="selected" value="">(None)</option>
-        <py:for each="group_id, group_name in c.groups">
-          <option value="${group_id}" py:if="group_id in c.groups_authz">${group_name}</option>
+        <py:for each="group in c.groups_available">
+          <option value="${group['id']}" >${group['name']}</option>
         </py:for>
       </select>
     </dd> 
-    <dd py:if="not c.groups">Cannot add any groups.</dd>
+    <dd py:if="not c.groups_available">Cannot add any groups.</dd>
   </dl>
 </fieldset>
 <fieldset id='detail'>

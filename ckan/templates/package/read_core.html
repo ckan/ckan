@@ -103,7 +103,7 @@
           <td class="package-details">${value}</td>
         </tr>
       </tbody>
-          <caption py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
+          <caption py:if="not c.is_preview and h.check_access('package_update',{'id':c.pkg.id})">
               Something missing? ${h.subnav_link(c, 'Please help improve this page by adding more information', controller='package', action='edit', id=c.pkg.name)}.
           </caption>
     </table>
@@ -146,7 +146,7 @@
     </div>
 
     <ul>
-      <py:if test="h.am_authorized(c, actions.CHANGE_STATE, c.pkg)">
+      <py:if test="not c.is_preview and h.check_access('package_change_state',{'id':c.pkg.id})">
          <li><strong>State:</strong> ${c.pkg_dict.get('state', '')}</li>
       </py:if>
     </ul>

@@ -7,6 +7,8 @@ from ckan.lib.package_saver import PackageSaver
 from ckan.controllers.package import PackageController
 import ckan.forms
 from pylons.i18n import get_lang, _
+from ckan.logic import check_access, NotAuthorized
+
 
 log = logging.getLogger(__name__)
 
@@ -18,8 +20,10 @@ class PackageFormalchemyController(PackageController):
         c.package_create_slug_api_url = api_url+h.url_for(controller='api', action='create_slug')
         is_admin = self.authorizer.is_sysadmin(c.user)
         # Check access control for user to create a package.
-        auth_for_create = self.authorizer.am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
-        if not auth_for_create:
+        try:
+            context = {'model': model, 'user': c.user or c.author}
+            check_access('package_create',context)
+        except NotAuthorized:
             abort(401, _('Unauthorized to create a package'))
         # Get the name of the package form.
         try:
@@ -97,11 +101,18 @@ class PackageFormalchemyController(PackageController):
         if pkg is None:
             abort(404, '404 Not Found')
         model.Session().autoflush = False
-        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
-        if not am_authz:
-            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
-        auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
+        context = {'model': model, 'user': c.user or c.author, 'package':pkg}
+        try:
+            check_access('package_update',context)
+        except NotAuthorized:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, pkg.id))
+        try:
+            check_access('package_change_state',context)
+            auth_for_change_state = True
+        except NotAuthorized:
+            auth_for_change_state = False
+
         try:
             fs = self._get_package_fieldset(is_admin=auth_for_change_state)
         except ValueError, e:

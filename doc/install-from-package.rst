@@ -61,7 +61,7 @@ Go to Applications and open VirtualBox, then click New:
 .. image:: images/virtualbox4-newvm.png
    :alt: The VirtualBox installer - the New Virtual Machine Wizard
 
-Give your VM a name - we'll call ours ``ubuntu_ckan``. Under **OS Type**, choose **Linux** and **Ubuntu 64-bit**.
+Give your VM a name - we'll call ours ``ubuntu_ckan``. Under **OS Type**, choose **Linux** and **Ubuntu (32 or 64-bit)**.
 
 .. image:: images/virtualbox5-vmtype.png
    :alt: The VirtualBox installer - choosing your operating system

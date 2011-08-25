@@ -137,3 +137,18 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
             offset = url_for('home')
             res = self.app.get(offset)
             res = res.click('English')
+
+class TestDatabaseNotInitialised(TestController):
+    @classmethod
+    def setup_class(cls):
+        PylonsTestCase.setup_class()
+        model.repo.clean_db()
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_home_page(self):
+        offset = url_for('home')
+        res = self.app.get(offset, status=503)
+        assert 'This site is currently off-line. Database is not initialised.' in res

@@ -10,6 +10,10 @@ from ckan.model.changeset import RevisionRegister, PackageRegister
 import ckan.model as model
 from ckan.model import setup_default_user_roles
 
+# Changesets deprecated - tests skipped (see #1002)
+from nose.plugins.skip import SkipTest
+raise SkipTest()
+
 class TestCase(object):
 
     def setup(self):

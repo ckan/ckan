@@ -21,6 +21,8 @@ from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
 from ckan.i18n import get_available_locales
 
+
+
 try:
     from collections import OrderedDict # from python 2.7
 except ImportError:
@@ -147,11 +149,28 @@ def facet_title(name):
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
 def am_authorized(c, action, domain_object=None):
+    ''' Deprecated. Please use check_access instead'''
     from ckan.authz import Authorizer
     if domain_object is None:
         from ckan import model
         domain_object = model.System()
     return Authorizer.am_authorized(c, action, domain_object)
+
+def check_access(action,data_dict=None):
+    from ckan import model
+    from ckan.lib.base import c
+    from ckan.logic import check_access as check_access_logic,NotAuthorized
+
+    context = {'model': model,
+                'user': c.user or c.author}
+
+    try:
+        check_access_logic(action,context,data_dict)
+        authorized = True
+    except NotAuthorized:
+        authorized = False
+
+    return authorized
 
 def linked_user(user, maxlength=0):
     from ckan import model

@@ -1653,7 +1653,21 @@ class TestEtags(PylonsTestCase, TestPackageBase):
         anna_hash = str(PackageController._pkg_cache_key(self.anna))
         self.assert_equal(res.header_dict['ETag'], anna_hash)
 
+class TestAutocomplete(PylonsTestCase, TestPackageBase):
+    @classmethod
+    def setup_class(cls):
+        PylonsTestCase.setup_class()
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
     def test_package_autocomplete(self):
         query = 'a'
         res = self.app.get('/package/autocomplete?q=%s' % query)
-        assert res.body == "annakarenina|annakarenina\nA Wonderful Story (warandpeace)|warandpeace"
+        
+        expected = ['A Wonderful Story (warandpeace)|warandpeace','annakarenina|annakarenina']
+        received = sorted(res.body.split('\n'))
+        assert expected == received
+
