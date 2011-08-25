@@ -352,26 +352,28 @@ Example::
 
  ckan.build_search_index_synchronously=
 
+or::
+
+ ckan.plugins = synchronous_search
+
 Default (if you don't define it)::
  indexing is on
 
 This controls the operation of the CKAN Postgres full text search indexing. If you don't define this option then indexing is on. You will want to turn this off if you want to use a different search engine for CKAN (e.g. Solr). In this case you need to define the option equal to blank (as in the example).
 
-.. _config-search-backend:
-
-search_backend
-^^^^^^^^^^^^^^
-
 .. index::
-   single: search_backend
+   single: ckan.site_id
+
+ckan.site_id
+^^^^^^^^^^^^
 
 Example::
 
- search_backend = solr
+ ckan.site_id = my_ckan_instance
 
-Default value:  ``sql``
-
-This controls the type of search backend. Currently valid values are ``sql`` (meaning Postgres full text search) and ``solr`` (meaning Solr). If you specify ``sql`` then ensure indexing is on (`build_search_index_synchronously`_ is not defined). If you specify ``solr`` then ensure you specify a `solr_url`_.
+CKAN uses Solr to index and search packages. The search index is linked to the value of the ``ckan.site_id``, so if you have more than one
+CKAN instance using the same `solr_url`_, they will each have a separate search index as long as their ``ckan.site_id`` values are different. If you are only running
+a single CKAN instance then this can be ignored.
 
 .. index::
    single: solr_url
@@ -386,6 +388,20 @@ Example::
 This configures Solr search (if selected with `search_backend`_). Running Solr will require a schema.xml file, such as the one in `the ckanext-solr repository <https://bitbucket.org/okfn/ckanext-solr/src>`_.
 
 Optionally, ``solr_user`` and ``solr_password`` can also be passed along to specify HTTP Basic authentication details for all Solr requests. 
+
+.. index::
+   single: search_enabled
+
+search_enabled
+^^^^^^^^^^^^^^
+
+Example::
+
+ search_enabled = False
+ 
+Optional. Default = True.
+
+This allows you to hide the search widgets and disables indexing of packages if it is set to False.
 
 
 Site Settings

@@ -48,11 +48,13 @@
       especially in ways that are machine automatable.
     </p>
     
-    <p i18n:msg="package_count"><strong>${c.package_count} registered data packages</strong> available.</p>
+    <div py:if="g.search_enabled">
+      <p py:if="not c.query_error" i18n:msg="package_count"><strong>${c.package_count} registered data packages</strong> available.</p>
 
-    <xi:include href="../package/search_form.html" />
+      <xi:include href="../package/search_form.html" />
+    </div>
     
-    <py:if test="len(c.facets.get('tags', {}))">
+    <py:if test="len(c.facets.get('tags', {})) and g.search_enabled">
         <h4>Top Tags</h4>
         <div id="tagcloud">
         <py:for each="tag_name, count in c.facets.get('tags', {}).items()">

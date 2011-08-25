@@ -51,9 +51,9 @@
     
       <py:if test="c.query_error">
         <p i18n:msg="item_count"><strong>There was an error while searching.</strong> 
-            Please try another search term.</p>
+            Please try again.</p>
       </py:if>
-      <py:if test="request.params">      
+      <py:if test="request.params and not c.query_error">      
         <h4 i18n:msg="item_count"><strong>${c.page.item_count}</strong> packages found</h4>            
      </py:if>
       <py:if test="c.page.item_count == 0 and request.params">

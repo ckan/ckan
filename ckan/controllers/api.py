@@ -7,7 +7,7 @@ from ckan.lib.base import BaseController, response, c, _, gettext, request
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.rating
-from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
+from ckan.lib.search import query_for, QueryOptions, SearchIndexError, SearchError, DEFAULT_OPTIONS
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
@@ -282,6 +282,9 @@ class ApiController(BaseController):
             log.error('Format incorrect: %s' % request_data)
             #TODO make better error message
             return self._finish(400, _(u'Integrity Error') % request_data)
+        except SearchIndexError:
+            log.error('Unable to add package to search index: %s' % request_data)
+            return self._finish(500, _(u'Unable to add package to search index') % request_data)
         except:
             model.Session.rollback()
             raise
@@ -328,6 +331,9 @@ class ApiController(BaseController):
             log.error('Format incorrect: %s' % request_data)
             #TODO make better error message
             return self._finish(400, _(u'Integrity Error') % request_data)
+        except SearchIndexError:
+            log.error('Unable to update search index: %s' % request_data)
+            return self._finish(500, _(u'Unable to update search index') % request_data)
 
     def delete(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
@@ -420,9 +426,8 @@ class ApiController(BaseController):
             if register == 'package':
                 options.ref_entity_with_attr = 'id' if ver == '2' else 'name'
             try:
-                backend = None
                 if register == 'resource': 
-                    query = query_for(model.Resource, backend='sql')
+                    query = query_for(model.Resource)
                 else:
                     query = query_for(model.Package)
                 results = query.run(query=params.get('q'), 

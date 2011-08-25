@@ -203,7 +203,7 @@ def tag_list(context, data_dict):
         offset = data_dict.get('offset',0)
         return_objects = data_dict.get('return_objects',True)
 
-        query = query_for(model.Tag, backend='sql')
+        query = query_for(model.Tag)
         query.run(query=q,
                   limit=limit,
                   offset=offset,
@@ -508,7 +508,7 @@ def tag_autocomplete(context, data_dict):
 
     like_q = u"%s%%" % q
 
-    query = query_for('tag', backend='sql')
+    query = query_for('tag')
     query.run(query=like_q,
               return_objects=True,
               limit=10,
