@@ -3,6 +3,7 @@
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
     CKAN.Utils.setupAuthzGroupAutocomplete($('input.autocomplete-authzgroup'));
     CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-package'));
+    CKAN.Utils.setupTagAutocomplete($('input.autocomplete-tag'));
   });
 }(jQuery));
 
@@ -53,6 +54,52 @@ CKAN.Utils = function($, my) {
           '<dd>' + ui.item.label + '</dd>'
         );
       }
+    });
+  };
+
+  // Attach tag autocompletion to provided elements
+  //
+  // Requires: jquery-ui autocomplete
+  my.setupTagAutocomplete = function(elements) {
+    elements
+      // don't navigate away from the field on tab when selecting an item
+      .bind( "keydown", function( event ) {
+        if ( event.keyCode === $.ui.keyCode.TAB &&
+            $( this ).data( "autocomplete" ).menu.active ) {
+          event.preventDefault();
+        }
+      })
+      .autocomplete({
+        minLength: 1,
+        source: function(request, callback) {
+          // here request.term is whole list of tags so need to get last
+          var _realTerm = request.term.split(' ').pop();
+          var url = '/api/2/util/tag/autocomplete?incomplete=' + _realTerm;
+          $.getJSON(url, function(data) {
+            // data = { ResultSet: { Result: [ {Name: tag} ] } } (Why oh why?)
+            var tags = $.map(data.ResultSet.Result, function(value, idx) {
+              return value.Name;
+            });
+            callback(
+              $.ui.autocomplete.filter(tags, _realTerm)
+            );
+          });
+        },
+        focus: function() {
+          // prevent value inserted on focus
+          return false;
+        },
+        select: function( event, ui ) {
+          var terms = this.value.split(' ');
+          // remove the current input
+          terms.pop();
+          // add the selected item
+          terms.push( ui.item.value );
+          // add placeholder to get the comma-and-space at the end
+          terms.push( "" );
+          this.value = terms.join( " " );
+          return false;
+        }
     });
   };
 
