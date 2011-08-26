@@ -78,10 +78,16 @@
       <tr>
         <py:for each="col in c.resource_columns">
         <td py:choose="" class="resource-${col}">
-          <input py:when="col == 'format'" name="resources__${num}__${col}" 
-                 type="text" value="${res.get(col, '')}" class="format-autocomplete short"
-                 data-format-autocomplete-url="/api/2/util/resource/format_autocomplete" />
-          <input py:otherwise="" name="resources__${num}__${col}" type="text" value="${res.get(col, '')}" class="${'medium-width' if col=='description' else 'short'}" />
+          <input py:when="col == 'format'"
+              name="resources__${num}__${col}" 
+              type="text" value="${res.get(col, '')}"
+              class="autocomplete-format short"
+              />
+          <input py:otherwise=""
+              name="resources__${num}__${col}"
+              type="text"
+              value="${res.get(col, '')}"
+              class="${'medium-width' if col=='description' else 'short'}" />
         </td>
         </py:for>
         <td class="resource-id"><input name="resources__${num}__id" type="hidden" value="${res.get('id', '')}" /></td>

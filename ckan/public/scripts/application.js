@@ -4,6 +4,7 @@
     CKAN.Utils.setupAuthzGroupAutocomplete($('input.autocomplete-authzgroup'));
     CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-package'));
     CKAN.Utils.setupTagAutocomplete($('input.autocomplete-tag'));
+    CKAN.Utils.setupFormatAutocomplete($('input.autocomplete-format'));
   });
 }(jQuery));
 
@@ -100,6 +101,25 @@ CKAN.Utils = function($, my) {
           this.value = terms.join( " " );
           return false;
         }
+    });
+  };
+
+  // Attach tag autocompletion to provided elements
+  //
+  // Requires: jquery-ui autocomplete
+  my.setupFormatAutocomplete = function(elements) {
+    elements.autocomplete({
+      minLength: 1,
+      source: function(request, callback) {
+        var url = '/api/2/util/resource/format_autocomplete?incomplete=' + request.term;
+        $.getJSON(url, function(data) {
+          // data = { ResultSet: { Result: [ {Name: tag} ] } } (Why oh why?)
+          var formats = $.map(data.ResultSet.Result, function(value, idx) {
+            return value.Format;
+          });
+          callback(formats);
+        });
+      }
     });
   };
 
