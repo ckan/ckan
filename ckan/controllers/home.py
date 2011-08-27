@@ -59,10 +59,9 @@ class HomeController(BaseController):
         etag_cache(cache_key)
 
         query = query_for(model.Package)
-        query.run(query='*:*', facet_by=g.facets,
+        query.run(query='*:*',
                   limit=0, offset=0, username=c.user,
                   order_by=None)
-        c.facets = query.facets
         c.fields = []
         c.package_count = query.count
         c.latest_packages = get_action('current_package_list_with_resources')({'model': model,
