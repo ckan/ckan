@@ -1,5 +1,6 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   py:strip=""
   >
   <xi:include href="../_util.html" />
@@ -53,9 +54,16 @@
               <td>${res.get('hash', '')}</td>
           </tr>
         </py:for>
-            <caption>
-                This is a list of all known formats and datasets for <em>${c.pkg_dict.get('title', '')}</em>. If you know of another (CSV, SPARQL end-point etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
-            </caption>
+        <caption i18n:msg="">
+            If you know of another resource to add to this dataset such as a
+            CSV file, SPARQL end-point etc then please
+            <a href="${h.url_for(controller='package', action='edit', id=c.pkg.name)}"
+              class="action-resource-add"
+              >
+              add it to the list
+            </a>
+            .
+        </caption>
       </table>
       <table py:otherwise=""><tr><th>Resources</th><td>None given for this package.</td></tr></table>
       </py:choose>
