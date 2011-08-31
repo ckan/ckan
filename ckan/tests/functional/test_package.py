@@ -1444,6 +1444,7 @@ class TestNonActivePackages(TestPackageBase):
 
     @classmethod
     def setup_class(self):
+        setup_test_search_index()
         CreateTestData.create()
         self.non_active_name = u'test_nonactive'
         pkg = model.Package(name=self.non_active_name)
@@ -1465,6 +1466,7 @@ class TestNonActivePackages(TestPackageBase):
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
+        search.clear()
 
     def test_read(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
