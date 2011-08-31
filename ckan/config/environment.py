@@ -73,9 +73,6 @@ def load_environment(global_conf, app_conf):
             ckan_host, port = ckan_host.split(':')
         config['ckan.site_id'] = ckan_host
 
-    # hide search widgets if search is not enabled (save as boolean)
-    config['search_enabled'] = config.get('search_enabled', '').lower() != 'false'
-    
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
     config['pylons.h'] = ckan.lib.helpers

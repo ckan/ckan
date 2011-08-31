@@ -83,7 +83,7 @@
         </span>
       </div>
 
-      <div class="search-form" py:if="g.search_enabled">
+      <div class="search-form">
         <form action="${url(controller='package', action='search')}" method="GET">
           <input type="search" class="search" name="q" value="" autocomplete="off" results="5" placeholder="Search..."/>
         </form>
@@ -97,7 +97,7 @@
       <div class="menu">
         <ul>
           <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}</li>
-          <li py:if="g.search_enabled">${h.nav_link(c, _('Search'), controller='package', action='index', id=None, highlight_actions = 'search index')}</li>
+          <li>${h.nav_link(c, _('Search'), controller='package', action='index', id=None, highlight_actions = 'search index')}</li>
 <?python
 access_package_create = h.check_access('package_create')
 ?>
@@ -167,7 +167,7 @@ access_package_create = h.check_access('package_create')
           <h3 class="widget-title">Packages</h3>
           <div class="textwidget">
             <ul>
-                <li py:if="g.search_enabled">${h.nav_link(c, _('Search'), controller='package', action='search', id=None)}</li>                
+                <li>${h.nav_link(c, _('Search'), controller='package', action='search', id=None)}</li>                
                 <li py:if="access_package_create">${h.nav_link(c, _('Register a new Package'), controller='package', action='new', id=None)}</li>
                 <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
                 <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None))}</li>

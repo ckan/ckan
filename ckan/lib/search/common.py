@@ -25,12 +25,6 @@ def is_available():
 
     return True
 
-def is_enabled():
-    """
-    Return true if search is enabled in ckan config.
-    """
-    return config.get('search_enabled', True)
-
 def make_connection():
     if solr_user is not None and solr_password is not None:
         return SolrConnection(solr_url, http_user=solr_user, http_pass=solr_password)
