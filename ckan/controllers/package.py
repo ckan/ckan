@@ -106,7 +106,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
-        q = c.q = request.params.get('q') # unicode format (decoded from utf8)
+        q = c.q = request.params.get('q', u'') # unicode format (decoded from utf8)
         c.open_only = request.params.get('open_only', 0)
         c.downloadable_only = request.params.get('downloadable_only', 0)
         c.query_error = False
@@ -139,12 +139,12 @@ class PackageController(BaseController):
             return search_url(params)
 
         try:
-            # TODO: should c.fields be added to the data_dict?
             c.fields = []
             for (param, value) in request.params.items():
                 if not param in ['q', 'open_only', 'downloadable_only', 'page'] \
                         and len(value) and not param.startswith('_'):
                     c.fields.append((param, value))
+                    q += " %s: %s" % (param, value)
 
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
