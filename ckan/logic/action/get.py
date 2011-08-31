@@ -576,31 +576,25 @@ def package_search(context, data_dict):
 
     check_access('package_search', context, data_dict)
 
-    q=data_dict.get('q','')
-    fields=data_dict.get('fields',[])
-    facet_by=data_dict.get('facet_by',[])
-    limit=data_dict.get('limit',20)
-    offset=data_dict.get('offset',0)
-    return_objects=data_dict.get('return_objects',False)
-    filter_by_openness=data_dict.get('filter_by_openness',False)
-    filter_by_downloadable=data_dict.get('filter_by_downloadable',False)
+    # return a list of package ids
+    data_dict['fl'] = 'id'
 
     query = query_for(model.Package)
-    query.run(query=q,
-              fields=fields,
-              facet_by=facet_by,
-              limit=limit,
-              offset=offset,
-              return_objects=return_objects,
-              filter_by_openness=filter_by_openness,
-              filter_by_downloadable=filter_by_downloadable,
-              username=user)
+    query.run(data_dict)
 
     results = []
     for package in query.results:
-        result_dict = table_dictize(package, context)
-        result_dict = _extend_package_dict(result_dict,context)
+        # get the package object
+        pkg_query = session.query(model.PackageRevision)\
+            .filter(model.PackageRevision.id == package)\
+            .filter(and_(
+                model.PackageRevision.state == u'active', 
+                model.PackageRevision.current == True
+            ))
+        pkg = pkg_query.first()
 
+        result_dict = table_dictize(pkg, context)
+        result_dict = _extend_package_dict(result_dict,context)
         results.append(result_dict)
 
     return {
@@ -620,7 +614,7 @@ def _extend_package_dict(package_dict,context):
         package_dict['resources'] = resource_list_dictize(resources, context)
     else:
         package_dict['resources'] = []
-    license_id = package_dict['license_id']
+    license_id = package_dict.get('license_id')
     if license_id:
         try:
             isopen = model.Package.get_license_register()[license_id].isopen()

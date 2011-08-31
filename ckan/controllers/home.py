@@ -62,9 +62,7 @@ class HomeController(BaseController):
 
         try:
             query = query_for(model.Package)
-            query.run(query='*:*', facet_by=g.facets,
-                      limit=0, offset=0, username=c.user,
-                      order_by=None)
+            query.run({'q': '*:*', 'facet.field': g.facets})
             c.facets = query.facets
             c.package_count = query.count
         except SearchError, se:

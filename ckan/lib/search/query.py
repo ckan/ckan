@@ -342,7 +342,10 @@ class PackageSearchQuery(SearchQuery):
             if query.get('fl') in ['id', 'name']:
                 self.results = [r.get(query.get('fl')) for r in self.results]
 
-            self.facets = data['facet_counts'].get('facet_fields', {})
+            # get facets and convert facets list to a dict
+            self.facets = data.get('facet_counts', {}).get('facet_fields', {})
+            for field, values in self.facets.iteritems():
+                self.facets[field] = dict(zip(values[0::2], values[1::2]))
         except Exception, e:
             log.exception(e)
             raise SearchError(e)
