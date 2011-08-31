@@ -411,9 +411,35 @@ class ApiController(BaseController):
             try:
                 if register == 'resource': 
                     query = query_for(model.Resource)
+
+                    # resource search still uses ckan query parser
+                    options = QueryOptions()
+                    for k, v in params.items():
+                        if (k in DEFAULT_OPTIONS.keys()):
+                            options[k] = v
+                    options.update(params)
+                    options.username = c.user
+                    options.search_tags = False
+                    options.return_objects = False
+                    query_fields = MultiDict()
+                    for field, value in params.items():
+                        field = field.strip()
+                        if field in DEFAULT_OPTIONS.keys() or \
+                           field in IGNORE_FIELDS:
+                            continue
+                        values = [value]
+                        if isinstance(value, list):
+                            values = value
+                        for v in values:
+                            query_fields.add(field, v)
+
+                    results = query.run(
+                        query=params.get('q'), fields=query_fields, options=options
+                    )
                 else:
+                    # for package searches we can pass parameters straight to Solr
                     query = query_for(model.Package)
-                results = query.run(params)
+                    results = query.run(params)
                 return self._finish_ok(results)
             except SearchError, e:
                 log.exception(e)
