@@ -403,6 +403,11 @@ class ApiController(BaseController):
                 return self._finish_bad_request(
                     gettext('Could not read parameters: %r' % e))
 
+            # if using API v2, default to returning the package ID if
+            # no field list is specified
+            if register == 'package' and not params.get('fl'):
+                params['fl'] = 'id' if ver == '2' else 'name'
+
             try:
                 if register == 'resource': 
                     query = query_for(model.Resource)

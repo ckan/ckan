@@ -338,10 +338,9 @@ class PackageSearchQuery(SearchQuery):
             self.count = response.get('numFound', 0)
             self.results = response.get('docs', [])
 
-            # if just fetching the name, return a list of names instead
-            # of a dict
-            if query.get('fl') == 'name':
-                self.results = [r.get('name') for r in self.results]
+            # if just fetching the id or name, return a list instead of a dict
+            if query.get('fl') in ['id', 'name']:
+                self.results = [r.get(query.get('fl')) for r in self.results]
 
             self.facets = data['facet_counts'].get('facet_fields', {})
         except Exception, e:
