@@ -1,4 +1,5 @@
 from sqlalchemy import or_
+import json
 from pylons import config
 from paste.util.multidict import MultiDict 
 from paste.deploy.converters import asbool
@@ -9,6 +10,12 @@ import logging
 log = logging.getLogger(__name__)
 
 _open_licenses = None
+
+VALID_SOLR_PARAMETERS = set([
+    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt',
+    'filter_by_downloadable', 'filter_by_openness',
+    'facet', 'facet.mincount', 'facet.limit', 'facet.field'
+])
 
 class QueryOptions(dict):
     """
@@ -276,63 +283,71 @@ class PackageSearchQuery(SearchQuery):
 
         return [r.get('id') for r in data.results]
 
-    def _run(self):
-        fq = ""
+    def run(self, query):
+        # check that query keys are valid
+        if not set(query.keys()) <= VALID_SOLR_PARAMETERS:
+            invalid_params = [s for s in set(query.keys()) - VALID_SOLR_PARAMETERS]
+            raise SearchError("Invalid search parameters: %s" % invalid_params)
 
-        # Filter for options
-        if self.options.filter_by_downloadable:
-            fq += u" +res_url:[* TO *] " # not null resource URL 
-        if self.options.filter_by_openness:
+        # default query is to return all documents
+        q = query.get('q')
+        if not q or q == '""' or q == "''":
+            query['q'] = "*:*"
+
+        # number of results
+        query['rows'] = min(1000, int(query.get('rows', 10)))
+
+        # order by score if no 'sort' term given
+        order_by = query.get('sort')
+        if order_by == 'rank' or order_by is None: 
+            query['sort'] = 'score desc'
+
+        # show only results from this CKAN instance
+        fq = query.get('fq', '')
+        if not '+site_id:' in fq:
+            fq += ' +site_id:"%s"' % config.get('ckan.site_id')
+
+        # filter for package status       
+        if not '+state:' in fq:
+            fq += " +state:active"
+        query['fq'] = fq
+
+        # faceting
+        query['facet'] = query.get('facet', 'true')
+        query['facet.limit'] = query.get('facet.limit', config.get('search.facets.limit', '50'))
+        query['facet.mincount'] = query.get('facet.mincount', 1)
+
+        # return the package ID and search scores
+        query['fl'] = query.get('fl', 'name')
+        
+        # return results as json encoded string
+        query['wt'] = query.get('wt', 'json')
+
+        # check if filtering by downloadable or open license
+        if int(query.get('filter_by_downloadable', 0)):
+            query['fq'] += u" +res_url:[* TO *] " # not null resource URL 
+        if int(query.get('filter_by_openness', 0)):
             licenses = ["license_id:%s" % id for id in self.open_licenses]
             licenses = " OR ".join(licenses)
-            fq += " +(%s) " % licenses
-        
-        order_by = self.options.order_by
-        if order_by == 'rank' or order_by is None: 
-            order_by = 'score'
-
-        # sort in descending order if sorting by score
-        sort = 'desc' if order_by == 'score' else 'asc'
-
-        # show only results from this CKAN instance:
-        fq = fq + " +site_id:\"%s\" " % config.get('ckan.site_id')
-
-        # Filter for package status       
-        fq += "+state:active "
+            query['fq'] += " +(%s) " % licenses
             
-        # configurable for iati: full options list
-        facet_limit = int(config.get('search.facets.limit', '50'))
-
-        # query
-        query = self.query.query
-        if (not query) or (not query.strip()) or (query == '""') or (query == "''"):
-            # no query terms, i.e. all documents
-            query = '*:*'
-        
         conn = make_connection()
         try:
-            data = conn.query(query,
-                              fq=fq, 
-                              # make sure data.facet_counts is set:
-                              facet='true',
-                              facet_limit=facet_limit,
-                              facet_field=self.facet_by,
-                              facet_mincount=1,
-                              start=self.options.offset, 
-                              rows=self.options.limit,
-                              fields='id,score', 
-                              sort_order=sort, 
-                              sort=order_by)
-            
+            data = json.loads(conn.raw_query(**query))
+            response = data['response']
+            self.count = response.get('numFound', 0)
+            self.results = response.get('docs', [])
+
+            # if just fetching the name, return a list of names instead
+            # of a dict
+            if query.get('fl') == 'name':
+                self.results = [r.get('name') for r in self.results]
+
+            self.facets = data['facet_counts'].get('facet_fields', {})
         except Exception, e:
             log.exception(e)
             raise SearchError(e)
         finally:
             conn.close()
         
-        self.count = int(data.numFound)
-        scores = dict([(r.get('id'), r.get('score')) for r in data.results])
-        q = Authorizer().authorized_query(self.options.username, model.Package)
-        q = q.filter(model.Package.id.in_(scores.keys()))
-        self.facets = data.facet_counts.get('facet_fields', {})
-        self.results = sorted(q, key=lambda r: scores[r.id], reverse=True)
+        return {'results': self.results, 'count': self.count}
