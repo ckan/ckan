@@ -144,7 +144,7 @@ class PackageController(BaseController):
                 if not param in ['q', 'open_only', 'downloadable_only', 'page'] \
                         and len(value) and not param.startswith('_'):
                     c.fields.append((param, value))
-                    q += " %s: %s" % (param, value)
+                    q += ' %s: "%s"' % (param, value)
 
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
