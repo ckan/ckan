@@ -245,9 +245,12 @@ class UserController(BaseController):
 
             user_dict = get_action('user_show')(context,data_dict)
 
-            response.set_cookie("ckan_user", user_dict['name'])
-            response.set_cookie("ckan_display_name", user_dict['display_name'])
-            response.set_cookie("ckan_apikey", user_dict['apikey'])
+            # Max age of cookies: 50 years. Matches time set in templates/user/login.html
+            cookie_timeout=50*365*24*60*60
+
+            response.set_cookie("ckan_user", user_dict['name'], max_age=cookie_timeout)
+            response.set_cookie("ckan_display_name", user_dict['display_name'], max_age=cookie_timeout)
+            response.set_cookie("ckan_apikey", user_dict['apikey'], max_age=cookie_timeout)
             h.flash_success(_("Welcome back, %s") % user_dict['display_name'])
             h.redirect_to(controller='user', action='me', id=None)
         else:
