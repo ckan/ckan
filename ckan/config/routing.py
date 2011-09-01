@@ -26,6 +26,8 @@ def make_map():
     for plugin in routing_plugins:
         map = plugin.before_map(map)
         
+    map.connect('*url', controller='home', action='cors_options',
+        conditions=dict(method=['OPTIONS']))
     map.connect('home', '/', controller='home', action='index')
     map.connect('guide', config.get('guide_url', 'http://wiki.okfn.org/ckan/doc/'), _static=True)
     map.connect('license', '/license', controller='home', action='license')

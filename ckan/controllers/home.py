@@ -113,3 +113,7 @@ class HomeController(BaseController):
                 cache_.clear()
             return 'Cleared caches: %s' % ', '.join(wui_caches)
 
+    def cors_options(self, url=None):
+        # just return 200 OK and empty data
+        return ''
+
