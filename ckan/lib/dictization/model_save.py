@@ -320,6 +320,9 @@ def user_dict_save(user_dict, context):
     User = model.User
     if user:
         user_dict['id'] = user.id
+    
+    if 'password' in user_dict and not len(user_dict['password']):
+        del user_dict['password']
 
     user = table_dict_save(user_dict, User, context)
 
