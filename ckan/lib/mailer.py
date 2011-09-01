@@ -44,8 +44,9 @@ def _mail_recipient(recipient_name, recipient_email,
         server.sendmail(mail_from, [recipient_email], msg.as_string())
         server.quit()
     except Exception, e:
-        log.exception(e)
-        raise MailerException(e.message)
+        msg = '%r' % e
+        log.exception(msg)
+        raise MailerException(msg)
 
 def mail_recipient(recipient_name, recipient_email, subject, 
         body, headers={}):
