@@ -38,7 +38,15 @@
     <link rel="stylesheet" href="${g.site_url}/css/blueprint/ie.css" type="text/css" media="screen, projection">
   <![endif]-->
   <link rel="stylesheet" href="${g.site_url}/css/style.css?v=2" />
+  
   <script src="${g.site_url}/scripts/vendor/modernizr/1.7/modernizr.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/language.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.js"></script>
+  <!--script><![CDATA[window.jQuery || document.write("<script src='${g.site_url}/scripts/vendor/jquery/1.5.2/jquery.min.js'>\x3C/script>")]]></script-->
+
+  <!-- scripts concatenated and minified via ant build script-->
+  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
+  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.placeholder/jquery.placeholder.js"></script>
 
   <py:if test="defined('optional_head')">
     ${optional_head()}
@@ -188,14 +196,6 @@
   </div> <!-- eo #container -->
 
 
-  <script type="text/javascript" src="${g.site_url}/language.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.js"></script>
-  <!--script><![CDATA[window.jQuery || document.write("<script src='${g.site_url}/scripts/vendor/jquery/1.5.2/jquery.min.js'>\x3C/script>")]]></script-->
-
-
-  <!-- scripts concatenated and minified via ant build script-->
-  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
-  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.placeholder/jquery.placeholder.js"></script>
   <py:if test="defined('optional_footer')">
     ${optional_footer()}
   </py:if>
