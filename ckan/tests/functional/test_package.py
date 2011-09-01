@@ -550,7 +550,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         print 'MAIN', main_html
         assert 'This is an old revision of this package' in main_html
         assert 'at 2011-01-01 00:00' in main_html
-        self.check_named_element(main_html, 'a', 'href="/package/%s"' % self.pkg_name)
+        self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title1' in pkg_html
         assert 'key2' not in pkg_html
@@ -568,7 +568,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         print 'MAIN', main_html
         assert 'This is an old revision of this package' in main_html
         assert 'at 2011-01-02 00:00' in main_html
-        self.check_named_element(main_html, 'a', 'href="/package/%s"' % self.pkg_name)
+        self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title2' in pkg_html
         assert 'key2' in pkg_html
@@ -587,7 +587,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'This is an old revision of this package' not in main_html
         assert 'This is the current revision of this package' in main_html
         assert 'at 2011-01-03 00:00' in main_html
-        self.check_named_element(main_html, 'a', 'href="/package/%s"' % self.pkg_name)
+        self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title3' in pkg_html
         assert 'key2' in pkg_html
@@ -792,9 +792,9 @@ u with umlaut \xc3\xbc
         res = fv.submit('save', status=400)
 
     def test_redirect_after_edit_using_param(self):
-        return_url = 'http://random.site.com/package/<NAME>?test=param'
+        return_url = 'http://random.site.com/dataset/<NAME>?test=param'
         # It's useful to know that this url encodes to:
-        # 'http%3A%2F%2Frandom.site.com%2Fpackage%2F%3CNAME%3E%3Ftest%3Dparam'
+        # 'http%3A%2F%2Frandom.site.com%2Fdataset%2F%3CNAME%3E%3Ftest%3Dparam'
         expected_redirect = return_url
         self._check_redirect(return_url, expected_redirect,
                              pkg_name_to_edit=self.editpkg_name)
@@ -1166,9 +1166,9 @@ class TestNew(TestPackageForm):
         self._assert_form_errors(res)
 
     def test_redirect_after_new_using_param(self):
-        return_url = 'http://random.site.com/package/<NAME>?test=param'
+        return_url = 'http://random.site.com/dataset/<NAME>?test=param'
         # It's useful to know that this url encodes to:
-        # 'http%3A%2F%2Frandom.site.com%2Fpackage%2F%3CNAME%3E%3Ftest%3Dparam'
+        # 'http%3A%2F%2Frandom.site.com%2Fdataset%2F%3CNAME%3E%3Ftest%3Dparam'
         expected_redirect = return_url
         self._check_redirect(return_url, expected_redirect,
                              pkg_name_to_edit='')
@@ -1648,7 +1648,7 @@ class TestEtags(PylonsTestCase, TestPackageBase):
     def test_etags_in_response(self):
         c.user = 'annafan'
         c.userobj = model.User.by_name(u'annafan')
-        res = self.app.get('/package/annakarenina',
+        res = self.app.get('/dataset/annakarenina',
                            extra_environ={'REMOTE_USER':c.user})
         anna_hash = str(PackageController._pkg_cache_key(self.anna))
         self.assert_equal(res.header_dict['ETag'], anna_hash)
@@ -1665,7 +1665,7 @@ class TestAutocomplete(PylonsTestCase, TestPackageBase):
 
     def test_package_autocomplete(self):
         query = 'a'
-        res = self.app.get('/package/autocomplete?q=%s' % query)
+        res = self.app.get('/dataset/autocomplete?q=%s' % query)
         
         expected = ['A Wonderful Story (warandpeace)|warandpeace','annakarenina|annakarenina']
         received = sorted(res.body.split('\n'))

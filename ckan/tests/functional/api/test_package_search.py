@@ -27,7 +27,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
                        'geographic_coverage':'England, Wales'},
         }
         CreateTestData.create_arbitrary(self.package_fixture_data)
-        self.base_url = self.offset('/search/package')
+        self.base_url = self.offset('/search/dataset')
 
     @classmethod
     def teardown_class(cls):

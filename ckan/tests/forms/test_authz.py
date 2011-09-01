@@ -32,7 +32,7 @@ class TestRender(object):
         linker = ckan.forms.authz.get_package_linker('delete')
         pr = anna.roles[0]
         out = linker(pr)
-        assert '<a href="/package/authz/%s' % pr.package.name in out, out
+        assert '<a href="/dataset/authz/%s' % pr.package.name in out, out
 
 
 class TestSync:

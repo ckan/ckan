@@ -36,6 +36,7 @@ def make_map():
     # CKAN API versioned.
     register_list = [
             'package',
+            'dataset',
             'resource',
             'tag',
             'group',
@@ -152,7 +153,7 @@ def make_map():
 
     map.connect('/api/2/util/user/autocomplete', controller='api',
         action='user_autocomplete')
-    map.connect('/api/2/util/package/create_slug', controller='api', action='create_slug',
+    map.connect('/api/2/util/dataset/create_slug', controller='api', action='create_slug',
                 conditions=dict(method=['GET']))
     map.connect('/api/2/util/tag/autocomplete', controller='api', action='tag_autocomplete',
                 conditions=dict(method=['GET']))
@@ -166,15 +167,17 @@ def make_map():
     ## /END API
     ###########
 
-    map.redirect("/packages", "/package")
-    map.redirect("/packages/{url:.*}", "/package/{url}")
-    map.connect('/package', controller='package', action='search')
+    map.redirect("/packages", "/dataset")
+    map.redirect("/packages/{url:.*}", "/dataset/{url}")
+    map.redirect("/package", "/dataset")
+    map.redirect("/package/{url:.*}", "/dataset/{url}")
+    map.connect('/dataset', controller='package', action='search')
 
     ##to get back formalchemy uncomment these lines
     ##map.connect('/package/new', controller='package_formalchemy', action='new')
     ##map.connect('/package/edit/{id}', controller='package_formalchemy', action='edit')
 
-    map.connect('/package/{action}', controller='package',
+    map.connect('/dataset/{action}', controller='package',
         requirements=dict(action='|'.join([
             'list',
             'new',
@@ -182,9 +185,9 @@ def make_map():
             'search'
             ]))
         )
-    map.connect('/package', controller='package', action='index')
-    map.connect('/package/{action}/{id}/{revision}', controller='package', action='read_ajax')
-    map.connect('/package/{action}/{id}', controller='package',
+    map.connect('/dataset', controller='package', action='index')
+    map.connect('/dataset/{action}/{id}/{revision}', controller='package', action='read_ajax')
+    map.connect('/dataset/{action}/{id}', controller='package',
         requirements=dict(action='|'.join([
         'edit',
         'authz',
@@ -193,7 +196,7 @@ def make_map():
         'history_ajax',
         ]))
         )
-    map.connect('/package/{id}', controller='package', action='read')
+    map.connect('/dataset/{id}', controller='package', action='read')
     # group
     map.redirect("/groups", "/group")
     map.redirect("/groups/{url:.*}", "/group/{url}")
