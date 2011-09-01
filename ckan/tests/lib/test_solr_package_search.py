@@ -159,14 +159,14 @@ class TestSearch(TestController):
         all_pkg_count = all_results['count']
 
         # rank
-        # TODO: fix this test
-        # options = search.QueryOptions()
-        # options.order_by = 'rank'
-        # result = search.query_for(model.Package).run(query='penguin', options=options)
-        # pkgs = result['results']
-        # fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
-        # assert fields[0] == 'usa-courts-gov', fields # has penguin three times
-        # assert pkgs == all_pkgs, pkgs #default ordering        
+        query = {
+            'q': 'government',
+            'sort': 'rank'
+        }
+        result = search.query_for(model.Package).run(query)
+        pkgs = result['results']
+        fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
+        assert fields[0] == 'gils', fields # has government in tags, title and notes
 
         # name
         query = {
@@ -391,8 +391,10 @@ class TestRank(TestController):
     def setup_class(cls):
         setup_test_search_index()
         init_data = [{'name':u'test1-penguin-canary',
+                      'title':u'penguin',
                       'tags':u'canary goose squirrel wombat wombat'},
                      {'name':u'test2-squirrel-squirrel-canary-goose',
+                      'title':u'squirrel goose',
                       'tags':u'penguin wombat'},
                      ]
         CreateTestData.create_arbitrary(init_data)
@@ -423,9 +425,5 @@ class TestRank(TestController):
         self._do_search(u'canary', self.pkg_names)
 
     def test_1_weighting(self):
-        # TODO: fix this test
-        from ckan.tests import SkipTest
-        raise SkipTest
-
         self._do_search(u'penguin', self.pkg_names)
         self._do_search(u'goose', self.pkg_names[::-1])

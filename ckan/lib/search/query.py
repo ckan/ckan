@@ -4,7 +4,6 @@ from pylons import config
 from paste.util.multidict import MultiDict 
 from paste.deploy.converters import asbool
 from ckan import model
-from ckan.authz import Authorizer
 from common import make_connection, SearchError
 import logging
 log = logging.getLogger(__name__)
@@ -12,10 +11,14 @@ log = logging.getLogger(__name__)
 _open_licenses = None
 
 VALID_SOLR_PARAMETERS = set([
-    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt',
+    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf',
     'filter_by_downloadable', 'filter_by_openness',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field'
 ])
+
+# for (solr) package searches, this specifies the fields that are searched 
+# and their relative weighting
+QUERY_FIELDS = "name^4 title^4 tags^2 groups^2 text"
 
 class QueryOptions(dict):
     """
@@ -300,7 +303,7 @@ class PackageSearchQuery(SearchQuery):
         # order by score if no 'sort' term given
         order_by = query.get('sort')
         if order_by == 'rank' or order_by is None: 
-            query['sort'] = 'score desc'
+            query['sort'] = 'score desc, name asc'
 
         # show only results from this CKAN instance
         fq = query.get('fq', '')
@@ -330,7 +333,12 @@ class PackageSearchQuery(SearchQuery):
             licenses = ["license_id:%s" % id for id in self.open_licenses]
             licenses = " OR ".join(licenses)
             query['fq'] += " +(%s) " % licenses
-            
+
+        # query field weighting
+        query['defType'] = 'edismax'
+        query['tie'] = '0.5'
+        query['qf'] = query.get('qf', QUERY_FIELDS)
+
         conn = make_connection()
         try:
             data = json.loads(conn.raw_query(**query))
