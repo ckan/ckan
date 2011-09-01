@@ -23,7 +23,6 @@ from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
-from ckan.plugins import PluginImplementations, IPackageController
 from ckan.lib.dictization import table_dictize
 import ckan.forms
 import ckan.authz
@@ -97,7 +96,6 @@ class PackageController(BaseController):
     ## end hooks
 
     authorizer = ckan.authz.Authorizer()
-    extensions = PluginImplementations(IPackageController)
 
     def search(self):
         try:
@@ -252,9 +250,6 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
-
-        for item in self.extensions:
-            item.read(c.pkg)
 
         #render the package
         PackageSaver().render_package(c.pkg_dict)

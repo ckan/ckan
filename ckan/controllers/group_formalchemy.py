@@ -16,9 +16,14 @@ import ckan.forms
 from ckan.lib.base import ValidationException
 from ckan.controllers.group import GroupController
 
+from ckan.plugins import PluginImplementations, IGroupController
+
 log = logging.getLogger(__name__)
 
 class GroupFormalchemyController(GroupController):
+
+    def __init__(self):
+        self.extensions = PluginImplementations(IGroupController)
 
     def new(self):
         record = model.Group
