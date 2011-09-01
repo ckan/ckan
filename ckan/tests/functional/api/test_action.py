@@ -23,9 +23,7 @@ class TestAction(WsgiAppCase):
     @classmethod
     def setup_class(self):
         CreateTestData.create()
-
         self.sysadmin_user = model.User.get('testsysadmin')
-
         self.normal_user = model.User.get('annafan')
 
     @classmethod
@@ -461,6 +459,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'q':'r'})
         res = self.app.post('/api/action/tag_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
+        print res_obj
         assert res_obj == {
             'help': 'Returns tags containing the provided string', 
             'result': ['russian'], 

@@ -17,7 +17,7 @@ from ckan.logic.schema import package_form_schema
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import etag_cache, response, redirect, gettext
 from ckan.authz import Authorizer
-from ckan.lib.search import SearchError
+from ckan.lib.search import SearchIndexError, SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
@@ -106,9 +106,9 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
-        q = c.q = request.params.get('q') # unicode format (decoded from utf8)
-        c.open_only = request.params.get('open_only')
-        c.downloadable_only = request.params.get('downloadable_only')
+        q = c.q = request.params.get('q', u'') # unicode format (decoded from utf8)
+        c.open_only = request.params.get('open_only', 0)
+        c.downloadable_only = request.params.get('downloadable_only', 0)
         c.query_error = False
         try:
             page = int(request.params.get('page', 1))
@@ -144,19 +144,19 @@ class PackageController(BaseController):
                 if not param in ['q', 'open_only', 'downloadable_only', 'page'] \
                         and len(value) and not param.startswith('_'):
                     c.fields.append((param, value))
+                    q += ' %s: "%s"' % (param, value)
 
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
 
-            data_dict = {'q':q,
-                         'fields':c.fields,
-                         'facet_by':g.facets,
-                         'limit':limit,
-                         'offset':(page-1)*limit,
-                         'return_objects':True,
-                         'filter_by_openness':c.open_only,
-                         'filter_by_downloadable':c.downloadable_only,
-                        }
+            data_dict = {
+                'q':q,
+                'facet.field':g.facets,
+                'rows':limit,
+                'start':(page-1)*limit,
+                'filter_by_openness':c.open_only,
+                'filter_by_downloadable':c.downloadable_only,
+            }
 
             query = get_action('package_search')(context,data_dict)
 
@@ -473,6 +473,8 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
+        except SearchIndexError:
+            abort(500, _(u'Unable to add package to search index.'))
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -506,6 +508,8 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
+        except SearchIndexError:
+            abort(500, _(u'Unable to update search index.'))
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary

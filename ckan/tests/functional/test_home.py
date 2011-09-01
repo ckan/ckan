@@ -7,11 +7,12 @@ import ckan.model as model
 from ckan.tests import *
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
-from ckan.tests import search_related
+from ckan.tests import search_related, setup_test_search_index
 
 class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(cls):
+        setup_test_search_index()
         PylonsTestCase.setup_class()
         model.repo.init_db()
         CreateTestData.create()

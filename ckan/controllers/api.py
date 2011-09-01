@@ -7,7 +7,7 @@ from ckan.lib.base import BaseController, response, c, _, gettext, request
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.rating
-from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
+from ckan.lib.search import query_for, QueryOptions, SearchIndexError, SearchError, DEFAULT_OPTIONS
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
@@ -282,6 +282,9 @@ class ApiController(BaseController):
             log.error('Format incorrect: %s' % request_data)
             #TODO make better error message
             return self._finish(400, _(u'Integrity Error') % request_data)
+        except SearchIndexError:
+            log.error('Unable to add package to search index: %s' % request_data)
+            return self._finish(500, _(u'Unable to add package to search index') % request_data)
         except:
             model.Session.rollback()
             raise
@@ -328,6 +331,9 @@ class ApiController(BaseController):
             log.error('Format incorrect: %s' % request_data)
             #TODO make better error message
             return self._finish(400, _(u'Integrity Error') % request_data)
+        except SearchIndexError:
+            log.error('Unable to update search index: %s' % request_data)
+            return self._finish(500, _(u'Unable to update search index') % request_data)
 
     def delete(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
@@ -392,42 +398,48 @@ class ApiController(BaseController):
             return self._finish_ok([rev.id for rev in revs])
         elif register == 'package' or register == 'resource':
             try:
-                params = self._get_search_params(request.params)
+                params = dict(self._get_search_params(request.params))
             except ValueError, e:
                 return self._finish_bad_request(
                     gettext('Could not read parameters: %r' % e))
-            options = QueryOptions()
-            for k, v in params.items():
-                if (k in DEFAULT_OPTIONS.keys()):
-                    options[k] = v
-            options.update(params)
-            options.username = c.user
-            options.search_tags = False
-            options.return_objects = False
-            
-            query_fields = MultiDict()
-            for field, value in params.items():
-                field = field.strip()
-                if field in DEFAULT_OPTIONS.keys() or \
-                   field in IGNORE_FIELDS:
-                    continue
-                values = [value]
-                if isinstance(value, list):
-                    values = value
-                for v in values:
-                    query_fields.add(field, v)
-            
-            if register == 'package':
-                options.ref_entity_with_attr = 'id' if ver == '2' else 'name'
+
+            # if using API v2, default to returning the package ID if
+            # no field list is specified
+            if register == 'package' and not params.get('fl'):
+                params['fl'] = 'id' if ver == '2' else 'name'
+
             try:
-                backend = None
                 if register == 'resource': 
-                    query = query_for(model.Resource, backend='sql')
+                    query = query_for(model.Resource)
+
+                    # resource search still uses ckan query parser
+                    options = QueryOptions()
+                    for k, v in params.items():
+                        if (k in DEFAULT_OPTIONS.keys()):
+                            options[k] = v
+                    options.update(params)
+                    options.username = c.user
+                    options.search_tags = False
+                    options.return_objects = False
+                    query_fields = MultiDict()
+                    for field, value in params.items():
+                        field = field.strip()
+                        if field in DEFAULT_OPTIONS.keys() or \
+                           field in IGNORE_FIELDS:
+                            continue
+                        values = [value]
+                        if isinstance(value, list):
+                            values = value
+                        for v in values:
+                            query_fields.add(field, v)
+
+                    results = query.run(
+                        query=params.get('q'), fields=query_fields, options=options
+                    )
                 else:
+                    # for package searches we can pass parameters straight to Solr
                     query = query_for(model.Package)
-                results = query.run(query=params.get('q'), 
-                                    fields=query_fields, 
-                                    options=options)
+                    results = query.run(params)
                 return self._finish_ok(results)
             except SearchError, e:
                 log.exception(e)
