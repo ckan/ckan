@@ -221,7 +221,7 @@ class ApiTestCase(object):
 
         # Todo: What is the deal with ckan_url? And should this use IDs rather than names?
         assert 'ckan_url' in msg
-        assert '"ckan_url": "http://test.ckan.net/package/annakarenina"' in msg, msg
+        assert '"ckan_url": "http://test.ckan.net/dataset/annakarenina"' in msg, msg
 
     def assert_msg_represents_roger(self, msg):
         assert 'roger' in msg, msg
