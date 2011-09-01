@@ -22,7 +22,7 @@ class TestRelationships(FunctionalTestCase):
             return res
         res = read_package(u'homer')
         self.check_named_element(res, 'li', 'is a child of', 'abraham')
-        self.check_named_element(res, 'li', 'is a child of', '<a href="/package/abraham">abraham</a>')
+        self.check_named_element(res, 'li', 'is a child of', '<a href="/dataset/abraham">abraham</a>')
         self.check_named_element(res, 'li', 'is a parent of', 'bart')
         self.check_named_element(res, 'li', 'is a parent of', 'lisa')
         self.check_named_element(res, 'li', 'has derivation', 'homer_derived')

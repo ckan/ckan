@@ -71,11 +71,11 @@ class ApiTestCase(object):
     def package_offset(self, package_name=None):
         if package_name is None:
             # Package Register
-            return self.offset('/rest/package')
+            return self.offset('/rest/dataset')
         else:
             # Package Entity
             package_ref = self.package_ref_from_name(package_name)
-            return self.offset('/rest/package/%s' % package_ref)
+            return self.offset('/rest/dataset/%s' % package_ref)
 
     def package_ref_from_name(self, package_name):
         package = self.get_package_by_name(unicode(package_name))
@@ -140,18 +140,18 @@ class ApiTestCase(object):
         package_1_ref = self.package_ref_from_name(package_1_name)
         if package_2_name is None:
             if not relationship_type:
-                return self.offset('/rest/package/%s/relationships' % \
+                return self.offset('/rest/dataset/%s/relationships' % \
                                    package_1_ref)
             else:
-                return self.offset('/rest/package/%s/%s' %
+                return self.offset('/rest/dataset/%s/%s' %
                                    (package_1_ref, relationship_type))
         else:
             package_2_ref = self.package_ref_from_name(package_2_name)
             if not relationship_type:
-                return self.offset('/rest/package/%s/relationships/%s' % \
+                return self.offset('/rest/dataset/%s/relationships/%s' % \
                                    (package_1_ref, package_2_ref))
             else:
-                return self.offset('/rest/package/%s/%s/%s' % \
+                return self.offset('/rest/dataset/%s/%s/%s' % \
                                    (package_1_ref,
                                     relationship_type,
                                     package_2_ref))
