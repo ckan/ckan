@@ -58,22 +58,18 @@ class HomeController(BaseController):
         cache_key = self._home_cache_key()
         etag_cache(cache_key)
         c.query_error = False
-        c.fields = []
 
-        try:
-            query = query_for(model.Package)
-            query.run({'q': '*:*', 'facet.field': g.facets})
-            c.facets = query.facets
-            c.package_count = query.count
-        except SearchError, se:
-            c.query_error = True
-            c.facets = {}
-            c.package_count = 0
+        query = query_for(model.Package)
+        query.run({'q': '*:*', 'facet.field': g.facets})
+        c.fields = []
+        c.facets = query.facets
+        c.package_count = query.count
 
         c.latest_packages = get_action('current_package_list_with_resources')(
             {'model': model, 'user': c.user},
             {'limit': 5}
         )      
+
         return render('home/index.html', cache_key=cache_key,
                       cache_expire=cache_expires)
 

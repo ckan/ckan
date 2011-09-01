@@ -35,9 +35,7 @@ class UsersField(common.ConfiguredField):
 # For new_package_group_fs
 class UsersRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
-        # TODO: Will make sense when we have user names
-        #kwargs['class'] = 'autocomplete'
-        #kwargs['data-autocomplete-url'] = h.url_for(controller='user', action='autocomplete', id=None)
+        kwargs['class'] = 'autocomplete-user'
         html = fa_h.text_field(self.name, **kwargs)
         return html
 
