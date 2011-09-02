@@ -64,14 +64,17 @@
           <label for="openid_identifier">OpenID Identifier:</label>
           <input id="openid_identifier" name="openid_identifier" type="text" value="http://" />
         </div>
-      <p i18n:msg="">
-        OpenID is service that allows you to log-on to many different websites
-        using a single identity. Find out <a href="http://openid.net/what/">more
-        about OpenID</a> and <a href="http://openid.net/get/">how to get an
-        OpenID enabled account</a>. Probably the simplest way is sign up with a
-        free OpenID provider such as <a 
-        href="https://www.myopenid.com/">https://www.myopenid.com/</a>.
-      </p>
+      <div py:if="g.openid_enabled">
+        <h3>Don't have an OpenID?</h3>
+        <p i18n:msg="">
+          OpenID is service that allows you to log-on to many different websites
+          using a single identity. Find out <a href="http://openid.net/what/">more
+          about OpenID</a> and <a href="http://openid.net/get/">how to get an
+          OpenID enabled account</a>. Probably the simplest way is sign up with a
+          free OpenID provider such as <a 
+          href="https://www.myopenid.com/">https://www.myopenid.com/</a>.
+        </p>
+      </div>
       </fieldset>
       <input id="openid_submit" type="submit" value="Sign in"/>
     </form>

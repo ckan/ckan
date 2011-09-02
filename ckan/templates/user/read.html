@@ -17,8 +17,8 @@
     <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
       <h3>Activity</h3>
       <ul>
-        <li><strong>Number of edits:</strong> ${c.num_edits}</li>
-        <li><strong>Number of packages administered:</strong> ${c.num_pkg_admin}</li>
+        <li><strong>Number of edits:</strong> ${c.user_dict['number_of_edits']}</li>
+        <li><strong>Number of packages administered:</strong> ${c.user_dict['number_administered_packages']}</li>
       </ul>
     </li>
   </py:match>

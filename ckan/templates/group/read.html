@@ -6,6 +6,9 @@
   <py:def function="page_title">${c.group.display_name} - Groups</py:def>
 
   <py:def function="page_heading">
+      <py:if test="not c.group.title">
+        <em>No Title</em>
+      </py:if>
       ${c.group.title}
   </py:def>
   

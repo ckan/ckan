@@ -54,7 +54,7 @@ class TestGroup(FunctionalTestCase):
     def test_index(self):
         offset = url_for(controller='group')
         res = self.app.get(offset)
-        assert '<h2>Groups</h2>' in res, res
+        assert '<h1 class="page_heading">Groups' in res, res
         group_count = model.Session.query(model.Group).count()
         assert 'There are %s groups.' % group_count in self.strip_tags(res)
         groupname = 'david'
@@ -77,7 +77,7 @@ class TestGroup(FunctionalTestCase):
             main_res = self.main_div(res)
             assert title in res, res
             #assert 'edit' not in main_res, main_res
-            assert 'Administrators:' in main_res, main_res
+            assert 'Administrators:' in res, res
             assert 'russianfan' in main_res, main_res
             assert name in res, res
             assert 'There are 2 packages in this group' in self.strip_tags(main_res), main_res
