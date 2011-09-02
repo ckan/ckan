@@ -50,7 +50,7 @@
         <li>
           <h3>Tags</h3>
           ${tag_list(c.pkg_dict.get('tags', ''))}
-          <span class="widget_action" py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
+          <span class="widget_action" py:if="h.check_access('package_update',{'id':c.pkg.id})">
             ${h.subnav_link(c, 'add tags &raquo;', controller='package', action='edit', id=c.pkg.name)}
           </span>
         </li>
@@ -67,12 +67,14 @@
             <py:if test="not c.pkg.groups">
                Groups are collections of packages maintained by users of ${g.site_title}. This package has not been added to any groups yet.
             </py:if>
-            <p class="widget_action" py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
+
+
+            <p class="widget_action" py:if="h.check_access('package_update',{'id':c.pkg.id})">
               ${h.subnav_link(c, 'add to a group &raquo;', controller='package', action='edit', id=c.pkg.name)}        
             </p>
           </p>
         </li>
-        <li py:if="h.am_authorized(c, actions.CHANGE_STATE, c.pkg)">
+        <li py:if="h.check_access('package_update',{'id':c.pkg.id})">
           <li><h3>State</h3> ${c.pkg.state}</li>
         </li>
         <li py:if="c.harvest_catalogue_name">
