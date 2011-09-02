@@ -480,7 +480,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
     def test_read_normally(self):
         res = self.app.get(self.offset, status=200)
         pkg_html = self.named_div('package', res)
-        side_html = self.named_div('primary', res)
+        side_html = self.named_div('sidebar', res)
         print 'PKG', pkg_html
         assert 'title3' in pkg_html
         assert 'key2' in pkg_html
@@ -493,7 +493,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         offset = self.offset + self.date1.strftime('@%Y-%m-%d')
         res = self.app.get(offset, status=200)
         pkg_html = self.named_div('package', res)
-        side_html = self.named_div('primary', res)
+        side_html = self.named_div('sidebar', res)
         print 'PKG', pkg_html
         assert 'title1' in pkg_html
         assert 'key2' not in pkg_html
@@ -507,7 +507,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         offset = self.offset + date2_plus_3h.strftime('@%Y-%m-%d')
         res = self.app.get(offset, status=200)
         pkg_html = self.named_div('package', res)
-        side_html = self.named_div('primary', res)
+        side_html = self.named_div('sidebar', res)
         print 'PKG', pkg_html
         assert 'title2' in pkg_html
         assert 'key2' in pkg_html
@@ -520,7 +520,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         offset = self.offset + self.date3.strftime('@%Y-%m-%d-%H-%M')
         res = self.app.get(offset, status=200)
         pkg_html = self.named_div('package', res)
-        side_html = self.named_div('primary', res)
+        side_html = self.named_div('sidebar', res)
         print 'PKG', pkg_html
         assert 'title3' in pkg_html
         assert 'key2' in pkg_html
@@ -546,7 +546,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         res = self.app.get(offset, status=200)
         main_html = self.main_div(res)
         pkg_html = self.named_div('package', res)
-        side_html = self.named_div('primary', res)
+        side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
         assert 'This is an old revision of this package' in main_html
         assert 'at 2011-01-01 00:00' in main_html
@@ -564,7 +564,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         res = self.app.get(offset, status=200)
         main_html = self.main_div(res)
         pkg_html = self.named_div('package', res)
-        side_html = self.named_div('primary', res)
+        side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
         assert 'This is an old revision of this package' in main_html
         assert 'at 2011-01-02 00:00' in main_html
@@ -580,9 +580,9 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
     def test_read_revision3(self):
         offset = self.offset + '@%s' % self.revision_ids[2]
         res = self.app.get(offset, status=200)
-        main_html = self.main_div(res)
+        main_html = self.main_dif(res)
         pkg_html = self.named_div('package', res)
-        side_html = self.named_div('primary', res)
+        side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
         assert 'This is an old revision of this package' not in main_html
         assert 'This is the current revision of this package' in main_html
