@@ -6,14 +6,14 @@
   >
 
   <py:match path="minornavigation">
-    <py:if test="c.pkg">
+    <py:if test="c.pkg and not c.is_preview">
     <ul class="tabbed">
       <li>${h.subnav_link(c, h.icon('package') + _('View'), controller='package', action='read', id=c.pkg.name)}</li>
-      <li py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
+      <li py:if="h.check_access('package_update',{'id':c.pkg.id})">
           ${h.subnav_link(c, h.icon('package_edit') + _('Edit'), controller='package', action='edit', id=c.pkg.name)}
       </li>
       <li>${h.subnav_link(c, h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
-      <li py:if="h.am_authorized(c, actions.EDIT_PERMISSIONS, c.pkg)">
+      <li py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
         ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
       </li>
     </ul>

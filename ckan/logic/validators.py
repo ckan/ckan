@@ -2,6 +2,8 @@ import re
 from pylons.i18n import _, ungettext, N_, gettext
 from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unflatten
 from ckan.authz import Authorizer
+from ckan.logic import check_access, NotAuthorized
+
 
 def package_id_not_changed(value, context):
 
@@ -161,9 +163,16 @@ def ignore_not_admin(key, data, errors, context):
     if user and Authorizer.is_sysadmin(user):
         return
 
+    authorized = False
     pkg = context.get('package')
-    if (user and pkg and 
-        Authorizer().is_authorized(user, model.Action.CHANGE_STATE, pkg)):
+    if pkg:
+        try:
+            check_access('package_change_state',context)
+            authorized = True
+        except NotAuthorized:
+            authorized = False
+    
+    if (user and pkg and authorized):
         return
 
     data.pop(key)

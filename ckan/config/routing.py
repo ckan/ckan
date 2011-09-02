@@ -26,6 +26,8 @@ def make_map():
     for plugin in routing_plugins:
         map = plugin.before_map(map)
         
+    map.connect('*url', controller='home', action='cors_options',
+        conditions=dict(method=['OPTIONS']))
     map.connect('home', '/', controller='home', action='index')
     map.connect('guide', config.get('guide_url', 'http://wiki.okfn.org/ckan/doc/'), _static=True)
     map.connect('license', '/license', controller='home', action='license')
@@ -155,6 +157,8 @@ def make_map():
     map.connect('/api/2/util/package/create_slug', controller='api', action='create_slug',
                 conditions=dict(method=['GET']))
     map.connect('/api/2/util/tag/autocomplete', controller='api', action='tag_autocomplete',
+                conditions=dict(method=['GET']))
+    map.connect('/api/2/util/resource/format_autocomplete', controller='api', action='format_autocomplete',
                 conditions=dict(method=['GET']))
 
     map.connect('/api/2/util/authorizationgroup/autocomplete', controller='api',

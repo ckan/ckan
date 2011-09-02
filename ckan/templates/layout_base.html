@@ -22,7 +22,7 @@
   </py:otherwise>
   </py:choose>
 
-  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="${g.site_url}/scripts/vendor/jqueryui/1.8.11/css/ui-lightness/jquery-ui.css" type="text/css" media="screen, print" />
   <link rel="stylesheet" href="${g.site_url}/css/style.css" type="text/css" media="screen, print" />
 
   <!--[if IE]>
@@ -30,10 +30,10 @@
   <![endif]-->
   
   <script type="text/javascript" src="${g.site_url}/language.js"></script>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
-  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
-  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.placeholder/jquery.placeholder.js"></script>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery/1.5.2/jquery.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.cookie/jquery.cookie.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.placeholder/jquery.placeholder.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jqueryui/1.8.11/jquery-ui.min.js"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/application.js?lang=${c.locale}"></script>
   
   <script type="text/javascript">
@@ -51,8 +51,9 @@
   </py:if>
 </head>
 
-<body class="${value_of('body_class', default=lambda: c.body_class)()}">
-
+<body class="${value_of('body_class', default=lambda: c.body_class)()}
+             ${request.environ.get('pylons.routes_dict', {}).get('action')} 
+             ${request.environ.get('pylons.routes_dict', {}).get('controller').split(':')[-1]}">
 <div id="wrapper" class="hfeed">
   <div id="header">
   <div id="masthead">
@@ -98,9 +99,9 @@
           <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}</li>
           <li>${h.nav_link(c, _('Search'), controller='package', action='index', id=None, highlight_actions = 'search index')}</li>
 <?python
-    am_authorized_package_create = h.am_authorized(c, actions.PACKAGE_CREATE)
+access_package_create = h.check_access('package_create')
 ?>
-          <li py:if="am_authorized_package_create">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</li>
+          <li py:if="access_package_create">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</li>
           <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
           <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None, highlight_actions = 'new index')}</li>
           <li>${h.nav_link(c, _('About'), controller='home', action='about', id=None)}</li>
@@ -167,7 +168,7 @@
           <div class="textwidget">
             <ul>
                 <li>${h.nav_link(c, _('Search'), controller='package', action='search', id=None)}</li>                
-                <li py:if="am_authorized_package_create">${h.nav_link(c, _('Register a new Package'), controller='package', action='new', id=None)}</li>
+                <li py:if="access_package_create">${h.nav_link(c, _('Register a new Package'), controller='package', action='new', id=None)}</li>
                 <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
                 <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None))}</li>
                 <li>${h.link_to(_('API Docs'), 'http://wiki.ckan.net/API')}</li>
@@ -188,9 +189,9 @@
             <ul>
               <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
               <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}</li>
-              <li py:if="h.am_authorized(c, actions.GROUP_CREATE)">${h.nav_link(c, _('Create a new Group'), controller='group', action='new', id=None)}</li>
+              <li py:if="h.check_access('group_create')">${h.nav_link(c, _('Create a new Group'), controller='group', action='new', id=None)}</li>
               <li>${h.nav_link(c, _('Authorization Groups'), controller='authorization_group', action='index', id=None)}</li>
-              <li class="page_item" py:if="h.am_authorized(c, actions.AUTHZ_GROUP_CREATE)">${h.nav_link(c, _('Create a new Authorization Group'), controller='authorization_group', action='new', id=None)}</li>
+              <li class="page_item" py:if="h.check_access('authorization_group_create')">${h.nav_link(c, _('Create a new Authorization Group'), controller='authorization_group', action='new', id=None)}</li>
             </ul>
           </div>
           </li>

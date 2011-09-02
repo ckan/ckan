@@ -33,4 +33,9 @@ vdm.sqlalchemy.modify_base_object_mapper(Package, Revision, State)
 PackageRevision = vdm.sqlalchemy.create_object_version(mapper, Package,
         package_revision_table)
 
+def related_packages(self):
+    return [self.continuity]
+
+PackageRevision.related_packages = related_packages
+
 
