@@ -31,7 +31,6 @@
   <py:def function="page_title">Login - User</py:def>
 
   <div py:match="content">
-    <h2>Login</h2>
     
     <form action="/login_generic" method="post" class="simple-form" id="generic_form">  
       <fieldset>
@@ -49,9 +48,10 @@
       ${h.submit('s', _('Login'))} &mdash; 
       <a href="${h.url_for('reset')}">Forgot your password?</a>
     </form>
-
+    <br/> 
     <!-- Simple OpenID Selector -->
-    <form py:if="g.openid_enabled" action="/login_openid" method="post" id="openid_form">
+    <form py:if="g.openid_enabled" action="/login_openid" method="post"
+      class="simple-form" id="openid_form">
       <input type="hidden" name="action" value="verify" />
       <fieldset>
         <legend i18n:msg="site_title">Login using Open ID</legend>
@@ -60,18 +60,9 @@
           <div id="openid_btns"></div>
         </div>
         <div id="openid_input_area">
-          <input id="openid_identifier" name="openid_identifier" size="30" type="text" value="http://" />
-          <input id="openid_submit" type="submit" value="Log in &raquo;"/>
+          <label for="openid_identifier">OpenID Identifier:</label>
+          <input id="openid_identifier" name="openid_identifier" type="text" value="http://" />
         </div>
-        <noscript>
-          <p i18n:msg="">OpenID is service that allows you to log-on to many different websites using a single identity.
-    Find out <a href="http://openid.net/what/">more about OpenID</a> and <a href="http://openid.net/get/">how to get an OpenID enabled account</a>.</p>
-        </noscript>
-      </fieldset>
-    </form>
-    
-    <div py:if="g.openid_enabled">
-      <h3>Don't have an OpenID?</h3>
       <p i18n:msg="">
         OpenID is service that allows you to log-on to many different websites
         using a single identity. Find out <a href="http://openid.net/what/">more
@@ -80,7 +71,9 @@
         free OpenID provider such as <a 
         href="https://www.myopenid.com/">https://www.myopenid.com/</a>.
       </p>
-    </div>
+      </fieldset>
+      <input id="openid_submit" type="submit" value="Sign in"/>
+    </form>
   </div>
   <xi:include href="layout.html" />
 </html>
