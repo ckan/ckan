@@ -552,7 +552,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'at 2011-01-01 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/package/%s"' % self.pkg_name)
         print 'PKG', pkg_html
-        assert 'title1' in pkg_html
+        assert 'title1' in res
         assert 'key2' not in pkg_html
         assert 'value3' not in pkg_html
         print 'SIDE', side_html
@@ -570,7 +570,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'at 2011-01-02 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/package/%s"' % self.pkg_name)
         print 'PKG', pkg_html
-        assert 'title2' in pkg_html
+        assert 'title2' in res
         assert 'key2' in pkg_html
         assert 'value2' in pkg_html
         print 'SIDE', side_html
@@ -580,7 +580,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
     def test_read_revision3(self):
         offset = self.offset + '@%s' % self.revision_ids[2]
         res = self.app.get(offset, status=200)
-        main_html = self.main_dif(res)
+        main_html = self.main_div(res)
         pkg_html = self.named_div('package', res)
         side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
@@ -589,7 +589,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'at 2011-01-03 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/package/%s"' % self.pkg_name)
         print 'PKG', pkg_html
-        assert 'title3' in pkg_html
+        assert 'title3' in res
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
         print 'SIDE', side_html
