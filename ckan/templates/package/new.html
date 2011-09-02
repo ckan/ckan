@@ -18,6 +18,7 @@
     <!-- Flexitable --> 
     <script type="text/javascript" src="${g.site_url}/scripts/flexitable.js"></script> 
     <link rel="stylesheet" href="${g.site_url}/css/flexitable.css" /> 
+
     <script type="text/javascript">
        jQuery(document).ready(function($) {
          CKAN.Utils.PackageSlugCreator.create($('#title'), $('#name'));
@@ -26,10 +27,6 @@
          }
        });
      </script>
-
-    <!-- Warning: This file does not appear to exist. Anywhere, ever. 
-    <xi:include href="new_package_form.js"/>
-    -->
   </py:def>
 
   <div py:match="content">

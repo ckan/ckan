@@ -39,14 +39,25 @@
   <![endif]-->
   <link rel="stylesheet" href="${g.site_url}/css/style.css?v=2" />
   
-  <script src="${g.site_url}/scripts/vendor/modernizr/1.7/modernizr.min.js"></script>
   <script type="text/javascript" src="${g.site_url}/language.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.js"></script>
-  <!--script><![CDATA[window.jQuery || document.write("<script src='${g.site_url}/scripts/vendor/jquery/1.5.2/jquery.min.js'>\x3C/script>")]]></script-->
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery/1.5.2/jquery.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.cookie/jquery.cookie.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.placeholder/jquery.placeholder.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jqueryui/1.8.11/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/application.js?lang=${c.locale}"></script>
 
-  <!-- scripts concatenated and minified via ant build script-->
-  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
-  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.placeholder/jquery.placeholder.js"></script>
+  <script src="${g.site_url}/scripts/vendor/modernizr/1.7/modernizr.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+        var ckan_user = $.cookie("ckan_display_name");
+        if (ckan_user) {
+            $(".ckan-logged-out").hide();
+            $(".ckan-logged-in").show();
+        }
+        $('input[placeholder], textarea[placeholder]').placeholder();
+    });
+  </script>
 
   <py:if test="defined('optional_head')">
     ${optional_head()}
@@ -200,27 +211,7 @@
     ${optional_footer()}
   </py:if>
 
-  <!--script type="text/javascript" src="${g.site_url}/scripts/application.js"></script-->
-  <!-- end scripts-->
 
-
-  <!--[if lt IE 7 ]>
-    <script src="${g.site_url}/js/libs/dd_belatedpng.js"></script>
-    <script>DD_belatedPNG.fix("img, .png_bg");</script>
-  <![endif]-->
-
-  <script type="text/javascript">
-    $(document).ready(function() {
-        var ckan_user = $.cookie("ckan_display_name");
-        if (ckan_user) {
-            $(".ckan-logged-out").hide();
-            $(".ckan-logged-in").show();
-        }
-        $('input[placeholder], textarea[placeholder]').placeholder();
-    });
-  </script>
-
-  <!--script src="http://assets.okfn.org/banner/banner.js"></script--> 
 
   <script>
     var _gaq=[["_setAccount","UA-XXXXX-X"],["_trackPageview"]]; // Change UA-XXXXX-X to be your site's ID 
