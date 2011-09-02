@@ -1,30 +1,15 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])} - Data Packages - History</py:def>
+  <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages - History</py:def>
+  <py:def function="page_heading">History: ${c.pkg.title or c.pkg.name}</py:def>
 
   <!-- Sidebar -->
   <py:match path="primarysidebar">
-    <li class="widget-container widget_text">
-        <h4>Updates</h4>
-        <p class="atom-feed-link package-history-link">
-          <a
-            href="${url(controller='package', action='history', id=c.pkg_dict['name'], format='atom', days=7)}"
-            title="${g.site_title} - Package History - ${c.pkg_dict['name']}">
-            Subscribe &raquo;</a>
-        </p>
-    </li>
   </py:match>
   
   <div py:match="content" class="package">
-
-    <!-- Title -->
-    <h2 class="head">
-        ${c.pkg_dict.get('title', c.pkg_dict['name'])} - History
-    </h2>
-
     <h3>Revisions</h3>
     <form id="package-revisions" action="diff" method="post"
       xmlns:py="http://genshi.edgewall.org/"
@@ -35,11 +20,11 @@
         Error: ${c.error}
       </h3>
       
-      <input type="hidden" name="pkg_name" value="${c.pkg_dict['name']}"/>
+      <input type="hidden" name="pkg_name" value="${c.pkg.name}"/>
 
       <table>
         <tr>
-          <th></th><th>Revision ID</th><th>Package with timestamp</th><th>Author</th><th>Log Message</th>
+          <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
         </tr>
         <py:for each="index, rev in enumerate(c.pkg_revisions)">
           <tr>
@@ -48,12 +33,11 @@
               ${h.radio("selected2", rev.id, checked=(index == len(c.pkg_revisions)-1))}
             </td>
             <td>
-              <a href="${h.url_for(controller='revision',action='read',id=rev['id'])}">${rev['id'][:4]}&#8230;</a>
+              <a href="${h.url_for(controller='revision',action='read',id=rev.id)}">${rev.id}</a>
             </td>
-            <td>
-              <a href="${h.url_for(controller='package',action='read',id='%s@%s' % (c.pkg_dict['name'], rev['timestamp']))}" title="${'Read package as of %s' % rev['timestamp']}">${h.render_datetime(rev['timestamp'])}</a></td>
-            <td>${h.linked_user(rev['author'])}</td>
-            <td>${rev['message']}</td>
+            <td>${rev.timestamp}</td>
+            <td>${h.linked_user(rev.author)}</td>
+            <td>${rev.message}</td>
           </tr> 
         </py:for>
       </table>
@@ -63,7 +47,7 @@
 
   <py:def function="optional_feed">
   <link rel="alternate" type="application/atom+xml" title="Package History"
-    href="${url(controller='package', action='history', id=c.pkg_dict['name'], format='atom', days=7)}" />
+    href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
   </py:def>
 
   <xi:include href="layout.html" />
