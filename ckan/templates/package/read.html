@@ -11,9 +11,10 @@
   about=""
   py:strip="">
 
-  <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages</py:def>
+  <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
+  - Data Packages</py:def>
   
-  <py:def function="page_heading" property="dc:title">${c.pkg.title}</py:def>
+  <py:def function="page_heading" property="dc:title">${c.pkg_dict['title']}</py:def>
   
       
   <py:match path="primarysidebar">
@@ -46,9 +47,9 @@
         <li py:if="c.eu_country">
           <h3>Country</h3> ${h.code_to_country(c.eu_country)}
         </li>
-        <li py:if="len(c.pkg.tags)">
+        <li>
           <h3>Tags</h3>
-          ${tag_list(c.pkg.tags)}
+          ${tag_list(c.pkg_dict.get('tags', ''))}
           <span class="widget_action" py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
             ${h.subnav_link(c, 'add tags &raquo;', controller='package', action='edit', id=c.pkg.name)}
           </span>
