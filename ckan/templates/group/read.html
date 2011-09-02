@@ -5,36 +5,36 @@
   
   <py:def function="page_title">${c.group.display_name} - Groups</py:def>
 
-  <div py:match="content">
-   <div class="group">
-    <h2 class="head">
-      <py:if test="not c.group.title">
-        <em>No Title</em>
-      </py:if>
-
+  <py:def function="page_heading">
       ${c.group.title}
-      <span class="name">(${c.group.name})</span>
-    </h2>
+  </py:def>
+  
+  <py:match path="primarysidebar">
+  
+    <li class="widget-container widget_text">
+      <div class="description">
+        ${c.group_description_formatted}
+      </div>
+      <ul class="property-list">
+        <py:if test="c.group_admins">
+        <li>
+        <h3>Administrators</h3> 
+          <ul py:for="admin in c.group_admins">
+            <li>${h.linked_user(admin)}</li>
+          </ul>
+        </li>
+        </py:if>
+      </ul>
+    </li>
+  </py:match>
 
-    <div class="description">
-      ${c.group_description_formatted}
-    </div>
-
-    <py:if test="c.group_admins">
-      <h3>Administrators:</h3> 
-        <py:for each="admin in c.group_admins">
-          ${h.linked_user(admin)}
-        </py:for>
-    </py:if>      
-
+  <py:match path="content">
     <h3>Packages:</h3>
     <p i18n:msg="item_count">There are ${c.page.item_count} packages in this group.</p>
     ${c.page.pager()}
     ${package_list(c.page.items)}
     ${c.page.pager()}
-    
-   </div>
-  </div>
+  </py:match>
 
   <xi:include href="layout.html" />
 </html>
