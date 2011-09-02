@@ -19,13 +19,13 @@
 
     <!-- Auto-generate 'name' field -->
     <script type="text/javascript">
-       jQuery(document).ready(function($) {
-         CKAN.Utils.PackageSlugCreator.create($('#title'), $('#name'));
-         if (!$('#preview').length) {
-           $("#title").focus();
-         }
-       });
-     </script>
+      jQuery(document).ready(function($) {
+        CKAN.Utils.PackageSlugCreator.create($('#title'), $('#name'));
+        if (!$('#preview').length) {
+          $("#title").focus();
+        }
+      });
+    </script>
   </py:def>
 
   <div py:match="content">

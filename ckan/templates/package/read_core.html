@@ -13,30 +13,30 @@
     <div class="resources subsection">
       <h3>Downloads &amp; Resources</h3>
       <py:choose test="">
-      <table py:when="c.pkg.resources">
+      <table py:when="c.pkg_dict.get('resources', [])">
         <tr>
             <th>Description</th>
             <th>Format</th>
         </tr>
-        <py:for each="res in c.pkg.resources">
+        <py:for each="res in c.pkg_dict.get('resources', [])">
           <tr rel="dcat:distribution" resource="_:res${res.id}"
             typeof="dcat:Distribution">
               <td>
                   <py:choose test="">
-                    <py:when test="res.description">
-                    <a href="${res.url}" rel="dcat:accessURL" target="_blank"><span
+                    <py:when test="res.get('description')">
+                    <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank"><span
                         property="rdfs:label">${res.description}</span></a>  
                     </py:when>
                     <py:otherwise test="">
-                      <a href="${res.url}" rel="dcat:accessURL" target="_blank">Download <em>(no description)</em></a>  
+                      <a href="${res.get('url', '')}" target="_blank">Download <em>(no description)</em></a>  
                     </py:otherwise>
                   </py:choose>
               </td>
-              <td property="dc:format">${res.format}</td>
+              <td property="dc:format">${res.get('format', '')}</td>
           </tr>
         </py:for>
             <caption>
-                This is a list of all known formats and datasets for <em>${c.pkg.title}</em>. If you know of another (CSV, SPARQL end-point etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
+                This is a list of all known formats and datasets for <em>${c.pkg_dict.get('title', '')}</em>. If you know of another (CSV, SPARQL end-point etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
             </caption>
       </table>
       <table py:otherwise=""><tr><th>Resources</th><td>None given for this package.</td></tr></table>
@@ -72,7 +72,7 @@
           <td class="package-details" property="rdf:value">${value}</td>
         </tr>
       </tbody>
-          <caption py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
+          <caption py:if="not c.is_preview and h.check_access('package_update',{'id':c.pkg.id})">
               Something missing? ${h.subnav_link(c, 'Please help improve this page by adding more information', controller='package', action='edit', id=c.pkg.name)}.
           </caption>
     </table>

@@ -23,7 +23,8 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        assert 'Packages' in res
+        print res
+        assert 'Add a package' in res
 
     def test_calculate_etag_hash(self):
         c.user = 'test user'
@@ -48,10 +49,11 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         res = self.app.get(offset)
         res.click('Search', index=0)
         
-    def test_tags_link(self):
-        offset = url_for('home')
-        res = self.app.get(offset)
-        res.click('Tags', index=0)
+    # TODO Can this be deleted? Redesign has no such link. [Perhaps it should?]
+    #def test_tags_link(self):
+        #offset = url_for('home')
+        #res = self.app.get(offset)
+        #res.click('Tags', index=0)
         
     def test_404(self):
         offset = '/some_nonexistent_url'

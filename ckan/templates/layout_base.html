@@ -1,7 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<!--[if lt IE 7 ]> <html class="no-js ie6" lang="en"> <![endif]-->
-<!--[if IE 7 ]>    <html class="no-js ie7" lang="en"> <![endif]-->
 <!--[if IE 8 ]>    <html class="no-js ie8" lang="en"> <![endif]-->
   <!--[if (gte IE 9)|!(IE)]><!--> <html class="no-js" lang="en"
       xmlns="http://www.w3.org/1999/xhtml"
@@ -95,7 +93,7 @@
             </form>
           </span>
           <div id="mainmenu">
-            <span py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</span>
+            <span py:if="h.check_access('package_create')">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</span>
             ${h.nav_link(c, _('Search'), controller='package', action='index', id=None, highlight_actions = 'new index')}
             ${h.nav_link(c, _('Package Groups'), controller='group', action='index', id=None, highlight_actions = 'new index')}
           </div>
