@@ -416,6 +416,59 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         main_res = self.main_div(res)
         assert new_about in main_res, main_res
 
+    def test_user_edit_no_password(self):
+        # create user
+        username = 'testedit2'
+        about = u'Test About'
+        user = model.User.by_name(unicode(username))
+        if not user:
+            model.Session.add(model.User(name=unicode(username), about=about,
+                                         password='letmein'))
+            model.repo.commit_and_remove()
+            user = model.User.by_name(unicode(username))
+
+        old_password = user.password    
+
+        # edit
+        new_about = u'Changed about'
+        offset = url_for(controller='user', action='edit', id=user.id)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
+        main_res = self.main_div(res)
+        assert 'Edit User: ' in main_res, main_res
+        assert about in main_res, main_res
+        fv = res.forms['user-edit']
+        fv['about'] = new_about
+        fv['password1'] = ''
+        fv['password2'] = ''
+
+        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
+        
+        # preview
+        main_res = self.main_div(res)
+        assert 'Edit User: testedit2' in main_res, main_res
+        in_preview = main_res[main_res.find('Preview'):]
+        assert new_about in in_preview, in_preview
+
+        # commit
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
+        assert res.status == 302, self.main_div(res).encode('utf8')
+        res = res.follow()
+        main_res = self.main_div(res)
+        assert 'testedit2' in main_res, main_res
+        assert new_about in main_res, main_res
+
+        # read, not logged in
+        offset = url_for(controller='user', action='read', id=user.id)
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert new_about in main_res, main_res
+
+        updated_user = model.User.by_name(unicode(username))
+        new_password = updated_user.password
+
+        # Ensure password has not changed
+        assert old_password == new_password
+
     def test_user_edit_no_user(self):
         offset = url_for(controller='user', action='edit', id=None)
         res = self.app.get(offset, status=400)

@@ -9,10 +9,14 @@ import ckan.forms
 from pylons.i18n import get_lang, _
 from ckan.logic import check_access, NotAuthorized
 
+from ckan.plugins import PluginImplementations, IPackageController
 
 log = logging.getLogger(__name__)
 
 class PackageFormalchemyController(PackageController):
+
+    def __init__(self):
+        self.extensions = PluginImplementations(IPackageController)
 
     def new(self):
         c.error = ''
