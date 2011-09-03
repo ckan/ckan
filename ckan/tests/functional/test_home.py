@@ -49,12 +49,6 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         res = self.app.get(offset)
         res.click('Search', index=0)
         
-    # TODO Can this be deleted? Redesign has no such link. [Perhaps it should?]
-    #def test_tags_link(self):
-        #offset = url_for('home')
-        #res = self.app.get(offset)
-        #res.click('Tags', index=0)
-        
     def test_404(self):
         offset = '/some_nonexistent_url'
         res = self.app.get(offset, status=404)
@@ -68,31 +62,11 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         url = url_for('guide')
         assert url == 'http://wiki.okfn.org/ckan/doc/'
 
-    @search_related
-    def test_search_packages(self):
-        offset = url_for('home')
-        res = self.app.get(offset)
-        form = res.forms['package-search']
-        form['q'] =  'anna'
-        results_page = form.submit()
-        assert 'Search - ' in results_page, results_page
-        assert '>0<' in results_page, results_page
-    
     def test_template_footer_end(self):
         offset = url_for('home')
         res = self.app.get(offset)
         assert '<strong>TEST TEMPLATE_FOOTER_END TEST</strong>'
 
-    # DISABLED because this is not on home page anymore
-    def _test_register_new_package(self):
-        offset = url_for('home')
-        res = self.app.get(offset)
-        form = res.forms[1]
-        form['title'] =  'test title'
-        results_page = form.submit()
-        assert 'Register a New Package' in results_page, results_page
-        assert '<input id="Package--title" name="Package--title" size="40" type="text" value="test title">' in results_page, results_page
-        
     def test_locale_change(self):
         offset = url_for('home')
         res = self.app.get(offset)
