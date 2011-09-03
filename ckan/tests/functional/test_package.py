@@ -308,7 +308,6 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         assert anna.url in res
         assert cgi.escape(anna.resources[0].url) in res
         assert anna.resources[0].description in res
-        assert anna.resources[0].hash in res
         assert 'Some test notes' in res
         self.check_named_element(res, 'a',
                                  'http://ckan.net/',
@@ -321,17 +320,11 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         assert 'russian' in res
         assert 'david' in res
         assert 'roger' in res
-        assert 'State:' not in res
+        assert 'State' in res
         assert 'genre' in res, res
         assert 'romantic novel' in res, res
         assert 'original media' in res, res
         assert 'book' in res, res
-
-    def test_read_as_admin(self):
-        name = u'annakarenina'
-        offset = url_for(controller='package', action='read', id=name)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':'annafan'})
-        assert 'State:' in res, res
 
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'
