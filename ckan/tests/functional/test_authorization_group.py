@@ -28,15 +28,6 @@ class TestAuthorizationGroup(FunctionalTestCase):
         model.repo.rebuild_db()
         model.Session.remove()
 
-    @search_related
-    def test_mainmenu(self):
-        offset = url_for(controller='home', action='index')
-        res = self.app.get(offset)
-        assert 'Authorization Groups' in res, res
-        assert 'Authorization Groups</a>' in res, res
-        res = res.click(href='/authorizationgroup')
-        assert '<h2>Authorization Groups</h2>' in res, res
-
     def test_index(self):
         offset = url_for(controller='authorization_group')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
