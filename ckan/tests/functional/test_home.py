@@ -53,11 +53,6 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         offset = '/some_nonexistent_url'
         res = self.app.get(offset, status=404)
 
-    def test_license(self):
-        offset = url_for('license')
-        res = self.app.get(offset)
-        assert 'License' in res
-
     def test_guide(self):
         url = url_for('guide')
         assert url == 'http://wiki.okfn.org/ckan/doc/'
