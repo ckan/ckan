@@ -3,16 +3,22 @@
   py:strip="">
   
   <py:def function="page_title">Revision History</py:def>
+  <py:def function="page_heading">Revision History</py:def>
+
+  <py:match path="minornavigation">
+    <ul class="tabbed">
+      <li>
+        ${h.subnav_link(c,_('Home'), controller='revision', action='index')}</li>
+      <li class="action">
+      ${h.subnav_link(c, h.icon('atom_feed') + _('Subscribe'),
+      controller='revision', action='index', format='atom', days=1)}
+      </li>
+    </ul>
+  </py:match>
 
   <div py:match="content">
-    <h2>
-      Revision History
-      <p class="atom-feed-link revision-history-link">
-        <a href="?format=atom&amp;days=5" title="${g.site_title} - Revision History">Subscribe &raquo;</a>
-      </p>
-    </h2>
-    <p>This page lists all changes to package database, with most recent
-    changes first. </p>
+    <p>Track the most recent changes to the system, with most recent
+    changes first.</p>
       
     ${c.page.pager()}
 
