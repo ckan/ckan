@@ -2,13 +2,10 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">${c.authorization_group_name} - Edit - AuthorizationGroups</py:def>
+  <py:def function="page_title">${c.authorization_group_name} - Edit - Authorization Groups</py:def>
+  <py:def function="page_heading">Edit: ${c.authorization_group.name}</py:def>
 
   <div py:match="content">
-    <h2>
-      Edit Authorization Group: ${c.authorization_group_name}
-    </h2>
-
     ${Markup(c.form)}
   </div>
 

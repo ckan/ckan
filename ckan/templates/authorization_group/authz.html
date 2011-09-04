@@ -3,14 +3,10 @@
   py:strip="">
   
   <py:def function="page_title">${c.authorization_group_name} - Authorization - AuthorizationGroups</py:def>
+  <py:def function="page_heading">Authorization: ${c.authorization_group_name}</py:def>
 
   <div py:match="content">
-    <h2>
-      Authorization for authorization group: ${c.authorization_group_name}
-    </h2>
-
-
-    <h2>Update Existing Roles</h2>
+    <h3>Update Existing Roles</h3>
 
     <form id="theform" method="POST">
       ${authz_form_table('theform', c.roles, c.users, c.user_role_dict)}
@@ -19,7 +15,7 @@
       </button>
     </form>
 
-    <h2>Add Roles for Any User</h2>
+    <h3>Add Roles for Any User</h3>
 
     <form id="addform" method="POST">
       ${authz_add_table(c.roles)}
@@ -28,7 +24,7 @@
 
     <hr/>
 
-    <h2>Existing Roles for Authorization Groups</h2>
+    <h3>Existing Roles for Authorization Groups</h3>
 
     <form id="authzgroup_form" method="POST">
       ${authz_form_group_table('authzgroup_form', c.roles, c.authz_groups, c.authz_groups_role_dict)}
@@ -37,7 +33,7 @@
       </button>
     </form>
 
-    <h2>Add Roles for Any Authorization Group</h2>
+    <h3>Add Roles for Any Authorization Group</h3>
 
     <form id="authzgroup_addform" method="POST">
       ${authz_add_group_table(c.roles)}
