@@ -230,14 +230,6 @@ def user_create(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors, group_error_summary(errors))
 
-    rev = model.repo.new_revision()
-    rev.author = user
-
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Create user %s') % data.get('name')
-
     user = user_dict_save(data, context)
 
     model.repo.commit()        
