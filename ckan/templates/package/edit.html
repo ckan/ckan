@@ -3,7 +3,8 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">${c.pkgtitle or c.pkgname} - Edit - Data Packages</py:def>
+  <py:def function="page_title">${c.pkg.title or c.pkg.name} - Edit - Data Packages</py:def>
+  <py:def function="page_heading">Edit: ${c.pkg.title or c.pkg.name}</py:def>
 
   <py:def function="body_class">hide-sidebar</py:def>
 
@@ -14,10 +15,6 @@
   </py:def>
 
   <div py:match="content" class="package">
-    <h2>
-      Edit Data Package: ${c.pkgname}
-    </h2>
-
     <div id="preview" style="margin-left: 20px;" py:if="c.preview">
       <hr />
       <h2>Preview</h2>

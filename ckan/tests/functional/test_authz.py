@@ -601,8 +601,6 @@ class TestLockedDownViaRoles(TestController):
 
     def test_home(self):
         self._check_logged_in_users_authorized_only('/')
-        self._check_logged_in_users_authorized_only('/about')
-        self._check_logged_in_users_authorized_only('/license')
     
     def test_tags_pages(self):
         self._check_logged_in_users_authorized_only('/tag')

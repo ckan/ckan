@@ -64,9 +64,8 @@ class HomeController(BaseController):
                   order_by=None)
         c.fields = []
         c.package_count = query.count
-        c.latest_packages = get_action('current_package_list_with_resources')({'model': model,
-                                                                 'user': c.user},
-                                                                 {'limit': 5})      
+        q = model.Session.query(model.Group).filter_by(state='active')
+        c.groups = sorted(q.all(), key=lambda g: len(g.packages), reverse=True)[:6]
         return render('home/index.html', cache_key=cache_key,
                       cache_expire=cache_expires)
 

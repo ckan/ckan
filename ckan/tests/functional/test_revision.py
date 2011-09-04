@@ -22,13 +22,6 @@ class TestRevisionController(TestController):
             rev.author = "Test Revision %s" % i
             model.repo.commit()
 
-    @search_related
-    def test_link_major_navigation(self):
-        offset = url_for(controller='home')
-        res = self.app.get(offset)
-        res = res.click('Revision History')
-        assert 'Revision History' in res
-
     def test_paginated_list(self):
         # Ugh. Why is the number of items per page hard-coded? A designer might
         # decide that 20 is the right number of revisions to display per page,

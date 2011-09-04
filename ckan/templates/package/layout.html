@@ -16,6 +16,10 @@
       <li py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
         ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
       </li>
+      <li class="action">
+        ${h.subnav_link(c, h.icon('atom_feed') + _('Subscribe'),
+        controller='package', action='history', id=c.pkg.name, format='atom', days=7)}
+      </li>
     </ul>
     </py:if>
   </py:match>

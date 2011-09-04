@@ -3,7 +3,7 @@
 fieldset {
   padding: 1em;
   margin: 0 0 1.5em 0;
-  border: 1px solid #ccc; }
+  border-bottom: 1px solid #ccc; }
  
 legend {
   font-weight: bold;
@@ -46,9 +46,13 @@ input[type=url], input.url {
 input.title {
   font-size: 1.5em; }
 input.short {
-  width: 10em; }
+  width: 15em; }
+table input.short {
+  width: 12em; }
 input.medium-width {
   width: 25em; }
+table input.medium-width {
+  width: 20em; }
 input.long {
   width: 100%; }
  
@@ -61,7 +65,7 @@ textarea {
 textarea.short {
     height: 1em; }
 textarea.wide {
-    width: 62.5em;
+    width: 55;
     height: 1em; }
  
 select[multiple], select.multiple {
@@ -176,3 +180,11 @@ form.has-errors .field_error, form.has-errors .error-explanation {
 #preview {
   margin-bottom: 30px;
   }
+
+#openid_form {
+  width: 100%;
+}
+
+#openid_input_area {
+  padding: 0px;
+}

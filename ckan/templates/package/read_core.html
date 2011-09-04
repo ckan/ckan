@@ -4,24 +4,6 @@
   >
   <xi:include href="../_util.html" />
   <div id="package" class="package">
-    <!-- Title -->
-    <h2 class="head">
-      ${c.pkg_dict.get('title','')}
-      <p class="atom-feed-link package-history-link">
-        <a
-          href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}"
-          title="${g.site_title} - Package History - ${c.pkg.name}">
-          Subscribe &raquo;</a>
-      </p>
-    </h2>
-    
-    <!-- Source URL -->    
-    <div class="url" py:if="c.pkg_dict.get('url')">
-      <p>
-        Source: ${c.pkg_url_link}
-      </p>
-    </div>
-    
     <!-- About package -->
     <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
       ${c.pkg_notes_formatted}
@@ -35,22 +17,22 @@
         <tr>
             <th>Description</th>
             <th>Format</th>
-            <th>Hash</th>
         </tr>
         <py:for each="res in c.pkg_dict.get('resources', [])">
-          <tr>
+          <tr rel="dcat:distribution" resource="_:res${res.id}"
+            typeof="dcat:Distribution">
               <td>
                   <py:choose test="">
                     <py:when test="res.get('description')">
-                      <a href="${res.get('url', '')}" target="_blank">${res.description}</a>  
+                    <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank"><span
+                        property="rdfs:label">${res.description}</span></a>  
                     </py:when>
                     <py:otherwise test="">
                       <a href="${res.get('url', '')}" target="_blank">Download <em>(no description)</em></a>  
                     </py:otherwise>
                   </py:choose>
               </td>
-              <td>${res.get('format', '')}</td>
-              <td>${res.get('hash', '')}</td>
+              <td property="dc:format">${res.get('format', '')}</td>
           </tr>
         </py:for>
             <caption>
@@ -75,32 +57,19 @@
     </py:def>
 
     <div class="details subsection">
-    <h3>About this package</h3>
+    <h3>Additional Information</h3>
     <table>
-      <tbody>
-        ${details_item('Author', c.pkg_author_link)}
-        ${details_item('Maintainer', c.pkg_maintainer_link)}
-        ${details_item('Version', c.pkg_dict.get('version', ''))}
+      <thead>
         <tr>
-          <td class="package-label">
-            License
-          </td>
-          <td class="package-details">
-          <py:choose test="">
-          <py:when test="c.pkg.license and c.pkg.license.url">
-            <a href="${c.pkg.license.url}">${c.pkg.license.title}</a>
-          </py:when>
-          <py:when test="c.pkg.license">${c.pkg.license.title}</py:when>
-          <py:when test="c.pkg.license_id">${c.pkg.license_id}</py:when>
-          <py:otherwise test="">
-            -
-          </py:otherwise>
-          </py:choose>
-          </td>
+          <th>Field</th>
+          <th>Value</th>
         </tr>
-        <tr py:for="key, value in c.pkg_extras">
-          <td class="package-label">${_(key)}</td>
-          <td class="package-details">${value}</td>
+      </thead>
+      <tbody>
+        <tr py:for="i, (key, value) in enumerate(c.pkg_extras)"
+          rel="dc:relation" resource="_:extra${i}">
+          <td class="package-label" property="rdfs:label">${_(key)}</td>
+          <td class="package-details" property="rdf:value">${value}</td>
         </tr>
       </tbody>
           <caption py:if="not c.is_preview and h.check_access('package_update',{'id':c.pkg.id})">
@@ -109,49 +78,6 @@
     </table>
     </div>
     
-    <div class="api subsection" py:if="not c.is_preview">
-        <h3>${g.site_title} API / datapkg</h3>
-        <div>
-            <p>
-                This information on this page (the package metadata) is also
-                available programatically via this site's <a
-                  href="${h.url_for(controller='api', action='get_api', id=None)}">CKAN API</a>.
-            </p>
-            <h5>JSON</h5>
-            <code>
-                <py:if test="config.get('ckan.api_url')">                
-                  <a href="${config.get('ckan.api_url') + h.url_for(controller='api', register='package', action='show', id=c.pkg.name)}">
-                    ${config.get('ckan.api_url') + h.url_for(controller='api', register='package', action='show', id=c.pkg.name)}</a>
-                </py:if>                
-                <py:if test="not config.get('ckan.api_url')">
-                  <a href="${h.url_for(controller='api', register='package', action='show', id=c.pkg.name)}">
-                    ${h.url_for(controller='api', register='package', action='show', id=c.pkg.name)}</a>
-                </py:if>
-            </code>
-            <py:if test="config.get('rdf_packages')">
-                <h5>RDF</h5>
-                <code><a href="${config.get('rdf_packages') + '/' + c.pkg.id + '.rdf'}">RDF/XML</a></code>
-                <code><a href="${config.get('rdf_packages') + '/' + c.pkg.id + '.ttl'}">Turtle</a></code>
-                <code><a href="${config.get('rdf_packages') + '/' + c.pkg.id + '.nt'}">N-Triples</a></code>
-            </py:if>
-            <p>
-                The information on this page and the downloads / resources are also available using the 
-                <a href="http://blog.okfn.org/2010/02/23/introducing-datapkg/">datapkg command line utility</a>.
-            </p>
-            <h5>Information about this package:</h5>
-            <code>$ datapkg info ckan://${c.pkg.name}</code>            
-            <h5>Download:</h5>
-            <code>$ datapkg download ckan://${c.pkg.name} .</code>            
-        </div>
-    </div>
-
-    <ul>
-      <py:if test="not c.is_preview and h.check_access('package_change_state',{'id':c.pkg.id})">
-         <li><strong>State:</strong> ${c.pkg_dict.get('state', '')}</li>
-      </py:if>
-    </ul>
-
-    <hr class="cleared" />
   </div> <!-- /package -->
 
 </html>
