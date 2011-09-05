@@ -12,7 +12,7 @@
   py:strip="">
 
   <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
-  - Data Packages</py:def>
+  - Datasets</py:def>
   
   <py:def function="page_heading" property="dc:title">${c.pkg_dict['title']}</py:def>
   
@@ -65,7 +65,7 @@
           </py:if>
           <p class="hint">
             <py:if test="not c.pkg.groups">
-               Groups are collections of packages maintained by users of ${g.site_title}. This package has not been added to any groups yet.
+               Groups are collections of dataset maintained by users of ${g.site_title}. This dataset has not been added to any groups yet.
             </py:if>
 
 
@@ -83,7 +83,7 @@
           href="${c.harvest_catalogue_url}">${c.harvest_catalogue_name}</a>
         </li>
         <li py:if="c.package_relationships">
-          <h3>Related packages</h3>
+          <h3>Related dataset</h3>
           <ul>
             <py:for each="pkg, relationship_str, comment in c.package_relationships">
               <li>
@@ -102,7 +102,7 @@
     <li class="widget-container boxed widget_text">
     <py:if test="c.pkg.isopen() and c.pkg.resources">
       <h3>
-        This Package is Open
+        This Dataset is Open
       </h3>
       <p py:if="c.pkg.license_id">
         License:
@@ -116,13 +116,13 @@
       <p class="okd">
         <a
           href="http://www.opendefinition.org/okd/"
-          title="This package satisfies the Open Knowledge Definition.">
+          title="This dataset satisfies the Open Knowledge Definition.">
           <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" /></a>
       </p>
     </py:if>
 
     <py:if test="not(c.pkg.isopen() and c.pkg.resources)">
-      <h3 i18n:msg="">This package is Not Open</h3> 
+      <h3 i18n:msg="">This dataset is Not Open</h3> 
       
       <p>Either because it is not openly licensed or is missing
       downloadable resources.</p>
@@ -136,8 +136,8 @@
   <div py:match="content">
     <py:if test="c.pkg_revision_id">
       <div id="revision" class="widget-container">
-        <p py:if="c.pkg_revision_not_latest">This is an old revision of this package, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp)}. It may differ significantly from the <a href="${url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
-        <p py:if="not c.pkg_revision_not_latest">This is the current revision of this package, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp)}.</p>
+        <p py:if="c.pkg_revision_not_latest">This is an old revision of this dataset, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp)}. It may differ significantly from the <a href="${url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
+        <p py:if="not c.pkg_revision_not_latest">This is the current revision of this dataset, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp)}.</p>
       </div>
     </py:if>
 
@@ -152,7 +152,7 @@
   </py:def>
 
   <py:def function="optional_feed">
-  <link rel="alternate" type="application/atom+xml" title="Package History"
+  <link rel="alternate" type="application/atom+xml" title="Dataset History"
     href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
   </py:def>
 

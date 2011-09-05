@@ -117,9 +117,9 @@
           <h1>Find data</h1>
 
           <form action="/package" method="GET"> 
-            <input name="q" value="" class="search-field" placeholder="Find data packages" /> 
+            <input name="q" value="" class="search-field" placeholder="Find datasets" /> 
           </form> 
-          ${g.site_title} contains <a href="/package">${c.package_count} data packages</a> that you can 
+          ${g.site_title} contains <a href="/package">${c.package_count} datasets</a> that you can 
           browse, learn about and download. 
         </div>
       </div>
@@ -131,7 +131,7 @@
         to find other people interested in your data.
         
         <py:choose test="h.am_authorized(c, actions.PACKAGE_CREATE)">
-          <a py:when="" href="/package/new" class="create-button">Create a data package &raquo;</a>
+          <a py:when="" href="/package/new" class="create-button">Create a dataset &raquo;</a>
           <py:otherwise>
             <a href="/user/login" class="create-button">Sign up &raquo;</a>
           </py:otherwise>
@@ -160,7 +160,7 @@
           <p>
             ${h.markdown_extract(group.description)}
           </p>
-          <strong>${group.title} has ${len(group.packages)} data packages.</strong>
+          <strong>${group.title} has ${len(group.packages)} datasets.</strong>
         </div>
       </py:for>
   </div>
