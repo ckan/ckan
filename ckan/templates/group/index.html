@@ -4,11 +4,13 @@
   py:strip="">
   
   <py:def function="page_title">Groups of Data Packages</py:def>
+  <py:def function="page_heading">Groups of Data Packages</py:def>
   
+  <py:def function="optional_head">
+    <style>#minornavigation { visibility: hidden; }</style>    
+  </py:def>
+ 
   <div py:match="content">
-    <h2>Groups</h2>
-    
-    <p i18n:msg="item_count">There are <strong>${c.page.item_count}</strong> groups.</p>
 
     ${c.page.pager()}
     ${group_list_from_dict(c.page.items)}

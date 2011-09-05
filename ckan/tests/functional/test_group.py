@@ -42,21 +42,20 @@ class TestGroup(FunctionalTestCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    @search_related
+    # TODO: remove test (?)
+    # why: very fragile and overly detailed checking of main menu:w
     def test_mainmenu(self):
         offset = url_for(controller='home', action='index')
         res = self.app.get(offset)
         assert 'Groups' in res, res
         assert 'Groups</a>' in res, res
         res = res.click(href='/group', index=0)
-        assert '<h2>Groups</h2>' in res, res
+        assert 'Groups of' in res, res
 
     def test_index(self):
         offset = url_for(controller='group')
         res = self.app.get(offset)
-        assert '<h2>Groups</h2>' in res, res
-        group_count = model.Session.query(model.Group).count()
-        assert 'There are %s groups.' % group_count in self.strip_tags(res)
+        assert '<h1 class="page_heading">Groups' in res, res
         groupname = 'david'
         group = model.Group.by_name(unicode(groupname))
         group_title = group.title
@@ -77,7 +76,7 @@ class TestGroup(FunctionalTestCase):
             main_res = self.main_div(res)
             assert title in res, res
             #assert 'edit' not in main_res, main_res
-            assert 'Administrators:' in main_res, main_res
+            assert 'Administrators' in res, res
             assert 'russianfan' in main_res, main_res
             assert name in res, res
             assert 'There are 2 packages in this group' in self.strip_tags(main_res), main_res
@@ -111,12 +110,12 @@ class TestGroup(FunctionalTestCase):
         
 
 class TestEdit(FunctionalTestCase):
-    groupname = u'david'
 
     @classmethod
     def setup_class(self):
         model.Session.remove()
         CreateTestData.create()
+        self.groupname = u'david'
         self.packagename = u'testpkg'
         model.repo.new_revision()
         model.Session.add(model.Package(name=self.packagename))
@@ -135,22 +134,14 @@ class TestEdit(FunctionalTestCase):
         res = res.follow()
         assert res.request.url.startswith('/user/login')
 
-    def test_1_read_allowed_for_admin(self):
-        offset = url_for(controller='group', action='edit', id=self.groupname)
-        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert 'Edit Group: %s' % self.groupname in res, res
-        
     def test_2_edit(self):
+        group = model.Group.by_name(self.groupname)
         offset = url_for(controller='group', action='edit', id=self.groupname)
         print offset
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert 'Edit Group: %s' % self.groupname in res, res
-
-        print res
-        
+        assert 'Edit: %s' % group.title in res, res
 
         form = res.forms['group-edit']
-        group = model.Group.by_name(self.groupname)
         titlefn = 'title'
         descfn = 'description'
         newtitle = 'xxxxxxx'

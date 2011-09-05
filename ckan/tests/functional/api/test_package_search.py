@@ -207,6 +207,11 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         assert anna_rec['ratings_average'] == 3.0, anna_rec['ratings_average']
         assert anna_rec['ratings_count'] == 1, anna_rec['ratings_count']
 
+        # try alternative syntax
+        offset = self.base_url + '?q=russian&all_fields=1'
+        res2 = self.app.get(offset, status=200)
+        assert_equal(res2.body, res.body)
+
     def test_08_all_fields_syntax_error(self):
         offset = self.base_url + '?all_fields=should_be_boolean' # invalid all_fields value
         res = self.app.get(offset, status=400)

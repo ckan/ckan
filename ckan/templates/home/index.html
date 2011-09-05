@@ -2,73 +2,168 @@
   xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
-
-  <py:def function="page_title">Home</py:def>
+  
+  <py:def function="page_title">Welcome</py:def>
+  <py:def function="body_class">hide-sidebar</py:def>
 
   <py:def function="optional_head">
-  <script src="${g.site_url}/scripts/jquery.tagcloud.js"></script>
-  <script type="text/javascript" charset="utf-8">
-    $(document).ready(function(){
-      $.fn.tagcloud.defaults = {
-        size: {start: 10, end: 32, unit: "pt"}, 
-        color: {start: '#af8', end: '#f52'}
-      };
-      $("#tagcloud a").tagcloud();
-    })
-  </script>
-  <style type="text/css">
-    #tagcloud * {
-      display: inline-block;
-      vertical-align: middle;
-      line-height: 0.9;
-    }
+      <style>
+        #minornavigation {
+          display: none;
+        }
+  
+        #sidebar {
+          display: none;
+        }
 
-    #tagcloud a {
-      text-decoration: none;
-    }
+        .front-page .action-box h1 {
+          padding-top: 0.6em;
+          padding-bottom: 0.5em;
+          font-size: 2.1em;
+        }
 
-    #tagcloud a:hover {
-      text-decoration: underline;
-    }
+        .front-page .action-box {
+          border-radius: 20px;
+          background:  #FFF7C0;
+        }
+        
+        .front-page .action-box-inner {
+          margin: 20px;
+          margin-bottom: 5px;
+          min-height: 15em;
+        }
+        .front-page .action-box-inner.collaborate {
+          background:url(/img/collaborate.png) no-repeat right top;
+        }
+        
+        .front-page .action-box-inner.share {
+          background:url(/img/share.png) no-repeat right top;
+        }
+        
+        .front-page .action-box-inner.find {
+          background:url(/img/find.png) no-repeat right top;
+        }
+        
+        .front-page .action-box-inner a {
+          font-weight: bold;
+        }
+       
+        .front-page .action-box-inner input {
+          font-family: 'Ubuntu';
+          border-radius: 10px;
+          background-color: #fff;
+          border: 0px;
+          font-size: 1.3em;
+          width: 90%;
+          border: 1px solid #999;
+          color: #666;
+          padding: 0.5em;
+        }
+        
+        .front-page .action-box-inner .create-button {
+          display: block;
+          float: right;
+          font-weight: normal;
+          font-family: 'Ubuntu';
+          margin-top: 1.5em;
+          border-radius: 10px;
+          background-color: #B22;
+          border: 0px;
+          font-size: 1.3em;
+          color: #fff;
+          padding: 0.5em;
+        }
+        
+        .front-page .action-box-inner .create-button:hover {
+          background-color: #822;
+        }
+        
+        .front-page .action-box-inner ul {
+        margin-top: 1em;
+        margin-bottom: 0;
+        }
 
-    #tagcloud {
-      margin: 25px auto;
-      text-align: center;
-    }
-  </style>
+        .front-page .whoelse {
+          margin-top: 1em;
+        }
+
+        .front-page .group {
+          overflow: hidden;
+        }
+        
+        .front-page .group h3 {
+          margin-bottom: 0.5em;
+        }
+        
+        .front-page .group p {
+          margin-bottom: 0em;
+          min-height: 6em;
+        }
+        
+        .front-page .group strong {
+          display: block;
+          margin-bottom: 1.5em;
+        }
+
+      </style>
   </py:def>
 
-  <div py:match="content">
-    <h2>Welcome to ${g.site_title}</h2>
-    <p i18n:msg="title">
-      ${g.site_title} is an
-      <a href="http://www.opendefinition.org/ossd/">open registry</a>
-      of data and content packages. Harnessing the CKAN software, this
-      site makes it easy to find, share and reuse content and data,
-      especially in ways that are machine automatable.
-    </p>
-    
-    <p i18n:msg="package_count"><strong>${c.package_count} registered data packages</strong> available.</p>
+    <div py:match="//div[@id='content']" class="front-page">
+      <div class="span-24 last">
+        <h1>Welcome to ${g.site_title}!</h1>
+      </div>
+      <div class="span-8 action-box">
+        <div class="action-box-inner find">
+          <h1>Find data</h1>
 
-    <xi:include href="../package/search_form.html" />
-    
-    <py:if test="len(c.facets.get('tags', {}))">
-        <h4>Top Tags</h4>
-        <div id="tagcloud">
-        <py:for each="tag_name, count in c.facets.get('tags', {}).items()">
-          <a rel="${count}" title="${count}" href="${h.url_for(controller='tag',
-            action='read', id=tag_name)}">${tag_name}</a>
-        </py:for>
+          <form action="/package" method="GET"> 
+            <input name="q" value="" class="search-field" placeholder="Find data packages" /> 
+          </form> 
+          ${g.site_title} contains <a href="/package">${c.package_count} data packages</a> that you can 
+          browse, learn about and download. 
         </div>
-        <hr />
-    </py:if>
+      </div>
+      <div class="span-8 action-box">
+        <div class="action-box-inner share">
+        <h1>Share data</h1>
 
-    <h4>Recently changed packages</h4>
-    ${package_list_from_dict(c.latest_packages)}
+        Add your own datasets to share them with others and
+        to find other people interested in your data.
+        
+        <py:choose test="h.am_authorized(c, actions.PACKAGE_CREATE)">
+          <a py:when="" href="/package/new" class="create-button">Create a data package &raquo;</a>
+          <py:otherwise>
+            <a href="/user/login" class="create-button">Sign up &raquo;</a>
+          </py:otherwise>
+        </py:choose>
+        </div>
+      </div>
+      <div class="span-8 last action-box">
+        <div class="action-box-inner collaborate">
+        <h1>Collaborate</h1>
 
-    <p><a href="${h.url_for(controller='revision', action='index',
-      id=None)}">View revision log &raquo;</a></p>
+        Find out more about working with open data by exploring 
+        these resources: 
+        <ul>
+          <li><a href="http://getthedata.org">GetTheData.org</a></li>
+          <li><a href="http://datapatterns.org">DataPatterns.org</a></li>
+          <li><a href="http://opendatamanual.org">Open Data Manual</a></li>
+        </ul>
+        </div>
+      </div>
+      <div class="span-24 last whoelse">
+        <h2>Who else is here?</h2>
+      </div>
+      <py:for each="i, group in enumerate(c.groups)">
+        <div class="span-8 group ${'last' if i % 3 == 2 else ''}">
+          <h3><a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.title}</a></h3>
+          <p>
+            ${h.markdown_extract(group.description)}
+          </p>
+          <strong>${group.title} has ${len(group.packages)} data packages.</strong>
+        </div>
+      </py:for>
   </div>
-
   <xi:include href="layout.html" />
 </html>
+

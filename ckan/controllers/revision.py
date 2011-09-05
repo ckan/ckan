@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 
 from pylons.i18n import get_lang
 
+from ckan.logic import NotAuthorized, check_access
+
 from ckan.lib.base import *
 from ckan.lib.helpers import Page
 import ckan.authz
@@ -13,12 +15,19 @@ class RevisionController(BaseController):
 
     def __before__(self, action, **env):
         BaseController.__before__(self, action, **env)
-        c.revision_change_state_allowed = (
-            c.user and
-            self.authorizer.is_authorized(c.user, model.Action.CHANGE_STATE,
-                model.Revision)
-            )
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+
+        context = {'model':model,'user': c.user or c.author}
+        if c.user:
+            try:
+                check_access('revision_change_state',context)
+                c.revision_change_state_allowed = True
+            except NotAuthorized:
+                c.revision_change_state_allowed = False
+        else:
+            c.revision_change_state_allowed = False
+        try:
+            check_access('site_read',context)
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
     def index(self):
