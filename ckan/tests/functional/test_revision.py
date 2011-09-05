@@ -146,10 +146,10 @@ class TestRevisionController(TestController):
         #assert 'Author:</strong> tester' in res
         #assert 'Log Message:' in res
         #assert 'Creating test data.' in res
-        #assert 'Package: annakarenina' in res
-        #assert "Packages' Tags" in res
+        #assert 'Dataset: annakarenina' in res
+        #assert "Datasets' Tags" in res
         #res = res.click('annakarenina', index=0)
-        #assert 'Packages - annakarenina' in res
+        #assert 'Datasets - annakarenina' in res
         
     def test_list_format_atom(self):
         self.create_40_revisions()

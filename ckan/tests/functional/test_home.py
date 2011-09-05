@@ -24,7 +24,7 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         offset = url_for('home')
         res = self.app.get(offset)
         print res
-        assert 'Add a package' in res
+        assert 'Add a dataset' in res
 
     def test_calculate_etag_hash(self):
         c.user = 'test user'

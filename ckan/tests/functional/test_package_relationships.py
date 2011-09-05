@@ -18,7 +18,7 @@ class TestRelationships(FunctionalTestCase):
             offset = url_for(controller='package', action='read', id=pkg_name)
             res = self.app.get(offset)
             pkg = model.Package.by_name(pkg_name)
-            assert '%s - Data Packages' % pkg.title in res
+            assert '%s - Datasets' % pkg.title in res
             return res
         res = read_package(u'homer')
         self.check_named_element(res, 'li', 'is a child of', 'abraham')

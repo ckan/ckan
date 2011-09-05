@@ -66,9 +66,9 @@
   <legend>Datasets</legend>
   <dl py:if="data.get('packages')">
     <py:for each="num, package in enumerate(data.get('packages'))">
-      <dt><input checked="checked" id="datasets__${num}__name" name="datasets__${num}__name" type="checkbox" value="${package['name']}"/></dt>
+      <dt><input checked="checked" id="datasets__${num}__name" name="packages__${num}__name" type="checkbox" value="${package['name']}"/></dt>
       <dd>
-        <label for="datasets__${num}__name">${package['name']}</label>
+        <label for="packages__${num}__name">${package['name']}</label>
       </dd>
     </py:for>
   </dl>
@@ -80,8 +80,8 @@
     Add datasets
   </legend>
   <dl>
-    <dt><label class="field_opt" for="datasets__${len(data.get('packages', []))}__name">Dataset</label></dt>
-    <dd><input class="autocomplete-dataset" id="datasets__${len(data.get('packages', []))}__name" name="datasets__${len(data.get('packages', []))}__name" type="text" /></dd>
+    <dt><label class="field_opt" for="packages__${len(data.get('packages', []))}__name">Dataset</label></dt>
+    <dd><input class="autocomplete-dataset" id="datasets__${len(data.get('packages', []))}__name" name="packages__${len(data.get('packages', []))}__name" type="text" /></dd>
   </dl>
 </fieldset>
 
