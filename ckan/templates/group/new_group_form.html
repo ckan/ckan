@@ -63,25 +63,25 @@
 </fieldset>
 
 <fieldset>
-  <legend>Packages</legend>
+  <legend>Datasets</legend>
   <dl py:if="data.get('packages')">
     <py:for each="num, package in enumerate(data.get('packages'))">
-      <dt><input checked="checked" id="packages__${num}__name" name="packages__${num}__name" type="checkbox" value="${package['name']}"/></dt>
+      <dt><input checked="checked" id="datasets__${num}__name" name="packages__${num}__name" type="checkbox" value="${package['name']}"/></dt>
       <dd>
         <label for="packages__${num}__name">${package['name']}</label>
       </dd>
     </py:for>
   </dl>
-  <p py:if="not data.get('packages')">There are no packages currently in this group.</p>
+  <p py:if="not data.get('packages')">There are no datasets currently in this group.</p>
 </fieldset>
 
 <fieldset>
   <legend>
-    Add packages
+    Add datasets
   </legend>
   <dl>
-    <dt><label class="field_opt" for="packages__${len(data.get('packages', []))}__name">Package</label></dt>
-    <dd><input class="autocomplete-package" id="packages__${len(data.get('packages', []))}__name" name="packages__${len(data.get('packages', []))}__name" type="text" /></dd>
+    <dt><label class="field_opt" for="packages__${len(data.get('packages', []))}__name">Dataset</label></dt>
+    <dd><input class="autocomplete-dataset" id="datasets__${len(data.get('packages', []))}__name" name="packages__${len(data.get('packages', []))}__name" type="text" /></dd>
   </dl>
 </fieldset>
 

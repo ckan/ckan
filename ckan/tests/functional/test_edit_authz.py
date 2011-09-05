@@ -57,7 +57,7 @@ class TestEditAuthz(TestController):
 
         model.repo.new_revision()
 
-        self.pkg = u'package'
+        self.pkg = u'dataset'
         pkg = model.Package(name=self.pkg)
         model.Session.add(pkg)
 

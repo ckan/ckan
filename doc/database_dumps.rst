@@ -10,7 +10,7 @@ Creating a Dump
 
 We provide two ``paster`` methods to create dumpfiles.
 
-* ``db simple-dump-json`` - A simple dumpfile, useful to create a public listing of the packages with no user information. All packages are dumped, including deleted packages and ones with strict authorization.
+* ``db simple-dump-json`` - A simple dumpfile, useful to create a public listing of the datasets with no user information. All datasets are dumped, including deleted datasets and ones with strict authorization.
 * ``db dump`` -  A more complicated dumpfile, useful for backups. Replicates the database completely, including users, their personal info and API keys, and hence should be kept private.
 
 For more information on paster, see :doc:`paster`.

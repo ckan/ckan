@@ -79,7 +79,7 @@ Example::
 
 Default value:  (empty)
 
-This sets a space-separated list of extra field key values which will not be shown on the package read page. 
+This sets a space-separated list of extra field key values which will not be shown on the dataset read page. 
 
 .. warning::  While this is useful to e.g. create internal notes, it is not a security measure. The keys will still be available via the API and in revision diffs. 
 
@@ -93,9 +93,9 @@ Example::
 
  rdf_packages = http://semantic.ckan.net/record/
 
-Configure this if you have an RDF store of the same packages as are in your CKAN instance. It will provide three sorts of links from each package page to the equivalent RDF URL given in `rdf_packages`:
+Configure this if you have an RDF store of the same datasets as are in your CKAN instance. It will provide three sorts of links from each dataset page to the equivalent RDF URL given in `rdf_packages`:
 
-1. 303 redirects for clients that content-negotiate rdf-xml or turtle. e.g. client GETs `http://ckan.net/package/pollution-2008` with accept header `application/rdf+xml` ``curl -H "Accept: application/rdf+xml" http://ckan.net/package/pollution-2008``. CKAN's response is a 303 redirect to `http://semantic.ckan.net/package/pollution-2008` which can be obtained with: ``curl -L -H "Accept: application/rdf+xml" http://ckan.net/package/pollution-2008``
+1. 303 redirects for clients that content-negotiate rdf-xml or turtle. e.g. client GETs `http://ckan.net/dataset/pollution-2008` with accept header `application/rdf+xml` ``curl -H "Accept: application/rdf+xml" http://ckan.net/dataset/pollution-2008``. CKAN's response is a 303 redirect to `http://semantic.ckan.net/dataset/pollution-2008` which can be obtained with: ``curl -L -H "Accept: application/rdf+xml" http://ckan.net/dataset/pollution-2008``
 
 2. Embedded links for browsers that are aware. e.g. `<link rel="alternate" type="application/rdf+xml" href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
 
@@ -254,7 +254,7 @@ Example::
 
 Default value:  ``standard``
 
-This sets the name of the form to use when editing a package. This can be a form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the ``setup.py`` file has an entry point for the form defined in the ``ckan.forms`` section. 
+This sets the name of the form to use when editing a dataset. This can be a form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the ``setup.py`` file has an entry point for the form defined in the ``ckan.forms`` section. 
 
 For more information on forms, see :doc:`forms`.
 
@@ -271,9 +271,9 @@ Example::
  package_new_return_url = http://datadotgc.ca/new_dataset_complete?name=<NAME>
  package_edit_return_url = http://datadotgc.ca/dataset/<NAME>
 
-If integrating the Edit Package and New Package forms into a third-party interface, setting these options allows you to set the return address. When the user has completed the form and presses 'commit', the user is redirected to the URL specified.
+If integrating the Edit Dataset and New Dataset forms into a third-party interface, setting these options allows you to set the return address. When the user has completed the form and presses 'commit', the user is redirected to the URL specified.
 
-The ``<NAME>`` string is replaced with the name of the package edited. Full details of this process are given in :doc:`form-integration`.
+The ``<NAME>`` string is replaced with the name of the dataset edited. Full details of this process are given in :doc:`form-integration`.
 
 
 .. index::
@@ -284,7 +284,7 @@ licenses_group_url
 
 A url pointing to a JSON file containing a list of licence objects. This list
 determines the licences offered by the system to users, for example when
-creating or editing a package.
+creating or editing a dataset.
 
 This is entirely optional - by default, the system will use the CKAN list of
 licences available in the `Python licenses package <http://pypi.python.org/pypi/licenses>`_.
@@ -417,7 +417,7 @@ Example::
 
 Default value:  (none)
 
-The primary URL used by this site. Used in the API to provide packages with links to themselves in the web UI.
+The primary URL used by this site. Used in the API to provide datasets with links to themselves in the web UI.
 
 .. index::
    single: api_url
@@ -445,7 +445,7 @@ Authorization Settings
 default_roles
 ^^^^^^^^^^^^^
 
-This allows you to set the default authorization roles (i.e. permissions) for new objects. Currently this extends to new packages, groups, authorization groups and the ``system`` object. For full details of these, see :doc:`authorization`.
+This allows you to set the default authorization roles (i.e. permissions) for new objects. Currently this extends to new datasets, groups, authorization groups and the ``system`` object. For full details of these, see :doc:`authorization`.
 
 The value is a strict JSON dictionary of user names ``visitor`` (any user who is not logged in)  and ``logged_in`` (any user who is logged in) with lists of their roles.
 
@@ -454,7 +454,7 @@ Example::
  ckan.default_roles.Package = {"visitor": ["editor"], "logged_in": ["editor"]}
  ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
 
-With this example setting, visitors and logged-in users can only read packages that get created.
+With this example setting, visitors and logged-in users can only read datasets that get created.
 
 Defaults: see in ``ckan/model/authz.py`` for: ``default_default_user_roles``
 

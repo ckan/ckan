@@ -2,21 +2,21 @@
 Customizing Forms
 =================
 
-The forms used to edit packages and groups in CKAN can be customized. This lets you tailor them to your needs, helping your users choose from sensible options or use different data formats. 
+The forms used to edit datasets and groups in CKAN can be customized. This lets you tailor them to your needs, helping your users choose from sensible options or use different data formats. 
 
-This document explains how to customize the package and group forms you offer to your users, without getting embroiled in the core CKAN code.
+This document explains how to customize the dataset and group forms you offer to your users, without getting embroiled in the core CKAN code.
 
-.. note:: This section deals with the form used to *edit* packages and groups, not the way they are displayed. For information on customizing the display of forms, see :doc:`theming`. 
+.. note:: This section deals with the form used to *edit* datasets and groups, not the way they are displayed. For information on customizing the display of forms, see :doc:`theming`. 
 
 .. warning:: This is an advanced topic. Ensure you are familiar with :doc:`extensions` before attempting to customize forms. 
 
-Building a Package Form
+Building a Dataset Form
 -----------------------
 
 The Best Way: Extensions
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The best way to build a package form is by using a CKAN extension. 
+The best way to build a dataset form is by using a CKAN extension. 
 
 You will firstly need to make a new controller in your extension.  This should subclass PackageController as follows::
 
@@ -26,7 +26,7 @@ You will firstly need to make a new controller in your extension.  This should s
 
 The ``package_form`` variable in the subclass will be used as the new form template.
 
-It is recommended that you copy the package form (``new_package_form.html``) and make modifications to it. However, it is possible to start from scratch.
+It is recommended that you copy the dataset form (``new_package_form.html``) and make modifications to it. However, it is possible to start from scratch.
 
 To point at this new controller correctly, your extension should look like the following::
 
@@ -34,8 +34,8 @@ To point at this new controller correctly, your extension should look like the f
      implements(IRoutes)
      implements(IConfigurer)
      def before_map(self, map):
-         map.connect('/package/new', controller='ckanext.extension_name.controllers.PackageNewController:PackageNew', action='new')
-         map.connect('/package/edit/{id}', controller='ckanext.extension_name.controllers.PackageNewController:PackageNew', action='edit')
+         map.connect('/dataset/new', controller='ckanext.extension_name.controllers.PackageNewController:PackageNew', action='new')
+         map.connect('/dataset/edit/{id}', controller='ckanext.extension_name.controllers.PackageNewController:PackageNew', action='edit')
          return map
      def after_map(self, map):
          return map 

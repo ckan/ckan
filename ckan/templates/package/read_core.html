@@ -3,8 +3,8 @@
   py:strip=""
   >
   <xi:include href="../_util.html" />
-  <div id="package" class="package">
-    <!-- About package -->
+  <div id="dataset" class="dataset">
+    <!-- About dataset -->
     <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
       ${c.pkg_notes_formatted}
     </div>
@@ -39,7 +39,7 @@
                 This is a list of all known formats and datasets for <em>${c.pkg_dict.get('title', '')}</em>. If you know of another (CSV, SPARQL end-point etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
             </caption>
       </table>
-      <table py:otherwise=""><tr><th>Resources</th><td>None given for this package.</td></tr></table>
+      <table py:otherwise=""><tr><th>Resources</th><td>None given for this dataset.</td></tr></table>
       </py:choose>
     </div>
 
@@ -47,10 +47,10 @@
 
     <py:def function="details_item(label, value)">
         <tr>
-          <td class="package-label">
+          <td class="dataset-label">
             ${label}
           </td>
-          <td class="package-details">
+          <td class="dataset-details">
             ${value}
           </td>
         </tr>
@@ -68,8 +68,8 @@
       <tbody>
         <tr py:for="i, (key, value) in enumerate(c.pkg_extras)"
           rel="dc:relation" resource="_:extra${i}">
-          <td class="package-label" property="rdfs:label">${_(key)}</td>
-          <td class="package-details" property="rdf:value">${value}</td>
+          <td class="dataset-label" property="rdfs:label">${_(key)}</td>
+          <td class="dataset-details" property="rdf:value">${value}</td>
         </tr>
       </tbody>
           <caption py:if="not c.is_preview and h.check_access('package_update',{'id':c.pkg.id})">
@@ -78,6 +78,6 @@
     </table>
     </div>
     
-  </div> <!-- /package -->
+  </div> <!-- /dataset -->
 
 </html>

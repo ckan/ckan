@@ -90,11 +90,11 @@
         <div class="menu">
           <span id="menusearch">
             <form action="${url(controller='package', action='search')}" method="GET">
-              <input name="q" value="${c.q if hasattr(c, 'q') else ''}" class="search" placeholder="Find data packages" />
+              <input name="q" value="${c.q if hasattr(c, 'q') else ''}" class="search" placeholder="Find datasets" />
             </form>
           </span>
           <div id="mainmenu">
-            <span py:if="h.check_access('package_create')">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</span>
+            <span py:if="h.check_access('package_create')">${h.nav_link(c, _('Add a dataset'), controller='package', action='new', id=None)}</span>
             ${h.nav_link(c, _('Search'), controller='package', action='index', id=None, highlight_actions = 'new index')}
             ${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}
           </div>

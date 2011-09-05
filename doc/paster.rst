@@ -79,7 +79,7 @@ The following tasks are supported by paster.
   ratings           Manage the ratings stored in the db
   rights            Commands relating to per-object and system-wide access rights.
   roles             Commands relating to roles and actions.
-  search-index      Creates a search index for all packages
+  search-index      Creates a search index for all datasets
   sysadmin          Gives sysadmin rights to a named user
   user              Manage users
   ================= ==========================================================
@@ -134,7 +134,7 @@ Creating dump files
 For information on using ``db`` to create dumpfiles, see :doc:`database_dumps`.
 
 
-ratings: Manage package ratings
+ratings: Manage dataset ratings
 -------------------------------
 
 Manages the ratings stored in the database, and can be used to count ratings, remove all ratings, or remove only anonymous ratings. 
@@ -149,7 +149,7 @@ rights: Set user permissions
 
 Sets the authorization roles of a specific user on a given object within the system.
 
-For example, to give the user named 'bar' the 'admin' role on the package 'foo'::
+For example, to give the user named 'bar' the 'admin' role on the dataset 'foo'::
 
  paster --plugin=ckan rights make bar admin package:foo  --config=/etc/ckan/std/std.ini
 

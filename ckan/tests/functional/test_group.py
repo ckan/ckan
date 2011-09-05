@@ -79,10 +79,10 @@ class TestGroup(FunctionalTestCase):
             assert 'Administrators' in res, res
             assert 'russianfan' in main_res, main_res
             assert name in res, res
-            assert 'There are 2 packages in this group' in self.strip_tags(main_res), main_res
+            assert 'There are 2 datasets in this group' in self.strip_tags(main_res), main_res
             pkg = model.Package.by_name(pkgname)
             res = res.click(pkg.title)
-            assert '%s - Data Packages' % pkg.title in res
+            assert '%s - Datasets' % pkg.title in res
 
     def test_read_plugin_hook(self):
         plugin = MockGroupControllerPlugin()
@@ -165,11 +165,11 @@ Ho ho ho
         assert group.title == newtitle, group
         assert group.description == newdesc, group
 
-        # now look at packages
+        # now look at datasets
         assert len(group.packages) == 3
 
     def test_3_edit_form_has_new_package(self):
-        # check for package in autocomplete
+        # check for dataset in autocomplete
         offset = url_for(controller='package', action='autocomplete', q='an')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'annakarenina' in res, res

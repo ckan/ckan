@@ -102,7 +102,7 @@ class TestBasicDictize:
         converted_data, errors = validate(data, default_package_schema(), context)
 
         assert errors == {
-            'name': [u'Package name already exists in database'],
+            'name': [u'Dataset name already exists in database'],
             'resources': [{},
                           {'url': [u'Missing value']}]
         }, pformat(errors)
@@ -156,5 +156,5 @@ class TestBasicDictize:
         data["packages"][1].pop("name")
 
         converted_data, errors = validate(data, default_group_schema(), context)
-        assert errors ==  {'packages': [{'id': [u'Package was not found.']}, {'id': [u'Missing value']}]} , pformat(errors)
+        assert errors ==  {'packages': [{'id': [u'Dataset was not found.']}, {'id': [u'Missing value']}]} , pformat(errors)
 

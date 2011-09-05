@@ -2,7 +2,7 @@
   $(document).ready(function () {
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
     CKAN.Utils.setupAuthzGroupAutocomplete($('input.autocomplete-authzgroup'));
-    CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-package'));
+    CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-dataset'));
     CKAN.Utils.setupTagAutocomplete($('input.autocomplete-tag'));
     CKAN.Utils.setupFormatAutocomplete($('input.autocomplete-format'));
   });
@@ -11,14 +11,14 @@
 var CKAN = CKAN || {};
 
 CKAN.Utils = function($, my) {
-  // Attach package autocompletion to provided elements
+  // Attach dataset autocompletion to provided elements
   //
   // Requires: jquery-ui autocomplete
   my.setupPackageAutocomplete = function(elements) {
     elements.autocomplete({
       minLength: 0,
       source: function(request, callback) {
-        var url = '/package/autocomplete?q=' + request.term;
+        var url = '/dataset/autocomplete?q=' + request.term;
         $.ajax({
           url: url,
           success: function(data) {
@@ -183,9 +183,9 @@ CKAN.Utils = function($, my) {
       // fetch updates.
       this.name_changed = false;
       // url for slug api (we need api rather than do it ourself because we check if available)
-      this.url = '/api/2/util/package/create_slug';
-      // Add a new element where the validity of the package name can be displayed
-      this.name_field.parent().append('<div id="package_name_valid_msg"></div>');
+      this.url = '/api/2/util/dataset/create_slug';
+      // Add a new element where the validity of the dataset name can be displayed
+      this.name_field.parent().append('<div id="dataset_name_valid_msg"></div>');
       this.title_field.blur(this.title_change_handler())
       this.title_field.keyup(this.title_change_handler())
       this.name_field.keyup(this.name_change_handler());
@@ -211,7 +211,7 @@ CKAN.Utils = function($, my) {
         // Reset if the name is emptied
         if (!self.name_field.val().replace(/^\s+|\s+$/g, '')){
           self.name_changed = false;
-          $('#package_name_valid_msg').html('');
+          $('#dataset_name_valid_msg').html('');
         } else {
           self.update(self.name_field.val(), function(data) {
               self.name_field.val(data.name)
@@ -226,7 +226,7 @@ CKAN.Utils = function($, my) {
         // Reset if the name is emptied
         if (!self.name_field.val().replace(/^\s+|\s+$/g, '')){
           self.name_changed = false;
-          $('#package_name_valid_msg').html('');
+          $('#dataset_name_valid_msg').html('');
         } else {
           self.name_changed = true;
           self.update(self.name_field.val(), function(data) {
@@ -251,11 +251,11 @@ CKAN.Utils = function($, my) {
           if (on_success) {
             on_success(data);
           }
-          var valid_msg = $('#package_name_valid_msg');
+          var valid_msg = $('#dataset_name_valid_msg');
           if (data.valid) {
-            valid_msg.html('<span style="font-weight: bold; color: #0c0">This package name is available!</span>');
+            valid_msg.html('<span style="font-weight: bold; color: #0c0">This dataset name is available!</span>');
           } else {
-            valid_msg.html('<span style="font-weight: bold; color: #c00">This package name is already used, please use a different name</span>');
+            valid_msg.html('<span style="font-weight: bold; color: #c00">This dataset name is already used, please use a different name</span>');
           }
         }
       });

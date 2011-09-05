@@ -29,7 +29,7 @@ def package_id_exists(value, context):
 
     result = session.query(model.Package).get(value)
     if not result:
-        raise Invalid(_('Package was not found.'))
+        raise Invalid(_('Dataset was not found.'))
     return value
 
 def package_name_exists(value, context):
@@ -40,7 +40,7 @@ def package_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Package with name %r does not exist.') % str(value))
+        raise Invalid(_('Dataset with name %r does not exist.') % str(value))
     return value
 
 def package_id_or_name_exists(value, context):
@@ -55,7 +55,7 @@ def package_id_or_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Package was not found.'))
+        raise Invalid(_('Dataset was not found.'))
 
     return result.id
 
@@ -88,7 +88,7 @@ def package_name_validator(key, data, errors, context):
         query = query.filter(model.Package.id <> package_id) 
     result = query.first()
     if result:
-        errors[key].append(_('Package name already exists in database'))
+        errors[key].append(_('Dataset name already exists in database'))
 
 def duplicate_extras_key(key, data, errors, context):
 
