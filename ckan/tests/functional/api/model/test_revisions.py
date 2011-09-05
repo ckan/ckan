@@ -13,14 +13,17 @@ class RevisionsTestCase(BaseModelApiTestCase):
     reuse_common_fixtures = True
     
     def test_register_get_ok(self):
-        # Check mock register behaviour.
+        # Comparison list - newest first
+        revs = model.Session.query(model.Revision).\
+               order_by(model.Revision.timestamp.desc()).all()
+        assert revs
+
+        # Check list of revisions
         offset = self.revision_offset()
         res = self.app.get(offset, status=200)
-        revs = model.Session.query(model.Revision).all()
-        assert revs, 'There are no revisions in the model.'
-        res_dict = self.data_from_res(res)
-        for rev in revs:
-            assert rev.id in res_dict, (rev.id, res_dict)
+        revs_result = self.data_from_res(res)
+
+        assert_equal(revs_result, [rev.id for rev in revs])
 
     def test_entity_get_ok(self):
         rev = model.repo.history().all()[-2] # 2nd revision is the creation of pkgs
@@ -43,6 +46,13 @@ class RevisionsTestCase(BaseModelApiTestCase):
         offset = self.revision_offset(revision_id)
         res = self.app.get(offset, status=404)
         self.assert_json_response(res, 'Not found')
+
+    def test_entity_get_301(self):
+        # see what happens when you miss the ID altogether
+        revision_id = ''
+        offset = self.revision_offset(revision_id)
+        res = self.app.get(offset, status=301)
+        # redirects "/api/revision/" to "/api/revision"
 
 class TestRevisionsVersion1(Version1TestCase, RevisionsTestCase): pass
 class TestRevisionsVersion2(Version2TestCase, RevisionsTestCase): pass

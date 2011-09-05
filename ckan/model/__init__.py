@@ -243,7 +243,7 @@ def revision_as_dict(revision, include_packages=True, include_groups=True,ref_pa
         ('timestamp', strftimestamp(revision.timestamp)),
         ('message', revision.message),
         ('author', revision.author),
-        ('approved_timestamp',revision.approved_timestamp)
+        ('approved_timestamp', strftimestamp(revision.approved_timestamp)),
         ))
     if include_packages:
         revision_dict['packages'] = [getattr(pkg, ref_package_by) \
