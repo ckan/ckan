@@ -139,7 +139,6 @@ class ApiController(BaseController):
         context = {'model': model, 'session': model.Session, 'user': c.user}
         model.Session()._context = context
         return_dict = {'help': function.__doc__}
-
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
@@ -180,10 +179,13 @@ class ApiController(BaseController):
         action_map = {
             'revision': get_action('revision_list'),
             'group': get_action('group_list'),
+            'dataset': get_action('package_list'),
             'package': get_action('package_list'),
             'tag': get_action('tag_list'),
             'licenses': get_action('licence_list'),
+            ('dataset', 'relationships'): get_action('package_relationships_list'),
             ('package', 'relationships'): get_action('package_relationships_list'),
+            ('dataset', 'revisions'): get_action('package_revision_list'),
             ('package', 'revisions'): get_action('package_revision_list'),
         }
 
@@ -206,7 +208,9 @@ class ApiController(BaseController):
             'revision': get_action('revision_show'),
             'group': get_action('group_show_rest'),
             'tag': get_action('tag_show_rest'),
+            'dataset': get_action('package_show_rest'),
             'package': get_action('package_show_rest'),
+            ('dataset', 'relationships'): get_action('package_relationships_list'),
             ('package', 'relationships'): get_action('package_relationships_list'),
         }
 
@@ -215,6 +219,7 @@ class ApiController(BaseController):
         data_dict = {'id': id, 'id2': id2, 'rel': subregister}
 
         for type in model.PackageRelationship.get_all_types():
+            action_map[('dataset', type)] = get_action('package_relationships_list')
             action_map[('package', type)] = get_action('package_relationships_list')
         log.debug('show: %s' % context)
 
@@ -239,13 +244,16 @@ class ApiController(BaseController):
     def create(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
+            ('dataset', 'relationships'): get_action('package_relationship_create'),
             ('package', 'relationships'): get_action('package_relationship_create'),
              'group': get_action('group_create_rest'),
+             'dataset': get_action('package_create_rest'),
              'package': get_action('package_create_rest'),
              'rating': get_action('rating_create'),
         }
 
         for type in model.PackageRelationship.get_all_types():
+            action_map[('dataset', type)] = get_action('package_relationship_create')
             action_map[('package', type)] = get_action('package_relationship_create')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
@@ -289,11 +297,14 @@ class ApiController(BaseController):
     def update(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
+            ('dataset', 'relationships'): get_action('package_relationship_update'),
             ('package', 'relationships'): get_action('package_relationship_update'),
+             'dataset': get_action('package_update_rest'),
              'package': get_action('package_update_rest'),
              'group': get_action('group_update_rest'),
         }
         for type in model.PackageRelationship.get_all_types():
+            action_map[('dataset', type)] = get_action('package_relationship_update')
             action_map[('package', type)] = get_action('package_relationship_update')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
@@ -331,11 +342,14 @@ class ApiController(BaseController):
 
     def delete(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
+            ('dataset', 'relationships'): get_action('package_relationship_delete'),
             ('package', 'relationships'): get_action('package_relationship_delete'),
              'group': get_action('group_delete'),
+             'dataset': get_action('package_delete'),
              'package': get_action('package_delete'),
         }
         for type in model.PackageRelationship.get_all_types():
+            action_map[('dataset', type)] = get_action('package_relationship_delete')
             action_map[('package', type)] = get_action('package_relationship_delete')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
@@ -390,7 +404,7 @@ class ApiController(BaseController):
                     gettext("Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"))
             revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
             return self._finish_ok([rev.id for rev in revs])
-        elif register == 'package' or register == 'resource':
+        elif register in ['dataset', 'package', 'resource']:
             try:
                 params = self._get_search_params(request.params)
             except ValueError, e:
@@ -417,7 +431,7 @@ class ApiController(BaseController):
                 for v in values:
                     query_fields.add(field, v)
             
-            if register == 'package':
+            if register in ['dataset', 'package']:
                 options.ref_entity_with_attr = 'id' if ver == '2' else 'name'
             try:
                 backend = None

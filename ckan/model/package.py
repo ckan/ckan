@@ -202,7 +202,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                               for res in self.resources]
         site_url = config.get('ckan.site_url', None)
         if site_url:
-            _dict['ckan_url'] = '%s/package/%s' % (site_url, self.name)
+            _dict['ckan_url'] = '%s/dataset/%s' % (site_url, self.name)
         _dict['relationships'] = [rel.as_dict(self, ref_package_by=ref_package_by) for rel in self.get_relationships()]
         _dict['metadata_modified'] = self.metadata_modified.isoformat() \
             if self.metadata_modified else None
