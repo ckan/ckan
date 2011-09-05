@@ -40,7 +40,7 @@ own CKAN extension like this:
 
     (pyenv)$ paster create -t ckanext ckanext-myname
 
-You'll get prompted to complete a number of variables which will be used in your package. You change these later by editing the generated ``setup.py`` file. Here's some example output:
+You'll get prompted to complete a number of variables which will be used in your dataset. You change these later by editing the generated ``setup.py`` file. Here's some example output:
 
 ::
 
@@ -202,7 +202,7 @@ HTML to the page.
 .. tip ::
 
    This example is based on real code used to implement the ``ckanext-disqus`` plugin
-   to add commenting to packages. You can see the latest version of this code at
+   to add commenting to datasets. You can see the latest version of this code at
    http://bitbucket.org/okfn/ckanext-disqus/src/tip/ckanext/plugins/disqus/__init__.py.
 
 First we set up logging and some helpers we'll need from Genshi to transfer the stream:
@@ -238,8 +238,8 @@ Let's have a look at the code:
 
     class Disqus(SingletonPlugin):
         """
-        Insert javascript fragments into package pages and the home page to 
-        allow users to view and create comments on any package. 
+        Insert javascript fragments into dataset pages and the home page to 
+        allow users to view and create comments on any dataset. 
         """
         
         implements(IConfigurable)
@@ -928,7 +928,7 @@ CKAN queue functionality within CKAN by adding this to your CKAN config file
 You don't need to specify configuration options to connect to RabbitMQ because
 the defaults are fine.
 
-At this point if you edit a package it should be using the queue. If you have
+At this point if you edit a dataset it should be using the queue. If you have
 the echo worker running you'll see the message added to the queue.
 
 Logging
