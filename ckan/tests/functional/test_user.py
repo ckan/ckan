@@ -191,6 +191,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fullname = u'Test Create'
         password = u'testpassword'
         assert not model.User.by_name(unicode(username))
+        rev_id_before_test = model.repo.youngest_revision().id
 
         offset = url_for(controller='user', action='register')
         res = self.app.get(offset, status=200)
@@ -221,6 +222,11 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert_equal(user.name, username)
         assert_equal(user.fullname, fullname)
         assert user.password
+
+        # no revision should be created - User is not revisioned
+        rev_id_after_test = model.repo.youngest_revision().id
+        assert_equal(rev_id_before_test, rev_id_after_test)
+
 
     def test_user_create_unicode(self):
         # create/register user
@@ -381,6 +387,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                                          password='letmein'))
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
+        rev_id_before_test = model.repo.youngest_revision().id
 
         # edit
         new_about = u'Changed about'
@@ -415,6 +422,10 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert new_about in main_res, main_res
+
+        # no revision should be created - User is not revisioned
+        rev_id_after_test = model.repo.youngest_revision().id
+        assert_equal(rev_id_before_test, rev_id_after_test)
 
     def test_user_edit_no_password(self):
         # create user
