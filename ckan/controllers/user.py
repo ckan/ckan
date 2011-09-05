@@ -12,6 +12,7 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.logic.schema import user_new_form_schema, user_edit_form_schema 
+from ckan.lib.captcha import check_recaptcha, CaptchaError
 
 log = logging.getLogger(__name__)
 
@@ -140,6 +141,7 @@ class UserController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
+            check_recaptcha(request)
             user = get_action('user_create')(context, data_dict)
             h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
@@ -148,6 +150,10 @@ class UserController(BaseController):
             abort(404, _('User not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
+        except CaptchaError:
+            error_msg = _(u'Bad Captcha. Please try again.')
+            h.flash_error(error_msg)
+            return self.new(data_dict)
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
