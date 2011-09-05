@@ -322,18 +322,6 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
 
-    def test_strftimestamp(self):
-        import datetime
-        t = datetime.datetime(2012, 3, 4, 5, 6, 7, 890123)
-        s = model.strftimestamp(t)
-        assert s == "2012-03-04T05:06:07.890123", s
-
-    def test_strptimestamp(self):
-        import datetime
-        s = "2012-03-04T05:06:07.890123"
-        t = model.strptimestamp(s)
-        assert t == datetime.datetime(2012, 3, 4, 5, 6, 7, 890123), t
-
 class TestPackageSearchApi1(Api1TestCase, PackageSearchApiTestCase): pass
 class TestPackageSearchApi2(Api2TestCase, PackageSearchApiTestCase): pass
 class TestPackageSearchApiUnversioned(PackageSearchApiTestCase, ApiUnversionedTestCase): pass

@@ -14,6 +14,7 @@ from babel.dates import format_date, format_datetime, format_time
 
 from ckan.logic import get_action, check_access
 from ckan.logic.schema import package_form_schema
+from ckan.lib.helpers import date_str_to_datetime
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import etag_cache, response, redirect, gettext
 from ckan.authz import Authorizer
@@ -195,7 +196,7 @@ class PackageController(BaseController):
                 context['revision_id'] = revision_ref
             else:
                 try:
-                    date = model.strptimestamp(revision_ref)
+                    date = date_str_to_datetime(revision_ref)
                     context['revision_date'] = date
                 except TypeError, e:
                     abort(400, _('Invalid revision format: %r') % e.args)

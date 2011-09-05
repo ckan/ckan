@@ -4,7 +4,7 @@ from paste.util.multidict import MultiDict
 from webob.multidict import UnicodeMultiDict
 
 from ckan.lib.base import BaseController, response, c, _, gettext, request
-from ckan.lib.helpers import json
+from ckan.lib.helpers import json, date_str_to_datetime
 import ckan.model as model
 import ckan.rating
 from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
@@ -382,7 +382,7 @@ class ApiController(BaseController):
             elif request.params.has_key('since_time'):
                 since_time_str = request.params['since_time']
                 try:
-                    since_time = model.strptimestamp(since_time_str)
+                    since_time = date_str_to_datetime(since_time_str)
                 except ValueError, inst:
                     return self._finish_bad_request('ValueError: %s' % inst)
             else:

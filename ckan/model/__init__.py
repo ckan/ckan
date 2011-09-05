@@ -1,4 +1,6 @@
 import warnings
+import logging
+
 from pylons import config
 from sqlalchemy import MetaData, __version__ as sqav
 from sqlalchemy.schema import Index
@@ -24,6 +26,8 @@ from changeset import Changeset, Change, Changemask
 import ckan.migration
 from ckan.lib.helpers import OrderedDict, datetime_to_date_str
 from vdm.sqlalchemy.base import SQLAlchemySession
+
+log = logging.getLogger(__name__)
 
 # set up in init_model after metadata is bound
 version_table = None
@@ -285,6 +289,7 @@ def strptimestamp(s):
     raises ValueError if any of the numbers are out of range.
     '''
     # TODO: METHOD DEPRECATED - use ckan.lib.helpers.date_str_to_datetime
+    log.warn('model.strptimestamp is deprecated - use ckan.lib.helpers.date_str_to_datetime instead')
     import datetime, re
     return datetime.datetime(*map(int, re.split('[^\d]', s)))
 
@@ -293,12 +298,13 @@ def strftimestamp(t):
     a pretty printed string, use ckan.lib.helpers.render_datetime.
     '''
     # TODO: METHOD DEPRECATED - use ckan.lib.helpers.datetime_to_date_str
+    log.warn('model.strftimestamp is deprecated - use ckan.lib.helpers.datetime_to_date_str instead')
     return t.isoformat()
 
 def revision_as_dict(revision, include_packages=True, include_groups=True,ref_package_by='name'):
     revision_dict = OrderedDict((
         ('id', revision.id),
-        ('timestamp', strftimestamp(revision.timestamp)),
+        ('timestamp', datetime_to_date_str(revision.timestamp)),
         ('message', revision.message),
         ('author', revision.author),
         ('approved_timestamp',
