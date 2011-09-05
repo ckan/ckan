@@ -544,7 +544,7 @@ body.user-list .sort a {
 /* = Search boxes = */
 /* ================ */
 
-form.package-search input.search {
+form.dataset-search input.search {
   width: 99%;
   font-size: 1.2em;
   margin: 0px;
@@ -560,7 +560,7 @@ form.package-search input.search {
   -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
 }
 
-.package-search input.button {
+.dataset-search input.button {
     display: inline-block;
     float: right;
     margin-top: 5px;
@@ -568,13 +568,13 @@ form.package-search input.search {
     margin-bottom: 1px !important;
 }
 
-.package-search-filters {
+.dataset-search-filters {
   margin-top: 1em;
   margin-bottom: 1em;
   color: #888;
 }
 
-.package-search-filters label {
+.dataset-search-filters label {
   padding-left: 1em;
 }
 
