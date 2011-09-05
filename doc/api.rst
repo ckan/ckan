@@ -351,7 +351,7 @@ The ``Package`` and ``Revision`` data formats are as defined in `Model Formats`_
 | filter_by_openness    | 0 (default)   | filter_by_openness=1             | Filters results by ones which are|
 |                       | or 1          |                                  | open.                            |
 +-----------------------+---------------+----------------------------------+----------------------------------+
-|filter_by_downloadable| 0 (default)   | filter_by_downloadable=1         | Filters results by ones which    |
+|filter_by_downloadable| 0 (default)   | filter_by_downloadable=1          | Filters results by ones which    |
 |                       | or 1          |                                  | have at least one resource URL.  |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 
@@ -535,3 +535,16 @@ Returns:
 ::
 
     {"ResultSet": {"Result": [{"Name": "russian"}]}}
+
+Similarly, there is an autocomplete API for the resource format field
+which is available at:
+
+::
+
+    /api/2/util/resource/format_autocomplete?incomplete=cs
+
+This returns:
+
+::
+
+    {"ResultSet": {"Result": [{"Format": "csv"}]}}

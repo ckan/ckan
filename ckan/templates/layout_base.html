@@ -1,18 +1,24 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  >
-
+<!--[if IE 8 ]>    <html class="no-js ie8" lang="en"> <![endif]-->
+  <!--[if (gte IE 9)|!(IE)]><!--> <html class="no-js" lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      > <!--<![endif]-->
 <xi:include href="_util.html" />
-
 <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
   <title>${page_title()} - ${g.site_title}</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link rel="shortcut icon" href="${g.favicon}" type="image/x-icon" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="${g.site_url}/favicon.ico" />
+
   <py:choose>
   <py:when test="defined('optional_feed')">
     ${optional_feed()}
@@ -21,21 +27,28 @@
   <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History" href="${h.url_for(controller='revision', action='list', id=None, format='atom', days=1)}" />
   </py:otherwise>
   </py:choose>
+  <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css' />
 
-  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen, print" />
-  <link rel="stylesheet" href="${g.site_url}/css/style.css" type="text/css" media="screen, print" />
-
-  <!--[if IE]>
-  <link rel="stylesheet" href="${g.site_url}/css/ie.css" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="${g.site_url}/scripts/vendor/jqueryui/1.8.11/css/ui-lightness/jquery-ui.css" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="${g.site_url}/css/boilerplate.css?v=2" />
+  <link rel="stylesheet" href="${g.site_url}/css/blueprint/screen.css" type="text/css" media="screen, projection" />
+  <link rel="stylesheet" href="${g.site_url}/css/blueprint/print.css" type="text/css" media="print" />
+  <!--[if lt IE 8]>
+    <link rel="stylesheet" href="${g.site_url}/css/blueprint/ie.css" type="text/css" media="screen, projection">
   <![endif]-->
+  <link rel="stylesheet" href="${g.site_url}/css/style.css?v=2" />
+  <link rel="stylesheet" href="${g.site_url}/css/forms.css" type="text/css" media="screen, print" />
   
   <script type="text/javascript" src="${g.site_url}/language.js"></script>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
-  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
-  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.placeholder/jquery.placeholder.js"></script>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/language.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery/1.5.2/jquery.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.cookie/jquery.cookie.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.placeholder/jquery.placeholder.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jqueryui/1.8.11/jquery-ui.min.js"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/application.js?lang=${c.locale}"></script>
-  
+
+  <script src="${g.site_url}/scripts/vendor/modernizr/1.7/modernizr.min.js"></script>
+
   <script type="text/javascript">
     $(document).ready(function() {
         var ckan_user = $.cookie("ckan_display_name");
@@ -46,176 +59,135 @@
         $('input[placeholder], textarea[placeholder]').placeholder();
     });
   </script>
+
   <py:if test="defined('optional_head')">
     ${optional_head()}
   </py:if>
+
 </head>
 
-<body class="${value_of('body_class', default=lambda: c.body_class)()}">
-
-<div id="wrapper" class="hfeed">
-  <div id="header">
-  <div id="masthead">
-    <div id="branding" role="banner">
-       <h1 id="site-title">
-       <a href="${url('home')}" title="${g.site_title} Home">
-      <py:if test="g.site_logo">
-            <img src="${g.site_logo}" alt="${g.site_title} Logo" title="${g.site_title} Logo" style="display: inline;" />
-          </py:if>
-          <py:if test="not g.site_logo">
-            ${g.site_title}
-          </py:if>
-        </a>
-      </h1>
-      <div id="site-description">${g.site_description}</div>
-    </div> <!-- /branding -->
-
-    <div id="top-bar">
-      <div id="top-bar-login">
-        <span class="ckan-logged-in" style="display: none;">
-          <a href="${h.url_for(controller='user',action='me',id=None)}">${h.icon('user')} My account</a>
-          &middot; <a href="${h.url_for('/user/logout')}">Logout</a>
-        </span>
-        <span class="ckan-logged-out">
-                <a href="${h.url_for(controller='user',action='login', id=None)}">Login</a> &middot;
-                <a href="${h.url_for(controller='user',action='register', id=None)}">Register</a>
-        </span>
-      </div>
-
-      <div class="search-form">
-        <form action="${url(controller='package', action='search')}" method="GET">
-          <input type="search" class="search" name="q" value="" autocomplete="off" results="5" placeholder="Search..."/>
-        </form>
-      </div>
-    </div><!-- /top-bar -->
-
-    <div id="access" role="navigation">
-      <div class="skip-link screen-reader-text">
-        <a href="#content" title="Skip to content">Skip to content</a>
-      </div> 
-      <div class="menu">
-        <ul>
-          <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}</li>
-          <li>${h.nav_link(c, _('Search'), controller='package', action='index', id=None, highlight_actions = 'search index')}</li>
-<?python
-    am_authorized_package_create = h.am_authorized(c, actions.PACKAGE_CREATE)
-?>
-          <li py:if="am_authorized_package_create">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</li>
-          <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
-          <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None, highlight_actions = 'new index')}</li>
-          <li>${h.nav_link(c, _('About'), controller='home', action='about', id=None)}</li>
-      </ul>
-      </div> <!-- .menu -->
-    </div> <!-- #access -->
-
-  </div><!-- #masthead -->
-  </div><!-- #header -->  
-
-  <div id="main"> 
-  <py:with vars="messages = list(h._flash.pop_messages())">
-  <div class="flash-banner-box" py:if="len(messages)">
-    <div class="flash-banner ${m.category}" py:for="m in messages">
-      ${m.message}
-    </div>
-  </div>
-  </py:with>
-
-    <div id="container"> 
-      <div id="minornavigation">
-        <minornavigation></minornavigation> 
-      </div>
-      <div id="content" role="main"> 
-        <div class="page type-page hentry">
-          <div class="entry-content">
-            <!-- support both options for defining content -->
-            <py:if test="defined('content')">
-            ${content()}
-            </py:if>
-            <content>
-                <p>Master content template placeholder &hellip; please replace me.</p>
-            </content>
-          </div><!-- .entry-content -->
+<body class="${request.environ.get('pylons.routes_dict', {}).get('action')} 
+             ${request.environ.get('pylons.routes_dict', {}).get('controller').split(':')[-1]}">
+  <div id="wrap">
+    <div class="header outer">
+      <header class="container">
+        <div class="menu account">
+          <span class="ckan-logged-in" style="display: none;">
+            <a href="${h.url_for(controller='user',action='me',id=None)}">${h.icon('user')} My account</a>
+            <a href="${h.url_for('/user/logout')}">Logout</a>
+          </span>
+          <span class="ckan-logged-out">
+            <a href="${h.url_for(controller='user',action='login', id=None)}">Login</a>
+            <a href="${h.url_for(controller='user',action='register', id=None)}">Register</a>
+          </span>
         </div>
+        <a href="${url('home')}">
+          <img width="64" src="${g.site_logo}" alt="${g.site_title} Logo" title="${g.site_title} Logo" id="logo" />
+        </a>
+        <div id="site-name">
+          <a href="${url('home')}">${g.site_title} &mdash; ${g.site_description}</a>
+        </div>
+        <div class="menu">
+          <span id="menusearch">
+            <form action="${url(controller='package', action='search')}" method="GET">
+              <input name="q" value="${c.q if hasattr(c, 'q') else ''}" class="search" placeholder="Find data packages" />
+            </form>
+          </span>
+          <div id="mainmenu">
+            <span py:if="h.check_access('package_create')">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</span>
+            ${h.nav_link(c, _('Search'), controller='package', action='index', id=None, highlight_actions = 'new index')}
+            ${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}
+          </div>
+          ${h.nav_link(c, _('About'), controller='home', action='about', id=None)}
+        </div>
+      </header>
+    </div>
+    <py:with vars="messages = list(h._flash.pop_messages())">
+    <div class="class container flash-banner-box" py:if="len(messages)">
+      <div class="flash-banner ${m.category}" py:for="m in messages">
+        ${m.message}
+      </div>
+    </div>
+    </py:with>
 
-        <div id="comments">
-        </div><!-- #comments -->
+    <div id="main" class="container" role="main">
+      <h1 py:if="defined('page_heading')" class="page_heading">${page_heading()}</h1>
+      <div id="minornavigation" class="span-24 last">
+          <minornavigation></minornavigation>
+      </div>
 
-      </div> <!-- #content -->
-    </div> <!-- #container -->
-
-    <div id="primary" class="widget-area" role="complementary">
-      <ul class="xoxo">
-        <py:if test="defined('primary_sidebar_extras')">
-          ${primary_sidebar_extras()}
+      <div id="content" class="span-16 append-1">
+        <py:if test="defined('content')">
+          ${content()}
         </py:if>
-        <primarysidebar>
-        <!-- Primary Side Bar Goes Here -->
-        </primarysidebar>
-      </ul>
-    </div><!-- #primary .widget-area -->
-
-  </div><!-- #main -->
-  
-<div id="footer" role="contentinfo"> 
-  <div id="colophon">
-    <div id="footer-widget-area" role="complementary">
-
-      <div id="first" class="widget-area">
-        <ul class="xoxo">
-          <li class="widget-container widget_text">
-          <h3 class="widget-title">Packages</h3>
+        <content>
+          <p>Master content template placeholder &hellip; please replace me.</p>
+        </content>
+      </div>
+      <div id="sidebar" class="span-7 last">
+        <ul class="widget-list">
+          <py:if test="defined('primary_sidebar_extras')">
+            ${primary_sidebar_extras()}
+          </py:if>
+          <primarysidebar>
+            <!-- Primary Side Bar Goes Here -->
+          </primarysidebar>
+        </ul>
+      </div>
+    </div>
+    <br/><br/>
+    <div id="push"></div>
+  </div>
+  <div class="footer outer">
+    <footer class="container">
+        <div class="xoxo span-6">
+          <h3 class="widget-title">About ${g.site_title}</h3>
           <div class="textwidget">
             <ul>
-                <li>${h.nav_link(c, _('Search'), controller='package', action='search', id=None)}</li>                
-                <li py:if="am_authorized_package_create">${h.nav_link(c, _('Register a new Package'), controller='package', action='new', id=None)}</li>
-                <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
+                <li>${h.link_to(_('About'), h.url_for(controller='home', action='about', id=None))}</li>
+              <li>
+                <a href="http://twitter.com/ckanproject">Twitter @ckanproject</a>
+              </li>
                 <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None))}</li>
                 <li>${h.link_to(_('API Docs'), 'http://wiki.ckan.net/API')}</li>
-<?python
-  from pylons import config
-  dumps_url = config.get('ckan.dumps_url')
-  dumps_format = config.get('ckan.dumps_format', '')
-?>
-                <li py:if="dumps_url">${h.link_to(_('Full %s dump') % dumps_format, dumps_url)}</li>
+              <li>
+                <a href="http://okfn.org/contact/">Contact Us</a>
+              </li>
+              <li>
+                <a href="http://okfn.org/privacy-policy/">Privacy Policy</a>
+              </li>
             </ul>
           </div>
-          </li>
-        </ul>
-        <ul class="xoxo">
-          <li class="widget-container widget_text">
-          <h3 class="widget-title">Groups &amp; Tags</h3>
-          <div class="textwidget">
-            <ul>
-              <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
-              <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}</li>
-              <li py:if="h.am_authorized(c, actions.GROUP_CREATE)">${h.nav_link(c, _('Create a new Group'), controller='group', action='new', id=None)}</li>
-              <li>${h.nav_link(c, _('Authorization Groups'), controller='authorization_group', action='index', id=None)}</li>
-              <li class="page_item" py:if="h.am_authorized(c, actions.AUTHZ_GROUP_CREATE)">${h.nav_link(c, _('Create a new Authorization Group'), controller='authorization_group', action='new', id=None)}</li>
-            </ul>
-          </div>
-          </li>
-        </ul>
-        <ul class="xoxo">
-          <li class="widget-container widget_text">
-          <h3 class="widget-title">About</h3>
+        </div>
+        <div class="xoxo span-6">
+          <h3 class="widget-title">Sections</h3>
           <div class="textwidget">
             <ul>
               <li>
-                <a href="http://ckan.org/">Project Home Page</a>
+                <a href="${url(controller='tag', action='index')}">
+                  Tags
+                </a>
               </li>
               <li>
-                <a href="http://www.okfn.org/contact/">Contact Us</a>
+                <a href="${url(controller='revision', action='index')}">
+                  Revisions
+                </a>
               </li>
               <li>
-                <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
+                <a href="${url(controller='authorization_group', action='index')}">
+                  Authorization Groups
+                </a>
+              </li>
+              <li>
+                <a href="${url('/ckan-admin')}">
+                  Site Admin
+                </a>
               </li>
             </ul>
           </div>
-          </li>
-        </ul>
-        <ul class="xoxo">
-          <li class="widget-container widget_text">
-          <h3 class="widget-title">Language</h3>
+        </div>
+        <div class="xoxo span-6">
+          <h3 class="widget-title">Languages</h3>
           <div class="textwidget">
             <ul>
 <?python
@@ -228,66 +200,36 @@
                              locale=str(locale), 
                              return_to=current_url,
                              hash=current_url_hash)}">
-                  ${locale.display_name}
+                  ${locale.display_name or locale.english_name}
                 </a>
               </li>
             </ul>
           </div>
-          </li>
-        </ul>
-      </div><!-- #first .widget-area -->
+        </div>
+        <div class="xoxo span-6 last">
+          <h3 class="widget-title">Meta</h3>
+          <p id="credits">
+          &copy; 2011
+        <img src="http://assets.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" id="footer-okf-logo" />
+        <a href="http://okfn.org/">Open Knowledge Foundation</a>
+        Licensed under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>
+        <a href="http://opendefinition.org/"><img alt="This Content and Data is Open" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" style="border: none ; margin-bottom: -4px;"/></a>
+        
+        <br/><br/>
+        Powered by <a href="http://ckan.org">CKAN</a>.<br/>
+      </p>
+        </div>
+    </footer>
+  </div> <!-- eo #container -->
 
-      <div id="fourth" class="widget-area">
-        <ul class="xoxo">
-          <li class="widget-container widget_text">
-          <h3 class="widget-title">Credits</h3>
-          <div class="textwidget">
-            <ul>
-              <li i18n:msg="">
-                <img src="http://assets.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" id="footer-okf-logo" />
-                An
-                <a href="http://www.okfn.org/">Open Knowledge Foundation</a> Project
-              </li>
-              <li>
-                &copy; <a href="http://www.okfn.org/">Open Knowledge Foundation</a>
-              </li>
-              <li>
-                <a href="http://www.opendefinition.org/okd/">
-                <img alt="This Content and Data is Open" src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" style="border: none ; margin-bottom: -4px;"/>
-                </a>
-              </li>
-              <li>
-                <a href="http://www.opendefinition.org/okd/">
-                <img alt="This Content and Data is Open" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" style="border: none ; margin-bottom: -4px;"/>
-                </a>
-              </li>
-            </ul>
-          </div>
-          </li>
-        </ul>
-      </div><!-- #fourth .widget-area -->
 
-    </div><!-- #footer-widget-area -->
-
-    <div id="site-info">
-      <a href="${url('/')}" title="${g.site_title}" rel="home">
-        ${g.site_title}</a>
-    </div><!-- #site-info -->
-
-    <div id="site-generator">
-      <a href="http://ckan.org/"
-        title="CKAN" rel="generator">
-        Powered by CKAN
-        <span i18n:msg="version">
-          v${c.__version__}
-        </span>
-      </a>
-    </div><!-- #site-generator -->
-  </div><!-- #colophon -->
-</div><!-- #footer --> 
-
-</div><!-- #wrapper -->
+  <py:if test="defined('optional_footer')">
+    ${optional_footer()}
+  </py:if>
 
 ${h.literal(getattr(g, 'template_footer_end', ''))}
 </body>
 </html>
+
+
+

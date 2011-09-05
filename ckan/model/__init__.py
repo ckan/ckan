@@ -23,6 +23,7 @@ from package_relationship import *
 from changeset import Changeset, Change, Changemask
 import ckan.migration
 from ckan.lib.helpers import OrderedDict
+from vdm.sqlalchemy.base import SQLAlchemySession
 
 # set up in init_model after metadata is bound
 version_table = None
@@ -179,6 +180,63 @@ class Repository(vdm.sqlalchemy.Repository):
         metadata = MetaData(self.metadata.bind)
         metadata.reflect()
         return bool(metadata.tables)
+
+    def purge_revision(self, revision, leave_record=False):
+        '''Purge all changes associated with a revision.
+
+        @param leave_record: if True leave revision in existence but change message
+            to "PURGED: {date-time-of-purge}". If false delete revision object as
+            well.
+
+        Summary of the Algorithm
+        ------------------------
+
+        1. list all RevisionObjects affected by this revision
+        2. check continuity objects and cascade on everything else ?
+            1. crudely get all object revisions associated with this
+            2. then check whether this is the only revision and delete the
+            continuity object
+
+            3. ALTERNATIVELY delete all associated object revisions then do a
+            select on continutity to check which have zero associated revisions
+            (should only be these ...)
+        '''
+        to_purge = []
+        SQLAlchemySession.setattr(self.session, 'revisioning_disabled', True)
+        self.session.autoflush = False
+        for o in self.versioned_objects:
+            revobj = o.__revision_class__
+            items = self.session.query(revobj).filter_by(revision=revision).all()
+            for item in items:
+                continuity = item.continuity
+
+                if continuity.revision == revision: # need to change continuity
+                    trevobjs = self.session.query(revobj).join('revision').  filter(
+                            revobj.continuity==continuity
+                            ).order_by(Revision.timestamp.desc()).all()
+                    if len(trevobjs) == 0:
+                        raise Exception('Should have at least one revision.')
+                    if len(trevobjs) == 1:
+                        to_purge.append(continuity)
+                    else:
+                        self.revert(continuity, trevobjs[1])
+                        for num, obj in enumerate(trevobjs):
+                            if num == 0:
+                                continue
+                            if 'pending' not in obj.state:
+                                obj.current = True
+                                self.session.add(obj)
+                                break
+                # now delete revision object
+                self.session.delete(item)
+            for cont in to_purge:
+                self.session.delete(cont)
+        if leave_record:
+            import datetime
+            revision.message = u'PURGED: %s' % datetime.datetime.now()
+        else:
+            self.session.delete(revision)
+        self.commit_and_remove()
 
 
 repo = Repository(metadata, Session,

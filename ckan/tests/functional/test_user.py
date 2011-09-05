@@ -534,8 +534,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # comes back as a params like this:
         # e.g. /user/login?error=Error%20in%20discovery:%20Error%20fetching%20XRDS%20document:%20(6,%20%22Couldn't%20resolve%20host%20'mysite.myopenid.com'%22)
         res = self.app.get("/user/login?error=Error%20in%20discovery:%20Error%20fetching%20XRDS%20document:%20(6,%20%22Couldn't%20resolve%20host%20'mysite.myopenid.com'%22")
-        main_res = self.main_div(res)
-        assert "Couldn't resolve host" in main_res, main_res
+        assert "Couldn't resolve host" in res, res
 
     ############
     # Disabled
@@ -592,8 +591,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['user-password-reset']
         fv['user'] = 'unknown'
         res = fv.submit()
-        main_res = self.main_div(res)
-        assert 'No such user: unknown' in main_res, main_res # error
+        assert 'No such user: unknown' in res, res # error
 
     def test_request_reset_user_password_using_search(self):
         CreateTestData.create_user(name='larry1', email='kittens@john.com')
@@ -611,24 +609,21 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['user-password-reset']
         fv['user'] = 'kittens'
         res = fv.submit()
-        main_res = self.main_div(res)
-        assert '"kittens" matched several users' in main_res, main_res
-        assert 'larry1' not in main_res, main_res
-        assert 'larry2' not in main_res, main_res
+        assert '"kittens" matched several users' in res, res
+        assert 'larry1' not in res, res
+        assert 'larry2' not in res, res
 
         res = self.app.get(offset)
         fv = res.forms['user-password-reset']
         fv['user'] = ''
         res = fv.submit()
-        main_res = self.main_div(res)
-        assert 'No such user:' in main_res, main_res
+        assert 'No such user:' in res, res
 
         res = self.app.get(offset)
         fv = res.forms['user-password-reset']
         fv['user'] = 'l'
         res = fv.submit()
-        main_res = self.main_div(res)
-        assert 'No such user:' in main_res, main_res
+        assert 'No such user:' in res, res
 
     def test_reset_user_password_link(self):
         # Set password

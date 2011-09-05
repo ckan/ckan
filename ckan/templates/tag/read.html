@@ -4,9 +4,9 @@
   py:strip="">
   
   <py:def function="page_title">${c.tag['name']} - Tags</py:def>
+  <py:def function="page_heading">Tag: ${c.tag['name']}</py:def>
 
   <div py:match="content">
-    <h2>Tag: ${c.tag['name']}</h2>
     <p i18n:msg="package_count, tagname">There are ${len(c.tag['packages'])} packages tagged with <strong>${c.tag['name']}</strong>:</p>
     ${package_list_from_dict(c.tag['packages'])}
   </div>

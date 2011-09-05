@@ -4,6 +4,7 @@
   py:strip="">
   
   <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])} - Data Packages - History</py:def>
+  <py:def function="page_heading">History: ${c.pkg.title or c.pkg.name}</py:def>
 
   <!-- Sidebar -->
   <py:match path="primarysidebar">
@@ -19,12 +20,6 @@
   </py:match>
   
   <div py:match="content" class="package">
-
-    <!-- Title -->
-    <h2 class="head">
-        ${c.pkg_dict.get('title', c.pkg_dict['name'])} - History
-    </h2>
-
     <h3>Revisions</h3>
     <form id="package-revisions" action="diff" method="post"
       xmlns:py="http://genshi.edgewall.org/"
@@ -39,7 +34,7 @@
 
       <table>
         <tr>
-          <th></th><th>Revision ID</th><th>Package with timestamp</th><th>Author</th><th>Log Message</th>
+          <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
         </tr>
         <py:for each="index, rev in enumerate(c.pkg_revisions)">
           <tr>
