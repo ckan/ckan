@@ -376,8 +376,8 @@ class TestUsage(TestController, AuthzTestBase):
         assert not model.Package.by_name(u'annakarenina')
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')})
-        assert 'New - Data Packages' in res
-        fv = res.forms['package-edit']
+        assert 'New - Datasets' in res
+        fv = res.forms['dataset-edit']
         prefix = ''
         fv[prefix + 'name'] = u'annakarenina'
         res = fv.submit('save', extra_environ={'REMOTE_USER': user.name.encode('utf8')})

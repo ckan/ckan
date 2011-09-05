@@ -288,8 +288,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         offset = url_for(controller='package', action='read', id=self.anna.id)
         res_by_id = self.app.get(offset)
         # just check the stuff in the package div
-        pkg_by_name_main = self.named_div('package', res)
-        pkg_by_id_main = self.named_div('package', res_by_id)
+        pkg_by_name_main = self.named_div('dataset', res)
+        pkg_by_id_main = self.named_div('dataset', res_by_id)
         # rename some things which may be in the wrong order sometimes
         txt_order_non_deterministic = ('russian', 'tolstoy', 'david', 'roger')
         for txt in txt_order_non_deterministic:
@@ -391,7 +391,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         assert '<strong>0</strong>' in results_page, results_page
 
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
-        form = page.forms['package-search']
+        form = page.forms['dataset-search']
         form['q'] = terms.encode('utf8') # paste doesn't handle this!
         form['open_only'] = only_open
         form['downloadable_only'] = only_downloadable
