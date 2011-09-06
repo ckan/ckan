@@ -17,7 +17,7 @@
     };
     if (isPackageRead) {
       var dataset = client.getDatasetById(LOCAL_packageId);
-      var $el = $('#package');
+      var $el = $('#dataset');
       
       var view = new CKAN.View.DatasetFullForCore({
         model: dataset,
@@ -304,7 +304,6 @@ CKAN.View.DatasetFullForCore = Backbone.View.extend({
     initialize: function() {
       _.bindAll(this, 'render');
       this.model.bind('change', this.render);
-      console.log(this.el);
 
       // slightly painful but we have to set this up here so
       // it has access to self because when called this will

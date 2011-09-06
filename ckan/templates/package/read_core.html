@@ -10,11 +10,10 @@
       ${c.pkg_notes_formatted}
     </div>
     
-    <!-- Downloads and resources -->
+    <!-- Resources -->
     <div class="resources subsection">
-      <h3>Downloads &amp; Resources</h3>
-      <py:choose test="">
-      <table py:when="c.pkg_dict.get('resources', [])">
+      <h3>Resources</h3>
+      <table>
         <tr>
             <th>Description</th>
             <th>Format</th>
@@ -42,13 +41,9 @@
             <a href="${h.url_for(controller='package', action='edit', id=c.pkg.name)}"
               class="action-resource-add"
               >
-              add it to the list
-            </a>
-            .
+              add it to the list</a>.
         </caption>
       </table>
-      <table py:otherwise=""><tr><th>Resources</th><td>None given for this dataset.</td></tr></table>
-      </py:choose>
     </div>
 
     <hr class="cleared" />
