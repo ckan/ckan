@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
-"POT-Creation-Date: 2011-06-27 10:54+0100\n"
-"PO-Revision-Date: 2011-09-05 00:22+0000\n"
-"Last-Translator: oovrebo <olav.ovrebo@gmail.com>\n"
+"POT-Creation-Date: 2011-09-06 12:34+0100\n"
+"PO-Revision-Date: 2011-09-06 11:39+0000\n"
+"Last-Translator: dread <internet@davidread.org>\n"
 "Language-Team: Norwegian (http://www.transifex.net/projects/p/ckan/team/no/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,191 +20,207 @@ msgstr ""
 "Language: no\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: ckan/controllers/api.py:40 ckan/controllers/authorization_group.py:19
-#: ckan/controllers/group.py:50 ckan/controllers/home.py:23
-#: ckan/controllers/package.py:95 ckan/controllers/revision.py:22
-#: ckan/controllers/tag.py:17 ckan/controllers/user.py:22
-#: ckan/controllers/user.py:53 ckan/controllers/user.py:79
+#: ckan/controllers/api.py:39 ckan/controllers/authorization_group.py:19
+#: ckan/controllers/group.py:47 ckan/controllers/home.py:24
+#: ckan/controllers/package.py:100 ckan/controllers/revision.py:22
+#: ckan/controllers/tag.py:20 ckan/controllers/user.py:53
+#: ckan/controllers/user.py:77
 msgid "Not authorized to see this page"
 msgstr "Ikke autorisert til å se denne siden"
 
-#: ckan/controllers/api.py:96
+#: ckan/controllers/api.py:97 ckan/controllers/api.py:160
 msgid "Access denied"
 msgstr "Ingen tilgang"
 
-#: ckan/controllers/api.py:102
+#: ckan/controllers/api.py:103 ckan/controllers/api.py:165
 msgid "Not found"
 msgstr "Ikke funnet"
 
-#: ckan/controllers/api.py:144
-#, python-format
-msgid "Cannot list entity of this type: %s"
-msgstr "Kan ikke liste enhet av denne typen: %s"
+#: ckan/controllers/api.py:111
+msgid "Bad request"
+msgstr ""
 
-#: ckan/controllers/api.py:175
+#: ckan/controllers/api.py:138
 #, python-format
-msgid "Cannot read entity of this type: %s"
-msgstr "Kan ikke lese enhet av denne typen: %s"
+msgid "Action name not known: %s"
+msgstr ""
 
-#: ckan/controllers/api.py:209 ckan/controllers/api.py:255
+#: ckan/controllers/api.py:149 ckan/controllers/api.py:261
+#: ckan/controllers/api.py:309
 #, python-format
 msgid "JSON Error: %s"
 msgstr "JSON-feil: %s"
 
-#: ckan/controllers/api.py:216
+#: ckan/controllers/api.py:157 ckan/controllers/api.py:285
+#: ckan/controllers/api.py:331 ckan/controllers/group.py:166
+#: ckan/controllers/group.py:185 ckan/controllers/package.py:463
+#: ckan/controllers/package.py:496 ckan/controllers/user.py:138
+#: ckan/controllers/user.py:215 ckan/controllers/user.py:326
+msgid "Integrity Error"
+msgstr "Integritetsfeil"
+
+#: ckan/controllers/api.py:196
+#, python-format
+msgid "Cannot list entity of this type: %s"
+msgstr "Kan ikke liste enhet av denne typen: %s"
+
+#: ckan/controllers/api.py:227
+#, python-format
+msgid "Cannot read entity of this type: %s"
+msgstr "Kan ikke lese enhet av denne typen: %s"
+
+#: ckan/controllers/api.py:268
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr "Kan ikke opprette ny enhet av denne typen: %s %s"
 
-#: ckan/controllers/api.py:232 ckan/controllers/api.py:277
-#: ckan/controllers/group.py:161 ckan/controllers/group.py:179
-#: ckan/controllers/package.py:370 ckan/controllers/package.py:397
-msgid "Integrity Error"
-msgstr "Integritetsfeil"
-
-#: ckan/controllers/api.py:261
+#: ckan/controllers/api.py:315
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr "Kan ikke oppdatere enhet av denne typen: %s"
 
-#: ckan/controllers/api.py:298
+#: ckan/controllers/api.py:352
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr "Kan ikke slette enhet av denne typen: %s %s"
 
-#: ckan/controllers/api.py:321
+#: ckan/controllers/api.py:375
+msgid "No revision specified"
+msgstr ""
+
+#: ckan/controllers/api.py:379
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr "Det finnes ingen revisjon med id: %s"
 
-#: ckan/controllers/api.py:332
+#: ckan/controllers/api.py:389
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
 msgstr "Søkestreng mangler ('since_id=UUID' or 'since_time=TIMESTAMP')"
 
-#: ckan/controllers/api.py:340
+#: ckan/controllers/api.py:397
 #, python-format
 msgid "Could not read parameters: %r"
 msgstr "Kunne ikke lese parametere:%r"
 
-#: ckan/controllers/api.py:377
+#: ckan/controllers/api.py:434
 #, python-format
 msgid "Bad search option: %s"
 msgstr "Feil i søkebegrep: %s"
 
-#: ckan/controllers/api.py:380
+#: ckan/controllers/api.py:437
 #, python-format
 msgid "Unknown register: %s"
 msgstr "Ukjent register: %s"
 
-#: ckan/controllers/api.py:388
+#: ckan/controllers/api.py:445
 msgid "Malformed qjson value"
 msgstr "Feil utforming av qjson-verdi"
 
-#: ckan/controllers/api.py:397 ckan/lib/base.py:159
+#: ckan/controllers/api.py:454 ckan/lib/base.py:182
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr "Request params must be in form of a json encoded dictionary."
 
-#: ckan/controllers/authorization_group.py:37 ckan/controllers/group.py:69
+#: ckan/controllers/authorization_group.py:37
 #, python-format
 msgid "Not authorized to read %s"
 msgstr "Ikke autorisert til å lese %s"
 
-#: ckan/controllers/authorization_group.py:55 ckan/controllers/group.py:99
+#: ckan/controllers/authorization_group.py:55 ckan/controllers/group.py:103
 #: ckan/controllers/group_formalchemy.py:29
 msgid "Unauthorized to create a group"
 msgstr "Ikke autorisert til å opprette en ny gruppe"
 
-#: ckan/controllers/authorization_group.py:103 ckan/controllers/group.py:421
+#: ckan/controllers/authorization_group.py:103 ckan/controllers/group.py:430
 #: ckan/controllers/group_formalchemy.py:83
 #, python-format
 msgid "User %r not authorized to edit %r"
 msgstr "Bruker %r ikke autorisert til å redigere %r"
 
-#: ckan/controllers/authorization_group.py:147 ckan/controllers/group.py:188
-#: ckan/controllers/group.py:419
+#: ckan/controllers/authorization_group.py:147 ckan/controllers/group.py:73
+#: ckan/controllers/group.py:194 ckan/controllers/group.py:428
 msgid "Group not found"
 msgstr "Fant ikke gruppen"
 
-#: ckan/controllers/authorization_group.py:155 ckan/controllers/group.py:194
-#: ckan/controllers/package.py:438
+#: ckan/controllers/authorization_group.py:155 ckan/controllers/group.py:200
+#: ckan/controllers/package.py:538
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
 msgstr "Bruker %r ikke autorisert til å redigere rettighetene til %s"
 
-#: ckan/controllers/group.py:134 ckan/controllers/group.py:157
-#: ckan/controllers/group.py:175
+#: ckan/controllers/group.py:75 ckan/controllers/group.py:139
+#: ckan/controllers/group.py:162 ckan/controllers/group.py:181
 #, python-format
 msgid "Unauthorized to read group %s"
 msgstr "Ikke autorisert til å lese gruppen %s"
 
-#: ckan/controllers/group.py:140 ckan/controllers/package.py:341
-#: ckan/controllers/package_formalchemy.py:97
+#: ckan/controllers/group.py:145 ckan/controllers/package.py:376
+#: ckan/controllers/package_formalchemy.py:102
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr "Bruker %r ikke autorisert til å redigere %s"
 
-#: ckan/controllers/group.py:159 ckan/controllers/group.py:177
-#: ckan/controllers/package.py:178 ckan/controllers/package.py:214
-#: ckan/controllers/package.py:249 ckan/controllers/package.py:335
-#: ckan/controllers/package.py:368 ckan/controllers/package.py:395
-#: ckan/controllers/package.py:432
+#: ckan/controllers/group.py:164 ckan/controllers/group.py:183
+#: ckan/controllers/package.py:206 ckan/controllers/package.py:241
+#: ckan/controllers/package.py:285 ckan/controllers/package.py:370
+#: ckan/controllers/package.py:400 ckan/controllers/package.py:420
+#: ckan/controllers/package.py:461 ckan/controllers/package.py:494
+#: ckan/controllers/package.py:531
 msgid "Package not found"
 msgstr "Fant ikke datakilden"
 
-#: ckan/controllers/group.py:412 ckan/controllers/package.py:242
+#: ckan/controllers/group.py:412 ckan/controllers/package.py:266
 msgid "Select two revisions before doing the comparison."
 msgstr "Velg to endringer før du gjør sammenligningen."
 
-#: ckan/controllers/group.py:428
+#: ckan/controllers/group.py:437
 msgid "CKAN Group Revision History"
 msgstr "Revisjonshistorikk for gruppe"
 
-#: ckan/controllers/group.py:430
+#: ckan/controllers/group.py:439
 msgid "Recent changes to CKAN Group: "
 msgstr "Nylige endringer i gruppen:"
 
-#: ckan/controllers/group.py:450 ckan/controllers/package.py:276
+#: ckan/controllers/group.py:457 ckan/controllers/package.py:311
 msgid "Log message: "
 msgstr "Loggmelding:"
 
-#: ckan/controllers/home.py:73
+#: ckan/controllers/home.py:74
 msgid "Invalid language specified"
 msgstr "Ugyldig språk spesifisert"
 
-#: ckan/controllers/home.py:74
+#: ckan/controllers/home.py:75
 msgid "Language has been set to: English"
 msgstr "Språk er satt til: Engelsk"
 
-#: ckan/controllers/home.py:76
+#: ckan/controllers/home.py:77
 msgid "No language given!"
 msgstr "Ingen språk angitt!"
 
-#: ckan/controllers/package.py:201 ckan/controllers/package.py:222
-#: ckan/controllers/package.py:333 ckan/controllers/package.py:366
-#: ckan/controllers/package.py:393
+#: ckan/controllers/package.py:195 ckan/controllers/package.py:197
+#: ckan/controllers/package.py:199
+#, python-format
+msgid "Invalid revision format: %r"
+msgstr ""
+
+#: ckan/controllers/package.py:208 ckan/controllers/package.py:243
+#: ckan/controllers/package.py:283 ckan/controllers/package.py:368
+#: ckan/controllers/package.py:398 ckan/controllers/package.py:418
+#: ckan/controllers/package.py:459 ckan/controllers/package.py:492
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr "Har ikke rettigheten til å lese datakilden %s"
 
-#: ckan/controllers/package.py:255
+#: ckan/controllers/package.py:292
 msgid "CKAN Package Revision History"
 msgstr "Revisjonshistorikk for datakilde"
 
-#: ckan/controllers/package.py:257
+#: ckan/controllers/package.py:294
 msgid "Recent changes to CKAN Package: "
 msgstr "Siste endringer av datakilde:"
 
-#: ckan/controllers/package.py:301 ckan/controllers/package_formalchemy.py:21
+#: ckan/controllers/package.py:335 ckan/controllers/package_formalchemy.py:23
 msgid "Unauthorized to create a package"
 msgstr "Ikke autorisert til å opprette en datakilde"
-
-#: ckan/controllers/package.py:659
-msgid "Package Not Found"
-msgstr ""
-
-#: ckan/controllers/package.py:666
-msgid "Rating value invalid"
-msgstr ""
 
 #: ckan/controllers/revision.py:33
 msgid "CKAN Repository Revision History"
@@ -223,58 +239,81 @@ msgstr "Berørte datakilder: %s.\n"
 msgid "Revision updated"
 msgstr "Endring oppdatert"
 
-#: ckan/controllers/tag.py:43 ckan/forms/common.py:922
+#: ckan/controllers/tag.py:52 ckan/forms/common.py:922
 msgid "Other"
 msgstr "Annet"
 
-#: ckan/controllers/user.py:86
+#: ckan/controllers/tag.py:66
+msgid "Tag not found"
+msgstr ""
+
+#: ckan/controllers/user.py:112
+msgid "Unauthorized to create a user"
+msgstr ""
+
+#: ckan/controllers/user.py:134
 #, python-format
-msgid "Missing parameter: %r"
+msgid "Unauthorized to create user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:88
-msgid "Please enter a login name."
+#: ckan/controllers/user.py:136 ckan/controllers/user.py:176
+#: ckan/controllers/user.py:213 ckan/controllers/user.py:304
+#: ckan/controllers/user.py:324
+msgid "User not found"
 msgstr ""
 
-#: ckan/controllers/user.py:91
+#: ckan/controllers/user.py:155
+msgid "No user specified"
+msgstr ""
+
+#: ckan/controllers/user.py:174 ckan/controllers/user.py:211
+#: ckan/controllers/user.py:322
 #, python-format
-msgid ""
-"That login name is not valid. It must be at least 3 characters, restricted "
-"to alphanumerics and these symbols: %s"
-msgstr ""
-"Brukernavnet er ikke gyldig. Det må være på minst 3 tegn, begrenset til "
-"alfanumeriske tegn og disse symbolene: %s"
-
-#: ckan/controllers/user.py:94
-msgid "That login name is not available."
-msgstr "Brukernavnet er ikke tilgjengelig."
-
-#: ckan/controllers/user.py:97
-msgid "Please enter a password."
+msgid "Unauthorized to edit user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:122
+#: ckan/controllers/user.py:181 ckan/logic/action/update.py:382
+#, python-format
+msgid "User %s not authorized to edit %s"
+msgstr ""
+
+#: ckan/controllers/user.py:239
 #, python-format
 msgid "Welcome back, %s"
 msgstr "Velkommen tilbake, %s"
 
-#: ckan/controllers/user.py:160
-msgid ""
-"Edit not allowed as it looks like spam. Please avoid links in your "
-"description."
-msgstr ""
-"Endring ikke godkjent, da innholdet ser ut som spam. Vennligst unngå lenker "
-"i beskrivelsen din."
-
-#: ckan/controllers/user.py:181
-msgid "Your account has been updated."
+#: ckan/controllers/user.py:279
+#, python-format
+msgid "\"%s\" matched several users"
 msgstr ""
 
-#: ckan/controllers/user.py:201
+#: ckan/controllers/user.py:281 ckan/controllers/user.py:283
+#, python-format
+msgid "No such user: %s"
+msgstr ""
+
+#: ckan/controllers/user.py:288
+msgid "Please check your inbox for a reset code."
+msgstr ""
+
+#: ckan/controllers/user.py:291
+#, python-format
+msgid "Could not send reset link: %s"
+msgstr ""
+
+#: ckan/controllers/user.py:308
+msgid "Invalid reset key. Please try again."
+msgstr ""
+
+#: ckan/controllers/user.py:319
+msgid "Your password has been reset."
+msgstr ""
+
+#: ckan/controllers/user.py:347
 msgid "Your password must be 4 characters or longer."
 msgstr "Passordet må bestå av 4 tegn eller mer."
 
-#: ckan/controllers/user.py:203
+#: ckan/controllers/user.py:349
 msgid "The passwords you entered do not match."
 msgstr "Passordene du skrev inn stemmer ikke overens."
 
@@ -369,8 +408,9 @@ msgid "Details"
 msgstr "Detaljer"
 
 #: ckan/forms/group.py:64 ckan/forms/package.py:102 ckan/forms/package.py:112
-#: ckan/logic/action/update.py:29 ckan/logic/action/update.py:31
 #: ckan/logic/action/update.py:41 ckan/logic/action/update.py:43
+#: ckan/logic/action/update.py:53 ckan/logic/action/update.py:55
+#: ckan/logic/action/update.py:65 ckan/logic/action/update.py:67
 #: ckan/templates/group/new_group_form.html:41
 #: ckan/templates/package/new_package_form.html:154
 msgid "Extras"
@@ -542,7 +582,7 @@ msgid "Basic information"
 msgstr "Grunnleggende informasjon"
 
 #: ckan/forms/package.py:96 ckan/forms/package.py:111
-#: ckan/logic/action/update.py:27
+#: ckan/logic/action/update.py:39
 #: ckan/templates/package/new_package_form.html:67
 #: ckan/templates/package/read_core.html:60
 msgid "Resources"
@@ -560,8 +600,9 @@ msgstr "Grupper"
 msgid "Detail"
 msgstr "Detalj"
 
-#: ckan/forms/package.py:110 ckan/templates/_util.html:97
-#: ckan/templates/_util.html:110 ckan/templates/group/new_group_form.html:23
+#: ckan/forms/package.py:110 ckan/templates/_util.html:155
+#: ckan/templates/_util.html:168 ckan/templates/_util.html:181
+#: ckan/templates/group/new_group_form.html:23
 #: ckan/templates/package/new_package_form.html:19
 msgid "Title"
 msgstr "Tittel"
@@ -574,8 +615,9 @@ msgstr "Versjon"
 msgid "URL"
 msgstr "URL"
 
-#: ckan/forms/package.py:111 ckan/templates/_util.html:282
-#: ckan/templates/group/history.html:35 ckan/templates/package/history.html:41
+#: ckan/forms/package.py:111 ckan/templates/_util.html:353
+#: ckan/templates/_util.html:403 ckan/templates/group/history.html:35
+#: ckan/templates/package/history.html:42
 #: ckan/templates/package/new_package_form.html:123
 msgid "Author"
 msgstr "Forfatter"
@@ -616,20 +658,59 @@ msgstr "Nøkkel ukjent:%s"
 msgid "Key blank"
 msgstr "Nøkkel tom"
 
-#: ckan/lib/base.py:152
+#: ckan/lib/base.py:164
 #, python-format
 msgid "Could not find the POST data: %r : %s"
 msgstr "Kunne ikke finne POST-data:%r:%s"
 
-#: ckan/lib/package_saver.py:40
+#: ckan/lib/base.py:172
+#, python-format
+msgid "Could not extract request body data: %s"
+msgstr ""
+
+#: ckan/lib/base.py:177
+msgid "No request body data"
+msgstr ""
+
+#: ckan/lib/mailer.py:21
+#, python-format
+msgid "Dear %s,"
+msgstr ""
+
+#: ckan/lib/mailer.py:34
+#, python-format
+msgid "%s <%s>"
+msgstr ""
+
+#: ckan/lib/mailer.py:57
+msgid "No recipient email address available!"
+msgstr ""
+
+#: ckan/lib/mailer.py:62
+#, python-format
+msgid ""
+"You have requested your password on %(site_title)s to be reset.\n"
+"\n"
+"Please click the following link to confirm this request:\n"
+"\n"
+"   %(reset_link)s\n"
+msgstr ""
+
+#: ckan/lib/mailer.py:94 ckan/templates/user/login.html:26
+#: ckan/templates/user/perform_reset.html:6
+#: ckan/templates/user/perform_reset.html:18
+msgid "Reset your password"
+msgstr ""
+
+#: ckan/lib/package_saver.py:44
 msgid "Cannot render package description"
 msgstr "Kan ikke gjengi beskrivelse av datakilden"
 
-#: ckan/lib/package_saver.py:44
+#: ckan/lib/package_saver.py:49
 msgid "No web page given"
 msgstr "Ingen webside lagt inn"
 
-#: ckan/lib/package_saver.py:141 ckan/logic/validators.py:20
+#: ckan/lib/package_saver.py:156 ckan/logic/validators.py:20
 msgid "No links are allowed in the log_message."
 msgstr "Ingen lenker er tillatt i log_message."
 
@@ -641,39 +722,75 @@ msgstr ""
 "skrivebeskyttet"
 
 #: ckan/logic/validators.py:30 ckan/logic/validators.py:56
-#: ckan/logic/action/update.py:86
+#: ckan/logic/action/update.py:225 ckan/logic/action/update.py:269
 msgid "Package was not found."
 msgstr "Fant ikke datakilden."
 
-#: ckan/logic/validators.py:41 ckan/logic/action/create.py:182
+#: ckan/logic/validators.py:41 ckan/logic/action/create.py:206
 #, python-format
 msgid "Package with name %r does not exist."
 msgstr "Det finnes ingen datakilde med navnet %r."
 
-#: ckan/logic/action/create.py:56 ckan/logic/action/create.py:143
-#: ckan/logic/action/update.py:103 ckan/logic/action/update.py:189
+#: ckan/logic/validators.py:176
+#, python-format
+msgid ""
+"That login name is not valid. It must be at least 3 characters, restricted "
+"to alphanumerics and these symbols: %s"
+msgstr ""
+"Brukernavnet er ikke gyldig. Det må være på minst 3 tegn, begrenset til "
+"alfanumeriske tegn og disse symbolene: %s"
+
+#: ckan/logic/validators.py:181
+msgid "That login name is not available."
+msgstr "Brukernavnet er ikke tilgjengelig."
+
+#: ckan/logic/validators.py:193
+msgid "Please enter both passwords"
+msgstr ""
+
+#: ckan/logic/validators.py:199
+msgid "Your password must be 4 characters or longer"
+msgstr ""
+
+#: ckan/logic/validators.py:207
+msgid "The passwords you entered do not match"
+msgstr ""
+
+#: ckan/logic/validators.py:219
+msgid "Missing value"
+msgstr ""
+
+#: ckan/logic/validators.py:223
+msgid ""
+"Edit not allowed as it looks like spam. Please avoid links in your "
+"description."
+msgstr ""
+"Endring ikke godkjent, da innholdet ser ut som spam. Vennligst unngå lenker "
+"i beskrivelsen din."
+
+#: ckan/logic/action/create.py:59 ckan/logic/action/create.py:167
 #, python-format
 msgid "REST API: Create object %s"
 msgstr "REST API: Opprett objekt %s"
 
-#: ckan/logic/action/create.py:118
+#: ckan/logic/action/create.py:142
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
 msgstr "REST API: Opprett pakkerelasjon: %s %s %s"
 
-#: ckan/logic/action/create.py:169
+#: ckan/logic/action/create.py:193
 msgid "You must supply a package id or name (parameter \"package\")."
 msgstr "Du må angi et navn eller id for datakilden (parameter \"pakke\")."
 
-#: ckan/logic/action/create.py:171
+#: ckan/logic/action/create.py:195
 msgid "You must supply a rating (parameter \"rating\")."
 msgstr "Du må angi en rangering (parameter \"rating\")."
 
-#: ckan/logic/action/create.py:176
+#: ckan/logic/action/create.py:200
 msgid "Rating must be an integer value."
 msgstr "Rangeringen må være en integer verdi."
 
-#: ckan/logic/action/create.py:180
+#: ckan/logic/action/create.py:204
 #, python-format
 msgid "Rating must be between %i and %i."
 msgstr "Rangeringen må være mellom %i og %i."
@@ -688,19 +805,34 @@ msgstr "REST API: Slett datakilde: %s"
 msgid "REST API: Delete %s"
 msgstr "REST API: Slett %s"
 
-#: ckan/logic/action/update.py:27
+#: ckan/logic/action/update.py:39
 msgid "Package resource(s) incomplete"
 msgstr "Package resource(s) incomplete"
 
-#: ckan/logic/action/update.py:29 ckan/logic/action/update.py:41
+#: ckan/logic/action/update.py:41 ckan/logic/action/update.py:53
+#: ckan/logic/action/update.py:65
 msgid "Missing Value"
 msgstr "Manglende verdi"
 
-#: ckan/logic/action/update.py:64
+#: ckan/logic/action/update.py:88
 msgid "Group was not found."
 msgstr "Gruppen ble ikke funnet."
 
-#: ckan/logic/action/update.py:123
+#: ckan/logic/action/update.py:179
+msgid "Resource was not found."
+msgstr ""
+
+#: ckan/logic/action/update.py:189
+msgid "No package found for this resource, cannot check auth."
+msgstr ""
+
+#: ckan/logic/action/update.py:204 ckan/logic/action/update.py:244
+#: ckan/logic/action/update.py:353
+#, python-format
+msgid "REST API: Update object %s"
+msgstr ""
+
+#: ckan/logic/action/update.py:289
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
 msgstr "REST API: Oppdater pakkerelasjon: %s %s %s"
@@ -750,94 +882,100 @@ msgstr "er forelder til %s"
 msgid "has sibling %s"
 msgstr "har søsken %s"
 
-#: ckan/templates/_util.html:65 ckan/templates/_util.html:70
+#: ckan/templates/_util.html:73 ckan/templates/_util.html:78
+#: ckan/templates/_util.html:123 ckan/templates/_util.html:128
 msgid "This package satisfies the Open Definition."
 msgstr "Denne datakilden tilfredsstiller Open Definition."
 
-#: ckan/templates/_util.html:66 ckan/templates/package/read.html:75
+#: ckan/templates/_util.html:74 ckan/templates/_util.html:124
+#: ckan/templates/package/read.html:75
 msgid "[Open Data]"
 msgstr "[Åpne data]"
 
-#: ckan/templates/_util.html:71 ckan/templates/package/read.html:79
+#: ckan/templates/_util.html:79 ckan/templates/_util.html:129
+#: ckan/templates/package/read.html:79
 msgid "[Open Content]"
 msgstr "[Åpent innhold]"
 
-#: ckan/templates/_util.html:78
+#: ckan/templates/_util.html:86 ckan/templates/_util.html:136
 msgid "Not Openly Licensed"
 msgstr "Har ikke åpen lisens"
 
-#: ckan/templates/_util.html:97
+#: ckan/templates/_util.html:155 ckan/templates/_util.html:168
 msgid "Number of packages"
 msgstr "Antall datakilder"
 
-#: ckan/templates/_util.html:97 ckan/templates/group/new_group_form.html:27
+#: ckan/templates/_util.html:155 ckan/templates/_util.html:168
+#: ckan/templates/group/new_group_form.html:27
 #: ckan/templates/package/new_package_form.html:73
 #: ckan/templates/package/new_package_form.html:92
 #: ckan/templates/package/read_core.html:36
 msgid "Description"
 msgstr "Beskrivelse"
 
-#: ckan/templates/_util.html:110
+#: ckan/templates/_util.html:181
 msgid "Number of members"
 msgstr "Antall medlemmer"
 
-#: ckan/templates/_util.html:130
+#: ckan/templates/_util.html:201
 msgid "View package resources"
 msgstr "Se datakilderessurser"
 
-#: ckan/templates/_util.html:130
+#: ckan/templates/_util.html:201
 msgid "DOWNLOAD"
 msgstr "LAST NED"
 
-#: ckan/templates/_util.html:133
+#: ckan/templates/_util.html:204
 msgid "No downloadable resources."
 msgstr "Ingen nedlastbare ressurser"
 
-#: ckan/templates/_util.html:151
+#: ckan/templates/_util.html:222
 msgid "no ratings yet"
 msgstr "Ingen rangeringer ennå"
 
-#: ckan/templates/_util.html:152
+#: ckan/templates/_util.html:223
 msgid ""
 "–\n"
 "    rate it now"
 msgstr "Ranger den nå"
 
-#: ckan/templates/_util.html:170 ckan/templates/_util.html:240
+#: ckan/templates/_util.html:241 ckan/templates/_util.html:311
 msgid "User"
 msgstr "Bruker"
 
-#: ckan/templates/_util.html:205 ckan/templates/_util.html:261
+#: ckan/templates/_util.html:276 ckan/templates/_util.html:332
 msgid "User Group"
 msgstr "Brukergruppe"
 
-#: ckan/templates/_util.html:282 ckan/templates/group/history.html:35
-#: ckan/templates/package/history.html:41 ckan/templates/revision/read.html:5
+#: ckan/templates/_util.html:353 ckan/templates/_util.html:403
+#: ckan/templates/group/history.html:35 ckan/templates/revision/read.html:5
 msgid "Revision"
 msgstr "Revisjon"
 
-#: ckan/templates/_util.html:282 ckan/templates/group/history.html:35
-#: ckan/templates/package/history.html:41
+#: ckan/templates/_util.html:353 ckan/templates/_util.html:403
+#: ckan/templates/group/history.html:35
 msgid "Timestamp"
 msgstr "Tidsstempel"
 
-#: ckan/templates/_util.html:282
+#: ckan/templates/_util.html:353 ckan/templates/_util.html:403
 msgid "Entity"
 msgstr "Enhet"
 
-#: ckan/templates/_util.html:282 ckan/templates/group/history.html:35
-#: ckan/templates/package/history.html:41
+#: ckan/templates/_util.html:353 ckan/templates/_util.html:403
+#: ckan/templates/group/history.html:35 ckan/templates/package/history.html:42
 msgid "Log Message"
 msgstr "Loggmelding"
 
-#: ckan/templates/_util.html:306 ckan/templates/group/new_group_form.html:49
+#: ckan/templates/_util.html:377 ckan/templates/_util.html:427
+#: ckan/templates/group/new_group_form.html:49
 #: ckan/templates/package/form_extra_fields.html:22
 #: ckan/templates/package/new_package_form.html:162
 #: ckan/templates/revision/read.html:20
 msgid "Delete"
 msgstr "Slett"
 
-#: ckan/templates/_util.html:309 ckan/templates/revision/read.html:23
+#: ckan/templates/_util.html:380 ckan/templates/_util.html:430
+#: ckan/templates/revision/read.html:23
 msgid "Undelete"
 msgstr "Angre sletting"
 
@@ -853,8 +991,8 @@ msgstr "Min brukerkonto"
 msgid "Logout"
 msgstr "Logg ut"
 
-#: ckan/templates/layout_base.html:80 ckan/templates/user/login.html:34
-#: ckan/templates/user/login.html:47
+#: ckan/templates/layout_base.html:80 ckan/templates/user/login.html:35
+#: ckan/templates/user/login.html:48
 msgid "Login"
 msgstr "Innlogging"
 
@@ -944,7 +1082,7 @@ msgstr "Prosjektets startside"
 msgid "Contact Us"
 msgstr "Kontakt oss"
 
-#: ckan/templates/layout_base.html:210 ckan/templates/user/login.html:26
+#: ckan/templates/layout_base.html:210 ckan/templates/user/login.html:27
 msgid "Privacy Policy"
 msgstr "Retningslinjer for personvern"
 
@@ -1003,7 +1141,9 @@ msgstr "Oppdater eksisterende roller"
 #: ckan/templates/group/authz.html:16 ckan/templates/group/authz.html:34
 #: ckan/templates/group/edit_form.html:23 ckan/templates/package/authz.html:16
 #: ckan/templates/package/authz.html:34
-#: ckan/templates/package/edit_form.html:29 ckan/templates/user/edit.html:45
+#: ckan/templates/package/edit_form.html:29
+#: ckan/templates/user/edit_user_form.html:39
+#: ckan/templates/user/perform_reset.html:27
 msgid "Save"
 msgstr "Lagre"
 
@@ -1140,22 +1280,22 @@ msgstr "Det er ingen datakilder i denne gruppen."
 msgid "- Groups - History"
 msgstr "- grupper - historikk"
 
-#: ckan/templates/group/history.html:12 ckan/templates/package/history.html:27
+#: ckan/templates/group/history.html:12 ckan/templates/package/history.html:28
 msgid "Revisions"
 msgstr "Revisjoner"
 
-#: ckan/templates/group/history.html:18 ckan/templates/package/history.html:14
+#: ckan/templates/group/history.html:18 ckan/templates/package/history.html:15
 #: ckan/templates/package/read_core.html:13
 #: ckan/templates/revision/list.html:11
 msgid "Subscribe »"
 msgstr "Abonner »"
 
-#: ckan/templates/group/history.html:27 ckan/templates/package/history.html:33
+#: ckan/templates/group/history.html:27 ckan/templates/package/history.html:34
 #: ckan/templates/package/new.html:39
 msgid "Error:"
 msgstr "Feil:"
 
-#: ckan/templates/group/history.html:52 ckan/templates/package/history.html:58
+#: ckan/templates/group/history.html:52 ckan/templates/package/history.html:60
 msgid "Compare »"
 msgstr "Sammenlign »"
 
@@ -1211,12 +1351,16 @@ msgstr "Ny gruppe"
 #: ckan/templates/group/new_group_form.html:8
 #: ckan/templates/package/form.html:7
 #: ckan/templates/package/new_package_form.html:9
+#: ckan/templates/user/edit_user_form.html:8
+#: ckan/templates/user/new_user_form.html:8
 msgid "Errors in form"
 msgstr "Formelle feil"
 
 #: ckan/templates/group/new_group_form.html:9
 #: ckan/templates/package/form.html:8
 #: ckan/templates/package/new_package_form.html:10
+#: ckan/templates/user/edit_user_form.html:9
+#: ckan/templates/user/new_user_form.html:9
 msgid "The form contains invalid entries:"
 msgstr "Skjemaet inneholder ugyldig informasjon:"
 
@@ -1419,7 +1563,7 @@ msgid "Authorization for Data Package:"
 msgstr "Autorisering for datakilde:"
 
 #: ckan/templates/package/comments.html:5
-#: ckan/templates/package/history.html:5
+#: ckan/templates/package/history.html:6
 msgid "- Data Packages - History"
 msgstr "Datakilder - historikk"
 
@@ -1436,7 +1580,7 @@ msgid "Edit Data Package:"
 msgstr "Rediger datakilde:"
 
 #: ckan/templates/package/edit.html:29 ckan/templates/package/new.html:33
-#: ckan/templates/user/edit.html:52
+#: ckan/templates/user/edit.html:22
 msgid "Preview"
 msgstr "Forhåndsvisning"
 
@@ -1511,15 +1655,23 @@ msgstr "samtykker"
 msgid "happy to do this."
 msgstr "til lisensbetingelsene."
 
-#: ckan/templates/package/history.html:10
+#: ckan/templates/package/history.html:11
 msgid "Updates"
 msgstr "Oppdateringer"
 
-#: ckan/templates/package/history.html:24
+#: ckan/templates/package/history.html:25
 msgid "- History"
 msgstr "- historikk"
 
-#: ckan/templates/package/history.html:63 ckan/templates/package/read.html:107
+#: ckan/templates/package/history.html:42
+msgid "Revision ID"
+msgstr ""
+
+#: ckan/templates/package/history.html:42
+msgid "Package with timestamp"
+msgstr ""
+
+#: ckan/templates/package/history.html:65 ckan/templates/package/read.html:114
 msgid "Package History"
 msgstr "Historikk for datakilde"
 
@@ -1792,12 +1944,32 @@ msgstr ""
 msgid "Start an enquiry on IsItOpenData »"
 msgstr "Start en henvendelse på IsItOpenData »"
 
-#: ckan/templates/package/read.html:101
+#: ckan/templates/package/read.html:98
+msgid "This is an old revision of this package, as edited"
+msgstr ""
+
+#: ckan/templates/package/read.html:98 ckan/templates/package/read.html:99
+msgid "at"
+msgstr ""
+
+#: ckan/templates/package/read.html:98
+msgid ". It may differ significantly from the"
+msgstr ""
+
+#: ckan/templates/package/read.html:98
+msgid "current revision"
+msgstr ""
+
+#: ckan/templates/package/read.html:99
+msgid "This is the current revision of this package, as edited"
+msgstr ""
+
+#: ckan/templates/package/read.html:108
 #: ckan/templates/package/read_core.html:133
 msgid "RDF/XML"
 msgstr "RDF/XML"
 
-#: ckan/templates/package/read.html:102
+#: ckan/templates/package/read.html:109
 msgid "RDF/Turtle"
 msgstr "RDF/Turtle"
 
@@ -2107,36 +2279,43 @@ msgstr "Rediger bruker:"
 msgid "(skip to preview)"
 msgstr "(gå til forhåndsvisning)"
 
-#: ckan/templates/user/edit.html:23
-msgid "Base details"
-msgstr "Basedetaljer"
-
-#: ckan/templates/user/edit.html:24 ckan/templates/user/edit.html:53
+#: ckan/templates/user/edit.html:23 ckan/templates/user/edit_user_form.html:17
 msgid "Full name:"
 msgstr "Fullt navn:"
 
-#: ckan/templates/user/edit.html:27
+#: ckan/templates/user/edit.html:24
+msgid "Email:"
+msgstr ""
+
+#: ckan/templates/user/edit_user_form.html:15
+msgid "Base details"
+msgstr "Basedetaljer"
+
+#: ckan/templates/user/edit_user_form.html:20
 msgid "E-Mail:"
 msgstr "E-post:"
 
-#: ckan/templates/user/edit.html:31
+#: ckan/templates/user/edit_user_form.html:25
 msgid "Change your password"
 msgstr "Endre passord"
 
-#: ckan/templates/user/edit.html:32 ckan/templates/user/login.html:43
-#: ckan/templates/user/register.html:37
+#: ckan/templates/user/edit_user_form.html:27
+#: ckan/templates/user/login.html:44 ckan/templates/user/new_user_form.html:30
+#: ckan/templates/user/perform_reset.html:19
 msgid "Password:"
 msgstr "Passord:"
 
-#: ckan/templates/user/edit.html:35 ckan/templates/user/register.html:40
+#: ckan/templates/user/edit_user_form.html:29
+#: ckan/templates/user/new_user_form.html:34
+#: ckan/templates/user/perform_reset.html:22
 msgid "Password (repeat):"
 msgstr "Passord (gjenta):"
 
-#: ckan/templates/user/edit.html:39
+#: ckan/templates/user/edit_user_form.html:33
 msgid "About user:"
 msgstr "Om bruker:"
 
-#: ckan/templates/user/edit.html:41
+#: ckan/templates/user/edit_user_form.html:35
 msgid "You can use [1:Markdown formatting] here."
 msgstr "Du kan bruke [1:Markdown-formatering] her."
 
@@ -2169,23 +2348,27 @@ msgstr "Ikke medlem?"
 msgid "Join CKAN to contribute packages under your own name."
 msgstr "Bli med og legg inn datakilder under ditt eget navn."
 
-#: ckan/templates/user/login.html:31
+#: ckan/templates/user/login.html:32
 msgid "Login - User"
 msgstr "Logg inn - bruker"
 
-#: ckan/templates/user/login.html:40 ckan/templates/user/register.html:28
+#: ckan/templates/user/login.html:41 ckan/templates/user/new_user_form.html:18
 msgid "Login:"
 msgstr "Logg inn:"
 
-#: ckan/templates/user/login.html:54
+#: ckan/templates/user/login.html:49
+msgid "Forgot your password?"
+msgstr ""
+
+#: ckan/templates/user/login.html:56
 msgid "Login using Open ID"
 msgstr "Logg inn med OpenID"
 
-#: ckan/templates/user/login.html:56
+#: ckan/templates/user/login.html:58
 msgid "Please click your account provider:"
 msgstr "Vennligst velg din leverandør"
 
-#: ckan/templates/user/login.html:64
+#: ckan/templates/user/login.html:66
 msgid ""
 "OpenID is service that allows you to log-on to many different websites using a single identity.\n"
 "    Find out [1:more about OpenID] and [2:how to get an OpenID enabled account]."
@@ -2194,11 +2377,11 @@ msgstr ""
 "ulike nettsteder med samme brukernavn. Finn ut [1:mer om OpenID] og "
 "[2:hvordan du kan få en OpenID-støttet brukerkonto]."
 
-#: ckan/templates/user/login.html:71
+#: ckan/templates/user/login.html:73
 msgid "Don't have an OpenID?"
 msgstr "Har du ikke OpenID?"
 
-#: ckan/templates/user/login.html:72
+#: ckan/templates/user/login.html:74
 msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "        using a single identity. Find out [1:more\n"
@@ -2218,6 +2401,46 @@ msgstr "Logg ut - bruker"
 #: ckan/templates/user/logout.html:9
 msgid "You have logged out successfully."
 msgstr "Du har logget ut på korrekt måte."
+
+#: ckan/templates/user/new.html:6
+msgid "Register - User"
+msgstr "Registrer - bruker"
+
+#: ckan/templates/user/new.html:14
+msgid "Have an OpenID?"
+msgstr "Har du OpenID?"
+
+#: ckan/templates/user/new.html:15
+msgid ""
+"If you have an account with Google, Yahoo or one of many other \n"
+"        OpenID providers, you can log in without signing up."
+msgstr ""
+"Hvis du har en konto hos Google, Yahoo eller en av mange andre OpenID-"
+"tilbydere, kan du logge inn uten å registrere deg."
+
+#: ckan/templates/user/new.html:20
+msgid "Log in now"
+msgstr "Logg inn nå"
+
+#: ckan/templates/user/new.html:26
+msgid "Join the community"
+msgstr "Bli med i fellesskapet"
+
+#: ckan/templates/user/new_user_form.html:16
+msgid "Register with CKAN"
+msgstr "Registrer deg hos CKAN"
+
+#: ckan/templates/user/new_user_form.html:20
+msgid "3+ chars, using only 'a-z0-9' and '-_'"
+msgstr ""
+
+#: ckan/templates/user/new_user_form.html:23
+msgid "Full name (optional):"
+msgstr "Fullt navn (valgfritt):"
+
+#: ckan/templates/user/new_user_form.html:27
+msgid "E-Mail (optional):"
+msgstr "E-post (valgfritt):"
 
 #: ckan/templates/user/read.html:5
 msgid "- User"
@@ -2263,44 +2486,18 @@ msgstr "Antall pakker administrert:"
 msgid "Recent changes"
 msgstr "Siste endringer"
 
-#: ckan/templates/user/register.html:8
-msgid "Have an OpenID?"
-msgstr "Har du OpenID?"
-
-#: ckan/templates/user/register.html:9
-msgid ""
-"If you have an account with Google, Yahoo or one of many other \n"
-"        OpenID providers, you can log in without signing up."
+#: ckan/templates/user/request_reset.html:6
+#: ckan/templates/user/request_reset.html:22
+#: ckan/templates/user/request_reset.html:28
+msgid "Reset password"
 msgstr ""
-"Hvis du har en konto hos Google, Yahoo eller en av mange andre OpenID-"
-"tilbydere, kan du logge inn uten å registrere deg."
 
-#: ckan/templates/user/register.html:14
-msgid "Log in now"
-msgstr "Logg inn nå"
+#: ckan/templates/user/request_reset.html:13
+msgid "Request a password reset"
+msgstr ""
 
-#: ckan/templates/user/register.html:19
-msgid "Register - User"
-msgstr "Registrer - bruker"
-
-#: ckan/templates/user/register.html:22
-msgid "Join the community"
-msgstr "Bli med i fellesskapet"
-
-#: ckan/templates/user/register.html:26
-msgid "Register with CKAN"
-msgstr "Registrer deg hos CKAN"
-
-#: ckan/templates/user/register.html:31
-msgid "Full name (optional):"
-msgstr "Fullt navn (valgfritt):"
-
-#: ckan/templates/user/register.html:34
-msgid "E-Mail (optional):"
-msgstr "E-post (valgfritt):"
-
-#: ckan/templates/user/register.html:44
-msgid "Sign up"
+#: ckan/templates/user/request_reset.html:23
+msgid "User name:"
 msgstr ""
 
 

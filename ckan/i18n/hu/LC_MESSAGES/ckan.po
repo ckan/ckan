@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
-"POT-Creation-Date: 2011-06-27 10:54+0100\n"
-"PO-Revision-Date: 2011-09-05 00:22+0000\n"
-"Last-Translator: okfn <sysadmin@okfn.org>\n"
+"POT-Creation-Date: 2011-09-06 12:34+0100\n"
+"PO-Revision-Date: 2011-09-06 11:39+0000\n"
+"Last-Translator: dread <internet@davidread.org>\n"
 "Language-Team: Hungarian (http://www.transifex.net/projects/p/ckan/team/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,192 +20,208 @@ msgstr ""
 "Language: hu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: ckan/controllers/api.py:40 ckan/controllers/authorization_group.py:19
-#: ckan/controllers/group.py:50 ckan/controllers/home.py:23
-#: ckan/controllers/package.py:95 ckan/controllers/revision.py:22
-#: ckan/controllers/tag.py:17 ckan/controllers/user.py:22
-#: ckan/controllers/user.py:53 ckan/controllers/user.py:79
+#: ckan/controllers/api.py:39 ckan/controllers/authorization_group.py:19
+#: ckan/controllers/group.py:47 ckan/controllers/home.py:24
+#: ckan/controllers/package.py:100 ckan/controllers/revision.py:22
+#: ckan/controllers/tag.py:20 ckan/controllers/user.py:53
+#: ckan/controllers/user.py:77
 msgid "Not authorized to see this page"
 msgstr ""
 
-#: ckan/controllers/api.py:96
+#: ckan/controllers/api.py:97 ckan/controllers/api.py:160
 msgid "Access denied"
 msgstr "Hozzáférés megtagadva"
 
-#: ckan/controllers/api.py:102
+#: ckan/controllers/api.py:103 ckan/controllers/api.py:165
 msgid "Not found"
 msgstr "Nem található"
 
-#: ckan/controllers/api.py:144
-#, python-format
-msgid "Cannot list entity of this type: %s"
-msgstr "Nem listázható ilyen típusú egyed: %s"
+#: ckan/controllers/api.py:111
+msgid "Bad request"
+msgstr ""
 
-#: ckan/controllers/api.py:175
+#: ckan/controllers/api.py:138
 #, python-format
-msgid "Cannot read entity of this type: %s"
-msgstr "Nem olvasható ilyen típusú egyed: %s"
+msgid "Action name not known: %s"
+msgstr ""
 
-#: ckan/controllers/api.py:209 ckan/controllers/api.py:255
+#: ckan/controllers/api.py:149 ckan/controllers/api.py:261
+#: ckan/controllers/api.py:309
 #, python-format
 msgid "JSON Error: %s"
 msgstr "JSON Hiba: %s"
 
-#: ckan/controllers/api.py:216
+#: ckan/controllers/api.py:157 ckan/controllers/api.py:285
+#: ckan/controllers/api.py:331 ckan/controllers/group.py:166
+#: ckan/controllers/group.py:185 ckan/controllers/package.py:463
+#: ckan/controllers/package.py:496 ckan/controllers/user.py:138
+#: ckan/controllers/user.py:215 ckan/controllers/user.py:326
+msgid "Integrity Error"
+msgstr "Integritási hiba"
+
+#: ckan/controllers/api.py:196
+#, python-format
+msgid "Cannot list entity of this type: %s"
+msgstr "Nem listázható ilyen típusú egyed: %s"
+
+#: ckan/controllers/api.py:227
+#, python-format
+msgid "Cannot read entity of this type: %s"
+msgstr "Nem olvasható ilyen típusú egyed: %s"
+
+#: ckan/controllers/api.py:268
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr "Ilyen típusú egyed létrehozása sikertelen: %s %s"
 
-#: ckan/controllers/api.py:232 ckan/controllers/api.py:277
-#: ckan/controllers/group.py:161 ckan/controllers/group.py:179
-#: ckan/controllers/package.py:370 ckan/controllers/package.py:397
-msgid "Integrity Error"
-msgstr "Integritási hiba"
-
-#: ckan/controllers/api.py:261
+#: ckan/controllers/api.py:315
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr "Ilyen típusú egyed létrehozása sikertelen: %s"
 
-#: ckan/controllers/api.py:298
+#: ckan/controllers/api.py:352
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr "Ilyen típusú egyed törlése sikertelen: %s %s"
 
-#: ckan/controllers/api.py:321
+#: ckan/controllers/api.py:375
+msgid "No revision specified"
+msgstr ""
+
+#: ckan/controllers/api.py:379
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr "Nincs ilyen azonosítóval rendelkező verzió: %s"
 
-#: ckan/controllers/api.py:332
+#: ckan/controllers/api.py:389
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
 msgstr ""
 "Hiányzó keresési kifejezés ('since_id=UUID' vagy 'since_time=TIMESTAMP')"
 
-#: ckan/controllers/api.py:340
+#: ckan/controllers/api.py:397
 #, python-format
 msgid "Could not read parameters: %r"
 msgstr ""
 
-#: ckan/controllers/api.py:377
+#: ckan/controllers/api.py:434
 #, python-format
 msgid "Bad search option: %s"
 msgstr "Hibás keresési feltétel: %s"
 
-#: ckan/controllers/api.py:380
+#: ckan/controllers/api.py:437
 #, python-format
 msgid "Unknown register: %s"
 msgstr "Ismeretlen regisztráció: %s"
 
-#: ckan/controllers/api.py:388
+#: ckan/controllers/api.py:445
 msgid "Malformed qjson value"
 msgstr ""
 
-#: ckan/controllers/api.py:397 ckan/lib/base.py:159
+#: ckan/controllers/api.py:454 ckan/lib/base.py:182
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr "A kérés paramétereit json kódolású \"dictionary\"-ben kell megadni"
 
-#: ckan/controllers/authorization_group.py:37 ckan/controllers/group.py:69
+#: ckan/controllers/authorization_group.py:37
 #, python-format
 msgid "Not authorized to read %s"
 msgstr "%s olvasása nem engedélyezett"
 
-#: ckan/controllers/authorization_group.py:55 ckan/controllers/group.py:99
+#: ckan/controllers/authorization_group.py:55 ckan/controllers/group.py:103
 #: ckan/controllers/group_formalchemy.py:29
 msgid "Unauthorized to create a group"
 msgstr "Nincs joga a csoport létrehozásához"
 
-#: ckan/controllers/authorization_group.py:103 ckan/controllers/group.py:421
+#: ckan/controllers/authorization_group.py:103 ckan/controllers/group.py:430
 #: ckan/controllers/group_formalchemy.py:83
 #, python-format
 msgid "User %r not authorized to edit %r"
 msgstr "%r nevü felhasználó nem jogosult %r szerkesztésére"
 
-#: ckan/controllers/authorization_group.py:147 ckan/controllers/group.py:188
-#: ckan/controllers/group.py:419
+#: ckan/controllers/authorization_group.py:147 ckan/controllers/group.py:73
+#: ckan/controllers/group.py:194 ckan/controllers/group.py:428
 msgid "Group not found"
 msgstr "Ismeretlen csoport"
 
-#: ckan/controllers/authorization_group.py:155 ckan/controllers/group.py:194
-#: ckan/controllers/package.py:438
+#: ckan/controllers/authorization_group.py:155 ckan/controllers/group.py:200
+#: ckan/controllers/package.py:538
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
 msgstr "A(z) %r felhasználó nem jogosult az %s jog módosítására"
 
-#: ckan/controllers/group.py:134 ckan/controllers/group.py:157
-#: ckan/controllers/group.py:175
+#: ckan/controllers/group.py:75 ckan/controllers/group.py:139
+#: ckan/controllers/group.py:162 ckan/controllers/group.py:181
 #, python-format
 msgid "Unauthorized to read group %s"
 msgstr ""
 
-#: ckan/controllers/group.py:140 ckan/controllers/package.py:341
-#: ckan/controllers/package_formalchemy.py:97
+#: ckan/controllers/group.py:145 ckan/controllers/package.py:376
+#: ckan/controllers/package_formalchemy.py:102
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr "A(z) '%r' felhasználó nem jogosult az %s módosítására"
 
-#: ckan/controllers/group.py:159 ckan/controllers/group.py:177
-#: ckan/controllers/package.py:178 ckan/controllers/package.py:214
-#: ckan/controllers/package.py:249 ckan/controllers/package.py:335
-#: ckan/controllers/package.py:368 ckan/controllers/package.py:395
-#: ckan/controllers/package.py:432
+#: ckan/controllers/group.py:164 ckan/controllers/group.py:183
+#: ckan/controllers/package.py:206 ckan/controllers/package.py:241
+#: ckan/controllers/package.py:285 ckan/controllers/package.py:370
+#: ckan/controllers/package.py:400 ckan/controllers/package.py:420
+#: ckan/controllers/package.py:461 ckan/controllers/package.py:494
+#: ckan/controllers/package.py:531
 msgid "Package not found"
 msgstr "A csomag nem található"
 
-#: ckan/controllers/group.py:412 ckan/controllers/package.py:242
+#: ckan/controllers/group.py:412 ckan/controllers/package.py:266
 msgid "Select two revisions before doing the comparison."
 msgstr "Válasszon ki két verziót az összehasonlításhoz."
 
-#: ckan/controllers/group.py:428
+#: ckan/controllers/group.py:437
 msgid "CKAN Group Revision History"
 msgstr "CKAN csoport változásnaplója"
 
-#: ckan/controllers/group.py:430
+#: ckan/controllers/group.py:439
 msgid "Recent changes to CKAN Group: "
 msgstr ""
 
-#: ckan/controllers/group.py:450 ckan/controllers/package.py:276
+#: ckan/controllers/group.py:457 ckan/controllers/package.py:311
 msgid "Log message: "
 msgstr "Naplóbejegyzés: "
 
-#: ckan/controllers/home.py:73
+#: ckan/controllers/home.py:74
 msgid "Invalid language specified"
 msgstr ""
 
-#: ckan/controllers/home.py:74
+#: ckan/controllers/home.py:75
 msgid "Language has been set to: English"
 msgstr ""
 
-#: ckan/controllers/home.py:76
+#: ckan/controllers/home.py:77
 msgid "No language given!"
 msgstr ""
 
-#: ckan/controllers/package.py:201 ckan/controllers/package.py:222
-#: ckan/controllers/package.py:333 ckan/controllers/package.py:366
-#: ckan/controllers/package.py:393
+#: ckan/controllers/package.py:195 ckan/controllers/package.py:197
+#: ckan/controllers/package.py:199
+#, python-format
+msgid "Invalid revision format: %r"
+msgstr ""
+
+#: ckan/controllers/package.py:208 ckan/controllers/package.py:243
+#: ckan/controllers/package.py:283 ckan/controllers/package.py:368
+#: ckan/controllers/package.py:398 ckan/controllers/package.py:418
+#: ckan/controllers/package.py:459 ckan/controllers/package.py:492
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr "A %s csomag olvasás nem engedélyezett."
 
-#: ckan/controllers/package.py:255
+#: ckan/controllers/package.py:292
 msgid "CKAN Package Revision History"
 msgstr "CKAN Csomag változási napló"
 
-#: ckan/controllers/package.py:257
+#: ckan/controllers/package.py:294
 msgid "Recent changes to CKAN Package: "
 msgstr "CKAN csomag legutóbbi változásai: "
 
-#: ckan/controllers/package.py:301 ckan/controllers/package_formalchemy.py:21
+#: ckan/controllers/package.py:335 ckan/controllers/package_formalchemy.py:23
 msgid "Unauthorized to create a package"
 msgstr "Nincs joga a csoport készítéshez"
-
-#: ckan/controllers/package.py:659
-msgid "Package Not Found"
-msgstr ""
-
-#: ckan/controllers/package.py:666
-msgid "Rating value invalid"
-msgstr ""
 
 #: ckan/controllers/revision.py:33
 msgid "CKAN Repository Revision History"
@@ -224,54 +240,81 @@ msgstr "Érintett csomagok: %s.\n"
 msgid "Revision updated"
 msgstr ""
 
-#: ckan/controllers/tag.py:43 ckan/forms/common.py:922
+#: ckan/controllers/tag.py:52 ckan/forms/common.py:922
 msgid "Other"
 msgstr "Egyéb"
 
-#: ckan/controllers/user.py:86
+#: ckan/controllers/tag.py:66
+msgid "Tag not found"
+msgstr ""
+
+#: ckan/controllers/user.py:112
+msgid "Unauthorized to create a user"
+msgstr ""
+
+#: ckan/controllers/user.py:134
 #, python-format
-msgid "Missing parameter: %r"
+msgid "Unauthorized to create user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:88
-msgid "Please enter a login name."
+#: ckan/controllers/user.py:136 ckan/controllers/user.py:176
+#: ckan/controllers/user.py:213 ckan/controllers/user.py:304
+#: ckan/controllers/user.py:324
+msgid "User not found"
 msgstr ""
 
-#: ckan/controllers/user.py:91
+#: ckan/controllers/user.py:155
+msgid "No user specified"
+msgstr ""
+
+#: ckan/controllers/user.py:174 ckan/controllers/user.py:211
+#: ckan/controllers/user.py:322
 #, python-format
-msgid ""
-"That login name is not valid. It must be at least 3 characters, restricted "
-"to alphanumerics and these symbols: %s"
+msgid "Unauthorized to edit user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:94
-msgid "That login name is not available."
+#: ckan/controllers/user.py:181 ckan/logic/action/update.py:382
+#, python-format
+msgid "User %s not authorized to edit %s"
 msgstr ""
 
-#: ckan/controllers/user.py:97
-msgid "Please enter a password."
-msgstr ""
-
-#: ckan/controllers/user.py:122
+#: ckan/controllers/user.py:239
 #, python-format
 msgid "Welcome back, %s"
 msgstr ""
 
-#: ckan/controllers/user.py:160
-msgid ""
-"Edit not allowed as it looks like spam. Please avoid links in your "
-"description."
+#: ckan/controllers/user.py:279
+#, python-format
+msgid "\"%s\" matched several users"
 msgstr ""
 
-#: ckan/controllers/user.py:181
-msgid "Your account has been updated."
+#: ckan/controllers/user.py:281 ckan/controllers/user.py:283
+#, python-format
+msgid "No such user: %s"
 msgstr ""
 
-#: ckan/controllers/user.py:201
+#: ckan/controllers/user.py:288
+msgid "Please check your inbox for a reset code."
+msgstr ""
+
+#: ckan/controllers/user.py:291
+#, python-format
+msgid "Could not send reset link: %s"
+msgstr ""
+
+#: ckan/controllers/user.py:308
+msgid "Invalid reset key. Please try again."
+msgstr ""
+
+#: ckan/controllers/user.py:319
+msgid "Your password has been reset."
+msgstr ""
+
+#: ckan/controllers/user.py:347
 msgid "Your password must be 4 characters or longer."
 msgstr ""
 
-#: ckan/controllers/user.py:203
+#: ckan/controllers/user.py:349
 msgid "The passwords you entered do not match."
 msgstr ""
 
@@ -362,8 +405,9 @@ msgid "Details"
 msgstr "Részletek"
 
 #: ckan/forms/group.py:64 ckan/forms/package.py:102 ckan/forms/package.py:112
-#: ckan/logic/action/update.py:29 ckan/logic/action/update.py:31
 #: ckan/logic/action/update.py:41 ckan/logic/action/update.py:43
+#: ckan/logic/action/update.py:53 ckan/logic/action/update.py:55
+#: ckan/logic/action/update.py:65 ckan/logic/action/update.py:67
 #: ckan/templates/group/new_group_form.html:41
 #: ckan/templates/package/new_package_form.html:154
 msgid "Extras"
@@ -504,7 +548,7 @@ msgid "Basic information"
 msgstr "Alap információk"
 
 #: ckan/forms/package.py:96 ckan/forms/package.py:111
-#: ckan/logic/action/update.py:27
+#: ckan/logic/action/update.py:39
 #: ckan/templates/package/new_package_form.html:67
 #: ckan/templates/package/read_core.html:60
 msgid "Resources"
@@ -522,8 +566,9 @@ msgstr "Csoportok"
 msgid "Detail"
 msgstr "Részletek"
 
-#: ckan/forms/package.py:110 ckan/templates/_util.html:97
-#: ckan/templates/_util.html:110 ckan/templates/group/new_group_form.html:23
+#: ckan/forms/package.py:110 ckan/templates/_util.html:155
+#: ckan/templates/_util.html:168 ckan/templates/_util.html:181
+#: ckan/templates/group/new_group_form.html:23
 #: ckan/templates/package/new_package_form.html:19
 msgid "Title"
 msgstr "Cím"
@@ -536,8 +581,9 @@ msgstr "Verzió"
 msgid "URL"
 msgstr "URL"
 
-#: ckan/forms/package.py:111 ckan/templates/_util.html:282
-#: ckan/templates/group/history.html:35 ckan/templates/package/history.html:41
+#: ckan/forms/package.py:111 ckan/templates/_util.html:353
+#: ckan/templates/_util.html:403 ckan/templates/group/history.html:35
+#: ckan/templates/package/history.html:42
 #: ckan/templates/package/new_package_form.html:123
 msgid "Author"
 msgstr "Szerző"
@@ -578,20 +624,59 @@ msgstr ""
 msgid "Key blank"
 msgstr ""
 
-#: ckan/lib/base.py:152
+#: ckan/lib/base.py:164
 #, python-format
 msgid "Could not find the POST data: %r : %s"
 msgstr ""
 
-#: ckan/lib/package_saver.py:40
-msgid "Cannot render package description"
+#: ckan/lib/base.py:172
+#, python-format
+msgid "Could not extract request body data: %s"
+msgstr ""
+
+#: ckan/lib/base.py:177
+msgid "No request body data"
+msgstr ""
+
+#: ckan/lib/mailer.py:21
+#, python-format
+msgid "Dear %s,"
+msgstr ""
+
+#: ckan/lib/mailer.py:34
+#, python-format
+msgid "%s <%s>"
+msgstr ""
+
+#: ckan/lib/mailer.py:57
+msgid "No recipient email address available!"
+msgstr ""
+
+#: ckan/lib/mailer.py:62
+#, python-format
+msgid ""
+"You have requested your password on %(site_title)s to be reset.\n"
+"\n"
+"Please click the following link to confirm this request:\n"
+"\n"
+"   %(reset_link)s\n"
+msgstr ""
+
+#: ckan/lib/mailer.py:94 ckan/templates/user/login.html:26
+#: ckan/templates/user/perform_reset.html:6
+#: ckan/templates/user/perform_reset.html:18
+msgid "Reset your password"
 msgstr ""
 
 #: ckan/lib/package_saver.py:44
+msgid "Cannot render package description"
+msgstr ""
+
+#: ckan/lib/package_saver.py:49
 msgid "No web page given"
 msgstr ""
 
-#: ckan/lib/package_saver.py:141 ckan/logic/validators.py:20
+#: ckan/lib/package_saver.py:156 ckan/logic/validators.py:20
 msgid "No links are allowed in the log_message."
 msgstr "Hivatkozások nem engedélyezettek a log_message-ben."
 
@@ -601,39 +686,71 @@ msgid "Cannot change value of key from %s to %s. This key is read-only"
 msgstr ""
 
 #: ckan/logic/validators.py:30 ckan/logic/validators.py:56
-#: ckan/logic/action/update.py:86
+#: ckan/logic/action/update.py:225 ckan/logic/action/update.py:269
 msgid "Package was not found."
 msgstr "A csomag nem található"
 
-#: ckan/logic/validators.py:41 ckan/logic/action/create.py:182
+#: ckan/logic/validators.py:41 ckan/logic/action/create.py:206
 #, python-format
 msgid "Package with name %r does not exist."
 msgstr "A(z) %r nevü csomag nem létezik."
 
-#: ckan/logic/action/create.py:56 ckan/logic/action/create.py:143
-#: ckan/logic/action/update.py:103 ckan/logic/action/update.py:189
+#: ckan/logic/validators.py:176
+#, python-format
+msgid ""
+"That login name is not valid. It must be at least 3 characters, restricted "
+"to alphanumerics and these symbols: %s"
+msgstr ""
+
+#: ckan/logic/validators.py:181
+msgid "That login name is not available."
+msgstr ""
+
+#: ckan/logic/validators.py:193
+msgid "Please enter both passwords"
+msgstr ""
+
+#: ckan/logic/validators.py:199
+msgid "Your password must be 4 characters or longer"
+msgstr ""
+
+#: ckan/logic/validators.py:207
+msgid "The passwords you entered do not match"
+msgstr ""
+
+#: ckan/logic/validators.py:219
+msgid "Missing value"
+msgstr ""
+
+#: ckan/logic/validators.py:223
+msgid ""
+"Edit not allowed as it looks like spam. Please avoid links in your "
+"description."
+msgstr ""
+
+#: ckan/logic/action/create.py:59 ckan/logic/action/create.py:167
 #, python-format
 msgid "REST API: Create object %s"
 msgstr "REST API: Objektum létrehozva: %s"
 
-#: ckan/logic/action/create.py:118
+#: ckan/logic/action/create.py:142
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
 msgstr "REST API: Csomagok közötti kapcsolat létrehozásá: %s %s %s"
 
-#: ckan/logic/action/create.py:169
+#: ckan/logic/action/create.py:193
 msgid "You must supply a package id or name (parameter \"package\")."
 msgstr "Meg kell adni egy csomagnevet vagy azonosítót (\"package\" paraméter)."
 
-#: ckan/logic/action/create.py:171
+#: ckan/logic/action/create.py:195
 msgid "You must supply a rating (parameter \"rating\")."
 msgstr "Meg kell adni értékelést (\"rating\" paraméter)."
 
-#: ckan/logic/action/create.py:176
+#: ckan/logic/action/create.py:200
 msgid "Rating must be an integer value."
 msgstr "Az értékelés egész számnak kell lennie."
 
-#: ckan/logic/action/create.py:180
+#: ckan/logic/action/create.py:204
 #, python-format
 msgid "Rating must be between %i and %i."
 msgstr "Az értékelésnek %i és %i közé kell esnie."
@@ -648,19 +765,34 @@ msgstr "REST API: %s csomag törlése"
 msgid "REST API: Delete %s"
 msgstr "REST API: Törlés: %s"
 
-#: ckan/logic/action/update.py:27
+#: ckan/logic/action/update.py:39
 msgid "Package resource(s) incomplete"
 msgstr ""
 
-#: ckan/logic/action/update.py:29 ckan/logic/action/update.py:41
+#: ckan/logic/action/update.py:41 ckan/logic/action/update.py:53
+#: ckan/logic/action/update.py:65
 msgid "Missing Value"
 msgstr ""
 
-#: ckan/logic/action/update.py:64
+#: ckan/logic/action/update.py:88
 msgid "Group was not found."
 msgstr ""
 
-#: ckan/logic/action/update.py:123
+#: ckan/logic/action/update.py:179
+msgid "Resource was not found."
+msgstr ""
+
+#: ckan/logic/action/update.py:189
+msgid "No package found for this resource, cannot check auth."
+msgstr ""
+
+#: ckan/logic/action/update.py:204 ckan/logic/action/update.py:244
+#: ckan/logic/action/update.py:353
+#, python-format
+msgid "REST API: Update object %s"
+msgstr ""
+
+#: ckan/logic/action/update.py:289
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
 msgstr "REST API: csomagok közötti kapcsolat módosítása: %s %s %s"
@@ -710,94 +842,100 @@ msgstr "%s szülője"
 msgid "has sibling %s"
 msgstr "%s testvére"
 
-#: ckan/templates/_util.html:65 ckan/templates/_util.html:70
+#: ckan/templates/_util.html:73 ckan/templates/_util.html:78
+#: ckan/templates/_util.html:123 ckan/templates/_util.html:128
 msgid "This package satisfies the Open Definition."
 msgstr ""
 
-#: ckan/templates/_util.html:66 ckan/templates/package/read.html:75
+#: ckan/templates/_util.html:74 ckan/templates/_util.html:124
+#: ckan/templates/package/read.html:75
 msgid "[Open Data]"
 msgstr "[Nyílt adat]"
 
-#: ckan/templates/_util.html:71 ckan/templates/package/read.html:79
+#: ckan/templates/_util.html:79 ckan/templates/_util.html:129
+#: ckan/templates/package/read.html:79
 msgid "[Open Content]"
 msgstr "[Nyílt tartalom]"
 
-#: ckan/templates/_util.html:78
+#: ckan/templates/_util.html:86 ckan/templates/_util.html:136
 msgid "Not Openly Licensed"
 msgstr ""
 
-#: ckan/templates/_util.html:97
+#: ckan/templates/_util.html:155 ckan/templates/_util.html:168
 msgid "Number of packages"
 msgstr "Csomagok száma"
 
-#: ckan/templates/_util.html:97 ckan/templates/group/new_group_form.html:27
+#: ckan/templates/_util.html:155 ckan/templates/_util.html:168
+#: ckan/templates/group/new_group_form.html:27
 #: ckan/templates/package/new_package_form.html:73
 #: ckan/templates/package/new_package_form.html:92
 #: ckan/templates/package/read_core.html:36
 msgid "Description"
 msgstr "Leírás"
 
-#: ckan/templates/_util.html:110
+#: ckan/templates/_util.html:181
 msgid "Number of members"
 msgstr ""
 
-#: ckan/templates/_util.html:130
+#: ckan/templates/_util.html:201
 msgid "View package resources"
 msgstr ""
 
-#: ckan/templates/_util.html:130
+#: ckan/templates/_util.html:201
 msgid "DOWNLOAD"
 msgstr ""
 
-#: ckan/templates/_util.html:133
+#: ckan/templates/_util.html:204
 msgid "No downloadable resources."
 msgstr ""
 
-#: ckan/templates/_util.html:151
+#: ckan/templates/_util.html:222
 msgid "no ratings yet"
 msgstr ""
 
-#: ckan/templates/_util.html:152
+#: ckan/templates/_util.html:223
 msgid ""
 "–\n"
 "    rate it now"
 msgstr ""
 
-#: ckan/templates/_util.html:170 ckan/templates/_util.html:240
+#: ckan/templates/_util.html:241 ckan/templates/_util.html:311
 msgid "User"
 msgstr ""
 
-#: ckan/templates/_util.html:205 ckan/templates/_util.html:261
+#: ckan/templates/_util.html:276 ckan/templates/_util.html:332
 msgid "User Group"
 msgstr ""
 
-#: ckan/templates/_util.html:282 ckan/templates/group/history.html:35
-#: ckan/templates/package/history.html:41 ckan/templates/revision/read.html:5
+#: ckan/templates/_util.html:353 ckan/templates/_util.html:403
+#: ckan/templates/group/history.html:35 ckan/templates/revision/read.html:5
 msgid "Revision"
 msgstr "Változat"
 
-#: ckan/templates/_util.html:282 ckan/templates/group/history.html:35
-#: ckan/templates/package/history.html:41
+#: ckan/templates/_util.html:353 ckan/templates/_util.html:403
+#: ckan/templates/group/history.html:35
 msgid "Timestamp"
 msgstr "Időbélyeg"
 
-#: ckan/templates/_util.html:282
+#: ckan/templates/_util.html:353 ckan/templates/_util.html:403
 msgid "Entity"
 msgstr "Felhasználó"
 
-#: ckan/templates/_util.html:282 ckan/templates/group/history.html:35
-#: ckan/templates/package/history.html:41
+#: ckan/templates/_util.html:353 ckan/templates/_util.html:403
+#: ckan/templates/group/history.html:35 ckan/templates/package/history.html:42
 msgid "Log Message"
 msgstr "Napló üzenet"
 
-#: ckan/templates/_util.html:306 ckan/templates/group/new_group_form.html:49
+#: ckan/templates/_util.html:377 ckan/templates/_util.html:427
+#: ckan/templates/group/new_group_form.html:49
 #: ckan/templates/package/form_extra_fields.html:22
 #: ckan/templates/package/new_package_form.html:162
 #: ckan/templates/revision/read.html:20
 msgid "Delete"
 msgstr "Törlés"
 
-#: ckan/templates/_util.html:309 ckan/templates/revision/read.html:23
+#: ckan/templates/_util.html:380 ckan/templates/_util.html:430
+#: ckan/templates/revision/read.html:23
 msgid "Undelete"
 msgstr ""
 
@@ -813,8 +951,8 @@ msgstr "Profilom"
 msgid "Logout"
 msgstr "Kilépés"
 
-#: ckan/templates/layout_base.html:80 ckan/templates/user/login.html:34
-#: ckan/templates/user/login.html:47
+#: ckan/templates/layout_base.html:80 ckan/templates/user/login.html:35
+#: ckan/templates/user/login.html:48
 msgid "Login"
 msgstr "Belépés"
 
@@ -904,7 +1042,7 @@ msgstr "Projekt főoldal"
 msgid "Contact Us"
 msgstr "Kapcsolat"
 
-#: ckan/templates/layout_base.html:210 ckan/templates/user/login.html:26
+#: ckan/templates/layout_base.html:210 ckan/templates/user/login.html:27
 msgid "Privacy Policy"
 msgstr "Adatvédelmi szabályzat"
 
@@ -966,7 +1104,9 @@ msgstr "Szerepek Frissítése"
 #: ckan/templates/group/authz.html:16 ckan/templates/group/authz.html:34
 #: ckan/templates/group/edit_form.html:23 ckan/templates/package/authz.html:16
 #: ckan/templates/package/authz.html:34
-#: ckan/templates/package/edit_form.html:29 ckan/templates/user/edit.html:45
+#: ckan/templates/package/edit_form.html:29
+#: ckan/templates/user/edit_user_form.html:39
+#: ckan/templates/user/perform_reset.html:27
 msgid "Save"
 msgstr "Mentés"
 
@@ -1103,22 +1243,22 @@ msgstr "Ebben a csoportban jelenleg nincsenek csomagok."
 msgid "- Groups - History"
 msgstr "- Csoportok - Előzmények"
 
-#: ckan/templates/group/history.html:12 ckan/templates/package/history.html:27
+#: ckan/templates/group/history.html:12 ckan/templates/package/history.html:28
 msgid "Revisions"
 msgstr "Változatok"
 
-#: ckan/templates/group/history.html:18 ckan/templates/package/history.html:14
+#: ckan/templates/group/history.html:18 ckan/templates/package/history.html:15
 #: ckan/templates/package/read_core.html:13
 #: ckan/templates/revision/list.html:11
 msgid "Subscribe »"
 msgstr "Feliratkozás »"
 
-#: ckan/templates/group/history.html:27 ckan/templates/package/history.html:33
+#: ckan/templates/group/history.html:27 ckan/templates/package/history.html:34
 #: ckan/templates/package/new.html:39
 msgid "Error:"
 msgstr "Hiba:"
 
-#: ckan/templates/group/history.html:52 ckan/templates/package/history.html:58
+#: ckan/templates/group/history.html:52 ckan/templates/package/history.html:60
 msgid "Compare »"
 msgstr "Összehasonlítás »"
 
@@ -1175,12 +1315,16 @@ msgstr "Új Csoport"
 #: ckan/templates/group/new_group_form.html:8
 #: ckan/templates/package/form.html:7
 #: ckan/templates/package/new_package_form.html:9
+#: ckan/templates/user/edit_user_form.html:8
+#: ckan/templates/user/new_user_form.html:8
 msgid "Errors in form"
 msgstr "Hibák az űrlapon"
 
 #: ckan/templates/group/new_group_form.html:9
 #: ckan/templates/package/form.html:8
 #: ckan/templates/package/new_package_form.html:10
+#: ckan/templates/user/edit_user_form.html:9
+#: ckan/templates/user/new_user_form.html:9
 msgid "The form contains invalid entries:"
 msgstr "Az űrlap hibás mezőket tartalmaz:"
 
@@ -1384,7 +1528,7 @@ msgid "Authorization for Data Package:"
 msgstr "Adatcsomagok jogosultságai:"
 
 #: ckan/templates/package/comments.html:5
-#: ckan/templates/package/history.html:5
+#: ckan/templates/package/history.html:6
 msgid "- Data Packages - History"
 msgstr "- Adatcsomag - Előzmények"
 
@@ -1401,7 +1545,7 @@ msgid "Edit Data Package:"
 msgstr "Adatcsomag-szerkesztés:"
 
 #: ckan/templates/package/edit.html:29 ckan/templates/package/new.html:33
-#: ckan/templates/user/edit.html:52
+#: ckan/templates/user/edit.html:22
 msgid "Preview"
 msgstr "Előzetes nézet"
 
@@ -1476,15 +1620,23 @@ msgstr "nem"
 msgid "happy to do this."
 msgstr "szívesen teszi."
 
-#: ckan/templates/package/history.html:10
+#: ckan/templates/package/history.html:11
 msgid "Updates"
 msgstr ""
 
-#: ckan/templates/package/history.html:24
+#: ckan/templates/package/history.html:25
 msgid "- History"
 msgstr ""
 
-#: ckan/templates/package/history.html:63 ckan/templates/package/read.html:107
+#: ckan/templates/package/history.html:42
+msgid "Revision ID"
+msgstr ""
+
+#: ckan/templates/package/history.html:42
+msgid "Package with timestamp"
+msgstr ""
+
+#: ckan/templates/package/history.html:65 ckan/templates/package/read.html:114
 msgid "Package History"
 msgstr "Csomag előzményei"
 
@@ -1743,12 +1895,32 @@ msgstr ""
 msgid "Start an enquiry on IsItOpenData »"
 msgstr ""
 
-#: ckan/templates/package/read.html:101
+#: ckan/templates/package/read.html:98
+msgid "This is an old revision of this package, as edited"
+msgstr ""
+
+#: ckan/templates/package/read.html:98 ckan/templates/package/read.html:99
+msgid "at"
+msgstr ""
+
+#: ckan/templates/package/read.html:98
+msgid ". It may differ significantly from the"
+msgstr ""
+
+#: ckan/templates/package/read.html:98
+msgid "current revision"
+msgstr ""
+
+#: ckan/templates/package/read.html:99
+msgid "This is the current revision of this package, as edited"
+msgstr ""
+
+#: ckan/templates/package/read.html:108
 #: ckan/templates/package/read_core.html:133
 msgid "RDF/XML"
 msgstr ""
 
-#: ckan/templates/package/read.html:102
+#: ckan/templates/package/read.html:109
 msgid "RDF/Turtle"
 msgstr ""
 
@@ -2052,36 +2224,43 @@ msgstr "Felhasználó módosítása:"
 msgid "(skip to preview)"
 msgstr "(Előzetes nézet átugrása)"
 
-#: ckan/templates/user/edit.html:23
-msgid "Base details"
-msgstr ""
-
-#: ckan/templates/user/edit.html:24 ckan/templates/user/edit.html:53
+#: ckan/templates/user/edit.html:23 ckan/templates/user/edit_user_form.html:17
 msgid "Full name:"
 msgstr "Teljes név:"
 
-#: ckan/templates/user/edit.html:27
+#: ckan/templates/user/edit.html:24
+msgid "Email:"
+msgstr ""
+
+#: ckan/templates/user/edit_user_form.html:15
+msgid "Base details"
+msgstr ""
+
+#: ckan/templates/user/edit_user_form.html:20
 msgid "E-Mail:"
 msgstr "E-Mail:"
 
-#: ckan/templates/user/edit.html:31
+#: ckan/templates/user/edit_user_form.html:25
 msgid "Change your password"
 msgstr ""
 
-#: ckan/templates/user/edit.html:32 ckan/templates/user/login.html:43
-#: ckan/templates/user/register.html:37
+#: ckan/templates/user/edit_user_form.html:27
+#: ckan/templates/user/login.html:44 ckan/templates/user/new_user_form.html:30
+#: ckan/templates/user/perform_reset.html:19
 msgid "Password:"
 msgstr "Jelsző:"
 
-#: ckan/templates/user/edit.html:35 ckan/templates/user/register.html:40
+#: ckan/templates/user/edit_user_form.html:29
+#: ckan/templates/user/new_user_form.html:34
+#: ckan/templates/user/perform_reset.html:22
 msgid "Password (repeat):"
 msgstr ""
 
-#: ckan/templates/user/edit.html:39
+#: ckan/templates/user/edit_user_form.html:33
 msgid "About user:"
 msgstr "Felhasználói információk:"
 
-#: ckan/templates/user/edit.html:41
+#: ckan/templates/user/edit_user_form.html:35
 msgid "You can use [1:Markdown formatting] here."
 msgstr "Itt [1:Markdown formázást] használható."
 
@@ -2114,23 +2293,27 @@ msgstr ""
 msgid "Join CKAN to contribute packages under your own name."
 msgstr ""
 
-#: ckan/templates/user/login.html:31
+#: ckan/templates/user/login.html:32
 msgid "Login - User"
 msgstr "Bejelentkezés - Felhasználó"
 
-#: ckan/templates/user/login.html:40 ckan/templates/user/register.html:28
+#: ckan/templates/user/login.html:41 ckan/templates/user/new_user_form.html:18
 msgid "Login:"
 msgstr ""
 
-#: ckan/templates/user/login.html:54
+#: ckan/templates/user/login.html:49
+msgid "Forgot your password?"
+msgstr ""
+
+#: ckan/templates/user/login.html:56
 msgid "Login using Open ID"
 msgstr "Belépés Open ID használatával"
 
-#: ckan/templates/user/login.html:56
+#: ckan/templates/user/login.html:58
 msgid "Please click your account provider:"
 msgstr "Válassza ki a szolgáltatóját:"
 
-#: ckan/templates/user/login.html:64
+#: ckan/templates/user/login.html:66
 msgid ""
 "OpenID is service that allows you to log-on to many different websites using a single identity.\n"
 "    Find out [1:more about OpenID] and [2:how to get an OpenID enabled account]."
@@ -2139,11 +2322,11 @@ msgstr ""
 "lehet bejelentkezni ugyanazzal az azonosítóval. [1:Tudjon meg többet az "
 "OpenID-ről] és arról, hogyan készíthet magának [2:saját OpenID azonosítót]."
 
-#: ckan/templates/user/login.html:71
+#: ckan/templates/user/login.html:73
 msgid "Don't have an OpenID?"
 msgstr "Nincs OpenID felhasználója?"
 
-#: ckan/templates/user/login.html:72
+#: ckan/templates/user/login.html:74
 msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "        using a single identity. Find out [1:more\n"
@@ -2159,6 +2342,44 @@ msgstr "Kilépés - Felhasználó"
 #: ckan/templates/user/logout.html:9
 msgid "You have logged out successfully."
 msgstr "Sikeres kilépés."
+
+#: ckan/templates/user/new.html:6
+msgid "Register - User"
+msgstr ""
+
+#: ckan/templates/user/new.html:14
+msgid "Have an OpenID?"
+msgstr ""
+
+#: ckan/templates/user/new.html:15
+msgid ""
+"If you have an account with Google, Yahoo or one of many other \n"
+"        OpenID providers, you can log in without signing up."
+msgstr ""
+
+#: ckan/templates/user/new.html:20
+msgid "Log in now"
+msgstr ""
+
+#: ckan/templates/user/new.html:26
+msgid "Join the community"
+msgstr ""
+
+#: ckan/templates/user/new_user_form.html:16
+msgid "Register with CKAN"
+msgstr ""
+
+#: ckan/templates/user/new_user_form.html:20
+msgid "3+ chars, using only 'a-z0-9' and '-_'"
+msgstr ""
+
+#: ckan/templates/user/new_user_form.html:23
+msgid "Full name (optional):"
+msgstr ""
+
+#: ckan/templates/user/new_user_form.html:27
+msgid "E-Mail (optional):"
+msgstr ""
 
 #: ckan/templates/user/read.html:5
 msgid "- User"
@@ -2204,42 +2425,18 @@ msgstr "Gondozott csomagok száma:"
 msgid "Recent changes"
 msgstr "Utóbbi változások"
 
-#: ckan/templates/user/register.html:8
-msgid "Have an OpenID?"
+#: ckan/templates/user/request_reset.html:6
+#: ckan/templates/user/request_reset.html:22
+#: ckan/templates/user/request_reset.html:28
+msgid "Reset password"
 msgstr ""
 
-#: ckan/templates/user/register.html:9
-msgid ""
-"If you have an account with Google, Yahoo or one of many other \n"
-"        OpenID providers, you can log in without signing up."
+#: ckan/templates/user/request_reset.html:13
+msgid "Request a password reset"
 msgstr ""
 
-#: ckan/templates/user/register.html:14
-msgid "Log in now"
-msgstr ""
-
-#: ckan/templates/user/register.html:19
-msgid "Register - User"
-msgstr ""
-
-#: ckan/templates/user/register.html:22
-msgid "Join the community"
-msgstr ""
-
-#: ckan/templates/user/register.html:26
-msgid "Register with CKAN"
-msgstr ""
-
-#: ckan/templates/user/register.html:31
-msgid "Full name (optional):"
-msgstr ""
-
-#: ckan/templates/user/register.html:34
-msgid "E-Mail (optional):"
-msgstr ""
-
-#: ckan/templates/user/register.html:44
-msgid "Sign up"
+#: ckan/templates/user/request_reset.html:23
+msgid "User name:"
 msgstr ""
 
 
