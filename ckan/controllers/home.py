@@ -6,7 +6,7 @@ from genshi.template import NewTextTemplate
 
 from ckan.authz import Authorizer
 from ckan.logic.action.get import current_package_list_with_resources
-from ckan.i18n import set_session_locale
+from ckan.i18n import set_session_locale, set_lang
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache, get_cache_expires
 from ckan.lib.base import *
@@ -72,7 +72,11 @@ class HomeController(BaseController):
                 set_session_locale(locale)
             except ValueError:
                 abort(400, _('Invalid language specified'))
-            h.flash_notice(_("Language has been set to: English"))
+            try:
+                set_lang(locale)
+                h.flash_notice(_("Language has been set to: English"))
+            except:
+                h.flash_notice("Language has been set to: English")
         else:
             abort(400, _("No language given!"))
         return_to = get_redirect()
