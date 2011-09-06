@@ -7,6 +7,13 @@
     CKAN.Utils.setupFormatAutocomplete($('input.autocomplete-format'));
     CKAN.Utils.setupDatasetEditNavigation();
 
+    var isDatasetNew = $('body.package.new').length > 0;
+    if (isDatasetNew) {
+      $('#content fieldset').hide();
+      $('#content fieldset#basic-information').show();
+      
+    }
+
     var isPackageRead = $('body.package.read').length > 0;
     var config = {
       endpoint: '/'
@@ -207,7 +214,6 @@ CKAN.Utils = function($, my) {
       showSection(showMe);
       return false;
     });  
-
   };
 
   // Name slug generator for $name element using $title element
