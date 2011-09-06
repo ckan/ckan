@@ -126,7 +126,6 @@ def package_form_schema():
     schema['tag_string'] = [ignore_missing, tag_string_convert]
     schema['extras_validation'] = [duplicate_extras_key, ignore]
     schema['save'] = [ignore]
-    schema['preview'] = [ignore]
     schema['return_to'] = [ignore]
 
     ##changes

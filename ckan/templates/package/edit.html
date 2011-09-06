@@ -28,16 +28,7 @@
   </py:match>
 
   <div py:match="content" class="dataset">
-    <div id="preview" style="margin-left: 20px;" py:if="c.preview">
-      <hr />
-      <h2>Preview</h2>
-      <div style="border: 2px dashed red; padding: 5px;"> 
-        ${c.preview}
-      </div>
-    </div><!-- /preview -->
-
     ${c.form}
-
   </div>
 
   <xi:include href="layout.html" />
