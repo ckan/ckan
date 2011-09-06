@@ -2,20 +2,22 @@
 # Copyright (C) 2011 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # 
+#   <klimek@ksi.mff.cuni.cz>, 2011.
+#   <m.tajtl@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-06-27 10:54+0100\n"
 "PO-Revision-Date: 2011-09-05 00:22+0000\n"
-"Last-Translator: okfn <sysadmin@okfn.org>\n"
-"Language-Team: Greek (http://www.transifex.net/projects/p/ckan/team/el/)\n"
+"Last-Translator: uep <m.tajtl@gmail.com>\n"
+"Language-Team: Czech (Czech Republic) (http://www.transifex.net/projects/p/ckan/team/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.5\n"
-"Language: el\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Language: cs_CZ\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2\n"
 
 #: ckan/controllers/api.py:40 ckan/controllers/authorization_group.py:19
 #: ckan/controllers/group.py:50 ckan/controllers/home.py:23
@@ -23,113 +25,111 @@ msgstr ""
 #: ckan/controllers/tag.py:17 ckan/controllers/user.py:22
 #: ckan/controllers/user.py:53 ckan/controllers/user.py:79
 msgid "Not authorized to see this page"
-msgstr ""
+msgstr "Nemáte oprávnění vidět tuto stránku"
 
 #: ckan/controllers/api.py:96
 msgid "Access denied"
-msgstr "Αδύνατη Πρόσβαση"
+msgstr "Přístup zamítnut"
 
 #: ckan/controllers/api.py:102
 msgid "Not found"
-msgstr "Δεν βρέθηκε"
+msgstr "Nenalezeno"
 
 #: ckan/controllers/api.py:144
 #, python-format
 msgid "Cannot list entity of this type: %s"
-msgstr "Δεν παρέχεται λίστα μιας οντότητας αυτού του τύπου: %s"
+msgstr "Nelze vypsat prvky tohoto typu: %s"
 
 #: ckan/controllers/api.py:175
 #, python-format
 msgid "Cannot read entity of this type: %s"
-msgstr "Δεν μπορείτε να διαβάσετε μια οντότητα αυτού του τύπου: %s"
+msgstr "Nelze číst prvky tohoto typu: %s"
 
 #: ckan/controllers/api.py:209 ckan/controllers/api.py:255
 #, python-format
 msgid "JSON Error: %s"
-msgstr "Λάθος JSON: %s"
+msgstr "Chyba JSON: %s"
 
 #: ckan/controllers/api.py:216
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
-msgstr "Δεν είναι δυνατή η δημιουργία μιας οντότητας αυτού του τύπου: %s %s"
+msgstr "Nelze vytvořit nový prvek tohoto typu: %s %s"
 
 #: ckan/controllers/api.py:232 ckan/controllers/api.py:277
 #: ckan/controllers/group.py:161 ckan/controllers/group.py:179
 #: ckan/controllers/package.py:370 ckan/controllers/package.py:397
 msgid "Integrity Error"
-msgstr "Λάθος ακεραιότητας"
+msgstr "Chyba v integritě"
 
 #: ckan/controllers/api.py:261
 #, python-format
 msgid "Cannot update entity of this type: %s"
-msgstr "Δεν είναι δυνατή η ενημέρωση μιας οντότητας αυτού του τύπου: %s"
+msgstr "Nelze aktualizovat prvek tohoto typu: %s"
 
 #: ckan/controllers/api.py:298
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
-msgstr "Δεν είναι δυνατή η διαγραφή μιας οντότητας αυτού του τύπου: %s %s"
+msgstr "Nelze smazat prvek tohoto typu: %s"
 
 #: ckan/controllers/api.py:321
 #, python-format
 msgid "There is no revision with id: %s"
-msgstr "Δεν υπάρχει έκδοση με id: %s"
+msgstr "Neexistuje revize s id: %s"
 
 #: ckan/controllers/api.py:332
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
 msgstr ""
-"Ελλειπή στοιχεία αναζήτησης ('since_id=UUID' or 'since_time=TIMESTAMP')"
+"Ve vyhledávání chybí výraz ('since_id=UUID' nebo 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:340
 #, python-format
 msgid "Could not read parameters: %r"
-msgstr ""
+msgstr "Nelze číst parametry: %r"
 
 #: ckan/controllers/api.py:377
 #, python-format
 msgid "Bad search option: %s"
-msgstr "Λάθος επιλογή αναζήτησης: %s"
+msgstr "Chybný parametr vyhledávání: %s"
 
 #: ckan/controllers/api.py:380
 #, python-format
 msgid "Unknown register: %s"
-msgstr "Άγνωστη Καταχώρηση: %s"
+msgstr "Neznamý registr: %s"
 
 #: ckan/controllers/api.py:388
 msgid "Malformed qjson value"
-msgstr ""
+msgstr "Neplatná qjson hodnota"
 
 #: ckan/controllers/api.py:397 ckan/lib/base.py:159
 msgid "Request params must be in form of a json encoded dictionary."
-msgstr ""
-"Οι παράμετροι που ζητούνται πρέπει να είναι ακολουθούν την μορφή λεξικού "
-"json encoded."
+msgstr "Parametry požadavku musí mít formu kódování slovníku JSON."
 
 #: ckan/controllers/authorization_group.py:37 ckan/controllers/group.py:69
 #, python-format
 msgid "Not authorized to read %s"
-msgstr "Δεν έχετε εξουσιοδότηση να διαβάσετε %s"
+msgstr "Nemáte oprávnění číst %s"
 
 #: ckan/controllers/authorization_group.py:55 ckan/controllers/group.py:99
 #: ckan/controllers/group_formalchemy.py:29
 msgid "Unauthorized to create a group"
-msgstr "Δεν έχετε εξουσιοδότηση να δημιουργήσετε μια Ομάδα."
+msgstr "Nemáte oprávnění vytvořit skupinu"
 
 #: ckan/controllers/authorization_group.py:103 ckan/controllers/group.py:421
 #: ckan/controllers/group_formalchemy.py:83
 #, python-format
 msgid "User %r not authorized to edit %r"
-msgstr "Ο χρήστης %r δεν έχει δικαίωμα να επεξεργαστεί το %r"
+msgstr "Uživatel %r nemá oprávnění měnit %r"
 
 #: ckan/controllers/authorization_group.py:147 ckan/controllers/group.py:188
 #: ckan/controllers/group.py:419
 msgid "Group not found"
-msgstr "Δεν βρέθηκε η Ομάδα"
+msgstr "Skupina nebyla nalezena"
 
 #: ckan/controllers/authorization_group.py:155 ckan/controllers/group.py:194
 #: ckan/controllers/package.py:438
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
-msgstr "Ο χρήστης %r δεν έχει δικαίωμα να επεξεργαστεί %s δικαιώματα"
+msgstr "Uživatel %r nemá oprávnění měnit oprávnění pro %s"
 
 #: ckan/controllers/group.py:134 ckan/controllers/group.py:157
 #: ckan/controllers/group.py:175
@@ -141,7 +141,7 @@ msgstr ""
 #: ckan/controllers/package_formalchemy.py:97
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr "Ο χρήστης %r δεν έχει δικαίωμα επεξεργασίας του %s"
+msgstr "Uživatel %r nemá oprávnění měnit %s"
 
 #: ckan/controllers/group.py:159 ckan/controllers/group.py:177
 #: ckan/controllers/package.py:178 ckan/controllers/package.py:214
@@ -149,54 +149,54 @@ msgstr "Ο χρήστης %r δεν έχει δικαίωμα επεξεργασ
 #: ckan/controllers/package.py:368 ckan/controllers/package.py:395
 #: ckan/controllers/package.py:432
 msgid "Package not found"
-msgstr "Το πακέτο δεν βρέθηκε"
+msgstr "Balíček nebyl nalezen"
 
 #: ckan/controllers/group.py:412 ckan/controllers/package.py:242
 msgid "Select two revisions before doing the comparison."
-msgstr "Θα πρέπει να επιλέξτε δύο εκδόσεις πριν κάνετε σύγκριση"
+msgstr "Pro porovnání musíte vybrat dvě revize"
 
 #: ckan/controllers/group.py:428
 msgid "CKAN Group Revision History"
-msgstr ""
+msgstr "Historie revizí skupiny CKAN"
 
 #: ckan/controllers/group.py:430
 msgid "Recent changes to CKAN Group: "
-msgstr ""
+msgstr "Nedávné změny skupiny CKAN: "
 
 #: ckan/controllers/group.py:450 ckan/controllers/package.py:276
 msgid "Log message: "
-msgstr "Μήνυμα καταγραφής:"
+msgstr "Zpráva logu: "
 
 #: ckan/controllers/home.py:73
 msgid "Invalid language specified"
-msgstr ""
+msgstr "Byl zadán neplatný jazyk"
 
 #: ckan/controllers/home.py:74
 msgid "Language has been set to: English"
-msgstr ""
+msgstr "Jazyk byl nastaven na: Česky"
 
 #: ckan/controllers/home.py:76
 msgid "No language given!"
-msgstr ""
+msgstr "Nebyl zadán jazyk!"
 
 #: ckan/controllers/package.py:201 ckan/controllers/package.py:222
 #: ckan/controllers/package.py:333 ckan/controllers/package.py:366
 #: ckan/controllers/package.py:393
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr "Δεν έχετε δικαίωμα ανάγνωσης του πακέτου %s"
+msgstr "Nemáte oprávnění číst balíček %s"
 
 #: ckan/controllers/package.py:255
 msgid "CKAN Package Revision History"
-msgstr "Ιστορικό εκδόσεων πακέτου CKAN"
+msgstr "Historie revizí balíčku CKAN"
 
 #: ckan/controllers/package.py:257
 msgid "Recent changes to CKAN Package: "
-msgstr "Πιο πρόσφατες αλλαγές στο CKAN: "
+msgstr "Poslední změny balíčku CKAN: "
 
 #: ckan/controllers/package.py:301 ckan/controllers/package_formalchemy.py:21
 msgid "Unauthorized to create a package"
-msgstr "Δεν έχετε δικαίωμα να δημιουργήσετε ένα πακέτο"
+msgstr "Nemáte oprávnění vytvořit balíček"
 
 #: ckan/controllers/package.py:659
 msgid "Package Not Found"
@@ -208,24 +208,24 @@ msgstr ""
 
 #: ckan/controllers/revision.py:33
 msgid "CKAN Repository Revision History"
-msgstr "Ιστορικού ενημέρωσης CKAN Repository"
+msgstr "Historie revizí úložiště CKAN"
 
 #: ckan/controllers/revision.py:35
 msgid "Recent changes to the CKAN repository."
-msgstr "Πρόσφατες αλλαγές στο CKAN repository."
+msgstr "Poslední změny v úložišti CKAN."
 
 #: ckan/controllers/revision.py:94
 #, python-format
 msgid "Packages affected: %s.\n"
-msgstr "Πακέτα που επηρεάστηκαν: %s.\n"
+msgstr "Zasažené balíčky: %s.\n"
 
 #: ckan/controllers/revision.py:169
 msgid "Revision updated"
-msgstr ""
+msgstr "Revize aktualizována"
 
 #: ckan/controllers/tag.py:43 ckan/forms/common.py:922
 msgid "Other"
-msgstr "Άλλο"
+msgstr "Další"
 
 #: ckan/controllers/user.py:86
 #, python-format
@@ -254,7 +254,7 @@ msgstr ""
 #: ckan/controllers/user.py:122
 #, python-format
 msgid "Welcome back, %s"
-msgstr ""
+msgstr "Vítejte zpět, %s"
 
 #: ckan/controllers/user.py:160
 msgid ""
@@ -268,82 +268,81 @@ msgstr ""
 
 #: ckan/controllers/user.py:201
 msgid "Your password must be 4 characters or longer."
-msgstr ""
+msgstr "Vaše heslo musí mít alespoň 4 znaky."
 
 #: ckan/controllers/user.py:203
 msgid "The passwords you entered do not match."
-msgstr ""
+msgstr "Zadaná hesla se neshodují."
 
 #: ckan/forms/common.py:25 ckan/logic/validators.py:69
 #, python-format
 msgid "Name must be at least %s characters long"
-msgstr "Το μήκος του ονόματος πρέπει να είναι τουλάχιστον %s χαρακτήρες"
+msgstr "Název musí být dlouhý alespoň %s znaků"
 
 #: ckan/forms/common.py:27 ckan/logic/validators.py:71
 msgid ""
 "Name must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
 msgstr ""
-"Το όνομα μπορεί να αποτελείται μόνο από πεζά αλφαριθμητικά (χαρακτήρες "
-"ascii) και τα σύμβολα - (παύλα) και _ (κάτω παύλα)"
+"Název může obsahovat pouze malá písmena bez diakritiky, číslice a znaky - "
+"(pomlčka) a _ (podtržítko)"
 
 #: ckan/forms/common.py:40 ckan/logic/validators.py:89
 msgid "Package name already exists in database"
-msgstr "Το όνομα του πακέτου υπάρχει ήδη στην βάση δεδομένων"
+msgstr "Název balíčku již v databázi existuje"
 
 #: ckan/forms/common.py:48 ckan/logic/validators.py:119
 msgid "Group name already exists in database"
-msgstr "Το όνομα της ομάδας υπάρχει ήδη στην βάση δεδομένων"
+msgstr "Název skupiny již v databázi existuje"
 
 #: ckan/forms/common.py:137
 #, python-format
 msgid "Value does not match required format: %s"
-msgstr "Η τιμή που δεν ταιριάζει με το απαιτούμενο format: %s"
+msgstr "Hodnota není v požadovaném formátu: %s"
 
 #: ckan/forms/common.py:154 ckan/forms/common.py:770
 #: ckan/templates/package/new_package_form.html:111
 msgid "(None)"
-msgstr "(κενό)"
+msgstr "(Žádný)"
 
 #: ckan/forms/common.py:345 ckan/templates/package/new_package_form.html:94
 msgid "Package resource(s) incomplete."
-msgstr ""
+msgstr "Zdroje balíčku(ů) nejsou úplné."
 
 #: ckan/forms/common.py:506 ckan/logic/validators.py:125
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
-msgstr "Το μήκος του tag \"%s\" είναι μικρότερο από το ελάχιστο απαιτούμενο %s"
+msgstr "Tag \"%s\" je kratší než minimální počet %s znaků"
 
 #: ckan/forms/common.py:508 ckan/logic/validators.py:133
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
 msgstr ""
-"Το Tag \"%s\" αποτελούνται από αλφαριθμητικούς χαρακτήρες ή τα σύμβολα - και"
-" _"
+"Tag \"%s\" může obsahovat pouze malá písmena bez diakritiky, číslice a znaky"
+" - (pomlčka) a _ (podtržítko)"
 
 #: ckan/forms/common.py:510 ckan/logic/validators.py:141
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
-msgstr "Το Tag \"%s\" δεν μπορεί να περιέχει κεφαλαίους χαρακτήρες"
+msgstr "Tag \"%s\" nesmí obsahovat velká písmena"
 
 #: ckan/forms/common.py:527 ckan/logic/validators.py:103
 #, python-format
 msgid "Duplicate key \"%s\""
-msgstr "Διπλό κλειδί  \"%s\""
+msgstr "Duplicitní klíč \"%s\""
 
 #: ckan/forms/common.py:530
 #, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
-msgstr ""
-"Επιπλέον ζεύγος κλειδιού-τιμής: δεν έχει τεθεί κλειδί για την τιμή \"%s\"."
+msgstr "Neobvyklá kombibace klíč-hodnota: pro hodnotu \"%s\" není nastaven klíč."
 
 #: ckan/forms/common.py:780 ckan/templates/package/new_package_form.html:117
 msgid "Cannot add any groups."
-msgstr "Δεν μπορείτε να δημιουργήσετε ομάδες"
+msgstr "Nelze přidat žádné skupiny."
 
 #: ckan/forms/common.py:795 ckan/templates/package/new_package_form.html:108
 msgid "Group"
-msgstr "Ομάδα"
+msgstr "Skupina"
 
 #: ckan/forms/common.py:825
 #, python-format
@@ -351,18 +350,20 @@ msgid ""
 "Can't derived new group selection from serialized value structured like "
 "this: %s"
 msgstr ""
+"Nelze odvodit výber nové skupiny ze serializované hodnoty strukturované "
+"takto: %s"
 
 #: ckan/forms/common.py:905
 msgid "other - please specify"
-msgstr "άλλο - προσδιορίστε"
+msgstr "jiné - prosím uveďte"
 
 #: ckan/forms/group.py:52 ckan/forms/package.py:38 ckan/forms/package.py:110
 msgid "Name"
-msgstr "Όνομα"
+msgstr "Název"
 
 #: ckan/forms/group.py:63 ckan/templates/group/new_group_form.html:16
 msgid "Details"
-msgstr "Λεπτομέρειες"
+msgstr "Podrobnosti"
 
 #: ckan/forms/group.py:64 ckan/forms/package.py:102 ckan/forms/package.py:112
 #: ckan/logic/action/update.py:29 ckan/logic/action/update.py:31
@@ -370,29 +371,31 @@ msgstr "Λεπτομέρειες"
 #: ckan/templates/group/new_group_form.html:41
 #: ckan/templates/package/new_package_form.html:154
 msgid "Extras"
-msgstr "Επιπλέον πληροφορίες"
+msgstr "Doplňky"
 
 #: ckan/forms/group.py:87 ckan/templates/group/new_group_form.html:83
 msgid "Package"
-msgstr "Πακέτο"
+msgstr "Balíček"
 
 #: ckan/forms/group.py:88 ckan/templates/group/new_group_form.html:79
 msgid "Add packages"
-msgstr ""
+msgstr "Přidat balíčky"
 
 #: ckan/forms/package.py:34 ckan/templates/package/new_package_form.html:21
 msgid "A short descriptive title for the data set."
-msgstr ""
+msgstr "Stručný a popisný název množiny dat."
 
 #: ckan/forms/package.py:35 ckan/templates/package/new_package_form.html:22
 msgid ""
 "It should not be a description though - save that for the Notes field. Do "
 "not give a trailing full stop."
 msgstr ""
+"Neměl by to ale bý popis, ten si nechte pro pole Poznámky. Na konci nepište "
+"tečku."
 
 #: ckan/forms/package.py:39 ckan/templates/package/new_package_form.html:27
 msgid "A unique identifier for the package."
-msgstr ""
+msgstr "Unikátní identifikátor pro balíček:"
 
 #: ckan/forms/package.py:40 ckan/templates/package/new_package_form.html:28
 msgid ""
@@ -400,42 +403,49 @@ msgid ""
 "Only use an acronym if it is widely recognised. Renaming is possible but "
 "discouraged."
 msgstr ""
+"Mělo by to být v zásadě lidsky čitelné, v duchu URI sémantického webu. "
+"Zkratku použijte pouze, pokud je všeobecně uznávána. Přejmenování je možné, "
+"ale nedoporučuje se."
 
 #: ckan/forms/package.py:41 ckan/templates/package/new_package_form.html:29
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
-msgstr ""
+msgstr "alespoň 2 znaky, malá písmena, přípustné jen 'a-z0-9' a '-_'"
 
 #: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:139
 msgid "A number representing the version (if applicable)"
-msgstr ""
+msgstr "Číslo reprezentující verzi (pokud lze)"
 
 #: ckan/forms/package.py:50 ckan/templates/package/new_package_form.html:34
 msgid "The URL for the web page describing the data (not the data itself)."
-msgstr ""
+msgstr "URL stránky popisující data (ne dat samotných)."
 
 #: ckan/forms/package.py:51 ckan/templates/package/new_package_form.html:35
 msgid "e.g. http://www.example.com/growth-figures.html"
-msgstr ""
+msgstr "např. http://www.priklad.cz/grafy-rustu.html"
 
 #: ckan/forms/package.py:55 ckan/templates/package/new_package_form.html:125
 msgid ""
 "The name of the main contact, for enquiries about this particular dataset, "
 "using the e-mail address in the following field."
 msgstr ""
+"Jméno hlavního kontaktu pro dotazy o této konkrétní množině dat, který "
+"používá email v následujícím poli."
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:132
 msgid ""
 "If there is another important contact person (in addition to the person in "
 "the Author field) then provide details here."
 msgstr ""
+"Pokud exituje jiná důležitá kontaktní osoba (kromě osoby v poli Autor), "
+"uveďte ji zde."
 
 #: ckan/forms/package.py:63 ckan/templates/package/new_package_form.html:44
 msgid "Licence"
-msgstr ""
+msgstr "Licence"
 
 #: ckan/forms/package.py:64 ckan/templates/package/new_package_form.html:52
 msgid "The licence under which the dataset is released."
-msgstr ""
+msgstr "Licence pod kterou je tato množina dat poskytována."
 
 #: ckan/forms/package.py:68 ckan/forms/package.py:112
 #: ckan/templates/layout_base.html:104 ckan/templates/layout_base.html:189
@@ -443,7 +453,7 @@ msgstr ""
 #: ckan/templates/package/read.html:18 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:9
 msgid "Tags"
-msgstr "Tags"
+msgstr "Tagy"
 
 #: ckan/forms/package.py:69
 #, python-format
@@ -451,14 +461,16 @@ msgid ""
 "Terms that may link this dataset to similar ones. For more information on "
 "conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
+"Výrazy které mohou spojovat tuto množinu dat s podobnými. Pro více informací"
+" o zvyklostech navštivte <a href=\"%s\">tuto wiki stránku</a>."
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:61
 msgid "e.g. pollution rivers water-quality"
-msgstr ""
+msgstr "např. řeky znečištění kvalita_vody"
 
 #: ckan/forms/package.py:74 ckan/templates/package/new_package_form.html:91
 msgid "The files containing the data or address of the APIs for accessing it."
-msgstr ""
+msgstr "Soubory obsahující data nebo adresu API pro přístup k nim."
 
 #: ckan/forms/package.py:75
 msgid ""
@@ -474,21 +486,33 @@ msgid ""
 " file format in which the data is supplied. <br /><b>Description</b> Any "
 "information you want to add to describe the resource.<br />"
 msgstr ""
+"<br />Podle potřeby se mohou opakovat. Například pokud jsou data dostupná ve"
+" více formátech nebo rozdělená podle různých oblastí nebo období, každý "
+"soubor je jiný zdroj, který by měl být popsán jinak. Všechny se pak společně"
+" objeví na CKANu, na stránce s daty.<br /><br /> <b>URL:</b> Jedná se o "
+"internetový odkaz přímo na data - otevřením tohoto odkazu ve webovém "
+"prohlížeči může uživatel ihned stáhnout celý soubor dat. Všimněte si, že "
+"datové soubory nejsou uloženy na této stránce, ale zůstávají na stránkách "
+"jejich vydavatele. Případně může URL odkazovat na API serveru, jakým je "
+"například endpoint, SPARQL nebo služby JSON-P. <br /> <b>Formát:</b> Sem by "
+"měl být zadán formát souboru, v němž jsou data dostupná.<br /> <b>Popis</b> "
+"Veškeré informace, které chcete přidat k popsání zdroje.<br />"
 
 #: ckan/forms/package.py:76 ckan/templates/package/new_package_form.html:93
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
 msgstr ""
+"Výběr formátů: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Jiné dle potřeby"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 #: ckan/templates/package/new_package_form.html:38
 msgid "Notes"
-msgstr "Σημειώσεις"
+msgstr "Poznámky"
 
 #: ckan/forms/package.py:81 ckan/templates/package/new_package_form.html:40
 msgid "The main description of the dataset"
-msgstr ""
+msgstr "Hlavní popis množiny dat"
 
 #: ckan/forms/package.py:82 ckan/templates/package/new_package_form.html:41
 msgid ""
@@ -496,44 +520,47 @@ msgid ""
 " with a short sentence that describes the data set succinctly, because the "
 "first few words alone may be used in some views of the data sets."
 msgstr ""
+"Často je zobrazen spolu s názvem balíčku. Začít by měl krátkou větou, která "
+"stručně popíše soubor dat, protože prvních několik slov může být použito v "
+"některých pohledech na soubor dat."
 
 #: ckan/forms/package.py:83
 #, python-format
 msgid "You can use %sMarkdown formatting%s here."
-msgstr ""
+msgstr "Zde můžete použít %sMarkdown formátování%s."
 
 #: ckan/forms/package.py:94 ckan/templates/package/new_package_form.html:17
 msgid "Basic information"
-msgstr "Βασικές Πληροφορίες"
+msgstr "Základní informace"
 
 #: ckan/forms/package.py:96 ckan/forms/package.py:111
 #: ckan/logic/action/update.py:27
 #: ckan/templates/package/new_package_form.html:67
 #: ckan/templates/package/read_core.html:60
 msgid "Resources"
-msgstr "Πηγές"
+msgstr "Zdroje"
 
 #: ckan/forms/package.py:97 ckan/templates/layout_base.html:105
 #: ckan/templates/layout_base.html:190 ckan/templates/group/index.html:9
 #: ckan/templates/package/new_package_form.html:98
 #: ckan/templates/package/read.html:26 ckan/templates/revision/read.html:67
 msgid "Groups"
-msgstr "Ομάδες"
+msgstr "Skupiny"
 
 #: ckan/forms/package.py:98 ckan/forms/package.py:105
 #: ckan/templates/package/new_package_form.html:121
 msgid "Detail"
-msgstr "Λεπτομέρειες"
+msgstr "Podrobnosti"
 
 #: ckan/forms/package.py:110 ckan/templates/_util.html:97
 #: ckan/templates/_util.html:110 ckan/templates/group/new_group_form.html:23
 #: ckan/templates/package/new_package_form.html:19
 msgid "Title"
-msgstr "Τίτλος"
+msgstr "Titulek"
 
 #: ckan/forms/package.py:110 ckan/templates/package/new_package_form.html:137
 msgid "Version"
-msgstr "Έκδοση"
+msgstr "Verze"
 
 #: ckan/forms/package.py:110 ckan/templates/package/new_package_form.html:32
 msgid "URL"
@@ -543,113 +570,113 @@ msgstr "URL"
 #: ckan/templates/group/history.html:35 ckan/templates/package/history.html:41
 #: ckan/templates/package/new_package_form.html:123
 msgid "Author"
-msgstr "Δημιουργός"
+msgstr "Autor"
 
 #: ckan/forms/package.py:111 ckan/templates/package/new_package_form.html:127
 msgid "Author email"
-msgstr "Email δημιουργού"
+msgstr "Email autora"
 
 #: ckan/forms/package.py:111 ckan/templates/package/new_package_form.html:130
 msgid "Maintainer"
-msgstr "Υπεύθυνος Συντήησης"
+msgstr "Správce"
 
 #: ckan/forms/package.py:112 ckan/templates/package/new_package_form.html:134
 msgid "Maintainer email"
-msgstr "Email υπευθύνου για την τήρηση"
+msgstr "Email správce"
 
 #: ckan/forms/package.py:112 ckan/templates/home/license.html:6
 #: ckan/templates/home/license.html:9 ckan/templates/package/read_core.html:85
 msgid "License"
-msgstr "Αδεια"
+msgstr "Licence"
 
 #: ckan/forms/package.py:112 ckan/templates/group/new_group_form.html:30
 #: ckan/templates/package/new_package_form.html:142
 msgid "State"
-msgstr "Πολιτεία/Περιοχή"
+msgstr "Stav"
 
 #: ckan/forms/package_dict.py:95
 #, python-format
 msgid "Resource should be a dictionary: %r"
-msgstr ""
+msgstr "Zdroj by měl být slovník: %r"
 
 #: ckan/forms/package_dict.py:112
 #, python-format
 msgid "Key unknown: %s"
-msgstr ""
+msgstr "Neznámý klíč: %s"
 
 #: ckan/forms/package_dict.py:114
 msgid "Key blank"
-msgstr ""
+msgstr "Prázdny klíč"
 
 #: ckan/lib/base.py:152
 #, python-format
 msgid "Could not find the POST data: %r : %s"
-msgstr ""
+msgstr "Nenalezena POST data: %r : %s"
 
 #: ckan/lib/package_saver.py:40
 msgid "Cannot render package description"
-msgstr ""
+msgstr "Nelze poskytnout popis balíčku"
 
 #: ckan/lib/package_saver.py:44
 msgid "No web page given"
-msgstr ""
+msgstr "Nebyla zadána webová stránka"
 
 #: ckan/lib/package_saver.py:141 ckan/logic/validators.py:20
 msgid "No links are allowed in the log_message."
-msgstr "Δεν επιτρέπονται υπερσύνδεσμοι στο log_message"
+msgstr "V log_message nejsou povoleny odkazy."
 
 #: ckan/logic/validators.py:10
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr ""
+msgstr "Nelze změnit hodnotu klíče z %s na %s. Tento klíč je jen pro čtení"
 
 #: ckan/logic/validators.py:30 ckan/logic/validators.py:56
 #: ckan/logic/action/update.py:86
 msgid "Package was not found."
-msgstr "Το πακέτο δεν βρέθηκε"
+msgstr "Balíček nebyl nalezen."
 
 #: ckan/logic/validators.py:41 ckan/logic/action/create.py:182
 #, python-format
 msgid "Package with name %r does not exist."
-msgstr "Δεν υπάρχει πακέτο με το όνομα %r."
+msgstr "Balíček s názvem %r neexistuje."
 
 #: ckan/logic/action/create.py:56 ckan/logic/action/create.py:143
 #: ckan/logic/action/update.py:103 ckan/logic/action/update.py:189
 #, python-format
 msgid "REST API: Create object %s"
-msgstr "REST API: Δημιουργία αντικειμένου %s"
+msgstr "REST API: Vytvořit objekt %s"
 
 #: ckan/logic/action/create.py:118
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
-msgstr "REST API: Δημιουργία συσχέτισης πακέτων: %s %s %s"
+msgstr "REST API: Vytvořit vztah balíčků: %s %s %s"
 
 #: ckan/logic/action/create.py:169
 msgid "You must supply a package id or name (parameter \"package\")."
-msgstr "Πρέπει να δηλώσετε κάποιο id πακέτου ή ;onoma"
+msgstr "Musíte zadat název nebo id balíčku (parametr \"balíček\")."
 
 #: ckan/logic/action/create.py:171
 msgid "You must supply a rating (parameter \"rating\")."
-msgstr "Πρέπει να δώσετε μια βαθμολογία (παράμετρος \"rating\")."
+msgstr "Musíte vyplnit hodnocení (parametr \"hodnocení\")."
 
 #: ckan/logic/action/create.py:176
 msgid "Rating must be an integer value."
-msgstr "Η βαθμολογία πρέπει να είναι ένας ακέραιος αριθμός"
+msgstr "Hodnocení musí být celé číslo."
 
 #: ckan/logic/action/create.py:180
 #, python-format
 msgid "Rating must be between %i and %i."
-msgstr "Η βαθμολογία πρέπει να είναι μεταξύ %i και %i."
+msgstr "Hodnocení musí být číslo mezi %i a %i."
 
 #: ckan/logic/action/delete.py:21
 #, python-format
 msgid "REST API: Delete Package: %s"
-msgstr "REST API: Διαγραφή Πακέτου: %s"
+msgstr "REST API: Smazat balíček: %s"
 
 #: ckan/logic/action/delete.py:62 ckan/logic/action/delete.py:84
 #, python-format
 msgid "REST API: Delete %s"
-msgstr "REST API: Διαγραφή %s"
+msgstr "REST API: Smazat %s"
 
 #: ckan/logic/action/update.py:27
 msgid "Package resource(s) incomplete"
@@ -666,206 +693,208 @@ msgstr ""
 #: ckan/logic/action/update.py:123
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
-msgstr "REST API: Ενημέρωση συσχέτισης πακέτου: %s %s %s"
+msgstr "REST API: Aktualizovat vztah balíčků: %s %s %s"
 
 #: ckan/model/package_relationship.py:48
 #, python-format
 msgid "depends on %s"
-msgstr "εξαρτάται από %s"
+msgstr "závisí na %s"
 
 #: ckan/model/package_relationship.py:48
 #, python-format
 msgid "is a dependency of %s"
-msgstr "%s εξαρτάται από αυτό"
+msgstr "má v závislosti %s"
 
 #: ckan/model/package_relationship.py:49
 #, python-format
 msgid "derives from %s"
-msgstr "προέρχεται από %s"
+msgstr "je odvozen od %s"
 
 #: ckan/model/package_relationship.py:49
 #, python-format
 msgid "has derivation %s"
-msgstr "οδηγεί σε %s"
+msgstr "má odvozeno %s"
 
 #: ckan/model/package_relationship.py:50
 #, python-format
 msgid "links to %s"
-msgstr "σύνδεση προς %s"
+msgstr "odkazuje na %s"
 
 #: ckan/model/package_relationship.py:50
 #, python-format
 msgid "is linked from %s"
-msgstr "συνδεδεμένο από %s"
+msgstr "je odkazován z %s"
 
 #: ckan/model/package_relationship.py:51
 #, python-format
 msgid "is a child of %s"
-msgstr "είναι παιδί τού %s"
+msgstr "je potomkem %s"
 
 #: ckan/model/package_relationship.py:51
 #, python-format
 msgid "is a parent of %s"
-msgstr "είναι γονιός τού %s"
+msgstr "je předkem %s"
 
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "has sibling %s"
-msgstr "αδελφός με %s"
+msgstr "je příbuzné s %s"
 
 #: ckan/templates/_util.html:65 ckan/templates/_util.html:70
 msgid "This package satisfies the Open Definition."
-msgstr ""
+msgstr "Tento balíček vyhovuje Open Definition."
 
 #: ckan/templates/_util.html:66 ckan/templates/package/read.html:75
 msgid "[Open Data]"
-msgstr "[Open Data]"
+msgstr "[Otevřená data]"
 
 #: ckan/templates/_util.html:71 ckan/templates/package/read.html:79
 msgid "[Open Content]"
-msgstr "[Ανοιχτό Περιεχόμενο]"
+msgstr "[Otevřený obsah]"
 
 #: ckan/templates/_util.html:78
 msgid "Not Openly Licensed"
-msgstr ""
+msgstr "Nemá otevřenou licenci"
 
 #: ckan/templates/_util.html:97
 msgid "Number of packages"
-msgstr "Πλήθος πακέτων"
+msgstr "Počet balíčků"
 
 #: ckan/templates/_util.html:97 ckan/templates/group/new_group_form.html:27
 #: ckan/templates/package/new_package_form.html:73
 #: ckan/templates/package/new_package_form.html:92
 #: ckan/templates/package/read_core.html:36
 msgid "Description"
-msgstr "Περιγραφή"
+msgstr "Popis"
 
 #: ckan/templates/_util.html:110
 msgid "Number of members"
-msgstr ""
+msgstr "Počet členů"
 
 #: ckan/templates/_util.html:130
 msgid "View package resources"
-msgstr ""
+msgstr "Zobrazit zdroje balíčku"
 
 #: ckan/templates/_util.html:130
 msgid "DOWNLOAD"
-msgstr ""
+msgstr "STÁHNOUT"
 
 #: ckan/templates/_util.html:133
 msgid "No downloadable resources."
-msgstr ""
+msgstr "Žádné zdroje ke stažení."
 
 #: ckan/templates/_util.html:151
 msgid "no ratings yet"
-msgstr ""
+msgstr "zatím bez hodnocení"
 
 #: ckan/templates/_util.html:152
 msgid ""
 "–\n"
 "    rate it now"
 msgstr ""
+"–\n"
+"    ohodnoťte nyní"
 
 #: ckan/templates/_util.html:170 ckan/templates/_util.html:240
 msgid "User"
-msgstr ""
+msgstr "Uživatel"
 
 #: ckan/templates/_util.html:205 ckan/templates/_util.html:261
 msgid "User Group"
-msgstr ""
+msgstr "Uživatelská skupina"
 
 #: ckan/templates/_util.html:282 ckan/templates/group/history.html:35
 #: ckan/templates/package/history.html:41 ckan/templates/revision/read.html:5
 msgid "Revision"
-msgstr "Έκδοση"
+msgstr "Revize"
 
 #: ckan/templates/_util.html:282 ckan/templates/group/history.html:35
 #: ckan/templates/package/history.html:41
 msgid "Timestamp"
-msgstr "Timestamp"
+msgstr "Časové razítko"
 
 #: ckan/templates/_util.html:282
 msgid "Entity"
-msgstr ""
+msgstr "Prvek"
 
 #: ckan/templates/_util.html:282 ckan/templates/group/history.html:35
 #: ckan/templates/package/history.html:41
 msgid "Log Message"
-msgstr "Μήνυμα καταγραφής"
+msgstr "Zpráva logu"
 
 #: ckan/templates/_util.html:306 ckan/templates/group/new_group_form.html:49
 #: ckan/templates/package/form_extra_fields.html:22
 #: ckan/templates/package/new_package_form.html:162
 #: ckan/templates/revision/read.html:20
 msgid "Delete"
-msgstr "Διαγραφή"
+msgstr "Smazat"
 
 #: ckan/templates/_util.html:309 ckan/templates/revision/read.html:23
 msgid "Undelete"
-msgstr ""
+msgstr "Obnovit smazané"
 
 #: ckan/templates/error_document_template.html:5
 msgid "Error"
-msgstr ""
+msgstr "Chyba"
 
 #: ckan/templates/layout_base.html:76
 msgid "My account"
-msgstr "Ο Λογαριασμός μου"
+msgstr "Můj účet"
 
 #: ckan/templates/layout_base.html:77 ckan/templates/user/logout.html:8
 msgid "Logout"
-msgstr "Αποσύνδεση"
+msgstr "Odhlásit"
 
 #: ckan/templates/layout_base.html:80 ckan/templates/user/login.html:34
 #: ckan/templates/user/login.html:47
 msgid "Login"
-msgstr "Σύνδεση"
+msgstr "Uživatelské jméno"
 
 #: ckan/templates/layout_base.html:81 ckan/templates/user/login.html:25
 msgid "Register"
-msgstr ""
+msgstr "Zaregistrovat"
 
 #: ckan/templates/layout_base.html:94
 msgid "Skip to content"
-msgstr ""
+msgstr "Přejít na obsah"
 
 #: ckan/templates/layout_base.html:98 ckan/templates/home/index.html:6
 msgid "Home"
-msgstr "Αρχική"
+msgstr "Domů"
 
 #: ckan/templates/layout_base.html:99 ckan/templates/layout_base.html:169
 #: ckan/templates/package/search.html:47
 #: ckan/templates/package/search_form.html:17
 msgid "Search"
-msgstr ""
+msgstr "Vyhledat"
 
 #: ckan/templates/layout_base.html:103 ckan/templates/package/search.html:14
 msgid "Add a package"
-msgstr ""
+msgstr "Přidat balíček"
 
 #: ckan/templates/layout_base.html:106 ckan/templates/layout_base.html:200
 #: ckan/templates/home/about.html:6
 msgid "About"
-msgstr "Σχετικά"
+msgstr "Více"
 
 #: ckan/templates/layout_base.html:135
 msgid "Master content template placeholder … please replace me."
-msgstr "Χώρος για περιεχόμενο του template… Αντικατέστησέ το."
+msgstr "Prostor hlavní šablony obsahu ... prosím nahraďte dle potřeby"
 
 #: ckan/templates/layout_base.html:166 ckan/templates/group/edit_form.html:10
 #: ckan/templates/group/new_group_form.html:66
 #: ckan/templates/revision/read.html:48
 msgid "Packages"
-msgstr "Πακέτα"
+msgstr "Balíčky"
 
 #: ckan/templates/layout_base.html:170
 msgid "Register a new Package"
-msgstr ""
+msgstr "Zaregistrovat nový balíček"
 
 #: ckan/templates/layout_base.html:171 ckan/templates/revision/list.html:5
 #: ckan/templates/revision/list.html:8
 msgid "Revision History"
-msgstr "Ιστορικό Εκδόσεων"
+msgstr "Historie revizí"
 
 #: ckan/templates/layout_base.html:172 ckan/templates/package/search.html:37
 msgid "API"
@@ -873,7 +902,7 @@ msgstr "API"
 
 #: ckan/templates/layout_base.html:173 ckan/templates/package/search.html:38
 msgid "API Docs"
-msgstr ""
+msgstr "Dokumenty API"
 
 #: ckan/templates/layout_base.html:179
 #, python-format
@@ -882,42 +911,42 @@ msgstr ""
 
 #: ckan/templates/layout_base.html:186
 msgid "Groups & Tags"
-msgstr ""
+msgstr "Skupiny a tagy"
 
 #: ckan/templates/layout_base.html:191
 msgid "Create a new Group"
-msgstr ""
+msgstr "Vytvořit novou skupinu"
 
 #: ckan/templates/layout_base.html:192
 #: ckan/templates/authorization_group/index.html:6
 #: ckan/templates/authorization_group/index.html:9
 #: ckan/templates/authorization_group/layout.html:23
 msgid "Authorization Groups"
-msgstr "Εξουσιοδοτημένες Ομάδες"
+msgstr "Autorizační skupiny"
 
 #: ckan/templates/layout_base.html:193
 msgid "Create a new Authorization Group"
-msgstr ""
+msgstr "Vytvořit novou autorizační skupinu"
 
 #: ckan/templates/layout_base.html:204
 msgid "Project Home Page"
-msgstr "Αρχική σελίδα του project"
+msgstr "Hlavní stránka projektu"
 
 #: ckan/templates/layout_base.html:207
 msgid "Contact Us"
-msgstr "Επικοινωνία"
+msgstr "Kontaktujte nás"
 
 #: ckan/templates/layout_base.html:210 ckan/templates/user/login.html:26
 msgid "Privacy Policy"
-msgstr "Πολιτική Ασφαλείας"
+msgstr "Pravidla pro ochranu soukromí"
 
 #: ckan/templates/layout_base.html:218
 msgid "Language"
-msgstr ""
+msgstr "Jazyk"
 
 #: ckan/templates/layout_base.html:243
 msgid "Credits"
-msgstr ""
+msgstr "Zásluhy"
 
 #: ckan/templates/layout_base.html:246
 msgid ""
@@ -925,40 +954,43 @@ msgid ""
 "                An\n"
 "                [2:Open Knowledge Foundation] Project"
 msgstr ""
+"[1:]\n"
+"                \n"
+"                Projekt [2:Open Knowledge Foundation]"
 
 #: ckan/templates/layout_base.html:252
 msgid "Open Knowledge Foundation"
-msgstr ""
+msgstr "Open Knowledge Foundation"
 
 #: ckan/templates/layout_base.html:256 ckan/templates/layout_base.html:261
 msgid "This Content and Data is Open"
-msgstr "Αυτό το Περιεχόμενο και τα Δεδομένα είναι ανοιχτά"
+msgstr "Otevřený obsah a data"
 
 #: ckan/templates/layout_base.html:278
 msgid "CKAN"
-msgstr ""
+msgstr "CKAN"
 
 #: ckan/templates/layout_base.html:279
 msgid "Powered by CKAN"
-msgstr ""
+msgstr "Běží díky CKANu"
 
 #: ckan/templates/layout_base.html:281
 #, python-format
 msgid "v%(version)s"
-msgstr ""
+msgstr "v%(version)s"
 
 #: ckan/templates/authorization_group/authz.html:5
 msgid "- Authorization - AuthorizationGroups"
-msgstr "- Δικαιώματα - Εξουσιοδοτημένες Ομάδες"
+msgstr "- Oprávnění - Autorizační skupiny"
 
 #: ckan/templates/authorization_group/authz.html:8
 msgid "Authorization for authorization group:"
-msgstr "Εξουσιοδότηση για Εξουσιοδοτημένες Ομάδες"
+msgstr "Oprávnění pro autorizační skupiny:"
 
 #: ckan/templates/authorization_group/authz.html:13
 #: ckan/templates/group/authz.html:12 ckan/templates/package/authz.html:12
 msgid "Update Existing Roles"
-msgstr "Ενημέρωση υπάρχοντων ρόλων"
+msgstr "Aktualizovat existující role"
 
 #: ckan/templates/authorization_group/authz.html:17
 #: ckan/templates/authorization_group/authz.html:35
@@ -968,7 +1000,7 @@ msgstr "Ενημέρωση υπάρχοντων ρόλων"
 #: ckan/templates/package/authz.html:34
 #: ckan/templates/package/edit_form.html:29 ckan/templates/user/edit.html:45
 msgid "Save"
-msgstr "Αποθήκευση"
+msgstr "Uložit"
 
 #: ckan/templates/authorization_group/authz.html:22
 #: ckan/templates/group/authz.html:21 ckan/templates/package/authz.html:21
@@ -994,40 +1026,40 @@ msgstr ""
 
 #: ckan/templates/authorization_group/edit.html:5
 msgid "- Edit - AuthorizationGroups"
-msgstr "- Επεξεργασία - Εξουσοιδοτημένες Ομάδες"
+msgstr "- Upravit - Autorizační skupiny"
 
 #: ckan/templates/authorization_group/edit.html:17
 msgid "Edit Authorization Group:"
-msgstr "Επεξεργασία Εξουσιοδοτημένων Ομάδων:"
+msgstr "Upravit autorizační skupinu:"
 
 #: ckan/templates/authorization_group/edit_form.html:10
 #: ckan/templates/user/list.html:6 ckan/templates/user/list.html:10
 msgid "Users"
-msgstr "Χρήστες:"
+msgstr "Uživatelé"
 
 #: ckan/templates/authorization_group/edit_form.html:18
 msgid "There are no users currently in this group."
-msgstr "Δεν υπάρχουν χρήστες στην ομάδα αυτή την στιγμή."
+msgstr "V této skupině nyní nejsou žádní uživatelé."
 
 #: ckan/templates/authorization_group/index.html:11
 #, python-format
 msgid "There are [1:%(item_count)s] authorization groups."
-msgstr "Υπάρχουν [1:%(item_count)s] εξουσιοδοτημένες ομάδες."
+msgstr "Existuje [1:%(item_count)s] autorizačních skupin."
 
 #: ckan/templates/authorization_group/layout.html:11
 #: ckan/templates/group/layout.html:26 ckan/templates/package/layout.html:11
 msgid "View"
-msgstr "Προβολή"
+msgstr "Zobrazení"
 
 #: ckan/templates/authorization_group/layout.html:13
 #: ckan/templates/group/layout.html:28 ckan/templates/package/layout.html:13
 msgid "Edit"
-msgstr "Επεξεργασία"
+msgstr "Upravit"
 
 #: ckan/templates/authorization_group/layout.html:16
 #: ckan/templates/group/layout.html:32 ckan/templates/package/layout.html:17
 msgid "Authorization"
-msgstr "Αδειοδότηση"
+msgstr "Oprávnění"
 
 #: ckan/templates/authorization_group/layout.html:24
 msgid ""
@@ -1035,109 +1067,109 @@ msgid ""
 "          you can also specify a set of users that will share the same rights. To do that, an    \n"
 "          [1:authorization group] can be set-up and users can be added to it."
 msgstr ""
-"Αντί να καθορίζετε τα δικαιώματα συγκεκριμένων χρηστών για ένα πακέτο ή ομάδα,\n"
-"          μπορείτε να δημιουργήσετε ένα σύνολο χρηστών με τα ίδια δικαιώματα. Για να το κάνετε αυτό, \n"
-"          δημιουργήστε μια [1:εξουσιοδοτημένη ομάδα] και προσθέστε χρήστες σ'αυτήν."
+"Místo zadávání oprávnění konkrétním uživatelům pro balíčky či skupiny,\n"
+"          můžete zadat skupinu uživatelů, kteří budou sdílet stejná práva. K tomuto slouží    \n"
+"          [1:autorizační skupina], kterou můžete vytvořit a uživatele do ní zařadit."
 
 #: ckan/templates/authorization_group/layout.html:28
 msgid "To create a new authorization group, please first"
-msgstr "Για να μπορέσετε να εισάγετε ομάδα πρεπει πρώτα να  [1:συνδεθείτε]."
+msgstr "Před vytvořením nové autorizační skupiny prosím nejdříve"
 
 #: ckan/templates/authorization_group/layout.html:29
 #: ckan/templates/group/layout.html:15
 msgid "login"
-msgstr "Σύνδεση"
+msgstr "přihlášení"
 
 #: ckan/templates/authorization_group/layout.html:32
 msgid "Create a new authorization group"
-msgstr "Δημιουργήστε μια νέα εξουσιοδοτημένη ομάδα"
+msgstr "Vytvořit novou autorizační skupinu"
 
 #: ckan/templates/authorization_group/new.html:5
 msgid "New - Authorization Groups"
-msgstr "Νέο - Εξουσιοδοτημένες Ομάδες"
+msgstr "Nové - Autorizační skupiny"
 
 #: ckan/templates/authorization_group/new.html:17
 msgid "New Authorization Group"
-msgstr "Νέα εξουσιοδοτημένη ομάδα:"
+msgstr "Nová autorizační skupina"
 
 #: ckan/templates/authorization_group/read.html:6
 msgid "- Authorization Groups"
-msgstr "- Εξουσιοδοτημένες Ομάδες"
+msgstr "- Autorizační skupiny"
 
 #: ckan/templates/authorization_group/read.html:15
 #: ckan/templates/group/read.html:24
 msgid "Administrators:"
-msgstr "Διαχειριστές:"
+msgstr "Administrátoři:"
 
 #: ckan/templates/authorization_group/read.html:21
 msgid "Users:"
-msgstr "Χρήστες:"
+msgstr "Uživatelé:"
 
 #: ckan/templates/authorization_group/read.html:25
 #, python-format
 msgid "There are %(item_count)s users in this authorization group."
-msgstr "Υπάρχουν %(item_count)s πακέτα σ'αυτή την εξουσιοδοτημένη ομάδα."
+msgstr "V této autorizační skupině je %(item_count)s uživatelů."
 
 #: ckan/templates/group/authz.html:5
 msgid "- Authorization - Groups"
-msgstr "- Δικαιώματα - Ομάδων"
+msgstr "- Oprávnění - Skupiny"
 
 #: ckan/templates/group/authz.html:8
 msgid "Authorization for group:"
-msgstr "Δικαιώματα των Ομάδων:"
+msgstr "Oprávnění pro skupinu:"
 
 #: ckan/templates/group/edit.html:5
 msgid "- Edit - Groups"
-msgstr "- Επεξεργασία - Ομάδων"
+msgstr "- Upravit - Skupiny"
 
 #: ckan/templates/group/edit.html:17
 msgid "Edit Group:"
-msgstr "Επεξεργασία Ομάδας:"
+msgstr "Úprava skupiny:"
 
 #: ckan/templates/group/edit_form.html:17
 #: ckan/templates/group/new_group_form.html:75
 msgid "There are no packages currently in this group."
-msgstr "Δεν υπάρχουν πακέτα στην ομάδα αυτή την στιγμή."
+msgstr "V této skupině nyní nejsou žádné balíčky."
 
 #: ckan/templates/group/history.html:5
 msgid "- Groups - History"
-msgstr ""
+msgstr "- Skupiny - Historie"
 
 #: ckan/templates/group/history.html:12 ckan/templates/package/history.html:27
 msgid "Revisions"
-msgstr "Εκδόσεις"
+msgstr "Revize"
 
 #: ckan/templates/group/history.html:18 ckan/templates/package/history.html:14
 #: ckan/templates/package/read_core.html:13
 #: ckan/templates/revision/list.html:11
 msgid "Subscribe »"
-msgstr "Εγγραφή »"
+msgstr "Přihlásit se k odběru »"
 
 #: ckan/templates/group/history.html:27 ckan/templates/package/history.html:33
 #: ckan/templates/package/new.html:39
 msgid "Error:"
-msgstr "Λάθος:"
+msgstr "Chyba:"
 
 #: ckan/templates/group/history.html:52 ckan/templates/package/history.html:58
 msgid "Compare »"
-msgstr "Σύγκριση  »"
+msgstr "Porovnat »"
 
 #: ckan/templates/group/history.html:57
 msgid "Group History"
-msgstr ""
+msgstr "Historie skupiny"
 
 #: ckan/templates/group/index.html:6
 msgid "Groups of Data Packages"
-msgstr "Ομάδες Πακέτων Δεδομένων"
+msgstr "Skupiny datových balíčků"
 
 #: ckan/templates/group/index.html:11
 #, python-format
 msgid "There are [1:%(item_count)s] groups."
-msgstr "Υπάρχουν [1:%(item_count)s] ομάδες."
+msgstr "Existuje [1:%(item_count)s] skupin."
 
 #: ckan/templates/group/layout.html:11
 msgid "Groups section"
-msgstr "τμήμα Ομάδων"
+msgstr "Sekce skupin"
 
 #: ckan/templates/group/layout.html:12
 msgid ""
@@ -1146,42 +1178,41 @@ msgid ""
 "be set-up to specify which users have permission to add or remove packages "
 "from it."
 msgstr ""
-"Αν και τα tags είναι σημαντικά στο να διασυνδέουν τα πακέτα μεταξύ τους, "
-"υπάρχουν περιπτώσεις όπου πρέπει να μην επιτρέπεται στους χρήστες να "
-"επεξεργάζονται μια συλλογή. Μπορεί να στηθεί μια [1:ομάδα] που να ορίζει "
-"ποιοι χρήστες έχουν την άδεια να προσθέσουν οι να αφαιρέσουν πακέτα σ'αυτήν."
+"I když jsou tagy skvělé pro tvoření kolekcí balíčků, existují případy kdy "
+"chcete zabrátnit uživatelům v úpravě kolekce. Může být vytvořena [1:skupina]"
+" určující kteří uživatelé mají právo přidávat a odebírat balíčky z kolekce."
 
 #: ckan/templates/group/layout.html:14
 msgid "To create a new group, please first"
-msgstr "Για να μπορέσετε να εισάγετε ομάδα πρεπει πρώτα να  [1:συνδεθείτε]."
+msgstr "Pro vytvoření nové skupiny prosím nejdříve"
 
 #: ckan/templates/group/layout.html:18
 msgid "Create a new group"
-msgstr "Δημιουργήστε μια νέα ομάδα"
+msgstr "Vytvořit novou skupinu"
 
 #: ckan/templates/group/layout.html:30 ckan/templates/package/layout.html:15
 msgid "History"
-msgstr "Ιστορία"
+msgstr "Historie"
 
 #: ckan/templates/group/new.html:5
 msgid "New - Groups"
-msgstr "Νέο - Ομάδες"
+msgstr "Nové - Skupiny"
 
 #: ckan/templates/group/new.html:17
 msgid "New Group"
-msgstr "Νέα Ομάδα"
+msgstr "Nová skupina"
 
 #: ckan/templates/group/new_group_form.html:8
 #: ckan/templates/package/form.html:7
 #: ckan/templates/package/new_package_form.html:9
 msgid "Errors in form"
-msgstr "Λάθη στη φόρμα"
+msgstr "Chyby ve formuláři"
 
 #: ckan/templates/group/new_group_form.html:9
 #: ckan/templates/package/form.html:8
 #: ckan/templates/package/new_package_form.html:10
 msgid "The form contains invalid entries:"
-msgstr "Η φόρμα περιέχει λάθος εγγραφές:"
+msgstr "Formulář obsahuje chybné položky:"
 
 #: ckan/templates/group/new_group_form.html:18
 #: ckan/templates/package/new_package_form.html:25
@@ -1214,42 +1245,42 @@ msgstr ""
 #: ckan/templates/package/form_extra_fields.html:12
 #: ckan/templates/package/new_package_form.html:167
 msgid "New key"
-msgstr "Νέο κλειδί"
+msgstr "Nový klíč"
 
 #: ckan/templates/group/new_group_form.html:56
 #: ckan/templates/package/form_extra_fields.html:26
 #: ckan/templates/package/new_package_form.html:169
 msgid "with value"
-msgstr "με τιμή"
+msgstr "s hodnotou"
 
 #: ckan/templates/group/read.html:6
 msgid "- Groups"
-msgstr "- Ομάδες"
+msgstr "- Skupiny"
 
 #: ckan/templates/group/read.html:12
 msgid "No Title"
-msgstr "Χωρίς Τίτλο"
+msgstr "Bez názvu"
 
 #: ckan/templates/group/read.html:30
 msgid "Packages:"
-msgstr "Πακέτα:"
+msgstr "Balíčky:"
 
 #: ckan/templates/group/read.html:31
 #, python-format
 msgid "There are %(item_count)s packages in this group."
-msgstr "Υπάρχουν %(item_count)s πακέτα σ'αυτή την ομάδα."
+msgstr "V této skupině je %(item_count)s balíčků."
 
 #: ckan/templates/home/about.html:9
 msgid "About CKAN"
-msgstr "Σχετικά με το CKAN"
+msgstr "O CKANu"
 
 #: ckan/templates/home/about.html:11
 msgid ""
 "CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of [2:open knowledge] packages and projects\n"
 "    (and a few closed ones)."
 msgstr ""
-"Το CKAN (Comprehensive Knowledge Archive Network) είναι [1:αρχείο] από πακέτα και projects βασιζόμενα στην αρχή της [2:ανοιχτής γνώσης]\n"
-"    (...και μερικών κλειστών)."
+"CKAN je souborná znalostní archivní síť, nebo-li [1:registr] [2:otevřených znalostí] obsažených v balíčcích a projektech\n"
+"    (a pár uzavřený)."
 
 #: ckan/templates/home/about.html:15
 msgid ""
@@ -1257,19 +1288,18 @@ msgid ""
 "      content and data], especially in ways that are machine\n"
 "      automatable."
 msgstr ""
-"Το CKAN διευκολύνει την [1:εύρεση, τον διαμοιρασμό και την επαναχρησιμοποίηση ανοιχτών\n"
-"      δεδομένων και περιεχομένου], ιδιαιτέρως με τρόπους που είναι αυτοματοποιημένοι για ανάγνωση \n"
-"      από μηχανές."
+"CKAN usnadňuje [1:hledání, sdílení a znovupoužití otevřeného\n"
+"      obsahu a dat], zejména směrem ke strojové\n"
+"      automatizaci zpracování."
 
 #: ckan/templates/home/about.html:20
 msgid ""
 "As a system CKAN functions as a synthesis of several different services:"
-msgstr ""
-"Ως σύστημα το CKAN λειτουργεί ως σύνθεση διαφορετικού τύπου υπηρεσιών:"
+msgstr "Jako systém funguje CKAN jako syntéza několika různých služeb:"
 
 #: ckan/templates/home/about.html:22
 msgid "CKAN Features Overview"
-msgstr "Επισκόπηση δυνατοτήτων του CKAN"
+msgstr "Přehled funkcí CKANu"
 
 #: ckan/templates/home/about.html:24
 msgid ""
@@ -1277,9 +1307,9 @@ msgid ""
 "\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
-"Όπως φαίνεται στο διάγραμμα, το CKAN συνδυάζει τα χαρακτηριστικά ενός καταχωρητή,\n"
-"\t\ta πακέτων και ενός wiki. Ως καταχωρητής, ενεργεί όπως το [1:freshmeat] αλλά για τα Ανοιχτά Δεδομένα\n"
-"\t\tπηγές περιεχομένου. Ωστόσο, προσφέρει περισσότερα από έναν απλό καταχωρητή."
+"Jak ukazuje graf, CKAN kombinuje vlastnosti seznamu/registru,\n"
+"<span class=\"whitespace other\" title=\"Tab\">»»</span> indexu balíčku a wiki. Jako registr funguje jako [1: Freshmeat], ovšem pro otevřená data a\n"
+"<span class=\"whitespace other\" title=\"Tab\">»»</span> obsahové zdroje. Nicméně oproti jednoduchému registru je v klíčových oblastech rozšířen."
 
 #: ckan/templates/home/about.html:29
 msgid ""
@@ -1291,13 +1321,13 @@ msgid ""
 "\t\tagain for [4:open data and content]\n"
 "\t\tnot code."
 msgstr ""
-"Πρωτίστως, χάρη [1:versioned domain model] στο οποίο στηρίζεται, το CKAN έχει ένα\n"
-"\t\twiki-like interface που επιτρέπει στον καθένα να προσθέτει και επεξεργάζεταο το υπάρχον υλικό. Κατά δεύτερον,\n"
-"\t\tκαι σε αντίθεση με τα wiki, το CKAN μπορεί να αποθηκεύσει 'δομημένη' πληροφορία, που του επιτρέπει\n"
-"\t\tνα παρέχει 'index'-like δυνατότητες όπως η αυτόματη καταγραφή, ανακάλυψη\n"
-"\t\tκαι εγκατάσταση υλικού. Υπό αυτό το πρόσμα, συμπεριφέρεται σαν [2:CPAN] ή [3:PyPI] ως λογισμικό -- όμως\n"
-"\t\tκαι πάλι για τα [4:ανοιχτά δεδομένα και περιεχόμενο]\n"
-"\t\tκαι όχι για κώδικα.\n"
+"Zaprvé, díky základní [1:verzi doménového modelu] má CKAN\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>rozhraní podobné wiki, které do něj umožňuje komukoli vkládat a ukládat zdroje. Za druhé,\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>na rozdíl od wiki, umožňuje CKAN ukládání strukturovaných informací, které dovolují\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>poskytovat vlastnosti podobné indexu, jako jsou automatické registrace, vyhledávání\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span> a vkládání zdrojů. V tomto ohledu se chová jako [2:CPAN] or [3:PyPI] ve světě softwaru -- ačkoli\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>opět na [4:otevřená data a obsah]\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>a nikoli kód.\n"
 
 #: ckan/templates/home/about.html:40
 msgid ""
@@ -1305,12 +1335,13 @@ msgid ""
 "    be found in [1:these\n"
 "      slides]."
 msgstr ""
-"Περισσότερα σχετικά με το CKAN, και το υπόβαθρο σχετικά με την δημιουργία του\n"
-"    μπορείτε να βρείτε [1:σ'αυτά τα slides]."
+"Více o CKAN a pozadí jeho vzniku můžete\n"
+"    nalézt v [1:této\n"
+"      prezentaci]."
 
 #: ckan/templates/home/index.html:42
 msgid "Welcome to"
-msgstr "Καλωσήλθατε στο"
+msgstr "Vítejte v"
 
 #: ckan/templates/home/index.html:43
 #, python-format
@@ -1321,29 +1352,28 @@ msgid ""
 "      site makes it easy to find, share and reuse content and data,\n"
 "      especially in ways that are machine automatable."
 msgstr ""
-"%(title)s είναι ένα\n"
-"      [1:ανοιχτό μητρώο]\n"
-"      δεδομένων και πακέτων παριεχομένου. Αξιοποιώντας το λογισμικό του CKAN,\n"
-"      αυτό το site διευκολύνει την αναζήτηση, διαμοιρασμό και επαναχρησιμοποίηση\n"
-"      περιεχομένου και δεδομένων, ιδιαιτέρως με τρόπους που είναι \n"
-"      αυτοματοποιημένοι για ανάγνωση από μηχανές."
+"%(title)s je\n"
+"      [1:otevřený registr]\n"
+"      datových a obsahových balíčků. Využitím softwaru CKAN tyto\n"
+"      stránky usnadňují hledání, sdílení a znovupoužití obsahu a dat, a to\n"
+"      zejména způsoby, které využívají automatizované zpracování."
 
 #: ckan/templates/home/index.html:51
 #, python-format
 msgid "[1:%(package_count)s registered data packages] available."
-msgstr "[1:%(package_count)s καταχωρημένα πακέτα δεδομένων] είναι διαθέσιμα."
+msgstr "[1:%(package_count)s registrovaných datových balíčků] k dispozici."
 
 #: ckan/templates/home/index.html:56
 msgid "Top Tags"
-msgstr "Top Tags"
+msgstr "Nejpoužívanější tagy"
 
 #: ckan/templates/home/index.html:66
 msgid "Recently changed packages"
-msgstr ""
+msgstr "Naposledy změněné balíčky"
 
 #: ckan/templates/home/index.html:70
 msgid "View revision log »"
-msgstr ""
+msgstr "Zobrazit log revizí »"
 
 #: ckan/templates/home/language.js:1
 msgid "var MSG_MORE_HELP = '"
@@ -1371,46 +1401,46 @@ msgid ""
 "    database plus any additional content on this site licensed under a [3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 license]."
 msgstr ""
-"Όλο το περιεχόμενο αυτού του site είναι [1:ανοιχτό] και μπορεί ελεύθερα να χρησιμοποιηθεί, reused\n"
-"    και να διαμοιραστεί. Επισήμως, τα δεδομένα/βάση δεδομένων διέπονται από την άδεια χρήσης [2:Open Data Commons Open\n"
-"      Database License v1.0], ενώ όλο το περιεχόμενο της βάσης δεδομένων\n"
-"    και όποιο επιπλέον περιεχόμενο σε αυτό το site διέπονται από την άδεια χρήσης [3:Creative Commons\n"
+"Veškerý obsah na těchto stránkách je [1:otevřený] a může být volně použit, kombinován\n"
+"     a dále poskytován. Formálně jsou data/databáze licencována podle [2:Open Data Commons Open\n"
+"      Database License v1.0], včetně veškerého autorskými právy ochranitelného obsahu v\n"
+"    databázi. Všechen další obsah na těchto stránkách licencován pod [3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 license]."
 
 #: ckan/templates/package/authz.html:5
 msgid "- Authorization - Data Packages"
-msgstr "- Εξουσιοδότηση - Πακέτα Δεδομένων"
+msgstr "- Oprávnění - Datové balíčky"
 
 #: ckan/templates/package/authz.html:8
 msgid "Authorization for Data Package:"
-msgstr "Εξουσιοδότηση για πακέτα δεδομένων"
+msgstr "Oprávnění na datové balíčky:"
 
 #: ckan/templates/package/comments.html:5
 #: ckan/templates/package/history.html:5
 msgid "- Data Packages - History"
-msgstr "- Πακέτα Δεδομένων - Ιστορικό"
+msgstr "- Datové balíčky - Historie"
 
 #: ckan/templates/package/edit.html:6
 msgid "- Edit - Data Packages"
-msgstr "- Επεξεργασία - Πακέτα Δεδομένων"
+msgstr "- Upravit - Datové balíčky"
 
 #: ckan/templates/package/edit.html:8 ckan/templates/package/new.html:8
 msgid "hide-sidebar"
-msgstr ""
+msgstr "skrýt postraní panel"
 
 #: ckan/templates/package/edit.html:23
 msgid "Edit Data Package:"
-msgstr "Επεξεργασία Δεδομένων Πακέτου:"
+msgstr "Upravit datový balíček:"
 
 #: ckan/templates/package/edit.html:29 ckan/templates/package/new.html:33
 #: ckan/templates/user/edit.html:52
 msgid "Preview"
-msgstr "Προεπισκόπηση"
+msgstr "Náhled"
 
 #: ckan/templates/package/edit_form.html:13
 #: ckan/templates/package/new_package_form.html:179
 msgid "Edit summary (briefly describe the changes you have made)"
-msgstr "Επεξεργασία σύνοψης (σύντομη περιγραφή των αλλαγών που κάνατε)"
+msgstr "Shrnutí úpravy (stručně popište provedené změny)"
 
 #: ckan/templates/package/edit_form.html:17
 #: ckan/templates/package/edit_form.html:20
@@ -1418,85 +1448,85 @@ msgstr "Επεξεργασία σύνοψης (σύντομη περιγραφή
 #: ckan/templates/package/new_package_form.html:186
 #: ckan/templates/revision/read.html:39
 msgid "Author:"
-msgstr "Συγγραφέας:"
+msgstr "Autor:"
 
 #: ckan/templates/package/edit_form.html:21
 #: ckan/templates/package/new_package_form.html:187
 msgid "Since you have not signed in this will just be your IP address."
-msgstr "Εφόσον δεν έχετε συνδεθεί, θα χρησιμοποιηθεί η IP διεύθυνσή σας."
+msgstr "Protože nejste přihlášen(a), bude to vaše IP adresa."
 
 #: ckan/templates/package/edit_form.html:23
 #: ckan/templates/package/new_package_form.html:189
 msgid "Click here to sign in"
-msgstr "Κάντε κλικ για να συνδεθείτε"
+msgstr "Klikněte sem pro přihlášení"
 
 #: ckan/templates/package/edit_form.html:23
 #: ckan/templates/package/new_package_form.html:189
 msgid "before saving (opens in new window)."
-msgstr "πριν την αποθήκευση (ανοίγει σε νέο παράθυρο)"
+msgstr "před uložením (otevře se v novém okně)"
 
 #: ckan/templates/package/edit_form.html:33
 #: ckan/templates/package/new_package_form.html:199
 msgid "Important:"
-msgstr ""
+msgstr "Důležité:"
 
 #: ckan/templates/package/edit_form.html:33
 msgid ""
 "By submitting content, you agree to release your contributions\n"
 "        under the open license specified on the"
 msgstr ""
-"Με την αποστολή του περιεχομένου, συμφωνείτε να θέσετε την συνεισφορά σας\n"
-"        υπό την ανοιχτή άδεια χρήση όπως ορίζεται στο"
+"Zasláním obsahu souhlasíte se zveřejněním vašeho příspěvku\n"
+"        pod otevřenou licencí, kterou blíže popisuje"
 
 #: ckan/templates/package/edit_form.html:34
 #: ckan/templates/package/new_package_form.html:200
 msgid "license page"
-msgstr "Σελίδα άδειας χρήσης"
+msgstr "stránka věnující se licenčním podmínkám"
 
 #: ckan/templates/package/edit_form.html:35
 #: ckan/templates/package/new_package_form.html:200
 msgid ". Please"
-msgstr ""
+msgstr ". Prosím"
 
 #: ckan/templates/package/edit_form.html:35
 #: ckan/templates/package/new_package_form.html:200
 msgid "refrain"
-msgstr ""
+msgstr "neprovádějte"
 
 #: ckan/templates/package/edit_form.html:35
 #: ckan/templates/package/new_package_form.html:200
 msgid "from editing this page if you are"
-msgstr ""
+msgstr "změny na této stránce pokud"
 
 #: ckan/templates/package/edit_form.html:35
 #: ckan/templates/package/new_package_form.html:200
 msgid "not"
-msgstr ""
+msgstr "si to"
 
 #: ckan/templates/package/edit_form.html:35
 #: ckan/templates/package/new_package_form.html:201
 msgid "happy to do this."
-msgstr ""
+msgstr "nepřejete."
 
 #: ckan/templates/package/history.html:10
 msgid "Updates"
-msgstr ""
+msgstr "Aktualizace"
 
 #: ckan/templates/package/history.html:24
 msgid "- History"
-msgstr ""
+msgstr "- Historie"
 
 #: ckan/templates/package/history.html:63 ckan/templates/package/read.html:107
 msgid "Package History"
-msgstr "Ιστορικό πακέτου."
+msgstr "Historie balíčku"
 
 #: ckan/templates/package/new.html:6
 msgid "New - Data Packages"
-msgstr "Νέο - Πακέτα Δεδομένων"
+msgstr "Nové - Datové balíčky"
 
 #: ckan/templates/package/new.html:29
 msgid "Register a New Data Package"
-msgstr "Καταχώρηση ενός νέου Πακέτου Δεδομένων"
+msgstr "Zaregistrovat nový datový balíček"
 
 #: ckan/templates/package/new_package_form.html:42
 msgid "You can use"
@@ -1527,7 +1557,7 @@ msgstr ""
 #: ckan/templates/package/new_package_form.html:72
 #: ckan/templates/package/read_core.html:37
 msgid "Format"
-msgstr "Format"
+msgstr "Formát"
 
 #: ckan/templates/package/new_package_form.html:74
 #: ckan/templates/package/read_core.html:38
@@ -1692,180 +1722,184 @@ msgstr ""
 
 #: ckan/templates/package/read.html:6
 msgid "- Data Packages"
-msgstr "- Πακέτα Δεδομένων"
+msgstr "- Datové balíčky"
 
 #: ckan/templates/package/read.html:11
 msgid "First time at"
-msgstr ""
+msgstr "Poprvé na"
 
 #: ckan/templates/package/read.html:13
 msgid "is a catalogue for data."
-msgstr ""
+msgstr "je katalog dat."
 
 #: ckan/templates/package/read.html:13
 msgid "Click here to find out more ..."
-msgstr ""
+msgstr "Klikněte pro další informace ..."
 
 #: ckan/templates/package/read.html:34
 msgid "Groups are collections of packages maintained by users of"
-msgstr ""
+msgstr "Skupiny jsou kolekce balíčků udržovaných uživateli z"
 
 #: ckan/templates/package/read.html:35
 msgid ". This package has not been added to any groups yet."
-msgstr ""
+msgstr ". Tento balíček dosud nebyl přidán do žádné skupiny."
 
 #: ckan/templates/package/read.html:44
 msgid "Related packages"
-msgstr "Σχετικά πακέτα"
+msgstr "Související balíčky"
 
 #: ckan/templates/package/read.html:60
 msgid "This Package is Open"
-msgstr ""
+msgstr "Tento balíček je otevřený"
 
 #: ckan/templates/package/read.html:63
 msgid "License:"
-msgstr ""
+msgstr "Licence:"
 
 #: ckan/templates/package/read.html:72 ckan/templates/package/read.html:76
 msgid "This package satisfies the Open Knowledge Definition."
-msgstr ""
-"Το πακέτο αυτό πληροί τον Ορισμό Ανοικτής Γνώσης (Open Knowledge "
-"Definition)."
+msgstr "Tento balíček vyhovuje Open Knowledge Definition."
 
 #: ckan/templates/package/read.html:84
 msgid "This package is Not Open"
-msgstr ""
+msgstr "Tento balíček není otevřený"
 
 #: ckan/templates/package/read.html:86
 msgid ""
 "Either because it is not openly licensed or is missing\n"
 "      downloadable resources."
 msgstr ""
+"Buď proto, že licence není otevřená nebo že chybí\n"
+"      stažitelné zdroje."
 
 #: ckan/templates/package/read.html:89
 msgid "Start an enquiry on IsItOpenData »"
-msgstr ""
+msgstr "Spustit dotaz na IsItOpenData »"
 
 #: ckan/templates/package/read.html:101
 #: ckan/templates/package/read_core.html:133
 msgid "RDF/XML"
-msgstr ""
+msgstr "RDF/XML"
 
 #: ckan/templates/package/read.html:102
 msgid "RDF/Turtle"
-msgstr ""
+msgstr "RDF/Turtle"
 
 #: ckan/templates/package/read_core.html:20
 msgid "Source:"
-msgstr ""
+msgstr "Zdroj:"
 
 #: ckan/templates/package/read_core.html:32
 msgid "Downloads & Resources"
-msgstr ""
+msgstr "Soubory ke stažení a zdroje"
 
 #: ckan/templates/package/read_core.html:48
 msgid "Download"
-msgstr "Λήψη"
+msgstr "Stáhnout"
 
 #: ckan/templates/package/read_core.html:48
 msgid "(no description)"
-msgstr ""
+msgstr "(bez popisu)"
 
 #: ckan/templates/package/read_core.html:56
 msgid "This is a list of all known formats and datasets for"
-msgstr ""
+msgstr "Toto je seznam všech známých formátů a množin dat pro"
 
 #: ckan/templates/package/read_core.html:57
 msgid ". If you know of another (CSV, SPARQL end-point etc.)"
-msgstr ""
+msgstr ". Pokud znáte jiný (CSV, SPARQL end-point atd.)"
 
 #: ckan/templates/package/read_core.html:60
 msgid "None given for this package."
-msgstr "Δεν διατίθεται γι'αυτό το πακέτο."
+msgstr "Žádné pro tento balíček."
 
 #: ckan/templates/package/read_core.html:78
 msgid "About this package"
-msgstr ""
+msgstr "O tomto balíčku"
 
 #: ckan/templates/package/read_core.html:106
 msgid "Something missing?"
-msgstr ""
+msgstr "Něco chybí?"
 
 #: ckan/templates/package/read_core.html:113
 msgid "API / datapkg"
-msgstr ""
+msgstr "API / datapkg"
 
 #: ckan/templates/package/read_core.html:115
 msgid ""
 "This information on this page (the package metadata) is also\n"
 "                available programatically via this site's"
 msgstr ""
+"Informace na této stránce (metadata balíčku) jsou také\n"
+"                dostupná programově skrze tuto stránku"
 
 #: ckan/templates/package/read_core.html:118
 msgid "CKAN API"
-msgstr ""
+msgstr "CKAN API"
 
 #: ckan/templates/package/read_core.html:120
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
 #: ckan/templates/package/read_core.html:132
 msgid "RDF"
-msgstr ""
+msgstr "RDF"
 
 #: ckan/templates/package/read_core.html:134
 msgid "Turtle"
-msgstr ""
+msgstr "Turtle"
 
 #: ckan/templates/package/read_core.html:135
 msgid "N-Triples"
-msgstr ""
+msgstr "N-Triples\n"
 
 #: ckan/templates/package/read_core.html:137
 msgid ""
 "The information on this page and the downloads / resources are also "
 "available using the"
 msgstr ""
+"Informace na této stránce a soubory ke stažení / zdroje jsou k dispozici "
+"také přes"
 
 #: ckan/templates/package/read_core.html:139
 msgid "datapkg command line utility"
-msgstr ""
+msgstr "nástroj příkazové řádky datapkg"
 
 #: ckan/templates/package/read_core.html:141
 msgid "Information about this package:"
-msgstr ""
+msgstr "Informace o tomto balíčku:"
 
 #: ckan/templates/package/read_core.html:142
 msgid "$ datapkg info ckan://"
-msgstr ""
+msgstr "$ datapkg info ckan://"
 
 #: ckan/templates/package/read_core.html:143
 msgid "Download:"
-msgstr ""
+msgstr "Stažení:"
 
 #: ckan/templates/package/read_core.html:144
 msgid "$ datapkg download ckan://"
-msgstr ""
+msgstr "$ datapkg download ckan://"
 
 #: ckan/templates/package/read_core.html:150
 msgid "State:"
-msgstr "Κατάσταση:"
+msgstr "Stav:"
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
-msgstr "Μερικές πηγές"
+msgstr "Některé zdroje"
 
 #: ckan/templates/package/search.html:9
 msgid "Search -"
-msgstr ""
+msgstr "Hledání -"
 
 #: ckan/templates/package/search.html:15
 msgid "Do you know of a dataset that should be added to"
-msgstr ""
+msgstr "Víte o množině dat která by měla být přidána do"
 
 #: ckan/templates/package/search.html:19
 msgid "Register it now"
-msgstr ""
+msgstr "Zaregistrujte ji teď"
 
 #: ckan/templates/package/search.html:29
 msgid "Other access"
@@ -1896,113 +1930,113 @@ msgid ""
 "[1:There was an error while searching.] \n"
 "            Please try another search term."
 msgstr ""
-"[1:Συνέβη σφάλμα κατά την αναζήτηση.] \n"
-"            Δοκιμάστε κάποιον άλλο όρο αναζήτησης."
+"[1:Během hledání se vyskytla chyba.] \n"
+"            Prosím zkuste zadat jiný výraz."
 
 #: ckan/templates/package/search.html:57
 #, python-format
 msgid "[1:%(item_count)s] packages found"
-msgstr ""
+msgstr "Nalezeno [1:%(item_count)s] balíčků"
 
 #: ckan/templates/package/search.html:60
 msgid "Would you like to [1:create a new package?]"
-msgstr "Θέλετε να [1:δημιουργήσετε ένα νέο πακέτο;]"
+msgstr "Přejete si [1:vytvořit nový balíček?]"
 
 #: ckan/templates/package/search_form.html:15
 msgid "Filter by"
-msgstr ""
+msgstr "Filtrovat pomocí"
 
 #: ckan/templates/package/search_form.html:15
 msgid "packages with open licenses"
-msgstr ""
+msgstr "balíčky s otevřenými licencemi"
 
 #: ckan/templates/package/search_form.html:16
 msgid "packages with downloads"
-msgstr ""
+msgstr "balíčky se stažitelnými soubory"
 
 #: ckan/templates/revision/diff.html:5
 msgid "Differences - Revisions"
-msgstr "Διαφορές - Εκδόσεις"
+msgstr "Rozdíly - Revize"
 
 #: ckan/templates/revision/diff.html:8
 msgid "Revision Differences -"
-msgstr "Διαφορές στην έκδοση -"
+msgstr "Rozdíly revizí -"
 
 #: ckan/templates/revision/diff.html:20
 msgid "From:"
-msgstr "Από:"
+msgstr "Od:"
 
 #: ckan/templates/revision/diff.html:24
 msgid "To:"
-msgstr "Προς:"
+msgstr "Pro:"
 
 #: ckan/templates/revision/diff.html:31
 msgid "Field"
-msgstr "Πεδίο"
+msgstr "Pole"
 
 #: ckan/templates/revision/diff.html:31
 msgid "Difference"
-msgstr "Διαφορά"
+msgstr "Rozdíl"
 
 #: ckan/templates/revision/diff.html:39
 msgid "No differences"
-msgstr "δεν υπάρχουν διαφορές"
+msgstr "Žádné rozdíly"
 
 #: ckan/templates/revision/list.html:14
 msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first."
 msgstr ""
-"Η σελίδα αυτή εμφανίζει όλες τις αλλαγές στην βάση δεδομένων των πακέτων, με τις πιο πρόσφατες\n"
-"    να εμφανίζονται πρώτες."
+"Tato stránka zobrazuje seznam všech změn v databázi balíčků; nejnovější změny\n"
+"    jsou uvedeny na začátku."
 
 #: ckan/templates/revision/purge.html:5
 msgid "Purge - Revisions"
-msgstr "Διαγραφή - Εκδόσεις"
+msgstr "Smazaní - Revize"
 
 #: ckan/templates/revision/purge.html:8
 msgid "Revision Purge"
-msgstr "Διαγραφή Έκδοσης"
+msgstr "Smazání revize"
 
 #: ckan/templates/revision/purge.html:9
 msgid "There was an error:"
-msgstr "Παρουσιάστηκε ένα σφάλμα:"
+msgstr "Nastala chyba:"
 
 #: ckan/templates/revision/purge.html:10
 msgid "Purge successful."
-msgstr "Επιτυχής διαγραφή."
+msgstr "Úspěšně smazáno."
 
 #: ckan/templates/revision/read.html:6
 msgid "revision"
-msgstr ""
+msgstr "revize"
 
 #: ckan/templates/revision/read.html:10
 msgid "Revision Actions"
-msgstr ""
+msgstr "Akce revize"
 
 #: ckan/templates/revision/read.html:32
 msgid "Revision:"
-msgstr "Έκδοση:"
+msgstr "Revize:"
 
 #: ckan/templates/revision/read.html:42
 msgid "Timestamp:"
-msgstr "Timestamp:"
+msgstr "Časové razítko:"
 
 #: ckan/templates/revision/read.html:44
 msgid "Log Message:"
-msgstr "Μήνυμα καταγραφής:"
+msgstr "Zpráva logu:"
 
 #: ckan/templates/revision/read.html:47
 msgid "Changes"
-msgstr "Αλλαγές"
+msgstr "Změny"
 
 #: ckan/templates/revision/read.html:57
 msgid "Packages' Tags"
-msgstr "Tags των πακέτων"
+msgstr "Tagy balíčků"
 
 #: ckan/templates/revision/read.html:60
 msgid "Package -"
-msgstr "Πακέτο -"
+msgstr "Balíček -"
 
 #: ckan/templates/revision/read.html:61
 msgid ""
@@ -2014,27 +2048,27 @@ msgstr ""
 
 #: ckan/templates/tag/index.html:20 ckan/templates/tag/index.html:23
 msgid "There are"
-msgstr "υπάρχουν"
+msgstr "Zde jsou"
 
 #: ckan/templates/tag/index.html:21
 msgid "results for ‘"
-msgstr "αποτελέσματα για ‘"
+msgstr "výsledky pro ‘"
 
 #: ckan/templates/tag/index.html:24
 msgid "results for tags."
-msgstr "αποτελέσματα για τα tags."
+msgstr "výsledky pro tagy."
 
 #: ckan/templates/tag/index.html:34
 msgid "Clear search"
-msgstr "Εκκαθάριση αναζήτησης"
+msgstr "Vymazat hledání"
 
 #: ckan/templates/tag/index.html:34
 msgid "and see all tags."
-msgstr "και δείτε όλα τα tags."
+msgstr "a zobrazit všechny tagy."
 
 #: ckan/templates/tag/read.html:6
 msgid "- Tags"
-msgstr "- Tags"
+msgstr "- Tagy"
 
 #: ckan/templates/tag/read.html:9
 msgid "Tag:"
@@ -2043,111 +2077,110 @@ msgstr "Tag:"
 #: ckan/templates/tag/read.html:10
 #, python-format
 msgid "There are %(package_count)s packages tagged with [1:%(tagname)s]:"
-msgstr ""
-"Υπάρχουν %(package_count)s πακέτα που έχουν σημανθεί με το tag "
-"[1:%(tagname)s]:"
+msgstr "Je zde %(package_count)s balíčků s tagem [1:%(tagname)s]:"
 
 #: ckan/templates/user/edit.html:6
 msgid "- Edit - User"
-msgstr "- Επεξεργασία - Χρήστης"
+msgstr "- Upravit - Uživatel"
 
 #: ckan/templates/user/edit.html:13
 msgid "Edit User:"
-msgstr "Επεξεργασία χρήστη:"
+msgstr "Upravit uživatele:"
 
 #: ckan/templates/user/edit.html:15
 msgid "(skip to preview)"
-msgstr "(μεταπηδήστε στην προεπισκόπηση)"
+msgstr "(přejít na náhled)"
 
 #: ckan/templates/user/edit.html:23
 msgid "Base details"
-msgstr ""
+msgstr "Podrobnosti báze"
 
 #: ckan/templates/user/edit.html:24 ckan/templates/user/edit.html:53
 msgid "Full name:"
-msgstr ""
+msgstr "Celé jméno:"
 
 #: ckan/templates/user/edit.html:27
 msgid "E-Mail:"
-msgstr ""
+msgstr "E-Mail:"
 
 #: ckan/templates/user/edit.html:31
 msgid "Change your password"
-msgstr ""
+msgstr "Změnit heslo"
 
 #: ckan/templates/user/edit.html:32 ckan/templates/user/login.html:43
 #: ckan/templates/user/register.html:37
 msgid "Password:"
-msgstr "Κωδικός ασφαλείας:"
+msgstr "Heslo:"
 
 #: ckan/templates/user/edit.html:35 ckan/templates/user/register.html:40
 msgid "Password (repeat):"
-msgstr ""
+msgstr "Heslo (znovu):"
 
 #: ckan/templates/user/edit.html:39
 msgid "About user:"
-msgstr "Σχετικά με τον χρήστη:"
+msgstr "O uživateli:"
 
 #: ckan/templates/user/edit.html:41
 msgid "You can use [1:Markdown formatting] here."
-msgstr "Εδώ μπορείτε να χρησιμοποιήσετε [1:Markdown formatting]."
+msgstr "Zde můžete použít [1: Markdown formátování]."
 
 #: ckan/templates/user/list.html:7
 msgid "user-list"
-msgstr ""
+msgstr "uživatel-seznam"
 
 #: ckan/templates/user/list.html:12
 msgid "Sort by edits"
-msgstr ""
+msgstr "Seřadit dle úprav"
 
 #: ckan/templates/user/list.html:13
 msgid "Sort by name"
-msgstr ""
+msgstr "Seřadit dle jména"
 
 #: ckan/templates/user/list.html:21
 #, python-format
 msgid "[1:%(item_count)s] users found."
-msgstr ""
+msgstr "Nalezeno [1:%(item_count)s] uživatelů."
 
 #: ckan/templates/user/list.html:33
 msgid "Member for"
-msgstr ""
+msgstr "Je členem"
 
 #: ckan/templates/user/login.html:20
 msgid "Not a member?"
-msgstr ""
+msgstr "Nejste členem?"
 
 #: ckan/templates/user/login.html:21
 msgid "Join CKAN to contribute packages under your own name."
 msgstr ""
+"Připojte se k CKAN, abyste mohli přispívat k balíčkům pod vaším jménem."
 
 #: ckan/templates/user/login.html:31
 msgid "Login - User"
-msgstr "Σύνδεση - Χρήστης"
+msgstr "Přihlášení - Uživatel"
 
 #: ckan/templates/user/login.html:40 ckan/templates/user/register.html:28
 msgid "Login:"
-msgstr ""
+msgstr "Přihlášení:"
 
 #: ckan/templates/user/login.html:54
 msgid "Login using Open ID"
-msgstr "Σύνδεση με χρήση Open ID"
+msgstr "Přihlásit se pomocí Open ID"
 
 #: ckan/templates/user/login.html:56
 msgid "Please click your account provider:"
-msgstr "Παρακαλώ, κάντε κλικ στον πάροχο του λογαριασμόυ σας:"
+msgstr "Prosím klikněte na vašeho poskytovatele účtu:"
 
 #: ckan/templates/user/login.html:64
 msgid ""
 "OpenID is service that allows you to log-on to many different websites using a single identity.\n"
 "    Find out [1:more about OpenID] and [2:how to get an OpenID enabled account]."
 msgstr ""
-"Το OpenID είναι μια υπηρεσία που σας επιτρέπει να συνδεθείτε σε πολλά διαφορετικά websites χρησιμοποιώντας μια κοινή ταυτότητα.\n"
-"    Μάθετε περισσότερα [1:σχετικά με το OpenID] και [2:πώς να αποκτήσετε έναν λογαριασμό OpenID]."
+"OpenID je služba, která umožňuje přihlášení na mnoho různých webů za použití jediné identifikace.\n"
+"    Zjistit [1:víc o OpenID] a [2:postup pro vytvoření OpenID účtu]."
 
 #: ckan/templates/user/login.html:71
 msgid "Don't have an OpenID?"
-msgstr "Δεν έχετε ένα OpenID;"
+msgstr "Nemáte OpenID?"
 
 #: ckan/templates/user/login.html:72
 msgid ""
@@ -2157,92 +2190,99 @@ msgid ""
 "        OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "        free OpenID provider such as [3:https://www.myopenid.com/]."
 msgstr ""
+"OpenID je služba, která umožňuje přihlášení na mnoho různých webů\n"
+"        za použití jediné identifikace. Zjistit [1:víc\n"
+"        o OpenID] a [2:postup pro vytvoření\n"
+"        OpenID účtu]. Pravděpodobně nejjednodušší je založení účtu u některého\n"
+"        bezplatného poskytovatele OpenID jako je [3:https://www.myopenid.com/]."
 
 #: ckan/templates/user/logout.html:5
 msgid "Logout - User"
-msgstr "Έξοδος - Χρήστη"
+msgstr "Odhlášení - Uživatel"
 
 #: ckan/templates/user/logout.html:9
 msgid "You have logged out successfully."
-msgstr "Επιτυχής αποσύνδεση."
+msgstr "Byl jste úspěšně odhlášen."
 
 #: ckan/templates/user/read.html:5
 msgid "- User"
-msgstr "- Χρήστης"
+msgstr "- Uživatel"
 
 #: ckan/templates/user/read.html:6
 msgid "user-view"
-msgstr ""
+msgstr "uživatelský pohled"
 
 #: ckan/templates/user/read.html:12
 msgid "My Account"
-msgstr "Ο Λογαριασμός μου"
+msgstr "Můj účet"
 
 #: ckan/templates/user/read.html:14
 msgid "You are logged in."
-msgstr "Έχετε συνδεθεί."
+msgstr "Jste přihlášen."
 
 #: ckan/templates/user/read.html:16
 msgid "Your API key is:"
-msgstr "Το API-key σας είναι:"
+msgstr "Váš API klíč je:"
 
 #: ckan/templates/user/read.html:17
 msgid "Edit your profile"
-msgstr ""
+msgstr "Upravit profil"
 
 #: ckan/templates/user/read.html:18
 msgid "Log out"
-msgstr "Αποσύνδεση"
+msgstr "Odhlásit"
 
 #: ckan/templates/user/read.html:27
 msgid "Activity"
-msgstr "Δραστηριότητα"
+msgstr "Aktivita"
 
 #: ckan/templates/user/read.html:29
 msgid "Number of edits:"
-msgstr "Αριθμός αλλαγών:"
+msgstr "Počet úprav:"
 
 #: ckan/templates/user/read.html:30
 msgid "Number of packages administered:"
-msgstr "Αριθμός διαχειριζόμενων πακέτων:"
+msgstr "Počet spravovaných balíčků:"
 
 #: ckan/templates/user/read.html:35
 msgid "Recent changes"
-msgstr "Πρόσφατες αλλαγές"
+msgstr "Poslední změny"
 
 #: ckan/templates/user/register.html:8
 msgid "Have an OpenID?"
-msgstr ""
+msgstr "Máte OpenID?"
 
 #: ckan/templates/user/register.html:9
 msgid ""
 "If you have an account with Google, Yahoo or one of many other \n"
 "        OpenID providers, you can log in without signing up."
 msgstr ""
+"Pokud máte účet u Google, Yahoo nebo u jednoho z mnoha dalších\n"
+"        poskytovatelů OpenID, můžete se přihlásit bez registrace."
 
 #: ckan/templates/user/register.html:14
 msgid "Log in now"
-msgstr ""
+msgstr "Nyní se přihlaste"
 
 #: ckan/templates/user/register.html:19
 msgid "Register - User"
-msgstr ""
+msgstr "Zaregistrovat - Uživatel"
 
 #: ckan/templates/user/register.html:22
 msgid "Join the community"
-msgstr ""
+msgstr "Přidejte se ke komunitě"
 
 #: ckan/templates/user/register.html:26
 msgid "Register with CKAN"
-msgstr ""
+msgstr "Registrujte se u CKAN"
 
 #: ckan/templates/user/register.html:31
 msgid "Full name (optional):"
-msgstr ""
+msgstr "Celé jméno (volitelně):"
 
 #: ckan/templates/user/register.html:34
 msgid "E-Mail (optional):"
-msgstr ""
+msgstr "E-Mail (volitelně):"
 
 #: ckan/templates/user/register.html:44
 msgid "Sign up"
