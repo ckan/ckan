@@ -168,10 +168,6 @@ ckan.backup_dir = %(here)s/backup
 #ckan.default_roles.System = {"visitor": ["anon_editor"], "logged_in": ["editor"]}
 #ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}
 
-## Ckan public and private recaptcha keys [localhost]
-#ckan.recaptcha.publickey = 
-#ckan.recaptcha.privatekey = 
-
 # Logging configuration
 [loggers]
 keys = root, ckan, ckanext

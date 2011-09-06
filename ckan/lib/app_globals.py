@@ -34,7 +34,4 @@ class Globals(object):
         self.package_hide_extras = config.get('package_hide_extras', '').split()
 
         self.openid_enabled = asbool(config.get('openid_enabled', 'true'))
-
-        self.recaptcha_publickey = config.get('ckan.recaptcha.publickey', '')
-        self.recaptcha_privatekey = config.get('ckan.recaptcha.privatekey', '')
         
