@@ -685,6 +685,9 @@ ul.dataset_formats li {
 /**************************************
  * Edit Dataset Page
  *************************************/
+div.dataset form fieldset {
+  border-bottom: none;
+}
 ul.edit-form-navigation {
   list-style-type: none;
   padding-left: 0;

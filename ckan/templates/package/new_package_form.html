@@ -14,7 +14,6 @@
 </div>
 
 <fieldset id="basic-information">
-  <legend> Basic information</legend>
   <dl>
     <dt><label class="field_opt" for="title">Title</label></dt>
     <dd><input id="title" name="title" type="text" value="${data.get('title', '')}"/></dd>
@@ -63,7 +62,6 @@
 </fieldset>
 
 <fieldset id="resources">
-  <legend>Resources</legend>
   <table class="flexitable">
     <thead>
       <tr>
@@ -103,7 +101,6 @@
 </fieldset>
 
 <fieldset id="groups">
-  <legend>Groups</legend>
   <dl>
     <py:for each="num, group in enumerate(data.get('groups', []))">
         <?python
@@ -131,7 +128,6 @@
   </dl>
 </fieldset>
 <fieldset id='detail'>
-  <legend>Detail</legend>
   <dl>
     <dt><label class="field_opt" for="author">Author</label></dt>
     <dd><input id="author" name="author" type="text" value="${data.get('author', '')}" /></dd>
@@ -164,7 +160,6 @@
 </fieldset>
 
 <fieldset id='extras'>
-  <legend>Extras</legend>
   <dl>
     <py:with vars="extras = data.get('extras', [])">
     <py:for each="num, extra in enumerate(data.get('extras', []))">
