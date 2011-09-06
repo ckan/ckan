@@ -16,7 +16,6 @@
   
   <py:def function="page_heading" property="dc:title">${c.pkg_dict['title']}</py:def>
   
-      
   <py:match path="primarysidebar">
   
     <li class="widget-container boxed widget_text" py:if="not c.hide_welcome_message">
@@ -149,6 +148,10 @@
       <link rel="alternate" type="application/rdf+xml" title="RDF/XML" href="${config['rdf_packages'] + '/' + c.pkg.id + '.rdf' }" />
       <link rel="alternate" type="application/turtle" title="RDF/Turtle" href="${config['rdf_packages'] + '/' + c.pkg.id + '.ttl' }" />
     </py:if>
+
+    <script type="text/javascript">
+      var LOCAL_packageId = '${c.pkg.id}';
+    </script>
   </py:def>
 
   <py:def function="optional_feed">
