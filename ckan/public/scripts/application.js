@@ -5,6 +5,7 @@
     CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-dataset'));
     CKAN.Utils.setupTagAutocomplete($('input.autocomplete-tag'));
     CKAN.Utils.setupFormatAutocomplete($('input.autocomplete-format'));
+    CKAN.Utils.setupDatasetEditNavigation();
 
     var isPackageRead = $('body.package.read').length > 0;
     var config = {
@@ -183,6 +184,30 @@ CKAN.Utils = function($, my) {
         });
       }
     });
+  };
+
+  my.setupDatasetEditNavigation = function() {
+    function showSection(sectionToShowId) {
+      $('.dataset fieldset').hide();
+      $('.dataset fieldset#'+sectionToShowId).show();
+      $('.edit-form-navigation li a').removeClass('active');
+      $('.edit-form-navigation li a[href=#'+sectionToShowId+']').addClass('active');
+      // Unfortunately, scrolls page (which we don't want). Would be a nice extra but not vital.
+      // window.location.hash = sectionToShowId;
+    }
+
+    // Set up initial form state
+    var initialSection = window.location.hash.slice(1) || 'basic-information';
+    showSection(initialSection);
+    
+    // Adjust form state on click
+    $('.edit-form-navigation li a').live('click', function(e) {
+      var $el = $(e.target);
+      var showMe = $el.attr('href').slice(1);
+      showSection(showMe);
+      return false;
+    });  
+
   };
 
   // Name slug generator for $name element using $title element

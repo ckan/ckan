@@ -682,3 +682,38 @@ ul.dataset_formats li {
   margin-right: 10px;
 }
 
+/**************************************
+ * Edit Dataset Page
+ *************************************/
+ul.edit-form-navigation {
+  list-style-type: none;
+  padding-left: 0;
+}
+ul.edit-form-navigation li a {
+  text-decoration: none;
+  font-weight: bold;
+  display: block;
+  padding: 7px 0 7px 10px;
+  margin-bottom: 7px;
+  border: 1px transparent solid;
+}
+ul.edit-form-navigation li a.active,  
+ul.edit-form-navigation li a:hover {
+  border: 1px solid #e0e0e0;
+  background-color: #e2e2e2;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
+  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
+
+     -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px; 
+          border-radius: 5px; 
+  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+}
+
+
+
