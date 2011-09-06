@@ -34,11 +34,20 @@
     <dd class="hints">e.g. http://www.example.com/growth-figures.html</dd>
     <dd class="field_error" py:if="errors.get('url', '')">${errors.get('url', '')}</dd>
 
-    <dt><label class="field_opt" for="notes">Notes</label></dt>
-    <dd><textarea cols="60" id="notes" name="notes" rows="15">${data.get('notes', '')}</textarea></dd>
-    <dd class="instructions basic">The main description of the dataset</dd>
-    <dd class="instructions further">It is often displayed with the dataset title. In particular, it should start with a short sentence that describes the dataset succinctly, because the first few words alone may be used in some views of the datasets.</dd>
-    <dd class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</dd>
+    <dt><label class="field_opt" for="notes">Description</label></dt>
+    <dd><div class="markdown-editor">
+      <ul class="tabs">
+        <li><a href="#" action="write" class="selected">Write</a></li>
+        <li><a href="#" action="preview">Preview</a></li>
+      </ul>
+      <textarea class="markdown-input" name="notes" id="notes" placeholder="Start with a summary sentence ...">${data.get('notes','')}</textarea>
+      <div class="markdown-preview" style="display: none;"></div>
+      <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</span>
+      <!--
+      <dd class="instructions basic">The main description of the dataset</dd>
+      <dd class="instructions further">It is often displayed with the dataset title. In particular, it should start with a short sentence that describes the dataset succinctly, because the first few words alone may be used in some views of the datasets.</dd>
+      -->
+    </div></dd>
 
     <dt><label class="field_opt" for="license_id">Licence</label></dt>
     <dd>

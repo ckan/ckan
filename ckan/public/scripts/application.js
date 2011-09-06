@@ -11,8 +11,34 @@
     if (isDatasetNew) {
       $('#content fieldset').hide();
       $('#content fieldset#basic-information').show();
-      
     }
+
+    // Markdown editor hooks
+    var converter=new Showdown.converter();
+    $('.markdown-editor a, .markdown-preview').live('click', function(e) {
+      e.preventDefault();
+      var $el = $(e.target);
+      var action = $el.attr('action') || 'write';
+      // Extract neighbouring elements
+      var div=$el.closest('.markdown-editor')
+      div.find('.tabs a').removeClass('selected');
+      div.find('.tabs a[action='+action+']').addClass('selected');
+      var textarea = div.find('.markdown-input');
+      var preview = div.find('.markdown-preview');
+      // Toggle the preview
+      if (action=='preview') {
+        preview.html(converter.makeHtml(textarea.val()));
+        preview.width(textarea.width())
+        preview.height(textarea.height())
+        textarea.hide();
+        preview.show();
+      } else {
+        textarea.show();
+        preview.hide();
+        textarea.focus();
+      }
+      return false;
+    });
 
     var isPackageRead = $('body.package.read').length > 0;
     var config = {
@@ -194,6 +220,7 @@ CKAN.Utils = function($, my) {
   };
 
   my.setupDatasetEditNavigation = function() {
+
     function showSection(sectionToShowId) {
       $('.dataset fieldset').hide();
       $('.dataset fieldset#'+sectionToShowId).show();
@@ -433,3 +460,6 @@ CKAN.View.DatasetFullForCore = Backbone.View.extend({
       });
     }
   });
+
+
+
