@@ -12,6 +12,7 @@
       $('#content fieldset').hide();
       $('#content fieldset#basic-information').show();
       $('.edit-summary').hide();
+      $('#save').val("Add Dataset")
     }
 
     // Markdown editor hooks

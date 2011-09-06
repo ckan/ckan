@@ -773,3 +773,65 @@ ul.tabs li a.selected {
   border-right-color: #DDD;
   border-bottom-color: #DDD;
 }
+
+
+/**************************************
+ * Form Submit/Cancel
+ **************************************/
+div.form-submit {
+    background: #eee;
+    padding: 20px;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    border-left: none;
+    border-right: none;
+    height: 60px;
+}
+
+div.form-submit p.hints {
+    display: block;
+    width: 50%;
+    float: right;
+}
+
+/* Tugged this out of Twitter.Bootstrap css. Can we use a blueprint button plugin? */
+input.pretty {
+    font: -webkit-small-control;
+    -webkit-border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+    -webkit-transition: 0.1s linear all;
+    -webkit-box-align: center;
+    -webkit-appearance: button;
+    box-sizing: border-box;
+    text-align: center;
+    margin: 0;
+    vertical-align: baseline;
+    cursor: pointer;
+    display: inline-block;
+    background-color: #E6E6E6;
+    background-repeat: no-repeat;
+    background-image: -webkit-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+    background-image: -moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);
+    background-image: -ms-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+    background-image: -o-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+    background-image: linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+    padding: 5px 14px 6px;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+    color: #333;
+    font-size: 13px;
+    border: 1px solid #CCC;
+    border-bottom-color: #BBB;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+input.pretty.primary {
+    color: white;
+    background-color: #0064CD;
+    background-repeat: repeat-x;
+    background-image: -webkit-linear-gradient(top, #049cdb, #0064cd);
+    background-image: -o-linear-gradient(top, #049cdb, #0064cd);
+    background-image: linear-gradient(top, #049cdb, #0064cd);
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
