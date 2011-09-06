@@ -11,6 +11,7 @@
     if (isDatasetNew) {
       $('#content fieldset').hide();
       $('#content fieldset#basic-information').show();
+      $('.edit-summary').hide();
     }
 
     // Markdown editor hooks
