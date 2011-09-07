@@ -503,7 +503,7 @@ class PackageController(BaseController):
                     'You\'ll probably want to <a href="%s">upload or link ' \
                     'some data</a> now.')
             msg = msg % h.url_for(controller='package', action='edit',
-                    id=pkgname, anchor='resources')
+                    id=pkgname, anchor='section-resources')
             h.flash_notice(msg,allow_html=True)
         url = request.params.get('return_to') or \
               config.get('package_%s_return_url' % action)

@@ -221,25 +221,29 @@ CKAN.Utils = function($, my) {
     });
   };
 
+  // Show/hide fieldset sections from the edit dataset form. 
   my.setupDatasetEditNavigation = function() {
 
     function showSection(sectionToShowId) {
       $('.dataset fieldset').hide();
       $('.dataset fieldset#'+sectionToShowId).show();
       $('.edit-form-navigation li a').removeClass('active');
-      $('.edit-form-navigation li a[href=#'+sectionToShowId+']').addClass('active');
+      $('.edit-form-navigation li a[href=#section-'+sectionToShowId+']').addClass('active');
       // Unfortunately, scrolls page (which we don't want). Would be a nice extra but not vital.
       // window.location.hash = sectionToShowId;
+      window.scroll(0,0);
     }
 
     // Set up initial form state
-    var initialSection = window.location.hash.slice(1) || 'basic-information';
+    // Prefix="#section-"
+    var initialSection = window.location.hash.slice(9) || 'basic-information';
     showSection(initialSection);
     
     // Adjust form state on click
     $('.edit-form-navigation li a').live('click', function(e) {
       var $el = $(e.target);
-      var showMe = $el.attr('href').slice(1);
+      // Prefix="#section-"
+      var showMe = $el.attr('href').slice(9);
       showSection(showMe);
       return false;
     });  
