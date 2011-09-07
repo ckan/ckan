@@ -229,9 +229,7 @@ CKAN.Utils = function($, my) {
       $('.dataset fieldset#'+sectionToShowId).show();
       $('.edit-form-navigation li a').removeClass('active');
       $('.edit-form-navigation li a[href=#section-'+sectionToShowId+']').addClass('active');
-      // Unfortunately, scrolls page (which we don't want). Would be a nice extra but not vital.
-      // window.location.hash = sectionToShowId;
-      window.scroll(0,0);
+      window.location.hash = 'section-'+sectionToShowId;
     }
 
     // Set up initial form state
