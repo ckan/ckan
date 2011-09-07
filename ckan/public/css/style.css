@@ -688,9 +688,10 @@ ul.dataset_formats li {
   margin-right: 10px;
 }
 
-/**************************************
- * Edit Dataset Page
- *************************************/
+/* ===================== */
+/* = Edit Dataset Page = */
+/* ===================== */
+
 ul.edit-form-navigation {
   list-style-type: none;
   padding-left: 0;
@@ -744,9 +745,9 @@ textarea.markdown-input {
   display: block;
 }
 
-/****************************************
-  * Mini Tabs
-  ***************************************/
+/* =============================== */
+/* = Mini-Tabs [Markdown Editor] = */
+/* =============================== */
 
 ul.tabs {
   margin-bottom: 5px;
@@ -781,9 +782,9 @@ ul.tabs li a.selected {
 }
 
 
-/**************************************
- * Form Submit/Cancel
- **************************************/
+/* ================================== */
+/* = Twitter.Bootstrap Form Buttons = */
+/* ================================== */
 div.form-submit {
     background: #eee;
     padding: 20px;
@@ -800,7 +801,6 @@ div.form-submit p.hints {
     float: right;
 }
 
-/* Tugged this out of Twitter.Bootstrap css. Can we use a blueprint button plugin? */
 input.pretty {
     font: -webkit-small-control;
     -webkit-border-radius: 4px;
