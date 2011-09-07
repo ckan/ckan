@@ -5,6 +5,7 @@
     CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-dataset'));
     CKAN.Utils.setupTagAutocomplete($('input.autocomplete-tag'));
     CKAN.Utils.setupFormatAutocomplete($('input.autocomplete-format'));
+    CKAN.Utils.setupMarkdownEditor($('.markdown-editor a, .markdown-editor .markdown-preview'));
     CKAN.Utils.setupDatasetEditNavigation();
 
     var isDatasetNew = $('body.package.new').length > 0;
@@ -14,33 +15,6 @@
       $('.edit-summary').hide();
       $('#save').val("Add Dataset")
     }
-
-    // Markdown editor hooks
-    var converter=new Showdown.converter();
-    $('.markdown-editor a, .markdown-preview').live('click', function(e) {
-      e.preventDefault();
-      var $el = $(e.target);
-      var action = $el.attr('action') || 'write';
-      // Extract neighbouring elements
-      var div=$el.closest('.markdown-editor')
-      div.find('.tabs a').removeClass('selected');
-      div.find('.tabs a[action='+action+']').addClass('selected');
-      var textarea = div.find('.markdown-input');
-      var preview = div.find('.markdown-preview');
-      // Toggle the preview
-      if (action=='preview') {
-        preview.html(converter.makeHtml(textarea.val()));
-        preview.width(textarea.width())
-        preview.height(textarea.height())
-        textarea.hide();
-        preview.show();
-      } else {
-        textarea.show();
-        preview.hide();
-        textarea.focus();
-      }
-      return false;
-    });
 
     var isPackageRead = $('body.package.read').length > 0;
     var config = {
@@ -218,6 +192,35 @@ CKAN.Utils = function($, my) {
           callback(data);
         });
       }
+    });
+  };
+
+  my.setupMarkdownEditor = function(elements) {
+    // Markdown editor hooks
+    var converter=new Showdown.converter();
+    elements.live('click', function(e) {
+      e.preventDefault();
+      var $el = $(e.target);
+      var action = $el.attr('action') || 'write';
+      // Extract neighbouring elements
+      var div=$el.closest('.markdown-editor')
+      div.find('.tabs a').removeClass('selected');
+      div.find('.tabs a[action='+action+']').addClass('selected');
+      var textarea = div.find('.markdown-input');
+      var preview = div.find('.markdown-preview');
+      // Toggle the preview
+      if (action=='preview') {
+        preview.html(converter.makeHtml(textarea.val()));
+        preview.width(textarea.width())
+        preview.height(textarea.height())
+        textarea.hide();
+        preview.show();
+      } else {
+        textarea.show();
+        preview.hide();
+        textarea.focus();
+      }
+      return false;
     });
   };
 
