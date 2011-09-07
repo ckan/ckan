@@ -40,8 +40,8 @@
   <link rel="stylesheet" href="${g.site_url}/css/forms.css" type="text/css" media="screen, print" />
   
   <script type="text/javascript" src="${g.site_url}/language.js"></script>
-  <script type="text/javascript" src="${g.site_url}/language.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery/1.5.2/jquery.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+  <!--script><![CDATA[window.jQuery || document.write("<script src='${g.site_url}/scripts/vendor/jquery/1.5.2/jquery.min.js'>\x3C/script>")]]></script-->
   <script type="text/javascript" src="${g.site_url}/scripts/vendor/json2.js"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.tmpl/beta1/jquery.tmpl.js"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.cookie/jquery.cookie.min.js"></script>
@@ -54,6 +54,7 @@
   <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.fileupload/20110801/jquery.iframe-transport.js"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js"></script>
   <script type="text/javascript" src="https://raw.github.com/okfn/ckanjs/master/pkg/ckanjs.js"></script>
+  <!--script><![CDATA[window.CKAN.Client || document.write("<script src='${g.site_url}/scripts/ckanjs.js'>\x3C/script>")]]></script-->
   <!-- finally our application js that sets everything up-->
   <script type="text/javascript" src="${g.site_url}/scripts/application.js?lang=${c.locale}"></script>
 
