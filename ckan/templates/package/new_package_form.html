@@ -28,7 +28,7 @@
     <dd class="hints">2+ characters, lowercase, using only 'a-z0-9' and '-_'</dd>
     <dd class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
 
-    <dt><label class="field_opt" for="url">URL</label></dt>
+    <dt><label class="field_opt" for="url">Home Page</label></dt>
     <dd><input id="url" name="url" type="text" value="${data.get('url', '')}"/></dd>
     <dd class="instructions basic">The URL for the web page describing the data (not the data itself).</dd>
     <dd class="hints">e.g. http://www.example.com/growth-figures.html</dd>
@@ -71,6 +71,7 @@
 </fieldset>
 
 <fieldset id="resources">
+  <div class="instructions basic"><h3>Resources: the files and APIs associated with this dataset</h3></div>
   <table class="flexitable">
     <thead>
       <tr>
@@ -103,10 +104,12 @@
     </tbody>
   </table>
 
+  <!--
   <div class="instructions basic">The files containing the data or address of the APIs for accessing it.</div>
   <div class="instructions further"><br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different 'resource' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full dataset. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br /></div>
   <div class="hints">Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate</div>
   <div class="field_error" py:if="errors.get('resources', '')">Dataset resource(s) incomplete.</div>
+  -->
 </fieldset>
 
 <fieldset id="groups">
