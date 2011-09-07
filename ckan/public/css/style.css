@@ -198,6 +198,12 @@ ul.widget-list li.widget-container.boxed {
           border-radius: 15px; 
 }
 
+/* Notices */
+
+.notice a, .notice a:visited {
+  text-decoration: underline;
+}
+
 /* Hints */
 
 .hint {

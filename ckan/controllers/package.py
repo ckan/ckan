@@ -347,6 +347,7 @@ class PackageController(BaseController):
 
         self._setup_template_variables(context, {'id': id})
         c.form = render(self.package_form, extra_vars=vars)
+
         return render('package/new.html')
 
 
@@ -497,6 +498,13 @@ class PackageController(BaseController):
         @param action - What the action of the edit was
         '''
         assert action in ('new', 'edit')
+        if action == 'new':
+            msg = _('Congratulations, your dataset has been created. ' \
+                    'You\'ll probably want to <a href="%s">upload or link ' \
+                    'some data</a> now.')
+            msg = msg % h.url_for(controller='package', action='edit',
+                    id=pkgname, anchor='resources')
+            h.flash_notice(msg,allow_html=True)
         url = request.params.get('return_to') or \
               config.get('package_%s_return_url' % action)
         if url:
