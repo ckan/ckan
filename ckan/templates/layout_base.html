@@ -113,8 +113,8 @@
       </header>
     </div>
     <py:with vars="messages = list(h._flash.pop_messages())">
-    <div class="class container flash-banner-box" py:if="len(messages)">
-      <div class="flash-banner ${m.category}" py:for="m in messages">
+    <div class="class container" py:if="len(messages)">
+      <div class="${m.category}" py:for="m in messages">
         ${h.literal(m)}
       </div>
     </div>

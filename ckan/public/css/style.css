@@ -236,6 +236,14 @@ tbody tr:nth-child(even) td, tbody tr.even td {
   background-color: #fff7c0;
 }
 
+tbody tr td.table-empty {
+  background: #f8f8f8;
+  border: 1px solid #eee;
+  font-style: italic;
+  color: #333;
+  font-size: 90%;
+}
+
 /* ============== */
 /* = Navigation = */
 /* ============== */
