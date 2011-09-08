@@ -167,16 +167,16 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
   ::
 
-      sudo -u postgres createuser -S -D -R -P ckantest
+      sudo -u postgres createuser -S -D -R -P ckanuser
 
   It should prompt you for a new password for the CKAN data in the database.
   It is suggested you enter ``pass`` for the password.
 
-  Now create the database, which we'll call ``ckantest`` (the last argument):
+  Now create the database, which we'll call ``ckantest``:
 
   ::
 
-      sudo -u postgres createdb -O ckantest ckantest
+      sudo -u postgres createdb -O ckanuser ckantest
 
 6. Create a CKAN config file.
 
@@ -201,7 +201,7 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
   ::
   
-      sqlalchemy.url = postgresql://ckantest:pass@localhost/ckantest
+      sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
 
   If you're using a remote host with password authentication rather than SSL authentication, use::
 
