@@ -413,19 +413,26 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
 
   events: {
     'click .action-resource-tab': 'clickAdd',
-    'click #reset': 'reset'
+    'click input[name=reset]': 'reset'
   },
 
   reset: function(e) {
     e.preventDefault();
+    this.el.find('.tabs a').removeClass('selected');
+    this.deleteSubpane();
+  },
 
+  deleteSubpane: function() {
+    this.el.find('.resource-add-subpane').remove();
   },
 
   clickAdd: function(e) {
     e.preventDefault();
     var action = $(e.target).attr('action');
+    this.el.find('.tabs a').removeClass('selected');
+    this.el.find('.tabs a[action='+action+']').addClass('selected');
 
-    $(this.el).find('.resource-add-subpane').remove();
+    this.deleteSubpane();
 
     var $subPane = $('<div />').addClass('resource-add-subpane');
     this.el.append($subPane);
