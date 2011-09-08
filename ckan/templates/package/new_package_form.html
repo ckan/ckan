@@ -72,18 +72,17 @@
 
 <fieldset id="resources">
   <div class="instructions basic"><h3>Resources: the files and APIs associated with this dataset</h3></div>
-  <table class="flexitable">
+  <table class="resource-table edit">
     <thead>
       <tr>
         <th class="field_req resource-url">URL*</th>
         <th class="field_opt resource-format">Format</th>
         <th class="field_opt resource-description">Description</th>
-        <th class="field_opt resource-hash">Hash</th>
       </tr>
     </thead>
     <tbody>
-      <py:for each="num, res in enumerate(data.get('resources', []) + [{}])">
-      <tr>
+      <py:for each="num, res in enumerate(data.get('resources', []))">
+      <tr class="resource-summary">
         <py:for each="col in c.resource_columns">
         <td py:choose="" class="resource-${col}">
           <input py:when="col == 'format'"
@@ -98,11 +97,44 @@
               class="${'medium-width' if col=='description' else 'short'}" />
         </td>
         </py:for>
-        <td class="resource-id"><input name="resources__${num}__id" type="hidden" value="${res.get('id', '')}" /></td>
+        <td class="resource-id">
+          <input name="resources__${num}__id" type="hidden" value="${res.get('id', '')}" />
+        </td>
       </tr>
       </py:for>
+      <tr class="hook-last-row" style="display: none;">
+        <py:for each="col in c.resource_columns">
+        <td py:choose="" class="resource-${col}">
+          <input py:when="col == 'format'"
+              name="resources__0__${col}" 
+              type="text" value=""
+              class="autocomplete-format short"
+              />
+          <input py:otherwise=""
+              name="resources__0__${col}"
+              type="text"
+              value=""
+              class="${'medium-width' if col=='description' else 'short'}" />
+        </td>
+        </py:for>
+        <td class="resource-id">
+          <input name="resources__0__id" type="hidden" value="" />
+        </td>
+
+      </tr>
     </tbody>
   </table>
+
+
+  <div class="resource-add">
+    <ul class="tabs">
+      <li>Add a resource:</li>
+      <li><a href="#" action="upload-file" class="action-resource-tab">Upload a file</a></li>
+      <li><a href="#" action="link-file" class="action-resource-tab">Link to a file</a></li>
+      <li><a href="#" action="link-api" class="action-resource-tab">Link to an API</a></li>
+    </ul>
+    <div class="resource-add-form"></div>
+  </div>
 
   <!--
   <div class="instructions basic">The files containing the data or address of the APIs for accessing it.</div>

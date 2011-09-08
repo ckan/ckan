@@ -7,6 +7,15 @@
     CKAN.Utils.setupFormatAutocomplete($('input.autocomplete-format'));
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor a, .markdown-editor .markdown-preview'));
     CKAN.Utils.setupDatasetEditNavigation();
+    // set up ckan js
+    var config = {
+      endpoint: '/'
+    };
+    var client = new CKAN.Client(config);
+    // serious hack to deal with hacky code in ckanjs
+    CKAN.UI.workspace = {
+      client: client
+    };
 
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
@@ -16,23 +25,14 @@
       $('#save').val("Add Dataset")
     }
 
-    var isPackageRead = $('body.package.read').length > 0;
-    var config = {
-      endpoint: '/'
-    };
-    var client = new CKAN.Client(config);
-    // serious hack to deal with hacky code in ckanjs
-    CKAN.UI.workspace = {
-      client: client
-    };
-    if (isPackageRead) {
-      var dataset = client.getDatasetById(LOCAL_packageId);
-      var $el = $('#dataset');
-      
-      var view = new CKAN.View.DatasetFullForCore({
-        model: dataset,
+    var isDatasetEdit = $('body.package.edit').length > 0;
+    if (isDatasetEdit) {
+      var $el=$('.resource-add');
+      var view=new CKAN.View.ResourceAdd({
+        model: null,
         el: $el
       });
+      view.render();
     }
   });
 }(jQuery));
@@ -224,6 +224,7 @@ CKAN.Utils = function($, my) {
     });
   };
 
+
   // Show/hide fieldset sections from the edit dataset form. 
   my.setupDatasetEditNavigation = function() {
 
@@ -363,6 +364,90 @@ CKAN.Utils = function($, my) {
 
   return my;
 }(jQuery, CKAN.Utils || {});
+
+
+CKAN.View.ResourceAddLinkFile = Backbone.View.extend({
+  initialize: function() {
+    _.bindAll(this, 'render');
+  },
+
+  render: function() {
+    var tmpl = $.tmpl(CKAN.Templates.resourceAddLinkFile);
+    $(this.el).html(tmpl);
+    return this;
+  },
+
+  events: {
+    'submit form': 'addNewResource',
+  },
+
+  addNewResource: function(e) {
+    e.preventDefault();
+    var maxId = 0;
+    var ids = $.map($('.resource-table').find('input'), function(item, idx) {
+      var thisId = parseInt($(item).attr('name').split('__')[1]);
+      maxId=Math.max(maxId, thisId);
+    });
+
+    var urlVal=this.el.find('input[name=url]').val();
+    var $newRow = $.tmpl(CKAN.Templates.resourceEntry, { url: urlVal, num: maxId+1 });
+
+    $('.resource-table tbody').append($newRow);
+  }
+});
+
+
+CKAN.View.ResourceAdd = Backbone.View.extend({
+  initialize: function() {
+    _.bindAll(this, 'render');
+    this.$sub = this.el.find('.resource-add-form');
+  },
+
+  render: function() {
+  },
+
+  events: {
+    'click .action-resource-tab': 'clickAdd',
+    'click #reset': 'reset'
+  },
+
+  reset: function(e) {
+    e.preventDefault();
+
+  },
+
+  clickAdd: function(e) {
+    e.preventDefault();
+    var action = $(e.target).attr('action');
+
+    var resource = new CKAN.Model.Resource({
+      'dataset': this.model
+    });
+    // Open sub-pane
+    if (action=='upload-file') {
+      this.subView = new CKAN.View.ResourceUpload({
+        el: this.$sub,
+        model: resource,
+        // TODO: horrible reverse depedency ...
+        client: CKAN.UI.workspace.client
+      });
+    }
+    else if (action=='link-file') {
+      this.subView = new CKAN.View.ResourceAddLinkFile({
+        el: this.$sub,
+        model: resource,
+        // TODO: horrible reverse depedency ...
+        client: CKAN.UI.workspace.client
+      });
+    }
+    else if (action=='link-api') {
+      alert('TODO');
+    }
+    this.subView.render();
+    this.$sub.show();
+    return false;
+  }
+});
 
 
 CKAN.View.DatasetFullForCore = Backbone.View.extend({

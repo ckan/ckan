@@ -233,7 +233,10 @@ table caption {
 }
 
 tbody tr:nth-child(even) td, tbody tr.even td {
-  background-color: #fff7c0;
+  background-color: #FCF6CF;
+}
+tbody tr:nth-child(odd) td, tbody tr.odd td {
+  background-color: #FEFEF2;
 }
 
 tbody tr td.table-empty {
@@ -752,6 +755,19 @@ textarea.markdown-input {
   padding: 5px;
   display: block;
 }
+
+
+
+
+/* ====================== */
+/* = Add Resources Page = */
+/* ====================== */
+
+input#Resource--url {
+  width: 60%;
+}
+
+
 
 /* =============================== */
 /* = Mini-Tabs [Markdown Editor] = */
