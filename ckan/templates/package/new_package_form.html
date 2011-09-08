@@ -102,26 +102,6 @@
         </td>
       </tr>
       </py:for>
-      <tr class="hook-last-row" style="display: none;">
-        <py:for each="col in c.resource_columns">
-        <td py:choose="" class="resource-${col}">
-          <input py:when="col == 'format'"
-              name="resources__0__${col}" 
-              type="text" value=""
-              class="autocomplete-format short"
-              />
-          <input py:otherwise=""
-              name="resources__0__${col}"
-              type="text"
-              value=""
-              class="${'medium-width' if col=='description' else 'short'}" />
-        </td>
-        </py:for>
-        <td class="resource-id">
-          <input name="resources__0__id" type="hidden" value="" />
-        </td>
-
-      </tr>
     </tbody>
   </table>
 
