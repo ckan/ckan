@@ -13,11 +13,11 @@ CKAN.Templates.resourceAddLinkFile = ' \
     <dl> \
       <dt> \
         <label class="field_opt" for="url"> \
-          Link \
+          File URL \
         </label> \
       </dt> \
       <dd> \
-        <input name="url" type="text" placeholder="http://mydataset.com/file.csv" /> \
+        <input name="url" type="text" placeholder="http://mydataset.com/file.csv" style="width: 60%"/> \
         <input name="save" type="submit" class="pretty primary" value="Add" /> \
         <input name="reset" type="reset" class="pretty" value="Cancel" /> \
       </dd> \
@@ -26,21 +26,42 @@ CKAN.Templates.resourceAddLinkFile = ' \
   </form> \
 ';
 
-CKAN.Templates.resourceAddUploadFile = ' \
+CKAN.Templates.resourceAddLinkApi = ' \
+  <form class="resource-add" action=""> \
+    <dl> \
+      <dt> \
+        <label class="field_opt" for="url"> \
+          Api URL \
+        </label> \
+      </dt> \
+      <dd> \
+        <input name="url" type="text" placeholder="http://mydataset.com/file.csv" style="width: 60%" /> \
+        <input name="save" type="submit" class="pretty primary" value="Add" /> \
+        <input name="reset" type="reset" class="pretty" value="Cancel" /> \
+      </dd> \
+    </dl> \
+     \
+  </form> \
+';
+
+CKAN.Templates.resourceUpload = ' \
   <form action="http://test-ckan-net-storage.commondatastorage.googleapis.com/" class="resource-upload" \
     enctype="multipart/form-data" \
     method="POST"> \
  \
-    <div class="fileupload-buttonbar"> \
-      <div class="hidden-inputs"></div> \
-      <label class="fileinput-button"> \
-        File \
-      </label> \
-      <input type="file" name="file" /> \
-      <span class="fileinfo"></span> \
-        <input id="upload" name="upload" type="submit" class="pretty primary" value="Upload" /> \
+    <dl> \
+      <dt> \
+        <label class="field_opt fileinput-button" for="file"> \
+          File \
+        </label> \
+      </dt> \
+      <dd> \
+        <input type="file" name="file" /> \
+        <span class="fileinfo"></span> \
+        <input id="upload" name="upload" type="submit" class="pretty primary" value="Add" /> \
         <input id="reset" name="reset" type="reset" class="pretty" value="Cancel" /> \
-    </div> \
+      </dd> \
+    </dl> \
   </form> \
   <div class="messages" style="display: none;"></div> \
   </div> \

@@ -366,13 +366,19 @@ CKAN.Utils = function($, my) {
 }(jQuery, CKAN.Utils || {});
 
 
-CKAN.View.ResourceAddLinkFile = Backbone.View.extend({
-  initialize: function() {
+CKAN.View.ResourceAddLink = Backbone.View.extend({
+  initialize: function(options) {
     _.bindAll(this, 'render');
+    this.mode = options.mode;
   },
 
   render: function() {
-    var tmpl = $.tmpl(CKAN.Templates.resourceAddLinkFile);
+    if (this.mode=='file') {
+      var tmpl = $.tmpl(CKAN.Templates.resourceAddLinkFile);
+    }
+    else if (this.mode=='api') {
+      var tmpl = $.tmpl(CKAN.Templates.resourceAddLinkApi);
+    }
     $(this.el).html(tmpl);
     return this;
   },
@@ -400,7 +406,6 @@ CKAN.View.ResourceAddLinkFile = Backbone.View.extend({
 CKAN.View.ResourceAdd = Backbone.View.extend({
   initialize: function() {
     _.bindAll(this, 'render');
-    this.$sub = this.el.find('.resource-add-form');
   },
 
   render: function() {
@@ -420,31 +425,33 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
     e.preventDefault();
     var action = $(e.target).attr('action');
 
+    $(this.el).find('.resource-add-subpane').remove();
+
+    var $subPane = $('<div />').addClass('resource-add-subpane');
+    this.el.append($subPane);
+
     var resource = new CKAN.Model.Resource({
       'dataset': this.model
     });
     // Open sub-pane
     if (action=='upload-file') {
       this.subView = new CKAN.View.ResourceUpload({
-        el: this.$sub,
+        el: $subPane,
         model: resource,
         // TODO: horrible reverse depedency ...
         client: CKAN.UI.workspace.client
       });
     }
-    else if (action=='link-file') {
-      this.subView = new CKAN.View.ResourceAddLinkFile({
-        el: this.$sub,
+    else if (action=='link-file' || action=='link-api') {
+      this.subView = new CKAN.View.ResourceAddLink({
+        el: $subPane,
         model: resource,
+        mode: (action=='link-file')? 'file' : 'api',
         // TODO: horrible reverse depedency ...
         client: CKAN.UI.workspace.client
       });
-    }
-    else if (action=='link-api') {
-      alert('TODO');
     }
     this.subView.render();
-    this.$sub.show();
     return false;
   }
 });
