@@ -45,10 +45,12 @@ CKAN.Templates.resourceAddLinkApi = ' \
 ';
 
 CKAN.Templates.resourceUpload = ' \
+<div class="fileupload"> \
   <form action="http://test-ckan-net-storage.commondatastorage.googleapis.com/" class="resource-upload" \
     enctype="multipart/form-data" \
     method="POST"> \
  \
+    <div class="hidden-inputs"></div> \
     <dl> \
       <dt> \
         <label class="field_opt fileinput-button" for="file"> \
@@ -65,6 +67,7 @@ CKAN.Templates.resourceUpload = ' \
   </form> \
   <div class="messages" style="display: none;"></div> \
   </div> \
+</div> \
 ';
 
 CKAN.Templates.resourceEntry = ' \
