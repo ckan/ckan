@@ -1079,8 +1079,8 @@ class TestNew(TestPackageForm):
         fv[prefix+'title'] = title
         fv[prefix+'version'] = version
         fv[prefix+'url'] = url
-        fv[prefix+'resources__0__url'] = download_url
-        fv[prefix+'resources__0__description'] = u'description escape: & umlaut: \xfc quote "'.encode('utf8')
+        #fv[prefix+'resources__0__url'] = download_url
+        #fv[prefix+'resources__0__description'] = u'description escape: & umlaut: \xfc quote "'.encode('utf8')
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tag_string'] = tags_txt
@@ -1102,7 +1102,7 @@ class TestNew(TestPackageForm):
         assert pkg.title == title
         assert pkg.version == version
         assert pkg.url == url
-        assert pkg.resources[0].url == download_url
+        #assert pkg.resources[0].url == download_url
         assert pkg.notes == notes
         assert pkg.license.id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
