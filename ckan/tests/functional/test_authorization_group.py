@@ -1,4 +1,5 @@
 from nose.plugins.skip import SkipTest
+from nose.tools import assert_equal
 
 from ckan.tests import *
 from ckan.authz import Authorizer
@@ -125,6 +126,57 @@ class TestEdit(TestController):
         
         # now look at packages
         assert len(group.users) == 2
+
+
+class TestNew(FunctionalTestCase):
+    groupname = u'treasury'
+
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create_user('tester1')
+        CreateTestData.create_user('tester2')
+        CreateTestData.create_user('tester3')
+
+        self.extra_environ = {'REMOTE_USER': 'tester1'}
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_0_new(self):
+        offset = url_for(controller='authorization_group', action='new', id=None)
+        res = self.app.get(offset, status=200, extra_environ=self.extra_environ)
+        assert 'New Authorization Group' in res, res
+
+        form = res.forms['group-edit']
+        form['AuthorizationGroup--name'] = 'testname'
+
+        # can't test users - needs javascript
+        #form['AuthorizationGroupUser--user_name'] = 'tester2' 
+        
+        res = form.submit('save', status=302, extra_environ=self.extra_environ)
+        res = res.follow()
+
+        # should be read page
+        main_res = self.main_div(res)
+        assert 'testname' in main_res, main_res
+
+        # test created object
+        auth_group = model.AuthorizationGroup.by_name('testname')
+        assert auth_group
+        assert_equal(auth_group.name, 'testname')
+
+    def test_0_new_without_name(self):
+        offset = url_for(controller='authorization_group', action='new', id=None)
+        res = self.app.get(offset, status=200, extra_environ=self.extra_environ)
+        assert 'New Authorization Group' in res, res
+
+        form = res.forms['group-edit']
+        # don't set name
+        
+        res = form.submit('save', status=200, extra_environ=self.extra_environ)
+        assert 'Error' in res, res
+        assert 'Name: Please enter a value' in res, res
 
 
 class TestAuthorizationGroupWalkthrough(FunctionalTestCase):

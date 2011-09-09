@@ -1165,6 +1165,23 @@ class TestNew(TestPackageForm):
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)
 
+    def test_new_no_name(self):
+        offset = url_for(controller='package', action='new', id=None)
+        res = self.app.get(offset)
+        assert 'New - Data Packages' in res
+        fv = res.forms['package-edit']
+        prefix = ''
+        # don't set a name
+        res = fv.submit('preview')
+        assert 'Error' in res, res
+        assert 'Name: Missing value' in res, res
+        self._assert_form_errors(res)
+
+        res = fv.submit('save')
+        assert 'Error' in res, res
+        assert 'Name: Missing value' in res, res
+        self._assert_form_errors(res)
+
     def test_redirect_after_new_using_param(self):
         return_url = 'http://random.site.com/package/<NAME>?test=param'
         # It's useful to know that this url encodes to:
