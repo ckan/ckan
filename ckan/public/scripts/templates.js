@@ -73,19 +73,19 @@ CKAN.Templates.resourceUpload = ' \
 CKAN.Templates.resourceEntry = ' \
   <tr> \
   <td class="resource-url"> \
-    <input name="resources__${num}__url" type="text" value="${url}" class="short" /> \
+    <input name="resources__${num}__url" type="text" value="${resource.url}" class="short" /> \
   </td> \
   <td class="resource-format"> \
-    <input name="resources__${num}__format" type="text" value="" class="autocomplete-format short" /> \
+    <input name="resources__${num}__format" type="text" value="${resource.format}" class="autocomplete-format short" /> \
   </td> \
   <td class="resource-description"> \
-    <input name="resources__${num}__description" type="text" value="" class="medium-width" /> \
+    <input name="resources__${num}__description" type="text" value="${resource.description}" class="medium-width" /> \
   </td> \
   <td class="resource-hash"> \
-    <input name="resources__${num}__hash" type="text" value="" class="short" /> \
+    <input name="resources__${num}__hash" type="text" value="${resource.hash}" class="short" /> \
   </td> \
   <td class="resource-id"> \
-    <input name="resources__${num}__id" type="hidden" value="" /> \
+    <input name="resources__${num}__id" type="hidden" value="${resource.id}" /> \
   </td> \
 </tr> \
 ';

@@ -384,21 +384,13 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   },
 
   events: {
-    'submit form': 'addNewResource',
+    'submit form': 'setResourceInfo',
   },
 
-  addNewResource: function(e) {
+  setResourceInfo: function(e) {
     e.preventDefault();
-    var maxId = 0;
-    var ids = $.map($('.resource-table').find('input'), function(item, idx) {
-      var thisId = parseInt($(item).attr('name').split('__')[1]);
-      maxId=Math.max(maxId, thisId);
-    });
-
     var urlVal=this.el.find('input[name=url]').val();
-    var $newRow = $.tmpl(CKAN.Templates.resourceEntry, { url: urlVal, num: maxId+1 });
-
-    $('.resource-table tbody').append($newRow);
+    this.model.set({url: urlVal, type: this.mode})
   }
 });
 
@@ -440,6 +432,7 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
     var resource = new CKAN.Model.Resource({
       'dataset': this.model
     });
+    resource.bind('change', this.addNewResource);
     // Open sub-pane
     if (action=='upload-file') {
       this.subView = new CKAN.View.ResourceUpload({
@@ -460,6 +453,20 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
     }
     this.subView.render();
     return false;
+  },
+
+  addNewResource: function(resource) {
+    var maxId = 0;
+    var ids = $.map($('.resource-table').find('input'), function(item, idx) {
+      var thisId = parseInt($(item).attr('name').split('__')[1]);
+      maxId=Math.max(maxId, thisId);
+    });
+    var tmplData = {
+      resource: resource.toTemplateJSON(),
+      num: maxId+1
+    };
+    var $newRow = $.tmpl(CKAN.Templates.resourceEntry, tmplData);
+    $('.resource-table tbody').append($newRow);
   }
 });
 
