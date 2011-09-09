@@ -703,6 +703,12 @@ ul.dataset_formats li {
 /* = Edit Dataset Page = */
 /* ===================== */
 
+body.edit.package div#content {
+  margin-right: 0px;
+}
+body.edit.package div#sidebar {
+  padding-left: 0px;
+}
 ul.edit-form-navigation {
   list-style-type: none;
   padding-left: 0;
@@ -727,9 +733,17 @@ ul.edit-form-navigation li a:hover {
   background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
             filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
 
+  border-left: none;
      -moz-border-radius: 5px; 
   -webkit-border-radius: 5px; 
           border-radius: 5px; 
+     -moz-border-bottom-left-radius: 0px; 
+  -webkit-border-bottom-left-radius: 0px; 
+          border-bottom-left-radius: 0px; 
+     -moz-border-top-left-radius: 0px; 
+  -webkit-border-top-left-radius: 0px; 
+          border-top-left-radius: 0px; 
+
   -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
 }
 
