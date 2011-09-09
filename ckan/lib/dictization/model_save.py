@@ -1,6 +1,6 @@
 from ckan.lib.dictization import table_dict_save
 from sqlalchemy.orm import class_mapper
-import json
+from ckan.lib.helpers import json
 
 ##package saving
 
