@@ -73,8 +73,14 @@ class SearchBackend(object):
 
 class SearchQuery(object):
     """
-    A query is ... when you ask the search engine things. SearchQuery is intended 
-    to be used for only one query, i.e. it sets state. Definitely not thread-safe.
+    Provides a way to perform a search query operation.
+
+    Derive from this class and provide a _run function suitable for
+    performing the query using a particular search backend e.g. SOLR.
+
+    Instantiation should be only used for one query.
+
+    Methods may all raise SearchError for the caller to handle.
     """
     
     def __init__(self, backend):
@@ -84,9 +90,9 @@ class SearchQuery(object):
     
     @property
     def open_licenses(self):
-        # backend isn't exactly the very best place to put these, but they stay
-        # there persistently. 
-        # TODO: figure out if they change during run-time. 
+        # Cache of which licenses are 'open'.
+        # The list doesn't change during run-time.
+        # TODO: Move this to a better place in the code.
         if not hasattr(self.backend, '_open_licenses'):
             self.backend._open_licenses = []
             for license in model.Package.get_license_register().values():
@@ -103,6 +109,10 @@ class SearchQuery(object):
                 self.results = [getattr(entity, attr_name) for entity in self.results]
     
     def run(self, query=None, terms=[], fields={}, facet_by=[], options=None, **kwargs):
+        '''Perform the search query.
+
+        May raise SearchError.
+        '''
         if options is None:
             options = QueryOptions(**kwargs) 
         else:
@@ -118,9 +128,17 @@ class SearchQuery(object):
         return {'results': self.results, 'count': self.count}
         
     def _run(self):
+        '''Override this method to perform an actual query of a search index.
+
+        Errors:
+        * raise SearchError for any error
+        '''
+        # TODO: Split SearchError to differentiate between invalid parameters
+        #       and external search server not responding, say.
         raise SearchError("SearchQuery._run() not implemented!")
         
-    # convenience, allows to query(..)
+    # convenience
+    # allows you to query(..)
     __call__ = run
 
 
