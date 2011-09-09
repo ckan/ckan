@@ -75,6 +75,7 @@
   <table class="resource-table edit">
     <thead>
       <tr>
+        <th></th>
         <th class="field_req resource-url">URL*</th>
         <th class="field_opt resource-format">Format</th>
         <th class="field_opt resource-description">Description</th>
@@ -83,22 +84,42 @@
     <tbody>
       <py:for each="num, res in enumerate(data.get('resources', []))">
       <tr class="resource-summary">
-        <py:for each="col in c.resource_columns">
-        <td py:choose="" class="resource-${col}">
-          <input py:when="col == 'format'"
-              name="resources__${num}__${col}" 
-              type="text" value="${res.get(col, '')}"
-              class="autocomplete-format short"
-              />
-          <input py:otherwise=""
-              name="resources__${num}__${col}"
-              type="text"
-              value="${res.get(col, '')}"
-              class="${'medium-width' if col=='description' else 'short'}" />
+        <td class="resource-expand-link">
+          <a class="resource-expand-link" href="#"><img src="/images/icons/edit-expand.png" /></a>
+          <a class="resource-expand-link" href="#" style="display: none;"><img src="/images/icons/edit-collapse.png" /></a>
         </td>
-        </py:for>
-        <td class="resource-id">
-          <input name="resources__${num}__id" type="hidden" value="${res.get('id', '')}" />
+        <td class="resource-summary resource-url">
+          ${res.get('url', '')}
+        </td>
+        <td class="resource-summary resource-format">
+          ${res.get('format', '')}
+        </td>
+        <td class="resource-summary resource-description">
+          ${res.get('description', '')}
+        </td>
+        <td class="resource-expanded" colspan="3" style="display: none;">
+          <dl>
+            <dt><label class="field_opt">Url</label></dt>
+            <dd>
+              <input name="resources__${num}__url" type="text" value="${res.get('url', '')}" class="short" />
+            </dd>
+            <dt><label class="field_opt">Format</label></dt>
+            <dd>
+              <input name="resources__${num}__format" type="text" value="${res.get('format', '')}" class="short" />
+            </dd>
+            <dt><label class="field_opt">Description</label></dt>
+            <dd>
+              <input name="resources__${num}__description" type="text" value="${res.get('description', '')}" class="short" />
+            </dd>
+            <dt><label class="field_opt">Hash</label></dt>
+            <dd>
+              <input name="resources__${num}__hash" type="text" value="${res.get('hash', '')}" class="short" />
+            </dd>
+            <dt><label class="field_opt">Id</label></dt>
+            <dd>
+              <input name="resources__${num}__id" disabled="disabled" type="text" value="${res.get('id', '')}" class="short disabled" />
+            </dd>
+          </dl>
         </td>
       </tr>
       </py:for>

@@ -771,7 +771,20 @@ textarea.markdown-input {
 }
 
 
+table.resource-table tbody tr td {
+  vertical-align: top;
+}
+table.resource-table td.resource-summary {
+  vertical-align: middle;
+}
 
+td.resource-expanded dl{
+  margin-bottom: 5px;
+}
+td.resource-expand-link {
+  padding-top: 6px;
+  text-align: center;
+}
 
 /* ====================== */
 /* = Add Resources Page = */

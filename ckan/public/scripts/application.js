@@ -28,6 +28,15 @@
     if (isDatasetEdit) {
       // Set up hashtag nagivigation
       CKAN.Utils.setupDatasetEditNavigation();
+      // Set up edit table expanding
+      $('a.resource-expand-link').live('click', function(e) {
+        e.preventDefault();
+        $tr = $(e.target).closest('.resource-summary');
+        $tr.find('a.resource-expand-link').toggle();
+        $tr.find('.resource-summary').toggle();
+        $tr.find('.resource-expanded').toggle();
+      });
+
       // Create Backbone view for adding resources
       var $el=$('.resource-add');
       var view=new CKAN.View.ResourceAdd({
