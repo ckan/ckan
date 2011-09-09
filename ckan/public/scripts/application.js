@@ -6,7 +6,6 @@
     CKAN.Utils.setupTagAutocomplete($('input.autocomplete-tag'));
     CKAN.Utils.setupFormatAutocomplete($('input.autocomplete-format'));
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor a, .markdown-editor .markdown-preview'));
-    CKAN.Utils.setupDatasetEditNavigation();
     // set up ckan js
     var config = {
       endpoint: '/'
@@ -27,6 +26,9 @@
 
     var isDatasetEdit = $('body.package.edit').length > 0;
     if (isDatasetEdit) {
+      // Set up hashtag nagivigation
+      CKAN.Utils.setupDatasetEditNavigation();
+      // Create Backbone view for adding resources
       var $el=$('.resource-add');
       var view=new CKAN.View.ResourceAdd({
         model: null,
