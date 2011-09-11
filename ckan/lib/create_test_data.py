@@ -320,7 +320,7 @@ class CreateTestData(cli.CkanCommand):
             format=u'plain text',
             description=u'Full text. Needs escaping: " Umlaut: \xfc',
             hash=u'abc123',
-            extras={'size': u'123'},
+            extras={'size_extra': u'123'},
             **configured_extras[0]
             )
         pr2 = model.Resource(
@@ -328,7 +328,7 @@ class CreateTestData(cli.CkanCommand):
             format=u'json',
             description=u'Index of the novel',
             hash=u'def456',
-            extras={'size': u'345'},
+            extras={'size_extra': u'345'},
             **configured_extras[1]
             )
         model.Session.add(pr1)

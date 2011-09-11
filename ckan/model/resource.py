@@ -16,6 +16,13 @@ __all__ = ['Resource', 'resource_table',
            'ResourceGroupRevision', 'resource_group_revision_table',
            ]
 
+CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
+                         'resource_type', 'mimetype', 'mimetype_inner',
+                         'size', 'last_modified', 'cache_url', 'cache_last_updated',
+                         'webstore_url', 'webstore_last_updated']
+
+
+
 ##formally package_resource
 resource_table = Table(
     'resource', metadata,
@@ -26,6 +33,18 @@ resource_table = Table(
     Column('description', types.UnicodeText),
     Column('hash', types.UnicodeText),
     Column('position', types.Integer),
+
+    Column('name', types.UnicodeText),
+    Column('resource_type', types.UnicodeText),
+    Column('mimetype', types.UnicodeText),
+    Column('mimetype_inner', types.UnicodeText),
+    Column('size', types.BigInteger),
+    Column('last_modified', types.DateTime),
+    Column('cache_url', types.UnicodeText),
+    Column('cache_last_updated', types.DateTime),
+    Column('webstore_url', types.UnicodeText),
+    Column('webstore_last_updated', types.DateTime),
+    
     Column('extras', JsonDictType),
     )
 
@@ -59,8 +78,12 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
         self.format = format
         self.description = description
         self.hash = hash
+        # The base columns historically defaulted to empty strings
+        # not None (Null). This is why they are seperate here.
+        base_columns = ['url', 'format', 'description', 'hash']
+        for key in set(CORE_RESOURCE_COLUMNS) - set(base_columns):
+            setattr(self, key, kwargs.pop(key, None))
         self.extras = extras or {}
-
         extra_columns = self.get_extra_columns()
         for field in extra_columns:
             value = kwargs.pop(field, None)
@@ -95,9 +118,9 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
     def get_columns(cls, extra_columns=True):
         '''Returns the core editable columns of the resource.'''
         if extra_columns:
-            return ['url', 'format', 'description', 'hash'] + cls.get_extra_columns()
+            return CORE_RESOURCE_COLUMNS + cls.get_extra_columns()
         else:
-            return ['url', 'format', 'description', 'hash']
+            return CORE_RESOURCE_COLUMNS
 
     @classmethod
     def get_extra_columns(cls):

@@ -26,6 +26,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_both_passwords_entered,
                                    user_passwords_match,
                                    user_password_not_empty,
+                                   isodate,
                                    user_about_validator)
 from formencode.validators import OneOf
 import ckan.model
@@ -45,6 +46,16 @@ def default_resource_schema():
         'state': [ignore],
         'position': [ignore],
         'revision_timestamp': [ignore],
+        'name': [ignore_missing, unicode],
+        'resource_type': [ignore_missing, unicode],
+        'mimetype': [ignore_missing, unicode],
+        'mimetype_inner': [ignore_missing, unicode],
+        'webstore_url': [ignore_missing, unicode],
+        'cache_url': [ignore_missing, unicode],
+        'size': [ignore_missing, int],
+        'last_modified': [ignore_missing, isodate],
+        'cache_last_updated': [ignore_missing, isodate],
+        'webstore_last_updated': [ignore_missing, isodate],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 

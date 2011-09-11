@@ -95,7 +95,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
             assert u'Full text. Needs escaping: &#34; Umlaut: \xfc"' in out, out_printable        
             assert res.hash in out, out_printable        
             assert res.alt_url in out, out_printable        
-            assert res.extras['size'] in out, out_printable        
+            assert res.extras['size_extra'] in out, out_printable        
 
     def test_2_fields(self):
         fs = self._get_standard_fieldset()
@@ -131,6 +131,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         indict['Package--resources-0-url'] = u'http:/1'
         indict['Package--resources-0-format'] = u'xml'
         indict['Package--resources-0-description'] = u'test desc'
+        indict['Package--resources-0-size'] = 10
         indict['Package--resources-0-alt_url'] = u'http:/2'
 
         fs = self._get_standard_fieldset().bind(model.Package, data=indict)
