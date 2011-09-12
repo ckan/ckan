@@ -110,4 +110,7 @@ CKAN.Templates.resourceEntry = ' \
       </dd> \
     </dl> \
   </td> \
+  <td class="resource-is-changed"> \
+    <span class="resource-is-changed">!!!</span> \
+  </td> \
 ';

@@ -79,6 +79,7 @@
         <th class="field_req resource-url">URL*</th>
         <th class="field_opt resource-format">Format</th>
         <th class="field_opt resource-description">Description</th>
+        <th class="field_opt resource-is-changed"> </th>
       </tr>
     </thead>
     <tbody>
@@ -120,6 +121,8 @@
               <input name="resources__${num}__id" disabled="disabled" type="text" value="${res.get('id', '')}" class="long disabled" />
             </dd>
           </dl>
+        </td>
+        <td class="resource-is-changed">
         </td>
       </tr>
       </py:for>

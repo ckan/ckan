@@ -433,49 +433,53 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
 
 CKAN.View.ResourceEditList = Backbone.View.extend({
   initialize: function() {
-    _.bindAll(this, 'render');
-    this.collection.bind('add', this.render);
-    this.subViews = [];
+    _.bindAll(this, 'render', 'addRow');
+    this.collection.bind('add', this.addRow);
   },
 
   render: function() {
     var self = this;
 
-    // TODO sort out your iteration methods
-    $.each(this.subViews, function(idx,view) {
-      view.remove();
-    });
     // Have to trash entire content; some stuff was there on page load
     this.el.find('tbody').empty();
-    
-    this.subViews = [];
-    this.collection.each(function(resource, idx) {
-      // TODO tidy up so the view creates its own elements
-      var $tr = $('<tr />');
-      $tr.addClass('resource-summary');
-      self.el.find('tbody').append($tr);
-      var _view = new CKAN.View.ResourceEdit({
-        model: resource,
-        el: $tr,
-        position: idx
-      });
-      _view.render();
-      self.subViews.push(_view);
+    this.collection.each(this.addRow);
+  },
+
+  nextIndex: function() {
+    var maxId=-1;
+    this.el.find('input').each(function(idx,input) {
+      var myId = parseInt($(input).attr('name').split('__')[1])
+      maxId = Math.max(myId, maxId);
     });
+    return maxId+1;
+  },
+
+  addRow: function(resource) {
+    // TODO tidy up so the view creates its own elements
+    var $tr = $('<tr />');
+    this.el.find('tbody').append($tr);
+    var _view = new CKAN.View.ResourceEdit({
+      model: resource,
+      el: $tr,
+      position: this.nextIndex()
+    });
+    _view.render();
   },
 
   events: {
-
   }
 });
 
 CKAN.View.ResourceEdit = Backbone.View.extend({
   initialize: function() {
     _.bindAll(this, 'render', 'toggleExpanded');
+    var self = this;
+    this.model.bind('change', function() { self.hasChanged=true; });
     this.model.bind('change', this.render);
     this.position = this.options.position;
 
-    this.expanded = false;
+    this.expanded = this.model.isNew();
+    this.hasChanged = this.model.isNew();
   },
 
   render: function() {
@@ -493,6 +497,10 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
     else {
       this.el.find('a.resource-collapse-link').hide();
       this.el.find('.resource-expanded').hide();
+    }
+
+    if (!this.hasChanged) {
+      this.el.find('span.resource-is-changed').hide();
     }
   },
 
