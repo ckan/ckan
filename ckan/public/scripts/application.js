@@ -498,7 +498,7 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
 
 CKAN.View.ResourceAdd = Backbone.View.extend({
   initialize: function() {
-    _.bindAll(this, 'render', 'addNewResource');
+    _.bindAll(this, 'render', 'addNewResource', 'reset');
   },
 
   render: function() {
@@ -509,30 +509,29 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
     'click input[name=reset]': 'reset'
   },
 
-  reset: function(e) {
-    e.preventDefault();
+  reset: function() {
     this.el.find('.tabs a').removeClass('selected');
-    this.deleteSubpane();
-  },
-
-  deleteSubpane: function() {
-    this.el.find('.resource-add-subpane').remove();
+    if (this.subView != null) {
+      this.subView.remove();
+      this.subView = null;
+    }
+    return false;
   },
 
   clickAdd: function(e) {
     e.preventDefault();
 
+    this.reset();
+
     var action = $(e.target).attr('action');
     this.el.find('.tabs a').removeClass('selected');
     this.el.find('.tabs a[action='+action+']').addClass('selected');
 
-    this.deleteSubpane();
-
     var $subPane = $('<div />').addClass('resource-add-subpane');
     this.el.append($subPane);
 
-    var resource = new CKAN.Model.Resource({
-    });
+    var resource = new CKAN.Model.Resource({});
+
     resource.bind('change', this.addNewResource);
     // Open sub-pane
     if (action=='upload-file') {
@@ -553,26 +552,11 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
       });
     }
     this.subView.render();
-    return false;
   },
 
   addNewResource: function(resource) {
     this.collection.add(resource);
-    return;
-
-    // TODO old code:
-
-    var maxId = 0;
-    var ids = $.map($('.resource-table').find('input'), function(item, idx) {
-      var thisId = parseInt($(item).attr('name').split('__')[1]);
-      maxId=Math.max(maxId, thisId);
-    });
-    var tmplData = {
-      resource: resource.toTemplateJSON(),
-      num: maxId+1
-    };
-    var $newRow = $.tmpl(CKAN.Templates.resourceEntry, tmplData);
-    $('.resource-table tbody').append($newRow);
+    this.reset();
   }
 });
 
