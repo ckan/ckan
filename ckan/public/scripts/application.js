@@ -571,14 +571,14 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
     var $subPane = $('<div />').addClass('resource-add-subpane');
     this.el.append($subPane);
 
-    var resource = new CKAN.Model.Resource({});
+    var tempResource = new CKAN.Model.Resource({});
 
-    resource.bind('change', this.addNewResource);
+    tempResource.bind('change', this.addNewResource);
     // Open sub-pane
     if (action=='upload-file') {
       this.subView = new CKAN.View.ResourceUpload({
         el: $subPane,
-        model: resource,
+        model: tempResource,
         // TODO: horrible reverse depedency ...
         client: CKAN.UI.workspace.client
       });
@@ -586,7 +586,7 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
     else if (action=='link-file' || action=='link-api') {
       this.subView = new CKAN.View.ResourceAddLink({
         el: $subPane,
-        model: resource,
+        model: tempResource,
         mode: (action=='link-file')? 'file' : 'api',
         // TODO: horrible reverse depedency ...
         client: CKAN.UI.workspace.client
@@ -595,7 +595,10 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
     this.subView.render();
   },
 
-  addNewResource: function(resource) {
+  addNewResource: function(tempResource) {
+    // Deep-copy the tempResource we had bound to
+    var resource=new CKAN.Model.Resource(tempResource.toJSON());
+
     this.collection.add(resource);
     this.reset();
   }
