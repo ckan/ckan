@@ -28,6 +28,7 @@
     if (isDatasetEdit) {
       // Set up hashtag nagivigation
       CKAN.Utils.setupDatasetEditNavigation();
+
       // Set up edit table expanding
       $('a.resource-expand-link').live('click', function(e) {
         e.preventDefault();
@@ -43,6 +44,9 @@
         model: null,
         el: $el
       });
+
+      var _dataset = new CKAN.Model.Dataset(preload_dataset);
+
       view.render();
     }
   });

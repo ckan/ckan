@@ -379,6 +379,7 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
 
         c.pkg = context.get("package")
+        c.pkg_json = json.dumps(data)
 
         try:
             check_access('package_update',context)
