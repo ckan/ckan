@@ -405,30 +405,24 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
 
     // Create Backbone view for adding resources
     var $el=this.el.find('.resource-add');
-    var view=new CKAN.View.ResourceAdd({
+    this.addView=new CKAN.View.ResourceAdd({
       collection: this.model.get('resources'),
       el: $el
     });
-    view.render();
 
     // Create Resource Edit list
     var $el=this.el.find('.resource-table.edit');
-    var view=new CKAN.View.ResourceEditList({
+    this.resourceList=new CKAN.View.ResourceEditList({
       collection: this.model.get('resources'),
       el: $el
     });
-    
-    // Set up edit table expanding
-    this.el.find('a.resource-expand-link').live('click', function(e) {
-      e.preventDefault();
-      $tr = $(e.target).closest('.resource-summary');
-      $tr.find('a.resource-expand-link').toggle();
-      $tr.find('.resource-summary').toggle();
-      $tr.find('.resource-expanded').toggle();
-    });
+
+    this.render();
   },
 
   render: function() {
+    this.addView.render();
+    this.resourceList.render();
   },
 
   events: {
@@ -477,8 +471,11 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
 
 CKAN.View.ResourceEdit = Backbone.View.extend({
   initialize: function() {
-    _.bindAll(this, 'render');
+    _.bindAll(this, 'render', 'toggleExpanded');
+    this.model.bind('change', this.render);
     this.position = this.options.position;
+
+    this.expanded = false;
   },
 
   render: function() {
@@ -489,11 +486,55 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
     var $newRow = $.tmpl(CKAN.Templates.resourceEntry, tmplData);
     this.el.html($newRow);
 
+    if (this.expanded) {
+      this.el.find('a.resource-expand-link').hide();
+      this.el.find('.resource-summary').hide();
+    }
+    else {
+      this.el.find('a.resource-collapse-link').hide();
+      this.el.find('.resource-expanded').hide();
+    }
   },
 
   events: {
+    'click a.resource-expand-link': 'toggleExpanded',
+    'click a.resource-collapse-link': 'toggleExpanded'
+  },
 
+  saveData: function() {
+    this.model.set(this.getData(), {
+      error: function(model, error) {
+        var msg = 'Failed to save, possibly due to invalid data ';
+        msg += JSON.stringify(error);
+        alert(msg);
+      }
+    });
+    return false;
+  },
+
+  getData: function() {
+    var _data = $(this.el).find('input').serializeArray();
+    modelData = {};
+    $.each(_data, function(idx, value) {
+      modelData[value.name.split('__')[2]] = value.value
+    });
+    return modelData;
+  },
+
+  toggleExpanded: function(e) {
+    e.preventDefault();
+
+    this.expanded = !this.expanded;
+    // Closing the form; update the model fields
+    if (!this.expanded) {
+      this.saveData();
+      // Model might not have changed
+      this.render();
+    } else {
+      this.render();
+    }
   }
+
 });
 
 CKAN.View.ResourceAdd = Backbone.View.extend({

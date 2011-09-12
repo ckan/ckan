@@ -75,7 +75,7 @@ CKAN.Templates.resourceUpload = ' \
 CKAN.Templates.resourceEntry = ' \
   <td class="resource-expand-link"> \
     <a class="resource-expand-link" href="#"><img src="/images/icons/edit-expand.png" /></a> \
-    <a class="resource-expand-link" href="#" style="display: none;"><img src="/images/icons/edit-collapse.png" /></a> \
+    <a class="resource-collapse-link" href="#"><img src="/images/icons/edit-collapse.png" /></a> \
   </td> \
   <td class="resource-summary resource-url"> \
     ${resource.url} \
@@ -86,7 +86,7 @@ CKAN.Templates.resourceEntry = ' \
   <td class="resource-summary resource-description"> \
     ${resource.description} \
   </td> \
-  <td class="resource-expanded" colspan="3" style="display: none;"> \
+  <td class="resource-expanded" colspan="3"> \
     <dl> \
       <dt><label class="field_opt">Url</label></dt> \
       <dd> \
