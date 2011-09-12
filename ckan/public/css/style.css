@@ -785,6 +785,11 @@ td.resource-expand-link {
   padding-top: 6px;
   text-align: center;
 }
+th.resource-is-changed, td.resource-is-changed {
+  text-align: center;
+  padding: 8px 0 0 0;
+  width: 20px;
+}
 /* ====================== */
 /* = Add Resources Page = */
 /* ====================== */

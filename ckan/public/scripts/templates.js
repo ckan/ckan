@@ -111,6 +111,6 @@ CKAN.Templates.resourceEntry = ' \
     </dl> \
   </td> \
   <td class="resource-is-changed"> \
-    <span class="resource-is-changed">!!!</span> \
+    <img src="/images/icons/add.png" title="This resource has unsaved changes." class="resource-is-changed" /> \
   </td> \
 ';

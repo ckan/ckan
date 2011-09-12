@@ -500,7 +500,7 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
     }
 
     if (!this.hasChanged) {
-      this.el.find('span.resource-is-changed').hide();
+      this.el.find('img.resource-is-changed').hide();
     }
   },
 
