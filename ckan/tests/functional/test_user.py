@@ -186,9 +186,12 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert len(user.apikey) == 36
 
         # check cookie created
-        assert 'ckan_display_name="testlogin"' in res.request.environ['HTTP_COOKIE'], res.request.environ['HTTP_COOKIE']
-        assert 'auth_tkt="' in res.request.environ['HTTP_COOKIE'], res.request.environ['HTTP_COOKIE']
-        assert 'testlogin!userid_type:unicode"' in res.request.environ['HTTP_COOKIE'], res.request.environ['HTTP_COOKIE']
+        cookie = res.request.environ['HTTP_COOKIE']
+        # I think some versions of webob do not produce quotes, hence the 'or'
+        assert 'ckan_display_name="testlogin"' in cookie or \
+               'ckan_display_name=testlogin' in cookie, cookie
+        assert 'auth_tkt=' in cookie, cookie
+        assert 'testlogin!userid_type:unicode' in cookie, cookie
 
     def test_login_wrong_password(self):
         # create test user
@@ -298,9 +301,12 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert_equal(rev_id_before_test, rev_id_after_test)
 
         # check cookies created
-        assert 'ckan_display_name="Test Create"' in res.request.environ['HTTP_COOKIE'], res.request.environ['HTTP_COOKIE']
-        assert 'auth_tkt="' in res.request.environ['HTTP_COOKIE'], res.request.environ['HTTP_COOKIE']
-        assert 'testcreate!userid_type:unicode"' in res.request.environ['HTTP_COOKIE'], res.request.environ['HTTP_COOKIE']
+        cookie = res.request.environ['HTTP_COOKIE']
+        # I think some versions of webob do not produce quotes, hence the 'or'
+        assert 'ckan_display_name="Test Create"' in cookie or\
+               'ckan_display_name=Test Create' in cookie, cookie
+        assert 'auth_tkt=' in cookie, cookie
+        assert 'testcreate!userid_type:unicode' in cookie, cookie
 
 
     def test_user_create_unicode(self):
