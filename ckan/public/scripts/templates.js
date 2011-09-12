@@ -92,6 +92,26 @@ CKAN.Templates.resourceEntry = ' \
       <dd> \
         <input name="resources__${num}__url" type="text" value="${resource.url}" class="long" /> \
       </dd> \
+      <dt>Type</dt> \
+      <dd> \
+        ${resource.type} \
+      </dd> \
+      <dt>Mimetype</dt> \
+      <dd> \
+        ${resource.mimetype} \
+      </dd> \
+      <dt>Mimetype-inner</dt> \
+      <dd> \
+        ${resource.mimetypeInner} \
+      </dd> \
+      <dt>Size</dt> \
+      <dd> \
+        ${resource.size} \
+      </dd> \
+      <dt>Last Modified</dt> \
+      <dd> \
+        ${resource.lastModified} \
+      </dd> \
       <dt><label class="field_opt">Format</label></dt> \
       <dd> \
         <input name="resources__${num}__format" type="text" value="${resource.format}" class="long" /> \
@@ -104,11 +124,8 @@ CKAN.Templates.resourceEntry = ' \
       <dd> \
         <input name="resources__${num}__hash" type="text" value="${resource.hash}" class="long" /> \
       </dd> \
-      <dt><label class="field_opt">Id</label></dt> \
-      <dd> \
-        <input name="resources__${num}__id" type="hidden" value="${resource.id}" class="long disabled" /> \
-      </dd> \
     </dl> \
+    <input name="resources__${num}__id" type="hidden" value="${resource.id}" class="long disabled" /> \
   </td> \
   <td class="resource-is-changed"> \
     <img src="/images/icons/add.png" title="This resource has unsaved changes." class="resource-is-changed" /> \
