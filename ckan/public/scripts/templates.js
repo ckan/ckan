@@ -102,7 +102,7 @@ CKAN.Templates.resourceEntry = ' \
       </dd> \
       <dt>Mimetype-inner</dt> \
       <dd> \
-        ${resource.mimetypeInner} \
+        ${resource.mimetype_inner} \
       </dd> \
       <dt>Size</dt> \
       <dd> \

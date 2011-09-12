@@ -36,7 +36,6 @@
         el: $el
       });
       view.render();
-
     }
   });
 }(jQuery));
@@ -403,6 +402,22 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
   initialize: function() {
     _.bindAll(this, 'render');
 
+    var boundToUnload = false;
+    this.el.change(function() {
+      if (!boundToUnload) {
+        boundToUnload = true;
+        window.onbeforeunload = function () { 
+          return "You have unsaved changes. Hit Save Changes at the bottom of the page to submit them."; 
+        };
+      }
+    });
+    this.el.submit(function() {
+      // Don't stop us leaving
+      window.onbeforeunload = null;
+    });
+
+
+
     // Create Backbone view for adding resources
     var $el=this.el.find('.resource-add');
     this.addView=new CKAN.View.ResourceAdd({
@@ -418,7 +433,9 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
     });
 
     this.render();
+
   },
+
 
   render: function() {
     this.addView.render();
