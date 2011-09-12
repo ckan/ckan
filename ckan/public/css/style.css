@@ -798,6 +798,38 @@ input#Resource--url {
   width: 60%;
 }
 
+body.package.new dt.homepage-label,
+body.package.new dd.homepage-field,
+body.package.new dd.homepage-instructions 
+{
+  display: none;
+}
+body.package.new dt.tags-label,
+body.package.new dd.tags-field,
+body.package.new dd.tags-instructions 
+{
+  display: none;
+}
+body.package.new dt.description-label,
+body.package.new dd.description-field,
+body.package.new dd.description-instructions 
+{
+  display: none;
+}
+
+body.package.new dt.name-label {
+  font-size: 10px;
+}
+
+body.package.new .instructions {
+  font-size: 10px;
+}
+
+body.package.new input#name {
+  font-size: 8px;
+
+  background: #eee;
+}
 
 
 /* =============================== */

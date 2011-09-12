@@ -15,32 +15,32 @@
 
 <fieldset id="basic-information">
   <dl>
-    <dt><label class="field_opt" for="title">Title</label></dt>
-    <dd><input id="title" name="title" type="text" value="${data.get('title', '')}"/></dd>
-    <dd class="instructions basic">A short descriptive title for the dataset.</dd>
-    <dd class="instructions further">It should not be a description though - save that for the Notes field. Do not give a trailing full stop.</dd>
-    <dd class="field_error" py:if="errors.get('title', '')">${errors.get('title', '')}</dd>
+    <dt class="title-label"><label class="field_opt" for="title">Title</label></dt>
+    <dd class="title-field"><input id="title" tabindex="1" name="title" type="text" value="${data.get('title', '')}"/></dd>
+    <dd class="title-instructions instructions basic">A short descriptive title for the dataset.</dd>
+    <dd class="title-instructions instructions further">It should not be a description though - save that for the Notes field. Do not give a trailing full stop.</dd>
+    <dd class="title-instructions field_error" py:if="errors.get('title', '')">${errors.get('title', '')}</dd>
 
-    <dt><label class="field_req" for="name">Name *</label></dt>
-    <dd><input id="name" maxlength="100" name="name" type="text" value="${data.get('name', '')}" /></dd>
-    <dd class="instructions basic">A unique identifier for the dataset.</dd>
-    <dd class="instructions further">It should be broadly humanly readable, in the spirit of Semantic Web URIs. Only use an acronym if it is widely recognised. Renaming is possible but discouraged.</dd>
-    <dd class="hints">2+ characters, lowercase, using only 'a-z0-9' and '-_'</dd>
-    <dd class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
+    <dt class="name-label"><label class="field_req" for="name">Slug *</label></dt>
+    <dd class="name-field"><input id="name" tabindex="999" maxlength="100" name="name" type="text" value="${data.get('name', '')}" /></dd>
+    <dd class="name-instructions instructions basic">A unique identifier for the dataset.</dd>
+    <dd class="name-instructions instructions further">It should be broadly humanly readable, in the spirit of Semantic Web URIs. Only use an acronym if it is widely recognised. Renaming is possible but discouraged.</dd>
+    <dd class="name-instructions hints">2+ characters, lowercase, using only 'a-z0-9' and '-_'</dd>
+    <dd class="name-instructions field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
 
-    <dt><label class="field_opt" for="url">Home Page</label></dt>
-    <dd><input id="url" name="url" type="text" value="${data.get('url', '')}"/></dd>
-    <dd class="instructions basic">The URL for the web page describing the data (not the data itself).</dd>
-    <dd class="hints">e.g. http://www.example.com/growth-figures.html</dd>
-    <dd class="field_error" py:if="errors.get('url', '')">${errors.get('url', '')}</dd>
+    <dt class="homepage-label"><label class="field_opt" for="url">Home Page</label></dt>
+    <dd class="homepage-field"><input id="url" tabindex="2" name="url" type="text" value="${data.get('url', '')}"/></dd>
+    <dd class="homepage-instructions instructions basic">The URL for the web page describing the data (not the data itself).</dd>
+    <dd class="homepage-instructions hints">e.g. http://www.example.com/growth-figures.html</dd>
+    <dd class="homepage-instructions field_error" py:if="errors.get('url', '')">${errors.get('url', '')}</dd>
 
-    <dt><label class="field_opt" for="notes">Description</label></dt>
-    <dd><div class="markdown-editor">
+    <dt class="description-label"><label class="field_opt" for="notes">Description</label></dt>
+    <dd class="description-field"><div class="markdown-editor">
       <ul class="tabs">
         <li><a href="#" action="write" class="selected">Write</a></li>
         <li><a href="#" action="preview">Preview</a></li>
       </ul>
-      <textarea class="markdown-input" name="notes" id="notes" placeholder="Start with a summary sentence ...">${data.get('notes','')}</textarea>
+      <textarea class="markdown-input" tabindex="3" name="notes" id="notes" placeholder="Start with a summary sentence ...">${data.get('notes','')}</textarea>
       <div class="markdown-preview" style="display: none;"></div>
       <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</span>
       <!--
@@ -49,24 +49,24 @@
       -->
     </div></dd>
 
-    <dt><label class="field_opt" for="license_id">Licence</label></dt>
-    <dd>
-      <select id="license_id" name="license_id">
+    <dt class="license-label"><label class="field_opt" for="license_id">License</label></dt>
+    <dd class="license-field">
+      <select id="license_id" tabindex="4" name="license_id">
         <py:for each="licence_desc, licence_id in c.licences">
           <option value="${licence_id}" py:attrs="{'selected': 'selected' if data.get('license_id', '') == licence_id else None}" >${licence_desc}</option>
         </py:for>
       </select>
     </dd>
-    <dd class="instructions basic">The licence under which the dataset is released.</dd>
+    <dd class="license-instructions instructions basic">The licence under which the dataset is released.</dd>
 
-    <dt><label class="field_opt" for="tags">Tags</label></dt>
-    <dd>
-      <input class="long autocomplete-tag" id="tag_string" name="tag_string" size="60" type="text" 
+    <dt class="tags-label"><label class="field_opt" for="tags">Tags</label></dt>
+    <dd class="tags-field">
+      <input class="long autocomplete-tag" tabindex="5" id="tag_string" name="tag_string" size="60" type="text" 
                value="${data.get('tag_string') or ' '.join([tag['name'] for tag in data.get('tags', [])])}" />
     </dd>
-    <dd class="instructions basic">Terms that may link this dataset to similar ones. For more information on conventions, see <a href="http://wiki.okfn.org/ckan/doc/faq#TagConventions">this wiki page</a>.</dd>
-    <dd class="hints">e.g. pollution rivers water-quality</dd>
-    <dd class="field_error" py:if="errors.get('tag_string', '')">${errors.get('tag_string', '')}</dd>
+    <dd class="tags-instructions instructions basic">Terms that may link this dataset to similar ones. For more information on conventions, see <a href="http://wiki.okfn.org/ckan/doc/faq#TagConventions">this wiki page</a>.</dd>
+    <dd class="tags-instructions hints">e.g. pollution rivers water-quality</dd>
+    <dd class="tags-instructions field_error" py:if="errors.get('tag_string', '')">${errors.get('tag_string', '')}</dd>
   </dl>
 </fieldset>
 
@@ -250,7 +250,7 @@
   <strong>Important:</strong> By submitting content, you agree to release your contributions
     under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>. Please <strong>refrain</strong> from editing this page if you are <strong>not</strong> happy to do this.
   </p>
-  <input id="save" class="pretty primary" name="save" type="submit" value="Save Changes" />
+  <input id="save" tabindex="99" class="pretty primary" name="save" type="submit" value="Save Changes" />
 </div>
 
 
