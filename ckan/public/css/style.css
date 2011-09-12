@@ -200,7 +200,8 @@ ul.widget-list li.widget-container.boxed {
 
 /* Notices */
 
-.notice a, .notice a:visited {
+.notice a, .notice a:visited,
+.success a, .success a:visited {
   text-decoration: underline;
 }
 
@@ -798,6 +799,10 @@ input#Resource--url {
   width: 60%;
 }
 
+/* ==================== */
+/* = Add Dataset Page = */
+/* ==================== */
+
 body.package.new dt.homepage-label,
 body.package.new dd.homepage-field,
 body.package.new dd.homepage-instructions 
@@ -816,6 +821,12 @@ body.package.new dd.description-instructions
 {
   display: none;
 }
+body.package.new dt.license-label,
+body.package.new dd.license-field,
+body.package.new dd.license-instructions 
+{
+  display: none;
+}
 
 body.package.new dt.name-label {
   font-size: 10px;
@@ -831,6 +842,12 @@ body.package.new input#name {
   background: #eee;
 }
 
+.success .new-dataset {
+  font-size: 150%;
+}
+.success .new-dataset a {
+  font-weight: bold;
+}
 
 /* =============================== */
 /* = Mini-Tabs [Markdown Editor] = */
