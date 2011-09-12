@@ -106,7 +106,7 @@ CKAN.Templates.resourceEntry = ' \
       </dd> \
       <dt><label class="field_opt">Id</label></dt> \
       <dd> \
-        <input name="resources__${num}__id" disabled="disabled" type="text" value="${resource.id}" class="long disabled" /> \
+        <input name="resources__${num}__id" type="hidden" value="${resource.id}" class="long disabled" /> \
       </dd> \
     </dl> \
   </td> \
