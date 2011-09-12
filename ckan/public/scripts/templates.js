@@ -73,43 +73,41 @@ CKAN.Templates.resourceUpload = ' \
 
 
 CKAN.Templates.resourceEntry = ' \
-  <tr class="resource-summary"> \
-    <td class="resource-expand-link"> \
-      <a class="resource-expand-link" href="#"><img src="/images/icons/edit-expand.png" /></a> \
-      <a class="resource-expand-link" href="#" style="display: none;"><img src="/images/icons/edit-collapse.png" /></a> \
-    </td> \
-    <td class="resource-summary resource-url"> \
-      ${resource.url} \
-    </td> \
-    <td class="resource-summary resource-format"> \
-      ${resource.format} \
-    </td> \
-    <td class="resource-summary resource-description"> \
-      ${resource.description} \
-    </td> \
-    <td class="resource-expanded" colspan="3" style="display: none;"> \
-      <dl> \
-        <dt><label class="field_opt">Url</label></dt> \
-        <dd> \
-          <input name="resources__${num}__url" type="text" value="${resource.url}" class="long" /> \
-        </dd> \
-        <dt><label class="field_opt">Format</label></dt> \
-        <dd> \
-          <input name="resources__${num}__format" type="text" value="${resource.format}" class="long" /> \
-        </dd> \
-        <dt><label class="field_opt">Description</label></dt> \
-        <dd> \
-          <input name="resources__${num}__description" type="text" value="${resource.description}" class="long" /> \
-        </dd> \
-        <dt><label class="field_opt">Hash</label></dt> \
-        <dd> \
-          <input name="resources__${num}__hash" type="text" value="${resource.hash}" class="long" /> \
-        </dd> \
-        <dt><label class="field_opt">Id</label></dt> \
-        <dd> \
-          <input name="resources__${num}__id" disabled="disabled" type="text" value="${resource.id}" class="long disabled" /> \
-        </dd> \
-      </dl> \
-    </td> \
-  </tr> \
+  <td class="resource-expand-link"> \
+    <a class="resource-expand-link" href="#"><img src="/images/icons/edit-expand.png" /></a> \
+    <a class="resource-expand-link" href="#" style="display: none;"><img src="/images/icons/edit-collapse.png" /></a> \
+  </td> \
+  <td class="resource-summary resource-url"> \
+    ${resource.url} \
+  </td> \
+  <td class="resource-summary resource-format"> \
+    ${resource.format} \
+  </td> \
+  <td class="resource-summary resource-description"> \
+    ${resource.description} \
+  </td> \
+  <td class="resource-expanded" colspan="3" style="display: none;"> \
+    <dl> \
+      <dt><label class="field_opt">Url</label></dt> \
+      <dd> \
+        <input name="resources__${num}__url" type="text" value="${resource.url}" class="long" /> \
+      </dd> \
+      <dt><label class="field_opt">Format</label></dt> \
+      <dd> \
+        <input name="resources__${num}__format" type="text" value="${resource.format}" class="long" /> \
+      </dd> \
+      <dt><label class="field_opt">Description</label></dt> \
+      <dd> \
+        <input name="resources__${num}__description" type="text" value="${resource.description}" class="long" /> \
+      </dd> \
+      <dt><label class="field_opt">Hash</label></dt> \
+      <dd> \
+        <input name="resources__${num}__hash" type="text" value="${resource.hash}" class="long" /> \
+      </dd> \
+      <dt><label class="field_opt">Id</label></dt> \
+      <dd> \
+        <input name="resources__${num}__id" disabled="disabled" type="text" value="${resource.id}" class="long disabled" /> \
+      </dd> \
+    </dl> \
+  </td> \
 ';

@@ -29,25 +29,14 @@
       // Set up hashtag nagivigation
       CKAN.Utils.setupDatasetEditNavigation();
 
-      // Set up edit table expanding
-      $('a.resource-expand-link').live('click', function(e) {
-        e.preventDefault();
-        $tr = $(e.target).closest('.resource-summary');
-        $tr.find('a.resource-expand-link').toggle();
-        $tr.find('.resource-summary').toggle();
-        $tr.find('.resource-expanded').toggle();
-      });
-
-      // Create Backbone view for adding resources
-      var $el=$('.resource-add');
-      var view=new CKAN.View.ResourceAdd({
-        model: null,
+      var _dataset = new CKAN.Model.Dataset(preload_dataset);
+      var $el=$('form#dataset-edit');
+      var view=new CKAN.View.DatasetEdit({
+        model: _dataset,
         el: $el
       });
-
-      var _dataset = new CKAN.Model.Dataset(preload_dataset);
-
       view.render();
+
     }
   });
 }(jQuery));
@@ -410,9 +399,106 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
 });
 
 
-CKAN.View.ResourceAdd = Backbone.View.extend({
+CKAN.View.DatasetEdit = Backbone.View.extend({
   initialize: function() {
     _.bindAll(this, 'render');
+
+    // Create Backbone view for adding resources
+    var $el=this.el.find('.resource-add');
+    var view=new CKAN.View.ResourceAdd({
+      collection: this.model.get('resources'),
+      el: $el
+    });
+    view.render();
+
+    // Create Resource Edit list
+    var $el=this.el.find('.resource-table.edit');
+    var view=new CKAN.View.ResourceEditList({
+      collection: this.model.get('resources'),
+      el: $el
+    });
+    
+    // Set up edit table expanding
+    this.el.find('a.resource-expand-link').live('click', function(e) {
+      e.preventDefault();
+      $tr = $(e.target).closest('.resource-summary');
+      $tr.find('a.resource-expand-link').toggle();
+      $tr.find('.resource-summary').toggle();
+      $tr.find('.resource-expanded').toggle();
+    });
+  },
+
+  render: function() {
+  },
+
+  events: {
+  }
+
+});
+
+
+CKAN.View.ResourceEditList = Backbone.View.extend({
+  initialize: function() {
+    _.bindAll(this, 'render');
+    this.collection.bind('add', this.render);
+    this.subViews = [];
+  },
+
+  render: function() {
+    var self = this;
+
+    // TODO sort out your iteration methods
+    $.each(this.subViews, function(idx,view) {
+      view.remove();
+    });
+    // Have to trash entire content; some stuff was there on page load
+    this.el.find('tbody').empty();
+    
+    this.subViews = [];
+    this.collection.each(function(resource, idx) {
+      // TODO tidy up so the view creates its own elements
+      var $tr = $('<tr />');
+      $tr.addClass('resource-summary');
+      self.el.find('tbody').append($tr);
+      var _view = new CKAN.View.ResourceEdit({
+        model: resource,
+        el: $tr,
+        position: idx
+      });
+      _view.render();
+      self.subViews.push(_view);
+    });
+  },
+
+  events: {
+
+  }
+});
+
+CKAN.View.ResourceEdit = Backbone.View.extend({
+  initialize: function() {
+    _.bindAll(this, 'render');
+    this.position = this.options.position;
+  },
+
+  render: function() {
+    var tmplData = {
+      resource: this.model.toTemplateJSON(),
+      num: this.position
+    };
+    var $newRow = $.tmpl(CKAN.Templates.resourceEntry, tmplData);
+    this.el.html($newRow);
+
+  },
+
+  events: {
+
+  }
+});
+
+CKAN.View.ResourceAdd = Backbone.View.extend({
+  initialize: function() {
+    _.bindAll(this, 'render', 'addNewResource');
   },
 
   render: function() {
@@ -435,6 +521,7 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
 
   clickAdd: function(e) {
     e.preventDefault();
+
     var action = $(e.target).attr('action');
     this.el.find('.tabs a').removeClass('selected');
     this.el.find('.tabs a[action='+action+']').addClass('selected');
@@ -445,7 +532,6 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
     this.el.append($subPane);
 
     var resource = new CKAN.Model.Resource({
-      'dataset': this.model
     });
     resource.bind('change', this.addNewResource);
     // Open sub-pane
@@ -471,6 +557,11 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
   },
 
   addNewResource: function(resource) {
+    this.collection.add(resource);
+    return;
+
+    // TODO old code:
+
     var maxId = 0;
     var ids = $.map($('.resource-table').find('input'), function(item, idx) {
       var thisId = parseInt($(item).attr('name').split('__')[1]);
