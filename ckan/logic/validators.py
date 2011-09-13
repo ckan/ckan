@@ -1,8 +1,10 @@
 import re
+import datetime
 from pylons.i18n import _, ungettext, N_, gettext
 from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unflatten
 from ckan.authz import Authorizer
 from ckan.logic import check_access, NotAuthorized
+from ckan.lib.helpers import date_str_to_datetime
 
 
 def package_id_not_changed(value, context):
@@ -12,6 +14,17 @@ def package_id_not_changed(value, context):
         raise Invalid(_('Cannot change value of key from %s to %s. '
                         'This key is read-only') % (package.id, value))
     return value
+
+def isodate(value, context):
+
+    if isinstance(value, datetime.datetime):
+        return value
+    try:
+        date = date_str_to_datetime(value)
+        context['revision_date'] = date
+    except (TypeError, ValueError), e:
+        raise Invalid(_('Date format incorrect'))
+    return date
 
 def no_http(value, context):
 
