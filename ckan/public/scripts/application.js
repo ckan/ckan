@@ -369,35 +369,6 @@ CKAN.Utils = function($, my) {
 }(jQuery, CKAN.Utils || {});
 
 
-CKAN.View.ResourceAddLink = Backbone.View.extend({
-  initialize: function(options) {
-    _.bindAll(this, 'render');
-    this.mode = options.mode;
-  },
-
-  render: function() {
-    if (this.mode=='file') {
-      var tmpl = $.tmpl(CKAN.Templates.resourceAddLinkFile);
-    }
-    else if (this.mode=='api') {
-      var tmpl = $.tmpl(CKAN.Templates.resourceAddLinkApi);
-    }
-    $(this.el).html(tmpl);
-    return this;
-  },
-
-  events: {
-    'submit form': 'setResourceInfo',
-  },
-
-  setResourceInfo: function(e) {
-    e.preventDefault();
-    var urlVal=this.el.find('input[name=url]').val();
-    this.model.set({url: urlVal, type: this.mode})
-  }
-});
-
-
 CKAN.View.DatasetEdit = Backbone.View.extend({
   initialize: function() {
     _.bindAll(this, 'render');
@@ -628,4 +599,33 @@ CKAN.View.ResourceAdd = Backbone.View.extend({
     this.reset();
   }
 });
+
+CKAN.View.ResourceAddLink = Backbone.View.extend({
+  initialize: function(options) {
+    _.bindAll(this, 'render');
+    this.mode = options.mode;
+  },
+
+  render: function() {
+    if (this.mode=='file') {
+      var tmpl = $.tmpl(CKAN.Templates.resourceAddLinkFile);
+    }
+    else if (this.mode=='api') {
+      var tmpl = $.tmpl(CKAN.Templates.resourceAddLinkApi);
+    }
+    $(this.el).html(tmpl);
+    return this;
+  },
+
+  events: {
+    'submit form': 'setResourceInfo',
+  },
+
+  setResourceInfo: function(e) {
+    e.preventDefault();
+    var urlVal=this.el.find('input[name=url]').val();
+    this.model.set({url: urlVal, resource_type: this.mode})
+  }
+});
+
 
