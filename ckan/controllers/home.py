@@ -75,11 +75,6 @@ class HomeController(BaseController):
     def about(self):
         return render('home/about.html', cache_expire=cache_expires)
         
-    def language(self):
-        response.content_type = 'text/javascript'
-        return render('home/language.js', cache_expire=cache_expires,
-                      method='text', loader_class=NewTextTemplate)
-    
     def locale(self): 
         locale = request.params.get('locale')
         if locale is not None:
