@@ -59,7 +59,7 @@ class TestPackageBase(FunctionalTestCase):
     
     def _assert_form_errors(self, res):
         self.check_tag(res, '<form', 'class="has-errors"')
-        assert 'class="field_error"' in res, res
+        assert 'field_error' in res, res
 
     def diff_responses(self, res1, res2):
         return self.diff_html(res1.body, res2.body)
