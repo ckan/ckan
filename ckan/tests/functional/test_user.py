@@ -125,11 +125,12 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'spamsite2' not in res, res
         assert 'Error: Could not parse About text' in res, res
         
-    def test_user_login(self):
+    def test_user_login_page(self):
         offset = url_for(controller='user', action='login', id=None)
         res = self.app.get(offset, status=200)
         assert 'Login' in res, res
         assert 'Please click your account provider' in res, res
+        assert 'Forgot your password?' in res, res
         assert 'Don\'t have an OpenID' in res, res
 
     def test_logout(self):
@@ -137,19 +138,90 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res2 = res.follow()
         assert 'You have logged out successfully.' in res2, res2
 
-    #def test_user_created_on_login(self):
-    #    username = u'okfntest'
-    #    user = model.User.by_name(username)
-    #    if user:
-    #        user.purge()
-    #        model.Session.commit()
-    #        model.Session.remove()
+    def _get_cookie_headers(self, res):
+        # For a request response, returns the Set-Cookie header values.
+        cookie_headers = []
+        for key, value in res.headers:
+            if key == 'Set-Cookie':
+                cookie_headers.append(value)
+        return cookie_headers
+        
+    def test_login(self):
+        # create test user
+        username = u'testlogin'
+        password = u'letmein'
+        CreateTestData.create_user(name=username,
+                                   password=password)
+        user = model.User.by_name(username)
 
-    #    offset = url_for(controller='user', action='login')
-    #    res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
-    #    user = model.User.by_name(u'okfntest')
-    #    assert user
-    #    assert len(user.apikey) == 36
+        # do the login
+        offset = url_for(controller='user', action='login')
+        res = self.app.get(offset)
+        fv = res.forms['login']
+        fv['login'] = str(username)
+        fv['password'] = str(password)
+        res = fv.submit()
+
+        # check cookies set
+        cookies = self._get_cookie_headers(res)
+        assert cookies
+        
+        # first get redirected to user/logged_in
+        assert_equal(res.status, 302)
+        assert res.header('Location').startswith('http://localhost/user/logged_in')
+
+        # then get redirected to user page
+        res = res.follow()
+        assert_equal(res.status, 302)
+        assert_equal(res.header('Location'), 'http://localhost/user/testlogin')
+        res = res.follow()
+        assert_equal(res.status, 200)
+        assert 'Welcome back, testlogin' in res.body
+        assert 'My Account' in res.body
+        
+        # check user object created
+        user = model.User.by_name(username)
+        assert user
+        assert_equal(user.name, username)
+        assert len(user.apikey) == 36
+
+        # check cookie created
+        cookie = res.request.environ['HTTP_COOKIE']
+        # I think some versions of webob do not produce quotes, hence the 'or'
+        assert 'ckan_display_name="testlogin"' in cookie or \
+               'ckan_display_name=testlogin' in cookie, cookie
+        assert 'auth_tkt=' in cookie, cookie
+        assert 'testlogin!userid_type:unicode' in cookie, cookie
+
+    def test_login_wrong_password(self):
+        # create test user
+        username = u'testloginwrong'
+        password = u'letmein'
+        CreateTestData.create_user(name=username,
+                                   password=password)
+        user = model.User.by_name(username)
+
+        # do the login
+        offset = url_for(controller='user', action='login')
+        res = self.app.get(offset)
+        fv = res.forms['login']
+        fv['login'] = username
+        fv['password'] = 'wrong_password'
+        res = fv.submit()
+
+        # first get redirected to logged_in
+        assert_equal(res.status, 302)
+        assert res.header('Location').startswith('http://localhost/user/logged_in')
+
+        # then get redirected to login
+        res = res.follow()
+        assert_equal(res.status, 302)
+        assert res.header('Location').startswith('http://localhost/user/login')
+        res = res.follow()
+        assert_equal(res.status, 200)
+        assert 'Login failed. Bad username or password.' in res.body
+        assert 'Login:' in res.body
+
 
     # -----------
     # tests for top links present in every page
@@ -217,15 +289,24 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         main_res = self.main_div(res)
         assert fullname in main_res, main_res
 
+        # check saved user object
         user = model.User.by_name(unicode(username))
         assert user
         assert_equal(user.name, username)
         assert_equal(user.fullname, fullname)
         assert user.password
-
+        
         # no revision should be created - User is not revisioned
         rev_id_after_test = model.repo.youngest_revision().id
         assert_equal(rev_id_before_test, rev_id_after_test)
+
+        # check cookies created
+        cookie = res.request.environ['HTTP_COOKIE']
+        # I think some versions of webob do not produce quotes, hence the 'or'
+        assert 'ckan_display_name="Test Create"' in cookie or\
+               'ckan_display_name=Test Create' in cookie, cookie
+        assert 'auth_tkt=' in cookie, cookie
+        assert 'testcreate!userid_type:unicode' in cookie, cookie
 
 
     def test_user_create_unicode(self):
@@ -535,34 +616,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # e.g. /user/login?error=Error%20in%20discovery:%20Error%20fetching%20XRDS%20document:%20(6,%20%22Couldn't%20resolve%20host%20'mysite.myopenid.com'%22)
         res = self.app.get("/user/login?error=Error%20in%20discovery:%20Error%20fetching%20XRDS%20document:%20(6,%20%22Couldn't%20resolve%20host%20'mysite.myopenid.com'%22")
         assert "Couldn&#39;t resolve host" in res, res
-
-    ############
-    # Disabled
-    ############
-
-    # TODO: 2009-06-27 delete/update these methods (now moving to repoze)
-    def _login_form(self, res):
-        # cannot use for time being due to 'bug' in AuthKit
-        # paste.fixture does not set REMOTE_ADDR which AuthKit requires to do
-        # its stuff (though note comment in code suggesting amendment)
-        # create cookie see authkit/authenticate/cookie.py l. 364 
-            # if self.include_ip:
-            # # Fixes ticket #30
-            # # @@@ should this use environ.get('REMOTE_ADDR','0.0.0.0')?
-            #  remote_addr = environ.get('HTTP_X_FORWARDED_FOR', environ['REMOTE_ADDR'])
-            #  
-            # KeyError: 'REMOTE_ADDR' 
-        # could get round this by adding stuff to environ using paste fixture's
-        # extra_environ, see:
-        # http://pythonpaste.org/webtest/#modifying-the-environment-simulating-authentication
-        assert 'Please Sign In' in res
-        username = u'okfntest'
-        password = u'okfntest'
-        fv = res.forms['user-login']
-        fv['username'] = username
-        fv['password'] = password
-        res = fv.submit()
-        return res
 
     def _login_openid(self, res):
         # this requires a valid account on some openid provider

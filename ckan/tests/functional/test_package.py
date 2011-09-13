@@ -78,7 +78,7 @@ class TestPackageForm(TestPackageBase):
         main_div_str = main_div.encode('utf8')
         assert params['name'] in main_div, main_div_str
         assert params['title'] in main_div, main_div_str
-        assert params['version'] in main_div, main_div_str
+        assert params['version'] in main_div, main_div_str 
         self.check_named_element(main_div, 'a', 'href="%s"' % params['url'])
         prefix = 'Dataset-%s-' % params.get('id', '')
         for res_index, values in self._get_resource_values(params['resources'], by_resource=True):
@@ -1046,6 +1046,18 @@ class TestNew(TestPackageForm):
         res = fv.submit('save')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
+        self._assert_form_errors(res)
+
+    def test_new_no_name(self):
+        offset = url_for(controller='package', action='new', id=None)
+        res = self.app.get(offset)
+        assert 'Add - Datasets' in res
+        fv = res.forms['dataset-edit']
+        prefix = ''
+        # don't set a name
+        res = fv.submit('save')
+        assert 'Error' in res, res
+        assert 'Name: Missing value' in res, res
         self._assert_form_errors(res)
 
     def test_redirect_after_new_using_param(self):

@@ -1,7 +1,6 @@
 import logging
 import urlparse
 from urllib import urlencode
-import json
 import datetime
 import re
 
@@ -22,6 +21,7 @@ from ckan.lib.search import SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
+from ckan.lib.helpers import json
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
 from ckan.lib.dictization import table_dictize

@@ -30,8 +30,12 @@ class AuthorizationGroupController(BaseController):
         )
         return render('authorization_group/index.html')
 
+    def _get_authgroup_by_name_or_id(self, id):
+        return model.AuthorizationGroup.by_name(id) or\
+               model.Session.query(model.AuthorizationGroup).get(id)
+
     def read(self, id):
-        c.authorization_group = model.AuthorizationGroup.by_name(id)
+        c.authorization_group = self._get_authgroup_by_name_or_id(id)
         if c.authorization_group is None:
             abort(404)
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, 
@@ -91,6 +95,7 @@ class AuthorizationGroupController(BaseController):
             h.redirect_to(action='read', id=c.authzgroupname)
 
         if request.params:
+            # when does this happen?
             data = ckan.forms.edit_group_dict(ckan.forms.get_authorization_group_dict(), request.params)
             fs = fs.bind(data=data, session=model.Session)
         c.form = self._render_edit_form(fs)
@@ -98,7 +103,7 @@ class AuthorizationGroupController(BaseController):
 
     def edit(self, id=None): # allow id=None to allow posting
         c.error = ''
-        authorization_group = model.AuthorizationGroup.by_name(id)
+        authorization_group = self._get_authgroup_by_name_or_id(id)
         if authorization_group is None:
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, authorization_group)
@@ -145,7 +150,7 @@ class AuthorizationGroupController(BaseController):
             h.redirect_to(action='read', id=c.authorization_group_name)
 
     def authz(self, id):
-        authorization_group = model.AuthorizationGroup.by_name(id)
+        authorization_group = self._get_authgroup_by_name_or_id(id)
         if authorization_group is None:
             abort(404, _('Group not found'))
 
@@ -165,9 +170,11 @@ class AuthorizationGroupController(BaseController):
         return render('authorization_group/authz.html')
 
 
-    def _get_userobjectroles(self, authzgroup_id):
-        authorization_group = model.AuthorizationGroup.by_name(authzgroup_id)
-        uors = model.Session.query(model.AuthorizationGroupRole).join('authorization_group').filter_by(name=authorization_group.name).all()
+    def _get_userobjectroles(self, authzgroup_name_or_id):
+        authorization_group = model.AuthorizationGroup.by_name(authzgroup_name_or_id)  or\
+               model.Session.query(model.AuthorizationGroup).get(authzgroup_name_or_id)
+        uors = model.Session.query(model.AuthorizationGroupRole).join('authorization_group').\
+               filter_by(id=authorization_group.id).all()
         return uors
 
 

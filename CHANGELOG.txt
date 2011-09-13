@@ -1,10 +1,37 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.4.3 2011-09-13
+=================
+Major:
+  * Action API (API v3) (beta version) provides powerful RPC-style API to CKAN data (#1335)
+  * Documentation overhaul (#1142, #1192)
+
+Minor:
+  * Viewing of a package at a given date (as well as revision) with improved UI (#1236)
+  * Extensions can now add functions to the logic layer (#1211)
+  * Refactor all remaining database code out of the controllers and into the logic layer (#1229)
+  * Any OpenID log-in errors that occur are now displayed (#1228)
+  * 'url' field added to search index (e9214)
+  * Speed up tag reading (98d72)
+  * Cope with new WebOb version 1 (#1267)
+  * Avoid exceptions caused by bots hitting error page directly (#1176)
+  * Too minor to mention: #1234, 
+
+Bug fixes:
+  * Re-adding tags to a package failed (since 1.4.1 in Web UI, 1.4 in API) (#1239)
+  * Modified revisions retrieved over API caused exception (since 1.4.2) (#1310)
+  * Whichever language you changed to, it announced "Language set to: English" (since 1.3.1) (#1082)
+  * Incompatibilities with Python 2.5 (since 1.3.4.1 and maybe earlier) (#1325)
+  * You could create an authorization group without a name, causing exceptions displaying it (#1323)
+  * Revision list wasn't showing deleted packages (b21f4)
+  * User editing error conditions handled badly (#1265)
+
+
 v1.4.2 2011-08-05
 =================
 Major:
-  * Packages revisions can be marked as 'moderated' (#1141)
+  * Packages revisions can be marked as 'moderated' (#1141, #1147)
   * Password reset facility (#1186/#1198)
 
 Minor:
@@ -86,6 +113,7 @@ Major:
   * CKAN packaged as .deb for install on Ubuntu
   * Resources can have extra fields (although not in web interface yet) (#826)
   * CSW Harvesting - numerous of fixes & improvements. Ready for deployment. (#738 etc)
+  * Language switcher (82002)
  
 Minor:
   * Wordpress integration refactored as a Middleware plugin (#1013)

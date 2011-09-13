@@ -6,8 +6,9 @@ from babel import Locale
 _KNOWN_LOCALES = ['en', 'de',
                   'es', 'fi', 'fr', 
                   'it', 'nl', 'no',
-                  'pt_BR', 'ro', 'ru',
-                  'sq']
+                  'pt_BR', 'ru',
+                  'sq', 'cs_CZ', 'bg',
+                  ]
 
 def get_available_locales():
     return map(Locale.parse, _KNOWN_LOCALES)

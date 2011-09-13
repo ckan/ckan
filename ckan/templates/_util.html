@@ -173,8 +173,8 @@
       <tr><th>Title</th><th>Number of members</th></tr>
       <py:for each="authorization_group in authorization_groups">
       <tr>
-        <td><a href="${h.url_for(controller='authorization_group', action='read', id=authorization_group.name)}">
-            ${authorization_group.name}</a>
+        <td><a href="${h.url_for(controller='authorization_group', action='read', id=authorization_group.name or authorization_group.id)}">
+            ${authorization_group.name or authorization_group.id}</a>
         </td>
         <td>${len(authorization_group.users)}</td>
       </tr>

@@ -114,6 +114,9 @@ class UserController(BaseController):
         return self.new(data, errors, error_summary)
 
     def new(self, data=None, errors=None, error_summary=None):
+        '''GET to display a form for registering a new user.
+           or POST the form data to actually do the user registration.
+        '''
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._new_form_to_db_schema(),
@@ -143,7 +146,6 @@ class UserController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             check_recaptcha(request)
             user = get_action('user_create')(context, data_dict)
-            h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to create user %s') % '')
         except NotFound, e:
@@ -158,6 +160,11 @@ class UserController(BaseController):
             errors = e.error_dict
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
+        # Redirect to a URL picked up by repoze.who which performs the login
+        h.redirect_to('/login_generic?login=%s&password=%s' % (
+            str(data_dict['name']),
+            quote(data_dict['password1'].encode('utf-8'))))
+
 
     def edit(self, id=None, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session,
@@ -258,7 +265,7 @@ class UserController(BaseController):
             response.set_cookie("ckan_display_name", user_dict['display_name'], max_age=cookie_timeout)
             response.set_cookie("ckan_apikey", user_dict['apikey'], max_age=cookie_timeout)
             h.flash_success(_("Welcome back, %s") % user_dict['display_name'])
-            h.redirect_to(controller='user', action='me', id=None)
+            return self.me()
         else:
             h.flash_error('Login failed. Bad username or password.')
             h.redirect_to(controller='user', action='login')

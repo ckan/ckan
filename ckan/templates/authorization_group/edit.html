@@ -3,7 +3,7 @@
   py:strip="">
   
   <py:def function="page_title">${c.authorization_group_name} - Edit - Authorization Groups</py:def>
-  <py:def function="page_heading">Edit: ${c.authorization_group.name}</py:def>
+  <py:def function="page_heading">Edit: ${c.authorization_group.name if c.authorization_group else ''}</py:def>
 
   <div py:match="content">
     ${Markup(c.form)}

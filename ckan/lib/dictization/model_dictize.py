@@ -7,7 +7,7 @@ from ckan.lib.dictization import (obj_list_dictize,
                                   table_dictize)
 from ckan.logic import NotFound
 import ckan.misc
-import json
+from ckan.lib.helpers import json
 
 ## package save
 

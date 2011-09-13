@@ -1,3 +1,4 @@
+from __future__ import with_statement # necessary for python 2.5 support
 import warnings
 import logging
 
