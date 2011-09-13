@@ -88,44 +88,61 @@ CKAN.Templates.resourceEntry = ' \
   </td> \
   <td class="resource-expanded" colspan="3"> \
     <dl> \
-      <dt><label class="field_opt">Url</label></dt> \
+      <dt>Name</dt> \
       <dd> \
+        <input name="resources__${num}__name" type="text" value="${resource.name}" class="long" /> \
+      </dd> \
+      <dt>Url</dt> \
+      <dd> \
+      {{if resource.resource_type=="file.upload"}} \
+        ${resource.url} \
+        <input name="resources__${num}__url" type="hidden" value="${resource.url}" /> \
+      {{/if}} \
+      {{if resource.resource_type!="file.upload"}} \
         <input name="resources__${num}__url" type="text" value="${resource.url}" class="long" /> \
+      {{/if}} \
       </dd> \
-      <dt>Type</dt> \
-      <dd> \
-        ${resource.type} \
-      </dd> \
-      <dt>Mimetype</dt> \
-      <dd> \
-        ${resource.mimetype} \
-      </dd> \
-      <dt>Mimetype-inner</dt> \
-      <dd> \
-        ${resource.mimetype_inner} \
-      </dd> \
-      <dt>Size</dt> \
-      <dd> \
-        ${resource.size} \
-      </dd> \
-      <dt>Last Modified</dt> \
-      <dd> \
-        ${resource.lastModified} \
-      </dd> \
-      <dt><label class="field_opt">Format</label></dt> \
+      <dt>Format</dt> \
       <dd> \
         <input name="resources__${num}__format" type="text" value="${resource.format}" class="long" /> \
       </dd> \
-      <dt><label class="field_opt">Description</label></dt> \
+      <dt>Description</dt> \
       <dd> \
         <input name="resources__${num}__description" type="text" value="${resource.description}" class="long" /> \
       </dd> \
-      <dt><label class="field_opt">Hash</label></dt> \
+      <dt>Size (bytes)</dt> \
       <dd> \
-        <input name="resources__${num}__hash" type="text" value="${resource.hash}" class="long" /> \
+        <input name="resources__${num}__size" type="text" value="${resource.size}" class="long" /> \
+      </dd> \
+      <dt>Mimetype</dt> \
+      <dd> \
+        <input name="resources__${num}__mimetype" type="text" value="${resource.mimetype}" /> \
+      </dd> \
+      <dt>Mimetype-inner</dt> \
+      <dd> \
+        <input name="resources__${num}__mimetype_inner" type="text" value="${resource.mimetype_inner}" /> \
+      </dd> \
+      <dt>Resource Type</dt> \
+      <dd> \
+        ${resource.resource_type} \
+        <input name="resources__${num}__resource_type" type="hidden" value="${resource.resource_type}" /> \
+      </dd> \
+      <dt>Hash</dt> \
+      <dd> \
+        ${resource.hash || "Unknown"} \
+        <input name="resources__${num}__hash" type="hidden" value="${resource.hash}" /> \
+      </dd> \
+      <dt>Last Modified</dt> \
+      <dd> \
+        ${resource.last_modified || "Unknown"} \
+        <input name="resources__${num}__last_modified" type="hidden" value="${resource.last_modified}" /> \
+      </dd> \
+      <dt>ID</dt> \
+      <dd> \
+        ${resource.id} \
+        <input name="resources__${num}__id" type="hidden" value="${resource.id}" /> \
       </dd> \
     </dl> \
-    <input name="resources__${num}__id" type="hidden" value="${resource.id}" class="long disabled" /> \
   </td> \
   <td class="resource-is-changed"> \
     <img src="/images/icons/add.png" title="This resource has unsaved changes." class="resource-is-changed" /> \
