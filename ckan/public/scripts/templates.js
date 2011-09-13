@@ -104,7 +104,7 @@ CKAN.Templates.resourceEntry = ' \
       </dd> \
       <dt>Format</dt> \
       <dd> \
-        <input name="resources__${num}__format" type="text" value="${resource.format}" class="long" /> \
+        <input name="resources__${num}__format" type="text" value="${resource.format}" class="long autocomplete-format" /> \
       </dd> \
       <dt>Description</dt> \
       <dd> \

@@ -4,7 +4,9 @@
     CKAN.Utils.setupAuthzGroupAutocomplete($('input.autocomplete-authzgroup'));
     CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-dataset'));
     CKAN.Utils.setupTagAutocomplete($('input.autocomplete-tag'));
-    CKAN.Utils.setupFormatAutocomplete($('input.autocomplete-format'));
+    $('input.autocomplete-format').live('keyup', function(){
+      CKAN.Utils.setupFormatAutocomplete($(this));
+    });
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor a, .markdown-editor .markdown-preview'));
     // set up ckan js
     var config = {
