@@ -703,7 +703,7 @@ class TestBasicDictize:
             'hash': u'abc123',
             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
             'format': u'plain text',
-            'url': u'test',
+            'url': u'test_new',
             'cache_url': None,
             'webstore_url': None,
             'cache_last_updated': None,
@@ -712,7 +712,8 @@ class TestBasicDictize:
             'webstore_last_updated': None,
             'last_modified': None,
             'position': 0,
-            'size': 123,
+            'size': None,
+            'size_extra': u'123',
             'resource_type': None,
             'name': None}
 
@@ -721,7 +722,7 @@ class TestBasicDictize:
         model.Session.commit()
         model.Session.remove()
 
-        res = model.Session.query(model.Resource).filter_by(url=u'test').one()
+        res = model.Session.query(model.Resource).filter_by(url=u'test_new').one()
 
         res_dictized = self.remove_changable_columns(resource_dictize(res, context))
 
