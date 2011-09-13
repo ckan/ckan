@@ -25,14 +25,14 @@ class TestSearch(object):
                   'format':'Excel spreadsheet',
                   'hash':'abc-123',
                   'alt_url': 'alt1',
-                  'extras':{'size': '100'},
+                  'extras':{'size_extra': '100'},
                   },
                  {'url':self.cd,
                   'description':'This is site cd.',
                   'format':'Office spreadsheet',
                   'hash':'qwe-456',
                   'alt_url':'alt2',
-                  'extras':{'size':'200'},
+                  'extras':{'size_extra':'200'},
                   },
                  ]             
              },
@@ -122,7 +122,7 @@ class TestSearch(object):
         assert isinstance(res_dict, dict)
         res_keys = set(res_dict.keys())
         expected_res_keys = set(model.Resource.get_columns())
-        expected_res_keys.update(['id', 'resource_group_id', 'package_id', 'position', 'size'])
+        expected_res_keys.update(['id', 'resource_group_id', 'package_id', 'position', 'size_extra'])
         assert_equal(res_keys, expected_res_keys)
         pkg1 = model.Package.by_name(u'pkg1')
         ab = pkg1.resources[0]
@@ -183,7 +183,7 @@ class TestSearch(object):
 
         # Document that resource extras not in ckan.extra_resource_fields
         # can't be searched
-        fields = {'size':'100'}
+        fields = {'size_extra':'100'}
         assert_raises(SearchError, self.backend.query_for(model.Resource).run, fields=fields)
 
 

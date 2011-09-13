@@ -148,6 +148,9 @@ class TestPackageForm(TestPackageBase):
         self.check_tag(main_res, prefix+'version', params['version'])
         self.check_tag(main_res, prefix+'url', params['url'])
         for res_index, res_field, expected_value in self._get_resource_values(params['resources']):
+            ### only check fields that are on the form 
+            if res_field not in ['url', 'id', 'description', 'hash']:
+                continue
             self.check_tag(main_res, '%sresources__%i__%s' % (prefix, res_index, res_field), expected_value)
         self.check_tag_and_data(main_res, prefix+'notes', params['notes'])
         self.check_tag_and_data(main_res, 'selected', params['license_id'])
@@ -789,7 +792,7 @@ class TestEdit(TestPackageForm):
             resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best', u'hash1', 'alt'),
                          (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2', 'alt'),
                          )
-            assert len(resources[0]) == len(model.Resource.get_columns())
+            assert len(resources[0]) == 5
             notes = u'Very important'
             license_id = u'gpl-3.0'
             state = model.State.ACTIVE
