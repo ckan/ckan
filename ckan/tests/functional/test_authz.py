@@ -98,10 +98,15 @@ class AuthzTestBase(object):
                 offset = '/%s/list' % entity
         elif action == 'create':
             offset = '/%s/new' % entity
-            str_required_in_response = 'New'
+            if entity == 'dataset':
+                str_required_in_response = 'Add'
+            else:
+                str_required_in_response = 'New'
         elif action == 'delete':
             offset = url_for(controller=controller_name, action=model.Action.EDIT, id=unicode(entity_name))
-            str_required_in_response = 'state'
+            # this is ludicrously sensitive (we have to improve html testing!)
+            # str_required_in_response = 'state'
+            str_required_in_response = '<select id="state"'
         else:
             raise NotImplementedError
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')}, expect_errors=True)
@@ -110,6 +115,8 @@ class AuthzTestBase(object):
         tests['error string'] = bool('error' not in res)
         tests['status'] = bool(res.status in (200, 201))
         tests['0 packages found'] = bool(u'0 packages found' not in res)
+        print tests
+        print res
         is_ok = False not in tests.values()
         # clear flash messages - these might make the next page request
         # look like it has an error
@@ -376,7 +383,7 @@ class TestUsage(TestController, AuthzTestBase):
         assert not model.Package.by_name(u'annakarenina')
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')})
-        assert 'New - Datasets' in res
+        assert 'Add - Datasets' in res
         fv = res.forms['dataset-edit']
         prefix = ''
         fv[prefix + 'name'] = u'annakarenina'
