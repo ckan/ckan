@@ -1,13 +1,25 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:dc="http://purl.org/dc/terms/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dcat="http://www.w3.org/ns/dcat#"
+  typeof="dcat:Dataset"
+  about=""
   py:strip="">
 
-  <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])} - Data Packages</py:def>
+  <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
+  - Datasets</py:def>
+  
+  <py:def function="page_heading" property="dc:title">${c.pkg_dict['title']}</py:def>
+  
       
   <py:match path="primarysidebar">
   
-    <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
+    <li class="widget-container boxed widget_text" py:if="not c.hide_welcome_message">
       <h3>First time at ${g.site_title}?</h3>        
       <p>
           ${g.site_title} is a catalogue for data. ${h.subnav_link(c, _('Click here to find out more ...'), controller='home', action='about', id=None)}
@@ -15,78 +27,107 @@
     </li>
 
     <li class="widget-container widget_text">
-        <h3>Tags</h3>
-        ${tag_list(c.pkg_dict.get('tags', ''))}
-        <p class="widget_action" py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
-            ${h.subnav_link(c, 'Add a new Tag', controller='package', action='edit', id=c.pkg.name)}
-        </p>
+      <ul class="property-list">
+        <li py:if="c.pkg.url">
+          <h3>Source</h3>
+          <span property="foaf:homepage">${c.pkg_url_link}</span>
+        </li>
+        <li py:if="c.pkg_author_link">
+          <h3>Author</h3>
+          <span property="dc:creator">${c.pkg_author_link}</span>
+        </li>
+        <li py:if="c.pkg_maintainer_link">
+          <h3>Maintainer</h3>
+          <span property="dc:contributor">${c.pkg_maintainer_link}</span>
+        </li>
+        <li py:if="c.pkg.version">
+          <h3>Version</h3>
+          ${c.pkg.version}
+        </li>
+        <li py:if="c.eu_country">
+          <h3>Country</h3> ${h.code_to_country(c.eu_country)}
+        </li>
+        <li>
+          <h3>Tags</h3>
+          ${tag_list(c.pkg_dict.get('tags', ''))}
+          <span class="widget_action" py:if="h.check_access('package_update',{'id':c.pkg.id})">
+            ${h.subnav_link(c, 'add tags &raquo;', controller='package', action='edit', id=c.pkg.name)}
+          </span>
+        </li>
+        <li>
+          <h3>Groups</h3>
+          <py:if test="c.pkg.groups">        
+              <ul>
+                <li py:for="group in sorted(c.pkg.groups, key=lambda g: g.display_name)">
+                    <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
+                </li>
+              </ul>
+          </py:if>
+          <p class="hint">
+            <py:if test="not c.pkg.groups">
+               Groups are collections of dataset maintained by users of ${g.site_title}. This dataset has not been added to any groups yet.
+            </py:if>
+
+
+            <p class="widget_action" py:if="h.check_access('package_update',{'id':c.pkg.id})">
+              ${h.subnav_link(c, 'add to a group &raquo;', controller='package', action='edit', id=c.pkg.name)}        
+            </p>
+          </p>
+        </li>
+        <li py:if="h.check_access('package_update',{'id':c.pkg.id})">
+          <li><h3>State</h3> ${c.pkg.state}</li>
+        </li>
+        <li py:if="c.harvest_catalogue_name">
+        <h3>Source</h3> <a href="${c.harvest_dataset_url}">Source
+          page</a> on <a
+          href="${c.harvest_catalogue_url}">${c.harvest_catalogue_name}</a>
+        </li>
+        <li py:if="c.package_relationships">
+          <h3>Related dataset</h3>
+          <ul>
+            <py:for each="pkg, relationship_str, comment in c.package_relationships">
+              <li>
+                ${h.literal(relationship_str % (h.link_to(pkg.name, h.url_for(controller="package", action="read", id=pkg.name))))}
+                <span py:if="comment is not None and len(comment)" class="relationship_comment">
+                    (${comment})
+                </span>
+              </li>
+            </py:for>
+          </ul>
+        </li>
+      </ul>
     </li>
 
-    <li class="widget-container widget_text">
-        <h3>Groups</h3>
-        <py:if test="c.pkg.groups">        
-            <ul>
-              <li py:for="group in sorted(c.pkg.groups, key=lambda g: g.display_name)">
-                  <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
-              </li>
-            </ul>
-        </py:if>
-        <py:if test="not c.pkg.groups">
-             Groups are collections of packages maintained by users of ${g.site_title}. This package has not been added to any groups yet.
-        </py:if>
-        <p class="widget_action" py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
-            ${h.subnav_link(c, 'Add to a Group', controller='package', action='edit', id=c.pkg.name)}        
-        </p>
-    </li>
     
-    <py:if test="c.package_relationships">
-        <li class="widget-container widget_text">
-              <h3>Related packages</h3>
-              <ul>
-                <py:for each="pkg, relationship_str, comment in c.package_relationships">
-                  <li>
-                    ${h.literal(relationship_str % (h.link_to(pkg.name, h.url_for(controller="package", action="read", id=pkg.name))))}
-                    <span py:if="comment is not None and len(comment)" class="relationship_comment">
-                        (${comment})
-                    </span>
-                  </li>
-                </py:for>
-              </ul>
-        </li>
-    </py:if>
-    
-    <li class="widget-container widget_text">
+    <li class="widget-container boxed widget_text">
     <py:if test="c.pkg.isopen() and c.pkg.resources">
       <h3>
-        This Package is Open
+        This Dataset is Open
       </h3>
       <p py:if="c.pkg.license_id">
         License:
         <py:choose test="">
-          <strong py:when="c.pkg.license and c.pkg.license.url"><br /><a href="${c.pkg.license.url}">${c.pkg.license.title}</a></strong>
-          <strong py:when="c.pkg.license"><br />${c.pkg.license.title}</strong>
-          <strong py:when="c.pkg.license_id"><br />${c.pkg.license_id}</strong>
+          <strong py:when="c.pkg.license and c.pkg.license.url"><a
+              href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></strong>
+          <strong py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</strong>
+          <strong py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</strong>
         </py:choose>
       </p>
       <p class="okd">
         <a
           href="http://www.opendefinition.org/okd/"
-          title="This package satisfies the Open Knowledge Definition.">
+          title="This dataset satisfies the Open Knowledge Definition.">
           <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" /></a>
-        <a
-          href="http://www.opendefinition.org/okd/"
-          title="This package satisfies the Open Knowledge Definition.">
-          <img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" alt="[Open Content]" /></a>
       </p>
     </py:if>
 
     <py:if test="not(c.pkg.isopen() and c.pkg.resources)">
-      <h3 i18n:msg="">This package is Not Open</h3> 
+      <h3 i18n:msg="">This dataset is Not Open</h3> 
       
       <p>Either because it is not openly licensed or is missing
       downloadable resources.</p>
       <p class="widget_action">
-        <a href="http://isitopendata.org/enquiry/start/?ckan_package=${c.pkg.name}">Start an enquiry on IsItOpenData &raquo;</a>
+        <a href="http://isitopendata.org/enquiry/start/?ckan_dataset=${c.pkg.name}">Start an enquiry on IsItOpenData &raquo;</a>
       </p>
     </py:if>
     </li>
@@ -95,23 +136,23 @@
   <div py:match="content">
     <py:if test="c.pkg_revision_id">
       <div id="revision" class="widget-container">
-            <p py:if="c.pkg_revision_not_latest">This is an old revision of this package, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp)}. It may differ significantly from the <a href="${url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
-            <p py:if="not c.pkg_revision_not_latest">This is the current revision of this package, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp)}.</p>
+        <p py:if="c.pkg_revision_not_latest">This is an old revision of this dataset, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp)}. It may differ significantly from the <a href="${url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
+        <p py:if="not c.pkg_revision_not_latest">This is the current revision of this dataset, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp)}.</p>
       </div>
     </py:if>
 
     <xi:include href="read_core.html" />
   </div>
 
-  <py:if test="config.get('rdf_packages')">
-    <py:def function="optional_head">
+  <py:def function="optional_head">
+    <py:if test="config.get('rdf_packages')">
       <link rel="alternate" type="application/rdf+xml" title="RDF/XML" href="${config['rdf_packages'] + '/' + c.pkg.id + '.rdf' }" />
       <link rel="alternate" type="application/turtle" title="RDF/Turtle" href="${config['rdf_packages'] + '/' + c.pkg.id + '.ttl' }" />
-    </py:def>
-  </py:if>
+    </py:if>
+  </py:def>
 
   <py:def function="optional_feed">
-  <link rel="alternate" type="application/atom+xml" title="Package History"
+  <link rel="alternate" type="application/atom+xml" title="Dataset History"
     href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
   </py:def>
 

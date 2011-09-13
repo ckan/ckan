@@ -38,9 +38,7 @@ class CkanCommand(paste.script.command.Command):
             msg = 'No config file supplied'
             raise self.BadCommand(msg)
         self.filename = os.path.abspath(self.options.config)
-        try:
-            fileConfig(self.filename)
-        except Exception: pass
+        fileConfig(self.filename)
         conf = appconfig('config:' + self.filename)
         load_environment(conf.global_conf, conf.local_conf)
 
@@ -63,7 +61,7 @@ class ManageDb(CkanCommand):
     db clean
     db upgrade [{version no.}] # Data migrate
     db dump {file-path} # dump to a pg_dump file
-    db dump-rdf {package-name} {file-path}
+    db dump-rdf {dataset-name} {file-path}
     db simple-dump-csv {file-path}
     db simple-dump-json {file-path}
     db send-rdf {talis-store} {username} {password}
@@ -157,7 +155,9 @@ class ManageDb(CkanCommand):
 
     def _run_cmd(self, command_line):
         import subprocess    
-        subprocess.call(command_line, shell=True)
+        retcode = subprocess.call(command_line, shell=True)
+        if retcode != 0:
+            raise SystemError('Command exited with errorcode: %i' % retcode)
 
     def dump_or_load(self, cmd):
         if len(self.args) < 2:
@@ -199,7 +199,7 @@ class ManageDb(CkanCommand):
 
     def dump_rdf(self, cmd):
         if len(self.args) < 3:
-            print 'Need package name and rdf file path'
+            print 'Need dataset name and rdf file path'
             return
         package_name = self.args[1]
         rdf_path = self.args[2]
@@ -207,7 +207,7 @@ class ManageDb(CkanCommand):
         import ckan.lib.rdf as rdf
         pkg = model.Package.by_name(unicode(package_name))
         if not pkg:
-            print 'Package name "%s" does not exist' % package_name
+            print 'Dataset name "%s" does not exist' % package_name
             return
         rdf = rdf.RdfExporter().export_package(pkg)
         f = open(rdf_path, 'w')
@@ -227,12 +227,12 @@ class ManageDb(CkanCommand):
 
 
 class SearchIndexCommand(CkanCommand):
-    '''Creates a search index for all packages
+    '''Creates a search index for all datasets
 
     Usage:
-      search-index rebuild                 - indexes all packages (default)
-      search-index check                   - checks for packages not indexed
-      search-index show {package-name}     - shows index of a package
+      search-index rebuild                 - indexes all datasets (default)
+      search-index check                   - checks for datasets not indexed
+      search-index show {dataset-name}     - shows index of a dataset
     '''
 
     summary = __doc__.split('\n')[0]
@@ -265,7 +265,7 @@ class SearchIndexCommand(CkanCommand):
 class Notification(CkanCommand):
     '''Send out modification notifications.
     
-    In "replay" mode, an update signal is sent for each package in the database.
+    In "replay" mode, an update signal is sent for each dataset in the database.
 
     Usage:
       notify replay                        - send out modification signals
@@ -716,39 +716,39 @@ class Changes(CkanCommand):
         except UncommittedChangesException, inst:
             print "There are uncommitted revisions (run 'changes commit')."
             sys.exit(1)
-        print ", ".join(["%s %s packages" % (key, len(val)) for (key, val) in report.items()])
+        print ", ".join(["%s %s datasets" % (key, len(val)) for (key, val) in report.items()])
         if report['created']:
             print ""
-            print "The following packages have been created:"
+            print "The following datasets have been created:"
             names = []
             for entity in report['created']:
                 if not entity:
                     continue
                 if entity.name in names:
                     continue
-                print "package:    %s" % entity.name
+                print "dataset:    %s" % entity.name
                 names.append(entity.name)
         if report['updated']:
             print ""
-            print "The following packages have been updated:"
+            print "The following datasets have been updated:"
             names = []
             for entity in report['updated']:
                 if not entity:
                     continue
                 if entity.name in names:
                     continue
-                print "package:    %s" % entity.name
+                print "dataset:    %s" % entity.name
                 names.append(entity.name)
         if report['deleted']:
             print ""
-            print "The following packages have been deleted:"
+            print "The following datasets have been deleted:"
             names = []
             for entity in report['deleted']:
                 if not entity:
                     continue
                 if entity.name in names:
                     continue
-                print "package:    %s" % entity.name
+                print "dataset:    %s" % entity.name
                 names.append(entity.name)
 
     def moderate_changeset_apply(self, changeset):

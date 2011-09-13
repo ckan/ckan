@@ -151,19 +151,19 @@ class PackagesTestCase(BaseModelApiTestCase):
             'name':u'testpackage06_400',
             'resources':[u'should_be_a_dict'],
         }
-        offset = self.offset('/rest/package')
+        offset = self.offset('/rest/dataset')
         postparams = '%s=1' % self.dumps(test_params)
         res = self.app.post(offset, params=postparams, status=self.STATUS_400_BAD_REQUEST,
                 extra_environ=self.extra_environ)
 
     def test_register_post_denied(self):
-        offset = self.offset('/rest/package')
+        offset = self.offset('/rest/dataset')
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams, status=self.STATUS_403_ACCESS_DENIED)
 
     def test_register_post_readonly_fields(self):
         # (ticket 662) Post a package with readonly field such as 'id'
-        offset = self.offset('/rest/package')
+        offset = self.offset('/rest/dataset')
         data = {'name': u'test_readonly',
                 'id': u'not allowed to be set',
                 }
@@ -176,7 +176,7 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_get_ok(self):
         package_refs = [self.anna.name, self.anna.id]
         for ref in package_refs:
-            offset = self.offset('/rest/package/%s' % ref)
+            offset = self.offset('/rest/dataset/%s' % ref)
             res = self.app.get(offset, status=self.STATUS_200_OK)
             self.assert_msg_represents_anna(msg=res.body)
 
@@ -190,7 +190,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.assert_msg_represents_anna(msg=msg)
 
     def test_entity_get_not_found(self):
-        offset = self.offset('/rest/package/22222')
+        offset = self.offset('/rest/dataset/22222')
         res = self.app.get(offset, status=self.STATUS_404_NOT_FOUND)
         self.remove()
 
@@ -232,7 +232,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.delete(offset, status=self.STATUS_403_ACCESS_DENIED)
 
     def test_09_update_package_entity_not_found(self):
-        offset = self.offset('/rest/package/22222')
+        offset = self.offset('/rest/dataset/22222')
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_404_NOT_FOUND,
@@ -286,7 +286,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         # because you should be able to specify the package both ways round
         # for both versions of the API.
         package_ref = getattr(pkg, package_ref_attribute)
-        offset = self.offset('/rest/package/%s' % package_ref)
+        offset = self.offset('/rest/dataset/%s' % package_ref)
         params = '%s=1' % self.dumps(new_fixture_data)
         method_func = getattr(self.app, method_str)
         res = method_func(offset, params=params, status=self.STATUS_200_OK,
@@ -498,13 +498,13 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_delete_not_found(self):
         package_name = u'random_one'
         assert not model.Session.query(model.Package).filter_by(name=package_name).count()
-        offset = self.offset('/rest/package/%s' % package_name)
+        offset = self.offset('/rest/dataset/%s' % package_name)
         res = self.app.delete(offset, status=self.STATUS_404_NOT_FOUND,
                               extra_environ=self.extra_environ)
 
     def test_package_revisions(self):
         # check original revision
-        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
+        res = self.app.get(self.offset('/rest/dataset/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 1, len(revisions)
         expected_keys = set(('id', 'message', 'author', 'timestamp', 'approved_timestamp'))
@@ -518,7 +518,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         model.repo.commit_and_remove()
 
         # check new revision is there
-        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
+        res = self.app.get(self.offset('/rest/dataset/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 2, len(revisions)
 
@@ -532,7 +532,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         model.repo.commit_and_remove()
 
         # check new revision is there
-        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
+        res = self.app.get(self.offset('/rest/dataset/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 3, len(revisions)
 

@@ -2,6 +2,8 @@ import re
 from pylons.i18n import _, ungettext, N_, gettext
 from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unflatten
 from ckan.authz import Authorizer
+from ckan.logic import check_access, NotAuthorized
+
 
 def package_id_not_changed(value, context):
 
@@ -27,7 +29,7 @@ def package_id_exists(value, context):
 
     result = session.query(model.Package).get(value)
     if not result:
-        raise Invalid(_('Package was not found.'))
+        raise Invalid(_('Dataset was not found.'))
     return value
 
 def package_name_exists(value, context):
@@ -38,7 +40,7 @@ def package_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Package with name %r does not exist.') % str(value))
+        raise Invalid(_('Dataset with name %r does not exist.') % str(value))
     return value
 
 def package_id_or_name_exists(value, context):
@@ -53,7 +55,7 @@ def package_id_or_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Package was not found.'))
+        raise Invalid(_('Dataset was not found.'))
 
     return result.id
 
@@ -86,7 +88,7 @@ def package_name_validator(key, data, errors, context):
         query = query.filter(model.Package.id <> package_id) 
     result = query.first()
     if result:
-        errors[key].append(_('Package name already exists in database'))
+        errors[key].append(_('Dataset name already exists in database'))
 
 def duplicate_extras_key(key, data, errors, context):
 
@@ -161,9 +163,16 @@ def ignore_not_admin(key, data, errors, context):
     if user and Authorizer.is_sysadmin(user):
         return
 
+    authorized = False
     pkg = context.get('package')
-    if (user and pkg and 
-        Authorizer().is_authorized(user, model.Action.CHANGE_STATE, pkg)):
+    if pkg:
+        try:
+            check_access('package_change_state',context)
+            authorized = True
+        except NotAuthorized:
+            authorized = False
+    
+    if (user and pkg and authorized):
         return
 
     data.pop(key)

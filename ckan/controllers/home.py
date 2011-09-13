@@ -3,9 +3,11 @@ import sys
 
 from pylons import cache, config
 from genshi.template import NewTextTemplate
+import sqlalchemy.exc
 
 from ckan.authz import Authorizer
-from ckan.logic.action.get import current_package_list_with_resources
+from ckan.logic import NotAuthorized
+from ckan.logic import check_access, get_action
 from ckan.i18n import set_session_locale, set_lang
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache, get_cache_expires
@@ -20,8 +22,23 @@ class HomeController(BaseController):
 
     def __before__(self, action, **env):
         BaseController.__before__(self, action, **env)
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            check_access('site_read',context)
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
+        except (sqlalchemy.exc.ProgrammingError,
+                sqlalchemy.exc.OperationalError), e:
+            # postgres and sqlite errors for missing tables
+            msg = str(e)
+            if ('relation' in msg and 'does not exist' in msg) or \
+                   ('no such table' in msg) :
+                # table missing, major database problem
+                abort(503, _('This site is currently off-line. Database is not initialised.'))
+                # TODO: send an email to the admin person (#1285)
+            else:
+                raise
+            
 
     @staticmethod
     def _home_cache_key(latest_revision_id=None):
@@ -42,15 +59,13 @@ class HomeController(BaseController):
         etag_cache(cache_key)
 
         query = query_for(model.Package)
-        query.run(query='*:*', facet_by=g.facets,
+        query.run(query='*:*',
                   limit=0, offset=0, username=c.user,
                   order_by=None)
-        c.facets = query.facets
         c.fields = []
         c.package_count = query.count
-        c.latest_packages = current_package_list_with_resources({'model': model,
-                                                                 'user': c.user},
-                                                                 {'limit': 5})      
+        q = model.Session.query(model.Group).filter_by(state='active')
+        c.groups = sorted(q.all(), key=lambda g: len(g.packages), reverse=True)[:6]
         return render('home/index.html', cache_key=cache_key,
                       cache_expire=cache_expires)
 
@@ -96,4 +111,8 @@ class HomeController(BaseController):
                 cache_ = cache.get_cache(cache_name, type='dbm')
                 cache_.clear()
             return 'Cleared caches: %s' % ', '.join(wui_caches)
+
+    def cors_options(self, url=None):
+        # just return 200 OK and empty data
+        return ''
 

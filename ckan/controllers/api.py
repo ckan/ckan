@@ -4,18 +4,14 @@ from paste.util.multidict import MultiDict
 from webob.multidict import UnicodeMultiDict
 
 from ckan.lib.base import BaseController, response, c, _, gettext, request
-from ckan.lib.helpers import json
+from ckan.lib.helpers import json, date_str_to_datetime
 import ckan.model as model
 import ckan.rating
 from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
-from ckan.logic import get_action
-import ckan.logic.action.get as get 
-import ckan.logic.action.create as create
-import ckan.logic.action.update as update
-import ckan.logic.action.delete as delete
+from ckan.logic import get_action, check_access
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.lib.jsonp import jsonpify
 from ckan.forms.common import package_exists
@@ -35,7 +31,10 @@ class ApiController(BaseController):
 
     def __call__(self, environ, start_response):
         self._identify_user()
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            check_access('site_read',context)
+        except NotAuthorized:
             response_msg = self._finish(403, _('Not authorized to see this page'))
             # Call start_response manually instead of the parent __call__
             # because we want to end the request instead of continuing.
@@ -43,10 +42,10 @@ class ApiController(BaseController):
             body = '%i %s' % (response.status_int, response_msg)
             start_response(body, response.headers.items())
             return [response_msg]
-        else:
-            # avoid status_code_redirect intercepting error responses
-            environ['pylons.status_code_redirect'] = True
-            return BaseController.__call__(self, environ, start_response)
+
+        # avoid status_code_redirect intercepting error responses
+        environ['pylons.status_code_redirect'] = True
+        return BaseController.__call__(self, environ, start_response)
 
     def _finish(self, status_int, response_data=None,
                 content_type='text'):
@@ -140,7 +139,6 @@ class ApiController(BaseController):
         context = {'model': model, 'session': model.Session, 'user': c.user}
         model.Session()._context = context
         return_dict = {'help': function.__doc__}
-
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
@@ -179,13 +177,16 @@ class ApiController(BaseController):
                    'user': c.user, 'api_version': ver}
         log.debug('listing: %s' % context)
         action_map = {
-            'revision': get.revision_list,
-            'group': get.group_list,
-            'package': get.package_list,
-            'tag': get.tag_list,
-            'licenses': get.licence_list,
-            ('package', 'relationships'): get.package_relationships_list,
-            ('package', 'revisions'): get.package_revision_list,
+            'revision': get_action('revision_list'),
+            'group': get_action('group_list'),
+            'dataset': get_action('package_list'),
+            'package': get_action('package_list'),
+            'tag': get_action('tag_list'),
+            'licenses': get_action('licence_list'),
+            ('dataset', 'relationships'): get_action('package_relationships_list'),
+            ('package', 'relationships'): get_action('package_relationships_list'),
+            ('dataset', 'revisions'): get_action('package_revision_list'),
+            ('package', 'revisions'): get_action('package_revision_list'),
         }
 
         action = action_map.get((register, subregister)) 
@@ -204,11 +205,13 @@ class ApiController(BaseController):
 
     def show(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
-            'revision': get.revision_show,
-            'group': get.group_show_rest,
-            'tag': get.tag_show_rest,
-            'package': get.package_show_rest,
-            ('package', 'relationships'): get.package_relationships_list,
+            'revision': get_action('revision_show'),
+            'group': get_action('group_show_rest'),
+            'tag': get_action('tag_show_rest'),
+            'dataset': get_action('package_show_rest'),
+            'package': get_action('package_show_rest'),
+            ('dataset', 'relationships'): get_action('package_relationships_list'),
+            ('package', 'relationships'): get_action('package_relationships_list'),
         }
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
@@ -216,7 +219,8 @@ class ApiController(BaseController):
         data_dict = {'id': id, 'id2': id2, 'rel': subregister}
 
         for type in model.PackageRelationship.get_all_types():
-            action_map[('package', type)] = get.package_relationships_list
+            action_map[('dataset', type)] = get_action('package_relationships_list')
+            action_map[('package', type)] = get_action('package_relationships_list')
         log.debug('show: %s' % context)
 
         action = action_map.get((register, subregister)) 
@@ -240,14 +244,17 @@ class ApiController(BaseController):
     def create(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
+            ('dataset', 'relationships'): get_action('package_relationship_create'),
             ('package', 'relationships'): get_action('package_relationship_create'),
              'group': get_action('group_create_rest'),
+             'dataset': get_action('package_create_rest'),
              'package': get_action('package_create_rest'),
              'rating': get_action('rating_create'),
         }
 
         for type in model.PackageRelationship.get_all_types():
-            action_map[('package', type)] = create.package_relationship_create
+            action_map[('dataset', type)] = get_action('package_relationship_create')
+            action_map[('package', type)] = get_action('package_relationship_create')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver}
@@ -290,12 +297,15 @@ class ApiController(BaseController):
     def update(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
+            ('dataset', 'relationships'): get_action('package_relationship_update'),
             ('package', 'relationships'): get_action('package_relationship_update'),
+             'dataset': get_action('package_update_rest'),
              'package': get_action('package_update_rest'),
              'group': get_action('group_update_rest'),
         }
         for type in model.PackageRelationship.get_all_types():
-            action_map[('package', type)] = update.package_relationship_update
+            action_map[('dataset', type)] = get_action('package_relationship_update')
+            action_map[('package', type)] = get_action('package_relationship_update')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver, 'id': id}
@@ -332,16 +342,21 @@ class ApiController(BaseController):
 
     def delete(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
-            ('package', 'relationships'): delete.package_relationship_delete,
-             'group': delete.group_delete,
-             'package': delete.package_delete,
+            ('dataset', 'relationships'): get_action('package_relationship_delete'),
+            ('package', 'relationships'): get_action('package_relationship_delete'),
+             'group': get_action('group_delete'),
+             'dataset': get_action('package_delete'),
+             'package': get_action('package_delete'),
         }
         for type in model.PackageRelationship.get_all_types():
-            action_map[('package', type)] = delete.package_relationship_delete
+            action_map[('dataset', type)] = get_action('package_relationship_delete')
+            action_map[('package', type)] = get_action('package_relationship_delete')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'id': id, 'id2': id2, 'rel': subregister,
                    'api_version': ver}
+
+        data_dict = {'id': id, 'id2': id2, 'rel': subregister}
+
         log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
 
         action = action_map.get((register, subregister)) 
@@ -352,7 +367,7 @@ class ApiController(BaseController):
                 gettext('Cannot delete entity of this type: %s %s') %\
                 (register, subregister or ''))
         try:
-            response_data = action(context)
+            response_data = action(context, data_dict)
             return self._finish_ok(response_data)
         except NotAuthorized:
             return self._finish_not_authz()
@@ -381,7 +396,7 @@ class ApiController(BaseController):
             elif request.params.has_key('since_time'):
                 since_time_str = request.params['since_time']
                 try:
-                    since_time = model.strptimestamp(since_time_str)
+                    since_time = date_str_to_datetime(since_time_str)
                 except ValueError, inst:
                     return self._finish_bad_request('ValueError: %s' % inst)
             else:
@@ -389,7 +404,7 @@ class ApiController(BaseController):
                     gettext("Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"))
             revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
             return self._finish_ok([rev.id for rev in revs])
-        elif register == 'package' or register == 'resource':
+        elif register in ['dataset', 'package', 'resource']:
             try:
                 params = self._get_search_params(request.params)
             except ValueError, e:
@@ -416,7 +431,7 @@ class ApiController(BaseController):
                 for v in values:
                     query_fields.add(field, v)
             
-            if register == 'package':
+            if register in ['dataset', 'package']:
                 options.ref_entity_with_attr = 'id' if ver == '2' else 'name'
             try:
                 backend = None
@@ -462,7 +477,7 @@ class ApiController(BaseController):
 
         data_dict = {'all_fields': True}
 
-        tag_list = get.tag_list(context, data_dict)
+        tag_list = get_action('tag_list')(context, data_dict)
         results = []
         for tag in tag_list:
             tag_count = len(tag['packages'])
@@ -499,7 +514,7 @@ class ApiController(BaseController):
 
             data_dict = {'q':q,'limit':limit}
 
-            user_list = get.user_autocomplete(context,data_dict)
+            user_list = get_action('user_autocomplete')(context,data_dict)
         return user_list
 
 
@@ -545,7 +560,7 @@ class ApiController(BaseController):
 
             data_dict = {'q':q,'limit':limit}
 
-            tag_names = get.tag_autocomplete(context,data_dict)
+            tag_names = get_action('tag_autocomplete')(context,data_dict)
 
         resultSet = {
             'ResultSet': {
@@ -554,4 +569,19 @@ class ApiController(BaseController):
         }
         return self._finish_ok(resultSet)
 
+    def format_autocomplete(self):
+        q = request.params.get('incomplete', '')
+        limit = request.params.get('limit', 5)
+        formats = []
+        if q:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+            data_dict = {'q': q, 'limit': limit}
+            formats = get_action('format_autocomplete')(context, data_dict)
 
+        resultSet = {
+            'ResultSet': {
+                'Result': [{'Format': format} for format in formats]
+            }
+        }
+        return self._finish_ok(resultSet)

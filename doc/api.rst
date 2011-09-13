@@ -53,7 +53,7 @@ Versions 1 & 2
 
 These are very similar, but when the API returns a reference to an object, Version 1 API will return the Name of the object (e.g. "river-pollution") and Version 2 API will return the ID of the object (e.g. "a3dd8f64-9078-4f04-845c-e3f047125028").
 
-The reason for this is that Names can change, so to reliably refer to the same package every time, you will want to use the ID and therefore use API v2. Alternatively, many people prefer to deal with Names, so API v1 suits them.
+The reason for this is that Names can change, so to reliably refer to the same dataset every time, you will want to use the ID and therefore use API v2. Alternatively, many people prefer to deal with Names, so API v1 suits them.
 
 When making requests, you can call objects by either their Name or ID, interchangeably.
 
@@ -85,6 +85,7 @@ The CKAN API version 1 & 2 is separated into three parts.
 * `Model API`_
 * `Search API`_
 * `Util API`_
+* `Action API`_
 
 The resources, methods, and data formats of each are described below.
 
@@ -121,9 +122,9 @@ Here are the resources of the Model API.
 +--------------------------------+-------------------------------------------------------------------+
 | Model Resource                 | Location                                                          |
 +================================+===================================================================+
-| Package Register               | ``/rest/package``                                                 |
+| Dataset Register               | ``/rest/dataset``                                                 |
 +--------------------------------+-------------------------------------------------------------------+
-| Package Entity                 | ``/rest/package/PACKAGE-REF``                                     |
+| Dataset Entity                 | ``/rest/dataset/DATASET-REF``                                     |
 +--------------------------------+-------------------------------------------------------------------+
 | Group Register                 | ``/rest/group``                                                   |
 +--------------------------------+-------------------------------------------------------------------+
@@ -135,15 +136,15 @@ Here are the resources of the Model API.
 +--------------------------------+-------------------------------------------------------------------+
 | Rating Register                | ``/rest/rating``                                                  |
 +--------------------------------+-------------------------------------------------------------------+
-| Package Relationships Register | ``/rest/package/PACKAGE-REF/relationships``                       |
+| Dataset Relationships Register | ``/rest/dataset/DATASET-REF/relationships``                       |
 +--------------------------------+-------------------------------------------------------------------+
-| Package Relationships Register | ``/rest/package/PACKAGE-REF/RELATIONSHIP-TYPE``                   |
+| Dataset Relationships Register | ``/rest/dataset/DATASET-REF/RELATIONSHIP-TYPE``                   |
 +--------------------------------+-------------------------------------------------------------------+
-| Package Relationships Register | ``/rest/package/PACKAGE-REF/relationships/PACKAGE-REF``           |
+| Dataset Relationships Register | ``/rest/dataset/DATASET-REF/relationships/DATASET-REF``           |
 +--------------------------------+-------------------------------------------------------------------+
-| Package Relationship Entity    | ``/rest/package/PACKAGE-REF/RELATIONSHIP-TYPE/PACKAGE-REF``       |
+| Dataset Relationship Entity    | ``/rest/dataset/DATASET-REF/RELATIONSHIP-TYPE/DATASET-REF``       |
 +--------------------------------+-------------------------------------------------------------------+
-| Package\'s Revisions Entity    | ``/rest/package/PACKAGE-REF/revisions``                           |
+| Dataset\'s Revisions Entity    | ``/rest/dataset/DATASET-REF/revisions``                           |
 +--------------------------------+-------------------------------------------------------------------+
 | Revision Register              | ``/rest/revision``                                                |
 +--------------------------------+-------------------------------------------------------------------+
@@ -152,7 +153,7 @@ Here are the resources of the Model API.
 | License List                   | ``/rest/licenses``                                                |
 +--------------------------------+-------------------------------------------------------------------+
 
-Possible values for PACKAGE-REF are the package id, or the current package name.
+Possible values for DATASET-REF are the dataset id, or the current dataset name.
 
 Possible values for RELATIONSHIP-TYPE are described in the Relationship-Type data format.
 
@@ -165,13 +166,13 @@ Here are the methods of the Model API.
 +-------------------------------+--------+------------------+-------------------+
 | Resource                      | Method | Request          | Response          |
 +===============================+========+==================+===================+ 
-| Package Register              | GET    |                  | Package-List      |
+| Dataset Register              | GET    |                  | Dataset-List      |
 +-------------------------------+--------+------------------+-------------------+
-| Package Register              | POST   | Package          |                   |
+| Dataset Register              | POST   | Dataset          |                   |
 +-------------------------------+--------+------------------+-------------------+
-| Package Entity                | GET    |                  | Package           |
+| Dataset Entity                | GET    |                  | Dataset           |
 +-------------------------------+--------+------------------+-------------------+
-| Package Entity                | PUT    | Package          |                   |
+| Dataset Entity                | PUT    | Dataset          |                   |
 +-------------------------------+--------+------------------+-------------------+
 | Group Register                | GET    |                  | Group-List        |
 +-------------------------------+--------+------------------+-------------------+
@@ -183,19 +184,19 @@ Here are the methods of the Model API.
 +-------------------------------+--------+------------------+-------------------+
 | Tag Register                  | GET    |                  | Tag-List          | 
 +-------------------------------+--------+------------------+-------------------+
-| Tag Entity                    | GET    |                  | Package-List      |
+| Tag Entity                    | GET    |                  | Dataset-List      |
 +-------------------------------+--------+------------------+-------------------+
 | Rating Register               | POST   | Rating           |                   |
 +-------------------------------+--------+------------------+-------------------+
 | Rating Entity                 | GET    |                  | Rating            |
 +-------------------------------+--------+------------------+-------------------+
-| Package Relationships Register| GET    |                  | Pkg-Relationships |
+| Dataset Relationships Register| GET    |                  | Pkg-Relationships |
 +-------------------------------+--------+------------------+-------------------+
-| Package Relationship Entity   | GET    |                  | Pkg-Relationship  |
+| Dataset Relationship Entity   | GET    |                  | Pkg-Relationship  |
 +-------------------------------+--------+------------------+-------------------+
-| Package Relationship Entity   | PUT    | Pkg-Relationship |                   |
+| Dataset Relationship Entity   | PUT    | Pkg-Relationship |                   |
 +-------------------------------+--------+------------------+-------------------+
-| Package\'s Revisions Entity   | GET    |                  | Pkg-Revisions     |
+| Dataset\'s Revisions Entity   | GET    |                  | Pkg-Revisions     |
 +-------------------------------+--------+------------------+-------------------+
 | Revision List                 | GET    |                  | Revision-List     |
 +-------------------------------+--------+------------------+-------------------+
@@ -215,17 +216,17 @@ Model Formats
 
 Here are the data formats for the Model API.
 
-.. |format-package-ref| replace:: Package-Ref
+.. |format-dataset-ref| replace:: Dataset-Ref
 
-.. |format-package-register| replace:: [ |format-package-ref|, |format-package-ref|, |format-package-ref|, ... ]
+.. |format-dataset-register| replace:: [ |format-dataset-ref|, |format-dataset-ref|, |format-dataset-ref|, ... ]
 
-.. |format-package-entity| replace:: { id: Uuid, name: Name-String, title: String, version: String, url: String, resources: [ Resource, Resource, ...], author: String, author_email: String, maintainer: String, maintainer_email: String, license_id: String, tags: Tag-List, notes: String, extras: { Name-String: String, ... } }
+.. |format-dataset-entity| replace:: { id: Uuid, name: Name-String, title: String, version: String, url: String, resources: [ Resource, Resource, ...], author: String, author_email: String, maintainer: String, maintainer_email: String, license_id: String, tags: Tag-List, notes: String, extras: { Name-String: String, ... } }
 
 .. |format-group-ref| replace:: Group-Ref
 
 .. |format-group-register| replace:: [ |format-group-ref|, |format-group-ref|, |format-group-ref|, ... ]
 
-.. |format-group-entity| replace:: { name: Name-String, title: String, description: String, packages: Package-List }
+.. |format-group-entity| replace:: { name: Name-String, title: String, description: String, datasets: Dataset-List }
 
 
 To send request data, create the JSON-format string (encode in UTF8) put it in the request body and send it using PUT or POST.
@@ -238,7 +239,7 @@ Notes:
 
  * To delete an 'extra' key-value pair, supply the key with JSON value: ``null``
 
- * When you read a package then some additional information is supplied that cannot current be adjusted throught the CKAN API. This includes info on Package Relationship ('relationships'), Group membership ('groups'), ratings ('ratings_average' and 'ratings_count'), full URL of the package in CKAN ('ckan_url') and Package ID ('id'). This is purely a convenience for clients, and only forms part of the Package on GET.
+ * When you read a dataset then some additional information is supplied that cannot current be adjusted throught the CKAN API. This includes info on Dataset Relationship ('relationships'), Group membership ('groups'), ratings ('ratings_average' and 'ratings_count'), full URL of the dataset in CKAN ('ckan_url') and Dataset ID ('id'). This is purely a convenience for clients, and only forms part of the Dataset on GET.
 
 Search API
 ~~~~~~~~~~
@@ -256,7 +257,7 @@ Here are the published resources of the Search API.
 +---------------------------+--------------------------+
 | Search Resource           | Location                 |
 +===========================+==========================+
-| Package Search            | ``/search/package``      |
+| Dataset Search            | ``/search/dataset``      |
 +---------------------------+--------------------------+
 | Resource Search           | ``/search/resource``     |
 +---------------------------+--------------------------+
@@ -265,7 +266,7 @@ Here are the published resources of the Search API.
 | Tag Counts                | ``/tag_counts``          |
 +---------------------------+--------------------------+
 
-See below for more information about package and revision search parameters.
+See below for more information about dataset and revision search parameters.
 
 Search Methods
 ``````````````
@@ -275,7 +276,7 @@ Here are the methods of the Search API.
 +-------------------------------+--------+------------------------+--------------------------+
 | Resource                      | Method | Request                | Response                 |
 +===============================+========+========================+==========================+ 
-| Package Search                | POST   | Package-Search-Params  | Package-Search-Response  | 
+| Dataset Search                | POST   | Dataset-Search-Params  | Dataset-Search-Response  | 
 +-------------------------------+--------+------------------------+--------------------------+
 | Resource Search               | POST   | Resource-Search-Params | Resource-Search-Response | 
 +-------------------------------+--------+------------------------+--------------------------+
@@ -285,7 +286,7 @@ Here are the methods of the Search API.
 +-------------------------------+--------+------------------------+--------------------------+
 
 It is also possible to supply the search parameters in the URL of a GET request, 
-for example ``/api/search/package?q=geodata&amp;allfields=1``.
+for example ``/api/search/dataset?q=geodata&amp;allfields=1``.
 
 Search Formats
 ``````````````
@@ -295,11 +296,11 @@ Here are the data formats for the Search API.
 +-------------------------+------------------------------------------------------------+
 | Name                    | Format                                                     |
 +=========================+============================================================+
-| Package-Search-Params   | { Param-Key: Param-Value, Param-Key: Param-Value, ... }    |
+| Dataset-Search-Params   | { Param-Key: Param-Value, Param-Key: Param-Value, ... }    |
 | Resource-Search-Params  | See below for full details of search parameters across the | 
 | Revision-Search-Params  | various domain objects.                                    |
 +-------------------------+------------------------------------------------------------+
-| Package-Search-Response | { count: Count-int, results: [Package, Package, ... ] }    |
+| Dataset-Search-Response | { count: Count-int, results: [Dataset, Dataset, ... ] }    |
 +-------------------------+------------------------------------------------------------+
 | Resource-Search-Response| { count: Count-int, results: [Resource, Resource, ... ] }  |
 +-------------------------+------------------------------------------------------------+
@@ -309,14 +310,14 @@ Here are the data formats for the Search API.
 | Tag-Count-List          | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
 +-------------------------+------------------------------------------------------------+
 
-The ``Package`` and ``Revision`` data formats are as defined in `Model Formats`_.
+The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_.
 
-**Package Parameters**
+**Dataset Parameters**
 
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | Param-Key             | Param-Value   | Examples                         |  Notes                           |
 +=======================+===============+==================================+==================================+
-| q                     | Search-String || q=geodata                       | Criteria to search the package   |
+| q                     | Search-String || q=geodata                       | Criteria to search the dataset   |
 |                       |               || q=government+sweden             | fields for. URL-encoded search   |
 |                       |               || q=%22drug%20abuse%22            | text. (You can also concatenate  |
 |                       |               |                                  | words with a '+' symbol in a     |
@@ -344,8 +345,8 @@ The ``Package`` and ``Revision`` data formats are as defined in `Model Formats`_
 |                       | limit=20)     |                                  | return.                          |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | all_fields            | 0 (default)   | all_fields=1                     | Each matching search result is   |
-|                       | or 1          |                                  | given as either a package name   |
-|                       |               |                                  | (0) or the full package record   |
+|                       | or 1          |                                  | given as either a dataset name   |
+|                       |               |                                  | (0) or the full dataset record   |
 |                       |               |                                  | (1).                             |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | filter_by_openness    | 0 (default)   | filter_by_openness=1             | Filters results by ones which are|
@@ -360,7 +361,7 @@ The ``Package`` and ``Revision`` data formats are as defined in `Model Formats`_
 +-----------------------+---------------+-----------------------------------------+----------------------------------+
 | Param-Key             | Param-Value   | Example                                 |  Notes                           |
 +=======================+===============+=========================================+==================================+
-| url, format,          | Search-String || url=statistics.org                     | Criteria to search the package   |
+| url, format,          | Search-String || url=statistics.org                     | Criteria to search the dataset   |
 | description           |               || format=xls                             | fields for. URL-encoded search   |
 |                       |               || description=Research+Institute         | text. This search string must be |
 |                       |               |                                         | found somewhere within the field |
@@ -458,12 +459,12 @@ To cater for scripts from other sites that wish to access the API, the data can 
 
 Example normal request::
 
- GET /api/rest/package/pollution_stats
+ GET /api/rest/dataset/pollution_stats
  returns: {"name": "pollution_stats", ... }
 
 but now with the callback parameter::
 
- GET /api/rest/package/pollution_stats?callback=jsoncallback
+ GET /api/rest/dataset/pollution_stats?callback=jsoncallback
  returns: jsoncallback({"name": "pollution_stats", ... });
 
 This parameter can apply to all GET requests in the API.
@@ -473,30 +474,30 @@ Util API
 ~~~~~~~~
 
 Some of CKAN's client-side Javascript code makes calls to the CKAN API. For
-example, to generate a suggestion for a package name when adding a new package
+example, to generate a suggestion for a dataset name when adding a new dataset
 the following API call is made:
 
 ::
 
-    /api/2/util/package/create_slug?title=Package+1+Title+Typed+So+Far
+    /api/2/util/dataset/create_slug?title=Dataset+1+Title+Typed+So+Far
 
 The return value is a JSON data structure:
 
 ::
 
-    {"valid": true, "name": "package_1_title_typed_so_far"}
+    {"valid": true, "name": "dataset_1_title_typed_so_far"}
 
 These are the keys returned:
 
 ``valid`` 
 
     Can be ``True`` or ``False``. It is ``true`` when the title entered can be
-    successfully turned into a package name and when that package name is not
+    successfully turned into a dataset name and when that dataset name is not
     already being used. It is ``false`` otherwise.
 
 ``name``
 
-    The suggested name for the package, based on the title
+    The suggested name for the dataset, based on the title
 
 You can also add ``callback=callback`` to have the response returned as JSONP. eg:
 
@@ -504,17 +505,17 @@ This URL:
 
 ::
 
-    /api/2/util/package/create_slug?title=Package+1+Title+Typed+So+Far&callback=callback
+    /api/2/util/dataset/create_slug?title=Dataset+1+Title+Typed+So+Far&callback=callback
 
 Returns:
 
 ::
 
-    callback({"valid": true, "name": "package_1_title_typed_so_far"});
+    callback({"valid": true, "name": "dataset_1_title_typed_so_far"});
 
 In some CKAN deployments you may have the API deployed at a different domain
 from the main CKAN code. In these circumstances you'll need to add a new option
-to the config file to tell the new package form where it should make its API
+to the config file to tell the new dataset form where it should make its API
 requests to:
 
 ::
@@ -535,3 +536,22 @@ Returns:
 ::
 
     {"ResultSet": {"Result": [{"Name": "russian"}]}}
+
+Similarly, there is an autocomplete API for the resource format field
+which is available at:
+
+::
+
+    /api/2/util/resource/format_autocomplete?incomplete=cs
+
+This returns:
+
+::
+
+    {"ResultSet": {"Result": [{"Format": "csv"}]}}
+
+
+Action API
+~~~~~~~~~~
+
+See: :doc:`action_api`

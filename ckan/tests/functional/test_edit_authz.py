@@ -57,7 +57,7 @@ class TestEditAuthz(TestController):
 
         model.repo.new_revision()
 
-        self.pkg = u'package'
+        self.pkg = u'dataset'
         pkg = model.Package(name=self.pkg)
         model.Session.add(pkg)
 
@@ -95,7 +95,7 @@ class TestEditAuthz(TestController):
                 res = self.app.get(offset, status=[200], extra_environ={'REMOTE_USER':u})
                 # the name of the object should appear in the page
                 assert i in res
-                assert "Authorization for" in res
+                assert "Authorization" in res, res
 
 
     def roles_list(self, authzobj):
@@ -121,8 +121,8 @@ class TestEditAuthz(TestController):
                         ('authorization_group', self.authzgroup, self.authzgroup_roles)]:
             offset = url_for(controller=c, action='authz', id=i)
             res = self.app.get(offset, extra_environ={'REMOTE_USER': self.admin})
-            assert i in res
-            assert "Authorization for" in res
+            assert i in res, res
+            assert "Authorization" in res, res
 
             # all the package's users and roles should appear in tables
             assert '<tr' in res

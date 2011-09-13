@@ -13,7 +13,7 @@
       </h3>
 
       ${h.form(h.url_for(controller='importer', action='do_import'), multipart=True, id='import-preview')}
-          <p>${c.num_pkgs} package${'s' if c.num_pkgs != 1 else ''} read from ${c.import_filename}:</p>
+          <p>${c.num_pkgs} dataset${'s' if c.num_pkgs != 1 else ''} read from ${c.import_filename}:</p>
 
           <py:for each="pkg in c.import_previews">
             <div>
@@ -22,7 +22,7 @@
           </py:for>
 
           <py:if test="c.pkgs_suppressed">
-            <p>Further package previews not shown.</p>
+            <p>Further dataset previews not shown.</p>
           </py:if>
 
           <label for="log_message">Edit summary (briefly describe the changes you have made)</label>

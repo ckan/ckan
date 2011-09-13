@@ -9,10 +9,10 @@
   <py:match path="minornavigation" py:if="c.authorization_group">
   <ul class="tabbed">
     <li>${h.subnav_link(c, h.icon('authorization_group') + _('View'), controller='authorization_group', action='read', id=c.authorization_group.name or c.authorization_group.id)}</li>
-    <li py:if="h.am_authorized(c, actions.EDIT, c.authorization_group)">
+    <li py:if="h.check_access('authorization_group_update',{'id':c.authorization_group.id})">
       ${h.subnav_link(c, h.icon('authorization_group_edit') + _('Edit'), controller='authorization_group', action='edit', id=c.authorization_group.name or c.authorization_group.id)}
     </li>
-    <li py:if="h.am_authorized(c, actions.EDIT_PERMISSIONS, c.authorization_group)">
+    <li py:if="h.check_access('authorization_group_edit_permissions',{'id':c.authorization_group.id})">
       ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='authorization_group', action='authz', id=c.authorization_group.name or c.authorization_group.id)}
     </li>
   </ul>
@@ -21,7 +21,7 @@
   <py:match path="primarysidebar">
     <li class="widget-container widget_text">
       <h2>Authorization Groups</h2>
-      <p i18n:msg="">Instead of specifying the privileges of specific users on a package or group,
+      <p i18n:msg="">Instead of specifying the privileges of specific users on a dataset or group,
           you can also specify a set of users that will share the same rights. To do that, an    
           <strong>authorization group</strong> can be set-up and users can be added to it.</p>
       <p>

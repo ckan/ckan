@@ -1,6 +1,684 @@
-/* This file is just for importing other css files */
-@import url(http://assets.okfn.org/themes/twentyten/style.css);
-@import url(ckan.css);
-@import url(buttons.css);
-@import url(stars.css);
-@import url(tabs.css);
+
+.header.outer {
+  background-color: #e2e2e2;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#e2e2e2), to(#cccccc)); 
+  background-image: -webkit-linear-gradient(top, #e2e2e2, #cccccc); 
+  background-image:    -moz-linear-gradient(top, #e2e2e2, #cccccc); 
+  background-image:     -ms-linear-gradient(top, #e2e2e2, #cccccc); 
+  background-image:      -o-linear-gradient(top, #e2e2e2, #cccccc); 
+  background-image:         linear-gradient(top, #e2e2e2, #cccccc);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#e2e2e2', EndColorStr='#cccccc'); 
+
+  margin-bottom: 20px;
+     -moz-box-shadow: 0px 2px 15px #dddddd; 
+  -webkit-box-shadow: 0px 2px 15px #dddddd; 
+          box-shadow: 0px 2px 15px #dddddd; 
+  border-bottom: 1px solid #ccc;
+}
+
+header {
+  padding: 5px 0px 2px 0px;
+}
+
+header #logo {
+  float: left;
+}
+
+header #site-name {
+  font-size: 1.4em;
+  font-family: Ubuntu, sans-serif;
+  padding: 5px;
+  padding-left: 82px;
+  padding-bottom: 2px;
+  /*font-weight: bold;*/
+  color: #333;
+  text-shadow: 1px 1px 3px #ccc;
+}
+
+header #site-name a {
+  color: #000;
+}
+
+header .menu form {
+  display: inline;
+}
+
+header .menu input {
+  width: 200px;
+  margin-top: -1px;
+}
+
+header .menu a {
+  display: inline-block;
+  padding-top: 5px;
+  font-size: 1.1em;
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 1.5em;
+  text-shadow: 1px 1px 3px #ccc;
+}
+
+header .menu #menusearch {
+  float: right;
+}
+
+header .menu #mainmenu {
+  display: inline;
+}
+
+header .account {
+  float: right;
+}
+
+header .account img {
+  margin-bottom: -3px;
+}
+
+
+header .search {
+  margin: 1px;
+  margin-left: 1em;
+  border: 1px solid #ccc;
+  font-size: 1.1em;
+  padding: 0.4em;
+  font-weight: bold;
+
+     -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px; 
+          border-radius: 5px; 
+  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+}
+
+.footer.outer {
+  border-top: 2px solid #ccc;
+  background-color: #dbdbdb;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#dbdbdb), to(#ffffff)); 
+  background-image: -webkit-linear-gradient(top, #dbdbdb, #ffffff); 
+  background-image:    -moz-linear-gradient(top, #dbdbdb, #ffffff); 
+  background-image:     -ms-linear-gradient(top, #dbdbdb, #ffffff); 
+  background-image:      -o-linear-gradient(top, #dbdbdb, #ffffff); 
+  background-image:         linear-gradient(top, #dbdbdb, #ffffff);
+            fromilter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#dbdbdb', EndColorStr='#ffffff'); 
+}
+
+html, body {
+  height: 100%;
+}
+
+#wrap {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -230px;
+}
+
+footer, #push {
+    height: 205px;
+}
+
+footer {
+  margin-top: 5px;
+  padding-top: 1em;
+}
+
+footer a {
+  text-decoration: none;
+}
+
+footer #footer-okf-logo {
+  margin-bottom: -4px;
+}
+
+footer .xoxo h3 {
+  font-size: 1.2em;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Ubuntu', Georgia; 
+}
+
+a, a:visited {
+  color: #bb2222;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #183661;
+}
+
+
+/* Basic page elements */
+
+.page_heading {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-size: 2.2em;
+  font-weight: normal;
+}
+
+#minornavigation {
+  border: 1px solid #e0e0e0;
+  background-color: #e2e2e2;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
+  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
+
+     -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px; 
+          border-radius: 5px; 
+  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+}
+
+#minornavigation ul.tabbed li.action {
+  float: right;
+}
+
+/* Side bar widgets */
+ul.widget-list {
+  list-style: none;
+  padding-left: 0px;
+}
+
+ul.widget-list li.widget-container {
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 1em;
+}
+
+ul.widget-list li.widget-container.boxed {
+  border-bottom: 0;
+  background-color: #FFF7C0;
+  padding: 15px;
+  padding-top: 10px;
+     -moz-border-radius: 15px; 
+  -webkit-border-radius: 15px; 
+          border-radius: 15px; 
+}
+
+/* Hints */
+
+.hint {
+  font-size: 0.8em;
+  color: #888;
+  margin-bottom: 0;
+}
+
+/* Tables */
+table th {
+  border: 1px solid #e0e0e0;
+  background-color: #e2e2e2;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
+  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
+}
+
+table caption {
+  caption-side: bottom; 
+  color: #888;
+  font-size: 0.9em;
+  background-color: white;
+}
+
+tbody tr:nth-child(even) td, tbody tr.even td {
+  background-color: #fff7c0;
+}
+
+/* ============== */
+/* = Navigation = */
+/* ============== */
+
+#minornavigation {
+  margin-bottom: 1em;
+}
+
+.nominor #minornavigation {
+  display: none;
+}
+
+#minornavigation ul {
+  list-style: none; 
+  padding: 7px;
+  margin: 0;
+}
+
+#minornavigation ul li {
+  display: inline-block;
+  margin-right: 2em;
+}
+
+#minornavigation ul li a {
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#minornavigation ul li a img {
+  margin-bottom: -4px;
+  padding-right: 5px;
+}
+
+#sidebar {
+  margin-right: -10px;
+  padding-left: 9px;
+  overflow: hidden;
+}
+
+#sidebar h2, #sidebar h3 {
+  font-size: 1.3em;
+}
+
+#sidebar ul.property-list li ul {
+  margin-left: -2em;
+}
+
+#content {
+  border-right: 1px solid #e0e0e0;
+}
+
+/* ============== */
+/* = Pagination = */
+/* ============== */
+
+.pager {
+	width: 100%;
+	text-align: center;
+	margin: 0 0 1.2em 0;
+	clear: both;
+}
+
+.pager span, .pager a {
+	text-decoration: none;
+	margin: 0em;
+	border: none;
+	padding: 0.3em 0.1em;
+}
+
+.pager a:hover, .pager a:active {
+	color: #fff;
+	background-color: #c22;
+}
+
+.pager span.pager_dotdot {
+	color: #aaa;
+}
+
+.pager span.pager_curpage {
+	font-weight: bold;
+	border: 1px solid #ddd;
+}
+
+
+/* ==========================
+ * Facets
+ */
+
+.facet-box {
+
+}
+
+#sidebar .facet-box h2 {
+    color: #000;
+    font-size: 1.2em;
+}
+
+.facet-options {
+    margin-top: 0.5em;
+}
+
+.facet-options li {
+    padding-top: 0.2em;
+    color: #000; 
+}
+
+.register-link {
+    padding-top: 10px;
+}
+
+.dataset-search-filters {
+    margin-top: 15px;
+}
+
+.search-field {
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    padding: 2px 2px 4px 3px;
+    font-size: 14px;
+    background-color: #FFF7C0;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    line-height: 16px;
+    /*
+    -moz-box-shadow: 1px 1px 3px #bbb;
+    -webkit-box-shadow: 1px 1px 3px #bbb;
+    box-shadow: 1px 1px 3px #bbb;
+    */
+}
+
+.search-field img {
+    margin-bottom: -3px;
+}
+
+.search-field-name::after {
+    content: ":";
+}
+
+.search-field-value {
+    font-weight: bold;
+}
+
+/* ================ */
+/* = Forms common = */
+/* ================ */
+
+fieldset {
+  border: 0px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+
+/* ============== */
+/* = Login Form = */
+/* ============== */
+
+form.simple-form label {
+    display: inline-block; 
+    float: left;
+    min-width: 40%;
+    padding-top: 0.5em;
+    padding-bottom: 1em;
+}
+
+form.simple-form fieldset input {
+    border: 1px solid #E7E7E7;
+    padding: 0.5em; 
+    width: 40%;
+    margin-bottom: 1em
+}
+
+form.simple-form textarea {
+    width: 99%;
+}
+
+.purge-button {
+  border: none;
+  background: none;
+  background-color: #b33a3a;
+  color: white;
+  display: block;
+  margin-bottom: 1em;
+}
+
+.purge-button:hover {
+  border: none;
+}
+
+
+/* ===================== */
+/* = Dataset read view = */
+/* ===================== */
+
+.property-list {
+  list-style: none;
+  padding-left: 3em;
+}
+
+#sidebar .property-list li h3 {
+  font-size: 1.1em;
+  font-weight: bold; 
+  margin-bottom: 0.5em;
+  margin-left: -2em;
+}
+
+#sidebar .property-list li {
+  margin-bottom: 0.2em;
+}
+
+.dataset .api div {
+    background:#f0f0f0;
+    padding:10px;
+}
+
+.dataset .api h5 {
+    font-weight:bold;
+    margin-bottom:1em!important;
+    font-size:1em;
+}
+
+.dataset .api code {
+    background:#444;
+    color:#fff;
+    padding:3px 10px ;
+    margin-bottom:1em;
+    display:block;
+}
+.dataset .api code a {
+    color:#fff;
+}
+
+/* ===================== */
+/* = User Listing      = */
+/* ===================== */
+
+body.user-list #content {
+}
+
+ul.userlist, ul.userlist ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.userlist li.user {
+  display: inline-block;
+  width: 200px;
+  margin-bottom: 15px;
+}
+
+ul.userlist li ul span.edits {
+  color: #333;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-left: 3px;
+}
+
+ul.userlist li.user .username {
+}
+
+#content ul.userlist .username img {
+  margin-bottom: -3px;
+}
+
+ul.userlist .created {
+  color: #888;
+}
+
+ul.userlist .badge {
+  color: #fc0;
+}
+
+body.user-list .sort {
+  float: right;
+}
+
+body.user-list .sort a {
+  background: #eee;
+  padding: 5px;
+  border-bottom: 1px solid #ccc; 
+  border-right: 1px solid #ccc; 
+}
+
+/* ===================== */
+/* = Stateful stuff    = */
+/* ===================== */
+
+.state-deleted, .state-deleted a, .state-deleted * {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.state-deleted {
+  padding-left: 3px;
+}
+
+.state-deleted:hover * {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.state-notice {
+  text-transform: uppercase;
+  font-size: 120%;
+  background: #f4a83d;
+  padding: 15px;
+  text-align: center;
+  color: #fff;
+}
+
+/* ================ */
+/* = Search boxes = */
+/* ================ */
+
+form.dataset-search input.search {
+  width: 99%;
+  font-size: 1.2em;
+  margin: 0px;
+  -webkit-appearance: textfield;
+  
+  border: 1px solid #ccc;
+  padding: 0.5em;
+  font-weight: bold;
+
+     -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px; 
+          border-radius: 5px; 
+  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+}
+
+.dataset-search input.button {
+    display: inline-block;
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px !important;
+    margin-bottom: 1px !important;
+}
+
+.dataset-search-filters {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  color: #888;
+}
+
+.dataset-search-filters label {
+  padding-left: 1em;
+}
+
+/* =================== */
+/* = Dataset listing = */
+/* =================== */
+
+ul.datasets {
+	padding-left: 0;
+    margin: 0 0 1em 0;
+}
+
+.datasets .header {
+    padding-top: 0.5em;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.datasets .extract {
+	padding-top: 0.3em;
+}
+
+.datasets li {
+	list-style: none;
+	padding: 1em 0 0.2em 0.0em;
+	border-bottom: 1px solid #ececec;
+	overflow: hidden;
+	/*white-space: nowrap;*/
+}
+
+.datasets li a {
+	text-decoration: none;
+}
+
+.datasets li img {
+	margin-bottom: -2px;
+}
+
+.search_meta {
+    float:right;
+}
+
+ul.dataset_formats {
+    float: right;
+    padding: 0 0 3px 0; 
+    margin: 0;
+    font-family: monospace;
+}
+
+ul.dataset_formats li {
+    display: inline;
+    margin: 0;
+    padding: 0 5px 0 5px;
+    border: none;
+    font-weight: normal;
+    font-size: 0.9em;
+    color: #808080;
+    background:#ececec;
+}
+
+.openness {
+    clear:right;
+    float:right;
+    font-size:0.8em;
+}
+
+.openness img {
+    vertical-align:top;
+}
+
+.openness li {
+    margin:0;
+    padding:0;
+    border:none;    
+}
+
+
+.signup {
+  color: white; 
+  border-bottom: 0;
+  background-color: #FFF7C0;
+  padding: 15px;
+  padding-top: 10px;
+     -moz-border-radius: 15px; 
+  -webkit-border-radius: 15px; 
+          border-radius: 15px;
+  padding-bottom: 10px;
+}
+
+.signup h2 {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 1.2em;
+}
+
+.subscribe {
+  float: right;
+  margin-top: -6px;
+  margin-bottom: -10px;
+}
+
+.subscribe input[type='text'] {
+  border: 1px solid #ccc;
+  padding: 4px;
+  margin-right: 10px;
+}
+

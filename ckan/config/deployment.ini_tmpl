@@ -74,16 +74,16 @@ ckan.controllers.apiv2.package.show.expires = -1
 # CKAN QoS monitoring
 ckan.enable_call_timing = false
 
-# Location of RDF versions of packages
+# Location of RDF versions of datasets
 #rdf_packages = http://semantic.ckan.net/record/
 
-# Location of licenses group (defaults to local Python licenses package)
+# Location of licenses group (defaults to local Python licenses dataset)
 #licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_original
 
-# Package form to use
+# Dataset form to use
 package_form = standard
 
-# Hide certain extras fields from package read form:
+# Hide certain extras fields from dataset read form:
 # package_hide_extras = for_search_index_only
 
 # API configuration
@@ -103,9 +103,9 @@ package_form = standard
 # extra_template_paths = %(here)s/my-templates
 # extra_public_paths = %(here)s/my-public
 
-# Package form integration
-#package_edit_return_url = http://another.frontend/package/<NAME>
-#package_new_return_url = http://another.frontend/package/<NAME>
+# Dataset form integration
+#package_edit_return_url = http://another.frontend/dataset/<NAME>
+#package_new_return_url = http://another.frontend/dataset/<NAME>
 
 
 # Turn on messaging with carrot, default to false
@@ -126,7 +126,7 @@ ckan.build_search_index_synchronously = true
 ckan.site_title = CKAN
 
 ## Logo image to use (replaces site_title string on front page if defined)
-ckan.site_logo = http://assets.okfn.org/p/ckan/img/ckan_logo_largetext.png
+ckan.site_logo = http://assets.okfn.org/p/ckan/img/ckan_logo_box.png
 
 ## Site tagline / description (used on front page)
 ckan.site_description = 
@@ -167,6 +167,10 @@ ckan.backup_dir = %(here)s/backup
 #ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
 #ckan.default_roles.System = {"visitor": ["anon_editor"], "logged_in": ["editor"]}
 #ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}
+
+## Ckan public and private recaptcha keys [localhost]
+#ckan.recaptcha.publickey = 
+#ckan.recaptcha.privatekey = 
 
 # Logging configuration
 [loggers]

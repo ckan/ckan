@@ -27,7 +27,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
                        'geographic_coverage':'England, Wales'},
         }
         CreateTestData.create_arbitrary(self.package_fixture_data)
-        self.base_url = self.offset('/search/package')
+        self.base_url = self.offset('/search/dataset')
 
     @classmethod
     def teardown_class(cls):
@@ -207,6 +207,11 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         assert anna_rec['ratings_average'] == 3.0, anna_rec['ratings_average']
         assert anna_rec['ratings_count'] == 1, anna_rec['ratings_count']
 
+        # try alternative syntax
+        offset = self.base_url + '?q=russian&all_fields=1'
+        res2 = self.app.get(offset, status=200)
+        assert_equal(res2.body, res.body)
+
     def test_08_all_fields_syntax_error(self):
         offset = self.base_url + '?all_fields=should_be_boolean' # invalid all_fields value
         res = self.app.get(offset, status=400)
@@ -316,18 +321,6 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
-
-    def test_strftimestamp(self):
-        import datetime
-        t = datetime.datetime(2012, 3, 4, 5, 6, 7, 890123)
-        s = model.strftimestamp(t)
-        assert s == "2012-03-04T05:06:07.890123", s
-
-    def test_strptimestamp(self):
-        import datetime
-        s = "2012-03-04T05:06:07.890123"
-        t = model.strptimestamp(s)
-        assert t == datetime.datetime(2012, 3, 4, 5, 6, 7, 890123), t
 
 class TestPackageSearchApi1(Api1TestCase, PackageSearchApiTestCase): pass
 class TestPackageSearchApi2(Api2TestCase, PackageSearchApiTestCase): pass

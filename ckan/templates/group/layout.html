@@ -7,9 +7,9 @@
   >
 
   <py:match path="primarysidebar">
-    <li class="widget-container widget_text">
-      <h2>Groups section</h2>
-      <p i18n:msg="">Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A <strong>group</strong> can be set-up to specify which users have permission to add or remove packages from it.</p>
+    <li class="widget-container boxed widget_text">
+      <h3>Groups section</h3>
+      <p i18n:msg="">Whilst tags are great at collecting datasets together, there are occasions when you want to restrict users from editing a collection. A <strong>group</strong> can be set-up to specify which users have permission to add or remove datasets from it.</p>
       <p>
 	<span class="ckan_logged_in" style="display: none;">
 	  To create a new group, please first <a href="${h.url_for(controller='user',action='login', id=None)}">login</a>.
@@ -24,12 +24,16 @@
   <py:match path="minornavigation" py:if="c.group">
   <ul class="tabbed">
     <li>${h.subnav_link(c, h.icon('group') + _('View'), controller='group', action='read', id=c.group.name)}</li>
-    <li py:if="h.am_authorized(c, actions.EDIT, c.group)">
+    <li py:if="h.check_access('group_update',{'id':c.group.id})">
       ${h.subnav_link(c, h.icon('group_edit') + _('Edit'), controller='group', action='edit', id=c.group.name)}
     </li>
     <li>${h.subnav_link(c, h.icon('page_white_stack') + _('History'), controller='group', action='history', id=c.group.name)}</li>
-    <li py:if="h.am_authorized(c, actions.EDIT_PERMISSIONS, c.group)">
+    <li py:if="h.check_access('group_edit_permissions',{'id':c.group.id})">
       ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='group', action='authz', id=c.group.name)}
+    </li>
+    <li class="action">
+    ${h.subnav_link(c, h.icon('atom_feed') + _('Subscribe'),
+    controller='group', action='history', id=c.group.name, format='atom', days=7)}
     </li>
   </ul>
   </py:match>
