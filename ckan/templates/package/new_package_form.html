@@ -9,7 +9,20 @@
 <h2>Errors in form</h2>
 <p>The form contains invalid entries:</p>
 <ul>
-  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}</li>
+  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}
+    <py:if test="key=='Resources'">
+      <ul>
+        <py:for each="idx, errordict in enumerate(errors.get('resources', []))">
+          <li py:if="errordict">
+            Resource ${idx}:
+            <ul>
+              <li py:for="thiskey, thiserror in errordict.items()">${thiskey}: <py:for each="errorinfo in thiserror">${errorinfo}; </py:for></li>
+            </ul>
+          </li>
+        </py:for>
+      </ul>
+    </py:if>
+  </li>
 </ul>
 </div>
 
