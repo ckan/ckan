@@ -182,7 +182,13 @@ class BaseController(WSGIController):
                 msg = _("No request body data")
                 raise ValueError, msg
         if request_data:
-            request_data = json.loads(request_data, encoding='utf8')
+            try:
+                request_data = json.loads(request_data, encoding='utf8')
+            except ValueError, e:
+                raise ValueError, _('Error parsing JSON data. '
+                                    'Error: %r '
+                                    'JSON (Decoded and re-encoded): %r' % \
+                                    (e, request_data))
             if not isinstance(request_data, dict):
                 raise ValueError, _("Request params must be in form of a json encoded dictionary.")
             # ensure unicode values

@@ -85,6 +85,7 @@ The CKAN API version 1 & 2 is separated into three parts.
 * `Model API`_
 * `Search API`_
 * `Util API`_
+* `Action API`_
 
 The resources, methods, and data formats of each are described below.
 
@@ -548,3 +549,9 @@ This returns:
 ::
 
     {"ResultSet": {"Result": [{"Format": "csv"}]}}
+
+
+Action API
+~~~~~~~~~~
+
+See: :doc:`action_api`
