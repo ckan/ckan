@@ -16,15 +16,18 @@
 <fieldset id="basic-information">
   <dl>
     <dt class="title-label"><label class="field_opt" for="title">Title</label></dt>
-    <dd class="title-field"><input id="title" tabindex="1" name="title" type="text" value="${data.get('title', '')}"/></dd>
-    <dd class="title-instructions instructions basic">A short descriptive title for the dataset.</dd>
-    <dd class="title-instructions instructions further">It should not be a description though - save that for the Notes field. Do not give a trailing full stop.</dd>
+    <dd class="title-field">
+      <input id="title"
+        tabindex="1" name="title" type="text"
+        value="${data.get('title', '')}"
+        placeholder="A short descriptive title for the dataset"
+      />
+    </dd>
     <dd class="title-instructions field_error" py:if="errors.get('title', '')">${errors.get('title', '')}</dd>
 
     <dt class="name-label"><label class="field_req" for="name">Slug *</label></dt>
     <dd class="name-field"><input id="name" tabindex="999" maxlength="100" name="name" type="text" value="${data.get('name', '')}" /></dd>
-    <dd class="name-instructions instructions basic">A unique identifier for the dataset.</dd>
-    <dd class="name-instructions instructions further">It should be broadly humanly readable, in the spirit of Semantic Web URIs. Only use an acronym if it is widely recognised. Renaming is possible but discouraged.</dd>
+    <dd class="name-instructions instructions basic">A unique identifier used in urls. Renaming is possible but discouraged.</dd>
     <dd class="name-instructions hints">2+ characters, lowercase, using only 'a-z0-9' and '-_'</dd>
     <dd class="name-instructions field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
 
