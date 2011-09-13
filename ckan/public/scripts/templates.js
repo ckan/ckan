@@ -122,20 +122,24 @@ CKAN.Templates.resourceEntry = ' \
       <dd> \
         <input name="resources__${num}__mimetype_inner" type="text" value="${resource.mimetype_inner}" /> \
       </dd> \
+      <dt>Last Modified</dt> \
+      <dd> \
+        <input name="resources__${num}__last_modified" type="text" value="${resource.last_modified}" /> \
+      </dd> \
       <dt>Resource Type</dt> \
       <dd> \
+      {{if resource.resource_type=="file.upload"}} \
         ${resource.resource_type} \
         <input name="resources__${num}__resource_type" type="hidden" value="${resource.resource_type}" /> \
+      {{/if}} \
+      {{if resource.resource_type!="file.upload"}} \
+        <input name="resources__${num}__resource_type" type="text" value="${resource.resource_type}" /> \
+      {{/if}} \
       </dd> \
       <dt>Hash</dt> \
       <dd> \
         ${resource.hash || "Unknown"} \
         <input name="resources__${num}__hash" type="hidden" value="${resource.hash}" /> \
-      </dd> \
-      <dt>Last Modified</dt> \
-      <dd> \
-        ${resource.last_modified || "Unknown"} \
-        <input name="resources__${num}__last_modified" type="hidden" value="${resource.last_modified}" /> \
       </dd> \
       <dt>ID</dt> \
       <dd> \
