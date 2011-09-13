@@ -198,6 +198,13 @@ ul.widget-list li.widget-container.boxed {
           border-radius: 15px; 
 }
 
+/* Notices */
+
+.notice a, .notice a:visited,
+.success a, .success a:visited {
+  text-decoration: underline;
+}
+
 /* Hints */
 
 .hint {
@@ -227,7 +234,18 @@ table caption {
 }
 
 tbody tr:nth-child(even) td, tbody tr.even td {
-  background-color: #fff7c0;
+  background-color: #FCF6CF;
+}
+tbody tr:nth-child(odd) td, tbody tr.odd td {
+  background-color: #FEFEF2;
+}
+
+tbody tr td.table-empty {
+  background: #f8f8f8;
+  border: 1px solid #eee;
+  font-style: italic;
+  color: #333;
+  font-size: 90%;
 }
 
 /* ============== */
@@ -681,4 +699,253 @@ ul.dataset_formats li {
   padding: 4px;
   margin-right: 10px;
 }
+
+/* ===================== */
+/* = Edit Dataset Page = */
+/* ===================== */
+
+body.edit.package div#content {
+  margin-right: 0px;
+}
+body.edit.package div#sidebar {
+  padding-left: 0px;
+}
+ul.edit-form-navigation {
+  list-style-type: none;
+  padding-left: 0;
+}
+ul.edit-form-navigation li a {
+  text-decoration: none;
+  font-weight: bold;
+  display: block;
+  padding: 7px 0 7px 10px;
+  margin-bottom: 7px;
+  border: 1px transparent solid;
+}
+ul.edit-form-navigation li a.active,  
+ul.edit-form-navigation li a:hover {
+  border: 1px solid #e0e0e0;
+  background-color: #e2e2e2;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
+  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
+
+  border-left: none;
+     -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px; 
+          border-radius: 5px; 
+     -moz-border-bottom-left-radius: 0px; 
+  -webkit-border-bottom-left-radius: 0px; 
+          border-bottom-left-radius: 0px; 
+     -moz-border-top-left-radius: 0px; 
+  -webkit-border-top-left-radius: 0px; 
+          border-top-left-radius: 0px; 
+
+  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+}
+
+div.markdown-editor {
+  background: #EEE;
+  border-radius: 5px 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border: 1px solid #CCC;
+  padding: 0 5px 5px 10px;
+}
+
+div.markdown-preview {
+  background: white;
+  border: 1px solid #CCC;
+  padding: 5px;
+  margin-bottom: 5px;
+  overflow: auto;
+}
+
+textarea.markdown-input {
+  margin-bottom: 5px;
+  padding: 5px;
+  display: block;
+}
+
+
+table.resource-table tbody tr td {
+  vertical-align: top;
+}
+table.resource-table td.resource-summary {
+  vertical-align: middle;
+}
+
+td.resource-expanded dl{
+  margin-bottom: 5px;
+}
+td.resource-expand-link {
+  padding-top: 6px;
+  text-align: center;
+}
+th.resource-is-changed, td.resource-is-changed {
+  text-align: center;
+  padding: 8px 0 0 0;
+  width: 20px;
+}
+/* ====================== */
+/* = Add Resources Page = */
+/* ====================== */
+
+input#Resource--url {
+  width: 60%;
+}
+
+/* ==================== */
+/* = Add Dataset Page = */
+/* ==================== */
+
+body.package.new dt.homepage-label,
+body.package.new dd.homepage-field,
+body.package.new dd.homepage-instructions 
+{
+  display: none;
+}
+body.package.new dt.tags-label,
+body.package.new dd.tags-field,
+body.package.new dd.tags-instructions 
+{
+  display: none;
+}
+body.package.new dt.description-label,
+body.package.new dd.description-field,
+body.package.new dd.description-instructions 
+{
+  display: none;
+}
+body.package.new dt.license-label,
+body.package.new dd.license-field,
+body.package.new dd.license-instructions 
+{
+  display: none;
+}
+
+body.package.new dt.name-label {
+  font-size: 10px;
+}
+
+body.package.new .instructions {
+  font-size: 10px;
+}
+
+body.package.new input#name {
+  font-size: 8px;
+
+  background: #eee;
+}
+
+.success .new-dataset {
+  font-size: 150%;
+}
+.success .new-dataset a {
+  font-weight: bold;
+}
+
+/* =============================== */
+/* = Mini-Tabs [Markdown Editor] = */
+/* =============================== */
+
+ul.tabs {
+  margin-bottom: 5px;
+}
+
+ul.tabs li {
+  display: inline;
+}
+
+ul.tabs li a {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #666;
+  border: 1px solid transparent;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-top-left-radius: 10px 10px;
+  border-top-right-radius: 10px 10px;
+  border-bottom-right-radius: 10px 10px;
+  border-bottom-left-radius: 10px 10px;
+}
+
+ul.tabs li a.selected {
+  color: #333;
+  background: white;
+  border-color: #BBB;
+  border-right-color: #DDD;
+  border-bottom-color: #DDD;
+}
+
+
+/* ================================== */
+/* = Twitter.Bootstrap Form Buttons = */
+/* ================================== */
+div.form-submit {
+    background: #eee;
+    padding: 20px;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    border-left: none;
+    border-right: none;
+    height: 60px;
+}
+
+div.form-submit p.hints {
+    display: block;
+    width: 50%;
+    float: right;
+}
+
+input.pretty {
+    font: -webkit-small-control;
+    -webkit-border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+    -webkit-transition: 0.1s linear all;
+    -webkit-box-align: center;
+    -webkit-appearance: button;
+    box-sizing: border-box;
+    text-align: center;
+    margin: 0;
+    vertical-align: baseline;
+    cursor: pointer;
+    display: inline-block;
+    background-color: #E6E6E6;
+    background-repeat: no-repeat;
+    background-image: -webkit-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+    background-image: -moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);
+    background-image: -ms-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+    background-image: -o-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+    background-image: linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+    padding: 5px 14px 6px;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+    color: #333;
+    font-size: 13px;
+    border: 1px solid #CCC;
+    border-bottom-color: #BBB;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+input.pretty.primary {
+    color: white;
+    background-color: #0064CD;
+    background-repeat: repeat-x;
+    background-image: -webkit-linear-gradient(top, #049cdb, #0064cd);
+    background-image: -o-linear-gradient(top, #049cdb, #0064cd);
+    background-image: linear-gradient(top, #049cdb, #0064cd);
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+
+
+
 

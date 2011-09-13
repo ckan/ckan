@@ -116,7 +116,7 @@
         <div class="action-box-inner find">
           <h1>Find data</h1>
 
-          <form action="/package" method="GET"> 
+          <form action="${h.url_for(controller='package', action='index')}" method="GET"> 
             <input name="q" value="" class="search-field" placeholder="Find datasets" /> 
           </form> 
           ${g.site_title} contains <a href="${h.url_for(controller='package')}">${c.package_count} datasets</a> that you can 

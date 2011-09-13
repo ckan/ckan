@@ -63,14 +63,19 @@ class PackageController(BaseController):
         '''Check if the return data is correct, mostly for checking out if
         spammers are submitting only part of the form'''
 
+        # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                               'extras_validation', 'save', 'preview',
-                               'return_to']
+                               'extras_validation', 'save', 'return_to',
+                               'resources']
 
         schema_keys = package_form_schema().keys()
         keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
 
-        if keys_in_schema - set(data_dict.keys()):
+        missing_keys = keys_in_schema - set(data_dict.keys())
+
+        if missing_keys:
+            #print data_dict
+            #print missing_keys
             log.info('incorrect form fields posted')
             raise DataError(data_dict)
 
@@ -330,17 +335,15 @@ class PackageController(BaseController):
     def new(self, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema()}
 
-        if not context['preview']:
-            try:
-                check_access('package_create',context)
-            except NotAuthorized:
-                abort(401, _('Unauthorized to create a package'))
+        try:
+            check_access('package_create',context)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to create a package'))
 
-        if (context['save'] or context['preview']) and not data:
+        if context['save'] and not data:
             return self._save_new(context)
 
         data = data or dict(request.params) 
@@ -350,19 +353,19 @@ class PackageController(BaseController):
 
         self._setup_template_variables(context, {'id': id})
         c.form = render(self.package_form, extra_vars=vars)
+
         return render('package/new.html')
 
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
                    'pending': True,
                    'schema': self._form_to_db_schema()}
 
-        if (context['save'] or context['preview']) and not data:
+        if context['save'] and not data:
             return self._save_edit(id, context)
         try:
             old_data = get_action('package_show')(context, {'id':id})
@@ -376,6 +379,7 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
 
         c.pkg = context.get("package")
+        c.pkg_json = json.dumps(data)
 
         try:
             check_access('package_update',context)
@@ -454,14 +458,6 @@ class PackageController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             pkg = get_action('package_create')(context, data_dict)
 
-            if context['preview']:
-                PackageSaver().render_package(pkg, context)
-                c.pkg = context['package']
-                c.pkg_dict = data_dict
-                c.is_preview = True
-                c.preview = render('package/read_core.html')
-                return self.new(data_dict)
-
             self._form_save_redirect(pkg['name'], 'new')
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
@@ -489,12 +485,6 @@ class PackageController(BaseController):
             c.pkg = context['package']
             c.pkg_dict = pkg
 
-            if context['preview']:
-                c.is_preview = True
-                PackageSaver().render_package(pkg, context)
-                c.preview = render('package/read_core.html')
-                return self.edit(id, data_dict)
-
             self._form_save_redirect(pkg['name'], 'edit')
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
@@ -515,6 +505,13 @@ class PackageController(BaseController):
         @param action - What the action of the edit was
         '''
         assert action in ('new', 'edit')
+        if action == 'new':
+            msg = _('<span class="new-dataset">Congratulations, your dataset has been created. ' \
+                    '<a href="%s">Upload or link ' \
+                    'some data now &raquo;</a></span>')
+            msg = msg % h.url_for(controller='package', action='edit',
+                    id=pkgname, anchor='section-resources')
+            h.flash_success(msg,allow_html=True)
         url = request.params.get('return_to') or \
               config.get('package_%s_return_url' % action)
         if url:

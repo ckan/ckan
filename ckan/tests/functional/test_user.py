@@ -615,7 +615,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # comes back as a params like this:
         # e.g. /user/login?error=Error%20in%20discovery:%20Error%20fetching%20XRDS%20document:%20(6,%20%22Couldn't%20resolve%20host%20'mysite.myopenid.com'%22)
         res = self.app.get("/user/login?error=Error%20in%20discovery:%20Error%20fetching%20XRDS%20document:%20(6,%20%22Couldn't%20resolve%20host%20'mysite.myopenid.com'%22")
-        assert "Couldn't resolve host" in res, res
+        assert "Couldn&#39;t resolve host" in res, res
 
     def _login_openid(self, res):
         # this requires a valid account on some openid provider
@@ -662,7 +662,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['user-password-reset']
         fv['user'] = 'kittens'
         res = fv.submit()
-        assert '"kittens" matched several users' in res, res
+        assert '&#34;kittens&#34; matched several users' in res, res
         assert 'larry1' not in res, res
         assert 'larry2' not in res, res
 

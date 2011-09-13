@@ -94,6 +94,10 @@ class ResourceSqlSearchQuery(SqlSearchQuery):
                 model_attr = getattr(model.Resource, field)
                 if field == 'hash':                
                     q = q.filter(model_attr.ilike(unicode(term) + '%'))
+                ##not text fields
+                elif field in ('size', 'last_modified', 
+                               'cache_last_updated', 'webstore_last_updated'):
+                    q = q.filter(model_attr == term)
                 elif field in model.Resource.get_extra_columns():
                     model_attr = getattr(model.Resource, 'extras')
 

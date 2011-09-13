@@ -27,6 +27,9 @@ fl_notes.txt
 .noseids
 *~
 
+# local symlinks
+ckan/public/scripts/ckanjs.js
+
 # nosetest coverage output
 .coverage
 htmlcov/*

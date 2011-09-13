@@ -34,7 +34,7 @@ class PackageFormalchemyController(PackageController):
             fs = self._get_package_fieldset(is_admin=is_admin)
         except ValueError, e:
             abort(400, e)
-        if 'save' in request.params or 'preview' in request.params:
+        if 'save' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
             log_message = request.params['log_message']
@@ -67,12 +67,7 @@ class PackageFormalchemyController(PackageController):
 
         # use request params even when starting to allow posting from "outside"
         # (e.g. bookmarklet)
-        if 'preview' in request.params or 'name' in request.params or 'url' in request.params:
-            if 'name' not in request.params and 'url' in request.params:
-                url = request.params.get('url')
-                domain = urlparse.urlparse(url)[1]
-                if domain.startswith('www.'):
-                    domain = domain[4:]
+        if 'name' in request.params or 'url' in request.params:
             # ensure all fields specified in params (formalchemy needs this on bind)
             from ckan.forms import add_to_package_dict,get_package_dict
 
@@ -81,21 +76,8 @@ class PackageFormalchemyController(PackageController):
 
         else:
             fs = fs.bind(session=model.Session)
-        #if 'preview' in request.params:
-        #    c.preview = ' '
+
         c.form = self._render_edit_form(fs, request.params, clear_session=True)
-        if 'preview' in request.params:
-            c.is_preview = True
-            try:
-                PackageSaver().render_preview(fs,
-                                              log_message=log_message,
-                                              author=c.author, client=c)
-                c.preview = h.literal(render('package/read_core.html'))
-            except ValidationException, error:
-                fs = error.args[0]
-                c.form = self._render_edit_form(fs, request.params,
-                        clear_session=True)
-                return render('package/new.html')
         return render('package/new.html')
 
     def edit(self, id=None): # allow id=None to allow posting
@@ -121,21 +103,11 @@ class PackageFormalchemyController(PackageController):
             fs = self._get_package_fieldset(is_admin=auth_for_change_state)
         except ValueError, e:
             abort(400, e)
-        if 'save' in request.params or 'preview' in request.params:
+        if 'save' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
             log_message = request.params['log_message']
 
-        if not 'save' in request.params and not 'preview' in request.params:
-            # edit
-            c.pkgname = pkg.name
-            c.pkgtitle = pkg.title
-            if pkg.license_id:
-                self._adjust_license_id_options(pkg, fs)
-            fs = fs.bind(pkg)
-            c.form = self._render_edit_form(fs, request.params)
-            return render('package/edit.html')
-        elif request.params.has_key('save'):
             # id is the name (pre-edited state)
             pkgname = id
             params = dict(request.params) # needed because request is nested
@@ -155,25 +127,12 @@ class PackageFormalchemyController(PackageController):
                 return render('package/edit.html')
             except KeyError, error:
                 abort(400, 'Missing parameter: %s' % error.args)
-        else: # Must be preview
-            c.is_preview = True
+        else:
+            # edit
             c.pkgname = pkg.name
             c.pkgtitle = pkg.title
             if pkg.license_id:
                 self._adjust_license_id_options(pkg, fs)
-            fs = fs.bind(pkg, data=dict(request.params))
-            try:
-                PackageSaver().render_preview(fs,
-                                              log_message=log_message,
-                                              author=c.author, client=c)
-                c.pkgname = fs.name.value
-                c.pkgtitle = fs.title.value
-                read_core_html = render('package/read_core.html') #utf8 format
-                c.preview = h.literal(read_core_html)
-                c.form = self._render_edit_form(fs, request.params)
-            except ValidationException, error:
-                fs = error.args[0]
-                c.form = self._render_edit_form(fs, request.params,
-                        clear_session=True)
-                return render('package/edit.html')
-            return render('package/edit.html') # uses c.form and c.preview
+            fs = fs.bind(pkg)
+            c.form = self._render_edit_form(fs, request.params)
+            return render('package/edit.html')

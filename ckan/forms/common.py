@@ -417,13 +417,19 @@ class ResourcesField(ConfiguredField):
             # formalchemy form param format
             # e.g. 'Dataset-1-resources-0-url': u'http://ww...'
             row = 0
+            # The base columns historically defaulted to empty strings
+            # not None (Null). This is why they are seperate here.
+            base_columns = ['url', 'format', 'description', 'hash', 'id']
             while True:
                 if not params.has_key('%s-%i-url' % (self.name, row)):
                     break
                 new_resource = {}
                 blank_row = True
                 for col in model.Resource.get_columns() + ['id']:
-                    value = params.get('%s-%i-%s' % (self.name, row, col), u'')
+                    if col in base_columns:
+                        value = params.get('%s-%i-%s' % (self.name, row, col), u'')
+                    else:
+                        value = params.get('%s-%i-%s' % (self.name, row, col))
                     new_resource[col] = value
                     if col != 'id' and value:
                         blank_row = False

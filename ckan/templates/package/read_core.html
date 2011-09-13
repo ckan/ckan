@@ -1,5 +1,6 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   py:strip=""
   >
   <xi:include href="../_util.html" />
@@ -9,11 +10,10 @@
       ${c.pkg_notes_formatted}
     </div>
     
-    <!-- Downloads and resources -->
+    <!-- Resources -->
     <div class="resources subsection">
-      <h3>Downloads &amp; Resources</h3>
-      <py:choose test="">
-      <table py:when="c.pkg_dict.get('resources', [])">
+      <h3>Resources</h3>
+      <table>
         <tr>
             <th>Description</th>
             <th>Format</th>
@@ -35,12 +35,10 @@
               <td property="dc:format">${res.get('format', '')}</td>
           </tr>
         </py:for>
-            <caption>
-                This is a list of all known formats and datasets for <em>${c.pkg_dict.get('title', '')}</em>. If you know of another (CSV, SPARQL end-point etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
-            </caption>
+        <py:if test="not len(c.pkg_dict.get('resources', []))">
+          <tr><td colspan="2" class="table-empty">(none)</td></tr>
+        </py:if>
       </table>
-      <table py:otherwise=""><tr><th>Resources</th><td>None given for this dataset.</td></tr></table>
-      </py:choose>
     </div>
 
     <hr class="cleared" />
@@ -71,10 +69,10 @@
           <td class="dataset-label" property="rdfs:label">${_(key)}</td>
           <td class="dataset-details" property="rdf:value">${value}</td>
         </tr>
+        <py:if test="not len(c.pkg_extras)">
+          <tr><td colspan="2" class="table-empty">(none)</td></tr>
+        </py:if>
       </tbody>
-          <caption py:if="not c.is_preview and h.check_access('package_update',{'id':c.pkg.id})">
-              Something missing? ${h.subnav_link(c, 'Please help improve this page by adding more information', controller='package', action='edit', id=c.pkg.name)}.
-          </caption>
     </table>
     </div>
     

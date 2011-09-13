@@ -38,27 +38,6 @@
   <![endif]-->
   <link rel="stylesheet" href="${g.site_url}/css/style.css?v=2" />
   <link rel="stylesheet" href="${g.site_url}/css/forms.css" type="text/css" media="screen, print" />
-  
-  <script type="text/javascript" src="${g.site_url}/language.js"></script>
-  <script type="text/javascript" src="${g.site_url}/language.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery/1.5.2/jquery.min.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.cookie/jquery.cookie.min.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.placeholder/jquery.placeholder.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jqueryui/1.8.11/jquery-ui.min.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/application.js?lang=${c.locale}"></script>
-
-  <script src="${g.site_url}/scripts/vendor/modernizr/1.7/modernizr.min.js"></script>
-
-  <script type="text/javascript">
-    $(document).ready(function() {
-        var ckan_user = $.cookie("ckan_display_name");
-        if (ckan_user) {
-            $(".ckan-logged-out").hide();
-            $(".ckan-logged-in").show();
-        }
-        $('input[placeholder], textarea[placeholder]').placeholder();
-    });
-  </script>
 
   <py:if test="defined('optional_head')">
     ${optional_head()}
@@ -103,9 +82,9 @@
       </header>
     </div>
     <py:with vars="messages = list(h._flash.pop_messages())">
-    <div class="class container flash-banner-box" py:if="len(messages)">
-      <div class="flash-banner ${m.category}" py:for="m in messages">
-        ${m.message}
+    <div class="class container" py:if="len(messages)">
+      <div class="${m.category}" py:for="m in messages">
+        ${h.literal(m)}
       </div>
     </div>
     </py:with>
@@ -216,12 +195,43 @@
         <a href="http://opendefinition.org/"><img alt="This Content and Data is Open" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" style="border: none ; margin-bottom: -4px;"/></a>
         
         <br/><br/>
-        Powered by <a href="http://ckan.org">CKAN</a>.<br/>
+        Powered by <a href="http://ckan.org">CKAN</a> v${c.__version__}.<br/>
       </p>
         </div>
     </footer>
   </div> <!-- eo #container -->
 
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <!--script><![CDATA[window.jQuery || document.write("<script src='${g.site_url}/scripts/vendor/jquery/1.6.2/jquery.js'>\x3C/script>")]]></script-->
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/json2.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.tmpl/beta1/jquery.tmpl.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.cookie/jquery.cookie.min.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.placeholder/jquery.placeholder.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jqueryui/1.8.11/jquery-ui.min.js"></script>
+  <!-- for ckanjs etc -->
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/underscore/1.1.6/underscore.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/backbone/0.5.1/backbone.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/showdown/showdown.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.fileupload/20110801/jquery.iframe-transport.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js"></script>
+  <script src="https://raw.github.com/okfn/ckanjs/master/pkg/ckanjs.js"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/ckanjs.js"></script>
+  <!-- finally our application js that sets everything up-->
+  <script type="text/javascript" src="${g.site_url}/scripts/application.js?lang=${c.locale}"></script>
+  <script type="text/javascript" src="${g.site_url}/scripts/templates.js"></script>
+
+  <script src="${g.site_url}/scripts/vendor/modernizr/1.7/modernizr.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+        var ckan_user = $.cookie("ckan_display_name");
+        if (ckan_user) {
+            $(".ckan-logged-out").hide();
+            $(".ckan-logged-in").show();
+        }
+        $('input[placeholder], textarea[placeholder]').placeholder();
+    });
+  </script>
 
   <py:if test="defined('optional_footer')">
     ${optional_footer()}
