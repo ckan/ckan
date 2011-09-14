@@ -27,19 +27,11 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_passwords_match,
                                    user_password_not_empty,
                                    isodate,
+                                   int_validator,
                                    user_about_validator)
 from formencode.validators import OneOf
 import ckan.model
 
-def int_converter(indata):
-    if isinstance(indata, basestring):
-        cleaned = indata.strip()
-        if cleaned != '':
-            return int(indata)
-        else:
-            return None
-    else:
-        return int(indata)
     
 def default_resource_schema():
 
@@ -61,10 +53,10 @@ def default_resource_schema():
         'mimetype_inner': [ignore_missing, unicode],
         'webstore_url': [ignore_missing, unicode],
         'cache_url': [ignore_missing, unicode],
-        'size': [ignore_missing, int_converter],
-        'last_modified': [ignore_empty, isodate],
-        'cache_last_updated': [ignore_empty, isodate],
-        'webstore_last_updated': [ignore_empty, isodate],
+        'size': [ignore_missing, int_validator],
+        'last_modified': [ignore_missing, isodate],
+        'cache_last_updated': [ignore_missing, isodate],
+        'webstore_last_updated': [ignore_missing, isodate],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 

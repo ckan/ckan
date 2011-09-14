@@ -15,13 +15,23 @@ def package_id_not_changed(value, context):
                         'This key is read-only') % (package.id, value))
     return value
 
-def isodate(value, context):
-
-    if isinstance(value, datetime.datetime):
+def int_validator(value, context):
+    if isinstance(value, int):
         return value
     try:
+        if value.strip() == '':
+            return None
+        return int(value)
+    except (AttributeError, ValueError), e:
+        raise Invalid(_('Invalid integer'))
+
+def isodate(value, context):
+    if isinstance(value, datetime.datetime):
+        return value
+    if value == '':
+        return None
+    try:
         date = date_str_to_datetime(value)
-        context['revision_date'] = date
     except (TypeError, ValueError), e:
         raise Invalid(_('Date format incorrect'))
     return date
