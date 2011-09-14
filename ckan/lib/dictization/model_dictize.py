@@ -196,7 +196,7 @@ def user_dictize(user, context):
 def group_to_api1(group, context):
     
     dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], extra["value"]) 
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
     dictized["packages"] = sorted([package["name"] for package in dictized["packages"]])
     return dictized
@@ -204,7 +204,7 @@ def group_to_api1(group, context):
 def group_to_api2(group, context):
     
     dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], extra["value"]) 
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
     dictized["packages"] = sorted([package["id"] for package in dictized["packages"]])
     return dictized
