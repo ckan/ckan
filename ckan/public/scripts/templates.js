@@ -18,8 +18,8 @@ CKAN.Templates.resourceAddLinkFile = ' \
       </dt> \
       <dd> \
         <input name="url" type="text" placeholder="http://mydataset.com/file.csv" style="width: 60%"/> \
-        <input name="save" type="submit" class="pretty primary" value="Add" /> \
-        <input name="reset" type="reset" class="pretty" value="Cancel" /> \
+        <input name="save" type="submit" class="pretty-button primary" value="Add" /> \
+        <input name="reset" type="reset" class="pretty-button" value="Cancel" /> \
       </dd> \
     </dl> \
      \
@@ -36,8 +36,8 @@ CKAN.Templates.resourceAddLinkApi = ' \
       </dt> \
       <dd> \
         <input name="url" type="text" placeholder="http://mydataset.com/file.csv" style="width: 60%" /> \
-        <input name="save" type="submit" class="pretty primary" value="Add" /> \
-        <input name="reset" type="reset" class="pretty" value="Cancel" /> \
+        <input name="save" type="submit" class="pretty-button primary" value="Add" /> \
+        <input name="reset" type="reset" class="pretty-button" value="Cancel" /> \
       </dd> \
     </dl> \
      \
@@ -60,8 +60,8 @@ CKAN.Templates.resourceUpload = ' \
       <dd> \
         <input type="file" name="file" /> \
         <span class="fileinfo"></span> \
-        <input id="upload" name="upload" type="submit" class="pretty primary" value="Add" /> \
-        <input id="reset" name="reset" type="reset" class="pretty" value="Cancel" /> \
+        <input id="upload" name="upload" type="submit" class="pretty-button primary" value="Add" /> \
+        <input id="reset" name="reset" type="reset" class="pretty-button" value="Cancel" /> \
       </dd> \
     </dl> \
   </form> \
