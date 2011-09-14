@@ -20,9 +20,6 @@
 
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
-      $('#content fieldset').hide();
-      $('#content fieldset#basic-information').show();
-      $('.edit-summary').hide();
       $('#save').val("Add Dataset")
     }
 

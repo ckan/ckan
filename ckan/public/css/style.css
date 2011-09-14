@@ -704,6 +704,10 @@ ul.dataset_formats li {
 /* = Edit Dataset Page = */
 /* ===================== */
 
+body.package.edit .edit-summary {
+  display: none;
+}
+
 body.edit.package div#content {
   margin-right: 0px;
 }
@@ -802,6 +806,19 @@ input#Resource--url {
 /* ==================== */
 /* = Add Dataset Page = */
 /* ==================== */
+
+/* do this here to avoid js flash when we hide in js */
+body.package.new form fieldset {
+  display: none;
+}
+
+body.package.new form fieldset#basic-information {
+  display: block;
+}
+
+body.package.new .edit-summary {
+  display: none;
+}
 
 body.package.new dt.homepage-label,
 body.package.new dd.homepage-field,
