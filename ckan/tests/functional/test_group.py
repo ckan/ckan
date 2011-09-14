@@ -42,8 +42,6 @@ class TestGroup(FunctionalTestCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    # TODO: remove test (?)
-    # why: very fragile and overly detailed checking of main menu:w
     def test_mainmenu(self):
         offset = url_for(controller='home', action='index')
         res = self.app.get(offset)
@@ -83,6 +81,11 @@ class TestGroup(FunctionalTestCase):
             pkg = model.Package.by_name(pkgname)
             res = res.click(pkg.title)
             assert '%s - Datasets' % pkg.title in res
+
+    def test_read_non_existent(self):
+        name = u'group_does_not_exist'
+        offset = url_for(controller='group', action='read', id=name)
+        res = self.app.get(offset, status=404)
 
     def test_read_plugin_hook(self):
         plugin = MockGroupControllerPlugin()
@@ -200,6 +203,11 @@ Ho ho ho
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         assert plugin.calls['edit'] == 1, plugin.calls
         plugins.unload(plugin)
+
+    def test_edit_non_existent(self):
+        name = u'group_does_not_exist'
+        offset = url_for(controller='group', action='edit', id=name)
+        res = self.app.get(offset, status=404)
 
 class TestNew(FunctionalTestCase):
     groupname = u'david'

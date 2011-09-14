@@ -141,6 +141,8 @@ class GroupController(BaseController):
 
             data = data or old_data
 
+        except NotFound:
+            abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % '')
 
