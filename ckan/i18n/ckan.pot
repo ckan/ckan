@@ -6,16 +6,16 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 1.4.3b\n"
+"Project-Id-Version: ckan 1.4.3\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2011-09-06 12:34+0100\n"
+"POT-Creation-Date: 2011-09-14 10:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.5\n"
+"Generated-By: Babel 0.9.6\n"
 
 #: ckan/controllers/api.py:39 ckan/controllers/authorization_group.py:19
 #: ckan/controllers/group.py:47 ckan/controllers/home.py:24
@@ -51,8 +51,8 @@ msgstr ""
 #: ckan/controllers/api.py:157 ckan/controllers/api.py:285
 #: ckan/controllers/api.py:331 ckan/controllers/group.py:166
 #: ckan/controllers/group.py:185 ckan/controllers/package.py:463
-#: ckan/controllers/package.py:496 ckan/controllers/user.py:138
-#: ckan/controllers/user.py:215 ckan/controllers/user.py:326
+#: ckan/controllers/package.py:496 ckan/controllers/user.py:140
+#: ckan/controllers/user.py:222 ckan/controllers/user.py:333
 msgid "Integrity Error"
 msgstr ""
 
@@ -117,28 +117,28 @@ msgstr ""
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:37
+#: ckan/controllers/authorization_group.py:41
 #, python-format
 msgid "Not authorized to read %s"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:55 ckan/controllers/group.py:103
+#: ckan/controllers/authorization_group.py:59 ckan/controllers/group.py:103
 #: ckan/controllers/group_formalchemy.py:29
 msgid "Unauthorized to create a group"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:103 ckan/controllers/group.py:430
+#: ckan/controllers/authorization_group.py:108 ckan/controllers/group.py:430
 #: ckan/controllers/group_formalchemy.py:83
 #, python-format
 msgid "User %r not authorized to edit %r"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:147 ckan/controllers/group.py:73
+#: ckan/controllers/authorization_group.py:152 ckan/controllers/group.py:73
 #: ckan/controllers/group.py:194 ckan/controllers/group.py:428
 msgid "Group not found"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:155 ckan/controllers/group.py:200
+#: ckan/controllers/authorization_group.py:160 ckan/controllers/group.py:200
 #: ckan/controllers/package.py:538
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
@@ -185,11 +185,11 @@ msgstr ""
 msgid "Invalid language specified"
 msgstr ""
 
-#: ckan/controllers/home.py:75
+#: ckan/controllers/home.py:77
 msgid "Language has been set to: English"
 msgstr ""
 
-#: ckan/controllers/home.py:77
+#: ckan/controllers/home.py:81
 msgid "No language given!"
 msgstr ""
 
@@ -244,73 +244,73 @@ msgstr ""
 msgid "Tag not found"
 msgstr ""
 
-#: ckan/controllers/user.py:112
+#: ckan/controllers/user.py:115
 msgid "Unauthorized to create a user"
 msgstr ""
 
-#: ckan/controllers/user.py:134
+#: ckan/controllers/user.py:136
 #, python-format
 msgid "Unauthorized to create user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:136 ckan/controllers/user.py:176
-#: ckan/controllers/user.py:213 ckan/controllers/user.py:304
-#: ckan/controllers/user.py:324
+#: ckan/controllers/user.py:138 ckan/controllers/user.py:183
+#: ckan/controllers/user.py:220 ckan/controllers/user.py:311
+#: ckan/controllers/user.py:331
 msgid "User not found"
 msgstr ""
 
-#: ckan/controllers/user.py:155
+#: ckan/controllers/user.py:162
 msgid "No user specified"
 msgstr ""
 
-#: ckan/controllers/user.py:174 ckan/controllers/user.py:211
-#: ckan/controllers/user.py:322
+#: ckan/controllers/user.py:181 ckan/controllers/user.py:218
+#: ckan/controllers/user.py:329
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:181 ckan/logic/action/update.py:382
+#: ckan/controllers/user.py:188 ckan/logic/action/update.py:382
 #, python-format
 msgid "User %s not authorized to edit %s"
 msgstr ""
 
-#: ckan/controllers/user.py:239
+#: ckan/controllers/user.py:246
 #, python-format
 msgid "Welcome back, %s"
 msgstr ""
 
-#: ckan/controllers/user.py:279
+#: ckan/controllers/user.py:286
 #, python-format
 msgid "\"%s\" matched several users"
 msgstr ""
 
-#: ckan/controllers/user.py:281 ckan/controllers/user.py:283
+#: ckan/controllers/user.py:288 ckan/controllers/user.py:290
 #, python-format
 msgid "No such user: %s"
 msgstr ""
 
-#: ckan/controllers/user.py:288
+#: ckan/controllers/user.py:295
 msgid "Please check your inbox for a reset code."
 msgstr ""
 
-#: ckan/controllers/user.py:291
+#: ckan/controllers/user.py:298
 #, python-format
 msgid "Could not send reset link: %s"
 msgstr ""
 
-#: ckan/controllers/user.py:308
+#: ckan/controllers/user.py:315
 msgid "Invalid reset key. Please try again."
 msgstr ""
 
-#: ckan/controllers/user.py:319
+#: ckan/controllers/user.py:326
 msgid "Your password has been reset."
 msgstr ""
 
-#: ckan/controllers/user.py:347
+#: ckan/controllers/user.py:354
 msgid "Your password must be 4 characters or longer."
 msgstr ""
 
-#: ckan/controllers/user.py:349
+#: ckan/controllers/user.py:356
 msgid "The passwords you entered do not match."
 msgstr ""
 

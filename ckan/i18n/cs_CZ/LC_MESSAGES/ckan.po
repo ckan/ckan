@@ -1,23 +1,23 @@
-# Translations template for ckan.
+# Czech (Czech Republic) translations for ckan.
 # Copyright (C) 2011 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# 
-#   <klimek@ksi.mff.cuni.cz>, 2011.
-#   <m.tajtl@gmail.com>, 2011.
+#
+# <klimek@ksi.mff.cuni.cz>, 2011.
+# <m.tajtl@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
-"POT-Creation-Date: 2011-09-06 12:34+0100\n"
+"POT-Creation-Date: 2011-09-14 10:56+0100\n"
 "PO-Revision-Date: 2011-09-06 11:39+0000\n"
 "Last-Translator: dread <internet@davidread.org>\n"
-"Language-Team: Czech (Czech Republic) (http://www.transifex.net/projects/p/ckan/team/cs_CZ/)\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.5\n"
-"Language: cs_CZ\n"
+"Language-Team: Czech (Czech Republic) "
+"(http://www.transifex.net/projects/p/ckan/team/cs_CZ/)\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
 
 #: ckan/controllers/api.py:39 ckan/controllers/authorization_group.py:19
 #: ckan/controllers/group.py:47 ckan/controllers/home.py:24
@@ -53,8 +53,8 @@ msgstr "Chyba JSON: %s"
 #: ckan/controllers/api.py:157 ckan/controllers/api.py:285
 #: ckan/controllers/api.py:331 ckan/controllers/group.py:166
 #: ckan/controllers/group.py:185 ckan/controllers/package.py:463
-#: ckan/controllers/package.py:496 ckan/controllers/user.py:138
-#: ckan/controllers/user.py:215 ckan/controllers/user.py:326
+#: ckan/controllers/package.py:496 ckan/controllers/user.py:140
+#: ckan/controllers/user.py:222 ckan/controllers/user.py:333
 msgid "Integrity Error"
 msgstr "Chyba v integritě"
 
@@ -94,8 +94,7 @@ msgstr "Neexistuje revize s id: %s"
 
 #: ckan/controllers/api.py:389
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
-msgstr ""
-"Ve vyhledávání chybí výraz ('since_id=UUID' nebo 'since_time=TIMESTAMP')"
+msgstr "Ve vyhledávání chybí výraz ('since_id=UUID' nebo 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:397
 #, python-format
@@ -120,28 +119,28 @@ msgstr "Neplatná qjson hodnota"
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr "Parametry požadavku musí mít formu kódování slovníku JSON."
 
-#: ckan/controllers/authorization_group.py:37
+#: ckan/controllers/authorization_group.py:41
 #, python-format
 msgid "Not authorized to read %s"
 msgstr "Nemáte oprávnění číst %s"
 
-#: ckan/controllers/authorization_group.py:55 ckan/controllers/group.py:103
+#: ckan/controllers/authorization_group.py:59 ckan/controllers/group.py:103
 #: ckan/controllers/group_formalchemy.py:29
 msgid "Unauthorized to create a group"
 msgstr "Nemáte oprávnění vytvořit skupinu"
 
-#: ckan/controllers/authorization_group.py:103 ckan/controllers/group.py:430
+#: ckan/controllers/authorization_group.py:108 ckan/controllers/group.py:430
 #: ckan/controllers/group_formalchemy.py:83
 #, python-format
 msgid "User %r not authorized to edit %r"
 msgstr "Uživatel %r nemá oprávnění měnit %r"
 
-#: ckan/controllers/authorization_group.py:147 ckan/controllers/group.py:73
+#: ckan/controllers/authorization_group.py:152 ckan/controllers/group.py:73
 #: ckan/controllers/group.py:194 ckan/controllers/group.py:428
 msgid "Group not found"
 msgstr "Skupina nebyla nalezena"
 
-#: ckan/controllers/authorization_group.py:155 ckan/controllers/group.py:200
+#: ckan/controllers/authorization_group.py:160 ckan/controllers/group.py:200
 #: ckan/controllers/package.py:538
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
@@ -188,11 +187,11 @@ msgstr "Zpráva logu: "
 msgid "Invalid language specified"
 msgstr "Byl zadán neplatný jazyk"
 
-#: ckan/controllers/home.py:75
+#: ckan/controllers/home.py:77
 msgid "Language has been set to: English"
 msgstr "Jazyk byl nastaven na: Česky"
 
-#: ckan/controllers/home.py:77
+#: ckan/controllers/home.py:81
 msgid "No language given!"
 msgstr "Nebyl zadán jazyk!"
 
@@ -247,73 +246,73 @@ msgstr "Další"
 msgid "Tag not found"
 msgstr ""
 
-#: ckan/controllers/user.py:112
+#: ckan/controllers/user.py:115
 msgid "Unauthorized to create a user"
 msgstr ""
 
-#: ckan/controllers/user.py:134
+#: ckan/controllers/user.py:136
 #, python-format
 msgid "Unauthorized to create user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:136 ckan/controllers/user.py:176
-#: ckan/controllers/user.py:213 ckan/controllers/user.py:304
-#: ckan/controllers/user.py:324
+#: ckan/controllers/user.py:138 ckan/controllers/user.py:183
+#: ckan/controllers/user.py:220 ckan/controllers/user.py:311
+#: ckan/controllers/user.py:331
 msgid "User not found"
 msgstr ""
 
-#: ckan/controllers/user.py:155
+#: ckan/controllers/user.py:162
 msgid "No user specified"
 msgstr ""
 
-#: ckan/controllers/user.py:174 ckan/controllers/user.py:211
-#: ckan/controllers/user.py:322
+#: ckan/controllers/user.py:181 ckan/controllers/user.py:218
+#: ckan/controllers/user.py:329
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:181 ckan/logic/action/update.py:382
+#: ckan/controllers/user.py:188 ckan/logic/action/update.py:382
 #, python-format
 msgid "User %s not authorized to edit %s"
 msgstr ""
 
-#: ckan/controllers/user.py:239
+#: ckan/controllers/user.py:246
 #, python-format
 msgid "Welcome back, %s"
 msgstr "Vítejte zpět, %s"
 
-#: ckan/controllers/user.py:279
+#: ckan/controllers/user.py:286
 #, python-format
 msgid "\"%s\" matched several users"
 msgstr ""
 
-#: ckan/controllers/user.py:281 ckan/controllers/user.py:283
+#: ckan/controllers/user.py:288 ckan/controllers/user.py:290
 #, python-format
 msgid "No such user: %s"
 msgstr ""
 
-#: ckan/controllers/user.py:288
+#: ckan/controllers/user.py:295
 msgid "Please check your inbox for a reset code."
 msgstr ""
 
-#: ckan/controllers/user.py:291
+#: ckan/controllers/user.py:298
 #, python-format
 msgid "Could not send reset link: %s"
 msgstr ""
 
-#: ckan/controllers/user.py:308
+#: ckan/controllers/user.py:315
 msgid "Invalid reset key. Please try again."
 msgstr ""
 
-#: ckan/controllers/user.py:319
+#: ckan/controllers/user.py:326
 msgid "Your password has been reset."
 msgstr ""
 
-#: ckan/controllers/user.py:347
+#: ckan/controllers/user.py:354
 msgid "Your password must be 4 characters or longer."
 msgstr "Vaše heslo musí mít alespoň 4 znaky."
 
-#: ckan/controllers/user.py:349
+#: ckan/controllers/user.py:356
 msgid "The passwords you entered do not match."
 msgstr "Zadaná hesla se neshodují."
 
@@ -327,8 +326,8 @@ msgid ""
 "Name must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
 msgstr ""
-"Název může obsahovat pouze malá písmena bez diakritiky, číslice a znaky - "
-"(pomlčka) a _ (podtržítko)"
+"Název může obsahovat pouze malá písmena bez diakritiky, číslice a znaky -"
+" (pomlčka) a _ (podtržítko)"
 
 #: ckan/forms/common.py:40 ckan/logic/validators.py:89
 msgid "Package name already exists in database"
@@ -361,8 +360,8 @@ msgstr "Tag \"%s\" je kratší než minimální počet %s znaků"
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
 msgstr ""
-"Tag \"%s\" může obsahovat pouze malá písmena bez diakritiky, číslice a znaky"
-" - (pomlčka) a _ (podtržítko)"
+"Tag \"%s\" může obsahovat pouze malá písmena bez diakritiky, číslice a "
+"znaky - (pomlčka) a _ (podtržítko)"
 
 #: ckan/forms/common.py:510 ckan/logic/validators.py:141
 #, python-format
@@ -431,11 +430,11 @@ msgstr "Stručný a popisný název množiny dat."
 
 #: ckan/forms/package.py:35 ckan/templates/package/new_package_form.html:22
 msgid ""
-"It should not be a description though - save that for the Notes field. Do "
-"not give a trailing full stop."
+"It should not be a description though - save that for the Notes field. Do"
+" not give a trailing full stop."
 msgstr ""
-"Neměl by to ale bý popis, ten si nechte pro pole Poznámky. Na konci nepište "
-"tečku."
+"Neměl by to ale bý popis, ten si nechte pro pole Poznámky. Na konci "
+"nepište tečku."
 
 #: ckan/forms/package.py:39 ckan/templates/package/new_package_form.html:27
 msgid "A unique identifier for the package."
@@ -443,13 +442,13 @@ msgstr "Unikátní identifikátor pro balíček:"
 
 #: ckan/forms/package.py:40 ckan/templates/package/new_package_form.html:28
 msgid ""
-"It should be broadly humanly readable, in the spirit of Semantic Web URIs. "
-"Only use an acronym if it is widely recognised. Renaming is possible but "
-"discouraged."
+"It should be broadly humanly readable, in the spirit of Semantic Web "
+"URIs. Only use an acronym if it is widely recognised. Renaming is "
+"possible but discouraged."
 msgstr ""
 "Mělo by to být v zásadě lidsky čitelné, v duchu URI sémantického webu. "
-"Zkratku použijte pouze, pokud je všeobecně uznávána. Přejmenování je možné, "
-"ale nedoporučuje se."
+"Zkratku použijte pouze, pokud je všeobecně uznávána. Přejmenování je "
+"možné, ale nedoporučuje se."
 
 #: ckan/forms/package.py:41 ckan/templates/package/new_package_form.html:29
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
@@ -469,16 +468,16 @@ msgstr "např. http://www.priklad.cz/grafy-rustu.html"
 
 #: ckan/forms/package.py:55 ckan/templates/package/new_package_form.html:125
 msgid ""
-"The name of the main contact, for enquiries about this particular dataset, "
-"using the e-mail address in the following field."
+"The name of the main contact, for enquiries about this particular "
+"dataset, using the e-mail address in the following field."
 msgstr ""
 "Jméno hlavního kontaktu pro dotazy o této konkrétní množině dat, který "
 "používá email v následujícím poli."
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:132
 msgid ""
-"If there is another important contact person (in addition to the person in "
-"the Author field) then provide details here."
+"If there is another important contact person (in addition to the person "
+"in the Author field) then provide details here."
 msgstr ""
 "Pokud exituje jiná důležitá kontaktní osoba (kromě osoby v poli Autor), "
 "uveďte ji zde."
@@ -502,11 +501,11 @@ msgstr "Tagy"
 #: ckan/forms/package.py:69
 #, python-format
 msgid ""
-"Terms that may link this dataset to similar ones. For more information on "
-"conventions, see <a href=\"%s\">this wiki page</a>."
+"Terms that may link this dataset to similar ones. For more information on"
+" conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
-"Výrazy které mohou spojovat tuto množinu dat s podobnými. Pro více informací"
-" o zvyklostech navštivte <a href=\"%s\">tuto wiki stránku</a>."
+"Výrazy které mohou spojovat tuto množinu dat s podobnými. Pro více "
+"informací o zvyklostech navštivte <a href=\"%s\">tuto wiki stránku</a>."
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:61
 msgid "e.g. pollution rivers water-quality"
@@ -518,36 +517,39 @@ msgstr "Soubory obsahující data nebo adresu API pro přístup k nim."
 
 #: ckan/forms/package.py:75
 msgid ""
-"<br />These can be repeated as required. For example if the data is being "
-"supplied in multiple formats, or split into different areas or time periods,"
-" each file is a different 'resource' which should be described differently. "
-"They will all appear on the dataset page on CKAN together.<br /><br /> "
-"<b>URL:</b> This is the Internet link directly to the data - by selecting "
-"this link in a web browser, the user will immediately download the full data"
-" set. Note that datasets are not hosted on this site, but by the publisher "
-"of the data. Alternatively the URL can point to an API server such as a "
-"SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the"
-" file format in which the data is supplied. <br /><b>Description</b> Any "
-"information you want to add to describe the resource.<br />"
+"<br />These can be repeated as required. For example if the data is being"
+" supplied in multiple formats, or split into different areas or time "
+"periods, each file is a different 'resource' which should be described "
+"differently. They will all appear on the dataset page on CKAN "
+"together.<br /><br /> <b>URL:</b> This is the Internet link directly to "
+"the data - by selecting this link in a web browser, the user will "
+"immediately download the full data set. Note that datasets are not hosted"
+" on this site, but by the publisher of the data. Alternatively the URL "
+"can point to an API server such as a SPARQL endpoint or JSON-P "
+"service.<br /> <b>Format:</b> This should give the file format in which "
+"the data is supplied. <br /><b>Description</b> Any information you want "
+"to add to describe the resource.<br />"
 msgstr ""
-"<br />Podle potřeby se mohou opakovat. Například pokud jsou data dostupná ve"
-" více formátech nebo rozdělená podle různých oblastí nebo období, každý "
-"soubor je jiný zdroj, který by měl být popsán jinak. Všechny se pak společně"
-" objeví na CKANu, na stránce s daty.<br /><br /> <b>URL:</b> Jedná se o "
-"internetový odkaz přímo na data - otevřením tohoto odkazu ve webovém "
-"prohlížeči může uživatel ihned stáhnout celý soubor dat. Všimněte si, že "
-"datové soubory nejsou uloženy na této stránce, ale zůstávají na stránkách "
-"jejich vydavatele. Případně může URL odkazovat na API serveru, jakým je "
-"například endpoint, SPARQL nebo služby JSON-P. <br /> <b>Formát:</b> Sem by "
-"měl být zadán formát souboru, v němž jsou data dostupná.<br /> <b>Popis</b> "
-"Veškeré informace, které chcete přidat k popsání zdroje.<br />"
+"<br />Podle potřeby se mohou opakovat. Například pokud jsou data dostupná"
+" ve více formátech nebo rozdělená podle různých oblastí nebo období, "
+"každý soubor je jiný zdroj, který by měl být popsán jinak. Všechny se pak"
+" společně objeví na CKANu, na stránce s daty.<br /><br /> <b>URL:</b> "
+"Jedná se o internetový odkaz přímo na data - otevřením tohoto odkazu ve "
+"webovém prohlížeči může uživatel ihned stáhnout celý soubor dat. Všimněte"
+" si, že datové soubory nejsou uloženy na této stránce, ale zůstávají na "
+"stránkách jejich vydavatele. Případně může URL odkazovat na API serveru, "
+"jakým je například endpoint, SPARQL nebo služby JSON-P. <br /> "
+"<b>Formát:</b> Sem by měl být zadán formát souboru, v němž jsou data "
+"dostupná.<br /> <b>Popis</b> Veškeré informace, které chcete přidat k "
+"popsání zdroje.<br />"
 
 #: ckan/forms/package.py:76 ckan/templates/package/new_package_form.html:93
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
 msgstr ""
-"Výběr formátů: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Jiné dle potřeby"
+"Výběr formátů: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Jiné dle "
+"potřeby"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 #: ckan/templates/package/new_package_form.html:38
@@ -560,13 +562,14 @@ msgstr "Hlavní popis množiny dat"
 
 #: ckan/forms/package.py:82 ckan/templates/package/new_package_form.html:41
 msgid ""
-"It is often displayed with the package title. In particular, it should start"
-" with a short sentence that describes the data set succinctly, because the "
-"first few words alone may be used in some views of the data sets."
+"It is often displayed with the package title. In particular, it should "
+"start with a short sentence that describes the data set succinctly, "
+"because the first few words alone may be used in some views of the data "
+"sets."
 msgstr ""
-"Často je zobrazen spolu s názvem balíčku. Začít by měl krátkou větou, která "
-"stručně popíše soubor dat, protože prvních několik slov může být použito v "
-"některých pohledech na soubor dat."
+"Často je zobrazen spolu s názvem balíčku. Začít by měl krátkou větou, "
+"která stručně popíše soubor dat, protože prvních několik slov může být "
+"použito v některých pohledech na soubor dat."
 
 #: ckan/forms/package.py:83
 #, python-format
@@ -728,8 +731,8 @@ msgstr "Balíček s názvem %r neexistuje."
 #: ckan/logic/validators.py:176
 #, python-format
 msgid ""
-"That login name is not valid. It must be at least 3 characters, restricted "
-"to alphanumerics and these symbols: %s"
+"That login name is not valid. It must be at least 3 characters, "
+"restricted to alphanumerics and these symbols: %s"
 msgstr ""
 
 #: ckan/logic/validators.py:181
@@ -1203,13 +1206,18 @@ msgstr "Oprávnění"
 
 #: ckan/templates/authorization_group/layout.html:24
 msgid ""
-"Instead of specifying the privileges of specific users on a package or group,\n"
-"          you can also specify a set of users that will share the same rights. To do that, an    \n"
-"          [1:authorization group] can be set-up and users can be added to it."
+"Instead of specifying the privileges of specific users on a package or "
+"group,\n"
+"          you can also specify a set of users that will share the same "
+"rights. To do that, an    \n"
+"          [1:authorization group] can be set-up and users can be added to"
+" it."
 msgstr ""
 "Místo zadávání oprávnění konkrétním uživatelům pro balíčky či skupiny,\n"
-"          můžete zadat skupinu uživatelů, kteří budou sdílet stejná práva. K tomuto slouží    \n"
-"          [1:autorizační skupina], kterou můžete vytvořit a uživatele do ní zařadit."
+"          můžete zadat skupinu uživatelů, kteří budou sdílet stejná "
+"práva. K tomuto slouží    \n"
+"          [1:autorizační skupina], kterou můžete vytvořit a uživatele do "
+"ní zařadit."
 
 #: ckan/templates/authorization_group/layout.html:28
 msgid "To create a new authorization group, please first"
@@ -1313,14 +1321,15 @@ msgstr "Sekce skupin"
 
 #: ckan/templates/group/layout.html:12
 msgid ""
-"Whilst tags are great at collecting packages together, there are occasions "
-"when you want to restrict users from editing a collection. A [1:group] can "
-"be set-up to specify which users have permission to add or remove packages "
-"from it."
+"Whilst tags are great at collecting packages together, there are "
+"occasions when you want to restrict users from editing a collection. A "
+"[1:group] can be set-up to specify which users have permission to add or "
+"remove packages from it."
 msgstr ""
-"I když jsou tagy skvělé pro tvoření kolekcí balíčků, existují případy kdy "
-"chcete zabrátnit uživatelům v úpravě kolekce. Může být vytvořena [1:skupina]"
-" určující kteří uživatelé mají právo přidávat a odebírat balíčky z kolekce."
+"I když jsou tagy skvělé pro tvoření kolekcí balíčků, existují případy kdy"
+" chcete zabrátnit uživatelům v úpravě kolekce. Může být vytvořena "
+"[1:skupina] určující kteří uživatelé mají právo přidávat a odebírat "
+"balíčky z kolekce."
 
 #: ckan/templates/group/layout.html:14
 msgid "To create a new group, please first"
@@ -1420,10 +1429,12 @@ msgstr "O CKANu"
 
 #: ckan/templates/home/about.html:11
 msgid ""
-"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of [2:open knowledge] packages and projects\n"
+"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of "
+"[2:open knowledge] packages and projects\n"
 "    (and a few closed ones)."
 msgstr ""
-"CKAN je souborná znalostní archivní síť, nebo-li [1:registr] [2:otevřených znalostí] obsažených v balíčcích a projektech\n"
+"CKAN je souborná znalostní archivní síť, nebo-li [1:registr] "
+"[2:otevřených znalostí] obsažených v balíčcích a projektech\n"
 "    (a pár uzavřený)."
 
 #: ckan/templates/home/about.html:15
@@ -1437,8 +1448,7 @@ msgstr ""
 "      automatizaci zpracování."
 
 #: ckan/templates/home/about.html:20
-msgid ""
-"As a system CKAN functions as a synthesis of several different services:"
+msgid "As a system CKAN functions as a synthesis of several different services:"
 msgstr "Jako systém funguje CKAN jako syntéza několika různých služeb:"
 
 #: ckan/templates/home/about.html:22
@@ -1448,30 +1458,50 @@ msgstr "Přehled funkcí CKANu"
 #: ckan/templates/home/about.html:24
 msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
-"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] but for open data and\n"
+"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] "
+"but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
 "Jak ukazuje graf, CKAN kombinuje vlastnosti seznamu/registru,\n"
-"<span class=\"whitespace other\" title=\"Tab\">»»</span> indexu balíčku a wiki. Jako registr funguje jako [1: Freshmeat], ovšem pro otevřená data a\n"
-"<span class=\"whitespace other\" title=\"Tab\">»»</span> obsahové zdroje. Nicméně oproti jednoduchému registru je v klíčových oblastech rozšířen."
+"<span class=\"whitespace other\" title=\"Tab\">»»</span> indexu balíčku a"
+" wiki. Jako registr funguje jako [1: Freshmeat], ovšem pro otevřená data "
+"a\n"
+"<span class=\"whitespace other\" title=\"Tab\">»»</span> obsahové zdroje."
+" Nicméně oproti jednoduchému registru je v klíčových oblastech rozšířen."
 
 #: ckan/templates/home/about.html:29
 msgid ""
 "First, thanks to its underlying [1:versioned domain model] CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, discovery\n"
-"\t\tand installation of material. In this respect it behaves like [2:CPAN] or [3:PyPI] in the software world -- though\n"
+"\t\twiki-like interface that lets anyone add and material held in it. "
+"Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
+"allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, "
+"discovery\n"
+"\t\tand installation of material. In this respect it behaves like "
+"[2:CPAN] or [3:PyPI] in the software world -- though\n"
 "\t\tagain for [4:open data and content]\n"
 "\t\tnot code."
 msgstr ""
 "Zaprvé, díky základní [1:verzi doménového modelu] má CKAN\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>rozhraní podobné wiki, které do něj umožňuje komukoli vkládat a ukládat zdroje. Za druhé,\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>na rozdíl od wiki, umožňuje CKAN ukládání strukturovaných informací, které dovolují\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>poskytovat vlastnosti podobné indexu, jako jsou automatické registrace, vyhledávání\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span> a vkládání zdrojů. V tomto ohledu se chová jako [2:CPAN] or [3:PyPI] ve světě softwaru -- ačkoli\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>opět na [4:otevřená data a obsah]\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>a nikoli kód.\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>rozhraní podobné wiki, "
+"které do něj umožňuje komukoli vkládat a ukládat zdroje. Za druhé,\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>na rozdíl od wiki, "
+"umožňuje CKAN ukládání strukturovaných informací, které dovolují\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>poskytovat vlastnosti "
+"podobné indexu, jako jsou automatické registrace, vyhledávání\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span> a vkládání zdrojů. V "
+"tomto ohledu se chová jako [2:CPAN] or [3:PyPI] ve světě softwaru -- "
+"ačkoli\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>opět na [4:otevřená data"
+" a obsah]\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>a nikoli kód.\n"
 
 #: ckan/templates/home/about.html:40
 msgid ""
@@ -1499,7 +1529,8 @@ msgstr ""
 "%(title)s je\n"
 "      [1:otevřený registr]\n"
 "      datových a obsahových balíčků. Využitím softwaru CKAN tyto\n"
-"      stránky usnadňují hledání, sdílení a znovupoužití obsahu a dat, a to\n"
+"      stránky usnadňují hledání, sdílení a znovupoužití obsahu a dat, a "
+"to\n"
 "      zejména způsoby, které využívají automatizované zpracování."
 
 #: ckan/templates/home/index.html:51
@@ -1540,15 +1571,21 @@ msgstr ""
 #: ckan/templates/home/license.html:11
 msgid ""
 "All material on this site is [1:open] and can be freely used, reused\n"
-"    and redistributed. Formally, the data/database is licensed under the [2:Open Data Commons Open\n"
+"    and redistributed. Formally, the data/database is licensed under the "
+"[2:Open Data Commons Open\n"
 "      Database License v1.0], with all copyrightable content in that\n"
-"    database plus any additional content on this site licensed under a [3:Creative Commons\n"
+"    database plus any additional content on this site licensed under a "
+"[3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 license]."
 msgstr ""
-"Veškerý obsah na těchto stránkách je [1:otevřený] a může být volně použit, kombinován\n"
-"     a dále poskytován. Formálně jsou data/databáze licencována podle [2:Open Data Commons Open\n"
-"      Database License v1.0], včetně veškerého autorskými právy ochranitelného obsahu v\n"
-"    databázi. Všechen další obsah na těchto stránkách licencován pod [3:Creative Commons\n"
+"Veškerý obsah na těchto stránkách je [1:otevřený] a může být volně "
+"použit, kombinován\n"
+"     a dále poskytován. Formálně jsou data/databáze licencována podle "
+"[2:Open Data Commons Open\n"
+"      Database License v1.0], včetně veškerého autorskými právy "
+"ochranitelného obsahu v\n"
+"    databázi. Všechen další obsah na těchto stránkách licencován pod "
+"[3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 license]."
 
 #: ckan/templates/package/authz.html:5
@@ -1559,8 +1596,7 @@ msgstr "- Oprávnění - Datové balíčky"
 msgid "Authorization for Data Package:"
 msgstr "Oprávnění na datové balíčky:"
 
-#: ckan/templates/package/comments.html:5
-#: ckan/templates/package/history.html:6
+#: ckan/templates/package/comments.html:5 ckan/templates/package/history.html:6
 msgid "- Data Packages - History"
 msgstr "- Datové balíčky - Historie"
 
@@ -1694,8 +1730,8 @@ msgstr ""
 
 #: ckan/templates/package/new_package_form.html:60
 msgid ""
-"Terms that may link this dataset to similar ones. For more information on "
-"conventions, see"
+"Terms that may link this dataset to similar ones. For more information on"
+" conventions, see"
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:60
@@ -1718,10 +1754,10 @@ msgstr "Hash"
 
 #: ckan/templates/package/new_package_form.html:92
 msgid ""
-"These can be repeated as required. For example if the data is being supplied"
-" in multiple formats, or split into different areas or time periods, each "
-"file is a different 'resource' which should be described differently. They "
-"will all appear on the dataset page on CKAN together."
+"These can be repeated as required. For example if the data is being "
+"supplied in multiple formats, or split into different areas or time "
+"periods, each file is a different 'resource' which should be described "
+"differently. They will all appear on the dataset page on CKAN together."
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:92
@@ -1730,11 +1766,11 @@ msgstr ""
 
 #: ckan/templates/package/new_package_form.html:92
 msgid ""
-"This is the Internet link directly to the data - by selecting this link in a"
-" web browser, the user will immediately download the full data set. Note "
-"that datasets are not hosted on this site, but by the publisher of the data."
-" Alternatively the URL can point to an API server such as a SPARQL endpoint "
-"or JSON-P service."
+"This is the Internet link directly to the data - by selecting this link "
+"in a web browser, the user will immediately download the full data set. "
+"Note that datasets are not hosted on this site, but by the publisher of "
+"the data. Alternatively the URL can point to an API server such as a "
+"SPARQL endpoint or JSON-P service."
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:92
@@ -1768,10 +1804,12 @@ msgid ""
 "        var title = this;\n"
 "        var updater = {\n"
 "            init: function(title, name) {\n"
-"                // Add a new element where the validity of the package name can be displayed\n"
+"                // Add a new element where the validity of the package "
+"name can be displayed\n"
 "                this.name_field = name;\n"
 "                this.title_field = title;\n"
-"                this.name_field.parent().append('<div id=\"package_name_valid_msg\"></div>');\n"
+"                this.name_field.parent().append('<div "
+"id=\"package_name_valid_msg\"></div>');\n"
 "                this.title_field.blur(this.title_change_handler())\n"
 "                this.title_field.keyup(this.title_change_handler())\n"
 "                this.name_field.keyup(this.name_change_handler());\n"
@@ -1781,8 +1819,10 @@ msgid ""
 "            title_change_handler: function() {\n"
 "                var self = this;\n"
 "                return function() {\n"
-"                    if (!self.name_changed && self.title_field.val().replace(/^\\s+|\\s+$/g, '')) {\n"
-"                        self.update(self.title_field.val(), function(data) {self.name_field.val(data.name)});\n"
+"                    if (!self.name_changed && "
+"self.title_field.val().replace(/^\\s+|\\s+$/g, '')) {\n"
+"                        self.update(self.title_field.val(), "
+"function(data) {self.name_field.val(data.name)});\n"
 "                    }\n"
 "                }\n"
 "            },\n"
@@ -1790,11 +1830,13 @@ msgid ""
 "                var self = this;\n"
 "                return function() {\n"
 "                    // Reset if the name is emptied\n"
-"                    if (!self.name_field.val().replace(/^\\s+|\\s+$/g, '')){\n"
+"                    if (!self.name_field.val().replace(/^\\s+|\\s+$/g, "
+"'')){\n"
 "                        self.name_changed = false;\n"
 "                        $('#package_name_valid_msg').html('');\n"
 "                    } else {\n"
-"                        self.update(self.name_field.val(), function(data) {\n"
+"                        self.update(self.name_field.val(), function(data)"
+" {\n"
 "                            self.name_field.val(data.name)\n"
 "                        });\n"
 "                    }\n"
@@ -1804,24 +1846,30 @@ msgid ""
 "                var self = this;\n"
 "                return function() {\n"
 "                    // Reset if the name is emptied\n"
-"                    if (!self.name_field.val().replace(/^\\s+|\\s+$/g, '')){\n"
+"                    if (!self.name_field.val().replace(/^\\s+|\\s+$/g, "
+"'')){\n"
 "                        self.name_changed = false;\n"
 "                        $('#package_name_valid_msg').html('');\n"
 "                    } else {\n"
 "                        self.name_changed = true;\n"
-"                        self.update(self.name_field.val(), function(data) {\n"
-"                            if (self.name_field.val().length >= data.name) {\n"
+"                        self.update(self.name_field.val(), function(data)"
+" {\n"
+"                            if (self.name_field.val().length >= "
+"data.name) {\n"
 "                                self.name_field.val(data.name);\n"
 "                            }\n"
 "                        });\n"
 "                    }\n"
 "                };\n"
 "            },\n"
-"            // Keep a variable where we can store whether the name field has been\n"
-"            // directly modified by the user or not. If it has, we should no longer\n"
+"            // Keep a variable where we can store whether the name field "
+"has been\n"
+"            // directly modified by the user or not. If it has, we should"
+" no longer\n"
 "            // fetch updates.\n"
 "            name_changed: false,\n"
-"            // Create a function for fetching the value and updating the result\n"
+"            // Create a function for fetching the value and updating the "
+"result\n"
 "            perform_update: function(value, on_success){\n"
 "                var self = this;\n"
 "                $.ajax({\n"
@@ -1836,14 +1884,18 @@ msgid ""
 "                        }\n"
 "                        var valid_msg = $('#package_name_valid_msg');\n"
 "                        if (data.valid) {\n"
-"                            valid_msg.html('<span style=\"font-weight: bold; color: #0c0\">This package name is available!</span>');\n"
+"                            valid_msg.html('<span style=\"font-weight: "
+"bold; color: #0c0\">This package name is available!</span>');\n"
 "                        } else {\n"
-"                            valid_msg.html('<span style=\"font-weight: bold; color: #c00\">This package name is already used, please use a different name</span>');\n"
+"                            valid_msg.html('<span style=\"font-weight: "
+"bold; color: #c00\">This package name is already used, please use a "
+"different name</span>');\n"
 "                        }\n"
 "                    }\n"
 "                });\n"
 "            },\n"
-"            // We only want to perform the update if there hasn't been a change for say 200ms\n"
+"            // We only want to perform the update if there hasn't been a "
+"change for say 200ms\n"
 "            timer: null,\n"
 "            update: function(value, on_success) {\n"
 "                var self = this;\n"
@@ -1860,7 +1912,8 @@ msgid ""
 "    };\n"
 "})( jQuery );\n"
 "$(document).ready(function() {\n"
-"    $('#title').ajaxCreateSlug('#name', '/api/2/util/package/create_slug');\n"
+"    $('#title').ajaxCreateSlug('#name', "
+"'/api/2/util/package/create_slug');\n"
 "});\n"
 "\n"
 "$(document).ready(function () {\n"
@@ -2159,7 +2212,8 @@ msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first."
 msgstr ""
-"Tato stránka zobrazuje seznam všech změn v databázi balíčků; nejnovější změny\n"
+"Tato stránka zobrazuje seznam všech změn v databázi balíčků; nejnovější "
+"změny\n"
 "    jsou uvedeny na začátku."
 
 #: ckan/templates/revision/purge.html:5
@@ -2283,8 +2337,8 @@ msgstr "E-Mail:"
 msgid "Change your password"
 msgstr "Změnit heslo"
 
-#: ckan/templates/user/edit_user_form.html:27
-#: ckan/templates/user/login.html:44 ckan/templates/user/new_user_form.html:30
+#: ckan/templates/user/edit_user_form.html:27 ckan/templates/user/login.html:44
+#: ckan/templates/user/new_user_form.html:30
 #: ckan/templates/user/perform_reset.html:19
 msgid "Password:"
 msgstr "Heslo:"
@@ -2330,8 +2384,7 @@ msgstr "Nejste členem?"
 
 #: ckan/templates/user/login.html:21
 msgid "Join CKAN to contribute packages under your own name."
-msgstr ""
-"Připojte se k CKAN, abyste mohli přispívat k balíčkům pod vaším jménem."
+msgstr "Připojte se k CKAN, abyste mohli přispívat k balíčkům pod vaším jménem."
 
 #: ckan/templates/user/login.html:32
 msgid "Login - User"
@@ -2355,10 +2408,13 @@ msgstr "Prosím klikněte na vašeho poskytovatele účtu:"
 
 #: ckan/templates/user/login.html:66
 msgid ""
-"OpenID is service that allows you to log-on to many different websites using a single identity.\n"
-"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled account]."
+"OpenID is service that allows you to log-on to many different websites "
+"using a single identity.\n"
+"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled "
+"account]."
 msgstr ""
-"OpenID je služba, která umožňuje přihlášení na mnoho různých webů za použití jediné identifikace.\n"
+"OpenID je služba, která umožňuje přihlášení na mnoho různých webů za "
+"použití jediné identifikace.\n"
 "    Zjistit [1:víc o OpenID] a [2:postup pro vytvoření OpenID účtu]."
 
 #: ckan/templates/user/login.html:73
@@ -2370,14 +2426,17 @@ msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "        using a single identity. Find out [1:more\n"
 "        about OpenID] and [2:how to get an\n"
-"        OpenID enabled account]. Probably the simplest way is sign up with a\n"
+"        OpenID enabled account]. Probably the simplest way is sign up "
+"with a\n"
 "        free OpenID provider such as [3:https://www.myopenid.com/]."
 msgstr ""
 "OpenID je služba, která umožňuje přihlášení na mnoho různých webů\n"
 "        za použití jediné identifikace. Zjistit [1:víc\n"
 "        o OpenID] a [2:postup pro vytvoření\n"
-"        OpenID účtu]. Pravděpodobně nejjednodušší je založení účtu u některého\n"
-"        bezplatného poskytovatele OpenID jako je [3:https://www.myopenid.com/]."
+"        OpenID účtu]. Pravděpodobně nejjednodušší je založení účtu u "
+"některého\n"
+"        bezplatného poskytovatele OpenID jako je "
+"[3:https://www.myopenid.com/]."
 
 #: ckan/templates/user/logout.html:5
 msgid "Logout - User"
@@ -2484,5 +2543,4 @@ msgstr ""
 #: ckan/templates/user/request_reset.html:23
 msgid "User name:"
 msgstr ""
-
 
