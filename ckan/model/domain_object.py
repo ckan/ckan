@@ -91,6 +91,8 @@ class DomainObject(object):
             val = getattr(self, col.name)
             if isinstance(val, datetime.date):
                 val = str(val)
+            if isinstance(val, datetime.datetime):
+                val = val.isoformat()
             _dict[col.name] = val
         return _dict
 

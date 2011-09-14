@@ -1,5 +1,6 @@
 import cli
 from collections import defaultdict
+import datetime
 
 class CreateTestData(cli.CkanCommand):
     '''Create test data in the database.
@@ -525,6 +526,13 @@ search_items = [{'name':'gils',
               'title':'Government Information Locator Service',
               'url':'',
               'tags':'registry  country-usa  government  federal  gov  workshop-20081101 penguin',
+              'resources':[{'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/SFR17_2009_tables.xls',
+                          'format':'XLS',
+                          'last_modified': datetime.datetime(2005,10,01),
+                          'description':'December 2009 | http://www.statistics.gov.uk/hub/id/119-36345'},
+                          {'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000860/SFR17_2009_key.doc',
+                          'format':'DOC',
+                          'description':'http://www.statistics.gov.uk/hub/id/119-34565'}],
               'groups':'ukgov test1 test2 penguin',
               'license':'gpl-3.0',
               'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>

@@ -98,7 +98,10 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
         if not core_columns_only:
             cols = ['id', 'resource_group_id'] + cols + ['position']
         for col in cols:
-            _dict[col] = getattr(self, col)
+            value = getattr(self, col)
+            if isinstance(value, datetime.datetime):
+                value = value.isoformat()
+            _dict[col] = value
         for k, v in self.extras.items() if self.extras else []:
             _dict[k] = v
         if self.resource_group and not core_columns_only:
