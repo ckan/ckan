@@ -137,7 +137,7 @@ def package_form_schema():
 
     schema = default_package_schema()
     ##new
-    schema['log_message'] = [unicode, no_http]
+    schema['log_message'] = [ignore_missing, unicode, no_http]
     schema['groups'] = {
             'id': [ignore_missing, unicode],
             '__extras': [empty],

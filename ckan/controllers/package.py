@@ -371,7 +371,7 @@ class PackageController(BaseController):
             old_data = get_action('package_show')(context, {'id':id})
             schema = self._db_to_form_schema()
             if schema:
-                old_data, errors = validate(old_data, schema)
+                old_data, errors = validate(old_data, schema, context=context)
             data = data or old_data
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
