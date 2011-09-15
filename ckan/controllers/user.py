@@ -61,7 +61,8 @@ class UserController(BaseController):
         c.order_by = request.params.get('order_by', 'name')
 
         context = {'model': model,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author,
+                   'return_query': True}
 
         data_dict = {'q':c.q,
                      'order_by':c.order_by}
@@ -75,7 +76,7 @@ class UserController(BaseController):
         c.page = h.Page(
             collection=users_list,
             page=page,
-            item_count=len(users_list),
+            item_count=users_list.count(),
             items_per_page=LIMIT
             )
         return render('user/list.html')
