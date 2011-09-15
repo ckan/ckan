@@ -389,16 +389,14 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
       window.onbeforeunload = null;
     });
 
-
-
-    // Create Backbone view for adding resources
+    // Tabbed view for adding resources
     var $el=this.el.find('.resource-add');
     this.addView=new CKAN.View.ResourceAdd({
       collection: this.model.get('resources'),
       el: $el
     });
 
-    // Create Resource Edit list
+    // Table for editing resources
     var $el=this.el.find('.resource-table.edit');
     this.resourceList=new CKAN.View.ResourceEditList({
       collection: this.model.get('resources'),
@@ -406,7 +404,6 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
     });
 
     this.render();
-
   },
 
 
@@ -438,8 +435,11 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
   nextIndex: function() {
     var maxId=-1;
     this.el.find('input').each(function(idx,input) {
-      var myId = parseInt($(input).attr('name').split('__')[1])
-      maxId = Math.max(myId, maxId);
+      var splitName=$(input).attr('name').split('__');
+      if (splitName.length>1) {
+        var myId = parseInt(splitName[1])
+        maxId = Math.max(myId, maxId);
+      }
     });
     return maxId+1;
   },
