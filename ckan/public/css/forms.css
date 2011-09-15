@@ -114,6 +114,37 @@ form dl {
     color: #555;
     font-size: 90%;
   }
+
+form table thead th.form-label {
+    width: 23%;
+    display: none;
+}
+form table thead th.form-value {
+    width: 27%;
+    display: none;
+}
+form table tbody tr td.form-label,
+form table tbody tr td.form-value {
+  font-size: 0.92em;
+  line-height: 1.5em;
+  padding-top: 0;
+  padding-bottom: 4px;
+  white-space: nowrap;
+  background: inherit;
+}
+form table tbody tr td.form-label {
+  text-align: right; 
+  font-weight: bold;
+  padding-right: 4px;
+  vertical-align: middle;
+}
+form table tbody tr td.form-value {
+  padding-left: 4px; 
+  border-left: 1px dashed #aaa;
+}
+form table td.form-value input {
+  width: 100%;
+}
  
 label.has-errors, label.fieldWithErrors {
   font-weight: bold;

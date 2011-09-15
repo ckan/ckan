@@ -460,7 +460,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     // Captured by an inner function
     var self = this;
 
-    this.el.find('tbody').append($tr);
+    this.el.find('tbody.resource-table').append($tr);
     var _view = new CKAN.View.ResourceEdit({
       model: resource,
       el: $tr,

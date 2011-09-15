@@ -775,15 +775,13 @@ textarea.markdown-input {
 }
 
 
-table.resource-table tbody tr td {
+table.resource-table tbody tr td.resource-expand-link,
+table.resource-table tbody tr td.resource-is-changed {
   vertical-align: top;
 }
-table.resource-table td.resource-summary {
-  vertical-align: middle;
-}
 
-td.resource-expanded dl{
-  margin-bottom: 5px;
+td.resource-expanded {
+  padding: 8px 0 8px 0;
 }
 td.resource-expand-link {
   padding-top: 6px;
@@ -797,6 +795,11 @@ td.resource-is-changed {
   padding: 8px 0 0 0;
   width: 20px;
 }
+
+div.inner table {
+  margin-bottom: 0;
+}
+
 /* ====================== */
 /* = Add Resources Page = */
 /* ====================== */
