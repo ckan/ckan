@@ -104,11 +104,11 @@ class TestGroup(FunctionalTestCase):
         assert 'edit' in res
         assert name in res
 
-    def test_new(self):
-        offset = url_for(controller='group')
+    def test_new_page(self):
+        offset = url_for(controller='group', action='new')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Create a new group' in res, res
-        
+
 
 class TestEdit(FunctionalTestCase):
     groupname = u'david'
@@ -311,6 +311,13 @@ class TestNew(FunctionalTestCase):
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         assert plugin.calls['create'] == 1, plugin.calls
         plugins.unload(plugin)
+
+    def test_new_bad_param(self):
+        offset = url_for(controller='group', action='new', __bad_parameter='value')
+        res = self.app.post(offset, {'save':'1'},
+                            extra_environ={'REMOTE_USER': 'russianfan'},
+                            status=400)
+        assert 'Integrity Error' in res.body
 
 class TestRevisions(FunctionalTestCase):
     @classmethod
