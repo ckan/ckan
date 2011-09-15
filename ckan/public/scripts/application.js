@@ -543,8 +543,6 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
   toggleExpanded: function(e) {
     e.preventDefault();
 
-    console.log('toggling');
-
     this.expanded = !this.expanded;
     this.animate = true;
     // Closing the form; update the model fields
