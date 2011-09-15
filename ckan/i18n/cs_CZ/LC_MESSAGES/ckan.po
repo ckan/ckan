@@ -81,7 +81,7 @@ msgstr "Nelze aktualizovat prvek tohoto typu: %s"
 #: ckan/controllers/api.py:352
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
-msgstr "Nelze smazat prvek tohoto typu: %s"
+msgstr "Nelze smazat prvek tohoto typu: %s %s"
 
 #: ckan/controllers/api.py:375
 msgid "No revision specified"
@@ -1501,7 +1501,7 @@ msgstr ""
 "class=\"whitespace other\" title=\"Tab\">»</span>opět na [4:otevřená data"
 " a obsah]\n"
 "<span class=\"whitespace other\" title=\"Tab\">»</span><span "
-"class=\"whitespace other\" title=\"Tab\">»</span>a nikoli kód.\n"
+"class=\"whitespace other\" title=\"Tab\">»</span>a nikoli kód."
 
 #: ckan/templates/home/about.html:40
 msgid ""
@@ -2076,7 +2076,7 @@ msgstr "Turtle"
 
 #: ckan/templates/package/read_core.html:135
 msgid "N-Triples"
-msgstr "N-Triples\n"
+msgstr "N-Triples"
 
 #: ckan/templates/package/read_core.html:137
 msgid ""

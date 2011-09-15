@@ -1444,7 +1444,7 @@ msgstr ""
 "\t\tizdelavo indeksa in povezanih funkcij, npr. registracija, odkrivanje\n"
 "\t\tin nameščanje paketov. S tega vidika se obnaša podobno kot \n"
 "\t\t[2:CPAN] ali [3:PyPI] za programske pakete -- le da CKAN deluje\n"
-"\t\tza [4:odprte podatke in vsebine], ne programe.\n"
+"\t\tza [4:odprte podatke in vsebine], ne programe."
 
 #: ckan/templates/home/about.html:40
 msgid ""

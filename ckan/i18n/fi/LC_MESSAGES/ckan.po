@@ -1491,7 +1491,7 @@ msgstr ""
 "\t\tetsinnän, ja asennuksen. Tästä näkövinkkelistä se toimii kuin "
 "[2:CPAN] tai [3:PyPI] ohjelmistomaailmassa -- kuitenkin \n"
 "\t\t[4:avoimen datan ja sisällön kontekstissa]\n"
-"\t\teikä ohjelmakoodille.\n"
+"\t\teikä ohjelmakoodille."
 
 #: ckan/templates/home/about.html:40
 msgid ""

@@ -1,4 +1,4 @@
-[ckan.ckan]
+[ckan.1-4]
 file_filter = ckan/i18n/<lang>/LC_MESSAGES/ckan.po
 source_file = ckan/i18n/ckan.pot
 source_lang = en

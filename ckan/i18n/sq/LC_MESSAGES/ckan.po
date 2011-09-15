@@ -1503,7 +1503,7 @@ msgstr ""
 "class=\"whitespace other\" title=\"Tab\">»</span>again for [4:open data "
 "and content]\n"
 "<span class=\"whitespace other\" title=\"Tab\">»</span><span "
-"class=\"whitespace other\" title=\"Tab\">»</span>not code.\n"
+"class=\"whitespace other\" title=\"Tab\">»</span>not code."
 
 #: ckan/templates/home/about.html:40
 msgid ""

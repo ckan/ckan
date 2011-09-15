@@ -1466,7 +1466,7 @@ msgstr ""
 " o el descubrimiento e instalación\n"
 "\t\tde contenido. A este respecto, se comporta en el mundo del software "
 "como [2:CPAN] o [3:PyPI] -- aunque\n"
-"\t\tpara [4:datos abiertos y contenido], no para código.\n"
+"\t\tpara [4:datos abiertos y contenido], no para código."
 
 #: ckan/templates/home/about.html:40
 msgid ""

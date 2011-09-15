@@ -1492,7 +1492,7 @@ msgstr ""
 "tilby 'indeks'-aktige funksjoner som automatisert registrering, "
 "oppdagelse og installasjon av materiale. På denne måten oppfører det seg "
 "som [2:CPAN] eller [3:PyPI] i programvareverdenen - men igjen tilpasset "
-"[4:åpne data og innhold], ikke kode.\n"
+"[4:åpne data og innhold], ikke kode."
 
 #: ckan/templates/home/about.html:40
 msgid ""
@@ -2078,7 +2078,7 @@ msgstr "Turtle"
 
 #: ckan/templates/package/read_core.html:135
 msgid "N-Triples"
-msgstr "N-Triples\n"
+msgstr "N-Triples"
 
 #: ckan/templates/package/read_core.html:137
 msgid ""

@@ -1460,7 +1460,7 @@ msgstr ""
 "telepítését. Ebben a tekintetben\n"
 "a működés hasonló a szoftveres világban található [2:CPAN] vagy [3:PyPI] "
 "rendszerekhez, ismét csak nyílt adatokra és tartalomra és nem "
-"szoftverekre.\n"
+"szoftverekre."
 
 #: ckan/templates/home/about.html:40
 msgid ""

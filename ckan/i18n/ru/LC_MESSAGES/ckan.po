@@ -133,7 +133,7 @@ msgstr "Недостаточно прав для создания группы"
 #: ckan/controllers/group_formalchemy.py:83
 #, python-format
 msgid "User %r not authorized to edit %r"
-msgstr "У пользователя %r недостаточно прав для редактирования"
+msgstr "У пользователя %r недостаточно прав для редактирования %r"
 
 #: ckan/controllers/authorization_group.py:152 ckan/controllers/group.py:73
 #: ckan/controllers/group.py:194 ckan/controllers/group.py:428
@@ -1492,8 +1492,7 @@ msgstr ""
 "обнаружения\n"
 "»» и установки данных. В этом смысле CKAN подобен [2:CPAN] или [3:PyPI] -"
 " но\n"
-"[4:для открытых данных и другой информации], а не для программного кода.\n"
-"\n"
+"[4:для открытых данных и другой информации], а не для программного кода."
 
 #: ckan/templates/home/about.html:40
 msgid ""
@@ -2076,9 +2075,7 @@ msgstr "Turtle"
 
 #: ckan/templates/package/read_core.html:135
 msgid "N-Triples"
-msgstr ""
-"N-Triples\n"
-"\n"
+msgstr "N-Triples"
 
 #: ckan/templates/package/read_core.html:137
 msgid ""

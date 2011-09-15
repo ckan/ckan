@@ -1489,7 +1489,7 @@ msgstr ""
 "\t\tdi funzionare come un 'indice' con registrazione automatica, ricerca "
 "e installazione\n"
 "\t\tdi materiale. In questo senso funziona come [2:CPAN] oppure [3:PyPI] "
-"nel mondo del software -- ma per i [4:dati e contenuti aperti].\n"
+"nel mondo del software -- ma per i [4:dati e contenuti aperti]."
 
 #: ckan/templates/home/about.html:40
 msgid ""

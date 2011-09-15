@@ -1456,7 +1456,7 @@ msgstr ""
 "\t\tund Installieren von Datenmaterial. In dieser Hinsicht verhält es "
 "sich wie [2:CPAN] or [3:PyPI] in der Softwarewelt -- nur eben\n"
 "\t\tfür [4:offene Daten und Inhalte]\n"
-"\t\tanstatt Code.\n"
+"\t\tanstatt Code."
 
 #: ckan/templates/home/about.html:40
 msgid ""
