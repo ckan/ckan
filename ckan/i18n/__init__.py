@@ -3,7 +3,7 @@ from babel import Locale
 
 
 # TODO: Figure out a nicer way to get this. From the .ini? 
-_KNOWN_LOCALES = ['en', 'de',
+_KNOWN_LOCALES = ['en', 'ca', 'de',
                   'es', 'fi', 'fr', 
                   'it', 'nl', 'no',
                   'pt_BR', 'ru',
