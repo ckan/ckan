@@ -94,10 +94,6 @@ class AuthorizationGroupController(BaseController):
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.authzgroupname)
 
-        if request.params:
-            # when does this happen?
-            data = ckan.forms.edit_group_dict(ckan.forms.get_authorization_group_dict(), request.params)
-            fs = fs.bind(data=data, session=model.Session)
         c.form = self._render_edit_form(fs)
         return render('authorization_group/new.html')
 
