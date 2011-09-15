@@ -87,6 +87,7 @@ CKAN.Templates.resourceEntry = ' \
     ${resource.description} \
   </td> \
   <td class="resource-expanded" colspan="3"> \
+    <div class="inner"> \
     <dl> \
       <dt>Name</dt> \
       <dd> \
@@ -148,6 +149,7 @@ CKAN.Templates.resourceEntry = ' \
       </dd> \
     </dl> \
     <button class="delete-resource pretty-button danger">Delete Resource</button> \
+    </div> \
   </td> \
   <td class="resource-is-changed"> \
     <img src="/images/icons/add.png" title="This resource has unsaved changes." class="resource-is-changed" /> \

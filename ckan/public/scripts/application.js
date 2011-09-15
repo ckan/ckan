@@ -473,16 +473,13 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
   initialize: function() {
     _.bindAll(this, 'render', 'toggleExpanded');
     var self = this;
-    this.model.bind('change', 
-      function() { 
-        self.hasChanged=true; 
-        this.render();
-      }
-    );
+    this.model.bind('change', function() { self.hasChanged=true; });
+    this.model.bind('change', this.render());
     this.position = this.options.position;
 
     this.expanded = this.model.isNew();
     this.hasChanged = this.model.isNew();
+    this.animate = false;
   },
 
   render: function() {
@@ -496,6 +493,10 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
     if (this.expanded) {
       this.el.find('a.resource-expand-link').hide();
       this.el.find('.resource-summary').hide();
+      if (this.animate) {
+        this.el.find('.resource-expanded .inner').hide();
+        this.el.find('.resource-expanded .inner').show('slow');
+      }
     }
     else {
       this.el.find('a.resource-collapse-link').hide();
@@ -505,6 +506,7 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
     if (!this.hasChanged) {
       this.el.find('img.resource-is-changed').hide();
     }
+    this.animate = false;
   },
 
   events: {
@@ -541,7 +543,10 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
   toggleExpanded: function(e) {
     e.preventDefault();
 
+    console.log('toggling');
+
     this.expanded = !this.expanded;
+    this.animate = true;
     // Closing the form; update the model fields
     if (!this.expanded) {
       this.saveData();
