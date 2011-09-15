@@ -147,6 +147,7 @@ CKAN.Templates.resourceEntry = ' \
         <input name="resources__${num}__id" type="hidden" value="${resource.id}" /> \
       </dd> \
     </dl> \
+    <button class="delete-resource pretty-button danger">Delete Resource</button> \
   </td> \
   <td class="resource-is-changed"> \
     <img src="/images/icons/add.png" title="This resource has unsaved changes." class="resource-is-changed" /> \

@@ -447,11 +447,20 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
   addRow: function(resource) {
     // TODO tidy up so the view creates its own elements
     var $tr = $('<tr />');
+
+    // Captured by an inner function
+    var resources=this.collection;
+
     this.el.find('tbody').append($tr);
     var _view = new CKAN.View.ResourceEdit({
       model: resource,
       el: $tr,
-      position: this.nextIndex()
+      position: this.nextIndex(),
+      deleteResource: function() {
+        // Passing down a capture to remove the resource
+        $tr.remove();
+        resources.remove(resource);
+      }
     });
     _view.render();
   },
@@ -464,8 +473,12 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
   initialize: function() {
     _.bindAll(this, 'render', 'toggleExpanded');
     var self = this;
-    this.model.bind('change', function() { self.hasChanged=true; });
-    this.model.bind('change', this.render);
+    this.model.bind('change', 
+      function() { 
+        self.hasChanged=true; 
+        this.render();
+      }
+    );
     this.position = this.options.position;
 
     this.expanded = this.model.isNew();
@@ -496,7 +509,13 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
 
   events: {
     'click a.resource-expand-link': 'toggleExpanded',
-    'click a.resource-collapse-link': 'toggleExpanded'
+    'click a.resource-collapse-link': 'toggleExpanded',
+    'click .delete-resource': 'clickDelete'
+  },
+
+  clickDelete: function(e) {
+    e.preventDefault();
+    this.options.deleteResource();
   },
 
   saveData: function() {

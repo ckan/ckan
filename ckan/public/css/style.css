@@ -802,6 +802,10 @@ input#Resource--url {
   width: 60%;
 }
 
+button.delete-resource {
+  float: right;
+}
+
 /* ==================== */
 /* = Add Dataset Page = */
 /* ==================== */
