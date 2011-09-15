@@ -2,7 +2,7 @@ import logging
 from ckan.lib.base import _
 import ckan.authz
 import ckan.new_authz as new_authz
-from ckan.lib.navl.dictization_functions import flatten_dict
+from ckan.lib.navl.dictization_functions import flatten_dict, DataError
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IActions
 
@@ -64,14 +64,20 @@ def clean_dict(data_dict):
 
 def tuplize_dict(data_dict):
     ''' gets a dict with keys of the form 'table__0__key' and converts them
-    to a tuple like ('table', 0, 'key')'''
+    to a tuple like ('table', 0, 'key').
+
+    May raise a DataError if the format of the key is incorrect.
+    '''
 
     tuplized_dict = {}
     for key, value in data_dict.iteritems():
         key_list = key.split('__')
         for num, key in enumerate(key_list):
             if num % 2 == 1:
-                key_list[num] = int(key)
+                try:
+                    key_list[num] = int(key)
+                except ValueError:
+                    raise DataError('Bad key')
         tuplized_dict[tuple(key_list)] = value
     return tuplized_dict
 

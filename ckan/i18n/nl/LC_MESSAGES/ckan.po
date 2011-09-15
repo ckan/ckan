@@ -1,24 +1,23 @@
-# Translations template for ckan.
+# Dutch translations for ckan.
 # Copyright (C) 2011 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# 
+#
 # TonZijlstra <ton.zijlstra@gmail.com>, 2011.
 # OpenDataBaas <paul@oller.nl>, 2011.
-#   <internet@davidread.org>, 2011.
+# <internet@davidread.org>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
-"POT-Creation-Date: 2011-09-06 12:34+0100\n"
+"POT-Creation-Date: 2011-09-14 10:56+0100\n"
 "PO-Revision-Date: 2011-09-06 13:42+0000\n"
 "Last-Translator: dread <internet@davidread.org>\n"
 "Language-Team: Dutch (http://www.transifex.net/projects/p/ckan/team/nl/)\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.5\n"
-"Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
 
 #: ckan/controllers/api.py:39 ckan/controllers/authorization_group.py:19
 #: ckan/controllers/group.py:47 ckan/controllers/home.py:24
@@ -54,8 +53,8 @@ msgstr "JSON Error: %s"
 #: ckan/controllers/api.py:157 ckan/controllers/api.py:285
 #: ckan/controllers/api.py:331 ckan/controllers/group.py:166
 #: ckan/controllers/group.py:185 ckan/controllers/package.py:463
-#: ckan/controllers/package.py:496 ckan/controllers/user.py:138
-#: ckan/controllers/user.py:215 ckan/controllers/user.py:326
+#: ckan/controllers/package.py:496 ckan/controllers/user.py:140
+#: ckan/controllers/user.py:222 ckan/controllers/user.py:333
 msgid "Integrity Error"
 msgstr "Integriteits fout"
 
@@ -118,31 +117,30 @@ msgstr ""
 
 #: ckan/controllers/api.py:454 ckan/lib/base.py:182
 msgid "Request params must be in form of a json encoded dictionary."
-msgstr ""
-"Opgevraagde parameters moeten zich bevinden in een json encoded dictionary"
+msgstr "Opgevraagde parameters moeten zich bevinden in een json encoded dictionary"
 
-#: ckan/controllers/authorization_group.py:37
+#: ckan/controllers/authorization_group.py:41
 #, python-format
 msgid "Not authorized to read %s"
 msgstr "U ben niet gemachtigd om dit te lezen%s"
 
-#: ckan/controllers/authorization_group.py:55 ckan/controllers/group.py:103
+#: ckan/controllers/authorization_group.py:59 ckan/controllers/group.py:103
 #: ckan/controllers/group_formalchemy.py:29
 msgid "Unauthorized to create a group"
 msgstr "Groep selectie veld 'user_editable_groups' is niet geinitialiseerd"
 
-#: ckan/controllers/authorization_group.py:103 ckan/controllers/group.py:430
+#: ckan/controllers/authorization_group.py:108 ckan/controllers/group.py:430
 #: ckan/controllers/group_formalchemy.py:83
 #, python-format
 msgid "User %r not authorized to edit %r"
 msgstr "Gebruiker %r is niet gemachtigd om %r aan te passen"
 
-#: ckan/controllers/authorization_group.py:147 ckan/controllers/group.py:73
+#: ckan/controllers/authorization_group.py:152 ckan/controllers/group.py:73
 #: ckan/controllers/group.py:194 ckan/controllers/group.py:428
 msgid "Group not found"
 msgstr "De titel van de dataset."
 
-#: ckan/controllers/authorization_group.py:155 ckan/controllers/group.py:200
+#: ckan/controllers/authorization_group.py:160 ckan/controllers/group.py:200
 #: ckan/controllers/package.py:538
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
@@ -189,11 +187,11 @@ msgstr "Logboek bericht: "
 msgid "Invalid language specified"
 msgstr ""
 
-#: ckan/controllers/home.py:75
+#: ckan/controllers/home.py:77
 msgid "Language has been set to: English"
 msgstr "Taal is ingesteld op: Nederlands"
 
-#: ckan/controllers/home.py:77
+#: ckan/controllers/home.py:81
 msgid "No language given!"
 msgstr "Geen taal opgegeven!"
 
@@ -248,73 +246,73 @@ msgstr "Andere"
 msgid "Tag not found"
 msgstr ""
 
-#: ckan/controllers/user.py:112
+#: ckan/controllers/user.py:115
 msgid "Unauthorized to create a user"
 msgstr ""
 
-#: ckan/controllers/user.py:134
+#: ckan/controllers/user.py:136
 #, python-format
 msgid "Unauthorized to create user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:136 ckan/controllers/user.py:176
-#: ckan/controllers/user.py:213 ckan/controllers/user.py:304
-#: ckan/controllers/user.py:324
+#: ckan/controllers/user.py:138 ckan/controllers/user.py:183
+#: ckan/controllers/user.py:220 ckan/controllers/user.py:311
+#: ckan/controllers/user.py:331
 msgid "User not found"
 msgstr ""
 
-#: ckan/controllers/user.py:155
+#: ckan/controllers/user.py:162
 msgid "No user specified"
 msgstr ""
 
-#: ckan/controllers/user.py:174 ckan/controllers/user.py:211
-#: ckan/controllers/user.py:322
+#: ckan/controllers/user.py:181 ckan/controllers/user.py:218
+#: ckan/controllers/user.py:329
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:181 ckan/logic/action/update.py:382
+#: ckan/controllers/user.py:188 ckan/logic/action/update.py:382
 #, python-format
 msgid "User %s not authorized to edit %s"
 msgstr ""
 
-#: ckan/controllers/user.py:239
+#: ckan/controllers/user.py:246
 #, python-format
 msgid "Welcome back, %s"
 msgstr "Welkom terug, %s"
 
-#: ckan/controllers/user.py:279
+#: ckan/controllers/user.py:286
 #, python-format
 msgid "\"%s\" matched several users"
 msgstr ""
 
-#: ckan/controllers/user.py:281 ckan/controllers/user.py:283
+#: ckan/controllers/user.py:288 ckan/controllers/user.py:290
 #, python-format
 msgid "No such user: %s"
 msgstr ""
 
-#: ckan/controllers/user.py:288
+#: ckan/controllers/user.py:295
 msgid "Please check your inbox for a reset code."
 msgstr ""
 
-#: ckan/controllers/user.py:291
+#: ckan/controllers/user.py:298
 #, python-format
 msgid "Could not send reset link: %s"
 msgstr ""
 
-#: ckan/controllers/user.py:308
+#: ckan/controllers/user.py:315
 msgid "Invalid reset key. Please try again."
 msgstr ""
 
-#: ckan/controllers/user.py:319
+#: ckan/controllers/user.py:326
 msgid "Your password has been reset."
 msgstr ""
 
-#: ckan/controllers/user.py:347
+#: ckan/controllers/user.py:354
 msgid "Your password must be 4 characters or longer."
 msgstr "Je wachtwoord moet minimaal 4 karakters bevatten."
 
-#: ckan/controllers/user.py:349
+#: ckan/controllers/user.py:356
 msgid "The passwords you entered do not match."
 msgstr "De opgegeven wachtwoorden komen niet overeen."
 
@@ -376,8 +374,7 @@ msgstr "Dubbele sleutel \"%s\""
 #: ckan/forms/common.py:530
 #, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
-msgstr ""
-"Extra sleutel-waarde koppel: sleutel is niet aangepast voor waarde \"%s\"."
+msgstr "Extra sleutel-waarde koppel: sleutel is niet aangepast voor waarde \"%s\"."
 
 #: ckan/forms/common.py:780 ckan/templates/package/new_package_form.html:117
 msgid "Cannot add any groups."
@@ -431,8 +428,8 @@ msgstr "Een korte beschrijvende titel voor de dataset."
 
 #: ckan/forms/package.py:35 ckan/templates/package/new_package_form.html:22
 msgid ""
-"It should not be a description though - save that for the Notes field. Do "
-"not give a trailing full stop."
+"It should not be a description though - save that for the Notes field. Do"
+" not give a trailing full stop."
 msgstr ""
 "Het moet echter geen beschrijving worden - dat komt in het Beschrijving "
 "veld. Eindig niet met een punt (.)."
@@ -443,9 +440,9 @@ msgstr "Een unieke identifier voor deze package."
 
 #: ckan/forms/package.py:40 ckan/templates/package/new_package_form.html:28
 msgid ""
-"It should be broadly humanly readable, in the spirit of Semantic Web URIs. "
-"Only use an acronym if it is widely recognised. Renaming is possible but "
-"discouraged."
+"It should be broadly humanly readable, in the spirit of Semantic Web "
+"URIs. Only use an acronym if it is widely recognised. Renaming is "
+"possible but discouraged."
 msgstr ""
 "Dit zou globaal voor mensen begrijpelijk moeten zijn, in de geest van "
 "semantische web URI's. Gebruik alleen afkortingen als die breed herkend "
@@ -454,8 +451,8 @@ msgstr ""
 #: ckan/forms/package.py:41 ckan/templates/package/new_package_form.html:29
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
 msgstr ""
-"Meer dan 2 karakters, alleen kleine letters, gebruik alleen 'a-z', '0-9' en "
-"'_'"
+"Meer dan 2 karakters, alleen kleine letters, gebruik alleen 'a-z', '0-9' "
+"en '_'"
 
 #: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:139
 msgid "A number representing the version (if applicable)"
@@ -463,8 +460,7 @@ msgstr "Een versienummer (indien van toepassing)"
 
 #: ckan/forms/package.py:50 ckan/templates/package/new_package_form.html:34
 msgid "The URL for the web page describing the data (not the data itself)."
-msgstr ""
-"De URL van de webpagina die de dataset beschrijft (niet van de data zelf)"
+msgstr "De URL van de webpagina die de dataset beschrijft (niet van de data zelf)"
 
 #: ckan/forms/package.py:51 ckan/templates/package/new_package_form.html:35
 msgid "e.g. http://www.example.com/growth-figures.html"
@@ -472,19 +468,19 @@ msgstr "Bijvoorbeeld http://www.example.com/growth-figures.html"
 
 #: ckan/forms/package.py:55 ckan/templates/package/new_package_form.html:125
 msgid ""
-"The name of the main contact, for enquiries about this particular dataset, "
-"using the e-mail address in the following field."
+"The name of the main contact, for enquiries about this particular "
+"dataset, using the e-mail address in the following field."
 msgstr ""
-"Naam van de contactpersoon, voor vragen over deze data, via het e-mail adres"
-" in het volgende veld"
+"Naam van de contactpersoon, voor vragen over deze data, via het e-mail "
+"adres in het volgende veld"
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:132
 msgid ""
-"If there is another important contact person (in addition to the person in "
-"the Author field) then provide details here."
+"If there is another important contact person (in addition to the person "
+"in the Author field) then provide details here."
 msgstr ""
-"Als er nog een andere belangrijke contactpersoon is (naast degene genoemd in"
-" het veld Auteur), noem deze dan hier."
+"Als er nog een andere belangrijke contactpersoon is (naast degene genoemd"
+" in het veld Auteur), noem deze dan hier."
 
 #: ckan/forms/package.py:63 ckan/templates/package/new_package_form.html:44
 msgid "Licence"
@@ -505,12 +501,12 @@ msgstr "Tags"
 #: ckan/forms/package.py:69
 #, python-format
 msgid ""
-"Terms that may link this dataset to similar ones. For more information on "
-"conventions, see <a href=\"%s\">this wiki page</a>."
+"Terms that may link this dataset to similar ones. For more information on"
+" conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
-"Trefwoorden die deze dataset verbinden met vergelijkbare datasets. Voor meer"
-" informatie over conventies rond trefwoorden zie <a href=\"%s\">de wiki "
-"pagina</a>"
+"Trefwoorden die deze dataset verbinden met vergelijkbare datasets. Voor "
+"meer informatie over conventies rond trefwoorden zie <a href=\"%s\">de "
+"wiki pagina</a>"
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:61
 msgid "e.g. pollution rivers water-quality"
@@ -518,44 +514,44 @@ msgstr "bijv. vervuiling waterkwaliteit rivieren"
 
 #: ckan/forms/package.py:74 ckan/templates/package/new_package_form.html:91
 msgid "The files containing the data or address of the APIs for accessing it."
-msgstr ""
-"De bestanden met de data of het adres van de API om toegang te krijgen."
+msgstr "De bestanden met de data of het adres van de API om toegang te krijgen."
 
 #: ckan/forms/package.py:75
 msgid ""
-"<br />These can be repeated as required. For example if the data is being "
-"supplied in multiple formats, or split into different areas or time periods,"
-" each file is a different 'resource' which should be described differently. "
-"They will all appear on the dataset page on CKAN together.<br /><br /> "
-"<b>URL:</b> This is the Internet link directly to the data - by selecting "
-"this link in a web browser, the user will immediately download the full data"
-" set. Note that datasets are not hosted on this site, but by the publisher "
-"of the data. Alternatively the URL can point to an API server such as a "
-"SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the"
-" file format in which the data is supplied. <br /><b>Description</b> Any "
-"information you want to add to describe the resource.<br />"
+"<br />These can be repeated as required. For example if the data is being"
+" supplied in multiple formats, or split into different areas or time "
+"periods, each file is a different 'resource' which should be described "
+"differently. They will all appear on the dataset page on CKAN "
+"together.<br /><br /> <b>URL:</b> This is the Internet link directly to "
+"the data - by selecting this link in a web browser, the user will "
+"immediately download the full data set. Note that datasets are not hosted"
+" on this site, but by the publisher of the data. Alternatively the URL "
+"can point to an API server such as a SPARQL endpoint or JSON-P "
+"service.<br /> <b>Format:</b> This should give the file format in which "
+"the data is supplied. <br /><b>Description</b> Any information you want "
+"to add to describe the resource.<br />"
 msgstr ""
 "<br /> Deze kan herhaald worden als het nodig is. Bijvoorbeeld als de "
 "gegevens worden geleverd in verschillende formaten, of verdeeld in "
-"verschillende onderwerpen of perioden, elk bestand is een andere 'bron' die "
-"specifiek moet worden beschreven. De datasets worden gezamenlijk worden "
-"getoond op de dataset pagina op CKAN. <br /><br /> <b>URL:</b> Dit is de "
-"link direct naar de gegevens - door het selecteren van deze link in een web "
-"browser zal direct worden gestart met het downloaden van de volledige "
-"dataset. Merk op dat de datasets niet worden gehost op deze site, maar door "
-"de eigenaar van de datasets. Als alternatief kan de URL verwijzen naar een "
-"API-server, zoals een SPARQL eindpunt of JSON-P service. <br /> "
-"<b>Formaat:</b> Dit geeft het bestandsformaat waarin de gegevens worden "
-"geleverd. <br /> <b>Omschrijving</b> Alle informatie die u wilt toevoegen om"
-" de bron te beschrijven. <br />"
+"verschillende onderwerpen of perioden, elk bestand is een andere 'bron' "
+"die specifiek moet worden beschreven. De datasets worden gezamenlijk "
+"worden getoond op de dataset pagina op CKAN. <br /><br /> <b>URL:</b> Dit"
+" is de link direct naar de gegevens - door het selecteren van deze link "
+"in een web browser zal direct worden gestart met het downloaden van de "
+"volledige dataset. Merk op dat de datasets niet worden gehost op deze "
+"site, maar door de eigenaar van de datasets. Als alternatief kan de URL "
+"verwijzen naar een API-server, zoals een SPARQL eindpunt of JSON-P "
+"service. <br /> <b>Formaat:</b> Dit geeft het bestandsformaat waarin de "
+"gegevens worden geleverd. <br /> <b>Omschrijving</b> Alle informatie die "
+"u wilt toevoegen om de bron te beschrijven. <br />"
 
 #: ckan/forms/package.py:76 ckan/templates/package/new_package_form.html:93
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
 msgstr ""
-"Keuzes voor het formaat: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Anders,"
-" indien van toepassing"
+"Keuzes voor het formaat: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | "
+"Anders, indien van toepassing"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 #: ckan/templates/package/new_package_form.html:38
@@ -568,12 +564,13 @@ msgstr "De beschrijving van de dataset"
 
 #: ckan/forms/package.py:82 ckan/templates/package/new_package_form.html:41
 msgid ""
-"It is often displayed with the package title. In particular, it should start"
-" with a short sentence that describes the data set succinctly, because the "
-"first few words alone may be used in some views of the data sets."
+"It is often displayed with the package title. In particular, it should "
+"start with a short sentence that describes the data set succinctly, "
+"because the first few words alone may be used in some views of the data "
+"sets."
 msgstr ""
-"Het wordt meestal getoond met de package titel. Begin met een korte zin die "
-"de dataset beschrijft."
+"Het wordt meestal getoond met de package titel. Begin met een korte zin "
+"die de dataset beschrijft."
 
 #: ckan/forms/package.py:83
 #, python-format
@@ -735,8 +732,8 @@ msgstr "Package met de naam %r bestaat niet."
 #: ckan/logic/validators.py:176
 #, python-format
 msgid ""
-"That login name is not valid. It must be at least 3 characters, restricted "
-"to alphanumerics and these symbols: %s"
+"That login name is not valid. It must be at least 3 characters, "
+"restricted to alphanumerics and these symbols: %s"
 msgstr ""
 
 #: ckan/logic/validators.py:181
@@ -1210,13 +1207,19 @@ msgstr "Autorisatie"
 
 #: ckan/templates/authorization_group/layout.html:24
 msgid ""
-"Instead of specifying the privileges of specific users on a package or group,\n"
-"          you can also specify a set of users that will share the same rights. To do that, an    \n"
-"          [1:authorization group] can be set-up and users can be added to it."
+"Instead of specifying the privileges of specific users on a package or "
+"group,\n"
+"          you can also specify a set of users that will share the same "
+"rights. To do that, an    \n"
+"          [1:authorization group] can be set-up and users can be added to"
+" it."
 msgstr ""
-"In plaats van het specificeren van de rechten van bepaalde gebruikers op een package of groep,\n"
-"          is het ook mogelijk een groep gebruikers te benoemen die dezelfde rechten delen. Daarvoor, kan een    \n"
-"          [1:authorization group] worden opgesteld waaraan gebruikers kunnen worden toegevoegd."
+"In plaats van het specificeren van de rechten van bepaalde gebruikers op "
+"een package of groep,\n"
+"          is het ook mogelijk een groep gebruikers te benoemen die "
+"dezelfde rechten delen. Daarvoor, kan een    \n"
+"          [1:authorization group] worden opgesteld waaraan gebruikers "
+"kunnen worden toegevoegd."
 
 #: ckan/templates/authorization_group/layout.html:28
 msgid "To create a new authorization group, please first"
@@ -1320,13 +1323,13 @@ msgstr "Groepen sectie"
 
 #: ckan/templates/group/layout.html:12
 msgid ""
-"Whilst tags are great at collecting packages together, there are occasions "
-"when you want to restrict users from editing a collection. A [1:group] can "
-"be set-up to specify which users have permission to add or remove packages "
-"from it."
+"Whilst tags are great at collecting packages together, there are "
+"occasions when you want to restrict users from editing a collection. A "
+"[1:group] can be set-up to specify which users have permission to add or "
+"remove packages from it."
 msgstr ""
-"Hoewel tags een uitstekende manier zijn om packages te groeperen is het soms"
-" handig een groep samen te stellen die niet vrij bewerkt kan worden. "
+"Hoewel tags een uitstekende manier zijn om packages te groeperen is het "
+"soms handig een groep samen te stellen die niet vrij bewerkt kan worden. "
 "Een[1:groep] kan worden ingericht om om te specificeren welke gebruikers "
 "beheerdersrechten hebben."
 
@@ -1428,10 +1431,12 @@ msgstr "Over CKAN"
 
 #: ckan/templates/home/about.html:11
 msgid ""
-"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of [2:open knowledge] packages and projects\n"
+"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of "
+"[2:open knowledge] packages and projects\n"
 "    (and a few closed ones)."
 msgstr ""
-"CKAN is het uitgebreide Kennis Archief Netwerk, een [1:register] van[2:open kennis] packages en projecten\n"
+"CKAN is het uitgebreide Kennis Archief Netwerk, een [1:register] "
+"van[2:open kennis] packages en projecten\n"
 "    (en een paar afgesloten projecten)."
 
 #: ckan/templates/home/about.html:15
@@ -1444,8 +1449,7 @@ msgstr ""
 "vooral op een computerleesbare wijze."
 
 #: ckan/templates/home/about.html:20
-msgid ""
-"As a system CKAN functions as a synthesis of several different services:"
+msgid "As a system CKAN functions as a synthesis of several different services:"
 msgstr "CKAN functioneert als een systeem van samengevoegde services:"
 
 #: ckan/templates/home/about.html:22
@@ -1455,30 +1459,56 @@ msgstr "CKAN functionaliteiten overzicht"
 #: ckan/templates/home/about.html:24
 msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
-"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] but for open data and\n"
+"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] "
+"but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
-"Zoals het diagram laat zien, combineert CKAN de eigenschappen van een listing/register,\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>een package index en een wiki. Als register werkt het als [1:freshmeat] maar dan voor open data en\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>content bronnen. Op enkele belangrijke manieren echter voegt het iets toe aan de werking van een simpel register."
+"Zoals het diagram laat zien, combineert CKAN de eigenschappen van een "
+"listing/register,\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>een package index en een"
+" wiki. Als register werkt het als [1:freshmeat] maar dan voor open data "
+"en\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>content bronnen. Op "
+"enkele belangrijke manieren echter voegt het iets toe aan de werking van "
+"een simpel register."
 
 #: ckan/templates/home/about.html:29
 msgid ""
 "First, thanks to its underlying [1:versioned domain model] CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, discovery\n"
-"\t\tand installation of material. In this respect it behaves like [2:CPAN] or [3:PyPI] in the software world -- though\n"
+"\t\twiki-like interface that lets anyone add and material held in it. "
+"Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
+"allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, "
+"discovery\n"
+"\t\tand installation of material. In this respect it behaves like "
+"[2:CPAN] or [3:PyPI] in the software world -- though\n"
 "\t\tagain for [4:open data and content]\n"
 "\t\tnot code."
 msgstr ""
 "Ten eerste, dankzij het [1:geversioneerde domein model] heeft CKAN een\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>wiki-achtige interface waarmee iedereen materiaal kan toevoegen. Ten tweede,\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>en niet zoals in een wiki, kan CKAN 'gestructureerde' informatie opslaan, waardoor het mogelijk is\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>'index'-achtige eigenschappen toe te voegen zoals geautomatiseerde registratie, ontdekking\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>en installatie van materiaal. In dit opzicht werkt het als [2:CPAN] or [3:PyPI] in de software wereld -- maar \n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>dan voor [4:open data en content]\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>niet voor code.\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>wiki-achtige interface "
+"waarmee iedereen materiaal kan toevoegen. Ten tweede,\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>en niet zoals in een "
+"wiki, kan CKAN 'gestructureerde' informatie opslaan, waardoor het "
+"mogelijk is\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>'index'-achtige "
+"eigenschappen toe te voegen zoals geautomatiseerde registratie, "
+"ontdekking\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>en installatie van "
+"materiaal. In dit opzicht werkt het als [2:CPAN] or [3:PyPI] in de "
+"software wereld -- maar \n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>dan voor [4:open data en"
+" content]\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
+"class=\"whitespace other\" title=\"Tab\">»</span>niet voor code.\n"
 
 #: ckan/templates/home/about.html:40
 msgid ""
@@ -1505,7 +1535,11 @@ msgid ""
 msgstr ""
 "%(title)s is een\n"
 "      [1:open register]\n"
-"met verwijzingen naar datasets bij overheidsorganisaties. Het register is gebaseerd op CKAN software. Meer informatie over CKAN kunt u vinden onder Over. Op deze site kunt u verwijzingen naar datasets vinden wilt u een dataset toevoegen kunt u gebruik maken van het webformulier op http://data.overheid.nl"
+"met verwijzingen naar datasets bij overheidsorganisaties. Het register is"
+" gebaseerd op CKAN software. Meer informatie over CKAN kunt u vinden "
+"onder Over. Op deze site kunt u verwijzingen naar datasets vinden wilt u "
+"een dataset toevoegen kunt u gebruik maken van het webformulier op "
+"http://data.overheid.nl"
 
 #: ckan/templates/home/index.html:51
 #, python-format
@@ -1545,15 +1579,21 @@ msgstr ""
 #: ckan/templates/home/license.html:11
 msgid ""
 "All material on this site is [1:open] and can be freely used, reused\n"
-"    and redistributed. Formally, the data/database is licensed under the [2:Open Data Commons Open\n"
+"    and redistributed. Formally, the data/database is licensed under the "
+"[2:Open Data Commons Open\n"
 "      Database License v1.0], with all copyrightable content in that\n"
-"    database plus any additional content on this site licensed under a [3:Creative Commons\n"
+"    database plus any additional content on this site licensed under a "
+"[3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 license]."
 msgstr ""
-"Al het materiaal op deze site is [1:open] en kan vrijelijk worden gebruikt, hergebruikt\n"
-"    en geredistribueerd. Formeel, is de data/database gelicentieerd onder de [2:Open Data Commons Open\n"
-"      Database License v1.0], waarbij alle auteursrechtelijk beschermde content in deze\n"
-"    database plus alle overige content op deze site is gelicentieerd onder een [3:Creative Commons\n"
+"Al het materiaal op deze site is [1:open] en kan vrijelijk worden "
+"gebruikt, hergebruikt\n"
+"    en geredistribueerd. Formeel, is de data/database gelicentieerd onder"
+" de [2:Open Data Commons Open\n"
+"      Database License v1.0], waarbij alle auteursrechtelijk beschermde "
+"content in deze\n"
+"    database plus alle overige content op deze site is gelicentieerd "
+"onder een [3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 licentie]."
 
 #: ckan/templates/package/authz.html:5
@@ -1564,8 +1604,7 @@ msgstr "- Autorisatie - Data Packages"
 msgid "Authorization for Data Package:"
 msgstr "Autorisatie voor Data Package"
 
-#: ckan/templates/package/comments.html:5
-#: ckan/templates/package/history.html:6
+#: ckan/templates/package/comments.html:5 ckan/templates/package/history.html:6
 msgid "- Data Packages - History"
 msgstr "- Data Packages - Historie"
 
@@ -1699,8 +1738,8 @@ msgstr ""
 
 #: ckan/templates/package/new_package_form.html:60
 msgid ""
-"Terms that may link this dataset to similar ones. For more information on "
-"conventions, see"
+"Terms that may link this dataset to similar ones. For more information on"
+" conventions, see"
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:60
@@ -1723,10 +1762,10 @@ msgstr "Hash"
 
 #: ckan/templates/package/new_package_form.html:92
 msgid ""
-"These can be repeated as required. For example if the data is being supplied"
-" in multiple formats, or split into different areas or time periods, each "
-"file is a different 'resource' which should be described differently. They "
-"will all appear on the dataset page on CKAN together."
+"These can be repeated as required. For example if the data is being "
+"supplied in multiple formats, or split into different areas or time "
+"periods, each file is a different 'resource' which should be described "
+"differently. They will all appear on the dataset page on CKAN together."
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:92
@@ -1735,11 +1774,11 @@ msgstr ""
 
 #: ckan/templates/package/new_package_form.html:92
 msgid ""
-"This is the Internet link directly to the data - by selecting this link in a"
-" web browser, the user will immediately download the full data set. Note "
-"that datasets are not hosted on this site, but by the publisher of the data."
-" Alternatively the URL can point to an API server such as a SPARQL endpoint "
-"or JSON-P service."
+"This is the Internet link directly to the data - by selecting this link "
+"in a web browser, the user will immediately download the full data set. "
+"Note that datasets are not hosted on this site, but by the publisher of "
+"the data. Alternatively the URL can point to an API server such as a "
+"SPARQL endpoint or JSON-P service."
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:92
@@ -1773,10 +1812,12 @@ msgid ""
 "        var title = this;\n"
 "        var updater = {\n"
 "            init: function(title, name) {\n"
-"                // Add a new element where the validity of the package name can be displayed\n"
+"                // Add a new element where the validity of the package "
+"name can be displayed\n"
 "                this.name_field = name;\n"
 "                this.title_field = title;\n"
-"                this.name_field.parent().append('<div id=\"package_name_valid_msg\"></div>');\n"
+"                this.name_field.parent().append('<div "
+"id=\"package_name_valid_msg\"></div>');\n"
 "                this.title_field.blur(this.title_change_handler())\n"
 "                this.title_field.keyup(this.title_change_handler())\n"
 "                this.name_field.keyup(this.name_change_handler());\n"
@@ -1786,8 +1827,10 @@ msgid ""
 "            title_change_handler: function() {\n"
 "                var self = this;\n"
 "                return function() {\n"
-"                    if (!self.name_changed && self.title_field.val().replace(/^\\s+|\\s+$/g, '')) {\n"
-"                        self.update(self.title_field.val(), function(data) {self.name_field.val(data.name)});\n"
+"                    if (!self.name_changed && "
+"self.title_field.val().replace(/^\\s+|\\s+$/g, '')) {\n"
+"                        self.update(self.title_field.val(), "
+"function(data) {self.name_field.val(data.name)});\n"
 "                    }\n"
 "                }\n"
 "            },\n"
@@ -1795,11 +1838,13 @@ msgid ""
 "                var self = this;\n"
 "                return function() {\n"
 "                    // Reset if the name is emptied\n"
-"                    if (!self.name_field.val().replace(/^\\s+|\\s+$/g, '')){\n"
+"                    if (!self.name_field.val().replace(/^\\s+|\\s+$/g, "
+"'')){\n"
 "                        self.name_changed = false;\n"
 "                        $('#package_name_valid_msg').html('');\n"
 "                    } else {\n"
-"                        self.update(self.name_field.val(), function(data) {\n"
+"                        self.update(self.name_field.val(), function(data)"
+" {\n"
 "                            self.name_field.val(data.name)\n"
 "                        });\n"
 "                    }\n"
@@ -1809,24 +1854,30 @@ msgid ""
 "                var self = this;\n"
 "                return function() {\n"
 "                    // Reset if the name is emptied\n"
-"                    if (!self.name_field.val().replace(/^\\s+|\\s+$/g, '')){\n"
+"                    if (!self.name_field.val().replace(/^\\s+|\\s+$/g, "
+"'')){\n"
 "                        self.name_changed = false;\n"
 "                        $('#package_name_valid_msg').html('');\n"
 "                    } else {\n"
 "                        self.name_changed = true;\n"
-"                        self.update(self.name_field.val(), function(data) {\n"
-"                            if (self.name_field.val().length >= data.name) {\n"
+"                        self.update(self.name_field.val(), function(data)"
+" {\n"
+"                            if (self.name_field.val().length >= "
+"data.name) {\n"
 "                                self.name_field.val(data.name);\n"
 "                            }\n"
 "                        });\n"
 "                    }\n"
 "                };\n"
 "            },\n"
-"            // Keep a variable where we can store whether the name field has been\n"
-"            // directly modified by the user or not. If it has, we should no longer\n"
+"            // Keep a variable where we can store whether the name field "
+"has been\n"
+"            // directly modified by the user or not. If it has, we should"
+" no longer\n"
 "            // fetch updates.\n"
 "            name_changed: false,\n"
-"            // Create a function for fetching the value and updating the result\n"
+"            // Create a function for fetching the value and updating the "
+"result\n"
 "            perform_update: function(value, on_success){\n"
 "                var self = this;\n"
 "                $.ajax({\n"
@@ -1841,14 +1892,18 @@ msgid ""
 "                        }\n"
 "                        var valid_msg = $('#package_name_valid_msg');\n"
 "                        if (data.valid) {\n"
-"                            valid_msg.html('<span style=\"font-weight: bold; color: #0c0\">This package name is available!</span>');\n"
+"                            valid_msg.html('<span style=\"font-weight: "
+"bold; color: #0c0\">This package name is available!</span>');\n"
 "                        } else {\n"
-"                            valid_msg.html('<span style=\"font-weight: bold; color: #c00\">This package name is already used, please use a different name</span>');\n"
+"                            valid_msg.html('<span style=\"font-weight: "
+"bold; color: #c00\">This package name is already used, please use a "
+"different name</span>');\n"
 "                        }\n"
 "                    }\n"
 "                });\n"
 "            },\n"
-"            // We only want to perform the update if there hasn't been a change for say 200ms\n"
+"            // We only want to perform the update if there hasn't been a "
+"change for say 200ms\n"
 "            timer: null,\n"
 "            update: function(value, on_success) {\n"
 "                var self = this;\n"
@@ -1865,7 +1920,8 @@ msgid ""
 "    };\n"
 "})( jQuery );\n"
 "$(document).ready(function() {\n"
-"    $('#title').ajaxCreateSlug('#name', '/api/2/util/package/create_slug');\n"
+"    $('#title').ajaxCreateSlug('#name', "
+"'/api/2/util/package/create_slug');\n"
 "});\n"
 "\n"
 "$(document).ready(function () {\n"
@@ -2033,8 +2089,8 @@ msgid ""
 "The information on this page and the downloads / resources are also "
 "available using the"
 msgstr ""
-"De informatie op deze pagina en de downloads / bronnen zijn ook beschikbaar "
-"via de"
+"De informatie op deze pagina en de downloads / bronnen zijn ook "
+"beschikbaar via de"
 
 #: ckan/templates/package/read_core.html:139
 msgid "datapkg command line utility"
@@ -2162,7 +2218,8 @@ msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first."
 msgstr ""
-"Deze pagina toont alle veranderingen in de packages databaes, met de meest recente\n"
+"Deze pagina toont alle veranderingen in de packages databaes, met de "
+"meest recente\n"
 "     wijzigingen eerst."
 
 #: ckan/templates/revision/purge.html:5
@@ -2286,8 +2343,8 @@ msgstr "E-Mail:"
 msgid "Change your password"
 msgstr "Wijzig je wachtwoord"
 
-#: ckan/templates/user/edit_user_form.html:27
-#: ckan/templates/user/login.html:44 ckan/templates/user/new_user_form.html:30
+#: ckan/templates/user/edit_user_form.html:27 ckan/templates/user/login.html:44
+#: ckan/templates/user/new_user_form.html:30
 #: ckan/templates/user/perform_reset.html:19
 msgid "Password:"
 msgstr "Wachtwoord:"
@@ -2333,8 +2390,7 @@ msgstr "Geen lid?"
 
 #: ckan/templates/user/login.html:21
 msgid "Join CKAN to contribute packages under your own name."
-msgstr ""
-"Meld je aan bij CKAN om packages onder je eigen naam aan te kunnen melden."
+msgstr "Meld je aan bij CKAN om packages onder je eigen naam aan te kunnen melden."
 
 #: ckan/templates/user/login.html:32
 msgid "Login - User"
@@ -2358,12 +2414,14 @@ msgstr "Kies uw account leverancier"
 
 #: ckan/templates/user/login.html:66
 msgid ""
-"OpenID is service that allows you to log-on to many different websites using a single identity.\n"
-"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled account]."
+"OpenID is service that allows you to log-on to many different websites "
+"using a single identity.\n"
+"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled "
+"account]."
 msgstr ""
 "OpenID is een dienst die het mogelijk maakt op allerlei verschillende "
-"websites in te loggen met een enkele identiteit. Lees [1:meer over OpenID] "
-"en [2:hoe je met OpenID een login aanmaakt]."
+"websites in te loggen met een enkele identiteit. Lees [1:meer over "
+"OpenID] en [2:hoe je met OpenID een login aanmaakt]."
 
 #: ckan/templates/user/login.html:73
 msgid "Don't have an OpenID?"
@@ -2374,7 +2432,8 @@ msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "        using a single identity. Find out [1:more\n"
 "        about OpenID] and [2:how to get an\n"
-"        OpenID enabled account]. Probably the simplest way is sign up with a\n"
+"        OpenID enabled account]. Probably the simplest way is sign up "
+"with a\n"
 "        free OpenID provider such as [3:https://www.myopenid.com/]."
 msgstr ""
 
@@ -2483,5 +2542,4 @@ msgstr ""
 #: ckan/templates/user/request_reset.html:23
 msgid "User name:"
 msgstr ""
-
 

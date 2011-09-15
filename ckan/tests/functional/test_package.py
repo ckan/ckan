@@ -1060,6 +1060,12 @@ class TestNew(TestPackageForm):
         assert 'Name: Missing value' in res, res
         self._assert_form_errors(res)
 
+    def test_new_bad_param(self):
+        offset = url_for(controller='package', action='new', __bad_parameter='value')
+        res = self.app.post(offset, {'save':'1'},
+                            status=400)
+        assert 'Integrity Error' in res.body
+
     def test_redirect_after_new_using_param(self):
         return_url = 'http://random.site.com/dataset/<NAME>?test=param'
         # It's useful to know that this url encodes to:
