@@ -430,6 +430,12 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     // Have to trash entire content; some stuff was there on page load
     this.el.find('tbody').empty();
     this.collection.each(this.addRow);
+
+    if (this.collection.isEmpty()) {
+      $tr = $('<tr />').addClass('table-empty');
+      $tr.html('<td></td><td colspan="4">(none)</td>');
+      this.el.find('tbody').append($tr);
+    }
   },
 
   nextIndex: function() {
@@ -445,11 +451,14 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
   },
 
   addRow: function(resource) {
+    // Strip placeholder row
+    this.el.find('tr.table-empty').remove();
+
     // TODO tidy up so the view creates its own elements
     var $tr = $('<tr />');
 
     // Captured by an inner function
-    var resources=this.collection;
+    var self = this;
 
     this.el.find('tbody').append($tr);
     var _view = new CKAN.View.ResourceEdit({
@@ -459,7 +468,11 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
       deleteResource: function() {
         // Passing down a capture to remove the resource
         $tr.remove();
-        resources.remove(resource);
+        
+        self.collection.remove(resource);
+        if (self.collection.isEmpty()) {
+          self.render();
+        }
       }
     });
     _view.render();

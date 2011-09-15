@@ -36,7 +36,7 @@
           </tr>
         </py:for>
         <py:if test="not len(c.pkg_dict.get('resources', []))">
-          <tr><td colspan="2" class="table-empty">(none)</td></tr>
+          <tr class="table-empty"><td colspan="2">(none)</td></tr>
         </py:if>
       </table>
     </div>
@@ -70,7 +70,7 @@
           <td class="dataset-details" property="rdf:value">${value}</td>
         </tr>
         <py:if test="not len(c.pkg_extras)">
-          <tr><td colspan="2" class="table-empty">(none)</td></tr>
+          <tr class="table-empty"><td colspan="2">(none)</td></tr>
         </py:if>
       </tbody>
     </table>

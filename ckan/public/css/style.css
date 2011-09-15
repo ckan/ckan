@@ -240,7 +240,7 @@ tbody tr:nth-child(odd) td, tbody tr.odd td {
   background-color: #FEFEF2;
 }
 
-tbody tr td.table-empty {
+tbody tr.table-empty td {
   background: #f8f8f8;
   border: 1px solid #eee;
   font-style: italic;
