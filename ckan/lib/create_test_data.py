@@ -138,7 +138,12 @@ class CreateTestData(cli.CkanCommand):
                     elif attr == 'resources':
                         assert isinstance(val, (list, tuple))
                         for res_dict in val:
-                            non_extras = dict([(str(k), unicode(v)) for k, v in res_dict.items() if k != 'extras'])
+                            non_extras = {}
+                            for k, v in res_dict.items():
+                                if k != 'extras':
+                                    if not isinstance(v, datetime.datetime):
+                                        v = unicode(v)
+                                    non_extras[str(k)] = v
                             extras = dict([(str(k), unicode(v)) for k, v in res_dict.get('extras', {}).items()])
                             pkg.add_resource(extras=extras, **non_extras)
                     elif attr == 'tags':
