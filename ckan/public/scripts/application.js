@@ -492,7 +492,7 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
 
     this.expanded = this.model.isNew();
     this.hasChanged = this.model.isNew();
-    this.animate = false;
+    this.animate = this.model.isNew();
   },
 
   render: function() {
