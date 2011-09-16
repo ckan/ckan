@@ -386,16 +386,14 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
       window.onbeforeunload = null;
     });
 
-
-
-    // Create Backbone view for adding resources
+    // Tabbed view for adding resources
     var $el=this.el.find('.resource-add');
     this.addView=new CKAN.View.ResourceAdd({
       collection: this.model.get('resources'),
       el: $el
     });
 
-    // Create Resource Edit list
+    // Table for editing resources
     var $el=this.el.find('.resource-table.edit');
     this.resourceList=new CKAN.View.ResourceEditList({
       collection: this.model.get('resources'),
@@ -403,7 +401,6 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
     });
 
     this.render();
-
   },
 
 
@@ -430,25 +427,50 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     // Have to trash entire content; some stuff was there on page load
     this.el.find('tbody').empty();
     this.collection.each(this.addRow);
+
+    if (this.collection.isEmpty()) {
+      $tr = $('<tr />').addClass('table-empty');
+      $tr.html('<td></td><td colspan="4">(none)</td>');
+      this.el.find('tbody').append($tr);
+    }
   },
 
   nextIndex: function() {
     var maxId=-1;
     this.el.find('input').each(function(idx,input) {
-      var myId = parseInt($(input).attr('name').split('__')[1])
-      maxId = Math.max(myId, maxId);
+      var splitName=$(input).attr('name').split('__');
+      if (splitName.length>1) {
+        var myId = parseInt(splitName[1])
+        maxId = Math.max(myId, maxId);
+      }
     });
     return maxId+1;
   },
 
   addRow: function(resource) {
+    // Strip placeholder row
+    this.el.find('tr.table-empty').remove();
+
     // TODO tidy up so the view creates its own elements
     var $tr = $('<tr />');
-    this.el.find('tbody').append($tr);
+
+    // Captured by an inner function
+    var self = this;
+
+    this.el.find('tbody.resource-table').append($tr);
     var _view = new CKAN.View.ResourceEdit({
       model: resource,
       el: $tr,
-      position: this.nextIndex()
+      position: this.nextIndex(),
+      deleteResource: function() {
+        // Passing down a capture to remove the resource
+        $tr.remove();
+        
+        self.collection.remove(resource);
+        if (self.collection.isEmpty()) {
+          self.render();
+        }
+      }
     });
     _view.render();
   },
@@ -462,11 +484,12 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
     _.bindAll(this, 'render', 'toggleExpanded');
     var self = this;
     this.model.bind('change', function() { self.hasChanged=true; });
-    this.model.bind('change', this.render);
+    this.model.bind('change', this.render());
     this.position = this.options.position;
 
     this.expanded = this.model.isNew();
     this.hasChanged = this.model.isNew();
+    this.animate = this.model.isNew();
   },
 
   render: function() {
@@ -480,6 +503,10 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
     if (this.expanded) {
       this.el.find('a.resource-expand-link').hide();
       this.el.find('.resource-summary').hide();
+      if (this.animate) {
+        this.el.find('.resource-expanded .inner').hide();
+        this.el.find('.resource-expanded .inner').show('slow');
+      }
     }
     else {
       this.el.find('a.resource-collapse-link').hide();
@@ -489,11 +516,18 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
     if (!this.hasChanged) {
       this.el.find('img.resource-is-changed').hide();
     }
+    this.animate = false;
   },
 
   events: {
     'click a.resource-expand-link': 'toggleExpanded',
-    'click a.resource-collapse-link': 'toggleExpanded'
+    'click a.resource-collapse-link': 'toggleExpanded',
+    'click .delete-resource': 'clickDelete'
+  },
+
+  clickDelete: function(e) {
+    e.preventDefault();
+    this.options.deleteResource();
   },
 
   saveData: function() {
@@ -520,6 +554,7 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
     e.preventDefault();
 
     this.expanded = !this.expanded;
+    this.animate = true;
     // Closing the form; update the model fields
     if (!this.expanded) {
       this.saveData();
