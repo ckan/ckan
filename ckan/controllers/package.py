@@ -85,7 +85,6 @@ class PackageController(BaseController):
         c.groups_available = get_action('group_list_authz')(context, data_dict)
         c.licences = [('', '')] + model.Package.get_license_options()
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
-        c.resource_columns = model.Resource.get_columns()
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package',None)
