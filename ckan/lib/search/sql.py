@@ -152,15 +152,6 @@ class PackageSqlSearchQuery(SqlSearchQuery):
                         q = q.filter(make_like(model_attr, term))
                 else:
                     q = self._filter_by_extra(q, field, terms)
-            
-        # Filter for options
-        if self.options.filter_by_downloadable:
-            q = q.join('resource_groups_all', 'resources_all', aliased=True)
-            q = q.filter(sqlalchemy.and_(
-                model.Resource.state==model.State.ACTIVE,
-                model.ResourceGroup.package_id==model.Package.id))
-        if self.options.filter_by_openness:
-            q = q.filter(model.Package.license_id.in_(self.open_licenses))
         
         order_by = self.options.order_by
         if order_by is not None:

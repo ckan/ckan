@@ -336,9 +336,9 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         res = self.app.get(offset)
         assert 'Search - ' in res
         self._check_search_results(res, 'annakarenina', ['<strong>1</strong>', 'A Novel By Tolstoy'] )
-        self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_downloadable=True )
-        self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_open=True )
-        self._check_search_results(res, 'annakarenina', ['<strong>1</strong>'], only_open=True, only_downloadable=True )
+        self._check_search_results(res, 'warandpeace', ['<strong>1</strong>'])
+        self._check_search_results(res, 'warandpeace', ['<strong>1</strong>'])
+        self._check_search_results(res, 'annakarenina', ['<strong>1</strong>'])
         # check for something that also finds tags ...
         self._check_search_results(res, 'russian', ['<strong>2</strong>'])
 
@@ -359,11 +359,9 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         results_page = self.main_div(results_page)
         assert '<strong>0</strong>' in results_page, results_page
 
-    def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
+    def _check_search_results(self, page, terms, requireds):
         form = page.forms['dataset-search']
         form['q'] = terms.encode('utf8') # paste doesn't handle this!
-        form['open_only'] = only_open
-        form['downloadable_only'] = only_downloadable
         results_page = form.submit()
         assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)

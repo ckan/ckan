@@ -582,8 +582,6 @@ def package_search(context, data_dict):
     limit=data_dict.get('limit',20)
     offset=data_dict.get('offset',0)
     return_objects=data_dict.get('return_objects',False)
-    filter_by_openness=data_dict.get('filter_by_openness',False)
-    filter_by_downloadable=data_dict.get('filter_by_downloadable',False)
 
     query = query_for(model.Package)
     query.run(query=q,
@@ -592,8 +590,6 @@ def package_search(context, data_dict):
               limit=limit,
               offset=offset,
               return_objects=return_objects,
-              filter_by_openness=filter_by_openness,
-              filter_by_downloadable=filter_by_downloadable,
               username=user)
 
     results = []

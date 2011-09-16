@@ -289,10 +289,8 @@ class TestSearchOverall(TestController):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    def _check_search_results(self, terms, expected_count, expected_packages=[], only_open=False, only_downloadable=False):
+    def _check_search_results(self, terms, expected_count, expected_packages=[]):
         options = QueryOptions()
-        options.filter_by_openness = only_open
-        options.filter_by_downloadable = only_downloadable
         result = self.backend.query_for(model.Package).run(query=unicode(terms))
         pkgs = result['results']
         count = result['count']
@@ -311,9 +309,9 @@ class TestSearchOverall(TestController):
         self._check_search_results('groups:david', 2 )
         self._check_search_results('groups:roger', 1 )
         self._check_search_results('groups:lenny', 0 )
-        self._check_search_results('annakarenina', 1, ['annakarenina'], True, False )
-        self._check_search_results('annakarenina', 1, ['annakarenina'], False, True )
-        self._check_search_results('annakarenina', 1, ['annakarenina'], True, True )
+        self._check_search_results('annakarenina', 1, ['annakarenina'] )
+        self._check_search_results('annakarenina', 1, ['annakarenina'] )
+        self._check_search_results('annakarenina', 1, ['annakarenina'] )
         
 
 class TestGeographicCoverage(TestController):

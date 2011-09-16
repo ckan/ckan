@@ -148,7 +148,7 @@ class QueryOptions(dict):
     to the query terms (such as limits, etc.).
     """
     
-    BOOLEAN_OPTIONS = ['filter_by_downloadable', 'filter_by_openness', 'all_fields']
+    BOOLEAN_OPTIONS = ['all_fields']
     INTEGER_OPTIONS = ['offset', 'limit']
 
     def __init__(self, **kwargs):

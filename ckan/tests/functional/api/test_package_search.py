@@ -49,8 +49,8 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         # uri parameters
         check(UnicodeMultiDict({'q': '', 'ref': 'boris'}),
               {"q": "", "ref": "boris"})
-        check(UnicodeMultiDict({'filter_by_openness': '1'}),
-              {'filter_by_openness': '1'})
+        check(UnicodeMultiDict({}),
+              {})
         # uri json
         check(UnicodeMultiDict({'qjson': '{"q": "", "ref": "boris"}'}),
               {"q": "", "ref": "boris"})
@@ -282,36 +282,6 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     def test_12_all_packages_no_q(self):
         offset = self.base_url
-        res = self.app.get(offset, status=200)
-        res_dict = self.data_from_res(res)
-        assert_equal(res_dict['count'], 3)
-
-    def test_12_filter_by_openness_qjson(self):
-        query = {'q': '', 'filter_by_openness': '1'}
-        json_query = self.dumps(query)
-        offset = self.base_url + '?qjson=%s' % json_query
-        res = self.app.get(offset, status=200)
-        res_dict = self.data_from_res(res)
-        assert_equal(res_dict['count'], 2)
-        self.assert_results(res_dict, (u'annakarenina', u'testpkg'))
-
-    def test_12_filter_by_openness_q(self):
-        offset = self.base_url + '?filter_by_openness=1'
-        res = self.app.get(offset, status=200)
-        res_dict = self.data_from_res(res)
-        assert_equal(res_dict['count'], 2)
-        self.assert_results(res_dict, (u'annakarenina', u'testpkg'))
-
-    def test_12_filter_by_openness_off_qjson(self):
-        query = {'q': '', 'filter_by_openness': '0'}
-        json_query = self.dumps(query)
-        offset = self.base_url + '?qjson=%s' % json_query
-        res = self.app.get(offset, status=200)
-        res_dict = self.data_from_res(res)
-        assert_equal(res_dict['count'], 3)
-
-    def test_12_filter_by_openness_off_q(self):
-        offset = self.base_url + '?filter_by_openness=0'
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         assert_equal(res_dict['count'], 3)
