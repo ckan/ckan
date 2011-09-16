@@ -193,7 +193,6 @@ def package_update(context, data_dict):
     user = context['user']
     
     id = data_dict["id"]
-    preview = context.get('preview', False)
     schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
     model.Session()._context = context
@@ -214,29 +213,25 @@ def package_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors, package_error_summary(errors))
 
-    if not preview:
-        rev = model.repo.new_revision()
-        rev.author = user
-        if 'message' in context:
-            rev.message = context['message']
-        else:
-            rev.message = _(u'REST API: Update object %s') % data.get("name")
+    rev = model.repo.new_revision()
+    rev.author = user
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'REST API: Update object %s') % data.get("name")
 
     pkg = package_dict_save(data, context)
 
-    if not preview:
-        for item in PluginImplementations(IPackageController):
-            item.edit(pkg)
-        model.repo.commit()        
-        return package_dictize(pkg, context)
-    return data
+    for item in PluginImplementations(IPackageController):
+        item.edit(pkg)
+    model.repo.commit()        
+    return package_dictize(pkg, context)
 
 def package_update_validate(context, data_dict):
     model = context['model']
     user = context['user']
     
     id = data_dict["id"]
-    preview = context.get('preview', False)
     schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
     model.Session()._context = context

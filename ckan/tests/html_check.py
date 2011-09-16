@@ -23,10 +23,6 @@ class HtmlCheckMethods(object):
         'strips html to just the <div id="main"> section'
         return self.named_div('main', html)
 
-    def preview_div(self, html):
-        'strips html to just the <div id="preview"> section'
-        return self.named_div('preview', html)
-
     def sidebar(self, html):
         'strips html to just the <div id="primary"> section'
         return self.named_div('primary', html)

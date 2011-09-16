@@ -13,9 +13,7 @@
     <script type="text/javascript">
       jQuery(document).ready(function($) {
         CKAN.Utils.PackageSlugCreator.create($('#title'), $('#name'));
-        if (!$('#preview').length) {
-          $("#title").focus();
-        }
+        $("#title").focus();
       });
     </script>
   </py:def>
