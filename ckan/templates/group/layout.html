@@ -23,12 +23,12 @@
 
   <py:match path="minornavigation" py:if="c.group">
   <ul class="tabbed">
-    <li>${h.subnav_link(c, h.icon('group') + _('View'), controller='group', action='read', id=c.group.name)}</li>
-    <li py:if="h.check_access('group_update',{'id':c.group.id})">
+    <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}">${h.subnav_link(c, h.icon('group') + _('View'), controller='group', action='read', id=c.group.name)}</li>
+    <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}" py:if="h.check_access('group_update',{'id':c.group.id})">
       ${h.subnav_link(c, h.icon('group_edit') + _('Edit'), controller='group', action='edit', id=c.group.name)}
     </li>
-    <li>${h.subnav_link(c, h.icon('page_white_stack') + _('History'), controller='group', action='history', id=c.group.name)}</li>
-    <li py:if="h.check_access('group_edit_permissions',{'id':c.group.id})">
+    <li py:attrs="{'class':'current-tab'} if c.action=='history' else {}">${h.subnav_link(c, h.icon('page_white_stack') + _('History'), controller='group', action='history', id=c.group.name)}</li>
+    <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}" py:if="h.check_access('group_edit_permissions',{'id':c.group.id})">
       ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='group', action='authz', id=c.group.name)}
     </li>
     <li class="action">

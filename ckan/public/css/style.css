@@ -176,6 +176,22 @@ a:hover {
 #minornavigation ul.tabbed li.action {
   float: right;
 }
+#minornavigation li {
+  border: 1px solid transparent;
+}
+#minornavigation li.current-tab {
+  background: #000;
+  background-color: #fff;
+  border: 1px solid #aaa;
+     -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px; 
+          border-radius: 5px; 
+}
+#minornavigation li.current-tab a,
+#minornavigation li.current-tab a:hover,
+#minornavigation li.current-tab a:visited {
+  color: #222;
+}
 
 /* Side bar widgets */
 ul.widget-list {
@@ -262,13 +278,14 @@ tbody tr.table-empty td {
 
 #minornavigation ul {
   list-style: none; 
-  padding: 7px;
+  padding: 1px;
   margin: 0;
 }
 
 #minornavigation ul li {
   display: inline-block;
-  margin-right: 2em;
+  margin-right: 3px;
+  padding: 5px 11px 5px 9px
 }
 
 #minornavigation ul li a {
