@@ -36,13 +36,11 @@ def package_create(context, data_dict):
 
     model = context['model']
     user = context['user']
-    preview = context.get('preview', False)
     schema = context.get('schema') or default_create_package_schema()
     model.Session.remove()
     model.Session()._context = context
 
-    if not preview:
-        check_access('package_create',context,data_dict)
+    check_access('package_create',context,data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -50,39 +48,33 @@ def package_create(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors, package_error_summary(errors))
 
-    if not preview:
-        rev = model.repo.new_revision()
-        rev.author = user
-        if 'message' in context:
-            rev.message = context['message']
-        else:
-            rev.message = _(u'REST API: Create object %s') % data.get("name")
+    rev = model.repo.new_revision()
+    rev.author = user
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     pkg = package_dict_save(data, context)
     admins = []
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
 
-    if not preview:
-        model.setup_default_user_roles(pkg, admins)
-        for item in PluginImplementations(IPackageController):
-            item.create(pkg)
-        model.repo.commit()        
+    model.setup_default_user_roles(pkg, admins)
+    for item in PluginImplementations(IPackageController):
+        item.create(pkg)
+    model.repo.commit()        
 
-    ## need to let rest api create and preview
+    ## need to let rest api create
     context["package"] = pkg
     ## this is added so that the rest controller can make a new location 
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    if not preview:
-        return package_dictize(pkg, context) 
-    else:
-        return data
+    return package_dictize(pkg, context) 
 
 def package_create_validate(context, data_dict):
     model = context['model']
     user = context['user']
-    preview = context.get('preview', False)
     schema = context.get('schema') or default_create_package_schema()
     model.Session.remove()
     model.Session()._context = context

@@ -6,7 +6,7 @@
   >
 
   <py:match path="minornavigation">
-    <py:if test="c.pkg and not c.is_preview">
+    <py:if test="c.pkg">
     <ul class="tabbed">
       <li>${h.subnav_link(c, h.icon('package') + _('View'), controller='package', action='read', id=c.pkg.name)}</li>
       <li py:if="h.check_access('package_update',{'id':c.pkg.id})">

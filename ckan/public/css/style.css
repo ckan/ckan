@@ -240,7 +240,7 @@ tbody tr:nth-child(odd) td, tbody tr.odd td {
   background-color: #FEFEF2;
 }
 
-tbody tr td.table-empty {
+tbody tr.table-empty td {
   background: #f8f8f8;
   border: 1px solid #eee;
   font-style: italic;
@@ -562,11 +562,14 @@ body.user-list .sort a {
 /* = Search boxes = */
 /* ================ */
 
+form.dataset-search {
+  margin-bottom: 35px;
+}
+
 form.dataset-search input.search {
-  width: 99%;
+  width: 100%;
   font-size: 1.2em;
   margin: 0px;
-  -webkit-appearance: textfield;
   
   border: 1px solid #ccc;
   padding: 0.5em;
@@ -575,7 +578,7 @@ form.dataset-search input.search {
      -moz-border-radius: 5px; 
   -webkit-border-radius: 5px; 
           border-radius: 5px; 
-  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+ -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
 }
 
 .dataset-search input.button {
@@ -776,31 +779,41 @@ textarea.markdown-input {
 }
 
 
-table.resource-table tbody tr td {
+table.resource-table tbody tr td.resource-expand-link,
+table.resource-table tbody tr td.resource-is-changed {
   vertical-align: top;
 }
-table.resource-table td.resource-summary {
-  vertical-align: middle;
-}
 
-td.resource-expanded dl{
-  margin-bottom: 5px;
+td.resource-expanded {
+  padding: 8px 0 8px 0;
 }
 td.resource-expand-link {
   padding-top: 6px;
   text-align: center;
 }
-th.resource-is-changed, td.resource-is-changed {
+th.resource-expand-link,
+td.resource-expand-link,
+th.resource-is-changed, 
+td.resource-is-changed {
   text-align: center;
   padding: 8px 0 0 0;
   width: 20px;
 }
+
+div.inner table {
+  margin-bottom: 0;
+}
+
 /* ====================== */
 /* = Add Resources Page = */
 /* ====================== */
 
 input#Resource--url {
   width: 60%;
+}
+
+button.delete-resource {
+  float: right;
 }
 
 /* ==================== */

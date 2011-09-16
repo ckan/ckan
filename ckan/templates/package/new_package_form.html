@@ -91,14 +91,14 @@
   <table class="resource-table edit">
     <thead>
       <tr>
-        <th></th>
+        <th class="resource-expand-link"></th>
         <th class="field_req resource-url">URL*</th>
         <th class="field_opt resource-format">Format</th>
         <th class="field_opt resource-description">Description</th>
         <th class="field_opt resource-is-changed"> </th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="resource-table">
       <py:for each="num, res in enumerate(data.get('resources', []))">
       <tr class="resource-summary">
         <td class="resource-expand-link">
@@ -142,6 +142,9 @@
         </td>
       </tr>
       </py:for>
+      <py:if test="not len(data.get('resources', []))">
+        <tr class="table-empty"><td colspan="5">(none)</td></tr>
+      </py:if>
     </tbody>
   </table>
 
