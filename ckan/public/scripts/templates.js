@@ -35,7 +35,7 @@ CKAN.Templates.resourceAddLinkApi = ' \
         </label> \
       </dt> \
       <dd> \
-        <input name="url" type="text" placeholder="http://mydataset.com/file.csv" style="width: 60%" /> \
+        <input name="url" type="text" placeholder="http://mydataset.com/api/" style="width: 60%" /> \
         <input name="save" type="submit" class="pretty-button primary" value="Add" /> \
         <input name="reset" type="reset" class="pretty-button" value="Cancel" /> \
       </dd> \
