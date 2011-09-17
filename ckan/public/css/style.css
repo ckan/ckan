@@ -833,6 +833,22 @@ button.delete-resource {
   float: right;
 }
 
+div.resource-add {
+  background: #eee;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  border: 1px solid #e0e0e0;
+  border-left: none;
+  border-right: none;
+}
+div.resource-add li h4 {
+  display: inline;
+  padding-right: 20px;
+}
+div.resource-add-subpane {
+  margin-top: 10px;
+}
+
 /* ==================== */
 /* = Add Dataset Page = */
 /* ==================== */
@@ -911,11 +927,15 @@ ul.tabs li {
 ul.tabs li a {
   display: inline-block;
   padding: 2px 8px;
+  margin-right: 10px;
   font-size: 10px;
   font-weight: bold;
   text-decoration: none;
   color: #666;
-  border: 1px solid transparent;
+  border: 1px solid #DDD;
+  border-color: #DDD;
+  border-right-color: #BBB;
+  border-bottom-color: #BBB;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
   border-top-left-radius: 10px 10px;
