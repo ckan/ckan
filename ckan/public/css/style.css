@@ -729,11 +729,11 @@ body.package.edit .edit-summary {
 }
 
 body.package.edit div#content {
-  margin-right: 9px;
+  margin-right: 29px;
   margin-left: 0px;
   float: right;
   padding-right: 0;
-  padding-left: 40px;
+  padding-left: 20px;
   border: none;
   border-left: 1px solid #eee;
 }
