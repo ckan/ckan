@@ -728,11 +728,23 @@ body.package.edit .edit-summary {
   display: none;
 }
 
-body.edit.package div#content {
+body.package.edit div#content {
+  margin-right: 9px;
+  margin-left: 0px;
+  float: right;
+  padding-right: 0;
+  padding-left: 40px;
+  border: none;
+  border-left: 1px solid #eee;
+}
+body.package.edit div#sidebar {
+  padding-left: 0px;
+  float: left;
   margin-right: 0px;
 }
-body.edit.package div#sidebar {
-  padding-left: 0px;
+body.package.edit ul.widget-list {
+  margin-left: 1.5em;
+  margin-right: 0;
 }
 ul.edit-form-navigation {
   list-style-type: none;
@@ -758,16 +770,13 @@ ul.edit-form-navigation li a:hover {
   background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
             filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
 
-  border-left: none;
-     -moz-border-radius: 5px; 
-  -webkit-border-radius: 5px; 
-          border-radius: 5px; 
-     -moz-border-bottom-left-radius: 0px; 
-  -webkit-border-bottom-left-radius: 0px; 
-          border-bottom-left-radius: 0px; 
-     -moz-border-top-left-radius: 0px; 
-  -webkit-border-top-left-radius: 0px; 
-          border-top-left-radius: 0px; 
+  border-right: none;
+     -moz-border-radius-bottomleft: 5px; 
+  -webkit-border-bottom-left-radius: 5px; 
+          border-bottom-left-radius: 5px; 
+     -moz-border-radius-topleft: 5px; 
+  -webkit-border-top-left-radius: 5px; 
+          border-top-left-radius: 5px; 
 
   -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
 }
@@ -848,6 +857,7 @@ div.resource-add li h4 {
 div.resource-add-subpane {
   margin-top: 10px;
 }
+
 
 /* ==================== */
 /* = Add Dataset Page = */
