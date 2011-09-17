@@ -14,21 +14,27 @@
     <div class="resources subsection">
       <h3>Resources</h3>
       <table>
-        <tr>
-            <th>Description</th>
+        <thead>
+            <th>Url</th>
+            <th>Name/Description</th>
             <th>Format</th>
-        </tr>
+        </thead>
         <py:for each="res in c.pkg_dict.get('resources', [])">
           <tr rel="dcat:distribution" resource="_:res${res.id}"
             typeof="dcat:Distribution">
               <td>
+                <a href="${res.get('url', '')}" target="_blank">${res.get('url', '')}</a>  
+              </td>
+              <td>
                   <py:choose test="">
+                    <py:when test="res.get('name')">
+                      <span property="rdfs:label">${res.name}</span>
+                    </py:when>
                     <py:when test="res.get('description')">
-                    <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank"><span
-                        property="rdfs:label">${res.description}</span></a>  
+                      <span property="rdfs:label">${res.description}</span>
                     </py:when>
                     <py:otherwise test="">
-                      <a href="${res.get('url', '')}" target="_blank">Download <em>(no description)</em></a>  
+                      <em>(none)</em>
                     </py:otherwise>
                   </py:choose>
               </td>
