@@ -80,11 +80,11 @@ CKAN.Templates.resourceEntry = ' \
   <td class="resource-summary resource-url"> \
     ${resource.url} \
   </td> \
+  <td class="resource-summary resource-name"> \
+    ${resource.name} \
+  </td> \
   <td class="resource-summary resource-format"> \
     ${resource.format} \
-  </td> \
-  <td class="resource-summary resource-description"> \
-    ${resource.description} \
   </td> \
   <td class="resource-expanded" colspan="3"> \
     <div class="inner"> \
@@ -97,8 +97,8 @@ CKAN.Templates.resourceEntry = ' \
       </thead> \
       <tbody> \
       <tr> \
-      <td style="display: none;" class="form-label">Name</td> \
-      <td style="display: none;" class="form-value" colspan="3"> \
+      <td class="form-label">Name</td> \
+      <td class="form-value" colspan="3"> \
         <input name="resources__${num}__name" type="text" value="${resource.name}" class="long" /> \
       </td> \
       </tr> \
