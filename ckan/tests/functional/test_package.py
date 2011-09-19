@@ -988,7 +988,7 @@ class TestEdit(TestPackageForm):
             search.common.solr_url = bad_solr_url
             plugins.load('synchronous_search')
 
-            fv = self.res.forms['package-edit']
+            fv = self.res.forms['dataset-edit']
             prefix = ''
             fv['log_message'] = u'Test log message'
             res = fv.submit('save', status=500)
@@ -1242,7 +1242,7 @@ class TestNew(TestPackageForm):
 
             offset = url_for(controller='package', action='new')
             res = self.app.get(offset)
-            fv = res.forms['package-edit']
+            fv = res.forms['dataset-edit']
             fv['name'] = new_package_name
 
             # this package shouldn't actually be created but
