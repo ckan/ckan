@@ -210,6 +210,7 @@ class UserController(BaseController):
 
         self._setup_template_variables(context)
 
+        c.is_myself = True
         c.form = render(self.edit_user_form, extra_vars=vars)
 
         return render('user/edit.html')
