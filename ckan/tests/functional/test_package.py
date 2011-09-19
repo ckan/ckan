@@ -10,13 +10,14 @@ from nose.plugins.skip import SkipTest
 from nose.tools import assert_equal
 
 from ckan.tests import *
-from ckan.tests import search_related
+from ckan.tests import search_related, setup_test_search_index
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
+import ckan.lib.search as search
 from ckan.controllers.package import PackageController
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan import plugins
@@ -228,17 +229,18 @@ class TestPackageForm(TestPackageBase):
                     pkg.purge()
                 model.repo.commit_and_remove()
 
-class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsTestCase):
+class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
 
     @classmethod
     def setup_class(cls):
         PylonsTestCase.setup_class()
-        cls.tsi = TestSearchIndexer()
+        setup_test_search_index()
         CreateTestData.create()
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
+        search.clear()
 
     @search_related
     def test_minornavigation_2(self):
@@ -357,7 +359,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         results_page = self.app.get(offset)
         assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)
-        assert '<strong>0</strong>' in results_page, results_page
+        # solr's edismax parser won't throw an error, so this should return 0 results
+        assert '>0<' in results_page, results_page
 
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
         form = page.forms['dataset-search']
@@ -978,6 +981,22 @@ class TestEdit(TestPackageForm):
         self.offset = url_for(controller='package', action='edit', id='random_name')
         self.res = self.app.get(self.offset, status=404)
 
+    def test_edit_indexerror(self):
+        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        solr_url = search.common.solr_url
+        try:
+            search.common.solr_url = bad_solr_url
+            plugins.load('synchronous_search')
+
+            fv = self.res.forms['package-edit']
+            prefix = ''
+            fv['log_message'] = u'Test log message'
+            res = fv.submit('save', status=500)
+            assert 'Unable to update search index' in res, res
+        finally:
+            plugins.unload('synchronous_search')
+            search.common.solr_url = solr_url
+
 
 class TestNew(TestPackageForm):
     pkg_names = []
@@ -1213,6 +1232,29 @@ class TestNew(TestPackageForm):
         assert plugin.calls['create'] == 1, plugin.calls
         plugins.unload(plugin)
 
+    def test_new_indexerror(self):
+        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        solr_url = search.common.solr_url
+        try:
+            search.common.solr_url = bad_solr_url
+            plugins.load('synchronous_search')
+            new_package_name = u'new-package-missing-solr'
+
+            offset = url_for(controller='package', action='new')
+            res = self.app.get(offset)
+            fv = res.forms['package-edit']
+            fv['name'] = new_package_name
+
+            # this package shouldn't actually be created but
+            # add it to the list to purge just in case
+            self.pkg_names.append(new_package_name)
+
+            res = fv.submit('save', status=500)
+            assert 'Unable to add package to search index' in res, res
+        finally:
+            plugins.unload('synchronous_search')
+            search.common.solr_url = solr_url
+
 class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'
     pkgtitle = u'mytesttitle'
@@ -1232,6 +1274,7 @@ class TestNonActivePackages(TestPackageBase):
 
     @classmethod
     def setup_class(self):
+        setup_test_search_index()
         CreateTestData.create()
         self.non_active_name = u'test_nonactive'
         pkg = model.Package(name=self.non_active_name)
@@ -1253,6 +1296,7 @@ class TestNonActivePackages(TestPackageBase):
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
+        search.clear()
 
     def test_read(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)

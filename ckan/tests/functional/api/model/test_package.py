@@ -1,11 +1,13 @@
 import copy
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_raises
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase 
 from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase 
+from ckan import plugins
+import ckan.lib.search as search
 
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
@@ -134,18 +136,6 @@ class PackagesTestCase(BaseModelApiTestCase):
         else:
             assert package        
 
-    def test_register_post_json(self):
-        assert not self.get_package_by_name(self.package_fixture_data['name'])
-        offset = self.package_offset()
-        data = self.dumps(self.package_fixture_data)
-        res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
-                             extra_environ=self.extra_environ)
-        # Check the database record.
-        self.remove()
-        package = self.get_package_by_name(self.package_fixture_data['name'])
-        assert package
-        self.assert_equal(package.title, self.package_fixture_data['title'])
-        
     def test_register_post_bad_request(self):
         test_params = {
             'name':u'testpackage06_400',
@@ -172,6 +162,26 @@ class PackagesTestCase(BaseModelApiTestCase):
                             status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
         assert_equal(res.body, '{"id": ["The input field id was not expected."]}')
+
+    def test_register_post_indexerror(self):
+        """
+        Test that we can't add a package if Solr is down.
+        """
+        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        solr_url = search.common.solr_url
+        try:
+            search.common.solr_url = bad_solr_url
+            plugins.load('synchronous_search')
+
+            assert not self.get_package_by_name(self.package_fixture_data['name'])
+            offset = self.package_offset()
+            data = self.dumps(self.package_fixture_data)
+
+            self.post_json(offset, data, status=500, extra_environ=self.extra_environ)
+            self.remove()
+        finally:
+            plugins.unload('synchronous_search')
+            search.common.solr_url = solr_url
 
     def test_entity_get_ok(self):
         package_refs = [self.anna.name, self.anna.id]
@@ -468,6 +478,23 @@ class PackagesTestCase(BaseModelApiTestCase):
         package1_offset = self.package_offset(package1_name)
         self.app.put(package1_offset, package2_data,
                      status=self.STATUS_400_BAD_REQUEST)
+
+    def test_entity_update_indexerror(self):
+        """
+        Test that we can't update a package if Solr is down.
+        """
+        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        solr_url = search.common.solr_url
+        try:
+            search.common.solr_url = bad_solr_url
+            plugins.load('synchronous_search')
+
+            assert_raises(
+                search.SearchIndexError, self.assert_package_update_ok, 'name', 'post'
+            )
+        finally:
+            plugins.unload('synchronous_search')
+            search.common.solr_url = solr_url
 
     def test_entity_delete_ok(self):
         # create a package with package_fixture_data
