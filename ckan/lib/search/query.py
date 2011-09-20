@@ -4,6 +4,7 @@ from pylons import config
 from paste.util.multidict import MultiDict 
 from paste.deploy.converters import asbool
 from ckan import model
+from ckan.logic import get_action
 from common import make_connection, SearchError
 import logging
 log = logging.getLogger(__name__)
@@ -219,7 +220,7 @@ class SearchQuery(object):
 
 
 class TagSearchQuery(SearchQuery):
-    """Search for tags in plain SQL."""
+    """Search for tags."""
     def _run(self):
         q = model.Session.query(model.Tag)
         q = q.distinct().join(model.Tag.package_tags)
@@ -235,38 +236,29 @@ class TagSearchQuery(SearchQuery):
 
 
 class ResourceSearchQuery(SearchQuery):
-    """ Search for resources in plain SQL. """
-    def _run(self):
-        q = model.Session.query(model.Resource) # TODO authz
-        if self.query.terms:
-            raise SearchError('Only field specific terms allowed in resource search.')
-        self.options.ref_entity_with_attr = 'id' # has no name
-        resource_fields = model.Resource.get_columns()
-        for field, terms in self.query.fields.items():
-            if isinstance(terms, basestring):
-                terms = terms.split()
-            if field not in resource_fields:
-                raise SearchError('Field "%s" not recognised in Resource search.' % field)
-            for term in terms:
-                model_attr = getattr(model.Resource, field)
-                if field == 'hash':                
-                    q = q.filter(model_attr.ilike(unicode(term) + '%'))
-                elif field in model.Resource.get_extra_columns():
-                    model_attr = getattr(model.Resource, 'extras')
+    """Search for resources."""
+    def run(self, query=None, terms=[], fields={}, facet_by=[], options=None, **kwargs):
+        if options is None:
+            options = QueryOptions(**kwargs) 
+        else:
+            options.update(kwargs)
 
-                    like = or_(
-                        model_attr.ilike(u'''%%"%s": "%%%s%%",%%''' % (field, term)),
-                        model_attr.ilike(u'''%%"%s": "%%%s%%"}''' % (field, term))
-                    )
-                    q = q.filter(like)
-                else:
-                    q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
-        
-        order_by = self.options.order_by
-        if order_by is not None:
-            if hasattr(model.Resource, order_by):
-                q = q.order_by(getattr(model.Resource, order_by))
-        self._db_query(q)
+        context = {'model':model, 'session': model.Session}
+        data_dict = {
+            'fields': fields,
+            'offset': options.get('offset'),
+            'limit': options.get('limit'),
+            'order_by': options.get('order_by')
+        }
+        results = get_action('resource_search')(context, data_dict)
+
+        # if options.all_fields is set, return a dict
+        # if not, return a list of resource IDs
+        if options.all_fields:
+           results['results'] = [r.as_dict() for r in results['results']]
+        else:
+            results['results'] = [r.id for r in results['results']]
+        return results
 
 
 class PackageSearchQuery(SearchQuery):

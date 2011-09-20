@@ -21,7 +21,7 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 group_to_api2,
                                                 tag_to_api1,
                                                 tag_to_api2)
-from ckan.lib.search import query_for
+from ckan.lib.search import query_for, SearchError
 
 def site_read(context,data_dict=None):
     check_access('site_read',context,data_dict)
@@ -625,3 +625,54 @@ def _extend_package_dict(package_dict,context):
         package_dict['isopen'] = False
 
     return package_dict
+
+def resource_search(context, data_dict):
+    model = context['model']
+    session = context['session']
+
+    fields = data_dict['fields']
+    order_by = data_dict.get('order_by')
+    offset = data_dict.get('offset')
+    limit = data_dict.get('limit')
+
+    # TODO: should we check for user authentication first?
+    q = model.Session.query(model.Resource)
+    resource_fields = model.Resource.get_columns()
+
+    for field, terms in fields.items():
+        if isinstance(terms, basestring):
+            terms = terms.split()
+        if field not in resource_fields:
+            raise SearchError('Field "%s" not recognised in Resource search.' % field)
+        for term in terms:
+            model_attr = getattr(model.Resource, field)
+            if field == 'hash':                
+                q = q.filter(model_attr.ilike(unicode(term) + '%'))
+            elif field in model.Resource.get_extra_columns():
+                model_attr = getattr(model.Resource, 'extras')
+
+                like = or_(
+                    model_attr.ilike(u'''%%"%s": "%%%s%%",%%''' % (field, term)),
+                    model_attr.ilike(u'''%%"%s": "%%%s%%"}''' % (field, term))
+                )
+                q = q.filter(like)
+            else:
+                q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
+    
+    if order_by is not None:
+        if hasattr(model.Resource, order_by):
+            q = q.order_by(getattr(model.Resource, order_by))
+
+    count = q.count()
+    q = q.offset(offset)
+    q = q.limit(limit)
+    
+    results = []
+    for result in q:
+        if isinstance(result, tuple) and isinstance(result[0], model.DomainObject):
+            # This is the case for order_by rank due to the add_column.
+            results.append(result[0])
+        else:
+            results.append(result)
+
+    return {'count': count, 'results': results}

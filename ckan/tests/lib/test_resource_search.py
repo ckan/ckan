@@ -148,7 +148,7 @@ class TestSearch(object):
         resources = result['results']
         count = result['count']
         assert len(resources) == 2, resources
-        assert count == all_resource_count
+        assert count == all_resource_count, (count, all_resource_count)
         assert resources == all_resources[:2], '%r, %r' % (resources, all_resources)
 
         # offset
@@ -182,5 +182,3 @@ class TestSearch(object):
         # can't be searched
         fields = {'size_extra':'100'}
         assert_raises(search.SearchError, search.query_for(model.Resource).run, fields=fields)
-
-
