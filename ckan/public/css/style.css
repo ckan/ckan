@@ -789,6 +789,7 @@ div.markdown-editor {
   -moz-border-radius: 5px;
   border: 1px solid #CCC;
   padding: 0 5px 5px 10px;
+  width: 32em;
 }
 
 div.markdown-preview {
@@ -1081,21 +1082,21 @@ body.index.home .front-page .group strong {
 /* = Twitter.Bootstrap Form Buttons = */
 /* ================================== */
 div.form-submit {
-    background: #eee;
-    padding: 20px;
-    margin-bottom: 8px;
-    border: 1px solid #ccc;
-    border-left: none;
-    border-right: none;
-    height: 60px;
+  background: #eee;
+  padding: 20px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-left: none;
+  border-right: none;
 }
-
 div.form-submit p.hints {
-    display: block;
-    width: 50%;
-    float: right;
+  width: 50%;
+  float: right;
+  margin: 0;
 }
-
+div.clear {
+  clear: both;
+}
 
 .pretty-button {
   cursor: pointer;

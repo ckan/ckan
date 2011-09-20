@@ -482,13 +482,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['about'] = new_about
         fv['password1'] = new_password
         fv['password2'] = new_password
-        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
-        
-        # preview
-        main_res = self.main_div(res)
-        assert 'Edit User: testedit' in main_res, main_res
-        in_preview = main_res[main_res.find('Preview'):]
-        assert new_about in in_preview, in_preview
 
         # commit
         res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
@@ -532,14 +525,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['about'] = new_about
         fv['password1'] = ''
         fv['password2'] = ''
-
-        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
-        
-        # preview
-        main_res = self.main_div(res)
-        assert 'Edit User: testedit2' in main_res, main_res
-        in_preview = main_res[main_res.find('Preview'):]
-        assert new_about in in_preview, in_preview
 
         # commit
         res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
@@ -603,7 +588,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'Edit User: ' in main_res, main_res
         assert 'Test About &lt;a href="http://spamsite.net"&gt;spamsite&lt;/a&gt;' in main_res, main_res
         fv = res.forms['user-edit']
-        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
         # commit
         res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
         assert res.status == 200, res.status

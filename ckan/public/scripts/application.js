@@ -23,16 +23,14 @@
       $('#save').val("Add Dataset");
     }
 
+    // Buttons with href-action should navigate when clicked
+    $('input.href-action').click(function(e) {
+      e.preventDefault();
+      window.location = ($(e.target).attr('action'));
+    });
+    
     var isDatasetEdit = $('body.package.edit').length > 0;
     if (isDatasetEdit) {
-      // Set up the cancel button
-      $('input#cancel').show();
-      $('input#cancel').click(function(e) {
-        e.preventDefault();
-        window.location = ($(e.target).attr('action'));
-      });
-
-
       // Selectively enable the upload button
       var storageEnabled = $.inArray('storage',CKAN.plugins)>=0;
       if (storageEnabled) {

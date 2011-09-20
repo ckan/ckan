@@ -169,7 +169,6 @@ class UserController(BaseController):
     def edit(self, id=None, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
                    'schema': self._edit_form_to_db_schema(),
                    }
@@ -180,7 +179,7 @@ class UserController(BaseController):
                 abort(400, _('No user specified'))
         data_dict = {'id': id}
 
-        if (context['save'] or context['preview']) and not data:
+        if (context['save']) and not data:
             return self._save_edit(id, context)
 
         try:
@@ -222,15 +221,6 @@ class UserController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
             user = get_action('user_update')(context, data_dict)
-
-            if context['preview']:
-                about = request.params.getone('about')
-                c.preview = self._format_about(about)
-                c.user_about = about
-                c.full_name = request.params.get('fullname','')
-                c.email = request.params.getone('email')
-
-                return self.edit(id, data_dict)
 
             h.redirect_to(controller='user', action='read', id=user['id'])
         except NotAuthorized:
