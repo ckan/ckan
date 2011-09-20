@@ -42,6 +42,14 @@
     ${optional_head()}
   </py:if>
 
+  <script>
+    var CKAN = CKAN || {};
+    CKAN.plugins = [ 
+      // Declare js array from Python string
+      ${['\'%s\', '%s  for s in config['ckan.plugins'].split(' ')]}
+    ];
+  </script>
+
 </head>
 
 <body class="${request.environ.get('pylons.routes_dict', {}).get('action')} 

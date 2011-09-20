@@ -25,6 +25,12 @@
 
     var isDatasetEdit = $('body.package.edit').length > 0;
     if (isDatasetEdit) {
+      // Selectively enable the upload button
+      var storageEnabled = $.inArray('storage',CKAN.plugins)>=0;
+      if (storageEnabled) {
+        $('div.resource-add li.upload-file').show();
+      }
+
       // Set up hashtag nagivigation
       CKAN.Utils.setupDatasetEditNavigation();
 

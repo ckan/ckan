@@ -1,13 +1,4 @@
 
-CKAN.Templates.resourceAddChoice = ' \
-  <ul> \
-    <li>Add a resource:</li> \
-    <li><a href="#" action="upload-file" class="action-resource-tab">Upload a file</a></li> \
-    <li><a href="#" action="link-file" class="action-resource-tab">Link to a file</a></li> \
-    <li><a href="#" action="link-api" class="action-resource-tab">Link to an API</a></li> \
-  </ul> \
-';
-
 CKAN.Templates.resourceAddLinkFile = ' \
   <form class="resource-add" action=""> \
     <dl> \
