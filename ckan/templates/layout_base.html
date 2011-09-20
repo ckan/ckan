@@ -42,14 +42,6 @@
     ${optional_head()}
   </py:if>
 
-  <script>
-    var CKAN = CKAN || {};
-    CKAN.plugins = [ 
-      // Declare js array from Python string
-      ${['\'%s\', '%s  for s in config['ckan.plugins'].split(' ')]}
-    ];
-  </script>
-
 </head>
 
 <body class="${request.environ.get('pylons.routes_dict', {}).get('action')} 
@@ -208,6 +200,7 @@
     </footer>
   </div> <!-- eo #container -->
 
+
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
   <!--script><![CDATA[window.jQuery || document.write("<script src='${g.site_url}/scripts/vendor/jquery/1.6.2/jquery.js'>\x3C/script>")]]></script-->
   <script type="text/javascript" src="${g.site_url}/scripts/vendor/json2.js"></script>
@@ -230,6 +223,10 @@
   <script src="${g.site_url}/scripts/vendor/modernizr/1.7/modernizr.min.js"></script>
 
   <script type="text/javascript">
+    CKAN.plugins = [ 
+      // Declare js array from Python string
+      ${['\'%s\', '%s  for s in config['ckan.plugins'].split(' ')]}
+    ];
     $(document).ready(function() {
         var ckan_user = $.cookie("ckan_display_name");
         if (ckan_user) {
