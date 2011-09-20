@@ -365,6 +365,12 @@ class TestSearchIndexer:
     def list(cls):
         return [model.Package.get(pkg_index.package_id).name for pkg_index in model.Session.query(model.PackageSearch)]
             
+def setup_test_search_index():
+    from ckan import plugins
+    if not is_search_supported():
+        raise SkipTest("Search not supported")
+    search.clear()
+    plugins.load('synchronous_search')
 
 def is_search_supported():
     supported_db = "sqlite" not in config.get('sqlalchemy.url')

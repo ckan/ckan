@@ -72,7 +72,7 @@ def load_environment(global_conf, app_conf):
         if ':' in ckan_host:
             ckan_host, port = ckan_host.split(':')
         config['ckan.site_id'] = ckan_host
-    
+
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
     config['pylons.h'] = ckan.lib.helpers
