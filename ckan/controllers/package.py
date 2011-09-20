@@ -110,8 +110,6 @@ class PackageController(BaseController):
             abort(401, _('Not authorized to see this page'))
 
         q = c.q = request.params.get('q', u'') # unicode format (decoded from utf8)
-        c.open_only = request.params.get('open_only', 0)
-        c.downloadable_only = request.params.get('downloadable_only', 0)
         c.query_error = False
         try:
             page = int(request.params.get('page', 1))
@@ -144,7 +142,7 @@ class PackageController(BaseController):
         try:
             c.fields = []
             for (param, value) in request.params.items():
-                if not param in ['q', 'open_only', 'downloadable_only', 'page'] \
+                if not param in ['q', 'page'] \
                         and len(value) and not param.startswith('_'):
                     c.fields.append((param, value))
                     q += ' %s: "%s"' % (param, value)
@@ -157,8 +155,6 @@ class PackageController(BaseController):
                 'facet.field':g.facets,
                 'rows':limit,
                 'start':(page-1)*limit,
-                'filter_by_openness':c.open_only,
-                'filter_by_downloadable':c.downloadable_only,
             }
 
             query = get_action('package_search')(context,data_dict)
