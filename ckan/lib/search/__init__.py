@@ -12,8 +12,6 @@ log = logging.getLogger(__name__)
 DEFAULT_OPTIONS = {
     'limit': 20,
     'offset': 0,
-    'filter_by_openness': False,
-    'filter_by_downloadable': False,
     # about presenting the results
     'order_by': 'rank',
     'return_objects': False,

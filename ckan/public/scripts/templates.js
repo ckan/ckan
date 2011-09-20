@@ -1,13 +1,4 @@
 
-CKAN.Templates.resourceAddChoice = ' \
-  <ul> \
-    <li>Add a resource:</li> \
-    <li><a href="#" action="upload-file" class="action-resource-tab">Upload a file</a></li> \
-    <li><a href="#" action="link-file" class="action-resource-tab">Link to a file</a></li> \
-    <li><a href="#" action="link-api" class="action-resource-tab">Link to an API</a></li> \
-  </ul> \
-';
-
 CKAN.Templates.resourceAddLinkFile = ' \
   <form class="resource-add" action=""> \
     <dl> \
@@ -35,7 +26,7 @@ CKAN.Templates.resourceAddLinkApi = ' \
         </label> \
       </dt> \
       <dd> \
-        <input name="url" type="text" placeholder="http://mydataset.com/file.csv" style="width: 60%" /> \
+        <input name="url" type="text" placeholder="http://mydataset.com/api/" style="width: 60%" /> \
         <input name="save" type="submit" class="pretty-button primary" value="Add" /> \
         <input name="reset" type="reset" class="pretty-button" value="Cancel" /> \
       </dd> \
@@ -80,11 +71,11 @@ CKAN.Templates.resourceEntry = ' \
   <td class="resource-summary resource-url"> \
     ${resource.url} \
   </td> \
+  <td class="resource-summary resource-name"> \
+    ${resource.name} \
+  </td> \
   <td class="resource-summary resource-format"> \
     ${resource.format} \
-  </td> \
-  <td class="resource-summary resource-description"> \
-    ${resource.description} \
   </td> \
   <td class="resource-expanded" colspan="3"> \
     <div class="inner"> \
@@ -97,8 +88,8 @@ CKAN.Templates.resourceEntry = ' \
       </thead> \
       <tbody> \
       <tr> \
-      <td style="display: none;" class="form-label">Name</td> \
-      <td style="display: none;" class="form-value" colspan="3"> \
+      <td class="form-label">Name</td> \
+      <td class="form-value" colspan="3"> \
         <input name="resources__${num}__name" type="text" value="${resource.name}" class="long" /> \
       </td> \
       </tr> \

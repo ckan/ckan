@@ -9,15 +9,6 @@
   <py:def function="page_title">Search - ${g.site_title}</py:def>
   <py:def function="page_heading">Search - ${g.site_title}</py:def>
 
-  <py:def function="optional_head">
-  <style>
-      #minornavigation { visibility: hidden; }
-      #menusearch {
-        display: none;
-      }
-    </style>    
-  </py:def>
-
   <py:match path="primarysidebar">
     
     <li class="widget-container boxed widget_text" py:if="h.check_access('package_create')">

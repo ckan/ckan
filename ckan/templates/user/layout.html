@@ -5,6 +5,15 @@
   py:strip=""
   >
 
+  <py:match path="minornavigation">
+    <ul class="tabbed" py:if="c.is_myself">
+      <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}"><a href="${h.url_for(controller='user', action='read')}">My Profile</a></li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}"><a href="${h.url_for(controller='user', action='edit')}">Edit Profile</a></li>
+      <li><a href="${h.url_for('/user/logout')}">Log out</a></li>
+    </ul>
+  </py:match>
+  
+
   <xi:include href="../layout.html" />
 </html>
 
