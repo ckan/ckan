@@ -237,7 +237,7 @@ class TagSearchQuery(SearchQuery):
 
 class ResourceSearchQuery(SearchQuery):
     """Search for resources."""
-    def run(self, query=None, terms=[], fields={}, facet_by=[], options=None, **kwargs):
+    def run(self, fields={}, options=None, **kwargs):
         if options is None:
             options = QueryOptions(**kwargs) 
         else:
@@ -255,7 +255,7 @@ class ResourceSearchQuery(SearchQuery):
         # if options.all_fields is set, return a dict
         # if not, return a list of resource IDs
         if options.all_fields:
-           results['results'] = [r.as_dict() for r in results['results']]
+            results['results'] = [r.as_dict() for r in results['results']]
         else:
             results['results'] = [r.id for r in results['results']]
         return results
