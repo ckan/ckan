@@ -2,13 +2,17 @@ import solr
 from pylons import config
 from ckan import model
 import ckan.lib.search as search 
-from ckan.tests import TestController, CreateTestData, setup_test_search_index
+from ckan.tests import TestController, CreateTestData, setup_test_search_index, is_search_supported
 
 class TestSolrConfig(TestController):
     """
     Make sure that solr is enabled for this ckan instance.
     """
     def test_solr_url_exists(self):
+        if not is_search_supported():
+            from nose import SkipTest
+            raise SkipTest("Search not supported")
+
         assert config.get('solr_url')
         # solr.SolrConnection.query will throw an exception if it can't connect
         conn = solr.SolrConnection(config.get('solr_url'))

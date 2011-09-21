@@ -1,5 +1,6 @@
 import webtest
 from ckan.tests import TestController
+from ckan.tests import is_search_supported
 
 class TestCORS(TestController):
 
@@ -12,6 +13,12 @@ class TestCORS(TestController):
         assert len(str(out.body)) == 0, 'OPTIONS must return no content'
 
     def test_headers(self):
+        # the home page does a package search so have to skip this test if
+        # search is not supported
+        if not is_search_supported():
+            from nose import SkipTest
+            raise SkipTest("Search not supported")
+
         out = self.app.get('/')
         headers = dict(out.headers)
         print headers

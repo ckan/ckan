@@ -4,7 +4,7 @@ from base import FunctionalTestCase
 
 from ckan.plugins import SingletonPlugin, implements, IGroupController
 from ckan import plugins
-from ckan.tests import search_related
+from ckan.tests import search_related, is_search_supported
 
 class MockGroupControllerPlugin(SingletonPlugin):
     implements(IGroupController)
@@ -43,6 +43,12 @@ class TestGroup(FunctionalTestCase):
         model.repo.rebuild_db()
 
     def test_mainmenu(self):
+        # the home page does a package search so have to skip this test if
+        # search is not supported
+        if not is_search_supported():
+            from nose import SkipTest
+            raise SkipTest("Search not supported")
+
         offset = url_for(controller='home', action='index')
         res = self.app.get(offset)
         assert 'Groups' in res, res
