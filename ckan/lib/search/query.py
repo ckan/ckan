@@ -220,10 +220,13 @@ class PackageSearchQuery(SearchQuery):
             licenses = " OR ".join(licenses)
             query['fq'] += " +(%s) " % licenses
 
-        # query field weighting
-        query['defType'] = 'edismax'
-        query['tie'] = '0.5'
-        query['qf'] = query.get('qf', QUERY_FIELDS)
+        # query field weighting: disabled for now as solr 3.* is required for 
+        # the 'edismax' query parser, our current Ubuntu version only has
+        # packages for 1.4
+        #
+        # query['defType'] = 'edismax'
+        # query['tie'] = '0.5'
+        # query['qf'] = query.get('qf', QUERY_FIELDS)
 
         conn = make_connection()
         try:
