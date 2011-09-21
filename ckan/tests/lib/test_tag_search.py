@@ -16,18 +16,18 @@ class TestTagSearch(object):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    def test_good_search_terms(self):
-        result = search.query_for(model.Tag).run(terms=[u'ru'])
+    def test_good_search_query(self):
+        result = search.query_for(model.Tag).run(query=u'ru')
         assert result['count'] == 1, result
         assert 'russian' in result['results'], result
 
-        result = search.query_for(model.Tag).run(terms=[u's'])
+        result = search.query_for(model.Tag).run(query=u's')
         assert result['count'] == 2, result
         assert 'russian' in result['results'], result
         assert 'tolstoy' in result['results'], result
 
-    def test_bad_search_terms(self):
-        result = search.query_for(model.Tag).run(terms=[u'asdf'])
+    def test_bad_search_query(self):
+        result = search.query_for(model.Tag).run(query=u'asdf')
         assert result['count'] == 0, result
 
     def test_good_search_fields(self):

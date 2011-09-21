@@ -1,7 +1,5 @@
-from sqlalchemy import or_
 import json
 from pylons import config
-from paste.util.multidict import MultiDict 
 from paste.deploy.converters import asbool
 from ckan import model
 from ckan.logic import get_action
@@ -61,91 +59,6 @@ class QueryOptions(dict):
         self[name] = value
 
 
-class QueryParser(object):
-    """
-    The query parser will take any incoming query specifications and turn 
-    them into field-specific and general query parts. 
-    """
-    
-    def __init__(self, query, terms, fields):
-        self._query = query
-        self._terms = terms
-        self._fields = MultiDict(fields)
-    
-    @property    
-    def query(self):
-        if not hasattr(self, '_combined_query'):
-            parts = [self._query if self._query is not None else '']
-            
-            for term in self._terms:
-                if term.find(u' ') != -1:
-                    term = u"\"%s\"" % term
-                parts.append(term.strip())
-                
-            for field, value in self._fields.items():
-                if field != 'tags' and value.find(' ') != -1:
-                    value = u"\"%s\"" % value
-                parts.append(u"%s:%s" % (field.strip(), value.strip()))
-                
-            self._combined_query = u' '.join(parts)
-        return self._combined_query
-    
-    def _query_tokens(self):
-        """ Split the query string, leaving quoted strings intact. """
-        if self._query:
-            inside_quote = False
-            buf = u''
-            for ch in self._query:
-                if ch == u' ' and not inside_quote:
-                    if len(buf):
-                        yield buf.strip()
-                    buf = u''
-                elif ch == inside_quote:
-                    inside_quote = False
-                elif ch in [u"\"", u"'"]:
-                    inside_quote = ch
-                else:
-                    buf += ch
-            if len(buf):
-                yield buf.strip()
-    
-    def _parse_query(self):
-        """ Decompose the query string into fields and terms. """
-        self._combined_fields = MultiDict(self._fields)
-        self._combined_terms = list(self._terms)
-        for token in self._query_tokens():
-            colon_pos = token.find(u':')
-            if colon_pos != -1:
-                field = token[:colon_pos]
-                value = token[colon_pos+1:]
-                value = value.strip('"').strip("'").strip()
-                self._combined_fields.add(field, value)
-            else:
-                self._combined_terms.append(token)
-    
-    @property
-    def fields(self):
-        if not hasattr(self, '_combined_fields'):
-            self._parse_query()
-        return self._combined_fields
-    
-    @property
-    def terms(self):
-        if not hasattr(self, '_combined_terms'):
-            self._parse_query()
-        return self._combined_terms
-    
-    def validate(self):
-        """ Check that this is a valid query. """
-        pass
-    
-    def __str__(self):
-        return self.query
-        
-    def __repr__(self):
-        return "Query(%r)" % self.query
-
-
 class SearchQuery(object):
     """
     A query is ... when you ask the search engine things. SearchQuery is intended 
@@ -169,14 +82,6 @@ class SearchQuery(object):
                     _open_licenses.append(license.id)
         return _open_licenses
     
-    def _format_results(self):
-        if not self.options.return_objects and len(self.results):
-            if self.options.all_fields:
-                self.results = [r.as_dict() for r in self.results]
-            else:
-                attr_name = self.options.ref_entity_with_attr
-                self.results = [getattr(entity, attr_name) for entity in self.results]
-
     def get_all_entity_ids(self, max_results=1000):
         """
         Return a list of the IDs of all indexed packages.
@@ -184,36 +89,7 @@ class SearchQuery(object):
         return []
     
     def run(self, query=None, terms=[], fields={}, facet_by=[], options=None, **kwargs):
-        if options is None:
-            options = QueryOptions(**kwargs) 
-        else:
-            options.update(kwargs)
-        self.options = options
-        self.options.validate()
-        self.facet_by = facet_by
-        self.facets = dict()
-        self.query = QueryParser(query, terms, fields)
-        self.query.validate()
-        self._run()
-        self._format_results()
-        return {'results': self.results, 'count': self.count}
-        
-    def _run(self):
-        raise SearchError("SearchQuery._run() not implemented!")
-
-    def _db_query(self, q):
-        # Run the query
-        self.count = q.count()
-        q = q.offset(self.options.get('offset'))
-        q = q.limit(self.options.get('limit'))
-        
-        self.results = []
-        for result in q:
-            if isinstance(result, tuple) and isinstance(result[0], model.DomainObject):
-                # This is the case for order_by rank due to the add_column.
-                self.results.append(result[0])
-            else:
-                self.results.append(result)
+        raise SearchError("SearchQuery.run() not implemented!")
         
     # convenience, allows to query(..)
     __call__ = run
@@ -221,18 +97,32 @@ class SearchQuery(object):
 
 class TagSearchQuery(SearchQuery):
     """Search for tags."""
-    def _run(self):
-        q = model.Session.query(model.Tag)
-        q = q.distinct().join(model.Tag.package_tags)
-        terms = list(self.query.terms)
-        for field, value in self.query.fields.items():
-            if field in ('tag', 'tags'):
-                terms.append(value)
-        if not len(terms):
-            return
-        for term in terms:
-            q = q.filter(model.Tag.name.contains(term.lower()))
-        self._db_query(q)
+    def run(self, query=[], fields={}, options=None, **kwargs):
+        if options is None:
+            options = QueryOptions(**kwargs) 
+        else:
+            options.update(kwargs)
+
+        context = {'model': model, 'session': model.Session}
+        data_dict = {
+            'query': query, 
+            'fields': fields,
+            'offset': options.get('offset'),
+            'limit': options.get('limit')
+        }
+        results = get_action('tag_search')(context, data_dict)
+
+        if not options.return_objects:
+            # if options.all_fields is set, return a dict
+            # if not, return a list of resource IDs
+            if options.all_fields:
+                results['results'] = [r.as_dict() for r in results['results']]
+            else:
+                results['results'] = [r.name for r in results['results']]
+        
+        self.count = results['count']
+        self.results = results['results']
+        return results
 
 
 class ResourceSearchQuery(SearchQuery):
@@ -252,12 +142,16 @@ class ResourceSearchQuery(SearchQuery):
         }
         results = get_action('resource_search')(context, data_dict)
 
-        # if options.all_fields is set, return a dict
-        # if not, return a list of resource IDs
-        if options.all_fields:
-            results['results'] = [r.as_dict() for r in results['results']]
-        else:
-            results['results'] = [r.id for r in results['results']]
+        if not options.return_objects:
+            # if options.all_fields is set, return a dict
+            # if not, return a list of resource IDs
+            if options.all_fields:
+                results['results'] = [r.as_dict() for r in results['results']]
+            else:
+                results['results'] = [r.id for r in results['results']]
+
+        self.count = results['count']
+        self.results = results['results']
         return results
 
 

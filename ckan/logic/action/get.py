@@ -500,16 +500,14 @@ def tag_autocomplete(context, data_dict):
 
     check_access('tag_autocomplete', context, data_dict)
 
-    q = data_dict.get('q',None)
+    q = data_dict.get('q', None)
     if not q:
         return []
 
     limit = data_dict.get('limit',10)
 
-    like_q = u"%s%%" % q
-
     query = query_for('tag')
-    query.run(query=like_q,
+    query.run(query=q,
               return_objects=True,
               limit=10,
               username=user)
@@ -675,4 +673,34 @@ def resource_search(context, data_dict):
         else:
             results.append(result)
 
+    return {'count': count, 'results': results}
+
+def tag_search(context, data_dict):
+    model = context['model']
+    session = context['session']
+
+    query = data_dict.get('query')
+    terms = [query] if query else []
+
+    fields = data_dict.get('fields', {})
+    offset = data_dict.get('offset')
+    limit = data_dict.get('limit')
+
+    # TODO: should we check for user authentication first?
+    q = model.Session.query(model.Tag)
+    q = q.distinct().join(model.Tag.package_tags)
+    for field, value in fields.items():
+        if field in ('tag', 'tags'):
+            terms.append(value)
+
+    if not len(terms):
+        return
+
+    for term in terms:
+        q = q.filter(model.Tag.name.contains(term.lower()))
+
+    count = q.count()
+    q = q.offset(offset)
+    q = q.limit(limit)
+    results = [r for r in q]
     return {'count': count, 'results': results}
