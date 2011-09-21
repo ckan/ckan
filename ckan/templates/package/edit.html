@@ -27,6 +27,11 @@
     </li>
   </py:match>
 
+  <py:match path="cancelbutton">
+  HELLO JEN
+    <input id="cancel" tabindex="100" class="pretty-button" name="cancel" type="reset" action="${h.url_for(controller='package', action='read', id=c.pkg.name)}" value="Cancel" />
+  </py:match>
+
   <div py:match="content" class="dataset">
     ${c.form}
   </div>

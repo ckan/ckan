@@ -12,10 +12,6 @@
     <input type="hidden" name="${k}" value="${v}" />  
   </py:for>
   </span>
-  <!-- Feature disabled for a cleaner page. TODO Remove entirely from backend? -->
-  <div style="display: none;" class="dataset-search-filters">Filter by <label for="open_only" class="inline">${h.checkbox(name='open_only', checked=c.open_only)} datasets with open licenses</label>
-  <label for="downloadable_only" class="inline">${h.checkbox(name='downloadable_only', checked=c.downloadable_only)} datasets with downloads</label>
-  </div>
   <input type="submit" value="${_('Search')}" class="pretty-button primary button" />
 </form>
 

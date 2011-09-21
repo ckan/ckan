@@ -92,9 +92,9 @@
     <thead>
       <tr>
         <th class="resource-expand-link"></th>
-        <th class="field_req resource-url">URL*</th>
+        <th class="field_req resource-url">URL</th>
+        <th class="field_opt resource-description">Name</th>
         <th class="field_opt resource-format">Format</th>
-        <th class="field_opt resource-description">Description</th>
         <th class="field_opt resource-is-changed"> </th>
       </tr>
     </thead>
@@ -108,11 +108,11 @@
         <td class="resource-summary resource-url">
           ${res.get('url', '')}
         </td>
+        <td class="resource-summary resource-name">
+          ${res.get('name', '')}
+        </td>
         <td class="resource-summary resource-format">
           ${res.get('format', '')}
-        </td>
-        <td class="resource-summary resource-description">
-          ${res.get('description', '')}
         </td>
         <td class="resource-expanded" colspan="3" style="display: none;">
           <dl>
@@ -151,12 +151,11 @@
 
   <div class="resource-add">
     <ul class="tabs">
-      <li>Add a resource:</li>
-      <li><a href="#" action="upload-file" class="action-resource-tab">Upload a file</a></li>
+      <li><h4>Add a resource:</h4></li>
       <li><a href="#" action="link-file" class="action-resource-tab">Link to a file</a></li>
       <li><a href="#" action="link-api" class="action-resource-tab">Link to an API</a></li>
+      <li class="upload-file" style="display:none;"><a href="#" action="upload-file" class="action-resource-tab">Upload a file</a></li>
     </ul>
-    <div class="resource-add-form"></div>
   </div>
 </fieldset>
 
@@ -258,11 +257,15 @@
 </div>
 
 <div class="form-submit">
+  <input id="save" tabindex="99" class="pretty-button primary" name="save" type="submit" value="Save Changes" />
+  <py:if test="c.pkg">
+    <input id="cancel" tabindex="100" class="pretty-button href-action" name="cancel" type="reset" value="Cancel" action="${h.url_for(controller='package', action='read', id=c.pkg.name)}" />
+  </py:if>
   <p class="hints">
   <strong>Important:</strong> By submitting content, you agree to release your contributions
     under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>. Please <strong>refrain</strong> from editing this page if you are <strong>not</strong> happy to do this.
   </p>
-  <input id="save" tabindex="99" class="pretty-button primary" name="save" type="submit" value="Save Changes" />
+  <div class="clear"></div>
 </div>
 
 

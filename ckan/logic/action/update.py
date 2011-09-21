@@ -339,7 +339,6 @@ def user_update(context, data_dict):
 
     model = context['model']
     user = context['user']
-    preview = context.get('preview', False)
     schema = context.get('schema') or default_update_user_schema() 
     id = data_dict['id']
 
@@ -357,11 +356,8 @@ def user_update(context, data_dict):
 
     user = user_dict_save(data, context)
     
-    if not preview:
-        model.repo.commit()        
-        return user_dictize(user, context)
-
-    return data
+    model.repo.commit()        
+    return user_dictize(user, context)
 
 ## Modifications for rest api
 

@@ -20,11 +20,23 @@
 
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
-      $('#save').val("Add Dataset")
+      $('#save').val("Add Dataset");
     }
 
+    // Buttons with href-action should navigate when clicked
+    $('input.href-action').click(function(e) {
+      e.preventDefault();
+      window.location = ($(e.target).attr('action'));
+    });
+    
     var isDatasetEdit = $('body.package.edit').length > 0;
     if (isDatasetEdit) {
+      // Selectively enable the upload button
+      var storageEnabled = $.inArray('storage',CKAN.plugins)>=0;
+      if (storageEnabled) {
+        $('div.resource-add li.upload-file').show();
+      }
+
       // Set up hashtag nagivigation
       CKAN.Utils.setupDatasetEditNavigation();
 

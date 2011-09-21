@@ -524,3 +524,24 @@ Example::
   ckan.backup_dir = /var/backups/ckan/
 
 This is a directory where SQL database backups are to be written, assuming a script has been installed to do this.
+
+template_footer_end
+^^^^^^^^^^^^^^^^^^^
+
+HTML content to be inserted just before </body> tag (e.g. google analytics code).
+
+.. note:: can use html e.g. <strong>blah</strong> and can have multiline strings (just indent following lines)
+
+Example (showing insertion of google analytics code)::
+
+  ckan.template_footer_end = <!-- Google Analytics -->
+    <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
+    <script type="text/javascript">
+    try {
+    var pageTracker = _gat._getTracker("XXXXXXXXX");
+    pageTracker._setDomainName(".ckan.net");
+    pageTracker._trackPageview();
+    } catch(err) {}
+    </script>
+    <!-- /Google Analytics -->
+
