@@ -80,7 +80,7 @@
       <input class="long autocomplete-tag" tabindex="5" id="tag_string" name="tag_string" size="60" type="text" 
                value="${data.get('tag_string') or ' '.join([tag['name'] for tag in data.get('tags', [])])}" />
     </dd>
-    <dd class="tags-instructions instructions basic">Terms that may link this dataset to similar ones. For more information on conventions, see <a href="http://wiki.okfn.org/ckan/doc/faq#TagConventions">this wiki page</a>.</dd>
+    <dd class="tags-instructions instructions basic" i18n:msg="">Terms that may link this dataset to similar ones. For more information on conventions, see <a href="http://wiki.okfn.org/ckan/doc/faq#TagConventions">this wiki page</a>.</dd>
     <dd class="tags-instructions hints">e.g. pollution rivers water-quality</dd>
     <dd class="tags-instructions field_error" py:if="errors.get('tag_string', '')">${errors.get('tag_string', '')}</dd>
   </dl>
