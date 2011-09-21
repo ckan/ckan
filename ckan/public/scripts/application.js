@@ -20,7 +20,7 @@
 
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
-      $('#save').val("Add Dataset");
+      $('#save').val(CKAN.Strings.addDataset);
     }
 
     // Buttons with href-action should navigate when clicked
@@ -352,9 +352,9 @@ CKAN.Utils = function($, my) {
           }
           var valid_msg = $('#dataset_name_valid_msg');
           if (data.valid) {
-            valid_msg.html('<span style="font-weight: bold; color: #0c0">This dataset name is available!</span>');
+            valid_msg.html('<span style="font-weight: bold; color: #0c0">'+CKAN.Strings.datasetNameAvailable+'</span>');
           } else {
-            valid_msg.html('<span style="font-weight: bold; color: #c00">This dataset name is already used, please use a different name</span>');
+            valid_msg.html('<span style="font-weight: bold; color: #c00">'+CKAN.Strings.datasetNameNotAvailable+'</span>');
           }
         }
       });
@@ -389,7 +389,7 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
       if (!boundToUnload) {
         boundToUnload = true;
         window.onbeforeunload = function () { 
-          return "You have unsaved changes. Hit Save Changes at the bottom of the page to submit them."; 
+          return CKAN.Strings.youHaveUnsavedChanges; 
         };
       }
     });
@@ -442,7 +442,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
 
     if (this.collection.isEmpty()) {
       $tr = $('<tr />').addClass('table-empty');
-      $tr.html('<td></td><td colspan="4">(none)</td>');
+      $tr.html('<td></td><td colspan="4">'+CKAN.Strings.bracketsNone+'</td>');
       this.el.find('tbody').append($tr);
     }
   },
@@ -545,7 +545,7 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
   saveData: function() {
     this.model.set(this.getData(), {
       error: function(model, error) {
-        var msg = 'Failed to save, possibly due to invalid data ';
+        var msg = CKAN.Strings.failedToSave;
         msg += JSON.stringify(error);
         alert(msg);
       }

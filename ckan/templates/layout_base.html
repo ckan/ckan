@@ -68,7 +68,7 @@
         <div class="menu">
           <span id="menusearch">
             <form action="${url(controller='package', action='search')}" method="GET">
-              <input name="q" value="${c.q if hasattr(c, 'q') else ''}" class="search" placeholder="Find datasets" />
+              <input name="q" value="${c.q if hasattr(c, 'q') else ''}" class="search" placeholder="${_('Find datasets')}" />
             </form>
           </span>
           <div id="mainmenu">
@@ -216,6 +216,8 @@
   <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js"></script>
   <script src="https://raw.github.com/okfn/ckanjs/master/pkg/ckanjs.js"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/ckanjs.js"></script>
+  <!-- Translated js strings live inside an html template. -->
+  <xi:include href="js_strings.html" />
   <!-- finally our application js that sets everything up-->
   <script type="text/javascript" src="${g.site_url}/scripts/application.js?lang=${c.locale}"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/templates.js"></script>

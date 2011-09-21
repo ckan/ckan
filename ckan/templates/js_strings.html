@@ -1,0 +1,48 @@
+<script type="text/javascript"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  >
+
+  /* 
+   * Included as inline javascript in layout_base.html. Simpler than 
+   * trying to trick the translation system into reading a js file. 
+   */
+  var CKAN = CKAN || {};
+  CKAN.Strings = CKAN.Strings || {};
+
+  /*
+   * Used in application.js.
+   */
+  CKAN.Strings.helloWorld = "${_('Hello there, world!')}";
+  CKAN.Strings.datasetNameAvailable = "${_('This dataset name is available!')}";
+  CKAN.Strings.datasetNameNotAvailable = "${_('This dataset name is already used, please use a different name')}";
+  CKAN.Strings.bracketsNone = "${_('(none)')}";
+  CKAN.Strings.failedToSave = "${_('Failed to save, possibly due to invalid data ')}";
+  CKAN.Strings.addDataset = "${_('Add Dataset')}";
+  CKAN.Strings.youHaveUnsavedChanges = "${_('You have unsaved changes. Hit Save Changes at the bottom of the page to submit them.')}";
+
+  /*
+   * Used in templates.js.
+   */
+  CKAN.Strings.fileUrl = "${_('File URL')}";
+  CKAN.Strings.apiUrl = "${_('Api URL')}";
+  CKAN.Strings.add = "${_('Add')}";
+  CKAN.Strings.cancel = "${_('Cancel')}";
+  CKAN.Strings.file = "${_('File')}";
+  CKAN.Strings.name = "${_('Name')}";
+  CKAN.Strings.description = "${_('Description')}";
+  CKAN.Strings.url = "${_('Url')}";
+  CKAN.Strings.format = "${_('Format')}";
+  CKAN.Strings.resourceType = "${_('Resource Type')}";
+  CKAN.Strings.sizeBracketsBytes = "${_('Size (Bytes)')}";
+  CKAN.Strings.mimetype = "${_('Mimetype')}";
+  CKAN.Strings.lastModified = "${_('Last Modified')}";
+  CKAN.Strings.mimetypeInner = "${_('Mimetype (Inner)')}";
+  CKAN.Strings.hash = "${_('Hash')}";
+  CKAN.Strings.id = "${_('ID')}";
+  CKAN.Strings.deleteResource = "${_('Delete Resource')}";
+  CKAN.Strings.resourceHasUnsavedChanges = "${_('This resource has unsaved changes.')}";
+  
+
+</script>
+
