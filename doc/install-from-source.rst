@@ -253,11 +253,11 @@ Install the Source
        JETTY_HOST=127.0.0.1  # (line 15)
 
    Then create a symlink from the schema.xml file in your ckan config
-   directory to the solr directory:
+   directory to the solr config directory:
 
    ::
     
-       sudo ln -s ~/pyenv/src/ckan/ckan/config/schema.xml /usr/share/solr/config/schema.xml
+       sudo ln -s ~/pyenv/src/ckan/ckan/config/schema.xml /usr/share/solr/conf/schema.xml
 
    Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:
 
