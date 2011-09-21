@@ -48,6 +48,7 @@
       });
       view.render();
     }
+    alert(CKAN.Strings.helloWorld);
   });
 }(jQuery));
 

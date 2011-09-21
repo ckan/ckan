@@ -68,7 +68,7 @@
         <div class="menu">
           <span id="menusearch">
             <form action="${url(controller='package', action='search')}" method="GET">
-              <input name="q" value="${c.q if hasattr(c, 'q') else ''}" class="search" placeholder="Find datasets" />
+              <input name="q" value="${c.q if hasattr(c, 'q') else ''}" class="search" placeholder="${_('Find datasets')}" />
             </form>
           </span>
           <div id="mainmenu">

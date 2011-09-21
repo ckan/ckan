@@ -33,7 +33,7 @@
       <input id="title"
         tabindex="1" name="title" type="text"
         value="${data.get('title', '')}"
-        placeholder="A short descriptive title for the dataset"
+        placeholder="${_('A short descriptive title for the dataset')}"
       />
     </dd>
     <dd class="title-instructions field_error" py:if="errors.get('title', '')">${errors.get('title', '')}</dd>
@@ -56,7 +56,7 @@
         <li><a href="#" action="write" class="selected">Write</a></li>
         <li><a href="#" action="preview">Preview</a></li>
       </ul>
-      <textarea class="markdown-input" tabindex="3" name="notes" id="notes" placeholder="Start with a summary sentence ...">${data.get('notes','')}</textarea>
+      <textarea class="markdown-input" tabindex="3" name="notes" id="notes" placeholder="${_('Start with a summary sentence ...')}">${data.get('notes','')}</textarea>
       <div class="markdown-preview" style="display: none;"></div>
       <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</span>
       <!--
@@ -115,28 +115,12 @@
           ${res.get('format', '')}
         </td>
         <td class="resource-expanded" colspan="3" style="display: none;">
-          <dl>
-            <dt><label class="field_opt">Url</label></dt>
-            <dd>
-              <input name="resources__${num}__url" type="text" value="${res.get('url', '')}" class="long" />
-            </dd>
-            <dt><label class="field_opt">Format</label></dt>
-            <dd>
-              <input name="resources__${num}__format" type="text" value="${res.get('format', '')}" class="long" />
-            </dd>
-            <dt><label class="field_opt">Description</label></dt>
-            <dd>
-              <input name="resources__${num}__description" type="text" value="${res.get('description', '')}" class="long" />
-            </dd>
-            <dt><label class="field_opt">Hash</label></dt>
-            <dd>
-              <input name="resources__${num}__hash" type="text" value="${res.get('hash', '')}" class="long" />
-            </dd>
-            <dt><label class="field_opt">Id</label></dt>
-            <dd>
-              <input name="resources__${num}__id" type="hidden" value="${res.get('id', '')}" class="long disabled" />
-            </dd>
-          </dl>
+          <!-- Replaced with a javascript template -->
+          <input name="resources__${num}__url" type="text" value="${res.get('url', '')}" />
+          <input name="resources__${num}__format" type="text" value="${res.get('format', '')}" />
+          <input name="resources__${num}__description" type="text" value="${res.get('description', '')}" />
+          <input name="resources__${num}__hash" type="text" value="${res.get('hash', '')}" />
+          <input name="resources__${num}__id" type="hidden" value="${res.get('id', '')}" />
         </td>
         <td class="resource-is-changed">
         </td>
@@ -250,20 +234,19 @@
 </div>
 <div class="ckan-logged-out">
   <label>Author: ${c.author}</label>
-  <p class="hints">
-  Since you have not signed in this will just be your IP address.
-  <a href="${h.url_for(controller='user', action='login', id=None)}" target="_blank">Click here to sign in</a> before saving (opens in new window).
+  <p i18n:msg="" class="hints">
+    Since you have not signed in this will just be your IP address.
+    <a href="${h.url_for(controller='user', action='login', id=None)}" target="_blank">Click here to sign in</a> before saving (opens in new window).
   </p>
 </div>
 
 <div class="form-submit">
-  <input id="save" tabindex="99" class="pretty-button primary" name="save" type="submit" value="Save Changes" />
+  <input id="save" tabindex="99" class="pretty-button primary" name="save" type="submit" value="${_('Save Changes')}" />
   <py:if test="c.pkg">
-    <input id="cancel" tabindex="100" class="pretty-button href-action" name="cancel" type="reset" value="Cancel" action="${h.url_for(controller='package', action='read', id=c.pkg.name)}" />
+    <input id="cancel" tabindex="100" class="pretty-button href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='package', action='read', id=c.pkg.name)}" />
   </py:if>
-  <p class="hints">
-  <strong>Important:</strong> By submitting content, you agree to release your contributions
-    under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>. Please <strong>refrain</strong> from editing this page if you are <strong>not</strong> happy to do this.
+  <p i18n:msg="" class="hints">
+  <strong>Important:</strong> By submitting content, you agree to release your contributions under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>. Please <strong>refrain</strong> from editing this page if you are <strong>not</strong> happy to do this.
   </p>
   <div class="clear"></div>
 </div>
