@@ -255,7 +255,7 @@ class UserController(BaseController):
             response.set_cookie("ckan_user", user_dict['name'], max_age=cookie_timeout)
             response.set_cookie("ckan_display_name", user_dict['display_name'], max_age=cookie_timeout)
             response.set_cookie("ckan_apikey", user_dict['apikey'], max_age=cookie_timeout)
-            h.flash_success(_("Welcome back, %s") % user_dict['display_name'])
+            h.flash_success(_("%s is now logged in") % user_dict['display_name'])
             return self.me()
         else:
             h.flash_error('Login failed. Bad username or password.')

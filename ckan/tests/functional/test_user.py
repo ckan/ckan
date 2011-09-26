@@ -176,7 +176,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert_equal(res.header('Location'), 'http://localhost/user/testlogin')
         res = res.follow()
         assert_equal(res.status, 200)
-        assert 'Welcome back, testlogin' in res.body
+        assert 'testlogin is now logged in' in res.body
         assert 'My Account' in res.body
         
         # check user object created
