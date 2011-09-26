@@ -173,6 +173,8 @@ class PackageSearchQuery(SearchQuery):
         return [r.get('id') for r in data.results]
 
     def run(self, query):
+        assert isinstance(query, dict)
+        
         # check that query keys are valid
         if not set(query.keys()) <= VALID_SOLR_PARAMETERS:
             invalid_params = [s for s in set(query.keys()) - VALID_SOLR_PARAMETERS]
