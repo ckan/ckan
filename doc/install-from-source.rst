@@ -248,9 +248,12 @@ Install the Source
 
        NO_START=0            # (line 4)
        JETTY_HOST=127.0.0.1  # (line 15)
+       JETTY_PORT=8983       # (line 18)
 
    Then create a symlink from the schema.xml file in your ckan config
-   directory to the solr config directory:
+   directory to the solr config directory. 
+
+.. note:: The first reference to schema.xml will probably need to be to be correct for your system.NB it must be an absolute path):
 
    ::
     
@@ -261,7 +264,7 @@ Install the Source
    ::
 
        ckan.site_id=my_ckan_instance
-       solr_url=http://127.0.0.1:8080/solr
+       solr_url=http://127.0.0.1:8983/solr
 
    You should now be able to start solr:
 
@@ -269,8 +272,11 @@ Install the Source
 
        sudo service jetty start
 
+   Now you should check SOLR is running ok by browsing: http://localhost:8983/solr/
+
    For more information on Solr setup and configuration, see the CKAN wiki:
    http://wiki.ckan.net/Solr_Search
+
 
 10. Run the CKAN webserver.
 
