@@ -158,20 +158,15 @@ Install the Source
 
   .. tip ::
 
-      If you choose a database name, user or password which are different from those 
-      suggested below then you'll need to update the configuration file you'll create in
-      the next step.
+      If you choose a database name, user or password which are different from the example values suggested below then you'll need to change the sqlalchemy.url value accordingly in the CKAN configuration file you'll create in the next step.
 
-  Here we choose ``ckantest`` as the database and ``ckanuser`` as the user:
+  Here we create a user called ``ckanuser`` and will enter ``pass`` for the password when prompted:
 
   ::
 
       sudo -u postgres createuser -S -D -R -P ckanuser
 
-  It should prompt you for a new password for the CKAN data in the database.
-  It is suggested you enter ``pass`` for the password.
-
-  Now create the database, which we'll call ``ckantest``:
+  Now create the database (owned by ``ckanuser``), which we'll call ``ckantest``:
 
   ::
 
