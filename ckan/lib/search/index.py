@@ -4,7 +4,6 @@ import logging
 import itertools
 
 from pylons import config
-from solr import SolrException
 
 from common import SearchIndexError, make_connection
 
