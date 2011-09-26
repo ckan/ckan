@@ -481,6 +481,12 @@ class ApiController(BaseController):
             raise ValueError, _('Request params must be in form of a json encoded dictionary.')
         return params        
 
+    def markdown(self, ver=None):
+        raw_markdown = request.params.get('q', '')
+        results = ckan.misc.MarkdownFormat().to_html(raw_markdown)
+
+        return self._finish_ok(results)
+
     def tag_counts(self, ver=None):
         c.q = request.params.get('q', '')
 
