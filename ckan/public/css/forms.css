@@ -108,7 +108,10 @@ form dl {
     vertical-align: middle; }
   form dl dd ul {
     margin: 0.5em 0 0 0;
-    padding: 0; }
+    padding-top: 0; 
+    padding-right: 0; 
+    padding-bottom: 0; 
+  }
   form dl dd.notes, form dl dd.hints, .hints {
     padding: 0 0 0.3em 0;
     color: #555;

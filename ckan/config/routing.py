@@ -102,6 +102,8 @@ def make_map():
 
     map.connect('/api/search/{register}', controller='api', action='search')
     map.connect('/api/tag_counts', controller='api', action='tag_counts')
+
+    map.connect('/api/markdown', controller='api', action='markdown')
     
     map.connect('/api/rest', controller='api', action='index')
 

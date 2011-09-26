@@ -7,7 +7,7 @@
     $('input.autocomplete-format').live('keyup', function(){
       CKAN.Utils.setupFormatAutocomplete($(this));
     });
-    CKAN.Utils.setupMarkdownEditor($('.markdown-editor a, .markdown-editor .markdown-preview'));
+    CKAN.Utils.setupMarkdownEditor($('.markdown-editor .tabs a, .markdown-editor .markdown-preview'));
     // set up ckan js
     var config = {
       endpoint: '/'
@@ -224,7 +224,11 @@ CKAN.Utils = function($, my) {
       var preview = div.find('.markdown-preview');
       // Toggle the preview
       if (action=='preview') {
-        preview.html(converter.makeHtml(textarea.val()));
+        raw_markdown=textarea.val();
+        preview.html("<em>"+CKAN.Strings.loading+"<em>");
+        $.post("/api/markdown", { q: raw_markdown },
+          function(data) { preview.html(data); }
+        );
         preview.width(textarea.width())
         preview.height(textarea.height())
         textarea.hide();
