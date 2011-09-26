@@ -63,7 +63,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         for item in PluginImplementations(IGenshiStreamFilter):
             stream = item.filter(stream)
         
-        return literal(stream.render(method=method, encoding=None))
+        return literal(stream.render(method=method, encoding=None, strip_whitespace=False))
     
     if 'Pragma' in response.headers:
         del response.headers["Pragma"]
