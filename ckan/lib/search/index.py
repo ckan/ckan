@@ -1,8 +1,13 @@
-from pylons import config
-import itertools
+import socket
 import string
-from common import SearchIndexError, make_connection
 import logging
+import itertools
+
+from pylons import config
+from solr import SolrException
+
+from common import SearchIndexError, make_connection
+
 log = logging.getLogger(__name__)
 
 TYPE_FIELD = "entity_type"
@@ -25,6 +30,9 @@ def clear_index():
     try:
         conn.delete_query(query)
         conn.commit()
+    except socket.error, e:
+        log.error('Could not connect to SOLR: %r' % e)
+        raise
     finally:
         conn.close()
 
