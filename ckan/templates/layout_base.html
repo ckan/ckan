@@ -228,7 +228,7 @@
   <script type="text/javascript">
     CKAN.plugins = [ 
       // Declare js array from Python string
-      ${['\'%s\', '%s  for s in config['ckan.plugins'].split(' ')]}
+      ${['\'%s\', '%s  for s in config.get('ckan.plugins','').split(' ')]}
     ];
     $(document).ready(function() {
         var ckan_user = $.cookie("ckan_display_name");
