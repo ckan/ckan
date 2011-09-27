@@ -1,3 +1,4 @@
+import socket
 import solr
 from pylons import config
 from ckan import model
@@ -13,11 +14,17 @@ class TestSolrConfig(TestController):
             from nose import SkipTest
             raise SkipTest("Search not supported")
 
-        assert config.get('solr_url')
-        # solr.SolrConnection.query will throw an exception if it can't connect
-        conn = solr.SolrConnection(config.get('solr_url'))
-        q = conn.query("*:*", rows=1)
-        conn.close()
+        conn = search.make_connection()
+        try:
+            # solr.SolrConnection.query will throw a socket.error if it
+            # can't connect to the SOLR instance
+            q = conn.query("*:*", rows=1)
+            conn.close()
+        except socket.error, e:
+            if not config.get('solr_url'):
+                raise AssertionError("Config option 'solr_url' needs to be defined in this CKAN's development.ini. Default of %s didn't work: %s" % (search.DEFAULT_SOLR_URL, e))
+            else:
+                raise AssertionError('SOLR connection problem. Connection defined in development.ini as: solr_url=%s Error: %s' % (config['solr_url'], e))
 
 
 class TestSolrSearchIndex(TestController):
@@ -29,8 +36,8 @@ class TestSolrSearchIndex(TestController):
     def setup_class(cls):
         setup_test_search_index()
         CreateTestData.create()
-        cls.solr = solr.SolrConnection(config.get('solr_url'))
-        cls.fq = " +site_id:\"%s\" " % config.get('ckan.site_id')
+        cls.solr = search.make_connection()
+        cls.fq = " +site_id:\"%s\" " % config['ckan.site_id']
 
     @classmethod
     def teardown_class(cls):
@@ -79,8 +86,8 @@ class TestSolrSearch:
     def setup_class(cls):
         setup_test_search_index()
         CreateTestData.create_search_test_data()
-        cls.solr = solr.SolrConnection(config.get('solr_url'))
-        cls.fq = " +site_id:\"%s\" " % config.get('ckan.site_id')
+        cls.solr = search.make_connection()
+        cls.fq = " +site_id:\"%s\" " % config['ckan.site_id']
         search.rebuild()
 
     @classmethod
