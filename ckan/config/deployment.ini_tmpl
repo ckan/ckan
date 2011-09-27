@@ -122,6 +122,11 @@ package_form = standard
 ## NOTE this is mutually exclusive with ckan.async_notifier
 ckan.build_search_index_synchronously = true
 
+## Perform search just using database (rather than use e.g. solr).
+## In this setup search is crude and limited .e.g no full-text search, no faceting ...
+## However, very useful for getting up and running quickly with CKAN 
+# ckan.simple_search = 1
+
 ## Title of site (using in several places including templates and <title> tag
 ckan.site_title = CKAN
 

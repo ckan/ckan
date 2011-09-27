@@ -1,5 +1,4 @@
 from pylons import config
-from solr import SolrConnection
 import logging
 log = logging.getLogger(__name__)
 
@@ -26,6 +25,7 @@ def is_available():
     return True
 
 def make_connection():
+    from solr import SolrConnection
     if solr_user is not None and solr_password is not None:
         return SolrConnection(solr_url, http_user=solr_user, http_pass=solr_password)
     else:

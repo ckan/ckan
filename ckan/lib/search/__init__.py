@@ -1,4 +1,6 @@
 import logging
+from pylons import config
+
 from ckan import model
 from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
@@ -8,6 +10,8 @@ from index import PackageSearchIndex, NoopSearchIndex
 from query import TagSearchQuery, ResourceSearchQuery, PackageSearchQuery, QueryOptions
 
 log = logging.getLogger(__name__)
+
+SIMPLE_SEARCH = config.get('ckan.simple_search', False)
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -30,6 +34,11 @@ _QUERIES = {
     'resource': ResourceSearchQuery,
     'package': PackageSearchQuery
 }
+
+if SIMPLE_SEARCH:
+    import sql as sql
+    _INDICES['package'] = NoopSearchIndex
+    _QUERIES['package'] = sql.PackageSearchQuery
 
 def _normalize_type(_type):
     if isinstance(_type, model.DomainObject):
