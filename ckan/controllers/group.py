@@ -136,7 +136,7 @@ class GroupController(BaseController):
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
             schema = self._db_to_form_schema()
-            if schema:
+            if schema and not data:
                 old_data, errors = validate(old_data, schema, context=context)
 
             data = data or old_data
