@@ -79,6 +79,7 @@ class ManageDb(CkanCommand):
         
         self._load_config()
         from ckan import model
+        import ckan.lib.search as search
 
         cmd = self.args[0]
         if cmd == 'init':
@@ -87,6 +88,7 @@ class ManageDb(CkanCommand):
                 print 'Initialising DB: SUCCESS'
         elif cmd == 'clean' or cmd == 'drop':
             model.repo.clean_db()
+            search.clear()
             if self.verbose:
                 print 'Cleaning DB: SUCCESS'
         elif cmd == 'upgrade':
