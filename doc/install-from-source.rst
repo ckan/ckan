@@ -251,9 +251,9 @@ Install the Source
        JETTY_PORT=8983       # (line 18)
 
    Then create a symlink from the schema.xml file in your ckan config
-   directory to the solr config directory. 
+   directory to the Solr config directory:
 
-.. note:: The first reference to schema.xml will probably need to be to be correct for your system.NB it must be an absolute path):
+     Note: The path ``~/pyenv/src/ckan/ckan/config/schema.xml`` will probably need to be to be adjusted for your system. Also ensure it is an absolute path.
 
    ::
     
@@ -266,13 +266,13 @@ Install the Source
        ckan.site_id=my_ckan_instance
        solr_url=http://127.0.0.1:8983/solr
 
-   You should now be able to start solr:
+   You should now be able to start Solr:
 
    ::
 
        sudo service jetty start
 
-   Now you should check SOLR is running ok by browsing: http://localhost:8983/solr/
+   Now you should check Solr is running ok by browsing: http://localhost:8983/solr/
 
    For more information on Solr setup and configuration, see the CKAN wiki:
    http://wiki.ckan.net/Solr_Search
