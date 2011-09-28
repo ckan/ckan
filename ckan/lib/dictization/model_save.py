@@ -95,7 +95,8 @@ def package_extras_save(extra_dicts, obj, context):
     #changed
     for key in set(new_extras.keys()) & set(old_extras.keys()):
         extra = old_extras[key]
-        if new_extras[key] == extra.value:
+        #dont change state to pending if nothing has changed
+        if new_extras[key] == extra.value and extra.state != 'deleted':
             continue
         state = 'pending' if context.get('pending') else 'active'
         extra.value = new_extras[key]
