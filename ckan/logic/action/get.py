@@ -22,6 +22,9 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 tag_to_api1,
                                                 tag_to_api2)
 from ckan.lib.search import query_for, SearchError
+import logging
+
+log = logging.getLogger('ckan.logic')
 
 def site_read(context,data_dict=None):
     check_access('site_read',context,data_dict)
@@ -616,6 +619,12 @@ def package_search(context, data_dict):
                 model.PackageRevision.current == True
             ))
         pkg = pkg_query.first()
+
+        ## if the index has got a package that is not in ckan then
+        ## ignore it.
+        if not pkg:
+            log.warning('package %s in index but not in database' % package)
+            continue
 
         result_dict = table_dictize(pkg, context)
         result_dict = _extend_package_dict(result_dict,context)
