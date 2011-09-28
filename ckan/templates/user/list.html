@@ -41,7 +41,7 @@
           ${h.linked_user(user['name'], maxlength=20)}
           </li>
           <li class="created">
-            Member for ${h.time_ago_in_words_from_str(user['created'],granularity='month')}
+            Member for ${h.time_ago_in_words_from_str(user['created'].isoformat(),granularity='month')}
           </li>
           <li>
             <span class="edits" title="${user['number_of_edits']} Edits">
