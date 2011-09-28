@@ -1,7 +1,24 @@
+from nose.tools import assert_equal, assert_raises
+
 from ckan.tests import TestController, CreateTestData, setup_test_search_index
 from ckan import model
 import ckan.lib.search as search
 
+
+class TestQuery:
+    def test_1_convert_legacy_params_to_solr(self):
+        convert = search.convert_legacy_parameters_to_solr
+        assert_equal(convert({'title': 'bob'}), {'q': 'title:bob'})
+        assert_equal(convert({'title': 'bob', 'fl': 'name'}),
+                     {'q': 'title:bob', 'fl': 'name'})
+        assert_equal(convert({'title': 'bob perkins'}), {'q': 'title:"bob perkins"'})
+        assert_equal(convert({'q': 'high+wages'}), {'q': 'high wages'})
+        assert_equal(convert({'q': 'high+wages summary'}), {'q': 'high wages summary'})
+        assert_equal(convert({'title': 'high+wages'}), {'q': 'title:"high wages"'})
+        assert_equal(convert({'title': 'bob', 'all_fields': 1}), {'q': 'title:bob', 'fl': '*'})
+        assert_raises(search.SearchError, convert, {'title': 'bob', 'all_fields': 'non-boolean'})
+        assert_equal(convert({'q': 'bob', 'order_by': 'name'}), {'q': 'bob', 'sort':'name asc'})
+        assert_equal(convert({'q': 'bob', 'offset': '0', 'limit': '10'}), {'q': 'bob', 'start':'0', 'rows':'10'})
 
 class TestSearch(TestController):
     # 'penguin' is in all test search packages

@@ -31,8 +31,6 @@ class ApiTestCase(object):
     extra_environ = {}
 
     api_version = None
-    ref_package_by = ''
-    ref_group_by = ''
 
     def get(self, offset, status=[200]):
         response = self.app.get(offset, status=status,
@@ -67,6 +65,87 @@ class ApiTestCase(object):
         if self.api_version:
             base += '/' + self.api_version
         return '%s%s' % (base, path)
+
+    def assert_msg_represents_anna(self, msg):
+        assert 'annakarenina' in msg, msg
+        data = self.loads(msg)
+        self.assert_equal(data['name'], 'annakarenina')
+        self.assert_equal(data['license_id'], 'other-open')
+        assert '"license_id": "other-open"' in msg, str(msg)
+        assert 'russian' in msg, msg
+        assert 'tolstoy' in msg, msg
+        assert '"extras": {' in msg, msg
+        assert '"genre": "romantic novel"' in msg, msg
+        assert '"original media": "book"' in msg, msg
+        assert 'annakarenina.com/download' in msg, msg
+        assert '"plain text"' in msg, msg
+        assert '"Index of the novel"' in msg, msg
+        assert '"id": "%s"' % self.anna.id in msg, msg
+        expected = '"groups": ['
+        assert expected in msg, (expected, msg)
+        expected = self.group_ref_from_name('roger')
+        assert expected in msg, (expected, msg)
+        expected = self.group_ref_from_name('david')
+        assert expected in msg, (expected, msg)
+
+        # Todo: What is the deal with ckan_url? And should this use IDs rather than names?
+        assert 'ckan_url' in msg
+        assert '"ckan_url": "http://test.ckan.net/dataset/annakarenina"' in msg, msg
+
+    def assert_msg_represents_roger(self, msg):
+        assert 'roger' in msg, msg
+        data = self.loads(msg)
+        keys = set(data.keys())
+        expected_keys = set(['id', 'name', 'title', 'description', 'created',
+                            'state', 'revision_id', 'packages'])
+        missing_keys = expected_keys - keys
+        assert not missing_keys, missing_keys
+        assert_equal(data['name'], 'roger')
+        assert_equal(data['title'], 'Roger\'s books')
+        assert_equal(data['description'], 'Roger likes these books.')
+        assert_equal(data['state'], 'active')
+        assert_equal(data['packages'], [self._ref_package(self.anna)])
+
+    def assert_msg_represents_russian(self, msg):
+        data = self.loads(msg)
+        pkgs = set(data)
+        expected_pkgs = set([self.package_ref_from_name('annakarenina'),
+                             self.package_ref_from_name('warandpeace')])
+        differences = expected_pkgs ^ pkgs
+        assert not differences, '%r != %r' % (pkgs, expected_pkgs)
+
+    def data_from_res(self, res):
+        return self.loads(res.body)
+
+    def get_expected_api_version(self):
+        return self.api_version
+
+    def dumps(self, data):
+        return json.dumps(data)
+
+    def loads(self, chars):
+        try:
+            return json.loads(chars)
+        except ValueError, inst:
+            raise Exception, "Couldn't loads string '%s': %s" % (chars, inst)
+
+    def assert_json_response(self, res, expected_in_body=None):
+        content_type = res.header_dict['Content-Type']
+        assert 'application/json' in content_type, content_type
+        res_json = self.loads(res.body)
+        if expected_in_body:
+            assert expected_in_body in res_json or \
+                   expected_in_body in str(res_json), \
+                   'Expected to find %r in JSON response %r' % \
+                   (expected_in_body, res_json)
+
+class Api1and2TestCase(object):
+    ''' Utils for v1 and v2 API.
+          * RESTful URL utils
+          * handling of different ways of referencing packages (by name or id)
+    '''
+    ref_package_by = ''
+    ref_group_by = ''
 
     def package_offset(self, package_name=None):
         if package_name is None:
@@ -197,81 +276,7 @@ class ApiTestCase(object):
     def _list_group_refs(cls, groups):
         return [getattr(p, cls.ref_group_by) for p in groups]
 
-    def assert_msg_represents_anna(self, msg):
-        assert 'annakarenina' in msg, msg
-        data = self.loads(msg)
-        self.assert_equal(data['name'], 'annakarenina')
-        self.assert_equal(data['license_id'], 'other-open')
-        assert '"license_id": "other-open"' in msg, str(msg)
-        assert 'russian' in msg, msg
-        assert 'tolstoy' in msg, msg
-        assert '"extras": {' in msg, msg
-        assert '"genre": "romantic novel"' in msg, msg
-        assert '"original media": "book"' in msg, msg
-        assert 'annakarenina.com/download' in msg, msg
-        assert '"plain text"' in msg, msg
-        assert '"Index of the novel"' in msg, msg
-        assert '"id": "%s"' % self.anna.id in msg, msg
-        expected = '"groups": ['
-        assert expected in msg, (expected, msg)
-        expected = self.group_ref_from_name('roger')
-        assert expected in msg, (expected, msg)
-        expected = self.group_ref_from_name('david')
-        assert expected in msg, (expected, msg)
-
-        # Todo: What is the deal with ckan_url? And should this use IDs rather than names?
-        assert 'ckan_url' in msg
-        assert '"ckan_url": "http://test.ckan.net/dataset/annakarenina"' in msg, msg
-
-    def assert_msg_represents_roger(self, msg):
-        assert 'roger' in msg, msg
-        data = self.loads(msg)
-        keys = set(data.keys())
-        expected_keys = set(['id', 'name', 'title', 'description', 'created',
-                            'state', 'revision_id', 'packages'])
-        missing_keys = expected_keys - keys
-        assert not missing_keys, missing_keys
-        assert_equal(data['name'], 'roger')
-        assert_equal(data['title'], 'Roger\'s books')
-        assert_equal(data['description'], 'Roger likes these books.')
-        assert_equal(data['state'], 'active')
-        assert_equal(data['packages'], [self._ref_package(self.anna)])
-
-    def assert_msg_represents_russian(self, msg):
-        data = self.loads(msg)
-        pkgs = set(data)
-        expected_pkgs = set([self.package_ref_from_name('annakarenina'),
-                             self.package_ref_from_name('warandpeace')])
-        differences = expected_pkgs ^ pkgs
-        assert not differences, '%r != %r' % (pkgs, expected_pkgs)
-
-    def data_from_res(self, res):
-        return self.loads(res.body)
-
-    def get_expected_api_version(self):
-        return self.api_version
-
-    def dumps(self, data):
-        return json.dumps(data)
-
-    def loads(self, chars):
-        try:
-            return json.loads(chars)
-        except ValueError, inst:
-            raise Exception, "Couldn't loads string '%s': %s" % (chars, inst)
-
-    def assert_json_response(self, res, expected_in_body=None):
-        content_type = res.header_dict['Content-Type']
-        assert 'application/json' in content_type, content_type
-        res_json = self.loads(res.body)
-        if expected_in_body:
-            assert expected_in_body in res_json or \
-                   expected_in_body in str(res_json), \
-                   'Expected to find %r in JSON response %r' % \
-                   (expected_in_body, res_json)
-
-# Todo: Rename to Version1TestCase.
-class Api1TestCase(ApiTestCase):
+class Api1TestCase(Api1and2TestCase):
 
     api_version = '1'
     ref_package_by = 'name'
@@ -283,7 +288,7 @@ class Api1TestCase(ApiTestCase):
         assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in msg, msg
 
 
-class Api2TestCase(ApiTestCase):
+class Api2TestCase(Api1and2TestCase):
 
     api_version = '2'
     ref_package_by = 'id'
@@ -294,6 +299,17 @@ class Api2TestCase(ApiTestCase):
         super(Api2TestCase, self).assert_msg_represents_anna(msg)
         assert 'download_url' not in msg, msg
 
+
+class Api3TestCase(ApiTestCase):
+
+    api_version = '3'
+    ref_package_by = 'id'
+    ref_group_by = 'id'
+    ref_tag_by = 'id'
+
+    def assert_msg_represents_anna(self, msg):
+        super(Api2TestCase, self).assert_msg_represents_anna(msg)
+        assert 'download_url' not in msg, msg
 
 class ApiUnversionedTestCase(Api1TestCase):
 

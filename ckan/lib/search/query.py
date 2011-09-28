@@ -1,6 +1,7 @@
 import json
 from pylons import config
 from paste.deploy.converters import asbool
+from paste.util.multidict import MultiDict
 from ckan import model
 from ckan.logic import get_action
 from common import make_connection, SearchError
@@ -19,14 +20,52 @@ VALID_SOLR_PARAMETERS = set([
 # and their relative weighting
 QUERY_FIELDS = "name^4 title^4 tags^2 groups^2 text"
 
+def convert_legacy_parameters_to_solr(legacy_params):
+    '''API v1 and v2 allowed search params that the SOLR syntax does not
+    support, so use this function to convert those to SOLR syntax.
+    See tests for examples.
+
+    raises ValueError on invalid params.
+    '''
+    options = QueryOptions(**legacy_params)
+    options.validate()
+    solr_params = legacy_params.copy()
+    solr_q_list = []
+    if solr_params.get('q'):
+        solr_q_list.append(solr_params['q'].replace('+', ' '))
+    non_solr_params = set(legacy_params.keys()) - VALID_SOLR_PARAMETERS
+    for search_key in non_solr_params:
+        value = str(legacy_params[search_key]).replace('+', ' ')
+        if search_key == 'all_fields':
+            if value:
+                solr_params['fl'] = '*'
+        elif search_key == 'offset':
+            solr_params['start'] = value
+        elif search_key == 'limit':
+            solr_params['rows'] = value
+        elif search_key == 'order_by':
+            solr_params['sort'] = '%s asc' % value
+        else:
+            if ' ' in value:
+                value = '"%s"' % value
+            solr_q_list.append('%s:%s' % (search_key, value))
+        del solr_params[search_key]
+    solr_params['q'] = ' '.join(solr_q_list)
+    if non_solr_params:
+        log.info('Converted legacy search params from %r to %r',
+                 legacy_params, solr_params)
+    return solr_params
+    
+
 class QueryOptions(dict):
     """
     Options specify aspects of the search query which are only tangentially related 
     to the query terms (such as limits, etc.).
     """
     
-    BOOLEAN_OPTIONS = ['filter_by_downloadable', 'filter_by_openness', 'all_fields']
+    BOOLEAN_OPTIONS = ['all_fields']
     INTEGER_OPTIONS = ['offset', 'limit']
+    UNSUPPORTED_OPTIONS = ['filter_by_downloadable', 'filter_by_openness']
 
     def __init__(self, **kwargs):
         from ckan.lib.search import DEFAULT_OPTIONS
@@ -50,6 +89,8 @@ class QueryOptions(dict):
                     value = int(value)
                 except ValueError:
                     raise SearchError('Value for search option %r must be an integer but received %r' % (key, value))
+            elif key in self.UNSUPPORTED_OPTIONS:
+                    raise SearchError('Search option %r is not supported' % key)                
             self[key] = value    
     
     def __getattr__(self, name):
@@ -173,8 +214,7 @@ class PackageSearchQuery(SearchQuery):
         return [r.get('id') for r in data.results]
 
     def run(self, query):
-        assert isinstance(query, dict)
-        
+        assert isinstance(query, (dict, MultiDict))
         # check that query keys are valid
         if not set(query.keys()) <= VALID_SOLR_PARAMETERS:
             invalid_params = [s for s in set(query.keys()) - VALID_SOLR_PARAMETERS]
