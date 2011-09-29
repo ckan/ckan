@@ -12,7 +12,6 @@ _open_licenses = None
 
 VALID_SOLR_PARAMETERS = set([
     'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf',
-    'filter_by_downloadable', 'filter_by_openness',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field'
 ])
 
@@ -70,6 +69,8 @@ class QueryOptions(dict):
     """
     Options specify aspects of the search query which are only tangentially related 
     to the query terms (such as limits, etc.).
+    NB This is used only by legacy package search and current resource & tag search.
+       Modern SOLR package search leaves this to SOLR syntax.
     """
     
     BOOLEAN_OPTIONS = ['all_fields']
@@ -262,14 +263,6 @@ class PackageSearchQuery(SearchQuery):
         
         # return results as json encoded string
         query['wt'] = query.get('wt', 'json')
-
-        # check if filtering by downloadable or open license
-        if int(query.get('filter_by_downloadable', 0)):
-            query['fq'] += u" +res_url:[* TO *] " # not null resource URL 
-        if int(query.get('filter_by_openness', 0)):
-            licenses = ["license_id:%s" % id for id in self.open_licenses]
-            licenses = " OR ".join(licenses)
-            query['fq'] += " +(%s) " % licenses
 
         # query field weighting: disabled for now as solr 3.* is required for 
         # the 'edismax' query parser, our current Ubuntu version only has

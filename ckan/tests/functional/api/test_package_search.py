@@ -46,8 +46,6 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         # uri parameters
         check(UnicodeMultiDict({'q': '', 'ref': 'boris'}),
               {"q": "", "ref": "boris"})
-        check(UnicodeMultiDict({'filter_by_openness': '1'}),
-              {'filter_by_openness': '1'})
         # uri json
         check(UnicodeMultiDict({'qjson': '{"q": "", "ref": "boris"}'}),
               {"q": "", "ref": "boris"})
@@ -164,33 +162,16 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         assert_equal(res_dict['count'], 3)
 
-## filter_by_openness and filter_by_downloadable funcionality
-## to be removed for ckan v1.5 (even for v1 and v2 API)
-## see #1360
-
-    def test_12_filter_by_openness_qjson(self):
-        query = {'q': '', 'filter_by_openness': '1'}
-        json_query = self.dumps(query)
-        offset = self.base_url + '?qjson=%s' % json_query
-        res = self.app.get(offset, status=400)
-
-    def test_12_filter_by_openness_q(self):
+    def test_12_filter_by_openness(self):
         offset = self.base_url + '?filter_by_openness=1'
-        res = self.app.get(offset, status=400)
+        res = self.app.get(offset, status=400) # feature dropped in #1360
+        assert "'filter_by_openness'" in res.body, res.body
 
-##    def test_12_filter_by_openness_off_qjson(self):
-##        query = {'q': '', 'filter_by_openness': '0'}
-##        json_query = self.dumps(query)
-##        offset = self.base_url + '?qjson=%s' % json_query
-##        res = self.app.get(offset, status=200)
-##        res_dict = self.data_from_res(res)
-##        assert_equal(res_dict['count'], 3)
+    def test_12_filter_by_downloadable(self):
+        offset = self.base_url + '?filter_by_downloadable=1'
+        res = self.app.get(offset, status=400) # feature dropped in #1360
+        assert "'filter_by_downloadable'" in res.body, res.body
 
-##    def test_12_filter_by_openness_off_q(self):
-##        offset = self.base_url + '?filter_by_openness=0'
-##        res = self.app.get(offset, status=200)
-##        res_dict = self.data_from_res(res)
-##        assert_equal(res_dict['count'], 3)
 
 class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
     '''Here are tests with URIs in the syntax they were in
@@ -438,7 +419,7 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
         assert res_dict['results'][0]['name'] == 'annakarenina', res_dict['results'][0]['name']
 
     def test_11_pagination_offset_limit(self):
-        offset = self.base_url + '?fl=*&q=tags:russian&offset=1&limit=1&order_by=name'
+        offset = self.base_url + '?fl=*&q=tags:russian&start=1&rows=1&sort=name asc'
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 2, res_dict
@@ -446,7 +427,7 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
         assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
 
     def test_11_pagination_syntax_error(self):
-        offset = self.base_url + '?fl=*&q="tags:russian"&start=should_be_integer&rows=1&sort=name' # invalid offset value
+        offset = self.base_url + '?fl=*&q=tags:russian&start=should_be_integer&rows=1&sort=name asc' # invalid offset value
         res = self.app.get(offset, status=400)
         print res.body
         assert('should_be_integer' in res.body)

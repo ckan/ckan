@@ -21,7 +21,7 @@ class TestQuery:
         assert_equal(convert({'q': 'bob', 'offset': '0', 'limit': '10'}), {'q': 'bob', 'start':'0', 'rows':'10'})
         assert_equal(convert({'tags': ['russian', 'tolstoy']}), {'q': 'tags:russian tags:tolstoy'})
         assert_equal(convert({'tags': ['tolstoy']}), {'q': 'tags:tolstoy'})
-        assert_raises(search.SearchError, convert, {'tags': 'tolstoy'})
+        assert_equal(convert({'tags': 'tolstoy'}), {'q': 'tags:tolstoy'})
         assert_raises(search.SearchError, convert, {'tags': {'tolstoy':1}})
 
 class TestSearch(TestController):
@@ -296,9 +296,6 @@ class TestSearchOverall(TestController):
         self._check_search_results('groups:david', 2)
         self._check_search_results('groups:roger', 1)
         self._check_search_results('groups:lenny', 0)
-        self._check_search_results('annakarenina', 1, ['annakarenina'], True, False)
-        self._check_search_results('annakarenina', 1, ['annakarenina'], False, True)
-        self._check_search_results('annakarenina', 1, ['annakarenina'], True, True)
         
 
 class TestGeographicCoverage(TestController):
