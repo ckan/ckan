@@ -32,6 +32,9 @@ class ApiTestCase(object):
 
     api_version = None
 
+    ref_package_by = ''
+    ref_group_by = ''
+
     def get(self, offset, status=[200]):
         response = self.app.get(offset, status=status,
             extra_environ=self.get_extra_environ())
@@ -117,6 +120,24 @@ class ApiTestCase(object):
     def data_from_res(self, res):
         return self.loads(res.body)
 
+    def package_ref_from_name(self, package_name):
+        package = self.get_package_by_name(unicode(package_name))
+        if package is None:
+            return package_name
+        else:
+            return self.ref_package(package)
+
+    def package_id_from_ref(self, package_name):
+        package = self.get_package_by_name(unicode(package_name))
+        if package is None:
+            return package_name
+        else:
+            return self.ref_package(package)
+
+    def ref_package(self, package):
+        assert self.ref_package_by in ['id', 'name']
+        return getattr(package, self.ref_package_by)
+
     def get_expected_api_version(self):
         return self.api_version
 
@@ -142,11 +163,7 @@ class ApiTestCase(object):
 class Api1and2TestCase(object):
     ''' Utils for v1 and v2 API.
           * RESTful URL utils
-          * handling of different ways of referencing packages (by name or id)
     '''
-    ref_package_by = ''
-    ref_group_by = ''
-
     def package_offset(self, package_name=None):
         if package_name is None:
             # Package Register
@@ -155,24 +172,6 @@ class Api1and2TestCase(object):
             # Package Entity
             package_ref = self.package_ref_from_name(package_name)
             return self.offset('/rest/dataset/%s' % package_ref)
-
-    def package_ref_from_name(self, package_name):
-        package = self.get_package_by_name(unicode(package_name))
-        if package is None:
-            return package_name
-        else:
-            return self.ref_package(package)
-
-    def package_id_from_ref(self, package_name):
-        package = self.get_package_by_name(unicode(package_name))
-        if package is None:
-            return package_name
-        else:
-            return self.ref_package(package)
-
-    def ref_package(self, package):
-        assert self.ref_package_by in ['id', 'name']
-        return getattr(package, self.ref_package_by)
 
     def group_offset(self, group_name=None):
         if group_name is None:
@@ -303,9 +302,9 @@ class Api2TestCase(Api1and2TestCase):
 class Api3TestCase(ApiTestCase):
 
     api_version = '3'
-    ref_package_by = 'id'
-    ref_group_by = 'id'
-    ref_tag_by = 'id'
+    ref_package_by = 'name'
+    ref_group_by = 'name'
+    ref_tag_by = 'name'
 
     def assert_msg_represents_anna(self, msg):
         super(Api2TestCase, self).assert_msg_represents_anna(msg)

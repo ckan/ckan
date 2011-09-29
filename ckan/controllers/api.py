@@ -387,6 +387,7 @@ class ApiController(BaseController):
     def search(self, ver=None, register=None):
         
         log.debug('search %s params: %r' % (register, request.params))
+        ver = ver or '1' # i.e. default to v1
         if register == 'revision':
             since_time = None
             if request.params.has_key('since_id'):

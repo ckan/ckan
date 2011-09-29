@@ -19,6 +19,10 @@ class TestQuery:
         assert_raises(search.SearchError, convert, {'title': 'bob', 'all_fields': 'non-boolean'})
         assert_equal(convert({'q': 'bob', 'order_by': 'name'}), {'q': 'bob', 'sort':'name asc'})
         assert_equal(convert({'q': 'bob', 'offset': '0', 'limit': '10'}), {'q': 'bob', 'start':'0', 'rows':'10'})
+        assert_equal(convert({'tags': ['russian', 'tolstoy']}), {'q': 'tags:russian tags:tolstoy'})
+        assert_equal(convert({'tags': ['tolstoy']}), {'q': 'tags:tolstoy'})
+        assert_raises(search.SearchError, convert, {'tags': 'tolstoy'})
+        assert_raises(search.SearchError, convert, {'tags': {'tolstoy':1}})
 
 class TestSearch(TestController):
     # 'penguin' is in all test search packages
@@ -270,11 +274,9 @@ class TestSearchOverall(TestController):
         model.repo.rebuild_db()
         search.clear()
 
-    def _check_search_results(self, terms, expected_count, expected_packages=[], only_open=False, only_downloadable=False):
+    def _check_search_results(self, terms, expected_count, expected_packages=[]):
         query = {
             'q': unicode(terms),
-            'filter_by_openness': only_open,
-            'filter_by_downloadable': only_downloadable
         }
         result = search.query_for(model.Package).run(query)
         pkgs = result['results']

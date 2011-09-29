@@ -79,7 +79,7 @@ class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
         assert 'package_id' in result.body, result.body
 
 
-class TestResourceSearchApi1(ResourceSearchApiTestCase, Api1TestCase): pass
+class TestResourceSearchApi1(Api1TestCase, ResourceSearchApiTestCase): pass
 class TestResourceSearchApi2(Api2TestCase, ResourceSearchApiTestCase): pass
 class TestResourceSearchApiUnversioned(ApiUnversionedTestCase, ResourceSearchApiTestCase):
     pass

@@ -1,10 +1,10 @@
-import json
 from pylons import config
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
 from ckan import model
 from ckan.logic import get_action
-from common import make_connection, SearchError
+from ckan.lib.helpers import json
+from common import make_connection, SearchError, SearchQueryError
 import logging
 log = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
     support, so use this function to convert those to SOLR syntax.
     See tests for examples.
 
-    raises ValueError on invalid params.
+    raises SearchQueryError on invalid params.
     '''
     options = QueryOptions(**legacy_params)
     options.validate()
@@ -35,7 +35,8 @@ def convert_legacy_parameters_to_solr(legacy_params):
         solr_q_list.append(solr_params['q'].replace('+', ' '))
     non_solr_params = set(legacy_params.keys()) - VALID_SOLR_PARAMETERS
     for search_key in non_solr_params:
-        value = str(legacy_params[search_key]).replace('+', ' ')
+        value_obj = legacy_params[search_key]
+        value = str(value_obj).replace('+', ' ')
         if search_key == 'all_fields':
             if value:
                 solr_params['fl'] = '*'
@@ -45,6 +46,14 @@ def convert_legacy_parameters_to_solr(legacy_params):
             solr_params['rows'] = value
         elif search_key == 'order_by':
             solr_params['sort'] = '%s asc' % value
+        elif search_key == 'tags':
+            if isinstance(value_obj, list):
+                tag_list = value_obj
+            elif isinstance(value_obj, basestring):
+                tag_list = [value_obj]
+            else:
+                raise SearchQueryError('Was expecting either a string or JSON list for the tags parameter: %r' % value)
+            solr_q_list.extend(['tags:%s' % tag for tag in tag_list])
         else:
             if ' ' in value:
                 value = '"%s"' % value
@@ -83,14 +92,14 @@ class QueryOptions(dict):
                 try:
                     value = asbool(value)
                 except ValueError:
-                    raise SearchError('Value for search option %r must be True or False (1 or 0) but received %r' % (key, value))
+                    raise SearchQueryError('Value for search option %r must be True or False (1 or 0) but received %r' % (key, value))
             elif key in self.INTEGER_OPTIONS:
                 try:
                     value = int(value)
                 except ValueError:
-                    raise SearchError('Value for search option %r must be an integer but received %r' % (key, value))
+                    raise SearchQueryError('Value for search option %r must be an integer but received %r' % (key, value))
             elif key in self.UNSUPPORTED_OPTIONS:
-                    raise SearchError('Search option %r is not supported' % key)                
+                    raise SearchQueryError('Search option %r is not supported' % key)                
             self[key] = value    
     
     def __getattr__(self, name):
@@ -218,7 +227,7 @@ class PackageSearchQuery(SearchQuery):
         # check that query keys are valid
         if not set(query.keys()) <= VALID_SOLR_PARAMETERS:
             invalid_params = [s for s in set(query.keys()) - VALID_SOLR_PARAMETERS]
-            raise SearchError("Invalid search parameters: %s" % invalid_params)
+            raise SearchQueryError("Invalid search parameters: %s" % invalid_params)
 
         # default query is to return all documents
         q = query.get('q')

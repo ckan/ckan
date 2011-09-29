@@ -93,7 +93,7 @@ def make_map():
         requirements=dict(register=register_list_str),
         conditions=dict(method=['DELETE']))
     map.connect('/api/{ver:3}/action/{logic_function}', controller='api', action='action',
-                conditions=dict(method=['GET']))
+                conditions=dict(method=['GET', 'POST']))
     map.connect('/api/{ver:1|2}/qos/throughput/',
         controller='api', action='throughput',
         requirements=dict(register=register_list_str),
@@ -110,7 +110,7 @@ def make_map():
     map.connect('/api/rest', controller='api', action='index')
 
     map.connect('/api/action/{logic_function}', controller='api', action='action',
-                conditions=dict(method=['GET']))
+                conditions=dict(method=['GET', 'POST']))
     map.connect('/api/rest/{register}', controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET'])
