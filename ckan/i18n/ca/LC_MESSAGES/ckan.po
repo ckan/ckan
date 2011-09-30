@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
-"POT-Creation-Date: 2011-09-15 17:42+0100\n"
+"POT-Creation-Date: 2011-09-30 17:45+0100\n"
 "PO-Revision-Date: 2011-09-16 08:20+0000\n"
 "Last-Translator: amercader <amercadero@gmail.com>\n"
 "Language-Team: Catalan "
@@ -28,9 +28,9 @@ msgstr ""
 
 #: ckan/controllers/api.py:38 ckan/controllers/authorization_group.py:22
 #: ckan/controllers/group.py:58 ckan/controllers/home.py:29
-#: ckan/controllers/package.py:111 ckan/controllers/revision.py:31
+#: ckan/controllers/package.py:110 ckan/controllers/revision.py:31
 #: ckan/controllers/tag.py:23 ckan/controllers/user.py:31
-#: ckan/controllers/user.py:71 ckan/controllers/user.py:94
+#: ckan/controllers/user.py:72 ckan/controllers/user.py:95
 #: ckan/logic/auth/get.py:17
 msgid "Not authorized to see this page"
 msgstr "No esteu autoritzats a editar aquesta pàgina"
@@ -53,16 +53,16 @@ msgid "Action name not known: %s"
 msgstr "Acció desconeguda: %s"
 
 #: ckan/controllers/api.py:147 ckan/controllers/api.py:268
-#: ckan/controllers/api.py:319
+#: ckan/controllers/api.py:322
 #, python-format
 msgid "JSON Error: %s"
 msgstr "Error JSON: %s"
 
 #: ckan/controllers/api.py:155 ckan/controllers/api.py:292
-#: ckan/controllers/api.py:341 ckan/controllers/group.py:175
-#: ckan/controllers/group.py:194 ckan/controllers/package.py:467
-#: ckan/controllers/package.py:494 ckan/controllers/user.py:154
-#: ckan/controllers/user.py:240 ckan/controllers/user.py:354
+#: ckan/controllers/api.py:344 ckan/controllers/group.py:175
+#: ckan/controllers/group.py:194 ckan/controllers/package.py:462
+#: ckan/controllers/package.py:491 ckan/controllers/user.py:155
+#: ckan/controllers/user.py:232 ckan/controllers/user.py:346
 msgid "Integrity Error"
 msgstr "Error d'integritat"
 
@@ -81,49 +81,57 @@ msgstr "No es pot llegir l'entitat de tipus: %s"
 msgid "Cannot create new entity of this type: %s %s"
 msgstr "No es pot crear una nova entitat d'aquest tipus: %s %s"
 
-#: ckan/controllers/api.py:325
+#: ckan/controllers/api.py:295
+msgid "Unable to add package to search index"
+msgstr ""
+
+#: ckan/controllers/api.py:328
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr "No es pot editer l'entitat de tipus: %s"
 
-#: ckan/controllers/api.py:367
+#: ckan/controllers/api.py:347
+msgid "Unable to update search index"
+msgstr ""
+
+#: ckan/controllers/api.py:373
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr "No es pot eliminar l'entitat de tipus: %s %s"
 
-#: ckan/controllers/api.py:390
+#: ckan/controllers/api.py:396
 msgid "No revision specified"
 msgstr "No s'ha especificat una revisió"
 
-#: ckan/controllers/api.py:394
+#: ckan/controllers/api.py:400
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr "No hi ha cap revisiió amb id: %s"
 
-#: ckan/controllers/api.py:404
+#: ckan/controllers/api.py:410
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
 msgstr "Falta un terme de cerca ('since_id=UUID' o 'since_time=TIMESTAMP')"
 
-#: ckan/controllers/api.py:412
+#: ckan/controllers/api.py:418
 #, python-format
 msgid "Could not read parameters: %r"
 msgstr "No s'han pogut llegir els paràmetres: %r"
 
-#: ckan/controllers/api.py:449
+#: ckan/controllers/api.py:461
 #, python-format
 msgid "Bad search option: %s"
 msgstr "Opció de cerca incorrecta: %s"
 
-#: ckan/controllers/api.py:452
+#: ckan/controllers/api.py:464
 #, python-format
 msgid "Unknown register: %s"
 msgstr "Registre desconegut: %s"
 
-#: ckan/controllers/api.py:460
+#: ckan/controllers/api.py:472
 msgid "Malformed qjson value"
 msgstr "Valor JSON mal format"
 
-#: ckan/controllers/api.py:469 ckan/lib/base.py:193
+#: ckan/controllers/api.py:481 ckan/lib/base.py:193
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr ""
 "Els paràmetres de la sol·licitud han d'estar en forma d'un diccionari "
@@ -151,7 +159,7 @@ msgid "Group not found"
 msgstr "Grup no trobat"
 
 #: ckan/controllers/authorization_group.py:158 ckan/controllers/group.py:214
-#: ckan/controllers/package.py:547
+#: ckan/controllers/package.py:546
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
 msgstr "L'usuari %r no està autoritzat a editar les autorizacions de%s"
@@ -163,21 +171,21 @@ msgid "Unauthorized to read group %s"
 msgstr "No autoritzat a llegir el grup %s"
 
 #: ckan/controllers/group.py:154 ckan/controllers/group_formalchemy.py:93
-#: ckan/controllers/package.py:387 ckan/controllers/package_formalchemy.py:95
+#: ckan/controllers/package.py:382 ckan/controllers/package_formalchemy.py:95
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr "L'usuari %r no està autoritzat a editar %s"
 
 #: ckan/controllers/group.py:173 ckan/controllers/group.py:192
-#: ckan/controllers/package.py:218 ckan/controllers/package.py:253
-#: ckan/controllers/package.py:294 ckan/controllers/package.py:379
-#: ckan/controllers/package.py:412 ckan/controllers/package.py:432
-#: ckan/controllers/package.py:465 ckan/controllers/package.py:492
-#: ckan/controllers/package.py:536
+#: ckan/controllers/package.py:213 ckan/controllers/package.py:248
+#: ckan/controllers/package.py:289 ckan/controllers/package.py:374
+#: ckan/controllers/package.py:407 ckan/controllers/package.py:427
+#: ckan/controllers/package.py:460 ckan/controllers/package.py:489
+#: ckan/controllers/package.py:535
 msgid "Package not found"
 msgstr "No s'ha trobat el paquet"
 
-#: ckan/controllers/group.py:241 ckan/controllers/package.py:275
+#: ckan/controllers/group.py:241 ckan/controllers/package.py:270
 msgid "Select two revisions before doing the comparison."
 msgstr "Seleccioneu dues revisions abans de fer la comparació."
 
@@ -189,7 +197,7 @@ msgstr "Historial de revisions del grup de CKAN"
 msgid "Recent changes to CKAN Group: "
 msgstr "Canvis recents al grup de CKAN"
 
-#: ckan/controllers/group.py:286 ckan/controllers/package.py:320
+#: ckan/controllers/group.py:286 ckan/controllers/package.py:315
 msgid "Log message: "
 msgstr "Missatge de registre: "
 
@@ -197,45 +205,53 @@ msgstr "Missatge de registre: "
 msgid "This site is currently off-line. Database is not initialised."
 msgstr ""
 
-#: ckan/controllers/home.py:84
+#: ckan/controllers/home.py:86
 msgid "Invalid language specified"
 msgstr "S'ha especificat un llenguatge invàlid"
 
-#: ckan/controllers/home.py:87
+#: ckan/controllers/home.py:89
 msgid "Language has been set to: English"
 msgstr "El llenguatge s'ha definit com a: Català"
 
-#: ckan/controllers/home.py:91
+#: ckan/controllers/home.py:93
 msgid "No language given!"
 msgstr "No s'ha especificat un llenguatge!"
 
-#: ckan/controllers/package.py:207 ckan/controllers/package.py:209
-#: ckan/controllers/package.py:211
+#: ckan/controllers/package.py:202 ckan/controllers/package.py:204
+#: ckan/controllers/package.py:206
 #, python-format
 msgid "Invalid revision format: %r"
 msgstr "Format de revisió invàlid: %r"
 
-#: ckan/controllers/package.py:220 ckan/controllers/package.py:255
-#: ckan/controllers/package.py:292 ckan/controllers/package.py:377
-#: ckan/controllers/package.py:410 ckan/controllers/package.py:430
-#: ckan/controllers/package.py:463 ckan/controllers/package.py:490
+#: ckan/controllers/package.py:215 ckan/controllers/package.py:250
+#: ckan/controllers/package.py:287 ckan/controllers/package.py:372
+#: ckan/controllers/package.py:405 ckan/controllers/package.py:425
+#: ckan/controllers/package.py:458 ckan/controllers/package.py:487
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr "No autoritzat a llegir el paquet %s"
 
-#: ckan/controllers/package.py:301
+#: ckan/controllers/package.py:296
 msgid "CKAN Package Revision History"
 msgstr "Historial de revisions del paquet de CKAN"
 
-#: ckan/controllers/package.py:303
+#: ckan/controllers/package.py:298
 msgid "Recent changes to CKAN Package: "
 msgstr "Canvis recents al paquet de CKAN"
 
-#: ckan/controllers/package.py:344 ckan/controllers/package_formalchemy.py:31
+#: ckan/controllers/package.py:339 ckan/controllers/package_formalchemy.py:31
 msgid "Unauthorized to create a package"
 msgstr "No autoritzat a crear un paquet"
 
-#: ckan/controllers/package.py:509
+#: ckan/controllers/package.py:464
+msgid "Unable to add package to search index."
+msgstr ""
+
+#: ckan/controllers/package.py:493
+msgid "Unable to update search index."
+msgstr ""
+
+#: ckan/controllers/package.py:508
 #, python-format
 msgid ""
 "<span class=\"new-dataset\">Congratulations, your dataset has been "
@@ -267,22 +283,22 @@ msgstr "Altres"
 msgid "Tag not found"
 msgstr "Etiqueta no trobada"
 
-#: ckan/controllers/user.py:128
+#: ckan/controllers/user.py:129
 msgid "Unauthorized to create a user"
 msgstr "No autoritzat a crear un usuari"
 
-#: ckan/controllers/user.py:150
+#: ckan/controllers/user.py:151
 #, python-format
 msgid "Unauthorized to create user %s"
 msgstr "No autoritzat a crear l'usuari %s"
 
-#: ckan/controllers/user.py:152 ckan/controllers/user.py:201
-#: ckan/controllers/user.py:238 ckan/controllers/user.py:332
-#: ckan/controllers/user.py:352
+#: ckan/controllers/user.py:153 ckan/controllers/user.py:201
+#: ckan/controllers/user.py:230 ckan/controllers/user.py:324
+#: ckan/controllers/user.py:344
 msgid "User not found"
 msgstr "Usuari no trobat"
 
-#: ckan/controllers/user.py:156
+#: ckan/controllers/user.py:157
 msgid "Bad Captcha. Please try again."
 msgstr ""
 
@@ -290,8 +306,8 @@ msgstr ""
 msgid "No user specified"
 msgstr "No s'ha especificat cap usuari"
 
-#: ckan/controllers/user.py:199 ckan/controllers/user.py:236
-#: ckan/controllers/user.py:350
+#: ckan/controllers/user.py:199 ckan/controllers/user.py:228
+#: ckan/controllers/user.py:342
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr "No autoritzat a editar l'usuari %s"
@@ -301,45 +317,45 @@ msgstr "No autoritzat a editar l'usuari %s"
 msgid "User %s not authorized to edit %s"
 msgstr "Usuari %s no autoritzat a editar %s"
 
-#: ckan/controllers/user.py:267
+#: ckan/controllers/user.py:259
 #, python-format
-msgid "Welcome back, %s"
-msgstr "Benvingut de nou, %s"
+msgid "%s is now logged in"
+msgstr ""
 
-#: ckan/controllers/user.py:307
+#: ckan/controllers/user.py:299
 #, python-format
 msgid "\"%s\" matched several users"
 msgstr "\"%s\" coincideix amb més d'un usuari"
 
-#: ckan/controllers/user.py:309 ckan/controllers/user.py:311
+#: ckan/controllers/user.py:301 ckan/controllers/user.py:303
 #, python-format
 msgid "No such user: %s"
 msgstr "Usuari desconegut: %s"
 
-#: ckan/controllers/user.py:316
+#: ckan/controllers/user.py:308
 msgid "Please check your inbox for a reset code."
 msgstr ""
 "Si us plau, comproveu la vostra safata d'entrada per veure si heu rebut "
 "un codi de reinici"
 
-#: ckan/controllers/user.py:319
+#: ckan/controllers/user.py:311
 #, python-format
 msgid "Could not send reset link: %s"
 msgstr "No s'ha pogut enviar l'enllaç de reinici: %s"
 
-#: ckan/controllers/user.py:336
+#: ckan/controllers/user.py:328
 msgid "Invalid reset key. Please try again."
 msgstr "Clau de reinici invàlida. Si us plau, torneu-ho a intentar"
 
-#: ckan/controllers/user.py:347
+#: ckan/controllers/user.py:339
 msgid "Your password has been reset."
 msgstr "La vostra contrasenya s'ha actualitzat"
 
-#: ckan/controllers/user.py:375
+#: ckan/controllers/user.py:367
 msgid "Your password must be 4 characters or longer."
 msgstr "La vostra contrasenya ha de tenir 4 caràcters o més."
 
-#: ckan/controllers/user.py:377
+#: ckan/controllers/user.py:369
 msgid "The passwords you entered do not match."
 msgstr "Les contrasenyes que heu introduït no coincideiexen."
 
@@ -358,7 +374,7 @@ msgstr ""
 
 #: ckan/forms/common.py:40 ckan/logic/validators.py:114
 msgid "Dataset name already exists in database"
-msgstr "Aquest nom de paquet ja existeix a la base de dades"
+msgstr ""
 
 #: ckan/forms/common.py:48 ckan/logic/validators.py:144
 msgid "Group name already exists in database"
@@ -370,13 +386,13 @@ msgid "Value does not match required format: %s"
 msgstr "El valor no coincideix amb el format requerit: %s"
 
 #: ckan/forms/common.py:154 ckan/forms/common.py:776
-#: ckan/templates/package/new_package_form.html:178
+#: ckan/templates/package/new_package_form.html:164
 msgid "(None)"
 msgstr "(Cap)"
 
 #: ckan/forms/common.py:345
 msgid "Dataset resource(s) incomplete."
-msgstr "Recurs(os) del paquet incomplet"
+msgstr ""
 
 #: ckan/forms/common.py:512 ckan/logic/validators.py:150
 #, python-format
@@ -403,11 +419,11 @@ msgstr "Clau duplicada \"%s\""
 msgid "Extra key-value pair: key is not set for value \"%s\"."
 msgstr "Parella de clau-valor extra: no s'ha definit la clau per al valor \"%s\"."
 
-#: ckan/forms/common.py:786 ckan/templates/package/new_package_form.html:184
+#: ckan/forms/common.py:786 ckan/templates/package/new_package_form.html:170
 msgid "Cannot add any groups."
 msgstr "No es pot afegir cap grup."
 
-#: ckan/forms/common.py:801 ckan/templates/package/new_package_form.html:175
+#: ckan/forms/common.py:801 ckan/templates/package/new_package_form.html:161
 msgid "Group"
 msgstr "Grup"
 
@@ -425,6 +441,8 @@ msgid "other - please specify"
 msgstr "altres - si us plau, especifiqueu"
 
 #: ckan/forms/group.py:52 ckan/forms/package.py:38 ckan/forms/package.py:110
+#: ckan/templates/js_strings.html:34
+#: ckan/templates/package/new_package_form.html:96
 msgid "Name"
 msgstr "Nom"
 
@@ -480,7 +498,7 @@ msgstr ""
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
 msgstr "Més de 2 caràcters, en minúscules, usant només 'a-z0-9' i '-_'"
 
-#: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:205
+#: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:191
 msgid "A number representing the version (if applicable)"
 msgstr "Un número que representa la versió (si s'escau)"
 
@@ -492,7 +510,7 @@ msgstr "El URL per a la pàgina web que descriu les dades (no les dades en si)."
 msgid "e.g. http://www.example.com/growth-figures.html"
 msgstr "p.ex. http://www.exemple.com/indicadors-creixement.html"
 
-#: ckan/forms/package.py:55 ckan/templates/package/new_package_form.html:191
+#: ckan/forms/package.py:55 ckan/templates/package/new_package_form.html:177
 msgid ""
 "The name of the main contact, for enquiries about this particular "
 "dataset, using the e-mail address in the following field."
@@ -500,7 +518,7 @@ msgstr ""
 "El nom del contacte principal, per a consultes sobre aquest conjunt de "
 "dades en particular, usant el correu electrònic del camp següent."
 
-#: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:198
+#: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:184
 msgid ""
 "If there is another important contact person (in addition to the person "
 "in the Author field) then provide details here."
@@ -517,7 +535,7 @@ msgid "The licence under which the dataset is released."
 msgstr "La llicència amb la qual es publiquen les dades."
 
 #: ckan/forms/package.py:68 ckan/forms/package.py:112
-#: ckan/templates/layout_base.html:146
+#: ckan/templates/layout_base.html:145
 #: ckan/templates/package/new_package_form.html:78
 #: ckan/templates/package/read.html:50 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:9
@@ -614,7 +632,7 @@ msgstr "Informació bàsica"
 msgid "Resources"
 msgstr "Recursos"
 
-#: ckan/forms/package.py:97 ckan/templates/layout_base.html:78
+#: ckan/forms/package.py:97 ckan/templates/layout_base.html:77
 #: ckan/templates/package/edit.html:23 ckan/templates/package/read.html:57
 #: ckan/templates/revision/read.html:64
 msgid "Groups"
@@ -631,33 +649,33 @@ msgstr "Detall"
 msgid "Title"
 msgstr "Títol"
 
-#: ckan/forms/package.py:110 ckan/templates/package/new_package_form.html:203
+#: ckan/forms/package.py:110 ckan/templates/package/new_package_form.html:189
 #: ckan/templates/package/read.html:43
 msgid "Version"
 msgstr "Versió"
 
-#: ckan/forms/package.py:110
+#: ckan/forms/package.py:110 ckan/templates/package/new_package_form.html:95
 msgid "URL"
 msgstr "URL"
 
 #: ckan/forms/package.py:111 ckan/templates/_util.html:345
 #: ckan/templates/_util.html:395 ckan/templates/group/history.html:35
 #: ckan/templates/package/history.html:37
-#: ckan/templates/package/new_package_form.html:189
+#: ckan/templates/package/new_package_form.html:175
 #: ckan/templates/package/read.html:35
 msgid "Author"
 msgstr "Autor"
 
-#: ckan/forms/package.py:111 ckan/templates/package/new_package_form.html:193
+#: ckan/forms/package.py:111 ckan/templates/package/new_package_form.html:179
 msgid "Author email"
 msgstr "Correu electrònic de l'autor"
 
-#: ckan/forms/package.py:111 ckan/templates/package/new_package_form.html:196
+#: ckan/forms/package.py:111 ckan/templates/package/new_package_form.html:182
 #: ckan/templates/package/read.html:39
 msgid "Maintainer"
 msgstr "Mantenidor"
 
-#: ckan/forms/package.py:112 ckan/templates/package/new_package_form.html:200
+#: ckan/forms/package.py:112 ckan/templates/package/new_package_form.html:186
 msgid "Maintainer email"
 msgstr "Correu electrònic del mantenidor"
 
@@ -666,7 +684,7 @@ msgid "License"
 msgstr "Llicència"
 
 #: ckan/forms/package.py:112 ckan/templates/group/new_group_form.html:30
-#: ckan/templates/package/new_package_form.html:208
+#: ckan/templates/package/new_package_form.html:194
 #: ckan/templates/package/read.html:77
 msgid "State"
 msgstr "Estat"
@@ -741,15 +759,15 @@ msgstr ""
 msgid "Reset your password"
 msgstr "Reinicieu la vostra contrasenya"
 
-#: ckan/lib/package_saver.py:44
+#: ckan/lib/package_saver.py:29
 msgid "Cannot render package description"
 msgstr "No s'ha pogut renderitzar la descripció del paquet"
 
-#: ckan/lib/package_saver.py:49
+#: ckan/lib/package_saver.py:34
 msgid "No web page given"
 msgstr "No s'ha indicat una pàgina web"
 
-#: ckan/lib/package_saver.py:156 ckan/logic/validators.py:45
+#: ckan/lib/package_saver.py:107 ckan/logic/validators.py:45
 msgid "No links are allowed in the log_message."
 msgstr "No es permeten enllaços al missatge de registre"
 
@@ -766,7 +784,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:26
 msgid "Invalid integer"
-msgstr "No s'ha trobat el paquet."
+msgstr ""
 
 #: ckan/logic/validators.py:36
 msgid "Date format incorrect"
@@ -779,7 +797,7 @@ msgstr ""
 #: ckan/logic/validators.py:66
 #, python-format
 msgid "Dataset with name %r does not exist."
-msgstr "El paquet amb nom %r no existeix."
+msgstr ""
 
 #: ckan/logic/validators.py:208
 #, python-format
@@ -818,39 +836,39 @@ msgstr ""
 "Actualització no permesa, ja que s'assembla a spam. Si us plau, eviteu "
 "enllaços en la vostra descripció"
 
-#: ckan/logic/action/create.py:59 ckan/logic/action/create.py:164
+#: ckan/logic/action/create.py:56 ckan/logic/action/create.py:156
 #, python-format
 msgid "REST API: Create object %s"
 msgstr "API REST: Creat objecte %s"
 
-#: ckan/logic/action/create.py:139
+#: ckan/logic/action/create.py:131
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
 msgstr "API REST: Creada relació entre paquets: %s %s %s"
 
-#: ckan/logic/action/create.py:190
+#: ckan/logic/action/create.py:182
 msgid "You must supply a package id or name (parameter \"package\")."
 msgstr ""
 "Heu de proporcionar un identificador o nom de paquet (paràmetre "
 "\"package\")."
 
-#: ckan/logic/action/create.py:192
+#: ckan/logic/action/create.py:184
 msgid "You must supply a rating (parameter \"rating\")."
 msgstr "Heu de proporcionar una valoració (paràmetre \"rating\")."
 
-#: ckan/logic/action/create.py:197
+#: ckan/logic/action/create.py:189
 msgid "Rating must be an integer value."
 msgstr "La valoració ha de ser un valor enter."
 
-#: ckan/logic/action/create.py:201
+#: ckan/logic/action/create.py:193
 #, python-format
 msgid "Rating must be between %i and %i."
 msgstr "La valoració ha d'estar entre %i i %i."
 
-#: ckan/logic/action/create.py:203
+#: ckan/logic/action/create.py:195
 #, python-format
 msgid "Package with name %r does not exist."
-msgstr ""
+msgstr "El paquet amb nom %r no existeix."
 
 #: ckan/logic/action/delete.py:23
 #, python-format
@@ -872,7 +890,6 @@ msgid "Missing Value"
 msgstr "Falta el valor"
 
 #: ckan/logic/action/update.py:159
-msgstr "No s'ha trobat el grup."
 msgid "Resource was not found."
 msgstr "Recurs no trobat"
 
@@ -882,17 +899,17 @@ msgstr ""
 "No s'ha trobat cap paquet per aquest recurs, no es pot comprovar "
 "l'autorització."
 
-#: ckan/logic/action/update.py:184 ckan/logic/action/update.py:223
-#: ckan/logic/action/update.py:329
+#: ckan/logic/action/update.py:184 ckan/logic/action/update.py:221
+#: ckan/logic/action/update.py:324
 #, python-format
 msgid "REST API: Update object %s"
 msgstr "API REST: Actualitzat objecte %s"
 
-#: ckan/logic/action/update.py:205 ckan/logic/action/update.py:248
+#: ckan/logic/action/update.py:204 ckan/logic/action/update.py:243
 msgid "Package was not found."
-msgstr ""
+msgstr "No s'ha trobat el paquet."
 
-#: ckan/logic/action/update.py:270
+#: ckan/logic/action/update.py:265
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
 msgstr "API REST: Actualitzada la relació entre paquets: %s %s %s"
@@ -929,7 +946,7 @@ msgstr ""
 
 #: ckan/logic/auth/create.py:95
 msgid "Group was not found."
-msgstr ""
+msgstr "No s'ha trobat el grup."
 
 #: ckan/logic/auth/create.py:113
 msgid "Valid API key needed to create a package"
@@ -1069,7 +1086,7 @@ msgstr "té el germà %s"
 
 #: ckan/templates/_util.html:74 ckan/templates/_util.html:120
 msgid "This dataset satisfies the Open Definition."
-msgstr "Aquest paquet compleix la Open Definition."
+msgstr ""
 
 #: ckan/templates/_util.html:75 ckan/templates/_util.html:121
 #: ckan/templates/package/read.html:119
@@ -1077,20 +1094,17 @@ msgid "[Open Data]"
 msgstr "[Dades Obertes]"
 
 #: ckan/templates/_util.html:82 ckan/templates/_util.html:128
-msgstr "[Contingut obert]"
 msgid "Not Openly Licensed"
 msgstr "No té una llicència oberta"
 
 #: ckan/templates/_util.html:147 ckan/templates/_util.html:160
 msgid "Number of datasets"
-msgstr "Nombre de paquets"
+msgstr ""
 
 #: ckan/templates/_util.html:147 ckan/templates/_util.html:160
+#: ckan/templates/js_strings.html:35
 #: ckan/templates/group/new_group_form.html:27
 #: ckan/templates/package/new_package_form.html:53
-#: ckan/templates/package/new_package_form.html:97
-#: ckan/templates/package/new_package_form.html:127
-#: ckan/templates/package/read_core.html:18
 msgid "Description"
 msgstr "Descripció"
 
@@ -1100,7 +1114,7 @@ msgstr "Nombre de membres"
 
 #: ckan/templates/_util.html:193
 msgid "View dataset resources"
-msgstr "Veure recursos del paquet"
+msgstr ""
 
 #: ckan/templates/_util.html:193
 msgid "DOWNLOAD"
@@ -1153,7 +1167,7 @@ msgstr "Missatge de registre"
 #: ckan/templates/_util.html:369 ckan/templates/_util.html:419
 #: ckan/templates/group/new_group_form.html:49
 #: ckan/templates/package/form_extra_fields.html:22
-#: ckan/templates/package/new_package_form.html:227
+#: ckan/templates/package/new_package_form.html:213
 #: ckan/templates/revision/read.html:20
 msgid "Delete"
 msgstr "Esborrar"
@@ -1167,135 +1181,229 @@ msgstr "Restaurar"
 msgid "Error"
 msgstr "Error"
 
-#: ckan/templates/layout_base.html:55
+#: ckan/templates/js_strings.html:17
+msgid "Hello there, world!"
+msgstr ""
+
+#: ckan/templates/js_strings.html:18
+msgid "This dataset name is available!"
+msgstr ""
+
+#: ckan/templates/js_strings.html:19
+msgid "This dataset name is already used, please use a different name"
+msgstr ""
+
+#: ckan/templates/js_strings.html:20
+#: ckan/templates/package/new_package_form.html:130
+#: ckan/templates/package/read_core.html:37
+#: ckan/templates/package/read_core.html:45
+#: ckan/templates/package/read_core.html:79
+msgid "(none)"
+msgstr ""
+
+#: ckan/templates/js_strings.html:21
+msgid "Failed to save, possibly due to invalid data "
+msgstr ""
+
+#: ckan/templates/js_strings.html:22
+msgid "Add Dataset"
+msgstr ""
+
+#: ckan/templates/js_strings.html:23
+msgid ""
+"You have unsaved changes. Hit Save Changes at the bottom of the page to "
+"submit them."
+msgstr ""
+
+#: ckan/templates/js_strings.html:24
+msgid "Loading..."
+msgstr ""
+
+#: ckan/templates/js_strings.html:29
+msgid "File URL"
+msgstr ""
+
+#: ckan/templates/js_strings.html:30
+msgid "Api URL"
+msgstr ""
+
+#: ckan/templates/js_strings.html:31
+#: ckan/templates/authorization_group/authz.html:22
+#: ckan/templates/authorization_group/authz.html:40
+#: ckan/templates/group/authz.html:22 ckan/templates/group/authz.html:40
+#: ckan/templates/package/authz.html:22 ckan/templates/package/authz.html:40
+msgid "Add"
+msgstr "Afegir"
+
+#: ckan/templates/js_strings.html:32
+#: ckan/templates/package/new_package_form.html:246
+#: ckan/templates/user/edit_user_form.html:48
+msgid "Cancel"
+msgstr ""
+
+#: ckan/templates/js_strings.html:33
+msgid "File"
+msgstr ""
+
+#: ckan/templates/js_strings.html:36 ckan/templates/package/read_core.html:18
+msgid "Url"
+msgstr ""
+
+#: ckan/templates/js_strings.html:37
+#: ckan/templates/package/new_package_form.html:97
+#: ckan/templates/package/read_core.html:20
+msgid "Format"
+msgstr "Format"
+
+#: ckan/templates/js_strings.html:38
+msgid "Resource Type"
+msgstr ""
+
+#: ckan/templates/js_strings.html:39
+msgid "Size (Bytes)"
+msgstr ""
+
+#: ckan/templates/js_strings.html:40
+msgid "Mimetype"
+msgstr ""
+
+#: ckan/templates/js_strings.html:41
+msgid "Last Modified"
+msgstr ""
+
+#: ckan/templates/js_strings.html:42
+msgid "Mimetype (Inner)"
+msgstr ""
+
+#: ckan/templates/js_strings.html:43
+msgid "Hash"
+msgstr "Hash"
+
+#: ckan/templates/js_strings.html:44
+msgid "ID"
+msgstr ""
+
+#: ckan/templates/js_strings.html:45
+msgid "Delete Resource"
+msgstr ""
+
+#: ckan/templates/js_strings.html:46
+msgid "This resource has unsaved changes."
+msgstr ""
+
+#: ckan/templates/layout_base.html:54
 msgid "My account"
 msgstr "El meu compte"
 
-#: ckan/templates/layout_base.html:56 ckan/templates/user/logout.html:8
+#: ckan/templates/layout_base.html:55 ckan/templates/user/logout.html:8
 msgid "Logout"
 msgstr "Tancar sessió"
 
-#: ckan/templates/layout_base.html:59 ckan/templates/user/login.html:51
+#: ckan/templates/layout_base.html:58 ckan/templates/user/login.html:51
 msgid "Login"
 msgstr "Iniciar sessió"
 
-#: ckan/templates/layout_base.html:60 ckan/templates/user/login.html:26
+#: ckan/templates/layout_base.html:59 ckan/templates/user/login.html:26
 msgid "Register"
 msgstr "Registrar-se"
 
-#: ckan/templates/layout_base.html:76 ckan/templates/package/search.html:24
-msgid "Add a dataset"
-msgstr "Saltar al contingut"
-msgstr "Inici"
+#: ckan/templates/layout_base.html:71 ckan/templates/home/index.html:18
+msgid "Find datasets"
+msgstr ""
 
-#: ckan/templates/layout_base.html:77
-#: ckan/templates/package/search_form.html:17
+#: ckan/templates/layout_base.html:75 ckan/templates/package/search.html:15
+msgid "Add a dataset"
+msgstr ""
+
+#: ckan/templates/layout_base.html:76
+#: ckan/templates/package/search_form.html:15
 msgid "Search"
 msgstr "Cerca"
 
-#: ckan/templates/layout_base.html:80 ckan/templates/layout_base.html:123
-#: ckan/templates/layout_base.html:126 ckan/templates/home/about.html:6
-msgstr "Afegir un paquet"
+#: ckan/templates/layout_base.html:79 ckan/templates/layout_base.html:122
+#: ckan/templates/layout_base.html:125 ckan/templates/home/about.html:6
 msgid "About"
 msgstr "Quant a"
 
-#: ckan/templates/layout_base.html:103
+#: ckan/templates/layout_base.html:102
 msgid "Master content template placeholder … please replace me."
 msgstr "Text de mostra de la plantilla principal … si us plau, reemplaceu-me"
 
-#: ckan/templates/layout_base.html:128
+#: ckan/templates/layout_base.html:127
 msgid "Twitter @ckanproject"
-msgstr "Paquets"
-msgstr "Registrar un nou Paquet"
-msgstr "Historial de revisions"
+msgstr ""
 
-#: ckan/templates/layout_base.html:130 ckan/templates/package/search.html:46
+#: ckan/templates/layout_base.html:129 ckan/templates/package/search.html:37
 msgid "API"
 msgstr "API"
 
-#: ckan/templates/layout_base.html:131 ckan/templates/package/search.html:47
+#: ckan/templates/layout_base.html:130 ckan/templates/package/search.html:38
 msgid "API Docs"
 msgstr "Documentació de la API"
 
-#: ckan/templates/layout_base.html:133
+#: ckan/templates/layout_base.html:132
 msgid "Contact Us"
-msgstr "Bolcat total en %s"
+msgstr "Contacteu-nos"
 
-#: ckan/templates/layout_base.html:136 ckan/templates/user/login.html:28
+#: ckan/templates/layout_base.html:135 ckan/templates/user/login.html:28
 msgid "Privacy Policy"
-msgstr "Grups i Etiquetes"
+msgstr "Política de privacitat"
 
-#: ckan/templates/layout_base.html:142
+#: ckan/templates/layout_base.html:141
 msgid "Sections"
-msgstr "Crear un nou Grup"
-
-#: ckan/templates/layout_base.html:151 ckan/templates/group/history.html:12
-#: ckan/templates/package/history.html:23
-msgid "Revisions"
 msgstr ""
 
-#: ckan/templates/layout_base.html:156
+#: ckan/templates/layout_base.html:150 ckan/templates/group/history.html:12
+#: ckan/templates/package/history.html:23
+msgid "Revisions"
+msgstr "Revisions"
+
+#: ckan/templates/layout_base.html:155
 #: ckan/templates/authorization_group/index.html:6
 #: ckan/templates/authorization_group/index.html:7
 #: ckan/templates/authorization_group/layout.html:23
 msgid "Authorization Groups"
 msgstr "Grups d'autorització"
 
-#: ckan/templates/layout_base.html:161
+#: ckan/templates/layout_base.html:160
 msgid "Site Admin"
-msgstr "Crear un nou grup d'autorització"
-msgstr "Pàgina principal del projecte"
-
-#: ckan/templates/layout_base.html:169
-msgid "Languages"
-msgstr "Contacteu-nos"
-
-#: ckan/templates/layout_base.html:189
-msgid "Meta"
-msgstr "Política de privacitat"
-
-#: ckan/templates/layout_base.html:193
-msgid "Open Knowledge Foundation"
-msgstr "Idioma"
-
-#: ckan/templates/layout_base.html:193
-msgid "Licensed under the"
-msgstr "Crèdits"
-
-#: ckan/templates/layout_base.html:194
-#: ckan/templates/package/new_package_form.html:260
-msgid "Open Database License"
 msgstr ""
-"[1:]\n"
-"                Un\n"
-"                projecte de la [2:Open Knowledge Foundation]"
 
-#: ckan/templates/layout_base.html:195
-msgid "This Content and Data is Open"
+#: ckan/templates/layout_base.html:168
+msgid "Languages"
+msgstr ""
+
+#: ckan/templates/layout_base.html:188
+msgid "Meta"
+msgstr ""
+
+#: ckan/templates/layout_base.html:192
+msgid "Open Knowledge Foundation"
 msgstr "Open Knowledge Foundation"
 
-#: ckan/templates/layout_base.html:197
-msgid "Powered by"
+#: ckan/templates/layout_base.html:192
+msgid "Licensed under the"
+msgstr ""
+
+#: ckan/templates/layout_base.html:193
+msgid "Open Database License"
+msgstr ""
+
+#: ckan/templates/layout_base.html:194
+msgid "This Content and Data is Open"
 msgstr "Aquest contigut i dades són oberts"
 
-#: ckan/templates/layout_base.html:198
+#: ckan/templates/layout_base.html:196
+msgid "Powered by"
+msgstr ""
+
+#: ckan/templates/layout_base.html:197
 msgid "CKAN"
 msgstr "CKAN"
 
-#: ckan/templates/layout_base.html:198
+#: ckan/templates/layout_base.html:197
 msgid "v"
-msgstr "Funciona amb CKAN"
-
-#: ckan/templates/layout_base.html:225
-msgid ""
-"$(document).ready(function() {\n"
-msgstr "v%(version)s"
-"        if (ckan_user) {\n"
-"            $(\".ckan-logged-out\").hide();\n"
-"            $(\".ckan-logged-in\").show();\n"
-"        }\n"
-"        $('input[placeholder], textarea[placeholder]').placeholder();\n"
-"    });"
+msgstr ""
 
 #: ckan/templates/authorization_group/authz.html:5
 msgid "- Authorization - AuthorizationGroups"
@@ -1303,7 +1411,8 @@ msgstr "- Autorització - Grups d'autorització"
 
 #: ckan/templates/authorization_group/authz.html:6
 #: ckan/templates/group/authz.html:6 ckan/templates/package/authz.html:6
-msgstr "Autorització per als Grups d'autorització:"
+msgid "Authorization:"
+msgstr ""
 
 #: ckan/templates/authorization_group/authz.html:9
 #: ckan/templates/group/authz.html:9 ckan/templates/package/authz.html:9
@@ -1316,8 +1425,7 @@ msgstr "Actualitzar rols existents"
 #: ckan/templates/group/authz.html:13 ckan/templates/group/authz.html:31
 #: ckan/templates/group/edit_form.html:23 ckan/templates/package/authz.html:13
 #: ckan/templates/package/authz.html:31
-#: ckan/templates/package/edit_form.html:29 ckan/templates/user/edit.html:41
-#: ckan/templates/user/edit_user_form.html:39
+#: ckan/templates/package/edit_form.html:28
 #: ckan/templates/user/perform_reset.html:23
 msgid "Save"
 msgstr "Desar"
@@ -1326,13 +1434,6 @@ msgstr "Desar"
 #: ckan/templates/group/authz.html:18 ckan/templates/package/authz.html:18
 msgid "Add Roles for Any User"
 msgstr "Afegir rols per a qualsevol usuari"
-
-#: ckan/templates/authorization_group/authz.html:22
-#: ckan/templates/authorization_group/authz.html:40
-#: ckan/templates/group/authz.html:22 ckan/templates/group/authz.html:40
-#: ckan/templates/package/authz.html:22 ckan/templates/package/authz.html:40
-msgid "Add"
-msgstr "Afegir"
 
 #: ckan/templates/authorization_group/authz.html:27
 msgid "Existing Roles for Authorization Groups"
@@ -1345,11 +1446,12 @@ msgstr "Afegir rols per a qualsevol Grup d'autorització"
 
 #: ckan/templates/authorization_group/edit.html:5
 msgid "- Edit - Authorization Groups"
-msgstr "- Editar - Grups d'autorització"
+msgstr ""
 
 #: ckan/templates/authorization_group/edit.html:6
 #: ckan/templates/group/edit.html:6 ckan/templates/package/edit.html:7
-msgstr "Editar Grup d'autorització"
+msgid "Edit:"
+msgstr ""
 
 #: ckan/templates/authorization_group/edit_form.html:10
 #: ckan/templates/user/list.html:6 ckan/templates/user/list.html:7
@@ -1389,20 +1491,10 @@ msgid ""
 "          [1:authorization group] can be set-up and users can be added to"
 " it."
 msgstr ""
-"En comptes d'especificar els privilegis d'usuaris específics sobre un "
-"paquet o grup,\n"
-"          també podeu especificar un conjunt d'usuaris que compartiran "
-"els mateixos drets. Per fer-ho, an    \n"
-"          es pot crear un [1:grup d'autorització] i afegir-hi usuaris."
 
 #: ckan/templates/authorization_group/layout.html:28
-msgid "To create a new authorization group, please first"
-msgstr "Per a crear un grup d'autorització, si us plau"
-
-#: ckan/templates/authorization_group/layout.html:29
-#: ckan/templates/group/layout.html:15
-msgid "login"
-msgstr "inicieu la sessió"
+msgid "To create a new authorization group, please first [1:login]."
+msgstr ""
 
 #: ckan/templates/authorization_group/layout.html:32
 msgid "Create a new authorization group"
@@ -1422,8 +1514,7 @@ msgstr " - Grups d'autorització"
 
 #: ckan/templates/authorization_group/read.html:10
 msgid "Members"
-msgstr "Administradors:"
-msgstr "Usuaris:"
+msgstr ""
 
 #: ckan/templates/authorization_group/read.html:11
 #, python-format
@@ -1436,7 +1527,7 @@ msgstr "- Autorització - Grups"
 
 #: ckan/templates/group/authz.html:27 ckan/templates/package/authz.html:27
 msgid "Update Existing Roles for Authorization Groups"
-msgstr "Autorització per al grup:"
+msgstr ""
 
 #: ckan/templates/group/edit.html:5
 msgid "- Edit - Groups"
@@ -1444,25 +1535,25 @@ msgstr "- Editar - Grups"
 
 #: ckan/templates/group/edit_form.html:10
 #: ckan/templates/group/new_group_form.html:66
-msgstr "Editar Grup:"
+#: ckan/templates/revision/read.html:45
 msgid "Datasets"
+msgstr ""
 
 #: ckan/templates/group/edit_form.html:17
 #: ckan/templates/group/new_group_form.html:75
 msgid "There are no datasets currently in this group."
-msgstr "Actualment no hi ha paquets dins d'aquest grup."
+msgstr ""
 
 #: ckan/templates/group/history.html:5
 msgid "- Groups - History"
 msgstr "- Grups - Historial"
 
 #: ckan/templates/group/history.html:18 ckan/templates/package/history.html:16
-msgstr "Revisions"
 msgid "Subscribe »"
 msgstr "Subscriure's »"
 
 #: ckan/templates/group/history.html:27 ckan/templates/package/history.html:29
-#: ckan/templates/package/new.html:24
+#: ckan/templates/package/new.html:22
 msgid "Error:"
 msgstr "Error:"
 
@@ -1476,11 +1567,7 @@ msgstr "Historial del grup"
 
 #: ckan/templates/group/index.html:6 ckan/templates/group/index.html:7
 msgid "Groups of Datasets"
-msgstr "Grups de Paquets de dades"
-
-#: ckan/templates/group/index.html:10
-msgid "#minornavigation { visibility: hidden; }"
-msgstr "Hi ha [1:%(item_count)s] grups."
+msgstr ""
 
 #: ckan/templates/group/layout.html:11
 msgid "Groups section"
@@ -1493,14 +1580,10 @@ msgid ""
 "[1:group] can be set-up to specify which users have permission to add or "
 "remove datasets from it."
 msgstr ""
-"Tot i que les etiquetes són molt útils per agrupar paquets, hi ha "
-"ocasions en que cal restringir l'edició dins d'una col·lecció als "
-"usuaris. Es pot crear un [1:grup] per especificar quins usuaris tenen "
-"permís per afegir-hi o eliminar-ne paquets. "
 
 #: ckan/templates/group/layout.html:14
-msgid "To create a new group, please first"
-msgstr "Per a crear un grup, si us plau"
+msgid "To create a new group, please first [1:login]."
+msgstr ""
 
 #: ckan/templates/group/layout.html:18
 msgid "Create a new group"
@@ -1556,24 +1639,24 @@ msgid "2+ chars, lowercase, using only 'a-z0-9' and '-_'"
 msgstr "Més de 2 caràcters, en minúscules, usant només 'a-z0-9' i '-_'"
 
 #: ckan/templates/group/new_group_form.html:33
-#: ckan/templates/package/new_package_form.html:211
+#: ckan/templates/package/new_package_form.html:197
 msgid "active"
 msgstr "actiu"
 
 #: ckan/templates/group/new_group_form.html:34
-#: ckan/templates/package/new_package_form.html:212
+#: ckan/templates/package/new_package_form.html:198
 msgid "deleted"
 msgstr "esborrat"
 
 #: ckan/templates/group/new_group_form.html:54
 #: ckan/templates/package/form_extra_fields.html:12
-#: ckan/templates/package/new_package_form.html:232
+#: ckan/templates/package/new_package_form.html:218
 msgid "New key"
 msgstr "Nova clau"
 
 #: ckan/templates/group/new_group_form.html:56
 #: ckan/templates/package/form_extra_fields.html:26
-#: ckan/templates/package/new_package_form.html:234
+#: ckan/templates/package/new_package_form.html:220
 msgid "with value"
 msgstr "amb valor"
 
@@ -1595,7 +1678,7 @@ msgstr "Sense títol"
 
 #: ckan/templates/group/read.html:24
 msgid "Administrators"
-msgstr "Paquets:"
+msgstr ""
 
 #: ckan/templates/group/read.html:35
 msgid "Datasets:"
@@ -1604,7 +1687,7 @@ msgstr ""
 #: ckan/templates/group/read.html:36
 #, python-format
 msgid "There are %(item_count)s datasets in this group."
-msgstr "Hi ha %(item_count)s paquets en aquest grup."
+msgstr ""
 
 #: ckan/templates/home/about.html:9
 msgid "About CKAN"
@@ -1616,9 +1699,6 @@ msgid ""
 "[2:open knowledge] datasets and projects\n"
 "    (and a few closed ones)."
 msgstr ""
-"CKAN és la Comprehensive Knowledge Archive Network, un [1:registre] de "
-"paquets i projectes de [2:coneixement obert]\n"
-"    (i alguns de tancat)."
 
 #: ckan/templates/home/about.html:15
 msgid ""
@@ -1644,11 +1724,6 @@ msgid ""
 "but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
-"Com mostra el diagrama, CKAN combina les capacitats d'un "
-"llistat/registre,\n"
-"\t\tun índex de paquets i una wiki. Com a registre és similar a "
-"[1:freshmeat], però per a dades obertes i\n"
-"\t\trecursos. Però és molt més que un simple registre."
 
 #: ckan/templates/home/about.html:29
 msgid ""
@@ -1689,206 +1764,91 @@ msgstr ""
 
 #: ckan/templates/home/index.html:6
 msgid "Welcome"
-msgstr "Benvingut a"
+msgstr ""
 
 #: ckan/templates/home/index.html:7 ckan/templates/package/edit.html:9
 #: ckan/templates/package/new.html:9
 msgid "hide-sidebar"
-msgstr ""
+msgstr "hide-sidebar"
 
-#: ckan/templates/home/index.html:10
-msgid ""
-"#minornavigation {\n"
-"          display: none;\n"
-"        }\n"
-"  \n"
-"        #sidebar {\n"
-"          display: none;\n"
-"        }\n"
-"\n"
-"        .front-page .action-box h1 {\n"
-"          padding-top: 0.6em;\n"
-"          padding-bottom: 0.5em;\n"
-"          font-size: 2.1em;\n"
-"        }\n"
-"\n"
-"        .front-page .action-box {\n"
-"          border-radius: 20px;\n"
-"          background:  #FFF7C0;\n"
-"        }\n"
-"        \n"
-"        .front-page .action-box-inner {\n"
-"          margin: 20px;\n"
-"          margin-bottom: 5px;\n"
-"          min-height: 15em;\n"
-"        }\n"
-"        .front-page .action-box-inner.collaborate {\n"
-"          background:url(/img/collaborate.png) no-repeat right top;\n"
-"        }\n"
-"        \n"
-"        .front-page .action-box-inner.share {\n"
-"          background:url(/img/share.png) no-repeat right top;\n"
-"        }\n"
-"        \n"
-"        .front-page .action-box-inner.find {\n"
-"          background:url(/img/find.png) no-repeat right top;\n"
-"        }\n"
-"        \n"
-"        .front-page .action-box-inner a {\n"
-"          font-weight: bold;\n"
-"        }\n"
-"       \n"
-"        .front-page .action-box-inner input {\n"
-"          font-family: 'Ubuntu';\n"
-"          border-radius: 10px;\n"
-"          background-color: #fff;\n"
-"          border: 0px;\n"
-"          font-size: 1.3em;\n"
-"          width: 90%;\n"
-"          border: 1px solid #999;\n"
-"          color: #666;\n"
-"          padding: 0.5em;\n"
-"        }\n"
-"        \n"
-"        .front-page .action-box-inner .create-button {\n"
-"          display: block;\n"
-"          float: right;\n"
-"          font-weight: normal;\n"
-"          font-family: 'Ubuntu';\n"
-"          margin-top: 1.5em;\n"
-"          border-radius: 10px;\n"
-"          background-color: #B22;\n"
-"          border: 0px;\n"
-"          font-size: 1.3em;\n"
-"          color: #fff;\n"
-"          padding: 0.5em;\n"
-"        }\n"
-"        \n"
-"        .front-page .action-box-inner .create-button:hover {\n"
-"          background-color: #822;\n"
-"        }\n"
-"        \n"
-"        .front-page .action-box-inner ul {\n"
-"        margin-top: 1em;\n"
-"        margin-bottom: 0;\n"
-"        }\n"
-"\n"
-"        .front-page .whoelse {\n"
-"          margin-top: 1em;\n"
-"        }\n"
-"\n"
-"        .front-page .group {\n"
-"          overflow: hidden;\n"
-"        }\n"
-"        \n"
-"        .front-page .group h3 {\n"
-"          margin-bottom: 0.5em;\n"
-"        }\n"
-"        \n"
-"        .front-page .group p {\n"
-"          margin-bottom: 0em;\n"
-"          min-height: 6em;\n"
-"        }\n"
-"        \n"
-"        .front-page .group strong {\n"
-"          display: block;\n"
-"          margin-bottom: 1.5em;\n"
-"        }"
-msgstr ""
-"%(title)s és un\n"
-"      [1:registre obert]\n"
-"      de dades i paquets de continguts. Aprofitant les capacitats de "
-"CKAN, aquest\n"
-"      lloc fa fàcil trobar, compartir i reusar contingut i dades,\n"
-"      especialment de forma automatitzable."
-
-#: ckan/templates/home/index.html:113
+#: ckan/templates/home/index.html:11
 msgid "Welcome to"
-msgstr "[1:%(package_count)s paquets de dades registrats] disponibles."
+msgstr "Benvingut a"
 
-#: ckan/templates/home/index.html:117
+#: ckan/templates/home/index.html:15
 msgid "Find data"
-msgstr "Etiquetes més usades"
+msgstr ""
 
-#: ckan/templates/home/index.html:122
+#: ckan/templates/home/index.html:20
 msgid "contains"
-msgstr "Paquets canviats recentment"
+msgstr ""
 
-#: ckan/templates/home/index.html:122
+#: ckan/templates/home/index.html:20
 msgid "datasets"
-msgstr "Veure registre de revisions »"
+msgstr ""
 
-#: ckan/templates/home/index.html:122
+#: ckan/templates/home/index.html:20
 msgid ""
 "that you can \n"
 "          browse, learn about and download."
 msgstr ""
 
-#: ckan/templates/home/index.html:128
+#: ckan/templates/home/index.html:26
 msgid "Share data"
 msgstr ""
 
-#: ckan/templates/home/index.html:128
+#: ckan/templates/home/index.html:26
 msgid ""
 "Add your own datasets to share them with others and\n"
 "        to find other people interested in your data."
 msgstr ""
 
-#: ckan/templates/home/index.html:134
+#: ckan/templates/home/index.html:32
 msgid "Create a dataset »"
 msgstr ""
 
-#: ckan/templates/home/index.html:136
+#: ckan/templates/home/index.html:34
 msgid "Sign up »"
 msgstr ""
 
-#: ckan/templates/home/index.html:143
+#: ckan/templates/home/index.html:41
 msgid "Collaborate"
 msgstr ""
 
-#: ckan/templates/home/index.html:143
+#: ckan/templates/home/index.html:41
 msgid ""
 "Find out more about working with open data by exploring \n"
 "        these resources:"
 msgstr ""
-"Tot el material d'aquest lloc és [1:obert] i pot ser lliurement usat, "
-"reusat\n"
-"    i redistribuït. De manera formal, les dades/base de dades tenen una "
-"llicència [2:Open Data Commons Open\n"
-"      Database License v1.0], amb tot el contigut susceptible de tenir "
-"copyright en aquesta\n"
-"    base de dades, així com qualsevol contingut addicional d'aquest lloc,"
-" ofert amb una llicència [3:Creative Commons\n"
-"      Attribution Share-Alike v3.0 license]."
 
-#: ckan/templates/home/index.html:148
+#: ckan/templates/home/index.html:46
 msgid "GetTheData.org"
-msgstr "- Autorització - Paquets de dades"
+msgstr ""
 
-#: ckan/templates/home/index.html:149
+#: ckan/templates/home/index.html:47
 msgid "DataPatterns.org"
-msgstr "Autorització èr al paquet de dades:"
+msgstr ""
 
-#: ckan/templates/home/index.html:150
+#: ckan/templates/home/index.html:48
 msgid "Open Data Manual"
-msgstr "- Paquets de dades - Historial"
+msgstr ""
 
-#: ckan/templates/home/index.html:155
+#: ckan/templates/home/index.html:53
 msgid "Who else is here?"
-msgstr "- Editar - Paquets de dades"
+msgstr ""
 
-#: ckan/templates/home/index.html:163
+#: ckan/templates/home/index.html:61
 msgid "has"
-msgstr "hide-sidebar"
+msgstr ""
 
-#: ckan/templates/home/index.html:163
+#: ckan/templates/home/index.html:61
 msgid "datasets."
-msgstr "Editar paquet de dades:"
+msgstr ""
 
 #: ckan/templates/package/authz.html:5
 msgid "- Authorization - Datasets"
 msgstr ""
-msgstr "Previsualització"
+
 #: ckan/templates/package/comments.html:5 ckan/templates/package/history.html:6
 msgid "- Datasets - History"
 msgstr ""
@@ -1899,76 +1859,40 @@ msgstr ""
 
 #: ckan/templates/package/edit.html:21
 msgid "Basic Information"
+msgstr ""
 
 #: ckan/templates/package/edit_form.html:13
-#: ckan/templates/package/new_package_form.html:243
+#: ckan/templates/package/new_package_form.html:229
 msgid "Edit summary (briefly describe the changes you have made)"
 msgstr "Resum de l'edició (descriviu breument els canvis realitzats)"
 
 #: ckan/templates/package/edit_form.html:17
 #: ckan/templates/package/edit_form.html:20
-#: ckan/templates/package/new_package_form.html:247
-#: ckan/templates/package/new_package_form.html:250
+#: ckan/templates/package/new_package_form.html:233
+#: ckan/templates/package/new_package_form.html:236
 #: ckan/templates/revision/read.html:36
 msgid "Author:"
 msgstr "Autor:"
 
 #: ckan/templates/package/edit_form.html:21
-#: ckan/templates/package/new_package_form.html:251
 msgid "Since you have not signed in this will just be your IP address."
 msgstr "Com que no heu iniciat sessió, s'usarà la vostra adreça IP."
 
 #: ckan/templates/package/edit_form.html:23
-#: ckan/templates/package/new_package_form.html:253
 msgid "Click here to sign in"
 msgstr "Feu clic aquí per iniciar sessió"
 
 #: ckan/templates/package/edit_form.html:23
-#: ckan/templates/package/new_package_form.html:253
 msgid "before saving (opens in new window)."
 msgstr "abans de desar (s'obre en una nova finestra)."
 
-#: ckan/templates/package/edit_form.html:33
-#: ckan/templates/package/new_package_form.html:259
-msgid "Important:"
-msgstr "Important:"
-
-#: ckan/templates/package/edit_form.html:33
+#: ckan/templates/package/edit_form.html:31
+#: ckan/templates/package/new_package_form.html:248
 msgid ""
-"By submitting content, you agree to release your contributions\n"
-"        under the open license specified on the"
+"[1:Important:] By submitting content, you agree to release your "
+"contributions under the [2:Open Database License]. Please [3:refrain] "
+"from editing this page if you are [4:not] happy to do this."
 msgstr ""
-"Enviant aquest contingut, accepteu de publicar les vostres contribucions\n"
-"        sota la llicència oberta especificada en la"
-
-#: ckan/templates/package/edit_form.html:34
-msgid "license page"
-msgstr "pàgina de la llicència"
-
-#: ckan/templates/package/edit_form.html:35
-#: ckan/templates/package/new_package_form.html:260
-msgid ". Please"
-msgstr ". Si us plau"
-
-#: ckan/templates/package/edit_form.html:35
-#: ckan/templates/package/new_package_form.html:260
-msgid "refrain"
-msgstr "eviteu"
-
-#: ckan/templates/package/edit_form.html:35
-#: ckan/templates/package/new_package_form.html:260
-msgid "from editing this page if you are"
-msgstr "editar aquesta pàgina si"
-
-#: ckan/templates/package/edit_form.html:35
-#: ckan/templates/package/new_package_form.html:260
-msgid "not"
-msgstr "no"
-
-#: ckan/templates/package/edit_form.html:35
-#: ckan/templates/package/new_package_form.html:260
-msgid "happy to do this."
-msgstr "hi esteu d'acord."
 
 #: ckan/templates/package/history.html:7
 msgid "History:"
@@ -1980,133 +1904,109 @@ msgstr "Actualitzacions"
 
 #: ckan/templates/package/history.html:60 ckan/templates/package/read.html:158
 msgid "Dataset History"
-msgstr "- Historial"
+msgstr ""
 
 #: ckan/templates/package/new.html:6
 msgid "Add - Datasets"
-msgstr "Id de la revisió"
+msgstr ""
 
 #: ckan/templates/package/new.html:7
 msgid "Add a Dataset"
-msgstr "Paquet amb marca horària"
+msgstr ""
 
 #: ckan/templates/package/new_package_form.html:16
 msgid "Resource"
-msgstr "Historial del paquet"
+msgstr ""
+
+#: ckan/templates/package/new_package_form.html:33
+msgid "A short descriptive title for the dataset"
+msgstr ""
 
 #: ckan/templates/package/new_package_form.html:41
 msgid "Slug *"
-msgstr "Nou - Paquets de dades"
+msgstr ""
 
 #: ckan/templates/package/new_package_form.html:43
 msgid "A unique identifier used in urls. Renaming is possible but discouraged."
-msgstr "Registrar un nou Paquet de dades"
+msgstr ""
 
 #: ckan/templates/package/new_package_form.html:47
 msgid "Home Page"
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:56
+#: ckan/templates/user/edit_user_form.html:27
 msgid "Write"
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:57
-#: ckan/templates/user/edit.html:48
+#: ckan/templates/user/edit_user_form.html:28
 msgid "Preview"
+msgstr "Previsualització"
+
+#: ckan/templates/package/new_package_form.html:59
+msgid "Start with a summary sentence ..."
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:61
+#: ckan/templates/user/edit_user_form.html:32
 msgid "You can use"
 msgstr "Podeu usar"
 
 #: ckan/templates/package/new_package_form.html:61
+#: ckan/templates/user/edit_user_form.html:32
 msgid "Markdown formatting"
 msgstr "el format Markdown"
 
 #: ckan/templates/package/new_package_form.html:61
+#: ckan/templates/user/edit_user_form.html:32
 msgid "here."
 msgstr "en aquest camp."
 
 #: ckan/templates/package/new_package_form.html:83
 msgid ""
 "Terms that may link this dataset to similar ones. For more information on"
-" conventions, see"
+" conventions, see [1:this wiki page]."
 msgstr ""
-"Terme que poden enllaçar aquest conjunt de dades a altres similars. Per a"
-" més informació sobre convencions, vegeu"
-
-#: ckan/templates/package/new_package_form.html:83
-msgid "this wiki page"
-msgstr "aquesta pàgina de la wiki"
 
 #: ckan/templates/package/new_package_form.html:90
 msgid "Resources: the files and APIs associated with this dataset"
 msgstr ""
 
-#: ckan/templates/package/new_package_form.html:95
-msgid "URL*"
-msgstr "URL*"
-
-#: ckan/templates/package/new_package_form.html:96
-#: ckan/templates/package/new_package_form.html:123
-#: ckan/templates/package/read_core.html:19
-msgid "Format"
-msgstr "Format"
-
-#: ckan/templates/package/new_package_form.html:119
-msgid "Url"
-msgstr "Hash"
-
-#: ckan/templates/package/new_package_form.html:131
-msgid "Hash"
-msgstr ""
-"Podeu afegir-ne tants com sigui necessari. Per exemple, si les dades "
-"s'ofereixen en múltiples formats o separades en diferents àrees o "
-"períodes de temps, cada arxiu és un 'recurs' diferent, que hauria de ser "
-"descrit diferentment. Tots ells apareixeran junts a la pàgina del conjunt"
-" de dades de CKAN."
-
-#: ckan/templates/package/new_package_form.html:135
-msgid "Id"
-msgstr "URL:"
-
-#: ckan/templates/package/new_package_form.html:151
+#: ckan/templates/package/new_package_form.html:138
 msgid "Add a resource:"
 msgstr ""
-"Aquest és un enllaç directe a les dades a través d'Internet - "
-"seleccionant aquest enllaç en un navegador web, l'usuari es descarregarà "
-"de forma immediata el conjunt de dades sencer.Tingueu en compte que les "
-"dades no estan allotjades en aquest lloc, sinó per qui les publica. "
-"Alternativament, la URL pot apuntar a un servidor API com un punt d'accés"
-" SPARQL o un servei JSON-P."
 
-#: ckan/templates/package/new_package_form.html:152
-msgid "Upload a file"
-msgstr "Format:"
-
-#: ckan/templates/package/new_package_form.html:153
+#: ckan/templates/package/new_package_form.html:139
 msgid "Link to a file"
-msgstr "Això hauria d'indicar el format de fitxer en que les dades s'ofereixen."
+msgstr ""
 
-#: ckan/templates/package/new_package_form.html:154
+#: ckan/templates/package/new_package_form.html:140
 msgid "Link to an API"
-msgstr "Qualsevol informació que vulgueu afegir per a descriure el recurs."
+msgstr ""
 
-#: ckan/templates/package/new_package_form.html:206
+#: ckan/templates/package/new_package_form.html:141
+msgid "Upload a file"
+msgstr ""
+
+#: ckan/templates/package/new_package_form.html:192
 msgid "e.g. 1.2.0"
 msgstr "p.ex. 1.2.0"
 
-#: ckan/templates/package/new_package_form.html:259
+#: ckan/templates/package/new_package_form.html:237
 msgid ""
-"By submitting content, you agree to release your contributions\n"
-"    under the"
+"Since you have not signed in this will just be your IP address.\n"
+"    [1:Click here to sign in] before saving (opens in new window)."
 msgstr ""
-"Enviant aquest contingut, accepteu de publicar les vostres contribucions\n"
-"        sota la llicència oberta especificada en la"
+
+#: ckan/templates/package/new_package_form.html:244
+#: ckan/templates/user/edit_user_form.html:47
+msgid "Save Changes"
+msgstr ""
 
 #: ckan/templates/package/read.html:14
 msgid "- Datasets"
-msgstr "- Paquets de dades"
+msgstr ""
 
 #: ckan/templates/package/read.html:22
 msgid "First time at"
@@ -2122,19 +2022,19 @@ msgstr "Feu clic aquí per saber-ne més"
 
 #: ckan/templates/package/read.html:31 ckan/templates/package/read.html:80
 msgid "Source"
-msgstr "Els Grups són col·leccions de paquets de mantinguts per usuaris de"
+msgstr ""
 
 #: ckan/templates/package/read.html:47
 msgid "Country"
-msgstr ". Aquest paquet encara no s'ha afegit a cap grup."
+msgstr ""
 
 #: ckan/templates/package/read.html:66
 msgid "Groups are collections of dataset maintained by users of"
-msgstr "Paquets relacionats"
+msgstr ""
 
 #: ckan/templates/package/read.html:67
 msgid ". This dataset has not been added to any groups yet."
-msgstr "Aquest paquet és Obert"
+msgstr ""
 
 #: ckan/templates/package/read.html:80
 msgid ""
@@ -2160,11 +2060,11 @@ msgstr "Llicència:"
 
 #: ckan/templates/package/read.html:116
 msgid "This dataset satisfies the Open Knowledge Definition."
-msgstr "Aquest paquet satisfà la Open Knowledge Definition."
+msgstr ""
 
 #: ckan/templates/package/read.html:124
 msgid "This dataset is Not Open"
-msgstr "Aquest paquet No és Obert"
+msgstr ""
 
 #: ckan/templates/package/read.html:126
 msgid ""
@@ -2180,7 +2080,7 @@ msgstr "Començar una consulta a IsItOpenData »"
 
 #: ckan/templates/package/read.html:138
 msgid "This is an old revision of this dataset, as edited"
-msgstr "Aquesta és una revisió antiga d'aquest paquet, editada"
+msgstr ""
 
 #: ckan/templates/package/read.html:138 ckan/templates/package/read.html:139
 msgid "at"
@@ -2196,7 +2096,7 @@ msgstr "revisió actual"
 
 #: ckan/templates/package/read.html:139
 msgid "This is the current revision of this dataset, as edited"
-msgstr "Aquesta és la revisió actual d'aquest paquet, editada"
+msgstr ""
 
 #: ckan/templates/package/read.html:148
 msgid "RDF/XML"
@@ -2206,50 +2106,22 @@ msgstr "RDF/XML"
 msgid "RDF/Turtle"
 msgstr "RDF/Turtle"
 
-#: ckan/templates/package/read_core.html:31
-msgstr "Font:"
-msgstr "Descàrregues i Recursos"
-msgid "Download"
-msgstr "Descarregar"
+#: ckan/templates/package/read_core.html:19
+msgid "Name/Description"
+msgstr ""
 
-#: ckan/templates/package/read_core.html:31
-msgid "(no description)"
-msgstr "(sense descripció)"
-
-#: ckan/templates/package/read_core.html:39
-#: ckan/templates/package/read_core.html:73
-msgid "(none)"
-"Aquesta és una llista de tots els formats i conjunts de dades coneguts "
-"per a"
-msgstr ". Si en coneixeu un altre (CSV, punt d'accés SPARQL, etc.)"
-msgstr "Cap per a aquest paquet"
-msgstr "Quant a aquest paquet"
-msgstr "Falta alguna cosa?"
-msgstr "API / datapkg"
-"La informació d'aquesta pàgina (les metadades del paquet) també es\n"
-"                troba disponible programàticament a través de la "
-msgstr "API de CKAN"
-msgstr "JSON"
-msgstr "RDF"
-msgstr "Turtle"
-msgstr "N-Triples"
-"La informació d'aquesta pàgina i les descàrregues /recursos també es "
-"troben disponibles usant la"
-msgstr "utilitat de línia de commandes datapkg"
-msgstr "Informació sobre aquest paquet:"
-msgstr "$ datapkg info ckan://"
-
-#: ckan/templates/package/read_core.html:58
+#: ckan/templates/package/read_core.html:64
 msgid "Additional Information"
-msgstr "Descàrrega:"
+msgstr ""
 
-#: ckan/templates/package/read_core.html:62
+#: ckan/templates/package/read_core.html:68
 #: ckan/templates/revision/diff.html:31
-msgstr "$ datapkg download ckan://"
+msgid "Field"
+msgstr "Camp"
 
-#: ckan/templates/package/read_core.html:63
+#: ckan/templates/package/read_core.html:69
 msgid "Value"
-msgstr "Estat:"
+msgstr ""
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
@@ -2259,74 +2131,56 @@ msgstr "Someresources"
 msgid "Search -"
 msgstr "Cerca -"
 
-#: ckan/templates/package/search.html:13
-msgid ""
-"#minornavigation { visibility: hidden; }\n"
-"      #menusearch {\n"
-"        display: none;\n"
-"      }"
-msgstr ""
-
-#: ckan/templates/package/search.html:25
+#: ckan/templates/package/search.html:16
 msgid "Do you know of a dataset that should be added to"
 msgstr "Coneixeu algun conjunt de dades que hauria de ser afegit a aquest"
 
-#: ckan/templates/package/search.html:29
+#: ckan/templates/package/search.html:20
 msgid "Register it now"
 msgstr "Registreu-lo ara"
 
-#: ckan/templates/package/search.html:38
+#: ckan/templates/package/search.html:29
 msgid "Other access"
 msgstr "Altres accessos"
 
-#: ckan/templates/package/search.html:44
+#: ckan/templates/package/search.html:35
 msgid "You can also access this registry using the"
 msgstr "També podeu accedir a aquest registre usant la"
 
-#: ckan/templates/package/search.html:46
+#: ckan/templates/package/search.html:37
 msgid "(see"
 msgstr "(vegeu"
 
-#: ckan/templates/package/search.html:47
+#: ckan/templates/package/search.html:38
 msgid "or download a"
 msgstr "o descarregueu un"
 
-#: ckan/templates/package/search.html:48
+#: ckan/templates/package/search.html:39
 msgid "full"
 msgstr "volcat"
 
-#: ckan/templates/package/search.html:48
+#: ckan/templates/package/search.html:39
 msgid "dump"
 msgstr "complet"
 
-#: ckan/templates/package/search.html:60
+#: ckan/templates/package/search.html:51
 msgid ""
 "[1:There was an error while searching.] \n"
-"            Please try another search term."
+"            Please try again."
 msgstr ""
-"[1:S'ha produït un error durant la cerca.] \n"
-"            Si us plau, proveu un altre terme."
 
-#: ckan/templates/package/search.html:64
+#: ckan/templates/package/search.html:55
 #, python-format
 msgid "[1:%(item_count)s] datasets found"
-msgstr "[1:%(item_count)s] paquets trobats"
+msgstr ""
 
-#: ckan/templates/package/search.html:67
+#: ckan/templates/package/search.html:58
 msgid "Would you like to [1:create a new dataset?]"
-msgstr "Voleu [1:crear un paquet nou?]"
+msgstr ""
 
-#: ckan/templates/package/search_form.html:15
-msgid "Filter by"
-msgstr "Filtrar per"
-
-#: ckan/templates/package/search_form.html:15
-msgid "datasets with open licenses"
-msgstr "paquets amb llicències obertes"
-
-#: ckan/templates/package/search_form.html:16
-msgid "datasets with downloads"
-msgstr "paquets amb descàrregues"
+#: ckan/templates/package/search_form.html:9
+msgid "Search..."
+msgstr ""
 
 #: ckan/templates/revision/diff.html:5
 msgid "Differences - Revisions"
@@ -2345,7 +2199,6 @@ msgid "To:"
 msgstr "Fins a:"
 
 #: ckan/templates/revision/diff.html:31
-msgstr "Camp"
 msgid "Difference"
 msgstr "Diferència"
 
@@ -2355,31 +2208,27 @@ msgstr "Sense diferències"
 
 #: ckan/templates/revision/list.html:5 ckan/templates/revision/list.html:6
 msgid "Revision History"
-"Aquesta pàgina enumera tots els canvis efectuats al paquet, amb els més "
-"recents\n"
-"    al principi."
-msgstr "Purgar - Revisions"
-msgstr "Purgar una revisió"
+msgstr "Historial de revisions"
 
 #: ckan/templates/revision/list.html:11
 msgid "Home"
-msgstr "S'ha produït un error:"
+msgstr "Inici"
 
 #: ckan/templates/revision/list.html:20
 msgid ""
-msgstr "Purga satisfactòria"
+"Track the most recent changes to the system, with most recent\n"
 "    changes first."
+msgstr ""
 
 #: ckan/templates/revision/read.html:6
 msgid "Revision:"
-msgstr "revisió"
+msgstr "Revisió"
 
 #: ckan/templates/revision/read.html:10
 msgid "Revision Actions"
 msgstr "Accions sobre la revisió"
 
 #: ckan/templates/revision/read.html:39
-msgstr "Revisió"
 msgid "Timestamp:"
 msgstr "Marca horària:"
 
@@ -2393,11 +2242,11 @@ msgstr "Canvis"
 
 #: ckan/templates/revision/read.html:54
 msgid "Datasets' Tags"
-msgstr "Etiquetes dels paquets"
+msgstr ""
 
 #: ckan/templates/revision/read.html:57
 msgid "Dataset -"
-msgstr "Paquet -"
+msgstr ""
 
 #: ckan/templates/revision/read.html:58
 msgid ""
@@ -2438,7 +2287,7 @@ msgstr "Etiqueta:"
 #: ckan/templates/tag/read.html:10
 #, python-format
 msgid "There are %(count)s datasets tagged with [1:%(tagname)s]:"
-msgstr "Hi ha %(package_count)s paquets etiquetats amb [1:%(tagname)s]:"
+msgstr ""
 
 #: ckan/templates/user/edit.html:6
 msgid "- Edit - User"
@@ -2448,46 +2297,53 @@ msgstr "- Editar - Usuari"
 msgid "Edit User:"
 msgstr "Editar Usuari:"
 
-#: ckan/templates/user/edit.html:12
-msgid "(skip to preview)"
-msgstr "(saltar a la previsualització)"
-
-#: ckan/templates/user/edit.html:19 ckan/templates/user/edit_user_form.html:15
+#: ckan/templates/user/edit_user_form.html:15
 msgid "Base details"
-msgstr "Nom complet:"
-msgstr "Correu electrònic:"
-
-#: ckan/templates/user/edit.html:20 ckan/templates/user/edit.html:49
-#: ckan/templates/user/edit_user_form.html:17
 msgstr "Detalls bàsics"
 
-#: ckan/templates/user/edit.html:23 ckan/templates/user/edit_user_form.html:20
+#: ckan/templates/user/edit_user_form.html:17
+msgid "Full name:"
+msgstr "Nom complet:"
+
+#: ckan/templates/user/edit_user_form.html:20
 msgid "E-Mail:"
 msgstr "Correu electrònic:"
 
-#: ckan/templates/user/edit.html:27 ckan/templates/user/edit_user_form.html:25
+#: ckan/templates/user/edit_user_form.html:23
+msgid "About:"
+msgstr ""
+
+#: ckan/templates/user/edit_user_form.html:30
+msgid "A little about you..."
+msgstr ""
+
+#: ckan/templates/user/edit_user_form.html:38
 msgid "Change your password"
 msgstr "Canviar la vostra contrasenya"
 
-#: ckan/templates/user/edit.html:28 ckan/templates/user/edit_user_form.html:27
-#: ckan/templates/user/login.html:45 ckan/templates/user/new_user_form.html:30
+#: ckan/templates/user/edit_user_form.html:40 ckan/templates/user/login.html:45
+#: ckan/templates/user/new_user_form.html:30
 #: ckan/templates/user/perform_reset.html:15
 msgid "Password:"
 msgstr "Contrasenya:"
 
-#: ckan/templates/user/edit.html:31 ckan/templates/user/edit_user_form.html:29
+#: ckan/templates/user/edit_user_form.html:42
 #: ckan/templates/user/new_user_form.html:34
 #: ckan/templates/user/perform_reset.html:18
 msgid "Password (repeat):"
 msgstr "Contrasenya (repetiu-la):"
 
-#: ckan/templates/user/edit.html:35 ckan/templates/user/edit_user_form.html:33
-msgid "About user:"
-msgstr "Quant a l'usuari:"
+#: ckan/templates/user/layout.html:10
+msgid "My Profile"
+msgstr ""
 
-#: ckan/templates/user/edit.html:37 ckan/templates/user/edit_user_form.html:35
-msgid "You can use [1:Markdown formatting] here."
-msgstr "Podeu usar [1: format Markdown]."
+#: ckan/templates/user/layout.html:11
+msgid "Edit Profile"
+msgstr ""
+
+#: ckan/templates/user/layout.html:12
+msgid "Log out"
+msgstr "Tancar sessió"
 
 #: ckan/templates/user/list.html:8
 msgid "user-list"
@@ -2495,15 +2351,16 @@ msgstr "user-list"
 
 #: ckan/templates/user/list.html:16
 #, python-format
-msgstr "Ordenar per edicions"
+msgid "[1:%(item_count)s] users found."
+msgstr "[1:%(item_count)s] usuaris trobats."
 
 #: ckan/templates/user/list.html:27
 msgid "Sort by edits"
-msgstr "Ordenar per nom"
+msgstr "Ordenar per edicions"
 
 #: ckan/templates/user/list.html:30
 msgid "Sort by name"
-msgstr "[1:%(item_count)s] usuaris trobats."
+msgstr "Ordenar per nom"
 
 #: ckan/templates/user/list.html:43
 msgid "Member for"
@@ -2515,7 +2372,7 @@ msgstr "No sou membres?"
 
 #: ckan/templates/user/login.html:22
 msgid "Join CKAN to contribute datasets under your own name."
-msgstr "Uniu-vos a CKAN per contribuir paquets amb el vostre propi nom."
+msgstr ""
 
 #: ckan/templates/user/login.html:33
 msgid "Login - User"
@@ -2544,10 +2401,6 @@ msgstr "Si us plau, feu clic en el proveidor del vostre compte:"
 #: ckan/templates/user/login.html:66
 msgid "OpenID Identifier:"
 msgstr ""
-"OpenID és un servei que permet iniciar sessió en molts llocs diferents "
-"usant una identitat única.\n"
-"    Trobeu [1:més informació sobre OpenID] i [2:com obtenir un compte que"
-" ofereixi OpenID]."
 
 #: ckan/templates/user/login.html:70
 msgid "Don't have an OpenID?"
@@ -2562,13 +2415,6 @@ msgid ""
 "with a\n"
 "          free OpenID provider such as [3:https://www.myopenid.com/]."
 msgstr ""
-"OpenID és un servei que permet iniciar sessió en molts llocs diferents\n"
-"        usant una identitat única. Trobeu [1:més\n"
-"        informació sobre OpenID] i [2:com obtenir un\n"
-"        compte que ofereixi OpenID]. Probablement, la forma més senzilla "
-"és registrar-se\n"
-"        amb un proveidor gratuït d'OpenID com "
-"[3:https://www.myopenid.com/]."
 
 #: ckan/templates/user/logout.html:5
 msgid "Logout - User"
@@ -2579,7 +2425,6 @@ msgid "You have logged out successfully."
 msgstr "Heu tancat la sessió satisfactòriament."
 
 #: ckan/templates/user/new.html:7
-msgstr "Registre - Usuari"
 msgid "Have an OpenID?"
 msgstr "Teniu una OpenID?"
 
@@ -2598,7 +2443,7 @@ msgstr "Iniciar sessió ara"
 
 #: ckan/templates/user/new.html:18
 msgid "Register - User"
-msgstr ""
+msgstr "Registre - Usuari"
 
 #: ckan/templates/user/new.html:19
 msgid "Join the community"
@@ -2629,38 +2474,30 @@ msgid "user-view"
 msgstr "user-view"
 
 #: ckan/templates/user/read.html:11
-msgid "Edit your profile"
-msgstr "El meu compte"
-
-#: ckan/templates/user/read.html:12
-msgid "Log out"
-msgstr "Heu iniciat sessió."
-
-#: ckan/templates/user/read.html:18
 msgid "Activity"
-msgstr "La vostra clau API és:"
-
-#: ckan/templates/user/read.html:20
-msgid "Number of edits:"
-msgstr "Editar el vostre perfil"
-
-#: ckan/templates/user/read.html:21
-msgid "Number of datasets administered:"
-msgstr "Tancar sessió"
-
-#: ckan/templates/user/read.html:28
-msgid "My Account"
 msgstr "Activitat"
 
-#: ckan/templates/user/read.html:30
-msgid "You are logged in."
+#: ckan/templates/user/read.html:13
+msgid "Number of edits:"
 msgstr "Nombre d'edicions:"
 
-#: ckan/templates/user/read.html:32
-msgid "Your API key is:"
-msgstr "Nombre de paquets administrats:"
+#: ckan/templates/user/read.html:14
+msgid "Number of datasets administered:"
+msgstr ""
 
-#: ckan/templates/user/read.html:41
+#: ckan/templates/user/read.html:21
+msgid "My Account"
+msgstr "El meu compte"
+
+#: ckan/templates/user/read.html:23
+msgid "You are logged in."
+msgstr "Heu iniciat sessió."
+
+#: ckan/templates/user/read.html:25
+msgid "Your API key is:"
+msgstr "La vostra clau API és:"
+
+#: ckan/templates/user/read.html:34
 msgid "Recent changes"
 msgstr "Canvis recents"
 
@@ -2677,4 +2514,760 @@ msgstr "Sol·licitar un reinici de la contrasenya"
 #: ckan/templates/user/request_reset.html:19
 msgid "User name:"
 msgstr "Nom d'usuari:"
+
+#~ msgid "Welcome back, %s"
+#~ msgstr "Benvingut de nou, %s"
+
+#~ msgid "Package name already exists in database"
+#~ msgstr "Aquest nom de paquet ja existeix a la base de dades"
+
+#~ msgid "Package resource(s) incomplete."
+#~ msgstr "Recurs(os) del paquet incomplet"
+
+#~ msgid "This package satisfies the Open Definition."
+#~ msgstr "Aquest paquet compleix la Open Definition."
+
+#~ msgid "[Open Content]"
+#~ msgstr "[Contingut obert]"
+
+#~ msgid "Number of packages"
+#~ msgstr "Nombre de paquets"
+
+#~ msgid "View package resources"
+#~ msgstr "Veure recursos del paquet"
+
+#~ msgid "Skip to content"
+#~ msgstr "Saltar al contingut"
+
+#~ msgid "Add a package"
+#~ msgstr "Afegir un paquet"
+
+#~ msgid "Packages"
+#~ msgstr "Paquets"
+
+#~ msgid "Register a new Package"
+#~ msgstr "Registrar un nou Paquet"
+
+#~ msgid "Full %s dump"
+#~ msgstr "Bolcat total en %s"
+
+#~ msgid "Groups & Tags"
+#~ msgstr "Grups i Etiquetes"
+
+#~ msgid "Create a new Group"
+#~ msgstr "Crear un nou Grup"
+
+#~ msgid "Create a new Authorization Group"
+#~ msgstr "Crear un nou grup d'autorització"
+
+#~ msgid "Project Home Page"
+#~ msgstr "Pàgina principal del projecte"
+
+#~ msgid "Language"
+#~ msgstr "Idioma"
+
+#~ msgid "Credits"
+#~ msgstr "Crèdits"
+
+#~ msgid ""
+#~ "[1:]\n"
+#~ "                An\n"
+#~ "                [2:Open Knowledge Foundation] Project"
+#~ msgstr ""
+#~ "[1:]\n"
+#~ "                Un\n"
+#~ "                projecte de la [2:Open Knowledge Foundation]"
+
+#~ msgid "Powered by CKAN"
+#~ msgstr "Funciona amb CKAN"
+
+#~ msgid "v%(version)s"
+#~ msgstr "v%(version)s"
+
+#~ msgid "Authorization for authorization group:"
+#~ msgstr "Autorització per als Grups d'autorització:"
+
+#~ msgid "- Edit - AuthorizationGroups"
+#~ msgstr "- Editar - Grups d'autorització"
+
+#~ msgid "Edit Authorization Group:"
+#~ msgstr "Editar Grup d'autorització"
+
+#~ msgid ""
+#~ "Instead of specifying the privileges of"
+#~ " specific users on a package or "
+#~ "group,\n"
+#~ "          you can also specify a "
+#~ "set of users that will share the"
+#~ " same rights. To do that, an    \n"
+#~ ""
+#~ "          [1:authorization group] can be "
+#~ "set-up and users can be added "
+#~ "to it."
+#~ msgstr ""
+#~ "En comptes d'especificar els privilegis "
+#~ "d'usuaris específics sobre un paquet o"
+#~ " grup,\n"
+#~ "          també podeu especificar un "
+#~ "conjunt d'usuaris que compartiran els "
+#~ "mateixos drets. Per fer-ho, an    \n"
+#~ ""
+#~ "          es pot crear un [1:grup d'autorització] i afegir-hi usuaris."
+
+#~ msgid "To create a new authorization group, please first"
+#~ msgstr "Per a crear un grup d'autorització, si us plau"
+
+#~ msgid "login"
+#~ msgstr "inicieu la sessió"
+
+#~ msgid "Administrators:"
+#~ msgstr "Administradors:"
+
+#~ msgid "Users:"
+#~ msgstr "Usuaris:"
+
+#~ msgid "Authorization for group:"
+#~ msgstr "Autorització per al grup:"
+
+#~ msgid "Edit Group:"
+#~ msgstr "Editar Grup:"
+
+#~ msgid "There are no packages currently in this group."
+#~ msgstr "Actualment no hi ha paquets dins d'aquest grup."
+
+#~ msgid "Groups of Data Packages"
+#~ msgstr "Grups de Paquets de dades"
+
+#~ msgid "There are [1:%(item_count)s] groups."
+#~ msgstr "Hi ha [1:%(item_count)s] grups."
+
+#~ msgid ""
+#~ "Whilst tags are great at collecting "
+#~ "packages together, there are occasions "
+#~ "when you want to restrict users "
+#~ "from editing a collection. A [1:group]"
+#~ " can be set-up to specify which"
+#~ " users have permission to add or "
+#~ "remove packages from it."
+#~ msgstr ""
+#~ "Tot i que les etiquetes són molt"
+#~ " útils per agrupar paquets, hi ha "
+#~ "ocasions en que cal restringir l'edició"
+#~ " dins d'una col·lecció als usuaris. "
+#~ "Es pot crear un [1:grup] per "
+#~ "especificar quins usuaris tenen permís "
+#~ "per afegir-hi o eliminar-ne "
+#~ "paquets. "
+
+#~ msgid "To create a new group, please first"
+#~ msgstr "Per a crear un grup, si us plau"
+
+#~ msgid "Packages:"
+#~ msgstr "Paquets:"
+
+#~ msgid "There are %(item_count)s packages in this group."
+#~ msgstr "Hi ha %(item_count)s paquets en aquest grup."
+
+#~ msgid ""
+#~ "CKAN is the Comprehensive Knowledge "
+#~ "Archive Network, a [1:registry] of "
+#~ "[2:open knowledge] packages and projects\n"
+#~ ""
+#~ "    (and a few closed ones)."
+#~ msgstr ""
+#~ "CKAN és la Comprehensive Knowledge "
+#~ "Archive Network, un [1:registre] de "
+#~ "paquets i projectes de [2:coneixement "
+#~ "obert]\n"
+#~ "    (i alguns de tancat)."
+
+#~ msgid ""
+#~ "As the diagram shows, CKAN combines "
+#~ "the features of a listing/registry,\n"
+#~ "\t\ta package index and a wiki."
+#~ " As a registry it acts like "
+#~ "[1:freshmeat] but for open data and\n"
+#~ ""
+#~ "\t\tcontent resources. However it adds"
+#~ " to a simple registry in key "
+#~ "ways."
+#~ msgstr ""
+#~ "Com mostra el diagrama, CKAN combina "
+#~ "les capacitats d'un llistat/registre,\n"
+#~ "\t\tun índex de paquets i una "
+#~ "wiki. Com a registre és similar a"
+#~ " [1:freshmeat], però per a dades "
+#~ "obertes i\n"
+#~ "\t\trecursos. Però és molt més que un simple registre."
+
+#~ msgid ""
+#~ "%(title)s is an\n"
+#~ "      [1:open registry]\n"
+#~ "      of data and content packages. "
+#~ "Harnessing the CKAN software, this\n"
+#~ "      site makes it easy to find, share and reuse content and data,\n"
+#~ "      especially in ways that are machine automatable."
+#~ msgstr ""
+#~ "%(title)s és un\n"
+#~ "      [1:registre obert]\n"
+#~ "      de dades i paquets de "
+#~ "continguts. Aprofitant les capacitats de "
+#~ "CKAN, aquest\n"
+#~ "      lloc fa fàcil trobar, compartir i reusar contingut i dades,\n"
+#~ "      especialment de forma automatitzable."
+
+#~ msgid "[1:%(package_count)s registered data packages] available."
+#~ msgstr "[1:%(package_count)s paquets de dades registrats] disponibles."
+
+#~ msgid "Top Tags"
+#~ msgstr "Etiquetes més usades"
+
+#~ msgid "Recently changed packages"
+#~ msgstr "Paquets canviats recentment"
+
+#~ msgid "View revision log »"
+#~ msgstr "Veure registre de revisions »"
+
+#~ msgid "var MSG_MORE_HELP = '"
+#~ msgstr ""
+
+#~ msgid "More &raquo;"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "';\n"
+#~ "var MSG_ADD_ROW = '"
+#~ msgstr ""
+
+#~ msgid "Add row to table"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "All material on this site is [1:open] and can be freely used, reused\n"
+#~ "    and redistributed. Formally, the "
+#~ "data/database is licensed under the "
+#~ "[2:Open Data Commons Open\n"
+#~ "      Database License v1.0], with all copyrightable content in that\n"
+#~ "    database plus any additional content"
+#~ " on this site licensed under a "
+#~ "[3:Creative Commons\n"
+#~ "      Attribution Share-Alike v3.0 license]."
+#~ msgstr ""
+#~ "Tot el material d'aquest lloc és "
+#~ "[1:obert] i pot ser lliurement usat, "
+#~ "reusat\n"
+#~ "    i redistribuït. De manera formal,"
+#~ " les dades/base de dades tenen una"
+#~ " llicència [2:Open Data Commons Open\n"
+#~ ""
+#~ "      Database License v1.0], amb tot"
+#~ " el contigut susceptible de tenir "
+#~ "copyright en aquesta\n"
+#~ "    base de dades, així com "
+#~ "qualsevol contingut addicional d'aquest lloc,"
+#~ " ofert amb una llicència [3:Creative "
+#~ "Commons\n"
+#~ "      Attribution Share-Alike v3.0 license]."
+
+#~ msgid "- Authorization - Data Packages"
+#~ msgstr "- Autorització - Paquets de dades"
+
+#~ msgid "Authorization for Data Package:"
+#~ msgstr "Autorització èr al paquet de dades:"
+
+#~ msgid "- Data Packages - History"
+#~ msgstr "- Paquets de dades - Historial"
+
+#~ msgid "- Edit - Data Packages"
+#~ msgstr "- Editar - Paquets de dades"
+
+#~ msgid "Edit Data Package:"
+#~ msgstr "Editar paquet de dades:"
+
+#~ msgid "Important:"
+#~ msgstr "Important:"
+
+#~ msgid ""
+#~ "By submitting content, you agree to release your contributions\n"
+#~ "        under the open license specified on the"
+#~ msgstr ""
+#~ "Enviant aquest contingut, accepteu de "
+#~ "publicar les vostres contribucions\n"
+#~ "        sota la llicència oberta especificada en la"
+
+#~ msgid "license page"
+#~ msgstr "pàgina de la llicència"
+
+#~ msgid ". Please"
+#~ msgstr ". Si us plau"
+
+#~ msgid "refrain"
+#~ msgstr "eviteu"
+
+#~ msgid "from editing this page if you are"
+#~ msgstr "editar aquesta pàgina si"
+
+#~ msgid "not"
+#~ msgstr "no"
+
+#~ msgid "happy to do this."
+#~ msgstr "hi esteu d'acord."
+
+#~ msgid "- History"
+#~ msgstr "- Historial"
+
+#~ msgid "Revision ID"
+#~ msgstr "Id de la revisió"
+
+#~ msgid "Package with timestamp"
+#~ msgstr "Paquet amb marca horària"
+
+#~ msgid "Package History"
+#~ msgstr "Historial del paquet"
+
+#~ msgid "New - Data Packages"
+#~ msgstr "Nou - Paquets de dades"
+
+#~ msgid "Register a New Data Package"
+#~ msgstr "Registrar un nou Paquet de dades"
+
+#~ msgid ""
+#~ "Terms that may link this dataset "
+#~ "to similar ones. For more information"
+#~ " on conventions, see"
+#~ msgstr ""
+#~ "Terme que poden enllaçar aquest conjunt"
+#~ " de dades a altres similars. Per "
+#~ "a més informació sobre convencions, "
+#~ "vegeu"
+
+#~ msgid "this wiki page"
+#~ msgstr "aquesta pàgina de la wiki"
+
+#~ msgid "URL*"
+#~ msgstr "URL*"
+
+#~ msgid ""
+#~ "These can be repeated as required. "
+#~ "For example if the data is being"
+#~ " supplied in multiple formats, or "
+#~ "split into different areas or time "
+#~ "periods, each file is a different "
+#~ "'resource' which should be described "
+#~ "differently. They will all appear on "
+#~ "the dataset page on CKAN together."
+#~ msgstr ""
+#~ "Podeu afegir-ne tants com sigui "
+#~ "necessari. Per exemple, si les dades "
+#~ "s'ofereixen en múltiples formats o "
+#~ "separades en diferents àrees o períodes"
+#~ " de temps, cada arxiu és un "
+#~ "'recurs' diferent, que hauria de ser "
+#~ "descrit diferentment. Tots ells apareixeran"
+#~ " junts a la pàgina del conjunt "
+#~ "de dades de CKAN."
+
+#~ msgid "URL:"
+#~ msgstr "URL:"
+
+#~ msgid ""
+#~ "This is the Internet link directly "
+#~ "to the data - by selecting this"
+#~ " link in a web browser, the "
+#~ "user will immediately download the full"
+#~ " data set. Note that datasets are "
+#~ "not hosted on this site, but by"
+#~ " the publisher of the data. "
+#~ "Alternatively the URL can point to "
+#~ "an API server such as a SPARQL "
+#~ "endpoint or JSON-P service."
+#~ msgstr ""
+#~ "Aquest és un enllaç directe a les"
+#~ " dades a través d'Internet - "
+#~ "seleccionant aquest enllaç en un "
+#~ "navegador web, l'usuari es descarregarà "
+#~ "de forma immediata el conjunt de "
+#~ "dades sencer.Tingueu en compte que les"
+#~ " dades no estan allotjades en aquest"
+#~ " lloc, sinó per qui les publica. "
+#~ "Alternativament, la URL pot apuntar a"
+#~ " un servidor API com un punt "
+#~ "d'accés SPARQL o un servei JSON-P."
+
+#~ msgid "Format:"
+#~ msgstr "Format:"
+
+#~ msgid "This should give the file format in which the data is supplied."
+#~ msgstr "Això hauria d'indicar el format de fitxer en que les dades s'ofereixen."
+
+#~ msgid "Any information you want to add to describe the resource."
+#~ msgstr "Qualsevol informació que vulgueu afegir per a descriure el recurs."
+
+#~ msgid ""
+#~ "By submitting content, you agree to release your contributions\n"
+#~ "  under the open license specified on the"
+#~ msgstr ""
+#~ "Enviant aquest contingut, accepteu de "
+#~ "publicar les vostres contribucions\n"
+#~ "        sota la llicència oberta especificada en la"
+
+#~ msgid ""
+#~ "<script type=\"text/javascript\">\n"
+#~ "//<![CDATA[\n"
+#~ "(function($){\n"
+#~ "    $.fn.ajaxCreateSlug = function(name, url) {\n"
+#~ "        var title = this;\n"
+#~ "        var updater = {\n"
+#~ "            init: function(title, name) {\n"
+#~ "                // Add a new element "
+#~ "where the validity of the package "
+#~ "name can be displayed\n"
+#~ "                this.name_field = name;\n"
+#~ "                this.title_field = title;\n"
+#~ "                this.name_field.parent().append('<div "
+#~ "id=\"package_name_valid_msg\"></div>');\n"
+#~ "                this.title_field.blur(this.title_change_handler())\n"
+#~ "                this.title_field.keyup(this.title_change_handler())\n"
+#~ "                this.name_field.keyup(this.name_change_handler());\n"
+#~ "                this.name_field.blur(this.name_blur_handler());\n"
+#~ "                this.url = url;\n"
+#~ "            },\n"
+#~ "            title_change_handler: function() {\n"
+#~ "                var self = this;\n"
+#~ "                return function() {\n"
+#~ "                    if (!self.name_changed && "
+#~ "self.title_field.val().replace(/^\\s+|\\s+$/g, '')) {\n"
+#~ ""
+#~ "                        self.update(self.title_field.val(), "
+#~ "function(data) {self.name_field.val(data.name)});\n"
+#~ "                    }\n"
+#~ "                }\n"
+#~ "            },\n"
+#~ "            name_blur_handler: function() {\n"
+#~ "                var self = this;\n"
+#~ "                return function() {\n"
+#~ "                    // Reset if the name is emptied\n"
+#~ "                    if "
+#~ "(!self.name_field.val().replace(/^\\s+|\\s+$/g, '')){\n"
+#~ "                        self.name_changed = false;\n"
+#~ "                        $('#package_name_valid_msg').html('');\n"
+#~ "                    } else {\n"
+#~ "                        self.update(self.name_field.val(), "
+#~ "function(data) {\n"
+#~ "                            self.name_field.val(data.name)\n"
+#~ "                        });\n"
+#~ "                    }\n"
+#~ "                };\n"
+#~ "            },\n"
+#~ "            name_change_handler: function() {\n"
+#~ "                var self = this;\n"
+#~ "                return function() {\n"
+#~ "                    // Reset if the name is emptied\n"
+#~ "                    if "
+#~ "(!self.name_field.val().replace(/^\\s+|\\s+$/g, '')){\n"
+#~ "                        self.name_changed = false;\n"
+#~ "                        $('#package_name_valid_msg').html('');\n"
+#~ "                    } else {\n"
+#~ "                        self.name_changed = true;\n"
+#~ "                        self.update(self.name_field.val(), "
+#~ "function(data) {\n"
+#~ "                            if "
+#~ "(self.name_field.val().length >= data.name) {\n"
+#~ ""
+#~ "                                self.name_field.val(data.name);\n"
+#~ "                            }\n"
+#~ "                        });\n"
+#~ "                    }\n"
+#~ "                };\n"
+#~ "            },\n"
+#~ "            // Keep a variable where "
+#~ "we can store whether the name "
+#~ "field has been\n"
+#~ "            // directly modified by the"
+#~ " user or not. If it has, we "
+#~ "should no longer\n"
+#~ "            // fetch updates.\n"
+#~ "            name_changed: false,\n"
+#~ "            // Create a function for "
+#~ "fetching the value and updating the "
+#~ "result\n"
+#~ "            perform_update: function(value, on_success){\n"
+#~ "                var self = this;\n"
+#~ "                $.ajax({\n"
+#~ "                    url: self.url,\n"
+#~ "                    data: 'title=' + value,\n"
+#~ "                    dataType: 'jsonp',\n"
+#~ "                    type: 'get',\n"
+#~ "                    jsonpCallback: 'callback',\n"
+#~ "                    success: function (data) {\n"
+#~ "                        if (on_success) {\n"
+#~ "                            on_success(data);\n"
+#~ "                        }\n"
+#~ "                        var valid_msg = $('#package_name_valid_msg');\n"
+#~ "                        if (data.valid) {\n"
+#~ "                            valid_msg.html('<span style"
+#~ "=\"font-weight: bold; color: #0c0\">This "
+#~ "package name is available!</span>');\n"
+#~ "                        } else {\n"
+#~ "                            valid_msg.html('<span style"
+#~ "=\"font-weight: bold; color: #c00\">This "
+#~ "package name is already used, please "
+#~ "use a different name</span>');\n"
+#~ "                        }\n"
+#~ "                    }\n"
+#~ "                });\n"
+#~ "            },\n"
+#~ "            // We only want to "
+#~ "perform the update if there hasn't "
+#~ "been a change for say 200ms\n"
+#~ "            timer: null,\n"
+#~ "            update: function(value, on_success) {\n"
+#~ "                var self = this;\n"
+#~ "                if (this.timer) {\n"
+#~ "                    clearTimeout(this.timer)\n"
+#~ "                };\n"
+#~ "                this.timer = setTimeout(function () {\n"
+#~ "                    self.perform_update(value, on_success)\n"
+#~ "                }, 200);\n"
+#~ "            }\n"
+#~ "        }\n"
+#~ "        updater.init(title, $(name), url);\n"
+#~ "        return title;\n"
+#~ "    };\n"
+#~ "})( jQuery );\n"
+#~ "$(document).ready(function() {\n"
+#~ "    $('#title').ajaxCreateSlug('#name', "
+#~ "'/api/2/util/package/create_slug');\n"
+#~ "});\n"
+#~ "\n"
+#~ "$(document).ready(function () {\n"
+#~ "    if (!$('#preview').length) {\n"
+#~ "        $(\"#title\").focus();\n"
+#~ "    }\n"
+#~ "});\n"
+#~ "//]]>\n"
+#~ "</script>"
+#~ msgstr ""
+
+#~ msgid "- Data Packages"
+#~ msgstr "- Paquets de dades"
+
+#~ msgid "Groups are collections of packages maintained by users of"
+#~ msgstr "Els Grups són col·leccions de paquets de mantinguts per usuaris de"
+
+#~ msgid ". This package has not been added to any groups yet."
+#~ msgstr ". Aquest paquet encara no s'ha afegit a cap grup."
+
+#~ msgid "Related packages"
+#~ msgstr "Paquets relacionats"
+
+#~ msgid "This Package is Open"
+#~ msgstr "Aquest paquet és Obert"
+
+#~ msgid "This package satisfies the Open Knowledge Definition."
+#~ msgstr "Aquest paquet satisfà la Open Knowledge Definition."
+
+#~ msgid "This package is Not Open"
+#~ msgstr "Aquest paquet No és Obert"
+
+#~ msgid "This is an old revision of this package, as edited"
+#~ msgstr "Aquesta és una revisió antiga d'aquest paquet, editada"
+
+#~ msgid "This is the current revision of this package, as edited"
+#~ msgstr "Aquesta és la revisió actual d'aquest paquet, editada"
+
+#~ msgid "Source:"
+#~ msgstr "Font:"
+
+#~ msgid "Downloads & Resources"
+#~ msgstr "Descàrregues i Recursos"
+
+#~ msgid "Download"
+#~ msgstr "Descarregar"
+
+#~ msgid "(no description)"
+#~ msgstr "(sense descripció)"
+
+#~ msgid "This is a list of all known formats and datasets for"
+#~ msgstr ""
+#~ "Aquesta és una llista de tots els"
+#~ " formats i conjunts de dades coneguts"
+#~ " per a"
+
+#~ msgid ". If you know of another (CSV, SPARQL end-point etc.)"
+#~ msgstr ". Si en coneixeu un altre (CSV, punt d'accés SPARQL, etc.)"
+
+#~ msgid "None given for this package."
+#~ msgstr "Cap per a aquest paquet"
+
+#~ msgid "About this package"
+#~ msgstr "Quant a aquest paquet"
+
+#~ msgid "Something missing?"
+#~ msgstr "Falta alguna cosa?"
+
+#~ msgid "API / datapkg"
+#~ msgstr "API / datapkg"
+
+#~ msgid ""
+#~ "This information on this page (the package metadata) is also\n"
+#~ "                available programatically via this site's"
+#~ msgstr ""
+#~ "La informació d'aquesta pàgina (les metadades del paquet) també es\n"
+#~ "                troba disponible programàticament a través de la "
+
+#~ msgid "CKAN API"
+#~ msgstr "API de CKAN"
+
+#~ msgid "JSON"
+#~ msgstr "JSON"
+
+#~ msgid "RDF"
+#~ msgstr "RDF"
+
+#~ msgid "Turtle"
+#~ msgstr "Turtle"
+
+#~ msgid "N-Triples"
+#~ msgstr "N-Triples"
+
+#~ msgid ""
+#~ "The information on this page and "
+#~ "the downloads / resources are also "
+#~ "available using the"
+#~ msgstr ""
+#~ "La informació d'aquesta pàgina i les "
+#~ "descàrregues /recursos també es troben "
+#~ "disponibles usant la"
+
+#~ msgid "datapkg command line utility"
+#~ msgstr "utilitat de línia de commandes datapkg"
+
+#~ msgid "Information about this package:"
+#~ msgstr "Informació sobre aquest paquet:"
+
+#~ msgid "$ datapkg info ckan://"
+#~ msgstr "$ datapkg info ckan://"
+
+#~ msgid "Download:"
+#~ msgstr "Descàrrega:"
+
+#~ msgid "$ datapkg download ckan://"
+#~ msgstr "$ datapkg download ckan://"
+
+#~ msgid "State:"
+#~ msgstr "Estat:"
+
+#~ msgid ""
+#~ "[1:There was an error while searching.] \n"
+#~ "            Please try another search term."
+#~ msgstr ""
+#~ "[1:S'ha produït un error durant la cerca.] \n"
+#~ "            Si us plau, proveu un altre terme."
+
+#~ msgid "[1:%(item_count)s] packages found"
+#~ msgstr "[1:%(item_count)s] paquets trobats"
+
+#~ msgid "Would you like to [1:create a new package?]"
+#~ msgstr "Voleu [1:crear un paquet nou?]"
+
+#~ msgid "Filter by"
+#~ msgstr "Filtrar per"
+
+#~ msgid "packages with open licenses"
+#~ msgstr "paquets amb llicències obertes"
+
+#~ msgid "packages with downloads"
+#~ msgstr "paquets amb descàrregues"
+
+#~ msgid ""
+#~ "This page lists all changes to package database, with most recent\n"
+#~ "    changes first."
+#~ msgstr ""
+#~ "Aquesta pàgina enumera tots els canvis"
+#~ " efectuats al paquet, amb els més "
+#~ "recents\n"
+#~ "    al principi."
+
+#~ msgid "Purge - Revisions"
+#~ msgstr "Purgar - Revisions"
+
+#~ msgid "Revision Purge"
+#~ msgstr "Purgar una revisió"
+
+#~ msgid "There was an error:"
+#~ msgstr "S'ha produït un error:"
+
+#~ msgid "Purge successful."
+#~ msgstr "Purga satisfactòria"
+
+#~ msgid "revision"
+#~ msgstr "revisió"
+
+#~ msgid "Packages' Tags"
+#~ msgstr "Etiquetes dels paquets"
+
+#~ msgid "Package -"
+#~ msgstr "Paquet -"
+
+#~ msgid "There are %(package_count)s packages tagged with [1:%(tagname)s]:"
+#~ msgstr "Hi ha %(package_count)s paquets etiquetats amb [1:%(tagname)s]:"
+
+#~ msgid "(skip to preview)"
+#~ msgstr "(saltar a la previsualització)"
+
+#~ msgid "Email:"
+#~ msgstr "Correu electrònic:"
+
+#~ msgid "About user:"
+#~ msgstr "Quant a l'usuari:"
+
+#~ msgid "You can use [1:Markdown formatting] here."
+#~ msgstr "Podeu usar [1: format Markdown]."
+
+#~ msgid "Join CKAN to contribute packages under your own name."
+#~ msgstr "Uniu-vos a CKAN per contribuir paquets amb el vostre propi nom."
+
+#~ msgid ""
+#~ "OpenID is service that allows you "
+#~ "to log-on to many different "
+#~ "websites using a single identity.\n"
+#~ "    Find out [1:more about OpenID] "
+#~ "and [2:how to get an OpenID "
+#~ "enabled account]."
+#~ msgstr ""
+#~ "OpenID és un servei que permet "
+#~ "iniciar sessió en molts llocs diferents"
+#~ " usant una identitat única.\n"
+#~ "    Trobeu [1:més informació sobre "
+#~ "OpenID] i [2:com obtenir un compte "
+#~ "que ofereixi OpenID]."
+
+#~ msgid ""
+#~ "OpenID is service that allows you "
+#~ "to log-on to many different "
+#~ "websites\n"
+#~ "        using a single identity. Find out [1:more\n"
+#~ "        about OpenID] and [2:how to get an\n"
+#~ "        OpenID enabled account]. Probably "
+#~ "the simplest way is sign up with"
+#~ " a\n"
+#~ "        free OpenID provider such as [3:https://www.myopenid.com/]."
+#~ msgstr ""
+#~ "OpenID és un servei que permet "
+#~ "iniciar sessió en molts llocs diferents"
+#~ "\n"
+#~ "        usant una identitat única. Trobeu [1:més\n"
+#~ "        informació sobre OpenID] i [2:com obtenir un\n"
+#~ "        compte que ofereixi OpenID]. "
+#~ "Probablement, la forma més senzilla és"
+#~ " registrar-se\n"
+#~ "        amb un proveidor gratuït "
+#~ "d'OpenID com [3:https://www.myopenid.com/]."
+
+#~ msgid "Edit your profile"
+#~ msgstr "Editar el vostre perfil"
+
+#~ msgid "Number of packages administered:"
+#~ msgstr "Nombre de paquets administrats:"
 
