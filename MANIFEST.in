@@ -2,7 +2,7 @@ include ckan/config/deployment.ini_tmpl
 recursive-include ckan/public *
 recursive-include ckan/config *.ini
 recursive-include ckan/templates *
-recursive-include ckan/requires *
 recursive-include ckan *.ini
 prune .hg
 include CHANGELOG.txt
+include ckan/migration/migrate.cfg
