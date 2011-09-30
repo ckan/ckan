@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the ckan project.
 #
 # Translators:
+# <internet@davidread.org>, 2011.
 # Kalman Kemenczy <kkemenczy@gmail.com>, 2011.
 # okfn <sysadmin@okfn.org>, 2011.
 # stf <stefan.marsiske@gmail.com>, 2011.
@@ -11,7 +12,7 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-09-30 17:45+0100\n"
-"PO-Revision-Date: 2011-09-30 16:47+0000\n"
+"PO-Revision-Date: 2011-09-30 17:11+0000\n"
 "Last-Translator: dread <internet@davidread.org>\n"
 "Language-Team: Hungarian "
 "(http://www.transifex.net/projects/p/ckan/team/hu/)\n"
@@ -209,7 +210,7 @@ msgstr ""
 
 #: ckan/controllers/home.py:89
 msgid "Language has been set to: English"
-msgstr ""
+msgstr "Nyelv lett állítva: Magyar"
 
 #: ckan/controllers/home.py:93
 msgid "No language given!"
