@@ -18,6 +18,11 @@
       client: client
     };
 
+    var isDatasetView = $('body.package.read').length > 0;
+    if (isDatasetView) {
+      CKAN.Utils.setupDataPreview();
+    }
+
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       $('#save').val(CKAN.Strings.addDataset);
@@ -267,6 +272,92 @@ CKAN.Utils = function($, my) {
       showSection(showMe);
       return false;
     });  
+  };
+
+  my.setupDataPreview = function() {
+    var dialogId = 'ckanext-datapreview-dialog';
+    my.createPreviewButtons($('.resources'));
+  };
+
+  /* Public: Creates the base UI for the plugin.
+   *
+   * Adds an additonal preview column to the resources table in the CKAN
+   * UI. Also requests the package from the api to see if there is any chart
+   * data stored and updates the preview icons accordingly.
+   *
+   * resources - The resources table wrapped in jQuery.
+   *
+   * Returns nothing.
+   */
+  my.createPreviewButtons = function(resources) {
+    resources.find('tr td:last-child').each(function(idx, element) {
+      var element = $(element);
+      var _format = $.trim(element.prev().text());
+
+      // do not create previews for some items
+      var _tformat = _format.toLowerCase();
+      if (
+        _tformat.indexOf('zip') != -1
+        ||
+        _tformat.indexOf('tgz') != -1
+        ||
+        _tformat.indexOf('targz') != -1
+        ||
+        _tformat.indexOf('gzip') != -1
+        ||
+        _tformat.indexOf('gz:') != -1
+        ||
+        _tformat.indexOf('word') != -1
+        ||
+        _tformat.indexOf('pdf') != -1
+        ||
+        _tformat === 'other'
+        )
+      {
+        return;
+      }
+
+      // TODO: get this from resource
+      var _url = "/resource.jsonp?_limit=30";
+
+      // An object that holds information about the currently previewed data.
+      var _preview = {
+        'source': element.find('a').attr('href'),
+        'format': _format
+      };
+
+      var _previewSpan = $('<a />', {
+        text: 'Preview',
+        href: _url,
+        click: function(e) {
+          e.preventDefault();
+          alert('Loading preview');
+          // dp.loadPreviewDialog(e.target);
+        },
+        'class': 'resource-preview-button'
+      }).data('preview', _preview).appendTo(element);
+
+      // TODO: get dataset info
+      var dataset = null;
+      var resource = null; // dp.getResourceFromDataset(_preview.hash, dataset),
+      var chartString, charts = {};
+
+      if (resource) {
+        chartString = resource[dp.resourceChartKey];
+        if (chartString) {
+          try {
+            charts = $.parseJSON(chartString);
+
+            // If parsing succeeds add a class to the preview button.
+            _previewSpan.addClass('resource-preview-chart');
+          } catch (e) {}
+        }
+      }
+
+      _preview.dataset = dataset;
+      _preview.resource = resource;
+      _preview.charts = charts;
+    });
   };
 
   // Name slug generator for $name element using $title element
