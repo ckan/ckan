@@ -99,6 +99,14 @@ class TestSearch(TestController):
         result = self.backend.query_for(model.Package).run(query=u'Expenditure Government China')
         assert len(result['results']) == 0, self._pkg_names(result)
 
+    def test_2_title_as_q_parameter(self):
+        result = self.backend.query_for(model.Package).run(query=u'title:Opengov.se')
+        assert self._pkg_names(result) == 'se-opengov', self._pkg_names(result)
+
+    def test_2_title_as_own_parameter(self):
+        result = self.backend.query_for(model.Package).run(fields={'title': u'Opengov.se'})
+        assert self._pkg_names(result) == 'se-opengov', self._pkg_names(result)
+
     def test_3_licence(self):
         ## this should result, but it is here to check that at least it does not error
         result = self.backend.query_for(model.Package).run(query=u'license:"OKD::Other (PublicsDomain)"')
