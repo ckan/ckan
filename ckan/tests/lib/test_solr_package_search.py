@@ -1,7 +1,28 @@
+from nose.tools import assert_equal, assert_raises
+
 from ckan.tests import TestController, CreateTestData, setup_test_search_index
 from ckan import model
 import ckan.lib.search as search
 
+
+class TestQuery:
+    def test_1_convert_legacy_params_to_solr(self):
+        convert = search.convert_legacy_parameters_to_solr
+        assert_equal(convert({'title': 'bob'}), {'q': 'title:bob'})
+        assert_equal(convert({'title': 'bob', 'fl': 'name'}),
+                     {'q': 'title:bob', 'fl': 'name'})
+        assert_equal(convert({'title': 'bob perkins'}), {'q': 'title:"bob perkins"'})
+        assert_equal(convert({'q': 'high+wages'}), {'q': 'high wages'})
+        assert_equal(convert({'q': 'high+wages summary'}), {'q': 'high wages summary'})
+        assert_equal(convert({'title': 'high+wages'}), {'q': 'title:"high wages"'})
+        assert_equal(convert({'title': 'bob', 'all_fields': 1}), {'q': 'title:bob', 'fl': '*'})
+        assert_raises(search.SearchError, convert, {'title': 'bob', 'all_fields': 'non-boolean'})
+        assert_equal(convert({'q': 'bob', 'order_by': 'name'}), {'q': 'bob', 'sort':'name asc'})
+        assert_equal(convert({'q': 'bob', 'offset': '0', 'limit': '10'}), {'q': 'bob', 'start':'0', 'rows':'10'})
+        assert_equal(convert({'tags': ['russian', 'tolstoy']}), {'q': 'tags:russian tags:tolstoy'})
+        assert_equal(convert({'tags': ['tolstoy']}), {'q': 'tags:tolstoy'})
+        assert_equal(convert({'tags': 'tolstoy'}), {'q': 'tags:tolstoy'})
+        assert_raises(search.SearchError, convert, {'tags': {'tolstoy':1}})
 
 class TestSearch(TestController):
     # 'penguin' is in all test search packages
@@ -253,11 +274,9 @@ class TestSearchOverall(TestController):
         model.repo.rebuild_db()
         search.clear()
 
-    def _check_search_results(self, terms, expected_count, expected_packages=[], only_open=False, only_downloadable=False):
+    def _check_search_results(self, terms, expected_count, expected_packages=[]):
         query = {
             'q': unicode(terms),
-            'filter_by_openness': only_open,
-            'filter_by_downloadable': only_downloadable
         }
         result = search.query_for(model.Package).run(query)
         pkgs = result['results']
@@ -277,9 +296,6 @@ class TestSearchOverall(TestController):
         self._check_search_results('groups:david', 2)
         self._check_search_results('groups:roger', 1)
         self._check_search_results('groups:lenny', 0)
-        self._check_search_results('annakarenina', 1, ['annakarenina'], True, False)
-        self._check_search_results('annakarenina', 1, ['annakarenina'], False, True)
-        self._check_search_results('annakarenina', 1, ['annakarenina'], True, True)
         
 
 class TestGeographicCoverage(TestController):

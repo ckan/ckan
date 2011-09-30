@@ -7,7 +7,7 @@ from ckan.lib.base import BaseController, response, c, _, gettext, request
 from ckan.lib.helpers import json, date_str_to_datetime
 import ckan.model as model
 import ckan.rating
-from ckan.lib.search import query_for, QueryOptions, SearchIndexError, SearchError, DEFAULT_OPTIONS
+from ckan.lib.search import query_for, QueryOptions, SearchIndexError, SearchError, DEFAULT_OPTIONS, convert_legacy_parameters_to_solr
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
@@ -278,7 +278,8 @@ class ApiController(BaseController):
             response_data = action(context, data_dict)
             location = None
             if "id" in data_dict:
-                location = str('%s/%s' % (request.path, data_dict.get("id")))
+                location = str('%s/%s' % (request.path.replace('package', 'dataset'),
+                                          data_dict.get("id")))
             return self._finish_ok(response_data,
                                    resource_location=location)
         except NotAuthorized:
@@ -387,6 +388,7 @@ class ApiController(BaseController):
     def search(self, ver=None, register=None):
         
         log.debug('search %s params: %r' % (register, request.params))
+        ver = ver or '1' # i.e. default to v1
         if register == 'revision':
             since_time = None
             if request.params.has_key('since_id'):
@@ -412,7 +414,7 @@ class ApiController(BaseController):
             return self._finish_ok([rev.id for rev in revs])
         elif register in ['dataset', 'package', 'resource']:
             try:
-                params = dict(self._get_search_params(request.params))
+                params = MultiDict(self._get_search_params(request.params))
             except ValueError, e:
                 return self._finish_bad_request(
                     gettext('Could not read parameters: %r' % e))
@@ -451,7 +453,11 @@ class ApiController(BaseController):
                         query=params.get('q'), fields=query_fields, options=options
                     )
                 else:
-                    # for package searches we can pass parameters straight to Solr
+                    # For package searches in API v3 and higher, we can pass
+                    # parameters straight to Solr.
+                    if ver in u'12':
+                        # Otherwise, put all unrecognised ones into the q parameter
+                        params = convert_legacy_parameters_to_solr(params)
                     query = query_for(model.Package)
                     results = query.run(params)
                 return self._finish_ok(results)
