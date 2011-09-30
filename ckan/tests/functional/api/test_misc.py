@@ -42,5 +42,5 @@ class TestMiscApi1(Api1TestCase, MiscApiTestCase): pass
 class TestQosApi1(Api1TestCase, QosApiTestCase): pass
 class TestMiscApi2(Api2TestCase, MiscApiTestCase): pass
 class TestQosApi2(Api2TestCase, QosApiTestCase): pass
-class TestMiscApiUnversioned(MiscApiTestCase, ApiUnversionedTestCase): pass
+class TestMiscApiUnversioned(ApiUnversionedTestCase, MiscApiTestCase): pass
 class TestQosApiUnversioned(ApiUnversionedTestCase, QosApiTestCase): pass

@@ -59,6 +59,12 @@ When making requests, you can call objects by either their Name or ID, interchan
 
 The only exception for this is for Tag objects. Since Tag names are immutable, they are always referred to with their Name.
 
+Version 3
+~~~~~~~~~
+
+This version is in beta. To details of trying it out, see :doc:`apiv3`.
+
+
 
 API Details - Versions 1 & 2
 ----------------------------
@@ -85,7 +91,6 @@ The CKAN API version 1 & 2 is separated into three parts.
 * `Model API`_
 * `Search API`_
 * `Util API`_
-* `Action API`_
 
 The resources, methods, and data formats of each are described below.
 
@@ -329,7 +334,7 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 |                       |               |                                  | parameter as a more flexible     |
 |                       |               |                                  | alternative in GET requests.     |
 +-----------------------+---------------+----------------------------------+----------------------------------+
-|title,                 | Search-String || title=uk&amp;tags=health+census | Search in a particular a field.  |
+|title,                 | Search-String || title=uk&amp;tags=health        | Search in a particular a field.  |
 |tags, notes, groups,   |               || department=environment          |                                  |
 |author, maintainer,    |               |                                  |                                  |
 |update_frequency, or   |               |                                  |                                  |
@@ -349,12 +354,9 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 |                       |               |                                  | (0) or the full dataset record   |
 |                       |               |                                  | (1).                             |
 +-----------------------+---------------+----------------------------------+----------------------------------+
-| filter_by_openness    | 0 (default)   | filter_by_openness=1             | Filters results by ones which are|
-|                       | or 1          |                                  | open.                            |
-+-----------------------+---------------+----------------------------------+----------------------------------+
-|filter_by_downloadable | 0 (default)   | filter_by_downloadable=1         | Filters results by ones which    |
-|                       | or 1          |                                  | have at least one resource URL.  |
-+-----------------------+---------------+----------------------------------+----------------------------------+
+
+.. Note: filter_by_openness and filter_by_downloadable were dropped from CKAN version 1.5 onwards.
+
 
 **Resource Parameters**
 
@@ -554,4 +556,4 @@ This returns:
 Action API
 ~~~~~~~~~~
 
-See: :doc:`action_api`
+See: 

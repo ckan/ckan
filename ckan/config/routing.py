@@ -47,9 +47,9 @@ def make_map():
             ]
     register_list_str = '|'.join(register_list)
 
-    map.connect('/api/{ver:1|2}', controller='api', action='get_api')
+    map.connect('/api/{ver:1|2|3}', controller='api', action='get_api')
 
-    map.connect('/api/{ver:1|2}/search/{register}', controller='api', action='search')
+    map.connect('/api/{ver:1|2|3}/search/{register}', controller='api', action='search')
     map.connect('/api/{ver:1|2}/tag_counts', controller='api', action='tag_counts')
 
     map.connect('/api/{ver:1|2}/rest', controller='api', action='index')
@@ -92,6 +92,8 @@ def make_map():
         controller='api', action='delete',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['DELETE']))
+    map.connect('/api/{ver:3}/action/{logic_function}', controller='api', action='action',
+                conditions=dict(method=['GET', 'POST']))
     map.connect('/api/{ver:1|2}/qos/throughput/',
         controller='api', action='throughput',
         requirements=dict(register=register_list_str),
@@ -107,8 +109,8 @@ def make_map():
     
     map.connect('/api/rest', controller='api', action='index')
 
-    map.connect('/api/action/{logic_function}', controller='api', action='action')
-
+    map.connect('/api/action/{logic_function}', controller='api', action='action',
+                conditions=dict(method=['GET', 'POST']))
     map.connect('/api/rest/{register}', controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET'])
