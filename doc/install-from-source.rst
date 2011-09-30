@@ -2,20 +2,14 @@
 Option 2: Install from Source
 =============================
 
-This section describes how to install CKAN from source. This removes the requirement for Ubuntu 10.04 that exists with :doc:`install-from-package`.
+This section describes how to install CKAN from source. This removes the requirement for Ubuntu 10.04 that exists with :doc:`install-from-package`. It is also the option to use if you are going to develop the CKAN source.
 
-.. warning:: This option is more complex than :doc:`install-from-package`, so we suggest only doing it this way if you plan to work on CKAN core, or have no access to Ubuntu 10.04 via any of the suggested methods. 
+.. warning:: This option is more complex than :doc:`install-from-package`.
 
 For support during installation, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_. 
 
 Install the Source
 ------------------
-
-These are instructions to get developing with CKAN.
-
-Before you start, it may be worth `checking CKAN has passed the auto build and
-tests <http://buildbot.okfn.org/waterfall>`_. 
-
 
 1. Ensure the required packages are installed.
 
@@ -26,7 +20,7 @@ tests <http://buildbot.okfn.org/waterfall>`_.
        sudo apt-get install build-essential libxml2-dev libxslt-dev 
        sudo apt-get install wget mercurial postgresql libpq-dev git-core
        sudo apt-get install python-dev python-psycopg2 python-virtualenv
-       sudo apt-get install subversion
+       sudo apt-get install subversion solr-jetty openjdk-6-jdk
 
    Otherwise, you should install these packages from source. 
 
@@ -45,6 +39,7 @@ tests <http://buildbot.okfn.org/waterfall>`_.
    build-essential        Tools for building source code (or up-to-date Xcode on Mac)
    git                    `Git source control (for getting MarkupSafe src) <http://book.git-scm.com/2_installing_git.html>`_
    subversion             `Subversion source control (for pyutilib) <http://subversion.apache.org/packages.html>`_
+   solr                   `Search engine <http://lucene.apache.org/solr>`_
    =====================  ===============================================
 
    
@@ -94,13 +89,17 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
    An activated shell looks in your virtual environment first when choosing
    which commands to run. If you enter ``python`` now it will actually 
-   run ``~/pyenv/bin/python`` which is what you want.
+   run ``~/pyenv/bin/python``, not the default ``/usr/bin/python`` which is what you want for CKAN. You can install python packages install this new environment and they won't affect the default ``/usr/bin/python``. This is necessary so you can use particular versions of python packages, rather than the ones installed with default paython, and these installs do not affect other python software on your system that may not be compatible with these packages.
 
-4. Install CKAN code and required Python packages into the new environment.
+4. Install CKAN code and other required Python packages into the new environment.
 
-   First you'll need to install CKAN. For the latest version run:
+   Choose which version of CKAN to install. Released versions are listed at https://bitbucket.org/okfn/ckan - click on the list of tags. For example: ``ckan-1.4.2``
 
    ::
+
+       pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan@ckan-1.4.2#egg=ckan
+
+   Alternatively, if you are to develop CKAN, then you will probably want to use the latest 'bleeding edge' code. If using this version, we suggest you `check CKAN has passed the automatic tests <http://buildbot.okfn.org/waterfall>`_. Here is how to install the latest code::
 
        pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan#egg=ckan
 
@@ -159,20 +158,15 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
   .. tip ::
 
-      If you choose a database name, user or password which are different from those 
-      suggested below then you'll need to update the configuration file you'll create in
-      the next step.
+      If you choose a database name, user or password which are different from the example values suggested below then you'll need to change the sqlalchemy.url value accordingly in the CKAN configuration file you'll create in the next step.
 
-  Here we choose ``ckantest`` as the database and ``ckanuser`` as the user:
+  Here we create a user called ``ckanuser`` and will enter ``pass`` for the password when prompted:
 
   ::
 
       sudo -u postgres createuser -S -D -R -P ckanuser
 
-  It should prompt you for a new password for the CKAN data in the database.
-  It is suggested you enter ``pass`` for the password.
-
-  Now create the database, which we'll call ``ckantest``:
+  Now create the database (owned by ``ckanuser``), which we'll call ``ckantest``:
 
   ::
 
@@ -184,16 +178,12 @@ tests <http://buildbot.okfn.org/waterfall>`_.
   Paste and other modules are put on the python path (your command prompt will
   start with ``(pyenv)`` if you have) then change into the ``ckan`` directory
   which will have been created when you installed CKAN in step 4 and create the
-  config file ``development.ini`` using Paste:
+  CKAN config file using Paste. These instructions call it ``development.ini`` since that is the required name for running the CKAN tests. But for a server deployment then you might want to call it say after the server hostname e.g. ``test.ckan.net.ini``.
 
   ::
 
       cd pyenv/src/ckan
       paster make-config ckan development.ini
-
-  You can give your config file a different name but the tests will expect you
-  to have used ``development.ini`` so it is strongly recommended you use this
-  name, at least to start with.
 
   If you used a different database name or password when creating the database
   in step 5 you'll need to now edit ``development.ini`` and change the
@@ -209,10 +199,9 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
   .. caution ::
 
-     Advanced users: If you are using CKAN's fab file capability you currently need to create
-     your config file as ``pyenv/ckan.net.ini`` so you will probably have 
-     ignored the advice about creating a ``development.ini`` file in the 
-     ``pyenv/src/ckan`` directory. This is fine but CKAN probably won't be 
+     Advanced users: If you have installed CKAN using the Fabric file capability (deprecated),
+     your config file will be called something like ``pyenv/ckan.net.ini``. 
+     This is fine but CKAN probably won't be 
      able to find your ``who.ini`` file. To fix this edit ``pyenv/ckan.net.ini``, 
      search for the line ``who.config_file = %(here)s/who.ini`` and change it
      to ``who.config_file = who.ini``.
@@ -250,7 +239,46 @@ tests <http://buildbot.okfn.org/waterfall>`_.
       mkdir data
 
 
-9. Run the CKAN webserver.
+9. Setup Solr.
+
+   Edit the jetty config file (/etc/default/jetty by default on Ubuntu),
+   changing the following:
+
+   ::
+
+       NO_START=0            # (line 4)
+       JETTY_HOST=127.0.0.1  # (line 15)
+       JETTY_PORT=8983       # (line 18)
+
+   Then create a symlink from the schema.xml file in your ckan config
+   directory to the Solr config directory:
+
+     Note: The path ``~/pyenv/src/ckan/ckan/config/schema.xml`` will probably need to be to be adjusted for your system. Also ensure it is an absolute path.
+
+   ::
+    
+       sudo ln -s ~/pyenv/src/ckan/ckan/config/schema.xml /usr/share/solr/conf/schema.xml
+
+   Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:
+
+   ::
+
+       ckan.site_id=my_ckan_instance
+       solr_url=http://127.0.0.1:8983/solr
+
+   You should now be able to start Solr:
+
+   ::
+
+       sudo service jetty start
+
+   Now you should check Solr is running ok by browsing: http://localhost:8983/solr/
+
+   For more information on Solr setup and configuration, see the CKAN wiki:
+   http://wiki.ckan.net/Solr_Search
+
+
+10. Run the CKAN webserver.
 
   NB If you've started a new shell, you'll have to activate the environment
   again first - see step 3.
@@ -261,7 +289,7 @@ tests <http://buildbot.okfn.org/waterfall>`_.
 
       paster serve development.ini
 
-10. Point your web browser at: http://127.0.0.1:5000/
+11. Point your web browser at: http://127.0.0.1:5000/
 
     The CKAN homepage should load.
 

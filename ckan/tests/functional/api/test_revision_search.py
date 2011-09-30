@@ -1,3 +1,5 @@
+from ckan.lib.helpers import datetime_to_date_str
+
 from ckan.tests.functional.api.base import *
 from ckan.tests import TestController as ControllerTestCase
 
@@ -46,7 +48,7 @@ class RevisionSearchApiTestCase(ApiTestCase, ControllerTestCase):
         revs = model.Session.query(model.Revision).all()
         # Check since time of first.
         rev_first = revs[-1]
-        params = "?since_time=%s" % model.strftimestamp(rev_first.timestamp)
+        params = "?since_time=%s" % datetime_to_date_str(rev_first.timestamp)
         res = self.app.get(offset+params, status=200)
         res_list = self.data_from_res(res)
         assert rev_first.id not in res_list
@@ -54,7 +56,7 @@ class RevisionSearchApiTestCase(ApiTestCase, ControllerTestCase):
             assert rev.id in res_list, (rev.id, res_list)
         # Check since time of last.
         rev_last = revs[0]
-        params = "?since_time=%s" % model.strftimestamp(rev_last.timestamp)
+        params = "?since_time=%s" % datetime_to_date_str(rev_last.timestamp)
         res = self.app.get(offset+params, status=200)
         res_list = self.data_from_res(res)
         assert res_list == [], res_list

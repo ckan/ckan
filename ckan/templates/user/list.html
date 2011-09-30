@@ -4,34 +4,44 @@
   py:strip="">
   
   <py:def function="page_title">Users</py:def>
+  <py:def function="page_heading">Users</py:def>
   <py:def function="body_class">user-list</py:def>
+  
+  <py:match path="primarysidebar">
+    <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
+      <form id="user-search" action="" method="GET">
+        <input type="text" id="q" name="q" value="${c.q}" />
+        <input type="submit" name="" value="Search &raquo;" />
+      </form>
+      <p i18n:msg="item_count">
+        <strong>${c.page.item_count}</strong> users found.
+      </p>
+    </li>
+    
+
+  </py:match>
+  
+  <py:match path="minornavigation">
+    <ul class="tabbed">
+      <li>
+        <a href="?q=${c.q}&amp;order_by=edits" rel="nofollow">Sort by edits</a>
+      </li>
+      <li>
+        <a href="?q=${c.q}&amp;order_by=name" rel="nofollow">Sort by name</a>
+      </li>
+    </ul>
+  </py:match>
+
 
   <div py:match="content">
-    <h2>Users</h2>
-    <div class="sort">
-      <a href="?q=${c.q}&amp;order_by=edits" rel="nofollow">Sort by edits</a>
-      <a href="?q=${c.q}&amp;order_by=name" rel="nofollow">Sort by name</a>
-    </div>
-
-    <form id="user-search" action="" method="GET">
-      <input type="text" id="q" name="q" value="${c.q}" />
-      <input type="submit" name="" value="Search &raquo;" />
-    </form>
-    
-    <p i18n:msg="item_count">
-      <strong>${c.page.item_count}</strong> users found.
-    </p>
-    
-    <hr />
-    
     <ul class="userlist">
-      <li py:for="user in c.page.items" class="user">
+     <li py:for="user in c.page.items" class="user">
         <ul>
           <li class="username">
           ${h.linked_user(user['name'], maxlength=20)}
           </li>
           <li class="created">
-            Member for ${h.time_ago_in_words_from_str(user['created'],granularity='month')}
+            Member for ${h.time_ago_in_words_from_str(user['created'].isoformat(),granularity='month')}
           </li>
           <li>
             <span class="edits" title="${user['number_of_edits']} Edits">

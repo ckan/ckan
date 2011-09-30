@@ -21,6 +21,8 @@ from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
 from ckan.i18n import get_available_locales
 
+
+
 try:
     from collections import OrderedDict # from python 2.7
 except ImportError:
@@ -42,9 +44,10 @@ class Message(object):
     * ``category``: the category specified when the message was created.
     """
 
-    def __init__(self, category, message):
+    def __init__(self, category, message, allow_html):
         self.category=category
         self.message=message
+        self.allow_html=allow_html
 
     def __str__(self):
         return self.message
@@ -52,7 +55,10 @@ class Message(object):
     __unicode__ = __str__
 
     def __html__(self):
-        return escape(self.message)
+        if self.allow_html: 
+            return self.message
+        else:
+            return escape(self.message)
 
 class _Flash(object):
     
@@ -71,14 +77,14 @@ class _Flash(object):
         if self.categories and self.default_category not in self.categories:
             raise ValueError("unrecognized default category %r" % (self.default_category,))
 
-    def __call__(self, message, category=None, ignore_duplicate=False):
+    def __call__(self, message, category=None, ignore_duplicate=False, allow_html=False):
         if not category:
             category = self.default_category
         elif self.categories and category not in self.categories:
             raise ValueError("unrecognized category %r" % (category,))
         # Don't store Message objects in the session, to avoid unpickling
         # errors in edge cases.
-        new_message_tuple = (category, message)
+        new_message_tuple = (category, message, allow_html)
         from pylons import session
         messages = session.setdefault(self.session_key, [])
         # ``messages`` is a mutable list, so changes to the local variable are
@@ -101,14 +107,14 @@ class _Flash(object):
 
 _flash = _Flash()
 
-def flash_notice(message): 
-    _flash(message, category='notice')
+def flash_notice(message, allow_html=False): 
+    _flash(message, category='notice', allow_html=allow_html)
 
-def flash_error(message): 
-    _flash(message, category='error')
+def flash_error(message, allow_html=False): 
+    _flash(message, category='error', allow_html=allow_html)
 
-def flash_success(message): 
-    _flash(message, category='success')
+def flash_success(message, allow_html=False): 
+    _flash(message, category='success', allow_html=allow_html)
 
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):
@@ -147,11 +153,28 @@ def facet_title(name):
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
 def am_authorized(c, action, domain_object=None):
+    ''' Deprecated. Please use check_access instead'''
     from ckan.authz import Authorizer
     if domain_object is None:
         from ckan import model
         domain_object = model.System()
     return Authorizer.am_authorized(c, action, domain_object)
+
+def check_access(action,data_dict=None):
+    from ckan import model
+    from ckan.lib.base import c
+    from ckan.logic import check_access as check_access_logic,NotAuthorized
+
+    context = {'model': model,
+                'user': c.user or c.author}
+
+    try:
+        check_access_logic(action,context,data_dict)
+        authorized = True
+    except NotAuthorized:
+        authorized = False
+
+    return authorized
 
 def linked_user(user, maxlength=0):
     from ckan import model

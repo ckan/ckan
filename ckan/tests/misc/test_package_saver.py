@@ -34,9 +34,7 @@ class TestPreview(PylonsTestCase):
         data = ckan.forms.add_to_package_dict(
             ckan.forms.get_package_dict(fs=fs, user_editable_groups=[]), self.params)
         fs = fs.bind(model.Package, data=data)
-        pkg = PackageSaver()._preview_pkg(fs, '', '')
 
-        self._check_preview_pkg(pkg, self.params)
         assert not model.Package.by_name(u'testname')
 
     def test_edit(self):
@@ -60,8 +58,6 @@ class TestPreview(PylonsTestCase):
                 ckan.forms.get_package_dict(pkg=pkg, fs=fs, user_editable_groups=[]), self.params,
                     pkg.id)
         fs = fs.bind(pkg, data=data)
-        pkg2 = PackageSaver()._preview_pkg(fs, u'name_before', pkg.id)
-        self._check_preview_pkg(pkg2, self.params)
 
         # Check nothing has changed in the model
         assert model.Package.by_name(u'name_before')
@@ -69,27 +65,4 @@ class TestPreview(PylonsTestCase):
         assert not model.Tag.by_name(u'three')
         resources = model.Session.query(model.Resource).filter_by(url=u'dlu2c').first()
         assert resources is None, resources
-
-    def _check_preview_pkg(self, pkg, params):
-        for key, value in params.items():
-            if key == u'license':
-                assert pkg.license_id == value
-                assert pkg.license.id == value
-            elif key == u'license_id':
-                assert pkg.license_id == value
-                assert pkg.license.id == value
-            elif key == u'tags':
-                reqd_tags = value.split()
-                assert len(pkg.tags) == len(reqd_tags)
-                for tag in pkg.tags:
-                    assert tag.name in reqd_tags
-            elif key == u'resources':
-                assert pkg.resources[0].url == value[0]['url']
-                assert pkg.resources[0].format == value[0]['format']
-                assert pkg.resources[1].url == value[1]['url']
-                assert pkg.resources[1].format == value[1]['format']
-            else:
-                assert getattr(pkg, key) == value, \
-                       'Package has "%s"="%s" when it should be %s' % \
-                       (key, getattr(pkg, key), value)
         

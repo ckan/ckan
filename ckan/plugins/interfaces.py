@@ -8,6 +8,7 @@ __all__ = [
     'IGenshiStreamFilter', 'IRoutes',
     'IMapper', 'ISession',
     'IMiddleware',
+    'IAuthFunctions',
     'IDomainObjectModification', 'IGroupController', 
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer', 'IAuthorizer',
@@ -166,7 +167,7 @@ class ISession(Interface):
 
 class IDomainObjectModification(Interface):
     """
-    Receives notification of new, changed and deleted domain objects
+    Receives notification of new, changed and deleted domain objects.
     """
 
     def notify(self, entity, operation):
@@ -310,3 +311,14 @@ class IActions(Interface):
         Should return a dict, the keys being the name of the logic 
         function and the values being the functions themselves.
         """
+
+class IAuthFunctions(Interface):
+    """
+    Allow customisation of default Authorization implementation
+    """
+    def get_auth_functions(self):
+        """
+        Returns a dict of all the authorization functions which the
+        implementation overrides
+        """
+

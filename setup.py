@@ -35,7 +35,7 @@ setup(
             ('**.py', 'python', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'genshi', None),
-            ('templates/**.js', 'genshi', {
+            ('ckan/templates/home/language.js', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
             ('templates/**.txt', 'genshi', {
@@ -79,9 +79,10 @@ setup(
 
     [ckan.search]
     sql = ckan.lib.search.sql:SqlSearchBackend
+    solr = ckan.lib.search.solr_backend:SolrSearchBackend
 
     [ckan.plugins]
-    synchronous_search = ckan.lib.search.worker:SynchronousSearchPlugin
+    synchronous_search = ckan.lib.search:SynchronousSearchPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension

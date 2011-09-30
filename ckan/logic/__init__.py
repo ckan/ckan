@@ -1,8 +1,23 @@
 import logging
+from ckan.lib.base import _
 import ckan.authz
+import ckan.new_authz as new_authz
 from ckan.lib.navl.dictization_functions import flatten_dict, DataError
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IActions
+
+class AttributeDict(dict):
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError('No such attribute %r'%name)
+
+    def __setattr__(self, name, value):
+        raise AttributeError(
+            'You cannot set attributes of this object directly'
+        )
+
 
 class ActionError(Exception):
     def __init__(self, extra_msg=None):
@@ -79,25 +94,51 @@ def flatten_to_string_key(dict):
     flattented = flatten_dict(dict)
     return untuplize_dict(flattented)
 
-def check_access(entity, action, context):
-    model = context["model"]
-    user = context.get("user")
+def check_access(action, context, data_dict=None):
+    model = context['model']
+    user = context.get('user')
 
-    log.debug('check access - user %r' % user)
-    
+    log.debug('check access - user %r, action %s' % (user,action))
+       
+    if action:
+        #if action != model.Action.READ and user in (model.PSEUDO_USER__VISITOR, ''):
+        #    # TODO Check the API key is valid at some point too!
+        #    log.debug('Valid API key needed to make changes')
+        #    raise NotAuthorized
+        logic_authorization = new_authz.is_authorized(action, context, data_dict)
+        if not logic_authorization['success']:
+            msg = logic_authorization.get('msg','')
+            raise NotAuthorized(msg)
+    elif not user:
+        msg = _('No valid API key provided.')
+        log.debug(msg)
+        raise NotAuthorized(msg)       
+
+    log.debug('Access OK.')
+    return True
+
+
+def check_access_old(entity, action, context):
+    model = context['model']
+    user = context.get('user')
+
+    log.debug('check access - user %r, action %s' % (user,action))
     if action and entity and not isinstance(entity, model.PackageRelationship):
-        if action != model.Action.READ and user in (model.PSEUDO_USER__VISITOR, ''):
-            log.debug("Valid API key needed to make changes")
-            raise NotAuthorized
-        
+        if action != model.Action.READ and user == '':
+            log.debug('Valid API key needed to make changes')
+            return False
+            #raise NotAuthorized
         am_authz = ckan.authz.Authorizer().is_authorized(user, action, entity)
         if not am_authz:
-            log.debug("User is not authorized to %s %s" % (action, entity))
-            raise NotAuthorized
+            log.debug('User is not authorized to %s %s' % (action, entity))
+            return False
+            #raise NotAuthorized
     elif not user:
-        log.debug("No valid API key provided.")
-        raise NotAuthorized
-    log.debug("Access OK.")
+        log.debug('No valid API key provided.')
+        return False
+        #raise NotAuthorized
+
+    log.debug('Access OK.')
     return True             
 
 _actions = {}
@@ -110,7 +151,7 @@ def get_action(action):
     # Rather than writing them out in full will use __import__
     # to load anything from ckan.logic.action that looks like it might
     # be an action 
-    for action_module_name in ['get', 'create', 'update']:
+    for action_module_name in ['get', 'create', 'update','delete']:
         module_path = 'ckan.logic.action.'+action_module_name
         module = __import__(module_path)
         for part in module_path.split('.')[1:]:

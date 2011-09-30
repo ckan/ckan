@@ -49,25 +49,45 @@ class TestBasicDictize:
             'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
             'relationships_as_object': [],
             'relationships_as_subject': [],
-            'resources': [{'alt_url': u'alt123',
-                           'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-                           'size': u'123',
-                           'format': u'plain text',
-                           'hash': u'abc123',
-                           'position': 0,
-                           'state': u'active',
-                           'url': u'http://www.annakarenina.com/download/x=1&y=2'},
-                          {'alt_url': u'alt345',
-                           'description': u'Index of the novel',
-                           'size': u'345',
-                           'format': u'json',
-                           'hash': u'def456',
-                           'position': 1,
-                           'state': u'active',
-                           'url': u'http://www.annakarenina.com/index.json'}],
+            'resources': [{u'alt_url': u'alt123',
+                            u'cache_last_updated': None,
+                            u'cache_url': None,
+                            u'description': u'Full text. Needs escaping: " Umlaut: \xfc',
+                            u'format': u'plain text',
+                            u'hash': u'abc123',
+                            u'last_modified': None,
+                            u'mimetype': None,
+                            u'mimetype_inner': None,
+                            u'name': None,
+                            u'position': 0,
+                            u'resource_type': None,
+                            u'size': None,
+                            u'size_extra': u'123',
+                            u'state': u'active',
+                            u'url': u'http://www.annakarenina.com/download/x=1&y=2',
+                            u'webstore_last_updated': None,
+                            u'webstore_url': None},
+                           {u'alt_url': u'alt345',
+                            u'cache_last_updated': None,
+                            u'cache_url': None,
+                            u'description': u'Index of the novel',
+                            u'format': u'json',
+                            u'hash': u'def456',
+                            u'last_modified': None,
+                            u'mimetype': None,
+                            u'mimetype_inner': None,
+                            u'name': None,
+                            u'position': 1,
+                            u'resource_type': None,
+                            u'size': None,
+                            u'size_extra': u'345',
+                            u'state': u'active',
+                            u'url': u'http://www.annakarenina.com/index.json',
+                            u'webstore_last_updated': None,
+                            u'webstore_url': None}],
             'state': u'active',
-                        'tags': [{'name': u'russian', 'state': u'active'},
-                                 {'name': u'tolstoy', 'state': u'active'}],
+            'tags': [{'name': u'russian', 'state': u'active'},
+                     {'name': u'tolstoy', 'state': u'active'}],
             'title': u'A Novel By Tolstoy',
             'url': u'http://www.annakarenina.com',
             'version': u'0.7a'}
@@ -139,14 +159,25 @@ class TestBasicDictize:
 
 
         assert result == {
-             'alt_url': u'alt123',
+            u'alt_url': u'alt123',
+             'cache_last_updated': None,
+             'cache_url': None,
              'description': u'Full text. Needs escaping: " Umlaut: \xfc',
              'format': u'plain text',
              'hash': u'abc123',
+             'last_modified': None,
+             'mimetype': None,
+             'mimetype_inner': None,
+             'name': None,
              'position': 0,
-             'size': u'123',
+             'resource_type': None,
+             'size': None,
+             u'size_extra': u'123',
              'state': u'active',
-             'url': u'http://www.annakarenina.com/download/x=1&y=2'}, pprint(result)
+             'url': u'http://www.annakarenina.com/download/x=1&y=2',
+             'webstore_last_updated': None,
+             'webstore_url': None
+            }, pprint(result)
 
         ## package extra
 
@@ -629,12 +660,23 @@ class TestBasicDictize:
         forth_dictized = self.remove_changable_columns(package_dictize(anna1, context))
 
         third_dictized['notes'] = 'wee'
-        third_dictized['resources'].insert(2, {u'description': u'',
-                                            u'format': u'plain text',
-                                            u'hash': u'',
-                                            u'position': 2,
-                                            u'state': u'active',
-                                            u'url': u'newurl'})
+        third_dictized['resources'].insert(2, {
+            u'cache_last_updated': None,
+            u'cache_url': None,
+            u'description': u'',
+            u'format': u'plain text',
+            u'hash': u'',
+            u'last_modified': None,
+            u'mimetype': None,
+            u'mimetype_inner': None,
+            u'name': None,
+            u'position': 2,
+            u'resource_type': None,
+            u'size': None,
+            u'state': u'active',
+            u'url': u'newurl',
+            u'webstore_last_updated': None,
+            u'webstore_url': None})
 
         third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'state': 'active'})
         third_dictized['extras'].insert(0, {'key': 'david', 
@@ -656,22 +698,31 @@ class TestBasicDictize:
         model.Session.commit()
 
         new_resource = {
-            'alt_url': u'empty resource group id',
-            'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-            'size': u'123',
-            'format': u'plain text',
+            'mimetype': None,
+            u'alt_url': u'empty resource group id',
             'hash': u'abc123',
-            'position': 0,
+            'description': u'Full text. Needs escaping: " Umlaut: \xfc',
+            'format': u'plain text',
+            'url': u'test_new',
+            'cache_url': None,
+            'webstore_url': None,
+            'cache_last_updated': None,
             'state': u'active',
-            'url': u'test'
-        }
+            'mimetype_inner': None,
+            'webstore_last_updated': None,
+            'last_modified': None,
+            'position': 0,
+            'size': None,
+            'size_extra': u'123',
+            'resource_type': None,
+            'name': None}
 
         model.repo.new_revision()
         resource_dict_save(new_resource, context)
         model.Session.commit()
         model.Session.remove()
 
-        res = model.Session.query(model.Resource).filter_by(url=u'test').one()
+        res = model.Session.query(model.Resource).filter_by(url=u'test_new').one()
 
         res_dictized = self.remove_changable_columns(resource_dictize(res, context))
 

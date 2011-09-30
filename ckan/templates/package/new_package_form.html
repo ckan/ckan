@@ -1,4 +1,4 @@
-<form id="package-edit" class="package_create_form ckan" method="post" 
+<form id="dataset-edit" class="dataset_create_form ckan" method="post" 
   py:attrs="{'class':'has-errors'} if errors else {}"
   xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
@@ -9,116 +9,168 @@
 <h2>Errors in form</h2>
 <p>The form contains invalid entries:</p>
 <ul>
-  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}</li>
+  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}
+    <py:if test="key=='Resources'">
+      <ul>
+        <py:for each="idx, errordict in enumerate(errors.get('resources', []))">
+          <li py:if="errordict">
+            Resource ${idx}:
+            <ul>
+              <li py:for="thiskey, thiserror in errordict.items()">${thiskey}: <py:for each="errorinfo in thiserror">${errorinfo}; </py:for></li>
+            </ul>
+          </li>
+        </py:for>
+      </ul>
+    </py:if>
+  </li>
 </ul>
 </div>
 
 <fieldset id="basic-information">
-  <legend> Basic information</legend>
   <dl>
-    <dt><label class="field_opt" for="title">Title</label></dt>
-    <dd><input id="title" name="title" type="text" value="${data.get('title', '')}"/></dd>
-    <dd class="instructions basic">A short descriptive title for the data set.</dd>
-    <dd class="instructions further">It should not be a description though - save that for the Notes field. Do not give a trailing full stop.</dd>
-    <dd class="field_error" py:if="errors.get('title', '')">${errors.get('title', '')}</dd>
+    <dt class="title-label"><label class="field_opt" for="title">Title</label></dt>
+    <dd class="title-field">
+      <input id="title"
+        tabindex="1" name="title" type="text"
+        value="${data.get('title', '')}"
+        placeholder="${_('A short descriptive title for the dataset')}"
+      />
+    </dd>
+    <dd class="title-instructions field_error" py:if="errors.get('title', '')">${errors.get('title', '')}</dd>
 
-    <dt><label class="field_req" for="name">Name *</label></dt>
-    <dd><input id="name" maxlength="100" name="name" type="text" value="${data.get('name', '')}" /></dd>
-    <dd class="instructions basic">A unique identifier for the package.</dd>
-    <dd class="instructions further">It should be broadly humanly readable, in the spirit of Semantic Web URIs. Only use an acronym if it is widely recognised. Renaming is possible but discouraged.</dd>
-    <dd class="hints">2+ characters, lowercase, using only 'a-z0-9' and '-_'</dd>
-    <dd class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
+    <dt class="name-label"><label class="field_req" for="name">Slug *</label></dt>
+    <dd class="name-field"><input id="name" tabindex="999" maxlength="100" name="name" type="text" value="${data.get('name', '')}" /></dd>
+    <dd class="name-instructions instructions basic">A unique identifier used in urls. Renaming is possible but discouraged.</dd>
+    <dd class="name-instructions hints">2+ characters, lowercase, using only 'a-z0-9' and '-_'</dd>
+    <dd class="name-instructions field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
 
-    <dt><label class="field_opt" for="url">URL</label></dt>
-    <dd><input id="url" name="url" type="text" value="${data.get('url', '')}"/></dd>
-    <dd class="instructions basic">The URL for the web page describing the data (not the data itself).</dd>
-    <dd class="hints">e.g. http://www.example.com/growth-figures.html</dd>
-    <dd class="field_error" py:if="errors.get('url', '')">${errors.get('url', '')}</dd>
+    <dt class="homepage-label"><label class="field_opt" for="url">Home Page</label></dt>
+    <dd class="homepage-field"><input id="url" tabindex="2" name="url" type="text" value="${data.get('url', '')}"/></dd>
+    <dd class="homepage-instructions instructions basic">The URL for the web page describing the data (not the data itself).</dd>
+    <dd class="homepage-instructions hints">e.g. http://www.example.com/growth-figures.html</dd>
+    <dd class="homepage-instructions field_error" py:if="errors.get('url', '')">${errors.get('url', '')}</dd>
 
-    <dt><label class="field_opt" for="notes">Notes</label></dt>
-    <dd><textarea cols="60" id="notes" name="notes" rows="15">${data.get('notes', '')}</textarea></dd>
-    <dd class="instructions basic">The main description of the dataset</dd>
-    <dd class="instructions further">It is often displayed with the package title. In particular, it should start with a short sentence that describes the data set succinctly, because the first few words alone may be used in some views of the data sets.</dd>
-    <dd class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</dd>
+    <dt class="description-label"><label class="field_opt" for="notes">Description</label></dt>
+    <dd class="description-field"><div class="markdown-editor">
+      <ul class="tabs">
+        <li><a href="#" action="write" class="selected">Write</a></li>
+        <li><a href="#" action="preview">Preview</a></li>
+      </ul>
+      <textarea class="markdown-input" tabindex="3" name="notes" id="notes" placeholder="${_('Start with a summary sentence ...')}">${data.get('notes','')}</textarea>
+      <div class="markdown-preview" style="display: none;"></div>
+      <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span>
+      <!--
+      <dd class="instructions basic">The main description of the dataset</dd>
+      <dd class="instructions further">It is often displayed with the dataset title. In particular, it should start with a short sentence that describes the dataset succinctly, because the first few words alone may be used in some views of the datasets.</dd>
+      -->
+    </div></dd>
 
-    <dt><label class="field_opt" for="license_id">Licence</label></dt>
-    <dd>
-      <select id="license_id" name="license_id">
+    <dt class="license-label"><label class="field_opt" for="license_id">License</label></dt>
+    <dd class="license-field">
+      <select id="license_id" tabindex="4" name="license_id">
         <py:for each="licence_desc, licence_id in c.licences">
           <option value="${licence_id}" py:attrs="{'selected': 'selected' if data.get('license_id', '') == licence_id else None}" >${licence_desc}</option>
         </py:for>
       </select>
     </dd>
-    <dd class="instructions basic">The licence under which the dataset is released.</dd>
+    <dd class="license-instructions instructions basic">The licence under which the dataset is released.</dd>
 
-    <dt><label class="field_opt" for="tags">Tags</label></dt>
-    <dd>
-      <input class="long tagComplete" data-tagcomplete-queryparam="incomplete" 
-               data-tagcomplete-url="/api/2/util/tag/autocomplete" id="tag_string" name="tag_string" size="60" type="text" 
+    <dt class="tags-label"><label class="field_opt" for="tags">Tags</label></dt>
+    <dd class="tags-field">
+      <input class="long autocomplete-tag" tabindex="5" id="tag_string" name="tag_string" size="60" type="text" 
                value="${data.get('tag_string') or ' '.join([tag['name'] for tag in data.get('tags', [])])}" />
     </dd>
-    <dd class="instructions basic">Terms that may link this dataset to similar ones. For more information on conventions, see <a href="http://wiki.okfn.org/ckan/doc/faq#TagConventions">this wiki page</a>.</dd>
-    <dd class="hints">e.g. pollution rivers water-quality</dd>
-    <dd class="field_error" py:if="errors.get('tag_string', '')">${errors.get('tag_string', '')}</dd>
+    <dd class="tags-instructions instructions basic" i18n:msg="">Terms that may link this dataset to similar ones. For more information on conventions, see <a href="http://wiki.okfn.org/ckan/doc/faq#TagConventions">this wiki page</a>.</dd>
+    <dd class="tags-instructions hints">e.g. pollution rivers water-quality</dd>
+    <dd class="tags-instructions field_error" py:if="errors.get('tag_string', '')">${errors.get('tag_string', '')}</dd>
   </dl>
 </fieldset>
 
 <fieldset id="resources">
-  <legend>Resources</legend>
-  <table class="flexitable">
+  <div class="instructions basic"><h3>Resources: the files and APIs associated with this dataset</h3></div>
+  <table class="resource-table edit">
     <thead>
       <tr>
-        <th class="field_req resource-url">URL*</th>
+        <th class="resource-expand-link"></th>
+        <th class="field_req resource-url">URL</th>
+        <th class="field_opt resource-description">Name</th>
         <th class="field_opt resource-format">Format</th>
-        <th class="field_opt resource-description">Description</th>
-        <th class="field_opt resource-hash">Hash</th>
+        <th class="field_opt resource-is-changed"> </th>
       </tr>
     </thead>
-    <tbody>
-      <py:for each="num, res in enumerate(data.get('resources', []) + [{}])">
-      <tr>
-        <py:for each="col in c.resource_columns">
-        <td class="resource-${col}">
-          <input name="resources__${num}__${col}" type="text" value="${res.get(col, '')}" class="${'medium-width' if col=='description' else 'short'}" />
+    <tbody class="resource-table">
+      <py:for each="num, res in enumerate(data.get('resources', []))">
+      <tr class="resource-summary">
+        <td class="resource-expand-link">
+          <a class="resource-expand-link" href="#"><img src="/images/icons/edit-expand.png" /></a>
+          <a class="resource-expand-link" href="#" style="display: none;"><img src="/images/icons/edit-collapse.png" /></a>
         </td>
-        </py:for>
-        <td class="resource-id"><input name="resources__${num}__id" type="hidden" value="${res.get('id', '')}" /></td>
+        <td class="resource-summary resource-url">
+          ${res.get('url', '')}
+        </td>
+        <td class="resource-summary resource-name">
+          ${res.get('name', '')}
+        </td>
+        <td class="resource-summary resource-format">
+          ${res.get('format', '')}
+        </td>
+        <td class="resource-expanded" colspan="3" style="display: none;">
+          <!-- Replaced with a javascript template -->
+          <input name="resources__${num}__url" type="text" value="${res.get('url', '')}" />
+          <input name="resources__${num}__format" type="text" value="${res.get('format', '')}" />
+          <input name="resources__${num}__description" type="text" value="${res.get('description', '')}" />
+          <input name="resources__${num}__hash" type="text" value="${res.get('hash', '')}" />
+          <input name="resources__${num}__id" type="hidden" value="${res.get('id', '')}" />
+        </td>
+        <td class="resource-is-changed">
+        </td>
       </tr>
       </py:for>
+      <py:if test="not len(data.get('resources', []))">
+        <tr class="table-empty"><td colspan="5">(none)</td></tr>
+      </py:if>
     </tbody>
   </table>
 
-  <div class="instructions basic">The files containing the data or address of the APIs for accessing it.</div>
-  <div class="instructions further"><br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different 'resource' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br /></div>
-  <div class="hints">Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate</div>
-  <div class="field_error" py:if="errors.get('resources', '')">Package resource(s) incomplete.</div>
+
+  <div class="resource-add">
+    <ul class="tabs">
+      <li><h4>Add a resource:</h4></li>
+      <li><a href="#" action="link-file" class="action-resource-tab">Link to a file</a></li>
+      <li><a href="#" action="link-api" class="action-resource-tab">Link to an API</a></li>
+      <li class="upload-file" style="display:none;"><a href="#" action="upload-file" class="action-resource-tab">Upload a file</a></li>
+    </ul>
+  </div>
 </fieldset>
 
 <fieldset id="groups">
-  <legend>Groups</legend>
   <dl>
     <py:for each="num, group in enumerate(data.get('groups', []))">
+        <?python
+        authorized_group = [group_authz for group_authz in c.groups_authz if group_authz['id'] == group['id']]
+        authorized_group = authorized_group[0] if authorized_group else None
+        ?>
+
       <dt py:if="'id' in group">
-      <input type="${'checkbox' if group['id'] in c.groups_authz else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}" />
-      <input type="hidden" name="groups__${num}__name" value="${group.get('name', c.groups_authz.get(group['id']))}" />
+      <input type="${'checkbox' if authorized_group else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}" />
+      <input type="hidden" name="groups__${num}__name" value="${group.get('name', authorized_group['name'] if authorized_group else '')}" />
       </dt>     
-      <dd py:if="'id' in group"><label for="groups__${num}__checked">${group.get('name', c.groups_authz.get(group['id']))}</label></dd>
+      <dd py:if="'id' in group"><label for="groups__${num}__checked">${group.get('name', authorized_group['name'] if authorized_group else '')}</label></dd>
     </py:for>
 
     <dt>Group</dt>
-    <dd py:if="c.groups"> 
+    <dd py:if="c.groups_available"> 
       <select id="groups__${len(data.get('groups', []))}__id" name="groups__${len(data.get('groups', []))}__id">
         <option selected="selected" value="">(None)</option>
-        <py:for each="group_id, group_name in c.groups">
-          <option value="${group_id}" py:if="group_id in c.groups_authz">${group_name}</option>
+        <py:for each="group in c.groups_available">
+          <option value="${group['id']}" >${group['name']}</option>
         </py:for>
       </select>
     </dd> 
-    <dd py:if="not c.groups">Cannot add any groups.</dd>
+    <dd py:if="not c.groups_available">Cannot add any groups.</dd>
   </dl>
 </fieldset>
 <fieldset id='detail'>
-  <legend>Detail</legend>
   <dl>
     <dt><label class="field_opt" for="author">Author</label></dt>
     <dd><input id="author" name="author" type="text" value="${data.get('author', '')}" /></dd>
@@ -151,7 +203,6 @@
 </fieldset>
 
 <fieldset id='extras'>
-  <legend>Extras</legend>
   <dl>
     <py:with vars="extras = data.get('extras', [])">
     <py:for each="num, extra in enumerate(data.get('extras', []))">
@@ -174,31 +225,32 @@
     </py:with>
   </dl>
 </fieldset>
-<hr />
 
-<label for="log_message">Edit summary (briefly describe the changes you have made)</label>
-<textarea id="log_message" name="log_message" class="short wide">${data.get('log_message', '')}</textarea>
+<label for="log_message" class="edit-summary">Edit summary (briefly describe the changes you have made)</label>
+<textarea id="log_message" name="log_message" class="edit-summary short wide">${data.get('log_message', '')}</textarea>
 
 <div class="ckan-logged-in" style="display: none;">
   <p>Author: ${c.author}</p>
 </div>
 <div class="ckan-logged-out">
   <label>Author: ${c.author}</label>
-  <p class="hints">
-  Since you have not signed in this will just be your IP address.
-  <a href="${h.url_for(controller='user', action='login', id=None)}" target="_blank">Click here to sign in</a> before saving (opens in new window).
+  <p i18n:msg="" class="hints">
+    Since you have not signed in this will just be your IP address.
+    <a href="${h.url_for(controller='user', action='login', id=None)}" target="_blank">Click here to sign in</a> before saving (opens in new window).
   </p>
 </div>
 
-<div class="submit">
-  <input name="preview" type="submit" value="Preview" />
-  <input id="save" name="save" type="submit" value="Save" />
+<div class="form-submit">
+  <input id="save" tabindex="99" class="pretty-button primary" name="save" type="submit" value="${_('Save Changes')}" />
+  <py:if test="c.pkg">
+    <input id="cancel" tabindex="100" class="pretty-button href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='package', action='read', id=c.pkg.name)}" />
+  </py:if>
+  <p i18n:msg="" class="hints">
+  <strong>Important:</strong> By submitting content, you agree to release your contributions under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>. Please <strong>refrain</strong> from editing this page if you are <strong>not</strong> happy to do this.
+  </p>
+  <div class="clear"></div>
 </div>
 
-<p class="hints">
-<strong>Important:</strong> By submitting content, you agree to release your contributions
-  under the open license specified on the <a href="/license">license page</a>. Please <strong>refrain</strong> from editing this page if you are <strong>not</strong> happy to do this.
-</p>
 
 
 </form>

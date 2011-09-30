@@ -2,10 +2,12 @@ import logging
 import re
 import datetime
 
-import ckan.authz
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
-from ckan.logic import NotFound, check_access, NotAuthorized, ValidationError
+from ckan.logic import NotFound, ValidationError
+from ckan.logic import check_access
+
 from ckan.lib.base import _
+from vdm.sqlalchemy.base import SQLAlchemySession
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
@@ -69,31 +71,6 @@ def group_error_summary(error_dict):
             error_summary[_(prettify(key))] = error[0]
     return error_summary
 
-def check_group_auth(context, data_dict):
-    model = context['model']
-    pkg = context.get("package")
-
-    ## hack as api does not allow groups
-    if context.get("allow_partial_update"):
-        return
-    
-    group_dicts = data_dict.get("groups", [])
-    groups = set()
-    for group_dict in group_dicts:
-        id = group_dict.get('id')
-        if not id:
-            continue
-        grp = model.Group.get(id)
-        if grp is None:
-            raise NotFound(_('Group was not found.'))
-        groups.add(grp)
-
-    if pkg:
-        groups = groups - set(pkg.groups)
-
-    for group in groups:
-        check_access(group, model.Action.EDIT, context)
-
 def _make_latest_rev_active(context, q):
 
     session = context['model'].Session
@@ -107,7 +84,9 @@ def _make_latest_rev_active(context, q):
     latest_rev.current = True
     if latest_rev.state in ('pending-deleted', 'deleted'):
         latest_rev.state = 'deleted'
+        latest_rev.continuity.state = 'deleted'
     else:
+        latest_rev.continuity.state = 'active'
         latest_rev.state = 'active'
 
     session.add(latest_rev)
@@ -127,10 +106,11 @@ def make_latest_pending_package_active(context, data_dict):
 
     model = context['model']
     session = model.Session
+    SQLAlchemySession.setattr(session, 'revisioning_disabled', True)
     id = data_dict["id"]
     pkg = model.Package.get(id)
 
-    check_access(pkg, model.Action.EDIT, context)
+    check_access('make_latest_pending_package_active', context, data_dict)
 
     #packages
     q = session.query(model.PackageRevision).filter_by(id=pkg.id)
@@ -188,7 +168,7 @@ def resource_update(context, data_dict):
     if not pkg:
         raise NotFound(_('No package found for this resource, cannot check auth.'))
 
-    check_access(pkg, model.Action.EDIT, context)
+    check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -213,7 +193,6 @@ def package_update(context, data_dict):
     user = context['user']
     
     id = data_dict["id"]
-    preview = context.get('preview', False)
     schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
     model.Session()._context = context
@@ -225,39 +204,34 @@ def package_update(context, data_dict):
         raise NotFound(_('Package was not found.'))
     data_dict["id"] = pkg.id
 
-    check_access(pkg, model.Action.EDIT, context)
+    check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
-
-    check_group_auth(context, data)
+    
 
     if errors:
         model.Session.rollback()
         raise ValidationError(errors, package_error_summary(errors))
 
-    if not preview:
-        rev = model.repo.new_revision()
-        rev.author = user
-        if 'message' in context:
-            rev.message = context['message']
-        else:
-            rev.message = _(u'REST API: Update object %s') % data.get("name")
+    rev = model.repo.new_revision()
+    rev.author = user
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'REST API: Update object %s') % data.get("name")
 
     pkg = package_dict_save(data, context)
 
-    if not preview:
-        for item in PluginImplementations(IPackageController):
-            item.edit(pkg)
-        model.repo.commit()        
-        return package_dictize(pkg, context)
-    return data
+    for item in PluginImplementations(IPackageController):
+        item.edit(pkg)
+    model.repo.commit()        
+    return package_dictize(pkg, context)
 
 def package_update_validate(context, data_dict):
     model = context['model']
     user = context['user']
     
     id = data_dict["id"]
-    preview = context.get('preview', False)
     schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
     model.Session()._context = context
@@ -269,8 +243,10 @@ def package_update_validate(context, data_dict):
         raise NotFound(_('Package was not found.'))
     data_dict["id"] = pkg.id
 
-    check_access(pkg, model.Action.EDIT, context)
+    check_access('package_update', context, data_dict)
+
     data, errors = validate(data_dict, schema, context)
+
 
     if errors:
         model.Session.rollback()
@@ -311,12 +287,7 @@ def package_relationship_update(context, data_dict):
     if not pkg2:
         return NotFound('Second package named in address was not found.')
 
-    authorizer = ckan.authz.Authorizer()
-    am_authorized = authorizer.authorized_package_relationship(
-         user, pkg1, pkg2, action=model.Action.EDIT)
-
-    if not am_authorized:
-        raise NotAuthorized
+    check_access('package_relationship_update', context, data_dict)
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
@@ -337,7 +308,7 @@ def group_update(context, data_dict):
     if group is None:
         raise NotFound('Group was not found.')
 
-    check_access(group, model.Action.EDIT, context)
+    check_access('group_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
     if errors:
@@ -368,7 +339,6 @@ def user_update(context, data_dict):
 
     model = context['model']
     user = context['user']
-    preview = context.get('preview', False)
     schema = context.get('schema') or default_update_user_schema() 
     id = data_dict['id']
 
@@ -377,9 +347,7 @@ def user_update(context, data_dict):
     if user_obj is None:
         raise NotFound('User was not found.')
 
-    if not (ckan.authz.Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name) and \
-       not ('reset_key' in data_dict and data_dict['reset_key'] == user_obj.reset_key):
-        raise NotAuthorized( _('User %s not authorized to edit %s') % (str(user), id))
+    check_access('user_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
     if errors:
@@ -388,11 +356,8 @@ def user_update(context, data_dict):
 
     user = user_dict_save(data, context)
     
-    if not preview:
-        model.repo.commit()        
-        return user_dictize(user, context)
-
-    return data
+    model.repo.commit()        
+    return user_dictize(user, context)
 
 ## Modifications for rest api
 
@@ -407,6 +372,7 @@ def package_update_rest(context, data_dict):
     if not pkg:
         raise NotFound
 
+
     if id and id != pkg.id:
         pkg_from_data = model.Package.get(id)
         if pkg_from_data != pkg:
@@ -417,7 +383,11 @@ def package_update_rest(context, data_dict):
     context["package"] = pkg
     context["allow_partial_update"] = True
     dictized_package = package_api_to_dict(data_dict, context)
+
+    check_access('package_update_rest', context, dictized_package)
+
     dictized_after = package_update(context, dictized_package)
+
 
     pkg = context['package']
 
@@ -436,10 +406,14 @@ def group_update_rest(context, data_dict):
     group = model.Group.get(id)
     context["group"] = group
     context["allow_partial_update"] = True
-    dictized_package = group_api_to_dict(data_dict, context)
-    dictized_after = group_update(context, dictized_package)
+    dictized_group = group_api_to_dict(data_dict, context)
+
+    check_access('group_update_rest', context, dictized_group)
+
+    dictized_after = group_update(context, dictized_group)
 
     group = context['group']
+
 
     if api == '1':
         group_dict = group_to_api1(group, context)

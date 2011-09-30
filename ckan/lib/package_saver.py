@@ -9,25 +9,10 @@ from ckan.lib.dictization import table_dictize
 # Todo: Factor out unused original_name argument.
 
 class PackageSaver(object):
-    '''Use this to validate, preview and save packages to the db.
+    '''Use this to validate and save packages to the db.
     @param log_message: optional - only supply this if you want it validated
     @param author: optional - only supply this if you want it validated
     '''
-    @classmethod
-    def render_preview(cls, fs, log_message=None, author=None, client=None):
-        '''Renders a package on the basis of a fieldset - perfect for
-        preview of form data.
-        Note that the actual calling of render('package/read') is left
-        to the caller.'''
-        pkg = cls._preview_pkg(fs, log_message, author, client=client)
-
-        pkg_dict = table_dictize(pkg, {'model': model})
-        pkg_dict['extras'] = []
-        c.pkg = pkg
-        for key, value in pkg.extras.iteritems():
-            pkg_dict['extras'].append(dict(key=key, value=value))
-
-        cls.render_package(pkg_dict, {'package': pkg})
 
     # TODO: rename to something more correct like prepare_for_render
     @classmethod
@@ -69,47 +54,17 @@ class PackageSaver(object):
             c.pkg_revision_not_latest = c.pkg_dict[u'revision_id'] != c.pkg.revision.id
 
     @classmethod
-    def _preview_pkg(cls, fs, log_message=None, author=None, client=None):
-        '''Previews the POST data (associated with a package edit)
-        @input c.error
-        @input fs      FieldSet with the param data bound to it
-        @param log_message: only supply this if you want it validated
-        @param author: only supply this if you want it validated
-        @return package object
-        '''
-        try:
-            out = cls._update(fs, log_message,
-                              author, commit=False, client=client)
-        except ValidationException, e:
-            raise ValidationException(*e)
-        finally:
-            # While the package is still in the session, touch the relations
-            # so that they load (they are set to lazy load) because we will
-            # need to use their values later when we render the package
-            # object (i.e. preview it).
-            fs.model.license
-            fs.model.groups
-            fs.model.ratings
-            fs.model.extras
-            fs.model.resources
-            # remove everything from session so nothing can get saved
-            # accidentally
-            model.Session.remove()
-        return out
-
-    @classmethod
     def commit_pkg(cls, fs, log_message, author, client=None):
         '''Writes the POST data (associated with a package edit) to the
         database
         @input c.error
         @input fs      FieldSet with the param data bound to it
         '''
-        cls._update(fs, log_message, author, commit=True, client=client)
+        cls._update(fs, log_message, author, client=client)
 
     @classmethod
-    def _update(cls, fs, log_message, author, commit=True, client=None):
+    def _update(cls, fs, log_message, author, client=None):
         # Todo: Consolidate log message field (and validation).
-        # Todo: Separate out the preview line of execution, it's confusing.
         rev = None
         # validation
         errors = cls._revision_validation(log_message)
@@ -129,13 +84,9 @@ class PackageSaver(object):
             model.Session.rollback()
             raise
         else:
-            # only commit if desired and it validates ok
-            if commit and validates:
+            # only commit if it validates ok
+            if validates:
                 model.Session.commit()
-            elif validates:
-                # i.e. preview
-                pkg = fs.model
-                return pkg
         if rev and 'true' == config.get('changeset.auto_commit', '').strip():
             try:
                 from ckan.model.changeset import ChangesetRegister

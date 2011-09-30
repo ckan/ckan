@@ -76,13 +76,13 @@ class TestBasicDictize:
                                                 'description': u'Full text. Needs escaping: " Umlaut: \xfc',
                                                 'format': u'plain text',
                                                 'hash': u'abc123',
-                                                'size': u'123',
+                                                'size_extra': u'123',
                                                 'url': u'http://www.annakarenina.com/download/x=1&y=2'},
                                                {'alt_url': u'alt345',
                                                 'description': u'Index of the novel',
                                                 'format': u'json',
                                                 'hash': u'def456',
-                                                'size': u'345',
+                                                'size_extra': u'345',
                                                 'url': u'http://www.annakarenina.com/index.json'}],
                                  'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
                                  'title': u'A Novel By Tolstoy',
@@ -102,7 +102,7 @@ class TestBasicDictize:
         converted_data, errors = validate(data, default_package_schema(), context)
 
         assert errors == {
-            'name': [u'Package name already exists in database'],
+            'name': [u'Dataset name already exists in database'],
             'resources': [{},
                           {'url': [u'Missing value']}]
         }, pformat(errors)
@@ -156,5 +156,5 @@ class TestBasicDictize:
         data["packages"][1].pop("name")
 
         converted_data, errors = validate(data, default_group_schema(), context)
-        assert errors ==  {'packages': [{'id': [u'Package was not found.']}, {'id': [u'Missing value']}]} , pformat(errors)
+        assert errors ==  {'packages': [{'id': [u'Dataset was not found.']}, {'id': [u'Missing value']}]} , pformat(errors)
 

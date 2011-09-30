@@ -4,34 +4,13 @@
   py:strip="">
   
   <py:def function="page_title">${c.user} - Edit - User</py:def>
-
-  <py:def function="optional_head">
-    <link rel="stylesheet" href="${g.site_url}/css/forms.css" type="text/css" media="screen, print" />
+  <py:def function="page_heading">
+      Edit User: ${c.userobj.display_name}
   </py:def>
 
   <div py:match="content">
-    <h2>
-      Edit User: ${c.display_name} (${c.user_name})
-      <a href="#preview" py:if="c.preview">(skip to preview)</a>
-    </h2>
-
-
-
-    <div id="preview" style="margin-left: 20px;" py:if="c.preview">
-      <hr />
-      <h2>Preview</h2>
-      <h4>Full name: ${c.full_name}</h4>
-      <h4>Email: ${c.email}</h4>
-      <div style="border: 2px dashed red; padding: 5px;"> 
-        ${c.preview}
-      </div>
-    </div>
-
     ${Markup(c.form)}
-
-
   </div>
-
 
   <xi:include href="layout.html" />
 </html>

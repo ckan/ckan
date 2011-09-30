@@ -196,7 +196,7 @@ def user_dictize(user, context):
 def group_to_api1(group, context):
     
     dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], extra["value"]) 
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
     dictized["packages"] = sorted([package["name"] for package in dictized["packages"]])
     return dictized
@@ -204,7 +204,7 @@ def group_to_api1(group, context):
 def group_to_api2(group, context):
     
     dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], extra["value"]) 
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
     dictized["packages"] = sorted([package["id"] for package in dictized["packages"]])
     return dictized
@@ -252,7 +252,7 @@ def package_to_api1(pkg, context):
     dictized['ratings_count'] = len(pkg.ratings)
     site_url = config.get('ckan.site_url', None)
     if site_url:
-        dictized['ckan_url'] = '%s/package/%s' % (site_url, pkg.name)
+        dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
     dictized['metadata_modified'] = pkg.metadata_modified.isoformat() \
         if pkg.metadata_modified else None
     dictized['metadata_created'] = pkg.metadata_created.isoformat() \
@@ -303,7 +303,7 @@ def package_to_api2(pkg, context):
     dictized['ratings_count'] = len(pkg.ratings)
     site_url = config.get('ckan.site_url', None)
     if site_url:
-        dictized['ckan_url'] = '%s/package/%s' % (site_url, pkg.name)
+        dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
     dictized['metadata_modified'] = pkg.metadata_modified.isoformat() \
         if pkg.metadata_modified else None
     dictized['metadata_created'] = pkg.metadata_created.isoformat() \

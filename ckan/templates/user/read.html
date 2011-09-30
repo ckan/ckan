@@ -3,32 +3,31 @@
   py:strip="">
   
   <py:def function="page_title">${c.user_dict['display_name']} - User</py:def>
+  <py:def function="page_heading">${c.user_dict['display_name']}</py:def>
   <py:def function="body_class">user-view</py:def>
+  
+  <py:match path="primarysidebar">
+    <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
+      <h3>Activity</h3>
+      <ul>
+        <li><strong>Number of edits:</strong> ${c.user_dict['number_of_edits']}</li>
+        <li><strong>Number of datasets administered:</strong> ${c.user_dict['number_administered_packages']}</li>
+      </ul>
+    </li>
+  </py:match>
 
   <div py:match="content">
-
-    <h2>${c.user_dict['display_name']}</h2>
     <py:if test="c.is_myself">
       <h3>My Account</h3>
 
       <p>You are logged in.</p>
       <ul>
         <li>Your API key is: ${c.user_dict['apikey']}</li>
-        <li><a href="${h.url_for(controller='user', action='edit')}">Edit your profile</a></li>
-        <li><a href="${h.url_for('/user/logout')}">Log out</a></li>
       </ul>
     </py:if>
 
     <div class="about">
       ${c.about_formatted}
-    </div>
-
-    <div class="activity">
-      <h3>Activity</h3>
-      <ul>
-        <li><strong>Number of edits:</strong> ${c.user_dict['number_of_edits']}</li>
-        <li><strong>Number of packages administered:</strong> ${c.user_dict['number_administered_packages']}</li>
-      </ul>
     </div>
 
     <div class="changes">

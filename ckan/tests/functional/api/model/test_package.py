@@ -1,11 +1,13 @@
 import copy
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_raises
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase 
 from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase 
+from ckan import plugins
+import ckan.lib.search as search
 
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
@@ -134,36 +136,24 @@ class PackagesTestCase(BaseModelApiTestCase):
         else:
             assert package        
 
-    def test_register_post_json(self):
-        assert not self.get_package_by_name(self.package_fixture_data['name'])
-        offset = self.package_offset()
-        data = self.dumps(self.package_fixture_data)
-        res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
-                             extra_environ=self.extra_environ)
-        # Check the database record.
-        self.remove()
-        package = self.get_package_by_name(self.package_fixture_data['name'])
-        assert package
-        self.assert_equal(package.title, self.package_fixture_data['title'])
-        
     def test_register_post_bad_request(self):
         test_params = {
             'name':u'testpackage06_400',
             'resources':[u'should_be_a_dict'],
         }
-        offset = self.offset('/rest/package')
+        offset = self.offset('/rest/dataset')
         postparams = '%s=1' % self.dumps(test_params)
         res = self.app.post(offset, params=postparams, status=self.STATUS_400_BAD_REQUEST,
                 extra_environ=self.extra_environ)
 
     def test_register_post_denied(self):
-        offset = self.offset('/rest/package')
+        offset = self.offset('/rest/dataset')
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams, status=self.STATUS_403_ACCESS_DENIED)
 
     def test_register_post_readonly_fields(self):
         # (ticket 662) Post a package with readonly field such as 'id'
-        offset = self.offset('/rest/package')
+        offset = self.offset('/rest/dataset')
         data = {'name': u'test_readonly',
                 'id': u'not allowed to be set',
                 }
@@ -173,10 +163,30 @@ class PackagesTestCase(BaseModelApiTestCase):
                             extra_environ=self.extra_environ)
         assert_equal(res.body, '{"id": ["The input field id was not expected."]}')
 
+    def test_register_post_indexerror(self):
+        """
+        Test that we can't add a package if Solr is down.
+        """
+        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        solr_url = search.common.solr_url
+        try:
+            search.common.solr_url = bad_solr_url
+            plugins.load('synchronous_search')
+
+            assert not self.get_package_by_name(self.package_fixture_data['name'])
+            offset = self.package_offset()
+            data = self.dumps(self.package_fixture_data)
+
+            self.post_json(offset, data, status=500, extra_environ=self.extra_environ)
+            self.remove()
+        finally:
+            plugins.unload('synchronous_search')
+            search.common.solr_url = solr_url
+
     def test_entity_get_ok(self):
         package_refs = [self.anna.name, self.anna.id]
         for ref in package_refs:
-            offset = self.offset('/rest/package/%s' % ref)
+            offset = self.offset('/rest/dataset/%s' % ref)
             res = self.app.get(offset, status=self.STATUS_200_OK)
             self.assert_msg_represents_anna(msg=res.body)
 
@@ -190,7 +200,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.assert_msg_represents_anna(msg=msg)
 
     def test_entity_get_not_found(self):
-        offset = self.offset('/rest/package/22222')
+        offset = self.offset('/rest/dataset/22222')
         res = self.app.get(offset, status=self.STATUS_404_NOT_FOUND)
         self.remove()
 
@@ -232,7 +242,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.delete(offset, status=self.STATUS_403_ACCESS_DENIED)
 
     def test_09_update_package_entity_not_found(self):
-        offset = self.offset('/rest/package/22222')
+        offset = self.offset('/rest/dataset/22222')
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_404_NOT_FOUND,
@@ -262,14 +272,14 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
                 u'alt_url':u'alt123',
-                u'size':u'400',
+                u'size_extra':u'400',
             },{
                 u'url':u'http://blah.com/file3.xml',
                 u'format':u'xml',
                 u'description':u'Appenddic 2',
                 u'hash':u'ghi123',
                 u'alt_url':u'alt123',
-                u'size':u'400',
+                u'size_extra':u'400',
             }],
             'extras': {
                 u'key3': u'val3', 
@@ -286,7 +296,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         # because you should be able to specify the package both ways round
         # for both versions of the API.
         package_ref = getattr(pkg, package_ref_attribute)
-        offset = self.offset('/rest/package/%s' % package_ref)
+        offset = self.offset('/rest/dataset/%s' % package_ref)
         params = '%s=1' % self.dumps(new_fixture_data)
         method_func = getattr(self.app, method_str)
         res = method_func(offset, params=params, status=self.STATUS_200_OK,
@@ -321,14 +331,14 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.assert_equal(resource.description, u'Appendix 1')
         self.assert_equal(resource.hash, u'def123')
         self.assert_equal(resource.alt_url, u'alt123')
-        self.assert_equal(resource.extras['size'], u'400')
+        self.assert_equal(resource.extras['size_extra'], u'400')
         resource = package.resources[1]
         self.assert_equal(resource.url, 'http://blah.com/file3.xml')
         self.assert_equal(resource.format, u'xml')
         self.assert_equal(resource.description, u'Appenddic 2')
         self.assert_equal(resource.hash, u'ghi123')
         self.assert_equal(resource.alt_url, u'alt123')
-        self.assert_equal(resource.extras['size'], u'400')
+        self.assert_equal(resource.extras['size_extra'], u'400')
 
         # Check unsubmitted fields have not changed.
         # - url
@@ -469,6 +479,23 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.app.put(package1_offset, package2_data,
                      status=self.STATUS_400_BAD_REQUEST)
 
+    def test_entity_update_indexerror(self):
+        """
+        Test that we can't update a package if Solr is down.
+        """
+        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        solr_url = search.common.solr_url
+        try:
+            search.common.solr_url = bad_solr_url
+            plugins.load('synchronous_search')
+
+            assert_raises(
+                search.SearchIndexError, self.assert_package_update_ok, 'name', 'post'
+            )
+        finally:
+            plugins.unload('synchronous_search')
+            search.common.solr_url = solr_url
+
     def test_entity_delete_ok(self):
         # create a package with package_fixture_data
         if not self.get_package_by_name(self.package_fixture_data['name']):
@@ -498,13 +525,13 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_delete_not_found(self):
         package_name = u'random_one'
         assert not model.Session.query(model.Package).filter_by(name=package_name).count()
-        offset = self.offset('/rest/package/%s' % package_name)
+        offset = self.offset('/rest/dataset/%s' % package_name)
         res = self.app.delete(offset, status=self.STATUS_404_NOT_FOUND,
                               extra_environ=self.extra_environ)
 
     def test_package_revisions(self):
         # check original revision
-        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
+        res = self.app.get(self.offset('/rest/dataset/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 1, len(revisions)
         expected_keys = set(('id', 'message', 'author', 'timestamp', 'approved_timestamp'))
@@ -518,7 +545,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         model.repo.commit_and_remove()
 
         # check new revision is there
-        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
+        res = self.app.get(self.offset('/rest/dataset/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 2, len(revisions)
 
@@ -532,7 +559,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         model.repo.commit_and_remove()
 
         # check new revision is there
-        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
+        res = self.app.get(self.offset('/rest/dataset/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 3, len(revisions)
 

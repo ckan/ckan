@@ -18,9 +18,9 @@ Some popular extensions include:
 * `ckanext-admin <https://bitbucket.org/okfn/ckanext-admin>`_: Admin web interface for CKAN.
 * `ckanext-apps <https://bitbucket.org/okfn/ckanext-apps>`_: Apps and ideas catalogue extension for CKAN.
 * `ckanext-deliverance <https://bitbucket.org/okfn/ckanext-deliverance>`_: Extends CKAN to use the Deliverance HTTP proxy, which can request and render web pages from * an external site (e.g. a CMS like Drupal or Wordpress). 
-* `ckanext-disqus <https://bitbucket.org/okfn/ckanext-disqus>`_: Allows users to comment on package pages with Disqus. 
-* `ckanext-follower <https://bitbucket.org/okfn/ckanext-follower>`_: Allow users to follow packages.
-* `ckanext-googleanalytics <https://bitbucket.org/okfn/ckanext-googleanalytics>`_: Integrates Google Analytics data into CKAN. Gives download stats on package pages, list * of most popular packages, etc.
+* `ckanext-disqus <https://bitbucket.org/okfn/ckanext-disqus>`_: Allows users to comment on dataset pages with Disqus. 
+* `ckanext-follower <https://bitbucket.org/okfn/ckanext-follower>`_: Allow users to follow datasets.
+* `ckanext-googleanalytics <https://bitbucket.org/okfn/ckanext-googleanalytics>`_: Integrates Google Analytics data into CKAN. Gives download stats on dataset pages, list * of most popular datasets, etc.
 * `ckanext-qa <https://bitbucket.org/okfn/ckanext-qa>`_: Provides link checker, 5 stars of openness and other Quality Assurance features.
 * `ckanext-rdf <https://bitbucket.org/okfn/ckanext-rdf>`_: Consolidated handling of RDF export and import for CKAN. 
 * `ckanext-stats <https://bitbucket.org/okfn/ckanext-stats>`_: Statistics (and visuals) about the datasets in a CKAN instance.

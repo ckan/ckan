@@ -22,34 +22,34 @@ You can use the `CKAN API <api.html>`_ to upload datasets directly into your CKA
 The Simplest Approach - ckanclient
 ++++++++++++++++++++++++++++++++++
 
-The most basic way to automate package loading is with a Python script using the `ckanclient library <http://pypi.python.org/pypi/ckanclient>`_. You will need to register for an API key first. 
+The most basic way to automate dataset loading is with a Python script using the `ckanclient library <http://pypi.python.org/pypi/ckanclient>`_. You will need to register for an API key first. 
 
 You can install ckanclient with::
 
  pip install ckanclient
 
-Here is an example script to register a new package::
+Here is an example script to register a new dataset::
 
   import ckanclient
   # Instantiate the CKAN client.
   ckan = ckanclient.CkanClient(api_key=my_api_key, base_location="http://myckaninstance.com/api")
-  # Describe the package.
-  package_entity = {
-        'name': my_package_name,
-        'url': my_package_url,
-        'download_url': my_package_download_url,
-        'tags': my_package_keywords,
-        'notes': my_package_long_description,
+  # Describe the dataset.
+  dataset_entity = {
+        'name': my_dataset_name,
+        'url': my_dataset_url,
+        'download_url': my_dataset_download_url,
+        'tags': my_dataset_keywords,
+        'notes': my_dataset_long_description,
   }
-  # Register the package.
-  ckan.package_register_post(package_entity)
+  # Register the dataset.
+  ckan.package_register_post(dataset_entity)
 
 Loader Scripts
 ++++++++++++++
 
 'Loader scripts' provide a simple way to take any format metadata and bulk upload it to a remote CKAN instance.
 
-Essentially each set of loader scripts converts the dataset metadata to the standard 'package' format, and then loads it into CKAN. 
+Essentially each set of loader scripts converts the dataset metadata to the standard 'dataset' format, and then loads it into CKAN. 
 
 Loader scripts are generally stored into the `ckanext` repository. To get a flavour of what loader scripts look like, take a look at `the ONS scripts <https://bitbucket.org/okfn/ckanext-dgu/src/default/ckanext/dgu/ons/>`_.
 
@@ -58,7 +58,7 @@ Loader Scripts for CSV and Excel
 
 For CSV and Excel formats, the `SpreadsheetPackageImporter` (found in ``ckan/lib/spreadsheet_importer.py``) loader script wraps the file in `SpreadsheetData` before extracting the records into `SpreadsheetDataRecords`.
 
-SpreadsheetPackageImporter copes with multiple title rows, data on multiple sheets, dates. The loader can reload packages based on a unique key column in the spreadsheet, choose unique names for packages if there is a clash, add/merge new resources for existing packages and manage package groups.
+SpreadsheetPackageImporter copes with multiple title rows, data on multiple sheets, dates. The loader can reload datasets based on a unique key column in the spreadsheet, choose unique names for datasets if there is a clash, add/merge new resources for existing datasets and manage dataset groups.
 
 Loader Scripts for Google Spreadsheets
 **************************************
@@ -74,12 +74,12 @@ Write Your Own Loader Script
 
 First, you need an importer that derives from `PackageImporter` (found in ``ckan/lib/importer.py``). This takes whatever format the metadata is in and sorts it into records of type `DataRecord`. 
 
-Next, each DataRecord is converted into the correct fields for a package using the `record_2_package` method. This results in package dictionaries.
+Next, each DataRecord is converted into the correct fields for a dataset using the `record_2_package` method. This results in dataset dictionaries.
 
-The `PackageLoader` takes the package dictionaries and loads them onto a CKAN instance using the ckanclient. There are various settings to determine:
+The `PackageLoader` takes the dataset dictionaries and loads them onto a CKAN instance using the ckanclient. There are various settings to determine:
 
- * ##how to identify the same package, previously been loaded into CKAN.## This can be simply by name or by an identifier stored in another field.
- * how to merge in changes to an existing packages. It can simply replace it or maybe merge in resources etc.
+ * ##how to identify the same dataset, previously been loaded into CKAN.## This can be simply by name or by an identifier stored in another field.
+ * how to merge in changes to an existing datasets. It can simply replace it or maybe merge in resources etc.
 
 The loader should be given a command-line interface using the `Command` base class (``ckanext/command.py``). 
 

@@ -69,16 +69,20 @@ Use the 'public' directory as described in the previous section, then add a new 
 
 Next, copy the ``layout.html`` template and add a reference to the new CSS file. Here is an example of the edited ``layout.html`` template::
 
- <html xmlns="http://www.w3.org/1999/xhtml"
-   xmlns:i18n="http://genshi.edgewall.org/i18n"
-   xmlns:py="http://genshi.edgewall.org/"
-   xmlns:xi="http://www.w3.org/2001/XInclude"
-   py:strip="">
-   <py:def function="optional_head">
-       <link rel="stylesheet" href="${g.site_url}/css/mycss.css" />
-   </py:def>
-   <xi:include href="layout_base.html" />
- </html>
+  <html xmlns="http://www.w3.org/1999/xhtml"                     
+    xmlns:i18n="http://genshi.edgewall.org/i18n"                 
+    xmlns:py="http://genshi.edgewall.org/"                       
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    py:strip="">                                                 
+                                                                 
+    <head py:match="head">
+      ${select('*')}
+
+      <link rel="stylesheet" href="${g.site_url}/css/mycss.css" />
+    </head>
+
+    <xi:include href="layout_base.html" />
+  </html>
 
 Retheming the Site with Templates
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

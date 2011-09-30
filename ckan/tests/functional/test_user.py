@@ -55,7 +55,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                                  'rel="nofollow"')
         assert 'Edit' not in main_res, main_res
         assert 'Number of edits:</strong> 3' in res, res
-        assert 'Number of packages administered:</strong> 1' in res, res
+        assert 'Number of datasets administered:</strong> 1' in res, res
         assert 'Revision History' in res, res
 
     def test_user_read_without_id(self):
@@ -158,8 +158,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         offset = url_for(controller='user', action='login')
         res = self.app.get(offset)
         fv = res.forms['login']
-        fv['login'] = username
-        fv['password'] = password
+        fv['login'] = str(username)
+        fv['password'] = str(password)
         res = fv.submit()
 
         # check cookies set
@@ -176,7 +176,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert_equal(res.header('Location'), 'http://localhost/user/testlogin')
         res = res.follow()
         assert_equal(res.status, 200)
-        assert 'Welcome back, testlogin' in res.body
+        assert 'testlogin is now logged in' in res.body
         assert 'My Account' in res.body
         
         # check user object created
@@ -482,13 +482,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['about'] = new_about
         fv['password1'] = new_password
         fv['password2'] = new_password
-        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
-        
-        # preview
-        main_res = self.main_div(res)
-        assert 'Edit User: testedit' in main_res, main_res
-        in_preview = main_res[main_res.find('Preview'):]
-        assert new_about in in_preview, in_preview
 
         # commit
         res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
@@ -532,14 +525,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['about'] = new_about
         fv['password1'] = ''
         fv['password2'] = ''
-
-        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
-        
-        # preview
-        main_res = self.main_div(res)
-        assert 'Edit User: testedit2' in main_res, main_res
-        in_preview = main_res[main_res.find('Preview'):]
-        assert new_about in in_preview, in_preview
 
         # commit
         res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
@@ -603,7 +588,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'Edit User: ' in main_res, main_res
         assert 'Test About &lt;a href="http://spamsite.net"&gt;spamsite&lt;/a&gt;' in main_res, main_res
         fv = res.forms['user-edit']
-        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
         # commit
         res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
         assert res.status == 200, res.status
@@ -615,8 +599,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # comes back as a params like this:
         # e.g. /user/login?error=Error%20in%20discovery:%20Error%20fetching%20XRDS%20document:%20(6,%20%22Couldn't%20resolve%20host%20'mysite.myopenid.com'%22)
         res = self.app.get("/user/login?error=Error%20in%20discovery:%20Error%20fetching%20XRDS%20document:%20(6,%20%22Couldn't%20resolve%20host%20'mysite.myopenid.com'%22")
-        main_res = self.main_div(res)
-        assert "Couldn't resolve host" in main_res, main_res
+        assert "Couldn&#39;t resolve host" in res, res
 
     def _login_openid(self, res):
         # this requires a valid account on some openid provider
@@ -645,8 +628,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['user-password-reset']
         fv['user'] = 'unknown'
         res = fv.submit()
-        main_res = self.main_div(res)
-        assert 'No such user: unknown' in main_res, main_res # error
+        assert 'No such user: unknown' in res, res # error
 
     def test_request_reset_user_password_using_search(self):
         CreateTestData.create_user(name='larry1', email='kittens@john.com')
@@ -664,24 +646,21 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['user-password-reset']
         fv['user'] = 'kittens'
         res = fv.submit()
-        main_res = self.main_div(res)
-        assert '"kittens" matched several users' in main_res, main_res
-        assert 'larry1' not in main_res, main_res
-        assert 'larry2' not in main_res, main_res
+        assert '&#34;kittens&#34; matched several users' in res, res
+        assert 'larry1' not in res, res
+        assert 'larry2' not in res, res
 
         res = self.app.get(offset)
         fv = res.forms['user-password-reset']
         fv['user'] = ''
         res = fv.submit()
-        main_res = self.main_div(res)
-        assert 'No such user:' in main_res, main_res
+        assert 'No such user:' in res, res
 
         res = self.app.get(offset)
         fv = res.forms['user-password-reset']
         fv['user'] = 'l'
         res = fv.submit()
-        main_res = self.main_div(res)
-        assert 'No such user:' in main_res, main_res
+        assert 'No such user:' in res, res
 
     def test_reset_user_password_link(self):
         # Set password

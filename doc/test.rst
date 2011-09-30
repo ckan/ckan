@@ -116,3 +116,14 @@ Common problems running tests
 
    This error usually results from running a test which involves search functionality, which requires using a PostgreSQL database, but another (such as SQLite) is configured. The particular test is either missing a `@search_related` decorator or there is a mixup with the test configuration files leading to the wrong database being used.
 
+* `ImportError: No module named worker`
+
+   The python entry point for the worker has not been generated. This occurs during the 'pip install' of the CKAN source, and needs to be done again if switching from older code that didn't have it. To recitify it::
+
+        python setup.py egg_info
+
+* `ImportError: cannot import name get_backend`
+
+   This can be caused by an out of date pyc file. Delete all your pyc files and start again::
+
+        find . -name "*.pyc" | xargs rm

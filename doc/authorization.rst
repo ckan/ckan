@@ -16,11 +16,11 @@ This section describes:
 Overview
 --------
 
-In a nutshell: for a particular **object** (e.g. a package) a CKAN **user** can be assigned a **role** (e.g. editor) which allows permitted **actions** (e.g. read, edit).
+In a nutshell: for a particular **object** (e.g. a dataset) a CKAN **user** can be assigned a **role** (e.g. editor) which allows permitted **actions** (e.g. read, edit).
 
 In more detail, these concepts are as follows: 
  
-* There are **objects** to which access can be controlled, such as packages and groups.
+* There are **objects** to which access can be controlled, such as datasets and groups.
 * For each object there are a set of relevant **actions**, such as create and edit, which users can perform on the object. 
 * To simplify mapping users to actions and objects, actions are aggregated into a set of **roles**. For example, an editor role would automatically have edit and read actions.
 * Finally, CKAN has registered **users**. 
@@ -29,25 +29,25 @@ Objects
 +++++++
 
 Permissions are controlled per object: access can be controlled for an individual 
-package, group or authorization group instance. Current objects include 
-**packages**, package **groups**, **authorization groups** and the **system**.
+dataset, group or authorization group instance. Current objects include 
+**datasets**, dataset **groups**, **authorization groups** and the **system**.
 
-* A package is the basic CKAN concept of metadata about a dataset. 
-* A group of packages can be set up to specify which users have permission to add or remove packages from the group.
-* Users can be assigned to authorization groups, to increase flexibility. Instead of specifying the privileges of specific users on a package or group, you can also specify a set of users that share the same rights. To do that, an authorization group can be set up and users can be added to it. Authorization groups are both the object of authorization (i.e. one can have several roles with regards to an authorization group, such as being allowed to read or edit it) and the subject of authorization (i.e. they can be assigned roles on other objects which will apply to their members, such as the group having edit rights on a particular group).
-* Finally, the system object is special, serving as an object for assignments that do not relate to a specific object. For example, creating a package cannot be linked to a specific package instance, and is therefore a operation. 
+* A dataset is the basic CKAN concept of metadata about a dataset. 
+* A group of datasets can be set up to specify which users have permission to add or remove datasets from the group.
+* Users can be assigned to authorization groups, to increase flexibility. Instead of specifying the privileges of specific users on a dataset or group, you can also specify a set of users that share the same rights. To do that, an authorization group can be set up and users can be added to it. Authorization groups are both the object of authorization (i.e. one can have several roles with regards to an authorization group, such as being allowed to read or edit it) and the subject of authorization (i.e. they can be assigned roles on other objects which will apply to their members, such as the group having edit rights on a particular group).
+* Finally, the system object is special, serving as an object for assignments that do not relate to a specific object. For example, creating a dataset cannot be linked to a specific dataset instance, and is therefore a operation. 
 
 
 Actions
 +++++++
 
-**Actions** are defined in the Action enumeration in ``ckan/model/authz.py`` and currently include: **edit**, **change-state**, **read**, **purge**, **edit-permissions**, **create-package**, **create-group**, **create-authorization-group**, **read-site**, **read-user**, **create-user**.
+**Actions** are defined in the Action enumeration in ``ckan/model/authz.py`` and currently include: **edit**, **change-state**, **read**, **purge**, **edit-permissions**, **create-dataset**, **create-group**, **create-authorization-group**, **read-site**, **read-user**, **create-user**.
 
-As noted above, some of these (e.g. **read**) have meaning for any type of object, while some (e.g. **create-package**) can not be associated with any particular object, and are therefore only associated with the system object. 
+As noted above, some of these (e.g. **read**) have meaning for any type of object, while some (e.g. **create-dataset**) can not be associated with any particular object, and are therefore only associated with the system object. 
 
 The **read-site** action (associated with the system object) allows or denies access to pages not associated with specific objects. These currently include:
  
- * Package search
+ * Dataset search
  * Group index
  * Tags index 
  * Authorization Group index
@@ -95,8 +95,8 @@ Default Permissions
 
 CKAN ships with the following default permissions: 
 
-* When a new package is created, its creator automatically becomes **admin** for it. This user can then change permissions for other users.
-* By default, any other user (including both visitors and logged-ins) can read and write to this package. 
+* When a new dataset is created, its creator automatically becomes **admin** for it. This user can then change permissions for other users.
+* By default, any other user (including both visitors and logged-ins) can read and write to this dataset. 
 
 These defaults can be changed in the CKAN config - see ``default_roles`` in :doc:`configuration`.
 
@@ -107,7 +107,7 @@ Managing Permissions
 --------------------
 
 The assignment of users and authorization groups to roles on a given 
-protected object (such as a package) can be done by 'admins' via the 
+protected object (such as a dataset) can be done by 'admins' via the 
 'authorization' tab of the web interface (or by sysadmins via that 
 interface or the system admin interface). 
 
@@ -127,12 +127,12 @@ For example, to list all assigned rights in the system (which you can then grep 
 
     paster --plugin=ckan rights -c my.ini list
 
-The ``rights make`` command lets you assign specific permissions. For example, to give the user named **bar** the **admin** role on the package foo::
+The ``rights make`` command lets you assign specific permissions. For example, to give the user named **bar** the **admin** role on the dataset foo::
 
-    paster --plugin=ckan rights -c my.ini make bar admin package:foo
+    paster --plugin=ckan rights -c my.ini make bar admin dataset:foo
     
-As well as users and packages, you can assign rights to other objects. These 
-include authorization groups, package groups and the system as a whole. 
+As well as users and datasets, you can assign rights to other objects. These 
+include authorization groups, dataset groups and the system as a whole. 
 
 For example, to make the user 'chef' a system-wide admin::
 
@@ -144,9 +144,9 @@ Or to allow all members of authorization group 'foo' to edit group 'bar'::
         group:bar
 
 To revoke one of the roles assigned using ``rights make``, the ``rights remove`` command 
-is available. For example, to remove **bar**'s **admin** role on the foo package:: 
+is available. For example, to remove **bar**'s **admin** role on the foo dataset:: 
 
-    paster --plugin=ckan rights -c my.ini remove bar admin package:foo
+    paster --plugin=ckan rights -c my.ini remove bar admin dataset:foo
 
 The ``roles`` command lists and modifies the assignment of actions to 
 roles. 
@@ -171,36 +171,70 @@ For more help on either of these commands, you can use ``--help`` (as described 
 
 .. _permissions-publisher-mode:
 
-Publisher Mode
+Openness Modes
 --------------
 
-Although the `Data Hub <http://datahub.org>`_ prefers the Wikipedia-style model of allowing anyone to add and improve metadata, some CKAN instances prefer to operate in 'publisher mode'. 
+CKAN instances can be configured to operate in a range of authorization modes, with varying openness to edit. Here are some examples with details of how to set-up and convert between them.
+
+
+1. Anonymous Edit Mode
+++++++++++++++++++++++
+
+Anyone can edit and create datasets without logging in. This is the default for CKAN out of the box.
+
+
+
+
+2. Logged-in Edit Mode
+++++++++++++++++++++++
+
+You need to log-in and create/edit datasets. Anyone can create an account.
+
+To operate in this mode:
+
+1. First, change the visitor (any non-logged in user) rights from being able to create and edit datasets to just reading them::
+
+     paster rights make visitor reader system
+     paster rights make visitor reader package:all
+     paster rights remove visitor anon_editor package:all
+     paster rights remove visitor anon_editor system
+
+2. Change the default rights for newly created datasets. Do this by using these values in your config file (see :doc:`configuration`)::
+
+     ckan.default_roles.Package = {"visitor": ["reader"], "logged_in": ["editor"]}
+     ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["editor"]}
+     ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["editor"]}
+     ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["editor"]} 
+
+
+3. Publisher Mode
++++++++++++++++++
 
 This allows edits only from authorized users. It is designed for installations where you wish to limit write access to CKAN and orient the system around specific publishing groups (e.g. government departments or specific institutions). 
 
 The key features are:
 
-* Packages are assigned to a specific publishing group.
-* Only users associated to that group are able to create or update packages associated to that group.
+* Datasets are assigned to a specific publishing group.
+* Only users associated to that group are able to create or update datasets associated to that group.
 
 To operate in this mode:
 
-1. First, remove the general public's rights to create and edit packages::
+1. First, remove the general public's rights to create and edit datasets::
 
      paster rights remove visitor anon_editor package:all
      paster rights remove logged_in editor package:all
      paster rights remove visitor anon_editor system
      paster rights remove logged_in editor system
 
-2. If logged-in users have already created packages in your system, you may also wish to remove their admin rights. For example::
+2. If logged-in users have already created datasets in your system, you may also wish to remove their admin rights. For example::
 
      paster rights remove bob admin package:all
 
-3. Change the default rights for newly created packages. Do this by using these values in your config file (see :doc:`configuration`)::
+3. Change the default rights for newly created datasets. Do this by using these values in your config file (see :doc:`configuration`)::
 
      ckan.default_roles.Package = {"visitor": ["reader"], "logged_in": ["reader"]}
      ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
      ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["reader"]}
      ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]} 
 
-Note you can also restrict package edits by a user's authorization group. 
+Note you can also restrict dataset edits by a user's authorization group. 

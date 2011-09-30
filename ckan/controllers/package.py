@@ -11,22 +11,19 @@ from pylons.i18n import get_lang, _
 from autoneg.accept import negotiate
 from babel.dates import format_date, format_datetime, format_time
 
-import ckan.logic.action.create as create
-import ckan.logic.action.update as update
-import ckan.logic.action.get as get
-from ckan.logic import get_action
+from ckan.logic import get_action, check_access
 from ckan.logic.schema import package_form_schema
+from ckan.lib.helpers import date_str_to_datetime
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import etag_cache, response, redirect, gettext
 from ckan.authz import Authorizer
-from ckan.lib.search import SearchError
+from ckan.lib.search import SearchIndexError, SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.lib.helpers import json
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
-from ckan.plugins import PluginImplementations, IPackageController
 from ckan.lib.dictization import table_dictize
 import ckan.forms
 import ckan.authz
@@ -66,41 +63,53 @@ class PackageController(BaseController):
         '''Check if the return data is correct, mostly for checking out if
         spammers are submitting only part of the form'''
 
+        # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                               'extras_validation', 'save', 'preview',
-                               'return_to']
+                               'extras_validation', 'save', 'return_to',
+                               'resources']
 
         schema_keys = package_form_schema().keys()
         keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
 
-        if keys_in_schema - set(data_dict.keys()):
+        missing_keys = keys_in_schema - set(data_dict.keys())
+
+        if missing_keys:
+            #print data_dict
+            #print missing_keys
             log.info('incorrect form fields posted')
             raise DataError(data_dict)
 
     def _setup_template_variables(self, context, data_dict):
-        c.groups = get.group_list_available(context, data_dict)
-        c.groups_authz = get.group_list_authz(context, data_dict)
+        c.groups_authz = get_action('group_list_authz')(context, data_dict)
+        data_dict.update({'available_only':True})
+        c.groups_available = get_action('group_list_authz')(context, data_dict)
         c.licences = [('', '')] + model.Package.get_license_options()
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
-        c.resource_columns = model.Resource.get_columns()
 
         ## This is messy as auths take domain object not data_dict
-        pkg = context.get('package') or c.pkg
+        context_pkg = context.get('package',None)
+        pkg = context_pkg or c.pkg
         if pkg:
-            c.auth_for_change_state = Authorizer().am_authorized(
-                c, model.Action.CHANGE_STATE, pkg)
+            try:
+                if not context_pkg:
+                    context['package'] = pkg
+                check_access('package_change_state',context)
+                c.auth_for_change_state = True
+            except NotAuthorized:
+                c.auth_for_change_state = False
 
     ## end hooks
 
     authorizer = ckan.authz.Authorizer()
-    extensions = PluginImplementations(IPackageController)
 
-    def search(self):        
-        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+    def search(self):
+        try:
+            context = {'model':model,'user': c.user or c.author}
+            check_access('site_read',context)
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
-        q = c.q = request.params.get('q') # unicode format (decoded from utf8)
-        c.open_only = request.params.get('open_only')
-        c.downloadable_only = request.params.get('downloadable_only')
+
+        q = c.q = request.params.get('q', u'') # unicode format (decoded from utf8)
         c.query_error = False
         try:
             page = int(request.params.get('page', 1))
@@ -133,24 +142,22 @@ class PackageController(BaseController):
         try:
             c.fields = []
             for (param, value) in request.params.items():
-                if not param in ['q', 'open_only', 'downloadable_only', 'page'] \
+                if not param in ['q', 'page'] \
                         and len(value) and not param.startswith('_'):
                     c.fields.append((param, value))
+                    q += ' %s: "%s"' % (param, value)
 
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
 
-            data_dict = {'q':q,
-                         'fields':c.fields,
-                         'facet_by':g.facets,
-                         'limit':limit,
-                         'offset':(page-1)*limit,
-                         'return_objects':True,
-                         'filter_by_openness':c.open_only,
-                         'filter_by_downloadable':c.downloadable_only,
-                        }
+            data_dict = {
+                'q':q,
+                'facet.field':g.facets,
+                'rows':limit,
+                'start':(page-1)*limit,
+            }
 
-            query = get.package_search(context,data_dict)
+            query = get_action('package_search')(context,data_dict)
 
             c.page = h.Page(
                 collection=query['results'],
@@ -189,7 +196,7 @@ class PackageController(BaseController):
                 context['revision_id'] = revision_ref
             else:
                 try:
-                    date = model.strptimestamp(revision_ref)
+                    date = date_str_to_datetime(revision_ref)
                     context['revision_date'] = date
                 except TypeError, e:
                     abort(400, _('Invalid revision format: %r') % e.args)
@@ -200,7 +207,7 @@ class PackageController(BaseController):
             
         #check if package exists
         try:
-            c.pkg_dict = get.package_show(context, data_dict)
+            c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
         except NotFound:
             abort(404, _('Package not found'))
@@ -235,7 +242,7 @@ class PackageController(BaseController):
 
         #check if package exists
         try:
-            c.pkg_dict = get.package_show(context, {'id':id})
+            c.pkg_dict = get_action('package_show')(context, {'id':id})
             c.pkg = context['package']
         except NotFound:
             abort(404, _('Package not found'))
@@ -244,9 +251,6 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
-
-        for item in self.extensions:
-            item.read(c.pkg)
 
         #render the package
         PackageSaver().render_package(c.pkg_dict)
@@ -273,8 +277,8 @@ class PackageController(BaseController):
                    'extras_as_string': True,}
         data_dict = {'id':id}
         try:
-            c.pkg_dict = get.package_show(context, data_dict)
-            c.pkg_revisions = get.package_revision_list(context, data_dict)
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg_revisions = get_action('package_revision_list')(context, data_dict)
             #TODO: remove
             # Still necessary for the authz check in group/layout.html
             c.pkg = context['package']
@@ -326,15 +330,15 @@ class PackageController(BaseController):
     def new(self, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema()}
 
-        auth_for_create = Authorizer().am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
-        if not auth_for_create:
+        try:
+            check_access('package_create',context)
+        except NotAuthorized:
             abort(401, _('Unauthorized to create a package'))
 
-        if (context['save'] or context['preview']) and not data:
+        if context['save'] and not data:
             return self._save_new(context)
 
         data = data or dict(request.params) 
@@ -344,25 +348,25 @@ class PackageController(BaseController):
 
         self._setup_template_variables(context, {'id': id})
         c.form = render(self.package_form, extra_vars=vars)
+
         return render('package/new.html')
 
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
                    'pending': True,
                    'schema': self._form_to_db_schema()}
 
-        if (context['save'] or context['preview']) and not data:
+        if context['save'] and not data:
             return self._save_edit(id, context)
         try:
-            old_data = get.package_show(context, {'id':id})
+            old_data = get_action('package_show')(context, {'id':id})
             schema = self._db_to_form_schema()
-            if schema:
-                old_data, errors = validate(old_data, schema)
+            if schema and not data:
+                old_data, errors = validate(old_data, schema, context=context)
             data = data or old_data
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
@@ -370,15 +374,18 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
 
         c.pkg = context.get("package")
+        c.pkg_json = json.dumps(data)
 
-        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
-        if not am_authz:
+        try:
+            check_access('package_update',context)
+        except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context, {'id': id})
+
         c.form = render(self.package_form, extra_vars=vars)
         return render('package/edit.html')
 
@@ -390,7 +397,7 @@ class PackageController(BaseController):
                    'revision_id': revision}
 
         try:
-            data = get.package_show(context, {'id': id})
+            data = get_action('package_show')(context, {'id': id})
             schema = self._db_to_form_schema()
             if schema:
                 data, errors = validate(data, schema)
@@ -413,7 +420,7 @@ class PackageController(BaseController):
                    'extras_as_string': True,}
         data_dict = {'id':id}
         try:
-            pkg_revisions = get.package_revision_list(context, data_dict)
+            pkg_revisions = get_action('package_revision_list')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
@@ -446,14 +453,6 @@ class PackageController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             pkg = get_action('package_create')(context, data_dict)
 
-            if context['preview']:
-                PackageSaver().render_package(pkg, context)
-                c.pkg = context['package']
-                c.pkg_dict = data_dict
-                c.is_preview = True
-                c.preview = render('package/read_core.html')
-                return self.new(data_dict)
-
             self._form_save_redirect(pkg['name'], 'new')
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
@@ -461,6 +460,8 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
+        except SearchIndexError:
+            abort(500, _(u'Unable to add package to search index.'))
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -477,15 +478,9 @@ class PackageController(BaseController):
             data_dict['id'] = id
             pkg = get_action('package_update')(context, data_dict)
             if request.params.get('save', '') == 'Approve':
-                update.make_latest_pending_package_active(context, data_dict)
+                get_action('make_latest_pending_package_active')(context, data_dict)
             c.pkg = context['package']
             c.pkg_dict = pkg
-
-            if context['preview']:
-                c.is_preview = True
-                PackageSaver().render_package(pkg, context)
-                c.preview = render('package/read_core.html')
-                return self.edit(id, data_dict)
 
             self._form_save_redirect(pkg['name'], 'edit')
         except NotAuthorized:
@@ -494,6 +489,8 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
+        except SearchIndexError:
+            abort(500, _(u'Unable to update search index.'))
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -507,6 +504,13 @@ class PackageController(BaseController):
         @param action - What the action of the edit was
         '''
         assert action in ('new', 'edit')
+        if action == 'new':
+            msg = _('<span class="new-dataset">Congratulations, your dataset has been created. ' \
+                    '<a href="%s">Upload or link ' \
+                    'some data now &raquo;</a></span>')
+            msg = msg % h.url_for(controller='package', action='edit',
+                    id=pkgname, anchor='section-resources')
+            h.flash_success(msg,allow_html=True)
         url = request.params.get('return_to') or \
               config.get('package_%s_return_url' % action)
         if url:
@@ -532,222 +536,29 @@ class PackageController(BaseController):
         c.pkg = pkg # needed to add in the tab bar to the top of the auth page
         c.pkgname = pkg.name
         c.pkgtitle = pkg.title
-
-        c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
+        try:
+            context = {'model':model,'user':c.user or c.author, 'package':pkg}
+            check_access('package_edit_permissions',context)
+            c.authz_editable = True
+        except NotAuthorized:
+            c.authz_editable = False
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
-        # Three different ways of getting the list of userobjectroles for this package.
-        # They all take a frighteningly long time to retrieve
-        # the data, but I can't tell how they'll scale. On a large dataset it might
-        # be worth working out which is quickest, so I've made a function for
-        # ease of changing the query.
-        def get_userobjectroles():
-            # we already have a pkg variable in scope, but I found while testing
-            # that it occasionally mysteriously loses its value!  Redefine it
-            # here. 
-            pkg = model.Package.get(id)
+        current_uors = self._get_userobjectroles(id)
+        self._handle_update_of_authz(current_uors, pkg)
 
-            # dread's suggestion for 'get all userobjectroles for this package':
-            uors = model.Session.query(model.PackageRole).join('package').filter_by(name=pkg.name).all()
-            # rgrp's version:
-            # uors = model.Session.query(model.PackageRole).filter_by(package=pkg)
-            # get them all and filter in python:
-            # uors = [uor for uor in model.Session.query(model.PackageRole).all() if uor.package==pkg]
-            return uors
-
-        def action_save_form(users_or_authz_groups):
-            # The permissions grid has been saved
-            # which is a grid of checkboxes named user$role
-            rpi = request.params.items()
-
-            # The grid passes us a list of the users/roles that were displayed
-            submitted = [ a for (a,b) in rpi if (b == u'submitted')]
-            # and also those which were checked
-            checked = [ a for (a,b) in rpi if (b == u'on')]
-
-            # from which we can deduce true/false for each user/role combination
-            # that was displayed in the form
-            table_dict={}
-            for a in submitted:
-                table_dict[a]=False
-            for a in checked:
-                table_dict[a]=True
-
-            # now we'll split up the user$role strings to make a dictionary from 
-            # (user,role) to True/False, which tells us what we need to do.
-            new_user_role_dict={}
-            for (ur,val) in table_dict.items():
-                u,r = ur.split('$')
-                new_user_role_dict[(u,r)] = val
-               
-            # we get the current user/role assignments 
-            # and make a dictionary of them
-            current_uors = get_userobjectroles()
-
-            if users_or_authz_groups=='users':
-                current_users_roles = [( uor.user.name, uor.role) for uor in current_uors if uor.user]
-            elif users_or_authz_groups=='authz_groups':
-                current_users_roles = [( uor.authorized_group.name, uor.role) for uor in current_uors if uor.authorized_group]        
-            else:
-                assert False, "shouldn't be here"
-
-            current_user_role_dict={}
-            for (u,r) in current_users_roles:
-                current_user_role_dict[(u,r)]=True
-
-            # and now we can loop through our dictionary of desired states
-            # checking whether a change needs to be made, and if so making it
-
-            # Here we check whether someone is already assigned a role, in order
-            # to avoid assigning it twice, or attempting to delete it when it
-            # doesn't exist. Otherwise problems can occur.
-            if users_or_authz_groups=='users':
-                for ((u,r), val) in new_user_role_dict.items():
-                    if val:
-                        if not ((u,r) in current_user_role_dict):
-                            model.add_user_to_role(model.User.by_name(u),r,pkg)
-                    else:
-                        if ((u,r) in current_user_role_dict):
-                            model.remove_user_from_role(model.User.by_name(u),r,pkg)
-            elif users_or_authz_groups=='authz_groups':
-                for ((u,r), val) in new_user_role_dict.items():
-                    if val:
-                        if not ((u,r) in current_user_role_dict):
-                            model.add_authorization_group_to_role(model.AuthorizationGroup.by_name(u),r,pkg)
-                    else:
-                        if ((u,r) in current_user_role_dict):
-                            model.remove_authorization_group_from_role(model.AuthorizationGroup.by_name(u),r,pkg)
-            else:
-                assert False, "shouldn't be here"
-
-
-            # finally commit the change to the database
-            model.repo.commit_and_remove()
-            h.flash_success("Changes Saved")
-
-
-
-        def action_add_form(users_or_authz_groups):
-            # The user is attempting to set new roles for a named user
-            new_user = request.params.get('new_user_name')
-            # this is the list of roles whose boxes were ticked
-            checked_roles = [ a for (a,b) in request.params.items() if (b == u'on')]
-            # this is the list of all the roles that were in the submitted form
-            submitted_roles = [ a for (a,b) in request.params.items() if (b == u'submitted')]
-
-            # from this we can make a dictionary of the desired states
-            # i.e. true for the ticked boxes, false for the unticked
-            desired_roles = {}
-            for r in submitted_roles:
-                desired_roles[r]=False
-            for r in checked_roles:
-                desired_roles[r]=True
-
-            # again, in order to avoid either creating a role twice or deleting one which is
-            # non-existent, we need to get the users' current roles (if any)
-  
-            current_uors = get_userobjectroles()
-
-            if users_or_authz_groups=='users':
-                current_roles = [uor.role for uor in current_uors if ( uor.user and uor.user.name == new_user )]
-                user_object = model.User.by_name(new_user)
-                if user_object==None:
-                    # The submitted user does not exist. Bail with flash message
-                    h.flash_error('unknown user:' + str (new_user))
-                else:
-                    # Whenever our desired state is different from our current state, change it.
-                    for (r,val) in desired_roles.items():
-                        if val:
-                            if (r not in current_roles):
-                                model.add_user_to_role(user_object, r, pkg)
-                        else:
-                            if (r in current_roles):
-                                model.remove_user_from_role(user_object, r, pkg)
-                    h.flash_success("User Added")
-
-            elif users_or_authz_groups=='authz_groups':
-                current_roles = [uor.role for uor in current_uors if ( uor.authorized_group and uor.authorized_group.name == new_user )]
-                user_object = model.AuthorizationGroup.by_name(new_user)
-                if user_object==None:
-                    # The submitted user does not exist. Bail with flash message
-                    h.flash_error('unknown authorization group:' + str (new_user))
-                else:
-                    # Whenever our desired state is different from our current state, change it.
-                    for (r,val) in desired_roles.items():
-                        if val:
-                            if (r not in current_roles):
-                                model.add_authorization_group_to_role(user_object, r, pkg)
-                        else:
-                            if (r in current_roles):
-                                model.remove_authorization_group_from_role(user_object, r, pkg)
-                    h.flash_success("Authorization Group Added")
-
-            else:
-                assert False, "shouldn't be here"
-
-            # and finally commit all these changes to the database
-            model.repo.commit_and_remove()
-
-
-        # In the event of a post request, work out which of the four possible actions
-        # is to be done, and do it before displaying the page
-        if 'add' in request.POST:
-            action_add_form('users')
-
-        if 'authz_add' in request.POST:
-            action_add_form('authz_groups')
-
-        if 'save' in request.POST:
-            action_save_form('users')
-
-        if 'authz_save' in request.POST:
-            action_save_form('authz_groups')
-
-        # =================
-        # Display the page
-
-        # Find out all the possible roles. At the moment, any role can be
-        # associated with any object, so that's easy:
-        possible_roles = model.Role.get_all()
-
-        # get the list of users who have roles on this object, with their roles
-        uors = get_userobjectroles()
-
-        # uniquify and sort
-        users = sorted(list(set([uor.user.name for uor in uors if uor.user])))
-        authz_groups = sorted(list(set([uor.authorized_group.name for uor in uors if uor.authorized_group])))
-
-        # make a dictionary from (user, role) to True, False
-        users_roles = [( uor.user.name, uor.role) for uor in uors if uor.user]
-        user_role_dict={}
-        for u in users:
-            for r in possible_roles:
-                if (u,r) in users_roles:
-                    user_role_dict[(u,r)]=True
-                else:
-                    user_role_dict[(u,r)]=False
-
-        # and similarly make a dictionary from (authz_group, role) to True, False
-        authz_groups_roles = [( uor.authorized_group.name, uor.role) for uor in uors if uor.authorized_group]
-        authz_groups_role_dict={}
-        for u in authz_groups:
-            for r in possible_roles:
-                if (u,r) in authz_groups_roles:
-                    authz_groups_role_dict[(u,r)]=True
-                else:
-                    authz_groups_role_dict[(u,r)]=False
-
-        # pass these variables to the template for rendering
-        c.roles = possible_roles
-
-        c.users = users
-        c.user_role_dict = user_role_dict
-
-        c.authz_groups = authz_groups
-        c.authz_groups_role_dict = authz_groups_role_dict
-
+        # get the roles again as may have changed
+        user_object_roles = self._get_userobjectroles(id)
+        self._prepare_authz_info_for_render(user_object_roles)
         return render('package/authz.html')
+
+
+    def _get_userobjectroles(self, pkg_id):
+        pkg = model.Package.get(pkg_id)
+        uors = model.Session.query(model.PackageRole).join('package').filter_by(name=pkg.name).all()
+        return uors
+
 
     def autocomplete(self):
         q = unicode(request.params.get('q', ''))
@@ -759,7 +570,7 @@ class PackageController(BaseController):
 
         data_dict = {'q':q}
 
-        packages = get.package_autocomplete(context,data_dict)
+        packages = get_action('package_autocomplete')(context,data_dict)
 
         pkg_list = []
         for pkg in packages:

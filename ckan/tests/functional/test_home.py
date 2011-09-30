@@ -7,11 +7,12 @@ import ckan.model as model
 from ckan.tests import *
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
-from ckan.tests import search_related
+from ckan.tests import search_related, setup_test_search_index
 
 class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(cls):
+        setup_test_search_index()
         PylonsTestCase.setup_class()
         model.repo.init_db()
         CreateTestData.create()
@@ -23,7 +24,8 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        assert 'Packages' in res
+        print res
+        assert 'Add a dataset' in res
 
     def test_calculate_etag_hash(self):
         c.user = 'test user'
@@ -48,49 +50,19 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         res = self.app.get(offset)
         res.click('Search', index=0)
         
-    def test_tags_link(self):
-        offset = url_for('home')
-        res = self.app.get(offset)
-        res.click('Tags', index=0)
-        
     def test_404(self):
         offset = '/some_nonexistent_url'
         res = self.app.get(offset, status=404)
-
-    def test_license(self):
-        offset = url_for('license')
-        res = self.app.get(offset)
-        assert 'License' in res
 
     def test_guide(self):
         url = url_for('guide')
         assert url == 'http://wiki.okfn.org/ckan/doc/'
 
-    @search_related
-    def test_search_packages(self):
-        offset = url_for('home')
-        res = self.app.get(offset)
-        form = res.forms['package-search']
-        form['q'] =  'anna'
-        results_page = form.submit()
-        assert 'Search - ' in results_page, results_page
-        assert '>0<' in results_page, results_page
-    
     def test_template_footer_end(self):
         offset = url_for('home')
         res = self.app.get(offset)
         assert '<strong>TEST TEMPLATE_FOOTER_END TEST</strong>'
 
-    # DISABLED because this is not on home page anymore
-    def _test_register_new_package(self):
-        offset = url_for('home')
-        res = self.app.get(offset)
-        form = res.forms[1]
-        form['title'] =  'test title'
-        results_page = form.submit()
-        assert 'Register a New Package' in results_page, results_page
-        assert '<input id="Package--title" name="Package--title" size="40" type="text" value="test title">' in results_page, results_page
-        
     def test_locale_change(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -137,3 +109,18 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
             offset = url_for('home')
             res = self.app.get(offset)
             res = res.click('English')
+
+class TestDatabaseNotInitialised(TestController):
+    @classmethod
+    def setup_class(cls):
+        PylonsTestCase.setup_class()
+        model.repo.clean_db()
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_home_page(self):
+        offset = url_for('home')
+        res = self.app.get(offset, status=503)
+        assert 'This site is currently off-line. Database is not initialised.' in res

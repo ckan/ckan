@@ -26,6 +26,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_both_passwords_entered,
                                    user_passwords_match,
                                    user_password_not_empty,
+                                   isodate,
+                                   int_validator,
                                    user_about_validator)
 from formencode.validators import OneOf
 import ckan.model
@@ -45,6 +47,16 @@ def default_resource_schema():
         'state': [ignore],
         'position': [ignore],
         'revision_timestamp': [ignore],
+        'name': [ignore_missing, unicode],
+        'resource_type': [ignore_missing, unicode],
+        'mimetype': [ignore_missing, unicode],
+        'mimetype_inner': [ignore_missing, unicode],
+        'webstore_url': [ignore_missing, unicode],
+        'cache_url': [ignore_missing, unicode],
+        'size': [ignore_missing, int_validator],
+        'last_modified': [ignore_missing, isodate],
+        'cache_last_updated': [ignore_missing, isodate],
+        'webstore_last_updated': [ignore_missing, isodate],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
@@ -117,7 +129,7 @@ def package_form_schema():
 
     schema = default_package_schema()
     ##new
-    schema['log_message'] = [unicode, no_http]
+    schema['log_message'] = [ignore_missing, unicode, no_http]
     schema['groups'] = {
             'id': [ignore_missing, unicode],
             '__extras': [empty],
@@ -126,7 +138,6 @@ def package_form_schema():
     schema['tag_string'] = [ignore_missing, tag_string_convert]
     schema['extras_validation'] = [duplicate_extras_key, ignore]
     schema['save'] = [ignore]
-    schema['preview'] = [ignore]
     schema['return_to'] = [ignore]
 
     ##changes

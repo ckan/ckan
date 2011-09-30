@@ -33,15 +33,15 @@ def package_exists(val):
 
 def package_name_validator(val, field=None):
     name_validator(val, field)
-    # we disable autoflush here since may get used in package preview
+    # we disable autoflush here since may get used in dataset preview
     pkgs = model.Session.query(model.Package).autoflush(False).filter_by(name=val)
     for pkg in pkgs:
         if pkg != field.parent.model:
-            raise formalchemy.ValidationError(_('Package name already exists in database'))
+            raise formalchemy.ValidationError(_('Dataset name already exists in database'))
 
 def group_name_validator(val, field=None):
     name_validator(val, field)
-    # we disable autoflush here since may get used in package preview
+    # we disable autoflush here since may get used in dataset preview
     groups = model.Session.query(model.Group).autoflush(False).filter_by(name=val)
     for group in groups:
         if group != field.parent.model:
@@ -269,7 +269,7 @@ class DateRangeExtraField(ConfiguredField):
 
         def _serialized_value(self):
             # interpret params like this:
-            # 'Package--temporal_coverage-from', u'4/12/2009'
+            # 'Dataset--temporal_coverage-from', u'4/12/2009'
             param_val_from = self.params.get(self.name + '-from', u'')
             param_val_to = self.params.get(self.name + '-to', u'')
             return param_val_from, param_val_to
@@ -330,7 +330,7 @@ class TextRangeExtraField(RegExRangeValidatingField):
             return self._serialized_value()
 
 class ResourcesField(ConfiguredField):
-    '''A form field for multiple package resources.'''
+    '''A form field for multiple dataset resources.'''
 
     def __init__(self, name, hidden_label=False, fields_required=None):
         super(ResourcesField, self).__init__(name)
@@ -342,7 +342,7 @@ class ResourcesField(ConfiguredField):
         resources_data = val
         assert isinstance(resources_data, list)
         not_nothing_regex = re.compile('\S')
-        errormsg = _('Package resource(s) incomplete.')
+        errormsg = _('Dataset resource(s) incomplete.')
         not_nothing_validator = formalchemy.validators.regex(not_nothing_regex,
                                                              errormsg)
         for resource_data in resources_data:
@@ -410,20 +410,26 @@ class ResourcesField(ConfiguredField):
             rest_key = self.name
 
             # REST param format
-            # e.g. 'Package-1-resources': [{u'url':u'http://ww...
+            # e.g. 'Dataset-1-resources': [{u'url':u'http://ww...
             if params.has_key(rest_key) and any(params.getall(rest_key)):
                 new_resources = params.getall(rest_key)[:] # copy, so don't edit orig
 
             # formalchemy form param format
-            # e.g. 'Package-1-resources-0-url': u'http://ww...'
+            # e.g. 'Dataset-1-resources-0-url': u'http://ww...'
             row = 0
+            # The base columns historically defaulted to empty strings
+            # not None (Null). This is why they are seperate here.
+            base_columns = ['url', 'format', 'description', 'hash', 'id']
             while True:
                 if not params.has_key('%s-%i-url' % (self.name, row)):
                     break
                 new_resource = {}
                 blank_row = True
                 for col in model.Resource.get_columns() + ['id']:
-                    value = params.get('%s-%i-%s' % (self.name, row, col), u'')
+                    if col in base_columns:
+                        value = params.get('%s-%i-%s' % (self.name, row, col), u'')
+                    else:
+                        value = params.get('%s-%i-%s' % (self.name, row, col))
                     new_resource[col] = value
                     if col != 'id' and value:
                         blank_row = False
@@ -510,7 +516,7 @@ class TagField(ConfiguredField):
                 raise formalchemy.ValidationError(_('Tag "%s" must not be uppercase' % (tag)))
 
 class ExtrasField(ConfiguredField):
-    '''A form field for arbitrary "extras" package data.'''
+    '''A form field for arbitrary "extras" dataset data.'''
     def __init__(self, name, hidden_label=False):
         super(ExtrasField, self).__init__(name)
         self._hidden_label = hidden_label
@@ -602,11 +608,11 @@ class ExtrasField(ConfiguredField):
 
         def deserialize(self):
             # Example params:
-            # ('Package-1-extras', {...}) (via REST i/f)
-            # ('Package-1-extras-genre', u'romantic novel'),
-            # ('Package-1-extras-genre-checkbox', 'on')
-            # ('Package-1-extras-newfield0-key', u'aaa'),
-            # ('Package-1-extras-newfield0-value', u'bbb'),
+            # ('Dataset-1-extras', {...}) (via REST i/f)
+            # ('Dataset-1-extras-genre', u'romantic novel'),
+            # ('Dataset-1-extras-genre-checkbox', 'on')
+            # ('Dataset-1-extras-newfield0-key', u'aaa'),
+            # ('Dataset-1-extras-newfield0-value', u'bbb'),
             # TODO: This method is run multiple times per edit - cache results?
             if not hasattr(self, 'extras_re'):
                 self.extras_re = re.compile('([a-zA-Z0-9-]*)-([a-f0-9-]*)-extras(?:-(.+))?$')
@@ -621,7 +627,7 @@ class ExtrasField(ConfiguredField):
                 entity_id = key_parts[1]
                 if key_parts[2] is None:
                     if isinstance(value, dict):
-                        # simple dict passed into 'Package-1-extras' e.g. via REST i/f
+                        # simple dict passed into 'Dataset-1-extras' e.g. via REST i/f
                         extra_fields.extend(value.items())
                 elif key_parts[2].startswith('newfield'):
                     newfield_match = self.newfield_re.match(key_parts[2])
@@ -694,13 +700,13 @@ class GroupSelectField(ConfiguredField):
             append_set = (new_set - old_set).intersection(editable_set)
             remove_set = (old_set - new_set).intersection(editable_set)
             
-            # Create package group associations.
+            # Create dataset group associations.
             for id in append_set:
                 group = model.Session.query(model.Group).autoflush(False).get(id)
                 if group:
                     self.parent.model.groups.append(group)
 
-            # Delete package group associations.
+            # Delete dataset group associations.
             for group in self.parent.model.groups:
                 if group.id in remove_set:
                     self.parent.model.groups.remove(group)
