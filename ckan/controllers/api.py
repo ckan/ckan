@@ -278,7 +278,8 @@ class ApiController(BaseController):
             response_data = action(context, data_dict)
             location = None
             if "id" in data_dict:
-                location = str('%s/%s' % (request.path, data_dict.get("id")))
+                location = str('%s/%s' % (request.path.replace('package', 'dataset'),
+                                          data_dict.get("id")))
             return self._finish_ok(response_data,
                                    resource_location=location)
         except NotAuthorized:
