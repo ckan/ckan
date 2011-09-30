@@ -14,11 +14,11 @@ sphinx==0.6.4
 # with pylons 0.9.7 (change to imports of Multidict)
 webob==1.0.8
 Pylons==0.9.7
-repoze.who==1.0.18
+repoze.who==1.0.19
 tempita==0.4
 zope.interface==3.5.3
 # These are both combined into the python-repoze.who-plugins package
-repoze.who.plugins.openid
+repoze.who.plugins.openid==0.5.4
 # Actually from python-repoze.who-plugins but the openid plugin in the same
 # package is too old
 repoze.who-friendlyform==1.0.8
