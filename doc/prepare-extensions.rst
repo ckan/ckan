@@ -8,7 +8,7 @@ Firstly, you'll need to set up and enter a virtual Python environment, as follow
 
 ::
 
-    sudo apt-get install virtualenv python-pip mercurial
+    sudo apt-get install python-virtualenv mercurial
     virtualenv /home/ubuntu/pyenv
     . /home/ubuntu/pyenv/bin/activate
 
