@@ -209,6 +209,7 @@ class PackageController(BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
+            c.pkg_json = json.dumps(c.pkg_dict)
         except NotFound:
             abort(404, _('Package not found'))
         except NotAuthorized:

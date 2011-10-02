@@ -20,7 +20,8 @@
 
     var isDatasetView = $('body.package.read').length > 0;
     if (isDatasetView) {
-      CKAN.Utils.setupDataPreview();
+      var _dataset = new CKAN.Model.Dataset(preload_dataset);
+      CKAN.Utils.setupDataPreview(_dataset);
     }
 
     var isDatasetNew = $('body.package.new').length > 0;
@@ -274,7 +275,7 @@ CKAN.Utils = function($, my) {
     });  
   };
 
-  my.setupDataPreview = function() {
+  my.setupDataPreview = function(dataset) {
     var dialogId = 'ckanext-datapreview-dialog';
     my.createPreviewButtons($('.resources'));
   };
