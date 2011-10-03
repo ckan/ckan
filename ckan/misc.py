@@ -13,7 +13,7 @@ class TextFormat(object):
 
 
 class MarkdownFormat(TextFormat):
-    internal_link = re.compile('(package|tag|group):([a-z0-9\-_]+)')
+    internal_link = re.compile('(dataset|package|tag|group):([a-z0-9\-_]+)')
     normal_link = re.compile('<(http:[^>]+)>')
 
     html_whitelist = 'b center li ol p table td tr ul'.split(' ')
@@ -24,6 +24,7 @@ class MarkdownFormat(TextFormat):
     any_link = re.compile(r'<a[^>]*?>', re.IGNORECASE)
     close_link = re.compile(r'<(\/a[^>]*)>', re.IGNORECASE)
     link_escp = re.compile(r'\\xfc\\xfd(\/?(%s)[^>]*?)\\xfd\\xfc' % "|".join(['a']), re.IGNORECASE)
+    web_address = re.compile(r'([^\[\<\(]|^)((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)', re.IGNORECASE)
     
     def to_html(self, text):
         if text is None:
@@ -31,6 +32,9 @@ class MarkdownFormat(TextFormat):
         # Encode whitelist elements.
         text = self.whitelist_elem.sub(r'\\\\xfc\\\\xfd\1\\\\xfd\\\\xfc', text)
 
+        # Discover external addresses and make them links
+        text = self.web_address.sub(r'\1<\2>', text)
+        
         # Encode links only in an acceptable format (guard against spammers)
         text = self.normal_link.sub(r'\\\\xfc\\\\xfda href="\1" target="_blank" rel="nofollow"\\\\xfd\\\\xfc', text)
         text = self.abbrev_link.sub(r'\\\\xfc\\\\xfda href="\1" target="_blank" rel="nofollow"\\\\xfd\\\\xfc\1</a>', text)
@@ -45,7 +49,7 @@ class MarkdownFormat(TextFormat):
 
         # Convert <link> to markdown format.
         text = self.normal_link.sub(r'[\1] (\1)', text)
-
+        
         # Markdown to HTML.
         text = webhelpers.markdown.markdown(text, safe_mode=True)
 

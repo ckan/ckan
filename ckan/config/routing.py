@@ -104,8 +104,6 @@ def make_map():
 
     map.connect('/api/search/{register}', controller='api', action='search')
     map.connect('/api/tag_counts', controller='api', action='tag_counts')
-
-    map.connect('/api/markdown', controller='api', action='markdown')
     
     map.connect('/api/rest', controller='api', action='index')
 
@@ -166,6 +164,8 @@ def make_map():
 
     map.connect('/api/2/util/authorizationgroup/autocomplete', controller='api',
         action='authorizationgroup_autocomplete')
+
+    map.connect('/api/util/markdown', controller='api', action='markdown')
 
     ###########
     ## /END API
