@@ -690,26 +690,29 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
 
   my.setupDataPreview = function(dataset) {
     var dialogId = 'ckanext-datapreview-dialog';
-    my.createPreviewButtons($('.resources'));
+    my.createPreviewButtons(dataset, $('.resources'));
   };
 
-  /* Public: Creates the base UI for the plugin.
-   *
-   * Adds an additonal preview column to the resources table in the CKAN
-   * UI. Also requests the package from the api to see if there is any chart
-   * data stored and updates the preview icons accordingly.
-   *
-   * resources - The resources table wrapped in jQuery.
-   *
-   * Returns nothing.
-   */
-  my.createPreviewButtons = function(resources) {
-    resources.find('tr td:last-child').each(function(idx, element) {
+  // Public: Creates the base UI for the plugin.
+  //
+  // Also requests the package from the api to see if there is any chart
+  // data stored and updates the preview icons accordingly.
+  //
+  // dataset: Dataset model for the dataset on this page.
+  // resourceElements - The resources table wrapped in jQuery.
+  //
+  // Returns nothing.
+  my.createPreviewButtons = function(dataset, resourceElements) {
+    // rather pointless, but w/o assignment dataset not available in loop below (??!)
+    var currentDataset = dataset;
+    resourceElements.find('tr td:last-child').each(function(idx, element) {
       var element = $(element);
-      var _format = $.trim(element.prev().text());
+      var resource = currentDataset.get('resources').models[idx];
+      var resourceData = resource.toJSON();
+      resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
 
       // do not create previews for some items
-      var _tformat = _format.toLowerCase();
+      var _tformat = resourceData.format.toLowerCase();
       if (
         _tformat.indexOf('zip') != -1
         ||
@@ -734,30 +737,20 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       // TODO: get this from resource
       var _url = "/resource.jsonp?_limit=30";
 
-      // An object that holds information about the currently previewed data.
-      var _preview = {
-        'source': element.find('a').attr('href'),
-        'format': _format
-      };
-
       var _previewSpan = $('<a />', {
         text: 'Preview',
         href: _url,
         click: function(e) {
           e.preventDefault();
-          alert('Loading preview');
-          // dp.loadPreviewDialog(e.target);
+          my.loadPreviewDialog(e.target);
         },
         'class': 'resource-preview-button'
-      }).data('preview', _preview).appendTo(element);
+      }).data('preview', resourceData).appendTo(element);
 
-      // TODO: get dataset info
-      var dataset = null;
-      var resource = null; // dp.getResourceFromDataset(_preview.hash, dataset),
       var chartString, charts = {};
 
       if (resource) {
-        chartString = resource[dp.resourceChartKey];
+        chartString = resource[my.resourceChartKey];
         if (chartString) {
           try {
             charts = $.parseJSON(chartString);
@@ -767,12 +760,107 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
           } catch (e) {}
         }
       }
-
-      _preview.dataset = dataset;
-      _preview.resource = resource;
-      _preview.charts = charts;
     });
   };
+
+  // **Public: Loads a data preview dialog for a preview button.**
+  //
+  // Fetches the preview data object from the link provided and loads the
+  // parsed data from the webstore displaying it in the most appropriate
+  // manner.
+  //
+  // link - Preview button.
+  //
+  // Returns nothing.
+  my.loadPreviewDialog = function(link) {
+    var preview  = $(link).data('preview');
+    preview.url  = my.normalizeUrl(link.href);
+
+    $(link).addClass('resource-preview-loading').text('Loading');
+
+    // 4 situations
+    // a) have a webstore_url
+    // b) csv or xls (but not webstore)
+    // c) can be treated as plain text
+    // d) none of the above but worth iframing (assumption is
+    // that if we got here (i.e. preview shown) worth doing
+    // something ...)
+    if (preview.formatNormalized === '') {
+      var tmp = preview.url.split('/');
+      tmp = tmp[tmp.length - 1];
+      tmp = tmp.split('?'); // query strings
+      tmp = tmp[0];
+      var ext = tmp.split('.');
+      if (ext.length > 1) {
+        preview.formatNormalized = ext[ext.length-1];
+      }
+    }
+
+    if (preview.webstore_url) {
+      var _url = preview.webstore_url + '.jsontuples?_limit=500';
+      my.getResourceDataDirect(_url, function(data) {
+        alert('Showing data for ' + _url);
+        // my.showData(preview, data);
+        // dp.$dialog.dialog('open');
+      });
+    }
+  };
+
+  // Public: Requests the formatted resource data from the webstore and
+  // passes the data into the callback provided.
+  //
+  // preview - A preview object containing resource metadata.
+  // callback - A Function to call with the data when loaded.
+  //
+  // Returns nothing.
+  my.getResourceDataDirect = function(url, callback) {
+    // $.ajax() does not call the "error" callback for JSONP requests so we
+    // set a timeout to provide the callback with an error after x seconds.
+    var timeout = 5000;
+    var timer = setTimeout(function error() {
+      callback({}, {
+        error: {
+          title: 'Request Error',
+          message: 'Dataproxy server did not respond after ' + (timeout / 1000) + ' seconds'
+        }
+      });
+    }, timeout);
+
+    // have to set jsonp because webstore requires _callback but that breaks jsonpdataproxy
+    var jsonp = '_callback';
+    if (url.indexOf('jsonpdataproxy') != -1) {
+      jsonp = 'callback';
+    }
+
+    // We need to provide the `cache: true` parameter to prevent jQuery appending
+    // a cache busting `={timestamp}` parameter to the query as the webstore
+    // currently cannot handle custom parameters.
+    $.ajax({
+      url: url,
+      cache: true,
+      dataType: 'jsonp',
+      jsonp: jsonp,
+      success: function(data) {
+        clearTimeout(timer);
+        callback(data);
+      }
+    });
+  };
+
+  my.normalizeFormat = function(format) {
+    var out = format.toLowerCase();
+    out = out.split('/');
+    out = out[out.length-1];
+    return out;
+  };
+
+  my.normalizeUrl = function(url) {
+    if (url.indexOf('https') === 0) {
+      return 'http' + url.slice(5);
+    } else {
+      return url;
+    }
+  }
 
 
   // Export the CKANEXT object onto the window.
