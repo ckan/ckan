@@ -6,11 +6,17 @@ from babel import Locale
 # Order these by number of people speaking it in Europe:
 # http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
 # (or there abouts)
-_KNOWN_LOCALES = ['en', 'de', 'fr', 'it', 'es',
+_KNOWN_LOCALES = ['en',
+                  'de',
+#                  'fr',
+                  'it',
+                  'es',
 #                  'po',
                   'ru',
                   'nl',
+                  'sv', # Swedish
                   'no',
+#                  'el', # Greek
                   'cs_CZ',
                   'hu',
                   'pt_BR',
