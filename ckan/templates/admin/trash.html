@@ -1,0 +1,42 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="page_title">Trash - Administration</py:def>
+
+  <div py:match="content">
+    <h1>The Trash Bin</h1>
+
+    <h2>Deleted Revisions</h2>
+    <form method="POST" id="form-purge-revisions">
+      <button
+        type="submit"
+        name="purge-revisions"
+        value="purge"
+        class="purge-button"
+        >
+        Purge them all (forever and irreversibly)
+      </button>
+    </form>
+
+    ${revision_list(c.deleted_revisions)}
+
+    <h2>Deleted Packages</h2>
+    <form method="POST" id="form-purge-packages">
+      <button
+        type="submit"
+        name="purge-packages"
+        value="purge"
+        class="purge-button"
+        >
+        Purge them all (forever and irreversibly)
+      </button>
+    </form>
+
+    ${package_list(c.deleted_packages)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

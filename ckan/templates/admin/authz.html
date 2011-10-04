@@ -1,0 +1,53 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="page_title">System Roles</py:def>
+
+  <div py:match="content">
+
+    <h1>Roles on the System Object</h1>
+
+    <h2>Update Existing Roles</h2>
+
+    <form id="theform" method="POST">
+      ${authz_form_table('theform', c.roles, c.users, c.user_role_dict)}
+      <button type="submit" name="save">
+        Save
+      </button>
+    </form>
+
+    <h2>Add Roles for Any User</h2>
+
+    <form id="addform" method="POST">
+      ${authz_add_table(c.roles)}
+      <button type="submit" name="add"> Add </button>
+    </form>
+
+    <hr/>
+
+    <h2>Existing Roles for Authorization Groups</h2>
+
+    <form id="authzgroup_form" method="POST">
+      ${authz_form_group_table('authzgroup_form', c.roles, c.authz_groups, c.authz_groups_role_dict)}
+      <button type="submit" name="authz_save">
+        Save
+      </button>
+    </form>
+
+    <h2>Add Roles for Any Authorization Group</h2>
+
+    <form id="authzgroup_addform" method="POST">
+      ${authz_add_group_table(c.roles)}
+      <button type="submit" name="authz_add"> Add </button>
+    </form>
+
+
+
+
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+
