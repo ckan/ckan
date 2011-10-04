@@ -211,7 +211,6 @@ CKAN.Utils = function($, my) {
 
   my.setupMarkdownEditor = function(elements) {
     // Markdown editor hooks
-    var converter=new Showdown.converter();
     elements.live('click', function(e) {
       e.preventDefault();
       var $el = $(e.target);
