@@ -11,7 +11,7 @@ _KNOWN_LOCALES = ['en',
 #                  'fr',
                   'it',
                   'es',
-#                  'po',
+                  'pl',
                   'ru',
                   'nl',
                   'sv', # Swedish

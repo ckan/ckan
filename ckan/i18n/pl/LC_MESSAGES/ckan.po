@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-09-30 17:45+0100\n"
-"PO-Revision-Date: 2011-10-02 13:56+0000\n"
+"PO-Revision-Date: 2011-10-04 08:31+0000\n"
 "Last-Translator: apohllo <apohllo@o2.pl>\n"
 "Language-Team: Polish (http://www.transifex.net/projects/p/ckan/team/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,7 @@ msgstr ""
 #: ckan/new_authz.py:18
 #, python-format
 msgid "Authorization function not found: %s"
-msgstr ""
+msgstr "Funkcja autoryzjacji nie została znaleziona: %s"
 
 #: ckan/controllers/api.py:38 ckan/controllers/authorization_group.py:22
 #: ckan/controllers/group.py:58 ckan/controllers/home.py:29
@@ -82,7 +82,7 @@ msgstr "Nie można utworzyć obiektu typu: %s %s"
 
 #: ckan/controllers/api.py:295
 msgid "Unable to add package to search index"
-msgstr ""
+msgstr "Nie można dodać pakiet do indeksu wyszukiwania"
 
 #: ckan/controllers/api.py:328
 #, python-format
@@ -91,7 +91,7 @@ msgstr "Nie można zaktualizować obiektu typu: %s"
 
 #: ckan/controllers/api.py:347
 msgid "Unable to update search index"
-msgstr ""
+msgstr "Nie można zaktualizować indeks wyszukiwania"
 
 #: ckan/controllers/api.py:373
 #, python-format
@@ -110,6 +110,8 @@ msgstr "Brak wersji o identyfikatorze: %s"
 #: ckan/controllers/api.py:410
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
 msgstr ""
+"Nie określono wyszukiwanego terminu ('since_id=UUID' lub "
+"'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:418
 #, python-format
@@ -189,15 +191,15 @@ msgstr "Zaznacz dwie wersje aby móc dokonać porównania."
 
 #: ckan/controllers/group.py:266
 msgid "CKAN Group Revision History"
-msgstr ""
+msgstr "Histora wersji grupy CKAN"
 
 #: ckan/controllers/group.py:268
 msgid "Recent changes to CKAN Group: "
-msgstr ""
+msgstr "Ostanie zmiany w grupie CKAN:"
 
 #: ckan/controllers/group.py:286 ckan/controllers/package.py:315
 msgid "Log message: "
-msgstr ""
+msgstr "Wiadomość w logu:"
 
 #: ckan/controllers/home.py:37
 msgid "This site is currently off-line. Database is not initialised."
@@ -243,11 +245,11 @@ msgstr "Brak autoryzacji by utowrzyć pakiet"
 
 #: ckan/controllers/package.py:464
 msgid "Unable to add package to search index."
-msgstr ""
+msgstr "Nie można dodać pakiet do indeksu wyszukiwania."
 
 #: ckan/controllers/package.py:493
 msgid "Unable to update search index."
-msgstr ""
+msgstr "Nie można uaktualnić indeksu wyszukiwania."
 
 #: ckan/controllers/package.py:508
 #, python-format
@@ -255,6 +257,8 @@ msgid ""
 "<span class=\"new-dataset\">Congratulations, your dataset has been created. "
 "<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
 msgstr ""
+"<span class=\"new-dataset\">Gratulacje, Twój zbiór danych został utworzony. "
+"<a href=\"%s\">Wgraj dane lub dodaj do nich link&raquo;</a></span>"
 
 #: ckan/controllers/revision.py:42
 msgid "CKAN Repository Revision History"
@@ -267,7 +271,7 @@ msgstr "Ostatnie zmiany w repozytorium CKAN."
 #: ckan/controllers/revision.py:103
 #, python-format
 msgid "Packages affected: %s.\n"
-msgstr ""
+msgstr "Zmodyfikowane pakiety: %s.\n"
 
 #: ckan/controllers/revision.py:178
 msgid "Revision updated"
@@ -288,7 +292,7 @@ msgstr "Brak autoryzacji by utworzyć użytkownika"
 #: ckan/controllers/user.py:151
 #, python-format
 msgid "Unauthorized to create user %s"
-msgstr ""
+msgstr "Brak autoryzacji by utworzyć użytkownika %s"
 
 #: ckan/controllers/user.py:153 ckan/controllers/user.py:201
 #: ckan/controllers/user.py:230 ckan/controllers/user.py:324
@@ -298,7 +302,7 @@ msgstr "Nie znaleziono użytkownika"
 
 #: ckan/controllers/user.py:157
 msgid "Bad Captcha. Please try again."
-msgstr ""
+msgstr "Błędny kod Captcha. Spróbuj ponownie."
 
 #: ckan/controllers/user.py:180
 msgid "No user specified"
@@ -318,7 +322,7 @@ msgstr "Użytkownik %s nie posiada autoryzacji do modyfikacji %s"
 #: ckan/controllers/user.py:259
 #, python-format
 msgid "%s is now logged in"
-msgstr ""
+msgstr "%s jest teraz zalogowany"
 
 #: ckan/controllers/user.py:299
 #, python-format
@@ -333,6 +337,7 @@ msgstr "Brak użytkownika: %s"
 #: ckan/controllers/user.py:308
 msgid "Please check your inbox for a reset code."
 msgstr ""
+"Kod resetujący powinien znajdować się w Twojej skrzyce e-mail. Sprawdź ją."
 
 #: ckan/controllers/user.py:311
 #, python-format
@@ -413,11 +418,11 @@ msgstr "Zduplikowany klucz \"%s\""
 #: ckan/forms/common.py:536
 #, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
-msgstr ""
+msgstr " Nadmiarowa para klucz-wartość: nie określono klucza dla wartości \"%s\"."
 
 #: ckan/forms/common.py:786 ckan/templates/package/new_package_form.html:170
 msgid "Cannot add any groups."
-msgstr ""
+msgstr "Nie można dodać żadnej grupy."
 
 #: ckan/forms/common.py:801 ckan/templates/package/new_package_form.html:161
 msgid "Group"
@@ -429,6 +434,8 @@ msgid ""
 "Can't derived new group selection from serialized value structured like "
 "this: %s"
 msgstr ""
+"Nie można określić nowego zakresu grupy na podstawie zserializowanej "
+"wartości określonej w ten sposób: %s"
 
 #: ckan/forms/common.py:911
 msgid "other - please specify"
@@ -482,34 +489,43 @@ msgid ""
 "Only use an acronym if it is widely recognised. Renaming is possible but "
 "discouraged."
 msgstr ""
+"Wartość powinna być zrozumiała dla ludzi, w duchu adresów URI sieci "
+"semantycznej. Można użyć akronimu o ile jest on szeroko znany. Zmiana nazwy "
+"jest możliwa, lecz odradzana."
 
 #: ckan/forms/package.py:41 ckan/templates/package/new_package_form.html:44
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
 msgstr ""
+"2 lub więcej znaków zawierających małe litery 'a-z', cyfry '0-9' lub znaki "
+"'-_'"
 
 #: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:191
 msgid "A number representing the version (if applicable)"
-msgstr ""
+msgstr "Numer reprezentujacy wersję (o ile dotoczy)"
 
 #: ckan/forms/package.py:50 ckan/templates/package/new_package_form.html:49
 msgid "The URL for the web page describing the data (not the data itself)."
-msgstr ""
+msgstr "URL dla strony opisującej dane (nie adres samych danych)."
 
 #: ckan/forms/package.py:51 ckan/templates/package/new_package_form.html:50
 msgid "e.g. http://www.example.com/growth-figures.html"
-msgstr ""
+msgstr "np. "
 
 #: ckan/forms/package.py:55 ckan/templates/package/new_package_form.html:177
 msgid ""
 "The name of the main contact, for enquiries about this particular dataset, "
 "using the e-mail address in the following field."
 msgstr ""
+"Nazwa podstawowego kontaku dla zapytań dotyczących tego zbioru danych, z "
+"wykorzystaniem adresu e-mail określonego w następnym polu."
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:184
 msgid ""
 "If there is another important contact person (in addition to the person in "
 "the Author field) then provide details here."
 msgstr ""
+"Jeśli jest ktoś jeszcze z kim można się kontaktować odnośnie pakietu (poza "
+"osobą podaną w polu Autor) należy wprowadzić go tutaj."
 
 #: ckan/forms/package.py:63
 msgid "Licence"
@@ -517,7 +533,7 @@ msgstr "Licencja"
 
 #: ckan/forms/package.py:64 ckan/templates/package/new_package_form.html:76
 msgid "The licence under which the dataset is released."
-msgstr ""
+msgstr "Licencja zbioru danych."
 
 #: ckan/forms/package.py:68 ckan/forms/package.py:112
 #: ckan/templates/layout_base.html:145
@@ -533,14 +549,17 @@ msgid ""
 "Terms that may link this dataset to similar ones. For more information on "
 "conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
+"Terminy, które pozwalają łączyć ten pakiet z innymi. Więcej informacji na "
+"temat wykorzystywanych konwencji można znaleźć na <a href=\"%s\">stronie "
+"wiki</a>."
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:84
 msgid "e.g. pollution rivers water-quality"
-msgstr ""
+msgstr "np. zanieczyszczenia rzeki jakość-wody"
 
 #: ckan/forms/package.py:74
 msgid "The files containing the data or address of the APIs for accessing it."
-msgstr ""
+msgstr "Pliki zawierające dane lub adres API pozwalającego na dostęp do nich."
 
 #: ckan/forms/package.py:75
 msgid ""
@@ -561,15 +580,15 @@ msgstr ""
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
-msgstr ""
+msgstr "Możliwe formaty: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Inne"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 msgid "Notes"
-msgstr ""
+msgstr "Notatki"
 
 #: ckan/forms/package.py:81
 msgid "The main description of the dataset"
-msgstr ""
+msgstr "Podstawowy opis zbioru danych."
 
 #: ckan/forms/package.py:82
 msgid ""
@@ -581,7 +600,7 @@ msgstr ""
 #: ckan/forms/package.py:83
 #, python-format
 msgid "You can use %sMarkdown formatting%s here."
-msgstr ""
+msgstr "Możesz użyć tutaj %sformatowania Markdown%s."
 
 #: ckan/forms/package.py:94
 msgid "Basic information"
@@ -653,12 +672,12 @@ msgstr "Stan"
 #: ckan/forms/package_dict.py:95
 #, python-format
 msgid "Resource should be a dictionary: %r"
-msgstr ""
+msgstr "Zasób powinien być tablicą asocjacyjną: %r"
 
 #: ckan/forms/package_dict.py:112
 #, python-format
 msgid "Key unknown: %s"
-msgstr ""
+msgstr "Nieznany klucz: %s"
 
 #: ckan/forms/package_dict.py:114
 msgid "Key blank"
@@ -667,35 +686,37 @@ msgstr "Pusty klucz"
 #: ckan/lib/base.py:169
 #, python-format
 msgid "Could not find the POST data: %r : %s"
-msgstr ""
+msgstr "Brak danych POST: %r : %s"
 
 #: ckan/lib/base.py:177
 #, python-format
 msgid "Could not extract request body data: %s"
-msgstr ""
+msgstr "Nie można wyodrębnić danych z żądania: %s"
 
 #: ckan/lib/base.py:182
 msgid "No request body data"
-msgstr ""
+msgstr "Brak danych w żądaniu"
 
 #: ckan/lib/base.py:191
 #, python-format
 msgid "Error parsing JSON data. Error: %r JSON (Decoded and re-encoded): %r"
 msgstr ""
+"Błąd przy parosowaniu danych JSON. Błąd %r JSON (zdekodowane i ponownie "
+"zakodowane) %r"
 
 #: ckan/lib/mailer.py:21
 #, python-format
 msgid "Dear %s,"
-msgstr ""
+msgstr "Drogi/Droga %s,"
 
 #: ckan/lib/mailer.py:34
 #, python-format
 msgid "%s <%s>"
-msgstr ""
+msgstr "%s <%s>"
 
 #: ckan/lib/mailer.py:58
 msgid "No recipient email address available!"
-msgstr ""
+msgstr "Adres e-mail adresata niedostępny"
 
 #: ckan/lib/mailer.py:63
 #, python-format
@@ -711,11 +732,11 @@ msgstr ""
 #: ckan/templates/user/perform_reset.html:6
 #: ckan/templates/user/perform_reset.html:14
 msgid "Reset your password"
-msgstr ""
+msgstr "Zresetuj swoje hasło"
 
 #: ckan/lib/package_saver.py:29
 msgid "Cannot render package description"
-msgstr ""
+msgstr "Nie można wyświetlić opisu pakietu"
 
 #: ckan/lib/package_saver.py:34
 msgid "No web page given"
@@ -723,16 +744,18 @@ msgstr "Nie określony strony internetowej"
 
 #: ckan/lib/package_saver.py:107 ckan/logic/validators.py:45
 msgid "No links are allowed in the log_message."
-msgstr ""
+msgstr "Nie można umieszczać linków w treści logu."
 
 #: ckan/logic/__init__.py:113
 msgid "No valid API key provided."
-msgstr ""
+msgstr "Nieprawidłowy klucz API."
 
 #: ckan/logic/validators.py:14
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
 msgstr ""
+"Nie można zmienić wartości klucza z %s na %s. Ten klucz jest tylko do "
+"odczytu."
 
 #: ckan/logic/validators.py:26
 msgid "Invalid integer"
@@ -744,12 +767,12 @@ msgstr "Nieprawidłowy format danych"
 
 #: ckan/logic/validators.py:55 ckan/logic/validators.py:81
 msgid "Dataset was not found."
-msgstr ""
+msgstr "Nie znaleziono zbioru danych."
 
 #: ckan/logic/validators.py:66
 #, python-format
 msgid "Dataset with name %r does not exist."
-msgstr ""
+msgstr "Zbiór danych o nazwie %r nie istnieje."
 
 #: ckan/logic/validators.py:208
 #, python-format
@@ -760,19 +783,19 @@ msgstr ""
 
 #: ckan/logic/validators.py:213
 msgid "That login name is not available."
-msgstr ""
+msgstr "Ten login nie jest dostępny."
 
 #: ckan/logic/validators.py:225
 msgid "Please enter both passwords"
-msgstr ""
+msgstr "Proszę wprowadzić oba hasła"
 
 #: ckan/logic/validators.py:231
 msgid "Your password must be 4 characters or longer"
-msgstr ""
+msgstr "Hasło musi zawierać co najmniej 4 znaki"
 
 #: ckan/logic/validators.py:239
 msgid "The passwords you entered do not match"
-msgstr ""
+msgstr "Wprowadzone hasła nie pokrywają się"
 
 #: ckan/logic/validators.py:251
 msgid "Missing value"
@@ -787,12 +810,12 @@ msgstr ""
 #: ckan/logic/action/create.py:56 ckan/logic/action/create.py:156
 #, python-format
 msgid "REST API: Create object %s"
-msgstr ""
+msgstr "REST API: Stwórz obiekt %s"
 
 #: ckan/logic/action/create.py:131
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
-msgstr ""
+msgstr "REST API: Stwórz relację pomiędzy pakietami: %s %s %s"
 
 #: ckan/logic/action/create.py:182
 msgid "You must supply a package id or name (parameter \"package\")."
@@ -804,40 +827,40 @@ msgstr ""
 
 #: ckan/logic/action/create.py:189
 msgid "Rating must be an integer value."
-msgstr ""
+msgstr "Ocena musi być liczbą całkowitą."
 
 #: ckan/logic/action/create.py:193
 #, python-format
 msgid "Rating must be between %i and %i."
-msgstr ""
+msgstr "Ocena musi być między %i i %i."
 
 #: ckan/logic/action/create.py:195
 #, python-format
 msgid "Package with name %r does not exist."
-msgstr ""
+msgstr "Pakiet  o nazwie %r nie istnieje."
 
 #: ckan/logic/action/delete.py:23
 #, python-format
 msgid "REST API: Delete Package: %s"
-msgstr ""
+msgstr "REST API: Usuń pakiet %s"
 
 #: ckan/logic/action/delete.py:60 ckan/logic/action/delete.py:82
 #, python-format
 msgid "REST API: Delete %s"
-msgstr ""
+msgstr "REST API: Usuń %s"
 
 #: ckan/logic/action/update.py:41
 msgid "Package resource(s) incomplete"
-msgstr ""
+msgstr "Niekompletne zasoby pekietu"
 
 #: ckan/logic/action/update.py:43 ckan/logic/action/update.py:55
 #: ckan/logic/action/update.py:67
 msgid "Missing Value"
-msgstr ""
+msgstr "Brakująca wartość"
 
 #: ckan/logic/action/update.py:159
 msgid "Resource was not found."
-msgstr ""
+msgstr "Zasób nie został znaleziony."
 
 #: ckan/logic/action/update.py:169
 msgid "No package found for this resource, cannot check auth."
@@ -847,151 +870,154 @@ msgstr ""
 #: ckan/logic/action/update.py:324
 #, python-format
 msgid "REST API: Update object %s"
-msgstr ""
+msgstr "REST API: Zaktualizuj obiekt %s"
 
 #: ckan/logic/action/update.py:204 ckan/logic/action/update.py:243
 msgid "Package was not found."
-msgstr ""
+msgstr "Pakiet nie został znaleziony."
 
 #: ckan/logic/action/update.py:265
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
-msgstr ""
+msgstr "REST API: Zaktualizuj relację między pakietami: %s %s %s"
 
 #: ckan/logic/auth/create.py:12
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do tworzenia pakietów"
 
 #: ckan/logic/auth/create.py:17 ckan/logic/auth/update.py:21
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do edycji tych grup"
 
 #: ckan/logic/auth/create.py:38
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do edycji tych pakietów"
 
 #: ckan/logic/auth/create.py:48
 #, python-format
 msgid "User %s not authorized to create groups"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do tworzenia grup"
 
 #: ckan/logic/auth/create.py:58
 #, python-format
 msgid "User %s not authorized to create authorization groups"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do tworzenia grup autoryzacji"
 
 #: ckan/logic/auth/create.py:72
 #, python-format
 msgid "User %s not authorized to create users"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do tworzenia użytkowników"
 
 #: ckan/logic/auth/create.py:95
 msgid "Group was not found."
-msgstr ""
+msgstr "Grupa nie została znaleziona."
 
 #: ckan/logic/auth/create.py:113
 msgid "Valid API key needed to create a package"
-msgstr ""
+msgstr "Poprawny klucz API wymagany do utworzenia pakietu."
 
 #: ckan/logic/auth/create.py:121
 msgid "Valid API key needed to create a group"
-msgstr ""
+msgstr "Poprawny klucz API wymagany do utworzenia grupy."
 
 #: ckan/logic/auth/delete.py:14
 #, python-format
 msgid "User %s not authorized to delete package %s"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do usunięcia pakietu %s"
 
 #: ckan/logic/auth/delete.py:28
 #, python-format
 msgid "User %s not authorized to delete relationship %s"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do usunięcia relacji %s"
 
 #: ckan/logic/auth/delete.py:39
 #, python-format
 msgid "User %s not authorized to delete group %s"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do usunięcia grupy %s"
 
 #: ckan/logic/auth/get.py:78
 #, python-format
 msgid "User %s not authorized to read these packages"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do odczytania tych pakietów"
 
 #: ckan/logic/auth/get.py:89
 #, python-format
 msgid "User %s not authorized to read package %s"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do odczytania pakietu %s"
 
 #: ckan/logic/auth/get.py:104
 #, python-format
 msgid "User %s not authorized to read group %s"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do odczytania grupy %s"
 
 #: ckan/logic/auth/update.py:17
 #, python-format
 msgid "User %s not authorized to edit package %s"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do edycji pakietu %s"
 
 #: ckan/logic/auth/update.py:35
 #, python-format
 msgid "User %s not authorized to change state of package %s"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do zmiany stanu pakietu %s"
 
 #: ckan/logic/auth/update.py:46
 #, python-format
 msgid "User %s not authorized to edit permissions of package %s"
 msgstr ""
+"Użytkownik %s nie jest upoważniony do edycji praw dostępu do pakietu %s"
 
 #: ckan/logic/auth/update.py:57
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr ""
+msgstr "Użtkownik %s nie jest upoważniony do edycji grupy %s"
 
 #: ckan/logic/auth/update.py:68
 #, python-format
 msgid "User %s not authorized to change state of group %s"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do zmiany stanu grupy %s"
 
 #: ckan/logic/auth/update.py:79
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do edycji praw dostępu do grupy %s"
 
 #: ckan/logic/auth/update.py:90 ckan/logic/auth/update.py:101
 #, python-format
 msgid "User %s not authorized to edit permissions of authorization group %s"
 msgstr ""
+"Użytkownik %s nie jest upoważniony do edycji praw dostępu dla grupy "
+"autoryzacji %s"
 
 #: ckan/logic/auth/update.py:112
 #, python-format
 msgid "User %s not authorized to edit user %s"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do edycji użytkownika %s"
 
 #: ckan/logic/auth/update.py:122
 #, python-format
 msgid "User %s not authorized to change state of revision"
-msgstr ""
+msgstr "Użytkownik %s nie jest upoważniony do zmiany stanu wersji"
 
 #: ckan/logic/auth/update.py:132
 msgid "Valid API key needed to edit a package"
-msgstr ""
+msgstr "Poprawny klucz API wymagany do edycji pakietu"
 
 #: ckan/logic/auth/update.py:140
 msgid "Valid API key needed to edit a group"
-msgstr ""
+msgstr "Poprawny klucz API wymagany do edycji grupy"
 
 #: ckan/model/package_relationship.py:48
 #, python-format
 msgid "depends on %s"
-msgstr ""
+msgstr "zależy od %s"
 
 #: ckan/model/package_relationship.py:48
 #, python-format
 msgid "is a dependency of %s"
-msgstr ""
+msgstr "jest zależnością %s"
 
 #: ckan/model/package_relationship.py:49
 #, python-format
@@ -1006,40 +1032,40 @@ msgstr ""
 #: ckan/model/package_relationship.py:50
 #, python-format
 msgid "links to %s"
-msgstr ""
+msgstr "posiada link do %s"
 
 #: ckan/model/package_relationship.py:50
 #, python-format
 msgid "is linked from %s"
-msgstr ""
+msgstr "jest powiązany z %s"
 
 #: ckan/model/package_relationship.py:51
 #, python-format
 msgid "is a child of %s"
-msgstr ""
+msgstr "jest dzieckiem %s"
 
 #: ckan/model/package_relationship.py:51
 #, python-format
 msgid "is a parent of %s"
-msgstr ""
+msgstr "jest rodzicem %s"
 
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "has sibling %s"
-msgstr ""
+msgstr "ma rodzeństwo %s"
 
 #: ckan/templates/_util.html:74 ckan/templates/_util.html:120
 msgid "This dataset satisfies the Open Definition."
-msgstr ""
+msgstr "Ten pakiet jest zgodny z Definicją Otwartości (Open Definition)."
 
 #: ckan/templates/_util.html:75 ckan/templates/_util.html:121
 #: ckan/templates/package/read.html:119
 msgid "[Open Data]"
-msgstr ""
+msgstr "[Otwarte Dane]"
 
 #: ckan/templates/_util.html:82 ckan/templates/_util.html:128
 msgid "Not Openly Licensed"
-msgstr ""
+msgstr "Dane o licencji zamkniętej"
 
 #: ckan/templates/_util.html:147 ckan/templates/_util.html:160
 msgid "Number of datasets"
@@ -1066,11 +1092,11 @@ msgstr "POBIERZ"
 
 #: ckan/templates/_util.html:196
 msgid "No downloadable resources."
-msgstr ""
+msgstr "Brak zasobów do pobrania."
 
 #: ckan/templates/_util.html:214
 msgid "no ratings yet"
-msgstr ""
+msgstr "brak oceny"
 
 #: ckan/templates/_util.html:215
 msgid ""
@@ -1104,7 +1130,7 @@ msgstr "Obiekt"
 #: ckan/templates/_util.html:345 ckan/templates/_util.html:395
 #: ckan/templates/group/history.html:35 ckan/templates/package/history.html:37
 msgid "Log Message"
-msgstr ""
+msgstr "Wiadomość w logu"
 
 #: ckan/templates/_util.html:369 ckan/templates/_util.html:419
 #: ckan/templates/group/new_group_form.html:49
@@ -1125,15 +1151,15 @@ msgstr "Błąd"
 
 #: ckan/templates/js_strings.html:17
 msgid "Hello there, world!"
-msgstr ""
+msgstr "Witaj Świecie!"
 
 #: ckan/templates/js_strings.html:18
 msgid "This dataset name is available!"
-msgstr ""
+msgstr "Ta nazwa zbioru danych jest dostępna!"
 
 #: ckan/templates/js_strings.html:19
 msgid "This dataset name is already used, please use a different name"
-msgstr ""
+msgstr "Ta nazwa zbioru danych jest niedostępna, prosimy o użycie innej"
 
 #: ckan/templates/js_strings.html:20
 #: ckan/templates/package/new_package_form.html:130
@@ -1145,11 +1171,11 @@ msgstr "(brak)"
 
 #: ckan/templates/js_strings.html:21
 msgid "Failed to save, possibly due to invalid data "
-msgstr ""
+msgstr "Zapis nie powiód się, prawdopodobnie z powodu niepoprawnych danych"
 
 #: ckan/templates/js_strings.html:22
 msgid "Add Dataset"
-msgstr ""
+msgstr "Dodaj zbiór danych"
 
 #: ckan/templates/js_strings.html:23
 msgid ""
@@ -1167,7 +1193,7 @@ msgstr "Adres URL pliku"
 
 #: ckan/templates/js_strings.html:30
 msgid "Api URL"
-msgstr ""
+msgstr "Adres URL API"
 
 #: ckan/templates/js_strings.html:31
 #: ckan/templates/authorization_group/authz.html:22
@@ -1203,11 +1229,11 @@ msgstr "Typ zasobu"
 
 #: ckan/templates/js_strings.html:39
 msgid "Size (Bytes)"
-msgstr ""
+msgstr "Rozmiar (Bajty)"
 
 #: ckan/templates/js_strings.html:40
 msgid "Mimetype"
-msgstr ""
+msgstr "Type MIME"
 
 #: ckan/templates/js_strings.html:41
 msgid "Last Modified"
@@ -1215,7 +1241,7 @@ msgstr "Ostatnia modyfikacja"
 
 #: ckan/templates/js_strings.html:42
 msgid "Mimetype (Inner)"
-msgstr ""
+msgstr "Type MIME (wewnętrzny)"
 
 #: ckan/templates/js_strings.html:43
 msgid "Hash"
@@ -1231,7 +1257,7 @@ msgstr "Usuń zasób"
 
 #: ckan/templates/js_strings.html:46
 msgid "This resource has unsaved changes."
-msgstr ""
+msgstr "Ten zasób posiada niezapisane zmiany."
 
 #: ckan/templates/layout_base.html:54
 msgid "My account"
@@ -1269,11 +1295,11 @@ msgstr "O"
 
 #: ckan/templates/layout_base.html:102
 msgid "Master content template placeholder … please replace me."
-msgstr ""
+msgstr "Wzór podstawowego szablonu ... proszę zastąp mnie."
 
 #: ckan/templates/layout_base.html:127
 msgid "Twitter @ckanproject"
-msgstr ""
+msgstr "Twitter @ckanproject"
 
 #: ckan/templates/layout_base.html:129 ckan/templates/package/search.html:37
 msgid "API"
@@ -1305,11 +1331,11 @@ msgstr "Wersje"
 #: ckan/templates/authorization_group/index.html:7
 #: ckan/templates/authorization_group/layout.html:23
 msgid "Authorization Groups"
-msgstr ""
+msgstr "Grupy autoryzacji"
 
 #: ckan/templates/layout_base.html:160
 msgid "Site Admin"
-msgstr ""
+msgstr "Zarządzaj stroną"
 
 #: ckan/templates/layout_base.html:168
 msgid "Languages"
@@ -1325,19 +1351,19 @@ msgstr "Open Knowledge Foundation"
 
 #: ckan/templates/layout_base.html:192
 msgid "Licensed under the"
-msgstr ""
+msgstr "Licencja"
 
 #: ckan/templates/layout_base.html:193
 msgid "Open Database License"
-msgstr ""
+msgstr "Licencja Otwartych Baz Dany (Open Database License)"
 
 #: ckan/templates/layout_base.html:194
 msgid "This Content and Data is Open"
-msgstr ""
+msgstr "Te treści i dane są otwarte"
 
 #: ckan/templates/layout_base.html:196
 msgid "Powered by"
-msgstr ""
+msgstr "Wspomogany przez"
 
 #: ckan/templates/layout_base.html:197
 msgid "CKAN"
@@ -1349,17 +1375,17 @@ msgstr "wer."
 
 #: ckan/templates/authorization_group/authz.html:5
 msgid "- Authorization - AuthorizationGroups"
-msgstr ""
+msgstr "- Autoryzacja - Grupy autoryzacji"
 
 #: ckan/templates/authorization_group/authz.html:6
 #: ckan/templates/group/authz.html:6 ckan/templates/package/authz.html:6
 msgid "Authorization:"
-msgstr ""
+msgstr "Autoryzacja:"
 
 #: ckan/templates/authorization_group/authz.html:9
 #: ckan/templates/group/authz.html:9 ckan/templates/package/authz.html:9
 msgid "Update Existing Roles"
-msgstr ""
+msgstr "Zmodyfikuj istniejące role"
 
 #: ckan/templates/authorization_group/authz.html:13
 #: ckan/templates/authorization_group/authz.html:31
@@ -1375,7 +1401,7 @@ msgstr "Zapisz"
 #: ckan/templates/authorization_group/authz.html:18
 #: ckan/templates/group/authz.html:18 ckan/templates/package/authz.html:18
 msgid "Add Roles for Any User"
-msgstr ""
+msgstr "Dodaj role dla dowolnego użytkownika"
 
 #: ckan/templates/authorization_group/authz.html:27
 msgid "Existing Roles for Authorization Groups"
@@ -2332,15 +2358,15 @@ msgstr ""
 
 #: ckan/templates/user/logout.html:5
 msgid "Logout - User"
-msgstr ""
+msgstr "Wyloguj się - Użytkownik"
 
 #: ckan/templates/user/logout.html:9
 msgid "You have logged out successfully."
-msgstr ""
+msgstr "Zostałeś/aś wylogowany."
 
 #: ckan/templates/user/new.html:7
 msgid "Have an OpenID?"
-msgstr ""
+msgstr "Posiadasz OpenID?"
 
 #: ckan/templates/user/new.html:8
 msgid ""
@@ -2354,7 +2380,7 @@ msgstr "Zaloguj się teraz"
 
 #: ckan/templates/user/new.html:18
 msgid "Register - User"
-msgstr ""
+msgstr "Zarejestruj się - Użytkownik"
 
 #: ckan/templates/user/new.html:19
 msgid "Join the community"
@@ -2362,11 +2388,11 @@ msgstr "Dołącz do społeczności"
 
 #: ckan/templates/user/new_user_form.html:16
 msgid "Register with CKAN"
-msgstr ""
+msgstr "Zarejestruj się przez CKAN"
 
 #: ckan/templates/user/new_user_form.html:20
 msgid "3+ chars, using only 'a-z0-9' and '-_'"
-msgstr ""
+msgstr "Co najmniej 3 znaki spośród 'a-z0-9' oraz '-_'"
 
 #: ckan/templates/user/new_user_form.html:23
 msgid "Full name (optional):"
@@ -2382,7 +2408,7 @@ msgstr "- Użytkownik"
 
 #: ckan/templates/user/read.html:7
 msgid "user-view"
-msgstr ""
+msgstr "użytkownik-widok"
 
 #: ckan/templates/user/read.html:11
 msgid "Activity"
@@ -2390,11 +2416,11 @@ msgstr "Aktywność"
 
 #: ckan/templates/user/read.html:13
 msgid "Number of edits:"
-msgstr ""
+msgstr "Liczba edycji:"
 
 #: ckan/templates/user/read.html:14
 msgid "Number of datasets administered:"
-msgstr ""
+msgstr "Liczba podlegających zbiorów danych:"
 
 #: ckan/templates/user/read.html:21
 msgid "My Account"
@@ -2406,7 +2432,7 @@ msgstr "Jesteś zalogowany/a"
 
 #: ckan/templates/user/read.html:25
 msgid "Your API key is:"
-msgstr ""
+msgstr "Twój klucz API to:"
 
 #: ckan/templates/user/read.html:34
 msgid "Recent changes"
@@ -2420,7 +2446,7 @@ msgstr "Resetuj hasło"
 
 #: ckan/templates/user/request_reset.html:9
 msgid "Request a password reset"
-msgstr ""
+msgstr "Zażądaj resetu hasła"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "User name:"

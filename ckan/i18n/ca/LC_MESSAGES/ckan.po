@@ -7,13 +7,14 @@
 # <amercadero@gmail.com>, 2011.
 #   <amercadero@gmail.com>, 2011.
 # ilabastida <ilabastida@ub.edu>, 2011.
+#   <ilabastida@ub.edu>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-09-30 17:45+0100\n"
-"PO-Revision-Date: 2011-10-02 17:30+0000\n"
-"Last-Translator: amercader <amercadero@gmail.com>\n"
+"PO-Revision-Date: 2011-10-03 10:53+0000\n"
+"Last-Translator: ilabastida <ilabastida@ub.edu>\n"
 "Language-Team: Catalan (http://www.transifex.net/projects/p/ckan/team/ca/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -130,7 +131,7 @@ msgstr "Registre desconegut: %s"
 
 #: ckan/controllers/api.py:472
 msgid "Malformed qjson value"
-msgstr "Valor JSON mal format"
+msgstr "Valor QJSON mal format"
 
 #: ckan/controllers/api.py:481 ckan/lib/base.py:193
 msgid "Request params must be in form of a json encoded dictionary."
@@ -163,7 +164,7 @@ msgstr "Grup no trobat"
 #: ckan/controllers/package.py:546
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
-msgstr "L'usuari %r no està autoritzat a editar les autorizacions de%s"
+msgstr "L'usuari %r no està autoritzat a editar les autorizacions de %s"
 
 #: ckan/controllers/group.py:81 ckan/controllers/group.py:147
 #: ckan/controllers/group.py:171 ckan/controllers/group.py:190
@@ -260,7 +261,7 @@ msgid ""
 "<span class=\"new-dataset\">Congratulations, your dataset has been created. "
 "<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
 msgstr ""
-"<span class=\"new-dataset\">Felicitats, s'ha creat el vostre conjunt de "
+"<span class=\"new-dataset\">Enhorabona, s'ha creat el vostre conjunt de "
 "dades. <a href=\"%s\">Ara podeu carregar o enllaçar a algunes dades "
 "&raquo;</a></span>"
 

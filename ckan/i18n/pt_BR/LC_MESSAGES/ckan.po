@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-09-30 17:45+0100\n"
-"PO-Revision-Date: 2011-10-03 03:23+0000\n"
+"PO-Revision-Date: 2011-10-04 11:15+0000\n"
 "Last-Translator: Nitai <Nitaibezerra@gmail.com>\n"
 "Language-Team: Portuguese (Brazilian) (http://www.transifex.net/projects/p/ckan/team/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -282,7 +282,7 @@ msgstr "Outro"
 
 #: ckan/controllers/tag.py:69
 msgid "Tag not found"
-msgstr "Tag não encontrada"
+msgstr "Etiqueta não encontrada"
 
 #: ckan/controllers/user.py:129
 msgid "Unauthorized to create a user"
@@ -397,17 +397,17 @@ msgstr "Recurso(s) do conjunto de dados incompleto(s)."
 #: ckan/forms/common.py:512 ckan/logic/validators.py:150
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
-msgstr "Comprimento da Tag \"%s\" é menor que o mínimo %s"
+msgstr "Comprimento da Etiqueta \"%s\" é menor que o mínimo %s"
 
 #: ckan/forms/common.py:514 ckan/logic/validators.py:158
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr "A Tag \"%s\" deve conter caracteres alfanuméricos ou símbolos: -_."
+msgstr "A Etiqueta \"%s\" deve conter caracteres alfanuméricos ou símbolos: -_."
 
 #: ckan/forms/common.py:516 ckan/logic/validators.py:166
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
-msgstr "A Tag \"%s\" não pode ter caixa alta"
+msgstr "A Etiqueta \"%s\" não pode ter caixa alta"
 
 #: ckan/forms/common.py:533 ckan/logic/validators.py:128
 #, python-format
@@ -540,7 +540,7 @@ msgstr "A licença sob a qual o conjunto de dados foi disponibilizado."
 #: ckan/templates/package/read.html:50 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:9
 msgid "Tags"
-msgstr "Tags"
+msgstr "Etiquetas"
 
 #: ckan/forms/package.py:69
 #, python-format
@@ -1373,7 +1373,7 @@ msgstr "Administrador da página"
 
 #: ckan/templates/layout_base.html:168
 msgid "Languages"
-msgstr "Línguas"
+msgstr "Idiomas"
 
 #: ckan/templates/layout_base.html:188
 msgid "Meta"
@@ -1583,10 +1583,10 @@ msgid ""
 "be set-up to specify which users have permission to add or remove datasets "
 "from it."
 msgstr ""
-"Enquanto as tags são ótimas para agrupar conjuntos de dados, há ocasiões em "
-"que você deseja restringir que usuários editem uma coleção. A [1: grupo] "
-"pode ser configurado para especificar quais usuários têm permissão para "
-"adicionar ou remover conjuntos de dados a partir dele."
+"Enquanto as etiquetas são ótimas para agrupar conjuntos de dados, há "
+"ocasiões em que você deseja restringir que usuários editem uma coleção. A "
+"[1: grupo] pode ser configurado para especificar quais usuários têm "
+"permissão para adicionar ou remover conjuntos de dados a partir dele."
 
 #: ckan/templates/group/layout.html:14
 msgid "To create a new group, please first [1:login]."
@@ -1705,6 +1705,8 @@ msgid ""
 "CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of [2:open knowledge] datasets and projects\n"
 "    (and a few closed ones)."
 msgstr ""
+"CKAN, ou \"Comprehensive Knowledge Archive Network\", é um [1:registro] de pacotes e projetos de [2:conhecimento aberto]\n"
+"    (e alguns fechados)."
 
 #: ckan/templates/home/about.html:15
 msgid ""
@@ -1731,6 +1733,9 @@ msgid ""
 "\t\ta dataset index and a wiki. As a registry it acts like [1:freshmeat] but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
+"Como mostra o diagrama, CKAN combina as funcionalidades de um catálogo/registro,\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>um índice de pacotes e um wiki. Como um catálogo, funciona como [1:freshmeat], mas para dados abertos e\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>recursos de conteúdo. Todavia, acrescenta funcionalidades ao registro de maneiras importantes."
 
 #: ckan/templates/home/about.html:29
 msgid ""
@@ -1898,6 +1903,9 @@ msgid ""
 "contributions under the [2:Open Database License]. Please [3:refrain] from "
 "editing this page if you are [4:not] happy to do this."
 msgstr ""
+"[1:Importante:] Ao enviar conteúdo, você concorda em lançar suas "
+"contribuições sob a [2:Licença Aberta para Bancos de Dados]. Por favor [3"
+":abstenha-se] de editar esta página se você [4:não] se dispõe a fazer isso."
 
 #: ckan/templates/package/history.html:7
 msgid "History:"
@@ -1929,7 +1937,7 @@ msgstr "Um título curto e descritivo para o conjunto de dados"
 
 #: ckan/templates/package/new_package_form.html:41
 msgid "Slug *"
-msgstr ""
+msgstr "Identificador legível *"
 
 #: ckan/templates/package/new_package_form.html:43
 msgid ""
@@ -1964,7 +1972,7 @@ msgstr "Você pode usar"
 #: ckan/templates/package/new_package_form.html:61
 #: ckan/templates/user/edit_user_form.html:32
 msgid "Markdown formatting"
-msgstr ""
+msgstr "Formatação Markdown"
 
 #: ckan/templates/package/new_package_form.html:61
 #: ckan/templates/user/edit_user_form.html:32
@@ -2008,6 +2016,8 @@ msgid ""
 "Since you have not signed in this will just be your IP address.\n"
 "    [1:Click here to sign in] before saving (opens in new window)."
 msgstr ""
+"Como você não se autenticou, isto será somente o seu endereço IP.\n"
+"    [1:Clique aqui para autenticar-se] antes de salvar (abre numa nova janela)."
 
 #: ckan/templates/package/new_package_form.html:244
 #: ckan/templates/user/edit_user_form.html:47
@@ -2175,7 +2185,7 @@ msgstr "completo"
 
 #: ckan/templates/package/search.html:39
 msgid "dump"
-msgstr ""
+msgstr "dump"
 
 #: ckan/templates/package/search.html:51
 msgid ""
@@ -2260,7 +2270,7 @@ msgstr "Alterações"
 
 #: ckan/templates/revision/read.html:54
 msgid "Datasets' Tags"
-msgstr "Tags do conjunto de dados"
+msgstr "Etiquetas do conjunto de dados"
 
 #: ckan/templates/revision/read.html:57
 msgid "Dataset -"
@@ -2272,7 +2282,7 @@ msgid ""
 "      Tag -"
 msgstr ""
 ",\n"
-"      Tag -"
+"      Etiqueta -"
 
 #: ckan/templates/tag/index.html:20 ckan/templates/tag/index.html:23
 msgid "There are"
@@ -2284,7 +2294,7 @@ msgstr "resultados para ‘"
 
 #: ckan/templates/tag/index.html:24
 msgid "results for tags."
-msgstr "resultados para tags."
+msgstr "resultados para etiquetas."
 
 #: ckan/templates/tag/index.html:34
 msgid "Clear search"
@@ -2292,21 +2302,22 @@ msgstr "Limpar busca"
 
 #: ckan/templates/tag/index.html:34
 msgid "and see all tags."
-msgstr "e ver todas as tags."
+msgstr "e ver todas as etiquetas."
 
 #: ckan/templates/tag/read.html:6
 msgid "- Tags"
-msgstr "- Tags"
+msgstr "- Etiquetas"
 
 #: ckan/templates/tag/read.html:7
 msgid "Tag:"
-msgstr "Tag:"
+msgstr "Etiqueta:"
 
 #: ckan/templates/tag/read.html:10
 #, python-format
 msgid "There are %(count)s datasets tagged with [1:%(tagname)s]:"
 msgstr ""
-"Existem %(count)s conjuntos de dados marcados com a tag [1:%(tagname)s]:"
+"Existem %(count)s conjuntos de dados marcados com a etiqueta "
+"[1:%(tagname)s]:"
 
 #: ckan/templates/user/edit.html:6
 msgid "- Edit - User"
