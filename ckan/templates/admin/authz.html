@@ -3,44 +3,43 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
 
-  <py:def function="page_title">System Roles</py:def>
+  <py:def function="page_title">Administration - Authorization</py:def>
+  <py:def function="page_heading">Administration - Authorization</py:def>
 
   <div py:match="content">
-
-    <h1>Roles on the System Object</h1>
-
-    <h2>Update Existing Roles</h2>
+    <h3>Update Existing Roles</h3>
 
     <form id="theform" method="POST">
       ${authz_form_table('theform', c.roles, c.users, c.user_role_dict)}
-      <button type="submit" name="save">
-        Save
+      <button type="submit" name="save" class="pretty-button primary">
+        Save Changes
       </button>
+      <div class="clear"></div>
     </form>
 
-    <h2>Add Roles for Any User</h2>
-
+    <h3>Add Roles for Any User</h3>
     <form id="addform" method="POST">
       ${authz_add_table(c.roles)}
-      <button type="submit" name="add"> Add </button>
+      <button type="submit" name="add" class="pretty-button primary">Add Role</button>
+      <div class="clear"></div>
     </form>
 
     <hr/>
 
-    <h2>Existing Roles for Authorization Groups</h2>
+    <h3>Existing Roles for Authorization Groups</h3>
 
     <form id="authzgroup_form" method="POST">
       ${authz_form_group_table('authzgroup_form', c.roles, c.authz_groups, c.authz_groups_role_dict)}
-      <button type="submit" name="authz_save">
-        Save
-      </button>
+      <button type="submit" name="authz_save" class="pretty-button primary">Save Changes</button>
+      <div class="clear"></div>
     </form>
 
-    <h2>Add Roles for Any Authorization Group</h2>
+    <h3>Add Roles for Any Authorization Group</h3>
 
     <form id="authzgroup_addform" method="POST">
       ${authz_add_group_table(c.roles)}
-      <button type="submit" name="authz_add"> Add </button>
+      <button type="submit" name="authz_add" class="pretty-button primary">Add Role</button>
+      <div class="clear"></div>
     </form>
 
 

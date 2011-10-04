@@ -3,12 +3,11 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
 
-  <py:def function="page_title">Authorization - Administration</py:def>
+  <py:def function="page_title">Administration Dashboard</py:def>
+  <py:def function="page_heading">Administration Dashboard</py:def>
 
   <div py:match="content">
-    <h1>Administration Dashboard</h1>
-
-    <h2>Current Sysadmins</h2>
+    <h3>Current Sysadmins</h3>
     <p>You can change sysadmins on the <a
       href="${h.url_for('ckanadmin',
       action='authz')}">authorization page</a>.</p>

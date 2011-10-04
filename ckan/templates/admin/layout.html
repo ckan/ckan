@@ -6,17 +6,17 @@
   >
   <py:match path="minornavigation">
     <ul class="tabbed">
-      <li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='index' else {}">
         <a href="${h.url_for('ckanadmin', action='index')}">
           Home
         </a>
       </li>
-      <li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}">
         <a href="${h.url_for('ckanadmin', action='authz')}">
           Authorization
         </a>
       </li>
-      <li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='trash' else {}">
         <a href="${h.url_for('ckanadmin', action='trash')}">
           Trash
         </a>

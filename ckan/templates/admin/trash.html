@@ -3,38 +3,44 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
 
-  <py:def function="page_title">Trash - Administration</py:def>
+  <py:def function="page_title">Administration - Trash</py:def>
+  <py:def function="page_heading">Administration - Trash</py:def>
 
   <div py:match="content">
-    <h1>The Trash Bin</h1>
-
-    <h2>Deleted Revisions</h2>
+    <h3>Deleted Revisions</h3>
     <form method="POST" id="form-purge-revisions">
+      ${revision_list(c.deleted_revisions)}
       <button
         type="submit"
         name="purge-revisions"
         value="purge"
-        class="purge-button"
+        py:attrs=
+          "{'disabled':'disabled','class':'pretty-button'} 
+          if c.deleted_revisions.count()==0 
+          else {'class':'pretty-button danger'}"
         >
         Purge them all (forever and irreversibly)
       </button>
+      <div class="clear"></div>
     </form>
 
-    ${revision_list(c.deleted_revisions)}
-
-    <h2>Deleted Packages</h2>
+    <h3>Deleted Datasets</h3>
     <form method="POST" id="form-purge-packages">
+      ${package_list(c.deleted_packages)}
+      <span py:if="c.deleted_packages.count()==0"><em>(None)</em></span>
       <button
         type="submit"
         name="purge-packages"
         value="purge"
-        class="purge-button"
+        py:attrs=
+          "{'disabled':'disabled','class':'pretty-button'} 
+          if c.deleted_packages.count()==0 
+          else {'class':'pretty-button danger'}"
         >
         Purge them all (forever and irreversibly)
       </button>
+      <div class="clear"></div>
     </form>
-
-    ${package_list(c.deleted_packages)}
   </div>
 
   <xi:include href="layout.html" />

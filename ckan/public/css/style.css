@@ -1078,9 +1078,6 @@ body.index.home .front-page .group strong {
 }
   
 
-/* ================================== */
-/* = Twitter.Bootstrap Form Buttons = */
-/* ================================== */
 div.form-submit {
   background: #eee;
   padding: 20px;
@@ -1098,6 +1095,23 @@ div.clear {
   clear: both;
 }
 
+/* ==================== */
+/* = Multi-form pages = */
+/* ==================== */
+body.admin form {
+  margin-bottom: 30px;
+}
+body.admin form button {
+  float: right;
+}
+body.admin.authz form button {
+  width: 120px;
+}
+
+
+/* ================================== */
+/* = Twitter.Bootstrap Form Buttons = */
+/* ================================== */
 .pretty-button {
   cursor: pointer;
   display: inline-block;
