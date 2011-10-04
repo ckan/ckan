@@ -24,7 +24,7 @@ class MarkdownFormat(TextFormat):
     any_link = re.compile(r'<a[^>]*?>', re.IGNORECASE)
     close_link = re.compile(r'<(\/a[^>]*)>', re.IGNORECASE)
     link_escp = re.compile(r'\\xfc\\xfd(\/?(%s)[^>]*?)\\xfd\\xfc' % "|".join(['a']), re.IGNORECASE)
-    web_address = re.compile(r'([^\[\<\(]|^)((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)', re.IGNORECASE)
+    web_address = re.compile(r'(\s|^)((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)', re.IGNORECASE)
     
     def to_html(self, text):
         if text is None:
@@ -49,7 +49,7 @@ class MarkdownFormat(TextFormat):
 
         # Convert <link> to markdown format.
         text = self.normal_link.sub(r'[\1] (\1)', text)
-        
+
         # Markdown to HTML.
         text = webhelpers.markdown.markdown(text, safe_mode=True)
 
