@@ -529,3 +529,32 @@ class TestAction(WsgiAppCase):
         resource_created.pop('revision_id')
         resource_created.pop('revision_timestamp')
         assert resource_updated == resource_created
+
+    def test_20_task_status_update(self):
+        task_status = {}
+        postparams = '%s=1' % json.dumps(task_status)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_updated = json.loads(res.body)['result']
+        print task_status_updated
+
+    def test_21_task_status_update_many(self):
+        pass
+
+    def test_22_task_status_normal_user_not_authorized(self):
+        task_status = {} 
+        postparams = '%s=1' % json.dumps(task_status)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.normal_user.apikey)},
+            status=self.STATUS_403_ACCESS_DENIED
+        )
+        res_obj = json.loads(res.body)
+        expected_res_obj = {
+            'help': None,
+            'success': False,
+            'error': {'message': 'Access denied', '__type': 'Authorization Error'}
+        }
+        assert res_obj == expected_res_obj, res_obj

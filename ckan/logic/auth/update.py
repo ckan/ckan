@@ -123,6 +123,16 @@ def revision_change_state(context, data_dict):
     else:
         return {'success': True}
 
+def task_status_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+
+    authorized =  Authorizer().is_sysadmin(unicode(user))
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to update task_status table') % str(user)}
+    else:
+        return {'success': True}
+
 ## Modifications for rest api
 
 def package_update_rest(context, data_dict):

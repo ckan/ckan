@@ -25,7 +25,8 @@ from ckan.lib.dictization.model_save import (group_api_to_dict,
 from ckan.logic.schema import (default_update_group_schema,
                                default_update_package_schema,
                                default_update_user_schema,
-                               default_update_resource_schema)
+                               default_update_resource_schema,
+                               default_task_status_schema)
 from ckan.lib.navl.dictization_functions import validate
 log = logging.getLogger(__name__)
 
@@ -357,6 +358,30 @@ def user_update(context, data_dict):
     
     model.repo.commit()        
     return user_dictize(user, context)
+
+def task_status_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    id = data_dict.get("id")
+    schema = context.get('schema') or default_task_status_schema()
+    model.Session.remove()
+    model.Session()._context = context
+
+    if id:
+        task_status = model.TaskStatus.get(id)
+        context["task_status"] = task_status
+
+        if task_status is None:
+            raise NotFound(_('TaskStatus was not found.'))
+
+    check_access('task_status_update', context, data_dict)
+
+    data, errors = validate(data_dict, schema, context)
+
+    return {}
+
+def task_status_update_many(context, data_dicts):
+    return {}
 
 ## Modifications for rest api
 
