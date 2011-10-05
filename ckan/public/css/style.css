@@ -1098,14 +1098,20 @@ div.clear {
 /* ==================== */
 /* = Multi-form pages = */
 /* ==================== */
-body.admin form {
+body.admin form#form-purge-packages, 
+body.admin form#form-purge-revisions {
   margin-bottom: 30px;
+  text-align: right;
 }
-body.admin form button {
-  float: right;
+body.admin .actions button {
+  margin: 0;
+}
+body.admin.authz form {
+  margin-bottom: 30px;
 }
 body.admin.authz form button {
   width: 120px;
+  float: right;
 }
 
 
