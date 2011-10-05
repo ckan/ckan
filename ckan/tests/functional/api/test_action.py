@@ -533,13 +533,12 @@ class TestAction(WsgiAppCase):
     def test_20_task_status_update(self):
         package = {
             'name': u'test_task_status_update',
+            'title': u'A Novel By Tolstoy',
             'resources': [{
                 'description': u'Full text.',
                 'format': u'plain text',
                 'url': u'http://www.annakarenina.com/download/'
-            }],
-            'title': u'A Novel By Tolstoy',
-            'url': u'http://www.annakarenina.com',
+            }]
         }
 
         postparams = '%s=1' % json.dumps(package)
@@ -603,3 +602,45 @@ class TestAction(WsgiAppCase):
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=self.STATUS_409_CONFLICT
         )
+
+    def test_24_task_status_show(self):
+        package = {
+            'name': u'test_task_status_show',
+            'title': u'A Novel By Tolstoy',
+            'resources': [{
+                'description': u'Full text.',
+                'format': u'plain text',
+                'url': u'http://www.annakarenina.com/download/'
+            }]
+        }
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        package_created = json.loads(res.body)['result']
+
+        task_status = {
+            'entity_id': package_created['id'],
+            'entity_type': u'package',
+            'task_type': u'test_task',
+            'key': u'test_key',
+            'value': u'test_value',
+            'state': u'test_state'
+        }
+        postparams = '%s=1' % json.dumps(task_status)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_updated = json.loads(res.body)['result']
+
+        postparams = '%s=1' % json.dumps({'id': task_status_updated['id']})
+        res = self.app.post(
+            '/api/action/task_status_show', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_show = json.loads(res.body)['result']
+
+        task_status_show.pop('last_updated')
+        task_status_updated.pop('last_updated')
+        assert task_status_show == task_status_updated, (task_status_show, task_status_updated)

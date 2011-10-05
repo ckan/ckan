@@ -13,6 +13,7 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_dictize,
                                                 group_list_dictize,
                                                 tag_dictize,
+                                                task_status_dictize,
                                                 user_dictize)
 
 from ckan.lib.dictization.model_dictize import (package_to_api1,
@@ -739,3 +740,20 @@ def tag_search(context, data_dict):
     q = q.limit(limit)
     results = [r for r in q]
     return {'count': count, 'results': results}
+
+def task_status_show(context, data_dict):
+    model = context['model']
+    id = data_dict['id']
+
+    query = model.Session.query(model.TaskStatus)
+
+    task_status = model.TaskStatus.get(id)
+    context['task_status'] = task_status
+
+    if task_status is None:
+        raise NotFound
+
+    check_access('task_status_show', context, data_dict)
+
+    task_status_dict = task_status_dictize(task_status, context)
+    return task_status_dict

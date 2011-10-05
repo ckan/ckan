@@ -129,6 +129,9 @@ def user_autocomplete(context, data_dict):
 def format_autocomplete(context, data_dict):
     return {'success': True}
 
+def task_status_show(context, data_dict):
+    return {'success': True}
+
 ## Modifications for rest api
 
 def package_show_rest(context, data_dict):
