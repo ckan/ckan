@@ -8,15 +8,15 @@
 
   <div py:match="content">
     <h3>Deleted Revisions</h3>
+    ${revision_list(c.deleted_revisions)}
     <form method="POST" id="form-purge-revisions">
-      ${revision_list(c.deleted_revisions)}
       <button
         type="submit"
         name="purge-revisions"
         value="purge"
         py:attrs=
           "{'disabled':'disabled','class':'pretty-button'} 
-          if c.deleted_revisions.count()==0 
+          if not any(c.deleted_revisions) 
           else {'class':'pretty-button danger'}"
         >
         Purge them all (forever and irreversibly)
@@ -25,16 +25,16 @@
     </form>
 
     <h3>Deleted Datasets</h3>
+    ${package_list(c.deleted_packages)}
+    <span py:if="not any(c.deleted_packages)"><em>(None)</em></span>
     <form method="POST" id="form-purge-packages">
-      ${package_list(c.deleted_packages)}
-      <span py:if="c.deleted_packages.count()==0"><em>(None)</em></span>
       <button
         type="submit"
         name="purge-packages"
         value="purge"
         py:attrs=
           "{'disabled':'disabled','class':'pretty-button'} 
-          if c.deleted_packages.count()==0 
+          if not any(c.deleted_packages) 
           else {'class':'pretty-button danger'}"
         >
         Purge them all (forever and irreversibly)

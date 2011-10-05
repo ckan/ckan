@@ -387,7 +387,7 @@
       </td>
       <td>${revision.message}</td>
     </tr>
-    <tr py:if="revisions.count()==0" class="table-empty">
+    <tr py:if="not any(revisions)" class="table-empty">
       <td colspan="5">(none)</td>
     </tr>
   </table>
