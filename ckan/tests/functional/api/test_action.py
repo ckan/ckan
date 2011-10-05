@@ -491,3 +491,41 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert_equal(res_obj, u'Bad request - Action name not known: bad_action_name')
 
+    def test_19_update_resource(self):
+        package = {
+            'name': u'annakareninanew',
+            'resources': [{
+                'alt_url': u'alt123',
+                'description': u'Full text.',
+                'extras': {u'alt_url': u'alt123', u'size': u'123'},
+                'format': u'plain text',
+                'hash': u'abc123',
+                'position': 0,
+                'url': u'http://www.annakarenina.com/download/'
+            }],
+            'title': u'A Novel By Tolstoy',
+            'url': u'http://www.annakarenina.com',
+        }
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        package_created = json.loads(res.body)['result']
+
+        resource_created = package_created['resources'][0]
+        new_resource_url = u'http://www.annakareinanew.com/download/' 
+        resource_created['url'] = new_resource_url
+        postparams = '%s=1' % json.dumps(resource_created)
+        res = self.app.post('/api/action/resource_update', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        
+        resource_updated = json.loads(res.body)['result']
+        assert resource_updated['url'] == new_resource_url, resource_updated
+
+        resource_updated.pop('url')
+        resource_updated.pop('revision_id')
+        resource_updated.pop('revision_timestamp')
+        resource_created.pop('url')
+        resource_created.pop('revision_id')
+        resource_created.pop('revision_timestamp')
+        assert resource_updated == resource_created
