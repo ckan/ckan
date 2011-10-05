@@ -30,6 +30,22 @@ class TestAction(WsgiAppCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
+    def _add_basic_package(self, package_name=u'test_package'):
+        package = {
+            'name': package_name,
+            'title': u'A Novel By Tolstoy',
+            'resources': [{
+                'description': u'Full text.',
+                'format': u'plain text',
+                'url': u'http://www.annakarenina.com/download/'
+            }]
+        }
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        return json.loads(res.body)['result']
+
     def test_01_package_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/package_list', params=postparams)
@@ -531,20 +547,7 @@ class TestAction(WsgiAppCase):
         assert resource_updated == resource_created
 
     def test_20_task_status_update(self):
-        package = {
-            'name': u'test_task_status_update',
-            'title': u'A Novel By Tolstoy',
-            'resources': [{
-                'description': u'Full text.',
-                'format': u'plain text',
-                'url': u'http://www.annakarenina.com/download/'
-            }]
-        }
-
-        postparams = '%s=1' % json.dumps(package)
-        res = self.app.post('/api/action/package_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
-        package_created = json.loads(res.body)['result']
+        package_created = self._add_basic_package(u'test_task_status_update')
 
         task_status = {
             'entity_id': package_created['id'],
@@ -604,20 +607,7 @@ class TestAction(WsgiAppCase):
         )
 
     def test_24_task_status_show(self):
-        package = {
-            'name': u'test_task_status_show',
-            'title': u'A Novel By Tolstoy',
-            'resources': [{
-                'description': u'Full text.',
-                'format': u'plain text',
-                'url': u'http://www.annakarenina.com/download/'
-            }]
-        }
-
-        postparams = '%s=1' % json.dumps(package)
-        res = self.app.post('/api/action/package_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
-        package_created = json.loads(res.body)['result']
+        package_created = self._add_basic_package(u'test_task_status_show')
 
         task_status = {
             'entity_id': package_created['id'],
@@ -646,20 +636,7 @@ class TestAction(WsgiAppCase):
         assert task_status_show == task_status_updated, (task_status_show, task_status_updated)
 
     def test_25_task_status_delete(self):
-        package = {
-            'name': u'test_task_status_delete',
-            'title': u'A Novel By Tolstoy',
-            'resources': [{
-                'description': u'Full text.',
-                'format': u'plain text',
-                'url': u'http://www.annakarenina.com/download/'
-            }]
-        }
-
-        postparams = '%s=1' % json.dumps(package)
-        res = self.app.post('/api/action/package_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
-        package_created = json.loads(res.body)['result']
+        package_created = self._add_basic_package(u'test_task_status_delete')
 
         task_status = {
             'entity_id': package_created['id'],
