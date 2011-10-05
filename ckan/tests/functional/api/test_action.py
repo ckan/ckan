@@ -579,7 +579,39 @@ class TestAction(WsgiAppCase):
         assert task_status_updated_2 == task_status_updated, task_status_updated_2
 
     def test_21_task_status_update_many(self):
-        pass
+        package_created = self._add_basic_package(u'test_task_status_update_many')
+        task_statuses = {
+            'data': [
+                {
+                    'entity_id': package_created['id'],
+                    'entity_type': u'package',
+                    'task_type': u'test_task',
+                    'key': u'test_task_1',
+                    'value': u'test_value_1',
+                    'state': u'test_state'
+                },
+                {
+                    'entity_id': package_created['id'],
+                    'entity_type': u'package',
+                    'task_type': u'test_task',
+                    'key': u'test_task_2',
+                    'value': u'test_value_2',
+                    'state': u'test_state'
+                }
+            ]
+        }
+        postparams = '%s=1' % json.dumps(task_statuses)
+        res = self.app.post(
+            '/api/action/task_status_update_many', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_statuses_updated = json.loads(res.body)['result']['results']
+        for i in range(len(task_statuses['data'])):
+            task_status = task_statuses['data'][i]
+            task_status_updated = task_statuses_updated[i]
+            task_status_updated.pop('id') 
+            task_status_updated.pop('last_updated') 
+            assert task_status == task_status_updated, (task_status_updated, task_status, i)
 
     def test_22_task_status_normal_user_not_authorized(self):
         task_status = {} 

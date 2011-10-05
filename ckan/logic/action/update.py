@@ -395,8 +395,11 @@ def task_status_update(context, data_dict):
     model.Session.commit()
     return task_status_dictize(task_status, context)
 
-def task_status_update_many(context, data_dicts):
-    return {}
+def task_status_update_many(context, data_dict):
+    results = []
+    for data in data_dict['data']:
+        results.append(task_status_update(context, data))
+    return {'results': results}
 
 ## Modifications for rest api
 
