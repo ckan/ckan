@@ -19,6 +19,10 @@ task_status_table = Table('task_status', metadata,
 )
 
 class TaskStatus(DomainObject):
-    pass
+    @classmethod
+    def get(cls, reference):
+        '''Returns a task status object referenced by its id.'''
+        query = Session.query(cls).filter(cls.id==reference)
+        return query.first()
 
 mapper(TaskStatus, task_status_table)

@@ -561,9 +561,20 @@ class TestAction(WsgiAppCase):
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
         )
         task_status_updated = json.loads(res.body)['result']
-        task_status_updated.pop('id')
+        task_status_id = task_status_updated.pop('id')
         task_status_updated.pop('last_updated')
         assert task_status_updated == task_status, (task_status_updated, task_status)
+
+        task_status_updated['id'] = task_status_id
+        task_status_updated['value'] = u'test_value_2'
+        postparams = '%s=1' % json.dumps(task_status_updated)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_updated_2 = json.loads(res.body)['result']
+        task_status_updated_2.pop('last_updated')
+        assert task_status_updated_2 == task_status_updated, task_status_updated_2
 
     def test_21_task_status_update_many(self):
         pass
