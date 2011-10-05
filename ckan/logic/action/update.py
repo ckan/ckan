@@ -12,6 +12,7 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
                                                 resource_dictize,
+                                                task_status_dictize,
                                                 group_dictize,
                                                 group_to_api1,
                                                 group_to_api2,
@@ -20,6 +21,7 @@ from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_api_to_dict,
                                              group_dict_save,
                                              user_dict_save,
+                                             task_status_dict_save,
                                              package_dict_save,
                                              resource_dict_save)
 from ckan.logic.schema import (default_update_group_schema,
@@ -70,6 +72,12 @@ def group_error_summary(error_dict):
             error_summary[_('Extras')] = error[0]
         else:
             error_summary[_(prettify(key))] = error[0]
+    return error_summary
+
+def task_status_error_summary(error_dict):
+    error_summary = {}
+    for key, error in error_dict.iteritems():
+        error_summary[_(prettify(key))] = error[0]
     return error_summary
 
 def _make_latest_rev_active(context, q):
@@ -378,7 +386,14 @@ def task_status_update(context, data_dict):
 
     data, errors = validate(data_dict, schema, context)
 
-    return {}
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, task_status_error_summary(errors))
+
+    task_status = task_status_dict_save(data, context)
+
+    model.Session.commit()
+    return task_status_dictize(task_status, context)
 
 def task_status_update_many(context, data_dicts):
     return {}

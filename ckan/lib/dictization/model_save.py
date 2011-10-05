@@ -384,3 +384,12 @@ def group_api_to_dict(api1_dict, context):
 
     return dictized
 
+def task_status_dict_save(task_status_dict, context):
+    model = context["model"]
+    task_status = context.get("task_status")
+    allow_partial_update = context.get("allow_partial_update", False)
+    if task_status:
+        task_status_dict["id"] = task_status.id 
+
+    task_status = table_dict_save(task_status_dict, model.TaskStatus, context)
+    return task_status

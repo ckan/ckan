@@ -191,6 +191,9 @@ def user_dictize(user, context):
 
     return result_dict 
 
+def task_status_dictize(task_status, context):
+    return table_dictize(task_status, context)
+
 ## conversion to api
 
 def group_to_api1(group, context):

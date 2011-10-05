@@ -531,14 +531,39 @@ class TestAction(WsgiAppCase):
         assert resource_updated == resource_created
 
     def test_20_task_status_update(self):
-        task_status = {}
+        package = {
+            'name': u'test_task_status_update',
+            'resources': [{
+                'description': u'Full text.',
+                'format': u'plain text',
+                'url': u'http://www.annakarenina.com/download/'
+            }],
+            'title': u'A Novel By Tolstoy',
+            'url': u'http://www.annakarenina.com',
+        }
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        package_created = json.loads(res.body)['result']
+
+        task_status = {
+            'entity_id': package_created['id'],
+            'entity_type': u'package',
+            'task_type': u'test_task',
+            'key': u'test_key',
+            'value': u'test_value',
+            'state': u'test_state'
+        }
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(
             '/api/action/task_status_update', params=postparams,
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
         )
         task_status_updated = json.loads(res.body)['result']
-        print task_status_updated
+        task_status_updated.pop('id')
+        task_status_updated.pop('last_updated')
+        assert task_status_updated == task_status, (task_status_updated, task_status)
 
     def test_21_task_status_update_many(self):
         pass
@@ -558,3 +583,12 @@ class TestAction(WsgiAppCase):
             'error': {'message': 'Access denied', '__type': 'Authorization Error'}
         }
         assert res_obj == expected_res_obj, res_obj
+
+    def test_23_task_status_validation(self):
+        task_status = {} 
+        postparams = '%s=1' % json.dumps(task_status)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=self.STATUS_409_CONFLICT
+        )
