@@ -250,42 +250,47 @@ class AdminController(BaseController):
             # purge packages) of form: "this object already exists in the
             # session"
             msgs = []
-            if 'purge-packages' in request.params:
-                revs_to_purge = []
-                for pkg in c.deleted_packages:
-                    revisions = [ x[0] for x in pkg.all_related_revisions ]
-                    # ensure no accidental purging of other(non-deleted) packages
-                    # initially just avoided purging revisions where
-                    # non-deleted packages were affected
-                    # however this lead to confusing outcomes e.g.
-                    # we succesfully deleted revision in which package was deleted (so package
-                    # now active again) but no other revisions
-                    problem = False
-                    for r in revisions:
-                        affected_pkgs = set(r.packages).difference(set(c.deleted_packages))
-                        if affected_pkgs:
-                            msg = _('Cannot purge package %s as ' + \
-                                'associated revision %s includes non-deleted packages %s')
-                            msg = msg % (pkg.id, r.id, [pkg.id for r in affected_pkgs])
-                            msgs.append(msg)
-                            problem = True
-                            break
-                    if not problem:
-                        revs_to_purge += [ r.id for r in revisions ]
-                model.Session.remove()
+            if ('purge-packages' in request.params) or ('purge-revisions' in request.params):
+                if 'purge-packages' in request.params:
+                    revs_to_purge = []
+                    for pkg in c.deleted_packages:
+                        revisions = [ x[0] for x in pkg.all_related_revisions ]
+                        # ensure no accidental purging of other(non-deleted) packages
+                        # initially just avoided purging revisions where
+                        # non-deleted packages were affected
+                        # however this lead to confusing outcomes e.g.
+                        # we succesfully deleted revision in which package was deleted (so package
+                        # now active again) but no other revisions
+                        problem = False
+                        for r in revisions:
+                            affected_pkgs = set(r.packages).difference(set(c.deleted_packages))
+                            if affected_pkgs:
+                                msg = _('Cannot purge package %s as ' + \
+                                    'associated revision %s includes non-deleted packages %s')
+                                msg = msg % (pkg.id, r.id, [pkg.id for r in affected_pkgs])
+                                msgs.append(msg)
+                                problem = True
+                                break
+                        if not problem:
+                            revs_to_purge += [ r.id for r in revisions ]
+                    model.Session.remove()
+                else:
+                    revs_to_purge = [ rev.id for rev in c.deleted_revisions ]
+                revs_to_purge = list(set(revs_to_purge))
+                for id in revs_to_purge:
+                    revision = model.Session.query(model.Revision).get(id)
+                    try:
+                        # TODO deleting the head revision corrupts the edit page
+                        # Ensure that whatever 'head' pointer is used gets moved down to the next revision
+                        model.repo.purge_revision(revision, leave_record=False)
+                    except Exception, inst:
+                        msg = 'Problem purging revision %s: %s' % (id,
+                                inst)
+                        msgs.append(msg)
+                h.flash_success(_('Purge complete'))
             else:
-                revs_to_purge = [ rev.id for rev in c.deleted_revisions ]
+                msgs.append('Action not implemented.')
 
-            revs_to_purge = list(set(revs_to_purge))
-            for id in revs_to_purge:
-                revision = model.Session.query(model.Revision).get(id)
-                try:
-                    model.repo.purge_revision(revision, leave_record=False)
-                except Exception, inst:
-                    msg = 'Problem purging revision %s: %s' % (id,
-                            inst)
-                    msgs.append(msg)
-            h.flash_success(_('Purge complete'))
             for msg in msgs:
                 h.flash_error(msg)
             h.redirect_to(h.url_for('ckanadmin', action='trash'))

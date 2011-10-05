@@ -230,6 +230,8 @@ class Repository(vdm.sqlalchemy.Repository):
                                 continue
                             if 'pending' not in obj.state:
                                 obj.current = True
+                                import datetime
+                                obj.expired_timestamp = datetime.datetime(9999, 12, 31)
                                 self.session.add(obj)
                                 break
                 # now delete revision object
