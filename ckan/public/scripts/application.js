@@ -690,6 +690,8 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
 
   my.setupDataPreview = function(dataset) {
     var dialogId = 'ckanext-datapreview-dialog';
+    // initialize the tableviewer system
+    DATAEXPLORER.TABLEVIEW.initialize(dialogId);
     my.createPreviewButtons(dataset, $('.resources'));
   };
 
@@ -799,9 +801,8 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     if (preview.webstore_url) {
       var _url = preview.webstore_url + '.jsontuples?_limit=500';
       my.getResourceDataDirect(_url, function(data) {
-        alert('Showing data for ' + _url);
-        // my.showData(preview, data);
-        // dp.$dialog.dialog('open');
+        DATAEXPLORER.TABLEVIEW.showData(data);
+        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
       });
     }
   };
@@ -861,7 +862,6 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       return url;
     }
   }
-
 
   // Export the CKANEXT object onto the window.
   $.extend(true, window, {CKANEXT: {}});
