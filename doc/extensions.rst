@@ -15,7 +15,6 @@ Many CKAN extensions are listed on the CKAN wiki's `List of Extensions <http://w
 
 Some popular extensions include: 
 
-* `ckanext-admin <https://bitbucket.org/okfn/ckanext-admin>`_: Admin web interface for CKAN.
 * `ckanext-apps <https://bitbucket.org/okfn/ckanext-apps>`_: Apps and ideas catalogue extension for CKAN.
 * `ckanext-deliverance <https://bitbucket.org/okfn/ckanext-deliverance>`_: Extends CKAN to use the Deliverance HTTP proxy, which can request and render web pages from * an external site (e.g. a CMS like Drupal or Wordpress). 
 * `ckanext-disqus <https://bitbucket.org/okfn/ckanext-disqus>`_: Allows users to comment on dataset pages with Disqus. 
