@@ -39,7 +39,7 @@ APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 def abort(status_code=None, detail='', headers=None, comment=None):
-    if detail:
+    if detail and status_code!=503:
         h.flash_error(detail)
     # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
     # with Lucid) causes an exception when unicode is received.
