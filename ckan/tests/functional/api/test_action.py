@@ -623,7 +623,7 @@ class TestAction(WsgiAppCase):
             'entity_id': package_created['id'],
             'entity_type': u'package',
             'task_type': u'test_task',
-            'key': u'test_key',
+            'key': u'test_task_status_show',
             'value': u'test_value',
             'state': u'test_state'
         }
@@ -644,3 +644,42 @@ class TestAction(WsgiAppCase):
         task_status_show.pop('last_updated')
         task_status_updated.pop('last_updated')
         assert task_status_show == task_status_updated, (task_status_show, task_status_updated)
+
+    def test_25_task_status_delete(self):
+        package = {
+            'name': u'test_task_status_delete',
+            'title': u'A Novel By Tolstoy',
+            'resources': [{
+                'description': u'Full text.',
+                'format': u'plain text',
+                'url': u'http://www.annakarenina.com/download/'
+            }]
+        }
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        package_created = json.loads(res.body)['result']
+
+        task_status = {
+            'entity_id': package_created['id'],
+            'entity_type': u'package',
+            'task_type': u'test_task',
+            'key': u'test_task_status_delete',
+            'value': u'test_value',
+            'state': u'test_state'
+        }
+        postparams = '%s=1' % json.dumps(task_status)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_updated = json.loads(res.body)['result']
+
+        postparams = '%s=1' % json.dumps({'id': task_status_updated['id']})
+        res = self.app.post(
+            '/api/action/task_status_delete', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_delete = json.loads(res.body)
+        assert task_status_delete['success'] == True
