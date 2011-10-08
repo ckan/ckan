@@ -687,6 +687,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
 
 (function ($) {
   var my = {};
+  my.jsonpdataproxyUrl = 'http://jsonpdataproxy.appspot.com/';
 
   my.setupDataPreview = function(dataset) {
     var dialogId = 'ckanext-datapreview-dialog';
@@ -736,12 +737,9 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
         return;
       }
 
-      // TODO: get this from resource
-      var _url = "/resource.jsonp?_limit=30";
-
       var _previewSpan = $('<a />', {
         text: 'Preview',
-        href: _url,
+        href: resourceData.url,
         click: function(e) {
           e.preventDefault();
           my.loadPreviewDialog(e.target);
@@ -805,6 +803,46 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
         DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
       });
     }
+    else if (preview.formatNormalized in {'csv': '', 'xls': ''}) {
+      var _url = my.jsonpdataproxyUrl + '?url=' + preview.url + '&type=' + preview.formatNormalized;
+      my.getResourceDataDirect(_url, function(data) {
+        DATAEXPLORER.TABLEVIEW.showData(data);
+        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
+      });
+    }
+    else if (preview.formatNormalized in {
+        'rdf+xml': '',
+        'owl+xml': '',
+        'xml': '',
+        'n3': '',
+        'n-triples': '',
+        'turtle': '',
+        'plain': '',
+        'atom': '',
+        'tsv': '',
+        'rss': '',
+        'txt': ''
+        }) {
+      // HACK: treat as plain text / csv
+      // pass url to jsonpdataproxy so we can load remote data (and tell dataproxy to treat as csv!)
+      var _url = my.jsonpdataproxyUrl + '?type=csv&url=' + preview.url;
+      my.getResourceDataDirect(_url, function(data) {
+        my.showPlainTextData(data);
+      });
+    }
+    else {
+      // HACK: but should work
+      // we displays a fullscreen dialog with the url in an iframe.
+      // HACK: we borrow dialog from DATAEXPLORER.TABLEVIEW
+      var $dialog = DATAEXPLORER.TABLEVIEW.$dialog;
+      $dialog.empty();
+      $dialog.dialog('option', 'title', 'Preview: ' + preview.url);
+      var el = $('<iframe></iframe>');
+      el.attr('src', preview.url);
+      el.attr('width', '100%');
+      el.attr('height', '100%');
+      $dialog.append(el).dialog('open');;
+    }
   };
 
   // Public: Requests the formatted resource data from the webstore and
@@ -819,7 +857,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     // set a timeout to provide the callback with an error after x seconds.
     var timeout = 5000;
     var timer = setTimeout(function error() {
-      callback({}, {
+      callback({
         error: {
           title: 'Request Error',
           message: 'Dataproxy server did not respond after ' + (timeout / 1000) + ' seconds'
@@ -846,6 +884,27 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
         callback(data);
       }
     });
+  };
+
+  // Public: Displays a String of data in a fullscreen dialog.
+  //
+  // data    - An object of parsed CSV data returned by the webstore.
+  //
+  // Returns nothing.
+  my.showPlainTextData = function(data) {
+    // HACK: have to reach into DATAEXPLORER.TABLEVIEW dialog  a lot ...
+    DATAEXPLORER.TABLEVIEW.setupFullscreenDialog();
+
+    if(data.error) {
+      DATAEXPLORER.TABLEVIEW.showError(data.error);
+    } else {
+      var content = $('<pre></pre>');
+      for (var i=0; i<data.data.length; i++) {
+        var row = data.data[i].join(',') + '\n';
+        content.append(dp.escapeHTML(row));
+      }
+      DATAEXPLORER.TABLEVIEW.$dialog.dialog('option', DATAEXPLORER.TABLEVIEW.dialogOptions).append(content);
+    }
   };
 
   my.normalizeFormat = function(format) {
