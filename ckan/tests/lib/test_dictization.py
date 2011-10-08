@@ -544,10 +544,12 @@ class TestBasicDictize:
 
     def test_12_make_active(self):
 
+        model.repo.new_revision()
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
         context = {"model": model,
                    "session": model.Session,
                    'user': 'testsysadmin'}
+
         make_latest_pending_package_active(context, {'id': anna1.id})
 
         pkgrevisions = model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()

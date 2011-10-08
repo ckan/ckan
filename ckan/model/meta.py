@@ -38,6 +38,8 @@ class CkanSessionExtension(SessionExtension):
             revision = session.revision
         except AttributeError:
             return
+        if getattr(session, 'revisioning_disabled', False):
+            return
         new = obj_cache['new']
         changed = obj_cache['changed']
         deleted = obj_cache['deleted']
