@@ -3,11 +3,27 @@ from babel import Locale
 
 
 # TODO: Figure out a nicer way to get this. From the .ini? 
-_KNOWN_LOCALES = ['en', 'de',
-                  'es', 'fi', 'fr', 
-                  'it', 'nl', 'no',
-                  'pt_BR', 'ru',
-                  'sq', 'cs_CZ', 'bg',
+# Order these by number of people speaking it in Europe:
+# http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
+# (or there abouts)
+_KNOWN_LOCALES = ['en',
+                  'de',
+#                  'fr',
+                  'it',
+                  'es',
+                  'pl',
+                  'ru',
+                  'nl',
+                  'sv', # Swedish
+                  'no',
+#                  'el', # Greek
+                  'cs_CZ',
+                  'hu',
+                  'pt_BR',
+                  'fi', 
+                  'bg',
+                  'ca',
+                  'sq', 
                   ]
 
 def get_available_locales():

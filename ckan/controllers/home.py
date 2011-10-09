@@ -57,15 +57,17 @@ class HomeController(BaseController):
     def index(self):
         cache_key = self._home_cache_key()
         etag_cache(cache_key)
-        c.query_error = False
 
-        query = query_for(model.Package)
-        query.run({'q': '*:*', 'facet.field': g.facets})
-        c.fields = []
-        c.facets = query.facets
-        c.package_count = query.count
-        q = model.Session.query(model.Group).filter_by(state='active')
-        c.groups = sorted(q.all(), key=lambda g: len(g.packages), reverse=True)[:6]
+        try:
+            query = query_for(model.Package)
+            query.run({'q': '*:*'})
+            c.package_count = query.count
+            q = model.Session.query(model.Group).filter_by(state='active')
+            c.groups = sorted(q.all(), key=lambda g: len(g.packages), reverse=True)[:6]
+        except SearchError, se:
+            c.package_count = 0
+            c.groups = []
+
         return render('home/index.html', cache_key=cache_key,
                       cache_expire=cache_expires)
 

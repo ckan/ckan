@@ -273,6 +273,9 @@ def deploy():
             # sed does not find the path if not absolute (!)
             config_path = os.path.join(env.instance_path, env.config_ini_filename)
             sed(config_path, dburi, newdburi, backup='')
+            site_id = '^.*ckan.site_id.*'
+            new_site_id = 'ckan.site_id = %s' % env.ckan_instance_name
+            sed(config_path, site_id, new_site_id, backup='')
             if not env.skip_setup_db:
                 setup_db()
             _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)

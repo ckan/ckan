@@ -49,7 +49,7 @@
         </ul>
         </div>
       </div>
-      <div class="span-24 last whoelse">
+      <div py:if="c.groups" class="span-24 last whoelse">
         <h2>Who else is here?</h2>
       </div>
       <py:for each="i, group in enumerate(c.groups)">

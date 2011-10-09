@@ -46,6 +46,20 @@ class TestFormatText:
         out = format.to_html(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
 
+    def test_auto_link(self):
+        instr = 'http://somelink.com'
+        exp = '<a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a>'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
+    def test_auto_link_after_whitespace(self):
+        instr = 'go to http://somelink.com'
+        exp = 'go to <a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a>'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
     def test_malformed_link_1(self):
         instr = u'<a href=\u201dsomelink\u201d>somelink</a>'
         exp = '<a href="TAG MALFORMED" target="_blank" rel="nofollow">somelink</a>'

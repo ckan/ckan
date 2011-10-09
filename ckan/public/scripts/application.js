@@ -232,7 +232,7 @@ CKAN.Utils = function($, my) {
       if (action=='preview') {
         raw_markdown=textarea.val();
         preview.html("<em>"+CKAN.Strings.loading+"<em>");
-        $.post("/api/markdown", { q: raw_markdown },
+        $.post("/api/util/markdown", { q: raw_markdown },
           function(data) { preview.html(data); }
         );
         preview.width(textarea.width())

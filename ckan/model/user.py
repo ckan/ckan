@@ -133,7 +133,6 @@ class User(DomainObject):
     def number_administered_packages(self):
         # have to import here to avoid circular imports
         import ckan.model as model
-        revisions_q = model.Session.query(model.Revision).filter_by(author=self.name)
         q = model.Session.query(model.PackageRole)
         q = q.filter_by(user=self, role=model.Role.ADMIN)
         return q.count()

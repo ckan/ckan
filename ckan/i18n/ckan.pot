@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckan 1.5a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2011-09-21 17:20+0100\n"
+"POT-Creation-Date: 2011-09-30 17:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.4\n"
+"Generated-By: Babel 0.9.6\n"
 
 #: ckan/new_authz.py:18
 #, python-format
@@ -26,7 +26,7 @@ msgstr ""
 #: ckan/controllers/group.py:58 ckan/controllers/home.py:29
 #: ckan/controllers/package.py:110 ckan/controllers/revision.py:31
 #: ckan/controllers/tag.py:23 ckan/controllers/user.py:31
-#: ckan/controllers/user.py:71 ckan/controllers/user.py:94
+#: ckan/controllers/user.py:72 ckan/controllers/user.py:95
 #: ckan/logic/auth/get.py:17
 msgid "Not authorized to see this page"
 msgstr ""
@@ -57,8 +57,8 @@ msgstr ""
 #: ckan/controllers/api.py:155 ckan/controllers/api.py:292
 #: ckan/controllers/api.py:344 ckan/controllers/group.py:175
 #: ckan/controllers/group.py:194 ckan/controllers/package.py:462
-#: ckan/controllers/package.py:491 ckan/controllers/user.py:154
-#: ckan/controllers/user.py:231 ckan/controllers/user.py:345
+#: ckan/controllers/package.py:491 ckan/controllers/user.py:155
+#: ckan/controllers/user.py:232 ckan/controllers/user.py:346
 msgid "Integrity Error"
 msgstr ""
 
@@ -199,15 +199,15 @@ msgstr ""
 msgid "This site is currently off-line. Database is not initialised."
 msgstr ""
 
-#: ckan/controllers/home.py:84
+#: ckan/controllers/home.py:86
 msgid "Invalid language specified"
 msgstr ""
 
-#: ckan/controllers/home.py:87
+#: ckan/controllers/home.py:89
 msgid "Language has been set to: English"
 msgstr ""
 
-#: ckan/controllers/home.py:91
+#: ckan/controllers/home.py:93
 msgid "No language given!"
 msgstr ""
 
@@ -277,77 +277,77 @@ msgstr ""
 msgid "Tag not found"
 msgstr ""
 
-#: ckan/controllers/user.py:128
+#: ckan/controllers/user.py:129
 msgid "Unauthorized to create a user"
 msgstr ""
 
-#: ckan/controllers/user.py:150
+#: ckan/controllers/user.py:151
 #, python-format
 msgid "Unauthorized to create user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:152 ckan/controllers/user.py:200
-#: ckan/controllers/user.py:229 ckan/controllers/user.py:323
-#: ckan/controllers/user.py:343
+#: ckan/controllers/user.py:153 ckan/controllers/user.py:201
+#: ckan/controllers/user.py:230 ckan/controllers/user.py:324
+#: ckan/controllers/user.py:344
 msgid "User not found"
 msgstr ""
 
-#: ckan/controllers/user.py:156
+#: ckan/controllers/user.py:157
 msgid "Bad Captcha. Please try again."
 msgstr ""
 
-#: ckan/controllers/user.py:179
+#: ckan/controllers/user.py:180
 msgid "No user specified"
 msgstr ""
 
-#: ckan/controllers/user.py:198 ckan/controllers/user.py:227
-#: ckan/controllers/user.py:341
+#: ckan/controllers/user.py:199 ckan/controllers/user.py:228
+#: ckan/controllers/user.py:342
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr ""
 
-#: ckan/controllers/user.py:205
+#: ckan/controllers/user.py:206
 #, python-format
 msgid "User %s not authorized to edit %s"
 msgstr ""
 
-#: ckan/controllers/user.py:258
+#: ckan/controllers/user.py:259
 #, python-format
-msgid "Welcome back, %s"
+msgid "%s is now logged in"
 msgstr ""
 
-#: ckan/controllers/user.py:298
+#: ckan/controllers/user.py:299
 #, python-format
 msgid "\"%s\" matched several users"
 msgstr ""
 
-#: ckan/controllers/user.py:300 ckan/controllers/user.py:302
+#: ckan/controllers/user.py:301 ckan/controllers/user.py:303
 #, python-format
 msgid "No such user: %s"
 msgstr ""
 
-#: ckan/controllers/user.py:307
+#: ckan/controllers/user.py:308
 msgid "Please check your inbox for a reset code."
 msgstr ""
 
-#: ckan/controllers/user.py:310
+#: ckan/controllers/user.py:311
 #, python-format
 msgid "Could not send reset link: %s"
 msgstr ""
 
-#: ckan/controllers/user.py:327
+#: ckan/controllers/user.py:328
 msgid "Invalid reset key. Please try again."
 msgstr ""
 
-#: ckan/controllers/user.py:338
+#: ckan/controllers/user.py:339
 msgid "Your password has been reset."
 msgstr ""
 
-#: ckan/controllers/user.py:366
+#: ckan/controllers/user.py:367
 msgid "Your password must be 4 characters or longer."
 msgstr ""
 
-#: ckan/controllers/user.py:368
+#: ckan/controllers/user.py:369
 msgid "The passwords you entered do not match."
 msgstr ""
 
@@ -429,7 +429,7 @@ msgid "other - please specify"
 msgstr ""
 
 #: ckan/forms/group.py:52 ckan/forms/package.py:38 ckan/forms/package.py:110
-#: ckan/templates/js_strings.html:33
+#: ckan/templates/js_strings.html:34
 #: ckan/templates/package/new_package_form.html:96
 msgid "Name"
 msgstr ""
@@ -1039,7 +1039,7 @@ msgid "Number of datasets"
 msgstr ""
 
 #: ckan/templates/_util.html:147 ckan/templates/_util.html:160
-#: ckan/templates/js_strings.html:34 ckan/templates/group/new_group_form.html:27
+#: ckan/templates/js_strings.html:35 ckan/templates/group/new_group_form.html:27
 #: ckan/templates/package/new_package_form.html:53
 msgid "Description"
 msgstr ""
@@ -1149,15 +1149,19 @@ msgid ""
 "submit them."
 msgstr ""
 
-#: ckan/templates/js_strings.html:28
-msgid "File URL"
+#: ckan/templates/js_strings.html:24
+msgid "Loading..."
 msgstr ""
 
 #: ckan/templates/js_strings.html:29
-msgid "Api URL"
+msgid "File URL"
 msgstr ""
 
 #: ckan/templates/js_strings.html:30
+msgid "Api URL"
+msgstr ""
+
+#: ckan/templates/js_strings.html:31
 #: ckan/templates/authorization_group/authz.html:22
 #: ckan/templates/authorization_group/authz.html:40
 #: ckan/templates/group/authz.html:22 ckan/templates/group/authz.html:40
@@ -1165,59 +1169,59 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: ckan/templates/js_strings.html:31
+#: ckan/templates/js_strings.html:32
 #: ckan/templates/package/new_package_form.html:246
 #: ckan/templates/user/edit_user_form.html:48
 msgid "Cancel"
 msgstr ""
 
-#: ckan/templates/js_strings.html:32
+#: ckan/templates/js_strings.html:33
 msgid "File"
 msgstr ""
 
-#: ckan/templates/js_strings.html:35 ckan/templates/package/read_core.html:18
+#: ckan/templates/js_strings.html:36 ckan/templates/package/read_core.html:18
 msgid "Url"
 msgstr ""
 
-#: ckan/templates/js_strings.html:36
+#: ckan/templates/js_strings.html:37
 #: ckan/templates/package/new_package_form.html:97
 #: ckan/templates/package/read_core.html:20
 msgid "Format"
 msgstr ""
 
-#: ckan/templates/js_strings.html:37
+#: ckan/templates/js_strings.html:38
 msgid "Resource Type"
 msgstr ""
 
-#: ckan/templates/js_strings.html:38
+#: ckan/templates/js_strings.html:39
 msgid "Size (Bytes)"
 msgstr ""
 
-#: ckan/templates/js_strings.html:39
+#: ckan/templates/js_strings.html:40
 msgid "Mimetype"
 msgstr ""
 
-#: ckan/templates/js_strings.html:40
+#: ckan/templates/js_strings.html:41
 msgid "Last Modified"
 msgstr ""
 
-#: ckan/templates/js_strings.html:41
+#: ckan/templates/js_strings.html:42
 msgid "Mimetype (Inner)"
 msgstr ""
 
-#: ckan/templates/js_strings.html:42
+#: ckan/templates/js_strings.html:43
 msgid "Hash"
 msgstr ""
 
-#: ckan/templates/js_strings.html:43
+#: ckan/templates/js_strings.html:44
 msgid "ID"
 msgstr ""
 
-#: ckan/templates/js_strings.html:44
+#: ckan/templates/js_strings.html:45
 msgid "Delete Resource"
 msgstr ""
 
-#: ckan/templates/js_strings.html:45
+#: ckan/templates/js_strings.html:46
 msgid "This resource has unsaved changes."
 msgstr ""
 

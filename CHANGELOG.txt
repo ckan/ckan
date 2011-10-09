@@ -1,6 +1,17 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.4.3.1 2011-09-30
+===================
+Minor:
+ * Added files to allow debian packaging of CKAN
+ * Added Catalan translation
+
+Bug fixes:
+ * Incorrect Group creation form parameter caused exception (#1347)
+ * Incorrect AuthGroup creation form parameter caused exception (#1346)
+
+
 v1.4.3 2011-09-13
 =================
 Major:
@@ -52,7 +63,7 @@ Bug fixes:
 v1.4.1 2011-06-27
 =================
 Major:
-  * Refactor Web interface to use logic layer rather than model objects directly (#1078)
+  * Refactor Web interface to use logic layer rather than model objects directly. Forms now defined in navl schema and designed in HTML template. Forms use of Formalchemy is deprecated. (#1078)
 
 Minor:
   * Links in user-supplied text made less attractive to spammers (nofollow) #1181 

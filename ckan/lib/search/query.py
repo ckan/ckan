@@ -1,9 +1,10 @@
-import json
 from pylons import config
 from paste.deploy.converters import asbool
+from paste.util.multidict import MultiDict
 from ckan import model
 from ckan.logic import get_action
-from common import make_connection, SearchError
+from ckan.lib.helpers import json
+from common import make_connection, SearchError, SearchQueryError
 import logging
 log = logging.getLogger(__name__)
 
@@ -11,7 +12,6 @@ _open_licenses = None
 
 VALID_SOLR_PARAMETERS = set([
     'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf',
-    'filter_by_downloadable', 'filter_by_openness',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field'
 ])
 
@@ -19,14 +19,63 @@ VALID_SOLR_PARAMETERS = set([
 # and their relative weighting
 QUERY_FIELDS = "name^4 title^4 tags^2 groups^2 text"
 
+def convert_legacy_parameters_to_solr(legacy_params):
+    '''API v1 and v2 allowed search params that the SOLR syntax does not
+    support, so use this function to convert those to SOLR syntax.
+    See tests for examples.
+
+    raises SearchQueryError on invalid params.
+    '''
+    options = QueryOptions(**legacy_params)
+    options.validate()
+    solr_params = legacy_params.copy()
+    solr_q_list = []
+    if solr_params.get('q'):
+        solr_q_list.append(solr_params['q'].replace('+', ' '))
+    non_solr_params = set(legacy_params.keys()) - VALID_SOLR_PARAMETERS
+    for search_key in non_solr_params:
+        value_obj = legacy_params[search_key]
+        value = str(value_obj).replace('+', ' ')
+        if search_key == 'all_fields':
+            if value:
+                solr_params['fl'] = '*'
+        elif search_key == 'offset':
+            solr_params['start'] = value
+        elif search_key == 'limit':
+            solr_params['rows'] = value
+        elif search_key == 'order_by':
+            solr_params['sort'] = '%s asc' % value
+        elif search_key == 'tags':
+            if isinstance(value_obj, list):
+                tag_list = value_obj
+            elif isinstance(value_obj, basestring):
+                tag_list = [value_obj]
+            else:
+                raise SearchQueryError('Was expecting either a string or JSON list for the tags parameter: %r' % value)
+            solr_q_list.extend(['tags:%s' % tag for tag in tag_list])
+        else:
+            if ' ' in value:
+                value = '"%s"' % value
+            solr_q_list.append('%s:%s' % (search_key, value))
+        del solr_params[search_key]
+    solr_params['q'] = ' '.join(solr_q_list)
+    if non_solr_params:
+        log.info('Converted legacy search params from %r to %r',
+                 legacy_params, solr_params)
+    return solr_params
+    
+
 class QueryOptions(dict):
     """
     Options specify aspects of the search query which are only tangentially related 
     to the query terms (such as limits, etc.).
+    NB This is used only by legacy package search and current resource & tag search.
+       Modern SOLR package search leaves this to SOLR syntax.
     """
     
-    BOOLEAN_OPTIONS = ['filter_by_downloadable', 'filter_by_openness', 'all_fields']
+    BOOLEAN_OPTIONS = ['all_fields']
     INTEGER_OPTIONS = ['offset', 'limit']
+    UNSUPPORTED_OPTIONS = ['filter_by_downloadable', 'filter_by_openness']
 
     def __init__(self, **kwargs):
         from ckan.lib.search import DEFAULT_OPTIONS
@@ -44,12 +93,14 @@ class QueryOptions(dict):
                 try:
                     value = asbool(value)
                 except ValueError:
-                    raise SearchError('Value for search option %r must be True or False (1 or 0) but received %r' % (key, value))
+                    raise SearchQueryError('Value for search option %r must be True or False (1 or 0) but received %r' % (key, value))
             elif key in self.INTEGER_OPTIONS:
                 try:
                     value = int(value)
                 except ValueError:
-                    raise SearchError('Value for search option %r must be an integer but received %r' % (key, value))
+                    raise SearchQueryError('Value for search option %r must be an integer but received %r' % (key, value))
+            elif key in self.UNSUPPORTED_OPTIONS:
+                    raise SearchQueryError('Search option %r is not supported' % key)                
             self[key] = value    
     
     def __getattr__(self, name):
@@ -173,12 +224,11 @@ class PackageSearchQuery(SearchQuery):
         return [r.get('id') for r in data.results]
 
     def run(self, query):
-        assert isinstance(query, dict)
-        
+        assert isinstance(query, (dict, MultiDict))
         # check that query keys are valid
         if not set(query.keys()) <= VALID_SOLR_PARAMETERS:
             invalid_params = [s for s in set(query.keys()) - VALID_SOLR_PARAMETERS]
-            raise SearchError("Invalid search parameters: %s" % invalid_params)
+            raise SearchQueryError("Invalid search parameters: %s" % invalid_params)
 
         # default query is to return all documents
         q = query.get('q')
@@ -213,14 +263,6 @@ class PackageSearchQuery(SearchQuery):
         
         # return results as json encoded string
         query['wt'] = query.get('wt', 'json')
-
-        # check if filtering by downloadable or open license
-        if int(query.get('filter_by_downloadable', 0)):
-            query['fq'] += u" +res_url:[* TO *] " # not null resource URL 
-        if int(query.get('filter_by_openness', 0)):
-            licenses = ["license_id:%s" % id for id in self.open_licenses]
-            licenses = " OR ".join(licenses)
-            query['fq'] += " +(%s) " % licenses
 
         # query field weighting: disabled for now as solr 3.* is required for 
         # the 'edismax' query parser, our current Ubuntu version only has

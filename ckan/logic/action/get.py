@@ -1,5 +1,5 @@
 from sqlalchemy.sql import select
-from sqlalchemy import or_, and_, func, desc
+from sqlalchemy import or_, and_, func, desc, case
 
 from ckan.logic import NotFound
 from ckan.logic import check_access
@@ -22,6 +22,9 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 tag_to_api1,
                                                 tag_to_api2)
 from ckan.lib.search import query_for, SearchError
+import logging
+
+log = logging.getLogger('ckan.logic')
 
 def site_read(context,data_dict=None):
     check_access('site_read',context,data_dict)
@@ -233,20 +236,46 @@ def user_list(context, data_dict):
     q = data_dict.get('q','')
     order_by = data_dict.get('order_by','name')
 
-    query = model.Session.query(model.User, func.count(model.User.id))
+    query = model.Session.query(
+        model.User,
+        model.User.name.label('name'),
+        model.User.fullname.label('fullname'),
+        model.User.about.label('about'),
+        model.User.about.label('email'),
+        model.User.created.label('created'),
+        select([func.count(model.Revision.id)], or_(
+                model.Revision.author==model.User.name,
+                model.Revision.author==model.User.openid
+                )
+        ).label('number_of_edits'),
+        select([func.count(model.UserObjectRole.id)], and_(
+            model.UserObjectRole.user_id==model.User.id,
+            model.UserObjectRole.context=='Package',
+            model.UserObjectRole.role=='admin'
+            )
+        ).label('number_administered_packages')
+    )
+
     if q:
         query = model.User.search(q, query)
 
     if order_by == 'edits':
-        query = query.join((model.Revision, or_(
+        query = query.order_by(desc(
+            select([func.count(model.Revision.id)], or_(
                 model.Revision.author==model.User.name,
                 model.Revision.author==model.User.openid
-                )))
-        query = query.group_by(model.User)
-        query = query.order_by(desc(func.count(model.User.id)))
+                ))
+        ))
     else:
-        query = query.group_by(model.User)
-        query = query.order_by(model.User.name)
+        query = query.order_by(
+            case([(or_(model.User.fullname == None, model.User.fullname == ''),
+                   model.User.name)],
+                 else_=model.User.fullname)
+        )
+
+    ## hack for pagination
+    if context.get('return_query'):
+        return query
 
     users_list = []
 
@@ -590,6 +619,12 @@ def package_search(context, data_dict):
                 model.PackageRevision.current == True
             ))
         pkg = pkg_query.first()
+
+        ## if the index has got a package that is not in ckan then
+        ## ignore it.
+        if not pkg:
+            log.warning('package %s in index but not in database' % package)
+            continue
 
         result_dict = table_dictize(pkg, context)
         result_dict = _extend_package_dict(result_dict,context)
