@@ -828,6 +828,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       var _url = my.jsonpdataproxyUrl + '?type=csv&url=' + preview.url;
       my.getResourceDataDirect(_url, function(data) {
         my.showPlainTextData(data);
+        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
       });
     }
     else {
@@ -901,9 +902,10 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       var content = $('<pre></pre>');
       for (var i=0; i<data.data.length; i++) {
         var row = data.data[i].join(',') + '\n';
-        content.append(dp.escapeHTML(row));
+        content.append(my.escapeHTML(row));
       }
-      DATAEXPLORER.TABLEVIEW.$dialog.dialog('option', DATAEXPLORER.TABLEVIEW.dialogOptions).append(content);
+      DATAEXPLORER.TABLEVIEW.$dialog.dialog(DATAEXPLORER.TABLEVIEW.dialogOptions);
+      DATAEXPLORER.TABLEVIEW.$dialog.append(content);
     }
   };
 
@@ -921,6 +923,21 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       return url;
     }
   }
+
+  // Public: Escapes HTML entities to prevent broken layout and XSS attacks
+  // when inserting user generated or external content.
+  //
+  // string - A String of HTML.
+  //
+  // Returns a String with HTML special characters converted to entities.
+  my.escapeHTML = function (string) {
+    return string.replace(/&(?!\w+;|#\d+;|#x[\da-f]+;)/gi, '&amp;')
+                 .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                 .replace(/"/g, '&quot;')
+                 .replace(/'/g, '&#x27')
+                 .replace(/\//g,'&#x2F;');
+  };
+
 
   // Export the CKANEXT object onto the window.
   $.extend(true, window, {CKANEXT: {}});
