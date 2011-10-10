@@ -60,6 +60,16 @@
 var CKAN = CKAN || {};
 
 CKAN.Utils = function($, my) {
+
+  my.flashMessage = function(msg, category) {
+    if (!category) {
+      category = 'info';
+    }
+    var messageDiv = $('<div />').html(msg).addClass(category).hide();
+    $('.flash-messages').append(messageDiv);
+    messageDiv.show('slow');
+  };
+
   // Attach dataset autocompletion to provided elements
   //
   // Requires: jquery-ui autocomplete
@@ -396,6 +406,7 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
     var boundToUnload = false;
     this.el.change(function() {
       if (!boundToUnload) {
+        CKAN.Utils.flashMessage(CKAN.Strings.youHaveUnsavedChanges,'notice');
         boundToUnload = true;
         window.onbeforeunload = function () { 
           return CKAN.Strings.youHaveUnsavedChanges; 
