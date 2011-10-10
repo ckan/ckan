@@ -63,7 +63,7 @@ Bug fixes:
 v1.4.1 2011-06-27
 =================
 Major:
-  * Refactor Web interface to use logic layer rather than model objects directly (#1078)
+  * Refactor Web interface to use logic layer rather than model objects directly. Forms now defined in navl schema and designed in HTML template. Forms use of Formalchemy is deprecated. (#1078)
 
 Minor:
   * Links in user-supplied text made less attractive to spammers (nofollow) #1181 

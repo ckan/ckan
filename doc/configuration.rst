@@ -352,14 +352,14 @@ Example::
 
  ckan.build_search_index_synchronously=
 
-or::
-
- ckan.plugins = synchronous_search
-
 Default (if you don't define it)::
  indexing is on
 
-This controls the operation of the CKAN Postgres full text search indexing. If you don't define this option then indexing is on. You will want to turn this off if you want to use a different search engine for CKAN (e.g. Solr). In this case you need to define the option equal to blank (as in the example).
+This controls the operation of the CKAN search indexing. If you don't define this option then indexing is on. You will want to turn this off if you have a non-synchronous search index extension installed. In this case you need to define the option equal to blank (as in the example).
+
+Another way to turn indexing on is to add ``synchronous_search`` to ``ckan.plugins``::
+
+ ckan.plugins = synchronous_search
 
 .. index::
    single: ckan.site_id
@@ -383,9 +383,9 @@ solr_url
 
 Example::
 
- solr_url = http://solr.okfn.org/solr/test.ckan.net
+ solr_url = http://solr.okfn.org:8983/solr
  
-This configures Solr search (if selected with `search_backend`_). Running Solr will require a schema.xml file, such as the one in `the ckanext-solr repository <https://bitbucket.org/okfn/ckanext-solr/src>`_.
+This configures the Solr server used for search. The SOLR schema must be the one in ``ckan/config/schema.xml``.
 
 Optionally, ``solr_user`` and ``solr_password`` can also be passed along to specify HTTP Basic authentication details for all Solr requests. 
 

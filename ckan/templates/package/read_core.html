@@ -15,30 +15,25 @@
       <h3>Resources</h3>
       <table>
         <thead>
-            <th>Url</th>
-            <th>Name/Description</th>
+            <th>Resource</th>
             <th>Format</th>
+            <th>Actions</th>
         </thead>
         <py:for each="res in c.pkg_dict.get('resources', [])">
           <tr rel="dcat:distribution" resource="_:res${res.id}"
             typeof="dcat:Distribution">
-              <td>
-                <a href="${res.get('url', '')}" target="_blank">${res.get('url', '')}</a>  
-              </td>
-              <td>
-                  <py:choose test="">
-                    <py:when test="res.get('name')">
-                      <span property="rdfs:label">${res.name}</span>
-                    </py:when>
-                    <py:when test="res.get('description')">
-                      <span property="rdfs:label">${res.description}</span>
-                    </py:when>
-                    <py:otherwise test="">
-                      <em>(none)</em>
-                    </py:otherwise>
-                  </py:choose>
-              </td>
-              <td property="dc:format">${res.get('format', '')}</td>
+            <td>
+              <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
+                <py:if test="res.get('name') or res.get('description')">
+                  <span property="rdfs:label">${res.get('name') or res.get('description')}</span>
+                </py:if>
+                <py:if test="not(res.get('name') or res.get('description'))">
+                  <em>(none)</em>
+                </py:if>
+              </a>
+            </td>
+            <td property="dc:format">${res.get('format', '')}</td>
+            <td></td>
           </tr>
         </py:for>
         <py:if test="not len(c.pkg_dict.get('resources', []))">

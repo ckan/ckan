@@ -8,10 +8,10 @@ from babel import Locale
 # (or there abouts)
 _KNOWN_LOCALES = ['en',
                   'de',
-#                  'fr',
+                  'fr',
                   'it',
                   'es',
-#                  'po',
+                  'pl',
                   'ru',
                   'nl',
                   'sv', # Swedish
