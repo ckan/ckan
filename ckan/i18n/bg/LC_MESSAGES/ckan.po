@@ -4,6 +4,7 @@
 # 
 # Translators:
 # <internet@davidread.org>, 2011.
+#   <j.iwanowa@gmx.de>, 2011.
 # Martin Minkov <martin@markm.org>, 2011.
 # Open Knowledge Foundation <sysadmin@okfn.org>, 2011.
 msgid ""
@@ -11,8 +12,8 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-09-30 17:45+0100\n"
-"PO-Revision-Date: 2011-09-30 16:47+0000\n"
-"Last-Translator: dread <internet@davidread.org>\n"
+"PO-Revision-Date: 2011-10-06 10:27+0000\n"
+"Last-Translator: JIwanowa <j.iwanowa@gmx.de>\n"
 "Language-Team: Bulgarian <ckan-dev@lists.okfn.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,7 +25,7 @@ msgstr ""
 #: ckan/new_authz.py:18
 #, python-format
 msgid "Authorization function not found: %s"
-msgstr ""
+msgstr "Авторизираща функция не съществува: %s"
 
 #: ckan/controllers/api.py:38 ckan/controllers/authorization_group.py:22
 #: ckan/controllers/group.py:58 ckan/controllers/home.py:29
@@ -33,7 +34,7 @@ msgstr ""
 #: ckan/controllers/user.py:72 ckan/controllers/user.py:95
 #: ckan/logic/auth/get.py:17
 msgid "Not authorized to see this page"
-msgstr ""
+msgstr "Без право за достъп до тази странца"
 
 #: ckan/controllers/api.py:96 ckan/controllers/api.py:158
 msgid "Access denied"
@@ -45,12 +46,12 @@ msgstr "Данните не бяха намерени"
 
 #: ckan/controllers/api.py:110
 msgid "Bad request"
-msgstr ""
+msgstr "Неправилно запитване"
 
 #: ckan/controllers/api.py:137
 #, python-format
 msgid "Action name not known: %s"
-msgstr ""
+msgstr "Неизвестно име на действие: %s"
 
 #: ckan/controllers/api.py:147 ckan/controllers/api.py:268
 #: ckan/controllers/api.py:322
@@ -101,7 +102,7 @@ msgstr "Не могат да се изтриват обекти от този т
 
 #: ckan/controllers/api.py:396
 msgid "No revision specified"
-msgstr ""
+msgstr "Няма oпределена ревизия"
 
 #: ckan/controllers/api.py:400
 #, python-format
@@ -130,7 +131,7 @@ msgstr "Неизвестен регистър: %s"
 
 #: ckan/controllers/api.py:472
 msgid "Malformed qjson value"
-msgstr ""
+msgstr "Деформирана qjson категория"
 
 #: ckan/controllers/api.py:481 ckan/lib/base.py:193
 msgid "Request params must be in form of a json encoded dictionary."
@@ -167,7 +168,7 @@ msgstr "Потребител %r няма права да редактира пр
 #: ckan/controllers/group.py:171 ckan/controllers/group.py:190
 #, python-format
 msgid "Unauthorized to read group %s"
-msgstr ""
+msgstr "Без пълномощие за четене на групата %s"
 
 #: ckan/controllers/group.py:154 ckan/controllers/group_formalchemy.py:93
 #: ckan/controllers/package.py:382 ckan/controllers/package_formalchemy.py:95
@@ -194,7 +195,7 @@ msgstr "История на ревизии на CKAN група"
 
 #: ckan/controllers/group.py:268
 msgid "Recent changes to CKAN Group: "
-msgstr ""
+msgstr "Последни промени в CKAN група"
 
 #: ckan/controllers/group.py:286 ckan/controllers/package.py:315
 msgid "Log message: "
@@ -202,11 +203,11 @@ msgstr "Журнално съобщение: "
 
 #: ckan/controllers/home.py:37
 msgid "This site is currently off-line. Database is not initialised."
-msgstr ""
+msgstr "В момента тази страница е недостапна. Няма начална база данни."
 
 #: ckan/controllers/home.py:86
 msgid "Invalid language specified"
-msgstr ""
+msgstr "Невалидна езикова спецификация."
 
 #: ckan/controllers/home.py:89
 msgid "Language has been set to: English"
@@ -220,7 +221,7 @@ msgstr "Не е посочен език!"
 #: ckan/controllers/package.py:206
 #, python-format
 msgid "Invalid revision format: %r"
-msgstr ""
+msgstr "Невалиден формат за ревизия: %r"
 
 #: ckan/controllers/package.py:215 ckan/controllers/package.py:250
 #: ckan/controllers/package.py:287 ckan/controllers/package.py:372
@@ -256,6 +257,9 @@ msgid ""
 "<span class=\"new-dataset\">Congratulations, your dataset has been created. "
 "<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
 msgstr ""
+"<span class=\"new-dataset\">Поздравления, вашият набор от данни е създаден. "
+"<a href=\"%s\"> Сега можете да качите или свържите някои данни "
+"&raquo;</a></span>"
 
 #: ckan/controllers/revision.py:42
 msgid "CKAN Repository Revision History"
@@ -272,7 +276,7 @@ msgstr "Засегнати пакети: %s.\n"
 
 #: ckan/controllers/revision.py:178
 msgid "Revision updated"
-msgstr ""
+msgstr "Ревизия актуализирана"
 
 #: ckan/controllers/tag.py:55 ckan/forms/common.py:928
 msgid "Other"
@@ -280,22 +284,22 @@ msgstr "Други"
 
 #: ckan/controllers/tag.py:69
 msgid "Tag not found"
-msgstr ""
+msgstr "Ненамерен етикет"
 
 #: ckan/controllers/user.py:129
 msgid "Unauthorized to create a user"
-msgstr ""
+msgstr "Неупълномощен да създава потребител"
 
 #: ckan/controllers/user.py:151
 #, python-format
 msgid "Unauthorized to create user %s"
-msgstr ""
+msgstr "Неупълномощен да създава потребител %s"
 
 #: ckan/controllers/user.py:153 ckan/controllers/user.py:201
 #: ckan/controllers/user.py:230 ckan/controllers/user.py:324
 #: ckan/controllers/user.py:344
 msgid "User not found"
-msgstr ""
+msgstr "Потребителят не съществува"
 
 #: ckan/controllers/user.py:157
 msgid "Bad Captcha. Please try again."

@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-09-30 17:45+0100\n"
-"PO-Revision-Date: 2011-10-03 07:05+0000\n"
+"PO-Revision-Date: 2011-10-05 15:25+0000\n"
 "Last-Translator: keronos <aka.keronos@gmail.com>\n"
 "Language-Team: French (http://www.transifex.net/projects/p/ckan/team/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -143,7 +143,7 @@ msgstr "Non-autorisé à lire %s"
 #: ckan/controllers/authorization_group.py:62 ckan/controllers/group.py:109
 #: ckan/controllers/group_formalchemy.py:36
 msgid "Unauthorized to create a group"
-msgstr ""
+msgstr "Vous n'êtes pas autorisé à créer un groupe "
 
 #: ckan/controllers/authorization_group.py:107 ckan/controllers/group.py:259
 #, python-format
@@ -166,7 +166,7 @@ msgstr "L'utilisateur %r n'est pas autorisé à éditer les droits de %s"
 #: ckan/controllers/group.py:171 ckan/controllers/group.py:190
 #, python-format
 msgid "Unauthorized to read group %s"
-msgstr ""
+msgstr "Vous n'êtes pas autorisé à lire le groupe %s"
 
 #: ckan/controllers/group.py:154 ckan/controllers/group_formalchemy.py:93
 #: ckan/controllers/package.py:382 ckan/controllers/package_formalchemy.py:95
@@ -189,11 +189,11 @@ msgstr "Sélectionner deux révisions avant de comparer."
 
 #: ckan/controllers/group.py:266
 msgid "CKAN Group Revision History"
-msgstr ""
+msgstr "Historique de révision du groupe CKAN"
 
 #: ckan/controllers/group.py:268
 msgid "Recent changes to CKAN Group: "
-msgstr ""
+msgstr "Modifications récents du groupe CKAN"
 
 #: ckan/controllers/group.py:286 ckan/controllers/package.py:315
 msgid "Log message: "
@@ -202,24 +202,26 @@ msgstr "Message de log :"
 #: ckan/controllers/home.py:37
 msgid "This site is currently off-line. Database is not initialised."
 msgstr ""
+"Le site est actuellement indisponible. La base de données n'est pas "
+"initialisée."
 
 #: ckan/controllers/home.py:86
 msgid "Invalid language specified"
-msgstr ""
+msgstr "Le langage choisi est invalide"
 
 #: ckan/controllers/home.py:89
 msgid "Language has been set to: English"
-msgstr "La langue a été fixée au: français"
+msgstr "Le langage a été fixé à: français"
 
 #: ckan/controllers/home.py:93
 msgid "No language given!"
-msgstr ""
+msgstr "Pas de langage choisi"
 
 #: ckan/controllers/package.py:202 ckan/controllers/package.py:204
 #: ckan/controllers/package.py:206
 #, python-format
 msgid "Invalid revision format: %r"
-msgstr ""
+msgstr "Le format de révision %r est invalide"
 
 #: ckan/controllers/package.py:215 ckan/controllers/package.py:250
 #: ckan/controllers/package.py:287 ckan/controllers/package.py:372
@@ -239,7 +241,7 @@ msgstr "Modifications récentes de paquet CKAN: "
 
 #: ckan/controllers/package.py:339 ckan/controllers/package_formalchemy.py:31
 msgid "Unauthorized to create a package"
-msgstr ""
+msgstr "Vous n'êtes pas autorisé à créer un jeu de données"
 
 #: ckan/controllers/package.py:464
 msgid "Unable to add package to search index."
@@ -255,6 +257,9 @@ msgid ""
 "<span class=\"new-dataset\">Congratulations, your dataset has been created. "
 "<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
 msgstr ""
+"<span class=\"new-dataset\">Félicitations, votre jeu de données a été créé. "
+"<a href=\"%s\">Vous pouvez transférer ou lier des données maintenant "
+"&raquo;</a></span>"
 
 #: ckan/controllers/revision.py:42
 msgid "CKAN Repository Revision History"
@@ -271,7 +276,7 @@ msgstr "Paquet affecté : %s.\n"
 
 #: ckan/controllers/revision.py:178
 msgid "Revision updated"
-msgstr ""
+msgstr "Révision mise à jour"
 
 #: ckan/controllers/tag.py:55 ckan/forms/common.py:928
 msgid "Other"
@@ -279,41 +284,41 @@ msgstr "Autre"
 
 #: ckan/controllers/tag.py:69
 msgid "Tag not found"
-msgstr ""
+msgstr "Mot-clé introuvable"
 
 #: ckan/controllers/user.py:129
 msgid "Unauthorized to create a user"
-msgstr ""
+msgstr "Vous n'êtes pas autorisé à créer un utilisateur"
 
 #: ckan/controllers/user.py:151
 #, python-format
 msgid "Unauthorized to create user %s"
-msgstr ""
+msgstr "Vous n'êtes pas autorisé à créer l'utilisateur %s"
 
 #: ckan/controllers/user.py:153 ckan/controllers/user.py:201
 #: ckan/controllers/user.py:230 ckan/controllers/user.py:324
 #: ckan/controllers/user.py:344
 msgid "User not found"
-msgstr ""
+msgstr "Utilisateur introuvable"
 
 #: ckan/controllers/user.py:157
 msgid "Bad Captcha. Please try again."
-msgstr ""
+msgstr "Mauvais Captcha. Merci d'essayer à nouveau"
 
 #: ckan/controllers/user.py:180
 msgid "No user specified"
-msgstr ""
+msgstr "Pas d'utilisateur spécifié"
 
 #: ckan/controllers/user.py:199 ckan/controllers/user.py:228
 #: ckan/controllers/user.py:342
 #, python-format
 msgid "Unauthorized to edit user %s"
-msgstr ""
+msgstr "Vous n'êtes pas autorisé à modifier l'utilisateur %s"
 
 #: ckan/controllers/user.py:206
 #, python-format
 msgid "User %s not authorized to edit %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à modifier %s"
 
 #: ckan/controllers/user.py:259
 #, python-format
@@ -323,37 +328,38 @@ msgstr ""
 #: ckan/controllers/user.py:299
 #, python-format
 msgid "\"%s\" matched several users"
-msgstr ""
+msgstr "\"%s\" correspond à plusieurs utilisateurs"
 
 #: ckan/controllers/user.py:301 ckan/controllers/user.py:303
 #, python-format
 msgid "No such user: %s"
-msgstr ""
+msgstr "Pas d'utilisateur correspondant à: %s"
 
 #: ckan/controllers/user.py:308
 msgid "Please check your inbox for a reset code."
 msgstr ""
+"Merci de vérifier votre boîte de courriel pour votre code réinitialisé"
 
 #: ckan/controllers/user.py:311
 #, python-format
 msgid "Could not send reset link: %s"
-msgstr ""
+msgstr "Impossible d'envoyer le lien de réinitialisation: %s"
 
 #: ckan/controllers/user.py:328
 msgid "Invalid reset key. Please try again."
-msgstr ""
+msgstr "Clé de réinitialisation invalide. Merci d'essayer à nouveau."
 
 #: ckan/controllers/user.py:339
 msgid "Your password has been reset."
-msgstr ""
+msgstr "Votre mot de passe a bien été réinitialisé."
 
 #: ckan/controllers/user.py:367
 msgid "Your password must be 4 characters or longer."
-msgstr ""
+msgstr "Votre mot de passe doit comporter au moins 4 caractères"
 
 #: ckan/controllers/user.py:369
 msgid "The passwords you entered do not match."
-msgstr ""
+msgstr "Les mots de passe saisis ne correspondent pas."
 
 #: ckan/forms/common.py:25 ckan/logic/validators.py:94
 #, python-format
@@ -370,11 +376,11 @@ msgstr ""
 
 #: ckan/forms/common.py:40 ckan/logic/validators.py:114
 msgid "Dataset name already exists in database"
-msgstr ""
+msgstr "Le nom du jeu de données existe déjà dans la base de données"
 
 #: ckan/forms/common.py:48 ckan/logic/validators.py:144
 msgid "Group name already exists in database"
-msgstr "Le nom de groupe existe déjà dans la base de donnée"
+msgstr "Le nom de groupe existe déjà dans la base de données"
 
 #: ckan/forms/common.py:137
 #, python-format
@@ -384,11 +390,11 @@ msgstr "La valeur ne satisfait pas au format requis: %s"
 #: ckan/forms/common.py:154 ckan/forms/common.py:776
 #: ckan/templates/package/new_package_form.html:164
 msgid "(None)"
-msgstr ""
+msgstr "(aucun)"
 
 #: ckan/forms/common.py:345
 msgid "Dataset resource(s) incomplete."
-msgstr ""
+msgstr "les ressources du jeu de données sont incomplètes"
 
 #: ckan/forms/common.py:512 ckan/logic/validators.py:150
 #, python-format
@@ -416,10 +422,11 @@ msgstr "Clé \"%s\" dupliquée"
 #, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
 msgstr ""
+"Paire supplémentaire clé-valeur: la clé est absente pour la valeur \"%s\"."
 
 #: ckan/forms/common.py:786 ckan/templates/package/new_package_form.html:170
 msgid "Cannot add any groups."
-msgstr ""
+msgstr "Impossible d'ajouter un groupe."
 
 #: ckan/forms/common.py:801 ckan/templates/package/new_package_form.html:161
 msgid "Group"
@@ -431,6 +438,8 @@ msgid ""
 "Can't derived new group selection from serialized value structured like "
 "this: %s"
 msgstr ""
+"Impossible de dériver le nouveau groupe sélectionné à partir de la valeur "
+"sérialisée structurée comme: %s"
 
 #: ckan/forms/common.py:911
 msgid "other - please specify"
@@ -462,21 +471,23 @@ msgstr "Paquet"
 
 #: ckan/forms/group.py:88
 msgid "Add packages"
-msgstr ""
+msgstr "Ajouter un jeu de données"
 
 #: ckan/forms/package.py:34
 msgid "A short descriptive title for the data set."
-msgstr ""
+msgstr "Un court titre descriptif pour le jeu de données "
 
 #: ckan/forms/package.py:35
 msgid ""
 "It should not be a description though - save that for the Notes field. Do "
 "not give a trailing full stop."
 msgstr ""
+"Cela ne doit pas pas constituer une description - à spécifier dans le champs"
+" note. Ne terminez pas par un point"
 
 #: ckan/forms/package.py:39
 msgid "A unique identifier for the package."
-msgstr ""
+msgstr "Un identifiant unique pour le jeu de données"
 
 #: ckan/forms/package.py:40
 msgid ""
@@ -484,42 +495,52 @@ msgid ""
 "Only use an acronym if it is widely recognised. Renaming is possible but "
 "discouraged."
 msgstr ""
+"Il doit être si possible compréhensible par un être humain, dans l'esprit "
+"des URI du web de données. N'utilisez un acronyme que s'il est largement "
+"employé. Le renommage est possible mais déconseillé."
 
 #: ckan/forms/package.py:41 ckan/templates/package/new_package_form.html:44
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
 msgstr ""
+"au moins 2 caractères, en minuscule, utilisez uniquement 'a-z0-9' et '-_'"
 
 #: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:191
 msgid "A number representing the version (if applicable)"
-msgstr ""
+msgstr "Un numéro représentant la version (si applicable)"
 
 #: ckan/forms/package.py:50 ckan/templates/package/new_package_form.html:49
 msgid "The URL for the web page describing the data (not the data itself)."
 msgstr ""
+"Le lien URL pour une ressource décrivant le jeu de données (pas le jeu de "
+"données lui-même)"
 
 #: ckan/forms/package.py:51 ckan/templates/package/new_package_form.html:50
 msgid "e.g. http://www.example.com/growth-figures.html"
-msgstr ""
+msgstr "exemple http://www.example.com/statistiques-rapport.html"
 
 #: ckan/forms/package.py:55 ckan/templates/package/new_package_form.html:177
 msgid ""
 "The name of the main contact, for enquiries about this particular dataset, "
 "using the e-mail address in the following field."
 msgstr ""
+"Le nom du contact principal, pour des requêtes concernant ce jeu de données "
+"en particulier, utilisant l'adresse email spécifiée dans ce champ."
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:184
 msgid ""
 "If there is another important contact person (in addition to the person in "
 "the Author field) then provide details here."
 msgstr ""
+"S'il existe un autre contact important (en complément du contact spécifié "
+"dans le champ auteur) vous pouvez le préciser ici."
 
 #: ckan/forms/package.py:63
 msgid "Licence"
-msgstr ""
+msgstr "Licence"
 
 #: ckan/forms/package.py:64 ckan/templates/package/new_package_form.html:76
 msgid "The licence under which the dataset is released."
-msgstr ""
+msgstr "La licence sous laquelle est publié ce jeu de données"
 
 #: ckan/forms/package.py:68 ckan/forms/package.py:112
 #: ckan/templates/layout_base.html:145
@@ -535,14 +556,19 @@ msgid ""
 "Terms that may link this dataset to similar ones. For more information on "
 "conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
+"Terme qui peut relier ce jeu de données à d'autres jeux similaires. Pour "
+"plus d'informations sur les conventions, consultez  <a href=\"%s\">cette "
+"page du wiki</a>."
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:84
 msgid "e.g. pollution rivers water-quality"
-msgstr ""
+msgstr "par exemple pollution rivière qualité-de-l'eau"
 
 #: ckan/forms/package.py:74
 msgid "The files containing the data or address of the APIs for accessing it."
 msgstr ""
+"Les fichiers contenant les données ou l'adresse de l'API permettant d'y "
+"accéder"
 
 #: ckan/forms/package.py:75
 msgid ""
@@ -558,12 +584,28 @@ msgid ""
 " file format in which the data is supplied. <br /><b>Description</b> Any "
 "information you want to add to describe the resource.<br />"
 msgstr ""
+"<br />Vous pouvez répéter ce champ autant de fois que nécessaire. Par "
+"exemple, si les données sont disponibles dans plusieurs formats, ou "
+"réparties en périodes ou zones géographiques différentes, chaque fichier est"
+" une \"ressource\" différente qui doit être décrite différemment. Elles "
+"apparaîtront ensemble sur la page du jeu de données dans CKAN.<br /><br /> "
+"<b>URL:</b> saisissez le lien qui manèe directement à la donnée - en "
+"sélectionnant ce lien dans un navigateur Internet, l'utilisateur "
+"téléchargera directement le jeu de donnée intégralement. Notez que les jeux "
+"de données ne sont pas hébergés sur ce site, mais par l'éditeur de la "
+"donnée. Alternativement, l'URL peut pointer vers un serveur d'API tel qu'un "
+"point d'accès SPARQL ou un service JSON-P.<br /> <b>Format:</b> saisissez "
+"ici le format dans lequel le jeu de données est mis à disposition. <br "
+"/><b>Description:</b> saisissez ici toute information utile que vous "
+"souhaiteriez ajouter à la description de la ressource à télécharger.<br />"
 
 #: ckan/forms/package.py:76
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
 msgstr ""
+"Choix de format : CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Autres si "
+"approprié"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 msgid "Notes"
@@ -571,7 +613,7 @@ msgstr "Notes"
 
 #: ckan/forms/package.py:81
 msgid "The main description of the dataset"
-msgstr ""
+msgstr "La description principale du jeu de données"
 
 #: ckan/forms/package.py:82
 msgid ""
@@ -579,6 +621,10 @@ msgid ""
 " with a short sentence that describes the data set succinctly, because the "
 "first few words alone may be used in some views of the data sets."
 msgstr ""
+"Elle est souvent affichée avec le titre du jeu de données. En particulier, "
+"elle devrait débuter par une phrase courte qui décrit succinctement le jeu "
+"de données, car ces premiers mots seulement pourront parfois être affichés "
+"dans des vues résumées du jeu de données."
 
 #: ckan/forms/package.py:83
 #, python-format
@@ -636,7 +682,7 @@ msgstr "Auteur du courriel"
 #: ckan/forms/package.py:111 ckan/templates/package/new_package_form.html:182
 #: ckan/templates/package/read.html:39
 msgid "Maintainer"
-msgstr ""
+msgstr "Mainteneur"
 
 #: ckan/forms/package.py:112 ckan/templates/package/new_package_form.html:186
 msgid "Maintainer email"
@@ -655,49 +701,51 @@ msgstr "État"
 #: ckan/forms/package_dict.py:95
 #, python-format
 msgid "Resource should be a dictionary: %r"
-msgstr ""
+msgstr "La ressource devrait être un dictionnaire: %r"
 
 #: ckan/forms/package_dict.py:112
 #, python-format
 msgid "Key unknown: %s"
-msgstr ""
+msgstr "clé inconnue: %s"
 
 #: ckan/forms/package_dict.py:114
 msgid "Key blank"
-msgstr ""
+msgstr "clé vide"
 
 #: ckan/lib/base.py:169
 #, python-format
 msgid "Could not find the POST data: %r : %s"
-msgstr ""
+msgstr "Impossible de trouver les données POST: %r : %s"
 
 #: ckan/lib/base.py:177
 #, python-format
 msgid "Could not extract request body data: %s"
-msgstr ""
+msgstr "Impossible d'extraire les données du corps de la requête : %s"
 
 #: ckan/lib/base.py:182
 msgid "No request body data"
-msgstr ""
+msgstr "Pas de données du corps de la requête"
 
 #: ckan/lib/base.py:191
 #, python-format
 msgid "Error parsing JSON data. Error: %r JSON (Decoded and re-encoded): %r"
 msgstr ""
+"Erreur de parsing des données JSON. Erreur: JSON %r  (Dé codée et ré-"
+"encodée): %r"
 
 #: ckan/lib/mailer.py:21
 #, python-format
 msgid "Dear %s,"
-msgstr ""
+msgstr "Cher %s,"
 
 #: ckan/lib/mailer.py:34
 #, python-format
 msgid "%s <%s>"
-msgstr ""
+msgstr "%s <%s>"
 
 #: ckan/lib/mailer.py:58
 msgid "No recipient email address available!"
-msgstr ""
+msgstr "Pas de destinataire d'adresse email disponible!"
 
 #: ckan/lib/mailer.py:63
 #, python-format
@@ -708,20 +756,25 @@ msgid ""
 "\n"
 "   %(reset_link)s\n"
 msgstr ""
+"Vous avez demandé le réinitialisation de votre mot de passe sur le site %(site_title)s.\n"
+"\n"
+"Merci de cliquer sur le lien suivant pour confirmer votre requête:\n"
+"\n"
+"   %(reset_link)s\n"
 
 #: ckan/lib/mailer.py:95 ckan/templates/user/login.html:27
 #: ckan/templates/user/perform_reset.html:6
 #: ckan/templates/user/perform_reset.html:14
 msgid "Reset your password"
-msgstr ""
+msgstr "Réinitialiser votre mot de passe"
 
 #: ckan/lib/package_saver.py:29
 msgid "Cannot render package description"
-msgstr ""
+msgstr "Impossible de restituer la description du jeu de données"
 
 #: ckan/lib/package_saver.py:34
 msgid "No web page given"
-msgstr ""
+msgstr "Pas de page web fournie"
 
 #: ckan/lib/package_saver.py:107 ckan/logic/validators.py:45
 msgid "No links are allowed in the log_message."
@@ -729,29 +782,31 @@ msgstr "Aucun lien autorisé dans le log_message."
 
 #: ckan/logic/__init__.py:113
 msgid "No valid API key provided."
-msgstr ""
+msgstr "Pas de clé d'API valide fournie"
 
 #: ckan/logic/validators.py:14
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
 msgstr ""
+"Impossible de changer la valeur de la clé de %s à %s. Cette clé est en "
+"lecture seule"
 
 #: ckan/logic/validators.py:26
 msgid "Invalid integer"
-msgstr ""
+msgstr "Nombre entier invalide"
 
 #: ckan/logic/validators.py:36
 msgid "Date format incorrect"
-msgstr ""
+msgstr "Format de date incorrect"
 
 #: ckan/logic/validators.py:55 ckan/logic/validators.py:81
 msgid "Dataset was not found."
-msgstr ""
+msgstr "Jeu de données introuvable"
 
 #: ckan/logic/validators.py:66
 #, python-format
 msgid "Dataset with name %r does not exist."
-msgstr ""
+msgstr "Le jeu de données portant le nom %r n'existe pas."
 
 #: ckan/logic/validators.py:208
 #, python-format
@@ -759,54 +814,61 @@ msgid ""
 "That login name is not valid. It must be at least 3 characters, restricted "
 "to alphanumerics and these symbols: %s"
 msgstr ""
+"Ce nom d'utilisateur n'est pas valide. Il doit comporter au moins 3 "
+"caractères, restreint à des caractères alphanumériques et les symboles "
+"suivants: %s"
 
 #: ckan/logic/validators.py:213
 msgid "That login name is not available."
-msgstr ""
+msgstr "Ce nom d'utilisateur n'est pas disponible."
 
 #: ckan/logic/validators.py:225
 msgid "Please enter both passwords"
-msgstr ""
+msgstr "Merci d'entrer les 2 mots de passe"
 
 #: ckan/logic/validators.py:231
 msgid "Your password must be 4 characters or longer"
-msgstr ""
+msgstr "Votre mot de passe doit comporter au moins 4 caractères"
 
 #: ckan/logic/validators.py:239
 msgid "The passwords you entered do not match"
-msgstr ""
+msgstr "Les mots de passe saisis ne correspondent pas."
 
 #: ckan/logic/validators.py:251
 msgid "Missing value"
-msgstr ""
+msgstr "Valeur manquante"
 
 #: ckan/logic/validators.py:255
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
 msgstr ""
+"La modification n'est pas autorisée car elle ressemble à du spam. Merci "
+"d'éviter les liens dans votre description."
 
 #: ckan/logic/action/create.py:56 ckan/logic/action/create.py:156
 #, python-format
 msgid "REST API: Create object %s"
-msgstr "REST API: Crée l'object %s"
+msgstr "REST API: Création de l'objet %s"
 
 #: ckan/logic/action/create.py:131
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
-msgstr "REST API: Crée une relation de paquet : %s %s %s"
+msgstr "REST API: Création d'une relation de paquet : %s %s %s"
 
 #: ckan/logic/action/create.py:182
 msgid "You must supply a package id or name (parameter \"package\")."
 msgstr ""
+"Vous devez fournir un identifiant ou un nom pour le jeu de données "
+"(paramètre \"jeu de données\")"
 
 #: ckan/logic/action/create.py:184
 msgid "You must supply a rating (parameter \"rating\")."
-msgstr "Veuillez proposer une note (paramètre \"rating\")."
+msgstr "Veuillez proposer une note (paramètre \"notation\")."
 
 #: ckan/logic/action/create.py:189
 msgid "Rating must be an integer value."
-msgstr "La note doit être un nombre."
+msgstr "La note doit être un nombre entier."
 
 #: ckan/logic/action/create.py:193
 #, python-format
@@ -821,39 +883,41 @@ msgstr "Le paquet nommé %r n'existe pas."
 #: ckan/logic/action/delete.py:23
 #, python-format
 msgid "REST API: Delete Package: %s"
-msgstr ""
+msgstr "API REST: suppression du jeu de données: %s"
 
 #: ckan/logic/action/delete.py:60 ckan/logic/action/delete.py:82
 #, python-format
 msgid "REST API: Delete %s"
-msgstr "REST API: Supprime %s"
+msgstr "API REST : Suppression de %s"
 
 #: ckan/logic/action/update.py:41
 msgid "Package resource(s) incomplete"
-msgstr ""
+msgstr "Ressource(s) du jeu de données incomplète(s)"
 
 #: ckan/logic/action/update.py:43 ckan/logic/action/update.py:55
 #: ckan/logic/action/update.py:67
 msgid "Missing Value"
-msgstr ""
+msgstr "valeur manquante"
 
 #: ckan/logic/action/update.py:159
 msgid "Resource was not found."
-msgstr ""
+msgstr "Ressource introuvable"
 
 #: ckan/logic/action/update.py:169
 msgid "No package found for this resource, cannot check auth."
 msgstr ""
+"Pas de jeu de données trouvé pour cette ressource, impossible de vérifier "
+"l'authentification."
 
 #: ckan/logic/action/update.py:184 ckan/logic/action/update.py:221
 #: ckan/logic/action/update.py:324
 #, python-format
 msgid "REST API: Update object %s"
-msgstr ""
+msgstr "API REST : mise à jour de l'objet %s"
 
 #: ckan/logic/action/update.py:204 ckan/logic/action/update.py:243
 msgid "Package was not found."
-msgstr ""
+msgstr "Jeu de données introuvable"
 
 #: ckan/logic/action/update.py:265
 #, python-format
@@ -863,127 +927,135 @@ msgstr "REST API: Mise à jour de la relation de paquet: %s %s %s"
 #: ckan/logic/auth/create.py:12
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à créer des jeux de données"
 
 #: ckan/logic/auth/create.py:17 ckan/logic/auth/update.py:21
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à modifier ces groupes"
 
 #: ckan/logic/auth/create.py:38
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à modifier ces jeux de données"
 
 #: ckan/logic/auth/create.py:48
 #, python-format
 msgid "User %s not authorized to create groups"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à créer ces groupes"
 
 #: ckan/logic/auth/create.py:58
 #, python-format
 msgid "User %s not authorized to create authorization groups"
 msgstr ""
+"L'utilisateur %s n'est pas autorisé à modifier ces groupes "
+"d'authentification"
 
 #: ckan/logic/auth/create.py:72
 #, python-format
 msgid "User %s not authorized to create users"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à créer des utilisateurs"
 
 #: ckan/logic/auth/create.py:95
 msgid "Group was not found."
-msgstr ""
+msgstr "Groupe introuvable."
 
 #: ckan/logic/auth/create.py:113
 msgid "Valid API key needed to create a package"
-msgstr ""
+msgstr "Une clé d'API valide est nécessaire pour créer un jeu de données"
 
 #: ckan/logic/auth/create.py:121
 msgid "Valid API key needed to create a group"
-msgstr ""
+msgstr "Une clé d'API valide est nécessaire pour créer un groupe"
 
 #: ckan/logic/auth/delete.py:14
 #, python-format
 msgid "User %s not authorized to delete package %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à supprimer le jeu de données %s"
 
 #: ckan/logic/auth/delete.py:28
 #, python-format
 msgid "User %s not authorized to delete relationship %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à supprimer la relation %s"
 
 #: ckan/logic/auth/delete.py:39
 #, python-format
 msgid "User %s not authorized to delete group %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à supprimer le groupe %s"
 
 #: ckan/logic/auth/get.py:78
 #, python-format
 msgid "User %s not authorized to read these packages"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à lire ces jeux de données"
 
 #: ckan/logic/auth/get.py:89
 #, python-format
 msgid "User %s not authorized to read package %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à lire le jeu de données %s"
 
 #: ckan/logic/auth/get.py:104
 #, python-format
 msgid "User %s not authorized to read group %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à lire le groupe %s"
 
 #: ckan/logic/auth/update.py:17
 #, python-format
 msgid "User %s not authorized to edit package %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à modifier le jeu de données %s"
 
 #: ckan/logic/auth/update.py:35
 #, python-format
 msgid "User %s not authorized to change state of package %s"
 msgstr ""
+"L'utilisateur %s n'est pas autorisé à modifier l'état du jeu de données %s"
 
 #: ckan/logic/auth/update.py:46
 #, python-format
 msgid "User %s not authorized to edit permissions of package %s"
 msgstr ""
+"L'utilisateur %s n'est pas autorisé à modifier les permissions du jeu de "
+"données %s"
 
 #: ckan/logic/auth/update.py:57
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à modifier le groupe %s"
 
 #: ckan/logic/auth/update.py:68
 #, python-format
 msgid "User %s not authorized to change state of group %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à modifier l'état du groupe %s"
 
 #: ckan/logic/auth/update.py:79
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
 msgstr ""
+"L'utilisateur %s n'est pas autorisé à modifier les permissions du groupe %s"
 
 #: ckan/logic/auth/update.py:90 ckan/logic/auth/update.py:101
 #, python-format
 msgid "User %s not authorized to edit permissions of authorization group %s"
 msgstr ""
+"L'utilisateur %s n'est pas autorisé à modifier les permissions du groupe "
+"d'authentification %s"
 
 #: ckan/logic/auth/update.py:112
 #, python-format
 msgid "User %s not authorized to edit user %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à modifier l'utilisateur %s"
 
 #: ckan/logic/auth/update.py:122
 #, python-format
 msgid "User %s not authorized to change state of revision"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas modifier l'état de révision"
 
 #: ckan/logic/auth/update.py:132
 msgid "Valid API key needed to edit a package"
-msgstr ""
+msgstr "Une clé d'API valide est nécessaire pour modifier un jeu de données"
 
 #: ckan/logic/auth/update.py:140
 msgid "Valid API key needed to edit a group"
-msgstr ""
+msgstr "Une clé d'API valide est nécessaire pour modifier un groupe"
 
 #: ckan/model/package_relationship.py:48
 #, python-format
@@ -1008,12 +1080,12 @@ msgstr "a des dérivation de %s"
 #: ckan/model/package_relationship.py:50
 #, python-format
 msgid "links to %s"
-msgstr ""
+msgstr "lié à %s"
 
 #: ckan/model/package_relationship.py:50
 #, python-format
 msgid "is linked from %s"
-msgstr ""
+msgstr "est référencé par %s"
 
 #: ckan/model/package_relationship.py:51
 #, python-format
@@ -1032,7 +1104,7 @@ msgstr "a des liens de fraternité avec %s"
 
 #: ckan/templates/_util.html:74 ckan/templates/_util.html:120
 msgid "This dataset satisfies the Open Definition."
-msgstr ""
+msgstr "Ce jeu de données est conforme à l'Open Definition"
 
 #: ckan/templates/_util.html:75 ckan/templates/_util.html:121
 #: ckan/templates/package/read.html:119

@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-09-30 17:45+0100\n"
-"PO-Revision-Date: 2011-10-03 11:41+0000\n"
+"PO-Revision-Date: 2011-10-05 13:20+0000\n"
 "Last-Translator: ilabastida <ilabastida@ub.edu>\n"
 "Language-Team: Spanish (Castilian) (http://www.transifex.net/projects/p/ckan/team/es/)\n"
 "MIME-Version: 1.0\n"
@@ -472,7 +472,7 @@ msgstr "Añadir paquetes"
 
 #: ckan/forms/package.py:34
 msgid "A short descriptive title for the data set."
-msgstr ""
+msgstr "Un título breve descriptivo para el conjunto de datos."
 
 #: ckan/forms/package.py:35
 msgid ""
@@ -497,11 +497,13 @@ msgstr "+2 caracteres, en minúscula, usando solamente 'a-z0-9' y '-_'"
 
 #: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:191
 msgid "A number representing the version (if applicable)"
-msgstr ""
+msgstr "Un número que represente la versión (si procede)"
 
 #: ckan/forms/package.py:50 ckan/templates/package/new_package_form.html:49
 msgid "The URL for the web page describing the data (not the data itself)."
 msgstr ""
+"La dirección URL de la página web que describe los datos (no los datos en "
+"sí)."
 
 #: ckan/forms/package.py:51 ckan/templates/package/new_package_form.html:50
 msgid "e.g. http://www.example.com/growth-figures.html"
@@ -549,6 +551,8 @@ msgstr ""
 #: ckan/forms/package.py:74
 msgid "The files containing the data or address of the APIs for accessing it."
 msgstr ""
+"Los archivos que contienen los datos o la dirección de la API para acceder a"
+" ellos."
 
 #: ckan/forms/package.py:75
 msgid ""
@@ -591,7 +595,7 @@ msgstr ""
 #: ckan/forms/package.py:83
 #, python-format
 msgid "You can use %sMarkdown formatting%s here."
-msgstr ""
+msgstr "Aquí puedes utilizar %sMarkdown formatting%s."
 
 #: ckan/forms/package.py:94
 msgid "Basic information"
@@ -663,7 +667,7 @@ msgstr "Estado"
 #: ckan/forms/package_dict.py:95
 #, python-format
 msgid "Resource should be a dictionary: %r"
-msgstr ""
+msgstr "El recursos debe ser un diccionario: %r"
 
 #: ckan/forms/package_dict.py:112
 #, python-format
@@ -677,7 +681,7 @@ msgstr "Clave vacía"
 #: ckan/lib/base.py:169
 #, python-format
 msgid "Could not find the POST data: %r : %s"
-msgstr ""
+msgstr "No se pudieron encontrar los datos POST: %r :%s"
 
 #: ckan/lib/base.py:177
 #, python-format
@@ -706,6 +710,7 @@ msgstr "%s <%s>"
 #: ckan/lib/mailer.py:58
 msgid "No recipient email address available!"
 msgstr ""
+"No está disponible la dirección de correo electrónico del destinatario!"
 
 #: ckan/lib/mailer.py:63
 #, python-format
@@ -725,7 +730,7 @@ msgstr "Restablezca su contraseña"
 
 #: ckan/lib/package_saver.py:29
 msgid "Cannot render package description"
-msgstr ""
+msgstr "No se puede obtener la descripción del paquete"
 
 #: ckan/lib/package_saver.py:34
 msgid "No web page given"
@@ -759,7 +764,7 @@ msgstr "No se encontró el conjunto de datos "
 #: ckan/logic/validators.py:66
 #, python-format
 msgid "Dataset with name %r does not exist."
-msgstr ""
+msgstr "El conjunto de datos con el nombre de %r no existe."
 
 #: ckan/logic/validators.py:208
 #, python-format
@@ -767,6 +772,8 @@ msgid ""
 "That login name is not valid. It must be at least 3 characters, restricted "
 "to alphanumerics and these symbols: %s"
 msgstr ""
+"El nombre de inicio de sesión no es válido. Debe ser por lo menos de 3 "
+"caracteres, restringido a caracteres alfanuméricos y a estos símbolos: %s"
 
 #: ckan/logic/validators.py:213
 msgid "That login name is not available."
@@ -840,7 +847,7 @@ msgstr "REST API: Borrar %s"
 
 #: ckan/logic/action/update.py:41
 msgid "Package resource(s) incomplete"
-msgstr ""
+msgstr "Los recursos del paquete son incompletos"
 
 #: ckan/logic/action/update.py:43 ckan/logic/action/update.py:55
 #: ckan/logic/action/update.py:67
@@ -859,7 +866,7 @@ msgstr ""
 #: ckan/logic/action/update.py:324
 #, python-format
 msgid "REST API: Update object %s"
-msgstr ""
+msgstr "REST API: actualización de objeto %s"
 
 #: ckan/logic/action/update.py:204 ckan/logic/action/update.py:243
 msgid "Package was not found."
@@ -873,32 +880,32 @@ msgstr "REST API: Actualizar la relación de paquetes: %s %s %s"
 #: ckan/logic/auth/create.py:12
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr ""
+msgstr "El usuario %s no está autorizado para crear paquetes"
 
 #: ckan/logic/auth/create.py:17 ckan/logic/auth/update.py:21
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr ""
+msgstr "El usuario %s no está autorizado para editar estos grupos"
 
 #: ckan/logic/auth/create.py:38
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr ""
+msgstr "El usuario %s no está autorizado para editar estos paquetes"
 
 #: ckan/logic/auth/create.py:48
 #, python-format
 msgid "User %s not authorized to create groups"
-msgstr ""
+msgstr "El usuario %s no está autorizado para crear grupos"
 
 #: ckan/logic/auth/create.py:58
 #, python-format
 msgid "User %s not authorized to create authorization groups"
-msgstr ""
+msgstr "El usuario %s no está autorizado para crear autorizaciones de grupos"
 
 #: ckan/logic/auth/create.py:72
 #, python-format
 msgid "User %s not authorized to create users"
-msgstr ""
+msgstr "El usuario %s no está autorizado para crear usuarios"
 
 #: ckan/logic/auth/create.py:95
 msgid "Group was not found."
@@ -906,11 +913,11 @@ msgstr "No se ha encontrado el grupo."
 
 #: ckan/logic/auth/create.py:113
 msgid "Valid API key needed to create a package"
-msgstr ""
+msgstr "Es necesaria una clave de API válida para crear un paquete"
 
 #: ckan/logic/auth/create.py:121
 msgid "Valid API key needed to create a group"
-msgstr ""
+msgstr "Es necesaria una clave de API válida para crear un grupo"
 
 #: ckan/logic/auth/delete.py:14
 #, python-format
@@ -962,32 +969,36 @@ msgstr ""
 #: ckan/logic/auth/update.py:57
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr ""
+msgstr "El usuario %s no está autorizado para editar el grupo %s"
 
 #: ckan/logic/auth/update.py:68
 #, python-format
 msgid "User %s not authorized to change state of group %s"
-msgstr ""
+msgstr "El usuario %s no está autorizado para cambiar el estado del grupo %s"
 
 #: ckan/logic/auth/update.py:79
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
 msgstr ""
+"El usuario %s no está autorizado para editar los permisos del grupo %s"
 
 #: ckan/logic/auth/update.py:90 ckan/logic/auth/update.py:101
 #, python-format
 msgid "User %s not authorized to edit permissions of authorization group %s"
 msgstr ""
+"El usuario %s no está autorizado para editar los permisos de autorización "
+"del grupo %s"
 
 #: ckan/logic/auth/update.py:112
 #, python-format
 msgid "User %s not authorized to edit user %s"
-msgstr ""
+msgstr "El usuario %s no está autorizado para editar el usuario %s"
 
 #: ckan/logic/auth/update.py:122
 #, python-format
 msgid "User %s not authorized to change state of revision"
 msgstr ""
+"El usuario %s no está autorizado para cambiar el estado de la revisión"
 
 #: ckan/logic/auth/update.py:132
 msgid "Valid API key needed to edit a package"
@@ -1044,7 +1055,7 @@ msgstr "tiene un hermano %s"
 
 #: ckan/templates/_util.html:74 ckan/templates/_util.html:120
 msgid "This dataset satisfies the Open Definition."
-msgstr ""
+msgstr "Este conjunto de datos cumple con la definición de abierto."
 
 #: ckan/templates/_util.html:75 ckan/templates/_util.html:121
 #: ckan/templates/package/read.html:119
@@ -1133,7 +1144,7 @@ msgstr "Borrar"
 #: ckan/templates/_util.html:372 ckan/templates/_util.html:422
 #: ckan/templates/revision/read.html:23
 msgid "Undelete"
-msgstr ""
+msgstr "Recuperar"
 
 #: ckan/templates/error_document_template.html:5
 msgid "Error"
@@ -1163,7 +1174,7 @@ msgstr "(ninguno)"
 
 #: ckan/templates/js_strings.html:21
 msgid "Failed to save, possibly due to invalid data "
-msgstr ""
+msgstr "Error al guardar, posiblemente debido a que los datos no sonválidos"
 
 #: ckan/templates/js_strings.html:22
 msgid "Add Dataset"
@@ -1394,20 +1405,20 @@ msgstr "Guardar"
 #: ckan/templates/authorization_group/authz.html:18
 #: ckan/templates/group/authz.html:18 ckan/templates/package/authz.html:18
 msgid "Add Roles for Any User"
-msgstr ""
+msgstr "Añade roles para cualquier usuario"
 
 #: ckan/templates/authorization_group/authz.html:27
 msgid "Existing Roles for Authorization Groups"
-msgstr ""
+msgstr "Roles actuales para autorización de grupos"
 
 #: ckan/templates/authorization_group/authz.html:36
 #: ckan/templates/group/authz.html:36 ckan/templates/package/authz.html:36
 msgid "Add Roles for Any Authorization Group"
-msgstr ""
+msgstr "Añade roles para cualquier autorización de grupo"
 
 #: ckan/templates/authorization_group/edit.html:5
 msgid "- Edit - Authorization Groups"
-msgstr ""
+msgstr "- Editar - Autorización de Grupos"
 
 #: ckan/templates/authorization_group/edit.html:6
 #: ckan/templates/group/edit.html:6 ckan/templates/package/edit.html:7
@@ -1485,7 +1496,7 @@ msgstr "- Autorización - Grupos"
 
 #: ckan/templates/group/authz.html:27 ckan/templates/package/authz.html:27
 msgid "Update Existing Roles for Authorization Groups"
-msgstr ""
+msgstr "Actualiza de los roles existentes de los grupos de autorización"
 
 #: ckan/templates/group/edit.html:5
 msgid "- Edit - Groups"
@@ -1922,7 +1933,7 @@ msgstr ""
 
 #: ckan/templates/package/new_package_form.html:90
 msgid "Resources: the files and APIs associated with this dataset"
-msgstr ""
+msgstr "Recursos: los archivos y los API asociados a este conjunto de datos"
 
 #: ckan/templates/package/new_package_form.html:138
 msgid "Add a resource:"
@@ -2012,6 +2023,7 @@ msgstr "Licencia:"
 #: ckan/templates/package/read.html:116
 msgid "This dataset satisfies the Open Knowledge Definition."
 msgstr ""
+"Este conjunto de datos cumple con la definición de conocimiento abierto."
 
 #: ckan/templates/package/read.html:124
 msgid "This dataset is Not Open"
@@ -2127,7 +2139,7 @@ msgstr "[1:%(item_count)s] conjuntos de datos encontrados"
 
 #: ckan/templates/package/search.html:58
 msgid "Would you like to [1:create a new dataset?]"
-msgstr ""
+msgstr "¿Desearías [1: crear un nuevo conjunto de datos?]"
 
 #: ckan/templates/package/search_form.html:9
 msgid "Search..."
@@ -2303,7 +2315,7 @@ msgstr "lista de usuarios"
 #: ckan/templates/user/list.html:16
 #, python-format
 msgid "[1:%(item_count)s] users found."
-msgstr ""
+msgstr "[1:%(item_count)s] usuarios encontrados."
 
 #: ckan/templates/user/list.html:27
 msgid "Sort by edits"
