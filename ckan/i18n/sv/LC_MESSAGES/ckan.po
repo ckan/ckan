@@ -269,7 +269,7 @@ msgstr "Senaste ändringarna för CKAN-repositoryt."
 #: ckan/controllers/revision.py:103
 #, python-format
 msgid "Packages affected: %s.\n"
-msgstr "Paket som påverkas: %s\\n"
+msgstr "Paket som påverkas: %s.\n"
 
 #: ckan/controllers/revision.py:178
 msgid "Revision updated"
