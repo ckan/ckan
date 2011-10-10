@@ -115,7 +115,7 @@ msgstr "Fehlender Suchbegriff ('since_id=UUID' or 'since_time=TIMESTAMP')"
 #: ckan/controllers/api.py:418
 #, python-format
 msgid "Could not read parameters: %r"
-msgstr "Konnte die Parameter nicht auslesen: %s"
+msgstr "Konnte die Parameter nicht auslesen: %r"
 
 #: ckan/controllers/api.py:461
 #, python-format

@@ -141,6 +141,8 @@
     </py:if>
 
     <xi:include href="read_core.html" />
+
+    <div id="ckanext-datapreview-dialog"></div>
   </div>
 
   <py:def function="optional_head">
@@ -150,8 +152,30 @@
     </py:if>
 
     <script type="text/javascript">
-      var LOCAL_packageId = '${c.pkg.id}';
+      var preload_dataset = ${c.pkg_json};
     </script>
+
+    <!-- data preview -->
+    <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.grid.css" />
+    <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.columnpicker.css" />
+    <link rel="stylesheet" href="http://okfn.github.com/dataexplorer/src/table-view.css" />
+    <!-- /data preview -->
+  </py:def>
+
+  <py:def function="optional_footer">
+    <!-- data preview -->
+    <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.event.drag/2.0/jquery.event.drag.min.js"></script>
+    <script type="text/javascript" src="${g.site_url}/scripts/vendor/slickgrid/slick.grid.js"></script>
+    <script type="text/javascript" src="${g.site_url}/scripts/vendor/slickgrid/slick.columnpicker.js"></script>
+    <script type="text/javascript" src="${g.site_url}/scripts/vendor/flot/0.7/jquery.flot.js"></script>
+    <script src="https://github.com/okfn/dataexplorer/raw/master/src/table-view.js"></script>
+    <script src="https://github.com/okfn/dataexplorer/raw/master/src/table-view.ui.js"></script>
+    <script src="https://github.com/okfn/dataexplorer/raw/master/src/table-view-template.js"></script>
+    <!-- local copy, symlinked from your local checkout for dev purposes (to be removed at some point)
+    <script src="${g.site_url}/scripts/vendor/dataexplorer/table-view.js"></script>
+    <script src="${g.site_url}/scripts/vendor/dataexplorer/table-view.ui.js"></script>
+    <script src="${g.site_url}/scripts/vendor/dataexplorer/table-view-template.js"></script>
+         /data preview -->
   </py:def>
 
   <py:def function="optional_feed">

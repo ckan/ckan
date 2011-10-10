@@ -18,6 +18,12 @@
       client: client
     };
 
+    var isDatasetView = $('body.package.read').length > 0;
+    if (isDatasetView) {
+      var _dataset = new CKAN.Model.Dataset(preload_dataset);
+      CKANEXT.DATAPREVIEW.setupDataPreview(_dataset);
+    }
+
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       $('#save').val(CKAN.Strings.addDataset);
@@ -211,7 +217,6 @@ CKAN.Utils = function($, my) {
 
   my.setupMarkdownEditor = function(elements) {
     // Markdown editor hooks
-    var converter=new Showdown.converter();
     elements.live('click', function(e) {
       e.preventDefault();
       var $el = $(e.target);
@@ -678,4 +683,263 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   }
 });
 
+
+(function ($) {
+  var my = {};
+  my.jsonpdataproxyUrl = 'http://jsonpdataproxy.appspot.com/';
+
+  my.setupDataPreview = function(dataset) {
+    var dialogId = 'ckanext-datapreview-dialog';
+    // initialize the tableviewer system
+    DATAEXPLORER.TABLEVIEW.initialize(dialogId);
+    my.createPreviewButtons(dataset, $('.resources'));
+  };
+
+  // Public: Creates the base UI for the plugin.
+  //
+  // Also requests the package from the api to see if there is any chart
+  // data stored and updates the preview icons accordingly.
+  //
+  // dataset: Dataset model for the dataset on this page.
+  // resourceElements - The resources table wrapped in jQuery.
+  //
+  // Returns nothing.
+  my.createPreviewButtons = function(dataset, resourceElements) {
+    // rather pointless, but w/o assignment dataset not available in loop below (??!)
+    var currentDataset = dataset;
+    resourceElements.find('tr td:last-child').each(function(idx, element) {
+      var element = $(element);
+      var resource = currentDataset.get('resources').models[idx];
+      var resourceData = resource.toJSON();
+      resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
+
+      // do not create previews for some items
+      var _tformat = resourceData.format.toLowerCase();
+      if (
+        _tformat.indexOf('zip') != -1
+        ||
+        _tformat.indexOf('tgz') != -1
+        ||
+        _tformat.indexOf('targz') != -1
+        ||
+        _tformat.indexOf('gzip') != -1
+        ||
+        _tformat.indexOf('gz:') != -1
+        ||
+        _tformat.indexOf('word') != -1
+        ||
+        _tformat.indexOf('pdf') != -1
+        ||
+        _tformat === 'other'
+        )
+      {
+        return;
+      }
+
+      var _previewSpan = $('<a />', {
+        text: 'Preview',
+        href: resourceData.url,
+        click: function(e) {
+          e.preventDefault();
+          my.loadPreviewDialog(e.target);
+        },
+        'class': 'resource-preview-button'
+      }).data('preview', resourceData).appendTo(element);
+
+      var chartString, charts = {};
+
+      if (resource) {
+        chartString = resource[my.resourceChartKey];
+        if (chartString) {
+          try {
+            charts = $.parseJSON(chartString);
+
+            // If parsing succeeds add a class to the preview button.
+            _previewSpan.addClass('resource-preview-chart');
+          } catch (e) {}
+        }
+      }
+    });
+  };
+
+  // **Public: Loads a data preview dialog for a preview button.**
+  //
+  // Fetches the preview data object from the link provided and loads the
+  // parsed data from the webstore displaying it in the most appropriate
+  // manner.
+  //
+  // link - Preview button.
+  //
+  // Returns nothing.
+  my.loadPreviewDialog = function(link) {
+    var preview  = $(link).data('preview');
+    preview.url  = my.normalizeUrl(link.href);
+
+    $(link).addClass('resource-preview-loading').text('Loading');
+
+    // 4 situations
+    // a) have a webstore_url
+    // b) csv or xls (but not webstore)
+    // c) can be treated as plain text
+    // d) none of the above but worth iframing (assumption is
+    // that if we got here (i.e. preview shown) worth doing
+    // something ...)
+    if (preview.formatNormalized === '') {
+      var tmp = preview.url.split('/');
+      tmp = tmp[tmp.length - 1];
+      tmp = tmp.split('?'); // query strings
+      tmp = tmp[0];
+      var ext = tmp.split('.');
+      if (ext.length > 1) {
+        preview.formatNormalized = ext[ext.length-1];
+      }
+    }
+
+    if (preview.webstore_url) {
+      var _url = preview.webstore_url + '.jsontuples?_limit=500';
+      my.getResourceDataDirect(_url, function(data) {
+        DATAEXPLORER.TABLEVIEW.showData(data);
+        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
+      });
+    }
+    else if (preview.formatNormalized in {'csv': '', 'xls': ''}) {
+      var _url = my.jsonpdataproxyUrl + '?url=' + preview.url + '&type=' + preview.formatNormalized;
+      my.getResourceDataDirect(_url, function(data) {
+        DATAEXPLORER.TABLEVIEW.showData(data);
+        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
+      });
+    }
+    else if (preview.formatNormalized in {
+        'rdf+xml': '',
+        'owl+xml': '',
+        'xml': '',
+        'n3': '',
+        'n-triples': '',
+        'turtle': '',
+        'plain': '',
+        'atom': '',
+        'tsv': '',
+        'rss': '',
+        'txt': ''
+        }) {
+      // HACK: treat as plain text / csv
+      // pass url to jsonpdataproxy so we can load remote data (and tell dataproxy to treat as csv!)
+      var _url = my.jsonpdataproxyUrl + '?type=csv&url=' + preview.url;
+      my.getResourceDataDirect(_url, function(data) {
+        my.showPlainTextData(data);
+        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
+      });
+    }
+    else {
+      // HACK: but should work
+      // we displays a fullscreen dialog with the url in an iframe.
+      // HACK: we borrow dialog from DATAEXPLORER.TABLEVIEW
+      var $dialog = DATAEXPLORER.TABLEVIEW.$dialog;
+      $dialog.empty();
+      $dialog.dialog('option', 'title', 'Preview: ' + preview.url);
+      var el = $('<iframe></iframe>');
+      el.attr('src', preview.url);
+      el.attr('width', '100%');
+      el.attr('height', '100%');
+      $dialog.append(el).dialog('open');;
+    }
+  };
+
+  // Public: Requests the formatted resource data from the webstore and
+  // passes the data into the callback provided.
+  //
+  // preview - A preview object containing resource metadata.
+  // callback - A Function to call with the data when loaded.
+  //
+  // Returns nothing.
+  my.getResourceDataDirect = function(url, callback) {
+    // $.ajax() does not call the "error" callback for JSONP requests so we
+    // set a timeout to provide the callback with an error after x seconds.
+    var timeout = 5000;
+    var timer = setTimeout(function error() {
+      callback({
+        error: {
+          title: 'Request Error',
+          message: 'Dataproxy server did not respond after ' + (timeout / 1000) + ' seconds'
+        }
+      });
+    }, timeout);
+
+    // have to set jsonp because webstore requires _callback but that breaks jsonpdataproxy
+    var jsonp = '_callback';
+    if (url.indexOf('jsonpdataproxy') != -1) {
+      jsonp = 'callback';
+    }
+
+    // We need to provide the `cache: true` parameter to prevent jQuery appending
+    // a cache busting `={timestamp}` parameter to the query as the webstore
+    // currently cannot handle custom parameters.
+    $.ajax({
+      url: url,
+      cache: true,
+      dataType: 'jsonp',
+      jsonp: jsonp,
+      success: function(data) {
+        clearTimeout(timer);
+        callback(data);
+      }
+    });
+  };
+
+  // Public: Displays a String of data in a fullscreen dialog.
+  //
+  // data    - An object of parsed CSV data returned by the webstore.
+  //
+  // Returns nothing.
+  my.showPlainTextData = function(data) {
+    // HACK: have to reach into DATAEXPLORER.TABLEVIEW dialog  a lot ...
+    DATAEXPLORER.TABLEVIEW.setupFullscreenDialog();
+
+    if(data.error) {
+      DATAEXPLORER.TABLEVIEW.showError(data.error);
+    } else {
+      var content = $('<pre></pre>');
+      for (var i=0; i<data.data.length; i++) {
+        var row = data.data[i].join(',') + '\n';
+        content.append(my.escapeHTML(row));
+      }
+      DATAEXPLORER.TABLEVIEW.$dialog.dialog(DATAEXPLORER.TABLEVIEW.dialogOptions);
+      DATAEXPLORER.TABLEVIEW.$dialog.append(content);
+    }
+  };
+
+  my.normalizeFormat = function(format) {
+    var out = format.toLowerCase();
+    out = out.split('/');
+    out = out[out.length-1];
+    return out;
+  };
+
+  my.normalizeUrl = function(url) {
+    if (url.indexOf('https') === 0) {
+      return 'http' + url.slice(5);
+    } else {
+      return url;
+    }
+  }
+
+  // Public: Escapes HTML entities to prevent broken layout and XSS attacks
+  // when inserting user generated or external content.
+  //
+  // string - A String of HTML.
+  //
+  // Returns a String with HTML special characters converted to entities.
+  my.escapeHTML = function (string) {
+    return string.replace(/&(?!\w+;|#\d+;|#x[\da-f]+;)/gi, '&amp;')
+                 .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                 .replace(/"/g, '&quot;')
+                 .replace(/'/g, '&#x27')
+                 .replace(/\//g,'&#x2F;');
+  };
+
+
+  // Export the CKANEXT object onto the window.
+  $.extend(true, window, {CKANEXT: {}});
+  CKANEXT.DATAPREVIEW = my;
+}(jQuery));
 
