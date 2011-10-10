@@ -1103,7 +1103,8 @@ body.admin form#form-purge-revisions {
   margin-bottom: 30px;
   text-align: right;
 }
-body.admin .actions button {
+body.admin .actions button, 
+body.admin .actions input {
   margin: 0;
 }
 body.admin.authz form {

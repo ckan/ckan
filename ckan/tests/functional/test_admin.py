@@ -243,7 +243,7 @@ class TestAdminTrashController:
         CreateTestData.create()
 
     def teardown(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_purge_revision(self):
         as_testsysadmin = {'REMOTE_USER': 'testsysadmin'}
@@ -306,3 +306,54 @@ class TestAdminTrashController:
         pkgs = model.Session.query(model.Package).all()
         assert len(pkgs) == 0
 
+    def test_purge_youngest_revision(self):
+        as_testsysadmin = {'REMOTE_USER': 'testsysadmin'}
+
+        id = u'warandpeace'
+        log_message = 'test_1234'
+        edit_url = url_for(controller='package', action='edit', id=id)
+
+        # Manually create a revision
+        res = self.app.get(edit_url)
+        fv = res.forms['dataset-edit']
+        fv['title'] = 'RevisedTitle'
+        fv['log_message'] = log_message
+        res = fv.submit('save')
+
+        # Delete that revision
+        rev = model.repo.youngest_revision()
+        assert rev.message == log_message
+        rev.state = model.State.DELETED
+        model.Session.commit()
+
+        # Run a purge
+        url = url_for('ckanadmin', action='trash')
+        res = self.app.get(url, extra_environ=as_testsysadmin)
+        form = res.forms['form-purge-revisions']
+        res = form.submit('purge-revisions', status=[302], extra_environ=as_testsysadmin)
+        res = res.follow(extra_environ=as_testsysadmin)
+
+        # Verify the edit page can be loaded (ie. does not 404)
+        res = self.app.get(edit_url)
+
+    def test_undelete(self):
+        as_testsysadmin = {'REMOTE_USER': 'testsysadmin'}
+
+        rev = model.repo.youngest_revision()
+        rev_id = rev.id
+        rev.state = model.State.DELETED
+        model.Session.commit()
+
+        # Click undelete
+        url = url_for('ckanadmin', action='trash')
+        res = self.app.get(url, extra_environ=as_testsysadmin)
+        form = res.forms['undelete-'+rev.id]
+        res = form.submit('submit', status=[302], extra_environ=as_testsysadmin)
+        res = res.follow(extra_environ=as_testsysadmin)
+
+        assert 'Revision updated' in res
+        assert not 'DELETED' in res
+
+        rev = model.repo.youngest_revision()
+        assert rev.id == rev_id
+        assert rev.state == model.State.ACTIVE
