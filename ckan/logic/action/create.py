@@ -61,6 +61,8 @@ def package_create(context, data_dict):
         admins = [model.User.by_name(user.decode('utf8'))]
 
     model.setup_default_user_roles(pkg, admins)
+    # Needed to let extensions know the package id
+    model.Session.flush()
     for item in PluginImplementations(IPackageController):
         item.create(pkg)
     model.repo.commit()        
@@ -162,6 +164,8 @@ def group_create(context, data_dict):
     else:
         admins = []
     model.setup_default_user_roles(group, admins)
+    # Needed to let extensions know the group id
+    model.Session.flush()
     for item in PluginImplementations(IGroupController):
         item.create(group)
     model.repo.commit()        
