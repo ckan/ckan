@@ -1,0 +1,30 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+  <py:match path="minornavigation">
+    <ul class="tabbed">
+      <li py:attrs="{'class':'current-tab'} if c.action=='index' else {}">
+        <a href="${h.url_for('ckanadmin', action='index')}">
+          Home
+        </a>
+      </li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}">
+        <a href="${h.url_for('ckanadmin', action='authz')}">
+          Authorization
+        </a>
+      </li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='trash' else {}">
+        <a href="${h.url_for('ckanadmin', action='trash')}">
+          Trash
+        </a>
+      </li>
+    </ul>
+  </py:match>
+  
+  <xi:include href="../layout.html" />
+</html>
+
+

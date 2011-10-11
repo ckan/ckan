@@ -1,0 +1,48 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="page_title">Administration - Trash</py:def>
+  <py:def function="page_heading">Administration - Trash</py:def>
+
+  <div py:match="content">
+    <h3>Deleted Revisions</h3>
+    ${revision_list(c.deleted_revisions)}
+    <form method="POST" id="form-purge-revisions">
+      <button
+        type="submit"
+        name="purge-revisions"
+        value="purge"
+        py:attrs=
+          "{'disabled':'disabled','class':'pretty-button'} 
+          if not any(c.deleted_revisions) 
+          else {'class':'pretty-button danger'}"
+        >
+        Purge them all (forever and irreversibly)
+      </button>
+      <div class="clear"></div>
+    </form>
+
+    <h3>Deleted Datasets</h3>
+    ${package_list(c.deleted_packages)}
+    <span py:if="not any(c.deleted_packages)"><em>(None)</em></span>
+    <form method="POST" id="form-purge-packages">
+      <button
+        type="submit"
+        name="purge-packages"
+        value="purge"
+        py:attrs=
+          "{'disabled':'disabled','class':'pretty-button'} 
+          if not any(c.deleted_packages) 
+          else {'class':'pretty-button danger'}"
+        >
+        Purge them all (forever and irreversibly)
+      </button>
+      <div class="clear"></div>
+    </form>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

@@ -472,7 +472,7 @@ plugins
 
 Example::
 
-  ckan.plugins = disqus synchronous_search datapreview googleanalytics stats storage admin follower
+  ckan.plugins = disqus synchronous_search datapreview googleanalytics stats storage follower
 
 Specify which CKAN extensions are to be enabled. 
 

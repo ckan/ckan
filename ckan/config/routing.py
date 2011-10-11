@@ -256,6 +256,9 @@ def make_map():
     map.connect('/revision/diff/{id}', controller='revision', action='diff')
     map.connect('/revision/list', controller='revision', action='list')
     map.connect('/revision/{id}', controller='revision', action='read')
+
+    map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
+    map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
     
     for plugin in routing_plugins:
         map = plugin.after_map(map)

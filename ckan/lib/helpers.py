@@ -264,3 +264,7 @@ def date_str_to_datetime(date_str):
 def time_ago_in_words_from_str(date_str, granularity='month'):
     return date.time_ago_in_words(date_str_to_datetime(date_str), granularity=granularity)
 
+def button_attr(enable, type='primary'):
+    if enable:
+        return 'class="pretty-button %s"' % type
+    return 'disabled class="pretty-button disabled"'
