@@ -807,31 +807,6 @@ textarea.markdown-input {
 }
 
 
-table.resource-table tbody tr td.resource-expand-link,
-table.resource-table tbody tr td.resource-is-changed {
-  vertical-align: top;
-}
-
-td.resource-expanded {
-  padding: 8px 0 8px 0;
-}
-td.resource-expand-link {
-  padding-top: 6px;
-  text-align: center;
-}
-th.resource-expand-link,
-td.resource-expand-link,
-th.resource-is-changed, 
-td.resource-is-changed {
-  text-align: center;
-  padding: 8px 0 0 0;
-  width: 20px;
-}
-
-div.inner table {
-  margin-bottom: 0;
-}
-
 /* ====================== */
 /* = Add Resources Page = */
 /* ====================== */
@@ -840,7 +815,7 @@ input#Resource--url {
   width: 60%;
 }
 
-button.delete-resource {
+button.done-editing {
   float: right;
 }
 
@@ -1240,3 +1215,94 @@ body.error {
   color: #000;
 }
 
+/* ============================= */
+/* = Inline resource edit form = */
+/* ============================= */
+
+
+
+/*
+table.resource-table tbody tr td.resource-delete-link {
+  vertical-align: top;
+}
+
+td.resource-expanded {
+  padding: 8px 0 8px 0;
+}
+.resource-expand-link,
+.resource-delete-link {
+  padding-top: 6px;
+  text-align: center;
+  width: 20px;
+}
+div.inner {
+  padding-right: 10px;
+}
+div.inner table {
+  margin-bottom: 0;
+}
+*/
+th.resource-edit-delete,
+td.resource-edit-delete {
+  /* Override screen.css */
+  padding: 0;
+  width: 40px;
+}
+td.resource-edit-delete img {
+  padding: 8px;
+}
+a.resource-edit-expand {
+  padding-left: 13px;
+  background-position: left center;
+  background-repeat: no-repeat;
+}
+td.resource-edit {
+  padding: 10px;
+  vertical-align: top;
+}
+.resource-edit-expanded {
+  overflow: hidden;
+  margin: 0;
+}
+.resource-edit-expanded table {
+  /* Override screen.css */
+  margin: 10px 0;
+}
+table.resource-table td.resource-edit tbody td {
+  /* Override alternating background */
+  background: transparent;
+}
+td.resource-edit-delete {
+  vertical-align: top;
+  text-align: center;
+}
+td.resource-edit input {
+  /* Override forms.css */
+  width: 100%;
+}
+th.resource-edit-label {
+    width: 23%;
+    display: none;
+}
+th.resource-edit-value {
+    width: 27%;
+    display: none;
+}
+td.resource-edit-label,
+td.resource-edit-value {
+  font-size: 0.92em;
+  line-height: 1.5em;
+  padding-top: 0;
+  padding-bottom: 4px;
+  background: inherit;
+}
+td.resource-edit-label {
+  text-align: right; 
+  font-weight: bold;
+  padding-right: 4px;
+  vertical-align: middle;
+}
+td.resource-edit-value {
+  padding-left: 4px; 
+  border-left: 1px dashed #aaa;
+}

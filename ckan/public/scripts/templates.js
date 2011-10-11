@@ -64,44 +64,26 @@ CKAN.Templates.resourceUpload = ' \
 
 
 CKAN.Templates.resourceEntry = ' \
-  <td class="resource-expand-link"> \
-    <a class="resource-expand-link" href="#"><img src="/images/icons/edit-expand.png" /></a> \
-    <a class="resource-collapse-link" href="#"><img src="/images/icons/edit-collapse.png" /></a> \
-  </td> \
-  <td class="resource-summary resource-url"> \
-    ${resource.url} \
-  </td> \
-  <td class="resource-summary resource-name"> \
-    ${resource.name} \
-  </td> \
-  <td class="resource-summary resource-format"> \
-    ${resource.format} \
-  </td> \
-  <td class="resource-expanded" colspan="3"> \
-    <div class="inner"> \
+  <td class="resource-edit"> \
+    <a class="resource-edit-expand js-resource-edit-toggle" href="#">{{if resource.name==""}}'+CKAN.Strings.noNameBrackets+'{{/if}}${resource.name}</a>\
+    <div class="resource-edit-expanded js-resource-edit-expanded"> \
     <table> \
-      <thead> \
-      <th class="form-label"></th> \
-      <th class="form-value"></th> \
-      <th class="form-label"></th> \
-      <th class="form-value"></th> \
-      </thead> \
       <tbody> \
       <tr> \
-      <td class="form-label">'+CKAN.Strings.name+'</td> \
-      <td class="form-value" colspan="3"> \
-        <input name="resources__${num}__name" type="text" value="${resource.name}" class="long" /> \
+      <td class="resource-edit-label">'+CKAN.Strings.name+'</td> \
+      <td class="resource-edit-value" colspan="3"> \
+        <input class="js-resource-edit-name" name="resources__${num}__name" type="text" value="${resource.name}" class="long" /> \
       </td> \
       </tr> \
       <tr> \
-      <td class="form-label">'+CKAN.Strings.description+'</td> \
-      <td class="form-value" colspan="3"> \
+      <td class="resource-edit-label">'+CKAN.Strings.description+'</td> \
+      <td class="resource-edit-value" colspan="3"> \
         <input name="resources__${num}__description" type="text" value="${resource.description}" class="long" /> \
       </td> \
       </tr> \
       <tr> \
-      <td class="form-label">'+CKAN.Strings.url+'</td> \
-      <td class="form-value" colspan="3"> \
+      <td class="resource-edit-label">'+CKAN.Strings.url+'</td> \
+      <td class="resource-edit-value" colspan="3"> \
       {{if resource.resource_type=="file.upload"}} \
         ${resource.url} \
         <input name="resources__${num}__url" type="hidden" value="${resource.url}" /> \
@@ -112,59 +94,60 @@ CKAN.Templates.resourceEntry = ' \
       </td> \
       </tr> \
       <tr> \
-      <td class="form-label">'+CKAN.Strings.format+'</td> \
-      <td class="form-value"> \
+      <td class="resource-edit-label">'+CKAN.Strings.format+'</td> \
+      <td class="resource-edit-value"> \
         <input name="resources__${num}__format" type="text" value="${resource.format}" class="long autocomplete-format" /> \
       </td> \
-      <td class="form-label">'+CKAN.Strings.resourceType+'</td> \
-      <td class="form-value"> \
-      {{if resource.resource_type=="file.upload"}} \
-        ${resource.resource_type} \
-        <input name="resources__${num}__resource_type" type="hidden" value="${resource.resource_type}" /> \
-      {{/if}} \
-      {{if resource.resource_type!="file.upload"}} \
-        <input name="resources__${num}__resource_type" type="text" value="${resource.resource_type}" /> \
-      {{/if}} \
+      <td class="resource-edit-label">'+CKAN.Strings.resourceType+'</td> \
+      <td class="resource-edit-value"> \
+        {{if resource.resource_type=="file.upload"}} \
+          ${resource.resource_type} \
+          <input name="resources__${num}__resource_type" type="hidden" value="${resource.resource_type}" /> \
+        {{/if}} \
+        {{if resource.resource_type!="file.upload"}} \
+          <input name="resources__${num}__resource_type" type="text" value="${resource.resource_type}" /> \
+        {{/if}} \
       </td> \
       </tr> \
       <tr> \
-      <td class="form-label">'+CKAN.Strings.sizeBracketsBytes+'</td> \
-      <td class="form-value"> \
+      <td class="resource-edit-label">'+CKAN.Strings.sizeBracketsBytes+'</td> \
+      <td class="resource-edit-value"> \
         <input name="resources__${num}__size" type="text" value="${resource.size}" class="long" /> \
       </td> \
-      <td class="form-label">'+CKAN.Strings.mimetype+'</td> \
-      <td class="form-value"> \
+      <td class="resource-edit-label">'+CKAN.Strings.mimetype+'</td> \
+      <td class="resource-edit-value"> \
         <input name="resources__${num}__mimetype" type="text" value="${resource.mimetype}" /> \
       </td> \
       </tr> \
       <tr> \
-      <td class="form-label">'+CKAN.Strings.lastModified+'</td> \
-      <td class="form-value"> \
+      <td class="resource-edit-label">'+CKAN.Strings.lastModified+'</td> \
+      <td class="resource-edit-value"> \
         <input name="resources__${num}__last_modified" type="text" value="${resource.last_modified}" /> \
       </td> \
-      <td class="form-label">'+CKAN.Strings.mimetypeInner+'</td> \
-      <td class="form-value"> \
+      <td class="resource-edit-label">'+CKAN.Strings.mimetypeInner+'</td> \
+      <td class="resource-edit-value"> \
         <input name="resources__${num}__mimetype_inner" type="text" value="${resource.mimetype_inner}" /> \
       </td> \
       </tr> \
       <tr> \
-      <td class="form-label">'+CKAN.Strings.hash+'</td> \
-      <td class="form-value"> \
+      <td class="resource-edit-label">'+CKAN.Strings.hash+'</td> \
+      <td class="resource-edit-value" colspan="3"> \
         ${resource.hash || "Unknown"} \
         <input name="resources__${num}__hash" type="hidden" value="${resource.hash}" /> \
       </td> \
-      <td class="form-label">'+CKAN.Strings.id+'</td> \
-      <td class="form-value"> \
+      </tr> \
+      <tr> \
+      <td class="resource-edit-label">'+CKAN.Strings.id+'</td> \
+      <td class="resource-edit-value" colspan="3"> \
         ${resource.id} \
         <input name="resources__${num}__id" type="hidden" value="${resource.id}" /> \
       </td> \
       </tr> \
     </tbody> \
     </table> \
-    <button class="delete-resource pretty-button danger">'+CKAN.Strings.deleteResource+'</button> \
     </div> \
   </td> \
-  <td class="resource-is-changed"> \
-    <img src="/images/icons/add.png" title="'+CKAN.Strings.resourceHasUnsavedChanges+'" class="resource-is-changed" /> \
+  <td class="resource-edit-delete"> \
+    <a class="resource-edit-delete js-resource-edit-delete" href="#"><img src="/images/icons/delete.png" /></a> \
   </td> \
 ';

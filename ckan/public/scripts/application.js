@@ -515,12 +515,10 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
   initialize: function() {
     _.bindAll(this, 'render', 'toggleExpanded');
     var self = this;
-    this.model.bind('change', function() { self.hasChanged=true; });
     this.model.bind('change', this.render());
     this.position = this.options.position;
 
     this.expanded = this.model.isNew();
-    this.hasChanged = this.model.isNew();
     this.animate = this.model.isNew();
   },
 
@@ -532,34 +530,54 @@ CKAN.View.ResourceEdit = Backbone.View.extend({
     var $newRow = $.tmpl(CKAN.Templates.resourceEntry, tmplData);
     this.el.html($newRow);
 
-    if (this.expanded) {
-      this.el.find('a.resource-expand-link').hide();
-      this.el.find('.resource-summary').hide();
-      if (this.animate) {
-        this.el.find('.resource-expanded .inner').hide();
-        this.el.find('.resource-expanded .inner').show('slow');
+    var expandedTable = this.el.find('.js-resource-edit-expanded');
+
+    var animTime = 350;
+    if (!this.animate) {
+      if (!this.expanded) {
+        expandedTable.hide();
       }
+    } 
+    else if (this.expanded) {
+      var finalHeight = expandedTable.height();
+      expandedTable.height(0).animate(
+          {height:finalHeight},
+          animTime
+          );
+      this.el.find('.js-resource-edit-name').focus();
     }
     else {
-      this.el.find('a.resource-collapse-link').hide();
-      this.el.find('.resource-expanded').hide();
+      expandedTable.animate(
+          {height:0},
+          animTime,
+          function() { expandedTable.hide(); }
+          );
     }
+    arrow_icon = this.expanded? 'open' : 'closed';
+    this.el.find('.js-resource-edit-toggle').css("background-image", "url('/images/icons/arrow-"+arrow_icon+".gif')");
 
-    if (!this.hasChanged) {
-      this.el.find('img.resource-is-changed').hide();
-    }
     this.animate = false;
   },
 
   events: {
-    'click a.resource-expand-link': 'toggleExpanded',
-    'click a.resource-collapse-link': 'toggleExpanded',
-    'click .delete-resource': 'clickDelete'
+    'click .js-resource-edit-toggle':           'toggleExpanded',
+    'click .js-resource-edit-delete':           'clickDelete',
+    'change input.js-resource-edit-name':       'nameChanged',
+    'keydown input.js-resource-edit-name':      'nameChanged',
+    'keyup input.js-resource-edit-name':        'nameChanged',
+    'keypressed input.js-resource-edit-name':   'nameChanged',
   },
 
   clickDelete: function(e) {
     e.preventDefault();
     this.options.deleteResource();
+  },
+
+  nameChanged: function(e) { 
+    var newName = $(e.target).val();
+    $link = this.el.find('.js-resource-edit-toggle');
+    newName = newName || CKAN.Strings.noNameBrackets;
+    $link.html(newName);
   },
 
   saveData: function() {

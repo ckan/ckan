@@ -91,44 +91,11 @@
   <table class="resource-table edit">
     <thead>
       <tr>
-        <th class="resource-expand-link"></th>
-        <th class="field_req resource-url">URL</th>
-        <th class="field_opt resource-description">Name</th>
-        <th class="field_opt resource-format">Format</th>
-        <th class="field_opt resource-is-changed"> </th>
+        <th class="field_req resource-url">Resource</th>
+        <th class="resource-delete-link"></th>
       </tr>
     </thead>
     <tbody class="resource-table">
-      <py:for each="num, res in enumerate(data.get('resources', []))">
-      <tr class="resource-summary">
-        <td class="resource-expand-link">
-          <a class="resource-expand-link" href="#"><img src="/images/icons/edit-expand.png" /></a>
-          <a class="resource-expand-link" href="#" style="display: none;"><img src="/images/icons/edit-collapse.png" /></a>
-        </td>
-        <td class="resource-summary resource-url">
-          ${res.get('url', '')}
-        </td>
-        <td class="resource-summary resource-name">
-          ${res.get('name', '')}
-        </td>
-        <td class="resource-summary resource-format">
-          ${res.get('format', '')}
-        </td>
-        <td class="resource-expanded" colspan="3" style="display: none;">
-          <!-- Replaced with a javascript template -->
-          <input name="resources__${num}__url" type="text" value="${res.get('url', '')}" />
-          <input name="resources__${num}__format" type="text" value="${res.get('format', '')}" />
-          <input name="resources__${num}__description" type="text" value="${res.get('description', '')}" />
-          <input name="resources__${num}__hash" type="text" value="${res.get('hash', '')}" />
-          <input name="resources__${num}__id" type="hidden" value="${res.get('id', '')}" />
-        </td>
-        <td class="resource-is-changed">
-        </td>
-      </tr>
-      </py:for>
-      <py:if test="not len(data.get('resources', []))">
-        <tr class="table-empty"><td colspan="5">(none)</td></tr>
-      </py:if>
     </tbody>
   </table>
 
