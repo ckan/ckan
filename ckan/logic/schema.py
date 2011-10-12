@@ -216,7 +216,7 @@ def default_user_schema():
         'email': [ignore_missing, unicode],
         'about': [ignore_missing, user_about_validator, unicode],
         'created': [ignore],
-        'openid': [ignore],
+        'openid': [ignore_missing],
         'apikey': [ignore],
         'reset_key': [ignore],
     }

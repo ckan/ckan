@@ -2,22 +2,8 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:match path="primarysidebar">
-    <li class="widget-container widget_text">
-      <h3>Have an OpenID?</h3>
-      <p>
-        If you have an account with Google, Yahoo or one of many other 
-        OpenID providers, you can log in without signing up. 
-      </p>
-      <ul>
-        <li>${h.link_to(_('Log in now'), h.url_for(action='login'))}</li>
-      </ul>
-    </li>
-  </py:match>
-  
   <py:def function="page_title">Register - User</py:def>
-  <py:def function="page_heading">Join the community</py:def>
-  
+  <py:def function="page_heading">Register for a new Account</py:def>
 
   <div py:match="content">
     ${Markup(c.form)}
