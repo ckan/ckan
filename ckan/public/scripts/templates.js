@@ -1,6 +1,6 @@
 
 CKAN.Templates.resourceAddLinkFile = ' \
-  <form class="resource-add" action=""> \
+  <form class="resource-add"> \
     <dl> \
       <dt> \
         <label class="field_opt" for="url"> \
@@ -18,7 +18,7 @@ CKAN.Templates.resourceAddLinkFile = ' \
 ';
 
 CKAN.Templates.resourceAddLinkApi = ' \
-  <form class="resource-add" action=""> \
+  <form class="resource-add"> \
     <dl> \
       <dt> \
         <label class="field_opt" for="url"> \
@@ -65,7 +65,7 @@ CKAN.Templates.resourceUpload = ' \
 
 CKAN.Templates.resourceEntry = ' \
   <td class="resource-edit"> \
-    <a class="resource-edit-expand js-resource-edit-toggle" href="#">{{if resource.name==""}}'+CKAN.Strings.noNameBrackets+'{{/if}}${resource.name}</a>\
+    <a class="resource-edit-expand js-resource-edit-toggle" href="#">${resource.name}</a>\
     <div class="resource-edit-expanded js-resource-edit-expanded"> \
     <table> \
       <tbody> \
