@@ -132,7 +132,7 @@ class ManageDb(CkanCommand):
         pg_cmd += ' -U %(db_user)s' % self.db_details
         if self.db_details.get('db_pass') not in (None, ''):
             pg_cmd = 'export PGPASSWORD=%(db_pass)s && ' % self.db_details + pg_cmd
-        if self.db_details.get('db_host') not in (None, '', 'localhost'):
+        if self.db_details.get('db_host') not in (None, ''):
             pg_cmd += ' -h %(db_host)s' % self.db_details
         if self.db_details.get('db_port') not in (None, ''):
             pg_cmd += ' -p %(db_port)s' % self.db_details
