@@ -118,7 +118,7 @@ Install the Source
    ::
 
        sudo apt-get install python-psycopg2 python-lxml python-sphinx 
-       sudo apt-get install python-pylons python-formalchemy python-repoze.who
+       sudo apt-get install python-pylons python-repoze.who python-pybabel
        sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
        
    If you are not using Ubuntu Lucid you'll still need to install all the
@@ -147,7 +147,7 @@ Install the Source
 
   ::
 
-      psql -l
+      sudo -u postgres psql -l
 
   It is advisable to ensure that the encoding of databases is 'UTF8', or 
   internationalisation may be a problem. Since changing the encoding of PostgreSQL
@@ -250,13 +250,12 @@ Install the Source
        JETTY_HOST=127.0.0.1  # (line 15)
        JETTY_PORT=8983       # (line 18)
 
-   Then create a symlink from the schema.xml file in your ckan config
-   directory to the Solr config directory:
+   Then replace Solr's schema.xml file with a symlink to the one in the CKAN source:
 
      Note: The path ``~/pyenv/src/ckan/ckan/config/schema.xml`` will probably need to be to be adjusted for your system. Also ensure it is an absolute path.
 
    ::
-    
+       sudo mv /usr/share/solr/conf/schema.xml /usr/share/solr/conf/schema.xml.bak
        sudo ln -s ~/pyenv/src/ckan/ckan/config/schema.xml /usr/share/solr/conf/schema.xml
 
    Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:

@@ -127,3 +127,38 @@ Common problems running tests
    This can be caused by an out of date pyc file. Delete all your pyc files and start again::
 
         find . -name "*.pyc" | xargs rm
+
+* `ImportError: cannot import name UnicodeMultiDict`
+
+   This is caused by using a version of WebOb that is too new (it has deprecated UnicodeMultiDict). Check the version like this (ensure you have activated your python environment first)::
+
+         pip freeze | grep -i webob
+
+   Now install the version specified in requires/lucid_present.txt. e.g.::
+
+         pip install webob==1.0.8
+
+* `nosetests: error: no such option: --ckan`
+
+   Nose is either unable to find ckan/ckan_nose_plugin.py in the python environment it is running in, or there is an error loading it. If there is an error, this will surface it::
+
+         nosetests --version
+
+   There are a few things to try to remedy this:
+
+   Commonly this is because the nosetests isn't running in the python environment. You need to have nose actually installed in the python environment. To see which you are running, do this::
+
+         which nosetests
+
+   If you have activated the environment and this still reports ``/usr/bin/nosetests`` then you need to::
+
+         pip install --ignore-installed nose
+
+   If ``nose --version`` still fails, ensure that ckan is installed in your environment::
+
+         cd pyenv/src/ckan
+         python setup.py develop
+
+   One final check - the version of nose should be at least 1.0. Check with::
+
+         pip freeze | grep -i nose
