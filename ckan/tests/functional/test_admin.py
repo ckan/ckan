@@ -290,10 +290,10 @@ class TestAdminTrashController:
         assert 'dataset/warandpeace' in response
 
         # now check we really can purge when things are ok
+        model.repo.new_revision()
         pkg = model.Package.by_name(u'annakarenina')
         pkg.state = model.State.DELETED
-        model.repo.new_revision()
-        model.Session.commit()
+        model.repo.commit_and_remove()
 
         response = self.app.get(url, extra_environ=as_testsysadmin)
         assert 'dataset/warandpeace' in response, response
