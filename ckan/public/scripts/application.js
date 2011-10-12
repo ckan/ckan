@@ -67,7 +67,8 @@ CKAN.Utils = function($, my) {
     }
     var messageDiv = $('<div />').html(msg).addClass(category).hide();
     $('.flash-messages').append(messageDiv);
-    messageDiv.show('slow');
+    messageDiv.show(1200);
+
   };
 
   // Attach dataset autocompletion to provided elements
@@ -402,9 +403,10 @@ CKAN.Utils = function($, my) {
 CKAN.View.DatasetEdit = Backbone.View.extend({
   initialize: function() {
     _.bindAll(this, 'render');
+    var collection = this.model.get('resources');
 
     var boundToUnload = false;
-    this.el.change(function() {
+    var changesMade = function() {
       if (!boundToUnload) {
         CKAN.Utils.flashMessage(CKAN.Strings.youHaveUnsavedChanges,'notice');
         boundToUnload = true;
@@ -412,7 +414,10 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
           return CKAN.Strings.youHaveUnsavedChanges; 
         };
       }
-    });
+    };
+    this.el.change(changesMade);
+    collection.bind('remove', changesMade);
+
     this.el.submit(function() {
       // Don't stop us leaving
       window.onbeforeunload = null;
@@ -421,14 +426,14 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
     // Tabbed view for adding resources
     var $el=this.el.find('.resource-add');
     this.addView=new CKAN.View.ResourceAdd({
-      collection: this.model.get('resources'),
+      collection: collection,
       el: $el
     });
 
     // Table for editing resources
     var $el=this.el.find('.resource-table.edit');
     this.resourceList=new CKAN.View.ResourceEditList({
-      collection: this.model.get('resources'),
+      collection: collection,
       el: $el
     });
 
@@ -449,22 +454,10 @@ CKAN.View.DatasetEdit = Backbone.View.extend({
 
 CKAN.View.ResourceEditList = Backbone.View.extend({
   initialize: function() {
-    _.bindAll(this, 'render', 'addRow');
-    this.collection.bind('add', this.addRow);
-  },
-
-  render: function() {
-    var self = this;
-
-    // Have to trash entire content; some stuff was there on page load
-    this.el.find('tbody').empty();
-    this.collection.each(this.addRow);
-
-    if (this.collection.isEmpty()) {
-      $tr = $('<tr />').addClass('table-empty');
-      $tr.html('<td></td><td colspan="4">'+CKAN.Strings.bracketsNone+'</td>');
-      this.el.find('tbody').append($tr);
-    }
+    _.bindAll(this, 'addResource');
+    this.collection.bind('add', this.addResource);
+    this.collection.bind('remove', this.removeResource);
+    this.collection.each(this.addResource);
   },
 
   nextIndex: function() {
@@ -479,143 +472,82 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     return maxId+1;
   },
 
-  addRow: function(resource) {
-    // Strip placeholder row
-    this.el.find('tr.table-empty').remove();
-
-    // TODO tidy up so the view creates its own elements
+  addResource: function(resource) {
+    var position = this.nextIndex();
+    // Create a row from the template
     var $tr = $('<tr />');
-
-    // Captured by an inner function
-    var self = this;
-
+    $tr.html($.tmpl(
+      CKAN.Templates.resourceEntry, 
+      { resource: resource.toTemplateJSON(),
+        num: position
+      }
+    ));
+    $tr.find('.js-resource-edit-expanded').hide();
     this.el.find('tbody.resource-table').append($tr);
-    var _view = new CKAN.View.ResourceEdit({
-      model: resource,
-      el: $tr,
-      position: this.nextIndex(),
-      deleteResource: function() {
-        // Passing down a capture to remove the resource
-        $tr.remove();
-        
-        self.collection.remove(resource);
-        if (self.collection.isEmpty()) {
-          self.render();
-        }
-      }
-    });
-    _view.render();
-  },
 
-  events: {
-  }
-});
-
-CKAN.View.ResourceEdit = Backbone.View.extend({
-  initialize: function() {
-    _.bindAll(this, 'render', 'toggleExpanded');
-    var self = this;
-    this.model.bind('change', this.render());
-    this.position = this.options.position;
-
-    this.expanded = this.model.isNew();
-    this.animate = this.model.isNew();
-  },
-
-  render: function() {
-    var tmplData = {
-      resource: this.model.toTemplateJSON(),
-      num: this.position
-    };
-    var $newRow = $.tmpl(CKAN.Templates.resourceEntry, tmplData);
-    this.el.html($newRow);
-
-    var expandedTable = this.el.find('.js-resource-edit-expanded');
-
-    var animTime = 350;
-    if (!this.animate) {
-      if (!this.expanded) {
-        expandedTable.hide();
-      }
-    } 
-    else if (this.expanded) {
+    // == Inner Function: Toggle the expanded options set == //
+    var toggleOpen = function(triggerEvent) {
+      if (triggerEvent) triggerEvent.preventDefault();
+      var animTime = 350;
+      var expandedTable = $tr.find('.js-resource-edit-expanded');
       var finalHeight = expandedTable.height();
-      expandedTable.height(0).animate(
-          {height:finalHeight},
-          animTime
-          );
-      this.el.find('.js-resource-edit-name').focus();
-    }
-    else {
-      expandedTable.animate(
-          {height:0},
-          animTime,
-          function() { expandedTable.hide(); }
-          );
-    }
-    arrow_icon = this.expanded? 'open' : 'closed';
-    this.el.find('.js-resource-edit-toggle').css("background-image", "url('/images/icons/arrow-"+arrow_icon+".gif')");
+      var icon = 'closed';
+      console.log(expandedTable);
 
-    this.animate = false;
-  },
-
-  events: {
-    'click .js-resource-edit-toggle':           'toggleExpanded',
-    'click .js-resource-edit-delete':           'clickDelete',
-    'change input.js-resource-edit-name':       'nameChanged',
-    'keydown input.js-resource-edit-name':      'nameChanged',
-    'keyup input.js-resource-edit-name':        'nameChanged',
-    'keypressed input.js-resource-edit-name':   'nameChanged',
-  },
-
-  clickDelete: function(e) {
-    e.preventDefault();
-    this.options.deleteResource();
-  },
-
-  nameChanged: function(e) { 
-    var newName = $(e.target).val();
-    $link = this.el.find('.js-resource-edit-toggle');
-    newName = newName || CKAN.Strings.noNameBrackets;
-    $link.html(newName);
-  },
-
-  saveData: function() {
-    this.model.set(this.getData(), {
-      error: function(model, error) {
-        var msg = CKAN.Strings.failedToSave;
-        msg += JSON.stringify(error);
-        alert(msg);
+      if (expandedTable.is(':visible')) {
+        expandedTable.animate(
+            {height:0},
+            animTime,
+            function() { 
+              expandedTable.height(finalHeight);
+              expandedTable.hide(); 
+            }
+        );
       }
-    });
-    return false;
-  },
+      else {
+        expandedTable.show();
+        expandedTable.height(0);
+        // Transition to its true height
+        expandedTable.animate({height:finalHeight}, animTime);
+        $tr.find('.js-resource-edit-name').focus();
+        icon = 'open';
+      }
+      $tr.find('.js-resource-edit-toggle').css("background-image", "url('/images/icons/arrow-"+icon+".gif')");
+    };
 
-  getData: function() {
-    var _data = $(this.el).find('input').serializeArray();
-    modelData = {};
-    $.each(_data, function(idx, value) {
-      modelData[value.name.split('__')[2]] = value.value
-    });
-    return modelData;
-  },
+    // == Inner Function: Delete the row == //
+    var collection = this.collection;
+    var deleteResource = function(triggerEvent) {
+      if (triggerEvent) triggerEvent.preventDefault();
+      collection.remove(resource);
+      $tr.remove();
+    };
 
-  toggleExpanded: function(e) {
-    e.preventDefault();
+    // == Inner Function: Update the name as you type == //
+    var nameChanged = function(e) { 
+      // Update the resource title as you type
+      var newName = $(e.target).val();
+      $link = $tr.find('.js-resource-edit-toggle');
+      newName = newName || CKAN.Strings.noNameBrackets;
+      $link.html(newName);
+    };
 
-    this.expanded = !this.expanded;
-    this.animate = true;
-    // Closing the form; update the model fields
-    if (!this.expanded) {
-      this.saveData();
-      // Model might not have changed
-      this.render();
-    } else {
-      this.render();
+    // Trigger animation
+    if (resource.isNew()) {
+      toggleOpen();
     }
-  }
 
+    var nameBox = $tr.find('input.js-resource-edit-name');
+    nameBox.change(nameChanged);
+    nameBox.keydown(nameChanged);
+    nameBox.keyup(nameChanged);
+    nameBox.keypress(nameChanged);
+
+    $tr.find('.js-resource-edit-toggle').click(toggleOpen);
+    $tr.find('.js-resource-edit-delete').click(deleteResource);
+  },
 });
+
 
 CKAN.View.ResourceAdd = Backbone.View.extend({
   initialize: function() {

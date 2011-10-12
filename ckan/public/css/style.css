@@ -1242,6 +1242,9 @@ div.inner table {
   margin-bottom: 0;
 }
 */
+.resource-table tr {
+  overflow: hidden;
+}
 th.resource-edit-delete,
 td.resource-edit-delete {
   /* Override screen.css */
@@ -1252,6 +1255,7 @@ td.resource-edit-delete img {
   padding: 8px;
 }
 a.resource-edit-expand {
+  background-image: url('/images/icons/arrow-closed.gif');
   padding-left: 13px;
   background-position: left center;
   background-repeat: no-repeat;
