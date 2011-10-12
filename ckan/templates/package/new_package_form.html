@@ -52,9 +52,9 @@
 
     <dt class="description-label"><label class="field_opt" for="notes">Description</label></dt>
     <dd class="description-field"><div class="markdown-editor">
-      <ul class="tabs">
-        <li><a href="#" action="write" class="selected">Write</a></li>
-        <li><a href="#" action="preview">Preview</a></li>
+      <ul class="button-row">
+        <li><button class="pretty-button js-markdown-edit depressed">Edit</button></li>
+        <li><button class="pretty-button js-markdown-preview">Preview</button></li>
       </ul>
       <textarea class="markdown-input" tabindex="3" name="notes" id="notes" placeholder="${_('Start with a summary sentence ...')}">${data.get('notes','')}</textarea>
       <div class="markdown-preview" style="display: none;"></div>
@@ -101,11 +101,11 @@
 
 
   <div class="resource-add">
-    <ul class="tabs">
+    <ul class="button-row">
       <li><h4>Add a resource:</h4></li>
-      <li><a href="#" action="link-file" class="action-resource-tab">Link to a file</a></li>
-      <li><a href="#" action="link-api" class="action-resource-tab">Link to an API</a></li>
-      <li class="upload-file" style="display:none;"><a href="#" action="upload-file" class="action-resource-tab">Upload a file</a></li>
+      <li><button class="pretty-button js-link-file">Link to a file</button></li>
+      <li><button class="pretty-button js-link-api">Link to an API</button></li>
+      <li class="js-upload-file" style="display:none;"><button class="pretty-button js-upload-file">Upload a file</button></li>
     </ul>
   </div>
 </fieldset>

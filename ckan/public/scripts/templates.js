@@ -50,7 +50,8 @@ CKAN.Templates.resourceUpload = ' \
       </dt> \
       <dd> \
         <input type="file" name="file" /> \
-        <span class="fileinfo"></span> \
+        <br /> \
+        <div class="fileinfo"></div> \
         <input id="upload" name="upload" type="submit" class="pretty-button primary" value="'+CKAN.Strings.add+'" /> \
         <input id="reset" name="reset" type="reset" class="pretty-button" value="'+CKAN.Strings.cancel+'" /> \
       </dd> \

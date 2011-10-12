@@ -7,7 +7,7 @@
     $('input.autocomplete-format').live('keyup', function(){
       CKAN.Utils.setupFormatAutocomplete($(this));
     });
-    CKAN.Utils.setupMarkdownEditor($('.markdown-editor .tabs a, .markdown-editor .markdown-preview'));
+    CKAN.Utils.setupMarkdownEditor($('.markdown-editor'));
     // set up ckan js
     var config = {
       endpoint: '/'
@@ -40,7 +40,7 @@
       // Selectively enable the upload button
       var storageEnabled = $.inArray('storage',CKAN.plugins)>=0;
       if (storageEnabled) {
-        $('div.resource-add li.upload-file').show();
+        $('li.js-upload-file').show();
       }
 
       // Set up hashtag nagivigation
@@ -226,20 +226,20 @@ CKAN.Utils = function($, my) {
     });
   };
 
-  my.setupMarkdownEditor = function(elements) {
+  my.setupMarkdownEditor = function(markdownEditor) {
     // Markdown editor hooks
-    elements.live('click', function(e) {
+    markdownEditor.find('button, div.markdown-preview').live('click', function(e) {
       e.preventDefault();
-      var $el = $(e.target);
-      var action = $el.attr('action') || 'write';
+      var $target = $(e.target);
+      console.log('clicked');
       // Extract neighbouring elements
-      var div=$el.closest('.markdown-editor')
-      div.find('.tabs a').removeClass('selected');
-      div.find('.tabs a[action='+action+']').addClass('selected');
-      var textarea = div.find('.markdown-input');
-      var preview = div.find('.markdown-preview');
+      var markdownEditor=$target.closest('.markdown-editor')
+      markdownEditor.find('button').removeClass('depressed');
+      var textarea = markdownEditor.find('.markdown-input');
+      var preview = markdownEditor.find('.markdown-preview');
       // Toggle the preview
-      if (action=='preview') {
+      if ($target.is('.js-markdown-preview')) {
+        $target.addClass('depressed');
         raw_markdown=textarea.val();
         preview.html("<em>"+CKAN.Strings.loading+"<em>");
         $.post("/api/util/markdown", { q: raw_markdown },
@@ -250,6 +250,7 @@ CKAN.Utils = function($, my) {
         textarea.hide();
         preview.show();
       } else {
+        markdownEditor.find('.js-markdown-edit').addClass('depressed');
         textarea.show();
         preview.hide();
         textarea.focus();
@@ -567,12 +568,12 @@ CKAN.View.ResourceAddTabs = Backbone.View.extend({
   },
 
   events: {
-    'click .action-resource-tab': 'clickAdd',
+    'click button': 'clickButton',
     'click input[name=reset]': 'reset'
   },
 
   reset: function() {
-    this.el.find('.tabs a').removeClass('selected');
+    this.el.find('button').removeClass('depressed');
     if (this.subView != null) {
       this.subView.remove();
       this.subView = null;
@@ -580,40 +581,43 @@ CKAN.View.ResourceAddTabs = Backbone.View.extend({
     return false;
   },
 
-  clickAdd: function(e) {
+  clickButton: function(e) {
     e.preventDefault();
+    var $target = $(e.target);
+    
+    if ($target.is('.depressed')) {
+      this.reset();
+    } 
+    else {
+      this.reset();
+      $target.addClass('depressed');
 
-    this.reset();
+      var $subPane = $('<div />').addClass('resource-add-subpane');
+      this.el.append($subPane);
 
-    var action = $(e.target).attr('action');
-    this.el.find('.tabs a').removeClass('selected');
-    this.el.find('.tabs a[action='+action+']').addClass('selected');
+      var tempResource = new CKAN.Model.Resource({});
 
-    var $subPane = $('<div />').addClass('resource-add-subpane');
-    this.el.append($subPane);
-
-    var tempResource = new CKAN.Model.Resource({});
-
-    tempResource.bind('change', this.addNewResource);
-    // Open sub-pane
-    if (action=='upload-file') {
-      this.subView = new CKAN.View.ResourceUpload({
-        el: $subPane,
-        model: tempResource,
-        // TODO: horrible reverse depedency ...
-        client: CKAN.UI.workspace.client
-      });
+      tempResource.bind('change', this.addNewResource);
+      // Open sub-pane
+      if ($target.is('.js-upload-file')) {
+        this.subView = new CKAN.View.ResourceUpload({
+          el: $subPane,
+          model: tempResource,
+          // TODO: horrible reverse depedency ...
+          client: CKAN.UI.workspace.client
+        });
+      }
+      else if ($target.is('.js-link-file') || $target.is('.js-link-api')) {
+        this.subView = new CKAN.View.ResourceAddLink({
+          el: $subPane,
+          model: tempResource,
+          mode: ($target.is('.js-link-file'))? 'file' : 'api',
+          // TODO: horrible reverse depedency ...
+          client: CKAN.UI.workspace.client
+        });
+      }
+      this.subView.render();
     }
-    else if (action=='link-file' || action=='link-api') {
-      this.subView = new CKAN.View.ResourceAddLink({
-        el: $subPane,
-        model: tempResource,
-        mode: (action=='link-file')? 'file' : 'api',
-        // TODO: horrible reverse depedency ...
-        client: CKAN.UI.workspace.client
-      });
-    }
-    this.subView.render();
   },
 
   addNewResource: function(tempResource) {
