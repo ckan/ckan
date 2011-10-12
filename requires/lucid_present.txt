@@ -18,7 +18,7 @@ repoze.who==1.0.19
 tempita==0.4
 zope.interface==3.5.3
 # These are both combined into the python-repoze.who-plugins package
-repoze.who.plugins.openid==0.5.4
+repoze.who.plugins.openid==0.5.3
 # Actually from python-repoze.who-plugins but the openid plugin in the same
 # package is too old
 repoze.who-friendlyform==1.0.8
