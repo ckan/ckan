@@ -473,6 +473,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # edit
         new_about = u'Changed about'
         new_password = u'testpass'
+        new_openid = u'http://mynewopenid.com/'
         offset = url_for(controller='user', action='edit', id=user.id)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
         main_res = self.main_div(res)
@@ -480,6 +481,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert about in main_res, main_res
         fv = res.forms['user-edit']
         fv['about'] = new_about
+        fv['openid'] = new_openid
         fv['password1'] = new_password
         fv['password2'] = new_password
 
@@ -490,6 +492,9 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         main_res = self.main_div(res)
         assert 'testedit' in main_res, main_res
         assert new_about in main_res, main_res
+
+        updated_user = model.User.by_name(unicode(username))
+        assert_equal(updated_user.openid, new_openid)
 
         # read, not logged in
         offset = url_for(controller='user', action='read', id=user.id)
