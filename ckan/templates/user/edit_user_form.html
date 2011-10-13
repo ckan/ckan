@@ -45,6 +45,13 @@
     <dd><input type="password" name="password2" value="" /></dd>
     </dl>
   </fieldset>
+  <fieldset>
+    <legend>Change your username</legend>
+    <dl>
+    <dt><label for="name">Username:</label></dt>
+    <dd><input type="text" name="name" value="${data.get('name','')}" /></dd>
+    </dl>
+  </fieldset>
   <div class="form-submit">
     <input id="save" class="pretty-button primary" name="save" type="submit" value="${_('Save Changes')}" />
     <input id="cancel" class="pretty-button href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='user', action='read')}" />
