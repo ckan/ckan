@@ -262,6 +262,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         username = 'testcreate'
         fullname = u'Test Create'
         password = u'testpassword'
+        email = u'test@test.org'
         assert not model.User.by_name(unicode(username))
         rev_id_before_test = model.repo.youngest_revision().id
 
@@ -272,6 +273,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['user-edit']
         fv['name'] = username
         fv['fullname'] = fullname
+        fv['email'] = email
         fv['password1'] = password
         fv['password2'] = password
         res = fv.submit('save')
@@ -294,6 +296,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert user
         assert_equal(user.name, username)
         assert_equal(user.fullname, fullname)
+        assert_equal(user.email, email)
         assert user.password
         
         # no revision should be created - User is not revisioned
@@ -314,6 +317,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         username = u'testcreate4'
         fullname = u'Test Create\xc2\xa0'
         password = u'testpassword\xc2\xa0'
+        email = u'me@test.org'
         assert not model.User.by_name(username)
 
         offset = url_for(controller='user', action='register')
@@ -323,6 +327,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['user-edit']
         fv['name'] = username
         fv['fullname'] = fullname.encode('utf8')
+        fv['email'] = email
         fv['password1'] = password.encode('utf8')
         fv['password2'] = password.encode('utf8')
         res = fv.submit('save')
@@ -465,7 +470,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         user = model.User.by_name(unicode(username))
         if not user:
             model.Session.add(model.User(name=unicode(username), about=about,
-                                         password='letmein'))
+                email=u'me@test.org',
+                password='letmein'))
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
         rev_id_before_test = model.repo.youngest_revision().id
@@ -513,7 +519,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         user = model.User.by_name(unicode(username))
         if not user:
             model.Session.add(model.User(name=unicode(username), about=about,
-                                         password='letmein'))
+                email=u'me@test.org',
+                password='letmein'))
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
 
