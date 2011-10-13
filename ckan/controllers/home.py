@@ -55,8 +55,8 @@ class HomeController(BaseController):
 
     @proxy_cache(expires=cache_expires)
     def index(self):
-        cache_key = self._home_cache_key()
-        etag_cache(cache_key)
+        #cache_key = self._home_cache_key()
+        #etag_cache(cache_key)
 
         try:
             query = query_for(model.Package)
@@ -68,7 +68,7 @@ class HomeController(BaseController):
             c.package_count = 0
             c.groups = []
 
-        return render('home/index.html', cache_key=cache_key,
+        return render('home/index.html',
                       cache_expire=cache_expires)
 
     def license(self):
