@@ -16,7 +16,6 @@ from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
 from pylons.decorators.cache import beaker_cache
-from pylons import c
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
@@ -86,8 +85,8 @@ class _Flash(object):
         # Don't store Message objects in the session, to avoid unpickling
         # errors in edge cases.
         new_message_tuple = (category, message, allow_html)
-        c.flash = c.flash or []
-        messages = c.flash 
+        from pylons import session
+        messages = session.setdefault(self.session_key, [])
         # ``messages`` is a mutable list, so changes to the local variable are
         # reflected in the session.
         if ignore_duplicate:
@@ -95,12 +94,15 @@ class _Flash(object):
                 if m[1] == message:
                     if m[0] != category:
                         messages[i] = new_message_tuple
+                        session.save()
                     return    # Original message found, so exit early.
         messages.append(new_message_tuple)
+        session.save()
 
     def pop_messages(self):
-        c.flash = c.flash or []
-        messages = c.flash 
+        from pylons import session
+        messages = session.pop(self.session_key, [])
+        session.save()
         return [Message(*m) for m in messages]
 
 _flash = _Flash()
