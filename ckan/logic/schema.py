@@ -213,10 +213,10 @@ def default_user_schema():
         'name': [not_empty, unicode, user_name_validator],
         'fullname': [ignore_missing, unicode],
         'password': [user_password_validator, user_password_not_empty, ignore_missing, unicode],
-        'email': [ignore_missing, unicode],
+        'email': [not_empty, unicode],
         'about': [ignore_missing, user_about_validator, unicode],
         'created': [ignore],
-        'openid': [ignore],
+        'openid': [ignore_missing],
         'apikey': [ignore],
         'reset_key': [ignore],
     }

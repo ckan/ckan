@@ -222,8 +222,8 @@ class UserController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
             user = get_action('user_update')(context, data_dict)
-
-            h.redirect_to(controller='user', action='read', id=user['id'])
+            h.flash_success(_('Profile updated'))
+            h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to edit user %s') % id)
         except NotFound, e:

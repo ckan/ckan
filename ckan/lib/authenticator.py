@@ -11,20 +11,9 @@ class OpenIDAuthenticator(object):
             openid = identity.get('repoze.who.plugins.openid.userid')
             user = User.by_openid(openid)
             if user is None:
-                # TODO: Implement a mask to ask for an alternative user 
-                # name instead of just using the OpenID identifier. 
-                name = identity.get('repoze.who.plugins.openid.nickname')
-                if not User.check_name_valid(name):
-                    name = openid
-                if not User.check_name_available(name):
-                    name = openid
-                user = User(openid=openid, name=name,
-                        fullname=identity.get('repoze.who.plugins.openid.fullname'),
-                        email=identity.get('repoze.who.plugins.openid.email'))
-                Session.add(user)
-                Session.commit()
-                Session.remove()
-            return user.name
+                return None
+            else:
+                return user.name
         return None
     
 

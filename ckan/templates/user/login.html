@@ -16,20 +16,6 @@
     </script>
   </py:def>
   
-  <py:match path="primarysidebar">
-    <li class="widget-container boxed widget_text">
-      <h2>Not a member?</h2>
-      <p>
-      Join CKAN to contribute datasets under your own name.
-      </p>
-      <ul>
-        <li>${h.link_to(_('Register'), h.url_for(action='register'))}</li>
-        <li>${h.link_to(_('Reset your password'), h.url_for(action='request_reset'))}</li>
-        <li>${h.link_to(_('Privacy Policy'), 'http://www.okfn.org/privacy-policy/')}</li>
-      </ul>
-    </li>
-  </py:match>
-  
   <py:def function="page_title">Login - User</py:def>
   <py:def function="page_heading">Login to ${g.site_title}</py:def>
 
@@ -50,6 +36,8 @@
       </fieldset>
       ${h.submit('s', _('Login'))} &mdash; 
       <a href="${h.url_for('reset')}">Forgot your password?</a>
+      &mdash;
+      ${h.link_to(_('Not yet registered?'), h.url_for(action='register'))}
     </form>
     <br/> 
     <!-- Simple OpenID Selector -->
