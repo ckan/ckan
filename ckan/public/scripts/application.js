@@ -527,7 +527,8 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     var setName = function(newName) { 
       $link = $tr.find('.js-resource-edit-toggle');
       newName = newName || CKAN.Strings.noNameBrackets;
-      $link.html(newName);
+      // Need to structurally modify the DOM to force a re-render of text
+      $link.html('<span>'+newName+'</span>');
     };
     var nameBoxChanged = function(e) {
       setName($(e.target).val());
