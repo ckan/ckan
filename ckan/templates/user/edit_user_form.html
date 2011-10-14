@@ -23,9 +23,9 @@
     <dt><label for="about">About:</label></dt>
     <dd class="description-field">
       <div class="markdown-editor">
-        <ul class="tabs">
-          <li><a href="#" action="write" class="selected">Write</a></li>
-          <li><a href="#" action="preview">Preview</a></li>
+        <ul class="button-row">
+          <li><button class="pretty-button js-markdown-edit depressed">Edit</button></li>
+          <li><button class="pretty-button js-markdown-preview">Preview</button></li>
         </ul>
         <textarea class="markdown-input" tabindex="3" name="about" id="about" placeholder="${_('A little about you...')}">${data.get('about','')}</textarea>
         <div class="markdown-preview" style="display: none;"></div>
