@@ -256,6 +256,7 @@ class TestAction(WsgiAppCase):
     def test_09_user_create(self):
         user_dict = {'name':'test_create_from_action_api',
                       'about': 'Just a test user',
+                      'email': 'me@test.org',
                       'password':'testpass'}
 
         postparams = '%s=1' % json.dumps(user_dict)
@@ -286,6 +287,7 @@ class TestAction(WsgiAppCase):
             'error': {
                 '__type': 'Validation Error',
                 'name': ['Missing value'],
+                'email': ['Missing value'],
                 'password': ['Missing value']
             },
             'help': 'Creates a new user',
@@ -294,6 +296,7 @@ class TestAction(WsgiAppCase):
 
     def test_11_user_create_wrong_password(self):
         user_dict = {'name':'test_create_from_action_api_2',
+                'email':'me@test.org',
                       'password':'tes'} #Too short
 
         postparams = '%s=1' % json.dumps(user_dict)
@@ -314,10 +317,12 @@ class TestAction(WsgiAppCase):
     def test_12_user_update(self):
         normal_user_dict = {'id': self.normal_user.id,
                             'fullname': 'Updated normal user full name',
+                            'email': 'me@test.org',
                             'about':'Updated normal user about'}
 
         sysadmin_user_dict = {'id': self.sysadmin_user.id,
                             'fullname': 'Updated sysadmin user full name',
+                            'email': 'me@test.org',
                             'about':'Updated sysadmin user about'} 
 
         #Normal users can update themselves
