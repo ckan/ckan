@@ -434,7 +434,7 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
     });
 
     // Table for editing resources
-    var $el = this.el.find('.resource-table.edit');
+    var $el = this.el.find('.js-resource-editor');
     this.resourceList=new CKAN.View.ResourceEditList({
       collection: resources,
       el: $el
@@ -484,7 +484,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
       }
     ));
     $tr.find('.js-resource-edit-expanded').hide();
-    this.el.find('tbody.resource-table').append($tr);
+    this.el.append($tr);
     resource.view_tr = $tr;
 
     // == Inner Function: Toggle the expanded options set == //

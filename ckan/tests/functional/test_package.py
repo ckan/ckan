@@ -148,11 +148,11 @@ class TestPackageForm(TestPackageBase):
         self.check_tag(main_res, prefix+'title', params['title'])
         self.check_tag(main_res, prefix+'version', params['version'])
         self.check_tag(main_res, prefix+'url', params['url'])
-        for res_index, res_field, expected_value in self._get_resource_values(params['resources']):
-            ### only check fields that are on the form 
-            if res_field not in ['url', 'id', 'description', 'hash']:
-                continue
-            self.check_tag(main_res, '%sresources__%i__%s' % (prefix, res_index, res_field), expected_value)
+        #for res_index, res_field, expected_value in self._get_resource_values(params['resources']):
+        #    ## only check fields that are on the form 
+        #    if res_field not in ['url', 'id', 'description', 'hash']:
+        #        continue
+        #    self.check_tag(main_res, '%sresources__%i__%s' % (prefix, res_index, res_field), expected_value)
         self.check_tag_and_data(main_res, prefix+'notes', params['notes'])
         self.check_tag_and_data(main_res, 'selected', params['license_id'])
         if isinstance(params['tags'], (str, unicode)):
@@ -644,7 +644,7 @@ class TestEdit(TestPackageForm):
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] =  new_title
             fv[prefix + 'url'] =  newurl
-            fv[prefix + 'resources__0__url'] =  new_download_url
+            #fv[prefix + 'resources__0__url'] =  new_download_url
             fv[prefix + 'license_id'] =  newlicense_id
             fv[prefix + 'version'] = newversion
             res = fv.submit('save')
@@ -657,7 +657,7 @@ class TestEdit(TestPackageForm):
             pkg = model.Package.by_name(new_name)
             assert pkg.title == new_title 
             assert pkg.url == newurl
-            assert pkg.resources[0].url == new_download_url
+            #assert pkg.resources[0].url == new_download_url
             assert pkg.version == newversion
             assert newlicense_id == pkg.license.id
         finally:

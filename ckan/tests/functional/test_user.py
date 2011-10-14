@@ -53,7 +53,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                                  'http://anna.com',
                                  'target="_blank"',
                                  'rel="nofollow"')
-        assert 'Edit' not in main_res, main_res
+        assert 'Edit Profile' not in main_res, main_res
         assert 'Number of edits:</strong> 3' in res, res
         assert 'Number of datasets administered:</strong> 1' in res, res
         assert 'Revision History' in res, res
@@ -81,7 +81,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         main_res = self.main_div(res)
         assert 'annafan' in res, res
         assert 'My Account' in main_res, main_res
-        assert 'Edit' in main_res, main_res
+        assert 'Edit Profile' in main_res, main_res
 
     def test_user_read_about_unfinished(self):
         user = model.User.by_name(u'unfinisher')

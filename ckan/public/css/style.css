@@ -1206,30 +1206,15 @@ body.error {
 /* = Inline resource edit form = */
 /* ============================= */
 
-
-
-/*
-table.resource-table tbody tr td.resource-delete-link {
-  vertical-align: top;
+.resource-table-edit tbody tr td,
+.resource-table-view tbody tr td {
+  /* Constrain structure against overflow */
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-td.resource-expanded {
-  padding: 8px 0 8px 0;
-}
-.resource-expand-link,
-.resource-delete-link {
-  padding-top: 6px;
-  text-align: center;
-  width: 20px;
-}
-div.inner {
-  padding-right: 10px;
-}
-div.inner table {
-  margin-bottom: 0;
-}
-*/
-.resource-table tr {
+.resource-table-edit tr {
   overflow: hidden;
 }
 th.resource-edit-delete,
@@ -1259,7 +1244,7 @@ td.resource-edit {
   /* Override screen.css */
   margin: 10px 0;
 }
-table.resource-table td.resource-edit tbody td {
+table.resource-table-edit td.resource-edit tbody td {
   /* Override alternating background */
   background: transparent;
 }
