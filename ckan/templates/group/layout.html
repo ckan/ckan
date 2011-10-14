@@ -31,10 +31,10 @@
     <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}" py:if="h.check_access('group_edit_permissions',{'id':c.group.id})">
       ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='group', action='authz', id=c.group.name)}
     </li>
-    <li class="action">
+    <!-- li class="action">
     ${h.subnav_link(c, h.icon('atom_feed') + _('Subscribe'),
     controller='group', action='history', id=c.group.name, format='atom', days=7)}
-    </li>
+    </li-->
   </ul>
   </py:match>
   
