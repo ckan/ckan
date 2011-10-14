@@ -14,15 +14,26 @@ class TestAjaxApi(ControllerTestCase):
     def teardown(cls):
         model.repo.rebuild_db()
         
-    def test_package_create_slug(self):
+    def test_package_slug_valid(self):
+        CreateTestData.create()
         response = self.app.get(
-            url=url_for(controller='api', action='create_slug'),
+            url=url_for(controller='api', action='is_slug_valid'),
             params={
-               'title': u'A New Title * With & Funny CHARacters',
+               'slug': u'A New Title * With & Funny CHARacters',
             },
             status=200,
         )
-        assert_equal(response.body, '{"valid": true, "name": "a-new-title-with-funny-characters"}')
+        assert_equal(response.body, '{"valid": true}')
+        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+
+        response = self.app.get(
+            url=url_for(controller='api', action='is_slug_valid'),
+            params={
+               'slug': u'warandpeace',
+            },
+            status=200,
+        )
+        assert_equal(response.body, '{"valid": false}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_tag_autocomplete(self):

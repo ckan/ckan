@@ -1187,7 +1187,7 @@ class TestNew(TestPackageForm):
         fv[prefix+'title'] = pkgtitle
         res = fv.submit('save')
         assert 'Error' in res, res
-        assert 'Dataset name already exists in database' in res, res
+        assert 'That URL is already in use.' in res, res
         self._assert_form_errors(res)
         
     def test_missing_fields(self):

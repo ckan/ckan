@@ -26,7 +26,10 @@
 
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
+      // Set up magic URL slug editor
+      CKAN.Utils.setupUrlEditor();
       $('#save').val(CKAN.Strings.addDataset);
+      $("#title").focus();
     }
 
     // Buttons with href-action should navigate when clicked
@@ -70,6 +73,104 @@ CKAN.Utils = function($, my) {
     messageDiv.show(1200);
 
   };
+
+  my.bindInputChanges = function(input, callback) {
+    input.keyup(callback);
+    input.keydown(callback);
+    input.keypress(callback);
+    input.change(callback);
+  };
+
+  my.setupUrlEditor = function() {
+    // Page elements to hook onto
+    var titleInput = $('.js-title');
+    var urlText = $('.js-url-text');
+    var urlSuffix = $('.js-url-suffix');
+    var urlInput = $('.js-url-input');
+    var validMsg = $('.js-url-is-valid');
+
+    // Title api verifies package name availability
+    var api_url = '/api/2/util/dataset/is_slug_valid';
+    // (make length less than max, in case we need a few for '_' chars to de-clash slugs.)
+    var MAX_SLUG_LENGTH = 90;
+
+    var titleChanged = function() {
+      var lastTitle = "";
+      var regexToHyphen = [ new RegExp('[ .:/_]', 'g'), 
+                        new RegExp('[^a-zA-Z0-9-_]', 'g'), 
+                        new RegExp('-+', 'g')];
+      var regexToDelete = [ new RegExp('^-*', 'g'), 
+                        new RegExp('-*$', 'g')];
+
+      var titleToSlug = function(title) {
+        var slug = title;
+        $.each(regexToHyphen, function(idx,regex) { slug = slug.replace(regex, '-'); });
+        $.each(regexToDelete, function(idx,regex) { slug = slug.replace(regex, ''); });
+        slug = slug.toLowerCase();
+
+        if (slug.length<MAX_SLUG_LENGTH) {
+            slug=slug.substring(0,MAX_SLUG_LENGTH);
+        }
+        return slug;
+      };
+
+      // Called when the title changes
+      return function() {
+        var title = titleInput.val();
+        if (title == lastTitle) return;
+        lastTitle = title;
+
+        slug = titleToSlug(title);
+        urlInput.val(slug);
+        urlInput.change();
+      };
+    }();
+
+    var urlChanged = function() {
+      var timer = null;
+
+      var checkSlugValid = function(slug) {
+        $.ajax({
+          url: api_url,
+          data: 'slug=' + slug,
+          dataType: 'jsonp',
+          type: 'get',
+          jsonpCallback: 'callback',
+          success: function (data) {
+            if (data.valid) {
+              validMsg.html('<span style="font-weight: bold; color: #0c0">'+CKAN.Strings.datasetNameAvailable+'</span>');
+            } else {
+              validMsg.html('<span style="font-weight: bold; color: #c00">'+CKAN.Strings.datasetNameNotAvailable+'</span>');
+            }
+          }
+        });
+      }
+
+      return function() {
+        slug = urlInput.val();
+        urlSuffix.html('<span>'+slug+'</span>');
+        validMsg.html('<span style="color: #777;">'+CKAN.Strings.checking+'</span>');
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(function () {
+          checkSlugValid(slug);
+        }, 200);
+      };
+    }();
+
+    // Hook title changes to the input box
+    my.bindInputChanges(titleInput, titleChanged);
+    my.bindInputChanges(urlInput, urlChanged);
+    // Set up the form
+    urlChanged();
+
+    $('.js-url-editlink').live('click',function(e) {
+      e.preventDefault();
+      $('.js-url-viewmode').hide();
+      $('.js-url-editmode').show();
+      urlInput.select();
+      urlInput.focus();
+    });
+  }
 
   // Attach dataset autocompletion to provided elements
   //
@@ -286,116 +387,6 @@ CKAN.Utils = function($, my) {
     });  
   };
 
-  // Name slug generator for $name element using $title element
-  //
-  // Also does nice things like show errors if name not available etc
-  //
-  // Usage: CKAN.Utils.PackageSlugCreator.create($('#my-title'), $('#my-name'))
-  my.PackageSlugCreator = (function() {
-    // initialize function
-    // 
-    // args: $title and $name input elements
-    function SlugCreator($title, $name) {
-      this.name_field = $name;
-      this.title_field = $title;
-      // Keep a variable where we can store whether the name field has been
-      // directly modified by the user or not. If it has, we should no longer
-      // fetch updates.
-      this.name_changed = false;
-      // url for slug api (we need api rather than do it ourself because we check if available)
-      this.url = '/api/2/util/dataset/create_slug';
-      // Add a new element where the validity of the dataset name can be displayed
-      this.name_field.parent().append('<div id="dataset_name_valid_msg"></div>');
-      this.title_field.blur(this.title_change_handler())
-      this.title_field.keyup(this.title_change_handler())
-      this.name_field.keyup(this.name_change_handler());
-      this.name_field.blur(this.name_blur_handler());
-    }
-
-    SlugCreator.create = function($title, $name) {
-      return new SlugCreator($title, $name);
-    }
-
-    SlugCreator.prototype.title_change_handler = function() {
-      var self = this;
-      return function() {
-        if (!self.name_changed && self.title_field.val().replace(/^\s+|\s+$/g, '')) {
-          self.update(self.title_field.val(), function(data) {self.name_field.val(data.name)});
-        }
-      }
-    }
-
-    SlugCreator.prototype.name_blur_handler = function() {
-      var self = this;
-      return function() {
-        // Reset if the name is emptied
-        if (!self.name_field.val().replace(/^\s+|\s+$/g, '')){
-          self.name_changed = false;
-          $('#dataset_name_valid_msg').html('');
-        } else {
-          self.update(self.name_field.val(), function(data) {
-              self.name_field.val(data.name)
-          });
-        }
-      };
-    }
-
-    SlugCreator.prototype.name_change_handler = function() {
-      var self = this;
-      return function() {
-        // Reset if the name is emptied
-        if (!self.name_field.val().replace(/^\s+|\s+$/g, '')){
-          self.name_changed = false;
-          $('#dataset_name_valid_msg').html('');
-        } else {
-          self.name_changed = true;
-          self.update(self.name_field.val(), function(data) {
-            if (self.name_field.val().length >= data.name) {
-                self.name_field.val(data.name);
-            }
-          });
-        }
-      };
-    }
-
-    // Create a function for fetching the value and updating the result
-    SlugCreator.prototype.perform_update = function(value, on_success){
-      var self = this;
-      $.ajax({
-        url: self.url,
-        data: 'title=' + value,
-        dataType: 'jsonp',
-        type: 'get',
-        jsonpCallback: 'callback',
-        success: function (data) {
-          if (on_success) {
-            on_success(data);
-          }
-          var valid_msg = $('#dataset_name_valid_msg');
-          if (data.valid) {
-            valid_msg.html('<span style="font-weight: bold; color: #0c0">'+CKAN.Strings.datasetNameAvailable+'</span>');
-          } else {
-            valid_msg.html('<span style="font-weight: bold; color: #c00">'+CKAN.Strings.datasetNameNotAvailable+'</span>');
-          }
-        }
-      });
-    }
-
-    // We only want to perform the update if there hasn't been a change for say 200ms
-    var timer = null;
-    SlugCreator.prototype.update = function(value, on_success) {
-      var self = this;
-      if (this.timer) {
-        clearTimeout(this.timer)
-      };
-      this.timer = setTimeout(function () {
-        self.perform_update(value, on_success)
-      }, 200);
-    }
-
-    return SlugCreator;
-  })();
-
   return my;
 }(jQuery, CKAN.Utils || {});
 
@@ -545,10 +536,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     }
 
     var nameBox = $tr.find('input.js-resource-edit-name');
-    nameBox.change(nameBoxChanged);
-    nameBox.keydown(nameBoxChanged);
-    nameBox.keyup(nameBoxChanged);
-    nameBox.keypress(nameBoxChanged);
+    CKAN.Utils.bindInputChanges(nameBox,nameBoxChanged);
 
     $tr.find('.js-resource-edit-toggle').click(toggleOpen);
     $tr.find('.js-resource-edit-delete').click(deleteResource);

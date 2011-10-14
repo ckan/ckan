@@ -8,16 +8,6 @@
 
   <py:def function="body_class">hide-sidebar</py:def>
 
-  <py:def function="optional_footer">
-    <!-- Auto-generate 'name' field -->
-    <script type="text/javascript">
-      jQuery(document).ready(function($) {
-        CKAN.Utils.PackageSlugCreator.create($('#title'), $('#name'));
-        $("#title").focus();
-      });
-    </script>
-  </py:def>
-
   <div py:match="content">
     <h3 py:if="c.error" class="form-errors">
       Error: ${c.error}

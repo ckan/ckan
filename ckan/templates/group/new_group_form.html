@@ -13,7 +13,6 @@
 </div>
 
 <fieldset>
-  <legend>Details</legend>
   <dl>
     <dt><label class="field_opt" for="name">Name *</label></dt>
     <dd><input id="name" name="name" type="text" value="${data.get('name', '')}"/></dd>
@@ -38,7 +37,7 @@
 </fieldset>
   
 <fieldset>
-  <legend>Extras</legend>
+  <h3>Extras</h3>
   <dl>
     <py:with vars="extras = data.get('extras', [])">
     <py:for each="num, extra in enumerate(data.get('extras', []))">
@@ -63,7 +62,7 @@
 </fieldset>
 
 <fieldset>
-  <legend>Datasets</legend>
+  <h3>Datasets</h3>
   <dl py:if="data.get('packages')">
     <py:for each="num, package in enumerate(data.get('packages'))">
       <dt><input checked="checked" id="datasets__${num}__name" name="packages__${num}__name" type="checkbox" value="${package['name']}"/></dt>
@@ -76,9 +75,7 @@
 </fieldset>
 
 <fieldset>
-  <legend>
-    Add datasets
-  </legend>
+  <h3>Add datasets</h3>
   <dl>
     <dt><label class="field_opt" for="packages__${len(data.get('packages', []))}__name">Dataset</label></dt>
     <dd><input class="autocomplete-dataset" id="datasets__${len(data.get('packages', []))}__name" name="packages__${len(data.get('packages', []))}__name" type="text" /></dd>

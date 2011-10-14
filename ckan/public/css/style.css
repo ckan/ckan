@@ -885,18 +885,23 @@ body.package.new dd.license-instructions
   display: none;
 }
 
-body.package.new dt.name-label {
-  font-size: 10px;
-}
-
 body.package.new .instructions {
   font-size: 10px;
 }
 
-body.package.new input#name {
-  font-size: 8px;
+body.package.new .url-suffix {
+  font-weight: bold;
+}
 
-  background: #eee;
+body.package.new a.url-edit {
+  font-weight: normal;
+  margin-left: 10px;
+}
+body.package.new .url-input {
+  width: 250px;
+}
+body.package.new dd.name-field {
+  padding-top: 0.2em;
 }
 
 body.package.read #sidebar ul.tags, 
@@ -929,12 +934,8 @@ ul.button-row li {
 /* = Controller-specific tweaks = */
 /* ============================== */
 
-body.group.index #minornavigation { 
-  visibility: hidden; 
-}
-
 body.package.search #minornavigation { 
-  visibility: hidden; 
+  display: none;
 }
 body.package.search #menusearch {
   display: none;
@@ -943,7 +944,6 @@ body.package.search #menusearch {
 body.index.home #minornavigation {
   display: none;
 }
-
 body.index.home #sidebar {
   display: none;
 }

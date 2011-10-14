@@ -111,7 +111,7 @@ def package_name_validator(key, data, errors, context):
         query = query.filter(model.Package.id <> package_id) 
     result = query.first()
     if result:
-        errors[key].append(_('Dataset name already exists in database'))
+        errors[key].append(_('That URL is already in use.'))
 
 def duplicate_extras_key(key, data, errors, context):
 

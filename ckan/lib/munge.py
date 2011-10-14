@@ -7,33 +7,6 @@ import re
 
 from ckan import model
 
-def munge_title_to_name(name):
-    '''Munge a title into a name.
-    '''
-    # remove foreign accents
-    if isinstance(name, unicode):
-        name = substitute_ascii_equivalents(name)
-    # convert spaces and separators
-    name = re.sub('[ .:/]', '-', name)
-    # take out not-allowed characters
-    name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
-    # remove doubles
-    name = re.sub('--', '-', name)
-    # remove leading or trailing hyphens
-    name = name.strip('-')
-    # if longer than max_length, keep last word if a year
-    max_length = model.PACKAGE_NAME_MAX_LENGTH - 5
-    # (make length less than max, in case we need a few for '_' chars
-    # to de-clash names.)
-    if len(name) > max_length:
-        year_match = re.match('.*?[_-]((?:\d{2,4}[-/])?\d{2,4})$', name)
-        if year_match:
-            year = year_match.groups()[0]
-            name = '%s-%s' % (name[:(max_length-len(year)-1)], year)
-        else:
-            name = name[:max_length]
-    return name
-
 def munge_name(name):
     '''Munges the name field in case it is not to spec.
     '''

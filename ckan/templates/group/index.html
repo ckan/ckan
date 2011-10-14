@@ -7,14 +7,9 @@
   <py:def function="page_heading">Groups of Datasets</py:def>
   
   <div py:match="content">
-
     ${c.page.pager()}
     ${group_list_from_dict(c.page.items)}
     ${c.page.pager()}
-    
-    <py:choose test="">
-
-    </py:choose>
   </div>
 
   <xi:include href="layout.html" />
