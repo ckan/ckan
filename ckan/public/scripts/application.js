@@ -520,15 +520,20 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     var collection = this.collection;
     var deleteResource = function(triggerEvent) {
       if (triggerEvent) triggerEvent.preventDefault();
-      collection.remove(resource);
+      confirmMessage = CKAN.Strings.deleteThisResourceQuestion;
+      resourceName = resource.attributes.name || CKAN.Strings.noNameBrackets;
+      confirmMessage = confirmMessage.replace('%name%', resourceName);
+      if (confirm(confirmMessage)) {
+        collection.remove(resource);
+      }
     };
 
     // == Inner Functions: Update the name as you type == //
     var setName = function(newName) { 
       $link = $tr.find('.js-resource-edit-toggle');
-      newName = newName || CKAN.Strings.noNameBrackets;
+      newName = newName || ('<em>'+CKAN.Strings.noNameBrackets+'</em>');
       // Need to structurally modify the DOM to force a re-render of text
-      $link.html('<span>'+newName+'</span>');
+      $link.html('<ema>'+newName+'</span>');
     };
     var nameBoxChanged = function(e) {
       setName($(e.target).val());
