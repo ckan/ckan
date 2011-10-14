@@ -12,13 +12,15 @@
 </ul>
 </div>
   <fieldset>
-    <legend>Base details</legend>
     <dl>
     <dt><label for="fullname">Full name:</label></dt>
     <dd><input type="text" name="fullname" value="${data.get('fullname','')}" /></dd>
      
     <dt><label for="email">E-Mail:</label></dt>
     <dd><input type="text" name="email" value="${data.get('email','')}" /></dd>
+
+    <dt><label for="openid">OpenID:</label></dt>
+    <dd><input type="text" name="openid" value="${data.get('openid','')}" /></dd>
     
     <dt><label for="about">About:</label></dt>
     <dd class="description-field">
@@ -41,6 +43,13 @@
     <dd><input type="password" name="password1" value="" /></dd>
     <dt><label for="password2">Password (repeat):</label></dt>
     <dd><input type="password" name="password2" value="" /></dd>
+    </dl>
+  </fieldset>
+  <fieldset>
+    <legend>Change your username</legend>
+    <dl>
+    <dt><label for="name">Username:</label></dt>
+    <dd><input type="text" name="name" value="${data.get('name','')}" /></dd>
     </dl>
   </fieldset>
   <div class="form-submit">

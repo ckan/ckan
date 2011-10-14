@@ -4,22 +4,15 @@
   py:strip="">
   
   <py:def function="page_title">Reset password</py:def>
+  <py:def function="page_heading">Request a password reset</py:def>
 
   <div py:match="content">
-    <h2>
-      Request a password reset
-    </h2>
-
     <form id="user-password-reset" action="" method="post" class="simple-form" 
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
       >
       <fieldset>
-        <legend>Reset password</legend>
         <label for="user">User name:</label>
         <input name="user" value="" /><br/>
       </fieldset>
-
       <div>
         ${h.submit('reset', _('Reset password'))}
       </div>

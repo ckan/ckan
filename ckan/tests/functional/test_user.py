@@ -262,6 +262,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         username = 'testcreate'
         fullname = u'Test Create'
         password = u'testpassword'
+        email = u'test@test.org'
         assert not model.User.by_name(unicode(username))
         rev_id_before_test = model.repo.youngest_revision().id
 
@@ -272,6 +273,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['user-edit']
         fv['name'] = username
         fv['fullname'] = fullname
+        fv['email'] = email
         fv['password1'] = password
         fv['password2'] = password
         res = fv.submit('save')
@@ -294,6 +296,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert user
         assert_equal(user.name, username)
         assert_equal(user.fullname, fullname)
+        assert_equal(user.email, email)
         assert user.password
         
         # no revision should be created - User is not revisioned
@@ -314,6 +317,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         username = u'testcreate4'
         fullname = u'Test Create\xc2\xa0'
         password = u'testpassword\xc2\xa0'
+        email = u'me@test.org'
         assert not model.User.by_name(username)
 
         offset = url_for(controller='user', action='register')
@@ -323,6 +327,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['user-edit']
         fv['name'] = username
         fv['fullname'] = fullname.encode('utf8')
+        fv['email'] = email
         fv['password1'] = password.encode('utf8')
         fv['password2'] = password.encode('utf8')
         res = fv.submit('save')
@@ -465,7 +470,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         user = model.User.by_name(unicode(username))
         if not user:
             model.Session.add(model.User(name=unicode(username), about=about,
-                                         password='letmein'))
+                email=u'me@test.org',
+                password='letmein'))
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
         rev_id_before_test = model.repo.youngest_revision().id
@@ -473,6 +479,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # edit
         new_about = u'Changed about'
         new_password = u'testpass'
+        new_openid = u'http://mynewopenid.com/'
         offset = url_for(controller='user', action='edit', id=user.id)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
         main_res = self.main_div(res)
@@ -480,6 +487,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert about in main_res, main_res
         fv = res.forms['user-edit']
         fv['about'] = new_about
+        fv['openid'] = new_openid
         fv['password1'] = new_password
         fv['password2'] = new_password
 
@@ -490,6 +498,9 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         main_res = self.main_div(res)
         assert 'testedit' in main_res, main_res
         assert new_about in main_res, main_res
+
+        updated_user = model.User.by_name(unicode(username))
+        assert_equal(updated_user.openid, new_openid)
 
         # read, not logged in
         offset = url_for(controller='user', action='read', id=user.id)
@@ -508,7 +519,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         user = model.User.by_name(unicode(username))
         if not user:
             model.Session.add(model.User(name=unicode(username), about=about,
-                                         password='letmein'))
+                email=u'me@test.org',
+                password='letmein'))
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
 
