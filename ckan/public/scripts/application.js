@@ -27,8 +27,15 @@
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       // Set up magic URL slug editor
-      CKAN.Utils.setupUrlEditor();
+      CKAN.Utils.setupUrlEditor('package');
       $('#save').val(CKAN.Strings.addDataset);
+      $("#title").focus();
+    }
+    var isGroupNew = $('body.group.new').length > 0;
+    if (isGroupNew) {
+      // Set up magic URL slug editor
+      CKAN.Utils.setupUrlEditor('group');
+      $('#save').val(CKAN.Strings.addGroup);
       $("#title").focus();
     }
 
@@ -40,6 +47,7 @@
     
     var isDatasetEdit = $('body.package.edit').length > 0;
     if (isDatasetEdit) {
+      CKAN.Utils.setupUrlEditor('package',readOnly=true);
       // Selectively enable the upload button
       var storageEnabled = $.inArray('storage',CKAN.plugins)>=0;
       if (storageEnabled) {
@@ -56,6 +64,10 @@
         el: $el
       });
       view.render();
+    }
+    var isGroupEdit = $('body.group.edit').length > 0;
+    if (isGroupEdit) {
+      CKAN.Utils.setupUrlEditor('group',readOnly=true);
     }
   });
 }(jQuery));
@@ -81,7 +93,7 @@ CKAN.Utils = function($, my) {
     input.change(callback);
   };
 
-  my.setupUrlEditor = function() {
+  my.setupUrlEditor = function(slugType,readOnly) {
     // Page elements to hook onto
     var titleInput = $('.js-title');
     var urlText = $('.js-url-text');
@@ -89,8 +101,7 @@ CKAN.Utils = function($, my) {
     var urlInput = $('.js-url-input');
     var validMsg = $('.js-url-is-valid');
 
-    // Title api verifies package name availability
-    var api_url = '/api/2/util/dataset/is_slug_valid';
+    var api_url = '/api/2/util/is_slug_valid';
     // (make length less than max, in case we need a few for '_' chars to de-clash slugs.)
     var MAX_SLUG_LENGTH = 90;
 
@@ -132,15 +143,15 @@ CKAN.Utils = function($, my) {
       var checkSlugValid = function(slug) {
         $.ajax({
           url: api_url,
-          data: 'slug=' + slug,
+          data: 'type='+slugType+'&slug=' + slug,
           dataType: 'jsonp',
           type: 'get',
           jsonpCallback: 'callback',
           success: function (data) {
             if (data.valid) {
-              validMsg.html('<span style="font-weight: bold; color: #0c0">'+CKAN.Strings.datasetNameAvailable+'</span>');
+              validMsg.html('<span style="font-weight: bold; color: #0c0">'+CKAN.Strings.urlIsAvailable+'</span>');
             } else {
-              validMsg.html('<span style="font-weight: bold; color: #c00">'+CKAN.Strings.datasetNameNotAvailable+'</span>');
+              validMsg.html('<span style="font-weight: bold; color: #c00">'+CKAN.Strings.urlIsNotAvailable+'</span>');
             }
           }
         });
@@ -157,19 +168,27 @@ CKAN.Utils = function($, my) {
       };
     }();
 
-    // Hook title changes to the input box
-    my.bindInputChanges(titleInput, titleChanged);
-    my.bindInputChanges(urlInput, urlChanged);
-    // Set up the form
-    urlChanged();
+    if (readOnly) {
+      slug = urlInput.val();
+      urlSuffix.html('<span>'+slug+'</span>');
+    }
+    else {
+      var editLink = $('.js-url-editlink');
+      editLink.show();
+      // Hook title changes to the input box
+      my.bindInputChanges(titleInput, titleChanged);
+      my.bindInputChanges(urlInput, urlChanged);
+      // Set up the form
+      urlChanged();
 
-    $('.js-url-editlink').live('click',function(e) {
-      e.preventDefault();
-      $('.js-url-viewmode').hide();
-      $('.js-url-editmode').show();
-      urlInput.select();
-      urlInput.focus();
-    });
+      editLink.live('click',function(e) {
+        e.preventDefault();
+        $('.js-url-viewmode').hide();
+        $('.js-url-editmode').show();
+        urlInput.select();
+        urlInput.focus();
+      });
+    }
   }
 
   // Attach dataset autocompletion to provided elements
@@ -332,7 +351,6 @@ CKAN.Utils = function($, my) {
     markdownEditor.find('button, div.markdown-preview').live('click', function(e) {
       e.preventDefault();
       var $target = $(e.target);
-      console.log('clicked');
       // Extract neighbouring elements
       var markdownEditor=$target.closest('.markdown-editor')
       markdownEditor.find('button').removeClass('depressed');

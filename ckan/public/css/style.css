@@ -183,10 +183,13 @@ a:hover {
 #minornavigation li.current-tab {
   background: #000;
   background-color: #fff;
-  border: 1px solid #aaa;
+  border: 1px solid #777;
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
      -moz-border-radius: 5px; 
   -webkit-border-radius: 5px; 
           border-radius: 5px; 
+          
 }
 #minornavigation li.current-tab a,
 #minornavigation li.current-tab a:hover,
@@ -889,24 +892,24 @@ body.package.new .instructions {
   font-size: 10px;
 }
 
-body.package.new .url-suffix {
-  font-weight: bold;
-}
-
-body.package.new a.url-edit {
+a.url-edit {
   font-weight: normal;
   margin-left: 10px;
 }
-body.package.new .url-input {
-  width: 250px;
-}
-body.package.new dd.name-field {
+dd.name-field {
   padding-top: 0.2em;
+}
+dd.name-field p {
+  margin-bottom: 4px;
 }
 
 body.package.read #sidebar ul.tags, 
 body.package.read #sidebar ul.groups {
   margin-bottom: 10px;
+}
+
+input.url-input {
+  width: 250px;
 }
 
 
@@ -916,6 +919,23 @@ body.package.read #sidebar ul.groups {
 .success .new-dataset a {
   font-weight: bold;
 }
+
+
+/* ================== */
+/* = Add Group Page = */
+/* ================== */
+
+body.group.new fieldset#extras,
+body.group.new fieldset#datasets {
+  display: none;
+}
+body.group.new .description-label,
+body.group.new .description-field,
+body.group.new .state-label,
+body.group.new .state-field {
+  display: none;
+}
+
 
 /* ============= */
 /* = Mini-Tabs = */
@@ -1067,10 +1087,10 @@ body.admin .actions button,
 body.admin .actions input {
   margin: 0;
 }
-body.admin.authz form {
+body.authz form {
   margin-bottom: 30px;
 }
-body.admin.authz form button {
+body.authz form button {
   width: 120px;
   float: right;
 }

@@ -93,7 +93,7 @@ def name_validator(val, context):
     if len(val) < 2:
         raise Invalid(_('Name must be at least %s characters long') % 2)
     if not name_match.match(val):
-        raise Invalid(_('Name must be purely lowercase alphanumeric '
+        raise Invalid(_('Url must be purely lowercase alphanumeric '
                         '(ascii) characters and these symbols: -_'))
     return val
 

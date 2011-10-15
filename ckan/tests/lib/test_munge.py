@@ -1,6 +1,6 @@
 from nose.tools import assert_equal
 
-from ckan.lib.munge import munge_title_to_name, munge_name
+from ckan.lib.munge import munge_name
 
 class TestMunge:
     def test_munge_name(self):

@@ -3,21 +3,12 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">${c.group.display_name} - Groups</py:def>
+  <py:def function="page_title">${c.group.display_name}</py:def>
+  <py:def function="page_heading">${c.group.display_name}</py:def>
 
-  <py:def function="page_heading">
-      <py:if test="not c.group.title">
-        <em>No Title</em>
-      </py:if>
-      ${c.group.title}
-  </py:def>
-  
   <py:match path="primarysidebar">
   
     <li class="widget-container widget_text">
-      <div class="description">
-        ${c.group_description_formatted}
-      </div>
       <ul class="property-list">
         <py:if test="c.group_admins">
         <li>
@@ -32,6 +23,9 @@
   </py:match>
 
   <py:match path="content">
+    <div class="notes" py:if="str(c.group_description_formatted).strip()">
+      ${c.group_description_formatted}
+    </div>
     <h3>Datasets:</h3>
     <p i18n:msg="item_count">There are ${c.page.item_count} datasets in this group.</p>
     ${c.page.pager()}

@@ -118,7 +118,7 @@ class TestBasicDictize:
         data['name'] = '????jfaiofjioafjij'
         converted_data, errors = validate(data, default_package_schema(), context)
         assert errors == {
-            'name': [u'Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_'],
+            'name': [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_'],
             #'resources': [{}, {'url': [u'Missing value']}]
         },pformat(errors)
 

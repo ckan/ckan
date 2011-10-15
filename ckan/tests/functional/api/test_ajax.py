@@ -19,6 +19,7 @@ class TestAjaxApi(ControllerTestCase):
         response = self.app.get(
             url=url_for(controller='api', action='is_slug_valid'),
             params={
+               'type': u'package',
                'slug': u'A New Title * With & Funny CHARacters',
             },
             status=200,
@@ -29,6 +30,7 @@ class TestAjaxApi(ControllerTestCase):
         response = self.app.get(
             url=url_for(controller='api', action='is_slug_valid'),
             params={
+               'type': u'package',
                'slug': u'warandpeace',
             },
             status=200,

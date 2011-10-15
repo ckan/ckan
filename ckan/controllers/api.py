@@ -13,7 +13,7 @@ from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, check_access
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.lib.jsonp import jsonpify
-from ckan.forms.common import package_exists
+from ckan.forms.common import package_exists, group_exists
 
 
 log = logging.getLogger(__name__)
@@ -563,9 +563,15 @@ class ApiController(BaseController):
 
     def is_slug_valid(self):
         slug = request.params.get('slug') or ''
-
-        response_data = dict(valid=not bool(package_exists(slug)))
-        return self._finish_ok(response_data)
+        slugtype = request.params.get('type') or ''
+        if slugtype==u'package':
+            response_data = dict(valid=not bool(package_exists(slug)))
+            return self._finish_ok(response_data)
+        if slugtype==u'group':
+            response_data = dict(valid=not bool(group_exists(slug)))
+            return self._finish_ok(response_data)
+        return self._finish_bad_request(gettext('Bad slug type: %s') % slugtype)
+            
 
     def tag_autocomplete(self):
         q = request.params.get('incomplete', '')

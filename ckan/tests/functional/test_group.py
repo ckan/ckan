@@ -289,7 +289,6 @@ class TestNew(FunctionalTestCase):
         res = fv.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
         assert group_name in res, res
-        assert 'No Title' in res, res
         model.Session.remove()
 
         # Create duplicate group

@@ -6,13 +6,6 @@
   py:strip=""
   >
 
-  <py:match path="primarysidebar">
-    <li class="widget-container boxed widget_text">
-      <h3>What Are Groups?</h3>
-      <span i18n:msg="">Whilst tags are great at collecting datasets together, there are occasions when you want to restrict users from editing a collection. A <strong>group</strong> can be set-up to specify which users have permission to add or remove datasets from it.</span>
-    </li>
-  </py:match>
-
   <py:match path="minornavigation">
     <ul py:if="c.group" class="tabbed">
       <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}">${h.subnav_link(c, h.icon('group') + _('View'), controller='group', action='read', id=c.group.name)}</li>
