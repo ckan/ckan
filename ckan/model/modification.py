@@ -41,11 +41,14 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
         deleted = obj_cache['deleted']
 
         for obj in new:
-            if isinstance(obj, Package):
+            if isinstance(obj, (Package, Resource)):
                 self.notify(obj, DomainObjectOperation.new)
         for obj in deleted:
-            if isinstance(obj, Package):
+            if isinstance(obj, (Package, Resource)):
                 self.notify(obj, DomainObjectOperation.deleted)
+        for obj in changed:
+            if isinstance(obj, Resource):
+                self.notify(obj, DomainObjectOperation.changed)
 
         changed_pkgs = set(obj for obj in changed if isinstance(obj, Package))
 

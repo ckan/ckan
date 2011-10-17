@@ -12,7 +12,7 @@ def site_read(context, data_dict):
     ./ckan/controllers/api.py
     """
     model = context['model']
-    user = context['user']
+    user = context.get('user')
     if not Authorizer().is_authorized(user, model.Action.SITE_READ, model.System):
         return {'success': False, 'msg': _('Not authorized to see this page')}
 
@@ -63,7 +63,7 @@ def user_list(context, data_dict):
 
 def package_relationships_list(context, data_dict):
     model = context['model']
-    user = context['user']
+    user = context.get('user')
 
     id = data_dict['id']
     id2 = data_dict.get('id2')
@@ -81,7 +81,7 @@ def package_relationships_list(context, data_dict):
 
 def package_show(context, data_dict):
     model = context['model']
-    user = context['user']
+    user = context.get('user')
     package = get_package_object(context, data_dict)
 
     authorized =  check_access_old(package, model.Action.READ, context)
@@ -96,7 +96,7 @@ def revision_show(context, data_dict):
 
 def group_show(context, data_dict):
     model = context['model']
-    user = context['user']
+    user = context.get('user')
     group = get_group_object(context, data_dict)
 
     authorized =  check_access_old(group, model.Action.READ, context)

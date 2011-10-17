@@ -121,7 +121,8 @@ def check_access(action, context, data_dict=None):
 def check_access_old(entity, action, context):
     model = context['model']
     user = context.get('user')
-
+    if context.get('ignore_auth'):
+        return True
     log.debug('check access - user %r, action %s' % (user,action))
     if action and entity and not isinstance(entity, model.PackageRelationship):
         if action != model.Action.READ and user == '':
