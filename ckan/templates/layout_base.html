@@ -81,7 +81,7 @@
       </header>
     </div>
     <py:with vars="messages = list(h._flash.pop_messages())">
-    <div class="class container" py:if="len(messages)">
+    <div class="flash-messages container">
       <div class="${m.category}" py:for="m in messages">
         ${h.literal(m)}
       </div>
@@ -215,7 +215,6 @@
   <!-- TODO should not be necessary; we use AJAX to produce consistent previews -->
   <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.fileupload/20110801/jquery.iframe-transport.js"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js"></script>
-  <script src="https://raw.github.com/okfn/ckanjs/master/pkg/ckanjs.js"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/ckanjs.js"></script>
   <!-- Translated js strings live inside an html template. -->
   <xi:include href="js_strings.html" />

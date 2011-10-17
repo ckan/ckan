@@ -791,6 +791,10 @@ div.markdown-editor {
   padding: 0 5px 5px 10px;
   width: 32em;
 }
+div.markdown-editor .button-row {
+  padding-right: 40px;
+  text-align: center;
+}
 
 div.markdown-preview {
   background: white;
@@ -807,31 +811,6 @@ textarea.markdown-input {
 }
 
 
-table.resource-table tbody tr td.resource-expand-link,
-table.resource-table tbody tr td.resource-is-changed {
-  vertical-align: top;
-}
-
-td.resource-expanded {
-  padding: 8px 0 8px 0;
-}
-td.resource-expand-link {
-  padding-top: 6px;
-  text-align: center;
-}
-th.resource-expand-link,
-td.resource-expand-link,
-th.resource-is-changed, 
-td.resource-is-changed {
-  text-align: center;
-  padding: 8px 0 0 0;
-  width: 20px;
-}
-
-div.inner table {
-  margin-bottom: 0;
-}
-
 /* ====================== */
 /* = Add Resources Page = */
 /* ====================== */
@@ -840,7 +819,7 @@ input#Resource--url {
   width: 60%;
 }
 
-button.delete-resource {
+button.done-editing {
   float: right;
 }
 
@@ -858,6 +837,9 @@ div.resource-add li h4 {
 }
 div.resource-add-subpane {
   margin-top: 10px;
+}
+div.resource-add .fileinfo {
+  margin: 7px 0;
 }
 
 
@@ -917,6 +899,12 @@ body.package.new input#name {
   background: #eee;
 }
 
+body.package.read #sidebar ul.tags, 
+body.package.read #sidebar ul.groups {
+  margin-bottom: 10px;
+}
+
+
 .success .new-dataset {
   font-size: 150%;
 }
@@ -924,45 +912,17 @@ body.package.new input#name {
   font-weight: bold;
 }
 
-/* =============================== */
-/* = Mini-Tabs [Markdown Editor] = */
-/* =============================== */
-
-ul.tabs {
+/* ============= */
+/* = Mini-Tabs = */
+/* ============= */
+ul.button-row {
   margin-bottom: 5px;
 }
-
-ul.tabs li {
+ul.button-row li {
   display: inline;
-}
-
-ul.tabs li a {
-  display: inline-block;
-  padding: 2px 8px;
   margin-right: 10px;
-  font-size: 10px;
-  font-weight: bold;
-  text-decoration: none;
-  color: #666;
-  border: 1px solid #DDD;
-  border-color: #DDD;
-  border-right-color: #BBB;
-  border-bottom-color: #BBB;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-top-left-radius: 10px 10px;
-  border-top-right-radius: 10px 10px;
-  border-bottom-right-radius: 10px 10px;
-  border-bottom-left-radius: 10px 10px;
 }
 
-ul.tabs li a.selected {
-  color: #333;
-  background: white;
-  border-color: #BBB;
-  border-right-color: #DDD;
-  border-bottom-color: #DDD;
-}
 
 
 /* ============================== */
@@ -1149,6 +1109,7 @@ body.admin.authz form button {
   -moz-transition: 0.1s linear all;
   transition: 0.1s linear all;
 }
+.pretty-button.depressed,
 .pretty-button:hover {
   background-position: 0 -15px;
   color: #333;
@@ -1216,6 +1177,7 @@ body.admin.authz form button {
   opacity: 0.65;
   cursor: default;
 }
+.pretty-button.depressed,
 .pretty-button:active {
   -webkit-box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
   -moz-box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -1240,3 +1202,98 @@ body.error {
   color: #000;
 }
 
+/* ============================= */
+/* = Inline resource edit form = */
+/* ============================= */
+
+
+
+/*
+table.resource-table tbody tr td.resource-delete-link {
+  vertical-align: top;
+}
+
+td.resource-expanded {
+  padding: 8px 0 8px 0;
+}
+.resource-expand-link,
+.resource-delete-link {
+  padding-top: 6px;
+  text-align: center;
+  width: 20px;
+}
+div.inner {
+  padding-right: 10px;
+}
+div.inner table {
+  margin-bottom: 0;
+}
+*/
+.resource-table tr {
+  overflow: hidden;
+}
+th.resource-edit-delete,
+td.resource-edit-delete {
+  /* Override screen.css */
+  padding: 0;
+  width: 40px;
+}
+td.resource-edit-delete img {
+  padding: 8px;
+}
+a.resource-edit-expand {
+  background-image: url('/images/icons/arrow-closed.gif');
+  padding-left: 13px;
+  background-position: left center;
+  background-repeat: no-repeat;
+}
+td.resource-edit {
+  padding: 10px;
+  vertical-align: top;
+}
+.resource-edit-expanded {
+  overflow: hidden;
+  margin: 0;
+}
+.resource-edit-expanded table {
+  /* Override screen.css */
+  margin: 10px 0;
+}
+table.resource-table td.resource-edit tbody td {
+  /* Override alternating background */
+  background: transparent;
+}
+td.resource-edit-delete {
+  vertical-align: top;
+  text-align: center;
+}
+td.resource-edit input {
+  /* Override forms.css */
+  width: 100%;
+}
+th.resource-edit-label {
+    width: 23%;
+    display: none;
+}
+th.resource-edit-value {
+    width: 27%;
+    display: none;
+}
+td.resource-edit-label,
+td.resource-edit-value {
+  font-size: 0.92em;
+  line-height: 1.5em;
+  padding-top: 0;
+  padding-bottom: 4px;
+  background: inherit;
+}
+td.resource-edit-label {
+  text-align: right; 
+  font-weight: bold;
+  padding-right: 4px;
+  vertical-align: middle;
+}
+td.resource-edit-value {
+  padding-left: 4px; 
+  border-left: 1px dashed #aaa;
+}
