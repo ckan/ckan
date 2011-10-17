@@ -1,7 +1,7 @@
 from ckan.logic import check_access_old, NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
-from ckan.logic.auth import get_package_object, get_group_object
+from ckan.logic.auth import get_package_object, get_group_object, get_resource_object
 
 
 def site_read(context, data_dict):
@@ -84,9 +84,31 @@ def package_show(context, data_dict):
     user = context.get('user')
     package = get_package_object(context, data_dict)
 
-    authorized =  check_access_old(package, model.Action.READ, context)
+    authorized = check_access_old(package, model.Action.READ, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+    else:
+        return {'success': True}
+
+def resource_show(context, data_dict):
+    model = context['model']
+    user = context.get('user')
+    resource = get_resource_object(context, data_dict)
+
+    # check authentication against package
+    query = model.Session.query(model.Package)\
+        .join(model.ResourceGroup)\
+        .join(model.Resource)\
+        .filter(model.ResourceGroup.id == resource.resource_group_id)
+    pkg = query.first()
+    if not pkg:
+        raise NotFound(_('No package found for this resource, cannot check auth.'))
+    
+    pkg_dict = {'id': pkg.id}
+    authorized = package_show(context, pkg_dict).get('success')
+    
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user), resource.id)}
     else:
         return {'success': True}
 

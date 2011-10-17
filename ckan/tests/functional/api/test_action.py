@@ -1,11 +1,12 @@
 import json
-from pprint import pprint, pformat
+from pprint import pprint
 from nose.tools import assert_equal
 
 from ckan.lib.create_test_data import CreateTestData
+from ckan.lib.dictization.model_dictize import resource_dictize
 import ckan.model as model
 from ckan.tests import WsgiAppCase
-from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering, change_lists_to_sets
+from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering 
 
 class TestAction(WsgiAppCase):
 
@@ -692,3 +693,14 @@ class TestAction(WsgiAppCase):
         )
         task_status_delete = json.loads(res.body)
         assert task_status_delete['success'] == True
+
+    def test_26_resource_show(self):
+        pkg = model.Package.get('annakarenina')
+        resource = pkg.resources[0]
+        postparams = '%s=1' % json.dumps({'id': resource.id})
+        res = self.app.post('/api/action/resource_show', params=postparams)
+        result = json.loads(res.body)['result']
+        resource_dict = resource_dictize(resource, {'model': model})
+        result.pop('revision_timestamp')
+        assert result == resource_dict, (result, resource_dict)
+

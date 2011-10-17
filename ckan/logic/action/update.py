@@ -167,16 +167,7 @@ def resource_update(context, data_dict):
     if not resource:
         raise NotFound(_('Resource was not found.'))
 
-    # check authentication against the resource package
-    # TODO: can check_access be used against a resource?
-    query = session.query(model.Package
-    ).join(model.ResourceGroup
-    ).join(model.Resource
-    ).filter(model.ResourceGroup.id == resource.resource_group_id)
-    pkg = query.first()
-    if not pkg:
-        raise NotFound(_('No package found for this resource, cannot check auth.'))
-    check_access('package_update', context, package_dictize(pkg, context))
+    check_access('resource_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 

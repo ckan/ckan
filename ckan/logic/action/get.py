@@ -10,6 +10,7 @@ from ckan.authz import Authorizer
 from ckan.lib.dictization import table_dictize
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_list_dictize,
+                                                resource_dictize,
                                                 group_dictize,
                                                 group_list_dictize,
                                                 tag_dictize,
@@ -339,7 +340,7 @@ def package_show(context, data_dict):
     if pkg is None:
         raise NotFound
 
-    check_access('package_show',context, data_dict)
+    check_access('package_show', context, data_dict)
 
     package_dict = package_dictize(pkg, context)
 
@@ -348,6 +349,20 @@ def package_show(context, data_dict):
 
     return package_dict
 
+def resource_show(context, data_dict):
+    model = context['model']
+    api = context.get('api_version') or '1'
+    id = data_dict['id']
+
+    resource = model.Resource.get(id)
+    context['resource'] = resource
+
+    if not resource:
+        raise NotFound
+
+    check_access('resource_show', context, data_dict)
+
+    return resource_dictize(resource, context)
 
 def revision_show(context, data_dict):
     model = context['model']
