@@ -49,14 +49,11 @@
         <li>
           <h3>Tags</h3>
           ${tag_list(c.pkg_dict.get('tags', ''))}
-          <span class="widget_action" py:if="h.check_access('package_update',{'id':c.pkg.id})">
-            ${h.subnav_link(c, 'add tags &raquo;', controller='package', action='edit', id=c.pkg.name)}
-          </span>
         </li>
         <li>
           <h3>Groups</h3>
           <py:if test="c.pkg.groups">        
-              <ul>
+              <ul class="groups">
                 <li py:for="group in sorted(c.pkg.groups, key=lambda g: g.display_name)">
                     <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
                 </li>
@@ -66,11 +63,6 @@
             <py:if test="not c.pkg.groups">
                Groups are collections of dataset maintained by users of ${g.site_title}. This dataset has not been added to any groups yet.
             </py:if>
-
-
-            <p class="widget_action" py:if="h.check_access('package_update',{'id':c.pkg.id})">
-              ${h.subnav_link(c, 'add to a group &raquo;', controller='package', action='edit', id=c.pkg.name)}        
-            </p>
           </p>
         </li>
         <li py:if="h.check_access('package_update',{'id':c.pkg.id})">

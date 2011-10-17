@@ -2,8 +2,8 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">${c.grouptitle or c.groupname} - Edit - Groups</py:def>
-  <py:def function="page_heading">Edit: ${c.grouptitle or c.groupname}</py:def>
+  <py:def function="page_title">Edit: ${c.group.display_name}</py:def>
+  <py:def function="page_heading">Edit: ${c.group.display_name}</py:def>
 
 
   <div py:match="content">
