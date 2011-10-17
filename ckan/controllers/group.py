@@ -79,6 +79,12 @@ class GroupController(BaseController):
             abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
+        try:
+            description_formatted = ckan.misc.MarkdownFormat().to_html(group.get('description',''))
+            c.description_formatted = genshi.HTML(description_formatted)
+        except Exception, e:
+            error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render description")
+            c.description_formatted = genshi.HTML(error_msg)
         
         try:
  
@@ -140,13 +146,14 @@ class GroupController(BaseController):
                 old_data, errors = validate(old_data, schema, context=context)
 
             data = data or old_data
-
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % '')
 
         group = context.get("group")
+        c.group = group
+
 
         try:
             check_access('group_update',context)
@@ -208,6 +215,7 @@ class GroupController(BaseController):
             context = {'model':model,'user':c.user or c.author, 'group':group}
             check_access('group_edit_permissions',context)
             c.authz_editable = True
+            c.group = context['group']
         except NotAuthorized:
             c.authz_editable = False
         if not c.authz_editable:

@@ -20,8 +20,6 @@ class PackageFormalchemyController(PackageController):
 
     def new(self):
         c.error = ''
-        api_url = config.get('ckan.api_url', '/').rstrip('/')
-        c.package_create_slug_api_url = api_url+h.url_for(controller='api', action='create_slug')
         is_admin = self.authorizer.is_sysadmin(c.user)
         # Check access control for user to create a package.
         try:

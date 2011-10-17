@@ -2,22 +2,19 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">${c.group_dict['display_name']} - Groups - History</py:def>
+  <py:def function="page_title">History: ${c.group.display_name}</py:def>
+  <py:def function="page_heading">History: ${c.group.display_name}</py:def>
 
   <div py:match="content" class="group">
-    <h2 class="head">
-      ${c.group_dict['display_name']}
-    </h2>
-
     <h3>
       Revisions
-      <p class="atom-feed-link group-history-link">
+      <!--p class="atom-feed-link group-history-link">
         <a
           href="${url(controller='group', action='history', id=c.group_dict['name'], format='atom', days=7)}"
           title="${g.site_title} - Group History - ${c.group_dict['name']}"
           >
           Subscribe &raquo;</a>
-      </p>
+      </p-->
     </h3>
     <form id="group-revisions" action="diff" method="post"
       xmlns:py="http://genshi.edgewall.org/"
@@ -49,7 +46,7 @@
           </tr> 
         </py:for>
       </table>
-      ${h.submit('diff', _('Compare &raquo;'))}
+      <input type="submit" name="diff" value="${_('Compare &raquo;')}" class="pretty-button primary" />
     </form>
   </div> <!-- content -->
 

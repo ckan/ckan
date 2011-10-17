@@ -39,6 +39,11 @@ def package_name_validator(val, field=None):
         if pkg != field.parent.model:
             raise formalchemy.ValidationError(_('Dataset name already exists in database'))
 
+def group_exists(val):
+    if model.Session.query(model.Group).autoflush(False).filter_by(name=val).count():
+        return True
+    return False
+
 def group_name_validator(val, field=None):
     name_validator(val, field)
     # we disable autoflush here since may get used in dataset preview

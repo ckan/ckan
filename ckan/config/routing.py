@@ -155,7 +155,7 @@ def make_map():
 
     map.connect('/api/2/util/user/autocomplete', controller='api',
         action='user_autocomplete')
-    map.connect('/api/2/util/dataset/create_slug', controller='api', action='create_slug',
+    map.connect('/api/2/util/is_slug_valid', controller='api', action='is_slug_valid',
                 conditions=dict(method=['GET']))
     map.connect('/api/2/util/tag/autocomplete', controller='api', action='tag_autocomplete',
                 conditions=dict(method=['GET']))

@@ -9,12 +9,11 @@ import ckan.model as model
 import ckan.rating
 from ckan.lib.search import query_for, QueryOptions, SearchIndexError, SearchError, DEFAULT_OPTIONS, convert_legacy_parameters_to_solr
 from ckan.plugins import PluginImplementations, IGroupController
-from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, check_access
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.lib.jsonp import jsonpify
-from ckan.forms.common import package_exists
+from ckan.forms.common import package_exists, group_exists
 
 
 log = logging.getLogger(__name__)
@@ -562,17 +561,17 @@ class ApiController(BaseController):
         out = map(convert_to_dict, query.all())
         return out
 
-    def create_slug(self):
-
-        title = request.params.get('title') or ''
-        name = munge_title_to_name(title)
-        if package_exists(name):
-            valid = False
-        else:
-            valid = True
-        #response.content_type = 'application/javascript'
-        response_data = dict(name=name.replace('_', '-'), valid=valid)
-        return self._finish_ok(response_data)
+    def is_slug_valid(self):
+        slug = request.params.get('slug') or ''
+        slugtype = request.params.get('type') or ''
+        if slugtype==u'package':
+            response_data = dict(valid=not bool(package_exists(slug)))
+            return self._finish_ok(response_data)
+        if slugtype==u'group':
+            response_data = dict(valid=not bool(group_exists(slug)))
+            return self._finish_ok(response_data)
+        return self._finish_bad_request(gettext('Bad slug type: %s') % slugtype)
+            
 
     def tag_autocomplete(self):
         q = request.params.get('incomplete', '')
