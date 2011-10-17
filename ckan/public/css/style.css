@@ -183,10 +183,13 @@ a:hover {
 #minornavigation li.current-tab {
   background: #000;
   background-color: #fff;
-  border: 1px solid #aaa;
+  border: 1px solid #777;
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
      -moz-border-radius: 5px; 
   -webkit-border-radius: 5px; 
           border-radius: 5px; 
+          
 }
 #minornavigation li.current-tab a,
 #minornavigation li.current-tab a:hover,
@@ -885,23 +888,28 @@ body.package.new dd.license-instructions
   display: none;
 }
 
-body.package.new dt.name-label {
-  font-size: 10px;
-}
-
 body.package.new .instructions {
   font-size: 10px;
 }
 
-body.package.new input#name {
-  font-size: 8px;
-
-  background: #eee;
+a.url-edit {
+  font-weight: normal;
+  margin-left: 10px;
+}
+dd.name-field {
+  padding-top: 0.2em;
+}
+dd.name-field p {
+  margin-bottom: 4px;
 }
 
 body.package.read #sidebar ul.tags, 
 body.package.read #sidebar ul.groups {
   margin-bottom: 10px;
+}
+
+input.url-input {
+  width: 250px;
 }
 
 
@@ -911,6 +919,23 @@ body.package.read #sidebar ul.groups {
 .success .new-dataset a {
   font-weight: bold;
 }
+
+
+/* ================== */
+/* = Add Group Page = */
+/* ================== */
+
+body.group.new fieldset#extras,
+body.group.new fieldset#datasets {
+  display: none;
+}
+body.group.new .description-label,
+body.group.new .description-field,
+body.group.new .state-label,
+body.group.new .state-field {
+  display: none;
+}
+
 
 /* ============= */
 /* = Mini-Tabs = */
@@ -929,12 +954,8 @@ ul.button-row li {
 /* = Controller-specific tweaks = */
 /* ============================== */
 
-body.group.index #minornavigation { 
-  visibility: hidden; 
-}
-
 body.package.search #minornavigation { 
-  visibility: hidden; 
+  display: none;
 }
 body.package.search #menusearch {
   display: none;
@@ -943,7 +964,6 @@ body.package.search #menusearch {
 body.index.home #minornavigation {
   display: none;
 }
-
 body.index.home #sidebar {
   display: none;
 }
@@ -1067,10 +1087,10 @@ body.admin .actions button,
 body.admin .actions input {
   margin: 0;
 }
-body.admin.authz form {
+body.authz form {
   margin-bottom: 30px;
 }
-body.admin.authz form button {
+body.authz form button {
   width: 120px;
   float: right;
 }
@@ -1206,30 +1226,15 @@ body.error {
 /* = Inline resource edit form = */
 /* ============================= */
 
-
-
-/*
-table.resource-table tbody tr td.resource-delete-link {
-  vertical-align: top;
+.resource-table-edit tbody tr td,
+.resource-table-view tbody tr td {
+  /* Constrain structure against overflow */
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-td.resource-expanded {
-  padding: 8px 0 8px 0;
-}
-.resource-expand-link,
-.resource-delete-link {
-  padding-top: 6px;
-  text-align: center;
-  width: 20px;
-}
-div.inner {
-  padding-right: 10px;
-}
-div.inner table {
-  margin-bottom: 0;
-}
-*/
-.resource-table tr {
+.resource-table-edit tr {
   overflow: hidden;
 }
 th.resource-edit-delete,
@@ -1259,7 +1264,7 @@ td.resource-edit {
   /* Override screen.css */
   margin: 10px 0;
 }
-table.resource-table td.resource-edit tbody td {
+table.resource-table-edit td.resource-edit tbody td {
   /* Override alternating background */
   background: transparent;
 }

@@ -12,23 +12,34 @@
 </ul>
 </div>
 
-<fieldset>
-  <legend>Details</legend>
+<fieldset id="basic-information">
   <dl>
-    <dt><label class="field_opt" for="name">Name *</label></dt>
-    <dd><input id="name" name="name" type="text" value="${data.get('name', '')}"/></dd>
-    <dd class="instructions basic"><br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'</dd>
+    <dt><label class="field_opt" for="name">Title</label></dt>
+    <dd><input class="js-title" id="title" name="title" type="text" value="${data.get('title', '')}"/></dd>
+
+    <dt><label class="field_opt" for="title">Url</label></dt>
+    <dd class="name-field">
+      <span class="url-text">${g.site_url+h.url_for(controller='group',id=None)+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a style="display: none;" href="#" class="url-edit js-url-editlink js-url-viewmode">(edit)</a></span>
+      <input style="display: none;" id="name" maxlength="100" name="name" type="text" class="url-input js-url-editmode js-url-input" value="${data.get('name', '')}" />
+      <p class="js-url-is-valid">&nbsp;</p>
+    </dd>
+    <dd style="display: none;" class="js-url-editmode instructions basic">2+ chars, lowercase, using only 'a-z0-9' and '-_'</dd>
     <dd class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
 
-    <dt><label class="field_opt" for="title">Title</label></dt>
-    <dd><input id="title" name="title" type="text" value="${data.get('title', '')}"/></dd>
-    <dd class="field_error" py:if="errors.get('title', '')">${errors.get('title', '')}</dd>
+    <dt class="description-label"><label class="field_opt" for="title">Description</label></dt>
+    <dd class="description-field"><div class="markdown-editor">
+      <ul class="button-row">
+        <li><button class="pretty-button js-markdown-edit depressed">Edit</button></li>
+        <li><button class="pretty-button js-markdown-preview">Preview</button></li>
+      </ul>
+      <textarea class="markdown-input" name="description" id="notes" placeholder="${_('Start with a summary sentence ...')}">${data.get('description','')}</textarea>
+      <div class="markdown-preview" style="display: none;"></div>
+      <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span>
+    </div></dd>
 
-    <dt><label class="field_opt" for="title">Description</label></dt>
-    <dd><textarea cols="60" id="description" name="description" rows="15">${data.get('description', '')}</textarea></dd>
 
-    <dt py:if="c.is_sysadmin or c.auth_for_change_state"><label class="field_opt" for="state">State</label></dt>
-    <dd py:if="c.is_sysadmin or c.auth_for_change_state">
+    <dt class="state-label" py:if="c.is_sysadmin or c.auth_for_change_state"><label class="field_opt" for="state">State</label></dt>
+    <dd class="state-field" py:if="c.is_sysadmin or c.auth_for_change_state">
     <select id="state" name="state" >
       <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
       <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
@@ -37,8 +48,8 @@
   </dl>
 </fieldset>
   
-<fieldset>
-  <legend>Extras</legend>
+<fieldset id="extras">
+  <h3>Extras</h3>
   <dl>
     <py:with vars="extras = data.get('extras', [])">
     <py:for each="num, extra in enumerate(data.get('extras', []))">
@@ -62,8 +73,8 @@
   </dl>
 </fieldset>
 
-<fieldset>
-  <legend>Datasets</legend>
+<fieldset id="datasets">
+  <h3>Datasets</h3>
   <dl py:if="data.get('packages')">
     <py:for each="num, package in enumerate(data.get('packages'))">
       <dt><input checked="checked" id="datasets__${num}__name" name="packages__${num}__name" type="checkbox" value="${package['name']}"/></dt>
@@ -73,18 +84,18 @@
     </py:for>
   </dl>
   <p py:if="not data.get('packages')">There are no datasets currently in this group.</p>
-</fieldset>
 
-<fieldset>
-  <legend>
-    Add datasets
-  </legend>
+  <h3>Add datasets</h3>
   <dl>
     <dt><label class="field_opt" for="packages__${len(data.get('packages', []))}__name">Dataset</label></dt>
     <dd><input class="autocomplete-dataset" id="datasets__${len(data.get('packages', []))}__name" name="packages__${len(data.get('packages', []))}__name" type="text" /></dd>
   </dl>
 </fieldset>
 
-  <br />
-  <input id="save" name="save" type="submit" value="Save" />
+<div class="form-submit">
+  <input id="save" class="pretty-button primary" name="save" type="submit" value="${_('Save Changes')}" />
+  <py:if test="c.group">
+    <input id="cancel" class="pretty-button href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='group', action='read', id=c.group.name)}" />
+  </py:if>
+</div>
 </form>

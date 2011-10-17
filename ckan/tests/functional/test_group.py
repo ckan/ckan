@@ -115,7 +115,7 @@ class TestGroup(FunctionalTestCase):
     def test_new_page(self):
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert 'Create a new group' in res, res
+        assert 'Add A Group' in res, res
 
 
 class TestEdit(FunctionalTestCase):
@@ -247,10 +247,10 @@ class TestNew(FunctionalTestCase):
         group_title = u'Test Title'
         group_description = u'A Description'
 
-        # Open 'new group' page
+        # Open 'Add A Group' page
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert 'New Group' in res, res
+        assert 'Add A Group' in res, res
         fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         assert fv[prefix+'title'].value == ''
@@ -282,21 +282,20 @@ class TestNew(FunctionalTestCase):
         group_name = u'testgrp1'
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert 'New Group' in res, res
+        assert 'Add A Group' in res, res
         fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         fv[prefix+'name'] = group_name
         res = fv.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
         assert group_name in res, res
-        assert 'No Title' in res, res
         model.Session.remove()
 
         # Create duplicate group
         group_name = u'testgrp1'
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert 'New Group' in res, res
+        assert 'Add A Group' in res, res
         fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         fv[prefix+'name'] = group_name

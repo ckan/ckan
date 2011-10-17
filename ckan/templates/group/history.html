@@ -2,13 +2,10 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">${c.group_dict['display_name']} - Groups - History</py:def>
+  <py:def function="page_title">History: ${c.group.display_name}</py:def>
+  <py:def function="page_heading">History: ${c.group.display_name}</py:def>
 
   <div py:match="content" class="group">
-    <h2 class="head">
-      ${c.group_dict['display_name']}
-    </h2>
-
     <h3>
       Revisions
       <!--p class="atom-feed-link group-history-link">
@@ -49,7 +46,7 @@
           </tr> 
         </py:for>
       </table>
-      ${h.submit('diff', _('Compare &raquo;'))}
+      <input type="submit" name="diff" value="${_('Compare &raquo;')}" class="pretty-button primary" />
     </form>
   </div> <!-- content -->
 

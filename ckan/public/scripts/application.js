@@ -26,7 +26,17 @@
 
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
+      // Set up magic URL slug editor
+      CKAN.Utils.setupUrlEditor('package');
       $('#save').val(CKAN.Strings.addDataset);
+      $("#title").focus();
+    }
+    var isGroupNew = $('body.group.new').length > 0;
+    if (isGroupNew) {
+      // Set up magic URL slug editor
+      CKAN.Utils.setupUrlEditor('group');
+      $('#save').val(CKAN.Strings.addGroup);
+      $("#title").focus();
     }
 
     // Buttons with href-action should navigate when clicked
@@ -37,6 +47,7 @@
     
     var isDatasetEdit = $('body.package.edit').length > 0;
     if (isDatasetEdit) {
+      CKAN.Utils.setupUrlEditor('package',readOnly=true);
       // Selectively enable the upload button
       var storageEnabled = $.inArray('storage',CKAN.plugins)>=0;
       if (storageEnabled) {
@@ -54,6 +65,10 @@
       });
       view.render();
     }
+    var isGroupEdit = $('body.group.edit').length > 0;
+    if (isGroupEdit) {
+      CKAN.Utils.setupUrlEditor('group',readOnly=true);
+    }
   });
 }(jQuery));
 
@@ -70,6 +85,111 @@ CKAN.Utils = function($, my) {
     messageDiv.show(1200);
 
   };
+
+  my.bindInputChanges = function(input, callback) {
+    input.keyup(callback);
+    input.keydown(callback);
+    input.keypress(callback);
+    input.change(callback);
+  };
+
+  my.setupUrlEditor = function(slugType,readOnly) {
+    // Page elements to hook onto
+    var titleInput = $('.js-title');
+    var urlText = $('.js-url-text');
+    var urlSuffix = $('.js-url-suffix');
+    var urlInput = $('.js-url-input');
+    var validMsg = $('.js-url-is-valid');
+
+    var api_url = '/api/2/util/is_slug_valid';
+    // (make length less than max, in case we need a few for '_' chars to de-clash slugs.)
+    var MAX_SLUG_LENGTH = 90;
+
+    var titleChanged = function() {
+      var lastTitle = "";
+      var regexToHyphen = [ new RegExp('[ .:/_]', 'g'), 
+                        new RegExp('[^a-zA-Z0-9-_]', 'g'), 
+                        new RegExp('-+', 'g')];
+      var regexToDelete = [ new RegExp('^-*', 'g'), 
+                        new RegExp('-*$', 'g')];
+
+      var titleToSlug = function(title) {
+        var slug = title;
+        $.each(regexToHyphen, function(idx,regex) { slug = slug.replace(regex, '-'); });
+        $.each(regexToDelete, function(idx,regex) { slug = slug.replace(regex, ''); });
+        slug = slug.toLowerCase();
+
+        if (slug.length<MAX_SLUG_LENGTH) {
+            slug=slug.substring(0,MAX_SLUG_LENGTH);
+        }
+        return slug;
+      };
+
+      // Called when the title changes
+      return function() {
+        var title = titleInput.val();
+        if (title == lastTitle) return;
+        lastTitle = title;
+
+        slug = titleToSlug(title);
+        urlInput.val(slug);
+        urlInput.change();
+      };
+    }();
+
+    var urlChanged = function() {
+      var timer = null;
+
+      var checkSlugValid = function(slug) {
+        $.ajax({
+          url: api_url,
+          data: 'type='+slugType+'&slug=' + slug,
+          dataType: 'jsonp',
+          type: 'get',
+          jsonpCallback: 'callback',
+          success: function (data) {
+            if (data.valid) {
+              validMsg.html('<span style="font-weight: bold; color: #0c0">'+CKAN.Strings.urlIsAvailable+'</span>');
+            } else {
+              validMsg.html('<span style="font-weight: bold; color: #c00">'+CKAN.Strings.urlIsNotAvailable+'</span>');
+            }
+          }
+        });
+      }
+
+      return function() {
+        slug = urlInput.val();
+        urlSuffix.html('<span>'+slug+'</span>');
+        validMsg.html('<span style="color: #777;">'+CKAN.Strings.checking+'</span>');
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(function () {
+          checkSlugValid(slug);
+        }, 200);
+      };
+    }();
+
+    if (readOnly) {
+      slug = urlInput.val();
+      urlSuffix.html('<span>'+slug+'</span>');
+    }
+    else {
+      var editLink = $('.js-url-editlink');
+      editLink.show();
+      // Hook title changes to the input box
+      my.bindInputChanges(titleInput, titleChanged);
+      my.bindInputChanges(urlInput, urlChanged);
+      // Set up the form
+      urlChanged();
+
+      editLink.live('click',function(e) {
+        e.preventDefault();
+        $('.js-url-viewmode').hide();
+        $('.js-url-editmode').show();
+        urlInput.select();
+        urlInput.focus();
+      });
+    }
+  }
 
   // Attach dataset autocompletion to provided elements
   //
@@ -231,7 +351,6 @@ CKAN.Utils = function($, my) {
     markdownEditor.find('button, div.markdown-preview').live('click', function(e) {
       e.preventDefault();
       var $target = $(e.target);
-      console.log('clicked');
       // Extract neighbouring elements
       var markdownEditor=$target.closest('.markdown-editor')
       markdownEditor.find('button').removeClass('depressed');
@@ -286,116 +405,6 @@ CKAN.Utils = function($, my) {
     });  
   };
 
-  // Name slug generator for $name element using $title element
-  //
-  // Also does nice things like show errors if name not available etc
-  //
-  // Usage: CKAN.Utils.PackageSlugCreator.create($('#my-title'), $('#my-name'))
-  my.PackageSlugCreator = (function() {
-    // initialize function
-    // 
-    // args: $title and $name input elements
-    function SlugCreator($title, $name) {
-      this.name_field = $name;
-      this.title_field = $title;
-      // Keep a variable where we can store whether the name field has been
-      // directly modified by the user or not. If it has, we should no longer
-      // fetch updates.
-      this.name_changed = false;
-      // url for slug api (we need api rather than do it ourself because we check if available)
-      this.url = '/api/2/util/dataset/create_slug';
-      // Add a new element where the validity of the dataset name can be displayed
-      this.name_field.parent().append('<div id="dataset_name_valid_msg"></div>');
-      this.title_field.blur(this.title_change_handler())
-      this.title_field.keyup(this.title_change_handler())
-      this.name_field.keyup(this.name_change_handler());
-      this.name_field.blur(this.name_blur_handler());
-    }
-
-    SlugCreator.create = function($title, $name) {
-      return new SlugCreator($title, $name);
-    }
-
-    SlugCreator.prototype.title_change_handler = function() {
-      var self = this;
-      return function() {
-        if (!self.name_changed && self.title_field.val().replace(/^\s+|\s+$/g, '')) {
-          self.update(self.title_field.val(), function(data) {self.name_field.val(data.name)});
-        }
-      }
-    }
-
-    SlugCreator.prototype.name_blur_handler = function() {
-      var self = this;
-      return function() {
-        // Reset if the name is emptied
-        if (!self.name_field.val().replace(/^\s+|\s+$/g, '')){
-          self.name_changed = false;
-          $('#dataset_name_valid_msg').html('');
-        } else {
-          self.update(self.name_field.val(), function(data) {
-              self.name_field.val(data.name)
-          });
-        }
-      };
-    }
-
-    SlugCreator.prototype.name_change_handler = function() {
-      var self = this;
-      return function() {
-        // Reset if the name is emptied
-        if (!self.name_field.val().replace(/^\s+|\s+$/g, '')){
-          self.name_changed = false;
-          $('#dataset_name_valid_msg').html('');
-        } else {
-          self.name_changed = true;
-          self.update(self.name_field.val(), function(data) {
-            if (self.name_field.val().length >= data.name) {
-                self.name_field.val(data.name);
-            }
-          });
-        }
-      };
-    }
-
-    // Create a function for fetching the value and updating the result
-    SlugCreator.prototype.perform_update = function(value, on_success){
-      var self = this;
-      $.ajax({
-        url: self.url,
-        data: 'title=' + value,
-        dataType: 'jsonp',
-        type: 'get',
-        jsonpCallback: 'callback',
-        success: function (data) {
-          if (on_success) {
-            on_success(data);
-          }
-          var valid_msg = $('#dataset_name_valid_msg');
-          if (data.valid) {
-            valid_msg.html('<span style="font-weight: bold; color: #0c0">'+CKAN.Strings.datasetNameAvailable+'</span>');
-          } else {
-            valid_msg.html('<span style="font-weight: bold; color: #c00">'+CKAN.Strings.datasetNameNotAvailable+'</span>');
-          }
-        }
-      });
-    }
-
-    // We only want to perform the update if there hasn't been a change for say 200ms
-    var timer = null;
-    SlugCreator.prototype.update = function(value, on_success) {
-      var self = this;
-      if (this.timer) {
-        clearTimeout(this.timer)
-      };
-      this.timer = setTimeout(function () {
-        self.perform_update(value, on_success)
-      }, 200);
-    }
-
-    return SlugCreator;
-  })();
-
   return my;
 }(jQuery, CKAN.Utils || {});
 
@@ -434,7 +443,7 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
     });
 
     // Table for editing resources
-    var $el = this.el.find('.resource-table.edit');
+    var $el = this.el.find('.js-resource-editor');
     this.resourceList=new CKAN.View.ResourceEditList({
       collection: resources,
       el: $el
@@ -484,7 +493,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
       }
     ));
     $tr.find('.js-resource-edit-expanded').hide();
-    this.el.find('tbody.resource-table').append($tr);
+    this.el.append($tr);
     resource.view_tr = $tr;
 
     // == Inner Function: Toggle the expanded options set == //
@@ -520,14 +529,20 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     var collection = this.collection;
     var deleteResource = function(triggerEvent) {
       if (triggerEvent) triggerEvent.preventDefault();
-      collection.remove(resource);
+      confirmMessage = CKAN.Strings.deleteThisResourceQuestion;
+      resourceName = resource.attributes.name || CKAN.Strings.noNameBrackets;
+      confirmMessage = confirmMessage.replace('%name%', resourceName);
+      if (confirm(confirmMessage)) {
+        collection.remove(resource);
+      }
     };
 
     // == Inner Functions: Update the name as you type == //
     var setName = function(newName) { 
       $link = $tr.find('.js-resource-edit-toggle');
-      newName = newName || CKAN.Strings.noNameBrackets;
-      $link.html(newName);
+      newName = newName || ('<em>'+CKAN.Strings.noNameBrackets+'</em>');
+      // Need to structurally modify the DOM to force a re-render of text
+      $link.html('<ema>'+newName+'</span>');
     };
     var nameBoxChanged = function(e) {
       setName($(e.target).val());
@@ -539,10 +554,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     }
 
     var nameBox = $tr.find('input.js-resource-edit-name');
-    nameBox.change(nameBoxChanged);
-    nameBox.keydown(nameBoxChanged);
-    nameBox.keyup(nameBoxChanged);
-    nameBox.keypress(nameBoxChanged);
+    CKAN.Utils.bindInputChanges(nameBox,nameBoxChanged);
 
     $tr.find('.js-resource-edit-toggle').click(toggleOpen);
     $tr.find('.js-resource-edit-delete').click(deleteResource);
