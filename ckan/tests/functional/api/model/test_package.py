@@ -108,13 +108,18 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_register_post_with_group(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
         offset = self.package_offset()
-
-        groups = [u'david']
+        
+        test_groups = [u'david']
         user = model.User.by_name(u'russianfan')
-        for grp in groups:
-            group = model.Group.get(grp)
-            model.setup_default_user_roles(group, [user])
 
+        groups = []
+        for grp in test_groups:
+            group = model.Group.get(grp)
+            if self.api_version == '1':
+                groups.append(group.name)
+            else:
+                groups.append(group.id)
+            model.setup_default_user_roles(group, [user])
 
 
         package_fixture_data = self.package_fixture_data
@@ -127,14 +132,25 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.remove()
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
-        self.assert_equal([g.name for g in package.groups], groups)
+        if self.api_version == '1':
+            self.assert_equal([g.name for g in package.groups], groups)
+        else:
+            self.assert_equal([g.id for g in package.groups], groups)
         del package_fixture_data['groups']
 
     def test_register_post_with_group_not_authorized(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
         offset = self.package_offset()
 
-        groups = [u'david']
+        test_groups = [u'david']
+
+        groups = []
+        for grp in test_groups:
+            group = model.Group.get(grp)
+            if self.api_version == '1':
+                groups.append(group.name)
+            else:
+                groups.append(group.id)
 
         package_fixture_data = self.package_fixture_data
         package_fixture_data['groups'] = groups
@@ -147,7 +163,15 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
         offset = self.package_offset()
         user = model.User.by_name(u'testsysadmin')
-        groups = [u'david']
+        test_groups = [u'david']
+
+        groups = []
+        for grp in test_groups:
+            group = model.Group.get(grp)
+            if self.api_version == '1':
+                groups.append(group.name)
+            else:
+                groups.append(group.id)
 
         package_fixture_data = self.package_fixture_data
         package_fixture_data['groups'] = groups
@@ -158,7 +182,11 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.remove()
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
-        self.assert_equal([g.name for g in package.groups], groups)
+        if self.api_version == '1':
+            self.assert_equal([g.name for g in package.groups], groups)
+        else:
+            self.assert_equal([g.id for g in package.groups], groups)
+
         del package_fixture_data['groups']
 
     def test_register_post_json(self):
