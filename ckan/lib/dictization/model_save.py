@@ -357,10 +357,11 @@ def package_api_to_dict(api1_dict, context):
                 else:
                     new_value.append({"key": extras_key,
                                       "value": None})
+        if key == 'groups':
+             new_value = [{"name": item} for item in value] 
 
         dictized[key] = new_value
 
-    groups = dictized.pop('groups', None)
     download_url = dictized.pop('download_url', None)
     if download_url and not dictized.get('resources'):
         dictized["resources"] = [{'url': download_url}]

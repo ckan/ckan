@@ -87,9 +87,12 @@ def check_group_auth(context, data_dict):
     group_dicts = data_dict.get("groups", [])
     groups = set()
     for group_dict in group_dicts:
-        id = group_dict.get('id')
-        if not id:
-            continue
+        if isinstance(group_dict,dict):
+            id = group_dict.get('id')
+            if not id:
+                continue
+        else:
+            id = group_dict
         grp = model.Group.get(id)
         if grp is None:
             raise NotFound(_('Group was not found.'))
