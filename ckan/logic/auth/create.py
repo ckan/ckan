@@ -1,4 +1,4 @@
-from ckan.logic import check_access_old
+from ckan.logic import check_access_old, NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
