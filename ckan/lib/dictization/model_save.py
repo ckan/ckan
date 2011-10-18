@@ -1,8 +1,6 @@
 from ckan.lib.dictization import table_dict_save
 from sqlalchemy.orm import class_mapper
 from ckan.lib.helpers import json
-from ckan.plugins import (PluginImplementations,
-                          IResourceUrlChange)
 
 ##package saving
 
@@ -33,7 +31,7 @@ def resource_dict_save(res_dict, context):
             continue
         if key in fields:
             if key == 'url' and not new and obj.url <> value:
-                trigger_url_change = True 
+                obj.url_changed = True
             setattr(obj, key, value)
         else:
             # resources save extras directly onto the object, instead
@@ -45,10 +43,6 @@ def resource_dict_save(res_dict, context):
             obj.state = u'pending'
     else:
         obj.state = u'active'
-
-    if trigger_url_change:
-        for item in PluginImplementations(IResourceUrlChange):
-            item.notify(obj)
 
     session.add(obj)
     return obj
