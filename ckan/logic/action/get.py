@@ -789,4 +789,4 @@ def get_site_user(context, data_dict):
         model.Session.add(user)
         model.Session.commit()
     return {'name': user.name,
-            'api': user.apikey}
+            'apikey': user.apikey}
