@@ -1,11 +1,13 @@
 from sqlalchemy.sql import select
 from sqlalchemy import or_, and_, func, desc, case
+import uuid
 
 from ckan.logic import NotFound
 from ckan.logic import check_access
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
+from pylons import config
 from ckan.authz import Authorizer
 from ckan.lib.dictization import table_dictize
 from ckan.lib.dictization.model_dictize import (package_dictize,
@@ -772,3 +774,19 @@ def task_status_show(context, data_dict):
 
     task_status_dict = task_status_dictize(task_status, context)
     return task_status_dict
+
+def get_site_user(context, data_dict):
+    check_access('get_site_user', context, data_dict)
+    model = context['model']
+    site_id = config.get('ckan.site_id', 'ckan_site_user')
+    user = model.User.get(site_id)
+    if not user:
+        apikey = str(uuid.uuid4())
+        user = model.User(name=site_id,
+                          password=apikey,
+                          apikey=apikey)
+        model.add_user_to_role(user, model.Role.ADMIN, model.System())
+        model.Session.add(user)
+        model.Session.commit()
+    return {'name': user.name,
+            'api': user.apikey}

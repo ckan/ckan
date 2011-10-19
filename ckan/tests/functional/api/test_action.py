@@ -1,12 +1,13 @@
 import json
 from pprint import pprint
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_raises
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.dictization.model_dictize import resource_dictize
 import ckan.model as model
 from ckan.tests import WsgiAppCase
 from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering 
+from ckan.logic import get_action, NotAuthorized
 
 class TestAction(WsgiAppCase):
 
@@ -703,4 +704,31 @@ class TestAction(WsgiAppCase):
         resource_dict = resource_dictize(resource, {'model': model})
         result.pop('revision_timestamp')
         assert result == resource_dict, (result, resource_dict)
+
+    
+    def test_27_get_site_user_not_authorized(self):
+        assert_raises(NotAuthorized,
+                     get_action('get_site_user'),
+                     {'model': model}, {})
+        user = model.User.get('test.ckan.net')
+        assert not user
+
+        user=get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        assert user['name'] == 'test.ckan.net'
+
+        user = model.User.get('test.ckan.net')
+        assert user
+
+        user=get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        assert user['name'] == 'test.ckan.net'
+        
+        user = model.Session.query(model.User).filter_by(name='test.ckan.net').one()
+        assert user
+
+
+
+
+
+
+
 

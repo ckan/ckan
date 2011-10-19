@@ -164,3 +164,9 @@ def group_show_rest(context, data_dict):
 
 def tag_show_rest(context, data_dict):
     return tag_show(context, data_dict)
+
+def get_site_user(context, data_dict):
+    if not context.get('ignore_auth'):
+        return {'success': False, 'msg': 'Only internal services allowed to use this action'}
+    else:
+        return {'success': True}
