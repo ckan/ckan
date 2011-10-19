@@ -80,15 +80,16 @@ def check_group_auth(context, data_dict):
     model = context['model']
     pkg = context.get("package")
 
-    ## hack as api does not allow groups
-    if context.get("allow_partial_update"):
-        return True
+    api_version = context.get('api_version') or '1'
 
     group_dicts = data_dict.get("groups", [])
     groups = set()
     for group_dict in group_dicts:
         if isinstance(group_dict,dict):
-            id = group_dict.get('id')
+            if api_version == '1':
+                id = group_dict.get('name')
+            else:
+                id = group_dict.get('id')
             if not id:
                 continue
         else:

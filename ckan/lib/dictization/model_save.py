@@ -357,7 +357,7 @@ def package_api_to_dict(api1_dict, context):
                 else:
                     new_value.append({"key": extras_key,
                                       "value": None})
-        if key == 'groups':
+        if key == 'groups' and len(value):
             if api_version == '1':
                 new_value = [{'name': item} for item in value]
             else:

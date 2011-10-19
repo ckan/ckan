@@ -26,6 +26,19 @@ class PackagesTestCase(BaseModelApiTestCase):
         super(PackagesTestCase, self).teardown()
         model.Session.connection().invalidate()
 
+    def get_groups_identifiers(self, test_groups, users=[]):
+        groups = []
+        for grp in test_groups:
+            group = model.Group.get(grp)
+            if self.get_expected_api_version() == '1':
+                groups.append(group.name)
+            else:
+                groups.append(group.id)
+
+            if users:
+                model.setup_default_user_roles(group, users)
+        return groups
+
     def test_register_get_ok(self):
         offset = self.package_offset()
         res = self.app.get(offset, status=self.STATUS_200_OK)
@@ -112,15 +125,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         test_groups = [u'david']
         user = model.User.by_name(u'russianfan')
 
-        groups = []
-        for grp in test_groups:
-            group = model.Group.get(grp)
-            if self.api_version == '1':
-                groups.append(group.name)
-            else:
-                groups.append(group.id)
-            model.setup_default_user_roles(group, [user])
-
+        groups = self.get_groups_identifiers(test_groups,[user])
 
         package_fixture_data = self.package_fixture_data
         package_fixture_data['groups'] = groups
@@ -132,7 +137,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.remove()
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
-        if self.api_version == '1':
+        if self.get_expected_api_version() == '1':
             self.assert_equal([g.name for g in package.groups], groups)
         else:
             self.assert_equal([g.id for g in package.groups], groups)
@@ -143,14 +148,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset()
 
         test_groups = [u'david']
-
-        groups = []
-        for grp in test_groups:
-            group = model.Group.get(grp)
-            if self.api_version == '1':
-                groups.append(group.name)
-            else:
-                groups.append(group.id)
+        groups = self.get_groups_identifiers(test_groups)
 
         package_fixture_data = self.package_fixture_data
         package_fixture_data['groups'] = groups
@@ -159,19 +157,26 @@ class PackagesTestCase(BaseModelApiTestCase):
                              extra_environ=self.extra_environ)
         del package_fixture_data['groups']
 
+    def test_register_post_with_group_not_found(self):
+        assert not self.get_package_by_name(self.package_fixture_data['name'])
+        offset = self.package_offset()
+
+        test_groups = [u'this-group-does-not-exist']
+        groups = test_groups
+
+        package_fixture_data = self.package_fixture_data
+        package_fixture_data['groups'] = groups
+        data = self.dumps(package_fixture_data)
+        res = self.post_json(offset, data, status=self.STATUS_404_NOT_FOUND,
+                             extra_environ=self.extra_environ)
+        del package_fixture_data['groups']
+
     def test_register_post_with_group_sysadmin(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
         offset = self.package_offset()
         user = model.User.by_name(u'testsysadmin')
         test_groups = [u'david']
-
-        groups = []
-        for grp in test_groups:
-            group = model.Group.get(grp)
-            if self.api_version == '1':
-                groups.append(group.name)
-            else:
-                groups.append(group.id)
+        groups = self.get_groups_identifiers(test_groups)
 
         package_fixture_data = self.package_fixture_data
         package_fixture_data['groups'] = groups
@@ -182,7 +187,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.remove()
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
-        if self.api_version == '1':
+        if self.get_expected_api_version() == '1':
             self.assert_equal([g.name for g in package.groups], groups)
         else:
             self.assert_equal([g.id for g in package.groups], groups)

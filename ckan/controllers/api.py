@@ -283,6 +283,9 @@ class ApiController(BaseController):
                                    resource_location=location)
         except NotAuthorized:
             return self._finish_not_authz()
+        except NotFound, e:
+            extra_msg = e.extra_msg
+            return self._finish_not_found(extra_msg)
         except ValidationError, e:
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
