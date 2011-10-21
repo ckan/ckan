@@ -19,24 +19,26 @@
     };
 
     var isFrontPage = $('body.index.home').length > 0;
-    if (isFrontPage) {
+    var isDatasetView = $('body.package.read').length > 0;
+    var isDatasetNew = $('body.package.new').length > 0;
+    var isGroupNew = $('body.group.new').length > 0;
+
+    // Two main entrance-points to the site:
+    if (isFrontPage || isDatasetView) {
       CKAN.Utils.setupTopBar($('.top-bar'));
     }
 
-    var isDatasetView = $('body.package.read').length > 0;
     if (isDatasetView) {
       var _dataset = new CKAN.Model.Dataset(preload_dataset);
       CKANEXT.DATAPREVIEW.setupDataPreview(_dataset);
     }
 
-    var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       // Set up magic URL slug editor
       CKAN.Utils.setupUrlEditor('package');
       $('#save').val(CKAN.Strings.addDataset);
       $("#title").focus();
     }
-    var isGroupNew = $('body.group.new').length > 0;
     if (isGroupNew) {
       // Set up magic URL slug editor
       CKAN.Utils.setupUrlEditor('group');
