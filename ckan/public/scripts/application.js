@@ -1,5 +1,7 @@
 (function ($) {
   $(document).ready(function () {
+    CKAN.Utils.isLoggedIn = Boolean($.cookie("ckan_display_name"));
+
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
     CKAN.Utils.setupAuthzGroupAutocomplete($('input.autocomplete-authzgroup'));
     CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-dataset'));
@@ -24,7 +26,7 @@
     var isGroupNew = $('body.group.new').length > 0;
 
     // Two main entrance-points to the site:
-    if (isFrontPage || isDatasetView) {
+    if (!CKAN.Utils.isLoggedIn && (isFrontPage || isDatasetView)) {
       CKAN.Utils.setupTopBar($('.top-bar'));
     }
 
@@ -121,7 +123,6 @@ CKAN.Utils = function($, my) {
 
     // Bind to the close button
     topBar.find('.js-kill-button').live('click', function() {
-      console.log('killing top-bar');
       $.cookie(cookieName, 'true', { expires: 365 });
       topBar.hide();
     });
