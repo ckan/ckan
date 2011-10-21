@@ -215,6 +215,12 @@ def icon_url(name):
 def icon(name, alt=None):
     return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (icon_url(name), alt))
 
+def gravatar(email_hash, size=100):
+    return literal('''<a href="http://gravatar.com" target="_blank">
+      <img src="http://gravatar.com/avatar/%s?s=%d&amp;d=mm" />
+    </a>''' % (email_hash, size))
+
+
 class Page(paginate.Page):
     
     # Curry the pager method of the webhelpers.paginate.Page class, so we have
