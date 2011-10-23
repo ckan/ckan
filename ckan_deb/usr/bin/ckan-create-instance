@@ -43,6 +43,8 @@ echo "Making sure PostgreSQL is running ..."
 echo "Ensuring users and groups are set up correctly ..."
 ckan_ensure_users_and_groups ${INSTANCE}
 
+chown ckan${INSTANCE}:ckan${INSTANCE} /etc/ckan/${INSTANCE}/install_settings.sh
+
 echo "Ensuring directories exist for ${INSTANCE} CKAN INSTANCE ..."
 ckan_make_ckan_directories ${INSTANCE}
 
@@ -74,6 +76,17 @@ ckan_create_wsgi_handler ${INSTANCE}
 # Replace any existing user with a new one with this password
 echo "Setting the password of the ${INSTANCE} user in PostgreSQL"
 ckan_add_or_replace_database_user ${INSTANCE} ${CKAN_DB_PASSWORD}
+
+# Solr support
+echo "Setting up Solr ..."
+sed \
+    -e "s,NO_START=1,NO_START=0," \
+    -e "s,#JETTY_HOST=\$(uname -n),JETTY_HOST=127.0.0.1," \
+    -e "s,#JETTY_PORT=8080,JETTY_PORT=8983," \
+    -i /etc/default/jetty
+mv /usr/share/solr/conf/schema.xml /usr/share/solr/conf/schema.xml.`date --utc "+%Y-%m-%d_%T"`.bak 
+ln -s /usr/lib/pymodules/python2.6/ckan/config/schema.xml /usr/share/solr/conf/schema.xml
+service jetty start
 
 # Create the config file
 echo "Creating/overwriting the config for CKAN ... "
@@ -121,7 +134,7 @@ echo "Restarting apache ..."
 # Install the new crontab
 echo "Enabling crontab for the ckan${INSTANCE} user ..."
 PACKAGED_CRONJOB="/tmp/${INSTANCE}-cronjob"
-cat <<EOF > ${PACKAGED_CRONJOB}
+cat << EOF > ${PACKAGED_CRONJOB}
 # WARNING:  Do not edit these cron tabs, they will be overwritten any time 
 #           the ckan INSTANCE package is upgraded
 # QUESTION: Should email reports be sent to root?

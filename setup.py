@@ -20,7 +20,6 @@ setup(
     install_requires=[
     ],
     extras_require = {
-        'solr': ['solrpy==0.9.4'],
     },
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
