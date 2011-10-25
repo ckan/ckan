@@ -1,4 +1,5 @@
 @import url('/css/forms.css');
+@import url('/css/pretty_buttons.css');
 
 .header.outer {
   background-color: #e2e2e2;
@@ -147,93 +148,15 @@ a:hover {
   color: #183661;
 }
 
-
-/* Basic page elements */
-
-.page_heading {
-  margin-top: 1em;
-  margin-bottom: 1em;
-  font-size: 2.2em;
-  font-weight: normal;
-}
-
-#minornavigation {
-  border: 1px solid #e0e0e0;
-  background-color: #e2e2e2;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
-  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
-
-     -moz-border-radius: 5px; 
-  -webkit-border-radius: 5px; 
-          border-radius: 5px; 
-  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
-}
-
-#minornavigation ul.tabbed li.action {
-  float: right;
-}
-#minornavigation li {
-  border: 1px solid transparent;
-}
-#minornavigation li.current-tab {
-  background: #000;
-  background-color: #fff;
-  border: 1px solid #777;
-  border-bottom: 1px solid #ccc;
-  border-right: 1px solid #ccc;
-     -moz-border-radius: 5px; 
-  -webkit-border-radius: 5px; 
-          border-radius: 5px; 
-          
-}
-#minornavigation li.current-tab a,
-#minornavigation li.current-tab a:hover,
-#minornavigation li.current-tab a:visited {
-  color: #222;
-}
-
-/* Side bar widgets */
-ul.widget-list {
-  list-style: none;
-  padding-left: 0px;
-}
-
-ul.widget-list li.widget-container {
+fieldset {
+  border: 0px;
   border-bottom: 1px solid #e0e0e0;
-  margin-bottom: 1em;
 }
 
-ul.widget-list li.widget-container.boxed {
-  border-bottom: 0;
-  background-color: #FFF7C0;
-  padding: 15px;
-  padding-top: 10px;
-     -moz-border-radius: 15px; 
-  -webkit-border-radius: 15px; 
-          border-radius: 15px; 
-}
 
-/* Notices */
-
-.notice a, .notice a:visited,
-.success a, .success a:visited {
-  text-decoration: underline;
-}
-
-/* Hints */
-
-.hint {
-  font-size: 0.8em;
-  color: #888;
-  margin-bottom: 0;
-}
-
+/* ====== */
 /* Tables */
+/* ====== */
 table th {
   border: 1px solid #e0e0e0;
   background-color: #e2e2e2;
@@ -245,21 +168,18 @@ table th {
   background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
             filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
 }
-
 table caption {
   caption-side: bottom; 
   color: #888;
   font-size: 0.9em;
   background-color: white;
 }
-
 tbody tr:nth-child(even) td, tbody tr.even td {
   background-color: #FCF6CF;
 }
 tbody tr:nth-child(odd) td, tbody tr.odd td {
   background-color: #FEFEF2;
 }
-
 tbody tr.table-empty td {
   background: #f8f8f8;
   border: 1px solid #eee;
@@ -268,510 +188,27 @@ tbody tr.table-empty td {
   font-size: 90%;
 }
 
-/* ============== */
-/* = Navigation = */
-/* ============== */
 
-#minornavigation {
-  margin-bottom: 1em;
-}
 
-.nominor #minornavigation {
-  display: none;
-}
-
-#minornavigation ul {
-  list-style: none; 
-  padding: 1px;
-  margin: 0;
-}
-
-#minornavigation ul li {
-  display: inline-block;
-  margin-right: 3px;
-  padding: 5px 11px 5px 9px
-}
-
-#minornavigation ul li a {
-  text-decoration: none;
-  font-weight: bold;
-}
-
-#minornavigation ul li a img {
-  margin-bottom: -4px;
-  padding-right: 5px;
-}
-
-#sidebar {
-  margin-right: -10px;
-  padding-left: 9px;
-  overflow: hidden;
-}
-
-#sidebar h2, #sidebar h3 {
-  font-size: 1.3em;
-}
-
-#sidebar ul.property-list li ul {
-  margin-left: -2em;
-}
-
+/* ==================== */
+/* Common page elements */
+/* ==================== */
 #content {
   border-right: 1px solid #e0e0e0;
 }
-
-/* ============== */
-/* = Pagination = */
-/* ============== */
-
-.pager {
-	width: 100%;
-	text-align: center;
-	margin: 0 0 1.2em 0;
-	clear: both;
-}
-
-.pager span, .pager a {
-	text-decoration: none;
-	margin: 0em;
-	border: none;
-	padding: 0.3em 0.1em;
-}
-
-.pager a:hover, .pager a:active {
-	color: #fff;
-	background-color: #c22;
-}
-
-.pager span.pager_dotdot {
-	color: #aaa;
-}
-
-.pager span.pager_curpage {
-	font-weight: bold;
-	border: 1px solid #ddd;
-}
-
-
-/* ==========================
- * Facets
- */
-
-.facet-box {
-
-}
-
-#sidebar .facet-box h2 {
-    color: #000;
-    font-size: 1.2em;
-}
-
-.facet-options {
-    margin-top: 0.5em;
-}
-
-.facet-options li {
-    padding-top: 0.2em;
-    color: #000; 
-}
-
-.register-link {
-    padding-top: 10px;
-}
-
-.dataset-search-filters {
-    margin-top: 15px;
-}
-
-.search-field {
-    display: inline-block;
-    margin-right: 5px;
-    margin-bottom: 10px;
-    padding: 2px 2px 4px 3px;
-    font-size: 14px;
-    background-color: #FFF7C0;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-    line-height: 16px;
-    /*
-    -moz-box-shadow: 1px 1px 3px #bbb;
-    -webkit-box-shadow: 1px 1px 3px #bbb;
-    box-shadow: 1px 1px 3px #bbb;
-    */
-}
-
-.search-field img {
-    margin-bottom: -3px;
-}
-
-.search-field-name::after {
-    content: ":";
-}
-
-.search-field-value {
-    font-weight: bold;
-}
-
-/* ================ */
-/* = Forms common = */
-/* ================ */
-
-fieldset {
-  border: 0px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-
-/* ============== */
-/* = Login Form = */
-/* ============== */
-
-form.simple-form label {
-    display: inline-block; 
-    float: left;
-    min-width: 40%;
-    padding-top: 0.5em;
-    padding-bottom: 1em;
-}
-
-form.simple-form fieldset input {
-    border: 1px solid #E7E7E7;
-    padding: 0.5em; 
-    width: 40%;
-    margin-bottom: 1em
-}
-
-form.simple-form textarea {
-    width: 99%;
-}
-
-.purge-button {
-  border: none;
-  background: none;
-  background-color: #b33a3a;
-  color: white;
-  display: block;
-  margin-bottom: 1em;
-}
-
-.purge-button:hover {
-  border: none;
-}
-
-
-/* ===================== */
-/* = Dataset read view = */
-/* ===================== */
-
-.property-list {
-  list-style: none;
-  padding-left: 3em;
-}
-
-#sidebar .property-list li h3 {
-  font-size: 1.1em;
-  font-weight: bold; 
-  margin-bottom: 0.5em;
-  margin-left: -2em;
-}
-
-#sidebar .property-list li {
-  margin-bottom: 0.2em;
-}
-
-.dataset .api div {
-    background:#f0f0f0;
-    padding:10px;
-}
-
-.dataset .api h5 {
-    font-weight:bold;
-    margin-bottom:1em!important;
-    font-size:1em;
-}
-
-.dataset .api code {
-    background:#444;
-    color:#fff;
-    padding:3px 10px ;
-    margin-bottom:1em;
-    display:block;
-}
-.dataset .api code a {
-    color:#fff;
-}
-
-/* ===================== */
-/* = User Listing      = */
-/* ===================== */
-
-body.user-list #content {
-}
-
-ul.userlist, ul.userlist ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
-ul.userlist li.user {
-  display: inline-block;
-  width: 200px;
-  margin-bottom: 15px;
-}
-
-ul.userlist li ul span.edits {
-  color: #333;
-  font-size: 1.1em;
-  font-weight: bold;
-  margin-left: 3px;
-}
-
-ul.userlist li.user .username {
-}
-
-#content ul.userlist .username img {
-  margin-bottom: -3px;
-}
-
-ul.userlist .created {
-  color: #888;
-}
-
-ul.userlist .badge {
-  color: #fc0;
-}
-
-body.user-list .sort {
-  float: right;
-}
-
-body.user-list .sort a {
-  background: #eee;
-  padding: 5px;
-  border-bottom: 1px solid #ccc; 
-  border-right: 1px solid #ccc; 
-}
-
-.gravatar {
-  border: 1px solid #777;
-  padding: 1px;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 10px auto;
-}
-
-/* ===================== */
-/* = Stateful stuff    = */
-/* ===================== */
-
-.state-deleted, .state-deleted a, .state-deleted * {
-  color: rgba(0, 0, 0, 0.4);
-}
-
-.state-deleted {
-  padding-left: 3px;
-}
-
-.state-deleted:hover * {
-  color: rgba(0, 0, 0, 0.8);
-}
-
-.state-notice {
-  text-transform: uppercase;
-  font-size: 120%;
-  background: #f4a83d;
-  padding: 15px;
-  text-align: center;
-  color: #fff;
-}
-
-/* ================ */
-/* = Search boxes = */
-/* ================ */
-
-form.dataset-search {
-  margin-bottom: 35px;
-}
-
-form.dataset-search input.search {
-  width: 100%;
-  font-size: 1.2em;
-  margin: 0px;
-  
-  border: 1px solid #ccc;
-  padding: 0.5em;
-  font-weight: bold;
-
-     -moz-border-radius: 5px; 
-  -webkit-border-radius: 5px; 
-          border-radius: 5px; 
- -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
-}
-
-.dataset-search input.button {
-    display: inline-block;
-    float: right;
-    margin-top: 5px;
-    margin-right: 10px !important;
-    margin-bottom: 1px !important;
-}
-
-.dataset-search-filters {
+.page_heading {
   margin-top: 1em;
   margin-bottom: 1em;
-  color: #888;
-}
-
-.dataset-search-filters label {
-  padding-left: 1em;
-}
-
-/* =================== */
-/* = Dataset listing = */
-/* =================== */
-
-ul.datasets {
-	padding-left: 0;
-    margin: 0 0 1em 0;
-}
-
-.datasets .header {
-    padding-top: 0.5em;
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
-.datasets .extract {
-	padding-top: 0.3em;
-}
-
-.datasets li {
-	list-style: none;
-	padding: 1em 0 0.2em 0.0em;
-	border-bottom: 1px solid #ececec;
-	overflow: hidden;
-	/*white-space: nowrap;*/
-}
-
-.datasets li a {
-	text-decoration: none;
-}
-
-.datasets li img {
-	margin-bottom: -2px;
-}
-
-.search_meta {
-    float:right;
-}
-
-ul.dataset_formats {
-    float: right;
-    padding: 0 0 3px 0; 
-    margin: 0;
-    font-family: monospace;
-}
-
-ul.dataset_formats li {
-    display: inline;
-    margin: 0;
-    padding: 0 5px 0 5px;
-    border: none;
-    font-weight: normal;
-    font-size: 0.9em;
-    color: #808080;
-    background:#ececec;
-}
-
-.openness {
-    clear:right;
-    float:right;
-    font-size:0.8em;
-}
-
-.openness img {
-    vertical-align:top;
-}
-
-.openness li {
-    margin:0;
-    padding:0;
-    border:none;    
+  font-size: 2.2em;
+  font-weight: normal;
 }
 
 
-.signup {
-  color: white; 
-  border-bottom: 0;
-  background-color: #FFF7C0;
-  padding: 15px;
-  padding-top: 10px;
-     -moz-border-radius: 15px; 
-  -webkit-border-radius: 15px; 
-          border-radius: 15px;
-  padding-bottom: 10px;
-}
-
-.signup h2 {
-  margin-top: 0;
-  margin-bottom: 0;
-  font-size: 1.2em;
-}
-
-.subscribe {
-  float: right;
-  margin-top: -6px;
-  margin-bottom: -10px;
-}
-
-.subscribe input[type='text'] {
-  border: 1px solid #ccc;
-  padding: 4px;
-  margin-right: 10px;
-}
-
-/* ===================== */
-/* = Edit Dataset Page = */
-/* ===================== */
-
-body.package.edit .edit-summary {
-  display: none;
-}
-
-body.package.edit div#content {
-  margin-right: 29px;
-  margin-left: 0px;
-  float: right;
-  padding-right: 0;
-  padding-left: 20px;
-  border: none;
-  border-left: 1px solid #eee;
-}
-body.package.edit div#sidebar {
-  padding-left: 0px;
-  float: left;
-  margin-right: 0px;
-}
-body.package.edit ul.widget-list {
-  margin-left: 1.5em;
-  margin-right: 0;
-}
-ul.edit-form-navigation {
-  list-style-type: none;
-  padding-left: 0;
-}
-ul.edit-form-navigation li a {
-  text-decoration: none;
-  font-weight: bold;
-  display: block;
-  padding: 7px 0 7px 10px;
-  margin-bottom: 7px;
-  border: 1px transparent solid;
-}
-ul.edit-form-navigation li a.active,  
-ul.edit-form-navigation li a:hover {
+/* =============== */
+/* MinorNavigation */
+/* =============== */
+#minornavigation {
+  margin-bottom: 1em;
   border: 1px solid #e0e0e0;
   background-color: #e2e2e2;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
@@ -782,290 +219,132 @@ ul.edit-form-navigation li a:hover {
   background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
             filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
 
-  border-right: none;
-     -moz-border-radius-bottomleft: 5px; 
-  -webkit-border-bottom-left-radius: 5px; 
-          border-bottom-left-radius: 5px; 
-     -moz-border-radius-topleft: 5px; 
-  -webkit-border-top-left-radius: 5px; 
-          border-top-left-radius: 5px; 
-
+     -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px; 
+          border-radius: 5px; 
   -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
 }
-
-div.markdown-editor {
-  background: #EEE;
-  border-radius: 5px 5px;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border: 1px solid #CCC;
-  padding: 0 5px 5px 10px;
-  width: 32em;
+#minornavigation ul {
+  list-style: none; 
+  padding: 1px;
+  margin: 0;
 }
-div.markdown-editor .button-row {
-  padding-right: 40px;
-  text-align: center;
+#minornavigation li {
+  display: inline-block;
+  margin-right: 3px;
+  border: 1px solid transparent;
+  padding: 5px 11px 5px 9px
 }
-
-div.markdown-preview {
-  background: white;
-  border: 1px solid #CCC;
-  padding: 5px;
-  margin-bottom: 5px;
-  overflow: auto;
-}
-
-textarea.markdown-input {
-  margin-bottom: 5px;
-  padding: 5px;
-  display: block;
-}
-
-
-/* ====================== */
-/* = Add Resources Page = */
-/* ====================== */
-
-input#Resource--url {
-  width: 60%;
-}
-
-button.done-editing {
+#minornavigation li.action {
   float: right;
 }
-
-div.resource-add {
-  background: #eee;
-  padding-top: 10px;
-  padding-bottom: 5px;
-  border: 1px solid #e0e0e0;
-  border-left: none;
-  border-right: none;
-}
-div.resource-add li h4 {
-  display: inline;
-  padding-right: 20px;
-}
-div.resource-add-subpane {
-  margin-top: 10px;
-}
-div.resource-add .fileinfo {
-  margin: 7px 0;
-}
-
-
-/* ==================== */
-/* = Add Dataset Page = */
-/* ==================== */
-
-/* do this here to avoid js flash when we hide in js */
-body.package.new form fieldset {
-  display: none;
-}
-
-body.package.new form fieldset#basic-information {
-  display: block;
-}
-
-body.package.new .edit-summary {
-  display: none;
-}
-
-body.package.new dt.homepage-label,
-body.package.new dd.homepage-field,
-body.package.new dd.homepage-instructions 
-{
-  display: none;
-}
-body.package.new dt.tags-label,
-body.package.new dd.tags-field,
-body.package.new dd.tags-instructions 
-{
-  display: none;
-}
-body.package.new dt.description-label,
-body.package.new dd.description-field,
-body.package.new dd.description-instructions 
-{
-  display: none;
-}
-body.package.new dt.license-label,
-body.package.new dd.license-field,
-body.package.new dd.license-instructions 
-{
-  display: none;
-}
-
-body.package.new .instructions {
-  font-size: 10px;
-}
-
-a.url-edit {
-  font-weight: normal;
-  margin-left: 10px;
-}
-dd.name-field {
-  padding-top: 0.2em;
-}
-dd.name-field p {
-  margin-bottom: 4px;
-}
-
-body.package.read #sidebar ul.tags, 
-body.package.read #sidebar ul.groups {
-  margin-bottom: 10px;
-}
-
-input.url-input {
-  width: 250px;
-}
-
-
-.success .new-dataset {
-  font-size: 150%;
-}
-.success .new-dataset a {
-  font-weight: bold;
-}
-
-
-/* ================== */
-/* = Add Group Page = */
-/* ================== */
-
-body.group.new fieldset#extras,
-body.group.new fieldset#datasets {
-  display: none;
-}
-body.group.new .description-label,
-body.group.new .description-field,
-body.group.new .state-label,
-body.group.new .state-field {
-  display: none;
-}
-
-
-/* ============= */
-/* = Mini-Tabs = */
-/* ============= */
-ul.button-row {
-  margin-bottom: 5px;
-}
-ul.button-row li {
-  display: inline;
-  margin-right: 10px;
-}
-
-
-
-/* ============================== */
-/* = Controller-specific tweaks = */
-/* ============================== */
-
-body.package.search #minornavigation { 
-  display: none;
-}
-body.package.search #menusearch {
-  display: none;
-}
- 
-body.index.home #minornavigation {
-  display: none;
-}
-body.index.home #sidebar {
-  display: none;
-}
-
-body.index.home .front-page .action-box h1 {
-  padding-top: 0.6em;
-  padding-bottom: 0.5em;
-  font-size: 2.1em;
-}
-
-body.index.home .front-page .action-box {
-  border-radius: 20px;
-  background:  #FFF7C0;
-}
-
-body.index.home .front-page .action-box-inner {
-  margin: 20px;
-  margin-bottom: 5px;
-  min-height: 15em;
-}
-body.index.home .front-page .action-box-inner.collaborate {
-  background:url(/img/collaborate.png) no-repeat right top;
-}
-
-body.index.home .front-page .action-box-inner.share {
-  background:url(/img/share.png) no-repeat right top;
-}
-
-body.index.home .front-page .action-box-inner.find {
-  background:url(/img/find.png) no-repeat right top;
-}
-
-body.index.home .front-page .action-box-inner a {
-  font-weight: bold;
-}
-
-body.index.home .front-page .action-box-inner input {
-  font-family: 'Ubuntu';
-  border-radius: 10px;
+#minornavigation li.current-tab {
+  background: #000;
   background-color: #fff;
-  border: 0px;
-  font-size: 1.3em;
-  width: 90%;
-  border: 1px solid #999;
-  color: #666;
-  padding: 0.5em;
+  border: 1px solid #777;
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+     -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px; 
+          border-radius: 5px; 
+}
+#minornavigation li a {
+  text-decoration: none;
+  font-weight: bold;
+}
+#minornavigation li a img {
+  margin-bottom: -4px;
+  padding-right: 5px;
+}
+#minornavigation li.current-tab a,
+#minornavigation li.current-tab a:hover,
+#minornavigation li.current-tab a:visited {
+  color: #222;
 }
 
-body.index.home .front-page .action-box-inner .create-button {
-  display: block;
-  float: right;
-  font-weight: normal;
-  font-family: 'Ubuntu';
-  margin-top: 1.5em;
-  border-radius: 10px;
-  background-color: #B22;
-  border: 0px;
-  font-size: 1.3em;
-  color: #fff;
-  padding: 0.5em;
-}
 
-body.index.home .front-page .action-box-inner .create-button:hover {
-  background-color: #822;
-}
-
-body.index.home .front-page .action-box-inner ul {
-margin-top: 1em;
-margin-bottom: 0;
-}
-
-body.index.home .front-page .whoelse {
-  margin-top: 1em;
-}
-
-body.index.home .front-page .group {
+/* ======= */
+/* Sidebar */
+/* ======= */
+#sidebar {
+  margin-right: -10px;
+  padding-left: 9px;
   overflow: hidden;
 }
-
-body.index.home .front-page .group h3 {
-  margin-bottom: 0.5em;
+#sidebar h2, 
+#sidebar h3 {
+  font-size: 1.3em;
+}
+#sidebar .widget-list {
+  list-style: none;
+  padding-left: 0px;
+}
+#sidebar .widget-list li.widget-container {
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 1em;
+}
+#sidebar .widget-list li.widget-container.boxed {
+  border-bottom: 0;
+  background-color: #FFF7C0;
+  padding: 15px;
+  padding-top: 10px;
+     -moz-border-radius: 15px; 
+  -webkit-border-radius: 15px; 
+          border-radius: 15px; 
 }
 
-body.index.home .front-page .group p {
-  margin-bottom: 0em;
-  min-height: 6em;
+
+
+
+/* ============== */
+/* = Pagination = */
+/* ============== */
+.pager {
+	width: 100%;
+	text-align: center;
+	margin: 0 0 1.2em 0;
+	clear: both;
+}
+.pager span, .pager a {
+	text-decoration: none;
+	margin: 0em;
+	border: none;
+	padding: 0.3em 0.1em;
+}
+.pager a:hover, .pager a:active {
+	color: #fff;
+	background-color: #c22;
+}
+.pager span.pager_dotdot {
+	color: #aaa;
+}
+.pager span.pager_curpage {
+	font-weight: bold;
+	border: 1px solid #ddd;
 }
 
-body.index.home .front-page .group strong {
-  display: block;
-  margin-bottom: 1.5em;
-}
-  
 
+
+/* ====== */
+/* Facets */
+/* ====== */
+.facet-box h2 {
+    color: #000;
+    font-size: 1.2em;
+}
+.facet-box .facet-options {
+    margin-top: 0.5em;
+}
+.facet-box .facet-options li {
+    padding-top: 0.2em;
+    color: #000; 
+}
+
+
+
+/* ======================= */
+/* = Generic Form Footer = */
+/* ======================= */
 div.form-submit {
   background: #eee;
   padding: 20px;
@@ -1083,154 +362,378 @@ div.clear {
   clear: both;
 }
 
-/* ==================== */
-/* = Multi-form pages = */
-/* ==================== */
-body.admin form#form-purge-packages, 
-body.admin form#form-purge-revisions {
-  margin-bottom: 30px;
-  text-align: right;
-}
-body.admin .actions button, 
-body.admin .actions input {
-  margin: 0;
-}
-body.authz form {
-  margin-bottom: 30px;
-}
-body.authz form button {
-  width: 120px;
-  float: right;
-}
 
 
-/* ================================== */
-/* = Twitter.Bootstrap Form Buttons = */
-/* ================================== */
-.pretty-button {
-  cursor: pointer;
+/* ============= */
+/* = Home Page = */
+/* ============= */
+body.index.home #minornavigation {
+  display: none;
+}
+body.index.home #sidebar {
+  display: none;
+}
+body.index.home .front-page .action-box h1 {
+  padding-top: 0.6em;
+  padding-bottom: 0.5em;
+  font-size: 2.1em;
+}
+body.index.home .front-page .action-box {
+  border-radius: 20px;
+  background:  #FFF7C0;
+}
+body.index.home .front-page .action-box-inner {
+  margin: 20px;
+  margin-bottom: 5px;
+  min-height: 15em;
+}
+body.index.home .front-page .action-box-inner.collaborate {
+  background:url(/img/collaborate.png) no-repeat right top;
+}
+body.index.home .front-page .action-box-inner.share {
+  background:url(/img/share.png) no-repeat right top;
+}
+body.index.home .front-page .action-box-inner.find {
+  background:url(/img/find.png) no-repeat right top;
+}
+body.index.home .front-page .action-box-inner a {
+  font-weight: bold;
+}
+body.index.home .front-page .action-box-inner input {
+  font-family: 'Ubuntu';
+  border-radius: 10px;
+  background-color: #fff;
+  font-size: 1.3em;
+  width: 90%;
+  border: 1px solid #999;
+  color: #666;
+  padding: 0.5em;
   display: inline-block;
-  background-color: #e6e6e6;
-  background-repeat: no-repeat;
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), color-stop(0.25, #ffffff), to(#e6e6e6));
-  background-image: -webkit-linear-gradient(#ffffff, #ffffff 0.25, #e6e6e6);
-  background-image: -moz-linear-gradient(#ffffff, #ffffff 0.25, #e6e6e6);
-  background-image: -ms-linear-gradient(#ffffff, #ffffff 0.25, #e6e6e6);
-  background-image: -o-linear-gradient(#ffffff, #ffffff 0.25, #e6e6e6);
-  background-image: linear-gradient(#ffffff, #ffffff 0.25, #e6e6e6);
-  padding: 4px 14px;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
-  color: #333;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin-right: 5px;
+  margin-bottom: 10px;
+  line-height: 16px;
+}
+body.index.home .front-page .action-box-inner .create-button {
+  display: block;
+  float: right;
   font-weight: normal;
-  font-size: 13px;
-  line-height: 18px;
-  border: 1px solid #ccc;
-  border-bottom-color: #bbb;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-  -webkit-transition: 0.1s linear all;
-  -moz-transition: 0.1s linear all;
-  transition: 0.1s linear all;
-}
-.pretty-button.depressed,
-.pretty-button:hover {
-  background-position: 0 -15px;
-  color: #333;
-  text-decoration: none;
-}
-.pretty-button.primary, .pretty-button.danger {
+  font-family: 'Ubuntu';
+  margin-top: 1.5em;
+  border-radius: 10px;
+  background-color: #B22;
+  border: 0px;
+  font-size: 1.3em;
   color: #fff;
+  padding: 0.5em;
 }
-.pretty-button.primary:hover, .pretty-button.danger:hover {
-  color: #fff;
+body.index.home .front-page .action-box-inner .create-button:hover {
+  background-color: #822;
 }
-.pretty-button.primary {
-  background-color: #0064cd;
-  background-repeat: repeat-x;
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#049cdb), to(#0064cd));
-  background-image: -moz-linear-gradient(#049cdb, #0064cd);
-  background-image: -ms-linear-gradient(#049cdb, #0064cd);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #049cdb), color-stop(100%, #0064cd));
-  background-image: -webkit-linear-gradient(#049cdb, #0064cd);
-  background-image: -o-linear-gradient(#049cdb, #0064cd);
-  background-image: linear-gradient(#049cdb, #0064cd);
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  border-color: #0064cd #0064cd #003f81;
-  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-}
-.pretty-button.danger {
-  background-color: #9d261d;
-  background-repeat: repeat-x;
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#d83a2e), to(#9d261d));
-  background-image: -moz-linear-gradient(#d83a2e, #9d261d);
-  background-image: -ms-linear-gradient(#d83a2e, #9d261d);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d83a2e), color-stop(100%, #9d261d));
-  background-image: -webkit-linear-gradient(#d83a2e, #9d261d);
-  background-image: -o-linear-gradient(#d83a2e, #9d261d);
-  background-image: linear-gradient(#d83a2e, #9d261d);
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  border-color: #9d261d #9d261d #5c1611;
-  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-}
-.pretty-button.large {
-  font-size: 16px;
-  line-height: 28px;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-}
-.pretty-button.small {
-  padding-right: 9px;
-  padding-left: 9px;
-  font-size: 11px;
-}
-.pretty-button.disabled {
-  background-image: none;
-  filter: alpha(opacity=65);
-  -khtml-opacity: 0.65;
-  -moz-opacity: 0.65;
-  opacity: 0.65;
-  cursor: default;
-}
-.pretty-button:disabled {
-  background-image: none;
-  filter: alpha(opacity=65);
-  -khtml-opacity: 0.65;
-  -moz-opacity: 0.65;
-  opacity: 0.65;
-  cursor: default;
-}
-.pretty-button.depressed,
-.pretty-button:active {
-  -webkit-box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
-  -moz-box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
-  box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-button.pretty-button::-moz-focus-inner, input.pretty-button::-moz-focus-inner {
-  padding: 0;
-  border: 0;
-}
-
-
-/* ====================================== */
-/* = Correct mistakes made by blueprint = */
-/* ====================================== */
-
-body.success,
-body.error {
-  background: #fff;
-  padding: 0;
+body.index.home .front-page .action-box-inner ul {
+  margin-top: 1em;
   margin-bottom: 0;
-  border: none;
-  color: #000;
+}
+body.index.home .front-page .whoelse {
+  margin-top: 1em;
+}
+body.index.home .front-page .group {
+  overflow: hidden;
+}
+body.index.home .front-page .group h3 {
+  margin-bottom: 0.5em;
+}
+body.index.home .front-page .group p {
+  margin-bottom: 0em;
+  min-height: 6em;
+}
+body.index.home .front-page .group strong {
+  display: block;
+  margin-bottom: 1.5em;
 }
 
-.top-bar {
+
+/* ======================== */
+/* Search Page: Filter List */
+/* ======================== */
+.filter-list {
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    padding: 2px 2px 4px 3px;
+    font-size: 14px;
+    background-color: #FFF7C0;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    line-height: 16px;
+}
+.filter-list img {
+    margin-bottom: -3px;
+}
+.filter-list .name::after {
+    content: ":";
+}
+.filter-list .value {
+    font-weight: bold;
+}
+
+
+/* ============== */
+/* = Login Form = */
+/* ============== */
+form.simple-form label {
+    display: inline-block; 
+    float: left;
+    min-width: 40%;
+    padding-top: 0.5em;
+    padding-bottom: 1em;
+}
+form.simple-form input[type=text],
+form.simple-form input[type=password] {
+    border: 1px solid #E7E7E7;
+    padding: 0.5em; 
+    width: 40%;
+    margin-bottom: 1em
+}
+
+
+
+/* ================================== */
+/* = Dataset/Group View: Sidebar List */
+/* ================================== */
+.property-list {
+  list-style: none;
+  padding-left: 3em;
+}
+.property-list li {
+  margin-bottom: 0.2em;
+}
+.property-list li ul {
+  margin-left: -2em;
+}
+.property-list li h3 {
+  font-size: 1.1em;
+  font-weight: bold; 
+  margin-bottom: 0.5em;
+  margin-left: -2em;
+}
+
+
+
+/* ============== */
+/* = User Index = */
+/* ============== */
+ul.userlist, 
+ul.userlist ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+ul.userlist li.user {
+  display: inline-block;
+  width: 200px;
+  margin-bottom: 15px;
+}
+ul.userlist li ul span.edits {
+  color: #333;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-left: 3px;
+}
+ul.userlist .username img {
+  margin-bottom: -3px;
+}
+ul.userlist .created {
+  color: #888;
+}
+ul.userlist .badge {
+  color: #fc0;
+}
+
+
+/* ================== */
+/* = User Read page = */
+/* ================== */
+.gravatar {
+  border: 1px solid #777;
+  padding: 1px;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 10px auto;
+}
+
+
+/* ========================= */
+/* = Dataset Snapshot View = */
+/* ========================= */
+.state-deleted, .state-deleted a, .state-deleted * {
+  color: rgba(0, 0, 0, 0.4);
+}
+.state-deleted {
+  padding-left: 3px;
+}
+.state-deleted:hover * {
+  color: rgba(0, 0, 0, 0.8);
+}
+.state-notice {
+  text-transform: uppercase;
+  font-size: 120%;
+  background: #aaa;
+  padding: 15px;
+  text-align: center;
+  color: #fff;
+}
+
+
+/* =============== */
+/* = Search Page = */
+/* =============== */
+body.package.search #minornavigation { 
+  display: none;
+}
+body.package.search #menusearch {
+  display: none;
+}
+.dataset-search {
+  margin-bottom: 35px;
+}
+.dataset-search input.search {
+  width: 100%;
+  font-size: 1.2em;
+  margin: 0px;
+  border: 1px solid #ccc;
+  padding: 0.5em;
+  font-weight: bold;
+     -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px; 
+          border-radius: 5px; 
+ -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+}
+.dataset-search input.button {
+    display: inline-block;
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px !important;
+    margin-bottom: 1px !important;
+}
+
+
+/* ======================================== */
+/* = Dataset listing (eg. search results) = */
+/* ======================================== */
+ul.datasets {
+	padding-left: 0;
+  margin: 0 0 1em 0;
+}
+ul.datasets li {
+	list-style: none;
+	padding: 1em 0 0.2em 0.0em;
+	border-bottom: 1px solid #ececec;
+	overflow: hidden;
+}
+ul.datasets li .header {
+    padding-top: 0.5em;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+ul.datasets li .extract {
+	padding-top: 0.3em;
+}
+ul.datasets li a {
+	text-decoration: none;
+}
+ul.datasets li img {
+	margin-bottom: -2px;
+}
+ul.datasets .search_meta {
+    float:right;
+}
+ul.datasets ul.dataset_formats {
+    float: right;
+    padding: 0 0 3px 0; 
+    margin: 0;
+    font-family: monospace;
+}
+ul.datasets ul.dataset_formats li {
+    display: inline;
+    margin: 0;
+    padding: 0 5px 0 5px;
+    border: none;
+    font-weight: normal;
+    font-size: 0.9em;
+    color: #808080;
+    background:#ececec;
+}
+ul.datasets .openness {
+    clear:right;
+    float:right;
+    font-size:0.8em;
+}
+ul.datasets .openness img {
+    vertical-align:top;
+}
+ul.datasets .openness li {
+    margin:0;
+    padding:0;
+    border:none;    
+}
+
+
+
+/* =================== */
+/* = Markdown Editor = */
+/* =================== */
+.markdown-editor {
+  background: #EEE;
+  border-radius: 5px 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border: 1px solid #CCC;
+  padding: 0 5px 5px 10px;
+  width: 32em;
+}
+.markdown-editor .button-row {
+  padding-right: 40px;
+  text-align: center;
+}
+.markdown-editor div.markdown-preview {
+  background: white;
+  border: 1px solid #CCC;
+  padding: 5px;
+  margin-bottom: 5px;
+  overflow: auto;
+}
+.markdown-editor textarea.markdown-input {
+  margin-bottom: 5px;
+  padding: 5px;
+  display: block;
+}
+
+
+/* =================== */
+/* = URL Slug Editor = */
+/* =================== */
+input.url-slug-editor {
+  width: 250px;
+}
+
+
+/* ============= */
+/* = Mini-Tabs = */
+/* ============= */
+ul.button-row {
+  margin-bottom: 5px;
+}
+ul.button-row li {
+  display: inline;
+  margin-right: 10px;
+}
+
+
+/* ================== */
+/* = Welcome Banner = */
+/* ================== */
+.welcome-banner {
   width: 100%;
   /* Old background was a little less intrusive */
   background: #fcba63;
@@ -1239,16 +742,14 @@ body.error {
   padding: 0;
   border-bottom: 1px solid #faa;
   font-weight: bold;
-}
-.top-bar-text {
   line-height: 30px;
   color: #fff;
 }
-.top-bar-text a {
+.welcome-banner a {
   color: #fff;
   text-decoration: underline;
 }
-.top-bar button.js-kill-button {
+.welcome-banner button {
   float: right;
   margin-right: 20px;
   margin-top: 3px;
@@ -1256,10 +757,98 @@ body.error {
 }
 
 
-/* ============================= */
-/* = Inline resource edit form = */
-/* ============================= */
+/* ================================= */
+/* = Edit Dataset Page: Navigation = */
+/* ================================= */
+body.package.edit div#content {
+  /* Flip the sidebar to the left-hand side */
+  margin-right: 29px;
+  margin-left: 0px;
+  float: right;
+  padding-right: 0;
+  padding-left: 20px;
+  border: none;
+  border-left: 1px solid #eee;
+}
+body.package.edit div#sidebar {
+  /* Flip the sidebar to the left-hand side */
+  padding-left: 0px;
+  float: left;
+  margin-right: 0px;
+}
+body.package.edit ul.widget-list {
+  margin-left: 1.5em;
+  margin-right: 0;
+}
+ul.dataset-edit-nav {
+  list-style-type: none;
+  padding-left: 0;
+}
+ul.dataset-edit-nav li a {
+  text-decoration: none;
+  font-weight: bold;
+  display: block;
+  padding: 7px 0 7px 10px;
+  margin-bottom: 7px;
+  border: 1px transparent solid;
+}
+ul.dataset-edit-nav li a.active,  
+ul.dataset-edit-nav li a:hover {
+  border: 1px solid #e0e0e0;
+  background-color: #e2e2e2;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
+  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
+  border-right: none;
+     -moz-border-radius-bottomleft: 5px; 
+  -webkit-border-bottom-left-radius: 5px; 
+          border-bottom-left-radius: 5px; 
+     -moz-border-radius-topleft: 5px; 
+  -webkit-border-top-left-radius: 5px; 
+          border-top-left-radius: 5px; 
+  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+}
 
+
+
+/* ===================== */
+/* = Edit Dataset Page = */
+/* ===================== */
+.dataset-edit-form .edit-summary {
+  /* Needs refactoring. Clutters the page too much. */
+  display: none;
+}
+.dataset-edit-form input#Resource--url {
+  width: 60%;
+}
+.dataset-edit-form .resource-add {
+  background: #eee;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  border: 1px solid #e0e0e0;
+  border-left: none;
+  border-right: none;
+}
+.dataset-edit-form .resource-add li h4 {
+  display: inline;
+  padding-right: 20px;
+}
+.dataset-edit-form .resource-add .subpane {
+  margin-top: 10px;
+}
+.dataset-edit-form .resource-add .fileinfo {
+  margin: 7px 0;
+}
+
+
+
+/* ================================ */
+/* = Edit Dataset Page: Resources = */
+/* ================================ */
 .resource-table-edit tbody tr td,
 .resource-table-view tbody tr td {
   /* Constrain structure against overflow */
@@ -1267,7 +856,6 @@ body.error {
   overflow: hidden;
   white-space: nowrap;
 }
-
 .resource-table-edit tr {
   overflow: hidden;
 }
@@ -1336,3 +924,134 @@ td.resource-edit-value {
   padding-left: 4px; 
   border-left: 1px dashed #aaa;
 }
+
+
+/* ==================== */
+/* = Add Dataset Page = */
+/* ==================== */
+.dataset-create-form fieldset {
+  /* Show only one field */
+  display: none;
+}
+.dataset-create-form fieldset#basic-information {
+  display: block;
+}
+.dataset-create-form .edit-summary {
+  display: none;
+}
+.dataset-create-form dt.homepage-label,
+.dataset-create-form dd.homepage-field,
+.dataset-create-form dd.homepage-instructions 
+{
+  display: none;
+}
+.dataset-create-form dt.tags-label,
+.dataset-create-form dd.tags-field,
+.dataset-create-form dd.tags-instructions 
+{
+  display: none;
+}
+.dataset-create-form dt.description-label,
+.dataset-create-form dd.description-field,
+.dataset-create-form dd.description-instructions 
+{
+  display: none;
+}
+.dataset-create-form dt.license-label,
+.dataset-create-form dd.license-field,
+.dataset-create-form dd.license-instructions 
+{
+  display: none;
+}
+.dataset-create-form a.url-edit {
+  font-weight: normal;
+  margin-left: 10px;
+}
+.dataset-create-form dd.name-field {
+  padding-top: 0.2em;
+}
+.dataset-create-form dd.name-field p {
+  margin-bottom: 4px;
+}
+
+
+
+/* ===================== */
+/* = Dataset View Page = */
+/* ===================== */
+body.package.read #sidebar ul.tags, 
+body.package.read #sidebar ul.groups {
+  margin-bottom: 10px;
+}
+.flash-messages .success .new-dataset {
+  font-size: 150%;
+}
+.flash-messages.success .new-dataset a {
+  font-weight: bold;
+}
+
+
+
+/* ================== */
+/* = Add Group Page = */
+/* ================== */
+.group-create-form fieldset#extras,
+.group-create-form fieldset#datasets {
+  display: none;
+}
+.group-create-form .description-label,
+.group-create-form .description-field,
+.group-create-form .state-label,
+.group-create-form .state-field {
+  display: none;
+}
+
+
+
+/* ============== */
+/* = Admin Page = */
+/* ============== */
+body.admin form#form-purge-packages, 
+body.admin form#form-purge-revisions {
+  margin-bottom: 30px;
+  text-align: right;
+}
+
+
+
+/* ======================= */
+/* = Authorization Pages = */
+/* ======================= */
+body.authz form {
+  margin-bottom: 30px;
+  text-align: right;
+}
+body.authz form button {
+  min-width: 120px;
+}
+
+
+
+/* ================== */
+/* :: QUESTIONABLE :: */
+/* ================== */
+.dataset .api div {
+    background:#f0f0f0;
+    padding:10px;
+}
+.dataset .api h5 {
+    font-weight:bold;
+    margin-bottom:1em!important;
+    font-size:1em;
+}
+.dataset .api code {
+    background:#444;
+    color:#fff;
+    padding:3px 10px ;
+    margin-bottom:1em;
+    display:block;
+}
+.dataset .api code a {
+    color:#fff;
+}
+

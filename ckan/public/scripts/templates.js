@@ -1,6 +1,6 @@
 
 CKAN.Templates.resourceAddLinkFile = ' \
-  <form class="resource-add"> \
+  <form> \
     <dl> \
       <dt> \
         <label class="field_opt" for="url"> \
@@ -18,7 +18,7 @@ CKAN.Templates.resourceAddLinkFile = ' \
 ';
 
 CKAN.Templates.resourceAddLinkApi = ' \
-  <form class="resource-add"> \
+  <form> \
     <dl> \
       <dt> \
         <label class="field_opt" for="url"> \
