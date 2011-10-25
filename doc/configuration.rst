@@ -194,18 +194,54 @@ Internationalisation Settings
 -----------------------------
 
 .. index::
-   single: lang
+   single: ckan.locale_default
 
-lang
-^^^^
+ckan.locale_default
+^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- lang=de
+ ckan.locale_default=de
 
 Default value:  ``en`` (English)
 
-Use this to specify the language of the text displayed in the CKAN web UI. This requires a suitable `mo` file installed for the language. For more information on internationalization, see :doc:`i18n`.
+Use this to specify the locale (language of the text) displayed in the CKAN Web UI. This requires a suitable `mo` file installed for the locale in the ckan/i18n. For more information on internationalization, see :doc:`i18n`. If you don't specify a default locale, then it will default to the first locale offered, which is by default English (alter that with `ckan.locales_offered` and `ckan.locales_filtered_out`.
+
+.. note: In versions of CKAN before 1.5, the settings used for this was variously `lang` or `ckan.locale`, which have now been deprecated in favour of `ckan.locale_default`.
+
+ckan.locales_offered
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.locales_offered=en de fr
+
+Default value: (none)
+
+By default, all locales found in the ckan/i18n directory will be offered to the user. To only offer a subset of these, list them under this option. The ordering of the locales is preserved when offered to the user.
+
+ckan.locales_filtered_out
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.locales_filtered_out=pl ru
+
+Default value: (none)
+
+If you want to not offer particular locales to the user, then list them here to have them removed from the options.
+
+ckan.locale_order
+^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.locale_order=fr de
+
+Default value: (none)
+
+If you want to specify the ordering of all or some of the locales as they are offered to the user, then specify them here in the required order. Any locales that are available but not specified in this option, will still be offered at the end of the list.
+
 
 Theming Settings
 ----------------
