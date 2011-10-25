@@ -97,8 +97,6 @@ class HomeController(BaseController):
             # no need for error, just don't redirect
             return 
         return_to += '&' if '?' in return_to else '?'
-        # hack to prevent next page being cached
-        return_to += '__cache=%s' %  int(random.random()*100000000)
         redirect_to(return_to)
 
     def cache(self, id):
