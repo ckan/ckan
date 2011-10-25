@@ -197,8 +197,8 @@ tbody tr.table-empty td {
   border-right: 1px solid #e0e0e0;
 }
 .page_heading {
-  margin-top: 1em;
-  margin-bottom: 1em;
+  margin-top: 0.9em;
+  margin-bottom: 0.7em;
   font-size: 2.2em;
   font-weight: normal;
 }
@@ -226,13 +226,13 @@ tbody tr.table-empty td {
 }
 #minornavigation ul {
   list-style: none; 
-  padding: 1px;
+  padding: 4px;
   margin: 0;
 }
 #minornavigation li {
   display: inline-block;
   margin-right: 3px;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   padding: 5px 11px 5px 9px
 }
 #minornavigation li.action {
@@ -242,8 +242,8 @@ tbody tr.table-empty td {
   background: #000;
   background-color: #fff;
   border: 1px solid #777;
-  border-bottom: 1px solid #ccc;
-  border-right: 1px solid #ccc;
+  border-bottom: 0px solid #ccc;
+  border-right: 0px solid #ccc;
      -moz-border-radius: 5px; 
   -webkit-border-radius: 5px; 
           border-radius: 5px; 
