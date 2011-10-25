@@ -58,6 +58,11 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         url = url_for('guide')
         assert url == 'http://wiki.okfn.org/ckan/doc/'
 
+    def test_template_head_end(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        assert 'ckan.template_head_end = <link rel="stylesheet" href="TEST_TEMPLATE_HEAD_END.css" type="text/css"> '
+
     def test_template_footer_end(self):
         offset = url_for('home')
         res = self.app.get(offset)

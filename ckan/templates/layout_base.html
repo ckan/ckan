@@ -42,6 +42,7 @@
     ${optional_head()}
   </py:if>
 
+  ${h.literal(getattr(g, 'template_head_end', ''))}
 </head>
 
 <body class="${request.environ.get('pylons.routes_dict', {}).get('action')} 

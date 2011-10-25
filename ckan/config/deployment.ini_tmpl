@@ -152,6 +152,11 @@ ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
 ## Enable if the API is at a different domain
 # ckan.api_url = http://www.ckan.net
 
+## html content to be inserted just before </head> tag (e.g. extra stylesheet)
+## NB: can use html e.g. <strong>blah</strong>
+## NB: can have multiline strings just indent following lines
+# ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css"> 
+
 ## html content to be inserted just before </body> tag (e.g. google analytics code)
 ## NB: can use html e.g. <strong>blah</strong>
 ## NB: can have multiline strings just indent following lines
