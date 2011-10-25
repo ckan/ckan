@@ -410,8 +410,8 @@ CKAN.Utils = function($, my) {
   my.setupDatasetEditNavigation = function() {
 
     function showSection(sectionToShowId) {
-      $('.dataset fieldset').hide();
-      $('.dataset fieldset#'+sectionToShowId).show();
+      $('.dataset-edit-form fieldset').hide();
+      $('.dataset-edit-form fieldset#'+sectionToShowId).show();
       $('.dataset-edit-nav li a').removeClass('active');
       $('.dataset-edit-nav li a[href=#section-'+sectionToShowId+']').addClass('active');
       window.location.hash = 'section-'+sectionToShowId;
