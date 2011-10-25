@@ -32,21 +32,34 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         assert 'Could not change language' not in res
 
     def test_calculate_etag_hash(self):
+        # anything that changes the home page appearance should change the
+        # etag hash
         c.user = 'test user'
         get_hash = HomeController._home_cache_key
-        hash_1 = get_hash()
-        hash_2 = get_hash()
-        self.assert_equal(hash_1, hash_2)
+        hashes = [get_hash(), get_hash()]
+        self.assert_equal(hashes[0], hashes[1])
 
+        def assert_hash_changed(hashes):
+            current_hash = get_hash()
+            assert current_hash != hashes[-1]
+            hashes.append(current_hash)
+
+        # login as a different user
         c.user = 'another user'
-        hash_3 = get_hash()
-        assert hash_2 != hash_3
+        assert_hash_changed(hashes)
 
+        # add a package to a group
+        rev = model.repo.new_revision()
+        model.Group.by_name(u'roger').add_package_by_name(u'warandpeace')
+        model.repo.commit_and_remove()
+        assert_hash_changed(hashes)
+
+        # flash message is not cached, but this is done in ckan/lib/cache
+        
         # I can't get set_lang to work and deliver correct
         # result to get_lang, so leaving it commented
 ##        set_lang('fr')
-##        hash_4 = get_hash()
-##        assert hash_3 != hash_4
+##        assert_hash_changed(hashes)
 
     @search_related
     def test_packages_link(self):

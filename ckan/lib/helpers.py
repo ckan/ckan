@@ -105,6 +105,10 @@ class _Flash(object):
         session.save()
         return [Message(*m) for m in messages]
 
+    def are_there_messages(self):
+        from pylons import session
+        return bool(session.get(self.session_key))
+
 _flash = _Flash()
 
 def flash_notice(message, allow_html=False): 
@@ -115,6 +119,9 @@ def flash_error(message, allow_html=False):
 
 def flash_success(message, allow_html=False): 
     _flash(message, category='success', allow_html=allow_html)
+
+def are_there_flash_messages():
+    return _flash.are_there_messages()
 
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):

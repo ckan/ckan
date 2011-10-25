@@ -44,9 +44,11 @@ class HomeController(BaseController):
     @staticmethod
     def _home_cache_key():
         '''Calculate the etag cache key for the home page.'''
+        # a change to the data means the group package amounts may change
+        latest_revision_id = model.repo.youngest_revision().id
         user_name = c.user
         language = get_lang()
-        cache_key = str(hash((user_name, language)))
+        cache_key = str(hash((user_name, language, latest_revision_id)))
         return cache_key
 
     @proxy_cache(expires=cache_expires)

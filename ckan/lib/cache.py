@@ -7,6 +7,7 @@ from pylons.decorators.cache import beaker_cache, create_cache_key, _make_dict_f
 from pylons.decorators.util import get_pylons
 from pylons.controllers.util import etag_cache as pylons_etag_cache
 import pylons.config
+from ckan.lib.helpers import are_there_flash_messages
 
 __all__ = ["ckan_cache", "get_cache_expires"]
 
@@ -210,5 +211,6 @@ def get_cache_expires(module_or_func):
     return cache_expires
 
 def etag_cache(page_hash):
-    if cache_validation_enabled:
+    # don't cache if there are flash messages to show (#1321)
+    if cache_validation_enabled and not are_there_flash_messages():
         pylons_etag_cache(page_hash)
