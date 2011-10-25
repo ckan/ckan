@@ -554,14 +554,6 @@ body.user-list .sort a {
   border-right: 1px solid #ccc; 
 }
 
-.gravatar {
-  border: 1px solid #777;
-  padding: 1px;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 10px auto;
-}
-
 /* ===================== */
 /* = Stateful stuff    = */
 /* ===================== */
@@ -1229,32 +1221,6 @@ body.error {
   border: none;
   color: #000;
 }
-
-.top-bar {
-  width: 100%;
-  /* Old background was a little less intrusive */
-  background: #fcba63;
-  background: #b22;
-  text-align: center;
-  padding: 0;
-  border-bottom: 1px solid #faa;
-  font-weight: bold;
-}
-.top-bar-text {
-  line-height: 30px;
-  color: #fff;
-}
-.top-bar-text a {
-  color: #fff;
-  text-decoration: underline;
-}
-.top-bar button.js-kill-button {
-  float: right;
-  margin-right: 20px;
-  margin-top: 3px;
-  padding: 2px 8px;
-}
-
 
 /* ============================= */
 /* = Inline resource edit form = */
