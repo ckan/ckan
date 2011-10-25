@@ -1234,7 +1234,6 @@ body.error {
   width: 100%;
   /* Old background was a little less intrusive */
   background: #fcba63;
-  background: #b22;
   text-align: center;
   padding: 0;
   border-bottom: 1px solid #faa;
@@ -1242,10 +1241,8 @@ body.error {
 }
 .top-bar-text {
   line-height: 30px;
-  color: #fff;
 }
 .top-bar-text a {
-  color: #fff;
   text-decoration: underline;
 }
 .top-bar button.js-kill-button {

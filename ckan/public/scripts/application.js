@@ -109,20 +109,16 @@ CKAN.Utils = function($, my) {
   my.setupTopBar = function(topBar) {
 
     var cookieName = 'ckan_killtopbar';
-    var delay = 600;
-    var animTime = 600;
     var isKilled = ($.cookie(cookieName)!=null);
-    if (isKilled) return;
-
-    // Show the top bar after a short timeout
-    setTimeout("CKAN.Utils.animateHeight($('.top-bar'),"+animTime+")",delay);
-
-    // Bind to the close button
-    topBar.find('.js-kill-button').live('click', function() {
-      console.log('killing top-bar');
-      $.cookie(cookieName, 'true', { expires: 365 });
-      topBar.hide();
-    });
+    if (!isKilled) {
+      topBar.show();
+      // Bind to the close button
+      topBar.find('.js-kill-button').live('click', function() {
+        console.log('killing top-bar');
+        $.cookie(cookieName, 'true', { expires: 365 });
+        topBar.hide();
+      });
+    }
   };
 
   my.setupUrlEditor = function(slugType,readOnly) {
