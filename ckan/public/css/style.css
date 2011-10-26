@@ -280,6 +280,7 @@ tbody tr.table-empty td {
   padding-left: 0px;
 }
 #sidebar .widget-list li.widget-container {
+  padding-bottom: 1em;
   border-bottom: 1px solid #e0e0e0;
   margin-bottom: 1em;
 }
@@ -549,6 +550,12 @@ ul.userlist .created {
 ul.userlist .badge {
   color: #fc0;
 }
+.user-search input[type=text],
+.user-search input[type=password] {
+  width: 70%;
+  margin-top: 5px;
+}
+
 
 
 /* ================== */
