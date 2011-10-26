@@ -214,6 +214,7 @@ msgstr ""
 msgid "Invalid language specified"
 msgstr ""
 
+#. NOTE: Substitute 'English' for the language being translated into.
 #: ckan/controllers/home.py:89
 msgid "Language has been set to: English"
 msgstr ""

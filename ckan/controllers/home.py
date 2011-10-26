@@ -2,13 +2,14 @@ import random
 import sys
 
 from pylons import cache, config
+from pylons.i18n import set_lang
 from genshi.template import NewTextTemplate
 import sqlalchemy.exc
 
 from ckan.authz import Authorizer
 from ckan.logic import NotAuthorized
 from ckan.logic import check_access, get_action
-from ckan.i18n import set_session_locale, set_lang
+from ckan.lib.i18n import set_session_locale, get_lang
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache, get_cache_expires
 from ckan.lib.base import *
@@ -41,16 +42,13 @@ class HomeController(BaseController):
             
 
     @staticmethod
-    def _home_cache_key(latest_revision_id=None):
-        '''Calculate the etag cache key for the home page. If you have
-        the latest revision id then supply it as a param.'''
-        if not latest_revision_id:
-            latest_revision_id = model.repo.youngest_revision().id
+    def _home_cache_key():
+        '''Calculate the etag cache key for the home page.'''
+        # a change to the data means the group package amounts may change
+        latest_revision_id = model.repo.youngest_revision().id
         user_name = c.user
-        if latest_revision_id:
-            cache_key = str(hash((latest_revision_id, user_name)))
-        else:
-            cache_key = 'fresh-install'
+        language = get_lang()
+        cache_key = str(hash((user_name, language, latest_revision_id)))
         return cache_key
 
     @proxy_cache(expires=cache_expires)
@@ -60,8 +58,9 @@ class HomeController(BaseController):
 
         try:
             query = query_for(model.Package)
-            query.run({'q': '*:*'})
+            query.run({'q': '*:*', 'facet.field': g.facets})
             c.package_count = query.count
+            c.facets = query.facets # used by the 'tag cloud' recipe
             q = model.Session.query(model.Group).filter_by(state='active')
             c.groups = sorted(q.all(), key=lambda g: len(g.packages), reverse=True)[:6]
         except SearchError, se:
@@ -86,6 +85,11 @@ class HomeController(BaseController):
                 abort(400, _('Invalid language specified'))
             try:
                 set_lang(locale)
+                # NOTE: When translating this string, substitute the word
+                # 'English' for the language being translated into.
+                # We do it this way because some Babel locales don't contain
+                # a display_name!
+                # e.g. babel.Locale.parse('no').get_display_name() returns None
                 h.flash_notice(_("Language has been set to: English"))
             except:
                 h.flash_notice("Language has been set to: English")
@@ -96,8 +100,6 @@ class HomeController(BaseController):
             # no need for error, just don't redirect
             return 
         return_to += '&' if '?' in return_to else '?'
-        # hack to prevent next page being cached
-        return_to += '__cache=%s' %  int(random.random()*100000000)
         redirect_to(return_to)
 
     def cache(self, id):

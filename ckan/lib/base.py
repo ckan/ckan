@@ -20,7 +20,7 @@ from webhelpers.html import literal
 
 import ckan
 from ckan import authz
-from ckan import i18n
+from ckan.lib import i18n
 import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
