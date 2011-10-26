@@ -41,10 +41,10 @@ def init_model(engine):
     meta.engine = engine
     meta.metadata.bind = engine
     # sqlalchemy migrate version table
-    import sqlalchemy.exceptions
+    import sqlalchemy.exc
     try:
         version_table = Table('migrate_version', metadata, autoload=True)
-    except sqlalchemy.exceptions.NoSuchTableError:
+    except sqlalchemy.exc.NoSuchTableError:
         pass
 
 
@@ -155,13 +155,13 @@ class Repository(vdm.sqlalchemy.Repository):
 
 
     def setup_migration_version_control(self, version=None):
-        import migrate.versioning.exceptions
+        import migrate.exceptions
         import migrate.versioning.api as mig
         # set up db version control (if not already)
         try:
             mig.version_control(self.metadata.bind,
                     self.migrate_repository, version)
-        except migrate.versioning.exceptions.DatabaseAlreadyControlledError:
+        except migrate.exceptions.DatabaseAlreadyControlledError:
             pass
 
     def upgrade_db(self, version=None):
