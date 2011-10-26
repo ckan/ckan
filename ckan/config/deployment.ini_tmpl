@@ -154,6 +154,11 @@ ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
 ## Enable if the API is at a different domain
 # ckan.api_url = http://www.ckan.net
 
+## html content to be inserted just before </head> tag (e.g. extra stylesheet)
+## NB: can use html e.g. <strong>blah</strong>
+## NB: can have multiline strings just indent following lines
+# ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css"> 
+
 ## html content to be inserted just before </body> tag (e.g. google analytics code)
 ## NB: can use html e.g. <strong>blah</strong>
 ## NB: can have multiline strings just indent following lines
@@ -180,12 +185,10 @@ ckan.backup_dir = %(here)s/backup
 #ckan.recaptcha.privatekey = 
 
 # Locale/languages
-# TODO: Figure out a nicer way to get this. From the .ini? 
-# Order these by number of people speaking it in Europe:
-# http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
-# (or there abouts)
 ckan.locale_default = en
 #ckan.locales_offered = 
+# Default order is roughly by number of people speaking it in Europe:
+# http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
 ckan.locale_order = en de fr it es pl ru nl sv no cs_CZ hu pt_BR fi bg ca sq
 ckan.locales_filtered_out = el
 

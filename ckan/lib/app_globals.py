@@ -21,7 +21,6 @@ class Globals(object):
                                   'http://assets.okfn.org/p/ckan/img/ckan.ico')
         self.site_logo = config.get('ckan.site_logo', '')
         self.site_url = config.get('ckan.site_url', '')
-        self.site_url_nice = self.site_url.replace('http://','').replace('www.','')
         self.site_description = config.get('ckan.site_description', '')
         
         self.facets = config.get('search.facets', 'groups tags res_format license').split()
@@ -29,6 +28,7 @@ class Globals(object):
         # has been setup in load_environment():
         self.site_id = config.get('ckan.site_id')
 
+        self.template_head_end = config.get('ckan.template_head_end', '')
         self.template_footer_end = config.get('ckan.template_footer_end', '')
 
         # hide these extras fields on package read

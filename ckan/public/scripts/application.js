@@ -1,7 +1,5 @@
 (function ($) {
   $(document).ready(function () {
-    CKAN.Utils.isLoggedIn = Boolean($.cookie("ckan_display_name"));
-
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
     CKAN.Utils.setupAuthzGroupAutocomplete($('input.autocomplete-authzgroup'));
     CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-dataset'));
@@ -20,27 +18,20 @@
       client: client
     };
 
-    var isFrontPage = $('body.index.home').length > 0;
     var isDatasetView = $('body.package.read').length > 0;
-    var isDatasetNew = $('body.package.new').length > 0;
-    var isGroupNew = $('body.group.new').length > 0;
-
-    // Two main entrance-points to the site:
-    if (!CKAN.Utils.isLoggedIn && (isFrontPage || isDatasetView)) {
-      CKAN.Utils.setupTopBar($('.top-bar'));
-    }
-
     if (isDatasetView) {
       var _dataset = new CKAN.Model.Dataset(preload_dataset);
       CKANEXT.DATAPREVIEW.setupDataPreview(_dataset);
     }
 
+    var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       // Set up magic URL slug editor
       CKAN.Utils.setupUrlEditor('package');
       $('#save').val(CKAN.Strings.addDataset);
       $("#title").focus();
     }
+    var isGroupNew = $('body.group.new').length > 0;
     if (isGroupNew) {
       // Set up magic URL slug editor
       CKAN.Utils.setupUrlEditor('group');
@@ -92,40 +83,14 @@ CKAN.Utils = function($, my) {
     var messageDiv = $('<div />').html(msg).addClass(category).hide();
     $('.flash-messages').append(messageDiv);
     messageDiv.show(1200);
-  };
 
-  // Animate the appearance of an element by expanding its height
-  my.animateHeight = function(element, animTime) {
-    if (!animTime) animTime = 350;
-    element.show();
-    var finalHeight = element.height();
-    element.height(0);
-    element.animate({height:finalHeight}, animTime);
-  }
+  };
 
   my.bindInputChanges = function(input, callback) {
     input.keyup(callback);
     input.keydown(callback);
     input.keypress(callback);
     input.change(callback);
-  };
-
-  my.setupTopBar = function(topBar) {
-
-    var cookieName = 'ckan_killtopbar';
-    var delay = 600;
-    var animTime = 600;
-    var isKilled = ($.cookie(cookieName)!=null);
-    if (isKilled) return;
-
-    // Show the top bar after a short timeout
-    setTimeout("CKAN.Utils.animateHeight($('.top-bar'),"+animTime+")",delay);
-
-    // Bind to the close button
-    topBar.find('.js-kill-button').live('click', function() {
-      $.cookie(cookieName, 'true', { expires: 365 });
-      topBar.hide();
-    });
   };
 
   my.setupUrlEditor = function(slugType,readOnly) {

@@ -44,9 +44,11 @@ class HomeController(BaseController):
     @staticmethod
     def _home_cache_key():
         '''Calculate the etag cache key for the home page.'''
+        # a change to the data means the group package amounts may change
+        latest_revision_id = model.repo.youngest_revision().id
         user_name = c.user
         language = get_lang()
-        cache_key = str(hash((user_name, language)))
+        cache_key = str(hash((user_name, language, latest_revision_id)))
         return cache_key
 
     @proxy_cache(expires=cache_expires)
@@ -56,8 +58,9 @@ class HomeController(BaseController):
 
         try:
             query = query_for(model.Package)
-            query.run({'q': '*:*'})
+            query.run({'q': '*:*', 'facet.field': g.facets})
             c.package_count = query.count
+            c.facets = query.facets # used by the 'tag cloud' recipe
             q = model.Session.query(model.Group).filter_by(state='active')
             c.groups = sorted(q.all(), key=lambda g: len(g.packages), reverse=True)[:6]
         except SearchError, se:
