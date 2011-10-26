@@ -419,6 +419,27 @@ class TestAction(WsgiAppCase):
         assert 'revision_id' in res_obj['result'][0]
         assert 'state' in res_obj['result'][0]
 
+    def test_13_group_list_by_size(self):
+        postparams = '%s=1' % json.dumps({'order_by': 'packages'})
+        res = self.app.post('/api/action/group_list',
+                            params=postparams)
+        res_obj = json.loads(res.body)
+        assert_equal(res_obj['result'], ['david',
+                                         'roger'])
+
+    def test_13_group_list_by_size_all_fields(self):
+        postparams = '%s=1' % json.dumps({'order_by': 'packages',
+                                          'all_fields': 1})
+        res = self.app.post('/api/action/group_list',
+                            params=postparams)
+        res_obj = json.loads(res.body)
+        result = res_obj['result']
+        assert_equal(len(result), 2)
+        assert_equal(result[0]['name'], 'david')
+        assert_equal(result[0]['packages'], 2)
+        assert_equal(result[1]['name'], 'roger')
+        assert_equal(result[1]['packages'], 1)
+
     def test_14_group_show(self):
         postparams = '%s=1' % json.dumps({'id':'david'})
         res = self.app.post('/api/action/group_show', params=postparams)

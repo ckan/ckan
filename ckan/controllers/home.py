@@ -59,11 +59,22 @@ class HomeController(BaseController):
         etag_cache(cache_key)
 
         try:
-            query = query_for(model.Package)
-            query.run({'q': '*:*'})
-            c.package_count = query.count
-            q = model.Session.query(model.Group).filter_by(state='active')
-            c.groups = sorted(q.all(), key=lambda g: len(g.packages), reverse=True)[:6]
+            # package search
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+            data_dict = {
+                'q':'*:*',
+                'facet.field':g.facets,
+                'rows':0,
+                'start':0,
+            }
+            query = get_action('package_search')(context,data_dict)
+            c.package_count = query['count']
+            c.facets = query['facets']
+
+            # group search
+            data_dict = {'order_by': 'packages', 'all_fields': 1}
+            c.groups = get_action('group_list')(context, data_dict)
         except SearchError, se:
             c.package_count = 0
             c.groups = []

@@ -26,6 +26,9 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         res = self.app.get(offset)
         print res
         assert 'Add a dataset' in res
+        assert 'Could not change language' not in res
+        assert "Dave's books has 2 datasets" in res, res
+        assert "Roger's books has 1 datasets" in res, res
 
     def test_calculate_etag_hash(self):
         c.user = 'test user'
