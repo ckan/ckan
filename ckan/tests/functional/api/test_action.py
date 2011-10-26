@@ -1,11 +1,13 @@
 import json
-from pprint import pprint, pformat
-from nose.tools import assert_equal
+from pprint import pprint
+from nose.tools import assert_equal, assert_raises
 
 from ckan.lib.create_test_data import CreateTestData
+from ckan.lib.dictization.model_dictize import resource_dictize
 import ckan.model as model
 from ckan.tests import WsgiAppCase
-from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering, change_lists_to_sets
+from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering 
+from ckan.logic import get_action, NotAuthorized
 
 class TestAction(WsgiAppCase):
 
@@ -29,6 +31,22 @@ class TestAction(WsgiAppCase):
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
+
+    def _add_basic_package(self, package_name=u'test_package'):
+        package = {
+            'name': package_name,
+            'title': u'A Novel By Tolstoy',
+            'resources': [{
+                'description': u'Full text.',
+                'format': u'plain text',
+                'url': u'http://www.annakarenina.com/download/'
+            }]
+        }
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        return json.loads(res.body)['result']
 
     def test_01_package_list(self):
         postparams = '%s=1' % json.dumps({})
@@ -534,3 +552,188 @@ class TestAction(WsgiAppCase):
         resource_created.pop('revision_id')
         resource_created.pop('revision_timestamp')
         assert resource_updated == resource_created
+
+    def test_20_task_status_update(self):
+        package_created = self._add_basic_package(u'test_task_status_update')
+
+        task_status = {
+            'entity_id': package_created['id'],
+            'entity_type': u'package',
+            'task_type': u'test_task',
+            'key': u'test_key',
+            'value': u'test_value',
+            'state': u'test_state'
+        }
+        postparams = '%s=1' % json.dumps(task_status)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_updated = json.loads(res.body)['result']
+        task_status_id = task_status_updated.pop('id')
+        task_status_updated.pop('last_updated')
+        assert task_status_updated == task_status, (task_status_updated, task_status)
+
+        task_status_updated['id'] = task_status_id
+        task_status_updated['value'] = u'test_value_2'
+        postparams = '%s=1' % json.dumps(task_status_updated)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_updated_2 = json.loads(res.body)['result']
+        task_status_updated_2.pop('last_updated')
+        assert task_status_updated_2 == task_status_updated, task_status_updated_2
+
+    def test_21_task_status_update_many(self):
+        package_created = self._add_basic_package(u'test_task_status_update_many')
+        task_statuses = {
+            'data': [
+                {
+                    'entity_id': package_created['id'],
+                    'entity_type': u'package',
+                    'task_type': u'test_task',
+                    'key': u'test_task_1',
+                    'value': u'test_value_1',
+                    'state': u'test_state'
+                },
+                {
+                    'entity_id': package_created['id'],
+                    'entity_type': u'package',
+                    'task_type': u'test_task',
+                    'key': u'test_task_2',
+                    'value': u'test_value_2',
+                    'state': u'test_state'
+                }
+            ]
+        }
+        postparams = '%s=1' % json.dumps(task_statuses)
+        res = self.app.post(
+            '/api/action/task_status_update_many', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_statuses_updated = json.loads(res.body)['result']['results']
+        for i in range(len(task_statuses['data'])):
+            task_status = task_statuses['data'][i]
+            task_status_updated = task_statuses_updated[i]
+            task_status_updated.pop('id') 
+            task_status_updated.pop('last_updated') 
+            assert task_status == task_status_updated, (task_status_updated, task_status, i)
+
+    def test_22_task_status_normal_user_not_authorized(self):
+        task_status = {} 
+        postparams = '%s=1' % json.dumps(task_status)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.normal_user.apikey)},
+            status=self.STATUS_403_ACCESS_DENIED
+        )
+        res_obj = json.loads(res.body)
+        expected_res_obj = {
+            'help': None,
+            'success': False,
+            'error': {'message': 'Access denied', '__type': 'Authorization Error'}
+        }
+        assert res_obj == expected_res_obj, res_obj
+
+    def test_23_task_status_validation(self):
+        task_status = {} 
+        postparams = '%s=1' % json.dumps(task_status)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=self.STATUS_409_CONFLICT
+        )
+
+    def test_24_task_status_show(self):
+        package_created = self._add_basic_package(u'test_task_status_show')
+
+        task_status = {
+            'entity_id': package_created['id'],
+            'entity_type': u'package',
+            'task_type': u'test_task',
+            'key': u'test_task_status_show',
+            'value': u'test_value',
+            'state': u'test_state'
+        }
+        postparams = '%s=1' % json.dumps(task_status)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_updated = json.loads(res.body)['result']
+
+        postparams = '%s=1' % json.dumps({'id': task_status_updated['id']})
+        res = self.app.post(
+            '/api/action/task_status_show', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_show = json.loads(res.body)['result']
+
+        task_status_show.pop('last_updated')
+        task_status_updated.pop('last_updated')
+        assert task_status_show == task_status_updated, (task_status_show, task_status_updated)
+
+    def test_25_task_status_delete(self):
+        package_created = self._add_basic_package(u'test_task_status_delete')
+
+        task_status = {
+            'entity_id': package_created['id'],
+            'entity_type': u'package',
+            'task_type': u'test_task',
+            'key': u'test_task_status_delete',
+            'value': u'test_value',
+            'state': u'test_state'
+        }
+        postparams = '%s=1' % json.dumps(task_status)
+        res = self.app.post(
+            '/api/action/task_status_update', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_updated = json.loads(res.body)['result']
+
+        postparams = '%s=1' % json.dumps({'id': task_status_updated['id']})
+        res = self.app.post(
+            '/api/action/task_status_delete', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_delete = json.loads(res.body)
+        assert task_status_delete['success'] == True
+
+    def test_26_resource_show(self):
+        pkg = model.Package.get('annakarenina')
+        resource = pkg.resources[0]
+        postparams = '%s=1' % json.dumps({'id': resource.id})
+        res = self.app.post('/api/action/resource_show', params=postparams)
+        result = json.loads(res.body)['result']
+        resource_dict = resource_dictize(resource, {'model': model})
+        result.pop('revision_timestamp')
+        assert result == resource_dict, (result, resource_dict)
+
+    
+    def test_27_get_site_user_not_authorized(self):
+        assert_raises(NotAuthorized,
+                     get_action('get_site_user'),
+                     {'model': model}, {})
+        user = model.User.get('test.ckan.net')
+        assert not user
+
+        user=get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        assert user['name'] == 'test.ckan.net'
+
+        user = model.User.get('test.ckan.net')
+        assert user
+
+        user=get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        assert user['name'] == 'test.ckan.net'
+        
+        user = model.Session.query(model.User).filter_by(name='test.ckan.net').one()
+        assert user
+
+
+
+
+
+
+
+

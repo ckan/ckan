@@ -1,7 +1,7 @@
 from ckan.logic import check_access_old, NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
-from ckan.logic.auth import get_package_object, get_group_object
+from ckan.logic.auth import get_package_object, get_group_object, get_resource_object
 
 
 def site_read(context, data_dict):
@@ -12,7 +12,7 @@ def site_read(context, data_dict):
     ./ckan/controllers/api.py
     """
     model = context['model']
-    user = context['user']
+    user = context.get('user')
     if not Authorizer().is_authorized(user, model.Action.SITE_READ, model.System):
         return {'success': False, 'msg': _('Not authorized to see this page')}
 
@@ -63,7 +63,7 @@ def user_list(context, data_dict):
 
 def package_relationships_list(context, data_dict):
     model = context['model']
-    user = context['user']
+    user = context.get('user')
 
     id = data_dict['id']
     id2 = data_dict.get('id2')
@@ -81,12 +81,34 @@ def package_relationships_list(context, data_dict):
 
 def package_show(context, data_dict):
     model = context['model']
-    user = context['user']
+    user = context.get('user')
     package = get_package_object(context, data_dict)
 
-    authorized =  check_access_old(package, model.Action.READ, context)
+    authorized = check_access_old(package, model.Action.READ, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+    else:
+        return {'success': True}
+
+def resource_show(context, data_dict):
+    model = context['model']
+    user = context.get('user')
+    resource = get_resource_object(context, data_dict)
+
+    # check authentication against package
+    query = model.Session.query(model.Package)\
+        .join(model.ResourceGroup)\
+        .join(model.Resource)\
+        .filter(model.ResourceGroup.id == resource.resource_group_id)
+    pkg = query.first()
+    if not pkg:
+        raise NotFound(_('No package found for this resource, cannot check auth.'))
+    
+    pkg_dict = {'id': pkg.id}
+    authorized = package_show(context, pkg_dict).get('success')
+    
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user), resource.id)}
     else:
         return {'success': True}
 
@@ -96,7 +118,7 @@ def revision_show(context, data_dict):
 
 def group_show(context, data_dict):
     model = context['model']
-    user = context['user']
+    user = context.get('user')
     group = get_group_object(context, data_dict)
 
     authorized =  check_access_old(group, model.Action.READ, context)
@@ -129,6 +151,9 @@ def user_autocomplete(context, data_dict):
 def format_autocomplete(context, data_dict):
     return {'success': True}
 
+def task_status_show(context, data_dict):
+    return {'success': True}
+
 ## Modifications for rest api
 
 def package_show_rest(context, data_dict):
@@ -139,3 +164,9 @@ def group_show_rest(context, data_dict):
 
 def tag_show_rest(context, data_dict):
     return tag_show(context, data_dict)
+
+def get_site_user(context, data_dict):
+    if not context.get('ignore_auth'):
+        return {'success': False, 'msg': 'Only internal services allowed to use this action'}
+    else:
+        return {'success': True}

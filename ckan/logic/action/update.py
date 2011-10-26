@@ -12,6 +12,7 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
                                                 resource_dictize,
+                                                task_status_dictize,
                                                 group_dictize,
                                                 group_to_api1,
                                                 group_to_api2,
@@ -20,12 +21,14 @@ from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_api_to_dict,
                                              group_dict_save,
                                              user_dict_save,
+                                             task_status_dict_save,
                                              package_dict_save,
                                              resource_dict_save)
 from ckan.logic.schema import (default_update_group_schema,
                                default_update_package_schema,
                                default_update_user_schema,
-                               default_update_resource_schema)
+                               default_update_resource_schema,
+                               default_task_status_schema)
 from ckan.lib.navl.dictization_functions import validate
 log = logging.getLogger(__name__)
 
@@ -69,6 +72,12 @@ def group_error_summary(error_dict):
             error_summary[_('Extras')] = error[0]
         else:
             error_summary[_(prettify(key))] = error[0]
+    return error_summary
+
+def task_status_error_summary(error_dict):
+    error_summary = {}
+    for key, error in error_dict.iteritems():
+        error_summary[_(prettify(key))] = error[0]
     return error_summary
 
 def _make_latest_rev_active(context, q):
@@ -158,16 +167,7 @@ def resource_update(context, data_dict):
     if not resource:
         raise NotFound(_('Resource was not found.'))
 
-    # check authentication against the resource package
-    # TODO: can check_access be used against a resource?
-    query = session.query(model.Package
-    ).join(model.ResourceGroup
-    ).join(model.Resource
-    ).filter(model.ResourceGroup.id == resource.resource_group_id)
-    pkg = query.first()
-    if not pkg:
-        raise NotFound(_('No package found for this resource, cannot check auth.'))
-    check_access('package_update', context, package_dictize(pkg, context))
+    check_access('resource_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -357,6 +357,40 @@ def user_update(context, data_dict):
     
     model.repo.commit()        
     return user_dictize(user, context)
+
+def task_status_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    id = data_dict.get("id")
+    schema = context.get('schema') or default_task_status_schema()
+    model.Session.remove()
+    model.Session()._context = context
+
+    if id:
+        task_status = model.TaskStatus.get(id)
+        context["task_status"] = task_status
+
+        if task_status is None:
+            raise NotFound(_('TaskStatus was not found.'))
+
+    check_access('task_status_update', context, data_dict)
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, task_status_error_summary(errors))
+
+    task_status = task_status_dict_save(data, context)
+
+    model.Session.commit()
+    return task_status_dictize(task_status, context)
+
+def task_status_update_many(context, data_dict):
+    results = []
+    for data in data_dict['data']:
+        results.append(task_status_update(context, data))
+    return {'results': results}
 
 ## Modifications for rest api
 

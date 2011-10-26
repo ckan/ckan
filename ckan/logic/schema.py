@@ -248,3 +248,15 @@ def default_update_user_schema():
     schema['password'] = [user_password_validator,ignore_missing, unicode]
     return schema
 
+def default_task_status_schema():
+    schema = {
+        'id': [ignore],
+        'entity_id': [not_empty, unicode],
+        'entity_type': [not_empty, unicode],
+        'task_type': [not_empty, unicode],
+        'key': [not_empty, unicode],
+        'value': [not_missing],
+        'state': [ignore_missing],
+        'last_updated': [ignore_missing]
+    }
+    return schema

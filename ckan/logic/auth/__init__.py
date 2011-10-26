@@ -16,6 +16,18 @@ def get_package_object(context, data_dict = {}):
 
     return package
 
+def get_resource_object(context, data_dict={}):
+    if not 'resource' in context:
+        model = context['model']
+        id = data_dict.get('id',None)
+        resource = model.Resource.get(id)
+        if not resource:
+            raise NotFound
+    else:
+        resource = context['resource']
+
+    return resource
+
 def get_group_object(context, data_dict={}):
     if not 'group' in context:
         model = context['model']

@@ -7,6 +7,7 @@ from ckan.lib.helpers import json
 def resource_dict_save(res_dict, context):
     model = context["model"]
     session = context["session"]
+    trigger_url_change = False
 
     # try to get resource object directly from context, then by ID
     # if not found, create a new resource object
@@ -15,7 +16,10 @@ def resource_dict_save(res_dict, context):
     if (not obj) and id:
         obj = session.query(model.Resource).get(id)
     if not obj:
+        new = True
         obj = model.Resource()
+    else:
+        new = False
 
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
@@ -26,6 +30,8 @@ def resource_dict_save(res_dict, context):
         if key in ('extras', 'revision_timestamp'):
             continue
         if key in fields:
+            if key == 'url' and not new and obj.url <> value:
+                obj.url_changed = True
             setattr(obj, key, value)
         else:
             # resources save extras directly onto the object, instead
@@ -388,3 +394,12 @@ def group_api_to_dict(api1_dict, context):
 
     return dictized
 
+def task_status_dict_save(task_status_dict, context):
+    model = context["model"]
+    task_status = context.get("task_status")
+    allow_partial_update = context.get("allow_partial_update", False)
+    if task_status:
+        task_status_dict["id"] = task_status.id 
+
+    task_status = table_dict_save(task_status_dict, model.TaskStatus, context)
+    return task_status

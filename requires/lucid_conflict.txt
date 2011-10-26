@@ -6,7 +6,7 @@
 
 Genshi==0.6
 sqlalchemy-migrate==0.6
-sqlalchemy==0.6.6
+sqlalchemy==0.7.3
 webhelpers==1.2
 
 # NOTE: Developers, our build script for the Debian packages relies on the 

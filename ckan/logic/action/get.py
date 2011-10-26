@@ -1,18 +1,22 @@
 from sqlalchemy.sql import select
 from sqlalchemy import or_, and_, func, desc, case
+import uuid
 
 from ckan.logic import NotFound
 from ckan.logic import check_access
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
+from pylons import config
 from ckan.authz import Authorizer
 from ckan.lib.dictization import table_dictize
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_list_dictize,
+                                                resource_dictize,
                                                 group_dictize,
                                                 group_list_dictize,
                                                 tag_dictize,
+                                                task_status_dictize,
                                                 user_dictize)
 
 from ckan.lib.dictization.model_dictize import (package_to_api1,
@@ -338,7 +342,7 @@ def package_show(context, data_dict):
     if pkg is None:
         raise NotFound
 
-    check_access('package_show',context, data_dict)
+    check_access('package_show', context, data_dict)
 
     package_dict = package_dictize(pkg, context)
 
@@ -347,6 +351,20 @@ def package_show(context, data_dict):
 
     return package_dict
 
+def resource_show(context, data_dict):
+    model = context['model']
+    api = context.get('api_version') or '1'
+    id = data_dict['id']
+
+    resource = model.Resource.get(id)
+    context['resource'] = resource
+
+    if not resource:
+        raise NotFound
+
+    check_access('resource_show', context, data_dict)
+
+    return resource_dictize(resource, context)
 
 def revision_show(context, data_dict):
     model = context['model']
@@ -739,3 +757,36 @@ def tag_search(context, data_dict):
     q = q.limit(limit)
     results = [r for r in q]
     return {'count': count, 'results': results}
+
+def task_status_show(context, data_dict):
+    model = context['model']
+    id = data_dict['id']
+
+    query = model.Session.query(model.TaskStatus)
+
+    task_status = model.TaskStatus.get(id)
+    context['task_status'] = task_status
+
+    if task_status is None:
+        raise NotFound
+
+    check_access('task_status_show', context, data_dict)
+
+    task_status_dict = task_status_dictize(task_status, context)
+    return task_status_dict
+
+def get_site_user(context, data_dict):
+    check_access('get_site_user', context, data_dict)
+    model = context['model']
+    site_id = config.get('ckan.site_id', 'ckan_site_user')
+    user = model.User.get(site_id)
+    if not user:
+        apikey = str(uuid.uuid4())
+        user = model.User(name=site_id,
+                          password=apikey,
+                          apikey=apikey)
+        model.add_user_to_role(user, model.Role.ADMIN, model.System())
+        model.Session.add(user)
+        model.Session.commit()
+    return {'name': user.name,
+            'apikey': user.apikey}
