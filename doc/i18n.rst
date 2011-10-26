@@ -2,16 +2,18 @@
 Internationalize CKAN
 =====================
 
-CKAN is used in many countries, and adding a new language is a simple process. 
+CKAN is used in many countries, and adding a new language to the web interface is a simple process. 
+
+.. Note: Storing metadata field values in more than one language is a separate topic. This is achieved by storing the translations in extra fields. A custom dataset form and dataset display template are recommended. Ask the CKAN team for more information.
 
 Supported Languages
 ===================
 
 CKAN already supports numerous languages. To check whether your language is supported, look in the source at ``ckan/i18n`` for translation files. Languages are named using two-letter ISO language codes (e.g. ``es``, ``de``).
 
-If your language is present, you can switch language simply by setting the ``lang`` option in your CKAN config file, as described in :ref:`config-i18n`. For example, to switch to German::
+If your language is present, you can switch the default language simply by setting the ``ckan.locale_default`` option in your CKAN config file, as described in :ref:`config-i18n`. For example, to switch to German::
 
- lang=de
+ ckan.locale_default=de
 
 If your language is not supported yet, the remainder of this section section provides instructions on how to prepare a translation file and add it to CKAN. 
 
@@ -20,8 +22,36 @@ Adding a New Language
 
 If you want to add an entirely new language to CKAN, you have two options.
 
-* :ref:`i18n-manual`. Creating translation files manually.  
 * :ref:`i18n-transifex`. Creating translation files using Transifex, the open source translation software. 
+* :ref:`i18n-manual`. Creating translation files manually.
+
+
+.. _i18n-transifex:
+
+Transifex Setup
+---------------
+
+Transifex, the open translation platform, provides a simple web interface for writing translations and is widely used for CKAN internationalization. 
+
+Using Transifex makes it easier to handle collaboration, with an online editor that makes the process more accessible.
+
+Existing CKAN translation projects can be found at: https://www.transifex.net/projects/p/ckan/teams/
+
+Updated translations are automatically pushed to https://bitbucket.org/bboissin/ckan-i18n and these can be compiled and placed on CKAN servers by the server administrators.
+
+Transifex Administration
+++++++++++++++++++++++++
+
+The Transifex workflow is as follows:
+
+* Install transifex command-line utilities
+* ``tx init`` in CKAN to connect to Transifex
+* Run ``python setup.py extract_messages`` on the CKAN source
+* Upload the local .pot file via command-line ``tx push``
+* Get people to complete translations on Transifex
+* Pull locale .po files via ``tx pull``
+* ``python setup.py compile_catalog``
+* Mercurial Commit and push po and mo files
 
 
 .. _i18n-manual:
@@ -29,7 +59,9 @@ If you want to add an entirely new language to CKAN, you have two options.
 Manual Setup
 ------------
 
-If you prefer not to use Transifex, you can create translation files manually.
+If you prefer not to use Transifex, you can create translation files manually. 
+
+.. note:: Please keep the CKAN core developers aware of new languages created in this way.
 
 All the English strings in CKAN are extracted into the ``ckan.pot`` file, which can be found in ``ckan/i18n``.
 
@@ -112,32 +144,5 @@ Alternatively, if you do not want to use fab, you can just scp::
 6. Configure the Language
 +++++++++++++++++++++++++
 
-Finally, once the mo file is in place, you can switch between the installed languages using the ``lang`` option in the CKAN config file, as described in :ref:`config-i18n`. 
+Finally, once the mo file is in place, you can switch between the installed languages using the ``ckan.locale`` option in the CKAN config file, as described in :ref:`config-i18n`. 
 
-
-.. _i18n-transifex:
-
-Transifex Setup
----------------
-
-Transifxes, the open translation platform, provides a simple web interface for writing translations and is widely used for CKAN internationalization. 
-
-Using Transifex makes it easier to handle collaboration, with an online editor that makes the process more accessible.
-
-Existing CKAN translation projects can be found at: https://www.transifex.net/projects/p/ckan/teams/
-
-Updated translations are automatically pushed to https://bitbucket.org/bboissin/ckan-i18n and these can be compiled and placed on CKAN servers by the server administrators.
-
-Transifex Administration
-++++++++++++++++++++++++
-
-The Transifex workflow is as follows:
-
-* Install transifex command-line utilities
-* ``tx init`` in CKAN to connect to Transifex
-* Run ``python setup.py extract_messages`` on the CKAN source
-* Upload the local .pot file via command-line ``tx push``
-* Get people to complete translations on Transifex
-* Pull locale .po files via ``tx pull``
-* ``python setup.py compile_catalog``
-* Commit and push po and mo files

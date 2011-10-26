@@ -143,6 +143,8 @@ ckan.site_url =
 ## Favicon (default is the CKAN software favicon)
 ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
 
+## Solr support
+#solr_url = http://127.0.0.1:8983/solr
 
 ## An 'id' for the site (using, for example, when creating entries in a common search index) 
 ## If not specified derived from the site_url
@@ -181,6 +183,14 @@ ckan.backup_dir = %(here)s/backup
 ## Ckan public and private recaptcha keys [localhost]
 #ckan.recaptcha.publickey = 
 #ckan.recaptcha.privatekey = 
+
+# Locale/languages
+ckan.locale_default = en
+#ckan.locales_offered = 
+# Default order is roughly by number of people speaking it in Europe:
+# http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
+ckan.locale_order = en de fr it es pl ru nl sv no cs_CZ hu pt_BR fi bg ca sq
+ckan.locales_filtered_out = el
 
 # Logging configuration
 [loggers]

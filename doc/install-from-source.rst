@@ -295,3 +295,8 @@ Install the Source
 Finally, make sure that tests pass, as described in :ref:`basic-tests`.
 
 You can now proceed to :doc:`post-installation`.
+
+Common error messages
+---------------------
+
+Consult :doc:`common-error-messages` for solutions to a range of error messages seen during setup.

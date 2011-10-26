@@ -7,7 +7,7 @@ import re
 from sqlalchemy.orm import eagerload_all
 import genshi
 from pylons import config, cache
-from pylons.i18n import get_lang, _
+from pylons.i18n import _
 from autoneg.accept import negotiate
 from babel.dates import format_date, format_datetime, format_time
 
@@ -25,6 +25,7 @@ from ckan.lib.helpers import json
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
 from ckan.lib.dictization import table_dictize
+from ckan.lib.i18n import get_lang
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -179,7 +180,8 @@ class PackageController(BaseController):
     def _pkg_cache_key(pkg):
         # note: we need pkg.id in addition to pkg.revision.id because a
         # revision may have more than one package in it.
-        return str(hash((pkg.id, pkg.latest_related_revision.id, c.user, pkg.get_average_rating())))
+        language = get_lang()
+        return str(hash((pkg.id, pkg.latest_related_revision.id, c.user, pkg.get_average_rating(), language)))
 
     @proxy_cache()
     def read(self, id):
