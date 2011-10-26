@@ -744,16 +744,13 @@ ul.button-row li {
   width: 100%;
   /* Old background was a little less intrusive */
   background: #fcba63;
-  background: #b22;
   text-align: center;
   padding: 0;
   border-bottom: 1px solid #faa;
   font-weight: bold;
   line-height: 30px;
-  color: #fff;
 }
 .welcome-banner a {
-  color: #fff;
   text-decoration: underline;
 }
 .welcome-banner button {
