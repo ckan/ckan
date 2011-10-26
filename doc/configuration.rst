@@ -117,57 +117,6 @@ If there is a page which allows you to download a dump of the entire catalogue t
 For more information on using dumpfiles, see :doc:`database_dumps`.
 
 
-Cache Settings
---------------
-
-.. index::
-   single: cache_validation_enabled
-
-cache_validation_enabled
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.cache_validation_enabled = False
-
-Default value:  ``True``
-
-This option determines whether browsers (or other caching services running between the browser and CKAN) are helped to cache particular CKAN pages, by validating when the page content hasn't changed. This is achieved using ETag headers provided by CKAN, which is a hash that changes when the content has changed. 
-
-Developers editing the templates should set this to False, since ETag hashes don't look for template changes.
-
-.. index::
-   single: cache_enabled
-
-cache_enabled
-^^^^^^^^^^^^^
-
-Example::
-
- ckan.cache_enabled = True
-
-Default value:  ``False``
-
-Setting this option to True turns on several server-side caches. When caching is on, caching can be further configured as follows. 
-
-To set the type of Beaker storage::
- 
- beaker.cache.type = file
-
-To set the expiry times (in seconds) for specific controllers (which use the proxy_cache) specify the methods like this::
-
- ckan.controllers.package.list.expires = 600
- ckan.controllers.tag.read.expires = 600
- ckan.controllers.apiv1.package.list.expires = 600
- ckan.controllers.apiv1.package.show.expires = 600
- ckan.controllers.apiv2.package.list.expires = 600
- ckan.controllers.apiv2.package.show.expires = 600
-
-There is also an option to set the max-age value of static files delivered by paster::
-
- ckan.static_max_age = 3600
-
-
 Authentication Settings
 -----------------------
 

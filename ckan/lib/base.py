@@ -25,11 +25,6 @@ import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
-from ckan.lib.cache import etag_cache
-
-# nuke cache
-#from pylons import cache
-#cache.clear()
 
 PAGINATE_ITEMS_PER_PAGE = 50
 
