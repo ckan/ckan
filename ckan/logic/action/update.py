@@ -149,7 +149,8 @@ def make_latest_pending_package_active(context, data_dict):
     revision.approved_timestamp = datetime.datetime.now()
     session.add(revision)
     
-    session.commit()        
+    if not context.get('defer_commit'):
+        session.commit()        
     session.remove()        
 
 
@@ -183,7 +184,8 @@ def resource_update(context, data_dict):
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
     resource = resource_dict_save(data, context)
-    model.repo.commit()        
+    if not context.get('defer_commit'):
+        model.repo.commit()        
     return resource_dictize(resource, context)
 
 
@@ -223,7 +225,8 @@ def package_update(context, data_dict):
 
     for item in PluginImplementations(IPackageController):
         item.edit(pkg)
-    model.repo.commit()        
+    if not context.get('defer_commit'):
+        model.repo.commit()        
     return package_dictize(pkg, context)
 
 def package_update_validate(context, data_dict):
@@ -264,7 +267,8 @@ def _update_package_relationship(relationship, comment, context):
         rev.message = (_(u'REST API: Update package relationship: %s %s %s') % 
             (relationship.subject, relationship.type, relationship.object))
         relationship.comment = comment
-        model.repo.commit_and_remove()
+        if not context.get('defer_commit'):
+            model.repo.commit_and_remove()
     rel_dict = relationship.as_dict(package=relationship.subject,
                                     ref_package_by=ref_package_by)
     return rel_dict
@@ -327,7 +331,8 @@ def group_update(context, data_dict):
     for item in PluginImplementations(IGroupController):
         item.edit(group)
 
-    model.repo.commit()        
+    if not context.get('defer_commit'):
+        model.repo.commit()        
     if errors:
         raise ValidationError(errors)
 
@@ -355,7 +360,8 @@ def user_update(context, data_dict):
 
     user = user_dict_save(data, context)
     
-    model.repo.commit()        
+    if not context.get('defer_commit'):
+        model.repo.commit()        
     return user_dictize(user, context)
 
 def task_status_update(context, data_dict):
@@ -383,13 +389,21 @@ def task_status_update(context, data_dict):
 
     task_status = task_status_dict_save(data, context)
 
-    model.Session.commit()
+    if not context.get('defer_commit'):
+        model.Session.commit()
     return task_status_dictize(task_status, context)
 
 def task_status_update_many(context, data_dict):
     results = []
+    model = context['model']
+    deffered = context.get('defer_commit')
+    context['defer_commit'] = True
     for data in data_dict['data']:
         results.append(task_status_update(context, data))
+    if not deffered:
+        context.pop('defer_commit')
+    if not context.get('defer_commit'):
+        model.Session.commit()
     return {'results': results}
 
 ## Modifications for rest api
