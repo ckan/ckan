@@ -58,8 +58,9 @@ class HomeController(BaseController):
 
         try:
             query = query_for(model.Package)
-            query.run({'q': '*:*'})
+            query.run({'q': '*:*', 'facet.field': g.facets})
             c.package_count = query.count
+            c.facets = query.facets # used by the 'tag cloud' recipe
             q = model.Session.query(model.Group).filter_by(state='active')
             c.groups = sorted(q.all(), key=lambda g: len(g.packages), reverse=True)[:6]
         except SearchError, se:
