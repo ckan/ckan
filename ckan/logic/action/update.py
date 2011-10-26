@@ -396,11 +396,11 @@ def task_status_update(context, data_dict):
 def task_status_update_many(context, data_dict):
     results = []
     model = context['model']
-    deffered = context.get('defer_commit')
+    deferred = context.get('defer_commit')
     context['defer_commit'] = True
     for data in data_dict['data']:
         results.append(task_status_update(context, data))
-    if not deffered:
+    if not deferred:
         context.pop('defer_commit')
     if not context.get('defer_commit'):
         model.Session.commit()
