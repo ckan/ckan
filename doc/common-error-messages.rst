@@ -3,6 +3,8 @@ Common error messages
 
 Whether a developer runs CKAN using paster or going through CKAN test suite, there are a number of error messages seen that are the result of setup problems. As people experience them, please add them to the list here.
 
+These instructions assume you have the python virtual environment enabled (``. pyenv/bin/activate``) and the current directory is the top of the ckan source, which is probably: ``../pyenv/src/ckan/``.
+
 ``nose.config.ConfigError: Error reading config file 'setup.cfg': no such option 'with-pylons'``
 ================================================================================================
 
@@ -72,4 +74,21 @@ Whether a developer runs CKAN using paster or going through CKAN test suite, the
 
 ``AttributeError: 'unicode' object has no attribute 'items'`` (Cookie.py)
 =========================================================================
+
+This can be caused by using repoze.who version 1.0.18 when 1.0.19 is required. Check what you have with::
+
+         pip freeze | grep -i repoze.who=
+
+See what version you need with::
+
+         grep -f requires/*.txt |grep repoze\.who=
+
+Then install the version you need (having activated the environment)::
+
+         pip install repoze.who==1.0.19
+
+``AttributeError: 'module' object has no attribute 'BigInteger'``
+=================================================================
+
+The sqlalchemy module version is too old.
 
