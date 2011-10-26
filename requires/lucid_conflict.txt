@@ -5,7 +5,7 @@
 # equivalent.
 
 Genshi==0.6
-sqlalchemy-migrate==0.6
+sqlalchemy-migrate==0.7.1
 sqlalchemy==0.7.3
 webhelpers==1.2
 
