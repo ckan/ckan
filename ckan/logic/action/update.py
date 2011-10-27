@@ -369,8 +369,6 @@ def task_status_update(context, data_dict):
     user = context['user']
     id = data_dict.get("id")
     schema = context.get('schema') or default_task_status_schema()
-    model.Session.remove()
-    model.Session()._context = context
 
     if id:
         task_status = model.TaskStatus.get(id)

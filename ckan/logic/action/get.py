@@ -787,6 +787,8 @@ def get_site_user(context, data_dict):
                           apikey=apikey)
         model.add_user_to_role(user, model.Role.ADMIN, model.System())
         model.Session.add(user)
-        model.Session.commit()
+        model.Session.flush()
+        if not context.get('defer_commit'):
+            model.Session.commit()
     return {'name': user.name,
             'apikey': user.apikey}

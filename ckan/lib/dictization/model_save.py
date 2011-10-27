@@ -8,12 +8,10 @@ def resource_dict_save(res_dict, context):
     model = context["model"]
     session = context["session"]
     trigger_url_change = False
-
-    # try to get resource object directly from context, then by ID
-    # if not found, create a new resource object
+    
     id = res_dict.get("id")
-    obj = context.get("resource")
-    if (not obj) and id:
+    obj = None
+    if id:
         obj = session.query(model.Resource).get(id)
     if not obj:
         new = True

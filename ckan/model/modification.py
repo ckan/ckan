@@ -40,13 +40,13 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
         changed = obj_cache['changed']
         deleted = obj_cache['deleted']
 
-        for obj in new:
+        for obj in set(new):
             if isinstance(obj, (Package, Resource)):
                 self.notify(obj, DomainObjectOperation.new)
-        for obj in deleted:
+        for obj in set(deleted):
             if isinstance(obj, (Package, Resource)):
                 self.notify(obj, DomainObjectOperation.deleted)
-        for obj in changed:
+        for obj in set(changed):
             if isinstance(obj, Resource):
                 self.notify(obj, DomainObjectOperation.changed)
             if getattr(obj, 'url_changed', False):
