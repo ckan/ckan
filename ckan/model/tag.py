@@ -9,11 +9,14 @@ from package import Package
 from core import *
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
-           'PackageTagRevision', 'package_tag_revision_table']
+           'PackageTagRevision', 'package_tag_revision_table',
+           'MAX_TAG_LENGTH']
+
+MAX_TAG_LENGTH = 100
 
 tag_table = Table('tag', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('name', types.Unicode(100), nullable=False, unique=True),
+        Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False, unique=True),
 )
 
 package_tag_table = Table('package_tag', metadata,
