@@ -49,10 +49,6 @@ who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 
-# CKAN auth configuration (TODO: rename to ckan.auth or similar ...)
-# space separated list ...
-auth.admins = 
-
 # CKAN caching 
 ckan.cache_enabled = False
 ckan.cache_validation_enabled = True
@@ -71,9 +67,6 @@ ckan.controllers.apiv1.package.show.expires = -1
 ckan.controllers.apiv2.package.list.expires = -1
 ckan.controllers.apiv2.package.show.expires = -1
 
-# CKAN QoS monitoring
-ckan.enable_call_timing = false
-
 # Location of RDF versions of datasets
 #rdf_packages = http://semantic.ckan.net/record/
 
@@ -88,13 +81,6 @@ package_form = standard
 
 # API configuration
 #apikey_header_name = X-CKAN-API-Key
-
-# Changeset configuration
-#changeset.auto_commit = true
-#changeset.sources = http://www.ckan.net/,
-
-# Guide location
-#guide_url = http://wiki.okfn.org/ckan/doc/
 
 ## extra places to look for templates and public files (comma separated lists)
 ## any templates/files found will override correspondingly named ones in

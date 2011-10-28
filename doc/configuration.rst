@@ -116,6 +116,16 @@ If there is a page which allows you to download a dump of the entire catalogue t
 
 For more information on using dumpfiles, see :doc:`database_dumps`.
 
+recaptcha
+^^^^^^^^^
+
+Example::
+ ckan.recaptcha.publickey = 6Lc...-KLc
+ ckan.recaptcha.privatekey = 6Lc...-jP
+
+Setting both these options according to an established Recaptcha account adds captcha to the user registration form. This has been effective at preventing bots registering users and creating spam packages.
+
+To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
 
 Cache Settings
 --------------
@@ -166,6 +176,10 @@ To set the expiry times (in seconds) for specific controllers (which use the pro
 There is also an option to set the max-age value of static files delivered by paster::
 
  ckan.static_max_age = 3600
+
+And there is an option for the default expiry time if not specified::
+
+ ckan.cache.default_expires = 600
 
 
 Authentication Settings
@@ -473,6 +487,16 @@ The URL that resolves to the CKAN API part of the site. This is useful if the
 API is hosted on a different domain, for example when a third-party site uses
 the forms API.
 
+apikey_header_name
+^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ apikey_header_name = API-KEY
+
+Default value: ``X-CKAN-API-Key`` & ``Authorization``
+
+This allows another http header to be used to provide the CKAN API key. This is useful if network infrastructure block the Authorization header and ``X-CKAN-API-Key`` is not suitable.
 
 Authorization Settings
 ----------------------
