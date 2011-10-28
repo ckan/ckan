@@ -15,6 +15,7 @@ from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
+from pylons import g
 from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
@@ -195,7 +196,9 @@ def linked_user(user, maxlength=0):
             return user_name
     if user:
         _name = user.name if model.User.VALID_NAME.match(user.name) else user.id
-        _icon = icon("user") + " "
+        # Absolute URL of default user icon
+        _icon_url_default = g.site_url + icon_url("user")
+        _icon = gravatar(user.email_hash, 16, _icon_url_default)
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
@@ -219,13 +222,17 @@ def markdown_extract(text):
 def icon_url(name):
     return '/images/icons/%s.png' % name
 
-def icon(name, alt=None):
-    return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (icon_url(name), alt))
+def icon_html(url, alt=None):
+    return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (url, alt))
 
-def gravatar(email_hash, size=100):
-    return literal('''<a href="http://gravatar.com" target="_blank">
-      <img src="http://gravatar.com/avatar/%s?s=%d&amp;d=mm" />
-    </a>''' % (email_hash, size))
+def icon(name, alt=None):
+    return icon_html(icon_url(name),alt)
+
+def linked_gravatar(email_hash, size=100, default="mm"):
+    return literal('<a href="http://gravatar.com" target="_blank">%s</a>' % gravatar(email_hash,size,default))
+
+def gravatar(email_hash, size=100, default="mm"):
+    return literal('<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s" />' % (email_hash, size, default))
 
 
 class Page(paginate.Page):
