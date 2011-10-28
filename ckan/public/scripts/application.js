@@ -98,7 +98,7 @@ CKAN.Utils = function($, my) {
     var titleInput = $('.js-title');
     var urlText = $('.js-url-text');
     var urlSuffix = $('.js-url-suffix');
-    var urlInput = $('.js-url-input');
+    var urlInput = $('.js-url-slug-editor');
     var validMsg = $('.js-url-is-valid');
 
     var api_url = '/api/2/util/is_slug_valid';
@@ -385,8 +385,8 @@ CKAN.Utils = function($, my) {
     function showSection(sectionToShowId) {
       $('.dataset fieldset').hide();
       $('.dataset fieldset#'+sectionToShowId).show();
-      $('.edit-form-navigation li a').removeClass('active');
-      $('.edit-form-navigation li a[href=#section-'+sectionToShowId+']').addClass('active');
+      $('.dataset-edit-nav li a').removeClass('active');
+      $('.dataset-edit-nav li a[href=#section-'+sectionToShowId+']').addClass('active');
       window.location.hash = 'section-'+sectionToShowId;
     }
 
@@ -396,7 +396,7 @@ CKAN.Utils = function($, my) {
     showSection(initialSection);
     
     // Adjust form state on click
-    $('.edit-form-navigation li a').live('click', function(e) {
+    $('.dataset-edit-nav li a').live('click', function(e) {
       var $el = $(e.target);
       // Prefix="#section-"
       var showMe = $el.attr('href').slice(9);
@@ -604,7 +604,7 @@ CKAN.View.ResourceAddTabs = Backbone.View.extend({
       this.reset();
       $target.addClass('depressed');
 
-      var $subPane = $('<div />').addClass('resource-add-subpane');
+      var $subPane = $('<div />').addClass('subpane');
       this.el.append($subPane);
 
       var tempResource = new CKAN.Model.Resource({});
