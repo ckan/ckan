@@ -15,7 +15,6 @@ from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
-from pylons import g
 from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
@@ -197,8 +196,10 @@ def linked_user(user, maxlength=0):
     if user:
         _name = user.name if model.User.VALID_NAME.match(user.name) else user.id
         # Absolute URL of default user icon
-        _icon_url_default = g.site_url + icon_url("user")
-        _icon = gravatar(user.email_hash, 16, _icon_url_default)
+        from pylons import config 
+        _site_url = config.get('ckan.site_url', '')
+        _icon_url_default = _site_url + icon_url("user")
+        _icon = gravatar(user.email_hash, 16, _icon_url_default)+" "
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
