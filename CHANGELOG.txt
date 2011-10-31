@@ -1,6 +1,35 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.5 XXXX-XX-XX
+===============
+(not finished - got to 1294 branch 61adc4dde07e
+Major:
+ * New visual theme (#1108)
+    * Package & Resource edit overhaul (#1294/#1296)
+    * Resource edit overhaul (#1296)
+    * JS and CSS reorganisation (#1282)
+ * Apache Solr used for search in core instead of Postgres (#1275)
+ * Authorization system now embedded in the logic layer (#1253)
+ * Captcha added for user registration (#1307)
+ * UI language translations refreshed
+ * Action API improved with docs now (#1315)
+
+Minor:
+ * Cross-Origin Resource Sharing (CORS) support (#1271)
+ * Strings to translate into other languages tidied up (#1249)
+ * Resource format autocomplete (#816)
+ * Database disconnection gives better error message (#1290)
+ * Log-in cookie is preserved between sessions (#78)
+ * Extensions can access formalchemy forms (#1301)
+ * 'Dataset' is the new name for 'Package' (#1293)
+
+Bug fixes:
+ * Purging of revisions didn't work (since 1.4.3) (#1258)
+ * Search indexing wasn't working for SOLR (since 1.4.3) (#1256)
+ * Configuration errors were being ignored (since always) (#1172)
+ * Flash messages were temporarily held-back when using proxy cache (since 1.3.2)(#1321)
+
 v1.4.3.1 2011-09-30
 ===================
 Minor:
