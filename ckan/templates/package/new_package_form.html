@@ -41,7 +41,7 @@
 
     <dt class="name-label"><label class="field_req" for="name">Url</label></dt>
     <dd class="name-field">
-      <span class="url-text">${g.site_url+h.url_for(controller='package', id=None)+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a href="#" style="display: none;" class="url-edit js-url-editlink js-url-viewmode">(edit)</a></span>
+      <span class="js-url-text url-text">${g.site_url+h.url_for(controller='package', id=None)+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a href="#" style="display: none;" class="url-edit js-url-editlink js-url-viewmode">(edit)</a></span>
       <input style="display: none;" id="name" maxlength="100" name="name" type="text" class="url-input js-url-editmode js-url-input" value="${data.get('name', '')}" />
       <p class="js-url-is-valid">&nbsp;</p>
     </dd>
