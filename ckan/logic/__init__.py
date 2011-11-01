@@ -50,6 +50,27 @@ def parse_params(params):
 
 
 def clean_dict(data_dict):
+    '''Takes a dict and if any of the values are lists of dicts,
+    the empty dicts are stripped from the lists (recursive).
+
+    e.g.
+    >>> clean_dict(
+        {'name': u'testgrp4',
+         'title': u'',
+         'description': u'',
+         'packages': [{'name': u'testpkg'}, {'name': u'testpkg'}],
+         'extras': [{'key': u'packages', 'value': u'["testpkg"]'},
+                    {'key': u'', 'value': u''},
+                    {'key': u'', 'value': u''}],
+         'state': u'active'}
+    {'name': u'testgrp4',
+     'title': u'',
+     'description': u'',
+     'packages': [{'name': u'testpkg'}, {'name': u'testpkg'}],
+     'extras': [{'key': u'packages', 'value': u'["testpkg"]'}],
+     'state': u'active'}
+
+    '''
     for key, value in data_dict.items():
         if not isinstance(value, list):
             continue

@@ -304,7 +304,7 @@ def group_dict_save(group_dict, context):
             pkg = session.query(Package).get(id)
         if not pkg:
             pkg = session.query(Package).filter_by(name=package["name"]).first()
-        if pkg:
+        if pkg and pkg not in packages:
             packages.append(pkg)
 
     if packages or not allow_partial_update:
