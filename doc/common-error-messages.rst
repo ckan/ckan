@@ -92,3 +92,19 @@ Then install the version you need (having activated the environment)::
 
 The sqlalchemy module version is too old.
 
+``error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed``
+=====================================================================================
+
+This occurs when trying to install ApacheMiddleware using a version of Mercurial of 1.7 or later (Lucid comes with 1.4.X). It checks SSL certificates, so you need to provide them in your mercurial config. Edit you `~/.hgrc` file and add these two sections to the end::
+
+ [web]
+ cacerts = /etc/ssl/certs/ca-certificates.crt
+ 
+ [hostfingerprints]
+ hg.3aims.com = A6:4F:F0:24:A7:FB:EF:B4:84:BD:ED:32:10:F1:18:65:B4:67:4B:9D
+
+Now retry just the ApacheMiddleware install::
+
+ pip install -e hg+https://hg.3aims.com/public/ApacheMiddleware@tip#egg=apachemiddleware
+
+And it should complete this time.

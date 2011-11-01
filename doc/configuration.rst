@@ -308,10 +308,10 @@ This sets the name of the form to use when editing a dataset. This can be a form
 
 For more information on forms, see :doc:`forms`.
 
-.. _config-package-urls:
-
 .. index::
    single: package_new_return_url, package_edit_return_url
+
+.. _config-package-urls:
 
 package_new_return_url & package_edit_return_url
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

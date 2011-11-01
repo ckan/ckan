@@ -20,7 +20,7 @@ If you don't specify the version number then you will default to version 1 of th
 Action API
 ~~~~~~~~~~
 
-.. warning:: The Action API is still experimental and subject to change of URI locations, formats, parameters and results.
+.. warning:: The Action API is in beta in this release. Please feed back comments and problems. There is a known issue that incorrect parameters cause unhelpful errors with status 500.
 
 Overview
 --------
@@ -209,9 +209,37 @@ Examples::
 Authorization Header
 ====================
 
-Authorization is carried out the same way as the existing API, supplying the user's API key in the "Authorization" header. 
+CKAN can be configured to only allow authorized users to carry out certain actions. For example, in a default installation of CKAN, anyone can read packages, you have to be a logged-in user to edit them and editing permissions for a dataset can only be done by the dataset creator and a 'sysadmin' user.
 
-Depending on the settings of the instance, you may not need to identify yourself for simple read operations. (This is the case for thedatahub.org and is assumed for the examples below.)
+The authorization configuration is the same between the CKAN web interface and the API, so a user has the same permissions, whichever way he/she accesses CKAN data.
+
+Depending on the authorization settings of the CKAN instance, a user may not need to identify him/herself for simple read operations. This is the case for thedatahub.org and is assumed for the API usage examples.
+
+When using the API, a user authenticates his/her user identity by supplying a header in the request. The header key is either ``Authorization``, ``X-CKAN-API-Key`` or configured with the `apikey_header_name` option. The value of the header is the user's API key, provided on the user's page in the CKAN web interface.
+
+To obtain your API key:
+
+1. Log-in to the particular CKAN website: /user/login
+
+2. The user page shows the API Key: /user/me
+
+The key should be passed in the API request header:
+
+================= =====
+Header            Example value
+================= =====
+Authorization     ``fde34a3c-b716-4c39-8dc4-881ba115c6d4``
+================= =====
+
+If requests that are required to be authorized are not sent with a 
+valid Authorization header, for example the user associated with the 
+key is not authorized for the operation, or the header is somehow malformed,
+then the requested operation will not be carried out and the CKAN API will
+respond with status code 403.
+
+For more information about HTTP Authorization header, please refer to section
+14.8 of `RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.8>`_.
+
 
 Responses
 =========
@@ -404,153 +432,32 @@ These parameters are all the standard SOLR syntax (in contrast to the syntax use
 |                       |               |                                                     | included in the results.         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 
-Util API
-~~~~~~~~
-
-There are some useful utilities which CKAN's front-end Javascript uses and are open for others to use too.
-
-create_slug
------------
-To generate a suggestion for a dataset name when adding a new dataset
-the following API call is made:
-
-::
-
-    /api/2/util/dataset/create_slug?title=Dataset+1+Title+Typed+So+Far
-
-The return value is a JSON data structure:
-
-::
-
-    {"valid": true, "name": "dataset_1_title_typed_so_far"}
-
-These are the keys returned:
-
-``valid`` 
-
-    Can be ``True`` or ``False``. It is ``true`` when the title entered can be
-    successfully turned into a dataset name and when that dataset name is not
-    already being used. It is ``false`` otherwise.
-
-``name``
-
-    The suggested name for the dataset, based on the title
-
-You can also add ``callback=callback`` to have the response returned as JSONP. eg:
-
-This URL:
-
-::
-
-    /api/2/util/dataset/create_slug?title=Dataset+1+Title+Typed+So+Far&callback=callback
-
-Returns:
-
-::
-
-    callback({"valid": true, "name": "dataset_1_title_typed_so_far"});
-
-In some CKAN deployments you may have the API deployed at a different domain
-from the main CKAN code. In these circumstances you'll need to add a new option
-to the config file to tell the new dataset form where it should make its API
-requests to:
-
-::
-
-    ckan.api_url = http://api.example.com/
-
-tag autocomplete
-----------------
-
-There is also an autocomplete API for tags which looks like this:
-
-This URL:
-
-::
-
-    /api/2/util/tag/autocomplete?incomplete=ru
-
-Returns:
-
-::
-
-    {"ResultSet": {"Result": [{"Name": "russian"}]}}
-
-resource format autocomplete
-----------------------------
-
-Similarly, there is an autocomplete API for the resource format field
-which is available at:
-
-::
-
-    /api/2/util/resource/format_autocomplete?incomplete=cs
-
-This returns:
-
-::
-
-    {"ResultSet": {"Result": [{"Format": "csv"}]}}
-
-user autocomplete
------------------
-
-::
-
-    util/user/autocomplete
-
-API Keys
-~~~~~~~~
-
-You will need to supply an API Key for certain requests to the CKAN API:
-
-* For any action which makes a change to a resource.
-
-* If the particular resource's authorization set-up is not open to 
-  visitors for the action.
-
-To obtain your API key:
-
-1. Log-in to the particular CKAN website: /user/login
-
-2. The user page has a link to the API Key: /user/apikey
-
-The key should be passed in the API request header:
-
-================= =====
-Header            Example value
-================= =====
-Authorization     ``fde34a3c-b716-4c39-8dc4-881ba115c6d4``
-================= =====
-
-If requests that are required to be authorized are not sent with a 
-valid Authorization header, for example the user associated with the 
-key is not authorized for the operation, or the header is somehow malformed,
-then the requested operation will not be carried out and the CKAN API will
-respond with status code 403.
-
-For more information about HTTP Authorization header, please refer to section
-14.8 of `RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.8>`_.
-
-
 Status Codes
 ~~~~~~~~~~~~
 
-The Action API always returns status: 200 OK and any error is contained in the returned dictionary. 
+The Action API aims to return status ``200 OK``, whether there are errors or not. The response body contains the `success` field indicating whether an error occurred or not. When ``"success": false`` then you will receive details of the error in the `error` field. For example requesting a dataset that doesn't exist::
 
-The Search and Util APIs return standard HTTP status codes to signal method outcomes:
+ curl http://test.ckan.net/api/action/package_show -d '{"id": "unknown_id"}'
+
+gives::
+
+ {"help": null, "success": false, "error": {"message": "Not found", "__type": "Not Found Error"}}
+
+Alternatively, requests to the Action API that have major formatting problems may result in a 409, 400, or 500 error (in order of increasing severity), but future CKAN releases aim to avoid these responses in favour of the previously described method of providing the error message.
+
+The Search API returns standard HTTP status codes to signal method outcomes:
 
 ===== =====
 Code  Name
 ===== =====
 200   OK                 
 201   OK and new object created (referred to in the Location header)
-301   Moved Permanently  
-400   Bad Request     
-403   Not Authorized     
-404   Not Found          
-409   Conflict (e.g. name already exists)
-500   Service Error           
+301   Moved Permanently (redirect)
+400   Bad Request
+403   Not Authorized - have you forgotton to specify your API Key?
+404   Not Found
+409   Conflict - error during processing of the request
+500   Service Error - unhandled error - the system administrator has been notified
 ===== =====
 
 JSONP formatted responses
@@ -560,14 +467,12 @@ To cater for scripts from other sites that wish to access the API, the data can 
 
 Example normal request::
 
- GET /api/rest/dataset/pollution_stats
- returns: {"name": "pollution_stats", ... }
+ curl http://test.ckan.net/api/action/package_show -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
+ returns: {"help": null, "success": true, "result": {"name": "uk-quango-data", ...}}
 
 but now with the callback parameter::
 
- GET /api/rest/dataset/pollution_stats?callback=jsoncallback
- returns: jsoncallback({"name": "pollution_stats", ... });
+ curl http://test.ckan.net/api/action/package_show?callback=jsoncallback -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
+ returns: jsoncallback({"help": null, "success": true, "result": {"name": "uk-quango-data", ...}});
 
-This parameter can apply to all GET requests in the API.
-
-
+This parameter can apply to all POST requests to the Action API and GET requests to the Search API and v1/v2 APIs.

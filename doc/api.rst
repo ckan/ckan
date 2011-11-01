@@ -416,7 +416,7 @@ To obtain your API key:
 
 1. Log-in to the particular CKAN website: /user/login
 
-2. The user page has a link to the API Key: /user/apikey
+2. The user page shows the API Key: /user/me
 
 The key should be passed in the API request header:
 

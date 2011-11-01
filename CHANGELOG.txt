@@ -37,6 +37,8 @@ Bug fixes:
  * On login, user told 'welcome back' even if he's just registered (#1194)
  * Various minor exceptions cropped up (mostly since 1.4.3) (#1334, #1346)
  * Extra field couldn't be set to original value when key deleted (#1356)
+ * JSONP callback parameter didn't work for the Action API (since 1.4.3) (#1437)
+
 
 v1.4.3.1 2011-09-30
 ===================
