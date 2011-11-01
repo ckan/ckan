@@ -18,11 +18,6 @@
       client: client
     };
 
-    var isFrontPage = $('body.index.home').length > 0;
-    if (isFrontPage) {
-      CKAN.Utils.setupWelcomeBanner($('.js-welcome-banner'));
-    }
-
     var isDatasetView = $('body.package.read').length > 0;
     if (isDatasetView) {
       var _dataset = new CKAN.Model.Dataset(preload_dataset);
@@ -90,34 +85,11 @@ CKAN.Utils = function($, my) {
     messageDiv.show(1200);
   };
 
-  // Animate the appearance of an element by expanding its height
-  my.animateHeight = function(element, animTime) {
-    if (!animTime) animTime = 350;
-    element.show();
-    var finalHeight = element.height();
-    element.height(0);
-    element.animate({height:finalHeight}, animTime);
-  }
-
   my.bindInputChanges = function(input, callback) {
     input.keyup(callback);
     input.keydown(callback);
     input.keypress(callback);
     input.change(callback);
-  };
-
-  my.setupWelcomeBanner = function(banner) {
-
-    var cookieName = 'ckan_killtopbar';
-    var isKilled = ($.cookie(cookieName)!=null);
-    if (!isKilled) {
-      banner.show();
-      // Bind to the close button
-      banner.find('.js-kill-button').live('click', function() {
-        $.cookie(cookieName, 'true', { expires: 365 });
-        banner.hide();
-      });
-    }
   };
 
   my.setupUrlEditor = function(slugType,readOnly) {
@@ -127,14 +99,6 @@ CKAN.Utils = function($, my) {
     var urlSuffix = $('.js-url-suffix');
     var urlInput = $('.js-url-input');
     var validMsg = $('.js-url-is-valid');
-
-    console.log(titleInput);
-    console.log(urlText);
-    console.log(urlSuffix);
-    console.log(urlInput);
-    console.log(validMsg);
-
-
 
     var api_url = '/api/2/util/is_slug_valid';
     // (make length less than max, in case we need a few for '_' chars to de-clash slugs.)
