@@ -157,7 +157,9 @@ class BaseController(WSGIController):
 
         If there is no data, None or "" is returned.
         ValueError will be raised if the data is not a JSON-formatted dict.
-        
+
+        This function is only used by the API, so no strings need to be
+        translated.
         '''
         cls.log.debug('Retrieving request params: %r' % request.params)
         cls.log.debug('Retrieving request POST: %r' % request.POST)
@@ -166,7 +168,7 @@ class BaseController(WSGIController):
             try:
                 request_data = request.POST.keys()
             except Exception, inst:
-                msg = _("Could not find the POST data: %r : %s") % \
+                msg = "Could not find the POST data: %r : %s" % \
                       (request.POST, inst)
                 raise ValueError, msg
             request_data = request_data[0]
@@ -174,23 +176,23 @@ class BaseController(WSGIController):
             try:
                 request_data = request.body
             except Exception, inst:
-                msg = _("Could not extract request body data: %s") % \
+                msg = "Could not extract request body data: %s" % \
                       (inst)
                 raise ValueError, msg
             cls.log.debug('Retrieved request body: %r' % request.body)
             if not request_data:
-                msg = _("No request body data")
+                msg = "No request body data"
                 raise ValueError, msg
         if request_data:
             try:
                 request_data = json.loads(request_data, encoding='utf8')
             except ValueError, e:
-                raise ValueError, _('Error parsing JSON data. '
+                raise ValueError, 'Error parsing JSON data. '
                                     'Error: %r '
                                     'JSON (Decoded and re-encoded): %r' % \
                                     (e, request_data))
             if not isinstance(request_data, dict):
-                raise ValueError, _("Request params must be in form of a json encoded dictionary.")
+                raise ValueError, "Request params must be in form of a json encoded dictionary."
             # ensure unicode values
             for key, val in request_data.items():
                 # if val is str then assume it is ascii, since json converts

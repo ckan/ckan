@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-10-26 17:10+0100\n"
-"PO-Revision-Date: 2011-10-26 16:11+0000\n"
-"Last-Translator: dread <internet@davidread.org>\n"
+"PO-Revision-Date: 2011-10-31 20:00+0000\n"
+"Last-Translator: apohllo <apohllo@o2.pl>\n"
 "Language-Team: Polish (http://www.transifex.net/projects/p/ckan/team/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1345,7 +1345,7 @@ msgstr "Zarejestruj się"
 
 #: ckan/templates/layout_base.html:72 ckan/templates/home/index.html:18
 msgid "Find datasets"
-msgstr "Szukaj zbior danych"
+msgstr "Szukaj zbiorów danych"
 
 #: ckan/templates/layout_base.html:76 ckan/templates/package/search.html:15
 msgid "Add a dataset"
@@ -2534,7 +2534,7 @@ msgstr "Liczba edycji:"
 
 #: ckan/templates/user/read.html:14
 msgid "Number of datasets administered:"
-msgstr "Liczba podlegających zbiorów danych:"
+msgstr "Liczba zarządzanych zbiorów danych:"
 
 #: ckan/templates/user/read.html:21
 msgid "My Account"
