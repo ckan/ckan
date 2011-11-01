@@ -443,7 +443,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'Password: Please enter both passwords' in main_res, main_res
         self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
 
-    def test_user_invalid_password(self):
+    def test_user_create_invalid_password(self):
         # create/register user
         username = 'testcreate4'
         password = u'tes' # Too short
@@ -462,6 +462,25 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         main_res = self.main_div(res)
         assert 'Password: Your password must be 4 characters or longer' in main_res, main_res
         self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
+
+    def test_user_create_missing_parameters(self):
+        # create/register user
+        username = 'testcreate4'
+        user = model.User.by_name(unicode(username))
+        password = u'testpassword'
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['user-edit']
+        fv['name'] = username
+        fv['password1'] = password
+        fv['password2'] = password
+        del fv.fields['email']
+        res = fv.submit('save')
+        assert "Errors in form" in res.body
+        assert "Email: Missing value" in res.body
 
     def test_user_edit(self):
         # create user
