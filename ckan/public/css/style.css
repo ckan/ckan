@@ -293,16 +293,6 @@ tbody tr.table-empty td {
   -webkit-border-radius: 15px; 
           border-radius: 15px; 
 }
-#sidebar .widget-list li.widget-container.boxed {
-  border-bottom: 0;
-  background-color: #FFF7C0;
-  padding: 15px;
-  padding-top: 10px;
-     -moz-border-radius: 15px; 
-  -webkit-border-radius: 15px; 
-          border-radius: 15px; 
-}
-
 
 
 
@@ -722,13 +712,8 @@ ul.datasets .openness li {
 /* =================== */
 /* = URL Slug Editor = */
 /* =================== */
-input.url-input {
+input.url-slug-editor {
   width: 250px;
-}
-.markdown-editor textarea.markdown-input {
-  margin-bottom: 5px;
-  padding: 5px;
-  display: block;
 }
 
 
@@ -1024,10 +1009,7 @@ body.package.read #sidebar ul.groups {
 .group-create-form .state-field {
   display: none;
 }
-.group-create-form a.url-edit {
-  font-weight: normal;
-  margin-left: 10px;
-}
+
 
 
 /* ============== */
