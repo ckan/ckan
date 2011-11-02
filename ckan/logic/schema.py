@@ -104,6 +104,7 @@ def default_package_schema():
         'relationships_as_subject': default_relationship_schema(),
         'groups': {
             'id': [ignore_missing, unicode],
+            'name': [ignore_missing, unicode],
             '__extras': [ignore],
         }
     }

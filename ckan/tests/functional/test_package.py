@@ -10,7 +10,6 @@ from nose.plugins.skip import SkipTest
 from nose.tools import assert_equal
 
 from ckan.tests import *
-from ckan.tests import search_related, setup_test_search_index
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
@@ -234,20 +233,11 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
     @classmethod
     def setup_class(cls):
         PylonsTestCase.setup_class()
-        setup_test_search_index()
         CreateTestData.create()
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        search.clear()
-
-    @search_related
-    def test_minornavigation_2(self):
-        offset = url_for(controller='package', action='search')
-        res = self.app.get(offset)
-        res = res.click('Register it now')
-        assert 'Add - Datasets' in res
 
     def test_read(self):
         name = u'annakarenina'
@@ -296,6 +286,14 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert 'romantic novel' in res, res
         assert 'original media' in res, res
         assert 'book' in res, res
+        assert 'This Dataset is Open' in res, res
+
+    def test_read_war(self):
+        name = u'warandpeace'
+        c.hide_welcome_message = True
+        offset = url_for(controller='package', action='read', id=name)
+        res = self.app.get(offset)
+        assert 'This dataset is Not Open' in res, res
 
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'
@@ -330,49 +328,6 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         #assert '%s - Datasets' % title in res, res
         #main_div = self.main_div(res)
         #assert title in main_div, main_div.encode('utf8')
-
-    @search_related
-    def test_search(self):
-        offset = url_for(controller='package', action='search', id=None)
-        print offset
-        res = self.app.get(offset)
-        assert 'Search - ' in res
-        self._check_search_results(res, 'annakarenina', ['<strong>1</strong>', 'A Novel By Tolstoy'] )
-        self._check_search_results(res, 'warandpeace', ['<strong>1</strong>'])
-        self._check_search_results(res, 'warandpeace', ['<strong>1</strong>'])
-        self._check_search_results(res, 'annakarenina', ['<strong>1</strong>'])
-        # check for something that also finds tags ...
-        self._check_search_results(res, 'russian', ['<strong>2</strong>'])
-
-    @search_related
-    def test_search_foreign_chars(self):
-        offset = url_for(controller='package', action='search')
-        res = self.app.get(offset)
-        assert 'Search - ' in res
-        self._check_search_results(res, u'th\xfcmb', ['<strong>1</strong>'])
-        self._check_search_results(res, 'thumb', ['<strong>0</strong>'])
-
-    @search_related
-    def test_search_escape_chars(self):
-        payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
-        offset = url_for(controller='package', action='search') + payload
-        results_page = self.app.get(offset)
-        assert 'Search - ' in results_page, results_page
-        results_page = self.main_div(results_page)
-        # solr's edismax parser won't throw an error, so this should return 0 results
-        assert '>0<' in results_page, results_page
-
-    def _check_search_results(self, page, terms, requireds):
-        form = page.forms['dataset-search']
-        form['q'] = terms.encode('utf8') # paste doesn't handle this!
-        results_page = form.submit()
-        assert 'Search - ' in results_page, results_page
-        results_page = self.main_div(results_page)
-        for required in requireds:
-            if required not in results_page:
-                print results_page
-                print 'Could not find %r' % required
-                raise AssertionError
     
     def test_history(self):
         name = 'annakarenina'
@@ -1269,10 +1224,8 @@ class TestNewPreview(TestPackageBase):
 
 class TestNonActivePackages(TestPackageBase):
 
-
     @classmethod
     def setup_class(self):
-        setup_test_search_index()
         CreateTestData.create()
         self.non_active_name = u'test_nonactive'
         pkg = model.Package(name=self.non_active_name)
@@ -1294,7 +1247,6 @@ class TestNonActivePackages(TestPackageBase):
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-        search.clear()
 
     def test_read(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
@@ -1304,17 +1256,6 @@ class TestNonActivePackages(TestPackageBase):
     def test_read_as_admin(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'joeadmin'})
-
-    @search_related
-    def test_search(self):
-        offset = url_for(controller='package', action='search')
-        res = self.app.get(offset)
-        assert 'Search - ' in res
-        form = res.forms['dataset-search']
-        form['q'] =  str(self.non_active_name)
-        results_page = form.submit()
-        assert 'Search - ' in results_page, results_page
-        assert '<strong>0</strong> datasets found' in results_page, (self.non_active_name, results_page)
 
 
 class TestRevisions(TestPackageBase):
@@ -1453,74 +1394,6 @@ alert('Hello world!');
 
     def fail_if_fragment(self, fragment):
         assert fragment not in self.body, (fragment, self.body)
-
-
-class TestEtags(PylonsTestCase, TestPackageBase):
-    @classmethod
-    def setup_class(cls):
-        PylonsTestCase.setup_class()
-        CreateTestData.create()
-
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-
-    def test_calculate_etag_hash(self):
-        c.user = 'test user'
-        get_hash = PackageController._pkg_cache_key
-        hash_1 = get_hash(self.anna)
-        hash_2 = get_hash(self.anna)
-        self.assert_equal(hash_1, hash_2)
-        
-        test_title = u'Anna changed'
-        rev = model.repo.new_revision()
-        self.anna.title = test_title
-        model.repo.commit_and_remove()
-        hash_3 = get_hash(self.anna)
-        self.assert_not_equal(hash_2, hash_3)
-
-        test_url = u'http://some.com/file.xls'
-        rev = model.repo.new_revision()
-        self.anna.add_resource(test_url)
-        model.repo.commit_and_remove()
-        hash_4 = get_hash(self.anna)
-        self.assert_not_equal(hash_4, hash_3)
-
-        test_extra_key = u'testkey'
-        test_extra_value = u'testval'
-
-        rev = model.repo.new_revision()
-        # XXX without the following line, we get a "stale association
-        # proxy" in sqlalchemy > 0.6 when we try to access
-        # self.anna.extras.  "extras" is the association proxy; for
-        # some reason the association's reference to its parent
-        # (i.e. anna) is garbage-collected prematurely.  By creating a
-        # reference to anna here, we prevent the reference from having
-        # its parent destroyed during garbage collection.  The mystery
-        # is why this should be different with different versions of
-        # sqlalchemy.
-        anna = self.anna
-        self.anna.extras[test_extra_key] = test_extra_value
-        model.repo.commit_and_remove()
-        hash_5 = get_hash(self.anna)
-        self.assert_not_equal(hash_5, hash_4)
-
-        set_rating(u'random user', self.anna, 4)
-        # (commit_and_remove not required for rating)
-        hash_6 = get_hash(self.anna)
-        self.assert_not_equal(hash_6, hash_5)
-
-        c.user = 'another user'
-        hash_7 = get_hash(self.anna)
-        self.assert_not_equal(hash_7, hash_6)
-
-    def test_etags_in_response(self):
-        c.user = 'annafan'
-        c.userobj = model.User.by_name(u'annafan')
-        res = self.app.get('/dataset/annakarenina',
-                           extra_environ={'REMOTE_USER':c.user})
-        anna_hash = str(PackageController._pkg_cache_key(self.anna))
-        self.assert_equal(res.header_dict['ETag'], anna_hash)
 
 class TestAutocomplete(PylonsTestCase, TestPackageBase):
     @classmethod

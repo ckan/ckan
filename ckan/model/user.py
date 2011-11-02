@@ -49,6 +49,14 @@ class User(DomainObject):
         if self.fullname is not None and len(self.fullname.strip()) > 0:
             return self.fullname
         return self.name
+
+    @property
+    def email_hash(self):
+        import hashlib
+        e = ''
+        if self.email:
+            e = self.email.strip().lower()
+        return hashlib.md5(e).hexdigest()
         
     def get_reference_preferred_for_uri(self):
         '''Returns a reference (e.g. name, id, openid) for this user

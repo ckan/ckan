@@ -1,10 +1,14 @@
 import datetime
 
-from pylons import config
+from paste.deploy.converters import asbool
+import pylons
 from sqlalchemy import *
 
 from ckan import model
-from ckan.lib.cache import cache_enabled
+
+# Since #1422 the cache should always be enabled apart from when
+# running in tests. Therefore don't document this config option.
+cache_enabled = asbool(pylons.config.get('ckan.cache_enabled', 'True'))
 
 if cache_enabled:
     from pylons import cache

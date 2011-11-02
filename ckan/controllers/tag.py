@@ -4,7 +4,6 @@ from sqlalchemy.orm import eagerload_all
 
 from ckan.lib.base import *
 from ckan.lib.search import query_for
-from ckan.lib.cache import proxy_cache
 from ckan.lib.helpers import AlphaPage, Page
 
 from ckan.logic import NotFound, NotAuthorized
@@ -57,7 +56,6 @@ class TagController(BaseController):
            
         return render('tag/index.html')
 
-    @proxy_cache()
     def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}

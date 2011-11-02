@@ -6,11 +6,26 @@
   >
 
   <py:match path="minornavigation">
-    <ul class="tabbed" py:if="c.is_myself">
-      <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}"><a href="${h.url_for(controller='user', action='read')}">My Profile</a></li>
-      <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}"><a href="${h.url_for(controller='user', action='edit')}">Edit Profile</a></li>
-      <li><a href="${h.url_for('/user/logout')}">Log out</a></li>
-    </ul>
+    <py:if test="c.is_myself">
+      <ul class="tabbed">
+        <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}"><a href="${h.url_for(controller='user', action='read')}">My Profile</a></li>
+        <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}"><a href="${h.url_for(controller='user', action='edit')}">Edit Profile</a></li>
+        <li><a href="${h.url_for('/user/logout')}">Log out</a></li>
+      </ul>
+    </py:if>
+    <py:if test="not c.is_myself">
+      <py:if test="c.id">
+        <ul class="tabbed">
+          <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}"><a href="${h.url_for(controller='user', action='read')}">View Profile</a></li>
+        </ul>
+      </py:if>
+      <py:if test="not c.id">
+        <ul class="tabbed">
+          <li py:attrs="{'class':'current-tab'} if c.action=='login' else {}"><a href="${h.url_for(controller='user', action='login')}">Login</a></li>
+          <li py:attrs="{'class':'current-tab'} if c.action=='register' else {}"><a href="${h.url_for('register')}">Register Account</a></li>
+        </ul>
+      </py:if>
+    </py:if>
   </py:match>
   
 
