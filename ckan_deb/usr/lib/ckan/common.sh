@@ -108,7 +108,6 @@ ckan_create_config_file () {
             -e "s,^\(cache_dir\)[ =].*,\1 = /var/lib/ckan/${INSTANCE}/data," \
             -e "s,^\(who\.config_file\)[ =].*,\1 = /etc/ckan/${INSTANCE}/who.ini," \
             -e "s,^\(sqlalchemy.url\)[ =].*,\1 = postgresql://${INSTANCE}:${password}@localhost/${INSTANCE}," \
-            -e "s,ckan\.site_logo,\#ckan.site_logo," \
             -e "s,ckan\.log,/var/log/ckan/${INSTANCE}/${INSTANCE}.log," \
             -e "s,ckan\.site_id,${INSTANCE}," \
             -e "s,ckan\.site_description,${INSTANCE}," \
