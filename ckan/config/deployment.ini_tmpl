@@ -176,7 +176,7 @@ ckan.locale_default = en
 # Default order is roughly by number of people speaking it in Europe:
 # http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
 ckan.locale_order = en de fr it es pl ru nl sv no cs_CZ hu pt_BR fi bg ca sq
-ckan.locales_filtered_out = el
+ckan.locales_filtered_out = el ro lt sl
 
 # Logging configuration
 [loggers]
