@@ -1,7 +1,7 @@
 CKAN CHANGELOG
 ++++++++++++++
 
-v1.5 XXXX-XX-XX
+v1.5 2011-11-02
 ===============
 Major:
  * New visual theme (#1108)
