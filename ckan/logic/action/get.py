@@ -30,6 +30,31 @@ import logging
 
 log = logging.getLogger('ckan.logic')
 
+def _package_list_with_resources(context, package_revision_list):
+    package_list = []
+    model = context["model"]
+    for package in package_revision_list:
+        result_dict = table_dictize(package, context)
+        res_rev = model.resource_revision_table
+        resource_group = model.resource_group_table
+        query = select([res_rev], from_obj = res_rev.join(resource_group,
+                   resource_group.c.id == res_rev.c.resource_group_id))
+        query = query.where(resource_group.c.package_id == package.id)
+        result = query.where(res_rev.c.current == True).execute()
+        result_dict["resources"] = resource_list_dictize(result, context)
+        license_id = result_dict['license_id']
+        if license_id:
+            try:
+                isopen = model.Package.get_license_register()[license_id].isopen()
+                result_dict['isopen'] = isopen
+            except KeyError:
+                # TODO: create a log message this error?
+                result_dict['isopen'] = False
+        else:
+            result_dict['isopen'] = False
+        package_list.append(result_dict)
+    return package_list
+
 def site_read(context,data_dict=None):
     check_access('site_read',context,data_dict)
     return True
@@ -66,28 +91,7 @@ def current_package_list_with_resources(context, data_dict):
     if limit:
         query = query.limit(limit)
     pack_rev = query.all()
-    package_list = []
-    for package in pack_rev:
-        result_dict = table_dictize(package, context)
-        res_rev = model.resource_revision_table
-        resource_group = model.resource_group_table
-        query = select([res_rev], from_obj = res_rev.join(resource_group,
-                   resource_group.c.id == res_rev.c.resource_group_id))
-        query = query.where(resource_group.c.package_id == package.id)
-        result = query.where(res_rev.c.current == True).execute()
-        result_dict["resources"] = resource_list_dictize(result, context)
-        license_id = result_dict['license_id']
-        if license_id:
-            try:
-                isopen = model.Package.get_license_register()[license_id].isopen()
-                result_dict['isopen'] = isopen
-            except KeyError:
-                # TODO: create a log message this error?
-                result_dict['isopen'] = False
-        else:
-            result_dict['isopen'] = False
-        package_list.append(result_dict)
-    return package_list
+    return _package_list_with_resources(context, pack_rev)
 
 def revision_list(context, data_dict):
 
@@ -149,7 +153,6 @@ def group_list_authz(context, data_dict):
 
     If 'available_only' is specified, the existing groups in the package are
     removed.
-
     '''
     model = context['model']
     user = context['user']
@@ -157,7 +160,6 @@ def group_list_authz(context, data_dict):
 
     check_access('group_list_authz',context, data_dict)
 
-    from ckan.authz import Authorizer
     query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
     groups = set(query.all())
     
@@ -402,6 +404,29 @@ def group_show(context, data_dict):
 
     return group_dict
 
+def group_package_show(context, data_dict):
+    """
+    Shows all packages belonging to a group.
+    """
+    model = context["model"]
+    user = context["user"]
+    id = data_dict['id']
+    limit = data_dict.get("limit")
+
+    check_access('group_show', context, data_dict)
+
+    query = model.Session.query(model.PackageRevision)\
+        .filter(model.PackageRevision.state=='active')\
+        .filter(model.PackageRevision.current==True)\
+        .join(model.PackageGroup, model.PackageGroup.package_id==model.PackageRevision.id)\
+        .join(model.Group, model.Group.id==model.PackageGroup.group_id)\
+        .filter_by(id=id)
+
+    query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
+    if limit:
+        query = query.limit(limit)
+    pack_rev = query.all()
+    return _package_list_with_resources(context, pack_rev)
 
 def tag_show(context, data_dict):
     '''Shows tag details'''
