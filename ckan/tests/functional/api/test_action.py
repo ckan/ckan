@@ -561,7 +561,8 @@ class TestAction(WsgiAppCase):
             'task_type': u'test_task',
             'key': u'test_key',
             'value': u'test_value',
-            'state': u'test_state'
+            'state': u'test_state',
+            'error': u'test_error',
         }
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(
@@ -569,6 +570,7 @@ class TestAction(WsgiAppCase):
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
         )
         task_status_updated = json.loads(res.body)['result']
+        
         task_status_id = task_status_updated.pop('id')
         task_status_updated.pop('last_updated')
         assert task_status_updated == task_status, (task_status_updated, task_status)
@@ -594,7 +596,8 @@ class TestAction(WsgiAppCase):
                     'task_type': u'test_task',
                     'key': u'test_task_1',
                     'value': u'test_value_1',
-                    'state': u'test_state'
+                    'state': u'test_state',
+                    'error': u'test_error'
                 },
                 {
                     'entity_id': package_created['id'],
@@ -602,7 +605,8 @@ class TestAction(WsgiAppCase):
                     'task_type': u'test_task',
                     'key': u'test_task_2',
                     'value': u'test_value_2',
-                    'state': u'test_state'
+                    'state': u'test_state',
+                    'error': u'test_error'
                 }
             ]
         }
@@ -653,7 +657,8 @@ class TestAction(WsgiAppCase):
             'task_type': u'test_task',
             'key': u'test_task_status_show',
             'value': u'test_value',
-            'state': u'test_state'
+            'state': u'test_state',
+            'error': u'test_error'
         }
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(
@@ -682,7 +687,8 @@ class TestAction(WsgiAppCase):
             'task_type': u'test_task',
             'key': u'test_task_status_delete',
             'value': u'test_value',
-            'state': u'test_state'
+            'state': u'test_state',
+            'error': u'test_error'
         }
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(

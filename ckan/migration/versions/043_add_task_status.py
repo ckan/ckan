@@ -11,6 +11,7 @@ def upgrade(migrate_engine):
             "key" text NOT NULL,
             "value" text NOT NULL,
             "state" text,
+            "error" text,
             last_updated timestamp without time zone
         );
 

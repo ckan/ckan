@@ -257,6 +257,7 @@ def default_task_status_schema():
         'key': [not_empty, unicode],
         'value': [not_missing],
         'state': [ignore_missing],
-        'last_updated': [ignore_missing]
+        'last_updated': [ignore_missing],
+        'error': [ignore_missing]
     }
     return schema
