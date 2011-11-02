@@ -80,18 +80,16 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
         try:
-            description_formatted = ckan.misc.MarkdownFormat().to_html(group.get('description',''))
+            description_formatted = ckan.misc.MarkdownFormat().to_html(c.group.get('description',''))
             c.description_formatted = genshi.HTML(description_formatted)
         except Exception, e:
             error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render description")
             c.description_formatted = genshi.HTML(error_msg)
         
         try:
- 
             desc_formatted = ckan.misc.MarkdownFormat().to_html(c.group.description)
             desc_formatted = genshi.HTML(desc_formatted)
         except genshi.ParseError, e:
-            log.error('Could not print group description: %r Error: %r', c.group.description, e)
             desc_formatted = 'Error: Could not parse group description'
         c.group_description_formatted = desc_formatted
         c.group_admins = self.authorizer.get_admins(c.group)
