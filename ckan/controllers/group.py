@@ -53,11 +53,11 @@ class GroupController(BaseController):
         data_dict = {'all_fields': True}
 
         try:
-            check_access('site_read',context)
+            check_access('site_read', context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
         
-        results = get_action('group_list')(context,data_dict)
+        results = get_action('group_list')(context, data_dict)
 
         c.page = Page(
             collection=results,
@@ -94,8 +94,10 @@ class GroupController(BaseController):
         c.group_description_formatted = desc_formatted
         c.group_admins = self.authorizer.get_admins(c.group)
 
+        results = get_action('group_package_show')(context, data_dict)
+
         c.page = Page(
-            collection=c.group.active_packages(),
+            collection=results,
             page=request.params.get('page', 1),
             items_per_page=50
         )
