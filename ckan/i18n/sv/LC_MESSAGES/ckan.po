@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-10-26 17:10+0100\n"
-"PO-Revision-Date: 2011-10-26 16:11+0000\n"
+"PO-Revision-Date: 2011-11-02 10:31+0000\n"
 "Last-Translator: dread <internet@davidread.org>\n"
 "Language-Team: Swedish (http://www.transifex.net/projects/p/ckan/team/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -289,7 +289,7 @@ msgstr "Senaste ändringarna för CKAN-repositoryt."
 #: ckan/controllers/revision.py:103
 #, python-format
 msgid "Packages affected: %s.\n"
-msgstr "Paket som påverkas: %s\\n"
+msgstr "Paket som påverkas: %s\n"
 
 #: ckan/controllers/revision.py:178
 msgid "Revision updated"
