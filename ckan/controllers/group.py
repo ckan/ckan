@@ -53,11 +53,11 @@ class GroupController(BaseController):
         data_dict = {'all_fields': True}
 
         try:
-            check_access('site_read',context)
+            check_access('site_read', context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
         
-        results = get_action('group_list')(context,data_dict)
+        results = get_action('group_list')(context, data_dict)
 
         c.page = Page(
             collection=results,
@@ -80,24 +80,24 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
         try:
-            description_formatted = ckan.misc.MarkdownFormat().to_html(group.get('description',''))
+            description_formatted = ckan.misc.MarkdownFormat().to_html(c.group.get('description',''))
             c.description_formatted = genshi.HTML(description_formatted)
         except Exception, e:
             error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render description")
             c.description_formatted = genshi.HTML(error_msg)
         
         try:
- 
             desc_formatted = ckan.misc.MarkdownFormat().to_html(c.group.description)
             desc_formatted = genshi.HTML(desc_formatted)
         except genshi.ParseError, e:
-            log.error('Could not print group description: %r Error: %r', c.group.description, e)
             desc_formatted = 'Error: Could not parse group description'
         c.group_description_formatted = desc_formatted
         c.group_admins = self.authorizer.get_admins(c.group)
 
+        results = get_action('group_package_show')(context, data_dict)
+
         c.page = Page(
-            collection=c.group.active_packages(),
+            collection=results,
             page=request.params.get('page', 1),
             items_per_page=50
         )

@@ -714,7 +714,6 @@ class TestAction(WsgiAppCase):
         resource_dict = resource_dictize(resource, {'model': model})
         result.pop('revision_timestamp')
         assert result == resource_dict, (result, resource_dict)
-
     
     def test_27_get_site_user_not_authorized(self):
         assert_raises(NotAuthorized,
@@ -723,7 +722,7 @@ class TestAction(WsgiAppCase):
         user = model.User.get('test.ckan.net')
         assert not user
 
-        user=get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        user = get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
         assert user['name'] == 'test.ckan.net'
 
         user = model.User.get('test.ckan.net')
@@ -735,10 +734,38 @@ class TestAction(WsgiAppCase):
         user = model.Session.query(model.User).filter_by(name='test.ckan.net').one()
         assert user
 
+    def test_28_group_package_show(self):
+        group_id = model.Group.get('david').id
+        group_packages = get_action('group_package_show')(
+            {'model': model, 'user': self.normal_user.name, 'ignore_auth': True}, 
+            {'id': group_id}
+        )
+        assert len(group_packages) == 2, group_packages
+        group_names = set([g.get('name') for g in group_packages])
+        assert group_names == set(['annakarenina', 'warandpeace']), group_names
 
+    def test_29_group_package_show_pending(self):
+        context = {'model': model, 'session': model.Session, 'user': self.sysadmin_user.name}
+        group = {
+            'name': 'test_group_pending_package',
+            'packages': [{'id': model.Package.get('annakarenina').id}]
+        }
+        group = get_action('group_create')(context, group)
 
+        pkg = {
+            'name': 'test_pending_package',
+            'groups': [{'id': group['id']}]
+        }
+        pkg = get_action('package_create')(context, pkg)
+        # can't seem to add a package with 'pending' state, so update it
+        pkg['state'] = 'pending'
+        get_action('package_update')(context, pkg)
 
+        group_packages = get_action('group_package_show')(context, {'id': group['id']})
+        assert len(group_packages) == 2, group_packages
+        group_names = set([g.get('name') for g in group_packages])
+        assert group_names == set(['annakarenina', 'test_pending_package']), group_names
 
-
-
+        get_action('group_delete')(context, group)
+        get_action('package_delete')(context, pkg)
 
