@@ -413,6 +413,11 @@ def group_package_show(context, data_dict):
     id = data_dict['id']
     limit = data_dict.get("limit")
 
+    group = model.Group.get(id)
+    context['group'] = group
+    if group is None:
+        raise NotFound
+
     check_access('group_show', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)\
@@ -420,7 +425,7 @@ def group_package_show(context, data_dict):
         .filter(model.PackageRevision.current==True)\
         .join(model.PackageGroup, model.PackageGroup.package_id==model.PackageRevision.id)\
         .join(model.Group, model.Group.id==model.PackageGroup.group_id)\
-        .filter_by(id=id)
+        .filter_by(id=group.id)
 
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit:
