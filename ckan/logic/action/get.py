@@ -790,11 +790,19 @@ def tag_search(context, data_dict):
 
 def task_status_show(context, data_dict):
     model = context['model']
-    id = data_dict['id']
+    id = data_dict.get('id')
 
-    query = model.Session.query(model.TaskStatus)
+    if id:
+        task_status = model.TaskStatus.get(id)
+    else:
+        query = model.Session.query(model.TaskStatus)\
+            .filter(and_(
+                model.TaskStatus.entity_type == data_dict['entity_type'],
+                model.TaskStatus.task_type == data_dict['task_type'],
+                model.TaskStatus.key == data_dict['key']
+            ))
+        task_status = query.first()
 
-    task_status = model.TaskStatus.get(id)
     context['task_status'] = task_status
 
     if task_status is None:

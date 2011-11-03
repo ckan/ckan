@@ -667,6 +667,7 @@ class TestAction(WsgiAppCase):
         )
         task_status_updated = json.loads(res.body)['result']
 
+        # make sure show works when giving a task status ID
         postparams = '%s=1' % json.dumps({'id': task_status_updated['id']})
         res = self.app.post(
             '/api/action/task_status_show', params=postparams,
@@ -676,6 +677,21 @@ class TestAction(WsgiAppCase):
 
         task_status_show.pop('last_updated')
         task_status_updated.pop('last_updated')
+        assert task_status_show == task_status_updated, (task_status_show, task_status_updated)
+
+        # make sure show works when giving a (entity_id, task_type, key) tuple
+        postparams = '%s=1' % json.dumps({
+            'entity_type': task_status['entity_type'],
+            'task_type': task_status['task_type'],
+            'key': task_status['key']
+        })
+        res = self.app.post(
+            '/api/action/task_status_show', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_show = json.loads(res.body)['result']
+
+        task_status_show.pop('last_updated')
         assert task_status_show == task_status_updated, (task_status_show, task_status_updated)
 
     def test_25_task_status_delete(self):
