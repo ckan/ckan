@@ -681,7 +681,7 @@ class TestAction(WsgiAppCase):
 
         # make sure show works when giving a (entity_id, task_type, key) tuple
         postparams = '%s=1' % json.dumps({
-            'entity_type': task_status['entity_type'],
+            'entity_id': task_status['entity_id'],
             'task_type': task_status['task_type'],
             'key': task_status['key']
         })

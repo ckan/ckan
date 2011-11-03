@@ -797,7 +797,7 @@ def task_status_show(context, data_dict):
     else:
         query = model.Session.query(model.TaskStatus)\
             .filter(and_(
-                model.TaskStatus.entity_type == data_dict['entity_type'],
+                model.TaskStatus.entity_id == data_dict['entity_id'],
                 model.TaskStatus.task_type == data_dict['task_type'],
                 model.TaskStatus.key == data_dict['key']
             ))
