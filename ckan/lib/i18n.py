@@ -160,7 +160,9 @@ def handle_request(request, tmpl_context):
         locales.append(Locale.parse(session.get('locale')))
     else:
         # Next try languages in the HTTP_ACCEPT_LANGUAGE header
-        locales.append(Locales().negotiate_known_locale(request.languages))
+        locale = Locales().negotiate_known_locale(request.languages)
+        if locale:
+            locales.append(locale)
 
     # Next try the default locale in the CKAN config file
     locales.append(Locales().get_default_locale())
