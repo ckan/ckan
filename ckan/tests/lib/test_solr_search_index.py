@@ -1,3 +1,4 @@
+import hashlib
 import socket
 import solr
 from pylons import config
@@ -47,6 +48,9 @@ class TestSolrSearchIndex(TestController):
     def teardown(self):
         # clear the search index after every test
         search.index_for('Package').clear()
+    
+    def _get_index_id(self,pkg_id):
+        return hashlib.md5('%s%s' % (pkg_id,config['ckan.site_id'])).hexdigest()
 
     def test_index(self):
         pkg_dict = {
@@ -57,6 +61,7 @@ class TestSolrSearchIndex(TestController):
         search.dispatch_by_operation('Package', pkg_dict, 'new')
         response = self.solr.query('title:penguin', fq=self.fq)
         assert len(response) == 1, len(response)
+        assert response.results[0]['index_id'] == self._get_index_id (pkg_dict['id'])
         assert response.results[0]['title'] == 'penguin'
 
     def test_no_state_not_indexed(self):

@@ -91,6 +91,7 @@
 
 
 <fields>
+    <field name="index_id" type="string" indexed="true" stored="true" required="true" /> 
     <field name="id" type="string" indexed="true" stored="true" required="true" /> 
     <field name="site_id" type="string" indexed="true" stored="true" required="true" /> 
     <field name="title" type="text" indexed="true" stored="true" />
@@ -138,7 +139,7 @@
     <dynamicField name="*" type="string" indexed="true"  stored="false"/>
 </fields>
 
-<uniqueKey>id</uniqueKey>
+<uniqueKey>index_id</uniqueKey>
 <defaultSearchField>text</defaultSearchField>
 <solrQueryParser defaultOperator="AND"/>
 

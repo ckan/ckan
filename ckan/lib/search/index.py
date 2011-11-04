@@ -139,6 +139,10 @@ class PackageSearchIndex(SearchIndex):
         # mark this CKAN instance as data source:
         pkg_dict['site_id'] = config.get('ckan.site_id')
         
+        # add a unique index_id to avoid conflicts
+        import hashlib
+        pkg_dict['index_id'] = hashlib.md5('%s%s' % (pkg_dict['id'],config.get('ckan.site_id'))).hexdigest()
+
         # send to solr:  
         try:
             conn.add_many([pkg_dict])
