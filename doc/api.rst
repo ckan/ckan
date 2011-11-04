@@ -390,6 +390,13 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 |                       | limit=20)     |                                         | return.                          |
 +-----------------------+---------------+-----------------------------------------+----------------------------------+
 
+.. note::
+
+   Powerful searching from the command-line can be achieved with curl and the qjson parameter. In this case you need to remember to escapt the curly braces and use url encoding (e.g. spaces become ``%20``). For example::
+
+     curl 'http://thedatahub.org/api/search/dataset?qjson=\{"author":"The%20Stationery%20Office%20Limited"\}'
+
+
 **Revision Parameters**
 
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
