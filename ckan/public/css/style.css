@@ -280,6 +280,7 @@ tbody tr.table-empty td {
   padding-left: 0px;
 }
 #sidebar .widget-list li.widget-container {
+  padding-bottom: 1em;
   border-bottom: 1px solid #e0e0e0;
   margin-bottom: 1em;
 }
@@ -292,6 +293,8 @@ tbody tr.table-empty td {
   -webkit-border-radius: 15px; 
           border-radius: 15px; 
 }
+
+
 
 
 /* ============== */
@@ -321,6 +324,8 @@ tbody tr.table-empty td {
 	border: 1px solid #ddd;
 }
 
+
+
 /* ====== */
 /* Facets */
 /* ====== */
@@ -335,6 +340,7 @@ tbody tr.table-empty td {
     padding-top: 0.2em;
     color: #000; 
 }
+
 
 
 /* ======================= */
@@ -367,7 +373,6 @@ body.index.home #minornavigation {
 }
 body.index.home #sidebar {
   display: none;
-  margin: 0;
 }
 body.index.home .front-page .action-box h1 {
   padding-top: 0.6em;
@@ -545,19 +550,17 @@ ul.userlist .created {
 ul.userlist .badge {
   color: #fc0;
 }
+.user-search input[type=text],
+.user-search input[type=password] {
+  width: 70%;
+  margin-top: 5px;
+}
+
 
 
 /* ================== */
 /* = User Read page = */
 /* ================== */
-.gravatar {
-  border: 1px solid #777;
-  padding: 1px;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 10px auto;
-}
-
 
 /* ========================= */
 /* = Dataset Snapshot View = */
@@ -674,6 +677,8 @@ ul.datasets .openness li {
     border:none;    
 }
 
+
+
 /* =================== */
 /* = Markdown Editor = */
 /* =================== */
@@ -707,7 +712,7 @@ ul.datasets .openness li {
 /* =================== */
 /* = URL Slug Editor = */
 /* =================== */
-input.url-input {
+input.url-slug-editor {
   width: 250px;
 }
 
@@ -721,6 +726,30 @@ ul.button-row {
 ul.button-row li {
   display: inline;
   margin-right: 10px;
+}
+
+
+/* ================== */
+/* = Welcome Banner = */
+/* ================== */
+.welcome-banner {
+  width: 100%;
+  /* Old background was a little less intrusive */
+  background: #fcba63;
+  text-align: center;
+  padding: 0;
+  border-bottom: 1px solid #faa;
+  font-weight: bold;
+  line-height: 30px;
+}
+.welcome-banner a {
+  text-decoration: underline;
+}
+.welcome-banner button {
+  float: right;
+  margin-right: 20px;
+  margin-top: 3px;
+  padding: 2px 8px;
 }
 
 
@@ -781,6 +810,14 @@ ul.dataset-edit-nav li a:hover {
 }
 
 
+
+.gravatar {
+  border: 1px solid #777;
+  padding: 1px;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 10px auto;
+}
 
 /* ===================== */
 /* = Edit Dataset Page = */
@@ -971,10 +1008,6 @@ body.package.read #sidebar ul.groups {
 .group-create-form .state-label,
 .group-create-form .state-field {
   display: none;
-}
-.group-create-form a.url-edit {
-  font-weight: normal;
-  margin-left: 10px;
 }
 
 

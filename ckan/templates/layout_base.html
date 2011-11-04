@@ -47,6 +47,10 @@
 
 <body class="${request.environ.get('pylons.routes_dict', {}).get('action')} 
              ${request.environ.get('pylons.routes_dict', {}).get('controller').split(':')[-1]}">
+   <div class="welcome-banner js-welcome-banner" style="display: none;">
+     <span>First time at ${g.site_title}? Visit our <a href="${h.url_for(controller='home', action='about')}">About page</a> to find out more.</span>
+     <button class="pretty-button js-kill-button">x</button>
+  </div>
   <div id="wrap">
     <div class="header outer">
       <header class="container">
@@ -142,6 +146,11 @@
           <h3 class="widget-title">Sections</h3>
           <div class="textwidget">
             <ul>
+              <li>
+                <a href="${url(controller='user', action='index')}">
+                  Users
+                </a>
+              </li>
               <li>
                 <a href="${url(controller='tag', action='index')}">
                   Tags

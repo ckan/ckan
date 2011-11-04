@@ -1,4 +1,4 @@
-from ckan.logic import check_access_old
+from ckan.logic import check_access_old, NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
@@ -81,20 +81,21 @@ def check_group_auth(context, data_dict):
     model = context['model']
     pkg = context.get("package")
 
-    ## hack as api does not allow groups
-    if context.get("allow_partial_update"):
-        return True
+    api_version = context.get('api_version') or '1'
 
     group_blobs = data_dict.get("groups", []) 
     groups = set()
     for group_blob in group_blobs:
         # group_blob might be a dict or a group_ref
         if isinstance(group_blob, dict):
-            id = group_blob.get('id')
+            if api_version == '1':
+                id = group_blob.get('name')
+            else:
+                id = group_blob.get('id')
+            if not id:
+                continue
         else:
             id = group_blob
-        if not id:
-            continue
         grp = model.Group.get(id)
         if grp is None:
             raise NotFound(_('Group was not found.'))

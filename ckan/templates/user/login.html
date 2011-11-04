@@ -34,10 +34,9 @@
         <input type="hidden" name="remember" value="1576800000" />
         <br/>
       </fieldset>
-      ${h.submit('s', _('Login'))} &mdash; 
+      <input name="s" id="s" type="submit" class="pretty-button primary" value="Sign In"/>
+      &mdash; 
       <a href="${h.url_for('reset')}">Forgot your password?</a>
-      &mdash;
-      ${h.link_to(_('Not yet registered?'), h.url_for(action='register'))}
     </form>
     <br/> 
     <!-- Simple OpenID Selector -->
@@ -66,7 +65,7 @@
         </p>
       </div>
       </fieldset>
-      <input id="openid_submit" type="submit" value="Sign in"/>
+      <input id="openid_submit" type="submit" class="pretty-button primary" value="Sign in with OpenID"/>
     </form>
   </div>
   <xi:include href="layout.html" />

@@ -8,8 +8,6 @@ from ckan.logic import NotAuthorized, check_access
 from ckan.lib.base import *
 from ckan.lib.helpers import Page
 import ckan.authz
-from ckan.lib.cache import proxy_cache, get_cache_expires
-cache_expires = get_cache_expires(sys.modules[__name__])
 
 class RevisionController(BaseController):
 

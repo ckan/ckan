@@ -127,60 +127,9 @@ Setting both these options according to an established Recaptcha account adds ca
 
 To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
 
-Cache Settings
---------------
-
-.. index::
-   single: cache_validation_enabled
-
-cache_validation_enabled
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.cache_validation_enabled = False
-
-Default value:  ``True``
-
-This option determines whether browsers (or other caching services running between the browser and CKAN) are helped to cache particular CKAN pages, by validating when the page content hasn't changed. This is achieved using ETag headers provided by CKAN, which is a hash that changes when the content has changed. 
-
-Developers editing the templates should set this to False, since ETag hashes don't look for template changes.
-
-.. index::
-   single: cache_enabled
-
-cache_enabled
-^^^^^^^^^^^^^
-
-Example::
-
- ckan.cache_enabled = True
-
-Default value:  ``False``
-
-Setting this option to True turns on several server-side caches. When caching is on, caching can be further configured as follows. 
-
-To set the type of Beaker storage::
- 
- beaker.cache.type = file
-
-To set the expiry times (in seconds) for specific controllers (which use the proxy_cache) specify the methods like this::
-
- ckan.controllers.package.list.expires = 600
- ckan.controllers.tag.read.expires = 600
- ckan.controllers.apiv1.package.list.expires = 600
- ckan.controllers.apiv1.package.show.expires = 600
- ckan.controllers.apiv2.package.list.expires = 600
- ckan.controllers.apiv2.package.show.expires = 600
-
-There is also an option to set the max-age value of static files delivered by paster::
-
- ckan.static_max_age = 3600
-
 And there is an option for the default expiry time if not specified::
 
  ckan.cache.default_expires = 600
-
 
 Authentication Settings
 -----------------------
@@ -255,6 +204,7 @@ Example::
 Default value: (none)
 
 If you want to specify the ordering of all or some of the locales as they are offered to the user, then specify them here in the required order. Any locales that are available but not specified in this option, will still be offered at the end of the list.
+
 
 
 Theming Settings

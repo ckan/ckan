@@ -117,20 +117,27 @@ def group_list(context, data_dict):
     user = context['user']
     api = context.get('api_version') or '1'
     ref_group_by = 'id' if api == '2' else 'name';
-
+    order_by = data_dict.get('order_by', 'name')
+    if order_by not in set(('name', 'packages')):
+        raise ValidationError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
    
     check_access('group_list',context, data_dict)
 
-    # We need Groups for group_list_dictize
     query = model.Session.query(model.Group).join(model.GroupRevision)
     query = query.filter(model.GroupRevision.state=='active')
     query = query.filter(model.GroupRevision.current==True)
-    query = query.order_by(model.Group.name.asc())
-    query = query.order_by(model.Group.title.asc())
 
+    if order_by == 'name':
+        query = query.order_by(model.Group.name.asc())
+        query = query.order_by(model.Group.title.asc())
 
     groups = query.all()
+
+    if order_by == 'packages':
+        groups = sorted(query.all(),
+                        key=lambda g: len(g.packages),
+                        reverse=True)
 
     if not all_fields:
         group_list = [getattr(p, ref_group_by) for p in groups]
