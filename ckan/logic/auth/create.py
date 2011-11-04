@@ -8,6 +8,7 @@ def package_create(context, data_dict=None):
     user = context['user']
 
     check1 = check_access_old(model.System(), model.Action.PACKAGE_CREATE, context)
+
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % str(user)}
     else:
@@ -84,10 +85,14 @@ def check_group_auth(context, data_dict):
     if context.get("allow_partial_update"):
         return True
 
-    group_dicts = data_dict.get("groups", [])
+    group_blobs = data_dict.get("groups", []) 
     groups = set()
-    for group_dict in group_dicts:
-        id = group_dict.get('id')
+    for group_blob in group_blobs:
+        # group_blob might be a dict or a group_ref
+        if isinstance(group_blob, dict):
+            id = group_blob.get('id')
+        else:
+            id = group_blob
         if not id:
             continue
         grp = model.Group.get(id)
