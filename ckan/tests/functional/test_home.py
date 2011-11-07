@@ -85,14 +85,15 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         res = self.app.get(offset)
         assert '<strong>TEST TEMPLATE_FOOTER_END TEST</strong>'
 
-    def test_locale_detect(self):
-        offset = url_for('home')
-        self.clear_language_setting()
-        res = self.app.get(offset, headers={'Accept-Language': 'de,pt-br,en'})
-        try:
-            assert 'Willkommen' in res.body, res.body
-        finally:
-            self.clear_language_setting()
+## Browser lang detection disabled - see #1452
+##    def test_locale_detect(self):
+##        offset = url_for('home')
+##        self.clear_language_setting()
+##        res = self.app.get(offset, headers={'Accept-Language': 'de,pt-br,en'})
+##        try:
+##            assert 'Willkommen' in res.body, res.body
+##        finally:
+##            self.clear_language_setting()
 
     def test_locale_negotiate(self):
         offset = url_for('home')

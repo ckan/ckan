@@ -132,23 +132,24 @@ class TestI18n(PylonsTestCase):
     def test_handle_request__session(self):
         assert_equal(self.handle_request(session_language='fr'),
                      'fr')
+## Browser lang detection disabled - see #1452
 
-    def test_handle_request__header(self):
-        assert_equal(self.handle_request(languages_header=['de']),
-                     'de')
+##    def test_handle_request__header(self):
+##        assert_equal(self.handle_request(languages_header=['de']),
+##                     'de')
 
-    def test_handle_request__header_negotiate(self):
-        # Language so is not an option, so reverts to next one
-        assert_equal(self.handle_request(languages_header=['so_KE', 'de']),
-                     'de')
+##    def test_handle_request__header_negotiate(self):
+##        # Language so is not an option, so reverts to next one
+##        assert_equal(self.handle_request(languages_header=['so_KE', 'de']),
+##                     'de')
 
-    def test_handle_request__header_but_defaults(self):
-        # Language so is not an option, so reverts to default
-        assert_equal(self.handle_request(languages_header=['so_KE']),
-                     'en')
+##    def test_handle_request__header_but_defaults(self):
+##        # Language so is not an option, so reverts to default
+##        assert_equal(self.handle_request(languages_header=['so_KE']),
+##                     'en')
 
-    def test_handle_request__header_territory(self):
-        # Request for specific version of German ends up simply as de.
-        assert_equal(self.handle_request(languages_header=['fr_CA', 'en']),
-                     'fr')
+##    def test_handle_request__header_territory(self):
+##        # Request for specific version of German ends up simply as de.
+##        assert_equal(self.handle_request(languages_header=['fr_CA', 'en']),
+##                     'fr')
         
