@@ -38,6 +38,8 @@ class CkanCommand(paste.script.command.Command):
             msg = 'No config file supplied'
             raise self.BadCommand(msg)
         self.filename = os.path.abspath(self.options.config)
+        if not os.path.exists(self.filename):
+            raise AssertionError('Config filename %r does not exist.' % self.filename)
         fileConfig(self.filename)
         conf = appconfig('config:' + self.filename)
         load_environment(conf.global_conf, conf.local_conf)
