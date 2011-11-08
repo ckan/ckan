@@ -8,3 +8,4 @@ recursive-include ckan *.ini
 prune .hg
 include CHANGELOG.txt
 include ckan/migration/migrate.cfg
+recursive-include ckan_deb *
