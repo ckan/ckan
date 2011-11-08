@@ -52,13 +52,13 @@
       <div py:if="c.groups" class="span-24 last whoelse">
         <h2>Who else is here?</h2>
       </div>
-      <py:for each="i, group in enumerate(c.groups)">
+      <py:for each="i, group_dict in enumerate(c.groups[:6])">
         <div class="span-8 group ${'last' if i % 3 == 2 else ''}">
-          <h3><a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.title}</a></h3>
+          <h3><a href="${h.url_for(controller='group', action='read', id=group_dict['name'])}">${group_dict['title']}</a></h3>
           <p>
-            ${h.markdown_extract(group.description)}
+            ${h.markdown_extract(group_dict['description'])}
           </p>
-          <strong>${group.title} has ${len(group.packages)} datasets.</strong>
+          <strong>${group_dict['title']} has ${group_dict['packages']} datasets.</strong>
         </div>
       </py:for>
   </div>

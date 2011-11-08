@@ -1,9 +1,12 @@
-from ckan.tests import *
-import ckan.model as model
-from base import FunctionalTestCase
+from nose.tools import assert_equal
 
 from ckan.plugins import SingletonPlugin, implements, IGroupController
 from ckan import plugins
+import ckan.model as model
+from ckan.lib.create_test_data import CreateTestData
+
+from ckan.tests import *
+from base import FunctionalTestCase
 from ckan.tests import search_related, is_search_supported
 
 class MockGroupControllerPlugin(SingletonPlugin):
@@ -198,6 +201,30 @@ Ho ho ho
         assert 'annakarenina' in res, res
         assert 'newone' in res
         
+    def test_4_new_duplicate_package(self):
+        prefix = ''
+
+        # Create group
+        group_name = u'testgrp4'
+        CreateTestData.create_groups([{'name': group_name,
+                                       'packages': [self.packagename]}],
+                                     admin_user_name='russianfan')
+
+        # Add same package again
+        offset = url_for(controller='group', action='edit', id=group_name)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        fv = res.forms['group-edit']
+        fv['packages__1__name'] = self.packagename
+        res = fv.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = res.follow()
+        assert group_name in res, res
+        model.Session.remove()
+
+        # check package only added to the group once
+        group = model.Group.by_name(group_name)
+        pkg_names = [pkg.name for pkg in group.packages]
+        assert_equal(pkg_names, [self.packagename])
+
     def test_edit_plugin_hook(self):
         plugin = MockGroupControllerPlugin()
         plugins.load(plugin)
@@ -275,7 +302,7 @@ class TestNew(FunctionalTestCase):
         pkg = model.Package.by_name(self.packagename)
         assert group.packages == [pkg]
 
-    def test_3_new_duplicate(self):
+    def test_3_new_duplicate_group(self):
         prefix = ''
 
         # Create group

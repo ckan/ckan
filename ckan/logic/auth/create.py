@@ -8,6 +8,7 @@ def package_create(context, data_dict=None):
     user = context['user']
 
     check1 = check_access_old(model.System(), model.Action.PACKAGE_CREATE, context)
+
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % str(user)}
     else:
@@ -82,18 +83,19 @@ def check_group_auth(context, data_dict):
 
     api_version = context.get('api_version') or '1'
 
-    group_dicts = data_dict.get("groups", [])
+    group_blobs = data_dict.get("groups", []) 
     groups = set()
-    for group_dict in group_dicts:
-        if isinstance(group_dict,dict):
+    for group_blob in group_blobs:
+        # group_blob might be a dict or a group_ref
+        if isinstance(group_blob, dict):
             if api_version == '1':
-                id = group_dict.get('name')
+                id = group_blob.get('name')
             else:
-                id = group_dict.get('id')
+                id = group_blob.get('id')
             if not id:
                 continue
         else:
-            id = group_dict
+            id = group_blob
         grp = model.Group.get(id)
         if grp is None:
             raise NotFound(_('Group was not found.'))

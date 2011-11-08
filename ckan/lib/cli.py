@@ -66,6 +66,8 @@ class ManageDb(CkanCommand):
     db simple-dump-json {file-path}
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load a pg_dump from a file
+    db load-only {file-path} # load a pg_dump from a file but don\'t do
+                             # the schema upgrade or search indexing
     db create-from-model # create database from the model (indexes not made)
     '''
     summary = __doc__.split('\n')[0]
@@ -96,8 +98,12 @@ class ManageDb(CkanCommand):
                 model.repo.upgrade_db(self.args[1])
             else:
                 model.repo.upgrade_db()
-        elif cmd == 'dump' or cmd == 'load':
-            self.dump_or_load(cmd)
+        elif cmd == 'dump':
+            self.dump(cmd)
+        elif cmd == 'load':
+            self.load(cmd)
+        elif cmd == 'load-only':
+            self.load(cmd, only_load=True)
         elif cmd == 'simple-dump-csv':
             self.simple_dump_csv(cmd)
         elif cmd == 'simple-dump-json':
@@ -161,21 +167,34 @@ class ManageDb(CkanCommand):
         if retcode != 0:
             raise SystemError('Command exited with errorcode: %i' % retcode)
 
-    def dump_or_load(self, cmd):
+    def dump(self, cmd):
         if len(self.args) < 2:
             print 'Need pg_dump filepath'
             return
         dump_path = self.args[1]
 
         psql_cmd = self._get_psql_cmd() + ' -f %s'
-        if cmd == 'load':
-            pg_cmd = self._postgres_load(dump_path)
-        elif cmd == 'dump':
-            pg_cmd = self._postgres_dump(dump_path)
+        pg_cmd = self._postgres_dump(dump_path)
+
+    def load(self, cmd, only_load=False):
+        if len(self.args) < 2:
+            print 'Need pg_dump filepath'
+            return
+        dump_path = self.args[1]
+
+        psql_cmd = self._get_psql_cmd() + ' -f %s'
+        pg_cmd = self._postgres_load(dump_path)
+        if not only_load:
+            print 'Upgrading DB'
+            from ckan import model
+            model.repo.upgrade_db()
+            
+            print 'Rebuilding search index'
+            import ckan.lib.search
+            ckan.lib.search.rebuild()
         else:
-            print 'Unknown command', cmd
-        if cmd == 'load':
-            print 'Now remember you have to call \'db upgrade\'.'
+            print 'Now remember you have to call \'db upgrade\' and then \'search-index rebuild\'.'
+        print 'Done'
 
     def simple_dump_csv(self, cmd):
         from ckan import model
@@ -232,7 +251,7 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index rebuild                 - indexes all packages (default)
+      search-index rebuild                 - indexes all packages
       search-index check                   - checks for packages not indexed
       search-index show {package-name}     - shows index of a package
       search-index clear                   - clears the search index for this ckan instance
@@ -248,11 +267,11 @@ class SearchIndexCommand(CkanCommand):
         from ckan.lib.search import rebuild, check, show, clear
 
         if not self.args:
-            # default to run
-            cmd = 'rebuild'
-        else:
-            cmd = self.args[0]
-        
+            # default to printing help
+            print self.usage
+            return
+
+        cmd = self.args[0]        
         if cmd == 'rebuild':
             rebuild()
         elif cmd == 'check':

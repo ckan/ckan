@@ -1,3 +1,4 @@
+import re
 import json
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
@@ -56,7 +57,35 @@ class TestAction(WsgiAppCase):
             {"help": "Lists packages by name or id",
              "success": True,
              "result": ["annakarenina", "warandpeace"]})
-        
+
+    def test_01_package_show(self):
+        anna_id = model.Package.by_name(u'annakarenina').id
+        postparams = '%s=1' % json.dumps({'id': anna_id})
+        res = self.app.post('/api/action/package_show', params=postparams)
+        res_dict = json.loads(res.body)
+        assert_equal(res_dict['success'], True)
+        assert_equal(res_dict['help'], None)
+        pkg = res_dict['result']
+        assert_equal(pkg['name'], 'annakarenina')
+        missing_keys = set(('title', 'groups')) - set(pkg.keys())
+        assert not missing_keys, missing_keys
+
+    def test_01_package_show_with_jsonp(self):
+        anna_id = model.Package.by_name(u'annakarenina').id
+        postparams = '%s=1' % json.dumps({'id': anna_id})
+        res = self.app.post('/api/action/package_show?callback=jsoncallback', params=postparams)
+
+        assert re.match('jsoncallback\(.*\);', res.body), res
+        # Unwrap JSONP callback (we want to look at the data).
+        msg = res.body[len('jsoncallback')+1:-2]
+        res_dict = json.loads(msg)
+        assert_equal(res_dict['success'], True)
+        assert_equal(res_dict['help'], None)
+        pkg = res_dict['result']
+        assert_equal(pkg['name'], 'annakarenina')
+        missing_keys = set(('title', 'groups')) - set(pkg.keys())
+        assert not missing_keys, missing_keys
+                
     def test_02_package_autocomplete(self):
         postparams = '%s=1' % json.dumps({'q':'war'})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
@@ -436,6 +465,27 @@ class TestAction(WsgiAppCase):
         assert 'id' in res_obj['result'][0]
         assert 'revision_id' in res_obj['result'][0]
         assert 'state' in res_obj['result'][0]
+
+    def test_13_group_list_by_size(self):
+        postparams = '%s=1' % json.dumps({'order_by': 'packages'})
+        res = self.app.post('/api/action/group_list',
+                            params=postparams)
+        res_obj = json.loads(res.body)
+        assert_equal(res_obj['result'], ['david',
+                                         'roger'])
+
+    def test_13_group_list_by_size_all_fields(self):
+        postparams = '%s=1' % json.dumps({'order_by': 'packages',
+                                          'all_fields': 1})
+        res = self.app.post('/api/action/group_list',
+                            params=postparams)
+        res_obj = json.loads(res.body)
+        result = res_obj['result']
+        assert_equal(len(result), 2)
+        assert_equal(result[0]['name'], 'david')
+        assert_equal(result[0]['packages'], 2)
+        assert_equal(result[1]['name'], 'roger')
+        assert_equal(result[1]['packages'], 1)
 
     def test_14_group_show(self):
         postparams = '%s=1' % json.dumps({'id':'david'})

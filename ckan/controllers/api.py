@@ -65,7 +65,8 @@ class ApiController(BaseController):
                 response_msg = response_data
             # Support "JSONP" callback.
             if status_int==200 and request.params.has_key('callback') and \
-                   request.method == 'GET':
+                   (request.method == 'GET' or \
+                    c.logic_function and request.method == 'POST'):
                 callback = request.params['callback']
                 response_msg = self._wrap_jsonp(callback, response_msg)
         return response_msg

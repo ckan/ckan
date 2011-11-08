@@ -1,4 +1,5 @@
-from pylons import c
+from pylons import c, session
+from pylons.i18n import set_lang
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.controllers.home import HomeController
@@ -21,28 +22,20 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     def teardown_class(self):
         model.repo.rebuild_db()
 
+    def clear_language_setting(self):
+        self.app.cookies = {}
+
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        print res
         assert 'Add a dataset' in res
+        assert 'Could not change language' not in res
+        assert "Dave's books has 2 datasets" in res, res
+        assert "Roger's books has 1 datasets" in res, res
 
-    def test_calculate_etag_hash(self):
-        c.user = 'test user'
-        get_hash = HomeController._home_cache_key
-        hash_1 = get_hash()
-        hash_2 = get_hash()
-        self.assert_equal(hash_1, hash_2)
 
-        c.user = 'another user'
-        hash_3 = get_hash()
-        assert hash_2 != hash_3
 
-        model.repo.new_revision()
-        model.Session.add(model.Package(name=u'test_etag'))
-        model.repo.commit_and_remove()
-        hash_4 = get_hash()
-        assert hash_3 != hash_4
+
 
     @search_related
     def test_packages_link(self):
@@ -54,14 +47,50 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         offset = '/some_nonexistent_url'
         res = self.app.get(offset, status=404)
 
-    def test_guide(self):
-        url = url_for('guide')
-        assert url == 'http://wiki.okfn.org/ckan/doc/'
+    def test_template_head_end(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        assert 'ckan.template_head_end = <link rel="stylesheet" href="TEST_TEMPLATE_HEAD_END.css" type="text/css"> '
+
+    def test_template_head_end(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        assert 'ckan.template_head_end = <link rel="stylesheet" href="TEST_TEMPLATE_HEAD_END.css" type="text/css"> '
 
     def test_template_footer_end(self):
         offset = url_for('home')
         res = self.app.get(offset)
         assert '<strong>TEST TEMPLATE_FOOTER_END TEST</strong>'
+
+    def test_locale_detect(self):
+        offset = url_for('home')
+        self.clear_language_setting()
+        res = self.app.get(offset, headers={'Accept-Language': 'de,pt-br,en'})
+        try:
+            assert 'Willkommen' in res.body, res.body
+        finally:
+            self.clear_language_setting()
+
+    def test_locale_negotiate(self):
+        offset = url_for('home')
+        self.clear_language_setting()
+        res = self.app.get(offset, headers={'Accept-Language': 'fr-ca'})
+        # Request for French with Canadian territory should negotiate to
+        # just 'fr'
+        try:
+            assert 'propos' in res.body, res.body
+        finally:
+            self.clear_language_setting()
+
+    def test_locale_negotiate_pt(self):
+        offset = url_for('home')
+        self.clear_language_setting()
+        res = self.app.get(offset, headers={'Accept-Language': 'pt'})
+        # Request for Portuguese should find pt_BR because of our alias hack
+        try:
+            assert 'Bem-vindo' in res.body, res.body
+        finally:
+            self.clear_language_setting()
 
     def test_locale_change(self):
         offset = url_for('home')
@@ -71,7 +100,7 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
             res = res.follow()
             assert 'Willkommen' in res.body
         finally:
-            res = res.click('English')
+            self.clear_language_setting()
 
     def test_locale_change_invalid(self):
         offset = url_for(controller='home', action='locale', locale='')
@@ -106,9 +135,7 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
             res = res.goto(href)
             assert res.status == 200, res.status # doesn't redirect
         finally:
-            offset = url_for('home')
-            res = self.app.get(offset)
-            res = res.click('English')
+            self.clear_language_setting()
 
 class TestDatabaseNotInitialised(TestController):
     @classmethod
