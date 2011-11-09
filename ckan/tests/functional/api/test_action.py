@@ -3,6 +3,7 @@ import json
 from pprint import pprint, pformat
 from nose.tools import assert_equal
 
+import ckan
 from ckan.lib.create_test_data import CreateTestData
 import ckan.model as model
 from ckan.tests import WsgiAppCase
@@ -584,3 +585,11 @@ class TestAction(WsgiAppCase):
         resource_created.pop('revision_id')
         resource_created.pop('revision_timestamp')
         assert resource_updated == resource_created
+
+    def test_20_status_show(self):
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/status_show', params=postparams)
+        status = json.loads(res.body)['result']
+        assert_equal(status['site_title'], 'CKAN')
+        assert_equal(status['ckan_version'], ckan.__version__)
+        assert_equal(status['site_url'], 'http://test.ckan.net')

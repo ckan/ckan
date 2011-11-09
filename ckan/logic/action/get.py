@@ -1,6 +1,8 @@
 from sqlalchemy.sql import select
 from sqlalchemy import or_, and_, func, desc, case
+from pylons import config
 
+import ckan
 from ckan.logic import NotFound
 from ckan.logic import check_access
 from ckan.plugins import (PluginImplementations,
@@ -746,3 +748,14 @@ def tag_search(context, data_dict):
     q = q.limit(limit)
     results = [r for r in q]
     return {'count': count, 'results': results}
+
+def status_show(context, data_dict):
+    '''Provides information about the operation of this CKAN instance.'''
+    return {
+        'site_title': config.get('ckan.site_title'),
+        'site_description': config.get('ckan.site_description'),
+        'site_url': config.get('ckan.site_url'),
+        'ckan_version': ckan.__version__,
+        'error_emails_to': config.get('email_to'),
+        'locale_default': config.get('ckan.locale_default'),
+        }
