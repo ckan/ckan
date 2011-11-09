@@ -272,6 +272,17 @@ class PackagesTestCase(BaseModelApiTestCase):
             plugins.unload('synchronous_search')
             search.common.solr_url = solr_url
 
+    def test_register_post_tag_too_long(self):
+        pkg = {'name': 'test_tag_too_long',
+               'tags': ['tagok', 't'*101]}
+        assert not self.get_package_by_name(pkg['name'])
+        offset = self.package_offset()
+        data = self.dumps(pkg)
+        res = self.post_json(offset, data, status=self.STATUS_409_CONFLICT,
+                             extra_environ=self.extra_environ)
+        assert 'length is more than maximum 100' in res.body, res.body
+        assert 'tagok' not in res.body
+
     def test_entity_get_ok(self):
         package_refs = [self.anna.name, self.anna.id]
         for ref in package_refs:
@@ -304,6 +315,25 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_200_OK,
                             extra_environ=self.extra_environ)
+        data_returned = self.loads(res.body)
+        assert_equal(data['name'], data_returned['name'])
+        assert_equal(data['license_id'], data_returned['license_id'])
+
+    def test_entity_get_then_post_new(self):
+        offset = self.package_offset(self.war.name)
+        res = self.app.get(offset, status=self.STATUS_200_OK)
+        data = self.loads(res.body)
+
+        # change name and create a new package
+        data['name'] = u'newpkg'
+        data['id'] = None # ensure this doesn't clash or you get 409 error
+        postparams = '%s=1' % self.dumps(data)
+        # use russianfan now because he has rights to add this package to
+        # the 'david' group.
+        extra_environ = {'REMOTE_USER': 'russianfan'}
+        res = self.app.post(self.package_offset(), params=postparams,
+                            status=self.STATUS_201_CREATED,
+                            extra_environ=extra_environ)
         data_returned = self.loads(res.body)
         assert_equal(data['name'], data_returned['name'])
         assert_equal(data['license_id'], data_returned['license_id'])
@@ -557,6 +587,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         package2_data = {'name': package2_name}
         package2 = self.create_package_roles_revision(package2_data)
         package1_offset = self.package_offset(package1_name)
+        # trying to rename package 1 to package 2's name
         self.post(package1_offset, package2_data, self.STATUS_409_CONFLICT)
 
     def test_entity_update_empty(self):

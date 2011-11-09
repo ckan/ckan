@@ -171,7 +171,7 @@ The ``roles`` command has its own section: see :doc:`authorization`.
 search-index: Rebuild search index
 ----------------------------------
 
-Rebuilds the search index defined in the :ref:`config-search-backend` config setting. This is useful to prevent search indexes from getting out of sync with the main database.
+Rebuilds the search index. This is useful to prevent search indexes from getting out of sync with the main database.
 
 For example::
 

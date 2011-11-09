@@ -49,31 +49,6 @@ who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 
-# CKAN auth configuration (TODO: rename to ckan.auth or similar ...)
-# space separated list ...
-auth.admins = 
-
-# CKAN caching 
-ckan.cache_enabled = False
-ckan.cache_validation_enabled = True
-# cache to persistent files
-beaker.cache.type = file
-# default expiry time for the cache (where not specified specifically)
-ckan.cache.default_expires = -1
-# cache expiry settings for specific controllers
-# by default these are disabled, enable as needed to a time in seconds
-ckan.controllers.expires = -1
-ckan.controllers.home.expires = -1
-ckan.controllers.package.list.expires = -1
-ckan.controllers.tag.read.expires = -1
-ckan.controllers.apiv1.package.list.expires = -1
-ckan.controllers.apiv1.package.show.expires = -1
-ckan.controllers.apiv2.package.list.expires = -1
-ckan.controllers.apiv2.package.show.expires = -1
-
-# CKAN QoS monitoring
-ckan.enable_call_timing = false
-
 # Location of RDF versions of datasets
 #rdf_packages = http://semantic.ckan.net/record/
 
@@ -88,13 +63,6 @@ package_form = standard
 
 # API configuration
 #apikey_header_name = X-CKAN-API-Key
-
-# Changeset configuration
-#changeset.auto_commit = true
-#changeset.sources = http://www.ckan.net/,
-
-# Guide location
-#guide_url = http://wiki.okfn.org/ckan/doc/
 
 ## extra places to look for templates and public files (comma separated lists)
 ## any templates/files found will override correspondingly named ones in
@@ -130,8 +98,8 @@ ckan.build_search_index_synchronously = true
 ## Title of site (using in several places including templates and <title> tag
 ckan.site_title = CKAN
 
-## Logo image to use (replaces site_title string on front page if defined)
-ckan.site_logo = http://assets.okfn.org/p/ckan/img/ckan_logo_box.png
+## Logo image to use on the home page
+ckan.site_logo = /img/logo.png
 
 ## Site tagline / description (used on front page)
 ckan.site_description = 
@@ -143,6 +111,8 @@ ckan.site_url =
 ## Favicon (default is the CKAN software favicon)
 ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
 
+## Solr support
+#solr_url = http://127.0.0.1:8983/solr
 
 ## An 'id' for the site (using, for example, when creating entries in a common search index) 
 ## If not specified derived from the site_url
@@ -151,6 +121,11 @@ ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
 ## API url to use (e.g. in AJAX callbacks)
 ## Enable if the API is at a different domain
 # ckan.api_url = http://www.ckan.net
+
+## html content to be inserted just before </head> tag (e.g. extra stylesheet)
+## NB: can use html e.g. <strong>blah</strong>
+## NB: can have multiline strings just indent following lines
+# ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css"> 
 
 ## html content to be inserted just before </body> tag (e.g. google analytics code)
 ## NB: can use html e.g. <strong>blah</strong>
@@ -176,6 +151,14 @@ ckan.backup_dir = %(here)s/backup
 ## Ckan public and private recaptcha keys [localhost]
 #ckan.recaptcha.publickey = 
 #ckan.recaptcha.privatekey = 
+
+# Locale/languages
+ckan.locale_default = en
+#ckan.locales_offered = 
+# Default order is roughly by number of people speaking it in Europe:
+# http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
+ckan.locale_order = en de fr it es pl ru nl sv no cs_CZ hu pt_BR fi bg ca sq
+ckan.locales_filtered_out = el ro lt sl
 
 # Logging configuration
 [loggers]

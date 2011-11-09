@@ -11,4 +11,4 @@ class TestMunge:
         test_munge('unchanged', 'unchanged')
         test_munge('bad spaces', 'bad-spaces')
         test_munge('random:other%character&', 'random-othercharacter')
-        test_munge(u'u with umlaut \xfc', 'u-with-umlaut-u')
+        test_munge(u'u with umlaut \xfc', 'u-with-umlaut-u') 

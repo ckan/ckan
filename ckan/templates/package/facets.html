@@ -18,11 +18,11 @@
 </py:def>
 
 <py:def function="field_list()">
-    <div class="search-field-list" py:if="c.fields">
-        <div class="search-field" py:for="(field, value) in c.fields">
-            <span class="search-field-name">${h.facet_title(field)}</span>
-            <span class="search-field-value">${value}</span>
-            <a class="search-field-remove" href="${c.remove_field(field, value)}">
+    <div class="filter-list" py:if="c.fields">
+        <div class="filter-entry" py:for="(field, value) in c.fields">
+            <span class="name">${h.facet_title(field)}</span>
+            <span class="value">${value}</span>
+            <a href="${c.remove_field(field, value)}">
                 ${h.icon('unfilter')}
             </a>
         </div>  
