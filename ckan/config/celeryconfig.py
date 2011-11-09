@@ -1,6 +1,6 @@
 ## Example celery config
 
-## It is recommended that this file be put in the /path/to/virtualenv/bin directory.  This way it will definitely get picked up by ckan and the deamons.
+## It is recommended that this file be put in the /path/to/virtualenv/lib directory.  This way it will definitely get picked up by ckan and the deamons.
 
 #Broker can be whatever you like but can be ckan database too.
 BROKER_BACKEND = "sqlalchemy"

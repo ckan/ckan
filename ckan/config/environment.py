@@ -44,6 +44,8 @@ def load_environment(global_conf, app_conf):
     PylonsApp.find_controller = find_controller
     ###### END evil monkey-patch 
 
+    os.environ['CKAN_CONFIG'] = global_conf['__file__']
+
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     paths = dict(root=root,
@@ -52,6 +54,7 @@ def load_environment(global_conf, app_conf):
                  templates=[os.path.join(root, 'templates')])
 
     # Initialize config with the basic options
+    
     config.init_app(global_conf, app_conf, package='ckan', paths=paths)
     
     # load all CKAN plugins
