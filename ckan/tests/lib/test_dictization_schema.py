@@ -19,6 +19,11 @@ from ckan.logic.schema import default_package_schema, default_group_schema, \
 from ckan.lib.navl.dictization_functions import validate
 
 class TestBasicDictize:
+
+    def setup(self):
+        self.context = {'model': model,
+                        'session': model.Session}
+
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
@@ -48,14 +53,11 @@ class TestBasicDictize:
 
     def test_1_package_schema(self):
 
-        context = {'model': model,
-                   'session': model.Session}
-
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
 
         package_id = pkg.id
 
-        result = package_dictize(pkg, context)
+        result = package_dictize(pkg, self.context)
 
         self.remove_changable_columns(result)
 
@@ -63,7 +65,7 @@ class TestBasicDictize:
 
         result['name'] = 'anna2'
 
-        converted_data, errors = validate(result, default_package_schema(), context)
+        converted_data, errors = validate(result, default_package_schema(), self.context)
 
 
         pprint(errors)
@@ -100,7 +102,7 @@ class TestBasicDictize:
         data["resources"][0]["url"] = 'fsdfafasfsaf'
         data["resources"][1].pop("url") 
 
-        converted_data, errors = validate(data, default_package_schema(), context)
+        converted_data, errors = validate(data, default_package_schema(), self.context)
 
         assert errors == {
             'name': [u'That URL is already in use.'],
@@ -110,14 +112,14 @@ class TestBasicDictize:
 
         data["id"] = package_id
 
-        converted_data, errors = validate(data, default_package_schema(), context)
+        converted_data, errors = validate(data, default_package_schema(), self.context)
 
         assert errors == {
             #'resources': [{}, {'url': [u'Missing value']}]
         }, pformat(errors)
 
         data['name'] = '????jfaiofjioafjij'
-        converted_data, errors = validate(data, default_package_schema(), context)
+        converted_data, errors = validate(data, default_package_schema(), self.context)
         assert errors == {
             'name': [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_'],
             #'resources': [{}, {'url': [u'Missing value']}]
@@ -125,14 +127,11 @@ class TestBasicDictize:
 
     def test_2_group_schema(self):
 
-        context = {'model': model,
-                   'session': model.Session}
-
         group = model.Session.query(model.Group).first()
 
-        data = group_dictize(group, context)
+        data = group_dictize(group, self.context)
 
-        converted_data, errors = validate(data, default_group_schema(), context)
+        converted_data, errors = validate(data, default_group_schema(), self.context)
         group_pack = sorted(group.packages, key=lambda x:x.id)
 
         converted_data["packages"] = sorted(converted_data["packages"], key=lambda x:x["id"])
@@ -156,14 +155,11 @@ class TestBasicDictize:
         data["packages"][1].pop("id")
         data["packages"][1].pop("name")
 
-        converted_data, errors = validate(data, default_group_schema(), context)
+        converted_data, errors = validate(data, default_group_schema(), self.context)
         assert errors ==  {'packages': [{'id': [u'Dataset was not found.']}, {'id': [u'Missing value']}]} , pformat(errors)
 
     def test_3_tag_schema_allows_spaces(self):
         """Asserts that a tag name with space is valid"""
-        context = {'model': model,
-                   'session': model.Session}
-
         ignored = ""
         data = {
             'name': u'with space',
@@ -171,14 +167,11 @@ class TestBasicDictize:
             'state': ignored
             }
 
-        _, errors = validate(data, default_tags_schema(), context)
+        _, errors = validate(data, default_tags_schema(), self.context)
         assert not errors, str(errors)
 
     def test_4_tag_schema_allows_punctuation(self):
         """Asserts that a tag name with punctuation (except commas) is valid"""
-        context = {'model': model,
-                   'session': model.Session}
-
         ignored = ""
         data = {
             'name': u'.?!<>\\/"%^&*()-_+=~#\'@`',
@@ -186,14 +179,11 @@ class TestBasicDictize:
             'state': ignored
             }
 
-        _, errors = validate(data, default_tags_schema(), context)
+        _, errors = validate(data, default_tags_schema(), self.context)
         assert not errors, str(errors)
 
     def test_5_tag_schema_allows_capital_letters(self):
         """Asserts that tag names can have capital letters"""
-        context = {'model': model,
-                   'session': model.Session}
-
         ignored = ""
         data = {
             'name': u'CAPITALS',
@@ -201,14 +191,11 @@ class TestBasicDictize:
             'state': ignored
             }
 
-        _, errors = validate(data, default_tags_schema(), context)
+        _, errors = validate(data, default_tags_schema(), self.context)
         assert not errors, str(errors)
 
     def test_6_tag_schema_does_not_allow_commas(self):
         """Asserts that a tag name cannot contain commas"""
-        context = {'model': model,
-                   'session': model.Session}
-
         ignored = ""
         data = {
             'name': u'eats, shoots, and leaves',
@@ -216,7 +203,7 @@ class TestBasicDictize:
             'state': ignored
             }
 
-        _, errors = validate(data, default_tags_schema(), context)
+        _, errors = validate(data, default_tags_schema(), self.context)
         assert errors, pprint(errors)
         assert 'name' in errors
         error_message = errors['name'][0]
