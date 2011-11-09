@@ -45,12 +45,12 @@ ckan_ensure_users_and_groups () {
     INSTANCE=$1
     COMMAND_OUTPUT=`cat /etc/group | grep "ckan${INSTANCE}:"`
     if ! [[ "$COMMAND_OUTPUT" =~ "ckan${INSTANCE}:" ]] ; then
-        echo "Crating the 'ckan${INSTANCE}' group ..." 
+        echo "Creating the 'ckan${INSTANCE}' group ..." 
         sudo groupadd --system "ckan${INSTANCE}"
     fi
     COMMAND_OUTPUT=`cat /etc/passwd | grep "ckan${INSTANCE}:"`
     if ! [[ "$COMMAND_OUTPUT" =~ "ckan${INSTANCE}:" ]] ; then
-        echo "Crating the 'ckan${INSTANCE}' user ..." 
+        echo "Creating the 'ckan${INSTANCE}' user ..." 
         sudo useradd  --system  --gid "ckan${INSTANCE}" --home /var/lib/ckan/${INSTANCE} -M  --shell /usr/sbin/nologin ckan${INSTANCE}
     fi
 }
@@ -84,12 +84,13 @@ ckan_create_who_ini () {
             cp -n /usr/share/pyshared/ckan/config/who.ini /etc/ckan/${INSTANCE}/who.ini
             sed -e "s,%(here)s,/var/lib/ckan/${INSTANCE}," \
                 -i /etc/ckan/${INSTANCE}/who.ini
+            chown ckan${INSTANCE}:ckan${INSTANCE} /etc/ckan/${INSTANCE}/who.ini
         fi
     fi
 }
 
 ckan_create_config_file () {
-    local INSTANCE password
+    local INSTANCE password LOCAL_DB
     if [ "X$1" = "X" ] || [ "X$2" = "X" ] ; then
         echo "ERROR: call the function create_config_file function with an INSTANCE name, and a password for postgresql e.g."
         echo " dgu 1U923hjkh8"
@@ -97,19 +98,26 @@ ckan_create_config_file () {
     else
         INSTANCE=$1
         password=$2
+        LOCAL_DB=$3
         # Create an install settings file if it doesn't exist
         if [ -f /etc/ckan/${INSTANCE}/${INSTANCE}.ini ] ; then
             mv /etc/ckan/${INSTANCE}/${INSTANCE}.ini "/etc/ckan/${INSTANCE}/${INSTANCE}.ini.`date +%F_%T`.bak"
         fi
         paster make-config ckan /etc/ckan/${INSTANCE}/${INSTANCE}.ini
+
+        if [[ ( "$LOCAL_DB" == "yes" ) ]]
+        then
+            sed -e "s,^\(sqlalchemy.url\)[ =].*,\1 = postgresql://${INSTANCE}:${password}@localhost/${INSTANCE}," \
+                -i /etc/ckan/${INSTANCE}/${INSTANCE}.ini
+        fi
         sed -e "s,^\(email_to\)[ =].*,\1 = root," \
             -e "s,^\(error_email_from\)[ =].*,\1 = ckan-${INSTANCE}@`hostname`," \
             -e "s,^\(cache_dir\)[ =].*,\1 = /var/lib/ckan/${INSTANCE}/data," \
             -e "s,^\(who\.config_file\)[ =].*,\1 = /etc/ckan/${INSTANCE}/who.ini," \
-            -e "s,^\(sqlalchemy.url\)[ =].*,\1 = postgresql://${INSTANCE}:${password}@localhost/${INSTANCE}," \
-            -e "s,ckan\.site_logo,\#ckan.site_logo," \
             -e "s,ckan\.log,/var/log/ckan/${INSTANCE}/${INSTANCE}.log," \
+            -e "s,#solr_url = http://127.0.0.1:8983/solr,solr_url = http://127.0.0.1:8983/solr," \
             -i /etc/ckan/${INSTANCE}/${INSTANCE}.ini
+        sudo chown ckan${INSTANCE}:ckan${INSTANCE} /etc/ckan/${INSTANCE}/${INSTANCE}.ini
     fi
 }
 
@@ -147,6 +155,7 @@ ckan_ensure_db_exists () {
         if ! [[ "$COMMAND_OUTPUT" =~ ${INSTANCE} ]] ; then
             echo "Creating the database ..."
             sudo -u postgres createdb -O ${INSTANCE} ${INSTANCE}
+            paster --plugin=ckan db init --config=/etc/ckan/${INSTANCE}/${INSTANCE}.ini
         fi
     fi
 }
@@ -161,7 +170,15 @@ ckan_create_wsgi_handler () {
         INSTANCE=$1
         if [ ! -f "/var/lib/ckan/${INSTANCE}/wsgi.py" ]
         then
-            sudo virtualenv --setuptools /var/lib/ckan/${INSTANCE}/pyenv
+            sudo mkdir /var/lib/ckan/${INSTANCE}/pyenv
+            sudo chown -R ckan${INSTANCE}:ckan${INSTANCE} /var/lib/ckan/${INSTANCE}/pyenv
+            sudo -u ckan${INSTANCE} virtualenv --setuptools /var/lib/ckan/${INSTANCE}/pyenv
+            echo "Attempting to install 'pip' 1.0 from pypi.python.org into pyenv to be used for extensions ..."
+            sudo -u ckan${INSTANCE} /var/lib/ckan/${INSTANCE}/pyenv/bin/easy_install --upgrade "pip>=1.0" "pip<=1.0.99"
+            echo "done."
+            cat <<- EOF > /var/lib/ckan/${INSTANCE}/packaging_version.txt
+	1.5
+	EOF
             cat <<- EOF > /var/lib/ckan/${INSTANCE}/wsgi.py
 	import os
 	instance_dir = '/var/lib/ckan/${INSTANCE}'
@@ -234,6 +251,10 @@ ckan_overwrite_apache_config () {
 
     # pass authorization info on (needed for rest api)
     WSGIPassAuthorization On
+
+    # Deploy as a daemon (avoids conflicts between CKAN instances)
+    # WSGIDaemonProcess ${INSTANCE} display-name=${INSTANCE} processes=4 threads=15 maximum-requests=10000
+    # WSGIProcessGroup ${INSTANCE}
 
     ErrorLog /var/log/apache2/${INSTANCE}.error.log
     CustomLog /var/log/apache2/${INSTANCE}.custom.log combined

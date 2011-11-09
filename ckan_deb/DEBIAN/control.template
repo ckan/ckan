@@ -5,7 +5,7 @@ Architecture: all
 Maintainer: James Gardner <james.gardner@okfn.org>
 Section: main/web
 Priority: extra
-Depends: python-ckan, postgresql-8.4, apache2, libapache2-mod-wsgi, python-apachemiddleware, python-virtualenv, python-pip
+Depends: python-ckan, apache2, libapache2-mod-wsgi, python-virtualenv, python-pip
 Homepage: http://ckan.org
 Description: ckan
  Common files useful for managing CKAN installations

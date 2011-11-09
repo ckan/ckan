@@ -33,6 +33,7 @@ Contents:
    configuration
    api
    test
+   common-error-messages
    buildbot
    about
 

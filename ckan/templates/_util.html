@@ -368,11 +368,11 @@
             >
             <py:if test="revision.state!='deleted'">
             <input type="hidden" name="action" value="delete"/>
-            <input type="submit" name="submit" value="Delete" class="pretty-button small" />
+            <input type="submit" name="submit" value="Delete" class="pretty-button small-button" />
             </py:if>
             <py:if test="revision.state=='deleted'">
             <input type="hidden" name="action" value="undelete"/>
-            <input type="submit" name="submit" value="Undelete" class="pretty-button small" />
+            <input type="submit" name="submit" value="Undelete" class="pretty-button small-button" />
             </py:if>
           </form>
         </div>
@@ -422,10 +422,10 @@
                 id=revision['id'])}"
             >
             <py:if test="revision['state']!='deleted'">
-            <button type="submit" name="action" value="delete" class="pretty-button small">Delete</button>
+            <button type="submit" name="action" value="delete" class="pretty-button small-button">Delete</button>
             </py:if>
             <py:if test="revision['state']=='deleted'">
-            <button type="submit" name="action" value="undelete" class="pretty-button small">Undelete</button>
+            <button type="submit" name="action" value="undelete" class="pretty-button small-button">Undelete</button>
             </py:if>
           </form>
         </div>

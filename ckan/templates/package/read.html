@@ -18,13 +18,6 @@
   
   <py:match path="primarysidebar">
   
-    <li class="widget-container boxed widget_text" py:if="not c.hide_welcome_message">
-      <h3>First time at ${g.site_title}?</h3>        
-      <p>
-          ${g.site_title} is a catalogue for data. ${h.subnav_link(c, _('Click here to find out more ...'), controller='home', action='about', id=None)}
-      </p>
-    </li>
-
     <li class="widget-container widget_text">
       <ul class="property-list">
         <li py:if="c.pkg.url">

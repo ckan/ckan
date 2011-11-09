@@ -82,3 +82,16 @@ class TestFormatText:
         out = format.to_html(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
 
+    def test_multiline_links(self):
+        instr = u'''I get 10 times more traffic from [Google][] than from
+[Yahoo][] or [MSN][].
+
+  [google]: http://google.com/        "Google"
+  [yahoo]:  http://search.yahoo.com/  "Yahoo Search"
+  [msn]:    http://search.msn.com/    "MSN Search"'''
+        exp = '''I get 10 times more traffic from <a href="http://google.com/" title="Google">Google</a> than from
+   <a href="http://search.yahoo.com/" title="Yahoo Search">Yahoo</a> or <a href="http://search.msn.com/" title="MSN Search">MSN</a>.'''
+        # NB when this is put into Genshi, it will close the tag for you.
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)

@@ -1,12 +1,30 @@
 #!/bin/bash
 . /usr/lib/ckan/common.sh
 
-INSTANCE=$1
 
 # Check we are root
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root"
    exit 1
+fi
+
+if [ $# -lt 3 ]
+then    
+    echo "ERROR: Expected two arguments (instance name, hostname, local database [yes or no]) eg."
+    echo "       $0 std std.ckan.org yes"
+    exit 1
+fi
+
+INSTANCE=$1
+HOSTNAME=$2
+LOCAL_DB=$3
+
+# Check the LOCAL_DB variable
+
+if ! [[ ( "$LOCAL_DB" == "yes" ) || ("$LOCAL_DB" == "no" ) ]]
+then
+    echo "Expceted the LOCAL_DB variable to be 'yes' or 'no', not '$LOCAL_DB'"
+    exit 1
 fi
 
 # Create an install settings file if it doesn't exist
@@ -37,11 +55,10 @@ error() {
 
 echo "Installing or upgrading CKAN ${INSTANCE} ..."
 
-echo "Making sure PostgreSQL is running ..."
-/etc/init.d/postgresql-8.4 start
-
 echo "Ensuring users and groups are set up correctly ..."
 ckan_ensure_users_and_groups ${INSTANCE}
+
+chown ckan${INSTANCE}:ckan${INSTANCE} /etc/ckan/${INSTANCE}/install_settings.sh
 
 echo "Ensuring directories exist for ${INSTANCE} CKAN INSTANCE ..."
 ckan_make_ckan_directories ${INSTANCE}
@@ -71,25 +88,34 @@ ckan_create_who_ini ${INSTANCE}
 echo "Ensuring wsgi.py file exists ..."
 ckan_create_wsgi_handler ${INSTANCE}
 
-# Replace any existing user with a new one with this password
-echo "Setting the password of the ${INSTANCE} user in PostgreSQL"
-ckan_add_or_replace_database_user ${INSTANCE} ${CKAN_DB_PASSWORD}
+if [[ ( "$LOCAL_DB" == "yes" ) ]]
+then
+    # Replace any existing user with a new one with this password
+    echo "Making sure PostgreSQL is running ..."
+    /etc/init.d/postgresql-8.4 start
+    
+    echo "Setting the password of the ${INSTANCE} user in PostgreSQL"
+    ckan_add_or_replace_database_user ${INSTANCE} ${CKAN_DB_PASSWORD}
+fi
 
-# Create the config file
-echo "Creating/overwriting the config for CKAN ... "
-# We use the actual password in PostgreSQL in case any non-sense has gone on
-ckan_create_config_file ${INSTANCE} ${CKAN_DB_PASSWORD}
-# Now that the file exists, make some customisations
-sed \
-    -e "s,^\(ckan.dump_dir\)[ =].*,\1 = /var/lib/ckan/${INSTANCE}/static/dump," \
-    -i /etc/ckan/${INSTANCE}/${INSTANCE}.ini
+if ! [ -f /etc/ckan/${INSTANCE}/${INSTANCE}.ini ] ; then
+    # Create the config file
+    echo "Creating/overwriting the config for CKAN ... "
+    ckan_create_config_file ${INSTANCE} ${CKAN_DB_PASSWORD} ${LOCAL_DB}
+    # Now that the file exists, make some customisations
+    sed \
+        -e "s,^\(ckan.dump_dir\)[ =].*,\1 = /var/lib/ckan/${INSTANCE}/static/dump," \
+        -i /etc/ckan/${INSTANCE}/${INSTANCE}.ini
+    #echo "Ensuring the latest plugins are configured ..."
+    #sed -e "s/^\(ckan.plugins\)[ =].*/\1 = ${INSTANCE}/" \
+    #    -i /etc/ckan/${INSTANCE}/${INSTANCE}.ini
+fi
 
-echo "Ensuring the ${INSTANCE} database exists ..."
-ckan_ensure_db_exists ${INSTANCE}
-
-#echo "Ensuring the latest plugins are configured ..."
-#sed -e "s/^\(ckan.plugins\)[ =].*/\1 = ${INSTANCE}/" \
-#    -i /etc/ckan/${INSTANCE}/${INSTANCE}.ini
+if [[ ( "$LOCAL_DB" == "yes" ) ]]
+then
+    echo "Ensuring the ${INSTANCE} database exists ..."
+    ckan_ensure_db_exists ${INSTANCE}
+fi
 
 # Overwrite the existing Apache config
 if [ -f /etc/apache2/sites-enabled/000-default ] ; then
@@ -98,7 +124,7 @@ if [ -f /etc/apache2/sites-enabled/000-default ] ; then
 fi
 
 echo "Overwriting the existing Apache config ..."
-ckan_overwrite_apache_config ${INSTANCE} ${INSTANCE}.ckan.localhost 
+ckan_overwrite_apache_config ${INSTANCE} ${HOSTNAME}
 
 # Make sure mod_rewrite is enabled
 if ! [ -f /etc/apache2/mods-enabled/rewrite.load ] ; then
@@ -106,9 +132,12 @@ if ! [ -f /etc/apache2/mods-enabled/rewrite.load ] ; then
     a2enmod rewrite
 fi
 
-# Standard paster db upgrade
-echo "Performing any database upgrades ..."
-paster --plugin=ckan db upgrade --config=/etc/ckan/${INSTANCE}/${INSTANCE}.ini
+if [[ ( "$LOCAL_DB" == "yes" ) ]]
+then
+    # Standard paster db upgrade
+    echo "Performing any database upgrades ..."
+    paster --plugin=ckan db upgrade --config=/etc/ckan/${INSTANCE}/${INSTANCE}.ini
+fi
 
 # Make sure our INSTANCE is enabled
 echo "Bringing the ${INSTANCE} INSTANCE out of maintenance mode ..."
@@ -121,7 +150,7 @@ echo "Restarting apache ..."
 # Install the new crontab
 echo "Enabling crontab for the ckan${INSTANCE} user ..."
 PACKAGED_CRONJOB="/tmp/${INSTANCE}-cronjob"
-cat <<EOF > ${PACKAGED_CRONJOB}
+cat << EOF > ${PACKAGED_CRONJOB}
 # WARNING:  Do not edit these cron tabs, they will be overwritten any time 
 #           the ckan INSTANCE package is upgraded
 # QUESTION: Should email reports be sent to root?

@@ -9,25 +9,23 @@
   
   <py:match path="primarysidebar">
     <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
-      <form id="user-search" action="" method="GET">
+      <form id="user-search" class="user-search" action="" method="GET">
         <input type="text" id="q" name="q" value="${c.q}" />
-        <input type="submit" name="" value="Search &raquo;" />
+        <input type="submit" class="pretty-button small-button" name="" value="Search &raquo;" />
       </form>
-      <p i18n:msg="item_count">
+      <p py:if="c.q" i18n:msg="item_count">
         <strong>${c.page.item_count}</strong> users found.
       </p>
     </li>
-    
-
   </py:match>
   
   <py:match path="minornavigation">
     <ul class="tabbed">
-      <li>
-        <a href="?q=${c.q}&amp;order_by=edits" rel="nofollow">Sort by edits</a>
-      </li>
-      <li>
+      <li py:attrs="{'class':'current-tab'} if c.order_by=='name' else {}">
         <a href="?q=${c.q}&amp;order_by=name" rel="nofollow">Sort by name</a>
+      </li>
+      <li py:attrs="{'class':'current-tab'} if c.order_by=='edits' else {}">
+        <a href="?q=${c.q}&amp;order_by=edits" rel="nofollow">Sort by edits</a>
       </li>
     </ul>
   </py:match>

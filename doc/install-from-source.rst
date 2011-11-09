@@ -2,11 +2,15 @@
 Option 2: Install from Source
 =============================
 
-This section describes how to install CKAN from source. This removes the requirement for Ubuntu 10.04 that exists with :doc:`install-from-package`. It is also the option to use if you are going to develop the CKAN source.
+This section describes how to install CKAN from source. Whereas :doc:`install-from-package` requires Ubuntu 10.04, this way of installing CKAN is more flexible to work with other distributions and operating systems. Please share your experiences on our wiki: http://wiki.ckan.org/Install
+
+This is also the option to use if you are going to develop the CKAN source.
 
 .. warning:: This option is more complex than :doc:`install-from-package`.
 
-For support during installation, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_. 
+There is a page of help for dealing with :doc:`common-error-messages`.
+
+For support during installation, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
 
 Install the Source
 ------------------
@@ -17,10 +21,10 @@ Install the Source
 
    ::
 
-       sudo apt-get install build-essential libxml2-dev libxslt-dev 
-       sudo apt-get install wget mercurial postgresql libpq-dev git-core
-       sudo apt-get install python-dev python-psycopg2 python-virtualenv
-       sudo apt-get install subversion solr-jetty openjdk-6-jdk
+       sudo apt-get install mercurial python-dev postgresql libpq-dev 
+       sudo apt-get install libxml2-dev libxslt-dev python-virtualenv
+       sudo apt-get install wget build-essential git-core subversion 
+       sudo apt-get install solr-jetty openjdk-6-jdk
 
    Otherwise, you should install these packages from source. 
 
@@ -31,7 +35,6 @@ Install the Source
    python                 `Python v2.5-2.7 <http://www.python.org/getit/>`_
    postgresql             `PostgreSQL database <http://www.postgresql.org/download/>`_
    libpq                  `PostgreSQL library <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
-   psycopg2               `PostgreSQL python module <http://initd.org/psycopg/install/>`_
    libxml2                `XML library development files <http://xmlsoft.org/>`_
    libxslt                `XSLT library development files <http://www.linuxfromscratch.org/blfs/view/6.3/general/libxslt.html>`_
    virtualenv             `Python virtual environments <http://pypi.python.org/pypi/virtualenv>`_
@@ -40,6 +43,8 @@ Install the Source
    git                    `Git source control (for getting MarkupSafe src) <http://book.git-scm.com/2_installing_git.html>`_
    subversion             `Subversion source control (for pyutilib) <http://subversion.apache.org/packages.html>`_
    solr                   `Search engine <http://lucene.apache.org/solr>`_
+   jetty                  `HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr)
+   openjdk-6-jdk          `OpenJDK Java library <http://openjdk.java.net/install/>`_
    =====================  ===============================================
 
    
@@ -103,27 +108,27 @@ Install the Source
 
        pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan#egg=ckan
 
-   CKAN has a set of dependencies it requires which you should install too:
+5. CKAN has a set of dependencies it requires which you should install too. These are listed in three text files: requires/lucid_*.txt, followed by WebOb explicitly.
+
+   First we install two of the three lists of dependencies:
 
    ::
 
        pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_missing.txt -r pyenv/src/ckan/requires/lucid_conflict.txt
+       pip install webob==1.0.8
 
    The ``--ignore-installed`` option ensures ``pip`` installs software into
    this virtual environment even if it is already present on the system.
 
-   If you are using Ubuntu Lucid you can install the rest of the dependencies
-   from the system versions like this:
+   WebOb has to be installed explicitly afterwards because by installing pylons with `--ignore-installed` you end up with a newer (incompatible) version than the one that Pylons and CKAN need.
 
-   ::
+   Now to install the remaining dependencies in requires/lucid_present.txt and you are using Ubuntu Lucid 10.04 you can install the system versions::
 
-       sudo apt-get install python-psycopg2 python-lxml python-sphinx 
-       sudo apt-get install python-pylons python-repoze.who python-pybabel
+       sudo apt-get install python-pybabel python-psycopg2 python-lxml 
+       sudo apt-get install python-sphinx python-pylons python-repoze.who 
        sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
        
-   If you are not using Ubuntu Lucid you'll still need to install all the
-   dependencies that would have been met in the ``apt-get install`` command
-   at the start. You can do so like this:
+   Alternatively, if you are not using Ubuntu Lucid 10.04 you'll need to install them like this:
 
    ::
 
@@ -141,7 +146,7 @@ Install the Source
        deactivate
        . pyenv/bin/activate
 
-5. Setup a PostgreSQL database.
+6. Setup a PostgreSQL database.
 
   List existing databases:
 
@@ -172,7 +177,7 @@ Install the Source
 
       sudo -u postgres createdb -O ckanuser ckantest
 
-6. Create a CKAN config file.
+7. Create a CKAN config file.
 
   Make sure you are in an activated environment (see step 3) so that Python
   Paste and other modules are put on the python path (your command prompt will
@@ -209,25 +214,29 @@ Install the Source
      We are moving to a new deployment system where this incompatibility 
      will be fixed.
 
-7. Create database tables.
+8. Create database tables.
 
   Now that you have a configuration file that has the correct settings for
   your database, you'll need to create the tables. Make sure you are still in an
   activated environment with ``(pyenv)`` at the front of the command prompt and
-  then from the ``pyenv/src/ckan`` directory run this command:
+  then from the ``pyenv/src/ckan`` directory run this command.
+
+  If your config file is called development.ini:
 
    ::
 
-       paster db init
+       paster --plugin=ckan db init
 
-  You should see ``Initialising DB: SUCCESS``. If you are not in the
-  ``pyenv/src/ckan`` directory or you don't have an activated shell, the command
-  will not work.
+  or if your config file is something else, you need to specify it. e.g.::
+
+       paster --plugin=ckan db init --config=test.ckan.net.ini
+
+  You should see ``Initialising DB: SUCCESS``. 
 
   If the command prompts for a password it is likely you haven't set up the 
   database configuration correctly in step 6.
 
-8. Create the cache directory.
+9. Create the cache directory.
 
   You need to create the Pylon's cache directory specified by 'cache_dir' 
   in the config file.
@@ -239,7 +248,7 @@ Install the Source
       mkdir data
 
 
-9. Setup Solr.
+10. Setup Solr.
 
    Edit the jetty config file (/etc/default/jetty by default on Ubuntu),
    changing the following:
@@ -250,11 +259,10 @@ Install the Source
        JETTY_HOST=127.0.0.1  # (line 15)
        JETTY_PORT=8983       # (line 18)
 
-   Then replace Solr's schema.xml file with a symlink to the one in the CKAN source:
-
-     Note: The path ``~/pyenv/src/ckan/ckan/config/schema.xml`` will probably need to be to be adjusted for your system. Also ensure it is an absolute path.
+   Then replace Solr's schema.xml file with a symlink to the one in the CKAN source (Note: The path ``~/pyenv/src/ckan/ckan/config/schema.xml`` will probably need to be to be adjusted for your system. Also ensure it is an absolute path.)
 
    ::
+
        sudo mv /usr/share/solr/conf/schema.xml /usr/share/solr/conf/schema.xml.bak
        sudo ln -s ~/pyenv/src/ckan/ckan/config/schema.xml /usr/share/solr/conf/schema.xml
 
@@ -271,13 +279,22 @@ Install the Source
 
        sudo service jetty start
 
-   Now you should check Solr is running ok by browsing: http://localhost:8983/solr/
+  .. note:: If you get the message `Could not start Jetty servlet engine because no Java Development Kit (JDK) was found.` then you will have to edit /etc/profile and add this line to the end such as this to the end (adjusting the path for your machine's jdk install)::
 
-   For more information on Solr setup and configuration, see the CKAN wiki:
-   http://wiki.ckan.net/Solr_Search
+       JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
+
+    Now run::
+
+       export JAVA_HOME
+       sudo service jetty start
 
 
-10. Run the CKAN webserver.
+  Now you should check Solr is running ok by browsing: http://localhost:8983/solr/
+
+  For more information on Solr setup and configuration, see the CKAN wiki: http://wiki.ckan.net/Solr_Search
+
+
+11. Run the CKAN webserver.
 
   NB If you've started a new shell, you'll have to activate the environment
   again first - see step 3.
@@ -288,7 +305,7 @@ Install the Source
 
       paster serve development.ini
 
-11. Point your web browser at: http://127.0.0.1:5000/
+12. Point your web browser at: http://127.0.0.1:5000/
 
     The CKAN homepage should load.
 

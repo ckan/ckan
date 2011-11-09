@@ -116,57 +116,20 @@ If there is a page which allows you to download a dump of the entire catalogue t
 
 For more information on using dumpfiles, see :doc:`database_dumps`.
 
-
-Cache Settings
---------------
-
-.. index::
-   single: cache_validation_enabled
-
-cache_validation_enabled
-^^^^^^^^^^^^^^^^^^^^^^^^
+recaptcha
+^^^^^^^^^
 
 Example::
+ ckan.recaptcha.publickey = 6Lc...-KLc
+ ckan.recaptcha.privatekey = 6Lc...-jP
 
- ckan.cache_validation_enabled = False
+Setting both these options according to an established Recaptcha account adds captcha to the user registration form. This has been effective at preventing bots registering users and creating spam packages.
 
-Default value:  ``True``
+To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
 
-This option determines whether browsers (or other caching services running between the browser and CKAN) are helped to cache particular CKAN pages, by validating when the page content hasn't changed. This is achieved using ETag headers provided by CKAN, which is a hash that changes when the content has changed. 
+And there is an option for the default expiry time if not specified::
 
-Developers editing the templates should set this to False, since ETag hashes don't look for template changes.
-
-.. index::
-   single: cache_enabled
-
-cache_enabled
-^^^^^^^^^^^^^
-
-Example::
-
- ckan.cache_enabled = True
-
-Default value:  ``False``
-
-Setting this option to True turns on several server-side caches. When caching is on, caching can be further configured as follows. 
-
-To set the type of Beaker storage::
- 
- beaker.cache.type = file
-
-To set the expiry times (in seconds) for specific controllers (which use the proxy_cache) specify the methods like this::
-
- ckan.controllers.package.list.expires = 600
- ckan.controllers.tag.read.expires = 600
- ckan.controllers.apiv1.package.list.expires = 600
- ckan.controllers.apiv1.package.show.expires = 600
- ckan.controllers.apiv2.package.list.expires = 600
- ckan.controllers.apiv2.package.show.expires = 600
-
-There is also an option to set the max-age value of static files delivered by paster::
-
- ckan.static_max_age = 3600
-
+ ckan.cache.default_expires = 600
 
 Authentication Settings
 -----------------------
@@ -194,18 +157,55 @@ Internationalisation Settings
 -----------------------------
 
 .. index::
-   single: lang
+   single: ckan.locale_default
 
-lang
-^^^^
+ckan.locale_default
+^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- lang=de
+ ckan.locale_default=de
 
 Default value:  ``en`` (English)
 
-Use this to specify the language of the text displayed in the CKAN web UI. This requires a suitable `mo` file installed for the language. For more information on internationalization, see :doc:`i18n`.
+Use this to specify the locale (language of the text) displayed in the CKAN Web UI. This requires a suitable `mo` file installed for the locale in the ckan/i18n. For more information on internationalization, see :doc:`i18n`. If you don't specify a default locale, then it will default to the first locale offered, which is by default English (alter that with `ckan.locales_offered` and `ckan.locales_filtered_out`.
+
+.. note: In versions of CKAN before 1.5, the settings used for this was variously `lang` or `ckan.locale`, which have now been deprecated in favour of `ckan.locale_default`.
+
+ckan.locales_offered
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.locales_offered=en de fr
+
+Default value: (none)
+
+By default, all locales found in the ckan/i18n directory will be offered to the user. To only offer a subset of these, list them under this option. The ordering of the locales is preserved when offered to the user.
+
+ckan.locales_filtered_out
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.locales_filtered_out=pl ru
+
+Default value: (none)
+
+If you want to not offer particular locales to the user, then list them here to have them removed from the options.
+
+ckan.locale_order
+^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.locale_order=fr de
+
+Default value: (none)
+
+If you want to specify the ordering of all or some of the locales as they are offered to the user, then specify them here in the required order. Any locales that are available but not specified in this option, will still be offered at the end of the list.
+
+
 
 Theming Settings
 ----------------
@@ -258,10 +258,10 @@ This sets the name of the form to use when editing a dataset. This can be a form
 
 For more information on forms, see :doc:`forms`.
 
-.. _config-package-urls:
-
 .. index::
    single: package_new_return_url, package_edit_return_url
+
+.. _config-package-urls:
 
 package_new_return_url & package_edit_return_url
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -437,6 +437,16 @@ The URL that resolves to the CKAN API part of the site. This is useful if the
 API is hosted on a different domain, for example when a third-party site uses
 the forms API.
 
+apikey_header_name
+^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ apikey_header_name = API-KEY
+
+Default value: ``X-CKAN-API-Key`` & ``Authorization``
+
+This allows another http header to be used to provide the CKAN API key. This is useful if network infrastructure block the Authorization header and ``X-CKAN-API-Key`` is not suitable.
 
 Authorization Settings
 ----------------------

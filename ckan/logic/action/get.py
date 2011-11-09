@@ -1,7 +1,9 @@
 from sqlalchemy.sql import select
 from sqlalchemy import or_, and_, func, desc, case
 import uuid
+from pylons import config
 
+import ckan
 from ckan.logic import NotFound
 from ckan.logic import check_access
 from ckan.plugins import (PluginImplementations,
@@ -125,20 +127,27 @@ def group_list(context, data_dict):
     user = context['user']
     api = context.get('api_version') or '1'
     ref_group_by = 'id' if api == '2' else 'name';
-
+    order_by = data_dict.get('order_by', 'name')
+    if order_by not in set(('name', 'packages')):
+        raise ValidationError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
    
     check_access('group_list',context, data_dict)
 
-    # We need Groups for group_list_dictize
     query = model.Session.query(model.Group).join(model.GroupRevision)
     query = query.filter(model.GroupRevision.state=='active')
     query = query.filter(model.GroupRevision.current==True)
-    query = query.order_by(model.Group.name.asc())
-    query = query.order_by(model.Group.title.asc())
 
+    if order_by == 'name':
+        query = query.order_by(model.Group.name.asc())
+        query = query.order_by(model.Group.title.asc())
 
     groups = query.all()
+
+    if order_by == 'packages':
+        groups = sorted(query.all(),
+                        key=lambda g: len(g.packages),
+                        reverse=True)
 
     if not all_fields:
         group_list = [getattr(p, ref_group_by) for p in groups]
@@ -830,3 +839,14 @@ def get_site_user(context, data_dict):
             model.Session.commit()
     return {'name': user.name,
             'apikey': user.apikey}
+
+def status_show(context, data_dict):
+    '''Provides information about the operation of this CKAN instance.'''
+    return {
+        'site_title': config.get('ckan.site_title'),
+        'site_description': config.get('ckan.site_description'),
+        'site_url': config.get('ckan.site_url'),
+        'ckan_version': ckan.__version__,
+        'error_emails_to': config.get('email_to'),
+        'locale_default': config.get('ckan.locale_default'),
+        }
