@@ -123,9 +123,9 @@ class TestPackageWithTags:
     def setup_class(self):
         model.repo.init_db()
         rev1 = model.repo.new_revision()
-        self.tagname = u'testtagm2m'
+        self.tagname = u'test tag m2m!'
         self.tagname2 = u'testtagm2m2'
-        self.tagname3 = u'testtag3'
+        self.tagname3 = u'test tag3!'
         self.pkgname = u'testpkgm2m'
         pkg = model.Package(name=self.pkgname)
         self.tag = model.Tag(name=self.tagname)
