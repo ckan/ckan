@@ -7,6 +7,9 @@
   <py:def function="body_class">user-view</py:def>
   
   <py:match path="primarysidebar">
+    <div class="gravatar">
+      ${h.gravatar(c.user_dict['email_hash'],120)}
+    </div>
     <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
       <h3>Activity</h3>
       <ul>

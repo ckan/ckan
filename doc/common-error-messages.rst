@@ -108,3 +108,8 @@ Now retry just the ApacheMiddleware install::
  pip install -e hg+https://hg.3aims.com/public/ApacheMiddleware@tip#egg=apachemiddleware
 
 And it should complete this time.
+
+``ConfigParser.NoSectionError: No section: 'formatters'``
+=========================================================
+
+This suggests that the config file specified with the paster ``--config`` parameter (e.g. ``myconfig.ini``) is incorrectly formatted. This may be true, but this error is also printed if you specify an incorrect filename for the config file!

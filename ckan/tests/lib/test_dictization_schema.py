@@ -68,7 +68,7 @@ class TestBasicDictize:
         pprint(errors)
         assert converted_data == {'extras': [{'key': u'genre', 'value': u'"romantic novel"'},
                                             {'key': u'original media', 'value': u'"book"'}],
-#                                 'groups': [{'name': u'david'}, {'name': u'roger'}],
+                                 'groups': [{'name': u'david'}, {'name': u'roger'}],
                                  'license_id': u'other-open',
                                  'name': u'anna2',
                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',

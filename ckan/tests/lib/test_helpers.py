@@ -50,3 +50,13 @@ class TestHelpers(TestController):
         two_months_ago_str = h.datetime_to_date_str(two_months_ago)
         res = h.time_ago_in_words_from_str(two_months_ago_str)
         assert_equal(res, '2 months')
+
+    def test_gravatar(self):
+        email = 'zephod@gmail.com'
+        expected =['<a href="http://gravatar.com" target="_blank">', '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm" />', '</a>']
+        # Hash the email address
+        import hashlib
+        email_hash = hashlib.md5(email).hexdigest()
+        res = h.linked_gravatar(email_hash, 200)
+        for e in expected:
+            assert e in res, e

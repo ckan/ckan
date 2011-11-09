@@ -3,9 +3,9 @@ import copy
 from nose.tools import assert_equal, assert_raises
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
-from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
-from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase 
-from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase 
+from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase
+from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase
+from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase
 from ckan import plugins
 import ckan.lib.search as search
 
@@ -26,6 +26,19 @@ class PackagesTestCase(BaseModelApiTestCase):
         super(PackagesTestCase, self).teardown()
         model.Session.connection().invalidate()
 
+    def get_groups_identifiers(self, test_groups, users=[]):
+        groups = []
+        for grp in test_groups:
+            group = model.Group.get(grp)
+            if self.get_expected_api_version() == '1':
+                groups.append(group.name)
+            else:
+                groups.append(group.id)
+
+            if users:
+                model.setup_default_user_roles(group, users)
+        return groups
+
     def test_register_get_ok(self):
         offset = self.package_offset()
         res = self.app.get(offset, status=self.STATUS_200_OK)
@@ -39,7 +52,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_201_CREATED,
                             extra_environ=self.extra_environ)
-        
+
         # Check the returned package is as expected
         pkg = self.loads(res.body)
         assert_equal(pkg['name'], self.package_fixture_data['name'])
@@ -50,7 +63,7 @@ class PackagesTestCase(BaseModelApiTestCase):
 
         # Check the value of the Location header.
         location = res.header('Location')
-        
+
         assert offset in location
         res = self.app.get(location, status=self.STATUS_200_OK)
         # Check the database record.
@@ -95,15 +108,91 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert '"extras": {' in res, res
         for key, value in self.package_fixture_data['extras'].items():
             assert '"%s": "%s"' % (key, value) in res, res
-        
+
         self.remove()
-        
+
         # Test Packages Register Post 409 (conflict - create duplicate package).
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams, status=self.STATUS_409_CONFLICT,
                 extra_environ=self.extra_environ)
-        self.remove()        
+        self.remove()
+
+    def test_register_post_with_group(self):
+        assert not self.get_package_by_name(self.package_fixture_data['name'])
+        offset = self.package_offset()
+        
+        test_groups = [u'david']
+        user = model.User.by_name(u'russianfan')
+
+        groups = self.get_groups_identifiers(test_groups,[user])
+
+        package_fixture_data = self.package_fixture_data
+        package_fixture_data['groups'] = groups
+        data = self.dumps(package_fixture_data)
+        res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
+                             extra_environ={'Authorization':str(user.apikey)})
+
+        # Check the database record.
+        self.remove()
+        package = self.get_package_by_name(self.package_fixture_data['name'])
+        assert package
+        if self.get_expected_api_version() == '1':
+            self.assert_equal([g.name for g in package.groups], groups)
+        else:
+            self.assert_equal([g.id for g in package.groups], groups)
+        del package_fixture_data['groups']
+
+    def test_register_post_with_group_not_authorized(self):
+        assert not self.get_package_by_name(self.package_fixture_data['name'])
+        offset = self.package_offset()
+
+        test_groups = [u'david']
+        groups = self.get_groups_identifiers(test_groups)
+
+        package_fixture_data = self.package_fixture_data
+        package_fixture_data['groups'] = groups
+        data = self.dumps(package_fixture_data)
+        res = self.post_json(offset, data, status=self.STATUS_403_ACCESS_DENIED,
+                             extra_environ=self.extra_environ)
+        del package_fixture_data['groups']
+
+    def test_register_post_with_group_not_found(self):
+        assert not self.get_package_by_name(self.package_fixture_data['name'])
+        offset = self.package_offset()
+
+        test_groups = [u'this-group-does-not-exist']
+        groups = test_groups
+
+        package_fixture_data = self.package_fixture_data
+        package_fixture_data['groups'] = groups
+        data = self.dumps(package_fixture_data)
+        res = self.post_json(offset, data, status=self.STATUS_404_NOT_FOUND,
+                             extra_environ=self.extra_environ)
+        del package_fixture_data['groups']
+
+    def test_register_post_with_group_sysadmin(self):
+        assert not self.get_package_by_name(self.package_fixture_data['name'])
+        offset = self.package_offset()
+        user = model.User.by_name(u'testsysadmin')
+        test_groups = [u'david']
+        groups = self.get_groups_identifiers(test_groups)
+
+        package_fixture_data = self.package_fixture_data
+        package_fixture_data['groups'] = groups
+        data = self.dumps(package_fixture_data)
+        res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
+                              extra_environ={'Authorization':str(user.apikey)})
+        # Check the database record.
+        self.remove()
+        package = self.get_package_by_name(self.package_fixture_data['name'])
+        assert package
+        if self.get_expected_api_version() == '1':
+            self.assert_equal([g.name for g in package.groups], groups)
+        else:
+            self.assert_equal([g.id for g in package.groups], groups)
+
+        del package_fixture_data['groups']
 
     def test_register_post_json(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
@@ -116,7 +205,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
         self.assert_equal(package.title, self.package_fixture_data['title'])
-        
+
     def test_register_post_bad_content_type(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
         offset = self.package_offset()
@@ -134,7 +223,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             # Check there is no database record.
             assert not package
         else:
-            assert package        
+            assert package
 
     def test_register_post_bad_request(self):
         test_params = {
@@ -312,7 +401,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'size_extra':u'400',
             }],
             'extras': {
-                u'key3': u'val3', 
+                u'key3': u'val3',
                 u'key4': u'',
                 u'key2': None,
                 u'key7': ['a','b'],
@@ -407,7 +496,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         new_fixture_data = {
             'name':u'somethingnew',
             'extras': {
-                u'key1': None, 
+                u'key1': None,
                 },
         }
         self.create_package_roles_revision(old_fixture_data)
@@ -603,7 +692,7 @@ class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
             }
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(test_params)
-        res = self.app.post(offset, params=postparams, 
+        res = self.app.post(offset, params=postparams,
                             extra_environ=self.extra_environ)
         model.Session.remove()
         pkg = self.get_package_by_name(test_params['name'])

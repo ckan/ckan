@@ -30,36 +30,12 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         res = self.app.get(offset)
         assert 'Add a dataset' in res
         assert 'Could not change language' not in res
+        assert "Dave's books has 2 datasets" in res, res
+        assert "Roger's books has 1 datasets" in res, res
 
-    def test_calculate_etag_hash(self):
-        # anything that changes the home page appearance should change the
-        # etag hash
-        c.user = 'test user'
-        get_hash = HomeController._home_cache_key
-        hashes = [get_hash(), get_hash()]
-        self.assert_equal(hashes[0], hashes[1])
 
-        def assert_hash_changed(hashes):
-            current_hash = get_hash()
-            assert current_hash != hashes[-1]
-            hashes.append(current_hash)
 
-        # login as a different user
-        c.user = 'another user'
-        assert_hash_changed(hashes)
 
-        # add a package to a group
-        rev = model.repo.new_revision()
-        model.Group.by_name(u'roger').add_package_by_name(u'warandpeace')
-        model.repo.commit_and_remove()
-        assert_hash_changed(hashes)
-
-        # flash message is not cached, but this is done in ckan/lib/cache
-        
-        # I can't get set_lang to work and deliver correct
-        # result to get_lang, so leaving it commented
-##        set_lang('fr')
-##        assert_hash_changed(hashes)
 
     @search_related
     def test_packages_link(self):
@@ -71,9 +47,10 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         offset = '/some_nonexistent_url'
         res = self.app.get(offset, status=404)
 
-    def test_guide(self):
-        url = url_for('guide')
-        assert url == 'http://wiki.okfn.org/ckan/doc/'
+    def test_template_head_end(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        assert 'ckan.template_head_end = <link rel="stylesheet" href="TEST_TEMPLATE_HEAD_END.css" type="text/css"> '
 
     def test_template_head_end(self):
         offset = url_for('home')

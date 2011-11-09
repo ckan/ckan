@@ -1,7 +1,7 @@
 import random
 import sys
 
-from pylons import cache, config
+from pylons import config
 from pylons.i18n import set_lang
 from genshi.template import NewTextTemplate
 import sqlalchemy.exc
@@ -11,12 +11,9 @@ from ckan.logic import NotAuthorized
 from ckan.logic import check_access, get_action
 from ckan.lib.i18n import set_session_locale, get_lang
 from ckan.lib.search import query_for, QueryOptions, SearchError
-from ckan.lib.cache import proxy_cache, get_cache_expires
 from ckan.lib.base import *
 import ckan.lib.stats
 from ckan.lib.hash import get_redirect
-
-cache_expires = get_cache_expires(sys.modules[__name__])
 
 class HomeController(BaseController):
     repo = model.repo
@@ -41,40 +38,35 @@ class HomeController(BaseController):
                 raise
             
 
-    @staticmethod
-    def _home_cache_key():
-        '''Calculate the etag cache key for the home page.'''
-        # a change to the data means the group package amounts may change
-        latest_revision_id = model.repo.youngest_revision().id
-        user_name = c.user
-        language = get_lang()
-        cache_key = str(hash((user_name, language, latest_revision_id)))
-        return cache_key
-
-    @proxy_cache(expires=cache_expires)
     def index(self):
-        cache_key = self._home_cache_key()
-        etag_cache(cache_key)
-
         try:
-            query = query_for(model.Package)
-            query.run({'q': '*:*', 'facet.field': g.facets})
-            c.package_count = query.count
-            c.facets = query.facets # used by the 'tag cloud' recipe
-            q = model.Session.query(model.Group).filter_by(state='active')
-            c.groups = sorted(q.all(), key=lambda g: len(g.packages), reverse=True)[:6]
+            # package search
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+            data_dict = {
+                'q':'*:*',
+                'facet.field':g.facets,
+                'rows':0,
+                'start':0,
+            }
+            query = get_action('package_search')(context,data_dict)
+            c.package_count = query['count']
+            c.facets = query['facets']
+
+            # group search
+            data_dict = {'order_by': 'packages', 'all_fields': 1}
+            c.groups = get_action('group_list')(context, data_dict)
         except SearchError, se:
             c.package_count = 0
             c.groups = []
 
-        return render('home/index.html', cache_key=cache_key,
-                      cache_expire=cache_expires)
+        return render('home/index.html')
 
     def license(self):
-        return render('home/license.html', cache_expire=cache_expires)
+        return render('home/license.html')
 
     def about(self):
-        return render('home/about.html', cache_expire=cache_expires)
+        return render('home/about.html')
         
     def locale(self): 
         locale = request.params.get('locale')
@@ -107,7 +99,7 @@ class HomeController(BaseController):
     def cache(self, id):
         '''Manual way to clear the caches'''
         if id == 'clear':
-            wui_caches = ['tag_counts', 'search_results', 'stats']
+            wui_caches = ['stats']
             for cache_name in wui_caches:
                 cache_ = cache.get_cache(cache_name, type='dbm')
                 cache_.clear()

@@ -6,7 +6,7 @@ import re
 
 from sqlalchemy.orm import eagerload_all
 import genshi
-from pylons import config, cache
+from pylons import config
 from pylons.i18n import _
 from autoneg.accept import negotiate
 from babel.dates import format_date, format_datetime, format_time
@@ -15,10 +15,9 @@ from ckan.logic import get_action, check_access
 from ckan.logic.schema import package_form_schema
 from ckan.lib.helpers import date_str_to_datetime
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
-from ckan.lib.base import etag_cache, response, redirect, gettext
+from ckan.lib.base import response, redirect, gettext
 from ckan.authz import Authorizer
 from ckan.lib.search import SearchIndexError, SearchError
-from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.lib.helpers import json
@@ -176,14 +175,7 @@ class PackageController(BaseController):
         
         return render('package/search.html')
 
-    @staticmethod
-    def _pkg_cache_key(pkg):
-        # note: we need pkg.id in addition to pkg.revision.id because a
-        # revision may have more than one package in it.
-        language = get_lang()
-        return str(hash((pkg.id, pkg.latest_related_revision.id, c.user, pkg.get_average_rating(), language)))
 
-    @proxy_cache()
     def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
@@ -216,9 +208,6 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
-        
-        cache_key = self._pkg_cache_key(c.pkg)        
-        etag_cache(cache_key)
         
         #set a cookie so we know whether to display the welcome message
         c.hide_welcome_message = bool(request.cookies.get('hide_welcome_message', False))
@@ -463,8 +452,8 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
-        except SearchIndexError:
-            abort(500, _(u'Unable to add package to search index.'))
+        except SearchIndexError, e:
+            abort(500, _(u'Unable to add package to search index.') + repr(e.args))
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -492,8 +481,8 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
-        except SearchIndexError:
-            abort(500, _(u'Unable to update search index.'))
+        except SearchIndexError, e:
+            abort(500, _(u'Unable to update search index.') + repr(e.args))
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
