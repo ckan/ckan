@@ -73,7 +73,7 @@ def default_tags_schema():
                  unicode,
                  tag_length_validator,
                  tag_name_validator,
-                 tag_not_uppercase],
+                ],
         'revision_timestamp': [ignore],
         'state': [ignore],
     }

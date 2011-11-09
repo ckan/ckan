@@ -13,7 +13,8 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
 
 from ckan.lib.dictization.model_save import package_dict_save
 
-from ckan.logic.schema import default_package_schema, default_group_schema
+from ckan.logic.schema import default_package_schema, default_group_schema, \
+    default_tags_schema
 
 from ckan.lib.navl.dictization_functions import validate
 
@@ -157,4 +158,69 @@ class TestBasicDictize:
 
         converted_data, errors = validate(data, default_group_schema(), context)
         assert errors ==  {'packages': [{'id': [u'Dataset was not found.']}, {'id': [u'Missing value']}]} , pformat(errors)
+
+    def test_3_tag_schema_allows_spaces(self):
+        """Asserts that a tag name with space is valid"""
+        context = {'model': model,
+                   'session': model.Session}
+
+        ignored = ""
+        data = {
+            'name': u'with space',
+            'revision_timestamp': ignored, 
+            'state': ignored
+            }
+
+        _, errors = validate(data, default_tags_schema(), context)
+        assert not errors, str(errors)
+
+    def test_4_tag_schema_allows_punctuation(self):
+        """Asserts that a tag name with punctuation (except commas) is valid"""
+        context = {'model': model,
+                   'session': model.Session}
+
+        ignored = ""
+        data = {
+            'name': u'.?!<>\\/"%^&*()-_+=~#\'@`',
+            'revision_timestamp': ignored,
+            'state': ignored
+            }
+
+        _, errors = validate(data, default_tags_schema(), context)
+        assert not errors, str(errors)
+
+    def test_5_tag_schema_allows_capital_letters(self):
+        """Asserts that tag names can have capital letters"""
+        context = {'model': model,
+                   'session': model.Session}
+
+        ignored = ""
+        data = {
+            'name': u'CAPITALS',
+            'revision_timestamp': ignored,
+            'state': ignored
+            }
+
+        _, errors = validate(data, default_tags_schema(), context)
+        assert not errors, str(errors)
+
+    def test_6_tag_schema_does_not_allow_commas(self):
+        """Asserts that a tag name cannot contain commas"""
+        context = {'model': model,
+                   'session': model.Session}
+
+        ignored = ""
+        data = {
+            'name': u'eats, shoots, and leaves',
+            'revision_timestamp': ignored,
+            'state': ignored
+            }
+
+        _, errors = validate(data, default_tags_schema(), context)
+        assert errors, pprint(errors)
+        assert 'name' in errors
+        error_message = errors['name'][0]
+        assert data['name'] in error_message
+        assert "must not contain commas" in error_message
+
 
