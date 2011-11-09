@@ -17,7 +17,6 @@ from user import user_table, User
 from authorization_group import * 
 from group import *
 from group_extra import *
-from search_index import *
 from authz import *
 from package_extra import *
 from resource import *

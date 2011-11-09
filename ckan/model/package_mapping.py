@@ -3,7 +3,6 @@ import vdm.sqlalchemy
 import tag
 from core import *
 from package import *
-import search_index
 from ckan.model import extension
 
 __all__ = ['PackageRevision']
@@ -17,9 +16,6 @@ mapper(Package, package_table, properties={
     # However after first commit PackageTag does not have Package and
     # delete-orphan kicks in to remove it!
     'package_tags':relation(tag.PackageTag, backref='package',
-        cascade='all, delete', #, delete-orphan',
-        ),
-    'package_search':relation(search_index.PackageSearch,
         cascade='all, delete', #, delete-orphan',
         ),
     },
