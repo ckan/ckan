@@ -9,13 +9,16 @@ def _get_blank_param_dict(pkg=None):
     return ckan.forms.get_package_dict(pkg=pkg, blank=True, user_editable_groups=[])
 
 class TestForms(PylonsTestCase, HtmlCheckMethods):
+
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
+        super(TestForms, cls).setup_class()
         model.Session.remove()
         ckan.tests.CreateTestData.create()
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
+        super(TestForms, cls).teardown_class()
         model.Session.remove()
         model.repo.rebuild_db()
 

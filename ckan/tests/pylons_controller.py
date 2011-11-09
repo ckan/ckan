@@ -48,3 +48,13 @@ class PylonsTestCase(object):
         mapper = make_map()
         cls.registry.register(pylons.url, URLGenerator(mapper, {}))
         cls.registry.register(pylons.session, TestSession())
+
+    @classmethod
+    def teardown_class(cls):
+        """
+        Although there is nothing to teardown in this class, `PylonsTestCase`
+        is used as the superclass for a bunch of test cases.  So this empty
+        declaration exists to that subclasses can safely call `teardown_class`
+        on their superclasses.
+        """
+        pass
