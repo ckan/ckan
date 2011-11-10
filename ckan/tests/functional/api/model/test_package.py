@@ -346,7 +346,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         old_fixture_data = {
             'name': self.package_fixture_data['name'],
             'url': self.package_fixture_data['url'],
-            'tags': [u'tag1', u'tag2', u'tag3'],
+            'tags': [u'tag 1.1', u'tag2', u'tag3'],
             'extras': {
                 u'key1': u'val1',
                 u'key2': u'val2'
@@ -376,7 +376,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'key2': None,
                 u'key7': ['a','b'],
              },
-            'tags': [u'tag1', u'tag2', u'tag4', u'tag5'],
+            'tags': [u'tag 1.1', u'tag2', u'tag 4', u'tag5!'],
         }
         self.create_package_roles_revision(old_fixture_data)
         pkg = self.get_package_by_name(old_fixture_data['name'])
@@ -522,11 +522,11 @@ class PackagesTestCase(BaseModelApiTestCase):
         name = self.package_fixture_data['name']
         old_fixture_data = {
             'name': name,
-            'tags': ['tag1', 'tag2']
+            'tags': ['tag 1!', 'tag2']
         }
         new_fixture_data = {
             'name': name,
-            'tags': ['tag1']
+            'tags': ['tag 1!']
         }
         self.create_package_roles_revision(old_fixture_data)
         offset = self.package_offset(name)
@@ -537,7 +537,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         # Check the returned package is as expected
         pkg = self.loads(res.body)
         assert_equal(pkg['name'], new_fixture_data['name'])
-        assert_equal(pkg['tags'], ['tag1'])
+        assert_equal(pkg['tags'], ['tag 1!'])
 
         package = self.get_package_by_name(new_fixture_data['name'])
         assert len(package.tags) == 1, package.tags
@@ -547,7 +547,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
                             extra_environ=self.extra_environ)
         pkg = self.loads(res.body)
-        assert_equal(pkg['tags'], ['tag1', 'tag2'])
+        assert_equal(pkg['tags'], ['tag 1!', 'tag2'])
 
     def test_entity_update_conflict(self):
         package1_name = self.package_fixture_data['name']
