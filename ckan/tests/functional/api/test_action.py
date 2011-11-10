@@ -32,7 +32,7 @@ class TestAction(WsgiAppCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    def _add_basic_package(self, package_name=u'test_package'):
+    def _add_basic_package(self, package_name=u'test_package', **kwargs):
         package = {
             'name': package_name,
             'title': u'A Novel By Tolstoy',
@@ -42,6 +42,7 @@ class TestAction(WsgiAppCase):
                 'url': u'http://www.annakarenina.com/download/'
             }]
         }
+        package.update(kwargs)
 
         postparams = '%s=1' % json.dumps(package)
         res = self.app.post('/api/action/package_create', params=postparams,
@@ -210,25 +211,38 @@ class TestAction(WsgiAppCase):
             json.loads(res.body),
             {'help': 'Returns a list of tags',
              'success': True,
-             'result': ['russian', 'tolstoy']})
+             'result': ['russian', 'tolstoy', u'Flexible \u0489!']})
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
         res = self.app.post('/api/action/tag_list', params=postparams)
         res_obj = json.loads(res.body)
         pprint(res_obj)
         assert res_obj['success'] == True
-        if res_obj['result'][0]['name'] == 'russian':
-            russian_index = 0
-            tolstoy_index = 1
-        else:
-            russian_index = 1
-            tolstoy_index = 0
+
+        names = [ res_obj['result'][i]['name'] for i in xrange(len(res_obj['result'])) ]
+        russian_index = names.index('russian')
+        tolstoy_index = names.index('tolstoy')
+        flexible_index = names.index(u'Flexible \u0489!')
+
         assert res_obj['result'][russian_index]['name'] == 'russian'
-        assert len(res_obj['result'][russian_index]['packages']) - \
-               len(res_obj['result'][tolstoy_index]['packages']) == 1
         assert res_obj['result'][tolstoy_index]['name'] == 'tolstoy'
+
+        number_of_russian_packages = len(res_obj['result'][russian_index]['packages'])
+        number_of_tolstoy_packages = len(res_obj['result'][tolstoy_index]['packages'])
+        number_of_flexible_packages = len(res_obj['result'][flexible_index]['packages'])
+        
+        # TODO : This "moo" package appears to have leaked in from other tests.
+        #        Is that meant to be the case? IM
+        assert number_of_russian_packages == 3, \
+               'Expected 2 packages tagged with "russian"' # warandpeace , annakarenina , moo
+        assert number_of_tolstoy_packages == 2, \
+               'Expected 2 packages tagged with "tolstoy"' # moo , annakarenina
+        assert number_of_flexible_packages == 2, \
+               u'Expected 2 packages tagged with "Flexible \u0489!"' # warandpeace , annakarenina
+
         assert 'id' in res_obj['result'][0]
         assert 'id' in res_obj['result'][1]
+        assert 'id' in res_obj['result'][2]
 
     def test_07_tag_show(self):
         postparams = '%s=1' % json.dumps({'id':'russian'})
@@ -241,6 +255,24 @@ class TestAction(WsgiAppCase):
         assert 'id' in result
         assert 'packages' in result and len(result['packages']) == 3
         assert [package['name'] for package in result['packages']].sort() == ['annakarenina', 'warandpeace', 'moo'].sort()
+
+    def test_07_flexible_tag_show(self):
+        """
+        Asserts that the api can be used to retrieve the details of the flexible tag.
+
+        The flexible tag is the tag with spaces, punctuation and foreign
+        characters in its name, that's created in `ckan/lib/create_test_data.py`.
+        """
+        postparams = '%s=1' % json.dumps({'id':u'Flexible \u0489!'})
+        res = self.app.post('/api/action/tag_show', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Shows tag details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['name'] == u'Flexible \u0489!'
+        assert 'id' in result
+        assert 'packages' in result and len(result['packages']) == 2
+        assert [package['name'] for package in result['packages']].sort() == ['annakarenina', 'warandpeace'].sort()
 
     def test_07_tag_show_unknown_license(self):
         # create a tagged package which has an invalid license
@@ -487,6 +519,150 @@ class TestAction(WsgiAppCase):
             'result': ['russian'], 
             'success': True
         }
+
+    def test_15_tag_autocomplete_tag_with_spaces(self):
+        """Asserts autocomplete finds tags that contain spaces"""
+
+        CreateTestData.create_arbitrary([{
+            'name': u'package-with-tag-that-has-a-space-1',
+            'tags': [u'with space'],
+            'license': 'never_heard_of_it',
+            }])
+
+        postparams = '%s=1' % json.dumps({'q':'w'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success']
+        assert 'with space' in res_obj['result'], res_obj['result']
+
+    def test_15_tag_autocomplete_tag_with_foreign_characters(self):
+        """Asserts autocomplete finds tags that contain foreign characters"""
+        
+        CreateTestData.create_arbitrary([{
+            'name': u'package-with-tag-that-has-a-foreign-character-1',
+            'tags': [u'greek beta \u03b2'],
+            'license': 'never_heard_of_it',
+            }])
+
+        postparams = '%s=1' % json.dumps({'q':'greek'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success']
+        assert u'greek beta \u03b2' in res_obj['result'], res_obj['result']
+
+    def test_15_tag_autocomplete_tag_with_punctuation(self):
+        """Asserts autocomplete finds tags that contain punctuation"""
+        
+        CreateTestData.create_arbitrary([{
+            'name': u'package-with-tag-that-has-a-fullstop-1',
+            'tags': [u'fullstop.'],
+            'license': 'never_heard_of_it',
+            }])
+
+        postparams = '%s=1' % json.dumps({'q':'fullstop'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success']
+        assert u'fullstop.' in res_obj['result'], res_obj['result']
+
+    def test_15_tag_autocomplete_tag_with_capital_letters(self):
+        """
+        Asserts autocomplete finds tags that contain capital letters
+        
+        Note : the only reason this test passes for now is that the
+               search is for a lower cases substring.  If we had searched
+               for "CAPITAL" then it would fail.  This is because currently
+               the search API lower cases all search terms.  There's a
+               sister test (`test_15_tag_autocomplete_search_with_capital_letters`)
+               that tests that functionality.
+        """
+        
+        CreateTestData.create_arbitrary([{
+            'name': u'package-with-tag-that-has-a-capital-letter-1',
+            'tags': [u'CAPITAL idea old chap'],
+            'license': 'never_heard_of_it',
+            }])
+
+        postparams = '%s=1' % json.dumps({'q':'idea'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success']
+        assert u'CAPITAL idea old chap' in res_obj['result'], res_obj['result']
+
+    def test_15_tag_autocomplete_search_with_space(self):
+        """
+        Asserts that a search term containing a space works correctly
+        """
+
+        CreateTestData.create_arbitrary([{
+            'name': u'package-with-tag-that-has-a-space-2',
+            'tags': [u'with space'],
+            'license': 'never_heard_of_it',
+            }])
+
+        postparams = '%s=1' % json.dumps({'q':'th sp'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success']
+        assert 'with space' in res_obj['result'], res_obj['result']
+
+    def test_15_tag_autocomplete_search_with_foreign_character(self):
+        """
+        Asserts that a search term containing a foreign character works correctly
+        """
+
+        CreateTestData.create_arbitrary([{
+            'name': u'package-with-tag-that-has-a-foreign-character-2',
+            'tags': [u'greek beta \u03b2'],
+            'license': 'never_heard_of_it',
+            }])
+
+        postparams = '%s=1' % json.dumps({'q':u'\u03b2'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success']
+        assert u'greek beta \u03b2' in res_obj['result'], res_obj['result']
+
+    def test_15_tag_autocomplete_search_with_punctuation(self):
+        """
+        Asserts that a search term containing punctuation works correctly
+        """
+
+        CreateTestData.create_arbitrary([{
+            'name': u'package-with-tag-that-has-a-fullstop-2',
+            'tags': [u'fullstop.'],
+            'license': 'never_heard_of_it',
+            }])
+
+        postparams = '%s=1' % json.dumps({'q':u'stop.'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success']
+        assert 'fullstop.' in res_obj['result'], res_obj['result']
+
+    def test_15_tag_autocomplete_search_with_capital_letters(self):
+        """
+        Asserts that a search term containing capital letters works correctly
+
+        NOTE - this test FAILS.  This is because I haven't implemented the
+               search side of flexible tags yet.
+
+        NOTE - when this test is fixed, remove the NOTE in
+               `test_15_tag_autocomplete_tag_with_capital_letters` that
+               references this one.
+        """
+
+        CreateTestData.create_arbitrary([{
+            'name': u'package-with-tag-that-has-a-capital-letter-2',
+            'tags': [u'CAPITAL idea old chap'],
+            'license': 'never_heard_of_it',
+            }])
+
+        postparams = '%s=1' % json.dumps({'q':u'CAPITAL'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success']
+        assert 'CAPITAL idea old chap' in res_obj['result'], res_obj['result']
 
     def test_16_user_autocomplete(self):
         #Empty query
