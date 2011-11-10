@@ -363,11 +363,16 @@ left arrow <
         pkg2 = model.Package(name=cls.pkg_names[1])
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
-        for obj in [pkg2, tag1, tag2]:
+
+        # Flexible tag, allows spaces, upper-case,
+        # and all punctuation except commas
+        tag3 = model.Tag(name=u'Flexible \u0489!')
+
+        for obj in [pkg2, tag1, tag2, tag3]:
             model.Session.add(obj)
-        pkg1.tags = [tag1, tag2]
-        pkg2.tags = [ tag1 ]
-        cls.tag_names = [u'russian', u'tolstoy']
+        pkg1.tags = [tag1, tag2, tag3]
+        pkg2.tags = [ tag1, tag3 ]
+        cls.tag_names = [ t.name for t in (tag1, tag2, tag3) ]
         pkg1.license_id = u'other-open'
         pkg2.license_id = u'cc-nc' # closed license
         pkg2.title = u'A Wonderful Story'
