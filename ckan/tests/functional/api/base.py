@@ -4,6 +4,8 @@ try:
 except ImportError:
     from StringIO import StringIO
 
+import urllib
+
 from pylons import config
 import webhelpers.util
 from nose.tools import assert_equal
@@ -63,11 +65,26 @@ class ApiTestCase(object):
 
     @classmethod
     def offset(self, path):
+        """
+        Returns the full path to the resource identified in path.
+
+        Performs necessary url-encodings, ie:
+
+         - encodes unicode to utf8
+         - urlencodes the resulting byte array
+
+        This process is described in [1], and has also been confirmed by
+        inspecting what a browser does.
+
+        [1] http://www.w3.org/International/articles/idn-and-iri/
+        """
         assert self.api_version != None, "API version is missing."
         base = '/api'
         if self.api_version:
             base += '/' + self.api_version
-        return '%s%s' % (base, path)
+        utf8_encoded = (u'%s%s' % (base, path)).encode('utf8')
+        url_encoded = urllib.quote(utf8_encoded)
+        return url_encoded
 
     def assert_msg_represents_anna(self, msg):
         assert 'annakarenina' in msg, msg
