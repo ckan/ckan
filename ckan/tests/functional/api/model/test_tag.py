@@ -15,13 +15,26 @@ class TagsTestCase(BaseModelApiTestCase):
     def test_register_get_ok(self):
         offset = self.tag_offset()
         res = self.app.get(offset, status=self.STATUS_200_OK)
-        assert self.russian.name in res, res
-        assert self.tolstoy.name in res, res
+        results = self.loads(res.body)
+        assert self.russian.name in results, results
+        assert self.tolstoy.name in results, results
+        assert self.flexible_tag.name in results, results
     
     def test_entity_get_ok(self):
         offset = self.tag_offset(self.russian.name)
         res = self.app.get(offset, status=self.STATUS_200_OK)
         self.assert_msg_represents_russian(msg=res.body)
+
+    def test_entity_get_ok_flexible_tag(self):
+        """
+        Asserts that searching for a tag name with spaces and punctuation works.
+
+        The tag name is u'Flexible \u0489!', and both the 'warandpeace'
+        and 'annakarenina' packages should be returned.
+        """
+        offset = self.tag_offset(self.flexible_tag.name)
+        res = self.app.get(offset, status=self.STATUS_200_OK)
+        self.assert_msg_represents_flexible_tag(msg=res.body)
 
     def test_entity_get_not_found(self):
         offset = self.tag_offset('doesntexist')

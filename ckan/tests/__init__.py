@@ -232,6 +232,10 @@ class CommonFixtureMethods(BaseCase):
     def tolstoy(self):
         return self.get_tag_by_name(u'tolstoy')
 
+    @property
+    def flexible_tag(self):
+        return self.get_tag_by_name(u'Flexible \u0489!')
+
 class CheckMethods(BaseCase):
 
     def assert_true(self, value):
