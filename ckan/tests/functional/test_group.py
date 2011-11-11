@@ -60,7 +60,7 @@ class TestGroup(FunctionalTestCase):
         assert 'Groups of' in res, res
 
     def test_index(self):
-        offset = url_for(controller='group')
+        offset = url_for(controller='group', action='index')
         res = self.app.get(offset)
         assert '<h1 class="page_heading">Groups' in res, res
         groupname = 'david'

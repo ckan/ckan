@@ -1,5 +1,6 @@
 from ckan.logic import check_access_old, NotFound
-from ckan.logic.auth import get_package_object, get_group_object, get_authorization_group_object, get_user_object
+from ckan.logic.auth import get_package_object, get_group_object, get_authorization_group_object, \
+    get_user_object, get_resource_object
 from ckan.logic.auth.create import check_group_auth, package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
@@ -21,6 +22,28 @@ def package_update(context, data_dict):
             return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
 
     return {'success': True}
+
+def resource_update(context, data_dict):
+    model = context['model']
+    user = context.get('user')
+    resource = get_resource_object(context, data_dict)
+
+    # check authentication against package
+    query = model.Session.query(model.Package)\
+        .join(model.ResourceGroup)\
+        .join(model.Resource)\
+        .filter(model.ResourceGroup.id == resource.resource_group_id)
+    pkg = query.first()
+    if not pkg:
+        raise NotFound(_('No package found for this resource, cannot check auth.'))
+    
+    pkg_dict = {'id': pkg.id}
+    authorized = package_update(context, pkg_dict).get('success')
+    
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to read edit %s') % (str(user), resource.id)}
+    else:
+        return {'success': True}
 
 def package_relationship_update(context, data_dict):
     return package_relationship_create(context, data_dict)
@@ -120,6 +143,16 @@ def revision_change_state(context, data_dict):
     authorized = Authorizer().is_authorized(user, model.Action.CHANGE_STATE, model.Revision)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to change state of revision' ) % str(user)}
+    else:
+        return {'success': True}
+
+def task_status_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+
+    authorized =  Authorizer().is_sysadmin(unicode(user))
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to update task_status table') % str(user)}
     else:
         return {'success': True}
 

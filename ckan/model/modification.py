@@ -6,7 +6,7 @@ from sqlalchemy.orm import object_session
 from sqlalchemy.orm.interfaces import EXT_CONTINUE
 
 from ckan.plugins import SingletonPlugin, PluginImplementations, implements
-from ckan.plugins import ISession, IDomainObjectModification
+from ckan.plugins import ISession, IDomainObjectModification, IResourceUrlChange
 
 from ckan.model.extension import ObserverNotifier
 from ckan.model.domain_object import DomainObjectOperation
@@ -40,12 +40,18 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
         changed = obj_cache['changed']
         deleted = obj_cache['deleted']
 
-        for obj in new:
-            if isinstance(obj, Package):
+        for obj in set(new):
+            if isinstance(obj, (Package, Resource)):
                 self.notify(obj, DomainObjectOperation.new)
-        for obj in deleted:
-            if isinstance(obj, Package):
+        for obj in set(deleted):
+            if isinstance(obj, (Package, Resource)):
                 self.notify(obj, DomainObjectOperation.deleted)
+        for obj in set(changed):
+            if isinstance(obj, Resource):
+                self.notify(obj, DomainObjectOperation.changed)
+            if getattr(obj, 'url_changed', False):
+                for item in PluginImplementations(IResourceUrlChange):
+                    item.notify(obj)
 
         changed_pkgs = set(obj for obj in changed if isinstance(obj, Package))
 

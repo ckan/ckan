@@ -542,6 +542,21 @@ class UserCmd(CkanCommand):
         user.delete()
         model.repo.commit_and_remove()
         print('Deleted user: %s' % username)
+
+class Celery(CkanCommand):
+    '''Run celery deamon
+
+    Usage:
+        celeryd
+    '''
+    min_args = 0
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+
+    def command(self):
+        os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
+        from ckan.lib.celery_app import celery
+        celery.worker_main(argv=['celeryd', '--loglevel=INFO'])
         
 
 class Ratings(CkanCommand):

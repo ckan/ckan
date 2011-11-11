@@ -1,10 +1,11 @@
 import logging
-from pylons import config
+from pylons import config, c
 
 from ckan import model
 from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
-from ckan.lib.dictization.model_dictize import package_to_api1
+from ckan.logic import get_action
+
 from common import SearchIndexError, SearchError, make_connection, is_available, DEFAULT_SOLR_URL
 from index import PackageSearchIndex, NoopSearchIndex
 from query import TagSearchQuery, ResourceSearchQuery, PackageSearchQuery, QueryOptions, convert_legacy_parameters_to_solr
@@ -88,10 +89,17 @@ class SynchronousSearchPlugin(SingletonPlugin):
     implements(IDomainObjectModification, inherit=True)
 
     def notify(self, entity, operation):
+        if not isinstance(entity, model.Package):
+            return
         if operation != DomainObjectOperation.deleted:
-            dispatch_by_operation(entity.__class__.__name__, 
-                                  package_to_api1(entity, {'model': model}),
-                                  operation)
+            dispatch_by_operation(
+                entity.__class__.__name__, 
+                get_action('package_show_rest')(
+                    {'model': model, 'ignore_auth': True},
+                    {'id': entity.id}
+                ),
+                operation
+            )
         elif operation == DomainObjectOperation.deleted:
             dispatch_by_operation(entity.__class__.__name__, 
                                   {'id': entity.id}, operation)
@@ -106,7 +114,12 @@ def rebuild():
     package_index = index_for(model.Package)
     package_index.clear()
     for pkg in model.Session.query(model.Package).all():
-        package_index.insert_entity(pkg)
+        package_index.insert_dict(
+            get_action('package_show_rest')(
+                {'model': model, 'ignore_auth': True},
+                {'id': pkg.id}
+            )
+        )
     model.Session.commit()
 
 def check():

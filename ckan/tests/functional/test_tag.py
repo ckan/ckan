@@ -15,7 +15,7 @@ class TestTagController(TestController):
         model.repo.rebuild_db()
 
     def test_index(self):
-        offset = url_for(controller='tag')
+        offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
         assert 'Tags' in res
         assert 'There are' in res
