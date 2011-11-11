@@ -12,7 +12,7 @@ __all__ = [
     'IDomainObjectModification', 'IGroupController', 
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer', 'IAuthorizer',
-    'IActions'
+    'IActions', 'IResourceUrlChange'
 ]
 
 from inspect import isclass
@@ -167,10 +167,18 @@ class ISession(Interface):
 
 class IDomainObjectModification(Interface):
     """
-    Receives notification of new, changed and deleted domain objects.
+    Receives notification of new, changed and deleted datesets.
     """
 
     def notify(self, entity, operation):
+        pass
+
+class IResourceUrlChange(Interface):
+    """
+    Receives notification of changed urls.
+    """
+
+    def notify(self, resource):
         pass
 
 class IGroupController(Interface):

@@ -133,6 +133,7 @@ class ApiController(BaseController):
     def action(self, logic_function):
         function = get_action(logic_function)
         if not function:
+            log.error('Can\'t find logic function: %s' % logic_function)
             return self._finish_bad_request(
                 gettext('Action name not known: %s') % str(logic_function))
         
@@ -142,7 +143,7 @@ class ApiController(BaseController):
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
-
+            log.error('Bad request data: %s' % str(inst))
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
         try:

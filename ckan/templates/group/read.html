@@ -29,7 +29,7 @@
     <h3>Datasets:</h3>
     <p i18n:msg="item_count">There are ${c.page.item_count} datasets in this group.</p>
     ${c.page.pager()}
-    ${package_list(c.page.items)}
+    ${package_list_from_dict(c.page.items)}
     ${c.page.pager()}
   </py:match>
 

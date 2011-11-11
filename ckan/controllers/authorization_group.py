@@ -92,7 +92,7 @@ class AuthorizationGroupController(BaseController):
                     if usr and usr not in authorization_group.users:
                         model.add_user_to_authorization_group(usr, authorization_group, model.Role.READER)
             model.repo.commit_and_remove()
-            h.redirect_to(action='read', id=c.authzgroupname)
+            h.redirect_to(controller='authorization_group', action='read', id=c.authzgroupname)
 
         c.form = self._render_edit_form(fs)
         return render('authorization_group/new.html')
@@ -143,7 +143,9 @@ class AuthorizationGroupController(BaseController):
                     if usr and usr not in authorization_group.users:
                         model.add_user_to_authorization_group(usr, authorization_group, model.Role.READER)
             model.repo.commit_and_remove()
-            h.redirect_to(action='read', id=c.authorization_group_name)
+            from nose.tools import set_trace; set_trace()
+            
+            h.redirect_to(controller='authorization_group', action='read', id=c.authorization_group_name)
 
     def authz(self, id):
         authorization_group = self._get_authgroup_by_name_or_id(id)
