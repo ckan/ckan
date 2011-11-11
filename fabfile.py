@@ -354,9 +354,8 @@ def status():
         _run_in_cmd_pyenv('pip freeze')
         run('cat %s' % env.config_ini_filename)
     with cd(os.path.join(env.pyenv_dir, 'src', 'ckan')):
-        run('hg log -l 1')
-        run('hg branch')
-        run('hg identify')
+        run('git log -n1')
+        run('git name-rev --name-only HEAD')
         run('grep version ckan/__init__.py')
 
 def apache_config(set_config=None):
