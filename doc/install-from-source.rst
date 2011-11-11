@@ -98,15 +98,15 @@ Install the Source
 
 4. Install CKAN code and other required Python packages into the new environment.
 
-   Choose which version of CKAN to install. Released versions are listed at https://bitbucket.org/okfn/ckan - click on the list of tags. For example: ``ckan-1.4.2``
+   Choose which version of CKAN to install. Released versions are listed at https://github.com/okfn/ckan - click on the list of tags. For example: ``ckan-1.5``
 
    ::
 
-       pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan@ckan-1.4.2#egg=ckan
+       pip install --ignore-installed -e git+https://github.com/okfn/ckan.git@ckan-1.5#egg=ckan
 
    Alternatively, if you are to develop CKAN, then you will probably want to use the latest 'bleeding edge' code. If using this version, we suggest you `check CKAN has passed the automatic tests <http://buildbot.okfn.org/waterfall>`_. Here is how to install the latest code::
 
-       pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan#egg=ckan
+       pip install --ignore-installed -e git+https://github.com/okfn/ckan.git#egg=ckan
 
 5. CKAN has a set of dependencies it requires which you should install too. These are listed in three text files: requires/lucid_*.txt, followed by WebOb explicitly.
 
