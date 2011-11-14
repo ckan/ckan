@@ -419,7 +419,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         rev.timestamp = cls.date2
         pkg = model.Package.by_name(cls.pkg_name)
         pkg.title = u'title2'
-        pkg.add_tag_by_name(u'tag2')
+        pkg.add_tag_by_name(u'tag 2')
         pkg.extras = {'key2': u'value2'}
         model.repo.commit_and_remove()
 
@@ -428,7 +428,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         rev.timestamp = cls.date3
         pkg = model.Package.by_name(cls.pkg_name)
         pkg.title = u'title3'
-        pkg.add_tag_by_name(u'tag3')
+        pkg.add_tag_by_name(u'tag3!')
         pkg.extras['key2'] = u'value3'
         model.repo.commit_and_remove()
 
@@ -452,8 +452,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' in side_html
-        assert 'tag2' in side_html
+        assert 'tag3!' in side_html
+        assert 'tag 2' in side_html
 
     def test_read_date1(self):
         offset = self.offset + self.date1.strftime('@%Y-%m-%d')
@@ -463,8 +463,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'title1' in res, res
         assert 'key2' not in pkg_html, pkg_html
         assert 'value3' not in pkg_html, pkg_html
-        assert 'tag3' not in side_html, side_html
-        assert 'tag2' not in side_html, side_html
+        assert 'tag3!' not in side_html, side_html
+        assert 'tag 2' not in side_html, side_html
 
     def test_read_date2(self):
         date2_plus_3h = self.date2 + datetime.timedelta(hours=3)
@@ -477,8 +477,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value2' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' not in side_html
-        assert 'tag2' in side_html
+        assert 'tag3!' not in side_html
+        assert 'tag 2' in side_html
 
     def test_read_date3(self):
         offset = self.offset + self.date3.strftime('@%Y-%m-%d-%H-%M')
@@ -490,8 +490,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' in side_html
-        assert 'tag2' in side_html
+        assert 'tag3!' in side_html
+        assert 'tag 2' in side_html
 
     def test_read_date_before_created(self):
         offset = self.offset + self.before.strftime('@%Y-%m-%d')
@@ -520,8 +520,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' not in pkg_html
         assert 'value3' not in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' not in side_html
-        assert 'tag2' not in side_html
+        assert 'tag3!' not in side_html
+        assert 'tag 2' not in side_html
 
     def test_read_revision2(self):
         offset = self.offset + '@%s' % self.revision_ids[1]
@@ -538,8 +538,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value2' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' not in side_html
-        assert 'tag2' in side_html
+        assert 'tag3!' not in side_html
+        assert 'tag 2' in side_html
 
     def test_read_revision3(self):
         offset = self.offset + '@%s' % self.revision_ids[2]
@@ -557,8 +557,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' in side_html
-        assert 'tag2' in side_html
+        assert 'tag3!' in side_html
+        assert 'tag 2' in side_html
 
     def test_read_bad_revision(self):
         # this revision doesn't exist in the db
