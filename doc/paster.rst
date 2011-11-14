@@ -121,6 +121,24 @@ You can delete everything in the CKAN database, including the tables, to start f
 
 The next logical step from this point is to do a "db init" step before starting CKAN again.
 
+Dumping and Loading databases to/from a file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can 'dump' (save) the exact state of the database to a file on disk and at a later point 'load' (restore) it again, or load it on another machine.
+
+To write the dump::
+
+ paster --plugin=ckan db dump --config=/etc/ckan/std/std.ini std.pg_dump
+
+To load it in again, you first have to clean the database of existing data (be careful not to wipe valuable data), followed by the load::
+
+ paster --plugin=ckan db clean --config=/etc/ckan/std/std.ini std.pg_dump
+ paster --plugin=ckan db load --config=/etc/ckan/std/std.ini std.pg_dump
+
+.. warning: The pg_dump file is a complete backup of the database in plain text, and includes user data which may be regarded as private. So keep it secure, like your database server.
+
+The pg_dump file notes which PostgreSQL user 'owns' the data on the server. Because the PostgreSQL user (by default) is identified as the current Linux user, and this is setup to be ``ckanINSTANCE`` where ``INSTANCE`` is the name of the CKAN instance. This means if you want to restore the pg_dump as another CKAN instance name (often needed if you move it to another server) then you will need to change the database owner - see :doc:`editing_the_database_ownership`.
+
 Upgrade migration
 ~~~~~~~~~~~~~~~~~
 
