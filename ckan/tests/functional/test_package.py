@@ -308,16 +308,18 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         CreateTestData.create_arbitrary([
             {'name':pkg_name,
              'notes':'Decoy link here: decoy:decoy, real links here: package:pkg-1, ' \
-                   'tag:tag_1 group:test-group-1.',
+                   'tag:tag_1 group:test-group-1 and a multi-word tag: tag:"multi word with punctuation!"',
              }
             ])
         offset = url_for(controller='package', action='read', id=pkg_name)
         res = self.app.get(offset)
         def check_link(res, controller, id):
-            self.check_tag_and_data(res, 'a ', '/%s/%s' % (controller, id),
+            id_in_uri = id[1:-2] if id[0] == '"' and id[-1] == '"' else id # remove quotes
+            self.check_tag_and_data(res, 'a ', '/%s/%s' % (controller, id_in_uri),
                                     '%s:%s' % (controller, id))
         check_link(res, 'package', 'pkg-1')
         check_link(res, 'tag', 'tag_1')
+        check_link(res, 'tag', '"multi word with punctuation!"')
         check_link(res, 'group', 'test-group-1')
         assert 'decoy</a>' not in res, res
         assert 'decoy"' not in res, res
