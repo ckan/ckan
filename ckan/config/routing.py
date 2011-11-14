@@ -188,8 +188,16 @@ def make_map():
             'search'
             ]))
         )
+
     map.connect('/dataset', controller='package', action='index')
-    map.connect('/dataset/{action}/{id}/{revision}', controller='package', action='read_ajax')
+    map.connect('/dataset/{action}/{id}/{revision}', controller='package', action='read_ajax',
+        requirements=dict(action='|'.join([
+        'read',
+        'edit',
+        'authz',
+        'history',
+        ]))
+    )
     map.connect('/dataset/{action}/{id}', controller='package',
         requirements=dict(action='|'.join([
         'edit',
@@ -200,6 +208,10 @@ def make_map():
         ]))
         )
     map.connect('/dataset/{id}', controller='package', action='read')
+    map.connect('/dataset/{package_id}/resource/{id}', 
+        controller='package', action='resource_read'
+    )
+
     # group
     map.redirect("/groups", "/group")
     map.redirect("/groups/{url:.*}", "/group/{url}")
