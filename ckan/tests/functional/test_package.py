@@ -262,7 +262,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         pkg_by_name_main = self.named_div('dataset', res)
         pkg_by_id_main = self.named_div('dataset', res_by_id)
         # rename some things which may be in the wrong order sometimes
-        txt_order_non_deterministic = ('russian', 'tolstoy', 'david', 'roger')
+        txt_order_non_deterministic = (u'Flexible \u0489!', 'russian', 'tolstoy', 'david', 'roger')
         for txt in txt_order_non_deterministic:
             for pkg_ in (pkg_by_name_main, pkg_by_id_main):
                 pkg_ = pkg_.replace(txt, 'placeholder')
@@ -288,6 +288,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         self.check_tag_and_data(res, 'left arrow', '&lt;')
         self.check_tag_and_data(res, 'umlaut', u'\xfc')
         #assert 'OKD Compliant::' in res
+        assert u'Flexible \u0489!' in res, res
         assert 'russian' in res
         assert 'david' in res
         assert 'roger' in res
