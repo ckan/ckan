@@ -1011,6 +1011,11 @@ body.package.read #sidebar ul.groups {
 }
 
 
+/* ============== */
+/* = About Page = */
+/* ============== */
+body.about #content { border-right: 0; }
+body.about #minornavigation { border: 0; }
 
 /* ============== */
 /* = Admin Page = */
