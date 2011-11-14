@@ -13,7 +13,24 @@ class TextFormat(object):
 
 
 class MarkdownFormat(TextFormat):
-    internal_link = re.compile('(dataset|package|tag|group):([a-z0-9\-_]+)')
+    internal_link = re.compile('(dataset|package|group):([a-z0-9\-_]+)')
+
+    # tag names are allowed more characters, including spaces.  So are
+    # treated specially.
+    internal_tag_link = re.compile(\
+        r"""(tag):                               # group 1
+            (                                    # capture name (inc. quotes) (group 2)
+            (")?                                 # optional quotes for multi-word name (group 3)
+            (                                    # begin capture of the name w/o quotes (group 4)
+            (?(3)                                # if the quotes matched in group 3
+                [^,"]                            #     then capture spaces (as well as other things)
+                |                                # else
+                [^," ]                           #     don't capture spaces
+            )                                    # end
+            +)                                   # end capture of the name w/o quotes (group 4)
+            (?(3)")                              # close opening quote if necessary
+            )                                    # end capture of the name with quotes (group 2)
+        """, re.VERBOSE)
     normal_link = re.compile('<(http:[^>]+)>')
 
     html_whitelist = 'b center li ol p table td tr ul'.split(' ')
@@ -40,6 +57,9 @@ class MarkdownFormat(TextFormat):
         text = self.abbrev_link.sub(r'\\\\xfc\\\\xfda href="\1" target="_blank" rel="nofollow"\\\\xfd\\\\xfc\1</a>', text)
         text = self.any_link.sub(r'\\\\xfc\\\\xfda href="TAG MALFORMED" target="_blank" rel="nofollow"\\\\xfd\\\\xfc', text)
         text = self.close_link.sub(r'\\\\xfc\\\\xfd\1\\\\xfd\\\\xfc', text)
+
+        # Convert internal tag links
+        text = self.internal_tag_link.sub(r'[\1:\2] (/\1/\4)', text)
 
         # Convert internal links.
         text = self.internal_link.sub(r'[\1:\2] (/\1/\2)', text)

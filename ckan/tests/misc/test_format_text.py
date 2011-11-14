@@ -39,6 +39,69 @@ class TestFormatText:
         out = format.to_html(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
 
+    def test_internal_tag_link(self):
+        """Asserts links like 'tag:test-tag' work"""
+        instr = 'tag:test-tag foobar'
+        exp = '<a href="/tag/test-tag">tag:test-tag</a> foobar'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
+    def test_internal_tag_linked_with_quotes(self):
+        """Asserts links like 'tag:"test-tag"' work"""
+        instr = 'tag:"test-tag" foobar'
+        exp = '<a href="/tag/test-tag">tag:"test-tag"</a> foobar'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
+    def test_internal_tag_linked_with_quotes_and_space(self):
+        """Asserts links like 'tag:"test tag"' work"""
+        instr = 'tag:"test tag" foobar'
+        exp = '<a href="/tag/test tag">tag:"test tag"</a> foobar'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
+    def test_internal_tag_with_no_opening_quote_only_matches_single_word(self):
+        """Asserts that without an opening quote only one word is matched"""
+        instr = 'tag:test tag" foobar' # should match 'tag:test'
+        exp = '<a href="/tag/test">tag:test</a> tag" foobar'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
+    def test_internal_tag_with_no_opening_quote_wont_match_the_closing_quote(self):
+        """Asserts that 'tag:test" tag' is matched, but to 'tag:test'"""
+        instr = 'tag:test" foobar' # should match 'tag:test'
+        exp = '<a href="/tag/test">tag:test</a>" foobar'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
+    def test_internal_tag_with_no_closing_quote_does_not_match(self):
+        """Asserts that without an opening quote only one word is matched"""
+        instr = 'tag:"test tag foobar'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert "<a href" not in out
+
+    def test_tag_names_match_punctuation(self):
+        """Asserts punctuation and capital letters are matched in the tag name"""
+        instr = 'tag:"Test- _.!" foobar'
+        exp = '<a href="/tag/Test- _.!">tag:"Test- _.!"</a> foobar'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
+    def test_tag_names_do_not_match_commas(self):
+        """Asserts commas don't get matched as part of a tag name"""
+        instr = 'tag:Test,tag foobar'
+        exp = '<a href="/tag/Test">tag:Test</a>,tag foobar'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
     def test_normal_link(self):
         instr = '<http://somelink/>'
         exp = '<a href="http://somelink/" target="_blank" rel="nofollow">http://somelink/</a>'
