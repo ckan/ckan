@@ -127,7 +127,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         indict = _get_blank_param_dict()
         indict['Package--name'] = u'testname'
         indict['Package--notes'] = u'some new notes'
-        indict['Package--tags'] = u'russian tolstoy, ' + newtagname,
+        indict['Package--tags'] = u'russian, tolstoy, ' + newtagname,
         indict['Package--license_id'] = u'gpl-3.0'
         indict['Package--extras-newfield0-key'] = u'testkey'
         indict['Package--extras-newfield0-value'] = u'testvalue'
@@ -178,7 +178,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         indict = _get_blank_param_dict(anna)
         indict[prefix + 'name'] = u'annakaren'
         indict[prefix + 'notes'] = u'new notes'
-        indict[prefix + 'tags'] = u'russian ' + newtagname
+        indict[prefix + 'tags'] = u'russian ,' + newtagname
         indict[prefix + 'license_id'] = u'gpl-3.0'
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
         indict[prefix + 'extras-newfield0-value'] = u'testvalue'
@@ -336,8 +336,11 @@ class TestValidation:
         prefix = 'Package-%s-' % anna.id
         indict = _get_blank_param_dict(anna)
 
-        good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore', u'unicode-\xe0', 'dot.in.name', 'blAh' ] # nb: becomes automatically lowercase
-        bad_names = [ 'a', 'percent%' ]
+        good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name',\
+                       'has_underscore', u'unicode-\xe0', 'dot.in.name',\
+                       'multiple words', u'with Greek omega \u03a9', 'CAPITALS']
+        bad_names = [ 'a', '  ,leading comma', 'trailing comma,',\
+                      'empty,,tag' 'quote"character']
 
         for i, name in enumerate(good_names):
             indict[prefix + 'name'] = u'okname'

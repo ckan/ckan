@@ -87,7 +87,7 @@ class TestPackageForm(TestPackageBase):
         assert params['notes'] in main_div, main_div_str
         license = model.Package.get_license_register()[params['license_id']]
         assert license.title in main_div, (license.title, main_div_str)
-        tag_names = [tag.lower() for tag in params['tags']]
+        tag_names = list(params['tags'])
         self.check_named_element(main_div, 'ul', *tag_names)
         if params.has_key('state'):
             assert 'State: %s' % params['state'] in main_div.replace('</strong>', ''), main_div_str
@@ -156,7 +156,7 @@ class TestPackageForm(TestPackageBase):
         self.check_tag_and_data(main_res, prefix+'notes', params['notes'])
         self.check_tag_and_data(main_res, 'selected', params['license_id'])
         if isinstance(params['tags'], (str, unicode)):
-            tags = params['tags'].split()
+            tags = map(lambda s: s.strip(), params['tags'].split(','))
         else:
             tags = params['tags']
         for tag in tags:
@@ -699,9 +699,9 @@ class TestEdit(TestPackageForm):
         
     def test_edit_2_tags_and_groups(self):
         # testing tag updating
-        newtagnames = [u'russian', u'tolstoy', u'superb']
+        newtagnames = [u'russian', u'tolstoy', u'superb book']
         newtags = newtagnames
-        tagvalues = ' '.join(newtags)
+        tagvalues = ','.join(newtags)
         fv = self.res.forms['dataset-edit']
         prefix = ''
         fv[prefix + 'tag_string'] = tagvalues
@@ -765,7 +765,7 @@ class TestEdit(TestPackageForm):
             pkg.notes= u'this is editpkg'
             pkg.version = u'2.2'
             t1 = model.Tag(name=u'one')
-            t2 = model.Tag(name=u'two')
+            t2 = model.Tag(name=u'two words')
             pkg.tags = [t1, t2]
             pkg.state = model.State.DELETED
             pkg.license_id = u'other-open'
@@ -800,8 +800,8 @@ class TestEdit(TestPackageForm):
             notes = u'Very important'
             license_id = u'gpl-3.0'
             state = model.State.ACTIVE
-            tags = (u'tag1', u'tag2', u'tag3')
-            tags_txt = u' '.join(tags)
+            tags = (u'tag1', u'tag2', u'tag 3')
+            tags_txt = u','.join(tags)
             extra_changed = 'key1', self.value1 + ' CHANGED', False
             extra_new = 'newkey', 'newvalue', False
             log_message = 'This is a comment'
@@ -1108,8 +1108,8 @@ class TestNew(TestPackageForm):
         download_url = u'http://something.com/somewhere-else.zip'
         notes = u'Very important'
         license_id = u'gpl-3.0'
-        tags = (u'tag1', u'tag2', u'tag3', u'SomeCaps')
-        tags_txt = u' '.join(tags)
+        tags = (u'tag1', u'tag2!', u'tag 3', u'SomeCaps')
+        tags_txt = u','.join(tags)
         extras = {self.key1:self.value1, 'key2':'value2', 'key3':'value3'}
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
@@ -1150,8 +1150,7 @@ class TestNew(TestPackageForm):
         assert pkg.license.id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
         saved_tagnames.sort()
-        expected_tagnames = [tag.lower() for tag in tags]
-        expected_tagnames.sort()
+        expected_tagnames = sorted(tags)
         assert saved_tagnames == expected_tagnames, '%r != %r' % (saved_tagnames, expected_tagnames)
         saved_groupnames = [str(group.name) for group in pkg.groups]
         assert len(pkg.extras) == len(extras)

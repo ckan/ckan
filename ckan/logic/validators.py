@@ -153,9 +153,9 @@ def tag_length_validator(value, context):
 
 def tag_name_validator(value, context):
 
-    tagname_match = re.compile('[^,]*$', re.UNICODE)
+    tagname_match = re.compile('[^,"]*$', re.UNICODE)
     if not tagname_match.match(value):
-        raise Invalid(_('Tag "%s" must not contain commas' % value))
+        raise Invalid(_('Tag "%s" must not contain commas nor quotes' % value))
     return value
 
 def tag_not_uppercase(value, context):
@@ -169,9 +169,17 @@ def tag_string_convert(key, data, errors, context):
 
     value = data[key]
 
-    tags = value.split()
+    # Ensure a tag string with only whitespace
+    # is converted to the empty list of tags.
+    # If we were to split(',') on this string,
+    # we'd get the non-empty list, [''].
+    if not value.strip():
+        return
+
+    tags = map(lambda s: s.strip(),
+               value.split(','))
     for num, tag in enumerate(tags):
-        data[('tags', num, 'name')] = tag.lower()
+        data[('tags', num, 'name')] = tag
 
     for tag in tags:
         tag_length_validator(tag, context)

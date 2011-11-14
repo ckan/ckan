@@ -176,7 +176,7 @@ class TestBasicDictize:
         """Asserts that a tag name with punctuation (except commas) is valid"""
         ignored = ""
         data = {
-            'name': u'.?!<>\\/"%^&*()-_+=~#\'@`',
+            'name': u'.?!<>\\/%^&*()-_+=~#\'@`',
             'revision_timestamp': ignored,
             'state': ignored
             }
