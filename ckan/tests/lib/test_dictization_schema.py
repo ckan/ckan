@@ -87,7 +87,9 @@ class TestBasicDictize:
                                                 'hash': u'def456',
                                                 'size_extra': u'345',
                                                 'url': u'http://www.annakarenina.com/index.json'}],
-                                 'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
+                                 'tags': [{'name': u'Flexible \u0489!'},
+                                          {'name': u'russian'},
+                                          {'name': u'tolstoy'}],
                                  'title': u'A Novel By Tolstoy',
                                  'url': u'http://www.annakarenina.com',
                                  'version': u'0.7a'}, pformat(converted_data)
