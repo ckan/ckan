@@ -19,9 +19,13 @@ class TestQuery:
         assert_raises(search.SearchError, convert, {'title': 'bob', 'all_fields': 'non-boolean'})
         assert_equal(convert({'q': 'bob', 'order_by': 'name'}), {'q': 'bob', 'sort':'name asc'})
         assert_equal(convert({'q': 'bob', 'offset': '0', 'limit': '10'}), {'q': 'bob', 'start':'0', 'rows':'10'})
-        assert_equal(convert({'tags': ['russian', 'tolstoy']}), {'q': 'tags:russian tags:tolstoy'})
-        assert_equal(convert({'tags': ['tolstoy']}), {'q': 'tags:tolstoy'})
-        assert_equal(convert({'tags': 'tolstoy'}), {'q': 'tags:tolstoy'})
+        assert_equal(convert({'tags': ['russian', 'tolstoy']}), {'q': 'tags:"russian" tags:"tolstoy"'})
+        assert_equal(convert({'tags': ['russian', 'multi word']}), {'q': 'tags:"russian" tags:"multi word"'})
+        assert_equal(convert({'tags': ['with CAPITALS']}), {'q': 'tags:"with CAPITALS"'})
+        assert_equal(convert({'tags': [u'with greek omega \u03a9']}), {'q': u'tags:"with greek omega \u03a9"'})
+        assert_equal(convert({'tags': ['tolstoy']}), {'q': 'tags:"tolstoy"'})
+        assert_equal(convert({'tags': 'tolstoy'}), {'q': 'tags:"tolstoy"'})
+        assert_equal(convert({'tags': 'more than one tolstoy'}), {'q': 'tags:"more than one tolstoy"'})
         assert_raises(search.SearchError, convert, {'tags': {'tolstoy':1}})
 
 class TestSearch(TestController):

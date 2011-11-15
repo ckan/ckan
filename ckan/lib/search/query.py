@@ -52,7 +52,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
                 tag_list = [value_obj]
             else:
                 raise SearchQueryError('Was expecting either a string or JSON list for the tags parameter: %r' % value)
-            solr_q_list.extend(['tags:%s' % tag for tag in tag_list])
+            solr_q_list.extend(['tags:"%s"' % tag for tag in tag_list])
         else:
             if ' ' in value:
                 value = '"%s"' % value
