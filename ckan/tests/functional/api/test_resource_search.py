@@ -26,7 +26,7 @@ class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
                  'extras':{'size':'100'},
                  'hash':'qwe-456'},
                 ],
-            'tags': ['russion', 'novel'],
+            'tags': ['russion', 'novel', 'Leo Tolstoy'],
             'license_id': u'gpl-3.0',
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
