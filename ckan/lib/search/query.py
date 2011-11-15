@@ -35,7 +35,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
     non_solr_params = set(legacy_params.keys()) - VALID_SOLR_PARAMETERS
     for search_key in non_solr_params:
         value_obj = legacy_params[search_key]
-        value = str(value_obj).replace('+', ' ')
+        value = value_obj.replace('+', ' ') if isinstance(value_obj, basestring) else value_obj
         if search_key == 'all_fields':
             if value:
                 solr_params['fl'] = '*'
