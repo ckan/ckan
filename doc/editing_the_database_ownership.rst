@@ -10,18 +10,18 @@ Let's copy a database dump from the "live" database to our new instance called "
 
 1. First stop Apache so there are no active database connections::
 
-   sudo /etc/init.d/apache2 stop
+    sudo /etc/init.d/apache2 stop
 
 2. Drop the old database and restore the new one (setting up the plpgsql language as you do)::
 
-   sudo -u postgres dropdb test
-   sudo -u postgres createdb test
-   sudo -u postgres createlang plpgsql test
-   sudo -u postgres psql test -f to_restore.pg_dump
+    sudo -u postgres dropdb test
+    sudo -u postgres createdb test
+    sudo -u postgres createlang plpgsql test
+    sudo -u postgres psql test -f to_restore.pg_dump
 
 3. Change the table permissions (in this case the old instance name was called live, the new one is test)::
 
-   sudo -u postgres psql test
+    sudo -u postgres psql test
 
 Then from the psql command line interface run::
 
