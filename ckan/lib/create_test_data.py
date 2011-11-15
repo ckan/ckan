@@ -535,7 +535,7 @@ left arrow <
 search_items = [{'name':'gils',
               'title':'Government Information Locator Service',
               'url':'',
-              'tags':'registry  country-usa  government  federal  gov  workshop-20081101 penguin',
+              'tags':'registry,country-usa,government,federal,gov,workshop-20081101,penguin'.split(','),
               'resources':[{'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/SFR17_2009_tables.xls',
                           'format':'XLS',
                           'last_modified': datetime.datetime(2005,10,01),
@@ -559,7 +559,7 @@ u with umlaut th\xfcmb
               'title':'U.S. Government Photos and Graphics',
               'url':'http://www.usa.gov/Topics/Graphics.shtml',
               'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
-              'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov penguin',
+              'tags':'images,graphics,photographs,photos,pictures,us,usa,america,history,wildlife,nature,war,military,todo split,gov,penguin'.split(','),
               'groups':'ukgov test1 penguin',
               'license':'other-open',
               'notes':'''## About
@@ -575,7 +575,7 @@ Collection of links to different US image collections in the public domain.
               'title':'Text of US Federal Cases',
               'url':'http://bulk.resource.org/courts.gov/',
               'download_url':'http://bulk.resource.org/courts.gov/',
-              'tags':'us  courts  case-law  us  courts  case-law  gov  legal  law  access-bulk  penguins penguin',
+              'tags':'us,courts,case-law,us,courts,case-law,gov,legal,law,access-bulk,penguins,penguin'.split(','),
               'groups':'ukgov test2 penguin',
               'license':'cc-zero',
               'notes':'''### Description
@@ -590,7 +590,7 @@ penguin
               },
              {'name':'uk-government-expenditure',
               'title':'UK Government Expenditure',
-              'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding penguin',
+              'tags':'workshop-20081101,uk,gov,expenditure,finance,public,funding,penguin'.split(','),
               'groups':'ukgov penguin',              
               'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
@@ -601,7 +601,7 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
               'title':'Sweden - Government Offices of Sweden - Publications',
               'url':'http://www.sweden.gov.se/sb/d/574',
               'groups':'penguin',              
-              'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency penguin',
+              'tags':u'country-sweden,format-pdf,access-www,documents,publications,government,eutransparency,penguin,CAPITALS,surprise!,greek omega \u03a9,strange character \u0489'.split(','),
               'license':'',
               'notes':'''### About
 
@@ -617,7 +617,7 @@ Not clear.''',
               'groups':'penguin',              
               'url':'http://www.opengov.se/',
               'download_url':'http://www.opengov.se/data/open/',
-              'tags':'country-sweden  government  data penguin',
+              'tags':'country-sweden,government,data,penguin'.split(','),
               'license':'cc-by-sa',
               'notes':'''### About
 

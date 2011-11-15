@@ -118,12 +118,49 @@ class TestSearch(TestController):
         result = search.query_for(model.Package).run({'q': u'country-sweden'})
         assert self._check_entity_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
 
+    def test_tags_field_split_word(self):
+        result = search.query_for(model.Package).run({'q': u'todo split'})
+        assert self._check_entity_names(result, ['us-gov-images']), self._pkg_names(result)
+
+    def test_tags_field_with_capitals(self):
+        result = search.query_for(model.Package).run({'q': u'CAPITALS'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
+
+    def test_tags_field_with_the_special_character_exclamation_mark(self):
+        """
+        Asserts that a search for "surprise\\!" picks up the package with the "surprise!" tag.
+
+        The reason for escaping the exclamation mark is that '!' is a special
+        character in the solr query syntax.  And since we want to maintain being
+        able to run arbitrary solr searches through the package search, we
+        can't escape any special characters automatically. (As they may be
+        part of a genuine solr query expression).
+
+        The reason for this test is two-fold:
+
+         1. It asserts that it's possible to find a packages with a special
+            character within it, as long as the query is correct.
+
+         2. It exhibits this behaviour of it being necessary to escape special
+            solr characters.
+        """
+        result = search.query_for(model.Package).run({'q': u'surprise\\!'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
+
+    def dont_test_tags_field_with_basic_unicode(self):
+        result = search.query_for(model.Package).run({'q': u'greek omega \u03a9'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
+        
     def test_tags_token_simple(self):
         result = search.query_for(model.Package).run({'q': u'tags:country-sweden'})
         assert self._check_entity_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
         result = search.query_for(model.Package).run({'q': u'tags:wildlife'})
         assert self._pkg_names(result) == 'us-gov-images', self._pkg_names(result)
 
+    def test_tags_token_with_multi_word_tag(self):
+        result = search.query_for(model.Package).run({'q': u'tags:"todo split"'})
+        assert self._check_entity_names(result, ['us-gov-images']), self._pkg_names(result)
+    
     def test_tags_token_simple_with_deleted_tag(self):
         # registry has been deleted
         result = search.query_for(model.Package).run({'q': u'tags:registry'})
@@ -132,11 +169,25 @@ class TestSearch(TestController):
     def test_tags_token_multiple(self):
         result = search.query_for(model.Package).run({'q': u'tags:country-sweden tags:format-pdf'})
         assert self._pkg_names(result) == 'se-publications', self._pkg_names(result)
+        result = search.query_for(model.Package).run({'q': u'tags:"todo split" tags:war'})
+        assert self._pkg_names(result) == 'us-gov-images', self._pkg_names(result)
 
     def test_tags_token_complicated(self):
         result = search.query_for(model.Package).run({'q': u'tags:country-sweden tags:somethingrandom'})
         assert self._pkg_names(result) == '', self._pkg_names(result)
 
+    def test_tags_token_with_capitals(self):
+        result = search.query_for(model.Package).run({'q': u'tags:"CAPITALS"'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
+
+    def test_tags_token_with_punctuation(self):
+        result = search.query_for(model.Package).run({'q': u'tags:"surprise!"'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
+
+    def dont_test_tags_token_with_basic_unicode(self):
+        result = search.query_for(model.Package).run({'q': u'tags:"greek omega \u03a9"'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
+        
     def test_pagination(self):
         # large search
         all_results = search.query_for(model.Package).run({'q': self.q_all})
@@ -300,6 +351,8 @@ class TestSearchOverall(TestController):
         self._check_search_results('groups:david', 2)
         self._check_search_results('groups:roger', 1)
         self._check_search_results('groups:lenny', 0)
+        self._check_search_results('tags:"russian"', 2)
+        self._check_search_results(u'tags:"Flexible \u0489!"', 2)
         
 
 class TestGeographicCoverage(TestController):
@@ -419,10 +472,10 @@ class TestRank(TestController):
         setup_test_search_index()
         init_data = [{'name':u'test1-penguin-canary',
                       'title':u'penguin',
-                      'tags':u'canary goose squirrel wombat wombat'},
+                      'tags':u'canary goose squirrel wombat wombat'.split()},
                      {'name':u'test2-squirrel-squirrel-canary-goose',
                       'title':u'squirrel goose',
-                      'tags':u'penguin wombat'},
+                      'tags':u'penguin wombat'.split()},
                      ]
         CreateTestData.create_arbitrary(init_data)
         cls.pkg_names = [
