@@ -270,9 +270,9 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
         assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
-        assert len(anna_rec['tags']) == 2, anna_rec['tags']
-        for expected_tag in ['russian', 'tolstoy']:
-            assert expected_tag in anna_rec['tags']
+        assert len(anna_rec['tags']) == 3, anna_rec['tags']
+        for expected_tag in ['russian', 'tolstoy', u'Flexible \u0489!']:
+            assert expected_tag in anna_rec['tags'], anna_rec['tags']
 
         # try alternative syntax
         offset = self.base_url + '?q=russian&all_fields=1'
@@ -395,8 +395,8 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
         assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
-        assert len(anna_rec['tags']) == 2, anna_rec['tags']
-        for expected_tag in ['russian', 'tolstoy']:
+        assert len(anna_rec['tags']) == 3, anna_rec['tags']
+        for expected_tag in ['russian', 'tolstoy', u'Flexible \u0489!']:
             assert expected_tag in anna_rec['tags']
 
         # try alternative syntax
