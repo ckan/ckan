@@ -189,7 +189,6 @@ tbody tr.table-empty td {
 }
 
 
-
 /* ==================== */
 /* Common page elements */
 /* ==================== */
@@ -295,8 +294,6 @@ tbody tr.table-empty td {
 }
 
 
-
-
 /* ============== */
 /* = Pagination = */
 /* ============== */
@@ -325,7 +322,6 @@ tbody tr.table-empty td {
 }
 
 
-
 /* ====== */
 /* Facets */
 /* ====== */
@@ -340,7 +336,6 @@ tbody tr.table-empty td {
     padding-top: 0.2em;
     color: #000; 
 }
-
 
 
 /* ======================= */
@@ -362,7 +357,6 @@ div.form-submit p.hints {
 div.clear {
   clear: both;
 }
-
 
 
 /* ============= */
@@ -498,7 +492,6 @@ form.simple-form input[type=password] {
 }
 
 
-
 /* ================================== */
 /* = Dataset/Group View: Sidebar List */
 /* ================================== */
@@ -518,7 +511,6 @@ form.simple-form input[type=password] {
   margin-bottom: 0.5em;
   margin-left: -2em;
 }
-
 
 
 /* ============== */
@@ -557,10 +549,10 @@ ul.userlist .badge {
 }
 
 
-
 /* ================== */
 /* = User Read page = */
 /* ================== */
+
 
 /* ========================= */
 /* = Dataset Snapshot View = */
@@ -676,7 +668,6 @@ ul.datasets .openness li {
     padding:0;
     border:none;    
 }
-
 
 
 /* =================== */
@@ -819,6 +810,7 @@ ul.dataset-edit-nav li a:hover {
   margin: 0 auto 10px auto;
 }
 
+
 /* ===================== */
 /* = Edit Dataset Page = */
 /* ===================== */
@@ -847,7 +839,6 @@ ul.dataset-edit-nav li a:hover {
 .dataset-edit-form .resource-add .fileinfo {
   margin: 7px 0;
 }
-
 
 
 /* ================================ */
@@ -979,7 +970,6 @@ td.resource-edit-value {
 }
 
 
-
 /* ===================== */
 /* = Dataset View Page = */
 /* ===================== */
@@ -994,6 +984,15 @@ body.package.read #sidebar ul.groups {
   font-weight: bold;
 }
 
+
+/* ====================== */
+/* = Resource View Page = */
+/* ====================== */
+body.package.resource_read h1 { display: inline; }
+body.package.resource_read #content { border-right: 0; }
+body.package.resource_read #minornavigation { border: 0; }
+body.package.resource_read #resource-header { margin-bottom: 1em; }
+body.package.resource_read #resource-dataset { margin-bottom: 2em; }
 
 
 /* ================== */
@@ -1017,6 +1016,7 @@ body.package.read #sidebar ul.groups {
 body.about #content { border-right: 0; }
 body.about #minornavigation { border: 0; }
 
+
 /* ============== */
 /* = Admin Page = */
 /* ============== */
@@ -1025,7 +1025,6 @@ body.admin form#form-purge-revisions {
   margin-bottom: 30px;
   text-align: right;
 }
-
 
 
 /* ======================= */
@@ -1038,7 +1037,6 @@ body.authz form {
 body.authz form button {
   min-width: 120px;
 }
-
 
 
 /* ================== */
