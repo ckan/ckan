@@ -993,6 +993,7 @@ body.package.resource_read #content { border-right: 0; }
 body.package.resource_read #minornavigation { border: 0; }
 body.package.resource_read #resource-header { margin-bottom: 1em; }
 body.package.resource_read #resource-dataset { margin-bottom: 2em; }
+body.package.resource_read #dataset-license img { vertical-align: top; }
 
 
 /* ================== */

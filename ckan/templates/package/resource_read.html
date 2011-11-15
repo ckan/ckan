@@ -21,12 +21,30 @@
       <h1>${c.resource.get('name', c.resource['id'])}</h1>
     </div>
 
+    <!-- <div id="actions"> -->
+      <!-- <button>action</button> -->
+      <!-- <button>action</button> -->
+      <!-- <button>action</button> -->
+    <!-- </div> -->
+
     <div id="resource-dataset">
       <strong>Dataset:</strong>
       <span id="dataset-title" property="dc:title">
         <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">
           ${c.package.get('title', c.package['name'])} 
         </a>
+      </span>
+      <span id="dataset-license">
+        <py:if test="c.package['isopen']">
+            <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+              <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+            </a>
+        </py:if>
+        <py:if test="not c.package['isopen']">
+            <span class="closed">
+              ${h.icon('lock')}
+            </span>
+        </py:if>
       </span>
     </div>
 

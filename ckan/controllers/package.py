@@ -642,5 +642,12 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
+        # get package license info
+        license_id = c.package.get('license_id')
+        try:
+            c.package['isopen'] = model.Package.get_license_register()[license_id].isopen()
+        except KeyError:
+            c.package['isopen'] = False
+
         return render('package/resource_read.html')
 
