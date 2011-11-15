@@ -292,11 +292,13 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
 
-    def test_10_multiple_tags_with_plus(self):
-        offset = self.base_url + '?tags=tolstoy+russian&all_fields=1'
+    def test_10_single_tag_with_plus(self):
+        from urllib import quote
+        tagname = "Flexible+" + quote(u'\u0489!'.encode('utf8'))
+        offset = self.base_url + "?tags=%s&all_fields=1"%tagname
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        assert res_dict['count'] == 1, res_dict
+        assert res_dict['count'] == 2, res_dict
 
     def test_10_multiple_tags_with_ampersand(self):
         offset = self.base_url + '?tags=tolstoy&tags=russian&all_fields=1'
