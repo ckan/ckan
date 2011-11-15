@@ -11,6 +11,14 @@
   about=""
   py:strip="">
 
+  <py:def function="optional_head">
+    <!-- data preview -->
+    <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.grid.css" />
+    <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.columnpicker.css" />
+    <link rel="stylesheet" href="http://okfn.github.com/dataexplorer/src/table-view.css" />
+    <!-- /data preview -->
+  </py:def>
+
   <py:def function="page_title">
     ${c.package.get('title', c.package['name'])} &gt;
     ${c.resource.get('name', c.resource['id'])} - Datasets
@@ -48,19 +56,46 @@
       </span>
     </div>
 
-    <div id="resource-description">
-      Resource description
+    <div id="resource-information">
+      <h2>Resource Information</h2>
+      <dl>
+        <dt>Description</dt>
+        <dd><span property="rdfs:label">${c.resource.get('description', "(none)")}</span></dd>
+
+        <dt>Url</dt>
+        <dd><a href="${c.resource.get('url')}" rel="dcat:accessURL" target="_blank">
+          <span property="rdfs:label">${c.resource.get('url')}</span></a>
+        </dd>
+
+        <dt>Format</dt>
+        <dd><span property="dc:format">${c.resource.get('format', "(none)")}</span></dd>
+
+        <dt py:if="c.resource.get('resource_type')">Resource Type</dt>
+        <dd py:if="c.resource.get('resource_type')">
+          <span property="dc:format">${c.resource.get('resource_type', "(none)")}</span>
+        </dd>
+
+        <dt py:if="c.resource.get('size')">Size (Bytes)</dt>
+        <dd py:if="c.resource.get('size')">${c.resource.get('size')}</dd>
+
+        <dt py:if="c.resource.get('last_modified')">Last Modified</dt>
+        <dd py:if="c.resource.get('last_modified')">${c.resource.get('last_modified')}</dd>
+
+        <dt py:if="c.resource.get('mimetype')">Mimetype</dt>
+        <dd py:if="c.resource.get('mimetype')">${c.resource.get('mimetype')}</dd>
+
+        <dt py:if="c.resource.get('mimetype_inner')">Mimetype (Inner)</dt>
+        <dd py:if="c.resource.get('mimetype_inner')">${c.resource.get('mimetype_inner')}</dd>
+
+        <dt py:if="c.resource.get('hash')">Hash</dt>
+        <dd py:if="c.resource.get('hash')">${c.resource.get('hash')}</dd>
+
+        <dt>ID</dt>
+        <dd>${c.resource.get('id')}</dd>
+      </dl>
     </div>
     <div id="ckanext-datapreview-dialog"></div>
   </div>
-
-  <py:def function="optional_head">
-    <!-- data preview -->
-    <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.grid.css" />
-    <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.columnpicker.css" />
-    <link rel="stylesheet" href="http://okfn.github.com/dataexplorer/src/table-view.css" />
-    <!-- /data preview -->
-  </py:def>
 
   <py:def function="optional_footer">
     <!-- data preview -->
