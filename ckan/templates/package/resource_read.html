@@ -28,24 +28,29 @@
   
   <div py:match="content">
     <div id="resource-main-information">
-      Dataset:
-      <span id="dataset-title" property="dc:title">
-        <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">
-          ${c.package.get('title', c.package['name'])} 
-        </a>
-      </span>
-      <span id="dataset-license">
-        <py:if test="c.package['isopen']">
-            <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
-              <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
-            </a>
-        </py:if>
-        <py:if test="not c.package['isopen']">
-            <span class="closed">
-              ${h.icon('lock')}
-            </span>
-        </py:if>
-      </span>
+      <div id="resource-dataset">
+        Dataset:
+        <span id="dataset-title" property="dc:title">
+          <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">
+            ${c.package.get('title', c.package['name'])} 
+          </a>
+        </span>
+        <span id="dataset-license">
+          <py:if test="c.package['isopen']">
+              <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+                <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+              </a>
+          </py:if>
+          <py:if test="not c.package['isopen']">
+              <span class="closed">
+                ${h.icon('lock')}
+              </span>
+          </py:if>
+        </span>
+      </div>
+      <div py:if="c.resource.get('last_modified')" id="resource-last-updated">
+        Last updated: ${h.time_ago_in_words_from_str(c.resource.get('last_modified'), granularity='day')}
+      </div>
     </div>
 
     <div id="resource-actions">
@@ -73,9 +78,6 @@
 
         <dt py:if="c.resource.get('size')">Size (Bytes)</dt>
         <dd py:if="c.resource.get('size')">${c.resource.get('size')}</dd>
-
-        <dt py:if="c.resource.get('last_modified')">Last Modified</dt>
-        <dd py:if="c.resource.get('last_modified')">${c.resource.get('last_modified')}</dd>
 
         <dt py:if="c.resource.get('mimetype')">Mimetype</dt>
         <dd py:if="c.resource.get('mimetype')">${c.resource.get('mimetype')}</dd>
