@@ -999,6 +999,7 @@ body.package.resource_read #resource-main-information { margin-bottom: 2em; }
 body.package.resource_read #resource-actions { margin-bottom: 2em; }
 body.package.resource_read #resource-description { margin-bottom: 2em; }
 body.package.resource_read #dataset-description { margin-bottom: 2em; }
+body.package.resource_read #resource-explore { margin-bottom: 2em; }
 body.package.resource_read #resource-information-list { 
     border: 1px solid #E0E0E0; 
     padding: 10px;
