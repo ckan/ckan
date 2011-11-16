@@ -57,12 +57,22 @@
       <!-- <button class="pretty-button">action</button> -->
     </div>
 
+    <div py:if="c.resource.get('description')" id="resource-description" property="rdfs:label">
+      ${c.resource.get('description')}
+    </div>
+
+    <div py:if="not c.resource.get('description') and c.package.get('notes')" id="dataset-description">
+      <div>
+        <strong>
+          From the <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">Dataset</a>:
+        </strong>
+      </div>
+      <div>${h.markdown_extract(c.package.get('notes'), 300)}</div>
+    </div>
+
     <div id="resource-information">
       <h2>Resource Information</h2>
       <dl id="resource-information-list">
-        <dt>Description</dt>
-        <dd><span property="rdfs:label">${c.resource.get('description', "(none)")}</span></dd>
-
         <dt>Url</dt>
         <dd><a href="${c.resource.get('url')}" rel="dcat:accessURL" target="_blank">
           <span property="rdfs:label">${c.resource.get('url')}</span></a>
