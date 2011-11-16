@@ -991,17 +991,14 @@ body.package.read #sidebar ul.groups {
 body.package.resource_read h1 { display: inline; }
 body.package.resource_read #content { border-right: 0; }
 body.package.resource_read #minornavigation { border: 0; }
-body.package.resource_read #resource-header { 
-    display: inline; 
-}
-body.package.resource_read #resource-dataset { 
-    margin-top: 1em; 
+body.package.resource_read #resource-main-information { 
     margin-bottom: 2em; 
 }
+body.package.resource_read #resource-actions { margin-bottom: 2em; }
 body.package.resource_read #dataset-license img { vertical-align: top; }
-body.package.resource_read #actions { 
-    float: right; 
-    padding-top: 8px;
+body.package.resource_read #resource-actions { 
+    /* float: right;  */
+    /* padding-top: 8px; */
 }
 body.package.resource_read #resource-information-list { 
     border: 1px solid #E0E0E0; 

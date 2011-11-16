@@ -23,18 +23,12 @@
     ${c.package.get('title', c.package['name'])} &gt;
     ${c.resource.get('name', c.resource['id'])} - Datasets
   </py:def>
+
+  <py:def function="page_heading">${c.resource.get('name', c.resource['id'])}</py:def>
   
   <div py:match="content">
-    <div id="resource-header">
-      <h1>${c.resource.get('name', c.resource['id'])}</h1>
-
-      <span id="actions">
-        <!-- <button class="pretty-button">action</button> -->
-      </span>
-    </div>
-
-    <div id="resource-dataset">
-      <strong>Dataset:</strong>
+    <div id="resource-main-information">
+      Dataset:
       <span id="dataset-title" property="dc:title">
         <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">
           ${c.package.get('title', c.package['name'])} 
@@ -52,6 +46,10 @@
             </span>
         </py:if>
       </span>
+    </div>
+
+    <div id="resource-actions">
+      <!-- <button class="pretty-button">action</button> -->
     </div>
 
     <div id="resource-information">
