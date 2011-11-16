@@ -50,26 +50,13 @@ class SearchIndex(object):
         """ Insert new data from a dictionary. """
         return self.update_dict(data)
         
-    def insert_entity(self, entity):
-        """ Insert new data from a domain object. """
-        return self.insert_dict(entity.as_dict())
-    
     def update_dict(self, data):
         """ Update data from a dictionary. """
         log.debug("NOOP Index: %s" % ",".join(data.keys()))
     
-    def update_entity(self, entity):
-        """ Update data from a domain object. """
-        # in convention we trust:
-        return self.update_dict(entity.as_dict())
-    
     def remove_dict(self, data):
         """ Delete an index entry uniquely identified by ``data``. """
         log.debug("NOOP Delete: %s" % ",".join(data.keys()))
-        
-    def remove_entity(self, entity):
-        """ Delete ``entity``. """
-        return self.remove_dict(entity.as_dict())
         
     def clear(self):
         """ Delete the complete index. """

@@ -452,8 +452,8 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
-        except SearchIndexError:
-            abort(500, _(u'Unable to add package to search index.'))
+        except SearchIndexError, e:
+            abort(500, _(u'Unable to add package to search index.') + repr(e.args))
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -481,8 +481,8 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
-        except SearchIndexError:
-            abort(500, _(u'Unable to update search index.'))
+        except SearchIndexError, e:
+            abort(500, _(u'Unable to update search index.') + repr(e.args))
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary

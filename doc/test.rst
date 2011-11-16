@@ -82,9 +82,9 @@ Migration Testing
 
 If your changes require a model change, you'll need to write a migration script. To ensure this is tested as well, you should instead run the tests this way::
 
-     nosetests ckan/tests --ckan --ckan-migrate --with-pylons=test-core.ini
+     nosetests ckan/tests --ckan --ckan-migration --with-pylons=test-core.ini
  
-By default, tests are run using the model defined in ``ckan/model``, but by using the ``--ckan-migrate`` option the tests will run using a database that has been created using the migration scripts, which is the way the database is created and upgraded in production. These tests are the most thorough and will take around 20 minutes.
+By default, tests are run using the model defined in ``ckan/model``, but by using the ``--ckan-migration`` option the tests will run using a database that has been created using the migration scripts, which is the way the database is created and upgraded in production. These tests are the most thorough and will take around 20 minutes.
 
 .. caution ::
 

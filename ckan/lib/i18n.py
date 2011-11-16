@@ -158,11 +158,13 @@ def handle_request(request, tmpl_context):
     if session.get('locale'):
         # First look for locale saved in the session (by home controller)
         locales.append(Locale.parse(session.get('locale')))
-    else:
-        # Next try languages in the HTTP_ACCEPT_LANGUAGE header
-        locale = Locales().negotiate_known_locale(request.languages)
-        if locale:
-            locales.append(locale)
+
+    # Browser language detection disabled temporarily - see #1452
+##    else:
+##        # Next try to detect languages in the HTTP_ACCEPT_LANGUAGE header
+##        locale = Locales().negotiate_known_locale(request.languages)
+##        if locale:
+##            locales.append(locale)
 
     # Next try the default locale in the CKAN config file
     locales.append(Locales().get_default_locale())

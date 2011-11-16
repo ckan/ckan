@@ -38,6 +38,8 @@ class CkanCommand(paste.script.command.Command):
             msg = 'No config file supplied'
             raise self.BadCommand(msg)
         self.filename = os.path.abspath(self.options.config)
+        if not os.path.exists(self.filename):
+            raise AssertionError('Config filename %r does not exist.' % self.filename)
         fileConfig(self.filename)
         conf = appconfig('config:' + self.filename)
         load_environment(conf.global_conf, conf.local_conf)
@@ -124,7 +126,7 @@ class ManageDb(CkanCommand):
         from pylons import config
         url = config['sqlalchemy.url']
         # e.g. 'postgres://tester:pass@localhost/ckantest3'
-        db_details_match = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):?(?P<db_pass>[^@]*)@(?P<db_host>[^/:]*):?(?P<db_port>[^/]*)/(?P<db_name>[\w.-]*)', url)
+        db_details_match = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>[^:]*):?(?P<db_pass>[^@]*)@(?P<db_host>[^/:]*):?(?P<db_port>[^/]*)/(?P<db_name>[\w.-]*)', url)
         if not db_details_match:
             raise Exception('Could not extract db details from url: %r' % url)
         db_details = db_details_match.groupdict()
@@ -540,6 +542,21 @@ class UserCmd(CkanCommand):
         user.delete()
         model.repo.commit_and_remove()
         print('Deleted user: %s' % username)
+
+class Celery(CkanCommand):
+    '''Run celery deamon
+
+    Usage:
+        celeryd
+    '''
+    min_args = 0
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+
+    def command(self):
+        os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
+        from ckan.lib.celery_app import celery
+        celery.worker_main(argv=['celeryd', '--loglevel=INFO'])
         
 
 class Ratings(CkanCommand):

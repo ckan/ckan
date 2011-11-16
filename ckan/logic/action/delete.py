@@ -87,3 +87,19 @@ def group_delete(context, data_dict):
 
     model.repo.commit()
 
+def task_status_delete(context, data_dict):
+    model = context['model']
+    user = context['user']
+    id = data_dict['id']
+    model.Session.remove()
+    model.Session()._context = context
+
+    entity = model.TaskStatus.get(id)
+
+    if entity is None:
+        raise NotFound
+
+    check_access('task_status_delete', context, data_dict)
+
+    entity.delete()
+    model.Session.commit()

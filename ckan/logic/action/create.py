@@ -65,7 +65,9 @@ def package_create(context, data_dict):
     model.Session.flush()
     for item in PluginImplementations(IPackageController):
         item.create(pkg)
-    model.repo.commit()        
+
+    if not context.get('defer_commit'):
+        model.repo.commit()        
 
     ## need to let rest api create
     context["package"] = pkg
@@ -132,7 +134,8 @@ def package_relationship_create(context, data_dict):
     rev.author = user
     rev.message = _(u'REST API: Create package relationship: %s %s %s') % (pkg1, rel_type, pkg2)
     rel = pkg1.add_relationship(rel_type, pkg2, comment=comment)
-    model.repo.commit_and_remove()
+    if not context.get('defer_commit'):
+        model.repo.commit_and_remove()
     relationship_dicts = rel.as_dict(ref_package_by=ref_package_by)
     return relationship_dicts
 
@@ -168,7 +171,8 @@ def group_create(context, data_dict):
     model.Session.flush()
     for item in PluginImplementations(IGroupController):
         item.create(group)
-    model.repo.commit()        
+    if not context.get('defer_commit'):
+        model.repo.commit()        
     context["group"] = group
     context["id"] = group.id
     log.debug('Created object %s' % str(group.name))
@@ -225,7 +229,8 @@ def user_create(context, data_dict):
 
     user = user_dict_save(data, context)
 
-    model.repo.commit()        
+    if not context.get('defer_commit'):
+        model.repo.commit()        
     context['user'] = user
     context['id'] = user.id
     log.debug('Created user %s' % str(user.name))

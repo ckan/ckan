@@ -4,8 +4,8 @@
 # Packages we install from source (could perhaps use release versions)
 # pyutilib.component.core>=4.1,<4.1.99
 -e svn+https://software.sandia.gov/svn/public/pyutilib/pyutilib.component.core/trunk@1972#egg=pyutilib.component.core
-# vdm>=0.9,<0.9.99
--e hg+https://bitbucket.org/okfn/vdm@vdm-0.9#egg=vdm
+# vdm>=0.10,<0.10.99
+-e hg+https://bitbucket.org/okfn/vdm@vdm-0.10#egg=vdm
 # autoneg>=0.5
 -e git+https://github.com/wwaites/autoneg.git@b4c727b164f411cc9d60#egg=autoneg
 # flup>=0.5
@@ -13,7 +13,8 @@
 
 # Packages already on pypi.python.org
 solrpy==0.9.4
-formalchemy==1.3.9
+formalchemy==1.4.1
+
 apachemiddleware==0.1.1
 licenses==0.6.1
 # markupsafe is required by webhelpers==1.2 required by formalchemy with SQLAlchemy 0.6

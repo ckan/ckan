@@ -481,12 +481,6 @@ left arrow <
         '''Purges packages etc. that were created by this class.'''
         import ckan.model as model
         for pkg_name in cls.pkg_names:
-            pkg = model.Package.by_name(unicode(pkg_name))
-            if pkg:
-                sql = "DELETE FROM package_search WHERE package_id='%s'" % pkg.id
-                model.Session.execute(sql)
-        model.repo.commit_and_remove()
-        for pkg_name in cls.pkg_names:
             model.Session().autoflush = False
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:

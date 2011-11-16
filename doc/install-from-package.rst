@@ -66,7 +66,7 @@ Give your VM a name - we'll call ours ``ubuntu_ckan``. Under **OS Type**, choose
 .. image:: images/virtualbox5-vmtype.png
    :alt: The VirtualBox installer - choosing your operating system
 
-Leave the memory size as 512MB, and choose **Create new hard disk**. This will open a new wizard:
+Leave the memory size as 512MB, and choose **Create new hard disk** (be aware that for production use you should probably allow 1.5GB RAM). This will open a new wizard:
 
 .. image:: images/virtualbox6-vmloc.png
    :alt: The VirtualBox installer - creating a new hard disk
@@ -386,38 +386,270 @@ When you log in you'll see a welcome message. You can now proceed to :ref:`run-p
 Run the Package Installer
 -------------------------
 
-On your Ubuntu 10.04 system, open a terminal window and switch to the root user: 
+On your Ubuntu 10.04 system, open a terminal and run these commands to prepare your system:
 
 ::
 
-    sudo -s
+    sudo apt-get update
+    sudo apt-get install -y wget
+    echo "deb http://apt.okfn.org/ckan-1.5 lucid universe" | sudo tee /etc/apt/sources.list.d/okfn.list
+    wget -qO- "http://apt.okfn.org/packages_public.key" | sudo apt-key add -
+    sudo apt-get update
 
-Install the CKAN packages as follows:
-
-::
-
-	echo 'deb http://apt.okfn.org/ubuntu_ckan-std_dev lucid universe' > /etc/apt/sources.list.d/okfn.list
-	wget -qO-  http://apt.okfn.org/packages.okfn.key | sudo apt-key add -
-	apt-get update
-	apt-get install ckan-std
-
-Wait for the output to finish, then create your CKAN instance:
+Now you are ready to install. If you already have a PostgreSQL and Solr
+instance that you want to use set up on a different server you don't need to install
+``postgresql-8.4`` and ``solr-jetty`` locally. For most cases you'll need CKAN,
+PostgreSQL and Solr all running on the same server so run:
 
 ::
 
-    ckan-std-install
+    sudo apt-get install -y ckan postgresql-8.4 solr-jetty
 
-If you are using Amazon EC2, you will additionally need to set the hostname of your server. To do this, run the command below, replacing ``ec2-46-51-149-132.eu-west-1.compute.amazonaws.com`` with the public DNS of your EC2 instance. Leave the ``/`` at the end, as it is part of the ``sed`` command. Then restart Apache. You can skip this if installing on VirtualBox or a local server. 
+The install will whirr away. With ``ckan``, ``postgresql-8.4`` and
+``solr-jetty`` chosen, over 180Mb of packages will be downloaded (on a clean
+install). This will take a few minutes, then towards the end
+you'll see this:
 
 ::
 
-    sudo sed -e "s/ServerAlias \(.*\)/ServerAlias ec2-46-51-149-132.eu-west-1.compute.amazonaws.com/" \
-             -i /etc/apache2/sites-available/std.common
+    Setting up solr-jetty (1.4.0+ds1-1ubuntu1) ...
+     * Not starting jetty - edit /etc/default/jetty and change NO_START to be 0 (or comment it out).
+
+If you've installed ``solr-jetty`` locally you'll also need to configure your
+local Solr server for use with CKAN. You can do so like this:
+
+::
+
+    sudo ckan-setup-solr
+
+This changes the Solr schema to support CKAN, sets Solr to start automatically
+and then starts Solr. You shouldn't be using the Solr instance for anything
+apart from CKAN because the command above modifies its schema.
+
+You can now create CKAN instances as you please using the
+``ckan-create-instance`` command. It takes these arguments:
+
+Instance name
+
+    This should be a short letter only string representing the name of the CKAN
+    instance. It is used (amongst other things) as the basis for:
+    
+    * The directory structure of the instance in ``/var/lib/ckan``, ``/var/log/ckan``, ``/etc/ckan`` and elsewhere
+    * The name of the PostgreSQL database to use
+    * The name of the Solr core to use
+
+Instance Hostname/domain name
+
+    The hostname that this CKAN instance will be hosted at. It is
+    used in the Apache configuration virutal host in
+    ``/etc/apache2/sites-available/<INSTANCE_NAME>.common`` so that Apache can resolve
+    requests directly to CKAN.
+
+    If you are using Amazon EC2, you will use the public DNS of your server as
+    this argument. These look soemthing like
+    ``ec2-46-51-149-132.eu-west-1.compute.amazonaws.com``. If you are using a VM,
+    this will be the hostname of the VM you have configured in your ``/etc/hosts``
+    file.
+
+    If you install more than one CKAN instance you'll need to set different
+    hostnames for each. If you ever want to change the hostname CKAN responds on
+    you can do so by editing ``/etc/apache2/sites-available/<INSTANCE_NAME>.common`` and
+    restarting apache with ``sudo /etc/init.d/apache2 restart``.
+
+Local PostgreSQL support (``"yes"`` or ``"no"``)
+
+    If you specify ``"yes"``, CKAN will also set up a local database user and
+    database and create its tables, populating them as necessary and saving the
+    database password in the config file. You would normally say ``"yes"`` unless
+    you plan to use CKAN with a PostgreSQL on a remote machine.
+
+    If you choose ``"no"`` as the third parameter to tell the install command not
+    to set up or configure the PostgreSQL database for CKANi you'll then need to
+    perform any database creation and setup steps manually yourself.
+
+For production use the second argument above is usually the domain name of the
+CKAN instance, but in our case we are testing, so we'll use the default
+hostname buildkit sets up to the server which is ``default.vm.buildkit`` (this
+is automatically added to your host machine's ``/etc/hosts`` when the VM is
+started so that it will resovle from your host machine - for more complex
+setups you'll have to set up DNS entries instead).
+
+Create a new instance like this:
+
+::
+
+    sudo ckan-create-instance std default.vm.buildkit yes
+
+You'll need to specify a new instance name and different hostname for each CKAN
+instance you set up.
+
+Don't worry about warnings you see like this during the creation process, they are harmless:
+
+::
+
+    /usr/lib/pymodules/python2.6/ckan/sqlalchemy/engine/reflection.py:46: SAWarning: Did not recognize type 'tsvector' of column 'search_vector' ret = fn(self, con, *args, **kw)
+
+You can now access your CKAN instance from your host machine as http://default.vm.buildkit/
+
+.. tip ::
+
+    If you get taken straight to a login screen it is a sign that the PostgreSQL
+    database initialisation may not have run. Try running:
+ 
+    ::
+ 
+        INSTANCE=std
+        sudo paster --plugin=ckan db init --config=/etc/ckan/${INSTANCE}/${INSTANCE}.ini
+ 
+    If you specified ``"no"`` as part of the ``create-ckan-instance`` you'll
+    need to specify database and solr settings in ``/etc/ckan/std/std.ini``. At the
+    moment you'll see an "Internal Server Error" from Apache. You can always
+    investigate such errors by looking in the Apache and CKAN logs for that
+    instance. 
+
+Sometimes things don't go as planned so let's look at some of the log files.
+
+This is the CKAN log information (leading data stripped for clarity):
+ 
+::
+
+    $ sudo -u ckanstd tail -f /var/log/ckan/std/std.log
+    WARNI [vdm] Skipping adding property Package.all_revisions_unordered to revisioned object
+    WARNI [vdm] Skipping adding property PackageTag.all_revisions_unordered to revisioned object
+    WARNI [vdm] Skipping adding property Group.all_revisions_unordered to revisioned object
+    WARNI [vdm] Skipping adding property PackageGroup.all_revisions_unordered to revisioned object
+    WARNI [vdm] Skipping adding property GroupExtra.all_revisions_unordered to revisioned object
+    WARNI [vdm] Skipping adding property PackageExtra.all_revisions_unordered to revisioned object
+    WARNI [vdm] Skipping adding property Resource.all_revisions_unordered to revisioned object
+    WARNI [vdm] Skipping adding property ResourceGroup.resources_all to revisioned object
+
+No error here, let's look in Apache (leading data stripped again) in the case
+where we chose ``"no"`` to PostgreSQL installation:
+
+::
+
+    $ tail -f /var/log/apache2/std.error.log
+        self.connection = self.__connect()
+      File "/usr/lib/pymodules/python2.6/ckan/sqlalchemy/pool.py", line 319, in __connect
+        connection = self.__pool._creator()
+      File "/usr/lib/pymodules/python2.6/ckan/sqlalchemy/engine/strategies.py", line 82, in connect
+        return dialect.connect(*cargs, **cparams)
+      File "/usr/lib/pymodules/python2.6/ckan/sqlalchemy/engine/default.py", line 249, in connect
+        return self.dbapi.connect(*cargs, **cparams)
+    OperationalError: (OperationalError) FATAL:  password authentication failed for user "ckanuser"
+    FATAL:  password authentication failed for user "ckanuser"
+     None None
+
+There's the problem. If you don't choose ``"yes"`` to install PostgreSQL, you
+need to set up the ``sqlalchemy.url`` option in the config file manually. Edit
+it to set the correct settings:
+
+::
+
+    sudo -u ckanstd vi /etc/ckan/std/std.ini
+
+Notice how you have to make changes to CKAN config files and view CKAN log files
+using the username set up for your CKAN user.
+
+Each instance you create has its own virtualenv that you can install extensions
+into at ``/var/lib/ckan/std/pyenv`` and its own system user, in this case
+``ckanstd``.  Any time you make changes to the virtualenv, you should make sure
+you are running as the correct user otherwise Apache might not be able to load
+CKAN.  For example, say you wanted to install a ckan extension, you might run:
+
+::
+
+    sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/pip install <name-of-extension>
+
+You can now configure your instance by editing ``/etc/ckan/std/std.ini``:
+
+::
+
+    sudo -u ckanstd vi /etc/ckan/std/std.ini
+
+After any change you can touch the ``wsgi.py`` to tell Apache's mod_wsgi that
+it needs to take notice of the change for future requests:
+
+::
+
+    sudo touch /var/lib/ckan/std/wsgi.py
+
+Or you can of course do a full restart if you prefer:
+
+::
+
     sudo /etc/init.d/apache2 restart
 
-Finally visit your CKAN instance - either at your Amazon EC2 hostname, or at http://localhost. You'll be redirected to the login screen because you won't have set up any permissions yet, so the welcome screen will look something like this. 
+.. caution ::
+
+    CKAN has etag caching enabled by default which encourages your browser to cache
+    the homepage and all the dataset pages. This means that if you change CKAN's
+    configuration you'll need to do a 'force refresh' by pressing ``Shift + Ctrl +
+    F5`` together or ``Shift + Ctrl + R`` (depending on browser) before you'll see
+    the change.
+
+One of the key things it is good to set first is the ``ckan.site_description``
+option. The text you set there appears in the banner at the top of your CKAN
+instance's pages.
+
+You can enable and disable particular CKAN instances by running:
+
+::
+
+    sudo a2ensite std
+    sudo /etc/init.d/apache2 reload
+
+or:
+
+::
+
+    sudo a2dissite std
+    sudo /etc/init.d/apache2 reload
+
+respectively.
+
+Now you should be up and running. Don't forget you there is the a help page for
+dealing with :doc:`common-error-messages`.
+
+Visit your CKAN instance - either at your Amazon EC2 hostname, or at on your
+host PC or virtual machine. You'll be redirected to the login screen because
+you won't have set up any permissions yet, so the welcome screen will look
+something like this. 
 
 .. image :: images/9.png
   :width: 807px
 
 You can now proceed to :doc:`post-installation`.
+
+.. warning ::
+
+    If you use the ``ckan-create-instance`` command to create more than one
+    instance there are a couple of things you need to be aware of. Firstly, you
+    need to change the Apache configurations to put ``mod_wsgi`` into *daemon* mode
+    and secondly you need to watch your Solr search index carefully to make sure
+    that the different instances are not over-writing each other's data. 
+    
+    To change the Apache configuration uncomment the following lines for each
+    instance in ``/etc/apache2/sites-available/std.common`` and make sure
+    ``${INSTANCE}`` is replaced with your instance name:
+    
+    ::
+    
+        # Deploy as a daemon (avoids conflicts between CKAN instances)
+        # WSGIDaemonProcess ${INSTANCE} display-name=${INSTANCE} processes=4 threads=15 maximum-requests=10000
+        # WSGIProcessGroup ${INSTANCE}
+     
+    If you don't do this and you install different versions of the same Python
+    packages into the different pyenvs in ``/var/lib/ckan`` for each instance,
+    there is a chance the CKAN instances might use the wrong package.
+    
+    The CKAN team have also recently had difficulties with CKAN instances writing
+    over each other's Solr search indexes. These have been documented in `ticket
+    #1430 <http://trac.ckan.org/ticket/1430>`_. If you run into the same problems
+    send an email to `ckan-dev <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
+
+CKAN packaging is well tested and reliable with single instance CKAN installs.
+Multi-instance support is newer, and whilst we believe will work well, hasn't
+had the same degree of testing. If you hit any problems with multi-instance
+installs, do let us know and we'll help you fix them.
+
