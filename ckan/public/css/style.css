@@ -997,6 +997,7 @@ body.package.resource_read #content {
 body.package.resource_read #dataset-license img { vertical-align: top; }
 body.package.resource_read #resource-main-information { margin-bottom: 2em; }
 body.package.resource_read #resource-actions { margin-bottom: 2em; }
+body.package.resource_read #resource-actions a { color: #222; }
 body.package.resource_read #resource-description { margin-bottom: 2em; }
 body.package.resource_read #dataset-description { margin-bottom: 2em; }
 body.package.resource_read #resource-explore { margin-bottom: 2em; }
@@ -1006,14 +1007,14 @@ body.package.resource_read #resource-information-list {
 }
 body.package.resource_read #resource-information dt
 {
-    width: 6em;
+    width: 10em;
     float: left;
 	font-weight: bold;
     text-align: right;
 }
 body.package.resource_read #resource-information dd
 {
-	margin-left: 10em;
+	margin-left: 14em;
     margin-bottom: 1em;
 }
 

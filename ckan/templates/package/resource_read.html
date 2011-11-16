@@ -54,7 +54,14 @@
     </div>
 
     <div id="resource-actions">
-      <!-- <button class="pretty-button">action</button> -->
+      <a py:if="c.resource.get('url')" class="pretty-button" href="${c.resource.get('url')}">
+        <py:choose test="c.resource.get('resource_type')">
+          <py:when test="'listing'">View</py:when>
+          <py:when test="'service'">View</py:when>
+          <py:when test="'api'">API Endpoint</py:when>
+          <py:otherwise>Download</py:otherwise>
+        </py:choose>
+        </a>
     </div>
 
     <div py:if="c.resource.get('description')" id="resource-description" property="rdfs:label">
