@@ -1003,6 +1003,23 @@ body.package.resource_read #actions {
     float: right; 
     padding-top: 8px;
 }
+body.package.resource_read #resource-information-list { 
+    border: 1px solid #E0E0E0; 
+    padding: 10px;
+}
+body.package.resource_read #resource-information dt
+{
+    width: 6em;
+    float: left;
+	font-weight: bold;
+    text-align: right;
+}
+body.package.resource_read #resource-information dd
+{
+	/* border-left: 1px dashed #aaa; */
+	margin-left: 10em;
+    margin-bottom: 1em;
+}
 
 
 /* ================== */

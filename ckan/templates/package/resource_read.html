@@ -29,9 +29,7 @@
       <h1>${c.resource.get('name', c.resource['id'])}</h1>
 
       <span id="actions">
-        <button class="pretty-button">action</button>
-        <button class="pretty-button">action</button>
-        <button class="pretty-button">action</button>
+        <!-- <button class="pretty-button">action</button> -->
       </span>
     </div>
 
@@ -58,7 +56,7 @@
 
     <div id="resource-information">
       <h2>Resource Information</h2>
-      <dl>
+      <dl id="resource-information-list">
         <dt>Description</dt>
         <dd><span property="rdfs:label">${c.resource.get('description', "(none)")}</span></dd>
 
