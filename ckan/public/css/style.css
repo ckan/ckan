@@ -988,8 +988,12 @@ body.package.read #sidebar ul.groups {
 /* ====================== */
 /* = Resource View Page = */
 /* ====================== */
-body.package.resource_read h1 { display: inline; }
-body.package.resource_read #content { border-right: 0; }
+body.package.resource_read #sidebar { display: none; }
+body.package.resource_read #minornavigation { display: none; }
+body.package.resource_read #content { 
+    border-right: 0; 
+    width: 950px; 
+}
 body.package.resource_read #minornavigation { border: 0; }
 body.package.resource_read #resource-main-information { 
     margin-bottom: 2em; 
