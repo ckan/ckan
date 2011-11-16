@@ -977,6 +977,29 @@ body.package.read #sidebar ul.tags,
 body.package.read #sidebar ul.groups {
   margin-bottom: 10px;
 }
+body.package.read #dataset-resources { 
+    margin-bottom: 2em; 
+}
+body.package.read .dataset-resource { 
+    margin-bottom: 1em;
+}
+body.package.read .resource-url { 
+    font-size: 1.3em;
+}
+body.package.read .resource-information {
+    padding-left: 0;
+}
+body.package.read .resource-information li {
+    display: inline;
+    margin-right: 4px;
+    padding: 2px;
+    border: none;
+    font-weight: normal;
+    color: #808080;
+}
+body.package.read .resource-format {
+    background:#ececec;
+}
 .flash-messages .success .new-dataset {
   font-size: 150%;
 }
