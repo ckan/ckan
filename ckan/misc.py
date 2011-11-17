@@ -23,14 +23,14 @@ class MarkdownFormat(TextFormat):
             (")?                                 # optional quotes for multi-word name (group 3)
             (                                    # begin capture of the name w/o quotes (group 4)
             (?(3)                                # if the quotes matched in group 3
-                [^,"]                            #     then capture spaces (as well as other things)
+                [ \w\-.]                         #     then capture spaces (as well as other things)
                 |                                # else
-                [^," ]                           #     don't capture spaces
+                [\w\-.]                          #     don't capture spaces
             )                                    # end
             +)                                   # end capture of the name w/o quotes (group 4)
             (?(3)")                              # close opening quote if necessary
             )                                    # end capture of the name with quotes (group 2)
-        """, re.VERBOSE)
+        """, re.VERBOSE|re.UNICODE)
     normal_link = re.compile('<(http:[^>]+)>')
 
     html_whitelist = 'b center li ol p table td tr ul'.split(' ')

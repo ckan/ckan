@@ -86,10 +86,10 @@ class TestFormatText:
         out = format.to_html(instr)
         assert "<a href" not in out
 
-    def test_tag_names_match_punctuation(self):
+    def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
-        instr = 'tag:"Test- _.!" foobar'
-        exp = '<a href="/tag/Test- _.!">tag:"Test- _.!"</a> foobar'
+        instr = 'tag:"Test- _." foobar'
+        exp = '<a href="/tag/Test- _.">tag:"Test- _."</a> foobar'
         format = MarkdownFormat()
         out = format.to_html(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
@@ -101,6 +101,24 @@ class TestFormatText:
         format = MarkdownFormat()
         out = format.to_html(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
+    def test_tag_names_dont_match_non_space_whitespace(self):
+        """Asserts that the only piece of whitespace matched in a tagname is a space"""
+        whitespace_characters = '\t\n\r\f\v'
+        for ch in whitespace_characters:
+            instr = 'tag:Bad' + ch + 'space'
+            exp = '<a href="/tag/Bad">tag:Bad</a>'
+            format = MarkdownFormat()
+            out = format.to_html(instr)
+            assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+    
+    def test_tag_names_with_unicode_alphanumeric(self):
+        """Asserts that unicode alphanumeric characters are captured"""
+        instr = u'tag:"Japanese katakana \u30a1" blah'
+        exp = u'<a href="/tag/Japanese katakana \u30a1">tag:"Japanese katakana \u30a1"</a>'
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert exp in out, u'\nGot: %s\nWanted: %s' % (out, exp)
 
     def test_normal_link(self):
         instr = '<http://somelink/>'
