@@ -30,6 +30,32 @@ class TestTagSearch(object):
         result = search.query_for(model.Tag).run(query=u'asdf')
         assert result['count'] == 0, result
 
+    def test_search_with_capital_letter_in_tagname(self):
+        """
+        Asserts that it doesn't matter if the tagname has capital letters in it.
+        """
+        result = search.query_for(model.Tag).run(query=u'lexible')
+        assert u'Flexible \u0489!' in result['results']
+
+    def test_search_with_capital_letter_in_search_query(self):
+        """
+        Asserts that search works with a capital letter in the search query.
+        """
+        result = search.query_for(model.Tag).run(query=u'Flexible')
+        assert u'Flexible \u0489!' in result['results']
+
+    def test_search_with_unicode_in_search_query(self):
+        """
+        Asserts that search works with a unicode character above \u00ff.
+        """
+        result = search.query_for(model.Tag).run(query=u' \u0489!')
+        assert u'Flexible \u0489!' in result['results']
+
+    def test_search_is_case_sensitive(self):
+        result = search.query_for(model.Tag).run(query=u'flexible')
+        assert u'Flexible \u0489!' not in result['results']
+        
+
     def test_good_search_fields(self):
         result = search.query_for(model.Tag).run(fields={'tags': u'ru'})
         assert result['count'] == 1, result

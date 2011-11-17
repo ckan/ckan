@@ -750,7 +750,7 @@ def tag_search(context, data_dict):
         return
 
     for term in terms:
-        q = q.filter(model.Tag.name.contains(term.lower()))
+        q = q.filter(model.Tag.name.contains(term))
 
     count = q.count()
     q = q.offset(offset)
