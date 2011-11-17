@@ -234,7 +234,7 @@ class CommonFixtureMethods(BaseCase):
 
     @property
     def flexible_tag(self):
-        return self.get_tag_by_name(u'Flexible \u0489!')
+        return self.get_tag_by_name(u'Flexible \u30a1')
 
 class CheckMethods(BaseCase):
 

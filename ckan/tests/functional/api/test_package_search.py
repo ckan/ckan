@@ -200,7 +200,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         search.clear()
 
     def test_07_uri_qjson_tags(self):
-        query = {'q': '', 'tags':['Flexible \u0489!']}
+        query = {'q': '', 'tags':['Flexible \u30a1']}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
@@ -209,7 +209,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         assert res_dict['count'] == 2, res_dict
 
     def test_07_uri_qjson_tags_multiple(self):
-        query = {'q': '', 'tags':['tolstoy', 'russian', u'Flexible \u0489!']}
+        query = {'q': '', 'tags':['tolstoy', 'russian', u'Flexible \u30a1']}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         print offset
@@ -271,7 +271,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
         assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
         assert len(anna_rec['tags']) == 3, anna_rec['tags']
-        for expected_tag in ['russian', 'tolstoy', u'Flexible \u0489!']:
+        for expected_tag in ['russian', 'tolstoy', u'Flexible \u30a1']:
             assert expected_tag in anna_rec['tags'], anna_rec['tags']
 
         # try alternative syntax
@@ -294,7 +294,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
 
     def test_10_single_tag_with_plus(self):
         from urllib import quote
-        tagname = "Flexible+" + quote(u'\u0489!'.encode('utf8'))
+        tagname = "Flexible+" + quote(u'\u30a1'.encode('utf8'))
         offset = self.base_url + "?tags=%s&all_fields=1"%tagname
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
@@ -356,7 +356,7 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
         assert res_dict['count'] == 1, res_dict
 
     def test_07_uri_qjson_tags_with_unicode(self):
-        query = {'q': u'tags:"Flexible \u0489\\!"'}
+        query = {'q': u'tags:"Flexible \u30a1"'}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
@@ -407,7 +407,7 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
         assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
         assert len(anna_rec['tags']) == 3, anna_rec['tags']
-        for expected_tag in ['russian', 'tolstoy', u'Flexible \u0489!']:
+        for expected_tag in ['russian', 'tolstoy', u'Flexible \u30a1']:
             assert expected_tag in anna_rec['tags']
 
         # try alternative syntax

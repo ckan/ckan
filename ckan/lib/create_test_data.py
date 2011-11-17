@@ -366,7 +366,7 @@ left arrow <
 
         # Flexible tag, allows spaces, upper-case,
         # and all punctuation except commas
-        tag3 = model.Tag(name=u'Flexible \u0489!')
+        tag3 = model.Tag(name=u'Flexible \u30a1')
 
         for obj in [pkg2, tag1, tag2, tag3]:
             model.Session.add(obj)
@@ -601,7 +601,7 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
               'title':'Sweden - Government Offices of Sweden - Publications',
               'url':'http://www.sweden.gov.se/sb/d/574',
               'groups':'penguin',              
-              'tags':u'country-sweden,format-pdf,access-www,documents,publications,government,eutransparency,penguin,CAPITALS,surprise!,greek omega \u03a9,strange character \u0489'.split(','),
+              'tags':u'country-sweden,format-pdf,access-www,documents,publications,government,eutransparency,penguin,CAPITALS,surprise.,greek omega \u03a9,japanese katakana \u30a1'.split(','),
               'license':'',
               'notes':'''### About
 

@@ -18,7 +18,7 @@ class MiscApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.offset('/tag_counts')
         res = self.app.get(offset, status=200)
         results = self.loads(res.body)
-        assert [u'Flexible \u0489!', 2] in results, results
+        assert [u'Flexible \u30a1', 2] in results, results
         assert ["russian", 2] in results, results
         assert ["tolstoy", 1] in results, results
 

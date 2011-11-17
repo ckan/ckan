@@ -87,7 +87,7 @@ class TestBasicDictize:
                                                 'hash': u'def456',
                                                 'size_extra': u'345',
                                                 'url': u'http://www.annakarenina.com/index.json'}],
-                                 'tags': [{'name': u'Flexible \u0489!'},
+                                 'tags': [{'name': u'Flexible \u30a1'},
                                           {'name': u'russian'},
                                           {'name': u'tolstoy'}],
                                  'title': u'A Novel By Tolstoy',
@@ -172,11 +172,11 @@ class TestBasicDictize:
         _, errors = validate(data, default_tags_schema(), self.context)
         assert not errors, str(errors)
 
-    def test_4_tag_schema_allows_punctuation(self):
-        """Asserts that a tag name with punctuation (except commas) is valid"""
+    def test_4_tag_schema_allows_limited_punctuation(self):
+        """Asserts that a tag name with limited punctuation is valid"""
         ignored = ""
         data = {
-            'name': u'.?!<>\\/%^&*()-_+=~#\'@`',
+            'name': u'.-_',
             'revision_timestamp': ignored,
             'state': ignored
             }
@@ -196,20 +196,20 @@ class TestBasicDictize:
         _, errors = validate(data, default_tags_schema(), self.context)
         assert not errors, str(errors)
 
-    def test_6_tag_schema_does_not_allow_commas(self):
-        """Asserts that a tag name cannot contain commas"""
+    def test_6_tag_schema_disallows_most_punctuation(self):
+        """Asserts most punctuation is disallowed"""
+        not_allowed=r'!?"\'+=:;@#~[]{}()*&^%$,'
         ignored = ""
         data = {
-            'name': u'eats, shoots, and leaves',
             'revision_timestamp': ignored,
             'state': ignored
-            }
-
-        _, errors = validate(data, default_tags_schema(), self.context)
-        assert errors, pprint(errors)
-        assert 'name' in errors
-        error_message = errors['name'][0]
-        assert data['name'] in error_message
-        assert "must not contain commas" in error_message
-
+        }
+        for ch in not_allowed:
+            data['name'] = "Character " + ch
+            _, errors = validate(data, default_tags_schema(), self.context)
+            assert errors, pprint(errors)
+            assert 'name' in errors
+            error_message = errors['name'][0]
+            assert data['name'] in error_message, error_message
+            assert "must be alphanumeric" in error_message
 

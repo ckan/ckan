@@ -79,12 +79,12 @@ class TestTagController(TestController):
     def test_search_with_unicode_term(self):
         offset = url_for(controller='tag', action='index', id=None)
         res = self.app.get(offset)
-        search_term = u' \u0489!'.encode('utf8')
+        search_term = u' \u30a1'.encode('utf8')
         fv = res.forms['tag-search']
         fv['q'] =  str(search_term)
         res = fv.submit()
         assert 'There are <strong>1</strong> results' in res, res
-        assert u'Flexible \u0489!' in res, res
+        assert u'Flexible \u30a1' in res, res
 
     def test_autocomplete(self):
         controller = 'api'
@@ -107,7 +107,7 @@ class TestTagController(TestController):
         offset = url_for(controller=controller, action=action, incomplete='Flex')
         res = self.app.get(offset)
         data = json.loads(res.body)
-        assert u'Flexible \u0489!' in data['ResultSet']['Result'][0].values()
+        assert u'Flexible \u30a1' in data['ResultSet']['Result'][0].values()
         
     def test_autocomplete_with_space_in_search_term(self):
         controller = 'api'
@@ -115,13 +115,13 @@ class TestTagController(TestController):
         offset = url_for(controller=controller, action=action, incomplete='Flexible ')
         res = self.app.get(offset)
         data = json.loads(res.body)
-        assert u'Flexible \u0489!' in data['ResultSet']['Result'][0].values()
+        assert u'Flexible \u30a1' in data['ResultSet']['Result'][0].values()
         
     def test_autocomplete_with_unicode_in_search_term(self):
         controller = 'api'
         action = 'tag_autocomplete'
-        offset = url_for(controller=controller, action=action, incomplete=u'ible \u0489!')
+        offset = url_for(controller=controller, action=action, incomplete=u'ible \u30a1')
         res = self.app.get(offset)
         data = json.loads(res.body)
-        assert u'Flexible \u0489!' in data['ResultSet']['Result'][0].values()
+        assert u'Flexible \u30a1' in data['ResultSet']['Result'][0].values()
 

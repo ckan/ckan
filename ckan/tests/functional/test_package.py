@@ -262,7 +262,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         pkg_by_name_main = self.named_div('dataset', res)
         pkg_by_id_main = self.named_div('dataset', res_by_id)
         # rename some things which may be in the wrong order sometimes
-        txt_order_non_deterministic = (u'Flexible \u0489!', 'russian', 'tolstoy', 'david', 'roger')
+        txt_order_non_deterministic = (u'Flexible \u30a1', 'russian', 'tolstoy', 'david', 'roger')
         for txt in txt_order_non_deterministic:
             for pkg_ in (pkg_by_name_main, pkg_by_id_main):
                 pkg_ = pkg_.replace(txt, 'placeholder')
@@ -288,7 +288,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         self.check_tag_and_data(res, 'left arrow', '&lt;')
         self.check_tag_and_data(res, 'umlaut', u'\xfc')
         #assert 'OKD Compliant::' in res
-        assert u'Flexible \u0489!' in res, res
+        assert u'Flexible \u30a1' in res, res
         assert 'russian' in res
         assert 'david' in res
         assert 'roger' in res
@@ -308,7 +308,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         CreateTestData.create_arbitrary([
             {'name':pkg_name,
              'notes':'Decoy link here: decoy:decoy, real links here: package:pkg-1, ' \
-                   'tag:tag_1 group:test-group-1 and a multi-word tag: tag:"multi word with punctuation!"',
+                   'tag:tag_1 group:test-group-1 and a multi-word tag: tag:"multi word with punctuation."',
              }
             ])
         offset = url_for(controller='package', action='read', id=pkg_name)
@@ -319,7 +319,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
                                     '%s:%s' % (controller, id))
         check_link(res, 'package', 'pkg-1')
         check_link(res, 'tag', 'tag_1')
-        check_link(res, 'tag', '"multi word with punctuation!"')
+        check_link(res, 'tag', '"multi word with punctuation."')
         check_link(res, 'group', 'test-group-1')
         assert 'decoy</a>' not in res, res
         assert 'decoy"' not in res, res
@@ -428,7 +428,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         rev.timestamp = cls.date3
         pkg = model.Package.by_name(cls.pkg_name)
         pkg.title = u'title3'
-        pkg.add_tag_by_name(u'tag3!')
+        pkg.add_tag_by_name(u'tag3.')
         pkg.extras['key2'] = u'value3'
         model.repo.commit_and_remove()
 
@@ -452,7 +452,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3!' in side_html
+        assert 'tag3.' in side_html
         assert 'tag 2' in side_html
 
     def test_read_date1(self):
@@ -463,7 +463,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'title1' in res, res
         assert 'key2' not in pkg_html, pkg_html
         assert 'value3' not in pkg_html, pkg_html
-        assert 'tag3!' not in side_html, side_html
+        assert 'tag3.' not in side_html, side_html
         assert 'tag 2' not in side_html, side_html
 
     def test_read_date2(self):
@@ -477,7 +477,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value2' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3!' not in side_html
+        assert 'tag3.' not in side_html
         assert 'tag 2' in side_html
 
     def test_read_date3(self):
@@ -490,7 +490,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3!' in side_html
+        assert 'tag3.' in side_html
         assert 'tag 2' in side_html
 
     def test_read_date_before_created(self):
@@ -520,7 +520,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' not in pkg_html
         assert 'value3' not in pkg_html
         print 'SIDE', side_html
-        assert 'tag3!' not in side_html
+        assert 'tag3.' not in side_html
         assert 'tag 2' not in side_html
 
     def test_read_revision2(self):
@@ -538,7 +538,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value2' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3!' not in side_html
+        assert 'tag3.' not in side_html
         assert 'tag 2' in side_html
 
     def test_read_revision3(self):
@@ -557,7 +557,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3!' in side_html
+        assert 'tag3.' in side_html
         assert 'tag 2' in side_html
 
     def test_read_bad_revision(self):
@@ -1108,7 +1108,7 @@ class TestNew(TestPackageForm):
         download_url = u'http://something.com/somewhere-else.zip'
         notes = u'Very important'
         license_id = u'gpl-3.0'
-        tags = (u'tag1', u'tag2!', u'tag 3', u'SomeCaps')
+        tags = (u'tag1', u'tag2.', u'tag 3', u'SomeCaps')
         tags_txt = u','.join(tags)
         extras = {self.key1:self.value1, 'key2':'value2', 'key3':'value3'}
         log_message = 'This is a comment'

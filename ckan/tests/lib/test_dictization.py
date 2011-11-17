@@ -86,7 +86,7 @@ class TestBasicDictize:
                             u'webstore_last_updated': None,
                             u'webstore_url': None}],
             'state': u'active',
-            'tags': [{'name': u'Flexible \u0489!', 'state': u'active'},
+            'tags': [{'name': u'Flexible \u30a1', 'state': u'active'},
                      {'name': u'russian', 'state': u'active'},
                      {'name': u'tolstoy', 'state': u'active'}],
             'title': u'A Novel By Tolstoy',

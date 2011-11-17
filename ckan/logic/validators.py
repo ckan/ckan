@@ -153,9 +153,10 @@ def tag_length_validator(value, context):
 
 def tag_name_validator(value, context):
 
-    tagname_match = re.compile('[^,"]*$', re.UNICODE)
+    tagname_match = re.compile('[\w \-.]*$', re.UNICODE)
     if not tagname_match.match(value):
-        raise Invalid(_('Tag "%s" must not contain commas nor quotes' % value))
+        raise Invalid(_('Tag "%s" must be alphanumeric '
+                        'characters, spaces, or symbols: -_.') % (value))
     return value
 
 def tag_not_uppercase(value, context):

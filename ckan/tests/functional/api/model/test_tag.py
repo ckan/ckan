@@ -29,7 +29,7 @@ class TagsTestCase(BaseModelApiTestCase):
         """
         Asserts that searching for a tag name with spaces and punctuation works.
 
-        The tag name is u'Flexible \u0489!', and both the 'warandpeace'
+        The tag name is u'Flexible \u30a1', and both the 'warandpeace'
         and 'annakarenina' packages should be returned.
         """
         offset = self.tag_offset(self.flexible_tag.name)

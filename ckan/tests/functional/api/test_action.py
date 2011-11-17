@@ -211,7 +211,7 @@ class TestAction(WsgiAppCase):
             json.loads(res.body),
             {'help': 'Returns a list of tags',
              'success': True,
-             'result': ['russian', 'tolstoy', u'Flexible \u0489!']})
+             'result': ['russian', 'tolstoy', u'Flexible \u30a1']})
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
         res = self.app.post('/api/action/tag_list', params=postparams)
@@ -222,7 +222,7 @@ class TestAction(WsgiAppCase):
         names = [ res_obj['result'][i]['name'] for i in xrange(len(res_obj['result'])) ]
         russian_index = names.index('russian')
         tolstoy_index = names.index('tolstoy')
-        flexible_index = names.index(u'Flexible \u0489!')
+        flexible_index = names.index(u'Flexible \u30a1')
 
         assert res_obj['result'][russian_index]['name'] == 'russian'
         assert res_obj['result'][tolstoy_index]['name'] == 'tolstoy'
@@ -238,7 +238,7 @@ class TestAction(WsgiAppCase):
         assert number_of_tolstoy_packages == 2, \
                'Expected 2 packages tagged with "tolstoy"' # moo , annakarenina
         assert number_of_flexible_packages == 2, \
-               u'Expected 2 packages tagged with "Flexible \u0489!"' # warandpeace , annakarenina
+               u'Expected 2 packages tagged with "Flexible \u30a1"' # warandpeace , annakarenina
 
         assert 'id' in res_obj['result'][0]
         assert 'id' in res_obj['result'][1]
@@ -263,13 +263,13 @@ class TestAction(WsgiAppCase):
         The flexible tag is the tag with spaces, punctuation and foreign
         characters in its name, that's created in `ckan/lib/create_test_data.py`.
         """
-        postparams = '%s=1' % json.dumps({'id':u'Flexible \u0489!'})
+        postparams = '%s=1' % json.dumps({'id':u'Flexible \u30a1'})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
         assert res_obj['help'] == 'Shows tag details'
         assert res_obj['success'] == True
         result = res_obj['result']
-        assert result['name'] == u'Flexible \u0489!'
+        assert result['name'] == u'Flexible \u30a1'
         assert 'id' in result
         assert 'packages' in result and len(result['packages']) == 2
         assert [package['name'] for package in result['packages']].sort() == ['annakarenina', 'warandpeace'].sort()

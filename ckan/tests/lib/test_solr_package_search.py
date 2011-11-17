@@ -127,27 +127,6 @@ class TestSearch(TestController):
         result = search.query_for(model.Package).run({'q': u'CAPITALS'})
         assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
 
-    def test_tags_field_with_the_special_character_exclamation_mark(self):
-        """
-        Asserts that a search for "surprise\\!" picks up the package with the "surprise!" tag.
-
-        The reason for escaping the exclamation mark is that '!' is a special
-        character in the solr query syntax.  And since we want to maintain being
-        able to run arbitrary solr searches through the package search, we
-        can't escape any special characters automatically. (As they may be
-        part of a genuine solr query expression).
-
-        The reason for this test is two-fold:
-
-         1. It asserts that it's possible to find a packages with a special
-            character within it, as long as the query is correct.
-
-         2. It exhibits this behaviour of it being necessary to escape special
-            solr characters.
-        """
-        result = search.query_for(model.Package).run({'q': u'surprise\\!'})
-        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
-
     def dont_test_tags_field_with_basic_unicode(self):
         result = search.query_for(model.Package).run({'q': u'greek omega \u03a9'})
         assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
@@ -182,7 +161,7 @@ class TestSearch(TestController):
         assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
 
     def test_tags_token_with_punctuation(self):
-        result = search.query_for(model.Package).run({'q': u'tags:"surprise!"'})
+        result = search.query_for(model.Package).run({'q': u'tags:"surprise."'})
         assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
 
     def dont_test_tags_token_with_basic_unicode(self):
@@ -353,7 +332,7 @@ class TestSearchOverall(TestController):
         self._check_search_results('groups:roger', 1)
         self._check_search_results('groups:lenny', 0)
         self._check_search_results('tags:"russian"', 2)
-        self._check_search_results(u'tags:"Flexible \u0489!"', 2)
+        self._check_search_results(u'tags:"Flexible \u30a1"', 2)
         
 
 class TestGeographicCoverage(TestController):
