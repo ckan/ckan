@@ -355,4 +355,51 @@ class TestValidation:
             fs = self._get_standard_fieldset().bind(anna, data=indict)
             out = fs.validate()
             assert not out, fs.errors
-            
+
+    def test_2_tag_names_are_stripped_of_leading_and_trailing_spaces(self):
+        """
+        Asserts that leading and trailing spaces are stripped from tag names
+        """
+        anna = model.Package.by_name(u'annakarenina')
+        prefix = 'Package-%s-' % anna.id
+        indict = _get_blank_param_dict(anna)
+        indict[prefix + 'name'] = u'annakarenina'
+
+        whitespace_characters = u'\t\n\r\f\v'
+        for ch in whitespace_characters:
+            indict[prefix + 'tags'] = ch + u'tag name' + ch
+            fs = self._get_standard_fieldset().bind(anna, data=indict)
+            out = fs.validate()
+            assert out, fs.errors
+
+            model.repo.new_revision()
+            fs.sync()
+            model.repo.commit_and_remove()
+            anna = model.Package.by_name(u'annakarenina')
+            taglist = [ tag.name for tag in anna.tags ]
+            assert len(taglist) == 1
+            assert u'tag name' in taglist
+
+    def test_3_tag_names_are_split_by_commas(self):
+        """
+        Asserts that tag names are split by commas.
+        """
+        anna = model.Package.by_name(u'annakarenina')
+        prefix = 'Package-%s-' % anna.id
+        indict = _get_blank_param_dict(anna)
+        indict[prefix + 'name'] = u'annakarenina'
+
+        indict[prefix + 'tags'] = u'tag name one, tag name two'
+        fs = self._get_standard_fieldset().bind(anna, data=indict)
+        out = fs.validate()
+        assert out, fs.errors
+
+        model.repo.new_revision()
+        fs.sync()
+        model.repo.commit_and_remove()
+        anna = model.Package.by_name(u'annakarenina')
+        taglist = [ tag.name for tag in anna.tags ]
+        assert len(taglist) == 2
+        assert u'tag name one' in taglist
+        assert u'tag name two' in taglist
+
