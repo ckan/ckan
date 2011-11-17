@@ -1,11 +1,13 @@
 import datetime
 from time import gmtime
 from calendar import timegm
+import logging
+logger = logging.getLogger(__name__)
 
 from sqlalchemy.sql import select, and_, union, expression, or_
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import types, Column, Table
-from pylons import config
+from pylons import config, session, c
 from meta import metadata, Session
 import vdm.sqlalchemy
 
@@ -14,6 +16,7 @@ from core import make_revisioned_table, Revision, State
 from license import License, LicenseRegister
 from domain_object import DomainObject
 import ckan.misc
+from activity import Activity, ActivityDetail
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_VERSION_MAX_LENGTH']
@@ -47,7 +50,7 @@ package_revision_table = make_revisioned_table(package_table)
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
-    
+
     text_search_fields = ['name', 'title']
 
     def __init__(self, **kw):
@@ -530,3 +533,36 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return fields
 
+    def activity_stream_item(self, activity_type, revision_id):
+        user_obj = c.user_obj
+        if user_obj:
+            user_id = user_obj.id
+        else:
+            # FIXME: Use IP address?
+            user_id = "not logged in"
+        logger.debug("user_id: %s" % user_id)
+        assert activity_type in ("new", "changed", "deleted"), \
+            str(activity_type)
+        if activity_type == "new":
+            return Activity(user_id, self.id, revision_id, "new package",
+                None)
+        elif activity_type == "changed":
+            return Activity(user_id, self.id, revision_id, "changed package",
+                None)
+        elif activity_type == "deleted":
+            return Activity(user_id, self.id, revision_id, "deleted package",
+                None)
+
+    def activity_stream_detail(self, activity_id, activity_type):
+        assert activity_type in ("new", "changed", "deleted"), \
+            str(activity_type)
+        if activity_type == "new":
+            # There are no detail views for new package activities.
+            return None
+        elif activity_type == "deleted":
+            # There are no detail views for deleted package activities.
+            return None
+        elif activity_type == "changed":
+            # TODO: Some data about _what_ changed in the package,
+            return ActivityDetail(activity_id, self.id, u"Package",
+                    activity_type, None)

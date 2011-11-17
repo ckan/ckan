@@ -9,6 +9,7 @@ from types import make_uuid, JsonDictType
 from core import *
 from package import *
 from ckan.model import extension
+from ckan.model.activity import ActivityDetail
 
 __all__ = ['Resource', 'resource_table', 
            'ResourceGroup', 'resource_group_table',
@@ -136,6 +137,9 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
     def related_packages(self):
         return [self.resource_group.package]
 
+    def activity_stream_detail(self, activity_id, activity_type):
+        return ActivityDetail(activity_id, self.id, u"Resource", activity_type,
+                None)
 
 class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,

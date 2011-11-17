@@ -15,6 +15,8 @@ from sqlalchemy.orm import relation, backref
 
 from ckan.model import extension
 
+from ckan.lib.activity import DatasetActivitySessionExtension
+
 class CkanSessionExtension(SessionExtension):
 
     def before_flush(self, session, flush_context, instances):
@@ -96,7 +98,8 @@ if sqav.startswith("0.4"):
         autoflush=False,
         transactional=True,
         extension=[CkanSessionExtension(),
-                   extension.PluginSessionExtension()],
+                   extension.PluginSessionExtension(),
+                   DatasetActivitySessionExtension()],
         ))
 else:
     Session = scoped_session(sessionmaker(
@@ -104,7 +107,8 @@ else:
         autocommit=False,
         expire_on_commit=False,
         extension=[CkanSessionExtension(),
-                   extension.PluginSessionExtension()],
+                   extension.PluginSessionExtension(),
+                   DatasetActivitySessionExtension()],
         ))
 
 #mapper = Session.mapper
