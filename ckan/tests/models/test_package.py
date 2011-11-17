@@ -214,7 +214,7 @@ class TestPackageTagSearch:
     def test_0_deleted_package_tags(self):
         pkg = model.Package.by_name(u'annakarenina')
         tag = model.Tag.by_name(self.tagname)
-        assert len(pkg.tags) == 3
+        assert len(pkg.tags) == 4
         assert len(tag.packages) == 0
 
     def test_1_tag_search_1(self):
