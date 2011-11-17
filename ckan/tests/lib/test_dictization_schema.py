@@ -213,3 +213,19 @@ class TestBasicDictize:
             assert data['name'] in error_message, error_message
             assert "must be alphanumeric" in error_message
 
+    def test_7_tag_schema_disallows_whitespace_other_than_spaces(self):
+        """Asserts whitespace characters, such as tabs, are not allowed."""
+        not_allowed = '\t\n\r\f\v'
+        ignored = ""
+        data = {
+            'revision_timestamp': ignored,
+            'state': ignored
+        }
+        for ch in not_allowed:
+            data['name'] = "Bad " + ch + " character"
+            _, errors = validate(data, default_tags_schema(), self.context)
+            assert errors, repr(ch)
+            assert 'name' in errors
+            error_message = errors['name'][0]
+            assert data['name'] in error_message, error_message
+            assert "must be alphanumeric" in error_message
