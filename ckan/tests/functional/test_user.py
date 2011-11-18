@@ -29,7 +29,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         CreateTestData.create_user('uncloser', about='<a href="http://unclosed.tag">')
         CreateTestData.create_user('spammer', about=u'<a href="http://mysite">mysite</a> <a href=\u201dhttp://test2\u201d>test2</a>')
         CreateTestData.create_user('spammer2', about=u'<a href="http://spamsite1.com\u201d>spamsite1</a>\r\n<a href="http://www.spamsite2.com\u201d>spamsite2</a>\r\n')
-        
+
     @classmethod
     def teardown_class(self):
         SmtpServerHarness.teardown_class()
@@ -124,7 +124,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'spammer2' in res, res
         assert 'spamsite2' not in res, res
         assert 'Error: Could not parse About text' in res, res
-        
+
     def test_user_login_page(self):
         offset = url_for(controller='user', action='login', id=None)
         res = self.app.get(offset, status=200)
@@ -145,7 +145,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
             if key == 'Set-Cookie':
                 cookie_headers.append(value)
         return cookie_headers
-        
+
     def test_login(self):
         # create test user
         username = u'testlogin'
@@ -165,7 +165,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # check cookies set
         cookies = self._get_cookie_headers(res)
         assert cookies
-        
+
         # first get redirected to user/logged_in
         assert_equal(res.status, 302)
         assert res.header('Location').startswith('http://localhost/user/logged_in')
@@ -178,7 +178,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert_equal(res.status, 200)
         assert 'testlogin is now logged in' in res.body
         assert 'My Account' in res.body
-        
+
         # check user object created
         user = model.User.by_name(username)
         assert user
@@ -250,7 +250,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
         # not logged in
         offset = url_for(controller='user', action='read', id=username)
-        res = self.app.get(offset) 
+        res = self.app.get(offset)
         assert not 'API key' in res
 
         offset = url_for(controller='user', action='read', id='okfntest')
@@ -277,7 +277,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['password1'] = password
         fv['password2'] = password
         res = fv.submit('save')
-        
+
         # view user
         assert res.status == 302, self.main_div(res).encode('utf8')
         res = res.follow()
@@ -298,7 +298,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert_equal(user.fullname, fullname)
         assert_equal(user.email, email)
         assert user.password
-        
+
         # no revision should be created - User is not revisioned
         rev_id_after_test = model.repo.youngest_revision().id
         assert_equal(rev_id_before_test, rev_id_after_test)
@@ -331,7 +331,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['password1'] = password.encode('utf8')
         fv['password2'] = password.encode('utf8')
         res = fv.submit('save')
-        
+
         # view user
         assert res.status == 302, self.main_div(res).encode('utf8')
         res = res.follow()
@@ -383,7 +383,28 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = fv.submit('save')
         assert res.status == 200, res
         main_res = self.main_div(res)
-        assert 'login name is not valid' in main_res, main_res
+        assert 'The form contains invalid entries' in main_res, main_res
+        assert 'Url must be purely lowercase alphanumeric' in main_res
+        self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
+
+    def test_user_create_existing_name(self):
+        # create/register user
+        username = u'annafan'
+        password = 'testpass'
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['user-edit']
+        fv['name'] = username
+        fv['password1'] = password
+        fv['password2'] = password
+        res = fv.submit('save')
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert 'The form contains invalid entries' in main_res, main_res
+        assert 'That login name is not available' in main_res
         self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
 
     def test_user_create_bad_password(self):
@@ -443,7 +464,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'Password: Please enter both passwords' in main_res, main_res
         self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
 
-    def test_user_invalid_password(self):
+    def test_user_create_invalid_password(self):
         # create/register user
         username = 'testcreate4'
         password = u'tes' # Too short
@@ -462,6 +483,25 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         main_res = self.main_div(res)
         assert 'Password: Your password must be 4 characters or longer' in main_res, main_res
         self.check_named_element(main_res, 'input', 'name="name"', 'value="%s"' % username)
+
+    def test_user_create_missing_parameters(self):
+        # create/register user
+        username = 'testcreate4'
+        user = model.User.by_name(unicode(username))
+        password = u'testpassword'
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['user-edit']
+        fv['name'] = username
+        fv['password1'] = password
+        fv['password2'] = password
+        del fv.fields['email']
+        res = fv.submit('save')
+        assert "Errors in form" in res.body
+        assert "Email: Missing value" in res.body
 
     def test_user_edit(self):
         # create user
@@ -492,7 +532,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['password2'] = new_password
 
         # commit
-        res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})
         assert res.status == 302, self.main_div(res).encode('utf8')
         res = res.follow()
         main_res = self.main_div(res)
@@ -524,7 +564,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
 
-        old_password = user.password    
+        old_password = user.password
 
         # edit
         new_about = u'Changed about'
@@ -539,7 +579,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['password2'] = ''
 
         # commit
-        res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})
         assert res.status == 302, self.main_div(res).encode('utf8')
         res = res.follow()
         main_res = self.main_div(res)
@@ -557,6 +597,60 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
         # Ensure password has not changed
         assert old_password == new_password
+
+    def test_user_edit_no_name(self):
+        # create user
+        username = 'testedit3'
+        about = u'Test About'
+        user = model.User.by_name(unicode(username))
+        if not user:
+            model.Session.add(model.User(name=unicode(username), about=about,
+                email=u'me@test.org',
+                password='letmein'))
+            model.repo.commit_and_remove()
+            user = model.User.by_name(unicode(username))
+
+        old_password = user.password
+
+        # edit
+        offset = url_for(controller='user', action='edit', id=user.id)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
+        main_res = self.main_div(res)
+        assert 'Edit User: ' in main_res, main_res
+        fv = res.forms['user-edit']
+        fv['name'] = ''
+
+        # commit
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})
+        assert res.status == 200
+        main_res = self.main_div(res)
+        assert 'Name: Missing value' in main_res, main_res
+
+    def test_user_edit_existing_user_name(self):
+        # create user
+        username = 'testedit3'
+        about = u'Test About'
+        user = model.User.by_name(unicode(username))
+        if not user:
+            model.Session.add(model.User(name=unicode(username), about=about,
+                email=u'me@test.org',
+                password='letmein'))
+            model.repo.commit_and_remove()
+            user = model.User.by_name(unicode(username))
+
+        # edit
+        offset = url_for(controller='user', action='edit', id=user.id)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
+        main_res = self.main_div(res)
+        assert 'Edit User: ' in main_res, main_res
+        fv = res.forms['user-edit']
+        fv['name'] = 'annafan'
+
+        # commit
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})
+        assert res.status == 200
+        main_res = self.main_div(res)
+        assert 'Name: That login name is not available' in main_res, main_res
 
     def test_user_edit_no_user(self):
         offset = url_for(controller='user', action='edit', id=None)
@@ -601,7 +695,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'Test About &lt;a href="http://spamsite.net"&gt;spamsite&lt;/a&gt;' in main_res, main_res
         fv = res.forms['user-edit']
         # commit
-        res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})
         assert res.status == 200, res.status
         main_res = self.main_div(res)
         assert 'looks like spam' in main_res, main_res
@@ -677,7 +771,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
     def test_reset_user_password_link(self):
         # Set password
         CreateTestData.create_user(name='bob', email='bob@bob.net', password='test1')
-        
+
         # Set password to something new
         model.User.by_name(u'bob').password = 'test2'
         model.repo.commit_and_remove()

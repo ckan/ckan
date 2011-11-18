@@ -14,6 +14,7 @@ task_status_table = Table('task_status', metadata,
     Column('key', UnicodeText, nullable=False),
     Column('value', UnicodeText, nullable=False),
     Column('state', UnicodeText),
+    Column('error', UnicodeText),
     Column('last_updated', DateTime, default=datetime.now),
     sa.UniqueConstraint('entity_id', 'task_type', 'key')
 )

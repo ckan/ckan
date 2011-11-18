@@ -37,6 +37,20 @@ And to get more detailed help on each command (e.g. on ``db``)::
   paster --plugin=ckan --help db
 
 
+Paster executable
+-----------------
+
+It is essential to run the correct paster. The program may be installed globally on a server, but in nearly all cases, the one installed in the CKAN python virtual environment (pyenv) is the one that should be used instead. This can be done by either:
+
+1. Activating the virtual environment::
+
+    . pyenv/bin/activate
+
+2. Giving the path to paster when you run it::
+   
+    pyenv/bin/paster ... 
+
+
 Position of Paster Parameters
 -----------------------------
 
@@ -121,6 +135,24 @@ You can delete everything in the CKAN database, including the tables, to start f
 
 The next logical step from this point is to do a "db init" step before starting CKAN again.
 
+Dumping and Loading databases to/from a file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can 'dump' (save) the exact state of the database to a file on disk and at a later point 'load' (restore) it again, or load it on another machine.
+
+To write the dump::
+
+ paster --plugin=ckan db dump --config=/etc/ckan/std/std.ini std.pg_dump
+
+To load it in again, you first have to clean the database of existing data (be careful not to wipe valuable data), followed by the load::
+
+ paster --plugin=ckan db clean --config=/etc/ckan/std/std.ini std.pg_dump
+ paster --plugin=ckan db load --config=/etc/ckan/std/std.ini std.pg_dump
+
+.. warning: The pg_dump file is a complete backup of the database in plain text, and includes API keys and other user data which may be regarded as private. So keep it secure, like your database server.
+
+The pg_dump file notes which PostgreSQL user 'owns' the data on the server. Because the PostgreSQL user (by default) is identified as the current Linux user, and this is setup to be ``ckanINSTANCE`` where ``INSTANCE`` is the name of the CKAN instance. This means if you want to restore the pg_dump as another CKAN instance name (often needed if you move it to another server) then you will need to change the database owner - see :doc:`editing_the_database_ownership`.
+
 Upgrade migration
 ~~~~~~~~~~~~~~~~~
 
@@ -171,7 +203,7 @@ The ``roles`` command has its own section: see :doc:`authorization`.
 search-index: Rebuild search index
 ----------------------------------
 
-Rebuilds the search index defined in the :ref:`config-search-backend` config setting. This is useful to prevent search indexes from getting out of sync with the main database.
+Rebuilds the search index. This is useful to prevent search indexes from getting out of sync with the main database.
 
 For example::
 

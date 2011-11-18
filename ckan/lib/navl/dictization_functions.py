@@ -332,7 +332,33 @@ def flatten_dict(data, flattened=None, old_key=None):
 
 
 def unflatten(data):
-    '''unflatten a simple dict whos keys are tuples'''
+    '''Unflatten a simple dict whose keys are tuples.
+
+    e.g.
+    >>> unflatten(
+      {('name',): u'testgrp4',
+       ('title',): u'',
+       ('description',): u'',
+       ('packages', 0, 'name'): u'testpkg',
+       ('packages', 1, 'name'): u'testpkg',
+       ('extras', 0, 'key'): u'packages',
+       ('extras', 0, 'value'): u'["testpkg"]',
+       ('extras', 1, 'key'): u'',
+       ('extras', 1, 'value'): u'',
+       ('state',): u'active'
+       ('save',): u'Save Changes',
+       ('cancel',): u'Cancel'})
+    {'name': u'testgrp4',
+     'title': u'',
+     'description': u'',
+     'packages': [{'name': u'testpkg'}, {'name': u'testpkg'}],
+     'extras': [{'key': u'packages', 'value': u'["testpkg"]'},
+                {'key': u'', 'value': u''}],
+     'state': u'active',
+     'save': u'Save Changes',
+     'cancel': u'Cancel'}
+    
+    '''
 
     unflattened = {}
 

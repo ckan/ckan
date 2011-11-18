@@ -32,7 +32,7 @@ from ckan.logic.validators import (package_id_not_changed,
 from formencode.validators import OneOf
 import ckan.model
 
-    
+
 def default_resource_schema():
 
     schema = {
@@ -211,7 +211,7 @@ def default_user_schema():
 
     schema = {
         'id': [ignore_missing, unicode],
-        'name': [not_empty, unicode, user_name_validator],
+        'name': [not_empty, name_validator, user_name_validator, unicode],
         'fullname': [ignore_missing, unicode],
         'password': [user_password_validator, user_password_not_empty, ignore_missing, unicode],
         'email': [not_empty, unicode],
@@ -225,7 +225,7 @@ def default_user_schema():
 
 def user_new_form_schema():
     schema = default_user_schema()
-    
+
     schema['password1'] = [unicode,user_both_passwords_entered,user_password_validator,user_passwords_match]
     schema['password2'] = [unicode]
 
@@ -234,7 +234,6 @@ def user_new_form_schema():
 def user_edit_form_schema():
     schema = default_user_schema()
 
-    schema['name'] = [ignore_missing]
     schema['password'] = [ignore_missing]
     schema['password1'] = [ignore_missing,unicode,user_password_validator,user_passwords_match]
     schema['password2'] = [ignore_missing,unicode]
@@ -243,9 +242,10 @@ def user_edit_form_schema():
 
 def default_update_user_schema():
     schema = default_user_schema()
-    
-    schema['name'] = [ignore_missing]
+
+    schema['name'] = [ignore_missing, name_validator, user_name_validator, unicode]
     schema['password'] = [user_password_validator,ignore_missing, unicode]
+
     return schema
 
 def default_task_status_schema():
@@ -255,8 +255,9 @@ def default_task_status_schema():
         'entity_type': [not_empty, unicode],
         'task_type': [not_empty, unicode],
         'key': [not_empty, unicode],
-        'value': [not_missing],
+        'value': [ignore_missing],
         'state': [ignore_missing],
-        'last_updated': [ignore_missing]
+        'last_updated': [ignore_missing],
+        'error': [ignore_missing]
     }
     return schema

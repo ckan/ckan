@@ -19,7 +19,7 @@ from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
-from ckan.i18n import get_available_locales
+from i18n import get_available_locales
 
 
 
@@ -105,6 +105,10 @@ class _Flash(object):
         session.save()
         return [Message(*m) for m in messages]
 
+    def are_there_messages(self):
+        from pylons import session
+        return bool(session.get(self.session_key))
+
 _flash = _Flash()
 
 def flash_notice(message, allow_html=False): 
@@ -115,6 +119,9 @@ def flash_error(message, allow_html=False):
 
 def flash_success(message, allow_html=False): 
     _flash(message, category='success', allow_html=allow_html)
+
+def are_there_flash_messages():
+    return _flash.are_there_messages()
 
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):
@@ -188,7 +195,11 @@ def linked_user(user, maxlength=0):
             return user_name
     if user:
         _name = user.name if model.User.VALID_NAME.match(user.name) else user.id
-        _icon = icon("user") + " "
+        # Absolute URL of default user icon
+        from pylons import config 
+        _site_url = config.get('ckan.site_url', '')
+        _icon_url_default = _site_url + icon_url("user")
+        _icon = gravatar(user.email_hash, 16, _icon_url_default)+" "
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
@@ -212,13 +223,17 @@ def markdown_extract(text):
 def icon_url(name):
     return '/images/icons/%s.png' % name
 
-def icon(name, alt=None):
-    return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (icon_url(name), alt))
+def icon_html(url, alt=None):
+    return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (url, alt))
 
-def gravatar(email_hash, size=100):
-    return literal('''<a href="http://gravatar.com" target="_blank">
-      <img src="http://gravatar.com/avatar/%s?s=%d&amp;d=mm" />
-    </a>''' % (email_hash, size))
+def icon(name, alt=None):
+    return icon_html(icon_url(name),alt)
+
+def linked_gravatar(email_hash, size=100, default="mm"):
+    return literal('<a href="http://gravatar.com" target="_blank">%s</a>' % gravatar(email_hash,size,default))
+
+def gravatar(email_hash, size=100, default="mm"):
+    return literal('<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s" />' % (email_hash, size, default))
 
 
 class Page(paginate.Page):

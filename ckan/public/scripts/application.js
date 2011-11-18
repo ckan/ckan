@@ -20,7 +20,7 @@
 
     var isFrontPage = $('body.index.home').length > 0;
     if (isFrontPage) {
-      CKAN.Utils.setupTopBar($('.top-bar'));
+      CKAN.Utils.setupWelcomeBanner($('.js-welcome-banner'));
     }
 
     var isDatasetView = $('body.package.read').length > 0;
@@ -106,17 +106,16 @@ CKAN.Utils = function($, my) {
     input.change(callback);
   };
 
-  my.setupTopBar = function(topBar) {
+  my.setupWelcomeBanner = function(banner) {
 
     var cookieName = 'ckan_killtopbar';
     var isKilled = ($.cookie(cookieName)!=null);
     if (!isKilled) {
-      topBar.show();
+      banner.show();
       // Bind to the close button
-      topBar.find('.js-kill-button').live('click', function() {
-        console.log('killing top-bar');
+      banner.find('.js-kill-button').live('click', function() {
         $.cookie(cookieName, 'true', { expires: 365 });
-        topBar.hide();
+        banner.hide();
       });
     }
   };
@@ -126,7 +125,7 @@ CKAN.Utils = function($, my) {
     var titleInput = $('.js-title');
     var urlText = $('.js-url-text');
     var urlSuffix = $('.js-url-suffix');
-    var urlInput = $('.js-url-input');
+    var urlInput = $('.js-url-slug-editor');
     var validMsg = $('.js-url-is-valid');
 
     var api_url = '/api/2/util/is_slug_valid';
@@ -411,10 +410,10 @@ CKAN.Utils = function($, my) {
   my.setupDatasetEditNavigation = function() {
 
     function showSection(sectionToShowId) {
-      $('.dataset fieldset').hide();
-      $('.dataset fieldset#'+sectionToShowId).show();
-      $('.edit-form-navigation li a').removeClass('active');
-      $('.edit-form-navigation li a[href=#section-'+sectionToShowId+']').addClass('active');
+      $('.dataset-edit-form fieldset').hide();
+      $('.dataset-edit-form fieldset#'+sectionToShowId).show();
+      $('.dataset-edit-nav li a').removeClass('active');
+      $('.dataset-edit-nav li a[href=#section-'+sectionToShowId+']').addClass('active');
       window.location.hash = 'section-'+sectionToShowId;
     }
 
@@ -424,7 +423,7 @@ CKAN.Utils = function($, my) {
     showSection(initialSection);
     
     // Adjust form state on click
-    $('.edit-form-navigation li a').live('click', function(e) {
+    $('.dataset-edit-nav li a').live('click', function(e) {
       var $el = $(e.target);
       // Prefix="#section-"
       var showMe = $el.attr('href').slice(9);
@@ -632,7 +631,7 @@ CKAN.View.ResourceAddTabs = Backbone.View.extend({
       this.reset();
       $target.addClass('depressed');
 
-      var $subPane = $('<div />').addClass('resource-add-subpane');
+      var $subPane = $('<div />').addClass('subpane');
       this.el.append($subPane);
 
       var tempResource = new CKAN.Model.Resource({});

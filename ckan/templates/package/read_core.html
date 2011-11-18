@@ -25,7 +25,7 @@
             <td>
               <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
                 <py:if test="res.get('name') or res.get('description')">
-                  <span property="rdfs:label">${res.get('name') or res.get('description')}</span>
+                  <span property="rdfs:label">${res.get('description') or res.get('name')}</span>
                 </py:if>
                 <py:if test="not(res.get('name') or res.get('description'))">
                   <em>(none)</em>

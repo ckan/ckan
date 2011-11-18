@@ -1,7 +1,9 @@
 from sqlalchemy.sql import select
 from sqlalchemy import or_, and_, func, desc, case
 import uuid
+from pylons import config
 
+import ckan
 from ckan.logic import NotFound
 from ckan.logic import check_access
 from ckan.plugins import (PluginImplementations,
@@ -29,6 +31,31 @@ from ckan.lib.search import query_for, SearchError
 import logging
 
 log = logging.getLogger('ckan.logic')
+
+def _package_list_with_resources(context, package_revision_list):
+    package_list = []
+    model = context["model"]
+    for package in package_revision_list:
+        result_dict = table_dictize(package, context)
+        res_rev = model.resource_revision_table
+        resource_group = model.resource_group_table
+        query = select([res_rev], from_obj = res_rev.join(resource_group,
+                   resource_group.c.id == res_rev.c.resource_group_id))
+        query = query.where(resource_group.c.package_id == package.id)
+        result = query.where(res_rev.c.current == True).execute()
+        result_dict["resources"] = resource_list_dictize(result, context)
+        license_id = result_dict['license_id']
+        if license_id:
+            try:
+                isopen = model.Package.get_license_register()[license_id].isopen()
+                result_dict['isopen'] = isopen
+            except KeyError:
+                # TODO: create a log message this error?
+                result_dict['isopen'] = False
+        else:
+            result_dict['isopen'] = False
+        package_list.append(result_dict)
+    return package_list
 
 def site_read(context,data_dict=None):
     check_access('site_read',context,data_dict)
@@ -66,28 +93,7 @@ def current_package_list_with_resources(context, data_dict):
     if limit:
         query = query.limit(limit)
     pack_rev = query.all()
-    package_list = []
-    for package in pack_rev:
-        result_dict = table_dictize(package, context)
-        res_rev = model.resource_revision_table
-        resource_group = model.resource_group_table
-        query = select([res_rev], from_obj = res_rev.join(resource_group,
-                   resource_group.c.id == res_rev.c.resource_group_id))
-        query = query.where(resource_group.c.package_id == package.id)
-        result = query.where(res_rev.c.current == True).execute()
-        result_dict["resources"] = resource_list_dictize(result, context)
-        license_id = result_dict['license_id']
-        if license_id:
-            try:
-                isopen = model.Package.get_license_register()[license_id].isopen()
-                result_dict['isopen'] = isopen
-            except KeyError:
-                # TODO: create a log message this error?
-                result_dict['isopen'] = False
-        else:
-            result_dict['isopen'] = False
-        package_list.append(result_dict)
-    return package_list
+    return _package_list_with_resources(context, pack_rev)
 
 def revision_list(context, data_dict):
 
@@ -121,20 +127,27 @@ def group_list(context, data_dict):
     user = context['user']
     api = context.get('api_version') or '1'
     ref_group_by = 'id' if api == '2' else 'name';
-
+    order_by = data_dict.get('order_by', 'name')
+    if order_by not in set(('name', 'packages')):
+        raise ValidationError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
    
     check_access('group_list',context, data_dict)
 
-    # We need Groups for group_list_dictize
     query = model.Session.query(model.Group).join(model.GroupRevision)
     query = query.filter(model.GroupRevision.state=='active')
     query = query.filter(model.GroupRevision.current==True)
-    query = query.order_by(model.Group.name.asc())
-    query = query.order_by(model.Group.title.asc())
 
+    if order_by == 'name':
+        query = query.order_by(model.Group.name.asc())
+        query = query.order_by(model.Group.title.asc())
 
     groups = query.all()
+
+    if order_by == 'packages':
+        groups = sorted(query.all(),
+                        key=lambda g: len(g.packages),
+                        reverse=True)
 
     if not all_fields:
         group_list = [getattr(p, ref_group_by) for p in groups]
@@ -149,7 +162,6 @@ def group_list_authz(context, data_dict):
 
     If 'available_only' is specified, the existing groups in the package are
     removed.
-
     '''
     model = context['model']
     user = context['user']
@@ -157,7 +169,6 @@ def group_list_authz(context, data_dict):
 
     check_access('group_list_authz',context, data_dict)
 
-    from ckan.authz import Authorizer
     query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
     groups = set(query.all())
     
@@ -402,6 +413,34 @@ def group_show(context, data_dict):
 
     return group_dict
 
+def group_package_show(context, data_dict):
+    """
+    Shows all packages belonging to a group.
+    """
+    model = context["model"]
+    user = context["user"]
+    id = data_dict['id']
+    limit = data_dict.get("limit")
+
+    group = model.Group.get(id)
+    context['group'] = group
+    if group is None:
+        raise NotFound
+
+    check_access('group_show', context, data_dict)
+
+    query = model.Session.query(model.PackageRevision)\
+        .filter(model.PackageRevision.state=='active')\
+        .filter(model.PackageRevision.current==True)\
+        .join(model.PackageGroup, model.PackageGroup.package_id==model.PackageRevision.id)\
+        .join(model.Group, model.Group.id==model.PackageGroup.group_id)\
+        .filter_by(id=group.id)
+
+    query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
+    if limit:
+        query = query.limit(limit)
+    pack_rev = query.all()
+    return _package_list_with_resources(context, pack_rev)
 
 def tag_show(context, data_dict):
     '''Shows tag details'''
@@ -760,11 +799,19 @@ def tag_search(context, data_dict):
 
 def task_status_show(context, data_dict):
     model = context['model']
-    id = data_dict['id']
+    id = data_dict.get('id')
 
-    query = model.Session.query(model.TaskStatus)
+    if id:
+        task_status = model.TaskStatus.get(id)
+    else:
+        query = model.Session.query(model.TaskStatus)\
+            .filter(and_(
+                model.TaskStatus.entity_id == data_dict['entity_id'],
+                model.TaskStatus.task_type == data_dict['task_type'],
+                model.TaskStatus.key == data_dict['key']
+            ))
+        task_status = query.first()
 
-    task_status = model.TaskStatus.get(id)
     context['task_status'] = task_status
 
     if task_status is None:
@@ -792,3 +839,14 @@ def get_site_user(context, data_dict):
             model.Session.commit()
     return {'name': user.name,
             'apikey': user.apikey}
+
+def status_show(context, data_dict):
+    '''Provides information about the operation of this CKAN instance.'''
+    return {
+        'site_title': config.get('ckan.site_title'),
+        'site_description': config.get('ckan.site_description'),
+        'site_url': config.get('ckan.site_url'),
+        'ckan_version': ckan.__version__,
+        'error_emails_to': config.get('email_to'),
+        'locale_default': config.get('ckan.locale_default'),
+        }

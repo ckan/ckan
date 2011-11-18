@@ -1,12 +1,14 @@
+import re
 import json
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
 
+import ckan
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.dictization.model_dictize import resource_dictize
 import ckan.model as model
 from ckan.tests import WsgiAppCase
-from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering 
+from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering
 from ckan.logic import get_action, NotAuthorized
 
 class TestAction(WsgiAppCase):
@@ -19,7 +21,7 @@ class TestAction(WsgiAppCase):
     STATUS_409_CONFLICT = 409
 
     sysadmin_user = None
-    
+
     normal_user = None
 
     @classmethod
@@ -57,7 +59,35 @@ class TestAction(WsgiAppCase):
             {"help": "Lists packages by name or id",
              "success": True,
              "result": ["annakarenina", "warandpeace"]})
-        
+
+    def test_01_package_show(self):
+        anna_id = model.Package.by_name(u'annakarenina').id
+        postparams = '%s=1' % json.dumps({'id': anna_id})
+        res = self.app.post('/api/action/package_show', params=postparams)
+        res_dict = json.loads(res.body)
+        assert_equal(res_dict['success'], True)
+        assert_equal(res_dict['help'], None)
+        pkg = res_dict['result']
+        assert_equal(pkg['name'], 'annakarenina')
+        missing_keys = set(('title', 'groups')) - set(pkg.keys())
+        assert not missing_keys, missing_keys
+
+    def test_01_package_show_with_jsonp(self):
+        anna_id = model.Package.by_name(u'annakarenina').id
+        postparams = '%s=1' % json.dumps({'id': anna_id})
+        res = self.app.post('/api/action/package_show?callback=jsoncallback', params=postparams)
+
+        assert re.match('jsoncallback\(.*\);', res.body), res
+        # Unwrap JSONP callback (we want to look at the data).
+        msg = res.body[len('jsoncallback')+1:-2]
+        res_dict = json.loads(msg)
+        assert_equal(res_dict['success'], True)
+        assert_equal(res_dict['help'], None)
+        pkg = res_dict['result']
+        assert_equal(pkg['name'], 'annakarenina')
+        missing_keys = set(('title', 'groups')) - set(pkg.keys())
+        assert not missing_keys, missing_keys
+
     def test_02_package_autocomplete(self):
         postparams = '%s=1' % json.dumps({'q':'war'})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
@@ -366,6 +396,7 @@ class TestAction(WsgiAppCase):
 
     def test_12_user_update(self):
         normal_user_dict = {'id': self.normal_user.id,
+                            'name': self.normal_user.name,
                             'fullname': 'Updated normal user full name',
                             'email': 'me@test.org',
                             'about':'Updated normal user about'}
@@ -373,7 +404,7 @@ class TestAction(WsgiAppCase):
         sysadmin_user_dict = {'id': self.sysadmin_user.id,
                             'fullname': 'Updated sysadmin user full name',
                             'email': 'me@test.org',
-                            'about':'Updated sysadmin user about'} 
+                            'about':'Updated sysadmin user about'}
 
         #Normal users can update themselves
         postparams = '%s=1' % json.dumps(normal_user_dict)
@@ -439,6 +470,39 @@ class TestAction(WsgiAppCase):
             'success': False
         }
 
+    def test_12_user_update_errors(self):
+        test_calls = (
+            # Empty name
+                {'user_dict': {'id': self.normal_user.id,
+                          'name':'',
+                          'email':'test@test.com'},
+                 'messages': [('name','Name must be at least 2 characters long')]},
+
+            # Invalid characters in name
+                {'user_dict': {'id': self.normal_user.id,
+                          'name':'i++%',
+                          'email':'test@test.com'},
+                 'messages': [('name','Url must be purely lowercase alphanumeric')]},
+            # Existing name
+                {'user_dict': {'id': self.normal_user.id,
+                          'name':self.sysadmin_user.name,
+                          'email':'test@test.com'},
+                 'messages': [('name','That login name is not available')]},
+            # Missing email
+                {'user_dict': {'id': self.normal_user.id,
+                          'name':self.normal_user.name},
+                 'messages': [('email','Missing value')]},
+                 )
+
+        for test_call in test_calls:
+            postparams = '%s=1' % json.dumps(test_call['user_dict'])
+            res = self.app.post('/api/action/user_update', params=postparams,
+                                extra_environ={'Authorization': str(self.normal_user.apikey)},
+                                status=self.STATUS_409_CONFLICT)
+            res_obj = json.loads(res.body)
+            for expected_message in test_call['messages']:
+                assert expected_message[1] in ''.join(res_obj['error'][expected_message[0]])
+
     def test_13_group_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/group_list', params=postparams)
@@ -453,7 +517,7 @@ class TestAction(WsgiAppCase):
                 'help': 'Returns a list of groups',
                 'success': True
             })
-        
+
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
         res = self.app.post('/api/action/group_list', params=postparams)
@@ -468,6 +532,27 @@ class TestAction(WsgiAppCase):
         assert 'id' in res_obj['result'][0]
         assert 'revision_id' in res_obj['result'][0]
         assert 'state' in res_obj['result'][0]
+
+    def test_13_group_list_by_size(self):
+        postparams = '%s=1' % json.dumps({'order_by': 'packages'})
+        res = self.app.post('/api/action/group_list',
+                            params=postparams)
+        res_obj = json.loads(res.body)
+        assert_equal(res_obj['result'], ['david',
+                                         'roger'])
+
+    def test_13_group_list_by_size_all_fields(self):
+        postparams = '%s=1' % json.dumps({'order_by': 'packages',
+                                          'all_fields': 1})
+        res = self.app.post('/api/action/group_list',
+                            params=postparams)
+        res_obj = json.loads(res.body)
+        result = res_obj['result']
+        assert_equal(len(result), 2)
+        assert_equal(result[0]['name'], 'david')
+        assert_equal(result[0]['packages'], 2)
+        assert_equal(result[1]['name'], 'roger')
+        assert_equal(result[1]['packages'], 1)
 
     def test_14_group_show(self):
         postparams = '%s=1' % json.dumps({'id':'david'})
@@ -505,8 +590,8 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/tag_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert res_obj == {
-            'help': 'Returns tags containing the provided string', 
-            'result': [], 
+            'help': 'Returns tags containing the provided string',
+            'result': [],
             'success': True
         }
 
@@ -515,8 +600,8 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/tag_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert res_obj == {
-            'help': 'Returns tags containing the provided string', 
-            'result': ['russian'], 
+            'help': 'Returns tags containing the provided string',
+            'result': ['russian'],
             'success': True
         }
 
@@ -670,8 +755,8 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/user_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert res_obj == {
-            'help': 'Returns users containing the provided string', 
-            'result': [], 
+            'help': 'Returns users containing the provided string',
+            'result': [],
             'success': True
         }
 
@@ -712,12 +797,12 @@ class TestAction(WsgiAppCase):
         package_created = json.loads(res.body)['result']
 
         resource_created = package_created['resources'][0]
-        new_resource_url = u'http://www.annakareinanew.com/download/' 
+        new_resource_url = u'http://www.annakareinanew.com/download/'
         resource_created['url'] = new_resource_url
         postparams = '%s=1' % json.dumps(resource_created)
         res = self.app.post('/api/action/resource_update', params=postparams,
                             extra_environ={'Authorization': 'tester'})
-        
+
         resource_updated = json.loads(res.body)['result']
         assert resource_updated['url'] == new_resource_url, resource_updated
 
@@ -737,7 +822,8 @@ class TestAction(WsgiAppCase):
             'task_type': u'test_task',
             'key': u'test_key',
             'value': u'test_value',
-            'state': u'test_state'
+            'state': u'test_state',
+            'error': u'test_error',
         }
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(
@@ -745,6 +831,7 @@ class TestAction(WsgiAppCase):
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
         )
         task_status_updated = json.loads(res.body)['result']
+
         task_status_id = task_status_updated.pop('id')
         task_status_updated.pop('last_updated')
         assert task_status_updated == task_status, (task_status_updated, task_status)
@@ -770,7 +857,8 @@ class TestAction(WsgiAppCase):
                     'task_type': u'test_task',
                     'key': u'test_task_1',
                     'value': u'test_value_1',
-                    'state': u'test_state'
+                    'state': u'test_state',
+                    'error': u'test_error'
                 },
                 {
                     'entity_id': package_created['id'],
@@ -778,7 +866,8 @@ class TestAction(WsgiAppCase):
                     'task_type': u'test_task',
                     'key': u'test_task_2',
                     'value': u'test_value_2',
-                    'state': u'test_state'
+                    'state': u'test_state',
+                    'error': u'test_error'
                 }
             ]
         }
@@ -791,12 +880,12 @@ class TestAction(WsgiAppCase):
         for i in range(len(task_statuses['data'])):
             task_status = task_statuses['data'][i]
             task_status_updated = task_statuses_updated[i]
-            task_status_updated.pop('id') 
-            task_status_updated.pop('last_updated') 
+            task_status_updated.pop('id')
+            task_status_updated.pop('last_updated')
             assert task_status == task_status_updated, (task_status_updated, task_status, i)
 
     def test_22_task_status_normal_user_not_authorized(self):
-        task_status = {} 
+        task_status = {}
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(
             '/api/action/task_status_update', params=postparams,
@@ -812,7 +901,7 @@ class TestAction(WsgiAppCase):
         assert res_obj == expected_res_obj, res_obj
 
     def test_23_task_status_validation(self):
-        task_status = {} 
+        task_status = {}
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(
             '/api/action/task_status_update', params=postparams,
@@ -829,7 +918,8 @@ class TestAction(WsgiAppCase):
             'task_type': u'test_task',
             'key': u'test_task_status_show',
             'value': u'test_value',
-            'state': u'test_state'
+            'state': u'test_state',
+            'error': u'test_error'
         }
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(
@@ -838,6 +928,7 @@ class TestAction(WsgiAppCase):
         )
         task_status_updated = json.loads(res.body)['result']
 
+        # make sure show works when giving a task status ID
         postparams = '%s=1' % json.dumps({'id': task_status_updated['id']})
         res = self.app.post(
             '/api/action/task_status_show', params=postparams,
@@ -849,6 +940,21 @@ class TestAction(WsgiAppCase):
         task_status_updated.pop('last_updated')
         assert task_status_show == task_status_updated, (task_status_show, task_status_updated)
 
+        # make sure show works when giving a (entity_id, task_type, key) tuple
+        postparams = '%s=1' % json.dumps({
+            'entity_id': task_status['entity_id'],
+            'task_type': task_status['task_type'],
+            'key': task_status['key']
+        })
+        res = self.app.post(
+            '/api/action/task_status_show', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+        )
+        task_status_show = json.loads(res.body)['result']
+
+        task_status_show.pop('last_updated')
+        assert task_status_show == task_status_updated, (task_status_show, task_status_updated)
+
     def test_25_task_status_delete(self):
         package_created = self._add_basic_package(u'test_task_status_delete')
 
@@ -858,7 +964,8 @@ class TestAction(WsgiAppCase):
             'task_type': u'test_task',
             'key': u'test_task_status_delete',
             'value': u'test_value',
-            'state': u'test_state'
+            'state': u'test_state',
+            'error': u'test_error'
         }
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(
@@ -885,7 +992,6 @@ class TestAction(WsgiAppCase):
         result.pop('revision_timestamp')
         assert result == resource_dict, (result, resource_dict)
 
-    
     def test_27_get_site_user_not_authorized(self):
         assert_raises(NotAuthorized,
                      get_action('get_site_user'),
@@ -893,7 +999,7 @@ class TestAction(WsgiAppCase):
         user = model.User.get('test.ckan.net')
         assert not user
 
-        user=get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        user = get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
         assert user['name'] == 'test.ckan.net'
 
         user = model.User.get('test.ckan.net')
@@ -901,14 +1007,49 @@ class TestAction(WsgiAppCase):
 
         user=get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
         assert user['name'] == 'test.ckan.net'
-        
+
         user = model.Session.query(model.User).filter_by(name='test.ckan.net').one()
         assert user
 
+    def test_28_group_package_show(self):
+        group_id = model.Group.get('david').id
+        group_packages = get_action('group_package_show')(
+            {'model': model, 'user': self.normal_user.name, 'ignore_auth': True},
+            {'id': group_id}
+        )
+        assert len(group_packages) == 2, group_packages
+        group_names = set([g.get('name') for g in group_packages])
+        assert group_names == set(['annakarenina', 'warandpeace']), group_names
 
+    def test_29_group_package_show_pending(self):
+        context = {'model': model, 'session': model.Session, 'user': self.sysadmin_user.name}
+        group = {
+            'name': 'test_group_pending_package',
+            'packages': [{'id': model.Package.get('annakarenina').id}]
+        }
+        group = get_action('group_create')(context, group)
 
+        pkg = {
+            'name': 'test_pending_package',
+            'groups': [{'id': group['id']}]
+        }
+        pkg = get_action('package_create')(context, pkg)
+        # can't seem to add a package with 'pending' state, so update it
+        pkg['state'] = 'pending'
+        get_action('package_update')(context, pkg)
 
+        group_packages = get_action('group_package_show')(context, {'id': group['id']})
+        assert len(group_packages) == 2, group_packages
+        group_names = set([g.get('name') for g in group_packages])
+        assert group_names == set(['annakarenina', 'test_pending_package']), group_names
 
+        get_action('group_delete')(context, group)
+        get_action('package_delete')(context, pkg)
 
-
-
+    def test_30_status_show(self):
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/status_show', params=postparams)
+        status = json.loads(res.body)['result']
+        assert_equal(status['site_title'], 'CKAN')
+        assert_equal(status['ckan_version'], ckan.__version__)
+        assert_equal(status['site_url'], 'http://test.ckan.net')

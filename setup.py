@@ -20,7 +20,6 @@ setup(
     install_requires=[
     ],
     extras_require = {
-        'solr': ['solrpy==0.9.4'],
     },
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
@@ -64,6 +63,7 @@ setup(
     notify = ckan.lib.cli:Notification
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
+    celeryd = ckan.lib.cli:Celery
     
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command

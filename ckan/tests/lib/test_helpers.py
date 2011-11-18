@@ -57,8 +57,6 @@ class TestHelpers(TestController):
         # Hash the email address
         import hashlib
         email_hash = hashlib.md5(email).hexdigest()
-        res = h.gravatar(email_hash, 200)
+        res = h.linked_gravatar(email_hash, 200)
         for e in expected:
             assert e in res, e
-
-

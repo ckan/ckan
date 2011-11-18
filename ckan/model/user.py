@@ -11,7 +11,7 @@ from types import make_uuid
 
 user_table = Table('user', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),
-        Column('name', UnicodeText),
+        Column('name', UnicodeText, nullable=False, unique=True),
         Column('openid', UnicodeText),
         Column('password', UnicodeText),
         Column('fullname', UnicodeText),

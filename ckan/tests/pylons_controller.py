@@ -49,6 +49,14 @@ class PylonsTestCase(object):
         cls.registry.register(pylons.url, URLGenerator(mapper, {}))
         cls.registry.register(pylons.session, TestSession())
 
+        # Templates often want to find out the request's routes info, so put
+        # some dummy values into the routes_dict, so the templates that do
+        # this don't cause an exception.
+        pylons.request.environ.update({'pylons.routes_dict': {
+            'action': 'test-action',
+            'controller': 'test-package::',
+        }})
+
     @classmethod
     def teardown_class(cls):
         """

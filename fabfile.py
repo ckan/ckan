@@ -74,7 +74,7 @@ from fabric.contrib.files import *
 env.ckan_instance_name = 'test' # e.g. test.ckan.net
 env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 env.local_backup_dir = os.path.expanduser('~/db_backup')
-env.ckan_repo = 'https://bitbucket.org/okfn/ckan/raw/%s/'
+env.ckan_repo = 'https://github.com/okfn/ckan/raw/%s/'
 pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
 
@@ -354,9 +354,8 @@ def status():
         _run_in_cmd_pyenv('pip freeze')
         run('cat %s' % env.config_ini_filename)
     with cd(os.path.join(env.pyenv_dir, 'src', 'ckan')):
-        run('hg log -l 1')
-        run('hg branch')
-        run('hg identify')
+        run('git log -n1')
+        run('git name-rev --name-only HEAD')
         run('grep version ckan/__init__.py')
 
 def apache_config(set_config=None):

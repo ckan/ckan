@@ -30,7 +30,7 @@ class TestAuthorizationGroup(FunctionalTestCase):
         model.Session.remove()
 
     def test_index(self):
-        offset = url_for(controller='authorization_group')
+        offset = url_for(controller='authorization_group', action='index')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
         assert '<h2>Authorization Groups</h2>' in res, res
         group_count = Authorizer.authorized_query(u'russianfan', model.AuthorizationGroup).count()
@@ -52,7 +52,7 @@ class TestAuthorizationGroup(FunctionalTestCase):
         assert name in res, res
 
     def test_new(self):
-        offset = url_for(controller='authorization_group')
+        offset = url_for(controller='authorization_group', action='index')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Create a new authorization group' in res, res
         

@@ -274,6 +274,7 @@ class PackageSearchQuery(SearchQuery):
 
         conn = make_connection()
         try:
+            log.debug('Package query: %r' % query)
             data = json.loads(conn.raw_query(**query))
             response = data['response']
             self.count = response.get('numFound', 0)

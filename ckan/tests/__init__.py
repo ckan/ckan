@@ -60,7 +60,7 @@ paste.fixture.TestResponse.json = property(_getjson)
 # Check config is correct for sqlite
 if config['sqlalchemy.url'].startswith('sqlite:'):
     assert ckan_nose_plugin.CkanNose.settings.is_ckan, \
-           'You forgot the "--ckan" nosetest setting - see README.txt'
+           'You forgot the "--ckan" nosetest setting - see doc/test.rst'
 
 class BaseCase(object):
 
