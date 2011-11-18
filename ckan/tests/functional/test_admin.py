@@ -3,15 +3,12 @@ from paste.deploy import appconfig
 import paste.fixture
 from ckan.config.middleware import make_app
 import ckan.model as model
-from ckan.tests import conf_dir, url_for, CreateTestData
+from ckan.tests import conf_dir, url_for, CreateTestData, WsgiAppCase
 from controllers.admin import get_sysadmins
 
-class TestAdminController:
+class TestAdminController(WsgiAppCase):
     @classmethod
     def setup_class(cls):
-        config = appconfig('config:test.ini', relative_to=conf_dir)
-        wsgiapp = make_app(config.global_conf, **config.local_conf)
-        cls.app = paste.fixture.TestApp(wsgiapp)
         # setup test data including testsysadmin user
         CreateTestData.create()
 
@@ -34,12 +31,9 @@ class TestAdminController:
         assert 'Administration' in response, response
 
 
-class TestAdminAuthzController:
+class TestAdminAuthzController(WsgiAppCase):
     @classmethod
     def setup_class(cls):
-        config = appconfig('config:test.ini', relative_to=conf_dir)
-        wsgiapp = make_app(config.global_conf, **config.local_conf)
-        cls.app = paste.fixture.TestApp(wsgiapp)
         # setup test data including testsysadmin user
         CreateTestData.create()
         # Creating a couple of authorization groups, which are enough to break
@@ -235,11 +229,8 @@ class TestAdminAuthzController:
                "should be a reader now"
 
 
-class TestAdminTrashController:
+class TestAdminTrashController(WsgiAppCase):
     def setup(cls):
-        config = appconfig('config:test.ini', relative_to=conf_dir)
-        wsgiapp = make_app(config.global_conf, **config.local_conf)
-        cls.app = paste.fixture.TestApp(wsgiapp)
         CreateTestData.create()
 
     def teardown(self):
