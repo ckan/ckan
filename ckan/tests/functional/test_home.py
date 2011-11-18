@@ -72,26 +72,26 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
 ##        finally:
 ##            self.clear_language_setting()
 
-    def test_locale_negotiate(self):
-        offset = url_for('home')
-        self.clear_language_setting()
-        res = self.app.get(offset, headers={'Accept-Language': 'fr-ca'})
-        # Request for French with Canadian territory should negotiate to
-        # just 'fr'
-        try:
-            assert 'propos' in res.body, res.body
-        finally:
-            self.clear_language_setting()
+##    def test_locale_negotiate(self):
+##        offset = url_for('home')
+##        self.clear_language_setting()
+##        res = self.app.get(offset, headers={'Accept-Language': 'fr-ca'})
+##        # Request for French with Canadian territory should negotiate to
+##        # just 'fr'
+##        try:
+##            assert 'propos' in res.body, res.body
+##        finally:
+##            self.clear_language_setting()
 
-    def test_locale_negotiate_pt(self):
-        offset = url_for('home')
-        self.clear_language_setting()
-        res = self.app.get(offset, headers={'Accept-Language': 'pt'})
-        # Request for Portuguese should find pt_BR because of our alias hack
-        try:
-            assert 'Bem-vindo' in res.body, res.body
-        finally:
-            self.clear_language_setting()
+##    def test_locale_negotiate_pt(self):
+##        offset = url_for('home')
+##        self.clear_language_setting()
+##        res = self.app.get(offset, headers={'Accept-Language': 'pt'})
+##        # Request for Portuguese should find pt_BR because of our alias hack
+##        try:
+##            assert 'Bem-vindo' in res.body, res.body
+##        finally:
+##            self.clear_language_setting()
 
     def test_locale_change(self):
         offset = url_for('home')
