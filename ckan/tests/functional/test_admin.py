@@ -1,10 +1,5 @@
-import os
-from paste.deploy import appconfig
-import paste.fixture
-from ckan.config.middleware import make_app
 import ckan.model as model
-from ckan.tests import conf_dir, url_for, CreateTestData, WsgiAppCase
-from controllers.admin import get_sysadmins
+from ckan.tests import url_for, CreateTestData, WsgiAppCase
 
 class TestAdminController(WsgiAppCase):
     @classmethod
