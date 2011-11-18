@@ -8,6 +8,12 @@ from ckan.lib.helpers import escape
 def _get_blank_param_dict(pkg=None):
     return ckan.forms.get_package_dict(pkg=pkg, blank=True, user_editable_groups=[])
 
+# These tests check the package form build in formalchemy. For the new forms,
+# see equivalents:
+#  * form renders with correctly populated values (TestForms 1&2) in ckan/tests/functional/test_package.py:TestPackageForm
+#  * form post updates db correctly (TestForms 3&4) in ckan/tests/functional/api/test_action.py:test_03_create_update_package
+#  * validation tests (TestValidation) in ckan/tests/schema/test_schema.py
+
 class TestForms(PylonsTestCase, HtmlCheckMethods):
 
     @classmethod

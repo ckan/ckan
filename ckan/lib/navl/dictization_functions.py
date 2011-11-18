@@ -246,7 +246,7 @@ def validate_flattened(data, schema, context=None):
 
 
 def _validate(data, schema, context):
-    '''validate a flattened dict agiast a schema'''
+    '''validate a flattened dict against a schema'''
     
     converted_data = augment_data(data, schema)
     full_schema = make_full_schema(data, schema)
