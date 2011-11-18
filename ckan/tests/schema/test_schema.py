@@ -21,7 +21,7 @@ class TestPackage:
                      ('dot.in.name', [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
                      (u'unicode-\xe0', [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
                      ('percent%', [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
-#                     ('p'*101, [u'Too many characters]),
+                     ('p'*101, [u'Name must be a maximum of 100 characters long']),
                      )
 
         for package_name in good_names:
@@ -33,6 +33,30 @@ class TestPackage:
             errors = [err.replace('"%s"' % package_name, 'NAME') for err in errors]
             assert errors==expected_errors, \
                    '%r: %r != %r' % (package_name, errors, expected_errors)
+
+    def test_version_validation(self):
+        context = {'model': ckan.model,
+                   'session': ckan.model.Session}
+        schema = ckan.logic.schema.default_package_schema()
+        def get_package_version_validation_errors(package_version):
+            data_dict = {'version': package_version}
+            data, errors = validate(data_dict, schema, context)
+            return errors.get('version', [])
+
+        good_versions = ('1.0', '')
+        bad_versions = (
+                     ('p'*101, [u'Version must be a maximum of 100 characters long']),
+                     )
+
+        for package_version in good_versions:
+            errors = get_package_version_validation_errors(package_version)
+            assert_equal(errors, [])
+
+        for package_version, expected_errors in bad_versions:
+            errors = get_package_version_validation_errors(package_version)
+            errors = [err.replace('"%s"' % package_version, 'VERSION') for err in errors]
+            assert errors==expected_errors, \
+                   '%r: %r != %r' % (package_version, errors, expected_errors)
 
 class TestTag:
     def test_tag_name_validation(self):
@@ -52,6 +76,7 @@ class TestTag:
                      ('trailing comma,', [u'Tag TAG must be alphanumeric characters or symbols: -_.']),\
                      ('empty,,tag', [u'Tag TAG must be alphanumeric characters or symbols: -_.']),
                      ('quote"character', [u'Tag TAG must be alphanumeric characters or symbols: -_.']),
+                     ('p'*101, [u'Tag TAG length is more than maximum 100']),
                      )
 
         for tag_name in good_names:

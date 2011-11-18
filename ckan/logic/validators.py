@@ -5,7 +5,7 @@ from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unfla
 from ckan.authz import Authorizer
 from ckan.logic import check_access, NotAuthorized
 from ckan.lib.helpers import date_str_to_datetime
-from ckan.model import MAX_TAG_LENGTH
+from ckan.model import MAX_TAG_LENGTH, MAX_PACKAGE_NAME_LENGTH, MAX_PACKAGE_VERSION_LENGTH
 
 def package_id_not_changed(value, context):
 
@@ -92,6 +92,9 @@ def name_validator(val, context):
     # check basic textual rules
     if len(val) < 2:
         raise Invalid(_('Name must be at least %s characters long') % 2)
+    if len(val) > MAX_PACKAGE_NAME_LENGTH:
+        raise Invalid(_('Name must be a maximum of %i characters long') % \
+                      MAX_PACKAGE_NAME_LENGTH)
     if not name_match.match(val):
         raise Invalid(_('Url must be purely lowercase alphanumeric '
                         '(ascii) characters and these symbols: -_'))
@@ -112,6 +115,13 @@ def package_name_validator(key, data, errors, context):
     result = query.first()
     if result:
         errors[key].append(_('That URL is already in use.'))
+
+def package_version_validator(value, context):
+
+    if len(value) > MAX_PACKAGE_VERSION_LENGTH:
+        raise Invalid(_('Version must be a maximum of %i characters long') % \
+                      MAX_PACKAGE_VERSION_LENGTH)
+    return value
 
 def duplicate_extras_key(key, data, errors, context):
 
