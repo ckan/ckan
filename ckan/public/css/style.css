@@ -503,14 +503,15 @@ form.simple-form input[type=password] {
 /* = Dataset/Group View: Sidebar List */
 /* ================================== */
 .property-list {
-  list-style: none;
+  list-style-type: none;
   padding-left: 3em;
 }
 .property-list li {
   margin-bottom: 0.2em;
+  list-style-type: none;
 }
 .property-list li ul {
-  margin-left: -2em;
+  margin-left: -1.5em;
 }
 .property-list li h3 {
   font-size: 1.1em;
@@ -519,6 +520,10 @@ form.simple-form input[type=password] {
   margin-left: -2em;
 }
 
+
+.group.read .property-list li ul li {
+  margin-left: -2.5em;
+}
 
 
 /* ============== */
