@@ -325,9 +325,11 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 | q                     | Search-String || q=geodata                       | Criteria to search the dataset   |
 |                       |               || q=government+sweden             | fields for. URL-encoded search   |
 |                       |               || q=%22drug%20abuse%22            | text. (You can also concatenate  |
-|                       |               |                                  | words with a '+' symbol in a     |
+|                       |               || q=tags:"river pollution"        | words with a '+' symbol in a     |
 |                       |               |                                  | URL.) Search results must contain|
-|                       |               |                                  | all the specified words.         |
+|                       |               |                                  | all the specified words.  You    |
+|                       |               |                                  | can also search within specific  |
+|                       |               |                                  | fields.                          |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | qjson                 | JSON encoded  | ['q':'geodata']                  | All search parameters can be     |
 |                       | options       |                                  | json-encoded and supplied to this|
@@ -336,8 +338,8 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 +-----------------------+---------------+----------------------------------+----------------------------------+
 |title,                 | Search-String || title=uk&amp;tags=health        | Search in a particular a field.  |
 |tags, notes, groups,   |               || department=environment          |                                  |
-|author, maintainer,    |               |                                  |                                  |
-|update_frequency, or   |               |                                  |                                  |
+|author, maintainer,    |               || tags=health&tags=pollution      |                                  |
+|update_frequency, or   |               || tags=river%20pollution          |                                  |
 |any 'extra' field name |               |                                  |                                  |
 |e.g. department        |               |                                  |                                  |
 +-----------------------+---------------+----------------------------------+----------------------------------+
