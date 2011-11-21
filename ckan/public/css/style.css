@@ -982,33 +982,44 @@ body.package.read #sidebar ul.groups {
   margin-bottom: 10px;
 }
 body.package.read #dataset-resources { 
+    margin-top: 2em; 
     margin-bottom: 2em; 
 }
 body.package.read .dataset-resource { 
     margin-bottom: 1em;
 }
-body.package.read .resource-url { 
+body.package.read .resource-view-url { 
     font-size: 1.3em;
+}
+body.package.read .resource-url { 
+    color: #808080;
+}
+body.package.read .resource-url a { 
+    color: #808080;
 }
 body.package.read .resource-information {
     padding-left: 0;
+    color: #808080;
 }
 body.package.read .resource-information li {
     display: inline;
     margin-right: 4px;
-    padding: 2px;
     border: none;
     font-weight: normal;
-    color: #808080;
 }
 body.package.read .resource-format {
-    background:#ececec;
+    border: 1px solid #ececec;
+    padding: 2px;
+    color: #808080;
 }
 .flash-messages .success .new-dataset {
   font-size: 150%;
 }
 .flash-messages.success .new-dataset a {
   font-weight: bold;
+}
+body.package.read #sidebar li.widget-container {
+    border: 0
 }
 
 
