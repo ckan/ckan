@@ -1,5 +1,6 @@
 import re
 import logging
+import urllib
 import webhelpers.markdown
 
 from pylons.i18n import _
@@ -56,7 +57,7 @@ class MarkdownFormat(TextFormat):
         text = self.close_link.sub(r'\\\\xfc\\\\xfd\1\\\\xfd\\\\xfc', text)
 
         # Convert internal tag links
-        text = self.internal_tag_link.sub(r'[\1:\2] (/\1/\4)', text)
+        text = self.internal_tag_link.sub(self._create_tag_link, text)
 
         # Convert internal links.
         text = self.internal_link.sub(r'[\1:\2] (/\1/\2)', text)
@@ -78,3 +79,17 @@ class MarkdownFormat(TextFormat):
         text = self.link_escp.sub(r'<\1>', text)
 
         return text
+
+    def _create_tag_link(self, match_object):
+        """
+        A callback used to create the internal tag link.
+
+        The reason for this is that webhelpers.markdown does not percent-escape
+        spaces, nor does it encode unicode characters correctly.
+
+        This is only applied to the tag substitution since only tags may
+        have spaces or unicode characters.
+        """
+        g = match_object.group
+        url = urllib.quote(g(4).encode('utf8'))
+        return r'[%s:%s] (/%s/%s)' % (g(1), g(2), g(1), url)

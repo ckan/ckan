@@ -58,7 +58,7 @@ class TestFormatText:
     def test_internal_tag_linked_with_quotes_and_space(self):
         """Asserts links like 'tag:"test tag"' work"""
         instr = 'tag:"test tag" foobar'
-        exp = '<a href="/tag/test tag">tag:"test tag"</a> foobar'
+        exp = '<a href="/tag/test%20tag">tag:"test tag"</a> foobar'
         format = MarkdownFormat()
         out = format.to_html(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
@@ -89,7 +89,7 @@ class TestFormatText:
     def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
         instr = 'tag:"Test- _." foobar'
-        exp = '<a href="/tag/Test- _.">tag:"Test- _."</a> foobar'
+        exp = '<a href="/tag/Test-%20_.">tag:"Test- _."</a> foobar'
         format = MarkdownFormat()
         out = format.to_html(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
@@ -115,7 +115,7 @@ class TestFormatText:
     def test_tag_names_with_unicode_alphanumeric(self):
         """Asserts that unicode alphanumeric characters are captured"""
         instr = u'tag:"Japanese katakana \u30a1" blah'
-        exp = u'<a href="/tag/Japanese katakana \u30a1">tag:"Japanese katakana \u30a1"</a>'
+        exp = u'<a href="/tag/Japanese%20katakana%20%E3%82%A1">tag:"Japanese katakana \u30a1"</a>'
         format = MarkdownFormat()
         out = format.to_html(instr)
         assert exp in out, u'\nGot: %s\nWanted: %s' % (out, exp)

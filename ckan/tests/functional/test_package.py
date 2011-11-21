@@ -312,7 +312,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         offset = url_for(controller='package', action='read', id=pkg_name)
         res = self.app.get(offset)
         def check_link(res, controller, id):
-            id_in_uri = id.strip('"') # remove quotes
+            id_in_uri = id.strip('"').replace(' ', '%20') # remove quotes and percent-encode spaces
             self.check_tag_and_data(res, 'a ', '/%s/%s' % (controller, id_in_uri),
                                     '%s:%s' % (controller, id))
         check_link(res, 'package', 'pkg-1')
