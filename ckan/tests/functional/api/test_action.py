@@ -257,18 +257,17 @@ class TestAction(WsgiAppCase):
         assert res_obj['result'][russian_index]['name'] == 'russian'
         assert res_obj['result'][tolstoy_index]['name'] == 'tolstoy'
 
-        number_of_russian_packages = len(res_obj['result'][russian_index]['packages'])
-        number_of_tolstoy_packages = len(res_obj['result'][tolstoy_index]['packages'])
-        number_of_flexible_packages = len(res_obj['result'][flexible_index]['packages'])
+        # The "moo" package may part of the retrieved packages, depending
+        # upon whether this test is run in isolation from the rest of the
+        # test suite or not.
+        number_of_russian_packages = len(res_obj['result'][russian_index]['packages'])   # warandpeace, annakarenina (moo?)
+        number_of_tolstoy_packages = len(res_obj['result'][tolstoy_index]['packages'])   # annakarenina
+        number_of_flexible_packages = len(res_obj['result'][flexible_index]['packages']) # warandpeace, annakarenina (moo?)
         
-        # TODO : This "moo" package appears to have leaked in from other tests.
-        #        Is that meant to be the case? IM
-        assert number_of_russian_packages == 3, \
-               'Expected 2 packages tagged with "russian"' # warandpeace , annakarenina , moo
-        assert number_of_tolstoy_packages == 2, \
-               'Expected 2 packages tagged with "tolstoy"' # moo , annakarenina
-        assert number_of_flexible_packages == 2, \
-               u'Expected 2 packages tagged with "Flexible \u30a1"' # warandpeace , annakarenina
+        # Assert we have the correct number of packages, independantly of
+        # whether the "moo" package may exist or not.
+        assert number_of_russian_packages - number_of_tolstoy_packages == 1
+        assert number_of_flexible_packages == (number_of_russian_packages - number_of_tolstoy_packages) + 1
 
         assert 'id' in res_obj['result'][0]
         assert 'id' in res_obj['result'][1]
@@ -283,8 +282,17 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'russian'
         assert 'id' in result
-        assert 'packages' in result and len(result['packages']) == 3
-        assert [package['name'] for package in result['packages']].sort() == ['annakarenina', 'warandpeace', 'moo'].sort()
+        assert 'packages' in result
+
+        packages = [package['name'] for package in result['packages']]
+
+        # the "moo" package may be part of the retrieved packages, depending
+        # upon whether or not this test is run in isolation from the other tests
+        # in the suite.
+        expected_packages = ['annakarenina', 'warandpeace'] + (
+            ['moo'] if 'moo' in packages else [])
+
+        assert sorted(packages) == sorted(expected_packages), "%s != %s" %(packages, expected_packages)
 
     def test_07_flexible_tag_show(self):
         """
@@ -302,7 +310,9 @@ class TestAction(WsgiAppCase):
         assert result['name'] == u'Flexible \u30a1'
         assert 'id' in result
         assert 'packages' in result and len(result['packages']) == 2
-        assert [package['name'] for package in result['packages']].sort() == ['annakarenina', 'warandpeace'].sort()
+
+        assert sorted([package['name'] for package in result['packages']]) == \
+               sorted(['annakarenina', 'warandpeace'])
 
     def test_07_tag_show_unknown_license(self):
         # create a tagged package which has an invalid license
