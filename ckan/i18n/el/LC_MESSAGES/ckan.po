@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
-"POT-Creation-Date: 2011-11-09 12:28+0000\n"
-"PO-Revision-Date: 2011-11-09 12:28+0000\n"
+"POT-Creation-Date: 2011-11-16 18:02+0000\n"
+"PO-Revision-Date: 2011-11-16 18:03+0000\n"
 "Last-Translator: dread <internet@davidread.org>\n"
 "Language-Team: Greek (http://www.transifex.net/projects/p/ckan/team/el/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.6\n"
+"Generated-By: Babel 0.9.4\n"
 "Language: el\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
@@ -43,11 +43,11 @@ msgstr ""
 msgid "Not authorized to see this page"
 msgstr ""
 
-#: ckan/controllers/api.py:96 ckan/controllers/api.py:158
+#: ckan/controllers/api.py:96 ckan/controllers/api.py:159
 msgid "Access denied"
 msgstr "Αδύνατη Πρόσβαση"
 
-#: ckan/controllers/api.py:102 ckan/controllers/api.py:163
+#: ckan/controllers/api.py:102 ckan/controllers/api.py:164
 msgid "Not found"
 msgstr "Δεν βρέθηκε"
 
@@ -55,98 +55,98 @@ msgstr "Δεν βρέθηκε"
 msgid "Bad request"
 msgstr ""
 
-#: ckan/controllers/api.py:137
+#: ckan/controllers/api.py:138
 #, python-format
 msgid "Action name not known: %s"
 msgstr ""
 
-#: ckan/controllers/api.py:147 ckan/controllers/api.py:268
-#: ckan/controllers/api.py:326
+#: ckan/controllers/api.py:148 ckan/controllers/api.py:269
+#: ckan/controllers/api.py:327
 #, python-format
 msgid "JSON Error: %s"
 msgstr "Λάθος JSON: %s"
 
-#: ckan/controllers/api.py:155 ckan/controllers/api.py:296
-#: ckan/controllers/api.py:348 ckan/controllers/group.py:182
+#: ckan/controllers/api.py:156 ckan/controllers/api.py:297
+#: ckan/controllers/api.py:349 ckan/controllers/group.py:182
 #: ckan/controllers/group.py:201 ckan/controllers/package.py:454
 #: ckan/controllers/package.py:483 ckan/controllers/user.py:155
 #: ckan/controllers/user.py:232 ckan/controllers/user.py:346
 msgid "Integrity Error"
 msgstr "Λάθος ακεραιότητας"
 
-#: ckan/controllers/api.py:197
+#: ckan/controllers/api.py:198
 #, python-format
 msgid "Cannot list entity of this type: %s"
 msgstr "Δεν παρέχεται λίστα μιας οντότητας αυτού του τύπου: %s"
 
-#: ckan/controllers/api.py:231
+#: ckan/controllers/api.py:232
 #, python-format
 msgid "Cannot read entity of this type: %s"
 msgstr "Δεν μπορείτε να διαβάσετε μια οντότητα αυτού του τύπου: %s"
 
-#: ckan/controllers/api.py:275
+#: ckan/controllers/api.py:276
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr "Δεν είναι δυνατή η δημιουργία μιας οντότητας αυτού του τύπου: %s %s"
 
-#: ckan/controllers/api.py:299
+#: ckan/controllers/api.py:300
 msgid "Unable to add package to search index"
 msgstr ""
 
-#: ckan/controllers/api.py:332
+#: ckan/controllers/api.py:333
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr "Δεν είναι δυνατή η ενημέρωση μιας οντότητας αυτού του τύπου: %s"
 
-#: ckan/controllers/api.py:351
+#: ckan/controllers/api.py:352
 msgid "Unable to update search index"
 msgstr ""
 
-#: ckan/controllers/api.py:377
+#: ckan/controllers/api.py:378
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr "Δεν είναι δυνατή η διαγραφή μιας οντότητας αυτού του τύπου: %s %s"
 
-#: ckan/controllers/api.py:401
+#: ckan/controllers/api.py:402
 msgid "No revision specified"
 msgstr ""
 
-#: ckan/controllers/api.py:405
+#: ckan/controllers/api.py:406
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr "Δεν υπάρχει έκδοση με id: %s"
 
-#: ckan/controllers/api.py:415
+#: ckan/controllers/api.py:416
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
 msgstr ""
 "Ελλειπή στοιχεία αναζήτησης ('since_id=UUID' or 'since_time=TIMESTAMP')"
 
-#: ckan/controllers/api.py:423
+#: ckan/controllers/api.py:424
 #, python-format
 msgid "Could not read parameters: %r"
 msgstr ""
 
-#: ckan/controllers/api.py:470
+#: ckan/controllers/api.py:471
 #, python-format
 msgid "Bad search option: %s"
 msgstr "Λάθος επιλογή αναζήτησης: %s"
 
-#: ckan/controllers/api.py:473
+#: ckan/controllers/api.py:474
 #, python-format
 msgid "Unknown register: %s"
 msgstr "Άγνωστη Καταχώρηση: %s"
 
-#: ckan/controllers/api.py:481
+#: ckan/controllers/api.py:482
 msgid "Malformed qjson value"
 msgstr ""
 
-#: ckan/controllers/api.py:490
+#: ckan/controllers/api.py:491
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr ""
 "Οι παράμετροι που ζητούνται πρέπει να είναι ακολουθούν την μορφή λεξικού "
 "json encoded."
 
-#: ckan/controllers/api.py:577
+#: ckan/controllers/api.py:578
 #, python-format
 msgid "Bad slug type: %s"
 msgstr ""
@@ -166,13 +166,13 @@ msgstr "Δεν έχετε εξουσιοδότηση να δημιουργήσε
 msgid "User %r not authorized to edit %r"
 msgstr "Ο χρήστης %r δεν έχει δικαίωμα να επεξεργαστεί το %r"
 
-#: ckan/controllers/authorization_group.py:151 ckan/controllers/group.py:79
+#: ckan/controllers/authorization_group.py:153 ckan/controllers/group.py:79
 #: ckan/controllers/group.py:150 ckan/controllers/group.py:210
 #: ckan/controllers/group.py:265
 msgid "Group not found"
 msgstr "Δεν βρέθηκε η Ομάδα"
 
-#: ckan/controllers/authorization_group.py:158 ckan/controllers/group.py:222
+#: ckan/controllers/authorization_group.py:160 ckan/controllers/group.py:222
 #: ckan/controllers/package.py:538
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
@@ -472,9 +472,9 @@ msgid "Details"
 msgstr "Λεπτομέρειες"
 
 #: ckan/forms/group.py:64 ckan/forms/package.py:102 ckan/forms/package.py:112
-#: ckan/logic/action/update.py:43 ckan/logic/action/update.py:45
-#: ckan/logic/action/update.py:55 ckan/logic/action/update.py:57
-#: ckan/logic/action/update.py:67 ckan/logic/action/update.py:69
+#: ckan/logic/action/update.py:46 ckan/logic/action/update.py:48
+#: ckan/logic/action/update.py:58 ckan/logic/action/update.py:60
+#: ckan/logic/action/update.py:70 ckan/logic/action/update.py:72
 #: ckan/templates/group/new_group_form.html:52
 #: ckan/templates/package/edit.html:25
 msgid "Extras"
@@ -615,7 +615,7 @@ msgid "Basic information"
 msgstr "Βασικές Πληροφορίες"
 
 #: ckan/forms/package.py:96 ckan/forms/package.py:111
-#: ckan/logic/action/update.py:41 ckan/templates/package/edit.html:23
+#: ckan/logic/action/update.py:44 ckan/templates/package/edit.html:23
 #: ckan/templates/package/read_core.html:15
 msgid "Resources"
 msgstr "Πηγές"
@@ -773,67 +773,60 @@ msgstr ""
 msgid "Tag \"%s\" length is more than maximum %i"
 msgstr ""
 
-#: ckan/logic/validators.py:212
-#, python-format
-msgid ""
-"That login name is not valid. It must be at least 3 characters, restricted "
-"to alphanumerics and these symbols: %s"
-msgstr ""
-
-#: ckan/logic/validators.py:217
+#: ckan/logic/validators.py:221
 msgid "That login name is not available."
 msgstr ""
 
-#: ckan/logic/validators.py:229
+#: ckan/logic/validators.py:230
 msgid "Please enter both passwords"
 msgstr ""
 
-#: ckan/logic/validators.py:235
+#: ckan/logic/validators.py:236
 msgid "Your password must be 4 characters or longer"
 msgstr ""
 
-#: ckan/logic/validators.py:243
+#: ckan/logic/validators.py:244
 msgid "The passwords you entered do not match"
 msgstr ""
 
-#: ckan/logic/validators.py:255
+#: ckan/logic/validators.py:256
 msgid "Missing value"
 msgstr ""
 
-#: ckan/logic/validators.py:259
+#: ckan/logic/validators.py:260
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
 msgstr ""
 
-#: ckan/logic/action/create.py:56 ckan/logic/action/create.py:158
+#: ckan/logic/action/create.py:56 ckan/logic/action/create.py:161
 #, python-format
 msgid "REST API: Create object %s"
 msgstr "REST API: Δημιουργία αντικειμένου %s"
 
-#: ckan/logic/action/create.py:133
+#: ckan/logic/action/create.py:135
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
 msgstr "REST API: Δημιουργία συσχέτισης πακέτων: %s %s %s"
 
-#: ckan/logic/action/create.py:186
+#: ckan/logic/action/create.py:190
 msgid "You must supply a package id or name (parameter \"package\")."
 msgstr "Πρέπει να δηλώσετε κάποιο id πακέτου ή ;onoma"
 
-#: ckan/logic/action/create.py:188
+#: ckan/logic/action/create.py:192
 msgid "You must supply a rating (parameter \"rating\")."
 msgstr "Πρέπει να δώσετε μια βαθμολογία (παράμετρος \"rating\")."
 
-#: ckan/logic/action/create.py:193
+#: ckan/logic/action/create.py:197
 msgid "Rating must be an integer value."
 msgstr "Η βαθμολογία πρέπει να είναι ένας ακέραιος αριθμός"
 
-#: ckan/logic/action/create.py:197
+#: ckan/logic/action/create.py:201
 #, python-format
 msgid "Rating must be between %i and %i."
 msgstr "Η βαθμολογία πρέπει να είναι μεταξύ %i και %i."
 
-#: ckan/logic/action/create.py:199
+#: ckan/logic/action/create.py:203
 #, python-format
 msgid "Package with name %r does not exist."
 msgstr "Δεν υπάρχει πακέτο με το όνομα %r."
@@ -848,44 +841,44 @@ msgstr "REST API: Διαγραφή Πακέτου: %s"
 msgid "REST API: Delete %s"
 msgstr "REST API: Διαγραφή %s"
 
-#: ckan/logic/action/update.py:41
+#: ckan/logic/action/update.py:44
 msgid "Package resource(s) incomplete"
 msgstr ""
 
-#: ckan/logic/action/update.py:43 ckan/logic/action/update.py:55
-#: ckan/logic/action/update.py:67
+#: ckan/logic/action/update.py:46 ckan/logic/action/update.py:58
+#: ckan/logic/action/update.py:70
 msgid "Missing Value"
 msgstr ""
 
-#: ckan/logic/action/update.py:159
+#: ckan/logic/action/update.py:169
 msgid "Resource was not found."
 msgstr ""
 
-#: ckan/logic/action/update.py:169
-msgid "No package found for this resource, cannot check auth."
-msgstr ""
-
-#: ckan/logic/action/update.py:183 ckan/logic/action/update.py:220
-#: ckan/logic/action/update.py:323
+#: ckan/logic/action/update.py:184 ckan/logic/action/update.py:222
+#: ckan/logic/action/update.py:327
 #, python-format
 msgid "REST API: Update object %s"
 msgstr ""
 
-#: ckan/logic/action/update.py:203 ckan/logic/action/update.py:242
+#: ckan/logic/action/update.py:205 ckan/logic/action/update.py:245
 msgid "Package was not found."
 msgstr "Το πακέτο δεν βρέθηκε"
 
-#: ckan/logic/action/update.py:264
+#: ckan/logic/action/update.py:267
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
 msgstr "REST API: Ενημέρωση συσχέτισης πακέτου: %s %s %s"
+
+#: ckan/logic/action/update.py:378
+msgid "TaskStatus was not found."
+msgstr ""
 
 #: ckan/logic/auth/create.py:13
 #, python-format
 msgid "User %s not authorized to create packages"
 msgstr ""
 
-#: ckan/logic/auth/create.py:18 ckan/logic/auth/update.py:21
+#: ckan/logic/auth/create.py:18 ckan/logic/auth/update.py:22
 #, python-format
 msgid "User %s not authorized to edit these groups"
 msgstr ""
@@ -937,6 +930,11 @@ msgstr ""
 msgid "User %s not authorized to delete group %s"
 msgstr ""
 
+#: ckan/logic/auth/delete.py:55
+#, python-format
+msgid "User %s not authorized to delete task_status"
+msgstr ""
+
 #: ckan/logic/auth/get.py:78
 #, python-format
 msgid "User %s not authorized to read these packages"
@@ -947,61 +945,80 @@ msgstr ""
 msgid "User %s not authorized to read package %s"
 msgstr ""
 
-#: ckan/logic/auth/get.py:104
+#: ckan/logic/auth/get.py:105 ckan/logic/auth/update.py:38
+msgid "No package found for this resource, cannot check auth."
+msgstr ""
+
+#: ckan/logic/auth/get.py:111
+#, python-format
+msgid "User %s not authorized to read resource %s"
+msgstr ""
+
+#: ckan/logic/auth/get.py:126
 #, python-format
 msgid "User %s not authorized to read group %s"
 msgstr ""
 
-#: ckan/logic/auth/update.py:17
+#: ckan/logic/auth/update.py:18
 #, python-format
 msgid "User %s not authorized to edit package %s"
 msgstr ""
 
-#: ckan/logic/auth/update.py:35
+#: ckan/logic/auth/update.py:44
+#, python-format
+msgid "User %s not authorized to read edit %s"
+msgstr ""
+
+#: ckan/logic/auth/update.py:58
 #, python-format
 msgid "User %s not authorized to change state of package %s"
 msgstr ""
 
-#: ckan/logic/auth/update.py:46
+#: ckan/logic/auth/update.py:69
 #, python-format
 msgid "User %s not authorized to edit permissions of package %s"
 msgstr ""
 
-#: ckan/logic/auth/update.py:57
+#: ckan/logic/auth/update.py:80
 #, python-format
 msgid "User %s not authorized to edit group %s"
 msgstr ""
 
-#: ckan/logic/auth/update.py:68
+#: ckan/logic/auth/update.py:91
 #, python-format
 msgid "User %s not authorized to change state of group %s"
 msgstr ""
 
-#: ckan/logic/auth/update.py:79
+#: ckan/logic/auth/update.py:102
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
 msgstr ""
 
-#: ckan/logic/auth/update.py:90 ckan/logic/auth/update.py:101
+#: ckan/logic/auth/update.py:113 ckan/logic/auth/update.py:124
 #, python-format
 msgid "User %s not authorized to edit permissions of authorization group %s"
 msgstr ""
 
-#: ckan/logic/auth/update.py:112
+#: ckan/logic/auth/update.py:135
 #, python-format
 msgid "User %s not authorized to edit user %s"
 msgstr ""
 
-#: ckan/logic/auth/update.py:122
+#: ckan/logic/auth/update.py:145
 #, python-format
 msgid "User %s not authorized to change state of revision"
 msgstr ""
 
-#: ckan/logic/auth/update.py:132
+#: ckan/logic/auth/update.py:155
+#, python-format
+msgid "User %s not authorized to update task_status table"
+msgstr ""
+
+#: ckan/logic/auth/update.py:165
 msgid "Valid API key needed to edit a package"
 msgstr ""
 
-#: ckan/logic/auth/update.py:140
+#: ckan/logic/auth/update.py:173
 msgid "Valid API key needed to edit a group"
 msgstr ""
 

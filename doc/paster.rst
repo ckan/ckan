@@ -37,6 +37,20 @@ And to get more detailed help on each command (e.g. on ``db``)::
   paster --plugin=ckan --help db
 
 
+Paster executable
+-----------------
+
+It is essential to run the correct paster. The program may be installed globally on a server, but in nearly all cases, the one installed in the CKAN python virtual environment (pyenv) is the one that should be used instead. This can be done by either:
+
+1. Activating the virtual environment::
+
+    . pyenv/bin/activate
+
+2. Giving the path to paster when you run it::
+   
+    pyenv/bin/paster ... 
+
+
 Position of Paster Parameters
 -----------------------------
 
@@ -135,7 +149,7 @@ To load it in again, you first have to clean the database of existing data (be c
  paster --plugin=ckan db clean --config=/etc/ckan/std/std.ini std.pg_dump
  paster --plugin=ckan db load --config=/etc/ckan/std/std.ini std.pg_dump
 
-.. warning: The pg_dump file is a complete backup of the database in plain text, and includes user data which may be regarded as private. So keep it secure, like your database server.
+.. warning: The pg_dump file is a complete backup of the database in plain text, and includes API keys and other user data which may be regarded as private. So keep it secure, like your database server.
 
 The pg_dump file notes which PostgreSQL user 'owns' the data on the server. Because the PostgreSQL user (by default) is identified as the current Linux user, and this is setup to be ``ckanINSTANCE`` where ``INSTANCE`` is the name of the CKAN instance. This means if you want to restore the pg_dump as another CKAN instance name (often needed if you move it to another server) then you will need to change the database owner - see :doc:`editing_the_database_ownership`.
 

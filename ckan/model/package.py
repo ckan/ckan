@@ -9,7 +9,7 @@ from pylons import config
 from meta import metadata, Session
 import vdm.sqlalchemy
 
-from types import make_uuid
+from types import make_uuid, iso_date_to_datetime_for_sqlite
 from core import make_revisioned_table, Revision, State
 from license import License, LicenseRegister
 from domain_object import DomainObject
@@ -485,8 +485,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         conn = model.meta.engine.connect()
         result = conn.execute(query).fetchone()
         if result:
-            timestamp = result[0].utctimetuple()
-            usecs = float(result[0].microsecond) / 1e6
+            result_datetime = iso_date_to_datetime_for_sqlite(result[0])
+            timestamp = result_datetime.utctimetuple()
+            usecs = float(result_datetime.microsecond) / 1e6
         else:
             timestamp, usecs = gmtime(), 0
         # use timegm instead of mktime, because we don't want it localised
