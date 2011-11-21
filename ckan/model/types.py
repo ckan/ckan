@@ -5,6 +5,8 @@ from sqlalchemy import types
 
 from pylons import config
 
+from ckan.model import meta
+
 def make_uuid():
     return unicode(uuid.uuid4())
 
@@ -83,7 +85,7 @@ def iso_date_to_datetime_for_sqlite(datetime_or_iso_date_if_sqlite):
     # to call this to convert it into a datetime type. When running on
     # postgres then you have a datetime anyway, so this function doesn't
     # do anything.
-    if config['sqlalchemy.url'].startswith('sqlite:'):
+    if meta.engine_is_sqlite():
         return datetime.datetime.strptime(datetime_or_iso_date_if_sqlite,
                                           '%Y-%m-%d %H:%M:%S.%f')
     else:
