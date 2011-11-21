@@ -1,6 +1,8 @@
 from nose.tools import assert_raises
 from nose.plugins.skip import SkipTest
 
+from urllib import quote
+
 from ckan import plugins
 import ckan.lib.search as search
 from ckan.tests import setup_test_search_index
@@ -293,7 +295,6 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         assert res_dict['count'] == 1, res_dict
 
     def test_10_single_tag_with_plus(self):
-        from urllib import quote
         tagname = "Flexible+" + quote(u'\u30a1'.encode('utf8'))
         offset = self.base_url + "?tags=%s&all_fields=1"%tagname
         res = self.app.get(offset, status=200)
