@@ -202,6 +202,15 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         search.clear()
 
     def test_07_uri_qjson_tags(self):
+        query = {'q': '', 'tags':['tolstoy']}
+        json_query = self.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        self.assert_results(res_dict, [u'annakarenina'])
+        assert res_dict['count'] == 1, res_dict
+
+    def test_07_uri_qjson_tags_with_flexible_query(self):
         query = {'q': '', 'tags':['Flexible \u30a1']}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
@@ -300,6 +309,13 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 2, res_dict
+
+    def test_10_multi_tags_with_ampersand_including_a_multiword_tagame(self):
+        tagname = "Flexible+" + quote(u'\u30a1'.encode('utf8'))
+        offset = self.base_url + '?tags=tolstoy&tags=%s&all_fields=1' % tagname
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        assert res_dict['count'] == 1, res_dict
 
     def test_10_multiple_tags_with_ampersand(self):
         offset = self.base_url + '?tags=tolstoy&tags=russian&all_fields=1'
