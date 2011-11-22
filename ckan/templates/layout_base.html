@@ -80,8 +80,8 @@
             <span py:if="h.check_access('package_create')">${h.nav_link(c, _('Add a dataset'), controller='package', action='new')}</span>
             ${h.nav_link(c, _('Search'), controller='package', action='index', highlight_actions = 'new index')}
             ${h.nav_link(c, _('Groups'), controller='group', action='index')}
+            ${h.nav_link(c, _('About'), controller='home', action='about')}
           </div>
-          ${h.nav_link(c, _('About'), controller='home', action='about')}
         </div>
       </header>
     </div>
@@ -180,7 +180,7 @@
             <ul>
 <?python
   import ckan.lib.hash
-  current_url = url.current().encode('utf-8')
+  current_url = request.path_qs.encode('utf-8')
   current_url_hash = ckan.lib.hash.get_message_hash(current_url)
 ?>
               <li py:for="locale in h.get_available_locales()">
