@@ -5,17 +5,16 @@ from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import TestController as ControllerTestCase
 from ckan.tests import url_for
 
-class TestAjaxApi(ControllerTestCase):
+class TestUtil(ControllerTestCase):
     @classmethod
-    def setup(cls):
-        model.repo.init_db()
+    def setup_class(cls):
+        CreateTestData.create()
                 
     @classmethod
-    def teardown(cls):
+    def teardown_class(cls):
         model.repo.rebuild_db()
         
     def test_package_slug_valid(self):
-        CreateTestData.create()
         response = self.app.get(
             url=url_for(controller='api', action='is_slug_valid'),
             params={
@@ -39,8 +38,6 @@ class TestAjaxApi(ControllerTestCase):
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_tag_autocomplete(self):
-        CreateTestData.create()
-
         url = url_for(controller='api', action='tag_autocomplete')
         assert_equal(url, '/api/2/util/tag/autocomplete')
         response = self.app.get(
@@ -53,3 +50,35 @@ class TestAjaxApi(ControllerTestCase):
         assert_equal(response.body, '{"ResultSet": {"Result": [{"Name": "russian"}]}}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
+    def test_markdown(self):
+        markdown = '''##Title'''
+        response = self.app.get(
+            url=url_for(controller='api', action='markdown'),
+            params={'q': markdown},
+            status=200,
+        )
+        assert_equal(response.body, '"<h2>Title</h2>"')
+        
+    def test_munge_package_name(self):
+        response = self.app.get(
+            url=url_for(controller='api', action='munge_package_name'),
+            params={'name': 'test name'},
+            status=200,
+        )
+        assert_equal(response.body, '"test-name"')
+
+    def test_munge_title_to_package_name(self):
+        response = self.app.get(
+            url=url_for(controller='api', action='munge_title_to_package_name'),
+            params={'name': 'Test title'},
+            status=200,
+        )
+        assert_equal(response.body, '"test-title"')
+
+    def test_munge_tag(self):
+        response = self.app.get(
+            url=url_for(controller='api', action='munge_tag'),
+            params={'name': 'Test subject'},
+            status=200,
+        )
+        assert_equal(response.body, '"test-subject"')
