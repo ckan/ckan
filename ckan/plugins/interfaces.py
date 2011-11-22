@@ -12,12 +12,11 @@ __all__ = [
     'IDomainObjectModification', 'IGroupController', 
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer', 'IAuthorizer',
-    'IActions', 'IResourceUrlChange'
+    'IActions', 'IResourceUrlChange', 'IPluggablePackageController',
 ]
 
 from inspect import isclass
 from pyutilib.component.core import Interface as _pca_Interface
-
 
 class Interface(_pca_Interface):
 
@@ -329,4 +328,80 @@ class IAuthFunctions(Interface):
         Returns a dict of all the authorization functions which the
         implementation overrides
         """
+
+class IPluggablePackageController(Interface):
+    """
+    Allows customisation of the package controller as a plugin.
+
+    Different package types can be associated with different
+    IPluggablePackageControllers, allowing multiple package controllers
+    on a CKAN instance.
+
+    The PackageController uses hooks to customise behaviour.  A implementation
+    of IPluggablePackageController must implement these hooks.
+
+    Implementations might want to consider subclassing
+    ckan.controllers.package.DefaultPluggablePackageController
+
+    """
+
+    ##### These methods control when the plugin is delegated to          #####
+
+    def is_fallback(self):
+        """
+        Returns true iff this provides the fallback behaviour, when no other
+        plugin matches a package's type.
+
+        There must be exactly one fallback controller defined, any attempt to
+        register more than one or to not have any registered, will throw
+        an exception at startup.
+        """
+
+    def package_types(self):
+        """
+        Returns an iterable of package type strings.
+
+        If a request involving a package of one of those types is made, then
+        this plugin will be delegated to.
+
+        There must only be one plugin registered to each package type.  Any
+        attempts to register more than one plugin to a given package type will
+        raise an exception at startup.
+        """
+
+    ##### End of control methods
+
+    ##### Hooks for customising the PackageController's behaviour        #####
+
+    def package_form(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered.  e.g. "package/new_package_form.html".
+        """
+
+    def form_to_db_schema(self):
+        """
+        Returns the schema for mapping package data from a form to a format
+        suitable for the database.
+        """
+
+    def db_to_form_schema(self):
+        """
+        Returns the schema for mapping package data from the database into a
+        format suitable for the form (optional)
+        """
+
+    def check_data_dict(self, data_dict):
+        """
+        Check if the return data is correct.
+
+        raise a DataError if not.
+        """
+
+    def setup_template_variables(self, context, data_dict):
+        """
+        Add variables to c just prior to the template being rendered.
+        """
+
+    ##### End of hooks                                                   #####
 
