@@ -554,15 +554,5 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 None)
 
     def activity_stream_detail(self, activity_id, activity_type):
-        assert activity_type in ("new", "changed", "deleted"), \
-            str(activity_type)
-        if activity_type == "new":
-            # There are no detail views for new package activities.
-            return None
-        elif activity_type == "deleted":
-            # There are no detail views for deleted package activities.
-            return None
-        elif activity_type == "changed":
-            # TODO: Some data about _what_ changed in the package,
-            return ActivityDetail(activity_id, self.id, u"Package",
-                    activity_type, None)
+        return ActivityDetail(activity_id, self.id, u"Package", activity_type, 
+            data=None)

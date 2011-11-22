@@ -58,9 +58,14 @@ class TestActivity(PylonsTestCase):
         assert activity.timestamp >= before and activity.timestamp <= after, \
             str(activity.timestamp)
 
-        # No activity stream detail should be emitted by adding a new package.
+        # Test for the presence of a correct activity detail item.
         details = model.Session.query(model.activity.ActivityDetail).all()
-        assert len(details) == details_length_before, str(details)
+        assert len(details) == details_length_before +1, str(details)
+        detail = details[-1]
+        assert detail.activity_id == activity.id, str(detail.activity_id)
+        assert detail.object_id == package_created.id, str(detail.object_id)
+        assert detail.object_type == "Package", str(detail.object_type)
+        assert detail.activity_type == "new", str(detail.activity_type)
 
     def test_create_package_logged_in(self):
         """
