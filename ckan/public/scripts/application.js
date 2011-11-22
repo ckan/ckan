@@ -27,9 +27,10 @@
     if (isDatasetView) {
       // var _dataset = new CKAN.Model.Dataset(preload_dataset);
       // CKANEXT.DATAPREVIEW.setupDataPreview(_dataset);
-
       // Set up hashtag nagivigation
       // CKAN.Utils.setupDatasetViewNavigation();
+      // Show extract of notes field
+      CKAN.Utils.setupDatasetViewNotesExtract();
     }
 
     var isDatasetNew = $('body.package.new').length > 0;
@@ -433,6 +434,20 @@ CKAN.Utils = function($, my) {
       showSection(showMe);
       return false;
     });  
+  };
+
+  // If notes field is more than 1 paragraph, just show the
+  // first paragraph with a 'Read more' link that will expand
+  // the div if clicked
+  my.setupDatasetViewNotesExtract = function() {
+    var notes = $('#dataset div.notes');
+    if(notes.find('p').length > 1){
+      var first = notes.find('p:first');
+      var remaining = notes.find('p:not(:first)');
+      $('#dataset div.notes').html($.tmpl(
+        CKAN.Templates.datasetNotesField, {}
+      ));
+    }
   };
 
   // Show/hide fieldset sections from the edit dataset form. 
