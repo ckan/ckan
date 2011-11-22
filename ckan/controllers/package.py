@@ -623,3 +623,31 @@ class PackageController(BaseController):
                 return name
             else:
                 return reference + " unknown"
+
+    def resource_read(self, id, resource_id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.resource = get_action('resource_show')(context, {'id': resource_id})
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        try:
+            c.package = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('Package not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        # get package license info
+        license_id = c.package.get('license_id')
+        try:
+            c.package['isopen'] = model.Package.get_license_register()[license_id].isopen()
+        except KeyError:
+            c.package['isopen'] = False
+
+        return render('package/resource_read.html')
+

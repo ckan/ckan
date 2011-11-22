@@ -11,38 +11,34 @@
     </div>
     
     <!-- Resources -->
-    <div class="resources subsection">
+    <div id="dataset-resources" class="resources subsection">
       <h3>Resources</h3>
-      <table class="resource-table-view">
-        <thead>
-            <th>Resource</th>
-            <th>Format</th>
-            <th>Actions</th>
-        </thead>
-        <py:for each="res in c.pkg_dict.get('resources', [])">
-          <tr rel="dcat:distribution" resource="_:res${res.id}"
-            typeof="dcat:Distribution">
-            <td>
+      <py:for each="res in c.pkg_dict.get('resources', [])">
+        <div class="dataset-resource" rel="dcat:distribution" resource="_:res${res.id}"
+          typeof="dcat:Distribution">
+          <div class="resource-url">
               <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
-                <py:if test="res.get('name') or res.get('description')">
-                  <span property="rdfs:label">${res.get('description') or res.get('name')}</span>
+                <py:if test="res.get('name')">
+                  <span property="rdfs:label">${res.get('name')}</span>
                 </py:if>
-                <py:if test="not(res.get('name') or res.get('description'))">
-                  <em>(none)</em>
+                <py:if test="not res.get('name')">
+                  <em>(no name)</em>
                 </py:if>
               </a>
-            </td>
-            <td property="dc:format">${res.get('format', '')}</td>
-            <td></td>
-          </tr>
-        </py:for>
-        <py:if test="not len(c.pkg_dict.get('resources', []))">
-          <tr class="table-empty"><td colspan="2">(none)</td></tr>
-        </py:if>
-      </table>
+          </div>
+          <div class="resource-description">${h.markdown_extract(res.get('description'))}</div>
+          <ul class="resource-information">
+            <li class="resource-format" property="dc:format">${res.get('format', '(unknown format)')}</li>
+            <li py:if="res.get('last_modified')">
+              Last updated: ${h.time_ago_in_words_from_str(res.get('last_modified'), granularity='day')} ago
+            </li>
+          </ul>
+        </div>
+      </py:for>
+      <py:if test="not len(c.pkg_dict.get('resources', []))">
+        (none)
+      </py:if>
     </div>
-
-    <hr class="cleared" />
 
     <py:def function="details_item(label, value)">
         <tr>

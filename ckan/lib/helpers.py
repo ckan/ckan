@@ -213,12 +213,12 @@ def group_name_to_title(name):
         return group.display_name
     return name
 
-def markdown_extract(text):
+def markdown_extract(text, extract_length=190):
     if (text is None) or (text == ''):
         return ''
     html = fromstring(markdown(text))
     plain = html.xpath("string()")
-    return unicode(truncate(plain, length=190, indicator='...', whole_word=True))
+    return unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True))
 
 def icon_url(name):
     return '/images/icons/%s.png' % name
