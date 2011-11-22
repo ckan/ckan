@@ -711,7 +711,9 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     var dialogId = 'ckanext-datapreview-dialog';
     // initialize the tableviewer system
     DATAEXPLORER.TABLEVIEW.initialize(dialogId);
-    my.createPreviewButtons(dataset, $('.resources'));
+    if (dataset.get('resources').length>0) {
+      my.createPreviewButtons(dataset, $('.resources'));
+    }
   };
 
   // Public: Creates the base UI for the plugin.
