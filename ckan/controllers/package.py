@@ -25,6 +25,8 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
 from ckan.lib.dictization import table_dictize
 from ckan.lib.i18n import get_lang
+from ckan.plugins import SingletonPlugin, implements
+from ckan.plugins.interfaces import IPluggablePackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -47,19 +49,63 @@ autoneg_cfg = [
     ("text", "x-graphviz", ["dot"]),
     ]
 
-class PackageController(BaseController):
+_pluggable_package_controllers = dict()
+_default_pluggable_package_controller = None
 
-    ## hooks for subclasses 
-    package_form = 'package/new_package_form.html'
+def set_fallback_controller(plugin_instance):
+    """
+    Sets the fallback controller
+    """
+    global _default_pluggable_package_controller
+    if _default_pluggable_package_controller is not None:
+        raise ValueError, "A fallback package controller has alread been registered"
+    _default_pluggable_package_controller = plugin_instance
 
-    def _form_to_db_schema(self):
+def set_default_as_fallback_controller_if_required():
+    """
+    Set the fallback controller to be an instance of DefaultPluggablePackageController
+    """
+    if _default_pluggable_package_controller is None:
+        set_fallback_controller(DefaultPluggablePackageController())
+
+def _lookup_plugin(package_type):
+    """
+    Returns the plugin controller associoated with the given package type.
+    """
+    if package_type is None:
+        return _default_pluggable_package_controller
+    return _pluggable_package_controllers.get(package_type,
+                                              _default_pluggable_package_controller)
+
+def add_package_controller(package_type, plugin_instance):
+    """
+    Register the given plugin_instance to the given package_type.
+    """
+    if package_type in _pluggable_package_controllers:
+        raise ValueError, 'A PluggablePackageController is already ' \
+                          'associated with this package_type: "%s"' % package_type
+
+class DefaultPluggablePackageController(object):
+    """
+    Provides a default implementation of the package controller.
+
+    Note - this isn't a plugin implementation.  This is deliberate, as
+           we don't want this being registered.
+    """
+
+    ##### Define the hooks that control the behaviour #####
+
+    def package_form(self):
+        return 'package/new_package_form.html'
+
+    def form_to_db_schema(self):
         return package_form_schema()
 
-    def _db_to_form_schema(self):
+    def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
-    def _check_data_dict(self, data_dict):
+    def check_data_dict(self, data_dict):
         '''Check if the return data is correct, mostly for checking out if
         spammers are submitting only part of the form'''
 
@@ -79,7 +125,7 @@ class PackageController(BaseController):
             log.info('incorrect form fields posted')
             raise DataError(data_dict)
 
-    def _setup_template_variables(self, context, data_dict):
+    def setup_template_variables(self, context, data_dict):
         c.groups_authz = get_action('group_list_authz')(context, data_dict)
         data_dict.update({'available_only':True})
         c.groups_available = get_action('group_list_authz')(context, data_dict)
@@ -99,6 +145,27 @@ class PackageController(BaseController):
                 c.auth_for_change_state = False
 
     ## end hooks
+
+class PackageController(BaseController):
+
+    def _package_form(self, package_type=None):
+        return _lookup_plugin(package_type).package_form()
+
+    def _form_to_db_schema(self, package_type=None):
+        return _lookup_plugin(package_type).form_to_db_schema()
+
+    def _db_to_form_schema(self, package_type=None):
+        '''This is an interface to manipulate data from the database
+        into a format suitable for the form (optional)'''
+        return _lookup_plugin(package_type).db_to_form_schema()
+
+    def _check_data_dict(self, data_dict, package_type=None):
+        '''Check if the return data is correct, mostly for checking out if
+        spammers are submitting only part of the form'''
+        return _lookup_plugin(package_type).check_data_dict(data_dict)
+
+    def _setup_template_variables(self, context, data_dict, package_type=None):
+        return _lookup_plugin(package_type).setup_template_variables(context, data_dict)
 
     authorizer = ckan.authz.Authorizer()
 
@@ -339,7 +406,7 @@ class PackageController(BaseController):
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context, {'id': id})
-        c.form = render(self.package_form, extra_vars=vars)
+        c.form = render(self._package_form(), extra_vars=vars)
 
         return render('package/new.html')
 
@@ -378,7 +445,7 @@ class PackageController(BaseController):
 
         self._setup_template_variables(context, {'id': id})
 
-        c.form = render(self.package_form, extra_vars=vars)
+        c.form = render(self._package_form(), extra_vars=vars)
         return render('package/edit.html')
 
     def read_ajax(self, id, revision=None):
