@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 from sqlalchemy.sql import select, and_, union, expression, or_
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import types, Column, Table
-from pylons import config, session, c
+from pylons import config, session, c, request
 from meta import metadata, Session
 import vdm.sqlalchemy
 
@@ -538,8 +538,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         if user_obj:
             user_id = user_obj.id
         else:
-            # FIXME: Use IP address?
-            user_id = "not logged in"
+            # User is not logged in, use their IP address as the user_id.
+            user_id = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
         logger.debug("user_id: %s" % user_id)
         assert activity_type in ("new", "changed", "deleted"), \
             str(activity_type)

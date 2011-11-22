@@ -47,7 +47,7 @@ class TestActivity(PylonsTestCase):
         activity = activities[-1]
         assert activity.object_id == package_created.id, \
             str(activity.object_id)
-        assert activity.user_id == "not logged in", str(activity.user_id)
+        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
         assert activity.activity_type == 'new package', \
             str(activity.activity_type)
         if not activity.id:
@@ -91,7 +91,7 @@ class TestActivity(PylonsTestCase):
         assert len(activities) == length_before + 1, str(activities)
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == "not logged in", str(activity.user_id)
+        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
         if not activity.id:
@@ -149,7 +149,7 @@ class TestActivity(PylonsTestCase):
         assert len(activities) == length_before + 1, str(activities)        
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == "not logged in", str(activity.user_id)
+        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
         if not activity.id:
@@ -197,7 +197,7 @@ class TestActivity(PylonsTestCase):
         assert len(activities) == length_before + 1, str(activities)        
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == "not logged in", str(activity.user_id)
+        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
         if not activity.id:
