@@ -14,58 +14,48 @@
   <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
   - Datasets</py:def>
   
-  <py:def function="page_heading" property="dc:title">${c.pkg_dict['title']}</py:def>
+  <py:def function="page_heading" property="dc:title">
+    ${c.pkg_dict['title']}
+    <span id="dataset-license">
+      <py:if test="c.pkg.isopen()">
+          <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+            <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+          </a>
+      </py:if>
+      <py:if test="not c.pkg.isopen()">
+          <span class="closed">
+            ${h.icon('lock')}
+          </span>
+      </py:if>
+    </span>
+  </py:def>
   
   <py:match path="primarysidebar">
   
     <li class="widget-container widget_text">
       <ul class="property-list">
-        <!-- <li py:if="c.pkg.url"> -->
-        <!--   <h3>Source</h3> -->
-        <!--   <span property="foaf:homepage">${c.pkg_url_link}</span> -->
-        <!-- </li> -->
-        <!-- <li py:if="c.pkg_author_link"> -->
-        <!--   <h3>Author</h3> -->
-        <!--   <span property="dc:creator">${c.pkg_author_link}</span> -->
-        <!-- </li> -->
-        <!-- <li py:if="c.pkg_maintainer_link"> -->
-        <!--   <h3>Maintainer</h3> -->
-        <!--   <span property="dc:contributor">${c.pkg_maintainer_link}</span> -->
-        <!-- </li> -->
-        <!-- <li py:if="c.pkg.version"> -->
-        <!--   <h3>Version</h3> -->
-        <!--   ${c.pkg.version} -->
-        <!-- </li> -->
-        <!-- <li py:if="c.eu_country"> -->
-        <!--   <h3>Country</h3> ${h.code_to_country(c.eu_country)} -->
-        <!-- </li> -->
         <li>
           <h3>Tags</h3>
           ${tag_list(c.pkg_dict.get('tags', ''))}
         </li>
-        <!-- <li> -->
-        <!--   <h3>Groups</h3> -->
-        <!--   <py:if test="c.pkg.groups">         -->
-        <!--       <ul class="groups"> -->
-        <!--         <li py:for="group in sorted(c.pkg.groups, key=lambda g: g.display_name)"> -->
-        <!--             <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a> -->
-        <!--         </li> -->
-        <!--       </ul> -->
-        <!--   </py:if> -->
-        <!--   <p class="hint"> -->
-        <!--     <py:if test="not c.pkg.groups"> -->
-        <!--        Groups are collections of dataset maintained by users of ${g.site_title}. This dataset has not been added to any groups yet. -->
-        <!--     </py:if> -->
-        <!--   </p> -->
-        <!-- </li> -->
-        <!-- <li py:if="h.check_access('package_update',{'id':c.pkg.id})"> -->
-        <!--   <li><h3>State</h3> ${c.pkg.state}</li> -->
-        <!-- </li> -->
-        <!-- <li py:if="c.harvest_catalogue_name"> -->
-        <!-- <h3>Source</h3> <a href="${c.harvest_dataset_url}">Source -->
-        <!--   page</a> on <a -->
-        <!--   href="${c.harvest_catalogue_url}">${c.harvest_catalogue_name}</a> -->
-        <!-- </li> -->
+        <li>
+          <h3>Groups</h3>
+          <py:if test="c.pkg.groups">        
+              <ul class="groups">
+                <li py:for="group in sorted(c.pkg.groups, key=lambda g: g.display_name)">
+                    <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
+                </li>
+              </ul>
+          </py:if>
+          <p class="hint">
+            <py:if test="not c.pkg.groups">
+               Groups are collections of dataset maintained by users of ${g.site_title}. This dataset has not been added to any groups yet.
+            </py:if>
+          </p>
+        </li>
+      </ul>
+    </li>
+
         <!-- <li py:if="c.package_relationships"> -->
         <!--   <h3>Related dataset</h3> -->
         <!--   <ul> -->
@@ -79,10 +69,8 @@
         <!--     </py:for> -->
         <!--   </ul> -->
         <!-- </li> -->
-      </ul>
-    </li>
 
-    
+
     <!-- <li class="widget-container boxed widget_text"> -->
     <!-- <py:if test="c.pkg.isopen() and c.pkg.resources"> -->
     <!--   <h3> -->

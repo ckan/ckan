@@ -29,7 +29,7 @@
       // CKANEXT.DATAPREVIEW.setupDataPreview(_dataset);
 
       // Set up hashtag nagivigation
-      CKAN.Utils.setupDatasetViewNavigation();
+      // CKAN.Utils.setupDatasetViewNavigation();
     }
 
     var isDatasetNew = $('body.package.new').length > 0;

@@ -977,19 +977,19 @@ td.resource-edit-value {
 /* ===================== */
 /* = Dataset View Page = */
 /* ===================== */
-body.package.read #content {
-    border: 0;
-}
+/* body.package.read #content { */
+/*     border: 0; */
+/* } */
 body.package.read #sidebar ul.tags, 
 body.package.read #sidebar ul.groups {
   margin-bottom: 10px;
 }
-body.package.read #dataset {
-    border-left: 1px solid #ececec;
-    border-right: 1px solid #ececec;
-    border-bottom: 1px solid #ececec;
-    padding: 12px;
-}
+/* body.package.read #dataset { */
+/*     border-left: 1px solid #ececec; */
+/*     border-right: 1px solid #ececec; */
+/*     border-bottom: 1px solid #ececec; */
+/*     padding: 24px 12px 12px 12px; */
+/* } */
 body.package.read #dataset-resources { 
     margin-top: 2em; 
     margin-bottom: 2em; 
@@ -1046,8 +1046,6 @@ body.package.read #dataset-tabs li {
 body.package.read #dataset-tabs a {
     padding: 8px 12px 8px 12px;
     color: #808080;
-    /* border: 1px transparent solid #ffffff; */
-    /* border-right: none; */
     display: inline-block;
     margin-bottom: -1px;
 }
