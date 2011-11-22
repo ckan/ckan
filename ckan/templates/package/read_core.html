@@ -23,9 +23,6 @@
         ${c.pkg_notes_formatted}
       </div>
 
-      <!-- Image -->
-      <!-- <div id="dataset-image"></div> -->
-      
       <!-- Resources -->
       <div id="dataset-resources" class="resources subsection">
         <h3>Resources</h3>
@@ -36,7 +33,8 @@
               <py:if test="res.get('name')">${res.get('name')}</py:if>
               <py:if test="not res.get('name')">(no name)</py:if>
             </a>
-            <span class="resource-format" property="dc:format">${res.get('format', '(unknown format)')}</span>
+            <span py:if="res.get('format')" class="resource-format" property="dc:format">${res.get('format')}</span>
+            <span py:if="not res.get('format')" class="resource-format" property="dc:format">(unknown format)</span>
             <div class="resource-description">${h.markdown_extract(res.get('description'))}</div>
             <div class="resource-url" rel="dcat:distribution" resource="_:res${res.id}"
               typeof="dcat:Distribution">
