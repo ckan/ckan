@@ -53,7 +53,9 @@ class TestAuthorizer(object):
         model.Session.add(model.Package(name=u'testpkg2'))
         model.Session.add(model.Package(name=u'private_pkg'))
         model.Session.add(model.User(name=u'testadmin'))
-        model.Session.add(model.User(name=u'testsysadmin'))
+        # Cannot setup testsysadmin user as it is alreade done in
+        # the default test data.
+        #model.Session.add(model.User(name=u'testsysadmin')) 
         model.Session.add(model.User(name=u'notadmin'))
         model.Session.add(model.Group(name=u'testgroup'))
         model.Session.add(model.Group(name=u'testgroup2'))
@@ -198,7 +200,9 @@ class TestLockedDownAuthorizer(object):
         model.Session.add(model.Package(name=u'testpkg'))
         model.Session.add(model.Package(name=u'testpkg2'))
         model.Session.add(model.User(name=u'testadmin'))
-        model.Session.add(model.User(name=u'testsysadmin'))
+        # Cannot setup testsysadmin user as it is alreade done in
+        # the default test data.
+        #model.Session.add(model.User(name=u'testsysadmin'))
         model.Session.add(model.User(name=u'notadmin'))
         model.Session.add(model.Group(name=u'testgroup'))
         model.Session.add(model.Group(name=u'testgroup2'))

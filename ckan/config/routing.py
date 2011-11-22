@@ -16,6 +16,7 @@ def make_map():
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
     map.minimization = False
+    map.explicit = True
 
     # The ErrorController route (handles 404/500 error pages); it should
     # likely stay at the top, ensuring it can always be resolved.
@@ -188,8 +189,16 @@ def make_map():
             'search'
             ]))
         )
+
     map.connect('/dataset', controller='package', action='index')
-    map.connect('/dataset/{action}/{id}/{revision}', controller='package', action='read_ajax')
+    map.connect('/dataset/{action}/{id}/{revision}', controller='package', action='read_ajax',
+        requirements=dict(action='|'.join([
+        'read',
+        'edit',
+        'authz',
+        'history',
+        ]))
+    )
     map.connect('/dataset/{action}/{id}', controller='package',
         requirements=dict(action='|'.join([
         'edit',
@@ -200,6 +209,10 @@ def make_map():
         ]))
         )
     map.connect('/dataset/{id}', controller='package', action='read')
+    map.connect('/dataset/{id}/resource/{resource_id}', 
+        controller='package', action="resource_read"
+    )
+
     # group
     map.redirect("/groups", "/group")
     map.redirect("/groups/{url:.*}", "/group/{url}")

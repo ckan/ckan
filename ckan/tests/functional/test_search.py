@@ -91,7 +91,7 @@ class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
 
     @search_related
     def test_search(self):
-        offset = url_for(controller='package', action='search', id=None)
+        offset = url_for(controller='package', action='search')
         print offset
         res = self.app.get(offset)
         assert 'Search - ' in res

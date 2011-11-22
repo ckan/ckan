@@ -111,12 +111,15 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
 
     @classmethod
     def get(cls, reference):
-        '''Returns a resource object referenced by its id.'''
+        '''Returns a resource object referenced by its name or id.'''
         query = Session.query(ResourceRevision).filter(ResourceRevision.id==reference)
         query = query.filter(and_(
             ResourceRevision.state == u'active', ResourceRevision.current == True
         ))
-        return query.first()
+        resource = query.first()
+        if resource == None:
+            resource = cls.by_name(reference)            
+        return resource
         
     @classmethod
     def get_columns(cls, extra_columns=True):

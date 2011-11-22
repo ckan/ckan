@@ -118,3 +118,8 @@ mapper = orm.mapper
 # names, you'll need a metadata for each database
 metadata = MetaData()
 
+def engine_is_sqlite():
+    """
+    Returns true iff the engine is connected to a sqlite database.
+    """
+    return engine.url.drivername == 'sqlite'
