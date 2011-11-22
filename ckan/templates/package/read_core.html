@@ -4,74 +4,92 @@
   py:strip=""
   >
   <xi:include href="../_util.html" />
+
+  <!-- Dataset tabs -->
+  <div id="dataset-tab-bar">
+    <ul id="dataset-tabs">
+      <li><a href="#overview" class="selected">Overview</a></li>
+      <li><a href="#more-information">More Information</a></li>
+    </ul>
+  </div>
+
   <div id="dataset" class="dataset">
-    <!-- About dataset -->
-    <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
-      ${c.pkg_notes_formatted}
-    </div>
-    
-    <!-- Resources -->
-    <div id="dataset-resources" class="resources subsection">
-      <h3>Resources</h3>
-      <py:for each="res in c.pkg_dict.get('resources', [])">
-        <div class="dataset-resource">
-          <a class="resource-view-url"
-             href="${url(controller='package', action='resource_read', id=c.pkg_dict['id'], resource_id=res['id'])}">
-            <py:if test="res.get('name')">${res.get('name')}</py:if>
-            <py:if test="not res.get('name')">(no name)</py:if>
-          </a>
-          <span class="resource-format" property="dc:format">${res.get('format', '(unknown format)')}</span>
-          <div class="resource-description">${h.markdown_extract(res.get('description'))}</div>
-          <div class="resource-url" rel="dcat:distribution" resource="_:res${res.id}"
-            typeof="dcat:Distribution">
-              <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
-                ${res.get('url', '')}
-              </a>
+
+    <!-- Overview -->
+    <div id="dataset-overview">
+
+      <!-- Description -->
+      <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
+        ${c.pkg_notes_formatted}
+      </div>
+
+      <!-- Image -->
+      <!-- <div id="dataset-image"></div> -->
+      
+      <!-- Resources -->
+      <div id="dataset-resources" class="resources subsection">
+        <h3>Resources</h3>
+        <py:for each="res in c.pkg_dict.get('resources', [])">
+          <div class="dataset-resource">
+            <a class="resource-view-url"
+               href="${url(controller='package', action='resource_read', id=c.pkg_dict['id'], resource_id=res['id'])}">
+              <py:if test="res.get('name')">${res.get('name')}</py:if>
+              <py:if test="not res.get('name')">(no name)</py:if>
+            </a>
+            <span class="resource-format" property="dc:format">${res.get('format', '(unknown format)')}</span>
+            <div class="resource-description">${h.markdown_extract(res.get('description'))}</div>
+            <div class="resource-url" rel="dcat:distribution" resource="_:res${res.id}"
+              typeof="dcat:Distribution">
+                <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
+                  ${res.get('url', '')}
+                </a>
+            </div>
+            <ul class="resource-information">
+              <li py:if="res.get('last_modified')">
+                Last updated: ${h.time_ago_in_words_from_str(res.get('last_modified'), granularity='day')} ago
+              </li>
+            </ul>
           </div>
-          <ul class="resource-information">
-            <li py:if="res.get('last_modified')">
-              Last updated: ${h.time_ago_in_words_from_str(res.get('last_modified'), granularity='day')} ago
-            </li>
-          </ul>
-        </div>
-      </py:for>
-      <py:if test="not len(c.pkg_dict.get('resources', []))">
-        (none)
-      </py:if>
-    </div>
+        </py:for>
+        <py:if test="not len(c.pkg_dict.get('resources', []))">
+          (none)
+        </py:if>
+      </div>
 
-    <py:def function="details_item(label, value)">
-        <tr>
-          <td class="dataset-label">
-            ${label}
-          </td>
-          <td class="dataset-details">
-            ${value}
-          </td>
-        </tr>
-    </py:def>
+    </div> <!-- /overview -->
 
-    <!-- <div class="details subsection"> -->
-    <!-- <h3>Additional Information</h3> -->
-    <!-- <table> -->
-    <!--   <thead> -->
-    <!--     <tr> -->
-    <!--       <th>Field</th> -->
-    <!--       <th>Value</th> -->
-    <!--     </tr> -->
-    <!--   </thead> -->
-    <!--   <tbody> -->
-    <!--     <tr py:for="i, (key, value) in enumerate(c.pkg_extras)" -->
-    <!--       rel="dc:relation" resource="_:extra${i}"> -->
-    <!--       <td class="dataset-label" property="rdfs:label">${_(key)}</td> -->
-    <!--       <td class="dataset-details" property="rdf:value">${value}</td> -->
-    <!--     </tr> -->
-    <!--     <py:if test="not len(c.pkg_extras)"> -->
-    <!--       <tr class="table-empty"><td colspan="2">(none)</td></tr> -->
-    <!--     </py:if> -->
-    <!--   </tbody> -->
-    <!-- </table> -->
-    <!-- </div> -->
+      <!-- <py:def function="details_item(label, value)"> -->
+      <!--     <tr> -->
+      <!--       <td class="dataset-label"> -->
+      <!--         ${label} -->
+      <!--       </td> -->
+      <!--       <td class="dataset-details"> -->
+      <!--         ${value} -->
+      <!--       </td> -->
+      <!--     </tr> -->
+      <!-- </py:def> -->
+
+      <!-- <div class="details subsection"> -->
+      <!-- <h3>Additional Information</h3> -->
+      <!-- <table> -->
+      <!--   <thead> -->
+      <!--     <tr> -->
+      <!--       <th>Field</th> -->
+      <!--       <th>Value</th> -->
+      <!--     </tr> -->
+      <!--   </thead> -->
+      <!--   <tbody> -->
+      <!--     <tr py:for="i, (key, value) in enumerate(c.pkg_extras)" -->
+      <!--       rel="dc:relation" resource="_:extra${i}"> -->
+      <!--       <td class="dataset-label" property="rdfs:label">${_(key)}</td> -->
+      <!--       <td class="dataset-details" property="rdf:value">${value}</td> -->
+      <!--     </tr> -->
+      <!--     <py:if test="not len(c.pkg_extras)"> -->
+      <!--       <tr class="table-empty"><td colspan="2">(none)</td></tr> -->
+      <!--     </py:if> -->
+      <!--   </tbody> -->
+      <!-- </table> -->
+      <!-- </div> -->
     
   </div> <!-- /dataset -->
 

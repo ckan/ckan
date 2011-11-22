@@ -977,9 +977,18 @@ td.resource-edit-value {
 /* ===================== */
 /* = Dataset View Page = */
 /* ===================== */
+body.package.read #content {
+    border: 0;
+}
 body.package.read #sidebar ul.tags, 
 body.package.read #sidebar ul.groups {
   margin-bottom: 10px;
+}
+body.package.read #dataset {
+    border-left: 1px solid #ececec;
+    border-right: 1px solid #ececec;
+    border-bottom: 1px solid #ececec;
+    padding: 12px;
 }
 body.package.read #dataset-resources { 
     margin-top: 2em; 
@@ -1021,6 +1030,34 @@ body.package.read .resource-format {
 body.package.read #sidebar li.widget-container {
     border: 0
 }
+body.package.read #dataset-tab-bar {
+    margin-top: 1em;
+    border-bottom: 1px solid #ececec;
+}
+body.package.read #dataset-tabs {
+    padding: 0;
+    margin: 0;
+}
+body.package.read #dataset-tabs li {
+    display: inline-block;
+    cursor: pointer;
+    font-size: 14px;
+}
+body.package.read #dataset-tabs a {
+    padding: 8px 12px 8px 12px;
+    color: #808080;
+    /* border: 1px transparent solid #ffffff; */
+    /* border-right: none; */
+    display: inline-block;
+    margin-bottom: -1px;
+}
+body.package.read #dataset-tabs a.selected {
+    color: #000000;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #ffffff;
+}
 
 
 /* ====================== */
@@ -1040,7 +1077,7 @@ body.package.resource_read #resource-description { margin-bottom: 2em; }
 body.package.resource_read #dataset-description { margin-bottom: 2em; }
 body.package.resource_read #resource-explore { margin-bottom: 2em; }
 body.package.resource_read #resource-information-list { 
-    border: 1px solid #E0E0E0; 
+    border: 1px solid #e0e0e0; 
     padding: 10px;
 }
 body.package.resource_read #resource-information dt
