@@ -51,9 +51,9 @@ class TestTagSearch(object):
         result = search.query_for(model.Tag).run(query=u' \u30a1')
         assert u'Flexible \u30a1' in result['results']
 
-    def test_search_is_case_sensitive(self):
+    def test_search_is_case_insensitive(self):
         result = search.query_for(model.Tag).run(query=u'flexible')
-        assert u'Flexible \u30a1' not in result['results']
+        assert u'Flexible \u30a1' in result['results']
         
 
     def test_good_search_fields(self):

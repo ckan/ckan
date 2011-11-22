@@ -6,6 +6,7 @@ from pylons import config
 import ckan
 from ckan.logic import NotFound
 from ckan.logic import check_access
+from ckan.model import misc
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
@@ -789,7 +790,8 @@ def tag_search(context, data_dict):
         return
 
     for term in terms:
-        q = q.filter(model.Tag.name.contains(term))
+        escaped_term = misc.escape_sql_like_special_characters(term, escape='\\')
+        q = q.filter(model.Tag.name.ilike('%' + escaped_term + '%'))
 
     count = q.count()
     q = q.offset(offset)

@@ -164,10 +164,10 @@ class TestSearch(TestController):
         result = search.query_for(model.Package).run({'q': u'tags:"surprise."'})
         assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
 
-    def dont_test_tags_token_with_basic_unicode(self):
+    def test_tags_token_with_basic_unicode(self):
         result = search.query_for(model.Package).run({'q': u'tags:"greek omega \u03a9"'})
         assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
-        
+
     def test_pagination(self):
         # large search
         all_results = search.query_for(model.Package).run({'q': self.q_all})
@@ -333,6 +333,9 @@ class TestSearchOverall(TestController):
         self._check_search_results('groups:lenny', 0)
         self._check_search_results('tags:"russian"', 2)
         self._check_search_results(u'tags:"Flexible \u30a1"', 2)
+        self._check_search_results(u'Flexible \u30a1', 2)
+        self._check_search_results(u'Flexible', 2)
+        self._check_search_results(u'flexible', 2)
         
 
 class TestGeographicCoverage(TestController):

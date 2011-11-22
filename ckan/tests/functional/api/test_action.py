@@ -663,13 +663,6 @@ class TestAction(WsgiAppCase):
     def test_15_tag_autocomplete_tag_with_capital_letters(self):
         """
         Asserts autocomplete finds tags that contain capital letters
-        
-        Note : the only reason this test passes for now is that the
-               search is for a lower cases substring.  If we had searched
-               for "CAPITAL" then it would fail.  This is because currently
-               the search API lower cases all search terms.  There's a
-               sister test (`test_15_tag_autocomplete_search_with_capital_letters`)
-               that tests that functionality.
         """
         
         CreateTestData.create_arbitrary([{
@@ -738,13 +731,6 @@ class TestAction(WsgiAppCase):
     def test_15_tag_autocomplete_search_with_capital_letters(self):
         """
         Asserts that a search term containing capital letters works correctly
-
-        NOTE - this test FAILS.  This is because I haven't implemented the
-               search side of flexible tags yet.
-
-        NOTE - when this test is fixed, remove the NOTE in
-               `test_15_tag_autocomplete_tag_with_capital_letters` that
-               references this one.
         """
 
         CreateTestData.create_arbitrary([{
@@ -758,6 +744,19 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert res_obj['success']
         assert 'CAPITAL idea old chap' in res_obj['result'], res_obj['result']
+
+    def test_15_tag_autocomplete_is_case_insensitive(self):
+        CreateTestData.create_arbitrary([{
+            'name': u'package-with-tag-that-has-a-capital-letter-3',
+            'tags': [u'MIX of CAPITALS and LOWER case'],
+            'license': 'never_heard_of_it',
+            }])
+
+        postparams = '%s=1' % json.dumps({'q':u'lower case'})
+        res = self.app.post('/api/action/tag_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success']
+        assert 'MIX of CAPITALS and LOWER case' in res_obj['result'], res_obj['result']
 
     def test_16_user_autocomplete(self):
         #Empty query
