@@ -16,18 +16,18 @@
   
   <py:def function="page_heading" property="dc:title">
     ${c.pkg_dict['title']}
-    <span id="dataset-license">
-      <py:if test="c.pkg.isopen()">
-          <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
-            <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
-          </a>
-      </py:if>
-      <py:if test="not c.pkg.isopen()">
-          <span class="closed">
-            ${h.icon('lock')}
-          </span>
-      </py:if>
-    </span>
+    <!-- <span id="dataset-license"> -->
+    <!--   <py:if test="c.pkg.isopen()"> -->
+    <!--       <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition."> -->
+    <!--         <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" /> -->
+    <!--       </a> -->
+    <!--   </py:if> -->
+    <!--   <py:if test="not c.pkg.isopen()"> -->
+    <!--       <span class="closed"> -->
+    <!--         ${h.icon('lock')} -->
+    <!--       </span> -->
+    <!--   </py:if> -->
+    <!-- </span> -->
   </py:def>
   
   <py:match path="primarysidebar">

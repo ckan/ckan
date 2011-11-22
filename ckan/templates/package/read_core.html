@@ -58,52 +58,57 @@
 
     </div>
 
-    <!-- More Information Section -->
-    <div id="dataset-more-information">
-      <h3>Additional Information</h3>
-      <dl>
-        <py:if test="c.pkg.url">
-          <dt>Source</dt>
-          <dd property="foaf:homepage">${c.pkg_url_link}</dd>
-        </py:if>
+    <!-- Dataset Information Section -->
+    <h3>Dataset Information</h3>
+    <div id="dataset-information">
+    <table>
+      <tbody>
+        <tr py:if="c.pkg.url">
+          <td class="dataset-label">Source</td>
+          <td class="dataset-details" property="foaf:homepage">${c.pkg_url_link}</td>
+        </tr>
 
-        <py:if test="c.pkg_author_link">
-          <dt>Author</dt>
-          <dd property="dc:creator">${c.pkg_author_link}</dd>
-        </py:if>
-        
-        <py:if test="c.pkg_maintainer_link">
-          <dt>Maintainer</dt>
-          <dd property="dc:contributor">${c.pkg_maintainer_link}</dd>
-        </py:if>
+        <tr py:if="c.pkg_author_link">
+          <td class="dataset-label">Author</td>
+          <td class="dataset-details" property="dc:creator">${c.pkg_author_link}</td>
+        </tr>
 
-        <py:if test="c.pkg.version">
-          <dt>Version</dt>
-          <dd>${c.pkg.version}</dd>
-        </py:if>
+        <tr py:if="c.pkg_maintainer_link">
+          <td class="dataset-label">Maintainer</td>
+          <td class="dataset-details" property="dc:contributor">${c.pkg_maintainer_link}</td>
+        </tr>
 
-        <py:if test="c.eu_country">
-          <dt>Country</dt>
-          <dd>${h.code_to_country(c.eu_country)}</dd>
-        </py:if>
+        <tr py:if="c.pkg.version">
+          <td class="dataset-label">Version</td>
+          <td class="dataset-details">${c.pkg.version}</td>
+        </tr>
 
-        <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
-          <dt>State</dt>
-          <dd>${c.pkg.state}</dd>
-        </py:if>
+        <tr py:if="c.eu_country">
+          <td class="dataset-label">Country</td>
+          <td class="dataset-details">${h.code_to_country(c.eu_country)}</td>
+        </tr>
 
-        <py:if test="c.harvest_catalogue_name">
-          <dt>Harvest Source</dt>
-          <dd><a href="${c.harvest_dataset_url}">Dataset page</a> on 
-            <a href="${c.harvest_catalogue_url}">${c.harvest_catalogue_name}</a></dd>
-        </py:if>
+        <tr py:if="h.check_access('package_update',{'id':c.pkg.id})">
+          <td class="dataset-label">State</td>
+          <td class="dataset-details">${c.pkg.state}</td>
+        </tr>
 
-        <!-- Dataset Extras -->
-        <py:for each="i, (key, value) in enumerate(c.pkg_extras)">
-          <dt rel="dc:relation" resource="_:extra${i}" property="rdfs:label">${_(key)}</dt>      
-          <dd rel="dc:relation" resource="_:extra${i}" property="rdfs:value">${value}</dd>
-        </py:for>
-      </dl>
+        <tr py:if="c.harvest_catalogue_name">
+          <td class="dataset-label">Harvest Source</td>
+          <td class="dataset-details">
+            <a href="${c.harvest_dataset_url}">Dataset page</a> on 
+            <a href="${c.harvest_catalogue_url}">${c.harvest_catalogue_name}</a>
+          </td>
+        </tr>
+
+        <tr py:for="i, (key, value) in enumerate(c.pkg_extras)"
+          rel="dc:relation" resource="_:extra${i}">
+          <td class="dataset-label" property="rdfs:label">${_(key)}</td>
+          <td class="dataset-details" property="rdf:value">${value}</td>
+        </tr>
+      </tbody>
+    </table>
+
     </div>
 
   </div> <!-- /dataset -->
