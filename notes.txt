@@ -1,0 +1,12 @@
+Notes for per-package-type behaviour.
+
+ - I don't really know where the best place to create the mappings from
+   package-types to plugin instances is.  At the moment, I'm creating the
+   mapping just prior to the package routing stuff in routing.py.
+
+ - I've assumed package-type is a string.  If it's not then only the docs
+   need to change (as long as it's some hashable value anyway).
+
+ - Running the tests seems to be involing the routing.py more than once.  I
+   haven't looked into why this is.  Running the server seems to work fine
+   thuough.
