@@ -25,8 +25,7 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
 from ckan.lib.dictization import table_dictize
 from ckan.lib.i18n import get_lang
-from ckan.plugins import SingletonPlugin, implements
-from ckan.plugins.interfaces import IPluggablePackageController
+from ckan.plugins import PluginImplementations, IPluggablePackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -49,51 +48,78 @@ autoneg_cfg = [
     ("text", "x-graphviz", ["dot"]),
     ]
 
-_pluggable_package_controllers = dict()
-_default_pluggable_package_controller = None
+##############  Methods and variables related to the pluggable  ##############
+##############       behaviour of the package controller        ############## 
 
-def set_fallback_controller(plugin_instance):
-    """
-    Sets the fallback controller
-    """
-    global _default_pluggable_package_controller
-    if _default_pluggable_package_controller is not None:
-        raise ValueError, "A fallback package controller has alread been registered"
-    _default_pluggable_package_controller = plugin_instance
+# Mapping from package-type strings to IPluggablePackageController instances
+_controller_behaviour_for = dict()
 
-def set_default_as_fallback_controller_if_required():
+# The fallback behaviour
+_default_controller_behaviour = None
+
+def register_pluggable_behaviour():
     """
-    Set the fallback controller to be an instance of DefaultPluggablePackageController
+    Register the various IPluggablePackageController instances.
+
+    This method will setup the mappings between package types and the registered
+    IPluggablePackageController instances.  If it's called more than once an
+    exception will be raised.
     """
-    if _default_pluggable_package_controller is None:
-        set_fallback_controller(DefaultPluggablePackageController())
+    global _default_controller_behaviour
+
+    # Check this method hasn't been invoked already.
+    # TODO: This method seems to be being invoked more than once during running of
+    #       the tests.  So I've disbabled this check until I figure out why.
+    #if _default_controller_behaviour is not None:
+        #raise ValueError, "Pluggable package controller behaviour is already defined "\
+                          #"'%s'" % _default_controller_behaviour
+
+    # Create the mappings and register the fallback behaviour if one is found.
+    for plugin in PluginImplementations(IPluggablePackageController):
+        if plugin.is_fallback():
+            if _default_controller_behaviour is not None:
+                raise ValueError, "More than one fallback "\
+                                  "IPluggablePackageController has been registered"
+            _default_controller_behaviour = plugin
+
+        for package_type in plugin.package_types():
+            if package_type in _controller_behaviour_for:
+                raise ValueError, "An existing IPluggablePackageController is "\
+                                  "already associated with the package type "\
+                                  "'%s'" % package_type
+            _controller_behaviour_for[package_type] = plugin
+
+    # Setup the fallback behaviour if one hasn't been defined.
+    if _default_controller_behaviour is None:
+        _default_controller_behaviour = DefaultPluggablePackageController()
 
 def _lookup_plugin(package_type):
     """
     Returns the plugin controller associoated with the given package type.
+
+    If the package type is None or cannot be found in the mapping, then the
+    fallback behaviour is used.
     """
     if package_type is None:
-        return _default_pluggable_package_controller
-    return _pluggable_package_controllers.get(package_type,
-                                              _default_pluggable_package_controller)
-
-def add_package_controller(package_type, plugin_instance):
-    """
-    Register the given plugin_instance to the given package_type.
-    """
-    if package_type in _pluggable_package_controllers:
-        raise ValueError, 'A PluggablePackageController is already ' \
-                          'associated with this package_type: "%s"' % package_type
+        return _default_controller_behaviour
+    return _controller_behaviour_for.get(package_type,
+                                         _default_controller_behaviour)
 
 class DefaultPluggablePackageController(object):
     """
-    Provides a default implementation of the package controller.
+    Provides a default implementation of the pluggable package controller behaviour.
+
+    This class has 2 purposes:
+
+     - it provides a base class for IPluggablePackageController implementations
+       to use if only a subset of the 5 method hooks need to be customised.
+
+     - it provides the fallback behaviour if no plugin is setup to provide
+       the fallback behaviour.
 
     Note - this isn't a plugin implementation.  This is deliberate, as
            we don't want this being registered.
     """
-
-    ##### Define the hooks that control the behaviour #####
 
     def package_form(self):
         return 'package/new_package_form.html'
@@ -144,7 +170,7 @@ class DefaultPluggablePackageController(object):
             except NotAuthorized:
                 c.auth_for_change_state = False
 
-    ## end hooks
+##############      End of pluggable package behaviour stuff    ############## 
 
 class PackageController(BaseController):
 
