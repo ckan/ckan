@@ -1102,11 +1102,12 @@ body.package.resource_read tbody tr:nth-child(odd) td, tbody tr.odd td {
     background-color: #ffffff;
 }
 body.package.resource_read tbody tr:nth-child(even) td, tbody tr.even td {
-    background-color: #f8f8f8;
+    /* background-color: #f8f8f8; */
+    background-color: #ffffff;
 }
 body.package.resource_read #resource-information table { 
-    border: 1px solid #e0e0e0; 
-    padding: 10px;
+    /* border: 1px solid #e0e0e0;  */
+    /* padding: 10px; */
 }
 body.package.resource_read #resource-information .label {
     font-weight: bold;
