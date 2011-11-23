@@ -976,19 +976,10 @@ td.resource-edit-value {
 /* ===================== */
 /* = Dataset View Page = */
 /* ===================== */
-/* body.package.read #content { */
-/*     border: 0; */
-/* } */
 body.package.read #sidebar ul.tags, 
 body.package.read #sidebar ul.groups {
   margin-bottom: 10px;
 }
-/* body.package.read #dataset { */
-/*     border-left: 1px solid #ececec; */
-/*     border-right: 1px solid #ececec; */
-/*     border-bottom: 1px solid #ececec; */
-/*     padding: 24px 12px 12px 12px; */
-/* } */
 body.package.read #dataset-resources { 
     margin-top: 2em; 
     margin-bottom: 2em; 
@@ -1029,32 +1020,6 @@ body.package.read .resource-format {
 body.package.read #sidebar li.widget-container {
     border: 0
 }
-/* body.package.read #dataset-tab-bar { */
-/*     margin-top: 1em; */
-/*     border-bottom: 1px solid #ececec; */
-/* } */
-/* body.package.read #dataset-tabs { */
-/*     padding: 0; */
-/*     margin: 0; */
-/* } */
-/* body.package.read #dataset-tabs li { */
-/*     display: inline-block; */
-/*     cursor: pointer; */
-/*     font-size: 14px; */
-/* } */
-/* body.package.read #dataset-tabs a { */
-/*     padding: 8px 12px 8px 12px; */
-/*     color: #808080; */
-/*     display: inline-block; */
-/*     margin-bottom: -1px; */
-/* } */
-/* body.package.read #dataset-tabs a.active { */
-/*     color: #000000; */
-/*     border-left: 1px solid #e0e0e0; */
-/*     border-right: 1px solid #e0e0e0; */
-/*     border-top: 1px solid #e0e0e0; */
-/*     border-bottom: 1px solid #ffffff; */
-/* } */
 body.package.read .notes a {
     cursor: pointer;
 }
@@ -1077,21 +1042,6 @@ body.package.read #dataset-information {
     border: 1px solid #e0e0e0; 
     padding: 10px;
 }
-/* body.package.read #dataset-information dl { */
-/*     margin: 0; */
-/* } */
-/* body.package.read #dataset-information dt { */
-/*     width: 8em; */
-/*     clear: left; */
-/*     float: left; */
-/*     font-weight: bold; */
-/*     text-align: right; */
-/* } */
-/* body.package.read #dataset-information dd { */
-/*     margin-left: 10em; */
-/*     margin-top: 0.5em; */
-/*     margin-bottom: 0.5em; */
-/* } */
 body.package.read #dataset-information .dataset-label {
     font-weight: bold;
     min-width: 10em;

@@ -411,37 +411,6 @@ CKAN.Utils = function($, my) {
     });
   };
 
-  // Show/hide fieldset sections from the dataset view form. 
-  //
-  // TODO: Currently not used, reenable if we decide to go back to tabs on this page.
-  //       If not, remove.
-  //
-  // my.setupDatasetViewNavigation = function() {
-
-  //   function showSection(sectionToShowId) {
-  //     $('#dataset-overview').hide();
-  //     $('#dataset-more-information').hide();
-  //     $('#dataset-'+sectionToShowId).show();
-  //     $('#dataset-tabs li a').removeClass('active');
-  //     $('#dataset-tabs li a[href=#section-'+sectionToShowId+']').addClass('active');
-  //     window.location.hash = 'section-'+sectionToShowId;
-  //   }
-
-  //   // Set up initial form state
-  //   // Prefix="#section-"
-  //   var initialSection = window.location.hash.slice(9) || 'overview';
-  //   showSection(initialSection);
-    
-  //   // Adjust page state on click
-  //   $('#dataset-tabs li a').live('click', function(e) {
-  //     var $el = $(e.target);
-  //     // Prefix="#section-"
-  //     var showMe = $el.attr('href').slice(9);
-  //     showSection(showMe);
-  //     return false;
-  //   });  
-  // };
-
   // If notes field is more than 1 paragraph, just show the
   // first paragraph with a 'Read more' link that will expand
   // the div if clicked
@@ -456,7 +425,7 @@ CKAN.Utils = function($, my) {
       notes.find('#notes-remainder').hide();
       notes.find('#dataset-notes-read-more a').click(function(){
           notes.find('#dataset-notes-read-more').hide();
-          notes.find('#notes-remainder').slideDown();
+          notes.fin('#notes-remainder').slideDown();
       })
     }
   };
