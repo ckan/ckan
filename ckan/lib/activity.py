@@ -50,6 +50,8 @@ class DatasetActivitySessionExtension(SessionExtension):
                 # work if the object is a Package.
                 activity = None
                 if obj.id in activities:
+                    # FIXME: What if this existing activity has a different
+                    # activity_type?
                     activity = activities[obj.id]
                 else:
                     activity = activity_stream_item(obj, activity_type, 
@@ -82,12 +84,19 @@ class DatasetActivitySessionExtension(SessionExtension):
 
                     for package in related_packages:
                         if package is None: continue
-                        activity = activity_stream_item(package, 
-                            "changed", revision.id)
+
+                        if package.id in activities:
+                            # FIXME: What if this existing activity has a
+                            # different activity_type?
+                            activity = activities[package.id]
+                        else:
+                            activity = activity_stream_item(package,
+                                    "changed", revision.id)
+                            activities[package.id] = activity
                         assert activity is not None
                         logger.debug("activity: %s" % activity)
-                        activities[package.id] = activity
-                        activity_detail = activity_stream_detail(obj, 
+
+                        activity_detail = activity_stream_detail(obj,
                             activity.id, activity_type)
                         if activity_detail is not None:
                             if activity_details.has_key(activity.id):
