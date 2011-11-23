@@ -976,8 +976,6 @@ td.resource-edit-value {
 /* ===================== */
 /* = Dataset View Page = */
 /* ===================== */
-/* light yellow (from tables): fefef2 */
-/* dark yellow (from tables): fcf6cf */
 body.package.read .sidebar-section {
   margin-bottom: 2em;
 }
@@ -1000,6 +998,12 @@ body.package.read .tags a, body.package.read .groups a {
 body.package.read .tags a:hover,
 body.package.read .groups a:hover {
     border: 1px solid #aaa;
+}
+body.package.read .related-datasets {
+    padding: 0;
+}
+body.package.read .related-datasets li {
+    list-style-type: none;
 }
 body.package.read #dataset-license img.open-data { vertical-align: top; }
 body.package.read #dataset-resources { 

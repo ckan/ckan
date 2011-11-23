@@ -55,19 +55,19 @@
       </ul>
     </li>
 
-        <!-- <li py:if="c.package_relationships"> -->
-        <!--   <h3>Related dataset</h3> -->
-        <!--   <ul> -->
-        <!--     <py:for each="pkg, relationship_str, comment in c.package_relationships"> -->
-        <!--       <li> -->
-        <!--         ${h.literal(relationship_str % (h.link_to(pkg.name, h.url_for(controller="package", action="read", id=pkg.name))))} -->
-        <!--         <span py:if="comment is not None and len(comment)" class="relationship_comment"> -->
-        <!--             (${comment}) -->
-        <!--         </span> -->
-        <!--       </li> -->
-        <!--     </py:for> -->
-        <!--   </ul> -->
-        <!-- </li> -->
+    <li py:if="c.package_relationships" class="sidebar-section">
+      <h3>Related Datasets</h3>
+      <ul class="related-datasets">
+        <py:for each="pkg, relationship_str, comment in c.package_relationships">
+          <li>
+            ${h.literal(relationship_str % (h.link_to(pkg.name, h.url_for(controller="package", action="read", id=pkg.name))))}
+            <span py:if="comment is not None and len(comment)" class="relationship_comment">
+                (${comment})
+            </span>
+          </li>
+        </py:for>
+      </ul>
+    </li>
 
     <!-- <py:if test="not(c.pkg.isopen() and c.pkg.resources)"> -->
     <!--   <h3 i18n:msg="">This dataset is Not Open</h3>  -->
