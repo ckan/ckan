@@ -244,9 +244,10 @@ class PackageController(BaseController):
 
 
     def read(self, id):
+        package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(package_type=package_type)}
         data_dict = {'id': id}
 
         # interpret @<revision_id> or @<date> suffix
@@ -295,9 +296,10 @@ class PackageController(BaseController):
         return render('package/read.html')
 
     def comments(self, id):
+        package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(package_type=package_type)}
 
         #check if package exists
         try:
@@ -412,18 +414,19 @@ class PackageController(BaseController):
 
 
     def edit(self, id, data=None, errors=None, error_summary=None):
+        package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
                    'pending': True,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(package_type=package_type)}
 
         if context['save'] and not data:
             return self._save_edit(id, context)
         try:
             old_data = get_action('package_show')(context, {'id':id})
-            schema = self._db_to_form_schema()
+            schema = self._db_to_form_schema(package_type=package_type)
             if schema and not data:
                 old_data, errors = validate(old_data, schema, context=context)
             data = data or old_data
@@ -443,21 +446,22 @@ class PackageController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context, {'id': id})
+        self._setup_template_variables(context, {'id': id}, package_type=package_type)
 
-        c.form = render(self._package_form(), extra_vars=vars)
+        c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
         return render('package/edit.html')
 
     def read_ajax(self, id, revision=None):
+        package_type=self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'extras_as_string': True,
-                   'schema': self._form_to_db_schema(),
+                   'schema': self._form_to_db_schema(package_type=package_type),
                    'revision_id': revision}
 
         try:
             data = get_action('package_show')(context, {'id': id})
-            schema = self._db_to_form_schema()
+            schema = self._db_to_form_schema(package_type=package_type)
             if schema:
                 data, errors = validate(data, schema)
         except NotAuthorized:
@@ -504,6 +508,27 @@ class PackageController(BaseController):
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return json.dumps(data)
 
+    def _get_package_type(self, id):
+        """
+        Returns the package type for the given id.
+
+        Uses a minimal context to do so.  The main use of this method
+        is for figuring out which plugin to delegate to.
+
+        aborts if an exception is raised.
+        """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+        try:
+            data = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('Package not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        # packages don't have a type yet, so return None for now.
+        return None
+
     def _save_new(self, context):
         try:
             data_dict = clean_dict(unflatten(
@@ -528,9 +553,10 @@ class PackageController(BaseController):
 
     def _save_edit(self, id, context):
         try:
+            package_type = self._get_package_type(id)
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
-            self._check_data_dict(data_dict)
+            self._check_data_dict(data_dict, package_type=package_type)
             context['message'] = data_dict.get('log_message', '')
             if not context['moderated']:
                 context['pending'] = False
