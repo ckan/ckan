@@ -31,7 +31,7 @@ class DatasetActivitySessionExtension(SessionExtension):
             return
 
         # The top-level objects that we will append to the activity table. The
-        # keys hare are package IDs, and the values are model.activity:Activity
+        # keys here are package IDs, and the values are model.activity:Activity
         # objects.
         activities = {}
 
