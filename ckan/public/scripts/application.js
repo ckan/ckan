@@ -448,11 +448,16 @@ CKAN.Utils = function($, my) {
   my.setupDatasetViewNotesExtract = function() {
     var notes = $('#dataset div.notes');
     if(notes.find('p').length > 1){
-      var first = notes.find('p:first');
-      var remaining = notes.find('p:not(:first)');
-      $('#dataset div.notes').html($.tmpl(
-        CKAN.Templates.datasetNotesField, {}
-      ));
+      var extract = notes.children(':eq(0)');
+      var remainder = notes.children(':gt(0)');
+      notes.html($.tmpl(CKAN.Templates.datasetNotesField));
+      notes.find('#notes-extract').html(extract);
+      notes.find('#notes-remainder').html(remainder);
+      notes.find('#notes-remainder').hide();
+      notes.find('#dataset-notes-read-more a').click(function(){
+          notes.find('#dataset-notes-read-more').hide();
+          notes.find('#notes-remainder').slideDown();
+      })
     }
   };
 

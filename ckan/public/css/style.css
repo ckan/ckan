@@ -1055,6 +1055,15 @@ body.package.read #sidebar li.widget-container {
 /*     border-top: 1px solid #e0e0e0; */
 /*     border-bottom: 1px solid #ffffff; */
 /* } */
+body.package.read .notes a {
+    cursor: pointer;
+}
+body.package.read #notes-extract p {
+    margin-bottom: 0;
+}
+body.package.read #notes-remainder {
+    margin-top: 1em;
+}
 body.package.read table {
     margin: 0;
 }
