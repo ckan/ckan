@@ -46,6 +46,9 @@ def resource_dict_save(res_dict, context):
     return obj
 
 def package_resource_list_save(res_dicts, package, context):
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not res_dicts and allow_partial_update:
+        return
 
     pending = context.get('pending')
 
