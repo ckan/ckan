@@ -333,15 +333,27 @@ class IPluggablePackageController(Interface):
     """
     Allows customisation of the package controller as a plugin.
 
-    Different package types can be associated with different
-    IPluggablePackageControllers, allowing multiple package controllers
-    on a CKAN instance.
+    The behaviour of the plugin is determined by 5 method hooks:
 
-    The PackageController uses hooks to customise behaviour.  A implementation
-    of IPluggablePackageController must implement these hooks.
+     - package_form(self)
+     - form_to_db_schema(self)
+     - db_to_form_schema(self)
+     - check_data_dict(self, data_dict)
+     - setup_template_variables(self, context, data_dict)
 
-    Implementations might want to consider subclassing
-    ckan.controllers.package.DefaultPluggablePackageController
+    Furthermore, there can be many implementations of this plugin registered
+    at once.  With each instance associating itself with 0 or more package
+    type strings.  When a package controller action is invoked, the package
+    type determines which of the registered plugins to delegate to.  Each
+    implementation must implement two methods which are used to determine the
+    package-type -> plugin mapping:
+
+     - is_fallback(self)
+     - package_types(self)
+
+    Implementations might want to consider mixing in
+    ckan.controllers.package.DefaultPluggablePackageController which provides
+    default behaviours for the 5 method hooks.
 
     """
 
@@ -350,11 +362,13 @@ class IPluggablePackageController(Interface):
     def is_fallback(self):
         """
         Returns true iff this provides the fallback behaviour, when no other
-        plugin matches a package's type.
+        plugin instance matches a package's type.
 
         There must be exactly one fallback controller defined, any attempt to
-        register more than one or to not have any registered, will throw
-        an exception at startup.
+        register more than one will throw an exception at startup.  If there's
+        no fallback registered at startup the
+        ckan.controllers.package.DefaultPluggablePackageController is used
+        as the fallback.
         """
 
     def package_types(self):
@@ -362,17 +376,17 @@ class IPluggablePackageController(Interface):
         Returns an iterable of package type strings.
 
         If a request involving a package of one of those types is made, then
-        this plugin will be delegated to.
+        this plugin instance will be delegated to.
 
         There must only be one plugin registered to each package type.  Any
-        attempts to register more than one plugin to a given package type will
-        raise an exception at startup.
+        attempts to register more than one plugin instance to a given package
+        type will raise an exception at startup.
         """
 
     ##### End of control methods
 
     ##### Hooks for customising the PackageController's behaviour        #####
-
+    ##### TODO: flesh out the docstrings a little more.                  #####
     def package_form(self):
         """
         Returns a string representing the location of the template to be
