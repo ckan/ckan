@@ -7,10 +7,8 @@ refer to the routes manual at http://routes.groovie.org/docs/
 """
 from pylons import config
 from routes import Mapper
-from ckan.controllers.package import set_fallback_controller as set_fallback_package_controller,\
-                                     add_package_controller,\
-                                     set_default_as_fallback_controller_if_required as set_default_as_fallback_package_controller_if_required
-from ckan.plugins import PluginImplementations, IRoutes, IPluggablePackageController
+from ckan.controllers.package import register_pluggable_behaviour as register_pluggable_package_behaviour
+from ckan.plugins import PluginImplementations, IRoutes
 
 routing_plugins = PluginImplementations(IRoutes)
 
@@ -180,14 +178,8 @@ def make_map():
     ## /END API
     ###########
 
-    for plugin in PluginImplementations(IPluggablePackageController):
-        if plugin.is_fallback():
-            set_fallback_package_controller(plugin)
-        for package_type in plugin.package_types():
-            add_package_controller(package_type, plugin)
-
-    set_default_as_fallback_package_controller_if_required()
-
+    register_pluggable_package_behaviour()
+    
     map.redirect("/packages", "/dataset")
     map.redirect("/packages/{url:.*}", "/dataset/{url}")
     map.redirect("/package", "/dataset")
