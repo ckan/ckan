@@ -45,7 +45,7 @@ class DatasetActivitySessionExtension(SessionExtension):
             objects = obj_cache[activity_type]
             for obj in objects:
                 logger.debug("Processing %s object %s" % (activity_type, obj))
-                
+
                 # Try to get an activity stream item from the object, this will
                 # work if the object is a Package.
                 activity = None
@@ -54,11 +54,11 @@ class DatasetActivitySessionExtension(SessionExtension):
                     # activity_type?
                     activity = activities[obj.id]
                 else:
-                    activity = activity_stream_item(obj, activity_type, 
+                    activity = activity_stream_item(obj, activity_type,
                         revision.id)
                     if activity is not None:
                         activities[obj.id] = activity
-                
+
                 if activity is not None:
                     logger.debug("Looks like this object is a package")
                     logger.debug("activity: %s" % activity)
@@ -71,7 +71,7 @@ class DatasetActivitySessionExtension(SessionExtension):
                                 activity_detail)
                         else:
                             activity_details[activity.id] = [activity_detail]
-                
+
                 else:
                     logger.debug("Looks like this object is not a Package")
                     try:
@@ -105,7 +105,7 @@ class DatasetActivitySessionExtension(SessionExtension):
                             else:
                                 activity_details[activity.id] = \
                                     [activity_detail]
-                        
+
         for key, activity in activities.items():
             session.add(activity)
 
