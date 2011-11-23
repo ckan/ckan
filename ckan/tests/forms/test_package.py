@@ -8,14 +8,23 @@ from ckan.lib.helpers import escape
 def _get_blank_param_dict(pkg=None):
     return ckan.forms.get_package_dict(pkg=pkg, blank=True, user_editable_groups=[])
 
+# These tests check the package form build in formalchemy. For the new forms,
+# see equivalents:
+#  * form renders with correctly populated values (TestForms 1&2) in ckan/tests/functional/test_package.py:TestPackageForm
+#  * form post updates db correctly (TestForms 3&4) in ckan/tests/functional/api/test_action.py:test_03_create_update_package
+#  * validation tests (TestValidation) in ckan/tests/schema/test_schema.py
+
 class TestForms(PylonsTestCase, HtmlCheckMethods):
+
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
+        super(TestForms, cls).setup_class()
         model.Session.remove()
         ckan.tests.CreateTestData.create()
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
+        super(TestForms, cls).teardown_class()
         model.Session.remove()
         model.repo.rebuild_db()
 
@@ -124,7 +133,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         indict = _get_blank_param_dict()
         indict['Package--name'] = u'testname'
         indict['Package--notes'] = u'some new notes'
-        indict['Package--tags'] = u'russian tolstoy, ' + newtagname,
+        indict['Package--tags'] = u'russian, tolstoy, ' + newtagname,
         indict['Package--license_id'] = u'gpl-3.0'
         indict['Package--extras-newfield0-key'] = u'testkey'
         indict['Package--extras-newfield0-value'] = u'testvalue'
@@ -175,7 +184,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         indict = _get_blank_param_dict(anna)
         indict[prefix + 'name'] = u'annakaren'
         indict[prefix + 'notes'] = u'new notes'
-        indict[prefix + 'tags'] = u'russian ' + newtagname
+        indict[prefix + 'tags'] = u'russian ,' + newtagname
         indict[prefix + 'license_id'] = u'gpl-3.0'
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
         indict[prefix + 'extras-newfield0-value'] = u'testvalue'
@@ -333,8 +342,11 @@ class TestValidation:
         prefix = 'Package-%s-' % anna.id
         indict = _get_blank_param_dict(anna)
 
-        good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore', u'unicode-\xe0', 'dot.in.name', 'blAh' ] # nb: becomes automatically lowercase
-        bad_names = [ 'a', 'percent%' ]
+        good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name',\
+                       'has_underscore', u'unicode-\xe0', 'dot.in.name',\
+                       'multiple words', u'with Greek omega \u03a9', 'CAPITALS']
+        bad_names = [ 'a', '  ,leading comma', 'trailing comma,',\
+                      'empty,,tag' 'quote"character']
 
         for i, name in enumerate(good_names):
             indict[prefix + 'name'] = u'okname'
@@ -349,4 +361,51 @@ class TestValidation:
             fs = self._get_standard_fieldset().bind(anna, data=indict)
             out = fs.validate()
             assert not out, fs.errors
-            
+
+    def test_2_tag_names_are_stripped_of_leading_and_trailing_spaces(self):
+        """
+        Asserts that leading and trailing spaces are stripped from tag names
+        """
+        anna = model.Package.by_name(u'annakarenina')
+        prefix = 'Package-%s-' % anna.id
+        indict = _get_blank_param_dict(anna)
+        indict[prefix + 'name'] = u'annakarenina'
+
+        whitespace_characters = u'\t\n\r\f\v'
+        for ch in whitespace_characters:
+            indict[prefix + 'tags'] = ch + u'tag name' + ch
+            fs = self._get_standard_fieldset().bind(anna, data=indict)
+            out = fs.validate()
+            assert out, fs.errors
+
+            model.repo.new_revision()
+            fs.sync()
+            model.repo.commit_and_remove()
+            anna = model.Package.by_name(u'annakarenina')
+            taglist = [ tag.name for tag in anna.tags ]
+            assert len(taglist) == 1
+            assert u'tag name' in taglist
+
+    def test_3_tag_names_are_split_by_commas(self):
+        """
+        Asserts that tag names are split by commas.
+        """
+        anna = model.Package.by_name(u'annakarenina')
+        prefix = 'Package-%s-' % anna.id
+        indict = _get_blank_param_dict(anna)
+        indict[prefix + 'name'] = u'annakarenina'
+
+        indict[prefix + 'tags'] = u'tag name one, tag name two'
+        fs = self._get_standard_fieldset().bind(anna, data=indict)
+        out = fs.validate()
+        assert out, fs.errors
+
+        model.repo.new_revision()
+        fs.sync()
+        model.repo.commit_and_remove()
+        anna = model.Package.by_name(u'annakarenina')
+        taglist = [ tag.name for tag in anna.tags ]
+        assert len(taglist) == 2
+        assert u'tag name one' in taglist
+        assert u'tag name two' in taglist
+

@@ -66,8 +66,8 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
     builder.set_field_text(
         'tags', 
         _('Tags'), 
-        instructions=literal(_('Terms that may link this dataset to similar ones. For more information on conventions, see <a href="%s">this wiki page</a>.') % 'http://wiki.okfn.org/ckan/doc/faq#TagConventions'),
-        hints=_('e.g. pollution rivers water-quality')
+        instructions=literal(_('Comma-separated terms that may link this dataset to similar ones. For more information on conventions, see <a href="%s">this wiki page</a>.') % 'http://wiki.okfn.org/ckan/doc/faq#TagConventions'),
+        hints=_('e.g. pollution, rivers, water quality')
     )
     builder.set_field_text(
         'resources',

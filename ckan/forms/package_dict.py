@@ -47,7 +47,7 @@ def get_package_dict(pkg=None, blank=False, fs=None, user_editable_groups=None):
                 if field.renderer.name.endswith('-extras'):
                     indict[field.renderer.name] = dict(pkg.extras) if pkg else {}
                 if field.renderer.name.endswith('-tags'):
-                    indict[field.renderer.name] = ' '.join([tag.name for tag in pkg.tags]) if pkg else ''
+                    indict[field.renderer.name] = ','.join([tag.name for tag in pkg.tags]) if pkg else ''
                 if field.renderer.name.endswith('-resources'):
                     indict[field.renderer.name] = [dict([(key, getattr(res, key)) for key in model.Resource.get_columns()]) for res in pkg.resources] if pkg else []
         
@@ -98,7 +98,7 @@ def edit_package_dict(dict_, changed_items, id=''):
                         resources.append(res_dict_str)
                     dict_[resources_key] = resources
                 elif key == tags_key and isinstance(value, list):
-                    dict_[key] = ' '.join(value)
+                    dict_[key] = ','.join(value)
                 else:
                     dict_[key] = value
             elif key == download_url_key:
