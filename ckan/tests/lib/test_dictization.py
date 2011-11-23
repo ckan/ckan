@@ -18,6 +18,7 @@ from ckan.lib.dictization.model_save import (package_dict_save,
                                              group_dict_save,
                                              package_api_to_dict,
                                              group_api_to_dict,
+                                             package_tag_list_save,
                                             )
 from ckan.logic.action.update import make_latest_pending_package_active
 
@@ -876,3 +877,35 @@ class TestBasicDictize:
                                                          'name': u'testgroup',
                                                          'packages': [{'id': u'annakarenina'}, {'id': u'warandpeace'}],
                                                          'title': u'Some Group Title'}, pformat(group_api_to_dict(api_group, context))
+
+    def test_18_package_tag_list_save(self):
+        name = u'testpkg18'
+        context = {'model': model,
+                   'session': model.Session}
+        pkg_dict = {'name': name}
+
+        rev = model.repo.new_revision()
+        package = table_dict_save(pkg_dict, model.Package, context)
+
+        tag_dicts = [{'name': 'tag1'}, {'name': 'tag2'}]
+        package_tag_list_save(tag_dicts, package, context)
+        model.repo.commit_and_remove()
+
+        pkg = model.Package.by_name(name)
+        assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1', 'tag2')))
+
+    def test_19_package_tag_list_save_duplicates(self):
+        name = u'testpkg19'
+        context = {'model': model,
+                   'session': model.Session}
+        pkg_dict = {'name': name}
+
+        rev = model.repo.new_revision()
+        package = table_dict_save(pkg_dict, model.Package, context)
+
+        tag_dicts = [{'name': 'tag1'}, {'name': 'tag1'}] # duplicate
+        package_tag_list_save(tag_dicts, package, context)
+        model.repo.commit_and_remove()
+
+        pkg = model.Package.by_name(name)
+        assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1',)))
