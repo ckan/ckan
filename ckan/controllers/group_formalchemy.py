@@ -63,7 +63,7 @@ class GroupFormalchemyController(GroupController):
             group = model.Group.get(c.groupname)
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
-            pkgnames = request.params.getall('PackageGroup--package_name')
+            pkgnames = request.params.getall('Member--package_name')
             for pkgname in pkgnames:
                 if pkgname:
                     package = model.Package.by_name(pkgname)
@@ -126,7 +126,7 @@ class GroupFormalchemyController(GroupController):
                 return render('group/edit.html')
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
-            pkgnames = request.params.getall('PackageGroup--package_name')
+            pkgnames = request.params.getall('Member--package_name')
             for pkgname in pkgnames:
                 if pkgname:
                     package = model.Package.by_name(pkgname)

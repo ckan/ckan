@@ -139,12 +139,12 @@ def package_dictize(pkg, context):
     result = _execute_with_revision(q, extra_rev, context)
     result_dict["extras"] = extras_list_dictize(result, context)
     #groups
-    group_rev = model.package_group_revision_table
+    member_rev = model.member_revision_table
     group = model.group_table
     q = select([group],
-               from_obj=group_rev.join(group, group.c.id == group_rev.c.group_id)
-               ).where(group_rev.c.package_id == pkg.id)
-    result = _execute_with_revision(q, group_rev, context)
+               from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
+               ).where(member_rev.c.table_id == pkg.id)
+    result = _execute_with_revision(q, member_rev, context)
     result_dict["groups"] = obj_list_dictize(result, context)
     #relations
     rel_rev = model.package_relationship_revision_table
@@ -157,16 +157,21 @@ def package_dictize(pkg, context):
     return result_dict
 
 def group_dictize(group, context):
-
+    model = context['model']
     result_dict = table_dictize(group, context)
-    
+
     result_dict['display_name'] = group.display_name
 
     result_dict['extras'] = extras_dict_dictize(
         group._extras, context)
 
+    packages = model.Session.query(model.Package).\
+               join(model.Member, model.Member.table_id == model.Package.id).\
+               filter(model.Member.group_id == group.id).\
+               filter(model.Member.state == 'active').all()
+
     result_dict['packages'] = obj_list_dictize(
-        group.packages, context)
+        packages, context)
 
     return result_dict
 

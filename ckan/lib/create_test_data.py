@@ -385,9 +385,12 @@ left arrow <
         
         cls.group_names.add(u'david')
         cls.group_names.add(u'roger')
-        model.Session.add(model.PackageGroup(package=pkg1, group=david))
-        model.Session.add(model.PackageGroup(package=pkg2, group=david))
-        model.Session.add(model.PackageGroup(package=pkg1, group=roger))
+
+        model.Session.flush()
+        
+        model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=david))
+        model.Session.add(model.Member(table_id=pkg2.id, table_name='package', group=david))
+        model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=roger))
         # authz
         model.Session.add_all([
             model.User(name=u'tester', apikey=u'tester', password=u'tester'),

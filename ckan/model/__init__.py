@@ -247,7 +247,7 @@ class Repository(vdm.sqlalchemy.Repository):
 
 
 repo = Repository(metadata, Session,
-        versioned_objects=[Package, PackageTag, Resource, ResourceGroup, PackageExtra, PackageGroup, Group]
+        versioned_objects=[Package, PackageTag, Resource, ResourceGroup, PackageExtra, Member, Group]
         )
 
 

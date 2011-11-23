@@ -912,7 +912,7 @@ class TestEdit(TestPackageForm):
             assert len(pkg.groups) == 0
             grp = model.Group.by_name(u'david')
             model.repo.new_revision()
-            model.Session.add(model.PackageGroup(package=pkg, group=grp))
+            model.Session.add(model.Member(table_id=pkg.id, table_name='package', group=grp))
             model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
             assert len(pkg.groups) == 1

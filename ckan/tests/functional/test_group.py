@@ -282,7 +282,7 @@ class TestNew(FunctionalTestCase):
         assert fv[prefix+'name'].value == '', fv.fields
         assert fv[prefix+'title'].value == ''
         assert fv[prefix+'description'].value == ''
-        assert fv['packages__0__name'].value == '', fv['PackageGroup--package_name'].value
+        assert fv['packages__0__name'].value == '', fv['Member--package_name'].value
 
         # Edit form
         fv[prefix+'name'] = group_name

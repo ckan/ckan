@@ -78,7 +78,7 @@ class TestDumper(object):
         dumpeddata = json.load(open(self.outpath))
         assert dumpeddata['version'] == ckan.__version__
         tables = dumpeddata.keys()
-        for key in ['Package', 'Tag', 'Group', 'PackageGroup', 'PackageExtra']:
+        for key in ['Package', 'Tag', 'Group', 'Member', 'PackageExtra']:
             assert key in tables, '%r not in %s' % (key, tables)
         for key in ['User']:
             assert key not in tables, '%s should not be in %s' % (key, tables)

@@ -50,11 +50,11 @@ class Stats(object):
         
     @classmethod
     def largest_groups(cls, limit=10):
-        package_group = table('package_group')
-        s = select([package_group.c.group_id, func.count(package_group.c.package_id)]).\
-            group_by(package_group.c.group_id).\
-            where(package_group.c.group_id!=None).\
-            order_by(func.count(package_group.c.package_id).desc()).\
+        member = table('member')
+        s = select([member.c.group_id, func.count(member.c.table_id)]).\
+            group_by(member.c.group_id).\
+            where(and_(member.c.group_id!=None, member.c.table_name=='package')).\
+            order_by(func.count(member.c.table_id).desc()).\
             limit(limit)
         res_ids = model.Session.execute(s).fetchall()        
         res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), val) for group_id, val in res_ids]
