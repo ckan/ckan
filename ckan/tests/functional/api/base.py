@@ -4,6 +4,8 @@ try:
 except ImportError:
     from StringIO import StringIO
 
+import urllib
+
 from pylons import config
 import webhelpers.util
 from nose.tools import assert_equal
@@ -63,11 +65,26 @@ class ApiTestCase(object):
 
     @classmethod
     def offset(self, path):
+        """
+        Returns the full path to the resource identified in path.
+
+        Performs necessary url-encodings, ie:
+
+         - encodes unicode to utf8
+         - urlencodes the resulting byte array
+
+        This process is described in [1], and has also been confirmed by
+        inspecting what a browser does.
+
+        [1] http://www.w3.org/International/articles/idn-and-iri/
+        """
         assert self.api_version != None, "API version is missing."
         base = '/api'
         if self.api_version:
             base += '/' + self.api_version
-        return '%s%s' % (base, path)
+        utf8_encoded = (u'%s%s' % (base, path)).encode('utf8')
+        url_encoded = urllib.quote(utf8_encoded)
+        return url_encoded
 
     def assert_msg_represents_anna(self, msg):
         assert 'annakarenina' in msg, msg
@@ -95,6 +112,11 @@ class ApiTestCase(object):
         assert 'ckan_url' in msg
         assert '"ckan_url": "http://test.ckan.net/dataset/annakarenina"' in msg, msg
 
+        assert 'tags' in data, "Expected a tags list in json payload"
+        assert self.russian.name in data['tags'], data['tags']
+        assert self.tolstoy.name in data['tags'], data['tags']
+        assert self.flexible_tag.name in data['tags'], data['tags']
+
     def assert_msg_represents_roger(self, msg):
         assert 'roger' in msg, msg
         data = self.loads(msg)
@@ -110,6 +132,19 @@ class ApiTestCase(object):
         assert_equal(data['packages'], [self._ref_package(self.anna)])
 
     def assert_msg_represents_russian(self, msg):
+        data = self.loads(msg)
+        pkgs = set(data)
+        expected_pkgs = set([self.package_ref_from_name('annakarenina'),
+                             self.package_ref_from_name('warandpeace')])
+        differences = expected_pkgs ^ pkgs
+        assert not differences, '%r != %r' % (pkgs, expected_pkgs)
+
+    def assert_msg_represents_flexible_tag(self, msg):
+        """
+        Asserts the correct packages are associated with the flexible tag.
+
+        Namely, 'annakarenina' and 'warandpeace'.
+        """
         data = self.loads(msg)
         pkgs = set(data)
         expected_pkgs = set([self.package_ref_from_name('annakarenina'),

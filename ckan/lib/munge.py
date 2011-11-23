@@ -18,7 +18,7 @@ def munge_name(name):
     # take out not-allowed characters
     name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
     # keep it within the length spec
-    name = _munge_to_length(name, model.PACKAGE_NAME_MIN_LENGTH, model.PACKAGE_NAME_MAX_LENGTH)
+    name = _munge_to_length(name, model.MIN_PACKAGE_NAME_LENGTH, model.MAX_PACKAGE_NAME_LENGTH)
     return name
 
 def munge_title_to_name(name):
@@ -36,7 +36,7 @@ def munge_title_to_name(name):
     # remove leading or trailing hyphens
     name = name.strip('-')
     # if longer than max_length, keep last word if a year
-    max_length = model.PACKAGE_NAME_MAX_LENGTH - 5
+    max_length = model.MAX_PACKAGE_NAME_LENGTH - 5
     # (make length less than max, in case we need a few for '_' chars
     # to de-clash names.)
     if len(name) > max_length:
@@ -46,7 +46,7 @@ def munge_title_to_name(name):
             name = '%s-%s' % (name[:(max_length-len(year)-1)], year)
         else:
             name = name[:max_length]
-    name = _munge_to_length(name, model.PACKAGE_NAME_MIN_LENGTH, model.PACKAGE_NAME_MAX_LENGTH)
+    name = _munge_to_length(name, model.MIN_PACKAGE_NAME_LENGTH, model.MAX_PACKAGE_NAME_LENGTH)
     return name
 
 def substitute_ascii_equivalents(text_unicode):

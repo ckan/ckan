@@ -399,7 +399,7 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
 
         ## hack as db_to_form schema should have this
-        data['tag_string'] = ' '.join([tag['name'] for tag in data.get('tags', [])])
+        data['tag_string'] = ', '.join([tag['name'] for tag in data.get('tags', [])])
         data.pop('tags')
         data = flatten_to_string_key(data)
         response.headers['Content-Type'] = 'application/json;charset=utf-8'

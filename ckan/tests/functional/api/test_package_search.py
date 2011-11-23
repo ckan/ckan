@@ -1,6 +1,8 @@
 from nose.tools import assert_raises
 from nose.plugins.skip import SkipTest
 
+from urllib import quote
+
 from ckan import plugins
 import ckan.lib.search as search
 from ckan.tests import setup_test_search_index
@@ -208,8 +210,17 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         self.assert_results(res_dict, [u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
+    def test_07_uri_qjson_tags_with_flexible_query(self):
+        query = {'q': '', 'tags':['Flexible \u30a1']}
+        json_query = self.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        self.assert_results(res_dict, [u'annakarenina', u'warandpeace'])
+        assert res_dict['count'] == 2, res_dict
+
     def test_07_uri_qjson_tags_multiple(self):
-        query = {'q': '', 'tags':['tolstoy', 'russian']}
+        query = {'q': '', 'tags':['tolstoy', 'russian', u'Flexible \u30a1']}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         print offset
@@ -270,9 +281,9 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
         assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
-        assert len(anna_rec['tags']) == 2, anna_rec['tags']
-        for expected_tag in ['russian', 'tolstoy']:
-            assert expected_tag in anna_rec['tags']
+        assert len(anna_rec['tags']) == 3, anna_rec['tags']
+        for expected_tag in ['russian', 'tolstoy', u'Flexible \u30a1']:
+            assert expected_tag in anna_rec['tags'], anna_rec['tags']
 
         # try alternative syntax
         offset = self.base_url + '?q=russian&all_fields=1'
@@ -292,8 +303,16 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
 
-    def test_10_multiple_tags_with_plus(self):
-        offset = self.base_url + '?tags=tolstoy+russian&all_fields=1'
+    def test_10_single_tag_with_plus(self):
+        tagname = "Flexible+" + quote(u'\u30a1'.encode('utf8'))
+        offset = self.base_url + "?tags=%s&all_fields=1"%tagname
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        assert res_dict['count'] == 2, res_dict
+
+    def test_10_multi_tags_with_ampersand_including_a_multiword_tagame(self):
+        tagname = "Flexible+" + quote(u'\u30a1'.encode('utf8'))
+        offset = self.base_url + '?tags=tolstoy&tags=%s&all_fields=1' % tagname
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
@@ -353,6 +372,15 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
         self.assert_results(res_dict, [u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
+    def test_07_uri_qjson_tags_with_unicode(self):
+        query = {'q': u'tags:"Flexible \u30a1"'}
+        json_query = self.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        self.assert_results(res_dict, [u'annakarenina', u'warandpeace'])
+        assert res_dict['count'] == 2, res_dict
+
     def test_07_uri_qjson_tags_multiple(self):
         query = {'q': 'tags:tolstoy tags:russian'}
         json_query = self.dumps(query)
@@ -395,8 +423,8 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
         assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
-        assert len(anna_rec['tags']) == 2, anna_rec['tags']
-        for expected_tag in ['russian', 'tolstoy']:
+        assert len(anna_rec['tags']) == 3, anna_rec['tags']
+        for expected_tag in ['russian', 'tolstoy', u'Flexible \u30a1']:
             assert expected_tag in anna_rec['tags']
 
         # try alternative syntax

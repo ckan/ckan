@@ -16,19 +16,20 @@ from domain_object import DomainObject
 import ckan.misc
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
-           'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH']
+           'MAX_PACKAGE_NAME_LENGTH', 'MIN_PACKAGE_NAME_LENGTH',
+           'MAX_PACKAGE_VERSION_LENGTH']
 
-PACKAGE_NAME_MAX_LENGTH = 100
-PACKAGE_NAME_MIN_LENGTH = 2
-PACKAGE_VERSION_MAX_LENGTH = 100
+MAX_PACKAGE_NAME_LENGTH = 100
+MIN_PACKAGE_NAME_LENGTH = 2
+MAX_PACKAGE_VERSION_LENGTH = 100
+
 ## Our Domain Object Tables
 package_table = Table('package', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
+        Column('name', types.Unicode(MAX_PACKAGE_NAME_LENGTH),
                nullable=False, unique=True),
         Column('title', types.UnicodeText),
-        Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH)),
+        Column('version', types.Unicode(MAX_PACKAGE_VERSION_LENGTH)),
         Column('url', types.UnicodeText),
         Column('author', types.UnicodeText),
         Column('author_email', types.UnicodeText),
