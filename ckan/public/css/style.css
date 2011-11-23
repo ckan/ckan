@@ -1062,11 +1062,15 @@ body.package.read tbody tr:nth-child(odd) td, tbody tr.odd td {
     background-color: #ffffff;
 }
 body.package.read tbody tr:nth-child(even) td, tbody tr.even td {
-    background-color: #f8f8f8;
+    /* background-color: #f8f8f8; */
+    background-color: #ffffff;
 }
 body.package.read #dataset-information { 
-    border: 1px solid #e0e0e0; 
-    padding: 10px;
+    /* border: 1px solid #e0e0e0;  */
+    /* padding: 10px; */
+}
+body.package.read #dataset-information td { 
+    padding-left: 0;
 }
 body.package.read #dataset-information .dataset-label {
     font-weight: bold;
