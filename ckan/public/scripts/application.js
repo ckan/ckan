@@ -129,8 +129,14 @@ CKAN.Utils = function($, my) {
     var titleInput = $('.js-title');
     var urlText = $('.js-url-text');
     var urlSuffix = $('.js-url-suffix');
-    var urlInput = $('.js-url-slug-editor');
+    var urlInput = $('.js-url-input');
     var validMsg = $('.js-url-is-valid');
+
+    if (titleInput.length==0) throw "No titleInput found.";
+    if (urlText.length==0) throw "No urlText found.";
+    if (urlSuffix.length==0) throw "No urlSuffix found.";
+    if (urlInput.length==0) throw "No urlInput found.";
+    if (validMsg.length==0) throw "No validMsg found.";
 
     var api_url = '/api/2/util/is_slug_valid';
     // (make length less than max, in case we need a few for '_' chars to de-clash slugs.)
@@ -749,7 +755,9 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     var dialogId = 'ckanext-datapreview-dialog';
     // initialize the tableviewer system
     DATAEXPLORER.TABLEVIEW.initialize(dialogId);
-    my.createPreviewButtons(dataset, $('.resources'));
+    if (dataset.get('resources').length>0) {
+      my.createPreviewButtons(dataset, $('.resources'));
+    }
   };
 
   // Public: Creates the base UI for the plugin.

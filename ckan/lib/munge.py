@@ -8,7 +8,7 @@ import re
 from ckan import model
 
 def munge_name(name):
-    '''Munges the name field in case it is not to spec.
+    '''Munges the package name field in case it is not to spec.
     '''
     # remove foreign accents
     if isinstance(name, unicode):
@@ -17,10 +17,12 @@ def munge_name(name):
     name = re.sub('[ .:/]', '-', name)
     # take out not-allowed characters
     name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
+    # keep it within the length spec
+    name = _munge_to_length(name, model.PACKAGE_NAME_MIN_LENGTH, model.PACKAGE_NAME_MAX_LENGTH)
     return name
 
 def munge_title_to_name(name):
-    '''Munge a title into a name.
+    '''Munge a package title into a package name.
     '''
     # remove foreign accents
     if isinstance(name, unicode):
@@ -44,6 +46,7 @@ def munge_title_to_name(name):
             name = '%s-%s' % (name[:(max_length-len(year)-1)], year)
         else:
             name = name[:max_length]
+    name = _munge_to_length(name, model.PACKAGE_NAME_MIN_LENGTH, model.PACKAGE_NAME_MAX_LENGTH)
     return name
 
 def substitute_ascii_equivalents(text_unicode):
@@ -98,5 +101,15 @@ def substitute_ascii_equivalents(text_unicode):
 def munge_tag(tag):
     tag = substitute_ascii_equivalents(tag)
     tag = tag.lower().strip()
-    return re.sub(r'[^a-zA-Z0-9 ]', '', tag).replace(' ', '-')
+    tag = re.sub(r'[^a-zA-Z0-9 ]', '', tag).replace(' ', '-')
+    tag = _munge_to_length(tag, model.MIN_TAG_LENGTH, model.MAX_TAG_LENGTH)
+    return tag
 
+def _munge_to_length(string, min_length, max_length):
+    '''Pad/truncates a string'''
+    if len(string) < min_length:
+        string += '_' * (min_length - len(string))
+    if len(string) > max_length:
+        string = string[:max_length]
+    return string
+    

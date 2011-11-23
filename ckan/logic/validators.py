@@ -5,7 +5,8 @@ from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unfla
 from ckan.authz import Authorizer
 from ckan.logic import check_access, NotAuthorized
 from ckan.lib.helpers import date_str_to_datetime
-from ckan.model import MAX_TAG_LENGTH
+from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
+                        PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH)
 
 def package_id_not_changed(value, context):
 
@@ -113,6 +114,16 @@ def package_name_validator(key, data, errors, context):
     if result:
         errors[key].append(_('That URL is already in use.'))
 
+    value = data[key]
+    if len(value) < PACKAGE_NAME_MIN_LENGTH:
+        raise Invalid(
+            _('Name "%s" length is less than minimum %s') % (value, PACKAGE_NAME_MIN_LENGTH)
+        )
+    if len(value) > PACKAGE_NAME_MAX_LENGTH:
+        raise Invalid(
+            _('Name "%s" length is more than maximum %s') % (value, PACKAGE_NAME_MIN_LENGTH)
+        )
+
 def duplicate_extras_key(key, data, errors, context):
 
     unflattened = unflatten(data)
@@ -145,9 +156,9 @@ def group_name_validator(key, data, errors, context):
 
 def tag_length_validator(value, context):
 
-    if len(value) < 2:
+    if len(value) < MIN_TAG_LENGTH:
         raise Invalid(
-            _('Tag "%s" length is less than minimum %s') % (value, 2)
+            _('Tag "%s" length is less than minimum %s') % (value, MIN_TAG_LENGTH)
         )
     if len(value) > MAX_TAG_LENGTH:
         raise Invalid(

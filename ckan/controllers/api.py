@@ -10,6 +10,7 @@ import ckan.rating
 from ckan.lib.search import query_for, QueryOptions, SearchIndexError, SearchError, DEFAULT_OPTIONS, convert_legacy_parameters_to_solr
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.navl.dictization_functions import DataError
+from ckan.lib.munge import munge_name, munge_title_to_name, munge_tag
 from ckan.logic import get_action, check_access
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.lib.jsonp import jsonpify
@@ -613,3 +614,18 @@ class ApiController(BaseController):
             }
         }
         return self._finish_ok(resultSet)
+
+    def munge_package_name(self):
+        name = request.params.get('name')
+        munged_name = munge_name(name)
+        return self._finish_ok(munged_name)
+
+    def munge_title_to_package_name(self):
+        name = request.params.get('title') or request.params.get('name')
+        munged_name = munge_title_to_name(name)
+        return self._finish_ok(munged_name)        
+        
+    def munge_tag(self):
+        tag = request.params.get('tag') or request.params.get('name')
+        munged_tag = munge_tag(tag)
+        return self._finish_ok(munged_tag)
