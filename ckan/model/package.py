@@ -534,12 +534,17 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return fields
 
     def activity_stream_item(self, activity_type, revision_id):
-        user_obj = c.user_obj
-        if user_obj:
-            user_id = user_obj.id
-        else:
-            # User is not logged in, use their IP address as the user_id.
-            user_id = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
+        try:
+            user_id = c.user_obj.id
+        except TypeError:
+            # Cannot access user ID through Pylons context, try to get their IP
+            # address instead.
+            try:
+                user_id = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
+            except TypeError:
+                # Cannot access user IP address through Pylons request,
+                # fallback on a default value.
+                user_id = 'Unknown IP Address'
         logger.debug("user_id: %s" % user_id)
         assert activity_type in ("new", "changed", "deleted"), \
             str(activity_type)
