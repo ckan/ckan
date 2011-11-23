@@ -25,10 +25,6 @@
 
     var isDatasetView = $('body.package.read').length > 0;
     if (isDatasetView) {
-      // var _dataset = new CKAN.Model.Dataset(preload_dataset);
-      // CKANEXT.DATAPREVIEW.setupDataPreview(_dataset);
-      // Set up hashtag nagivigation
-      // CKAN.Utils.setupDatasetViewNavigation();
       // Show extract of notes field
       CKAN.Utils.setupDatasetViewNotesExtract();
     }
@@ -416,31 +412,35 @@ CKAN.Utils = function($, my) {
   };
 
   // Show/hide fieldset sections from the dataset view form. 
-  my.setupDatasetViewNavigation = function() {
+  //
+  // TODO: Currently not used, reenable if we decide to go back to tabs on this page.
+  //       If not, remove.
+  //
+  // my.setupDatasetViewNavigation = function() {
 
-    function showSection(sectionToShowId) {
-      $('#dataset-overview').hide();
-      $('#dataset-more-information').hide();
-      $('#dataset-'+sectionToShowId).show();
-      $('#dataset-tabs li a').removeClass('active');
-      $('#dataset-tabs li a[href=#section-'+sectionToShowId+']').addClass('active');
-      window.location.hash = 'section-'+sectionToShowId;
-    }
+  //   function showSection(sectionToShowId) {
+  //     $('#dataset-overview').hide();
+  //     $('#dataset-more-information').hide();
+  //     $('#dataset-'+sectionToShowId).show();
+  //     $('#dataset-tabs li a').removeClass('active');
+  //     $('#dataset-tabs li a[href=#section-'+sectionToShowId+']').addClass('active');
+  //     window.location.hash = 'section-'+sectionToShowId;
+  //   }
 
-    // Set up initial form state
-    // Prefix="#section-"
-    var initialSection = window.location.hash.slice(9) || 'overview';
-    showSection(initialSection);
+  //   // Set up initial form state
+  //   // Prefix="#section-"
+  //   var initialSection = window.location.hash.slice(9) || 'overview';
+  //   showSection(initialSection);
     
-    // Adjust page state on click
-    $('#dataset-tabs li a').live('click', function(e) {
-      var $el = $(e.target);
-      // Prefix="#section-"
-      var showMe = $el.attr('href').slice(9);
-      showSection(showMe);
-      return false;
-    });  
-  };
+  //   // Adjust page state on click
+  //   $('#dataset-tabs li a').live('click', function(e) {
+  //     var $el = $(e.target);
+  //     // Prefix="#section-"
+  //     var showMe = $el.attr('href').slice(9);
+  //     showSection(showMe);
+  //     return false;
+  //   });  
+  // };
 
   // If notes field is more than 1 paragraph, just show the
   // first paragraph with a 'Read more' link that will expand
