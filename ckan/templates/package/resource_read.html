@@ -20,12 +20,25 @@
   </py:def>
 
   <py:def function="page_title">
-    ${c.package.get('title', c.package['name'])} &gt;
-    ${c.resource.get('name', c.resource['id'])} - Datasets
+    <py:if test="c.resource.get('name')">
+      ${c.package.get('title', c.package['name'])} &gt;
+      ${c.resource.get('name')} - Datasets
+    </py:if>
+    <py:if test="not c.resource.get('name')">
+      ${c.package.get('title', c.package['name'])} &gt;
+      ${c.resource.get('id')} - Datasets
+    </py:if>
   </py:def>
 
-  <py:def function="page_heading">${c.resource.get('name', c.resource['id'])}</py:def>
-  
+  <py:def function="page_heading">
+    <py:if test="c.resource.get('name')">
+      ${c.resource.get('name')}
+    </py:if>
+    <py:if test="not c.resource.get('name')">
+      ${c.resource.get('id')}
+    </py:if>
+  </py:def>
+
   <div py:match="content">
     <div id="resource-main-information">
       <div id="resource-dataset">
@@ -86,38 +99,56 @@
     <!-- </div> -->
 
     <div id="resource-information">
-      <h2>Resource Information</h2>
-      <dl id="resource-information-list">
-        <dt>Url</dt>
-        <dd><a href="${c.resource.get('url')}" rel="dcat:accessURL" target="_blank">
-          <span property="rdfs:label">${c.resource.get('url')}</span></a>
-        </dd>
+      <h3>Information</h3>
+      <table>
+        <tbody>
+          <tr>
+            <td class="label">Url</td>
+            <td class="details">
+              <a href="${c.resource.get('url')}" rel="dcat:accessURL" target="_blank">
+                <span property="rdfs:label">${c.resource.get('url')}</span>
+              </a>
+            </td>
+          </tr>
 
-        <dt>Format</dt>
-        <dd><span property="dc:format">${c.resource.get('format', "(none)")}</span></dd>
+          <tr>
+            <td class="label">Format</td>
+            <td><span property="dc:format">${c.resource.get('format', "(none)")}</span></td>
+          </tr>
 
-        <dt py:if="c.resource.get('resource_type')">Resource Type</dt>
-        <dd py:if="c.resource.get('resource_type')">
-          <span property="dc:format">${c.resource.get('resource_type', "(none)")}</span>
-        </dd>
+          <tr py:if="c.resource.get('resource_type')">
+            <td class="label">Resource Type</td>
+            <td><span property="dc:format">${c.resource.get('resource_type', "(none)")}</span></td>
+          </tr>
 
-        <dt py:if="c.resource.get('size')">Size (Bytes)</dt>
-        <dd py:if="c.resource.get('size')">${c.resource.get('size')}</dd>
+          <tr py:if="c.resource.get('size')">
+            <td class="label">Size (Bytes)</td>
+            <td>${c.resource.get('size')}</td>
+          </tr>
 
-        <dt py:if="c.resource.get('mimetype')">Mimetype</dt>
-        <dd py:if="c.resource.get('mimetype')">${c.resource.get('mimetype')}</dd>
+          <tr py:if="c.resource.get('mimetype')">
+            <td class="label">Mimetype</td>
+            <td>${c.resource.get('mimetype')}</td>
+          </tr>
 
-        <dt py:if="c.resource.get('mimetype_inner')">Mimetype (Inner)</dt>
-        <dd py:if="c.resource.get('mimetype_inner')">${c.resource.get('mimetype_inner')}</dd>
+          <tr py:if="c.resource.get('mimetype_inner')">
+            <td class="label">Mimetype (Inner)</td>
+            <td>${c.resource.get('mimetype_inner')}</td>
+          </tr>
 
-        <dt py:if="c.resource.get('hash')">Hash</dt>
-        <dd py:if="c.resource.get('hash')">${c.resource.get('hash')}</dd>
+          <tr py:if="c.resource.get('hash')">
+            <td class="label">Hash</td>
+            <td>${c.resource.get('hash')}</td>
+          </tr>
 
-        <dt>ID</dt>
-        <dd>${c.resource.get('id')}</dd>
-      </dl>
+          <tr> 
+            <td class="label">ID</td>
+            <td>${c.resource.get('id')}</td>
+          </tr>
+        </tbody>
+      </table>
+
     </div>
-    <div id="ckanext-datapreview-dialog"></div>
   </div>
 
   <py:def function="optional_footer">

@@ -1077,6 +1077,7 @@ body.package.read #dataset-information .dataset-label {
 /* ====================== */
 /* = Resource View Page = */
 /* ====================== */
+body.package.resource_read .page_heading { margin-bottom: 0.2em; }
 body.package.resource_read #sidebar { display: none; }
 body.package.resource_read #minornavigation { display: none; }
 body.package.resource_read #content { 
@@ -1090,19 +1091,22 @@ body.package.resource_read #resource-actions a { color: #222; }
 body.package.resource_read #resource-description { margin-bottom: 2em; }
 body.package.resource_read #dataset-description { margin-bottom: 2em; }
 body.package.resource_read #resource-explore { margin-bottom: 2em; }
-body.package.resource_read #resource-information-list { 
+body.package.resource_read table {
+    margin: 0;
+}
+body.package.resource_read tbody tr:nth-child(odd) td, tbody tr.odd td {
+    background-color: #ffffff;
+}
+body.package.resource_read tbody tr:nth-child(even) td, tbody tr.even td {
+    background-color: #f8f8f8;
+}
+body.package.resource_read #resource-information table { 
     border: 1px solid #e0e0e0; 
     padding: 10px;
 }
-body.package.resource_read #resource-information dt {
-    width: 10em;
-    float: left;
-	font-weight: bold;
-    text-align: right;
-}
-body.package.resource_read #resource-information dd {
-	margin-left: 14em;
-    margin-bottom: 1em;
+body.package.resource_read #resource-information .label {
+    font-weight: bold;
+    width: 14em;
 }
 
 
