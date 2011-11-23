@@ -286,7 +286,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert 'romantic novel' in res, res
         assert 'original media' in res, res
         assert 'book' in res, res
-        assert 'This Dataset is Open' in res, res
+        assert 'This dataset satisfies the Open Definition' in res, res
 
     def test_read_war(self):
         name = u'warandpeace'
