@@ -425,7 +425,7 @@ CKAN.Utils = function($, my) {
       notes.find('#notes-remainder').hide();
       notes.find('#dataset-notes-read-more a').click(function(){
           notes.find('#dataset-notes-read-more').hide();
-          notes.fin('#notes-remainder').slideDown();
+          notes.find('#notes-remainder').slideDown();
       })
     }
   };
