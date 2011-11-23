@@ -1109,6 +1109,9 @@ body.package.resource_read #resource-information table {
     /* border: 1px solid #e0e0e0;  */
     /* padding: 10px; */
 }
+body.package.resource_read #resource-information td { 
+    padding-left: 0;
+}
 body.package.resource_read #resource-information .label {
     font-weight: bold;
     width: 14em;
