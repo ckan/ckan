@@ -41,71 +41,66 @@ class DatasetActivitySessionExtension(SessionExtension):
         # values are lists of model.activity:ActivityDetail objects.
         activity_details = {}
 
+        # Log new packages first to prevent them from getting incorrectly
+        # logged as changed packages.
+        logger.debug("Looking for new packages...")
+        for obj in obj_cache['new']:
+            logger.debug("Looking at object %s" % obj)
+            activity = activity_stream_item(obj, 'new', revision.id)
+            if activity is None:
+                continue
+            # If the object returns an activity stream item we know that the
+            # object is a package.
+            logger.debug("Looks like this object is a package")
+            logger.debug("activity: %s" % activity)
+            activities[obj.id] = activity
+
+            activity_detail = activity_stream_detail(obj, activity.id, "new")
+            if activity_detail is not None:
+                logger.debug("activity_detail: %s" % activity_detail)
+                activity_details[activity.id] = [activity_detail]
+
+        # Now process other objects.
+        logger.debug("Looking for other objects...")
         for activity_type in ('new', 'changed', 'deleted'):
             objects = obj_cache[activity_type]
             for obj in objects:
-                logger.debug("Processing %s object %s" % (activity_type, obj))
-
-                # Try to get an activity stream item from the object, this will
-                # work if the object is a Package.
-                activity = None
                 if obj.id in activities:
-                    # FIXME: What if this existing activity has a different
-                    # activity_type?
-                    activity = activities[obj.id]
-                else:
-                    activity = activity_stream_item(obj, activity_type,
-                        revision.id)
-                    if activity is not None:
-                        activities[obj.id] = activity
+                    logger.debug("This object was already logged as a new "
+                            "package")
+                    continue
 
-                if activity is not None:
-                    logger.debug("Looks like this object is a package")
+                logger.debug("Looking at %s object %s" % (activity_type, obj))
+
+                try:
+                    related_packages = obj.related_packages()
+                    logger.debug("related_packages: %s" % related_packages)
+                except (AttributeError, TypeError):
+                    logger.debug("Object did not have a suitable "
+                            "related_packages() method, skipping it.")
+                    continue
+
+                for package in related_packages:
+                    if package is None: continue
+
+                    if package.id in activities:
+                        activity = activities[package.id]
+                    else:
+                        activity = activity_stream_item(package, "changed",
+                                revision.id)
+                        activities[package.id] = activity
+                    assert activity is not None
                     logger.debug("activity: %s" % activity)
-                    activity_detail = activity_stream_detail(obj,
-                        activity.id, activity_type)
+
+                    activity_detail = activity_stream_detail(obj, activity.id,
+                            activity_type)
+                    logger.debug("activity_detail: %s" % activity_detail)
                     if activity_detail is not None:
-                        logger.debug("activity_detail: %s" % activity_detail)
                         if activity_details.has_key(activity.id):
                             activity_details[activity.id].append(
-                                activity_detail)
-                        else:
-                            activity_details[activity.id] = [activity_detail]
-
-                else:
-                    logger.debug("Looks like this object is not a Package")
-                    try:
-                        related_packages = obj.related_packages()
-                        logger.debug("related_packages: %s" % related_packages)
-                    except (AttributeError, TypeError):
-                        logger.debug("Object did not have a suitable "
-                                "related_packages() method, skipping it.")
-                        continue
-
-                    for package in related_packages:
-                        if package is None: continue
-
-                        if package.id in activities:
-                            # FIXME: What if this existing activity has a
-                            # different activity_type?
-                            activity = activities[package.id]
-                        else:
-                            activity = activity_stream_item(package,
-                                    "changed", revision.id)
-                            activities[package.id] = activity
-                        assert activity is not None
-                        logger.debug("activity: %s" % activity)
-
-                        activity_detail = activity_stream_detail(obj,
-                            activity.id, activity_type)
-                        logger.debug("activity_detail: %s" % activity_detail)
-                        if activity_detail is not None:
-                            if activity_details.has_key(activity.id):
-                                activity_details[activity.id].append(
                                     activity_detail)
-                            else:
-                                activity_details[activity.id] = \
-                                    [activity_detail]
+                        else:
+                            activity_details[activity.id] =  [activity_detail]
 
         for key, activity in activities.items():
             session.add(activity)

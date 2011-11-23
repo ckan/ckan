@@ -23,8 +23,39 @@ class TestActivity:
         model.repo.rebuild_db()
         model.Session.remove()
 
-    # TODO: Add tests for creating a package with some resources, groups, tags,
-    # etc.
+    def _make_test_package(self):
+        """Return a test package in dictionary form."""
+        # A package with no resources, tags, extras or groups.
+        pkg1 = {
+            'name' : 'test_package',
+            'title' : 'My Test Package',
+            'author' : 'test author',
+            'author_email' : 'test_author@test_author.com',
+            'maintainer' : 'test maintainer',
+            'maintainer_email' : 'test_maintainer@test_maintainer.com',
+            'notes' : 'some test notes',
+            'url' : 'www.example.com',
+            }
+        # Add some resources to the package.
+        res1 = {
+                'url': 'http://www.example-resource.info',
+                'description': 'an example resource description',
+                'format': 'HTML',
+                'name': 'an example resource',
+            }
+        res2 = {
+                'url': 'http://www.example-resource2.info',
+                'description': 'another example resource description',
+                'format': 'PDF',
+                'name': 'another example resource',
+            }
+        pkg1['resources'] = [res1, res2]
+        # Add some tags to the package.
+        tag1 = { 'name': 'a_test_tag' }
+        tag2 = { 'name': 'another_test_tag' }
+        pkg1['tags'] = [tag1, tag2]
+        return pkg1
+
     def test_create_package(self):
         """
         Test new package activity stream.
@@ -42,17 +73,18 @@ class TestActivity:
         # Create a new package.
         context = {'model': model, 'session': model.Session,
                 'user':TestActivity.normal_user.name}
-        request_data = {'title':'My Test Package', 'name':'test_package'}
+        request_data = self._make_test_package()
         package_created = package_create(context, request_data)
 
         # Record some details after creating the new package.
         after = datetime.datetime.now()
 
-        # Test for the presence of a correct activity stream item.
+        # Test that there is one new activity item and it contains the right
+        # data.
         activities = model.Session.query(model.activity.Activity).all()
-        assert len(activities) == length_before + 1, ("Length of activities "
-            "table should be %i but is %i" % (length_before + 1,
-                len(activities)))
+        assert len(activities) == length_before + 1, \
+            "Length of activities table should be %i but is %i" \
+            % (length_before + 1, len(activities))
         activity = activities[-1]
         assert activity.object_id == package_created['id'], \
             str(activity.object_id)
@@ -67,16 +99,29 @@ class TestActivity:
         assert activity.timestamp >= before and activity.timestamp <= after, \
             str(activity.timestamp)
 
-        # Test for the presence of a correct activity detail item.
+        # Test that there are three activity details: one for the package
+        # itself and one for each of its two resources, and test that each
+        # contains the right data.
         details = model.Session.query(model.activity.ActivityDetail).all()
-        assert len(details) == details_length_before + 1, ("Length of details "
-            "table should be %i but is %i" % (details_length_before + 1,
-                len(details)))
-        detail = details[-1]
-        assert detail.activity_id == activity.id, str(detail.activity_id)
-        assert detail.object_id == package_created['id'], str(detail.object_id)
-        assert detail.object_type == "Package", str(detail.object_type)
-        assert detail.activity_type == "new", str(detail.activity_type)
+        assert len(details) == details_length_before + 3, \
+            "Length of details table should be %i but is %i" \
+            % (details_length_before + 3, len(details))
+        new_details = details[-3:]
+        for detail in new_details:
+            assert detail.activity_id == activity.id, str(detail.activity_id)
+            assert detail.activity_type == "new", str(detail.activity_type)
+            if detail.object_id == package_created['id']:
+                assert detail.object_type == "Package", str(detail.object_type)
+            elif detail.object_id == package_created['resources'][0]['id']:
+                assert detail.object_type == "Resource", \
+                    str(detail.object_type)
+            elif detail.object_id == package_created['resources'][1]['id']:
+                assert detail.object_type == "Resource", \
+                    str(detail.object_type)
+            else:
+                assert False, ("Activity detail's object_id did not match"
+                    "package or any of its resources: %s" \
+                    % str(detail.object_id))
 
     # TODO: Add tests for creating a resource with some related packages,
     # groups, tags, etc.
