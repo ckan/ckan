@@ -16,42 +16,41 @@
   
   <py:def function="page_heading" property="dc:title">
     ${c.pkg_dict['title']}
-    <!-- <span id="dataset-license"> -->
-    <!--   <py:if test="c.pkg.isopen()"> -->
-    <!--       <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition."> -->
-    <!--         <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" /> -->
-    <!--       </a> -->
-    <!--   </py:if> -->
-    <!--   <py:if test="not c.pkg.isopen()"> -->
-    <!--       <span class="closed"> -->
-    <!--         ${h.icon('lock')} -->
-    <!--       </span> -->
-    <!--   </py:if> -->
-    <!-- </span> -->
   </py:def>
   
   <py:match path="primarysidebar">
   
-    <li class="widget-container widget_text">
-      <ul class="property-list">
-        <li>
-          <h3>Tags</h3>
-          ${tag_list(c.pkg_dict.get('tags', ''))}
-        </li>
-        <li>
-          <h3>Groups</h3>
-          <py:if test="c.pkg.groups">        
-              <ul class="groups">
-                <li py:for="group in sorted(c.pkg.groups, key=lambda g: g.display_name)">
-                    <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
-                </li>
-              </ul>
-          </py:if>
-          <p class="hint">
-            <py:if test="not c.pkg.groups">
-               Groups are collections of dataset maintained by users of ${g.site_title}. This dataset has not been added to any groups yet.
-            </py:if>
-          </p>
+    <li py:if="c.pkg.license_id" id="dataset-license" class="sidebar-section">
+      <strong>License:</strong>
+        <py:choose test="">
+          <span py:when="c.pkg.license and c.pkg.license.url"><a
+              href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
+          <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
+          <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
+        </py:choose>
+
+        <py:if test="c.pkg.isopen()">
+            <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+              <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+            </a>
+        </py:if>
+        <py:if test="not c.pkg.isopen()">
+            <span class="closed">
+              ${h.icon('lock')}
+            </span>
+        </py:if>
+    </li>
+
+    <li py:if="c.pkg_dict.get('tags')" class="sidebar-section">
+      <h3>Tags</h3>
+      ${tag_list(c.pkg_dict.get('tags', ''))}
+    </li>
+
+    <li py:if="c.pkg.groups" class="sidebar-section">
+      <h3>Groups</h3>
+      <ul class="groups">
+        <li py:for="group in sorted(c.pkg.groups, key=lambda g: g.display_name)">
+            <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
         </li>
       </ul>
     </li>
@@ -70,32 +69,8 @@
         <!--   </ul> -->
         <!-- </li> -->
 
-
-    <!-- <li class="widget-container boxed widget_text"> -->
-    <!-- <py:if test="c.pkg.isopen() and c.pkg.resources"> -->
-    <!--   <h3> -->
-    <!--     This Dataset is Open -->
-    <!--   </h3> -->
-    <!--   <p py:if="c.pkg.license_id"> -->
-    <!--     License: -->
-    <!--     <py:choose test=""> -->
-    <!--       <strong py:when="c.pkg.license and c.pkg.license.url"><a -->
-    <!--           href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></strong> -->
-    <!--       <strong py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</strong> -->
-    <!--       <strong py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</strong> -->
-    <!--     </py:choose> -->
-    <!--   </p> -->
-    <!--   <p class="okd"> -->
-    <!--     <a -->
-    <!--       href="http://www.opendefinition.org/okd/" -->
-    <!--       title="This dataset satisfies the Open Knowledge Definition."> -->
-    <!--       <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" /></a> -->
-    <!--   </p> -->
-    <!-- </py:if> -->
-
     <!-- <py:if test="not(c.pkg.isopen() and c.pkg.resources)"> -->
     <!--   <h3 i18n:msg="">This dataset is Not Open</h3>  -->
-      
     <!--   <p>Either because it is not openly licensed or is missing -->
     <!--   downloadable resources.</p> -->
     <!--   <p class="widget_action"> -->
@@ -103,6 +78,7 @@
     <!--   </p> -->
     <!-- </py:if> -->
     <!-- </li> -->
+
   </py:match>
 
   <div py:match="content">
@@ -121,10 +97,6 @@
       <link rel="alternate" type="application/rdf+xml" title="RDF/XML" href="${config['rdf_packages'] + '/' + c.pkg.id + '.rdf' }" />
       <link rel="alternate" type="application/turtle" title="RDF/Turtle" href="${config['rdf_packages'] + '/' + c.pkg.id + '.ttl' }" />
     </py:if>
-
-    <script type="text/javascript">
-      var preload_dataset = ${c.pkg_json};
-    </script>
   </py:def>
 
   <py:def function="optional_feed">
