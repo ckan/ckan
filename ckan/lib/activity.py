@@ -98,6 +98,7 @@ class DatasetActivitySessionExtension(SessionExtension):
 
                         activity_detail = activity_stream_detail(obj,
                             activity.id, activity_type)
+                        logger.debug("activity_detail: %s" % activity_detail)
                         if activity_detail is not None:
                             if activity_details.has_key(activity.id):
                                 activity_details[activity.id].append(
