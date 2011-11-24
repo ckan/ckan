@@ -22,6 +22,7 @@ __all__ = ['Package', 'package_table', 'package_revision_table',
 PACKAGE_NAME_MAX_LENGTH = 100
 PACKAGE_NAME_MIN_LENGTH = 2
 PACKAGE_VERSION_MAX_LENGTH = 100
+
 ## Our Domain Object Tables
 package_table = Table('package', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),

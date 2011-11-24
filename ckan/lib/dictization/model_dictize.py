@@ -11,7 +11,8 @@ from ckan.lib.helpers import json
 
 ## package save
 
-def group_list_dictize(obj_list, context, sort_key=lambda x:x['display_name']):
+def group_list_dictize(obj_list, context, 
+                       sort_key=lambda x:x['display_name'], reverse=False):
 
     active = context.get('active', True)
 
@@ -28,7 +29,7 @@ def group_list_dictize(obj_list, context, sort_key=lambda x:x['display_name']):
         group_dict['packages'] = len(obj.packages)
 
         result_list.append(group_dict)
-    return sorted(result_list, key=sort_key)
+    return sorted(result_list, key=sort_key, reverse=reverse)
 
 def resource_list_dictize(res_list, context):
 

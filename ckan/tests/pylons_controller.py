@@ -56,3 +56,13 @@ class PylonsTestCase(object):
             'action': 'test-action',
             'controller': 'test-package::',
         }})
+
+    @classmethod
+    def teardown_class(cls):
+        """
+        Although there is nothing to teardown in this class, `PylonsTestCase`
+        is used as the superclass for a bunch of test cases.  So this empty
+        declaration exists to that subclasses can safely call `teardown_class`
+        on their superclasses.
+        """
+        pass
