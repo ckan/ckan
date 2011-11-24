@@ -9,6 +9,9 @@
     <py:if test="c.pkg">
     <ul class="tabbed">
       <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}">${h.subnav_link(c, h.icon('package') + _('View'), controller='package', action='read', id=c.pkg.name)}</li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='resource_read' else
+      {}">${h.subnav_link(c, h.icon('package') + _('Resource'),
+      controller='package', action='read', id=c.pkg.name, anchor='dataset-resources')}</li>
       <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}" py:if="h.check_access('package_update',{'id':c.pkg.id})">
           ${h.subnav_link(c, h.icon('package_edit') + _('Edit'), controller='package', action='edit', id=c.pkg.name)}
       </li>
