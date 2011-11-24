@@ -40,10 +40,10 @@ ALTER TABLE "member"
 
 
 ALTER TABLE "member"
-	ADD COLUMN table_name text not null;
+	ADD COLUMN table_name text;
 
 ALTER TABLE member_revision
-	ADD COLUMN table_name text not null;
+	ADD COLUMN table_name text;
 
 ALTER TABLE "member"
 	ADD CONSTRAINT member_pkey PRIMARY KEY (id);
@@ -68,6 +68,12 @@ ALTER TABLE member_revision
 
 update member set table_name = 'package';
 update member_revision set table_name = 'package';
+
+ALTER TABLE "member"
+	ALTER COLUMN  table_name set not null;
+
+ALTER TABLE member_revision
+	ALTER COLUMN table_name set not null;
 COMMIT;
     '''
     )
