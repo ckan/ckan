@@ -5,10 +5,18 @@ logger = logging.getLogger(__name__)
 
 import ckan
 import ckan.model as model
-from ckan.logic.action.create import package_create, resource_create
+from ckan.logic.action.create import package_create
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.delete import package_delete
-from ckan.lib.dictization.model_dictize import package_dictize
+from ckan.lib.dictization.model_dictize import resource_list_dictize
+
+def _make_resource():
+    return {
+            'url': 'http://www.example.com',
+            'description': 'example resource description',
+            'format': 'txt',
+            'name': 'example resource',
+            }
 
 class TestActivity:
 
@@ -123,30 +131,36 @@ class TestActivity:
                     "package or any of its resources: %s" \
                     % str(detail.object_id))
 
-    # TODO: Add tests for creating a resource with some related packages,
-    # groups, tags, etc.
-    def test_create_resource(self):
-        """
-        Test new resource activity stream.
-
-        Test that correct activity stream item and detail items are emitted
-        when a new resource is created.
-
-        """
+    def _add_resource(self, package):
         # Record some details before creating a new resource.
         length_before = len(model.Session.query(model.activity.Activity).all())
         details_length_before = len(model.Session.query(
             model.activity.ActivityDetail).all())
         before = datetime.datetime.now()
 
+        # Query for the package object again, as the session that it belongs to
+        # may have been closed.
+        package = model.Session.query(model.Package).get(package.id)
+
+        resource_ids_before = [resource.id for resource in package.resources]
+
         # Create a new resource.
         context = {'model': model, 'session': model.Session,
                 'user':TestActivity.normal_user.name}
-        request_data = {'name':'test_resource'}
-        resource_created = resource_create(context, request_data)
+        resources = resource_list_dictize(package.resources, context)
+        resources.append(_make_resource())
+        request_data = {
+                'id':package.id,
+                'resources':resources
+                }
+        updated_package = package_update(context, request_data)
 
         # Record some details after creating the new resource.
         after = datetime.datetime.now()
+        resource_ids_after = [resource['id'] for resource in
+                updated_package['resources']]
+
+        assert len(resource_ids_after) == len(resource_ids_before) + 1
 
         # Test for the presence of a correct activity stream item.
         activities = model.Session.query(model.activity.Activity).all()
@@ -154,10 +168,10 @@ class TestActivity:
             "table should be %i but is %i" % (length_before + 1,
                 len(activities)))
         activity = activities[-1]
-        assert activity.object_id == package_created['id'], \
+        assert activity.object_id == updated_package['id'], \
             str(activity.object_id)
         assert activity.user_id == "Unknown IP Address", str(activity.user_id)
-        assert activity.activity_type == 'new resource', \
+        assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
         if not activity.id:
             assert False, "activity object should have an id value"
@@ -174,9 +188,24 @@ class TestActivity:
                 len(details)))
         detail = details[-1]
         assert detail.activity_id == activity.id, str(detail.activity_id)
-        assert detail.object_id == package_created['id'], str(detail.object_id)
+        new_resource_ids = [id for id in resource_ids_after if id not in
+                resource_ids_before]
+        assert len(new_resource_ids) == 1
+        new_resource_id = new_resource_ids[0]
+        assert detail.object_id == new_resource_id, str(detail.object_id)
         assert detail.object_type == "Resource", str(detail.object_type)
         assert detail.activity_type == "new", str(detail.activity_type)
+
+    def test_add_resources(self):
+        """
+        Test new resource activity stream.
+
+        Test that correct activity stream item and detail items are emitted
+        when a resource is added to a package.
+
+        """
+        for package in model.Session.query(model.Package).all():
+            self._add_resource(package)
 
     def _update_package(self, package):
         """
@@ -190,7 +219,7 @@ class TestActivity:
             model.activity.ActivityDetail).all())
         before = datetime.datetime.now()
 
-        # Query for the package object again, as the session that is belongs to
+        # Query for the package object again, as the session that it belongs to
         # may have been closed.
         package = model.Session.query(model.Package).get(package.id)
 
@@ -322,7 +351,7 @@ class TestActivity:
             model.activity.ActivityDetail).all())
         before = datetime.datetime.now()
 
-        # Query for the package object again, as the session that is belongs to
+        # Query for the package object again, as the session that it belongs to
         # may have been closed.
         package = model.Session.query(model.Package).get(package.id)
 
