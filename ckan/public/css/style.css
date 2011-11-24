@@ -1015,35 +1015,26 @@ body.package.read .resource-format {
 /* ====================== */
 /* = Resource View Page = */
 /* ====================== */
+
 body.package.resource_read #sidebar { display: none; }
-body.package.resource_read #minornavigation { display: none; }
 body.package.resource_read #content { 
     border-right: 0; 
     width: 950px; 
 }
-body.package.resource_read #dataset-license img { vertical-align: top; }
-body.package.resource_read #resource-main-information { margin-bottom: 2em; }
-body.package.resource_read #resource-actions { margin-bottom: 2em; }
-body.package.resource_read #resource-actions a { color: #222; }
-body.package.resource_read #resource-description { margin-bottom: 2em; }
+
+.resource_read .quick-info dt {
+  width: 115px;
+  float: left;
+  font-weight: normal;
+  color: gray;
+}
+
+.resource_read .resource-actions {
+  float: right;
+}
+
 body.package.resource_read #dataset-description { margin-bottom: 2em; }
 body.package.resource_read #resource-explore { margin-bottom: 2em; }
-body.package.resource_read #resource-information-list { 
-    border: 1px solid #E0E0E0; 
-    padding: 10px;
-}
-body.package.resource_read #resource-information dt
-{
-    width: 10em;
-    float: left;
-	font-weight: bold;
-    text-align: right;
-}
-body.package.resource_read #resource-information dd
-{
-	margin-left: 14em;
-    margin-bottom: 1em;
-}
 
 
 /* ================== */

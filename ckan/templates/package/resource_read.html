@@ -24,18 +24,34 @@
     ${c.resource.get('name', c.resource['id'])} - Datasets
   </py:def>
 
-  <py:def function="page_heading">${c.resource.get('name', c.resource['id'])}</py:def>
+  <py:def function="page_heading">${h.resource_display_name(c.resource)}</py:def>
   
   <div py:match="content">
-    <div id="resource-main-information">
-      <div id="resource-dataset">
-        Dataset:
-        <span id="dataset-title" property="dc:title">
-          <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">
-            ${c.package.get('title', c.package['name'])} 
-          </a>
-        </span>
-        <span id="dataset-license">
+    <div class="resource-actions span-8">
+      <a py:if="c.resource.get('url')" class="pretty-button" href="${c.resource.get('url')}">
+        <py:choose test="c.resource.get('resource_type')">
+          <py:when test="'listing'">View</py:when>
+          <py:when test="'service'">View</py:when>
+          <py:when test="'api'">API Endpoint</py:when>
+          <py:otherwise>Download</py:otherwise>
+        </py:choose>
+        </a>
+    </div>
+
+    <div class="quick-info .span-8">
+      <dl>
+        <dt>Part of dataset</dt>
+        <dd>
+          ${h.dataset_link(c.package)}
+        </dd>
+        <dt>Last updated</dt>
+        <dd>${h.time_ago_in_words_from_str(c.resource['last_modified'], granularity='day')}</dd>
+        <dt>Format</dt>
+        <dd>
+          ${c.resource['format'] or 'Unknown'}
+        </dd>
+        <dt>Openness</dt>
+        <dd>
           <py:if test="c.package['isopen']">
               <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
                 <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
@@ -46,22 +62,8 @@
                 ${h.icon('lock')}
               </span>
           </py:if>
-        </span>
-      </div>
-      <div py:if="c.resource.get('last_modified')" id="resource-last-updated">
-        Last updated: ${h.time_ago_in_words_from_str(c.resource.get('last_modified'), granularity='day')}
-      </div>
-    </div>
-
-    <div id="resource-actions">
-      <a py:if="c.resource.get('url')" class="pretty-button" href="${c.resource.get('url')}">
-        <py:choose test="c.resource.get('resource_type')">
-          <py:when test="'listing'">View</py:when>
-          <py:when test="'service'">View</py:when>
-          <py:when test="'api'">API Endpoint</py:when>
-          <py:otherwise>Download</py:otherwise>
-        </py:choose>
-        </a>
+        </dd>
+      </dl>
     </div>
 
     <div py:if="c.resource.get('description')" id="resource-description" property="rdfs:label">
@@ -85,39 +87,22 @@
     <!--   </div> -->
     <!-- </div> -->
 
-    <div id="resource-information">
-      <h2>Resource Information</h2>
-      <dl id="resource-information-list">
-        <dt>Url</dt>
-        <dd><a href="${c.resource.get('url')}" rel="dcat:accessURL" target="_blank">
-          <span property="rdfs:label">${c.resource.get('url')}</span></a>
-        </dd>
-
-        <dt>Format</dt>
-        <dd><span property="dc:format">${c.resource.get('format', "(none)")}</span></dd>
-
-        <dt py:if="c.resource.get('resource_type')">Resource Type</dt>
-        <dd py:if="c.resource.get('resource_type')">
-          <span property="dc:format">${c.resource.get('resource_type', "(none)")}</span>
-        </dd>
-
-        <dt py:if="c.resource.get('size')">Size (Bytes)</dt>
-        <dd py:if="c.resource.get('size')">${c.resource.get('size')}</dd>
-
-        <dt py:if="c.resource.get('mimetype')">Mimetype</dt>
-        <dd py:if="c.resource.get('mimetype')">${c.resource.get('mimetype')}</dd>
-
-        <dt py:if="c.resource.get('mimetype_inner')">Mimetype (Inner)</dt>
-        <dd py:if="c.resource.get('mimetype_inner')">${c.resource.get('mimetype_inner')}</dd>
-
-        <dt py:if="c.resource.get('hash')">Hash</dt>
-        <dd py:if="c.resource.get('hash')">${c.resource.get('hash')}</dd>
-
-        <dt>ID</dt>
-        <dd>${c.resource.get('id')}</dd>
-      </dl>
+    <div class="resource-information">
+      <table>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr py:for="i, key in enumerate(sorted(c.resource.keys()))">
+            <td class="dataset-label" property="rdfs:label">${_(key)}</td>
+            <td class="dataset-details" property="rdf:value">${c.resource[key]}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div id="ckanext-datapreview-dialog"></div>
   </div>
 
   <py:def function="optional_footer">

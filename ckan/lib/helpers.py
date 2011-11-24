@@ -283,9 +283,33 @@ def date_str_to_datetime(date_str):
     return datetime.datetime(*map(int, re.split('[^\d]', date_str)))
 
 def time_ago_in_words_from_str(date_str, granularity='month'):
-    return date.time_ago_in_words(date_str_to_datetime(date_str), granularity=granularity)
+    if date_str:
+        return date.time_ago_in_words(date_str_to_datetime(date_str), granularity=granularity)
+    else:
+        return 'Unknown'
 
 def button_attr(enable, type='primary'):
     if enable:
         return 'class="pretty-button %s"' % type
     return 'disabled class="pretty-button disabled"'
+
+def resource_display_name(resource_dict):
+    return resource_dict['name'] or resource_dict['id']
+
+def dataset_display_name(package_or_package_dict):
+    if isinstance(package_or_package_dict, dict):
+        return package_or_package_dict.get('title', '') or package_or_package_dict.get('name', '')
+    else:
+        return package_or_package_dict.title or package_or_package_dictname
+
+def dataset_link(package_or_package_dict):
+    if isinstance(package_or_package_dict, dict):
+        name = package_or_package_dict['name']
+    else:
+        name = package_or_package_dict.name
+    text = dataset_display_name(package_or_package_dict)
+    return link_to(
+        text,
+        url_for(controller='package', action='read', id=name)
+        )
+
