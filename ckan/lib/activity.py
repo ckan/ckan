@@ -65,12 +65,11 @@ class DatasetActivitySessionExtension(SessionExtension):
         for activity_type in ('new', 'changed', 'deleted'):
             objects = obj_cache[activity_type]
             for obj in objects:
-                if obj.id in activities:
+                logger.debug("Looking at %s object %s" % (activity_type, obj))
+                if activity_type == "new" and obj.id in activities:
                     logger.debug("This object was already logged as a new "
                             "package")
                     continue
-
-                logger.debug("Looking at %s object %s" % (activity_type, obj))
 
                 try:
                     related_packages = obj.related_packages()
