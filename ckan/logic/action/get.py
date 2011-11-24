@@ -140,20 +140,18 @@ def group_list(context, data_dict):
     query = query.filter(model.GroupRevision.current==True)
 
     if order_by == 'name':
-        query = query.order_by(model.Group.name.asc())
-        query = query.order_by(model.Group.title.asc())
+        sort_by, reverse = 'name', False
 
     groups = query.all()
 
     if order_by == 'packages':
-        groups = sorted(query.all(),
-                        key=lambda g: len(g.packages),
-                        reverse=True)
+        sort_by, reverse = 'packages', True
 
     if not all_fields:
         group_list = [getattr(p, ref_group_by) for p in groups]
     else:
-        group_list = group_list_dictize(groups,context)
+        group_list = group_list_dictize(groups, context,
+                                        lambda x:x[sort_by], reverse)
 
     return group_list
 
