@@ -535,10 +535,25 @@ Example::
 
 This is a directory where SQL database backups are to be written, assuming a script has been installed to do this.
 
+template_head_end
+^^^^^^^^^^^^^^^^^
+
+HTML content to be inserted just before </head> tag (e.g. extra stylesheet)
+
+Example::
+
+  ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css"> 
+
+You can also have multiline strings. Just indent following lines. e.g.::
+
+ ckan.template_head_end = 
+  <link rel="stylesheet" href="/css/extra1.css" type="text/css"> 
+  <link rel="stylesheet" href="/css/extra2.css" type="text/css"> 
+
 template_footer_end
 ^^^^^^^^^^^^^^^^^^^
 
-HTML content to be inserted just before </body> tag (e.g. google analytics code).
+HTML content to be inserted just before </body> tag (e.g. Google Analytics code).
 
 .. note:: can use html e.g. <strong>blah</strong> and can have multiline strings (just indent following lines)
 
