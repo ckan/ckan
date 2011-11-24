@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 import ckan
 import ckan.model as model
 from ckan.logic.action.create import package_create, resource_create
-from ckan.logic.action.update import package_update
+from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.delete import package_delete
 from ckan.lib.dictization.model_dictize import package_dictize
 
@@ -244,6 +244,72 @@ class TestActivity:
         for package in model.Session.query(model.Package).all():
             self._update_package(package)
 
+    def _update_resource(self, package, resource):
+        """
+        Update the given resource and test that the correct activity stream
+        item and detail are emitted.
+
+        """
+        # Record some details before updating the resource.
+        length_before = len(model.Session.query(model.activity.Activity).all())
+        details_length_before = len(model.Session.query(
+            model.activity.ActivityDetail).all())
+        before = datetime.datetime.now()
+
+        # Query for the Package and Resource objects again, as the session that
+        # they belong to may have been closed.
+        package = model.Session.query(model.Package).get(package.id)
+        resource = model.Session.query(model.Resource).get(resource.id)
+
+        # Update the resource.
+        context = {'model': model, 'session': model.Session,
+                'user':TestActivity.normal_user.name,
+                'allow_partial_update':True}
+        resource_dict = {'id':resource.id, 'name':'edited'}
+        result = resource_update(context, resource_dict)
+
+        # Record some details after updating the resource.
+        after = datetime.datetime.now()
+
+        # Test for the presence of a correct activity stream item.
+        activities = model.Session.query(model.activity.Activity).all()
+        assert len(activities) == length_before + 1, str(activities)
+        activity = activities[-1]
+        assert activity.object_id == package.id, str(activity.object_id)
+        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
+        assert activity.activity_type == 'changed package', \
+            str(activity.activity_type)
+        if not activity.id:
+            assert False, "activity object has no id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.revision_id:
+            assert False, "activity has no revision_id value"
+        assert activity.timestamp >= before and activity.timestamp <= after, \
+            activity.timestamp
+
+        # Test for the presence of a correct activity detail item.
+        details = model.Session.query(model.activity.ActivityDetail).all()
+        assert len(details) == details_length_before + 1, str(details)
+        detail = details[-1]
+        assert detail.activity_id == activity.id, str(detail.activity_id)
+        assert detail.object_id == resource.id, str(detail.object_id)
+        assert detail.object_type == "Resource", str(detail.object_type)
+        assert detail.activity_type == "changed", str(detail.activity_type)
+
+    def test_update_resource(self):
+        """
+        Test that a correct activity stream item and detail item are emitted
+        when a resource is updated.
+
+        """
+        packages = model.Session.query(model.Package).all()
+        for package in packages:
+            # Query the model for the Package object again, as the session that
+            # it belongs to may have been closed.
+            pkg = model.Session.query(model.Package).get(package.id)
+            for resource in pkg.resources:
+                self._update_resource(pkg, resource)
+
     def _delete_package(self, package):
         """
         Delete the given package and test that the correct activity stream
@@ -313,57 +379,5 @@ class TestActivity:
         for package in model.Session.query(model.Package).all():
             self._delete_package(package)
 
-
-    #def test_edit_resource_not_logged_in(self):
-        #"""
-        #Test that a correct activity stream item and detail item are emitted
-        #when a new resource is created by a user who is not logged in.
-
-        #"""
-        ## Edit a resource, recording some details before and after.
-        #length_before = len(model.Session.query(model.activity.Activity).all())
-        #details_length_before = len(model.Session.query(
-            #model.activity.ActivityDetail).all())
-        #before = datetime.datetime.now()
-        #packages = model.Session.query(model.Package).all()
-        #packages = [package for package in packages if
-            #len(package.resources) > 0]
-        #package = random.choice(packages)
-        #resource = random.choice(package.resources)
-        #resource.description = "edited"
-        #model.Session.commit()
-        #after = datetime.datetime.now()
-
-        ## Test for the presence of a correct activity stream item.
-        #activities = model.Session.query(model.activity.Activity).all()
-        #assert len(activities) == length_before + 1, str(activities)        
-        #activity = activities[-1]
-        #assert activity.object_id == package.id, str(activity.object_id)
-        #assert activity.user_id == "Unknown IP Address", str(activity.user_id)
-        #assert activity.activity_type == 'changed package', \
-            #str(activity.activity_type)
-        #if not activity.id:
-            #assert False, "activity object has no id value"
-        ## TODO: Test for the _correct_ revision_id value.
-        #if not activity.revision_id:
-            #assert False, "activity has no revision_id value"
-        #assert activity.timestamp >= before and activity.timestamp <= after, \
-            #activity.timestamp
-
-        ## Test for the presence of a correct activity detail item.
-        #details = model.Session.query(model.activity.ActivityDetail).all()
-        #assert len(details) == details_length_before + 1, str(details)
-        #detail = details[-1]
-        #assert detail.activity_id == activity.id, str(detail.activity_id)
-        #assert detail.object_id == resource.id, str(detail.object_id)
-        #assert detail.object_type == "Resource", str(detail.object_type)
-        #assert detail.activity_type == "changed", str(detail.activity_type)
-
-    #def test_edit_resource_logged_in(self):
-        #pass
-    
-    #def test_delete_resource_not_logged_in(self):
-        #pass
-    
-    #def test_delete_resource_logged_in(self):
-        #pass
+    def test_delete_resource(self):
+        pass
