@@ -146,7 +146,7 @@ def group_list(context, data_dict):
 
     if order_by == 'packages':
         groups = sorted(query.all(),
-                        key=lambda g: len(g.packages),
+                        key=lambda g: len(g.active_packages().all()),
                         reverse=True)
 
     if not all_fields:
@@ -175,7 +175,7 @@ def group_list_authz(context, data_dict):
     if available_only:
         package = context.get('package')
         if package:
-            groups = groups - set(package.groups)
+            groups = groups - set(package.get_groups())
 
     return [{'id':group.id,'name':group.name} for group in groups]
 

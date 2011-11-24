@@ -45,15 +45,15 @@
         </li>
         <li>
           <h3>Groups</h3>
-          <py:if test="c.pkg.groups">        
+          <py:if test="c.pkg.get_groups()">        
               <ul class="groups">
-                <li py:for="group in sorted(c.pkg.groups, key=lambda g: g.display_name)">
+                <li py:for="group in sorted(c.pkg.get_groups(), key=lambda g: g.display_name)">
                     <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
                 </li>
               </ul>
           </py:if>
           <p class="hint">
-            <py:if test="not c.pkg.groups">
+            <py:if test="not c.pkg.get_groups()">
                Groups are collections of dataset maintained by users of ${g.site_title}. This dataset has not been added to any groups yet.
             </py:if>
           </p>

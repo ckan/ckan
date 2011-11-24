@@ -56,6 +56,7 @@ class Stats(object):
             where(and_(member.c.group_id!=None, member.c.table_name=='package')).\
             order_by(func.count(member.c.table_id).desc()).\
             limit(limit)
+        
         res_ids = model.Session.execute(s).fetchall()        
         res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), val) for group_id, val in res_ids]
         return res_groups

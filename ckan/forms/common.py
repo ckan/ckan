@@ -701,34 +701,6 @@ class GroupSelectField(ConfiguredField):
             context = {'model': model, 'session': model.Session}
             model_save.package_membership_list_save(
                 group_dicts, self.parent.model, context)
-            return
-            
-            # Get groups which have alread been associated.
-            old_groups = model.Session.query(model.Group).\
-                    join(model.Member, model.Member.group_id == model.Group.id).\
-                    join(model.Package, model.Package.id == model.Member.table_id).\
-                    filter(model.Package.id == self.parent.model.id).all()
-
-            # Calculate which to append and which to remove.
-            editable_set = set([g.id for g in self.user_editable_groups])
-            old_group_ids = [g.id for g in old_groups]
-            new_set = set(new_group_ids)
-            old_set = set(old_group_ids)
-            append_set = (new_set - old_set).intersection(editable_set)
-            remove_set = (old_set - new_set).intersection(editable_set)
-            
-            # Create dataset group associations.
-            for id in append_set:
-                member = model.Member(table_id = self.parent.model.id,
-                                      table_name = 'package',
-                                      group = model.Session.query(model.Group).get(id))
-                if group:
-                    self.parent.model.groups.append(group)
-
-            # Delete dataset group associations.
-            for group in self.parent.model.groups:
-                if group.id in remove_set:
-                    self.parent.model.groups.remove(group)
             
         def requires_label(self):
             return False
@@ -736,10 +708,7 @@ class GroupSelectField(ConfiguredField):
 
     class GroupSelectEditRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self, **kwargs):
-            return model.Session.query(model.Group).\
-                   join(model.Member, model.Member.group_id == model.Group.id).\
-                   join(model.Package, model.Package.id == model.Member.table_id).\
-                   filter(model.Package.id == self.field.parent.model.id).all()
+            return self.field.parent.model.get_groups()
 
         def _get_user_editable_groups(self):
             return self.field.user_editable_groups

@@ -132,7 +132,7 @@ class TestBasicDictize:
         data = group_dictize(group, context)
 
         converted_data, errors = validate(data, default_group_schema(), context)
-        group_pack = sorted(group.packages, key=lambda x:x.id)
+        group_pack = sorted(group.active_packages().all(), key=lambda x:x.id)
 
         converted_data["packages"] = sorted(converted_data["packages"], key=lambda x:x["id"])
 

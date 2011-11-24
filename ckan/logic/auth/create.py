@@ -102,9 +102,7 @@ def check_group_auth(context, data_dict):
         groups.add(grp)
 
     if pkg:
-        pkg_groups = model.Session.query(model.Group).\
-                    join(model.Member, model.Member.group_id == model.Group.id).\
-                    filter(model.Member.table_id == pkg.id).all()
+        pkg_groups = pkg.get_groups()
 
         groups = groups - set(pkg_groups)
 

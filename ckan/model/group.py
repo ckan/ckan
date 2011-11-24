@@ -71,9 +71,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     def active_packages(self, load_eager=True):
         query = Session.query(Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
-               filter_by(id=self.id).\
+               filter(group_table.c.id == self.id).\
+               filter(member_table.c.state == 'active').\
                join(member_table, member_table.c.table_id == Package.id).\
-               join(group_table, group_table.c.id == member_table.c.table_id)
+               join(group_table, group_table.c.id == member_table.c.group_id)
         return query
 
     @classmethod
