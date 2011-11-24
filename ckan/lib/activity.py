@@ -102,12 +102,18 @@ class DatasetActivitySessionExtension(SessionExtension):
                             activity_details[activity.id] =  [activity_detail]
 
         for key, activity in activities.items():
+            logger.debug("Emitting activity: %s %s"
+                    % (activity.id, activity.activity_type))
             session.add(activity)
 
         session.flush()
 
         for key, activity_detail_list in activity_details.items():
             for activity_detail_obj in activity_detail_list:
+                logger.debug("Emitting activity detail: %s %s %s"
+                        % (activity_detail_obj.activity_id,
+                            activity_detail_obj.activity_type,
+                            activity_detail_obj.object_type))
                 session.add(activity_detail_obj)
 
         session.flush()

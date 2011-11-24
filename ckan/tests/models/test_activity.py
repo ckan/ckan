@@ -379,5 +379,76 @@ class TestActivity:
         for package in model.Session.query(model.Package).all():
             self._delete_package(package)
 
-    def test_delete_resource(self):
-        pass
+    def _delete_resources(self, package):
+        """
+        Remove all resources (if any) from the given package, and test that
+        correct activity item and detail items are emitted.
+
+        """
+        # Record some details before deleting the resources.
+        length_before = len(model.Session.query(model.activity.Activity).all())
+        details_length_before = len(model.Session.query(
+            model.activity.ActivityDetail).all())
+        before = datetime.datetime.now()
+        # Query the model for the Package object again, as the session that it
+        # belongs to may have been closed.
+        package = model.Session.query(model.Package).get(package.id)
+        num_resources = len(package.resources)
+        resource_ids = [resource.id for resource in package.resources]
+
+        # Delete the resources.
+        context = {'model': model, 'session': model.Session,
+                'user':TestActivity.normal_user.name}
+        data_dict = { 'id':package.id, 'resources':[] }
+        result = package_update(context, data_dict)
+
+        # Record some details after deleting the resources.
+        after = datetime.datetime.now()
+
+        # Test for the presence of a correct activity stream item.
+        activities = model.Session.query(model.activity.Activity).all()
+        assert len(activities) == length_before + 1, ("Length of activities "
+            "table should be %i but is %i" % (length_before + 1,
+                len(activities)))
+        activity = activities[-1]
+        assert activity.object_id == package.id, str(activity.object_id)
+        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
+        assert activity.activity_type == 'changed package', \
+            str(activity.activity_type)
+        if not activity.id:
+            assert False, "activity object has no id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.revision_id:
+            assert False, "activity has no revision_id value"
+        assert activity.timestamp >= before and activity.timestamp <= after, \
+            str(activity.timestamp)
+
+        # Test for the presence of correct activity detail items.
+        details = model.Session.query(model.activity.ActivityDetail).all()
+        if num_resources == 0:
+            assert len(details) == details_length_before, \
+                    "Length of details table should be %i but is %i" \
+                    % (details_length_before, len(details))
+        else:
+            assert len(details) == details_length_before + num_resources, \
+                    "Length of details table should be %i but is %i" \
+                    % (details_length_before + num_resources, len(details))
+            new_details = details[-num_resources:]
+            for detail in new_details:
+                assert detail.activity_id == activity.id, \
+                    "activity_id should be %s but is %s" \
+                    % (activity.id, detail.activity_id)
+                assert detail.object_id in resource_ids, str(detail.object_id)
+                assert detail.object_type == "Resource", str(detail.object_type)
+                assert detail.activity_type == "changed", str(detail.activity_type)
+
+    def test_delete_resources(self):
+        """
+        Test deleted resource activity stream.
+
+        Test that correct activity stream item and detail items are created
+        when resources are deleted from packages.
+
+        """
+        for package in model.Session.query(model.Package).all():
+            self._delete_resources(package)
