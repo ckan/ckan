@@ -699,14 +699,15 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
 (function ($) {
   var my = {};
   my.jsonpdataproxyUrl = 'http://jsonpdataproxy.appspot.com/';
+  my.dialogId = 'ckanext-datapreview';
+  my.$dialog = $('#' + my.dialogId);
 
   // Initialize data explorer on Resource view page
   // 
   // resourceData: resource as simple hash (suitable for initializing backbone model or result of backboneModel.toJSON())
   my.setupDataPreview = function(resourceData) {
-    var dialogId = 'ckanext-datapreview';
     // initialize the tableviewer system
-    DATAEXPLORER.TABLEVIEW.initialize(dialogId);
+    DATAEXPLORER.TABLEVIEW.initialize(my.dialogId);
     resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
 
     // do not create previews for some items
@@ -728,6 +729,8 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       ||
       _tformat === 'other'
       ) {
+      var _msg = $('<p class="error">We are unable to preview this type of resource: ' + resourceData.format + '</p>');
+      my.$dialog.html(_msg);
       return;
     }
     my.loadPreviewDialog(resourceData);
@@ -744,6 +747,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   // Returns nothing.
   my.loadPreviewDialog = function(resourceData) {
     resourceData.url  = my.normalizeUrl(resourceData.url);
+    my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
 
     // 4 situations
     // a) have a webstore_url
@@ -801,15 +805,12 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     else {
       // HACK: but should work
       // we displays a fullscreen dialog with the url in an iframe.
-      // HACK: we borrow dialog from DATAEXPLORER.TABLEVIEW
-      var $dialog = DATAEXPLORER.TABLEVIEW.$dialog;
-      $dialog.empty();
-      $dialog.dialog('option', 'title', 'Preview: ' + resourceData.url);
+      my.$dialog.empty();
       var el = $('<iframe></iframe>');
       el.attr('src', resourceData.url);
       el.attr('width', '100%');
       el.attr('height', '100%');
-      $dialog.append(el).dialog('open');;
+      my.$dialog.append(el);
     }
   };
 

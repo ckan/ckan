@@ -22,7 +22,7 @@
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
-	height: 22px;
+	height: 30px;
 }
 
 .dataexplorer-tableview-nav-toggle  {
@@ -38,18 +38,6 @@ label[for=dataexplorer-tableview-nav-editor]  {
 	float: right;
 }
 
-/* Adds border to left of data table */
-.dataexplorer-tableview-grid,
-.dataexplorer-tableview-graph,
-.dataexplorer-tableview-editor {
-	position: absolute;
-	left: 0;
-	right: 220px;
-	top: 28px;
-	bottom: 0;
-	z-index: 0;
-}
-
 .dataexplorer-tableview-grid {
 	border-left: 1px solid #ccc;
 }
@@ -57,18 +45,18 @@ label[for=dataexplorer-tableview-nav-editor]  {
 .dataexplorer-tableview-graph {
 	z-index: 1;
 	background-color: #fff;
+  margin-right: 220px;
 }
 
 .dataexplorer-tableview-editor {
 	z-index: 1;
 	background-color: #efefef;
-	right: 0;
-	left: auto;
 	width: 198px;
 	padding: 5px 10px;
 	border: 1px solid #ccc;
 	overflow: auto;
 	overflow-x: hidden;
+  float: right;
 }
 
 .dataexplorer-tableview-editor ul {
@@ -252,3 +240,8 @@ label[for=dataexplorer-tableview-nav-editor]  {
 .slick-columnpicker input {
 	cursor: pointer;
 }
+
+.dataexplorer-tableview-graph .legend table {
+  width: auto;
+}
+

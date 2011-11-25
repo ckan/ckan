@@ -10,8 +10,6 @@ DATAEXPLORER.TABLEVIEW.template.html = ' \
     <input type="checkbox" id="dataexplorer-tableview-nav-editor" checked="checked" /> \
     <label for="dataexplorer-tableview-nav-editor">Toggle Editor</label> \
   </div> \
-  <div class="dataexplorer-tableview-panel dataexplorer-tableview-grid"></div> \
-  <div class="dataexplorer-tableview-panel dataexplorer-tableview-graph"></div> \
   <div class="dataexplorer-tableview-editor"> \
     <div class="dataexplorer-tableview-editor-info dataexplorer-tableview-editor-hide-info"> \
       <h1><span></span>Help</h1> \
@@ -45,5 +43,7 @@ DATAEXPLORER.TABLEVIEW.template.html = ' \
       </div> \
     </form> \
   </div> \
+  <div class="dataexplorer-tableview-panel dataexplorer-tableview-grid"></div> \
+  <div class="dataexplorer-tableview-panel dataexplorer-tableview-graph"></div> \
 </div> \
 ';

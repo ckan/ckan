@@ -12,43 +12,6 @@
     html: ''
   };
 
-  // **Public: Loads the plugin UI into the dialog and sets up event listeners.**
-  //
-  // columns - Column Array formatted for use in SlickGrid.
-  // data    - A data Array for use in SlickGrid.
-  //
-  // Returns nothing.
-  dp.loadTableView = function (columns, data) {
-    var dialog = dp.$dialog;
-
-    // Need to create the grid once the dialog is open for cells to render
-    // correctly.
-    dialog.dialog(dp.dialogOptions).one("dialogopen", function () {
-      var element  = $(dp.template.html).appendTo(dialog);
-      var viewer   = new dp.createTableView(element, columns, data);
-
-      // Load chart data from external source
-      // TODO: reinstate
-      // this used to load chart info from related CKAN dataset
-      viewer.editor.loading();
-      viewer.editor.loading(false).disableSave();
-
-      // Save chart data to the client provided callback
-      // TODO: implement
-      viewer.editor.bind('save', function (chart) {
-        viewer.editor.saving();
-        viewer.editor.saving(false);
-      });
-
-      dialog.bind("dialogresizestop.data-preview", viewer.redraw);
-
-      // Remove bindings when dialog is closed.
-      dialog.bind("dialogbeforeclose", function () {
-        dialog.unbind(".data-preview");
-      });
-    });
-  };
-
   // Public: Sets up the dialog for displaying a full screen of data.
   //
   // dialogTitle - title for dialog window.
@@ -56,25 +19,8 @@
   // Returns nothing.
   //
   dp.setupFullscreenDialog = function (dialogTitle) {
-    var dialog = dp.$dialog, $window = $(window), timer;
-
-    dialog.empty().dialog('option', 'title', 'View: ' + dialogTitle);
-
-    // Ensure the lightbox always fills the screen.
-    $window.bind('resize.data-preview', function () {
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        dialog.dialog('option', {
-          width:  $window.width()  - 20,
-          height: $window.height() - 20
-        });
-        dialog.trigger('dialogresizestop');
-      }, 100);
-    });
-
-    dialog.bind("dialogbeforeclose", function () {
-      $window.unbind("resize.data-preview");
-    });
+    var dialog = dp.$dialog;
+    dialog.empty();
   }
 
   // Public: Displays a smaller alert style dialog with an error message.
@@ -84,8 +30,8 @@
   // Returns nothing.
   //
   dp.showError = function (error) {
-    var _html = '<strong>' + $.trim(error.title) + '</strong><br />' + $.trim(error.message);
-    dp.$dialog.html(_html).dialog(dp.errorDialogOptions);
+    var _html = '<p class="error">' + $.trim(error.title) + '</strong><br />' + $.trim(error.message) + '</p>';
+    dp.$dialog.html(_html);
   };
 
   // Public: Displays the datapreview UI in a fullscreen dialog.
@@ -105,7 +51,31 @@
     }
     var tabular = dp.convertData(data);
 
-    dp.loadTableView(tabular.columns, tabular.data);
+    // dp.loadTableView(tabular.columns, tabular.data);
+    var columns = tabular.columns;
+    var data = tabular.data;
+
+    var element  = $(dp.template.html).appendTo(dp.$dialog);
+    // set plot height explicitly or flot is not happy
+    // also for grid
+    var height = $(window).height();
+    // $('.dataexplorer-tableview-viewer').height(height);
+    $('.dataexplorer-tableview-grid').height(height);
+    $('.dataexplorer-tableview-graph').height(height);
+    var viewer   = new dp.createTableView(element, columns, data);
+
+    // Load chart data from external source
+    // TODO: reinstate
+    // this used to load chart info from related CKAN dataset
+    viewer.editor.loading();
+    viewer.editor.loading(false).disableSave();
+
+    // Save chart data to the client provided callback
+    // TODO: implement
+    viewer.editor.bind('save', function (chart) {
+      viewer.editor.saving();
+      viewer.editor.saving(false);
+    });
   };
 
   // **Public: parse data from webstore or other source into form for data
