@@ -17,14 +17,7 @@
         <div class="dataset-resource" rel="dcat:distribution" resource="_:res${res.id}"
           typeof="dcat:Distribution">
           <div class="resource-url">
-              <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
-                <py:if test="res.get('name')">
-                  <span property="rdfs:label">${res.get('name')}</span>
-                </py:if>
-                <py:if test="not res.get('name')">
-                  <em>(no name)</em>
-                </py:if>
-              </a>
+            ${h.resource_link(res, c.pkg_dict['name'])}
           </div>
           <div class="resource-description">${h.markdown_extract(res.get('description'))}</div>
           <ul class="resource-information">

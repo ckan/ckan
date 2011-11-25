@@ -293,9 +293,6 @@ def button_attr(enable, type='primary'):
         return 'class="pretty-button %s"' % type
     return 'disabled class="pretty-button disabled"'
 
-def resource_display_name(resource_dict):
-    return resource_dict['name'] or resource_dict['id']
-
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
         return package_or_package_dict.get('title', '') or package_or_package_dict.get('name', '')
@@ -312,4 +309,24 @@ def dataset_link(package_or_package_dict):
         text,
         url_for(controller='package', action='read', id=name)
         )
+
+# TODO: (?) support resource objects as well
+def resource_display_name(resource_dict):
+    name = resource_dict['name']
+    description = resource_dict['description']
+    if name:
+        return name
+    elif description:
+        description = description.split('.')[0][:60]
+        return description
+    else:
+        return '[no name] %s ' % resource_dict['id']
+
+def resource_link(resource_dict, package_id):
+    text = resource_display_name(resource_dict)
+    url = url_for(controller='package',
+        action='resource_read',
+        id=package_id,
+        resource_id=resource_dict['id'])
+    return link_to(text, url)
 
