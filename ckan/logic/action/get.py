@@ -438,8 +438,12 @@ def group_package_show(context, data_dict):
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit:
         query = query.limit(limit)
-    pack_rev = query.all()
-    return _package_list_with_resources(context, pack_rev)
+
+    result = []
+    for pkg_rev in query.all():
+        result.append(package_dictize(pkg_rev,context))
+
+    return result
 
 def tag_show(context, data_dict):
     '''Shows tag details'''
@@ -457,9 +461,11 @@ def tag_show(context, data_dict):
     check_access('tag_show',context, data_dict)
 
     tag_dict = tag_dictize(tag,context)
+
+    #TODO: why do we need extended packages in tag results? 
     extended_packages = []
     for package in tag_dict['packages']:
-        extended_packages.append(_extend_package_dict(package,context))
+        extended_package.append(_extend_package_dict(package,context))
 
     tag_dict['packages'] = extended_packages
 
@@ -682,8 +688,7 @@ def package_search(context, data_dict):
             log.warning('package %s in index but not in database' % package)
             continue
 
-        result_dict = table_dictize(pkg, context)
-        result_dict = _extend_package_dict(result_dict,context)
+        result_dict = package_dictize(pkg,context)
         results.append(result_dict)
 
     return {
