@@ -633,6 +633,7 @@ class PackageController(BaseController):
             c.package = get_action('package_show')(context, {'id': id})
             # required for nav menu
             c.pkg = c.package
+            c.resource_json = json.dumps(c.resource)
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:

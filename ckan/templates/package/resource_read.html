@@ -17,6 +17,9 @@
     <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.columnpicker.css" />
     <link rel="stylesheet" href="${g.site_url}/scripts/dataexplorer/table-view.css" />
     <!-- /data preview -->
+    <script type="text/javascript">
+      var preload_resource = ${c.resource_json};
+    </script>
   </py:def>
 
   <py:def function="page_title">
@@ -79,15 +82,13 @@
       <div>${h.markdown_extract(c.package.get('notes'), 300)}</div>
     </div>
 
-    <!-- TODO: hide this div if not available -->
-    <!-- <div id="resource-explore"> -->
-    <!--   <h2>Explore</h2> -->
-    <!--   <div> -->
-    <!--     TODO: data preview here -->
-    <!--   </div> -->
-    <!-- </div> -->
+    <div class="resource-preview">
+      <h3>Preview</h3>
+      <div id="ckanext-datapreview"></div>
+    </div>
 
     <div class="resource-information">
+      <h3>Additional Information</h3>
       <table>
         <thead>
           <tr>
