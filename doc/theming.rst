@@ -36,15 +36,15 @@ The first of these allows you to specify content that will be inserted just befo
 Adding CSS
 ----------
 
-For example, by referencing an external css stylesheet::
+For example, by referencing an external CSS stylesheet::
 
   ckan.template_head_end = <link rel="stylesheet" href="http://some-other-site.org/custom.css" type="text/css"> 
 
 .. note::
 
-  This requires you have a css file uploaded elsewhere. You may want your css to be part of your CKAN site. CKAN provides an easy way to do this -- see section
+  This requires you have a css file uploaded elsewhere. You may want your css to be part of your CKAN site. CKAN provides an easy way to do this -- see ``extra_public_paths`` below.
 
-Alternatively you can provide css directly in a style tag (note how we indent lines to provide a  multiline value to a config option)::
+Alternatively you can provide CSS directly in a style tag (note how we indent lines to provide a multiline value to a config option)::
 
   ckan.template_head_end = <style type="text/css"> 
       body {
@@ -55,7 +55,7 @@ Alternatively you can provide css directly in a style tag (note how we indent li
 Adding Javascript
 -----------------
 
-You could also use this config option to add script tags (or any other material to the <head> of all site pages).
+You could also use this config option to add script tags (or any other material to the ``<head>`` of all site pages).
 
 However, for javascript it is probably better to use the ``ckan.template_footer_end`` option as it adds material just before the closing ``</body>`` tag -- in CKAN v1.5 scripts are included at the foot of the page rather than in the <head> section (thus if your scripts requires jquery it needs to come after jqurey is included at the bottom of the page and hence you should use the footer end option).
 
