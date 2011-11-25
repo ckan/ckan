@@ -849,4 +849,5 @@ def status_show(context, data_dict):
         'ckan_version': ckan.__version__,
         'error_emails_to': config.get('email_to'),
         'locale_default': config.get('ckan.locale_default'),
+        'extensions': config.get('ckan.plugins').split(),
         }

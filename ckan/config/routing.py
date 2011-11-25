@@ -169,6 +169,7 @@ def make_map():
     map.connect('/api/util/dataset/munge_name', controller='api', action='munge_package_name')
     map.connect('/api/util/dataset/munge_title_to_name', controller='api', action='munge_title_to_package_name')
     map.connect('/api/util/tag/munge', controller='api', action='munge_tag')
+    map.connect('/api/util/status', controller='api', action='status')
 
     ###########
     ## /END API

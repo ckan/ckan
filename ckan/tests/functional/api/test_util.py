@@ -1,9 +1,10 @@
 from nose.tools import assert_equal
 
-from ckan import model
+from ckan import model, __version__
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import TestController as ControllerTestCase
 from ckan.tests import url_for
+from ckan.lib.helpers import json
 
 class TestUtil(ControllerTestCase):
     @classmethod
@@ -82,3 +83,17 @@ class TestUtil(ControllerTestCase):
             status=200,
         )
         assert_equal(response.body, '"test-subject"')
+
+    def test_status(self):
+        response = self.app.get(
+            url=url_for(controller='api', action='status'),
+            params={},
+            status=200,
+        )
+        res = json.loads(response.body)
+        assert_equal(res['ckan_version'], __version__)
+        assert_equal(res['site_url'], 'http://test.ckan.net')
+        assert_equal(res['site_title'], 'CKAN')
+        assert_equal(res['site_description'], '')
+        assert_equal(res['locale_default'], 'en')
+        assert_equal(res['extensions'], [])

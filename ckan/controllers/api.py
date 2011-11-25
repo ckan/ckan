@@ -632,3 +632,9 @@ class ApiController(BaseController):
         tag = request.params.get('tag') or request.params.get('name')
         munged_tag = munge_tag(tag)
         return self._finish_ok(munged_tag)
+
+    def status(self):
+        context = {'model': model, 'session': model.Session}
+        data_dict = {}
+        status = get_action('status_show')(context, data_dict)
+        return self._finish_ok(status)
