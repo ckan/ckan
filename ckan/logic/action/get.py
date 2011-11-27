@@ -462,10 +462,10 @@ def tag_show(context, data_dict):
 
     tag_dict = tag_dictize(tag,context)
 
-    #TODO: why do we need extended packages in tag results? 
     extended_packages = []
     for package in tag_dict['packages']:
-        extended_package.append(_extend_package_dict(package,context))
+        pkg = model.Package.get(package['id'])
+        extended_packages.append(package_dictize(pkg,context))
 
     tag_dict['packages'] = extended_packages
 
