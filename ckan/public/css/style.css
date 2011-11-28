@@ -1012,7 +1012,22 @@ body.package.read #dataset-resources {
     margin-bottom: 2em; 
 }
 body.package.read .dataset-resource { 
-    margin-bottom: 1em;
+    padding: 0.5em 0;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+}
+body.package.read .dataset-resource .inner {
+  border-left: 2px solid #eee;
+  padding-left: 8px;
+}
+body.package.read .dataset-resource:hover .inner {
+  border-left: 2px solid #aaa;
+}
+body.package.read .dataset-resource button {
+  float: right;
+}
+body.package.read #dataset-resources h3 {
+  margin-bottom: 4px;
 }
 body.package.read .resource-view-url { 
     font-size: 1.3em;
