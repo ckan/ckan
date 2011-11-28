@@ -1,5 +1,4 @@
-from pylons import config
-from ckan import plugins, model
+from ckan import model
 import ckan.lib.search as search
 from ckan.tests import CreateTestData, setup_test_search_index
 from test_solr_package_search import TestSearchOverall
