@@ -18,6 +18,7 @@ member_table = Table('member', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
     Column('table_name', UnicodeText, nullable=False),
     Column('table_id', UnicodeText, nullable=False),
+    Column('capacity', UnicodeText, nullable=False),
     Column('group_id', UnicodeText, ForeignKey('group.id')),
     )
     
@@ -28,6 +29,7 @@ group_table = Table('group', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
     Column('name', UnicodeText, nullable=False, unique=True),
     Column('title', UnicodeText),
+    Column('type', UnicodeText, nullable=False),
     Column('description', UnicodeText),
     Column('created', DateTime, default=datetime.datetime.now),
     )
