@@ -43,6 +43,7 @@ class TestBasicDictize:
                         'name': u'roger',
                         'state': u'active',
                         'title': u"Roger's books"}],
+            'isopen': True,
             'license_id': u'other-open',
             'maintainer': None,
             'maintainer_email': None,
