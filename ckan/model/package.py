@@ -189,6 +189,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # Set 'license' in _dict to cater for old clients.
         # Todo: Remove from Version 2?
         _dict['license'] = self.license.title if self.license else _dict.get('license_id', '')
+        _dict['isopen'] = self.isopen()
         tags = [tag.name for tag in self.tags]
         tags.sort() # so it is determinable
         _dict['tags'] = tags
