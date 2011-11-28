@@ -74,6 +74,8 @@ def load_environment(global_conf, app_conf):
     if config.get('ckan.site_id') is None:
         if ':' in ckan_host:
             ckan_host, port = ckan_host.split(':')
+        assert ckan_host, 'You need to configure ckan.site_url or ' \
+                          'ckan.site_id for SOLR search-index rebuild to work.'
         config['ckan.site_id'] = ckan_host
 
     config['routes.map'] = make_map()
