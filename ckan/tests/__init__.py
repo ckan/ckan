@@ -376,16 +376,16 @@ def setup_test_search_index():
     plugins.load('synchronous_search')
 
 def is_search_supported():
-    supported_db = not model.engine_is_sqlite()
-    return supported_db
+    is_supported_db = not model.engine_is_sqlite()
+    return is_supported_db
 
 def is_regex_supported():
-    supported_db = not model.engine_is_sqlite()
-    return supported_db
+    is_supported_db = not model.engine_is_sqlite()
+    return is_supported_db
 
 def is_migration_supported():
-    supported_db = not model.engine_is_sqlite()
-    return supported_db
+    is_supported_db = not model.engine_is_sqlite()
+    return is_supported_db
 
 def search_related(test):
     def skip_test(*args):
