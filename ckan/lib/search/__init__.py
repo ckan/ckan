@@ -121,6 +121,7 @@ def rebuild():
             )
         )
     model.Session.commit()
+    log.debug('Finished rebuilding search index.')
 
 def check():
     from ckan import model
