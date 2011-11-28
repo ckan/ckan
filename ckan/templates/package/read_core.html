@@ -6,7 +6,6 @@
   <xi:include href="../_util.html" />
 
   <div id="dataset" class="dataset">
-
     <!-- Overview Section -->
     <div id="dataset-overview">
 
@@ -20,11 +19,7 @@
         <h3>Resources</h3>
         <py:for each="res in c.pkg_dict.get('resources', [])">
           <div class="dataset-resource">
-            <a class="resource-view-url"
-               href="${url(controller='package', action='resource_read', id=c.pkg_dict['id'], resource_id=res['id'])}">
-              <py:if test="res.get('name')">${res.get('name')}</py:if>
-              <py:if test="not res.get('name')">(no name)</py:if>
-            </a>
+            ${h.resource_link(res, c.pkg_dict['name'])}
             <span py:if="res.get('format')" class="resource-format" property="dc:format">${res.get('format')}</span>
             <span py:if="not res.get('format')" class="resource-format" property="dc:format">(unknown format)</span>
             <div class="resource-description">${h.markdown_extract(res.get('description'))}</div>

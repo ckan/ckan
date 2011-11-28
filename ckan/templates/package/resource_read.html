@@ -15,8 +15,11 @@
     <!-- data preview -->
     <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.grid.css" />
     <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.columnpicker.css" />
-    <link rel="stylesheet" href="http://okfn.github.com/dataexplorer/src/table-view.css" />
+    <link rel="stylesheet" href="${g.site_url}/scripts/dataexplorer/table-view.css" />
     <!-- /data preview -->
+    <script type="text/javascript">
+      var preload_resource = ${c.resource_json};
+    </script>
   </py:def>
 
   <py:def function="page_title">
@@ -40,15 +43,31 @@
   </py:def>
 
   <div py:match="content">
-    <div id="resource-main-information">
-      <div id="resource-dataset">
-        Dataset:
-        <span id="dataset-title" property="dc:title">
-          <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">
-            ${c.package.get('title', c.package['name'])} 
-          </a>
-        </span>
-        <span id="dataset-license">
+    <div class="resource-actions span-8">
+      <a py:if="c.resource.get('url')" class="pretty-button" href="${c.resource.get('url')}">
+        <py:choose test="c.resource.get('resource_type')">
+          <py:when test="'listing'">View</py:when>
+          <py:when test="'service'">View</py:when>
+          <py:when test="'api'">API Endpoint</py:when>
+          <py:otherwise>Download</py:otherwise>
+        </py:choose>
+        </a>
+    </div>
+
+    <div class="quick-info .span-8">
+      <dl>
+        <dt>Part of dataset</dt>
+        <dd>
+          ${h.dataset_link(c.package)}
+        </dd>
+        <dt>Last updated</dt>
+        <dd>${h.time_ago_in_words_from_str(c.resource['last_modified'], granularity='day')}</dd>
+        <dt>Format</dt>
+        <dd>
+          ${c.resource['format'] or 'Unknown'}
+        </dd>
+        <dt>Openness</dt>
+        <dd>
           <py:if test="c.package['isopen']">
               <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
                 <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
@@ -59,22 +78,8 @@
                 ${h.icon('lock')}
               </span>
           </py:if>
-        </span>
-      </div>
-      <div py:if="c.resource.get('last_modified')" id="resource-last-updated">
-        Last updated: ${h.time_ago_in_words_from_str(c.resource.get('last_modified'), granularity='day')}
-      </div>
-    </div>
-
-    <div id="resource-actions">
-      <a py:if="c.resource.get('url')" class="pretty-button" href="${c.resource.get('url')}">
-        <py:choose test="c.resource.get('resource_type')">
-          <py:when test="'listing'">View</py:when>
-          <py:when test="'service'">View</py:when>
-          <py:when test="'api'">API Endpoint</py:when>
-          <py:otherwise>Download</py:otherwise>
-        </py:choose>
-        </a>
+        </dd>
+      </dl>
     </div>
 
     <div py:if="c.resource.get('description')" id="resource-description" property="rdfs:label">
@@ -90,64 +95,27 @@
       <div>${h.markdown_extract(c.package.get('notes'), 300)}</div>
     </div>
 
-    <!-- TODO: hide this div if not available -->
-    <!-- <div id="resource-explore"> -->
-    <!--   <h2>Explore</h2> -->
-    <!--   <div> -->
-    <!--     TODO: data preview here -->
-    <!--   </div> -->
-    <!-- </div> -->
+    <div class="resource-preview">
+      <h3>Preview</h3>
+      <div id="ckanext-datapreview"></div>
+    </div>
 
-    <div id="resource-information">
-      <h3>Information</h3>
+    <div class="resource-information">
+      <h3>Additional Information</h3>
       <table>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr>
-            <td class="label">Url</td>
-            <td class="details">
-              <a href="${c.resource.get('url')}" rel="dcat:accessURL" target="_blank">
-                <span property="rdfs:label">${c.resource.get('url')}</span>
-              </a>
-            </td>
-          </tr>
-
-          <tr>
-            <td class="label">Format</td>
-            <td><span property="dc:format">${c.resource.get('format', "(none)")}</span></td>
-          </tr>
-
-          <tr py:if="c.resource.get('resource_type')">
-            <td class="label">Resource Type</td>
-            <td><span property="dc:format">${c.resource.get('resource_type', "(none)")}</span></td>
-          </tr>
-
-          <tr py:if="c.resource.get('size')">
-            <td class="label">Size (Bytes)</td>
-            <td>${c.resource.get('size')}</td>
-          </tr>
-
-          <tr py:if="c.resource.get('mimetype')">
-            <td class="label">Mimetype</td>
-            <td>${c.resource.get('mimetype')}</td>
-          </tr>
-
-          <tr py:if="c.resource.get('mimetype_inner')">
-            <td class="label">Mimetype (Inner)</td>
-            <td>${c.resource.get('mimetype_inner')}</td>
-          </tr>
-
-          <tr py:if="c.resource.get('hash')">
-            <td class="label">Hash</td>
-            <td>${c.resource.get('hash')}</td>
-          </tr>
-
-          <tr> 
-            <td class="label">ID</td>
-            <td>${c.resource.get('id')}</td>
+          <tr py:for="i, key in enumerate(sorted(c.resource.keys()))">
+            <td class="dataset-label" property="rdfs:label">${_(key)}</td>
+            <td class="dataset-details" property="rdf:value">${c.resource[key]}</td>
           </tr>
         </tbody>
       </table>
-
     </div>
   </div>
 
@@ -157,14 +125,9 @@
     <script type="text/javascript" src="${g.site_url}/scripts/vendor/slickgrid/slick.grid.js"></script>
     <script type="text/javascript" src="${g.site_url}/scripts/vendor/slickgrid/slick.columnpicker.js"></script>
     <script type="text/javascript" src="${g.site_url}/scripts/vendor/flot/0.7/jquery.flot.js"></script>
-    <script src="https://github.com/okfn/dataexplorer/raw/master/src/table-view.js"></script>
-    <script src="https://github.com/okfn/dataexplorer/raw/master/src/table-view.ui.js"></script>
-    <script src="https://github.com/okfn/dataexplorer/raw/master/src/table-view-template.js"></script>
-    <!-- local copy, symlinked from your local checkout for dev purposes (to be removed at some point)
-    <script src="${g.site_url}/scripts/vendor/dataexplorer/table-view.js"></script>
-    <script src="${g.site_url}/scripts/vendor/dataexplorer/table-view.ui.js"></script>
-    <script src="${g.site_url}/scripts/vendor/dataexplorer/table-view-template.js"></script>
-         /data preview -->
+    <script src="${g.site_url}/scripts/dataexplorer/table-view.js"></script>
+    <script src="${g.site_url}/scripts/dataexplorer/table-view.ui.js"></script>
+    <script src="${g.site_url}/scripts/dataexplorer/table-view-template.js"></script>
   </py:def>
 
   <xi:include href="layout.html" />

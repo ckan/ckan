@@ -630,18 +630,14 @@ class PackageController(BaseController):
 
         try:
             c.resource = get_action('resource_show')(context, {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+            # required for nav menu
+            c.pkg = c.package
+            c.resource_json = json.dumps(c.resource)
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-
-        try:
-            c.package = get_action('package_show')(context, {'id': id})
-        except NotFound:
-            abort(404, _('Package not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
-
         # get package license info
         license_id = c.package.get('license_id')
         try:
