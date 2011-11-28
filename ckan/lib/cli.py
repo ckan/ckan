@@ -253,7 +253,7 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index rebuild                 - indexes all packages
+      search-index rebuild [package-name]  - reindex package-name if given, if not then rebuild full search index (all packages)
       search-index check                   - checks for packages not indexed
       search-index show {package-name}     - shows index of a package
       search-index clear                   - clears the search index for this ckan instance
@@ -275,7 +275,10 @@ class SearchIndexCommand(CkanCommand):
 
         cmd = self.args[0]        
         if cmd == 'rebuild':
-            rebuild()
+            if len(self.args) > 1:
+                rebuild(self.args[1])
+            else:
+                rebuild()
         elif cmd == 'check':
             check()
         elif cmd == 'show':
