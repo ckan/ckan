@@ -23,28 +23,19 @@
   </py:def>
 
   <py:def function="page_title">
-    <py:if test="c.resource.get('name')">
-      ${c.package.get('title', c.package['name'])} &gt;
-      ${c.resource.get('name')} - Datasets
-    </py:if>
-    <py:if test="not c.resource.get('name')">
-      ${c.package.get('title', c.package['name'])} &gt;
-      ${c.resource.get('id')} - Datasets
-    </py:if>
+    ${h.dataset_display_name(c.package)} /
+    ${h.resource_display_name(c.resource)} - Dataset - Resource
   </py:def>
 
-  <py:def function="page_heading">
-    <py:if test="c.resource.get('name')">
-      ${c.resource.get('name')}
-    </py:if>
-    <py:if test="not c.resource.get('name')">
-      ${c.resource.get('id')}
-    </py:if>
-  </py:def>
+  <py:def function="page_heading">${h.dataset_display_name(c.package)} / ${h.resource_display_name(c.resource)}</py:def>
 
   <div py:match="content">
+    <div class="notes" property="rdfs:label">
+      ${c.resource.get('description') or '(No description)'}
+    </div>
+
     <div class="resource-actions span-8">
-      <a py:if="c.resource.get('url')" class="pretty-button" href="${c.resource.get('url')}">
+      <a py:if="c.resource.get('url')" class="pretty-button primary" href="${c.resource.get('url')}">
         <py:choose test="c.resource.get('resource_type')">
           <py:when test="'listing'">View</py:when>
           <py:when test="'service'">View</py:when>
@@ -80,10 +71,6 @@
           </py:if>
         </dd>
       </dl>
-    </div>
-
-    <div py:if="c.resource.get('description')" id="resource-description" property="rdfs:label">
-      ${c.resource.get('description')}
     </div>
 
     <div py:if="not c.resource.get('description') and c.package.get('notes')" id="dataset-description">

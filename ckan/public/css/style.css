@@ -1088,6 +1088,11 @@ body.package.resource_read #content {
     width: 950px; 
 }
 
+.resource_read .notes {
+  margin-bottom: 1em;
+  font-size: 110%;
+}
+
 .resource_read .quick-info dt {
   width: 115px;
   float: left;
@@ -1097,6 +1102,7 @@ body.package.resource_read #content {
 
 .resource_read .resource-actions {
   float: right;
+  text-align: right;
 }
 
 body.package.resource_read #dataset-description { margin-bottom: 2em; }
