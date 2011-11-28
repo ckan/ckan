@@ -14,7 +14,6 @@ import ckan.model as model
 
 class PackagesTestCase(BaseModelApiTestCase):
 
-    commit_changesets = False
     reuse_common_fixtures = True
 
     def setup(self):

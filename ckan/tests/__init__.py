@@ -88,14 +88,13 @@ class ModelMethods(BaseCase):
     require_common_fixtures = True
     reuse_common_fixtures = True
     has_common_fixtures = False
-    commit_changesets = True
 
     def conditional_create_common_fixtures(self):
         if self.require_common_fixtures:
             self.create_common_fixtures()
 
     def create_common_fixtures(self):
-        CreateTestData.create(commit_changesets=self.commit_changesets)
+        CreateTestData.create()
         CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
 
     def reuse_or_delete_common_fixtures(self):
@@ -377,15 +376,15 @@ def setup_test_search_index():
     plugins.load('synchronous_search')
 
 def is_search_supported():
-    supported_db = model.engine_is_sqlite()
+    supported_db = not model.engine_is_sqlite()
     return supported_db
 
 def is_regex_supported():
-    supported_db = model.engine_is_sqlite()
+    supported_db = not model.engine_is_sqlite()
     return supported_db
 
 def is_migration_supported():
-    supported_db = model.engine_is_sqlite()
+    supported_db = not model.engine_is_sqlite()
     return supported_db
 
 def search_related(test):
