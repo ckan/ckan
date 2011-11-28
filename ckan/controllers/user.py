@@ -100,10 +100,10 @@ class UserController(BaseController):
             h.redirect_to(controller='user', action='login', id=None)
 
         if c.userobj.email is None:
-            h.flash_notice('''Please <a href="/user/edit">update your
-profile</a> and add your email address. %s uses your email address to send you
-notifications and updates, and to let you reset your password.''' \
-                % (g.site_title), allow_html=True)
+            msg = _('''Please <a href="/user/edit">update your profile</a> and
+add your email address. %s uses your email address to send you notifications
+and updates, and to let you reset your password.''') % (g.site_title)
+            h.flash_notice(msg, allow_html=True)
 
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
