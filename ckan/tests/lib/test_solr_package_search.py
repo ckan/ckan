@@ -398,16 +398,15 @@ class TestExtraFields(TestController):
         self._do_search(u'bcd', 'b', 1)
         self._do_search(u'"cde abc"', 'c', 1)
 
-    def test_1_partial_matches(self):
-        # TODO: solr is not currently set up to allow partial matches 
-        #       and extras are not saved as multivalued so these
-        #       tests will fail. Make multivalued or remove these?
-        from ckan.tests import SkipTest
-        raise SkipTest
+    def test_1_extras_in_all_fields(self):
+        response = search.query_for(model.Package).run({'q': 'abc', 'fl': '*'})
+        assert response['count'] == 2
 
-        self._do_search(u'abc', ['a', 'c'], 2)
-        self._do_search(u'cde', 'c', 1)
-        self._do_search(u'abc cde', 'c', 1)
+        results = response['results']
+        for result in results:
+            assert 'extras' in result.keys(), result
+            assert 'department' in result['extras'], result['extras']
+            assert result['extras']['department'] in ['abc', 'cde abc'], result['extras']['department']
 
 class TestRank(TestController):
     @classmethod
