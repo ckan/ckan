@@ -986,18 +986,19 @@ body.package.read .tags li, body.package.read .groups li {
     list-style-type: none;
     display: inline-block;
     padding: 3px 3px 3px 0px;
+    margin-right: 6px;
+    padding:0 5px 2px 5px;
+    border:none;
+    font-weight:normal;
+    font-size:0.8em;
+    background:#afc6e9;
 }
 body.package.read .tags a, body.package.read .groups a {
-    display: inline-block;
-    color: #222;
-    padding: 5px;
-    border: 1px solid #e0e0e0;
-    -webkit-border-radius: 4px !important;
-    border-radius: 4px !important;
+    color: black;
 }
-body.package.read .tags a:hover,
-body.package.read .groups a:hover {
-    border: 1px solid #aaa;
+body.package.read .tags li:hover,
+body.package.read .groups li:hover {
+    background: #bdf;
 }
 body.package.read .related-datasets {
     padding: 0;
@@ -1054,23 +1055,6 @@ body.package.read #notes-extract p {
 }
 body.package.read #notes-remainder {
     margin-top: 1em;
-}
-body.package.read table {
-    margin: 0;
-}
-body.package.read tbody tr:nth-child(odd) td, tbody tr.odd td {
-    background-color: #ffffff;
-}
-body.package.read tbody tr:nth-child(even) td, tbody tr.even td {
-    /* background-color: #f8f8f8; */
-    background-color: #ffffff;
-}
-body.package.read #dataset-information { 
-    /* border: 1px solid #e0e0e0;  */
-    /* padding: 10px; */
-}
-body.package.read #dataset-information td { 
-    padding-left: 0;
 }
 body.package.read #dataset-information .dataset-label {
     font-weight: bold;
