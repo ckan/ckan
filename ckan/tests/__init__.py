@@ -58,7 +58,7 @@ def _getjson(self):
 paste.fixture.TestResponse.json = property(_getjson)
 
 # Check config is correct for sqlite
-if config['sqlalchemy.url'].startswith('sqlite:'):
+if model.engine_is_sqlite():
     assert ckan_nose_plugin.CkanNose.settings.is_ckan, \
            'You forgot the "--ckan" nosetest setting - see doc/test.rst'
 
@@ -377,15 +377,15 @@ def setup_test_search_index():
     plugins.load('synchronous_search')
 
 def is_search_supported():
-    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    supported_db = model.engine_is_sqlite()
     return supported_db
 
 def is_regex_supported():
-    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    supported_db = model.engine_is_sqlite()
     return supported_db
 
 def is_migration_supported():
-    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    supported_db = model.engine_is_sqlite()
     return supported_db
 
 def search_related(test):
