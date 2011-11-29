@@ -1,8 +1,10 @@
 from nose.tools import assert_equal, assert_raises
 
-from ckan.tests import TestController, CreateTestData, setup_test_search_index
 from ckan import model
 import ckan.lib.search as search
+
+from ckan.tests import TestController, CreateTestData, setup_test_search_index
+from ckan.tests.lib import check_search_results
 
 
 class TestQuery:
@@ -309,33 +311,22 @@ class TestSearchOverall(TestController):
         model.repo.rebuild_db()
         search.clear()
 
-    def _check_search_results(self, terms, expected_count, expected_packages=[]):
-        query = {
-            'q': unicode(terms),
-        }
-        result = search.query_for(model.Package).run(query)
-        pkgs = result['results']
-        count = result['count']
-        assert count == expected_count, (count, expected_count)
-        for expected_pkg in expected_packages:
-            assert expected_pkg in pkgs, '%s : %s' % (expected_pkg, result)
-
     def test_overall(self):
-        self._check_search_results('annakarenina', 1, ['annakarenina'])
-        self._check_search_results('warandpeace', 1, ['warandpeace'])
-        self._check_search_results('', 2)
-        self._check_search_results('A Novel By Tolstoy', 1, ['annakarenina'])
-        self._check_search_results('title:Novel', 1, ['annakarenina'])
-        self._check_search_results('title:peace', 0)
-        self._check_search_results('name:warandpeace', 1)
-        self._check_search_results('groups:david', 2)
-        self._check_search_results('groups:roger', 1)
-        self._check_search_results('groups:lenny', 0)
-        self._check_search_results('tags:"russian"', 2)
-        self._check_search_results(u'tags:"Flexible \u30a1"', 2)
-        self._check_search_results(u'Flexible \u30a1', 2)
-        self._check_search_results(u'Flexible', 2)
-        self._check_search_results(u'flexible', 2)
+        check_search_results('annakarenina', 1, ['annakarenina'])
+        check_search_results('warandpeace', 1, ['warandpeace'])
+        check_search_results('', 2)
+        check_search_results('A Novel By Tolstoy', 1, ['annakarenina'])
+        check_search_results('title:Novel', 1, ['annakarenina'])
+        check_search_results('title:peace', 0)
+        check_search_results('name:warandpeace', 1)
+        check_search_results('groups:david', 2)
+        check_search_results('groups:roger', 1)
+        check_search_results('groups:lenny', 0)
+        check_search_results('tags:"russian"', 2)
+        check_search_results(u'tags:"Flexible \u30a1"', 2)
+        check_search_results(u'Flexible \u30a1', 2)
+        check_search_results(u'Flexible', 2)
+        check_search_results(u'flexible', 2)
         
 
 class TestGeographicCoverage(TestController):
