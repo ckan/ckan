@@ -557,7 +557,8 @@ def tag_show_rest(context, data_dict):
     return tag_dict
 
 def package_autocomplete(context, data_dict):
-    '''Returns packages containing the provided string'''
+    '''Returns packages containing the provided string in either the name
+    or the title'''
 
     model = context['model']
     session = context['session']
@@ -575,9 +576,17 @@ def package_autocomplete(context, data_dict):
                                 model.PackageRevision.title.ilike(like_q)))
     query = query.limit(10)
 
+    q_lower = q.lower()
     pkg_list = []
     for package in query:
-        result_dict = {'name':package.name,'title':package.title}
+        if package.name.startswith(q_lower):
+            match_field = 'name'
+            match_displayed = package.name
+        else:
+            match_field = 'title'
+            match_displayed = '%s (%s)' % (package.title, package.name)
+        result_dict = {'name':package.name, 'title':package.title,
+                       'match_field':match_field, 'match_displayed':match_displayed}
         pkg_list.append(result_dict)
 
     return pkg_list

@@ -553,6 +553,7 @@ class PackageController(BaseController):
 
 
     def autocomplete(self):
+        # DEPRECATED in favour of /api/2/util/dataset/autocomplete
         q = unicode(request.params.get('q', ''))
         if not len(q): 
             return ''
@@ -566,10 +567,7 @@ class PackageController(BaseController):
 
         pkg_list = []
         for pkg in packages:
-            if pkg['name'].lower().startswith(q.lower()):
-                pkg_list.append('%s|%s' % (pkg['name'], pkg['name']))
-            else:
-                pkg_list.append('%s (%s)|%s' % (pkg['title'].replace('|', ' '), pkg['name'], pkg['name']))
+            pkg_list.append('%s|%s' % (pkg['match_displayed'].replace('|', ' '), pkg['name']))
         return '\n'.join(pkg_list)
 
     def _render_edit_form(self, fs, params={}, clear_session=False):

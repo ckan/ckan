@@ -88,13 +88,27 @@ class TestAction(WsgiAppCase):
         missing_keys = set(('title', 'groups')) - set(pkg.keys())
         assert not missing_keys, missing_keys
 
-    def test_02_package_autocomplete(self):
+    def test_02_package_autocomplete_match_name(self):
         postparams = '%s=1' % json.dumps({'q':'war'})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['success'] == True
+        assert_equal(res_obj['success'], True)
         pprint(res_obj['result'][0]['name'])
-        assert res_obj['result'][0]['name'] == 'warandpeace'
+        assert_equal(res_obj['result'][0]['name'], 'warandpeace')
+        assert_equal(res_obj['result'][0]['title'], 'A Wonderful Story')
+        assert_equal(res_obj['result'][0]['match_field'], 'name')
+        assert_equal(res_obj['result'][0]['match_displayed'], 'warandpeace')
+
+    def test_02_package_autocomplete_match_title(self):
+        postparams = '%s=1' % json.dumps({'q':'a%20w'})
+        res = self.app.post('/api/action/package_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert_equal(res_obj['success'], True)
+        pprint(res_obj['result'][0]['name'])
+        assert_equal(res_obj['result'][0]['name'], 'warandpeace')
+        assert_equal(res_obj['result'][0]['title'], 'A Wonderful Story')
+        assert_equal(res_obj['result'][0]['match_field'], 'title')
+        assert_equal(res_obj['result'][0]['match_displayed'], 'A Wonderful Story (warandpeace)')
 
     def test_03_create_update_package(self):
 

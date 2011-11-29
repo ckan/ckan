@@ -582,6 +582,22 @@ class ApiController(BaseController):
         return self._finish_bad_request(gettext('Bad slug type: %s') % slugtype)
             
 
+    def dataset_autocomplete(self):
+        q = request.params.get('incomplete', '')
+        q_lower = q.lower()
+        limit = request.params.get('limit', 10)
+        tag_names = []
+        if q:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+
+            data_dict = {'q': q, 'limit': limit}
+
+            package_dicts = get_action('package_autocomplete')(context, data_dict)
+
+        resultSet = {'ResultSet': {'Result': package_dicts}}
+        return self._finish_ok(resultSet)
+
     def tag_autocomplete(self):
         q = request.params.get('incomplete', '')
         limit = request.params.get('limit', 10)
@@ -590,9 +606,9 @@ class ApiController(BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
 
-            data_dict = {'q':q,'limit':limit}
+            data_dict = {'q': q, 'limit': limit}
 
-            tag_names = get_action('tag_autocomplete')(context,data_dict)
+            tag_names = get_action('tag_autocomplete')(context, data_dict)
 
         resultSet = {
             'ResultSet': {
