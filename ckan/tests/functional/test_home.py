@@ -138,6 +138,47 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         finally:
             self.clear_language_setting()
 
+    def test_add_email_notice(self):
+        msg = 'Please <a href="/user/edit">update your profile</a> and add ' \
+            'your email address'
+        url = url_for('home')
+
+        # msg should not be shown if not logged in.
+        response = self.app.get(url)
+        assert msg not in response
+
+        users = model.Session.query(model.user.User).all()
+
+        # Make sure that the test users start out with no email.
+        for user in users:
+            model.repo.new_revision()
+            model.Session.add(user)
+            user.email = None
+            model.Session.commit()
+            model.repo.commit_and_remove()
+
+        # When user is logged in and has no email, msg should be shown.
+        for user in users:
+            if user.email is None:
+                response = self.app.get(url,
+                        extra_environ={'REMOTE_USER': user.name.encode('utf-8')})
+                assert msg in response
+
+        # Now add emails to the users.
+        for user in users:
+            model.repo.new_revision()
+            model.Session.add(user)
+            user.email = 'testing@testemail.com'
+            model.Session.commit()
+            model.repo.commit_and_remove()
+
+        # When user is logged in and does have an email, msg should not be
+        # shown.
+        for user in users:
+            response = self.app.get(url,
+                    extra_environ={'REMOTE_USER': user.name.encode('utf-8')})
+            assert msg not in response
+
 class TestDatabaseNotInitialised(TestController):
     @classmethod
     def setup_class(cls):
