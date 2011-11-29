@@ -193,11 +193,16 @@ CKAN.Utils = function($, my) {
       return function() {
         slug = urlInput.val();
         urlSuffix.html('<span>'+slug+'</span>');
-        validMsg.html('<span style="color: #777;">'+CKAN.Strings.checking+'</span>');
         if (timer) clearTimeout(timer);
-        timer = setTimeout(function () {
-          checkSlugValid(slug);
-        }, 200);
+        if (slug.length<2) {
+          validMsg.html('<span style="font-weight: bold; color: #444;">'+CKAN.Strings.urlIsTooShort+'</span>');
+        }
+        else {
+          validMsg.html('<span style="color: #777;">'+CKAN.Strings.checking+'</span>');
+          timer = setTimeout(function () {
+            checkSlugValid(slug);
+          }, 200);
+        }
       };
     }();
 

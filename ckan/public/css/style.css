@@ -712,8 +712,8 @@ ul.datasets .openness li {
 /* =================== */
 /* = URL Slug Editor = */
 /* =================== */
-input.url-slug-editor {
-  width: 250px;
+input.url-input {
+  width: 220px;
 }
 
 
