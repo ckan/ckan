@@ -101,23 +101,23 @@ class ManageDb(CkanCommand):
             else:
                 model.repo.upgrade_db()
         elif cmd == 'dump':
-            self.dump(cmd)
+            self.dump()
         elif cmd == 'load':
-            self.load(cmd)
+            self.load()
         elif cmd == 'load-only':
             self.load(cmd, only_load=True)
         elif cmd == 'simple-dump-csv':
-            self.simple_dump_csv(cmd)
+            self.simple_dump_csv()
         elif cmd == 'simple-dump-json':
-            self.simple_dump_json(cmd)
+            self.simple_dump_json()
         elif cmd == 'dump-rdf':
-            self.dump_rdf(cmd)
+            self.dump_rdf()
         elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
                 print 'Creating DB: SUCCESS'
         elif cmd == 'send-rdf':
-            self.send_rdf(cmd)
+            self.send_rdf()
         else:
             print 'Command %s not recognized' % cmd
             sys.exit(1)
@@ -169,7 +169,7 @@ class ManageDb(CkanCommand):
         if retcode != 0:
             raise SystemError('Command exited with errorcode: %i' % retcode)
 
-    def dump(self, cmd):
+    def dump(self):
         if len(self.args) < 2:
             print 'Need pg_dump filepath'
             return
@@ -178,7 +178,7 @@ class ManageDb(CkanCommand):
         psql_cmd = self._get_psql_cmd() + ' -f %s'
         pg_cmd = self._postgres_dump(dump_path)
 
-    def load(self, cmd, only_load=False):
+    def load(self, only_load=False):
         if len(self.args) < 2:
             print 'Need pg_dump filepath'
             return
@@ -198,7 +198,7 @@ class ManageDb(CkanCommand):
             print 'Now remember you have to call \'db upgrade\' and then \'search-index rebuild\'.'
         print 'Done'
 
-    def simple_dump_csv(self, cmd):
+    def simple_dump_csv(self):
         from ckan import model
         if len(self.args) < 2:
             print 'Need csv file path'
@@ -209,7 +209,7 @@ class ManageDb(CkanCommand):
         query = model.Session.query(model.Package)
         dumper.SimpleDumper().dump_csv(dump_file, query)
 
-    def simple_dump_json(self, cmd):
+    def simple_dump_json(self):
         from ckan import model
         if len(self.args) < 2:
             print 'Need json file path'
@@ -220,7 +220,7 @@ class ManageDb(CkanCommand):
         query = model.Session.query(model.Package)
         dumper.SimpleDumper().dump_json(dump_file, query)
 
-    def dump_rdf(self, cmd):
+    def dump_rdf(self):
         if len(self.args) < 3:
             print 'Need dataset name and rdf file path'
             return
@@ -237,7 +237,7 @@ class ManageDb(CkanCommand):
         f.write(rdf)
         f.close()
 
-    def send_rdf(self, cmd):
+    def send_rdf(self):
         if len(self.args) < 4:
             print 'Need all arguments: {talis-store} {username} {password}'
             return
@@ -545,6 +545,87 @@ class UserCmd(CkanCommand):
         user.delete()
         model.repo.commit_and_remove()
         print('Deleted user: %s' % username)
+
+
+class DatasetCmd(CkanCommand):
+    '''Manage datasets
+
+    Usage:
+      dataset <dataset-name/id>          - shows dataset properties
+      dataset show <dataset-name/id>     - shows dataset properties
+      dataset list                       - lists datasets
+      dataset delete <dataset-name/id>   - changes dataset state to 'deleted'
+      dataset purge <dataset-name/id>    - removes dataset from db entirely
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 3
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        from ckan import model
+
+        if not self.args:
+            print self.usage
+        else:
+            cmd = self.args[0]
+            if cmd == 'delete':
+                self.delete(self.args[1])
+            elif cmd == 'purge':
+                self.purge(self.args[1])
+            elif cmd == 'list':
+                self.list()
+            elif cmd == 'show':
+                self.show(self.args[1])
+            else:
+                self.show(self.args[0])
+
+    def list(self):
+        from ckan import model
+        print 'Datasets:'
+        datasets = model.Session.query(model.Package)
+        print 'count = %i' % datasets.count()
+        for dataset in datasets:
+            state = ('(%s)' % dataset.state) if dataset.state != 'active' \
+                    else ''
+            print '%s %s %s' % (dataset.id, dataset.name, state)
+
+    def _get_dataset(self, dataset_ref):
+        from ckan import model
+        dataset = model.Package.get(unicode(dataset_ref))
+        assert dataset, 'Could not find dataset matching reference: %r' % dataset_ref
+        return dataset
+            
+    def show(self, dataset_ref):
+        from ckan import model
+        import pprint
+        dataset = self._get_dataset(dataset_ref)
+        pprint.pprint(dataset.as_dict())
+
+    def delete(self, dataset_ref):
+        from ckan import model, plugins
+        dataset = self._get_dataset(dataset_ref)
+        old_state = dataset.state
+
+        plugins.load('synchronous_search')
+        rev = model.repo.new_revision()
+        dataset.delete()
+        model.repo.commit_and_remove()
+        dataset = self._get_dataset(dataset_ref)
+        print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
+
+    def purge(self, dataset_ref):
+        from ckan import model, plugins
+        dataset = self._get_dataset(dataset_ref)
+        name = dataset.name
+
+        plugins.load('synchronous_search')
+        rev = model.repo.new_revision()
+        dataset.purge()
+        model.repo.commit_and_remove()
+        print '%s purged' % name
+        
 
 class Celery(CkanCommand):
     '''Run celery deamon
