@@ -61,11 +61,22 @@ class HomeController(BaseController):
             c.groups = []
 
         if c.userobj is not None:
-            if c.userobj.email is None:
-                msg = _('Please <a href="/user/edit">update your profile</a> '
-                    'and add your email address. %s uses your email address '
-                    'to send you notifications and updates, and to let you '
-                    'reset your password.''') % (g.site_title)
+            msg = None
+            if not c.userobj.email and not c.userobj.fullname:
+                msg = _('Please <a href="/user/edit">update your profile</a>'
+                    ' and add your email address and your full name. %s uses'
+                    ' your email address to send you notifications and'
+                    ' updates, and to let you reset your password.''') \
+                            % (g.site_title)
+            elif not c.userobj.email:
+                msg = _('Please <a href="/user/edit">update your profile</a>'
+                    ' and add your email address. %s uses your email address'
+                    ' to send you notifications and updates, and to let you'
+                    ' reset your password.''') % (g.site_title)
+            elif not c.userobj.fullname:
+                msg = _('Please <a href="/user/edit">update your profile</a>'
+                    ' and add your full name.')
+            if msg:
                 h.flash_notice(msg, allow_html=True)
 
         return render('home/index.html')
