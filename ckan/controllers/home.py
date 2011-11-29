@@ -62,10 +62,10 @@ class HomeController(BaseController):
 
         if c.userobj is not None:
             if c.userobj.email is None:
-                msg = _('''Please <a href="/user/edit">update your profile</a>
-and add your email address. %s uses your email address to send you
-notifications and updates, and to let you reset your password.''') % \
-                (g.site_title)
+                msg = _('Please <a href="/user/edit">update your profile</a> '
+                    'and add your email address. %s uses your email address '
+                    'to send you notifications and updates, and to let you '
+                    ' reset your password.''') % (g.site_title)
                 h.flash_notice(msg, allow_html=True)
 
         return render('home/index.html')
