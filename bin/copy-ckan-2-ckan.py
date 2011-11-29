@@ -2,19 +2,22 @@ import ckanclient
 from optparse import OptionParser
 import re
 
-# Script for copying packages from one CKAN instance to another using the API
-# for both.
+'''
+Script for copying packages from one CKAN instance to another using the API
+for both.
 
-# Some of the commands used:
-# $ pg_dump -f dump_ckan/nederland.ckan.net.pg_dump -U okfn nederland
-# $ rsync --progress -z okfn@eu5.okfn.org:/home/okfn/dump_ckan/* /home/dread/db_backup/communities/
-# $ paster db clean && paster db load /home/dread/db_backup/communities/nederland.ckan.net.pg_dump
-# $ python bin/copy-ckan-2-ckan.py -k tester -g country-si -t "Slovenia" -s si.ckan.net http://127.0.0.1:5000/api http://127.0.0.1:5001/api
+Some of the commands used:
+$ pg_dump -f dump_ckan/nederland.ckan.net.pg_dump -U okfn nederland
+$ rsync --progress -z okfn@eu5.okfn.org:/home/okfn/dump_ckan/* /home/dread/db_backup/communities/
+$ paster db clean && paster db load /home/dread/db_backup/communities/nederland.ckan.net.pg_dump
+$ python bin/copy-ckan-2-ckan.py -k tester -g country-si -t "Slovenia" -s si.ckan.net http://127.0.0.1:5000/api http://127.0.0.1:5001/api
+'''
 
 def copy_packages(source_ckan_uri,
                   dest_ckan_uri, dest_api_key,
                   dest_group_name, dest_group_title,
-                  site_name):
+                  site_name, filter,
+                  ):
     ckan1 = ckanclient.CkanClient(base_location=source_ckan_uri)
     ckan2 = ckanclient.CkanClient(base_location=dest_ckan_uri,
                                   api_key=dest_api_key)
@@ -50,6 +53,13 @@ def copy_packages(source_ckan_uri,
     # go through all packages
     package_list = ckan1.package_register_get()
     print 'Found %i packages to copy' % len(package_list)
+
+    if filter:
+        filter_re = re.compile(filter)
+        package_list = [pkg for pkg in package_list \
+                        if filter_re.match(pkg)]
+        print 'Filtered down to %i packages' % len(package_list)
+    
     for package_ref in package_list[:]:
         try:
             pkg = ckan1.package_entity_get(package_ref)
@@ -71,6 +81,9 @@ def copy_packages(source_ckan_uri,
         if import_tag:
             pkg['tags'].append(import_tag)
 
+        # munge non-conformant tags
+        pkg['tags'] = [munge_tag(tag) for tag in pkg['tags']]
+
         # do the copy
         if package_ref in existing_pkgs:
             existing_pkg = ckan2.package_entity_get(pkg['name'])
@@ -79,7 +92,7 @@ def copy_packages(source_ckan_uri,
         else:
             pkg_returned = ckan2.package_register_post(pkg)
             print '...created'
-        groups_not_added_to = set(pkg['groups']) - set(pkg_returned['groups']) - set((dest_group_name))
+        groups_not_added_to = set(pkg['groups']) - set(pkg_returned['groups']) - set((dest_group_name or []))
         # packages don't get added to the group before when CKAN <= 1.5 so
         # we have to do this now
         for group_ref in groups_not_added_to:
@@ -88,12 +101,29 @@ def copy_packages(source_ckan_uri,
             ckan2.group_entity_put(group)
             print '...and added to group %s' % group_ref
 
-    group = ckan2.group_entity_get(dest_group_name)
-    pkgs_to_add_to_group = list(set(package_list) - set(group['packages']))
-    if pkgs_to_add_to_group:
-        print 'Adding %i packages to group %s: %r' % (len(pkgs_to_add_to_group), dest_group_name, pkgs_to_add_to_group)
-        group['packages'].extend(pkgs_to_add_to_group)
-        ckan2.group_entity_put(group)
+    if dest_group_name:
+        group = ckan2.group_entity_get(dest_group_name)
+        pkgs_to_add_to_group = list(set(package_list) - set(group['packages']))
+        if pkgs_to_add_to_group:
+            print 'Adding %i packages to group %s: %r' % (len(pkgs_to_add_to_group), dest_group_name, pkgs_to_add_to_group)
+            group['packages'].extend(pkgs_to_add_to_group)
+            ckan2.group_entity_put(group)
+
+def _munge_to_length(string, min_length, max_length):
+    '''Pad/truncates a string'''
+    if len(string) < min_length:
+        string += '_' * (min_length - len(string))
+    if len(string) > max_length:
+        string = string[:max_length]
+    return string
+
+MIN_TAG_LENGTH, MAX_TAG_LENGTH = (2, 100)
+
+def munge_tag(tag):
+    tag = tag.lower().strip()
+    tag = re.sub(r'[^a-zA-Z0-9 ]', '', tag).replace(' ', '-')
+    tag = _munge_to_length(tag, MIN_TAG_LENGTH, MAX_TAG_LENGTH)
+    return tag
 
 usage = '''%prog [OPTIONS] <source_ckan_api_uri> <destination_ckan_api_uri>
 Copy datasets from ckan to another and put them in a group.'''
@@ -106,6 +136,8 @@ parser.add_option("-t", "--group-title", dest="group_title",
                   help="Destination CKAN group's title")
 parser.add_option("-s", "--site-name", dest="site_name",
                   help="Name of source CKAN site - so source can be tagged")
+parser.add_option("-f", "--filter", dest="filter",
+                  help="Filter package names (regex format)")
 
 (options, args) = parser.parse_args()
 
@@ -117,5 +149,4 @@ copy_packages(source_ckan_uri,
               destination_ckan_uri,
               options.destination_ckan_api_key,
               options.group_name, options.group_title,
-              options.site_name)
-
+              options.site_name, options.filter)

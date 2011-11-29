@@ -11,7 +11,7 @@ from types import make_uuid
 
 user_table = Table('user', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),
-        Column('name', UnicodeText),
+        Column('name', UnicodeText, nullable=False, unique=True),
         Column('openid', UnicodeText),
         Column('password', UnicodeText),
         Column('fullname', UnicodeText),
@@ -55,7 +55,7 @@ class User(DomainObject):
         import hashlib
         e = ''
         if self.email:
-            e = self.email.strip().lower()
+            e = self.email.strip().lower().encode('utf8')
         return hashlib.md5(e).hexdigest()
         
     def get_reference_preferred_for_uri(self):

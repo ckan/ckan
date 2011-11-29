@@ -83,7 +83,7 @@ class TestDumper(object):
         for key in ['User']:
             assert key not in tables, '%s should not be in %s' % (key, tables)
         assert len(dumpeddata['Package']) == 2, len(dumpeddata['Package'])
-        assert len(dumpeddata['Tag']) == 2, len(dumpeddata['Tag'])
+        assert len(dumpeddata['Tag']) == 3, len(dumpeddata['Tag'])
         assert len(dumpeddata['PackageRevision']) == 2, len(dumpeddata['PackageRevision'])
         assert len(dumpeddata['Group']) == 2, len(dumpeddata['Group'])
 

@@ -121,7 +121,7 @@ def augment_data(data, schema):
         if initial_tuple in [initial_key[:len(initial_tuple)] 
                              for initial_key in flattented_schema]:
             if data[key] <> []:
-                raise DataError('Only lists of dicts can be placed against'
+                raise DataError('Only lists of dicts can be placed against '
                                 'subschema %s' % key)
                 
         if key[:-1] in key_combinations:
@@ -246,7 +246,7 @@ def validate_flattened(data, schema, context=None):
 
 
 def _validate(data, schema, context):
-    '''validate a flattened dict agiast a schema'''
+    '''validate a flattened dict against a schema'''
     
     converted_data = augment_data(data, schema)
     full_schema = make_full_schema(data, schema)

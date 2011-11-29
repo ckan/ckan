@@ -11,7 +11,6 @@ from ckan.tests.functional.api.base import ApiUnversionedTestCase as Unversioned
 
 class GroupsTestCase(BaseModelApiTestCase):
 
-    commit_changesets = False
     reuse_common_fixtures = True
     user_name = u'russianfan'
     

@@ -5,7 +5,9 @@ from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unfla
 from ckan.authz import Authorizer
 from ckan.logic import check_access, NotAuthorized
 from ckan.lib.helpers import date_str_to_datetime
-from ckan.model import MAX_TAG_LENGTH
+from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
+                        PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH,
+                        PACKAGE_VERSION_MAX_LENGTH)
 
 def package_id_not_changed(value, context):
 
@@ -92,6 +94,9 @@ def name_validator(val, context):
     # check basic textual rules
     if len(val) < 2:
         raise Invalid(_('Name must be at least %s characters long') % 2)
+    if len(val) > PACKAGE_NAME_MAX_LENGTH:
+        raise Invalid(_('Name must be a maximum of %i characters long') % \
+                      PACKAGE_NAME_MAX_LENGTH)
     if not name_match.match(val):
         raise Invalid(_('Url must be purely lowercase alphanumeric '
                         '(ascii) characters and these symbols: -_'))
@@ -108,10 +113,27 @@ def package_name_validator(key, data, errors, context):
     else:
         package_id = data.get(key[:-1] + ("id",))
     if package_id and package_id is not missing:
-        query = query.filter(model.Package.id <> package_id) 
+        query = query.filter(model.Package.id <> package_id)
     result = query.first()
     if result:
         errors[key].append(_('That URL is already in use.'))
+
+    value = data[key]
+    if len(value) < PACKAGE_NAME_MIN_LENGTH:
+        raise Invalid(
+            _('Name "%s" length is less than minimum %s') % (value, PACKAGE_NAME_MIN_LENGTH)
+        )
+    if len(value) > PACKAGE_NAME_MAX_LENGTH:
+        raise Invalid(
+            _('Name "%s" length is more than maximum %s') % (value, PACKAGE_NAME_MAX_LENGTH)
+        )
+
+def package_version_validator(value, context):
+
+    if len(value) > PACKAGE_VERSION_MAX_LENGTH:
+        raise Invalid(_('Version must be a maximum of %i characters long') % \
+                      PACKAGE_VERSION_MAX_LENGTH)
+    return value
 
 def duplicate_extras_key(key, data, errors, context):
 
@@ -121,12 +143,12 @@ def duplicate_extras_key(key, data, errors, context):
     for extra in extras:
         if not extra.get('deleted'):
             extras_keys.append(extra['key'])
-    
+
     for extra_key in set(extras_keys):
         extras_keys.remove(extra_key)
     if extras_keys:
         errors[key].append(_('Duplicate key "%s"') % extras_keys[0])
-    
+
 def group_name_validator(key, data, errors, context):
     model = context['model']
     session = context['session']
@@ -138,16 +160,16 @@ def group_name_validator(key, data, errors, context):
     else:
         group_id = data.get(key[:-1] + ('id',))
     if group_id and group_id is not missing:
-        query = query.filter(model.Group.id <> group_id) 
+        query = query.filter(model.Group.id <> group_id)
     result = query.first()
     if result:
         errors[key].append(_('Group name already exists in database'))
 
 def tag_length_validator(value, context):
 
-    if len(value) < 2:
+    if len(value) < MIN_TAG_LENGTH:
         raise Invalid(
-            _('Tag "%s" length is less than minimum %s') % (value, 2)
+            _('Tag "%s" length is less than minimum %s') % (value, MIN_TAG_LENGTH)
         )
     if len(value) > MAX_TAG_LENGTH:
         raise Invalid(
@@ -157,7 +179,7 @@ def tag_length_validator(value, context):
 
 def tag_name_validator(value, context):
 
-    tagname_match = re.compile('[\w\-_.]*$', re.UNICODE)
+    tagname_match = re.compile('[\w \-.]*$', re.UNICODE)
     if not tagname_match.match(value):
         raise Invalid(_('Tag "%s" must be alphanumeric '
                         'characters or symbols: -_.') % (value))
@@ -174,9 +196,17 @@ def tag_string_convert(key, data, errors, context):
 
     value = data[key]
 
-    tags = value.split()
+    # Ensure a tag string with only whitespace
+    # is converted to the empty list of tags.
+    # If we were to split(',') on this string,
+    # we'd get the non-empty list, [''].
+    if not value.strip():
+        return
+
+    tags = map(lambda s: s.strip(),
+               value.split(','))
     for num, tag in enumerate(tags):
-        data[('tags', num, 'name')] = tag.lower()
+        data[('tags', num, 'name')] = tag
 
     for tag in tags:
         tag_length_validator(tag, context)
@@ -198,29 +228,30 @@ def ignore_not_admin(key, data, errors, context):
             authorized = True
         except NotAuthorized:
             authorized = False
-    
+
     if (user and pkg and authorized):
         return
 
     data.pop(key)
 
-def user_name_validator(value,context):
-    model = context['model']
+def user_name_validator(key, data, errors, context):
+    model = context["model"]
+    session = context["session"]
+    user = context.get("user_obj")
 
-    if not model.User.check_name_valid(value):
-        raise Invalid(
-            _('That login name is not valid. It must be at least 3 characters, restricted to alphanumerics and these symbols: %s') % '_\-'
-        )
-
-    if not model.User.check_name_available(value):
-        raise Invalid(
-            _("That login name is not available.")
-        )
-
-    return value
+    query = session.query(model.User.name).filter_by(name=data[key])
+    if user:
+        user_id = user.id
+    else:
+        user_id = data.get(key[:-1] + ("id",))
+    if user_id and user_id is not missing:
+        query = query.filter(model.User.id <> user_id)
+    result = query.first()
+    if result:
+        errors[key].append(_('That login name is not available.'))
 
 def user_both_passwords_entered(key, data, errors, context):
-    
+
     password1 = data.get(('password1',),None)
     password2 = data.get(('password2',),None)
 
@@ -235,7 +266,7 @@ def user_password_validator(key, data, errors, context):
         errors[('password',)].append(_('Your password must be 4 characters or longer'))
 
 def user_passwords_match(key, data, errors, context):
-    
+
     password1 = data.get(('password1',),None)
     password2 = data.get(('password2',),None)
 
@@ -248,7 +279,7 @@ def user_passwords_match(key, data, errors, context):
 def user_password_not_empty(key, data, errors, context):
     '''Only check if password is present if the user is created via action API.
        If not, user_both_passwords_entered will handle the validation'''
-     
+
     if not ('password1',) in data and not ('password2',) in data:
         password = data.get(('password',),None)
         if not password:
