@@ -55,7 +55,7 @@ class User(DomainObject):
         import hashlib
         e = ''
         if self.email:
-            e = self.email.strip().lower()
+            e = self.email.strip().lower().encode('utf8')
         return hashlib.md5(e).hexdigest()
         
     def get_reference_preferred_for_uri(self):

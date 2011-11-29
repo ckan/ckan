@@ -10,7 +10,6 @@ from ckan.tests.functional.api.base import ApiUnversionedTestCase as Unversioned
 
 class RatingsTestCase(BaseModelApiTestCase):
 
-    commit_changesets = False
     reuse_common_fixtures = True
 
     def test_register_get(self):

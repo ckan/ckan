@@ -90,7 +90,7 @@ class CreateTestData(cli.CkanCommand):
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],
             extra_user_names=[], extra_group_names=[], 
-            commit_changesets=False, admins=[]):
+            admins=[]):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
@@ -260,9 +260,6 @@ class CreateTestData(cli.CkanCommand):
 
             model.repo.commit_and_remove()
         
-        if commit_changesets:
-            from ckan.model.changeset import ChangesetRegister
-            changeset_ids = ChangesetRegister().commit()
 
     @classmethod
     def create_groups(cls, group_dicts, admin_user_name=None):
@@ -298,7 +295,7 @@ class CreateTestData(cli.CkanCommand):
         model.repo.commit_and_remove()
 
     @classmethod
-    def create(cls, commit_changesets=False):
+    def create(cls):
         import ckan.model as model
         model.Session.remove()
         rev = model.repo.new_revision()
@@ -421,10 +418,6 @@ left arrow <
         model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
 
         model.repo.commit_and_remove()
-
-        if commit_changesets:
-            from ckan.model.changeset import ChangesetRegister
-            changeset_ids = ChangesetRegister().commit()
 
         # Create a couple of authorization groups
         for ag_name in [u'anauthzgroup', u'anotherauthzgroup']:

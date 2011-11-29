@@ -280,6 +280,16 @@ class PackageSearchQuery(SearchQuery):
             self.count = response.get('numFound', 0)
             self.results = response.get('docs', [])
 
+            # get any extras and add to 'extras' dict
+            for result in self.results:
+                extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
+                extras = {}
+                for extra_key in extra_keys:
+                    value = result.pop(extra_key)
+                    extras[extra_key[len('extras_'):]] = value
+                if extra_keys:
+                    result['extras'] = extras
+
             # if just fetching the id or name, return a list instead of a dict
             if query.get('fl') in ['id', 'name']:
                 self.results = [r.get(query.get('fl')) for r in self.results]

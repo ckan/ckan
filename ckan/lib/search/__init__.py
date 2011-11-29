@@ -106,20 +106,29 @@ class SynchronousSearchPlugin(SingletonPlugin):
         else:
             log.warn("Discarded Sync. indexing for: %s" % entity)
 
-def rebuild():
+def rebuild(package=None):
     from ckan import model
     log.debug("Rebuilding search index...")
-    
-    # Packages
+
     package_index = index_for(model.Package)
-    package_index.clear()
-    for pkg in model.Session.query(model.Package).all():
-        package_index.insert_dict(
-            get_action('package_show_rest')(
-                {'model': model, 'ignore_auth': True},
-                {'id': pkg.id}
-            )
+    
+    if package:
+        pkg_dict = get_action('package_show_rest')(
+            {'model': model, 'ignore_auth': True},
+            {'id': package}
         )
+        package_index.remove_dict(pkg_dict)
+        package_index.insert_dict(pkg_dict)
+    else:
+        # rebuild index
+        package_index.clear()
+        for pkg in model.Session.query(model.Package).all():
+            package_index.insert_dict(
+                get_action('package_show_rest')(
+                    {'model': model, 'ignore_auth': True},
+                    {'id': pkg.id}
+                )
+            )
     model.Session.commit()
     log.debug('Finished rebuilding search index.')
 

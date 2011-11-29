@@ -96,4 +96,9 @@ class TestUtil(ControllerTestCase):
         assert_equal(res['site_title'], 'CKAN')
         assert_equal(res['site_description'], '')
         assert_equal(res['locale_default'], 'en')
-        assert_equal(res['extensions'], [])
+
+        assert_equal(type(res['extensions']), list)
+        expected_extensions = set()
+        if not model.engine_is_sqlite():
+            expected_extensions.add('synchronous_search')
+        assert_equal(set(res['extensions']), expected_extensions)
