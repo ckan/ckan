@@ -190,7 +190,7 @@ def set_lang_list(locales):
             break
         except LanguageError, e:
             if str(locale) not in failed_locales:
-                h.flash_error('Could not change language to %r: %s' % \
+                h.flash_error(_('Could not change language to %r: %s') % \
                               (str(locale), e))
                 failed_locales.add(str(locale))
     return locale

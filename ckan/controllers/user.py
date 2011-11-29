@@ -259,7 +259,7 @@ class UserController(BaseController):
             h.flash_success(_("%s is now logged in") % user_dict['display_name'])
             return self.me()
         else:
-            h.flash_error('Login failed. Bad username or password.')
+            h.flash_error(_('Login failed. Bad username or password.'))
             h.redirect_to(controller='user', action='login')
           
     def logged_out(self):
@@ -356,7 +356,7 @@ class UserController(BaseController):
             html = genshi.HTML(about_formatted)
         except genshi.ParseError, e:
             log.error('Could not print "about" field Field: %r Error: %r', about, e)
-            html = 'Error: Could not parse About text'
+            html = _('Error: Could not parse About text')
         return html
     
     def _get_form_password(self):

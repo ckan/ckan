@@ -400,7 +400,7 @@ class BaseController(WSGIController):
 
         # finally commit the change to the database
         model.repo.commit_and_remove()
-        h.flash_success("Changes Saved")
+        h.flash_success(_("Changes Saved"))
 
     # TODO: this repeats much of _update_user_object_roles
     def _add_user_object_role(self, users_or_authz_groups, current_uors, domain_object):
@@ -428,7 +428,7 @@ class BaseController(WSGIController):
             user_object = model.User.by_name(new_user)
             if user_object==None:
                 # The submitted user does not exist. Bail with flash message
-                h.flash_error('unknown user:' + str (new_user))
+                h.flash_error(_('unknown user:') + str (new_user))
             else:
                 # Whenever our desired state is different from our current state, change it.
                 for (r,val) in desired_roles.items():
@@ -440,14 +440,14 @@ class BaseController(WSGIController):
                         if (r in current_roles):
                             model.remove_user_from_role(user_object, r,
                                     domain_object)
-                h.flash_success("User Added")
+                h.flash_success(_("User Added"))
 
         elif users_or_authz_groups=='authz_groups':
             current_roles = [uor.role for uor in current_uors if ( uor.authorized_group and uor.authorized_group.name == new_user )]
             user_object = model.AuthorizationGroup.by_name(new_user)
             if user_object==None:
                 # The submitted user does not exist. Bail with flash message
-                h.flash_error('unknown authorization group:' + str (new_user))
+                h.flash_error(_('unknown authorization group:') + str (new_user))
             else:
                 # Whenever our desired state is different from our current state, change it.
                 for (r,val) in desired_roles.items():
@@ -459,7 +459,7 @@ class BaseController(WSGIController):
                         if (r in current_roles):
                             model.remove_authorization_group_from_role(user_object,
                                     r, domain_object)
-                h.flash_success("Authorization Group Added")
+                h.flash_success(_("Authorization Group Added"))
 
         else:
             assert False, "shouldn't be here"

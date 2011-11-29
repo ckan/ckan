@@ -84,7 +84,7 @@ class HomeController(BaseController):
                 # e.g. babel.Locale.parse('no').get_display_name() returns None
                 h.flash_notice(_("Language has been set to: English"))
             except:
-                h.flash_notice("Language has been set to: English")
+                h.flash_notice(_("Language has been set to: English"))
         else:
             abort(400, _("No language given!"))
         return_to = get_redirect()
