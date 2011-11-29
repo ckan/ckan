@@ -138,46 +138,71 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         finally:
             self.clear_language_setting()
 
-    def test_add_email_notice(self):
-        msg = 'Please <a href="/user/edit">update your profile</a> and add ' \
-            'your email address'
+    def test_update_profile_notice(self):
+        email_notice = 'Please <a href="/user/edit">update your profile</a>' \
+                ' and add your email address.'
+        fullname_notice = 'Please <a href="/user/edit">update your profile' \
+                '</a> and add your full name'
+        email_and_fullname_notice ='Please <a href="/user/edit">update your' \
+            ' profile</a> and add your email address and your full name.'
         url = url_for('home')
 
-        # msg should not be shown if not logged in.
+        # No update profile notices should be flashed if no one is logged in.
         response = self.app.get(url)
-        assert msg not in response
+        assert email_notice not in response
+        assert fullname_notice not in response
+        assert email_and_fullname_notice not in response
 
-        users = model.Session.query(model.user.User).all()
+        # Make some test users.
+        user1 = model.user.User(name='user1', fullname="user 1's full name",
+                email='user1@testusers.org')
+        user2 = model.user.User(name='user2', fullname="user 2's full name")
+        user3 = model.user.User(name='user3', email='user3@testusers.org')
+        user4 = model.user.User(name='user4')
+        users = (user1, user2, user3, user4)
 
-        # Make sure that the test users start out with no email.
         for user in users:
             model.repo.new_revision()
             model.Session.add(user)
-            user.email = None
             model.Session.commit()
-            model.repo.commit_and_remove()
 
-        # When user is logged in and has no email, msg should be shown.
-        for user in users:
-            if user.email is None:
-                response = self.app.get(url,
-                        extra_environ={'REMOTE_USER': user.name.encode('utf-8')})
-                assert msg in response
+            response = self.app.get(url, extra_environ={'REMOTE_USER':
+                user.name.encode('utf-8')})
 
-        # Now add emails to the users.
-        for user in users:
             model.repo.new_revision()
             model.Session.add(user)
-            user.email = 'testing@testemail.com'
-            model.Session.commit()
-            model.repo.commit_and_remove()
 
-        # When user is logged in and does have an email, msg should not be
-        # shown.
-        for user in users:
-            response = self.app.get(url,
-                    extra_environ={'REMOTE_USER': user.name.encode('utf-8')})
-            assert msg not in response
+            if not user.email and not user.fullname:
+                assert email_and_fullname_notice in response
+                assert email_notice not in response
+                assert fullname_notice not in response
+
+            elif user.email and not user.fullname:
+                assert email_notice not in response
+                assert fullname_notice in response
+                assert email_and_fullname_notice not in response
+
+            elif not user.email and user.fullname:
+                assert email_notice in response
+                assert fullname_notice not in response
+                assert email_and_fullname_notice not in response
+
+            elif user.email and user.fullname:
+                assert email_notice not in response
+                assert fullname_notice not in response
+                assert email_and_fullname_notice not in response
+
+            if not user.email:
+                user.email = "mr_tusks@tusk_family.org"
+            if not user.fullname:
+                user.fullname = "Mr. Tusks"
+            model.Session.commit()
+
+            response = self.app.get(url, extra_environ={'REMOTE_USER':
+                user.name.encode('utf-8')})
+            assert email_notice not in response
+            assert fullname_notice not in response
+            assert email_and_fullname_notice not in response
 
 class TestDatabaseNotInitialised(TestController):
     @classmethod
