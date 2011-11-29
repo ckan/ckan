@@ -139,12 +139,14 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
             self.clear_language_setting()
 
     def test_update_profile_notice(self):
-        email_notice = 'Please <a href="/user/edit">update your profile</a>' \
-                ' and add your email address.'
-        fullname_notice = 'Please <a href="/user/edit">update your profile' \
-                '</a> and add your full name'
-        email_and_fullname_notice ='Please <a href="/user/edit">update your' \
-            ' profile</a> and add your email address and your full name.'
+        edit_url = url_for(controller='user', action='edit')
+        email_notice = 'Please <a href="%s">update your profile</a>' \
+                ' and add your email address.' % (edit_url)
+        fullname_notice = 'Please <a href="%s">update your profile' \
+                '</a> and add your full name' % (edit_url)
+        email_and_fullname_notice ='Please <a href="%s">update your' \
+            ' profile</a> and add your email address and your full name.' \
+            % (edit_url)
         url = url_for('home')
 
         # No update profile notices should be flashed if no one is logged in.

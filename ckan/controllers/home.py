@@ -14,6 +14,7 @@ from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.base import *
 import ckan.lib.stats
 from ckan.lib.hash import get_redirect
+from ckan.lib.helpers import url_for
 
 class HomeController(BaseController):
     repo = model.repo
@@ -62,20 +63,21 @@ class HomeController(BaseController):
 
         if c.userobj is not None:
             msg = None
+            url = url_for(controller='user', action='edit')
             if not c.userobj.email and not c.userobj.fullname:
-                msg = _('Please <a href="/user/edit">update your profile</a>'
+                msg = _('Please <a href="%s">update your profile</a>'
                     ' and add your email address and your full name. %s uses'
                     ' your email address to send you notifications and'
                     ' updates, and to let you reset your password.''') \
-                            % (g.site_title)
+                            % (url, g.site_title)
             elif not c.userobj.email:
-                msg = _('Please <a href="/user/edit">update your profile</a>'
+                msg = _('Please <a href="%s">update your profile</a>'
                     ' and add your email address. %s uses your email address'
                     ' to send you notifications and updates, and to let you'
-                    ' reset your password.''') % (g.site_title)
+                    ' reset your password.''') % (url, g.site_title)
             elif not c.userobj.fullname:
-                msg = _('Please <a href="/user/edit">update your profile</a>'
-                    ' and add your full name.')
+                msg = _('Please <a href="%s">update your profile</a>'
+                    ' and add your full name.') % (url)
             if msg:
                 h.flash_notice(msg, allow_html=True)
 
