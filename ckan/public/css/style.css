@@ -175,10 +175,10 @@ table caption {
   background-color: white;
 }
 tbody tr:nth-child(even) td, tbody tr.even td {
-  background-color: #FCF6CF;
+  background-color: #F9F9F9;
 }
 tbody tr:nth-child(odd) td, tbody tr.odd td {
-  background-color: #FEFEF2;
+  background-color: #F2F2F2;
 }
 tbody tr.table-empty td {
   background: #f8f8f8;
