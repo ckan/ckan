@@ -58,7 +58,7 @@ class AlphaPage(object):
         letters = [char for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'] + [self.other_text]
         for letter in letters:
             if letter != page:
-                page = HTML.a(class_='pager_link', href=url_for(page=letter), c=letter)
+                page = HTML.a(class_='pager_link', href=url_for(controller='tag', action='index', page=letter), c=letter)
             else:
                 page = HTML.span(class_='pager_curpage', c=letter)
             pages.append(page)                           
