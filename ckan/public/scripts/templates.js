@@ -156,8 +156,8 @@ CKAN.Templates.resourceEntry = ' \
 CKAN.Templates.datasetNotesField = ' \
   <div id="notes-extract"> \
   </div> \
-  <div id="dataset-notes-read-more"><a>Read more</a></div> \
   <div id="notes-remainder"> \
   </div> \
+  <div id="dataset-notes-toggle"><a class="more" href="#">Read more</a><a class="less" href="#" style="display: none;">Read less</a></div> \
 ';
 

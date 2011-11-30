@@ -428,9 +428,15 @@ CKAN.Utils = function($, my) {
       notes.find('#notes-extract').html(extract);
       notes.find('#notes-remainder').html(remainder);
       notes.find('#notes-remainder').hide();
-      notes.find('#dataset-notes-read-more a').click(function(){
-          notes.find('#dataset-notes-read-more').hide();
-          notes.find('#notes-remainder').slideDown();
+      notes.find('#dataset-notes-toggle a').click(function(event){
+        notes.find('#dataset-notes-toggle a').toggle();
+        var remainder = notes.find('#notes-remainder')
+        if ($(event.target).hasClass('more')) {
+          remainder.slideDown();
+        }
+        else {
+          remainder.slideUp();
+        }
       })
     }
   };

@@ -317,7 +317,9 @@ def resource_display_name(resource_dict):
     if name:
         return name
     elif description:
-        description = description.split('.')[0][:60]
+        description = description.split('.')[0]
+        max_len = 60;
+        if len(description)>max_len: description = description[:max_len]+'...'
         return description
     else:
         return '[no name] %s ' % resource_dict['id']
