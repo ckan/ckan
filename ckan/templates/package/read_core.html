@@ -19,23 +19,25 @@
         <h3>Resources</h3>
         <py:for each="res in c.pkg_dict.get('resources', [])">
           <div class="dataset-resource">
-            <div class="inner">
-              <button class="pretty-button primary"><img style="margin: 4px 8px 0 0;" src="${h.icon_url('download-16')}"/><span style="position: relative; bottom: 3px;">Download</span></button>
-              ${h.resource_link(res, c.pkg_dict['name'])}
-              <span py:if="res.get('format')" class="resource-format" property="dc:format">${res.get('format')}</span>
-              <span py:if="not res.get('format')" class="resource-format" property="dc:format">(unknown format)</span>
-              &nbsp;&#8212;&nbsp;&nbsp;<span class="resource-description">${h.markdown_extract(res.get('description'))}</span>
-              <div class="resource-url" rel="dcat:distribution" resource="_:res${res.id}"
-                typeof="dcat:Distribution">
-                  <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
-                    ${res.get('url', '')}
-                  </a>
-              </div>
-              <ul class="resource-information" py:if="res.get('last_modified')">
-                <li>Last updated: ${h.time_ago_in_words_from_str(res.get('last_modified'), granularity='day')} ago</li>
-              </ul>
-            </div>
+          <a class="resource-view-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">
+            <span class="link-text">${h.resource_display_name(res)}</span>&nbsp;&nbsp;
+            <span class="plain-text">
+            <div class="view-more-link">View</div>
+            <span py:if="res.get('format')" class="resource-format" property="dc:format">${res.get('format')}</span>
+            <span py:if="not res.get('format')" class="resource-format" property="dc:format">(unknown format)</span>
+            &nbsp;&#8212;&nbsp;&nbsp;<span class="resource-description">${h.markdown_extract(res.get('description'))}</span>
+            <ul class="resource-information" py:if="res.get('last_modified')">
+              <li>Last updated: ${h.time_ago_in_words_from_str(res.get('last_modified'), granularity='day')} ago</li>
+            </ul>
+          </span>
+          </a>
+          <span class="resource-url" rel="dcat:distribution" resource="_:res${res.id}" typeof="dcat:Distribution">
+            <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
+              ${res.get('url', '')}
+            </a>
+          </span>
           </div>
+          <div class="dataset-resource-divider"></div>
         </py:for>
         <py:if test="not len(c.pkg_dict.get('resources', []))">
           (none)
