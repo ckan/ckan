@@ -148,6 +148,13 @@ class ApiController(BaseController):
             log.error('Bad request data: %s' % str(inst))
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
+        if not isinstance(request_data, dict):
+            # this occurs if request_data is blank
+            log.error('Bad request data - not dict: %r' % request_data)
+            return self._finish_bad_request(
+                gettext('Bad request data: %s') % \
+                'Request data JSON decoded to %r but ' \
+                'it needs to be a dictionary.' % request_data)
         try:
             result = function(context, request_data)
             return_dict['success'] = True
