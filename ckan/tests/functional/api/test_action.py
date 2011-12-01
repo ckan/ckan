@@ -923,7 +923,8 @@ class TestActionPackageSearch(WsgiAppCase):
         res = self.app.post('/api/action/package_search', params=postparams,
                             status=409)
         assert '"message": "Search error:' in res.body, res.body
-        assert 'Search error: HTTP code=400, Reason=Missing sort order.' in res.body, res.body
+        assert 'SOLR returned an error' in res.body, res.body
+        assert 'Missing sort order' in res.body, res.body
 
     def test_3_bad_param(self):
         postparams = '%s=1' % json.dumps({
