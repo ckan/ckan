@@ -370,6 +370,7 @@ These parameters are all the standard SOLR syntax (in contrast to the syntax use
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | sort                  | field name,   || sort=name asc                   | Changes the sort order according |
 |                       | asc / dec     |                                  | to the field and direction given.|
+|                       |               |                                  | default: score desc, name asc    |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | start, rows           | result-int    | start=40&amp;rows=20             | Pagination options. Start is the |
 |                       | (defaults:    |                                  | number of the first result and   |

@@ -232,6 +232,7 @@ class PackageSearchQuery(SearchQuery):
         
         May raise SearchQueryError or SearchError.
         '''
+        from solr import SolrException
         assert isinstance(query, (dict, MultiDict))
         # check that query keys are valid
         if not set(query.keys()) <= VALID_SOLR_PARAMETERS:
@@ -281,9 +282,15 @@ class PackageSearchQuery(SearchQuery):
         # query['qf'] = query.get('qf', QUERY_FIELDS)
 
         conn = make_connection()
+        log.debug('Package query: %r' % query)
+        
         try:
-            log.debug('Package query: %r' % query)
-            data = json.loads(conn.raw_query(**query))
+            solr_response = conn.raw_query(**query)
+        except SolrException, e:
+            raise SearchError('SOLR returned an error running query: %r Error: %r' %
+                              (query, e.reason))
+        try:
+            data = json.loads(solr_response)
             response = data['response']
             self.count = response.get('numFound', 0)
             self.results = response.get('docs', [])
