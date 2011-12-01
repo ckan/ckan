@@ -58,7 +58,7 @@ def _getjson(self):
 paste.fixture.TestResponse.json = property(_getjson)
 
 # Check config is correct for sqlite
-if config['sqlalchemy.url'].startswith('sqlite:'):
+if model.engine_is_sqlite():
     assert ckan_nose_plugin.CkanNose.settings.is_ckan, \
            'You forgot the "--ckan" nosetest setting - see doc/test.rst'
 
@@ -88,14 +88,13 @@ class ModelMethods(BaseCase):
     require_common_fixtures = True
     reuse_common_fixtures = True
     has_common_fixtures = False
-    commit_changesets = True
 
     def conditional_create_common_fixtures(self):
         if self.require_common_fixtures:
             self.create_common_fixtures()
 
     def create_common_fixtures(self):
-        CreateTestData.create(commit_changesets=self.commit_changesets)
+        CreateTestData.create()
         CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
 
     def reuse_or_delete_common_fixtures(self):
@@ -231,6 +230,10 @@ class CommonFixtureMethods(BaseCase):
     @property
     def tolstoy(self):
         return self.get_tag_by_name(u'tolstoy')
+
+    @property
+    def flexible_tag(self):
+        return self.get_tag_by_name(u'Flexible \u30a1')
 
 class CheckMethods(BaseCase):
 
@@ -373,16 +376,16 @@ def setup_test_search_index():
     plugins.load('synchronous_search')
 
 def is_search_supported():
-    supported_db = "sqlite" not in config.get('sqlalchemy.url')
-    return supported_db
+    is_supported_db = not model.engine_is_sqlite()
+    return is_supported_db
 
 def is_regex_supported():
-    supported_db = "sqlite" not in config.get('sqlalchemy.url')
-    return supported_db
+    is_supported_db = not model.engine_is_sqlite()
+    return is_supported_db
 
 def is_migration_supported():
-    supported_db = "sqlite" not in config.get('sqlalchemy.url')
-    return supported_db
+    is_supported_db = not model.engine_is_sqlite()
+    return is_supported_db
 
 def search_related(test):
     def skip_test(*args):

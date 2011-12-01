@@ -17,8 +17,10 @@ class MiscApiTestCase(ApiTestCase, ControllerTestCase):
     def test_0_tag_counts(self):
         offset = self.offset('/tag_counts')
         res = self.app.get(offset, status=200)
-        assert '["russian", 2]' in res, res
-        assert '["tolstoy", 1]' in res, res
+        results = self.loads(res.body)
+        assert [u'Flexible \u30a1', 2] in results, results
+        assert ["russian", 2] in results, results
+        assert ["tolstoy", 1] in results, results
 
 class QosApiTestCase(ApiTestCase, ControllerTestCase):
 

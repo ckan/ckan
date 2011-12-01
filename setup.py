@@ -57,6 +57,7 @@ setup(
     create-test-data = ckan.lib.create_test_data:CreateTestData
     sysadmin = ckan.lib.cli:Sysadmin
     user = ckan.lib.cli:UserCmd
+    dataset = ckan.lib.cli:DatasetCmd
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
     changes = ckan.lib.cli:Changes

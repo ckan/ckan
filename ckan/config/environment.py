@@ -2,9 +2,12 @@
 import os
 from urlparse import urlparse
 import logging
+import warnings
 
 from paste.deploy.converters import asbool
 
+# Suppress benign warning 'Unbuilt egg for setuptools'
+warnings.simplefilter('ignore', UserWarning) 
 import pylons
 from sqlalchemy import engine_from_config
 from pylons import config

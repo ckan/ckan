@@ -155,6 +155,11 @@ def package_dictize(pkg, context):
     q = select([rel_rev]).where(rel_rev.c.object_package_id == pkg.id)
     result = _execute_with_revision(q, rel_rev, context)
     result_dict["relationships_as_object"] = obj_list_dictize(result, context)
+    #isopen
+    # Get an actual Package object, not a PackageRevision
+    pkg_object = model.Package.get(pkg.id)
+    result_dict['isopen'] = pkg_object.isopen if isinstance(pkg_object.isopen,bool) else pkg_object.isopen()
+
     return result_dict
 
 def group_dictize(group, context):

@@ -22,15 +22,53 @@ After you've edited these options, restart Apache::
 
 Refresh your home page (clearing the cache if necessary) and you should see your new title and description. 
 
+
+Adding CSS, Javascript and other HTML using Config Options
+==========================================================
+
+CKAN provides two config options that allow you to add material directly into templates::
+
+  ckan.template_head_end = ...
+  ckan.template_footer_end = ...
+
+The first of these allows you to specify content that will be inserted just before ``</head>`` tag while the second allows you to insert content just before the ``</body>``. You can use html in both of these as well as provide multiline values by indenting lines.
+
+Adding CSS
+----------
+
+For example, by referencing an external CSS stylesheet::
+
+  ckan.template_head_end = <link rel="stylesheet" href="http://some-other-site.org/custom.css" type="text/css"> 
+
+.. note::
+
+  This requires you have a css file uploaded elsewhere. You may want your css to be part of your CKAN site. CKAN provides an easy way to do this -- see ``extra_public_paths`` below.
+
+Alternatively you can provide CSS directly in a style tag (note how we indent lines to provide a multiline value to a config option)::
+
+  ckan.template_head_end = <style type="text/css"> 
+      body {
+        font-size: xlarge;
+      }
+    </style>
+
+Adding Javascript
+-----------------
+
+You could also use this config option to add script tags (or any other material to the ``<head>`` of all site pages).
+
+However, for javascript it is probably better to use the ``ckan.template_footer_end`` option as it adds material just before the closing ``</body>`` tag -- in CKAN v1.5 scripts are included at the foot of the page rather than in the <head> section (thus if your scripts requires jquery it needs to come after jqurey is included at the bottom of the page and hence you should use the footer end option).
+
+
 More Advanced Customization
 ===========================
 
 If you want to make broader changes to the look and feel of your CKAN site, we offer ways to add custom CSS and over-ride the default CKAN templates. 
 
-Custom CSS and Templates
-------------------------
+Adding (and Overriding) Files and Templates
+-------------------------------------------
 
-You can add custom CSS, templates, scripts, images etc to your site using the ``extra_template_paths`` and ``extra_public_paths`` options in the CKAN config file::
+You can add (and override) files (e.g. CSS, scripts and images) as well as templates to your site using the ``extra_template_paths`` and ``extra_public_paths`` options in the CKAN config file::
 
  extra_template_paths = %(here)s/my-templates
  extra_public_paths = %(here)s/my-public
@@ -61,26 +99,25 @@ Add a logo file at ``mypublicdir/images/mylogo.png``, then set options in the CK
 Adding a New Stylesheet
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Lots of visual changes can be made simply by changing the stylesheet. 
+Lots of visual changes can be made simply by changing the stylesheet. We've already 
 
 The easiest way to override the default CKAN style is to create one or more custom CSS files and load them in the ``layout.html`` template.
 
 Use the 'public' directory as described in the previous section, then add a new file at ``mypublicdir/css/mycss.css``.
 
+Your next step is to have that css file including by the templates.
+
 Next, copy the ``layout.html`` template and add a reference to the new CSS file. Here is an example of the edited ``layout.html`` template::
 
-  <html xmlns="http://www.w3.org/1999/xhtml"                     
-    xmlns:i18n="http://genshi.edgewall.org/i18n"                 
-    xmlns:py="http://genshi.edgewall.org/"                       
+  <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    xmlns:py="http://genshi.edgewall.org/" 
     xmlns:xi="http://www.w3.org/2001/XInclude"
-    py:strip="">                                                 
-                                                                 
+    py:strip="">
     <head py:match="head">
       ${select('*')}
-
       <link rel="stylesheet" href="${g.site_url}/css/mycss.css" />
     </head>
-
     <xi:include href="layout_base.html" />
   </html>
 
@@ -93,7 +130,6 @@ To over-ride a template, set the ``extra_template_paths`` directory as described
 
 Commonly modified templates are:
 
- * ``layout_base.html`` - base customizationlayout template for whole site 
  * ``layout.html`` - empty by default
  * ``home/index.html`` - the home page of the site
  * ``home/about.html`` - the about page

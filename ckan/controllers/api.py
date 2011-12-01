@@ -12,6 +12,7 @@ from ckan.lib.search import (query_for, QueryOptions, SearchIndexError, SearchEr
                              convert_legacy_parameters_to_solr)
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.navl.dictization_functions import DataError
+from ckan.lib.munge import munge_name, munge_title_to_name, munge_tag
 from ckan.logic import get_action, check_access
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.lib.jsonp import jsonpify
@@ -593,6 +594,22 @@ class ApiController(BaseController):
         return self._finish_bad_request(gettext('Bad slug type: %s') % slugtype)
             
 
+    def dataset_autocomplete(self):
+        q = request.params.get('incomplete', '')
+        q_lower = q.lower()
+        limit = request.params.get('limit', 10)
+        tag_names = []
+        if q:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+
+            data_dict = {'q': q, 'limit': limit}
+
+            package_dicts = get_action('package_autocomplete')(context, data_dict)
+
+        resultSet = {'ResultSet': {'Result': package_dicts}}
+        return self._finish_ok(resultSet)
+
     def tag_autocomplete(self):
         q = request.params.get('incomplete', '')
         limit = request.params.get('limit', 10)
@@ -601,9 +618,9 @@ class ApiController(BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
 
-            data_dict = {'q':q,'limit':limit}
+            data_dict = {'q': q, 'limit': limit}
 
-            tag_names = get_action('tag_autocomplete')(context,data_dict)
+            tag_names = get_action('tag_autocomplete')(context, data_dict)
 
         resultSet = {
             'ResultSet': {
@@ -628,3 +645,24 @@ class ApiController(BaseController):
             }
         }
         return self._finish_ok(resultSet)
+
+    def munge_package_name(self):
+        name = request.params.get('name')
+        munged_name = munge_name(name)
+        return self._finish_ok(munged_name)
+
+    def munge_title_to_package_name(self):
+        name = request.params.get('title') or request.params.get('name')
+        munged_name = munge_title_to_name(name)
+        return self._finish_ok(munged_name)        
+        
+    def munge_tag(self):
+        tag = request.params.get('tag') or request.params.get('name')
+        munged_tag = munge_tag(tag)
+        return self._finish_ok(munged_tag)
+
+    def status(self):
+        context = {'model': model, 'session': model.Session}
+        data_dict = {}
+        status = get_action('status_show')(context, data_dict)
+        return self._finish_ok(status)

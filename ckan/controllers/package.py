@@ -399,7 +399,7 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
 
         ## hack as db_to_form schema should have this
-        data['tag_string'] = ' '.join([tag['name'] for tag in data.get('tags', [])])
+        data['tag_string'] = ', '.join([tag['name'] for tag in data.get('tags', [])])
         data.pop('tags')
         data = flatten_to_string_key(data)
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
@@ -553,6 +553,7 @@ class PackageController(BaseController):
 
 
     def autocomplete(self):
+        # DEPRECATED in favour of /api/2/util/dataset/autocomplete
         q = unicode(request.params.get('q', ''))
         if not len(q): 
             return ''
@@ -566,10 +567,7 @@ class PackageController(BaseController):
 
         pkg_list = []
         for pkg in packages:
-            if pkg['name'].lower().startswith(q.lower()):
-                pkg_list.append('%s|%s' % (pkg['name'], pkg['name']))
-            else:
-                pkg_list.append('%s (%s)|%s' % (pkg['title'].replace('|', ' '), pkg['name'], pkg['name']))
+            pkg_list.append('%s|%s' % (pkg['match_displayed'].replace('|', ' '), pkg['name']))
         return '\n'.join(pkg_list)
 
     def _render_edit_form(self, fs, params={}, clear_session=False):
@@ -623,3 +621,31 @@ class PackageController(BaseController):
                 return name
             else:
                 return reference + " unknown"
+
+    def resource_read(self, id, resource_id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.resource = get_action('resource_show')(context, {'id': resource_id})
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        try:
+            c.package = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('Package not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        # get package license info
+        license_id = c.package.get('license_id')
+        try:
+            c.package['isopen'] = model.Package.get_license_register()[license_id].isopen()
+        except KeyError:
+            c.package['isopen'] = False
+
+        return render('package/resource_read.html')
+

@@ -189,7 +189,6 @@ tbody tr.table-empty td {
 }
 
 
-
 /* ==================== */
 /* Common page elements */
 /* ==================== */
@@ -295,8 +294,6 @@ tbody tr.table-empty td {
 }
 
 
-
-
 /* ============== */
 /* = Pagination = */
 /* ============== */
@@ -325,7 +322,6 @@ tbody tr.table-empty td {
 }
 
 
-
 /* ====== */
 /* Facets */
 /* ====== */
@@ -340,7 +336,6 @@ tbody tr.table-empty td {
     padding-top: 0.2em;
     color: #000; 
 }
-
 
 
 /* ======================= */
@@ -362,7 +357,6 @@ div.form-submit p.hints {
 div.clear {
   clear: both;
 }
-
 
 
 /* ============= */
@@ -498,19 +492,19 @@ form.simple-form input[type=password] {
 }
 
 
-
 /* ================================== */
 /* = Dataset/Group View: Sidebar List */
 /* ================================== */
 .property-list {
-  list-style: none;
+  list-style-type: none;
   padding-left: 3em;
 }
 .property-list li {
   margin-bottom: 0.2em;
+  list-style-type: none;
 }
 .property-list li ul {
-  margin-left: -2em;
+  margin-left: -1.5em;
 }
 .property-list li h3 {
   font-size: 1.1em;
@@ -518,7 +512,9 @@ form.simple-form input[type=password] {
   margin-bottom: 0.5em;
   margin-left: -2em;
 }
-
+.group.read .property-list li ul li {
+  margin-left: -2.5em;
+}
 
 
 /* ============== */
@@ -557,10 +553,10 @@ ul.userlist .badge {
 }
 
 
-
 /* ================== */
 /* = User Read page = */
 /* ================== */
+
 
 /* ========================= */
 /* = Dataset Snapshot View = */
@@ -676,7 +672,6 @@ ul.datasets .openness li {
     padding:0;
     border:none;    
 }
-
 
 
 /* =================== */
@@ -819,6 +814,7 @@ ul.dataset-edit-nav li a:hover {
   margin: 0 auto 10px auto;
 }
 
+
 /* ===================== */
 /* = Edit Dataset Page = */
 /* ===================== */
@@ -847,7 +843,6 @@ ul.dataset-edit-nav li a:hover {
 .dataset-edit-form .resource-add .fileinfo {
   margin: 7px 0;
 }
-
 
 
 /* ================================ */
@@ -987,13 +982,35 @@ a.url-edit {
 }
 
 
-
 /* ===================== */
 /* = Dataset View Page = */
 /* ===================== */
 body.package.read #sidebar ul.tags, 
 body.package.read #sidebar ul.groups {
   margin-bottom: 10px;
+}
+body.package.read #dataset-resources { 
+    margin-bottom: 2em; 
+}
+body.package.read .dataset-resource { 
+    margin-bottom: 1em;
+}
+body.package.read .resource-url { 
+    font-size: 1.3em;
+}
+body.package.read .resource-information {
+    padding-left: 0;
+}
+body.package.read .resource-information li {
+    display: inline;
+    margin-right: 4px;
+    padding: 2px;
+    border: none;
+    font-weight: normal;
+    color: #808080;
+}
+body.package.read .resource-format {
+    background:#ececec;
 }
 .flash-messages .success .new-dataset {
   font-size: 150%;
@@ -1002,6 +1019,39 @@ body.package.read #sidebar ul.groups {
   font-weight: bold;
 }
 
+
+/* ====================== */
+/* = Resource View Page = */
+/* ====================== */
+body.package.resource_read #sidebar { display: none; }
+body.package.resource_read #minornavigation { display: none; }
+body.package.resource_read #content { 
+    border-right: 0; 
+    width: 950px; 
+}
+body.package.resource_read #dataset-license img { vertical-align: top; }
+body.package.resource_read #resource-main-information { margin-bottom: 2em; }
+body.package.resource_read #resource-actions { margin-bottom: 2em; }
+body.package.resource_read #resource-actions a { color: #222; }
+body.package.resource_read #resource-description { margin-bottom: 2em; }
+body.package.resource_read #dataset-description { margin-bottom: 2em; }
+body.package.resource_read #resource-explore { margin-bottom: 2em; }
+body.package.resource_read #resource-information-list { 
+    border: 1px solid #E0E0E0; 
+    padding: 10px;
+}
+body.package.resource_read #resource-information dt
+{
+    width: 10em;
+    float: left;
+	font-weight: bold;
+    text-align: right;
+}
+body.package.resource_read #resource-information dd
+{
+	margin-left: 14em;
+    margin-bottom: 1em;
+}
 
 
 /* ================== */
@@ -1019,6 +1069,12 @@ body.package.read #sidebar ul.groups {
 }
 
 
+/* ============== */
+/* = About Page = */
+/* ============== */
+body.about #content { border-right: 0; }
+body.about #minornavigation { border: 0; }
+
 
 /* ============== */
 /* = Admin Page = */
@@ -1028,7 +1084,6 @@ body.admin form#form-purge-revisions {
   margin-bottom: 30px;
   text-align: right;
 }
-
 
 
 /* ======================= */
@@ -1041,7 +1096,6 @@ body.authz form {
 body.authz form button {
   min-width: 120px;
 }
-
 
 
 /* ================== */

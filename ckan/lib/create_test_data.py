@@ -90,7 +90,7 @@ class CreateTestData(cli.CkanCommand):
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],
             extra_user_names=[], extra_group_names=[], 
-            commit_changesets=False, admins=[]):
+            admins=[]):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
@@ -260,9 +260,6 @@ class CreateTestData(cli.CkanCommand):
 
             model.repo.commit_and_remove()
         
-        if commit_changesets:
-            from ckan.model.changeset import ChangesetRegister
-            changeset_ids = ChangesetRegister().commit()
 
     @classmethod
     def create_groups(cls, group_dicts, admin_user_name=None):
@@ -298,7 +295,7 @@ class CreateTestData(cli.CkanCommand):
         model.repo.commit_and_remove()
 
     @classmethod
-    def create(cls, commit_changesets=False):
+    def create(cls):
         import ckan.model as model
         model.Session.remove()
         rev = model.repo.new_revision()
@@ -363,11 +360,16 @@ left arrow <
         pkg2 = model.Package(name=cls.pkg_names[1])
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
-        for obj in [pkg2, tag1, tag2]:
+
+        # Flexible tag, allows spaces, upper-case,
+        # and all punctuation except commas
+        tag3 = model.Tag(name=u'Flexible \u30a1')
+
+        for obj in [pkg2, tag1, tag2, tag3]:
             model.Session.add(obj)
-        pkg1.tags = [tag1, tag2]
-        pkg2.tags = [ tag1 ]
-        cls.tag_names = [u'russian', u'tolstoy']
+        pkg1.tags = [tag1, tag2, tag3]
+        pkg2.tags = [ tag1, tag3 ]
+        cls.tag_names = [ t.name for t in (tag1, tag2, tag3) ]
         pkg1.license_id = u'other-open'
         pkg2.license_id = u'cc-nc' # closed license
         pkg2.title = u'A Wonderful Story'
@@ -416,10 +418,6 @@ left arrow <
         model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
 
         model.repo.commit_and_remove()
-
-        if commit_changesets:
-            from ckan.model.changeset import ChangesetRegister
-            changeset_ids = ChangesetRegister().commit()
 
         # Create a couple of authorization groups
         for ag_name in [u'anauthzgroup', u'anotherauthzgroup']:
@@ -524,7 +522,7 @@ left arrow <
 search_items = [{'name':'gils',
               'title':'Government Information Locator Service',
               'url':'',
-              'tags':'registry  country-usa  government  federal  gov  workshop-20081101 penguin',
+              'tags':'registry,country-usa,government,federal,gov,workshop-20081101,penguin'.split(','),
               'resources':[{'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/SFR17_2009_tables.xls',
                           'format':'XLS',
                           'last_modified': datetime.datetime(2005,10,01),
@@ -548,7 +546,7 @@ u with umlaut th\xfcmb
               'title':'U.S. Government Photos and Graphics',
               'url':'http://www.usa.gov/Topics/Graphics.shtml',
               'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
-              'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov penguin',
+              'tags':'images,graphics,photographs,photos,pictures,us,usa,america,history,wildlife,nature,war,military,todo split,gov,penguin'.split(','),
               'groups':'ukgov test1 penguin',
               'license':'other-open',
               'notes':'''## About
@@ -564,7 +562,7 @@ Collection of links to different US image collections in the public domain.
               'title':'Text of US Federal Cases',
               'url':'http://bulk.resource.org/courts.gov/',
               'download_url':'http://bulk.resource.org/courts.gov/',
-              'tags':'us  courts  case-law  us  courts  case-law  gov  legal  law  access-bulk  penguins penguin',
+              'tags':'us,courts,case-law,us,courts,case-law,gov,legal,law,access-bulk,penguins,penguin'.split(','),
               'groups':'ukgov test2 penguin',
               'license':'cc-zero',
               'notes':'''### Description
@@ -579,7 +577,7 @@ penguin
               },
              {'name':'uk-government-expenditure',
               'title':'UK Government Expenditure',
-              'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding penguin',
+              'tags':'workshop-20081101,uk,gov,expenditure,finance,public,funding,penguin'.split(','),
               'groups':'ukgov penguin',              
               'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
@@ -590,7 +588,7 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
               'title':'Sweden - Government Offices of Sweden - Publications',
               'url':'http://www.sweden.gov.se/sb/d/574',
               'groups':'penguin',              
-              'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency penguin',
+              'tags':u'country-sweden,format-pdf,access-www,documents,publications,government,eutransparency,penguin,CAPITALS,surprise.,greek omega \u03a9,japanese katakana \u30a1'.split(','),
               'license':'',
               'notes':'''### About
 
@@ -606,7 +604,7 @@ Not clear.''',
               'groups':'penguin',              
               'url':'http://www.opengov.se/',
               'download_url':'http://www.opengov.se/data/open/',
-              'tags':'country-sweden  government  data penguin',
+              'tags':'country-sweden,government,data,penguin'.split(','),
               'license':'cc-by-sa',
               'notes':'''### About
 

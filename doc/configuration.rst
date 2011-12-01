@@ -238,6 +238,41 @@ To customise the display of CKAN you can supply replacements for static files su
 
 For more information on theming, see :doc:`theming`.
 
+template_head_end
+^^^^^^^^^^^^^^^^^
+
+HTML content to be inserted just before ``</head>`` tag (e.g. extra stylesheet)
+
+Example::
+
+  ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css"> 
+
+You can also have multiline strings. Just indent following lines. e.g.::
+
+ ckan.template_head_end = 
+  <link rel="stylesheet" href="/css/extra1.css" type="text/css"> 
+  <link rel="stylesheet" href="/css/extra2.css" type="text/css"> 
+
+template_footer_end
+^^^^^^^^^^^^^^^^^^^
+
+HTML content to be inserted just before ``</body>`` tag (e.g. Google Analytics code).
+
+.. note:: you can have multiline strings (just indent following lines)
+
+Example (showing insertion of Google Analytics code)::
+
+  ckan.template_footer_end = <!-- Google Analytics -->
+    <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
+    <script type="text/javascript">
+    try {
+    var pageTracker = _gat._getTracker("XXXXXXXXX");
+    pageTracker._setDomainName(".ckan.net");
+    pageTracker._trackPageview();
+    } catch(err) {}
+    </script>
+    <!-- /Google Analytics -->
+
 
 Form Settings
 -------------
@@ -534,24 +569,4 @@ Example::
   ckan.backup_dir = /var/backups/ckan/
 
 This is a directory where SQL database backups are to be written, assuming a script has been installed to do this.
-
-template_footer_end
-^^^^^^^^^^^^^^^^^^^
-
-HTML content to be inserted just before </body> tag (e.g. google analytics code).
-
-.. note:: can use html e.g. <strong>blah</strong> and can have multiline strings (just indent following lines)
-
-Example (showing insertion of google analytics code)::
-
-  ckan.template_footer_end = <!-- Google Analytics -->
-    <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
-    <script type="text/javascript">
-    try {
-    var pageTracker = _gat._getTracker("XXXXXXXXX");
-    pageTracker._setDomainName(".ckan.net");
-    pageTracker._trackPageview();
-    } catch(err) {}
-    </script>
-    <!-- /Google Analytics -->
 

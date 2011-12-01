@@ -325,9 +325,11 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 | q                     | Search-String || q=geodata                       | Criteria to search the dataset   |
 |                       |               || q=government+sweden             | fields for. URL-encoded search   |
 |                       |               || q=%22drug%20abuse%22            | text. (You can also concatenate  |
-|                       |               |                                  | words with a '+' symbol in a     |
+|                       |               || q=tags:"river pollution"        | words with a '+' symbol in a     |
 |                       |               |                                  | URL.) Search results must contain|
-|                       |               |                                  | all the specified words.         |
+|                       |               |                                  | all the specified words.  You    |
+|                       |               |                                  | can also search within specific  |
+|                       |               |                                  | fields.                          |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | qjson                 | JSON encoded  | ['q':'geodata']                  | All search parameters can be     |
 |                       | options       |                                  | json-encoded and supplied to this|
@@ -336,8 +338,8 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 +-----------------------+---------------+----------------------------------+----------------------------------+
 |title,                 | Search-String || title=uk&amp;tags=health        | Search in a particular a field.  |
 |tags, notes, groups,   |               || department=environment          |                                  |
-|author, maintainer,    |               |                                  |                                  |
-|update_frequency, or   |               |                                  |                                  |
+|author, maintainer,    |               || tags=health&tags=pollution      |                                  |
+|update_frequency, or   |               || tags=river%20pollution          |                                  |
 |any 'extra' field name |               |                                  |                                  |
 |e.g. department        |               |                                  |                                  |
 +-----------------------+---------------+----------------------------------+----------------------------------+
@@ -355,7 +357,9 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 |                       |               |                                  | (1).                             |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 
-.. Note: filter_by_openness and filter_by_downloadable were dropped from CKAN version 1.5 onwards.
+.. Note::
+
+ filter_by_openness and filter_by_downloadable were dropped from CKAN version 1.5 onwards.
 
 
 **Resource Parameters**
@@ -390,7 +394,7 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 |                       | limit=20)     |                                         | return.                          |
 +-----------------------+---------------+-----------------------------------------+----------------------------------+
 
-.. note::
+.. Note::
 
    Powerful searching from the command-line can be achieved with curl and the qjson parameter. In this case you need to remember to escapt the curly braces and use url encoding (e.g. spaces become ``%20``). For example::
 
@@ -482,55 +486,37 @@ This parameter can apply to all GET requests in the API.
 Util API
 ~~~~~~~~
 
-Some of CKAN's client-side Javascript code makes calls to the CKAN API. For
-example, to generate a suggestion for a dataset name when adding a new dataset
-the following API call is made:
+These utilities don't involve the CKAN database, but can be useful to scripts and code on the Web front-end (i.e. AJAX calls). 
 
-::
+The response format is JSON. Javascript calls may want to use the JSONP formatting.
 
-    /api/2/util/dataset/create_slug?title=Dataset+1+Title+Typed+So+Far
+.. Note::
 
-The return value is a JSON data structure:
+  Some CKAN deployments have the API deployed at a different domain to the main CKAN website. To make sure that the AJAX calls in the Web UI work, you'll need to configue the ckan.api_url. e.g.::
 
-::
+    ckan.api_url = http://api.example.com/
 
-    {"valid": true, "name": "dataset_1_title_typed_so_far"}
 
-These are the keys returned:
+dataset autocomplete
+````````````````````
 
-``valid`` 
-
-    Can be ``True`` or ``False``. It is ``true`` when the title entered can be
-    successfully turned into a dataset name and when that dataset name is not
-    already being used. It is ``false`` otherwise.
-
-``name``
-
-    The suggested name for the dataset, based on the title
-
-You can also add ``callback=callback`` to have the response returned as JSONP. eg:
+There an autocomplete API for package names which matches on name or title.
 
 This URL:
 
 ::
 
-    /api/2/util/dataset/create_slug?title=Dataset+1+Title+Typed+So+Far&callback=callback
+    /api/2/util/dataset/autocomplete?incomplete=a%20novel
 
 Returns:
 
 ::
 
-    callback({"valid": true, "name": "dataset_1_title_typed_so_far"});
+    {"ResultSet": {"Result": [{"match_field": "title", "match_displayed": "A Novel By Tolstoy (annakarenina)", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}
 
-In some CKAN deployments you may have the API deployed at a different domain
-from the main CKAN code. In these circumstances you'll need to add a new option
-to the config file to tell the new dataset form where it should make its API
-requests to:
 
-::
-
-    ckan.api_url = http://api.example.com/
-
+tag autocomplete
+````````````````
 
 There is also an autocomplete API for tags which looks like this:
 
@@ -546,6 +532,9 @@ Returns:
 
     {"ResultSet": {"Result": [{"Name": "russian"}]}}
 
+resource format autocomplete
+````````````````````````````
+
 Similarly, there is an autocomplete API for the resource format field
 which is available at:
 
@@ -559,6 +548,65 @@ This returns:
 
     {"ResultSet": {"Result": [{"Format": "csv"}]}}
 
+markdown
+````````
+
+Takes a raw markdown string and returns a corresponding chunk of HTML. CKAN uses the basic Markdown format with some modifications (for security) and useful additions (e.g. auto links to datasets etc. e.g. ``dataset:river-quality``).
+
+Example::
+
+    /api/util/markdown?q=<http://ibm.com/>
+
+Returns::
+
+    "<p><a href="http://ibm.com/" target="_blank" rel="nofollow">http://ibm.com/</a>\n</p>"
+
+is slug valid
+`````````````
+
+Checks a name is valid for a new dataset (package) or group, with respect to it being used already.
+
+Example::
+
+    /api/2/util/is_slug_valid?slug=river-quality&type=package
+
+Response::
+
+    {"valid": true}
+
+munge package name
+``````````````````
+
+For taking an readable identifier and munging it to ensure it is a valid dataset id. Symbols and whitespeace are converted into dashes. Example::
+
+    /api/util/dataset/munge_name?name=police%20spending%20figures%202009
+
+Returns::
+
+    "police-spending-figures-2009"
+
+munge title to package name
+```````````````````````````
+
+For taking a title of a package and munging it to a readable and valid dataset id. Symbols and whitespeace are converted into dashes, with multiple dashes collapsed. Ensures that long titles with a year at the end preserves the year should it need to be shortened. Example::
+
+    /api/util/dataset/munge_title_to_name?title=police:%20spending%20figures%202009
+
+Returns::
+
+    "police-spending-figures-2009"
+
+
+munge tag
+`````````
+
+For taking a readable word/phrase and munging it to a valid tag (name). Symbols and whitespeace are converted into dashes. Example::
+
+    /api/util/tag/munge?tag=water%20quality
+
+Returns::
+
+    "water-quality"
 
 Action API
 ~~~~~~~~~~
