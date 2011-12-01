@@ -933,4 +933,3 @@ class TestActionPackageSearch(WsgiAppCase):
                             status=400)
         assert '"message": "Search Query is invalid:' in res.body, res.body
         assert '"Invalid search parameters: [u\'weird_param\']' in res.body, res.body
-
