@@ -9,6 +9,7 @@ from ckan.lib.dictization.model_dictize import resource_dictize
 import ckan.model as model
 from ckan.tests import WsgiAppCase
 from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering
+from ckan.tests import setup_test_search_index, search_related
 from ckan.logic import get_action, NotAuthorized
 
 class TestAction(WsgiAppCase):
@@ -1088,3 +1089,46 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/package_list', params=postparams,
                             status=400)
         assert "Bad request - Bad request data: Request data JSON decoded to '' but it needs to be a dictionary." in res.body, res.body
+
+class TestActionPackageSearch(WsgiAppCase):
+
+    @classmethod
+    def setup_class(self):
+        setup_test_search_index()
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_1_basic(self):
+        postparams = '%s=1' % json.dumps({
+                'q':'tolstoy',
+                'facet.field': ('groups', 'tags', 'res_format', 'license'),
+                'rows': 20,
+                'start': 0,
+            })
+        res = self.app.post('/api/action/package_search', params=postparams)
+        res = json.loads(res.body)
+        result = res['result']
+        assert_equal(res['success'], True)
+        assert_equal(result['count'], 1)
+        assert_equal(result['results'][0]['name'], 'annakarenina')
+
+    def test_2_bad_param(self):
+        postparams = '%s=1' % json.dumps({
+                'sort':'metadata_modified',
+            })
+        res = self.app.post('/api/action/package_search', params=postparams,
+                            status=409)
+        assert '"message": "Search error:' in res.body, res.body
+        assert 'Search error: HTTP code=400, Reason=Missing sort order.' in res.body, res.body
+
+    def test_3_bad_param(self):
+        postparams = '%s=1' % json.dumps({
+                'weird_param':True,
+            })
+        res = self.app.post('/api/action/package_search', params=postparams,
+                            status=400)
+        assert '"message": "Search Query is invalid:' in res.body, res.body
+        assert '"Invalid search parameters: [u\'weird_param\']' in res.body, res.body
