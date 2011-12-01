@@ -105,7 +105,7 @@ class ManageDb(CkanCommand):
         elif cmd == 'load':
             self.load(cmd)
         elif cmd == 'load-only':
-            self.load(cmd, only_load=True)
+            self.load(only_load=True)
         elif cmd == 'simple-dump-csv':
             self.simple_dump_csv(cmd)
         elif cmd == 'simple-dump-json':
