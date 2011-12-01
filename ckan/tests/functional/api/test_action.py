@@ -1076,3 +1076,15 @@ class TestAction(WsgiAppCase):
         assert_equal(status['site_title'], 'CKAN')
         assert_equal(status['ckan_version'], ckan.__version__)
         assert_equal(status['site_url'], 'http://test.ckan.net')
+
+    def test_31_bad_request_format(self):
+        postparams = '%s=1' % json.dumps('not a dict')
+        res = self.app.post('/api/action/package_list', params=postparams,
+                            status=400)
+        assert 'Request data JSON decoded to u\'not a dict\' but it needs to be a dictionary.' in res.body, res.body
+
+    def test_31_bad_request_format_not_json(self):
+        postparams = '=1'
+        res = self.app.post('/api/action/package_list', params=postparams,
+                            status=400)
+        assert "Bad request - Bad request data: Request data JSON decoded to '' but it needs to be a dictionary." in res.body, res.body
