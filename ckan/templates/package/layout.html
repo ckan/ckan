@@ -9,9 +9,18 @@
     <py:if test="c.pkg">
     <ul class="tabbed">
       <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}">${h.subnav_link(c, h.icon('package') + _('View'), controller='package', action='read', id=c.pkg.name)}</li>
-      <li py:attrs="{'class':'current-tab'} if c.action=='resource_read' else
-      {}">${h.subnav_link(c, h.icon('package') + _('Resource'),
-      controller='package', action='read', id=c.pkg.name, anchor='dataset-resources')}</li>
+      <li class="dropdown" py:attrs="{'class':'current-tab dropdown'} if c.action=='resource_read' else {'class':'dropdown'}">
+        <div class="dropdown-appears">
+          <div class="dropdown-items">
+            <py:for each="res in c.pkg_dict.get('resources', [])">
+              <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_display_name(res)}</a>
+            </py:for>
+          </div>
+        </div>
+        <div class="dropdown-appears"><div class="white-box"></div></div>
+        ${h.subnav_link(c, h.icon('package') + _('Resources'),
+        controller='package', action='read', id=c.pkg.name, anchor='dataset-resources')}
+        &nbsp;&nbsp;<img src="/images/icons/arrow-open.gif"/></li>
       <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}" py:if="h.check_access('package_update',{'id':c.pkg.id})">
           ${h.subnav_link(c, h.icon('package_edit') + _('Edit'), controller='package', action='edit', id=c.pkg.name)}
       </li>

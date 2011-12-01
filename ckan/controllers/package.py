@@ -360,6 +360,7 @@ class PackageController(BaseController):
             if schema and not data:
                 old_data, errors = validate(old_data, schema, context=context)
             data = data or old_data
+            c.pkg_dict = data
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
@@ -532,6 +533,7 @@ class PackageController(BaseController):
             context = {'model':model,'user':c.user or c.author, 'package':pkg}
             check_access('package_edit_permissions',context)
             c.authz_editable = True
+            c.pkg_dict = get_action('package_show')(context, {'id': id})
         except NotAuthorized:
             c.authz_editable = False
         if not c.authz_editable:
@@ -634,6 +636,7 @@ class PackageController(BaseController):
             # required for nav menu
             c.pkg = c.package
             c.resource_json = json.dumps(c.resource)
+            c.pkg_dict = c.package
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
