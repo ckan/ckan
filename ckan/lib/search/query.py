@@ -224,6 +224,14 @@ class PackageSearchQuery(SearchQuery):
         return [r.get('id') for r in data.results]
 
     def run(self, query):
+        '''
+        Performs a dataset search using the given query.
+
+        @param query - dictionary with keys like: q, fq, sort, rows, facet
+        @return - dictionary with keys results and count
+        
+        May raise SearchQueryError or SearchError.
+        '''
         assert isinstance(query, (dict, MultiDict))
         # check that query keys are valid
         if not set(query.keys()) <= VALID_SOLR_PARAMETERS:
