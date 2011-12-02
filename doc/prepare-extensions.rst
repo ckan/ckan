@@ -16,7 +16,7 @@ Then, you need to install the CKAN source into your virtual environment. You can
 
 ::
 
-	pip install -e hg+http://bitbucket.org/okfn/ckan#egg=ckan
+	pip install -e git+http://github.com/okfn/ckan#egg=ckan
 	
 Your new CKAN developer install will be running on http://localhost:5000/
 		
@@ -24,7 +24,7 @@ When you start using extensions, you should install any of the developer version
 
 ::
 
-    pip install -e hg+http://bitbucket.org/okfn/<dependency-name>@<version>#egg=<egg-name>
+    pip install -e git+http://github.com/okfn/<dependency-name>@<version>#egg=<egg-name>
 
 The dependency you've installed will appear in ``/home/ubuntu/pyenv/src/`` where you can work on it. 
 
