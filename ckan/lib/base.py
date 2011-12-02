@@ -182,12 +182,13 @@ class BaseController(WSGIController):
             try:
                 request_data = json.loads(request_data, encoding='utf8')
             except ValueError, e:
-                raise ValueError, 'Error parsing JSON data. ' \
+                raise ValueError, 'Error decoding JSON data. ' \
                                     'Error: %r ' \
-                                    'JSON (Decoded and re-encoded): %r' % \
+                                    'JSON data extracted from the request: %r' % \
                                     (e, request_data)
             if not isinstance(request_data, dict):
-                raise ValueError, "Request params must be in form of a json encoded dictionary."
+                raise ValueError, 'Request data JSON decoded to %r but ' \
+                                  'it needs to be a dictionary.' % request_data
             # ensure unicode values
             for key, val in request_data.items():
                 # if val is str then assume it is ascii, since json converts
