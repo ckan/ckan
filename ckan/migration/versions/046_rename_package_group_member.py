@@ -41,10 +41,12 @@ ALTER TABLE "member"
 
 ALTER TABLE "member"
 	ADD COLUMN table_name text;
+ALTER TABLE "member"
 	ADD COLUMN capacity text;
 
-ALTER TABLE member_revision
+ALTER TABLE "member_revision"
 	ADD COLUMN table_name text;
+ALTER TABLE "member_revision"
 	ADD COLUMN capacity text;
 
 ALTER TABLE "member"
@@ -68,16 +70,34 @@ ALTER TABLE member_revision
 ALTER TABLE member_revision
 	ADD CONSTRAINT member_revision_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
 
+ALTER TABLE "group"
+	ADD COLUMN "type" text;
+ALTER TABLE "group_revision"
+	ADD COLUMN "type" text;
+
 update member set table_name = 'package', capacity = 'member';
 update member_revision set table_name = 'package', capacity = 'member';
 
+update "group" set type = 'collection';
+update group_revision set type = 'collection';
+
+
 ALTER TABLE "member"
-	ALTER COLUMN  table_name set not null
+	ALTER COLUMN  table_name set not null;
+ALTER TABLE "member"
 	ALTER COLUMN  capacity set not null;
 
 ALTER TABLE member_revision
-	ALTER COLUMN table_name set not null
+	ALTER COLUMN table_name set not null;
+ALTER TABLE "member_revision"
 	ALTER COLUMN capacity set not null;
+
+ALTER TABLE "group"
+	ALTER COLUMN "type" set not null;
+ALTER TABLE "group_revision"
+	ALTER COLUMN "type" set not null;
+
+
 COMMIT;
     '''
     )

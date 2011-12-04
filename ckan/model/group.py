@@ -41,6 +41,15 @@ group_revision_table = make_revisioned_table(group_table)
 class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
+    def __init__(self, group=None, table_id=None, group_id=None,
+                 table_name=None, capacity='member'):
+        self.group = group
+        self.group_id = group_id
+        self.table_id = table_id
+        self.table_name = table_name
+        self.capacity = capacity
+
+        
     def related_packages(self):
         # TODO do we want to return all related packages or certain ones?
         return Session.query(Package).filter_by(id=self.table_id).all()
@@ -48,10 +57,11 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
             DomainObject):
-    def __init__(self, name=u'', title=u'', description=u''):
+    def __init__(self, name=u'', title=u'', description=u'', type=u'collection'):
         self.name = name
         self.title = title
         self.description = description
+        self.type = type
 
     @property
     def display_name(self):
