@@ -25,9 +25,10 @@
           </div>
         </div>
         <div class="dropdown-appears"><div class="white-box"></div></div>
-        ${h.subnav_link(c, h.icon('package') + _('Resources'),
-        controller='package', action='read', id=c.pkg.name, anchor='dataset-resources')}
+        <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=c.pkg_dict.get('resources', [])[0]['id'])}">
+          ${h.icon('package') + _('Resources')}</a>
         &nbsp;&nbsp;<img class="dropdown-arrow" src="/images/icons/arrow-open.gif"/>
+
         </li>
       </py:otherwise>
       </py:choose>
