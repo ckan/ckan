@@ -1,12 +1,12 @@
 CKAN SOLR schemas changelog
 ===========================
 
-v1.3 - (ckan>=1.5.2)
+v1.3 - (ckan>=1.5.1)
 --------------------
 * Use the index_id (hash of dataset id + site_id) as uniqueKey (#1430)
 * Store extras (#1455)
 * Store dataset creation and modification date (#191)
 
-v1.2 - (ckan<=1.5.1)
+v1.2 - (ckan<=1.5)
 --------------------
 * Original version
