@@ -252,7 +252,8 @@ tbody tr.table-empty td {
   text-decoration: none;
   font-weight: bold;
 }
-#minornavigation li a img {
+#minornavigation li a img,
+#minornavigation li.disabled img:first-child {
   margin-bottom: -4px;
   padding-right: 5px;
 }
@@ -264,6 +265,10 @@ tbody tr.table-empty td {
 #minornavigation .divider {
   font-size: 14px;
   color: #888;
+}
+#minornavigation li.disabled {
+  font-weight: bold;
+  color: #777;
 }
 
 /* ======================================== */
