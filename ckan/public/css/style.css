@@ -261,6 +261,10 @@ tbody tr.table-empty td {
 #minornavigation li.current-tab a:visited {
   color: #222;
 }
+#minornavigation .divider {
+  font-size: 14px;
+  color: #888;
+}
 
 /* ======================================== */
 /* MinorNavigation extension: Dropdown Menu */
