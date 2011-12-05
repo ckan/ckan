@@ -131,10 +131,10 @@
     <field name="linked_from" type="text" indexed="true" stored="false" multiValued="true"/>
     <field name="child_of" type="text" indexed="true" stored="false" multiValued="true"/>
     <field name="parent_of" type="text" indexed="true" stored="false" multiValued="true"/>
+    <field name="extras_*" type="text" indexed="true" stored="false" multiValued="true"/>
 
     <field name="indexed_ts" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
 
-    <dynamicField name="extras_*" type="text" indexed="true" stored="true" multiValued="false"/>
     <dynamicField name="*" type="string" indexed="true"  stored="false"/>
 </fields>
 

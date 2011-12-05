@@ -15,6 +15,8 @@ log = logging.getLogger(__name__)
 
 SIMPLE_SEARCH = config.get('ckan.simple_search', False)
 
+SUPPORTED_SCHEMA_VERSIONS = ['1.3']
+
 DEFAULT_OPTIONS = {
     'limit': 20,
     'offset': 0,
@@ -36,6 +38,8 @@ _QUERIES = {
     'resource': ResourceSearchQuery,
     'package': PackageSearchQuery
 }
+
+SOLR_SCHEMA_FILE_OFFSET = '/admin/file/?file=schema.xml'
 
 if SIMPLE_SEARCH:
     import sql as sql
@@ -83,7 +87,7 @@ def dispatch_by_operation(entity_type, entity, operation):
         # we really need to know about any exceptions, so reraise
         # (see #1172)
         raise
-        
+
 
 class SynchronousSearchPlugin(SingletonPlugin):
     """Update the search index automatically."""
@@ -94,7 +98,7 @@ class SynchronousSearchPlugin(SingletonPlugin):
             return
         if operation != DomainObjectOperation.deleted:
             dispatch_by_operation(
-                entity.__class__.__name__, 
+                entity.__class__.__name__,
                 get_action('package_show_rest')(
                     {'model': model, 'ignore_auth': True},
                     {'id': entity.id}
@@ -102,7 +106,7 @@ class SynchronousSearchPlugin(SingletonPlugin):
                 operation
             )
         elif operation == DomainObjectOperation.deleted:
-            dispatch_by_operation(entity.__class__.__name__, 
+            dispatch_by_operation(entity.__class__.__name__,
                                   {'id': entity.id}, operation)
         else:
             log.warn("Discarded Sync. indexing for: %s" % entity)
@@ -112,7 +116,7 @@ def rebuild(package=None):
     log.debug("Rebuilding search index...")
 
     package_index = index_for(model.Package)
-    
+
     if package:
         pkg_dict = get_action('package_show_rest')(
             {'model': model, 'ignore_auth': True},
@@ -157,3 +161,58 @@ def clear():
     log.debug("Clearing search index...")
     package_index = index_for(model.Package)
     package_index.clear()
+
+
+def check_solr_schema_version(schema_file=None):
+    '''
+        Checks if the schema version of the SOLR server is compatible
+        with this CKAN version.
+
+        The schema will be retrieved from the SOLR server, using the
+        offset defined in SOLR_SCHEMA_FILE_OFFSET
+        ('/admin/file/?file=schema.xml'). The schema_file parameter
+        allows to override this pointing to different schema file, but
+        it should only be used for testing purposes.
+
+        If the CKAN instance is configured to not use SOLR or the SOLR
+        server is not available, the function will return False, as the
+        version check does not apply. If the SOLR server is available,
+        a SearchError exception will be thrown if the version could not
+        be extracted or it is not included in the supported versions list.
+
+        :schema_file: Absolute path to an alternative schema file. Should
+                      be only used for testing purposes (Default is None)
+    '''
+
+    if SIMPLE_SEARCH:
+        # Not using the SOLR search backend
+        return False
+
+    if not is_available():
+        # Something is wrong with the SOLR server
+        log.warn('Problems were found while connecting to the SOLR server')
+        return False
+
+    # Try to get the schema XML file to extract the version
+    if not schema_file:
+        solr_url = config.get('solr_url', DEFAULT_SOLR_URL)
+        url = solr_url.strip('/') + SOLR_SCHEMA_FILE_OFFSET
+    else:
+        url = 'file://%s' % schema_file
+
+    import urllib2
+    from lxml import etree
+
+    res = urllib2.urlopen(url)
+
+    tree = etree.fromstring(res.read())
+
+    version = tree.xpath('//schema/@version')
+    if not len(version):
+        raise SearchError('Could not extract version info from the SOLR schema, using file: \n%s' % url)
+    version = version[0]
+
+    if not version in SUPPORTED_SCHEMA_VERSIONS:
+        raise SearchError('SOLR schema version not supported: %s. Supported versions are [%s]'
+                % (version,', '.join(SUPPORTED_SCHEMA_VERSIONS)))
+    return True
