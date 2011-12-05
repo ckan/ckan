@@ -628,7 +628,7 @@ class DatasetCmd(CkanCommand):
         
 
 class Celery(CkanCommand):
-    '''Run celery deamon
+    '''Run celery daemon
 
     Usage:
         celeryd
