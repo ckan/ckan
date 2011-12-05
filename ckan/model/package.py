@@ -1,11 +1,13 @@
 import datetime
 from time import gmtime
 from calendar import timegm
+import logging
+logger = logging.getLogger(__name__)
 
 from sqlalchemy.sql import select, and_, union, expression, or_
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import types, Column, Table
-from pylons import config
+from pylons import config, session, c, request
 from meta import metadata, Session
 import vdm.sqlalchemy
 
@@ -14,6 +16,7 @@ from core import make_revisioned_table, Revision, State
 from license import License, LicenseRegister
 from domain_object import DomainObject
 import ckan.misc
+from activity import Activity, ActivityDetail
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
@@ -50,7 +53,7 @@ package_revision_table = make_revisioned_table(package_table)
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
-    
+
     text_search_fields = ['name', 'title']
 
     def __init__(self, **kw):
@@ -534,3 +537,31 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return fields
 
+    def activity_stream_item(self, activity_type, revision_id):
+        try:
+            user_id = c.user_obj.id
+        except TypeError:
+            # Cannot access user ID through Pylons context, try to get their IP
+            # address instead.
+            try:
+                user_id = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
+            except TypeError:
+                # Cannot access user IP address through Pylons request,
+                # fallback on a default value.
+                user_id = 'Unknown IP Address'
+        logger.debug("user_id: %s" % user_id)
+        assert activity_type in ("new", "changed", "deleted"), \
+            str(activity_type)
+        if activity_type == "new":
+            return Activity(user_id, self.id, revision_id, "new package",
+                None)
+        elif activity_type == "changed":
+            return Activity(user_id, self.id, revision_id, "changed package",
+                None)
+        elif activity_type == "deleted":
+            return Activity(user_id, self.id, revision_id, "deleted package",
+                None)
+
+    def activity_stream_detail(self, activity_id, activity_type):
+        return ActivityDetail(activity_id, self.id, u"Package", activity_type, 
+            data=None)
