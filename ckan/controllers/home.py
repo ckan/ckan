@@ -64,7 +64,9 @@ class HomeController(BaseController):
         if c.userobj is not None:
             msg = None
             url = url_for(controller='user', action='edit')
-            if not c.userobj.email and not c.userobj.fullname:
+            is_google_id = \
+                c.userobj.name.startswith('https://www.google.com/accounts/o8/id')
+            if not c.userobj.email and (is_google_id and not c.userobj.fullname):
                 msg = _('Please <a href="%s">update your profile</a>'
                     ' and add your email address and your full name. %s uses'
                     ' your email address to send you notifications and'
@@ -75,7 +77,7 @@ class HomeController(BaseController):
                     ' and add your email address. %s uses your email address'
                     ' to send you notifications and updates, and to let you'
                     ' reset your password.''') % (url, g.site_title)
-            elif not c.userobj.fullname:
+            elif is_google_id and not c.userobj.fullname:
                 msg = _('Please <a href="%s">update your profile</a>'
                     ' and add your full name.') % (url)
             if msg:

@@ -161,7 +161,29 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         user2 = model.user.User(name='user2', fullname="user 2's full name")
         user3 = model.user.User(name='user3', email='user3@testusers.org')
         user4 = model.user.User(name='user4')
-        users = (user1, user2, user3, user4)
+
+        # Some test users with Google OpenIDs.
+        user5 = model.user.User(
+                    name='https://www.google.com/accounts/o8/id/id=ACyQatixLeL'
+                         'ODscWvwqsCXWQ2sa3RRaBhaKTkcsvUElI6tNHIQ1_egX_wt1x3fA'
+                         'Y983DpW4UQV_U',
+                    fullname="user 5's full name", email="user5@testusers.org")
+        user6 = model.user.User(
+                    name='https://www.google.com/accounts/o8/id/id=ACyQatixLeL'
+                         'ODscWvwqsCXWQ2sa3RRaBhaKTkcsvUElI6tNHIQ1_egX_wt1x3fA'
+                         'Y983DpW4UQV_J',
+                    fullname="user 6's full name")
+        user7 = model.user.User(
+                    name='https://www.google.com/accounts/o8/id/id=AItOawl27F2'
+                         'M92ry4jTdjiVx06tuFNA',
+                    email='user7@testusers.org')
+        user8 = model.user.User(
+                    name='https://www.google.com/accounts/o8/id/id=AItOawl27F2'
+                         'M92ry4jTdjiVx06tuFNs'
+                    )
+
+        users = (user1, user2, user3, user4, user5, user6, user7, user8)
+        google_users = (user5, user6, user7, user8)
 
         for user in users:
             model.repo.new_revision()
@@ -174,25 +196,37 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
             model.repo.new_revision()
             model.Session.add(user)
 
-            if not user.email and not user.fullname:
-                assert email_and_fullname_notice in response
-                assert email_notice not in response
-                assert fullname_notice not in response
-
-            elif user.email and not user.fullname:
-                assert email_notice not in response
-                assert fullname_notice in response
-                assert email_and_fullname_notice not in response
-
-            elif not user.email and user.fullname:
-                assert email_notice in response
-                assert fullname_notice not in response
-                assert email_and_fullname_notice not in response
-
-            elif user.email and user.fullname:
-                assert email_notice not in response
-                assert fullname_notice not in response
-                assert email_and_fullname_notice not in response
+            if user in google_users:
+                # Users with Google OpenIDs are asked to give their email if
+                # they don't have one and to enter a full name if they don't
+                # have one.
+                if not user.email and not user.fullname:
+                    assert email_and_fullname_notice in response
+                    assert email_notice not in response
+                    assert fullname_notice not in response
+                elif user.email and not user.fullname:
+                    assert email_notice not in response
+                    assert fullname_notice in response
+                    assert email_and_fullname_notice not in response
+                elif not user.email and user.fullname:
+                    assert email_notice in response
+                    assert fullname_notice not in response
+                    assert email_and_fullname_notice not in response
+                elif user.email and user.fullname:
+                    assert email_notice not in response
+                    assert fullname_notice not in response
+                    assert email_and_fullname_notice not in response
+            else:
+                # Users without Google OpenIDs are just asked to give their
+                # email if they don't have one.
+                if not user.email:
+                    assert email_notice in response
+                    assert email_and_fullname_notice not in response
+                    assert fullname_notice not in response
+                elif user.email:
+                    assert email_notice not in response
+                    assert fullname_notice not in response
+                    assert email_and_fullname_notice not in response
 
             if not user.email:
                 user.email = "mr_tusks@tusk_family.org"
