@@ -271,6 +271,7 @@ tbody tr.table-empty td {
 }
 #minornavigation .dropdown .dropdown-appears {
   display: none;
+  z-index: 2;
   position: absolute;
   top: 24px;
   left: -1px;
