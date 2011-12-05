@@ -23,7 +23,6 @@
             <a class="main-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_display_name(res)}</a>
             &nbsp;&nbsp;
             <span py:if="res.get('format')" class="resource-format" property="dc:format">${res.get('format')}</span>
-            <span py:if="not res.get('format')" class="resource-format" property="dc:format">(unknown format)</span>
             <br/><span class="resource-description">${h.markdown_extract(res.get('description'))}</span>
             <ul class="resource-information" py:if="res.get('last_modified')">
               <li>Last updated: ${h.time_ago_in_words_from_str(res.get('last_modified'), granularity='day')} ago</li>

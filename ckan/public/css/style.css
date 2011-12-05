@@ -1133,8 +1133,10 @@ body.package.read .resource-information li {
     font-weight: normal;
 }
 body.package.read .resource-format {
-    border: 1px solid #ececec;
-    padding: 2px;
+    border: 1px solid #EEE;
+    margin-left: 8px;
+    padding: 2px 8px;
+    box-shadow: 1px 1px 3px #f7f7f7;
     color: #808080;
 }
 .flash-messages .success .new-dataset {
