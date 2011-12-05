@@ -122,7 +122,13 @@ class PackageSearchIndex(SearchIndex):
 
         pkg_dict[TYPE_FIELD] = PACKAGE_TYPE
         pkg_dict = dict([(k.encode('ascii', 'ignore'), v) for (k, v) in pkg_dict.items()])
-        
+
+        # modify dates (SOLR is quite picky with dates, and only accepts ISO dates
+        # with UTC time (i.e trailing Z)
+        # See http://lucene.apache.org/solr/api/org/apache/solr/schema/DateField.html
+        pkg_dict['metadata_created'] += 'Z'
+        pkg_dict['metadata_modified'] += 'Z'
+
         # mark this CKAN instance as data source:
         pkg_dict['site_id'] = config.get('ckan.site_id')
         

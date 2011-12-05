@@ -1,3 +1,4 @@
+from datetime import datetime
 import hashlib
 import socket
 import solr
@@ -53,16 +54,25 @@ class TestSolrSearchIndex(TestController):
         return hashlib.md5('%s%s' % (pkg_id,config['ckan.site_id'])).hexdigest()
 
     def test_index(self):
+
+        datetime_now = datetime.now()
         pkg_dict = {
             'id': u'penguin-id',
             'title': u'penguin',
-            'state': u'active'
+            'state': u'active',
+            'metadata_created': datetime_now.isoformat(),
+            'metadata_modified': datetime_now.isoformat(),
         }
         search.dispatch_by_operation('Package', pkg_dict, 'new')
         response = self.solr.query('title:penguin', fq=self.fq)
         assert len(response) == 1, len(response)
         assert response.results[0]['index_id'] == self._get_index_id (pkg_dict['id'])
         assert response.results[0]['title'] == 'penguin'
+        
+        # looks like solrpy messes with microseconds and time zones,
+        # so ignore them for testing
+        assert datetime_now.strftime('%Y-%m-%d %H:%M:%S') == response.results[0]['metadata_created'].strftime('%Y-%m-%d %H:%M:%S')
+        assert datetime_now.strftime('%Y-%m-%d %H:%M:%S') == response.results[0]['metadata_modified'].strftime('%Y-%m-%d %H:%M:%S')
 
     def test_no_state_not_indexed(self):
         pkg_dict = {
@@ -76,7 +86,9 @@ class TestSolrSearchIndex(TestController):
         pkg_dict = {
             'id': u'penguin-id',
             'title': u'penguin',
-            'state': u'active'
+            'state': u'active',
+            'metadata_created': datetime.now().isoformat(),
+            'metadata_modified': datetime.now().isoformat(),
         }
         search.dispatch_by_operation('Package', pkg_dict, 'new')
         response = self.solr.query('title:penguin', fq=self.fq)
