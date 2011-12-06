@@ -57,14 +57,21 @@
         <dd>
           ${c.resource['format'] or 'Unknown'}
         </dd>
-        <dt>Openness</dt>
+        <dt>Licence</dt>
         <dd>
-          <py:if test="c.package['isopen']">
+          <py:choose test="">
+            <span py:when="c.pkg.license and c.pkg.license.url"><a
+                href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
+            <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
+            <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
+          </py:choose>
+
+          <py:if test="c.pkg.isopen()">
               <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
-                <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+                <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
               </a>
           </py:if>
-          <py:if test="not c.package['isopen']">
+          <py:if test="not c.pkg.isopen()">
               <span class="closed">
                 ${h.icon('lock')}
               </span>
@@ -87,6 +94,7 @@
       <div id="ckanext-datapreview"></div>
     </div>
 
+    <br/>
     <div class="resource-information">
       <h3>Additional Information</h3>
       <table>
@@ -98,8 +106,10 @@
         </thead>
         <tbody>
           <tr py:for="i, key in enumerate(sorted(c.resource.keys()))">
-            <td class="dataset-label" property="rdfs:label">${_(key)}</td>
-            <td class="dataset-details" property="rdf:value">${c.resource[key]}</td>
+            <py:if test="not key=='description'">
+              <td class="dataset-label" property="rdfs:label">${_(key)}</td>
+              <td class="dataset-details" property="rdf:value">${c.resource[key]}</td>
+            </py:if>
           </tr>
         </tbody>
       </table>

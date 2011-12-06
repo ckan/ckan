@@ -1081,7 +1081,7 @@ body.package.read .related-datasets li {
     list-style-type: none;
 }
 
-#dataset-license img.open-data { vertical-align: top; }
+img.open-data { margin: 1px 0 0 8px; vertical-align: top; }
 #dataset-resources { 
     margin-top: 2em; 
     margin-bottom: 2em; 
@@ -1149,34 +1149,34 @@ body.package.read .resource-format {
 body.package.read #sidebar li.widget-container {
   border: 0
 }
-body.package.read .notes {
+.notes {
   padding: 8px; 
   border-left: 2px solid #eee;
   background: url('/images/ldquo.png') no-repeat top left #f7f7f7;
 }
-body.package.read .notes #dataset-notes-toggle a {
+.notes #dataset-notes-toggle a {
   cursor: pointer;
 }
-body.package.read .notes #dataset-notes-toggle a.more:after {
+.notes #dataset-notes-toggle a.more:after {
   content: '  »';
   font-size: 150%;
   position: relative;
   bottom: -1px;
 }
-body.package.read .notes #dataset-notes-toggle a.less:before {
+.notes #dataset-notes-toggle a.less:before {
   content: '« ';
   font-size: 150%;
   position: relative;
   bottom: -1px;
 }
 
-body.package.read #notes-extract p {
+#notes-extract p {
   margin-bottom: 0;
 }
-body.package.read #notes-remainder {
+#notes-remainder {
   margin-top: 1em;
 }
-body.package.read #dataset-information .dataset-label {
+.dataset-label {
   font-weight: bold;
   min-width: 10em;
 }
