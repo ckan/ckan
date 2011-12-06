@@ -42,13 +42,13 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
     def __init__(self, group=None, table_id=None, group_id=None,
-                 table_name=None, capacity='member'):
+                 table_name=None, capacity='member', state='active'):
         self.group = group
         self.group_id = group_id
         self.table_id = table_id
         self.table_name = table_name
         self.capacity = capacity
-
+        self.state = state
         
     def related_packages(self):
         # TODO do we want to return all related packages or certain ones?
@@ -57,7 +57,7 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
             DomainObject):
-    def __init__(self, name=u'', title=u'', description=u'', type=u'collection'):
+    def __init__(self, name=u'', title=u'', description=u'', type=u'dataset_group'):
         self.name = name
         self.title = title
         self.description = description
