@@ -157,6 +157,8 @@ def make_map():
         action='user_autocomplete')
     map.connect('/api/2/util/is_slug_valid', controller='api', action='is_slug_valid',
                 conditions=dict(method=['GET']))
+    map.connect('/api/2/util/dataset/autocomplete', controller='api', action='dataset_autocomplete',
+                conditions=dict(method=['GET']))
     map.connect('/api/2/util/tag/autocomplete', controller='api', action='tag_autocomplete',
                 conditions=dict(method=['GET']))
     map.connect('/api/2/util/resource/format_autocomplete', controller='api', action='format_autocomplete',

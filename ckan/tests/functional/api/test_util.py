@@ -38,6 +38,32 @@ class TestUtil(ControllerTestCase):
         assert_equal(response.body, '{"valid": false}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
+    def test_dataset_autocomplete_match_name(self):
+        url = url_for(controller='api', action='dataset_autocomplete')
+        assert_equal(url, '/api/2/util/dataset/autocomplete')
+        response = self.app.get(
+            url=url,
+            params={
+               'incomplete': u'an',
+            },
+            status=200,
+        )
+        assert_equal(response.body, '{"ResultSet": {"Result": [{"match_field": "name", "match_displayed": "annakarenina", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}')
+        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+
+    def test_dataset_autocomplete_match_title(self):
+        url = url_for(controller='api', action='dataset_autocomplete')
+        assert_equal(url, '/api/2/util/dataset/autocomplete')
+        response = self.app.get(
+            url=url,
+            params={
+               'incomplete': u'a n',
+            },
+            status=200,
+        )
+        assert_equal(response.body, '{"ResultSet": {"Result": [{"match_field": "title", "match_displayed": "A Novel By Tolstoy (annakarenina)", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}')
+        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+
     def test_tag_autocomplete(self):
         url = url_for(controller='api', action='tag_autocomplete')
         assert_equal(url, '/api/2/util/tag/autocomplete')
@@ -96,4 +122,9 @@ class TestUtil(ControllerTestCase):
         assert_equal(res['site_title'], 'CKAN')
         assert_equal(res['site_description'], '')
         assert_equal(res['locale_default'], 'en')
-        assert_equal(res['extensions'], [])
+
+        assert_equal(type(res['extensions']), list)
+        expected_extensions = set()
+        if not model.engine_is_sqlite():
+            expected_extensions.add('synchronous_search')
+        assert_equal(set(res['extensions']), expected_extensions)

@@ -101,23 +101,23 @@ class ManageDb(CkanCommand):
             else:
                 model.repo.upgrade_db()
         elif cmd == 'dump':
-            self.dump(cmd)
+            self.dump()
         elif cmd == 'load':
-            self.load(cmd)
+            self.load()
         elif cmd == 'load-only':
-            self.load(cmd, only_load=True)
+            self.load(only_load=True)
         elif cmd == 'simple-dump-csv':
-            self.simple_dump_csv(cmd)
+            self.simple_dump_csv()
         elif cmd == 'simple-dump-json':
-            self.simple_dump_json(cmd)
+            self.simple_dump_json()
         elif cmd == 'dump-rdf':
-            self.dump_rdf(cmd)
+            self.dump_rdf()
         elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
                 print 'Creating DB: SUCCESS'
         elif cmd == 'send-rdf':
-            self.send_rdf(cmd)
+            self.send_rdf()
         else:
             print 'Command %s not recognized' % cmd
             sys.exit(1)
@@ -169,7 +169,7 @@ class ManageDb(CkanCommand):
         if retcode != 0:
             raise SystemError('Command exited with errorcode: %i' % retcode)
 
-    def dump(self, cmd):
+    def dump(self):
         if len(self.args) < 2:
             print 'Need pg_dump filepath'
             return
@@ -178,7 +178,7 @@ class ManageDb(CkanCommand):
         psql_cmd = self._get_psql_cmd() + ' -f %s'
         pg_cmd = self._postgres_dump(dump_path)
 
-    def load(self, cmd, only_load=False):
+    def load(self, only_load=False):
         if len(self.args) < 2:
             print 'Need pg_dump filepath'
             return
@@ -198,7 +198,7 @@ class ManageDb(CkanCommand):
             print 'Now remember you have to call \'db upgrade\' and then \'search-index rebuild\'.'
         print 'Done'
 
-    def simple_dump_csv(self, cmd):
+    def simple_dump_csv(self):
         from ckan import model
         if len(self.args) < 2:
             print 'Need csv file path'
@@ -209,7 +209,7 @@ class ManageDb(CkanCommand):
         query = model.Session.query(model.Package)
         dumper.SimpleDumper().dump_csv(dump_file, query)
 
-    def simple_dump_json(self, cmd):
+    def simple_dump_json(self):
         from ckan import model
         if len(self.args) < 2:
             print 'Need json file path'
@@ -220,7 +220,7 @@ class ManageDb(CkanCommand):
         query = model.Session.query(model.Package)
         dumper.SimpleDumper().dump_json(dump_file, query)
 
-    def dump_rdf(self, cmd):
+    def dump_rdf(self):
         if len(self.args) < 3:
             print 'Need dataset name and rdf file path'
             return
@@ -237,7 +237,7 @@ class ManageDb(CkanCommand):
         f.write(rdf)
         f.close()
 
-    def send_rdf(self, cmd):
+    def send_rdf(self):
         if len(self.args) < 4:
             print 'Need all arguments: {talis-store} {username} {password}'
             return
@@ -253,7 +253,7 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index rebuild                 - indexes all packages
+      search-index rebuild [package-name]  - reindex package-name if given, if not then rebuild full search index (all packages)
       search-index check                   - checks for packages not indexed
       search-index show {package-name}     - shows index of a package
       search-index clear                   - clears the search index for this ckan instance
@@ -275,7 +275,10 @@ class SearchIndexCommand(CkanCommand):
 
         cmd = self.args[0]        
         if cmd == 'rebuild':
-            rebuild()
+            if len(self.args) > 1:
+                rebuild(self.args[1])
+            else:
+                rebuild()
         elif cmd == 'check':
             check()
         elif cmd == 'show':
@@ -543,8 +546,89 @@ class UserCmd(CkanCommand):
         model.repo.commit_and_remove()
         print('Deleted user: %s' % username)
 
+
+class DatasetCmd(CkanCommand):
+    '''Manage datasets
+
+    Usage:
+      dataset <dataset-name/id>          - shows dataset properties
+      dataset show <dataset-name/id>     - shows dataset properties
+      dataset list                       - lists datasets
+      dataset delete <dataset-name/id>   - changes dataset state to 'deleted'
+      dataset purge <dataset-name/id>    - removes dataset from db entirely
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 3
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        from ckan import model
+
+        if not self.args:
+            print self.usage
+        else:
+            cmd = self.args[0]
+            if cmd == 'delete':
+                self.delete(self.args[1])
+            elif cmd == 'purge':
+                self.purge(self.args[1])
+            elif cmd == 'list':
+                self.list()
+            elif cmd == 'show':
+                self.show(self.args[1])
+            else:
+                self.show(self.args[0])
+
+    def list(self):
+        from ckan import model
+        print 'Datasets:'
+        datasets = model.Session.query(model.Package)
+        print 'count = %i' % datasets.count()
+        for dataset in datasets:
+            state = ('(%s)' % dataset.state) if dataset.state != 'active' \
+                    else ''
+            print '%s %s %s' % (dataset.id, dataset.name, state)
+
+    def _get_dataset(self, dataset_ref):
+        from ckan import model
+        dataset = model.Package.get(unicode(dataset_ref))
+        assert dataset, 'Could not find dataset matching reference: %r' % dataset_ref
+        return dataset
+            
+    def show(self, dataset_ref):
+        from ckan import model
+        import pprint
+        dataset = self._get_dataset(dataset_ref)
+        pprint.pprint(dataset.as_dict())
+
+    def delete(self, dataset_ref):
+        from ckan import model, plugins
+        dataset = self._get_dataset(dataset_ref)
+        old_state = dataset.state
+
+        plugins.load('synchronous_search')
+        rev = model.repo.new_revision()
+        dataset.delete()
+        model.repo.commit_and_remove()
+        dataset = self._get_dataset(dataset_ref)
+        print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
+
+    def purge(self, dataset_ref):
+        from ckan import model, plugins
+        dataset = self._get_dataset(dataset_ref)
+        name = dataset.name
+
+        plugins.load('synchronous_search')
+        rev = model.repo.new_revision()
+        dataset.purge()
+        model.repo.commit_and_remove()
+        print '%s purged' % name
+        
+
 class Celery(CkanCommand):
-    '''Run celery deamon
+    '''Run celery daemon
 
     Usage:
         celeryd
@@ -605,422 +689,4 @@ class Ratings(CkanCommand):
         for rating in ratings:
             rating.purge()
         model.repo.commit_and_remove()
-
-
-class Changes(CkanCommand):
-    '''Distribute changes
-
-    Usage:
-      changes commit                 - creates changesets for any outstanding revisions
-      changes diff [[start] stop]    - prints sum of changes for any outstanding revisions
-      changes heads                  - display the last changeset of all active lines
-      changes log [changeset]        - display summary of changeset(s)
-      changes merge [target] [mode]  - creates mergeset to follow target changeset and to close the working changeset
-      changes update [target]        - updates repository entities to target changeset (defaults to working line\'s head)
-      changes moderate [target]      - updates repository entities whilst allowing for changes to be ignored
-      changes pull [sources]         - pulls unseen changesets from changeset sources
-      changes working                - display working changeset
-    '''
-      # Todo:
-      #changes branch [name]          - sets or displays the current branch
-      #changes branches               - displays all known branches
-      #changes push [sinks]           - pushes new changesets to changeset sinks
-      #changes status                 - prints sum of changes for any outstanding revisions
-
-    summary = __doc__.split('\n')[0]
-    usage = __doc__
-    max_args = 3
-    min_args = 1
-    CkanCommand.parser.add_option('-i', '--interactive',
-        action='store_true',
-        dest='is_interactive',
-        default=False,
-        help="Prompt for confirmation of actions.")
-
-
-    def command(self):
-        self._load_config()
-        from ckan import model
-        cmd = self.args[0]
-        if cmd == 'pull':
-            self.pull()
-        elif cmd == 'heads':
-            self.heads()
-        elif cmd == 'update':
-            self.update()
-        elif cmd == 'moderate':
-            self.moderate()
-        elif cmd == 'commit':
-            self.commit()
-        elif cmd == 'merge':
-            self.merge()
-        elif cmd == 'working':
-            self.working()
-        elif cmd == 'log':
-            self.log()
-        elif cmd == 'diff':
-            self.diff()
-        else:
-            print 'Command %s not recognized' % cmd
-
-    def _load_config(self):
-        super(Changes, self)._load_config()
-        import logging
-        logging.basicConfig()
-        logger_vdm = logging.getLogger('vdm')
-        logger_vdm.setLevel(logging.ERROR)
-
-
-    def pull(self):
-        if len(self.args) > 1:
-            sources = [unicode(self.args[1])]
-        else:
-            from pylons import config
-            sources = config.get('changeset.sources', '').strip().split(',')
-        sources = [s.strip() for s in sources if s.strip()]
-        if not sources:
-            print "No changes source to pull (set 'changeset.sources' in config)."
-            return
-        from ckan.model.changeset import ChangesetRegister
-        from ckan.model.changeset import ChangesSourceException
-        changeset_register = ChangesetRegister()
-        is_error = False
-        for source in sources:
-            try:
-                changesets = changeset_register.pull(source)
-            except ChangesSourceException, inst:
-                print "%s" % inst
-            else:
-                print "Pulled %s changeset%s from '%s'." % (
-                    len(changesets), 
-                    (len(changesets) == 1 and "" or "s"),
-                    source
-                )
-        if is_error:
-            sys.exit(1)
-
-    def heads(self):
-        from ckan.model.changeset import Heads
-        from ckan.model.changeset import ChangesetRegister
-        print "Most recent changeset for each active line:"
-        ids = Heads().ids()
-        ids.reverse()  # Ordered by timestamp.
-        changeset_register = ChangesetRegister()
-        for id in ids:
-            head = changeset_register.get(id)
-            print ""
-            self.log_changeset(head)
-
-    def update(self):
-        if len(self.args) > 1:
-            changeset_id = unicode(self.args[1])
-        else:
-            changeset_id = None
-        self.update_repository(changeset_id)
-
-    def moderate(self):
-        if len(self.args) > 1:
-            changeset_id = unicode(self.args[1])
-        else:
-            changeset_id = None
-        self.options.is_interactive = True
-        self.update_repository(changeset_id)
-
-    def update_repository(self, changeset_id):
-        from ckan.model.changeset import ChangesetRegister
-        from ckan.model.changeset import EmptyChangesetRegisterException
-        from ckan.model.changeset import UncommittedChangesException
-        from ckan.model.changeset import WorkingAtHeadException
-        from ckan.model.changeset import ConflictException
-        changeset_register = ChangesetRegister()
-        report = {
-            'created': [],
-            'updated': [],
-            'deleted': [],
-        }
-        try:
-            changeset_register.update(
-                target_id=changeset_id,
-                report=report, 
-                moderator=self.options.is_interactive and self or None,
-            )
-        except ConflictException, inst:
-            print "Update aborted due to conflict with the working model."
-            print inst
-            sys.exit(1)
-        except EmptyChangesetRegisterException, inst:
-            print "Nothing to update (changeset register is empty)."
-            sys.exit(0)
-        except WorkingAtHeadException, inst:
-            print inst
-            sys.exit(0)
-        except UncommittedChangesException, inst:
-            print "There are uncommitted revisions (run 'changes commit')."
-            sys.exit(1)
-        print ", ".join(["%s %s datasets" % (key, len(val)) for (key, val) in report.items()])
-        if report['created']:
-            print ""
-            print "The following datasets have been created:"
-            names = []
-            for entity in report['created']:
-                if not entity:
-                    continue
-                if entity.name in names:
-                    continue
-                print "dataset:    %s" % entity.name
-                names.append(entity.name)
-        if report['updated']:
-            print ""
-            print "The following datasets have been updated:"
-            names = []
-            for entity in report['updated']:
-                if not entity:
-                    continue
-                if entity.name in names:
-                    continue
-                print "dataset:    %s" % entity.name
-                names.append(entity.name)
-        if report['deleted']:
-            print ""
-            print "The following datasets have been deleted:"
-            names = []
-            for entity in report['deleted']:
-                if not entity:
-                    continue
-                if entity.name in names:
-                    continue
-                print "dataset:    %s" % entity.name
-                names.append(entity.name)
-
-    def moderate_changeset_apply(self, changeset):
-        self.log_changeset(changeset)
-        answer = None
-        while answer not in ['y', 'n']:
-            print ""
-            question = "Do you want to apply this changeset? [Y/n/d] "
-            try:
-                answer = raw_input(question).strip() or 'y'
-            except KeyboardInterrupt:
-                print ""
-                print ""
-                return False
-            print ""
-            answer = answer[0].lower()
-            if answer == 'd':
-                print "Change summary:"
-                print ""
-                print "diff %s %s" % (changeset.follows_id, changeset.id)
-                self.print_changes(changeset.changes)
-        return answer == 'y'
-
-    def moderate_change_apply(self, change):
-        print "Change summary:"
-        self.print_changes([change])
-        print ""
-        answer = raw_input("Do you want to apply this change? [Y/n] ").strip() or "y"
-        answer = answer[0].lower()
-        print ""
-        if answer == 'y':
-            return True
-        else:
-            print 
-            answer = raw_input("Do you want to mask changes to this ref? [Y/n] ").strip() or "y"
-            answer = answer[0].lower()
-            print ""
-            if answer == 'y':
-                from ckan.model.changeset import ChangemaskRegister, Session
-                register = ChangemaskRegister()
-                mask = register.create_entity(change.ref)
-                Session.add(mask)
-                Session.commit()
-                print "Mask has been set for ref: %s" % change.ref
-                print ""
-            else:
-                print "Warning: Not setting a mask after not applying changes may lead to conflicts."
-                import time
-                time.sleep(5)
-                print ""
-
-    def commit(self):
-        from ckan.model.changeset import ChangesetRegister
-        changeset_register = ChangesetRegister()
-        changeset_ids = changeset_register.commit()
-        print "Committed %s revision%s." % (len(changeset_ids), (len(changeset_ids) != 1) and "s" or "")
-
-    def merge(self):
-        if len(self.args) == 3:
-            closing_id = unicode(self.args[1])
-            continuing_id = unicode(self.args[2])
-        elif len(self.args) == 2:
-            working_changeset = self.get_working_changeset()
-            if not working_changeset:
-                print "There is no working changeset to merge into '%s'." % continuing_id
-                sys.exit(1)
-            closing_id = working_changeset.id
-            continuing_id = unicode(self.args[1])
-        else:
-            print "Need a target changeset to merge into."
-            sys.exit(1)
-        from ckan.model.changeset import ChangesetRegister
-        from ckan.model.changeset import ConflictException
-        from ckan.model.changeset import Heads
-        from ckan.model.changeset import Resolve, CliResolve
-        changeset_register = ChangesetRegister()
-        if not len(changeset_register):
-            print "There are zero changesets in the changeset register."
-            sys.exit(1)
-        try:
-            resolve_class = self.options.is_interactive and CliResolve or Resolve
-            mergeset = changeset_register.merge(
-                closing_id=closing_id,
-                continuing_id=continuing_id,
-                resolve_class=resolve_class,
-            )
-            # Todo: Update repository before commiting changeset?
-            self.update_repository(mergeset.id)
-            print ""
-        except ConflictException, inst:
-            print inst
-            sys.exit(1)
-        else:
-            self.log_changeset(mergeset)
-        # Todo: Better merge report.
-
-    def working(self):
-        working_changeset = self.get_working_changeset()
-        if working_changeset:
-            print "Last updated or committed changeset:"
-            print ""
-            self.log_changeset(working_changeset)
-        else:
-            print "There is no working changeset."
-
-    def get_working_changeset(self):
-        from ckan.model.changeset import ChangesetRegister
-        changeset_register = ChangesetRegister()
-        return changeset_register.get_working()
-
-    def log(self):
-        if len(self.args) > 1:
-            changeset_id = unicode(self.args[1])
-        else:
-            changeset_id = None
-        from ckan.model.changeset import ChangesetRegister
-        changeset_register = ChangesetRegister()
-        if changeset_id:
-            changeset = changeset_register[changeset_id]
-            self.log_changeset(changeset)
-            self.print_changes(changeset.changes)
-        else:
-            changesets = changeset_register.values()
-            changesets.reverse()  # Ordered by timestamp.
-            for changeset in changesets:
-                self.log_changeset(changeset)
-                print ""
-
-    def log_changeset(self, changeset):
-        print "Changeset:    %s %s" % (changeset.is_working and "@" or " ", changeset.id)
-        if changeset.branch and changeset.branch != 'default':
-            print "branch:         %s" % changeset.branch
-        if changeset.follows_id:
-            print "follows:        %s" % changeset.follows_id
-        if changeset.closes_id:
-            print "closes:         %s" % changeset.closes_id
-        user = str(changeset.get_meta().get('author', ''))
-        if user:
-            print "user:           %s" % user
-        print "date:           %s +0000" % changeset.timestamp.strftime('%c')
-        if changeset.revision_id:
-            print "revision:       %s" % changeset.revision_id
-        summary = str(changeset.get_meta().get('log_message', ''))
-        if summary:
-            print "summary:        %s" % summary.split('\n')[0]
-
-    def diff(self):
-        if len(self.args) > 2:
-            changeset_id1 = unicode(self.args[1])
-            changeset_id2 = unicode(self.args[2])
-        elif len(self.args) > 1:
-            working_changeset = self.get_working_changeset()
-            if not working_changeset:
-                print "There is no working changeset."
-                sys.exit(1)
-            print "Displaying changes from the working changeset (without any outstanding revisions)..."
-            changeset_id1 = working_changeset.id 
-            changeset_id2 = unicode(self.args[1])
-        else:
-            # Todo: Calc changes for outstanding revisions.
-            print "Sorry, displaying changes of uncommitted revisions is not yet supported."
-            print ""
-            print "Providing one target changeset will display the changes from the working changeset. Providing two target changesets will display the sum of changes between the first and the second target."
-            sys.exit(1)
-        from ckan.model.changeset import NoIntersectionException
-        from ckan.model.changeset import ChangesetRegister, Route, Reduce
-        register = ChangesetRegister()
-        changeset1 = register.get(changeset_id1, None)
-        if not changeset1:
-            print "Changeset '%s' not found." % changeset_id1
-            sys.exit(1)
-        changeset2 = register.get(changeset_id2, None)
-        if not changeset2:
-            print "Changeset '%s' not found." % changeset_id2
-            sys.exit(1)
-        route = Route(changeset1, changeset2)
-        try:
-            changes = route.calc_changes()
-            # Todo: Calc and sum with changes for outstanding revisions.
-            changes = Reduce(changes).calc_changes()
-        except NoIntersectionException:
-            print "The changesets '%s' and '%s' are not on intersecting lines." % (
-                changeset_id1, changeset_id2
-            )
-        else:
-   
-            print "diff %s %s" % (changeset_id1, changeset_id2) 
-            self.print_changes(changes)
-        
-    def print_changes(self, changes):
-        deleting = []
-        updating = []
-        creating = []
-        # Todo: Refactor with identical ordering routine in apply_changes().
-        for change in changes:
-            if change.old == None and change.new != None:
-                creating.append(change)
-            elif change.old != None and change.new != None:
-                updating.append(change)
-            elif change.old != None and change.new == None:
-                deleting.append(change)
-        # Todo: Also sort changes by ref before printing, so they always appear in the same way. 
-        for change in deleting:
-            print ""
-            print "D %s" % change.ref
-            attr_names = change.old.keys()
-            attr_names.sort()
-            for attr_name in attr_names:
-                old_value = change.old[attr_name]
-                if old_value:
-                    msg = "D @%s:  %s" % (attr_name, repr(old_value))
-                    print msg.encode('utf8')
-        for change in updating:
-            print ""
-            print "M %s" % change.ref
-            attr_names = change.old.keys()
-            attr_names.sort()
-            for attr_name in attr_names:
-                if attr_name in change.new:
-                    old_value = change.old[attr_name]
-                    new_value = change.new[attr_name]
-                    msg = "M @%s:  %s  ----->>>   %s" % (attr_name, repr(old_value), repr(new_value))
-                    print msg.encode('utf8')
-        for change in creating:
-            print ""
-            print "A %s" % change.ref
-            attr_names = change.new.keys()
-            attr_names.sort()
-            for attr_name in attr_names:
-                new_value = change.new[attr_name]
-                if new_value:
-                    msg = "A @%s:  %s" % (attr_name, repr(new_value))
-                    print msg.encode('utf8')
 

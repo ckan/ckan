@@ -2,9 +2,12 @@
 import os
 from urlparse import urlparse
 import logging
+import warnings
 
 from paste.deploy.converters import asbool
 
+# Suppress benign warning 'Unbuilt egg for setuptools'
+warnings.simplefilter('ignore', UserWarning) 
 import pylons
 from sqlalchemy import engine_from_config
 from pylons import config
@@ -74,6 +77,8 @@ def load_environment(global_conf, app_conf):
     if config.get('ckan.site_id') is None:
         if ':' in ckan_host:
             ckan_host, port = ckan_host.split(':')
+        assert ckan_host, 'You need to configure ckan.site_url or ' \
+                          'ckan.site_id for SOLR search-index rebuild to work.'
         config['ckan.site_id'] = ckan_host
 
     config['routes.map'] = make_map()

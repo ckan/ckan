@@ -317,7 +317,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         username = u'testcreate4'
         fullname = u'Test Create\xc2\xa0'
         password = u'testpassword\xc2\xa0'
-        email = u'me@test.org'
+        email = u'me\xc2\xa0@test.org'
         assert not model.User.by_name(username)
 
         offset = url_for(controller='user', action='register')
@@ -327,7 +327,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['user-edit']
         fv['name'] = username
         fv['fullname'] = fullname.encode('utf8')
-        fv['email'] = email
+        fv['email'] = email.encode('utf8')
         fv['password1'] = password.encode('utf8')
         fv['password2'] = password.encode('utf8')
         res = fv.submit('save')
@@ -349,6 +349,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert user
         assert_equal(user.name, username)
         assert_equal(user.fullname, fullname)
+        assert_equal(user.email, email)
         assert user.password
 
     def test_user_create_no_name(self):

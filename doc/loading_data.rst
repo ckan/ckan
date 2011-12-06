@@ -6,7 +6,7 @@ You can upload individual datasets through the CKAN front-end, but for importing
 
 * :ref:`load-data-api`. You can use the `CKAN API <api.html>`_ to script import. To simplify matters, we offer provide standard loading scripts for Google Spreadsheets, CSV and Excel. 
 
-*  :ref:`load-data-harvester`.  The `CKAN harvester extension <https://bitbucket.org/okfn/ckanext-harvest/>`_ provides web and command-line interfaces for larger import tasks. 
+*  :ref:`load-data-harvester`.  The `CKAN harvester extension <https://github.com/okfn/ckanext-harvest/>`_ provides web and command-line interfaces for larger import tasks. 
 
 If you need advice on data import, `contact the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.  
 
@@ -51,7 +51,7 @@ Loader Scripts
 
 Essentially each set of loader scripts converts the dataset metadata to the standard 'dataset' format, and then loads it into CKAN. 
 
-Loader scripts are generally stored into the `ckanext` repository. To get a flavour of what loader scripts look like, take a look at `the ONS scripts <https://bitbucket.org/okfn/ckanext-dgu/src/default/ckanext/dgu/ons/>`_.
+Loader scripts are generally stored into the `ckanext` repository. To get a flavour of what loader scripts look like, take a look at `the ONS scripts <https://github.com/okfn/ckanext-dgu/tree/master/ckanext/dgu/ons>`_.
 
 Loader Scripts for CSV and Excel
 ********************************
@@ -90,10 +90,10 @@ You need to add a line to the CKAN ``setup.py`` (under ``[console_scripts]``) an
 Import Data with the Harvester Extension
 ----------------------------------------
 
-The `CKAN harvester extension <https://bitbucket.org/okfn/ckanext-harvest/>`_ provides useful tools for more advanced data imports.
+The `CKAN harvester extension <https://github.com/okfn/ckanext-harvest/>`_ provides useful tools for more advanced data imports.
 
 These include a command-line interface and a web user interface for running harvesting jobs. 
 
-To use the harvester extension, derive from the `base class of the harvester extension <https://bitbucket.org/okfn/ckanext-harvest/src/61844c8d2374/ckanext/harvest/harvesters/base.py>`_ and then write a custom ``_create_or_update_package`` method for your data.
+To use the harvester extension, create a class that implements the `harvester interface <https://github.com/okfn/ckanext-harvest/blob/master/ckanext/harvest/interfaces.py>` derived from the `base class of the harvester extension <https://github.com/okfn/ckanext-harvest/blob/master/ckanext/harvest/harvesters/base.py>`_.
 
 For more information on working with extensions, see :doc:`extensions`.

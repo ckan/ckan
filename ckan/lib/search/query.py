@@ -224,6 +224,15 @@ class PackageSearchQuery(SearchQuery):
         return [r.get('id') for r in data.results]
 
     def run(self, query):
+        '''
+        Performs a dataset search using the given query.
+
+        @param query - dictionary with keys like: q, fq, sort, rows, facet
+        @return - dictionary with keys results and count
+        
+        May raise SearchQueryError or SearchError.
+        '''
+        from solr import SolrException
         assert isinstance(query, (dict, MultiDict))
         # check that query keys are valid
         if not set(query.keys()) <= VALID_SOLR_PARAMETERS:
@@ -273,12 +282,28 @@ class PackageSearchQuery(SearchQuery):
         # query['qf'] = query.get('qf', QUERY_FIELDS)
 
         conn = make_connection()
+        log.debug('Package query: %r' % query)
+        
         try:
-            log.debug('Package query: %r' % query)
-            data = json.loads(conn.raw_query(**query))
+            solr_response = conn.raw_query(**query)
+        except SolrException, e:
+            raise SearchError('SOLR returned an error running query: %r Error: %r' %
+                              (query, e.reason))
+        try:
+            data = json.loads(solr_response)
             response = data['response']
             self.count = response.get('numFound', 0)
             self.results = response.get('docs', [])
+
+            # get any extras and add to 'extras' dict
+            for result in self.results:
+                extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
+                extras = {}
+                for extra_key in extra_keys:
+                    value = result.pop(extra_key)
+                    extras[extra_key[len('extras_'):]] = value
+                if extra_keys:
+                    result['extras'] = extras
 
             # if just fetching the id or name, return a list instead of a dict
             if query.get('fl') in ['id', 'name']:

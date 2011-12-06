@@ -707,8 +707,8 @@ ul.datasets .openness li {
 /* =================== */
 /* = URL Slug Editor = */
 /* =================== */
-input.url-slug-editor {
-  width: 250px;
+input.url-input {
+  width: 220px;
 }
 
 
@@ -962,15 +962,23 @@ td.resource-edit-value {
 {
   display: none;
 }
-.dataset-create-form a.url-edit {
-  font-weight: normal;
-  margin-left: 10px;
-}
 .dataset-create-form dd.name-field {
   padding-top: 0.2em;
 }
 .dataset-create-form dd.name-field p {
   margin-bottom: 4px;
+}
+
+.group-create-form dd.name-field {
+  padding-top: 0.2em;
+}
+.group-create-form dd.name-field p {
+  margin-bottom: 4px;
+}
+
+a.url-edit {
+  font-weight: normal;
+  margin-left: 10px;
 }
 
 

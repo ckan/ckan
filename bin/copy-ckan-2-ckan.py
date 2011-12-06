@@ -16,7 +16,8 @@ $ python bin/copy-ckan-2-ckan.py -k tester -g country-si -t "Slovenia" -s si.cka
 def copy_packages(source_ckan_uri,
                   dest_ckan_uri, dest_api_key,
                   dest_group_name, dest_group_title,
-                  site_name):
+                  site_name, filter,
+                  ):
     ckan1 = ckanclient.CkanClient(base_location=source_ckan_uri)
     ckan2 = ckanclient.CkanClient(base_location=dest_ckan_uri,
                                   api_key=dest_api_key)
@@ -53,9 +54,11 @@ def copy_packages(source_ckan_uri,
     package_list = ckan1.package_register_get()
     print 'Found %i packages to copy' % len(package_list)
 
-##    #HACK
-##    package_list = [pkg for pkg in package_list if pkg.startswith('a')]
-##    print 'Found %i packages beginning with A' % len(package_list)
+    if filter:
+        filter_re = re.compile(filter)
+        package_list = [pkg for pkg in package_list \
+                        if filter_re.match(pkg)]
+        print 'Filtered down to %i packages' % len(package_list)
     
     for package_ref in package_list[:]:
         try:
@@ -98,12 +101,13 @@ def copy_packages(source_ckan_uri,
             ckan2.group_entity_put(group)
             print '...and added to group %s' % group_ref
 
-    group = ckan2.group_entity_get(dest_group_name)
-    pkgs_to_add_to_group = list(set(package_list) - set(group['packages']))
-    if pkgs_to_add_to_group:
-        print 'Adding %i packages to group %s: %r' % (len(pkgs_to_add_to_group), dest_group_name, pkgs_to_add_to_group)
-        group['packages'].extend(pkgs_to_add_to_group)
-        ckan2.group_entity_put(group)
+    if dest_group_name:
+        group = ckan2.group_entity_get(dest_group_name)
+        pkgs_to_add_to_group = list(set(package_list) - set(group['packages']))
+        if pkgs_to_add_to_group:
+            print 'Adding %i packages to group %s: %r' % (len(pkgs_to_add_to_group), dest_group_name, pkgs_to_add_to_group)
+            group['packages'].extend(pkgs_to_add_to_group)
+            ckan2.group_entity_put(group)
 
 def _munge_to_length(string, min_length, max_length):
     '''Pad/truncates a string'''
@@ -132,6 +136,8 @@ parser.add_option("-t", "--group-title", dest="group_title",
                   help="Destination CKAN group's title")
 parser.add_option("-s", "--site-name", dest="site_name",
                   help="Name of source CKAN site - so source can be tagged")
+parser.add_option("-f", "--filter", dest="filter",
+                  help="Filter package names (regex format)")
 
 (options, args) = parser.parse_args()
 
@@ -143,4 +149,4 @@ copy_packages(source_ckan_uri,
               destination_ckan_uri,
               options.destination_ckan_api_key,
               options.group_name, options.group_title,
-              options.site_name)
+              options.site_name, options.filter)

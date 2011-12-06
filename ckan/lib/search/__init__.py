@@ -6,7 +6,8 @@ from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from ckan.logic import get_action
 
-from common import SearchIndexError, SearchError, make_connection, is_available, DEFAULT_SOLR_URL
+from common import (SearchIndexError, SearchError, SearchQueryError,
+                    make_connection, is_available, DEFAULT_SOLR_URL)
 from index import PackageSearchIndex, NoopSearchIndex
 from query import TagSearchQuery, ResourceSearchQuery, PackageSearchQuery, QueryOptions, convert_legacy_parameters_to_solr
 
@@ -106,21 +107,31 @@ class SynchronousSearchPlugin(SingletonPlugin):
         else:
             log.warn("Discarded Sync. indexing for: %s" % entity)
 
-def rebuild():
+def rebuild(package=None):
     from ckan import model
     log.debug("Rebuilding search index...")
-    
-    # Packages
+
     package_index = index_for(model.Package)
-    package_index.clear()
-    for pkg in model.Session.query(model.Package).all():
-        package_index.insert_dict(
-            get_action('package_show_rest')(
-                {'model': model, 'ignore_auth': True},
-                {'id': pkg.id}
-            )
+    
+    if package:
+        pkg_dict = get_action('package_show_rest')(
+            {'model': model, 'ignore_auth': True},
+            {'id': package}
         )
+        package_index.remove_dict(pkg_dict)
+        package_index.insert_dict(pkg_dict)
+    else:
+        # rebuild index
+        package_index.clear()
+        for pkg in model.Session.query(model.Package).all():
+            package_index.insert_dict(
+                get_action('package_show_rest')(
+                    {'model': model, 'ignore_auth': True},
+                    {'id': pkg.id}
+                )
+            )
     model.Session.commit()
+    log.debug('Finished rebuilding search index.')
 
 def check():
     from ckan import model
