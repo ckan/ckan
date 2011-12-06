@@ -731,7 +731,6 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   }
 });
 
-
 (function ($) {
   var my = {};
   my.jsonpdataproxyUrl = 'http://jsonpdataproxy.appspot.com/';
@@ -746,29 +745,6 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     DATAEXPLORER.TABLEVIEW.initialize(my.dialogId);
     resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
 
-    // do not create previews for some items
-    var _tformat = resourceData.format.toLowerCase();
-    if (
-      _tformat.indexOf('zip') != -1
-      ||
-      _tformat.indexOf('tgz') != -1
-      ||
-      _tformat.indexOf('targz') != -1
-      ||
-      _tformat.indexOf('gzip') != -1
-      ||
-      _tformat.indexOf('gz:') != -1
-      ||
-      _tformat.indexOf('word') != -1
-      ||
-      _tformat.indexOf('pdf') != -1
-      ||
-      _tformat === 'other'
-      ) {
-      var _msg = $('<p class="error">We are unable to preview this type of resource: ' + resourceData.format + '</p>');
-      my.$dialog.html(_msg);
-      return;
-    }
     my.loadPreviewDialog(resourceData);
   };
 
@@ -839,14 +815,10 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       });
     }
     else {
-      // HACK: but should work
-      // we displays a fullscreen dialog with the url in an iframe.
-      my.$dialog.empty();
-      var el = $('<iframe></iframe>');
-      el.attr('src', resourceData.url);
-      el.attr('width', '100%');
-      el.attr('height', '100%');
-      my.$dialog.append(el);
+      // Cannot reliably preview this item - with no mimetype/format information, 
+      // can't guarantee it's not a remote binary file such as an executable.
+      var _msg = $('<p class="error">We are unable to preview this type of resource: ' + resourceData.formatNormalized + '</p>');
+      my.$dialog.html(_msg);
     }
   };
 
