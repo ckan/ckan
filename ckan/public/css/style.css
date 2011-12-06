@@ -1126,16 +1126,12 @@ body.package.read h3 {
     color: #333;
     text-decoration: underline;
 }
+.dataset-resource p {
+  margin: 0;
+}
 
 body.package.read .resource-information {
-    padding-left: 0;
     color: #808080;
-}
-body.package.read .resource-information li {
-    display: inline;
-    margin-right: 4px;
-    border: none;
-    font-weight: normal;
 }
 body.package.read .resource-format {
     border: 1px solid #EEE;
