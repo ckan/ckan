@@ -86,7 +86,7 @@ class TestPackageForm(TestPackageBase):
         assert params['notes'] in main_div, main_div_str
         license = model.Package.get_license_register()[params['license_id']]
         assert license.title in main_div, (license.title, main_div_str)
-        tag_names = [tag.lower() for tag in params['tags']]
+        tag_names = list(params['tags'])
         self.check_named_element(main_div, 'ul', *tag_names)
         if params.has_key('state'):
             assert 'State: %s' % params['state'] in main_div.replace('</strong>', ''), main_div_str
@@ -155,7 +155,7 @@ class TestPackageForm(TestPackageBase):
         self.check_tag_and_data(main_res, prefix+'notes', params['notes'])
         self.check_tag_and_data(main_res, 'selected', params['license_id'])
         if isinstance(params['tags'], (str, unicode)):
-            tags = params['tags'].split()
+            tags = map(lambda s: s.strip(), params['tags'].split(','))
         else:
             tags = params['tags']
         for tag in tags:
@@ -252,7 +252,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         pkg_by_name_main = self.named_div('dataset', res)
         pkg_by_id_main = self.named_div('dataset', res_by_id)
         # rename some things which may be in the wrong order sometimes
-        txt_order_non_deterministic = ('russian', 'tolstoy', 'david', 'roger')
+        txt_order_non_deterministic = (u'Flexible \u30a1', 'russian', 'tolstoy', 'david', 'roger')
         for txt in txt_order_non_deterministic:
             for pkg_ in (pkg_by_name_main, pkg_by_id_main):
                 pkg_ = pkg_.replace(txt, 'placeholder')
@@ -278,6 +278,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         self.check_tag_and_data(res, 'left arrow', '&lt;')
         self.check_tag_and_data(res, 'umlaut', u'\xfc')
         #assert 'OKD Compliant::' in res
+        assert u'Flexible \u30a1' in res, res
         assert 'russian' in res
         assert 'david' in res
         assert 'roger' in res
@@ -305,16 +306,18 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         CreateTestData.create_arbitrary([
             {'name':pkg_name,
              'notes':'Decoy link here: decoy:decoy, real links here: package:pkg-1, ' \
-                   'tag:tag_1 group:test-group-1.',
+                   'tag:tag_1 group:test-group-1 and a multi-word tag: tag:"multi word with punctuation."',
              }
             ])
         offset = url_for(controller='package', action='read', id=pkg_name)
         res = self.app.get(offset)
         def check_link(res, controller, id):
-            self.check_tag_and_data(res, 'a ', '/%s/%s' % (controller, id),
+            id_in_uri = id.strip('"').replace(' ', '%20') # remove quotes and percent-encode spaces
+            self.check_tag_and_data(res, 'a ', '/%s/%s' % (controller, id_in_uri),
                                     '%s:%s' % (controller, id))
         check_link(res, 'package', 'pkg-1')
         check_link(res, 'tag', 'tag_1')
+        check_link(res, 'tag', '"multi word with punctuation."')
         check_link(res, 'group', 'test-group-1')
         assert 'decoy</a>' not in res, res
         assert 'decoy"' not in res, res
@@ -371,7 +374,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         rev.timestamp = cls.date2
         pkg = model.Package.by_name(cls.pkg_name)
         pkg.title = u'title2'
-        pkg.add_tag_by_name(u'tag2')
+        pkg.add_tag_by_name(u'tag 2')
         pkg.extras = {'key2': u'value2'}
         model.repo.commit_and_remove()
 
@@ -380,7 +383,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         rev.timestamp = cls.date3
         pkg = model.Package.by_name(cls.pkg_name)
         pkg.title = u'title3'
-        pkg.add_tag_by_name(u'tag3')
+        pkg.add_tag_by_name(u'tag3.')
         pkg.extras['key2'] = u'value3'
         model.repo.commit_and_remove()
 
@@ -404,8 +407,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' in side_html
-        assert 'tag2' in side_html
+        assert 'tag3.' in side_html
+        assert 'tag 2' in side_html
 
     def test_read_date1(self):
         offset = self.offset + self.date1.strftime('@%Y-%m-%d')
@@ -415,8 +418,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'title1' in res, res
         assert 'key2' not in pkg_html, pkg_html
         assert 'value3' not in pkg_html, pkg_html
-        assert 'tag3' not in side_html, side_html
-        assert 'tag2' not in side_html, side_html
+        assert 'tag3.' not in side_html, side_html
+        assert 'tag 2' not in side_html, side_html
 
     def test_read_date2(self):
         date2_plus_3h = self.date2 + datetime.timedelta(hours=3)
@@ -429,8 +432,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value2' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' not in side_html
-        assert 'tag2' in side_html
+        assert 'tag3.' not in side_html
+        assert 'tag 2' in side_html
 
     def test_read_date3(self):
         offset = self.offset + self.date3.strftime('@%Y-%m-%d-%H-%M')
@@ -442,8 +445,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' in side_html
-        assert 'tag2' in side_html
+        assert 'tag3.' in side_html
+        assert 'tag 2' in side_html
 
     def test_read_date_before_created(self):
         offset = self.offset + self.before.strftime('@%Y-%m-%d')
@@ -472,8 +475,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' not in pkg_html
         assert 'value3' not in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' not in side_html
-        assert 'tag2' not in side_html
+        assert 'tag3.' not in side_html
+        assert 'tag 2' not in side_html
 
     def test_read_revision2(self):
         offset = self.offset + '@%s' % self.revision_ids[1]
@@ -490,8 +493,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value2' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' not in side_html
-        assert 'tag2' in side_html
+        assert 'tag3.' not in side_html
+        assert 'tag 2' in side_html
 
     def test_read_revision3(self):
         offset = self.offset + '@%s' % self.revision_ids[2]
@@ -509,8 +512,8 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
         print 'SIDE', side_html
-        assert 'tag3' in side_html
-        assert 'tag2' in side_html
+        assert 'tag3.' in side_html
+        assert 'tag 2' in side_html
 
     def test_read_bad_revision(self):
         # this revision doesn't exist in the db
@@ -651,9 +654,9 @@ class TestEdit(TestPackageForm):
         
     def test_edit_2_tags_and_groups(self):
         # testing tag updating
-        newtagnames = [u'russian', u'tolstoy', u'superb']
+        newtagnames = [u'russian', u'tolstoy', u'superb book']
         newtags = newtagnames
-        tagvalues = ' '.join(newtags)
+        tagvalues = ','.join(newtags)
         fv = self.res.forms['dataset-edit']
         prefix = ''
         fv[prefix + 'tag_string'] = tagvalues
@@ -717,7 +720,7 @@ class TestEdit(TestPackageForm):
             pkg.notes= u'this is editpkg'
             pkg.version = u'2.2'
             t1 = model.Tag(name=u'one')
-            t2 = model.Tag(name=u'two')
+            t2 = model.Tag(name=u'two words')
             pkg.tags = [t1, t2]
             pkg.state = model.State.DELETED
             pkg.license_id = u'other-open'
@@ -752,8 +755,8 @@ class TestEdit(TestPackageForm):
             notes = u'Very important'
             license_id = u'gpl-3.0'
             state = model.State.ACTIVE
-            tags = (u'tag1', u'tag2', u'tag3')
-            tags_txt = u' '.join(tags)
+            tags = (u'tag1', u'tag2', u'tag 3')
+            tags_txt = u','.join(tags)
             extra_changed = 'key1', self.value1 + ' CHANGED', False
             extra_new = 'newkey', 'newvalue', False
             log_message = 'This is a comment'
@@ -1060,8 +1063,8 @@ class TestNew(TestPackageForm):
         download_url = u'http://something.com/somewhere-else.zip'
         notes = u'Very important'
         license_id = u'gpl-3.0'
-        tags = (u'tag1', u'tag2', u'tag3', u'SomeCaps')
-        tags_txt = u' '.join(tags)
+        tags = (u'tag1', u'tag2.', u'tag 3', u'SomeCaps')
+        tags_txt = u','.join(tags)
         extras = {self.key1:self.value1, 'key2':'value2', 'key3':'value3'}
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
@@ -1102,8 +1105,7 @@ class TestNew(TestPackageForm):
         assert pkg.license.id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
         saved_tagnames.sort()
-        expected_tagnames = [tag.lower() for tag in tags]
-        expected_tagnames.sort()
+        expected_tagnames = sorted(tags)
         assert saved_tagnames == expected_tagnames, '%r != %r' % (saved_tagnames, expected_tagnames)
         saved_groupnames = [str(group.name) for group in pkg.groups]
         assert len(pkg.extras) == len(extras)

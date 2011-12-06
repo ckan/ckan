@@ -15,6 +15,7 @@ from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
+from pylons import url
 from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
@@ -237,10 +238,20 @@ def gravatar(email_hash, size=100, default="mm"):
 
 
 class Page(paginate.Page):
-    
+
+    def _page_url(self, page, partial=None, **kwargs):
+        routes_dict = url.environ['pylons.routes_dict']
+        kwargs['controller'] = routes_dict['controller']
+        kwargs['action'] = routes_dict['action']
+        if routes_dict.get('id'):
+            kwargs['id'] = routes_dict['id']
+        kwargs['page'] = page
+        return url(**kwargs)
+
     # Curry the pager method of the webhelpers.paginate.Page class, so we have
     # our custom layout set as default.
     def pager(self, *args, **kwargs):
+        self._url_generator = self._page_url
         kwargs.update(
             format=u"<div class='pager'>$link_previous ~2~ $link_next</div>",
             symbol_previous=u'« Prev', symbol_next=u'Next »'

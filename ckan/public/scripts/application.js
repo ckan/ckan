@@ -198,11 +198,16 @@ CKAN.Utils = function($, my) {
       return function() {
         slug = urlInput.val();
         urlSuffix.html('<span>'+slug+'</span>');
-        validMsg.html('<span style="color: #777;">'+CKAN.Strings.checking+'</span>');
         if (timer) clearTimeout(timer);
-        timer = setTimeout(function () {
-          checkSlugValid(slug);
-        }, 200);
+        if (slug.length<2) {
+          validMsg.html('<span style="font-weight: bold; color: #444;">'+CKAN.Strings.urlIsTooShort+'</span>');
+        }
+        else {
+          validMsg.html('<span style="color: #777;">'+CKAN.Strings.checking+'</span>');
+          timer = setTimeout(function () {
+            checkSlugValid(slug);
+          }, 200);
+        }
       };
     }();
 
@@ -292,7 +297,7 @@ CKAN.Utils = function($, my) {
         minLength: 1,
         source: function(request, callback) {
           // here request.term is whole list of tags so need to get last
-          var _realTerm = request.term.split(' ').pop();
+          var _realTerm = request.term.split(',').pop().trim();
           var url = '/api/2/util/tag/autocomplete?incomplete=' + _realTerm;
           $.getJSON(url, function(data) {
             // data = { ResultSet: { Result: [ {Name: tag} ] } } (Why oh why?)
@@ -309,14 +314,14 @@ CKAN.Utils = function($, my) {
           return false;
         },
         select: function( event, ui ) {
-          var terms = this.value.split(' ');
+          var terms = this.value.split(',');
           // remove the current input
           terms.pop();
           // add the selected item
-          terms.push( ui.item.value );
+          terms.push( " "+ui.item.value );
           // add placeholder to get the comma-and-space at the end
-          terms.push( "" );
-          this.value = terms.join( " " );
+          terms.push( " " );
+          this.value = terms.join( "," );
           return false;
         }
     });

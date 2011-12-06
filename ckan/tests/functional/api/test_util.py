@@ -1,9 +1,10 @@
 from nose.tools import assert_equal
 
-from ckan import model
+from ckan import model, __version__
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import TestController as ControllerTestCase
 from ckan.tests import url_for
+from ckan.lib.helpers import json
 
 class TestUtil(ControllerTestCase):
     @classmethod
@@ -35,6 +36,32 @@ class TestUtil(ControllerTestCase):
             status=200,
         )
         assert_equal(response.body, '{"valid": false}')
+        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+
+    def test_dataset_autocomplete_match_name(self):
+        url = url_for(controller='api', action='dataset_autocomplete')
+        assert_equal(url, '/api/2/util/dataset/autocomplete')
+        response = self.app.get(
+            url=url,
+            params={
+               'incomplete': u'an',
+            },
+            status=200,
+        )
+        assert_equal(response.body, '{"ResultSet": {"Result": [{"match_field": "name", "match_displayed": "annakarenina", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}')
+        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+
+    def test_dataset_autocomplete_match_title(self):
+        url = url_for(controller='api', action='dataset_autocomplete')
+        assert_equal(url, '/api/2/util/dataset/autocomplete')
+        response = self.app.get(
+            url=url,
+            params={
+               'incomplete': u'a n',
+            },
+            status=200,
+        )
+        assert_equal(response.body, '{"ResultSet": {"Result": [{"match_field": "title", "match_displayed": "A Novel By Tolstoy (annakarenina)", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_tag_autocomplete(self):
@@ -82,3 +109,22 @@ class TestUtil(ControllerTestCase):
             status=200,
         )
         assert_equal(response.body, '"test-subject"')
+
+    def test_status(self):
+        response = self.app.get(
+            url=url_for(controller='api', action='status'),
+            params={},
+            status=200,
+        )
+        res = json.loads(response.body)
+        assert_equal(res['ckan_version'], __version__)
+        assert_equal(res['site_url'], 'http://test.ckan.net')
+        assert_equal(res['site_title'], 'CKAN')
+        assert_equal(res['site_description'], '')
+        assert_equal(res['locale_default'], 'en')
+
+        assert_equal(type(res['extensions']), list)
+        expected_extensions = set()
+        if not model.engine_is_sqlite():
+            expected_extensions.add('synchronous_search')
+        assert_equal(set(res['extensions']), expected_extensions)

@@ -1,8 +1,10 @@
 from nose.tools import assert_equal, assert_raises
 
-from ckan.tests import TestController, CreateTestData, setup_test_search_index
 from ckan import model
 import ckan.lib.search as search
+
+from ckan.tests import TestController, CreateTestData, setup_test_search_index
+from ckan.tests.lib import check_search_results
 
 
 class TestQuery:
@@ -19,9 +21,14 @@ class TestQuery:
         assert_raises(search.SearchError, convert, {'title': 'bob', 'all_fields': 'non-boolean'})
         assert_equal(convert({'q': 'bob', 'order_by': 'name'}), {'q': 'bob', 'sort':'name asc'})
         assert_equal(convert({'q': 'bob', 'offset': '0', 'limit': '10'}), {'q': 'bob', 'start':'0', 'rows':'10'})
-        assert_equal(convert({'tags': ['russian', 'tolstoy']}), {'q': 'tags:russian tags:tolstoy'})
-        assert_equal(convert({'tags': ['tolstoy']}), {'q': 'tags:tolstoy'})
-        assert_equal(convert({'tags': 'tolstoy'}), {'q': 'tags:tolstoy'})
+        assert_equal(convert({'tags': ['russian', 'tolstoy']}), {'q': 'tags:"russian" tags:"tolstoy"'})
+        assert_equal(convert({'tags': ['russian', 'multi word']}), {'q': 'tags:"russian" tags:"multi word"'})
+        assert_equal(convert({'tags': ['with CAPITALS']}), {'q': 'tags:"with CAPITALS"'})
+        assert_equal(convert({'tags': [u'with greek omega \u03a9']}), {'q': u'tags:"with greek omega \u03a9"'})
+        assert_equal(convert({'tags': ['tolstoy']}), {'q': 'tags:"tolstoy"'})
+        assert_equal(convert({'tags': 'tolstoy'}), {'q': 'tags:"tolstoy"'})
+        assert_equal(convert({'tags': 'more than one tolstoy'}), {'q': 'tags:"more than one tolstoy"'})
+        assert_equal(convert({'tags': u'with greek omega \u03a9'}), {'q': u'tags:"with greek omega \u03a9"'})
         assert_raises(search.SearchError, convert, {'tags': {'tolstoy':1}})
 
 class TestSearch(TestController):
@@ -114,12 +121,28 @@ class TestSearch(TestController):
         result = search.query_for(model.Package).run({'q': u'country-sweden'})
         assert self._check_entity_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
 
+    def test_tags_field_split_word(self):
+        result = search.query_for(model.Package).run({'q': u'todo split'})
+        assert self._check_entity_names(result, ['us-gov-images']), self._pkg_names(result)
+
+    def test_tags_field_with_capitals(self):
+        result = search.query_for(model.Package).run({'q': u'CAPITALS'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
+
+    def dont_test_tags_field_with_basic_unicode(self):
+        result = search.query_for(model.Package).run({'q': u'greek omega \u03a9'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
+        
     def test_tags_token_simple(self):
         result = search.query_for(model.Package).run({'q': u'tags:country-sweden'})
         assert self._check_entity_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
         result = search.query_for(model.Package).run({'q': u'tags:wildlife'})
         assert self._pkg_names(result) == 'us-gov-images', self._pkg_names(result)
 
+    def test_tags_token_with_multi_word_tag(self):
+        result = search.query_for(model.Package).run({'q': u'tags:"todo split"'})
+        assert self._check_entity_names(result, ['us-gov-images']), self._pkg_names(result)
+    
     def test_tags_token_simple_with_deleted_tag(self):
         # registry has been deleted
         result = search.query_for(model.Package).run({'q': u'tags:registry'})
@@ -128,10 +151,24 @@ class TestSearch(TestController):
     def test_tags_token_multiple(self):
         result = search.query_for(model.Package).run({'q': u'tags:country-sweden tags:format-pdf'})
         assert self._pkg_names(result) == 'se-publications', self._pkg_names(result)
+        result = search.query_for(model.Package).run({'q': u'tags:"todo split" tags:war'})
+        assert self._pkg_names(result) == 'us-gov-images', self._pkg_names(result)
 
     def test_tags_token_complicated(self):
         result = search.query_for(model.Package).run({'q': u'tags:country-sweden tags:somethingrandom'})
         assert self._pkg_names(result) == '', self._pkg_names(result)
+
+    def test_tags_token_with_capitals(self):
+        result = search.query_for(model.Package).run({'q': u'tags:"CAPITALS"'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
+
+    def test_tags_token_with_punctuation(self):
+        result = search.query_for(model.Package).run({'q': u'tags:"surprise."'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
+
+    def test_tags_token_with_basic_unicode(self):
+        result = search.query_for(model.Package).run({'q': u'tags:"greek omega \u03a9"'})
+        assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
 
     def test_pagination(self):
         # large search
@@ -274,28 +311,22 @@ class TestSearchOverall(TestController):
         model.repo.rebuild_db()
         search.clear()
 
-    def _check_search_results(self, terms, expected_count, expected_packages=[]):
-        query = {
-            'q': unicode(terms),
-        }
-        result = search.query_for(model.Package).run(query)
-        pkgs = result['results']
-        count = result['count']
-        assert count == expected_count, (count, expected_count)
-        for expected_pkg in expected_packages:
-            assert expected_pkg in pkgs, '%s : %s' % (expected_pkg, result)
-
     def test_overall(self):
-        self._check_search_results('annakarenina', 1, ['annakarenina'])
-        self._check_search_results('warandpeace', 1, ['warandpeace'])
-        self._check_search_results('', 2)
-        self._check_search_results('A Novel By Tolstoy', 1, ['annakarenina'])
-        self._check_search_results('title:Novel', 1, ['annakarenina'])
-        self._check_search_results('title:peace', 0)
-        self._check_search_results('name:warandpeace', 1)
-        self._check_search_results('groups:david', 2)
-        self._check_search_results('groups:roger', 1)
-        self._check_search_results('groups:lenny', 0)
+        check_search_results('annakarenina', 1, ['annakarenina'])
+        check_search_results('warandpeace', 1, ['warandpeace'])
+        check_search_results('', 2)
+        check_search_results('A Novel By Tolstoy', 1, ['annakarenina'])
+        check_search_results('title:Novel', 1, ['annakarenina'])
+        check_search_results('title:peace', 0)
+        check_search_results('name:warandpeace', 1)
+        check_search_results('groups:david', 2)
+        check_search_results('groups:roger', 1)
+        check_search_results('groups:lenny', 0)
+        check_search_results('tags:"russian"', 2)
+        check_search_results(u'tags:"Flexible \u30a1"', 2)
+        check_search_results(u'Flexible \u30a1', 2)
+        check_search_results(u'Flexible', 2)
+        check_search_results(u'flexible', 2)
         
 
 class TestGeographicCoverage(TestController):
@@ -398,16 +429,15 @@ class TestExtraFields(TestController):
         self._do_search(u'bcd', 'b', 1)
         self._do_search(u'"cde abc"', 'c', 1)
 
-    def test_1_partial_matches(self):
-        # TODO: solr is not currently set up to allow partial matches 
-        #       and extras are not saved as multivalued so these
-        #       tests will fail. Make multivalued or remove these?
-        from ckan.tests import SkipTest
-        raise SkipTest
+    def test_1_extras_in_all_fields(self):
+        response = search.query_for(model.Package).run({'q': 'abc', 'fl': '*'})
+        assert response['count'] == 2
 
-        self._do_search(u'abc', ['a', 'c'], 2)
-        self._do_search(u'cde', 'c', 1)
-        self._do_search(u'abc cde', 'c', 1)
+        results = response['results']
+        for result in results:
+            assert 'extras' in result.keys(), result
+            assert 'department' in result['extras'], result['extras']
+            assert result['extras']['department'] in ['abc', 'cde abc'], result['extras']['department']
 
 class TestRank(TestController):
     @classmethod
@@ -415,10 +445,10 @@ class TestRank(TestController):
         setup_test_search_index()
         init_data = [{'name':u'test1-penguin-canary',
                       'title':u'penguin',
-                      'tags':u'canary goose squirrel wombat wombat'},
+                      'tags':u'canary goose squirrel wombat wombat'.split()},
                      {'name':u'test2-squirrel-squirrel-canary-goose',
                       'title':u'squirrel goose',
-                      'tags':u'penguin wombat'},
+                      'tags':u'penguin wombat'.split()},
                      ]
         CreateTestData.create_arbitrary(init_data)
         cls.pkg_names = [

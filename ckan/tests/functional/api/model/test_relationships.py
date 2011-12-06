@@ -10,7 +10,6 @@ from ckan.tests.functional.api.base import ApiUnversionedTestCase as Unversioned
 
 class RelationshipsTestCase(BaseModelApiTestCase):
 
-    commit_changesets = False
     reuse_common_fixtures = True
 
     @classmethod

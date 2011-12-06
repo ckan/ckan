@@ -6,7 +6,8 @@ from ckan.authz import Authorizer
 from ckan.logic import check_access, NotAuthorized
 from ckan.lib.helpers import date_str_to_datetime
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
-                        PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH)
+                        PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH,
+                        PACKAGE_VERSION_MAX_LENGTH)
 
 def package_id_not_changed(value, context):
 
@@ -93,6 +94,9 @@ def name_validator(val, context):
     # check basic textual rules
     if len(val) < 2:
         raise Invalid(_('Name must be at least %s characters long') % 2)
+    if len(val) > PACKAGE_NAME_MAX_LENGTH:
+        raise Invalid(_('Name must be a maximum of %i characters long') % \
+                      PACKAGE_NAME_MAX_LENGTH)
     if not name_match.match(val):
         raise Invalid(_('Url must be purely lowercase alphanumeric '
                         '(ascii) characters and these symbols: -_'))
@@ -121,8 +125,15 @@ def package_name_validator(key, data, errors, context):
         )
     if len(value) > PACKAGE_NAME_MAX_LENGTH:
         raise Invalid(
-            _('Name "%s" length is more than maximum %s') % (value, PACKAGE_NAME_MIN_LENGTH)
+            _('Name "%s" length is more than maximum %s') % (value, PACKAGE_NAME_MAX_LENGTH)
         )
+
+def package_version_validator(value, context):
+
+    if len(value) > PACKAGE_VERSION_MAX_LENGTH:
+        raise Invalid(_('Version must be a maximum of %i characters long') % \
+                      PACKAGE_VERSION_MAX_LENGTH)
+    return value
 
 def duplicate_extras_key(key, data, errors, context):
 
@@ -168,7 +179,7 @@ def tag_length_validator(value, context):
 
 def tag_name_validator(value, context):
 
-    tagname_match = re.compile('[\w\-_.]*$', re.UNICODE)
+    tagname_match = re.compile('[\w \-.]*$', re.UNICODE)
     if not tagname_match.match(value):
         raise Invalid(_('Tag "%s" must be alphanumeric '
                         'characters or symbols: -_.') % (value))
@@ -185,9 +196,17 @@ def tag_string_convert(key, data, errors, context):
 
     value = data[key]
 
-    tags = value.split()
+    # Ensure a tag string with only whitespace
+    # is converted to the empty list of tags.
+    # If we were to split(',') on this string,
+    # we'd get the non-empty list, [''].
+    if not value.strip():
+        return
+
+    tags = map(lambda s: s.strip(),
+               value.split(','))
     for num, tag in enumerate(tags):
-        data[('tags', num, 'name')] = tag.lower()
+        data[('tags', num, 'name')] = tag
 
     for tag in tags:
         tag_length_validator(tag, context)

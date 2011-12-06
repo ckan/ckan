@@ -39,4 +39,3 @@ htmlcov/*
 ckan.log
 ckan_deb/DEBIAN/control
 ckan_deb/DEBIAN/prerm
-

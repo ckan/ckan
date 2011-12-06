@@ -11,7 +11,8 @@ from ckan.lib.helpers import json
 
 ## package save
 
-def group_list_dictize(obj_list, context, sort_key=lambda x:x['display_name']):
+def group_list_dictize(obj_list, context, 
+                       sort_key=lambda x:x['display_name'], reverse=False):
 
     active = context.get('active', True)
 
@@ -28,7 +29,7 @@ def group_list_dictize(obj_list, context, sort_key=lambda x:x['display_name']):
         group_dict['packages'] = len(obj.packages)
 
         result_list.append(group_dict)
-    return sorted(result_list, key=sort_key)
+    return sorted(result_list, key=sort_key, reverse=reverse)
 
 def resource_list_dictize(res_list, context):
 
@@ -154,6 +155,11 @@ def package_dictize(pkg, context):
     q = select([rel_rev]).where(rel_rev.c.object_package_id == pkg.id)
     result = _execute_with_revision(q, rel_rev, context)
     result_dict["relationships_as_object"] = obj_list_dictize(result, context)
+    #isopen
+    # Get an actual Package object, not a PackageRevision
+    pkg_object = model.Package.get(pkg.id)
+    result_dict['isopen'] = pkg_object.isopen if isinstance(pkg_object.isopen,bool) else pkg_object.isopen()
+
     return result_dict
 
 def group_dictize(group, context):

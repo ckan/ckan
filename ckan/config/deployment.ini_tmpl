@@ -22,8 +22,8 @@ beaker.session.key = ckan
 beaker.session.secret = ${app_instance_secret}
 app_instance_uuid = ${app_instance_uuid}
 
-# Add any CKAN plugins here. Note: This line is required to be here for 
-# packaging, even if it is empty.
+# List the names of CKAN extensions to activate.
+# Note: This line is required to be here for packaging, even if it is empty.
 ckan.plugins = 
 
 # If you'd like to fine-tune the individual locations of the cache data dirs

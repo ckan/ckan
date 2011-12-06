@@ -9,7 +9,6 @@ from ckan.tests.functional.api.base import ApiUnversionedTestCase as Unversioned
 
 class LicensesTestCase(BaseModelApiTestCase):
 
-    commit_changesets = False
     reuse_common_fixtures = False
 
     def test_register_get_ok(self):
