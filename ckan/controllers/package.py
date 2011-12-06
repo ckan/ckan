@@ -360,7 +360,8 @@ class PackageController(BaseController):
             if schema and not data:
                 old_data, errors = validate(old_data, schema, context=context)
             data = data or old_data
-            c.pkg_dict = data
+            # Merge all elements for the complete package dictionary
+            c.pkg_dict = dict(old_data.items() + data.items())
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
