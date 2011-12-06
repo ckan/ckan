@@ -642,12 +642,10 @@ You can now proceed to :doc:`post-installation`.
     If you don't do this and you install different versions of the same Python
     packages into the different pyenvs in ``/var/lib/ckan`` for each instance,
     there is a chance the CKAN instances might use the wrong package.
+   
+    If you want to make sure that you CKAN instances are using different Solr indexes, you can
+    configure Solr to run in multi-core mode. See :ref:`solr-multi-core` for more details.
     
-    The CKAN team have also recently had difficulties with CKAN instances writing
-    over each other's Solr search indexes. These have been documented in `ticket
-    #1430 <http://trac.ckan.org/ticket/1430>`_. If you run into the same problems
-    send an email to `ckan-dev <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
-
 CKAN packaging is well tested and reliable with single instance CKAN installs.
 Multi-instance support is newer, and whilst we believe will work well, hasn't
 had the same degree of testing. If you hit any problems with multi-instance

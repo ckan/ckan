@@ -110,6 +110,7 @@ class CreateTestData(cli.CkanCommand):
         model.Session.remove()
         new_user_names = extra_user_names
         new_group_names = set()
+        new_groups = {}
         
         rev = model.repo.new_revision() 
         rev.author = cls.author
@@ -172,9 +173,17 @@ class CreateTestData(cli.CkanCommand):
                         for group_name in group_names:
                             group = model.Group.by_name(unicode(group_name))
                             if not group:
-                                group = model.Group(name=unicode(group_name))
-                                model.Session.add(group)
-                                new_group_names.add(group_name)
+                                if not group_name in new_groups:
+                                    group = model.Group(name=unicode(group_name))
+                                    model.Session.add(group)
+                                    new_group_names.add(group_name)
+                                    new_groups[group_name] = group
+                                else:
+                                    # If adding multiple packages with the same group name,
+                                    # model.Group.by_name will not find the group as the
+                                    # session has not yet been committed at this point.
+                                    # Fetch from the new_groups dict instead.
+                                    group = new_groups[group_name]
                             pkg.groups.append(group)
                     elif attr == 'license':
                         pkg.license_id = val

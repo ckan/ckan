@@ -433,15 +433,15 @@ def group_package_show(context, data_dict):
         .filter(model.PackageRevision.current==True)\
         .join(model.PackageGroup, model.PackageGroup.package_id==model.PackageRevision.id)\
         .join(model.Group, model.Group.id==model.PackageGroup.group_id)\
-        .filter_by(id=group.id)
+        .filter_by(id=group.id)\
+        .order_by(model.PackageRevision.name)
 
-    query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit:
         query = query.limit(limit)
 
     result = []
     for pkg_rev in query.all():
-        result.append(package_dictize(pkg_rev,context))
+        result.append(package_dictize(pkg_rev, context))
 
     return result
 
