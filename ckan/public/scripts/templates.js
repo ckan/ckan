@@ -152,3 +152,12 @@ CKAN.Templates.resourceEntry = ' \
     <a class="resource-edit-delete js-resource-edit-delete" href="#"><img src="/images/icons/delete.png" /></a> \
   </td> \
 ';
+
+CKAN.Templates.datasetNotesField = ' \
+  <div id="notes-extract"> \
+  </div> \
+  <div id="notes-remainder"> \
+  </div> \
+  <div id="dataset-notes-toggle"><a class="more" href="#">Read more</a><a class="less" href="#" style="display: none;">Read less</a></div> \
+';
+

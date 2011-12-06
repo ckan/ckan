@@ -25,8 +25,13 @@
 
     var isDatasetView = $('body.package.read').length > 0;
     if (isDatasetView) {
-      var _dataset = new CKAN.Model.Dataset(preload_dataset);
-      CKANEXT.DATAPREVIEW.setupDataPreview(_dataset);
+      // Show extract of notes field
+      CKAN.Utils.setupDatasetViewNotesExtract();
+    }
+
+    var isResourceView = $('body.package.resource_read').length > 0;
+    if (isResourceView) {
+      CKANEXT.DATAPREVIEW.setupDataPreview(preload_resource);
     }
 
     var isDatasetNew = $('body.package.new').length > 0;
@@ -416,6 +421,30 @@ CKAN.Utils = function($, my) {
     });
   };
 
+  // If notes field is more than 1 paragraph, just show the
+  // first paragraph with a 'Read more' link that will expand
+  // the div if clicked
+  my.setupDatasetViewNotesExtract = function() {
+    var notes = $('#dataset div.notes');
+    if(notes.find('p').length > 1){
+      var extract = notes.children(':eq(0)');
+      var remainder = notes.children(':gt(0)');
+      notes.html($.tmpl(CKAN.Templates.datasetNotesField));
+      notes.find('#notes-extract').html(extract);
+      notes.find('#notes-remainder').html(remainder);
+      notes.find('#notes-remainder').hide();
+      notes.find('#dataset-notes-toggle a').click(function(event){
+        notes.find('#dataset-notes-toggle a').toggle();
+        var remainder = notes.find('#notes-remainder')
+        if ($(event.target).hasClass('more')) {
+          remainder.slideDown();
+        }
+        else {
+          remainder.slideUp();
+        }
+      })
+    }
+  };
 
   // Show/hide fieldset sections from the edit dataset form. 
   my.setupDatasetEditNavigation = function() {
@@ -707,88 +736,24 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   }
 });
 
-
 (function ($) {
   var my = {};
   my.jsonpdataproxyUrl = 'http://jsonpdataproxy.appspot.com/';
+  my.dialogId = 'ckanext-datapreview';
+  my.$dialog = $('#' + my.dialogId);
 
-  my.setupDataPreview = function(dataset) {
-    var dialogId = 'ckanext-datapreview-dialog';
+  // Initialize data explorer on Resource view page
+  // 
+  // resourceData: resource as simple hash (suitable for initializing backbone model or result of backboneModel.toJSON())
+  my.setupDataPreview = function(resourceData) {
     // initialize the tableviewer system
-    DATAEXPLORER.TABLEVIEW.initialize(dialogId);
-    if (dataset.get('resources').length>0) {
-      my.createPreviewButtons(dataset, $('.resources'));
-    }
+    DATAEXPLORER.TABLEVIEW.initialize(my.dialogId);
+    resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
+
+    my.loadPreviewDialog(resourceData);
   };
 
-  // Public: Creates the base UI for the plugin.
-  //
-  // Also requests the package from the api to see if there is any chart
-  // data stored and updates the preview icons accordingly.
-  //
-  // dataset: Dataset model for the dataset on this page.
-  // resourceElements - The resources table wrapped in jQuery.
-  //
-  // Returns nothing.
-  my.createPreviewButtons = function(dataset, resourceElements) {
-    // rather pointless, but w/o assignment dataset not available in loop below (??!)
-    var currentDataset = dataset;
-    resourceElements.find('tr td:last-child').each(function(idx, element) {
-      var element = $(element);
-      var resource = currentDataset.get('resources').models[idx];
-      var resourceData = resource.toJSON();
-      resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
-
-      // do not create previews for some items
-      var _tformat = resourceData.format.toLowerCase();
-      if (
-        _tformat.indexOf('zip') != -1
-        ||
-        _tformat.indexOf('tgz') != -1
-        ||
-        _tformat.indexOf('targz') != -1
-        ||
-        _tformat.indexOf('gzip') != -1
-        ||
-        _tformat.indexOf('gz:') != -1
-        ||
-        _tformat.indexOf('word') != -1
-        ||
-        _tformat.indexOf('pdf') != -1
-        ||
-        _tformat === 'other'
-        )
-      {
-        return;
-      }
-
-      var _previewSpan = $('<a />', {
-        text: 'Preview',
-        href: resourceData.url,
-        click: function(e) {
-          e.preventDefault();
-          my.loadPreviewDialog(e.target);
-        },
-        'class': 'resource-preview-button'
-      }).data('preview', resourceData).appendTo(element);
-
-      var chartString, charts = {};
-
-      if (resource) {
-        chartString = resource[my.resourceChartKey];
-        if (chartString) {
-          try {
-            charts = $.parseJSON(chartString);
-
-            // If parsing succeeds add a class to the preview button.
-            _previewSpan.addClass('resource-preview-chart');
-          } catch (e) {}
-        }
-      }
-    });
-  };
-
-  // **Public: Loads a data preview dialog for a preview button.**
+  // **Public: Loads a data preview**
   //
   // Fetches the preview data object from the link provided and loads the
   // parsed data from the webstore displaying it in the most appropriate
@@ -797,11 +762,9 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   // link - Preview button.
   //
   // Returns nothing.
-  my.loadPreviewDialog = function(link) {
-    var preview  = $(link).data('preview');
-    preview.url  = my.normalizeUrl(link.href);
-
-    $(link).addClass('resource-preview-loading').text('Loading');
+  my.loadPreviewDialog = function(resourceData) {
+    resourceData.url  = my.normalizeUrl(resourceData.url);
+    my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
 
     // 4 situations
     // a) have a webstore_url
@@ -810,32 +773,32 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     // d) none of the above but worth iframing (assumption is
     // that if we got here (i.e. preview shown) worth doing
     // something ...)
-    if (preview.formatNormalized === '') {
-      var tmp = preview.url.split('/');
+    if (resourceData.formatNormalized === '') {
+      var tmp = resourceData.url.split('/');
       tmp = tmp[tmp.length - 1];
       tmp = tmp.split('?'); // query strings
       tmp = tmp[0];
       var ext = tmp.split('.');
       if (ext.length > 1) {
-        preview.formatNormalized = ext[ext.length-1];
+        resourceData.formatNormalized = ext[ext.length-1];
       }
     }
 
-    if (preview.webstore_url) {
-      var _url = preview.webstore_url + '.jsontuples?_limit=500';
+    if (resourceData.webstore_url) {
+      var _url = resourceData.webstore_url + '.jsontuples?_limit=500';
       my.getResourceDataDirect(_url, function(data) {
         DATAEXPLORER.TABLEVIEW.showData(data);
         DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
       });
     }
-    else if (preview.formatNormalized in {'csv': '', 'xls': ''}) {
-      var _url = my.jsonpdataproxyUrl + '?url=' + preview.url + '&type=' + preview.formatNormalized;
+    else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
+      var _url = my.jsonpdataproxyUrl + '?url=' + resourceData.url + '&type=' + resourceData.formatNormalized;
       my.getResourceDataDirect(_url, function(data) {
         DATAEXPLORER.TABLEVIEW.showData(data);
         DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
       });
     }
-    else if (preview.formatNormalized in {
+    else if (resourceData.formatNormalized in {
         'rdf+xml': '',
         'owl+xml': '',
         'xml': '',
@@ -850,24 +813,17 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
         }) {
       // HACK: treat as plain text / csv
       // pass url to jsonpdataproxy so we can load remote data (and tell dataproxy to treat as csv!)
-      var _url = my.jsonpdataproxyUrl + '?type=csv&url=' + preview.url;
+      var _url = my.jsonpdataproxyUrl + '?type=csv&url=' + resourceData.url;
       my.getResourceDataDirect(_url, function(data) {
         my.showPlainTextData(data);
         DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
       });
     }
     else {
-      // HACK: but should work
-      // we displays a fullscreen dialog with the url in an iframe.
-      // HACK: we borrow dialog from DATAEXPLORER.TABLEVIEW
-      var $dialog = DATAEXPLORER.TABLEVIEW.$dialog;
-      $dialog.empty();
-      $dialog.dialog('option', 'title', 'Preview: ' + preview.url);
-      var el = $('<iframe></iframe>');
-      el.attr('src', preview.url);
-      el.attr('width', '100%');
-      el.attr('height', '100%');
-      $dialog.append(el).dialog('open');;
+      // Cannot reliably preview this item - with no mimetype/format information, 
+      // can't guarantee it's not a remote binary file such as an executable.
+      var _msg = $('<p class="error">We are unable to preview this type of resource: ' + resourceData.formatNormalized + '</p>');
+      my.$dialog.html(_msg);
     }
   };
 
