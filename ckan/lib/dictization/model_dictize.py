@@ -159,7 +159,7 @@ def package_dictize(pkg, context):
     # Get an actual Package object, not a PackageRevision
     pkg_object = model.Package.get(pkg.id)
     result_dict['isopen'] = pkg_object.isopen if isinstance(pkg_object.isopen,bool) else pkg_object.isopen()
-
+    result_dict['type_name']= pkg_object.type_name
     return result_dict
 
 def group_dictize(group, context):

@@ -25,7 +25,7 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
 from ckan.lib.dictization import table_dictize
 from ckan.lib.i18n import get_lang
-from ckan.plugins import PluginImplementations, IPluggablePackageController
+from ckan.plugins import PluginImplementations, IDatasetForm
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -51,7 +51,7 @@ autoneg_cfg = [
 ##############  Methods and variables related to the pluggable  ##############
 ##############       behaviour of the package controller        ############## 
 
-# Mapping from package-type strings to IPluggablePackageController instances
+# Mapping from package-type strings to IDatasetForm instances
 _controller_behaviour_for = dict()
 
 # The fallback behaviour
@@ -59,10 +59,10 @@ _default_controller_behaviour = None
 
 def register_pluggable_behaviour():
     """
-    Register the various IPluggablePackageController instances.
+    Register the various IDatasetForm instances.
 
     This method will setup the mappings between package types and the registered
-    IPluggablePackageController instances.  If it's called more than once an
+    IDatasetForm instances.  If it's called more than once an
     exception will be raised.
     """
     global _default_controller_behaviour
@@ -75,16 +75,16 @@ def register_pluggable_behaviour():
                           #"'%s'" % _default_controller_behaviour
 
     # Create the mappings and register the fallback behaviour if one is found.
-    for plugin in PluginImplementations(IPluggablePackageController):
+    for plugin in PluginImplementations(IDatasetForm):
         if plugin.is_fallback():
             if _default_controller_behaviour is not None:
                 raise ValueError, "More than one fallback "\
-                                  "IPluggablePackageController has been registered"
+                                  "IDatasetForm has been registered"
             _default_controller_behaviour = plugin
 
         for package_type in plugin.package_types():
             if package_type in _controller_behaviour_for:
-                raise ValueError, "An existing IPluggablePackageController is "\
+                raise ValueError, "An existing IDatasetForm is "\
                                   "already associated with the package type "\
                                   "'%s'" % package_type
             _controller_behaviour_for[package_type] = plugin
@@ -100,6 +100,7 @@ def _lookup_plugin(package_type):
     If the package type is None or cannot be found in the mapping, then the
     fallback behaviour is used.
     """
+    #from pdb import set_trace; set_trace()    
     if package_type is None:
         return _default_controller_behaviour
     return _controller_behaviour_for.get(package_type,
@@ -111,7 +112,7 @@ class DefaultPluggablePackageController(object):
 
     This class has 2 purposes:
 
-     - it provides a base class for IPluggablePackageController implementations
+     - it provides a base class for IDatasetForm implementations
        to use if only a subset of the 5 method hooks need to be customised.
 
      - it provides the fallback behaviour if no plugin is setup to provide
@@ -174,7 +175,7 @@ class DefaultPluggablePackageController(object):
 
 class PackageController(BaseController):
 
-    def _package_form(self, package_type=None):
+    def _package_form(self, package_type=None):    
         return _lookup_plugin(package_type).package_form()
 
     def _form_to_db_schema(self, package_type=None):
@@ -536,13 +537,18 @@ class PackageController(BaseController):
 
     def _get_package_type(self, id):
         """
-        Returns the package type for the given id.
+        Given the id of a package it determines the plugin to load 
+        based on the package's type name (type_name). The plugin found
+        will be returned, or None if there is no plugin associated with 
+        the type.
 
         Uses a minimal context to do so.  The main use of this method
         is for figuring out which plugin to delegate to.
 
         aborts if an exception is raised.
         """
+        global _controller_behaviour_for
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         try:
@@ -552,8 +558,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
-        # packages don't have a type yet, so return None for now.
-        return None
+        return data['type_name']
 
     def _save_new(self, context):
         try:

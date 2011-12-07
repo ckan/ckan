@@ -12,7 +12,7 @@ __all__ = [
     'IDomainObjectModification', 'IGroupController', 
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer', 'IAuthorizer',
-    'IActions', 'IResourceUrlChange', 'IPluggablePackageController',
+    'IActions', 'IResourceUrlChange', 'IDatasetForm',
 ]
 
 from inspect import isclass
@@ -329,7 +329,7 @@ class IAuthFunctions(Interface):
         implementation overrides
         """
 
-class IPluggablePackageController(Interface):
+class IDatasetForm(Interface):
     """
     Allows customisation of the package controller as a plugin.
 
