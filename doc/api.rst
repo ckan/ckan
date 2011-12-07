@@ -429,13 +429,9 @@ To obtain your API key:
 
 2. The user page shows the API Key: /user/me
 
-The key should be passed in the API request header:
+The key should be passed in the API request header ''Authorization'' (or an alternative may be provided such as ''X-CKAN-API-KEY''). For example::
 
-================= =====
-Header            Example value
-================= =====
-Authorization     ``fde34a3c-b716-4c39-8dc4-881ba115c6d4``
-================= =====
+  curl http://thedatahub.org/api/rest/package -d '{"name": "test"}' -H 'Authorization: fde34a3c-b716-4c39-8dc4-881ba115c6d4'
 
 If requests that are required to be authorized are not sent with a 
 valid Authorization header, for example the user associated with the 
