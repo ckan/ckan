@@ -366,6 +366,9 @@ def user_update(context, data_dict):
 
 def task_status_update(context, data_dict):
     model = context['model']
+    session = model.meta.create_local_session()
+    context['session'] = session
+
     user = context['user']
     id = data_dict.get("id")
     schema = context.get('schema') or default_task_status_schema()
@@ -382,13 +385,13 @@ def task_status_update(context, data_dict):
     data, errors = validate(data_dict, schema, context)
 
     if errors:
-        model.Session.rollback()
+        session.rollback()
         raise ValidationError(errors, task_status_error_summary(errors))
 
     task_status = task_status_dict_save(data, context)
 
-    if not context.get('defer_commit'):
-        model.Session.commit()
+    session.commit()
+    session.close()
     return task_status_dictize(task_status, context)
 
 def task_status_update_many(context, data_dict):
