@@ -37,6 +37,7 @@ def init_model(engine):
     '''Call me before using any of the tables or classes in the model'''
     meta.Session.remove()
     meta.Session.configure(bind=engine)
+    meta.create_local_session.configure(bind=engine)
     meta.engine = engine
     meta.metadata.bind = engine
     # sqlalchemy migrate version table
@@ -46,7 +47,7 @@ def init_model(engine):
     except sqlalchemy.exc.NoSuchTableError:
         pass
 
-
+    
 
 class Repository(vdm.sqlalchemy.Repository):
     migrate_repository = ckan.migration.__path__[0]
