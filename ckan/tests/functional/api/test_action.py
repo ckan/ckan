@@ -1123,7 +1123,9 @@ class TestActionPackageSearch(WsgiAppCase):
                             status=409)
         assert '"message": "Search error:' in res.body, res.body
         assert 'SOLR returned an error' in res.body, res.body
-        assert 'Missing sort order' in res.body, res.body
+        # solr error is 'Missing_sort_order' or 'Missing_sort_order',
+        # depending on the solr version.
+        assert 'sort' in res.body, res.body
 
     def test_3_bad_param(self):
         postparams = '%s=1' % json.dumps({
