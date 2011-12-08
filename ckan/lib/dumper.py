@@ -61,7 +61,7 @@ class Dumper(object):
         ckan.model.PackageRevision,
         ckan.model.PackageTagRevision,
         ckan.model.Group,
-        ckan.model.PackageGroup,
+        ckan.model.Member,
         ckan.model.PackageExtra,
         ]
     # TODO Bring this list of classes up to date. In the meantime,

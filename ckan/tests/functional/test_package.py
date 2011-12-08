@@ -287,7 +287,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert 'romantic novel' in res, res
         assert 'original media' in res, res
         assert 'book' in res, res
-        assert 'This Dataset is Open' in res, res
+        assert 'This dataset satisfies the Open Definition' in res, res
 
     def test_read_war(self):
         name = u'warandpeace'
@@ -874,7 +874,7 @@ class TestEdit(TestPackageForm):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
             grp = model.Group.by_name(u'david')
-            assert len(pkg.groups) == 0
+            assert len(pkg.get_groups()) == 0
             offset = url_for(controller='package', action='edit', id=pkg.name)
             res = self.app.get(offset)
             prefix = ''
@@ -890,7 +890,7 @@ class TestEdit(TestPackageForm):
             res = fv.submit('save')
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 0
+            assert len(pkg.get_groups()) == 0
         finally:
             self._reset_data()            
     
@@ -898,7 +898,7 @@ class TestEdit(TestPackageForm):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
             grp = model.Group.by_name(u'david')
-            assert len(pkg.groups) == 0
+            assert len(pkg.get_groups()) == 0
             offset = url_for(controller='package', action='edit', id=pkg.name)
             
             res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
@@ -910,7 +910,7 @@ class TestEdit(TestPackageForm):
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 1, pkg.groups
+            assert len(pkg.get_groups()) == 1, pkg.get_groups()
             assert 'david' in res, res
         finally:
             self._reset_data()
@@ -918,13 +918,13 @@ class TestEdit(TestPackageForm):
     def test_edit_700_groups_remove(self):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 0
+            assert len(pkg.get_groups()) == 0
             grp = model.Group.by_name(u'david')
             model.repo.new_revision()
-            model.Session.add(model.PackageGroup(package=pkg, group=grp))
+            model.Session.add(model.Member(table_id=pkg.id, table_name='package', group=grp))
             model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 1
+            assert len(pkg.get_groups()) == 1
             offset = url_for(controller='package', action='edit', id=pkg.name)
             res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
             prefix = ''
@@ -935,7 +935,7 @@ class TestEdit(TestPackageForm):
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
             model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 0
+            assert len(pkg.get_groups()) == 0
         finally:
             self._reset_data()
 
@@ -1113,7 +1113,7 @@ class TestNew(TestPackageForm):
         saved_tagnames.sort()
         expected_tagnames = sorted(tags)
         assert saved_tagnames == expected_tagnames, '%r != %r' % (saved_tagnames, expected_tagnames)
-        saved_groupnames = [str(group.name) for group in pkg.groups]
+        saved_groupnames = [str(group.name) for group in pkg.get_groups()]
         assert len(pkg.extras) == len(extras)
         for key, value in extras.items():
             assert pkg.extras[key] == value

@@ -37,10 +37,12 @@ class TestBasicDictize:
                {'key': u'original media', 'state': u'active', 'value': u'"book"'}],
             'groups': [{'description': u'These are books that David likes.',
                         'name': u'david',
+                        'type': u'dataset_group',
                         'state': u'active',
                         'title': u"Dave's books"},
                        {'description': u'Roger likes these books.',
                         'name': u'roger',
+                        'type': u'dataset_group',
                         'state': u'active',
                         'title': u"Roger's books"}],
             'isopen': True,
@@ -865,7 +867,8 @@ class TestBasicDictize:
                                   'url': u'http://www.annakarenina.com',
                                   'version': u'0.7a'}],
                     'state': u'active',
-                    'title': u'help'}
+                    'title': u'help',
+                    'type': u'dataset_group'}
 
         expected['packages'] = sorted(expected['packages'], key=lambda x: x['name'])
 

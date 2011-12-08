@@ -193,6 +193,10 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'auth_tkt=' in cookie, cookie
         assert 'testlogin!userid_type:unicode' in cookie, cookie
 
+        # navigate to another page and check username still displayed
+        res = res.click('Search')
+        assert 'testlogin' in res.body, res.body
+
     def test_login_wrong_password(self):
         # create test user
         username = u'testloginwrong'
@@ -233,11 +237,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
     def test_home_login(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        # cannot use click because it does not allow a 401 response ...
-        # could get round this by checking that url is correct and then doing a
-        # get but then we are back to test_user_login
-        res.click('Login')
-        # assert 'Please Sign In' in res
+        res = res.click('Login')
+        assert 'Login to CKAN' in res, res.body
 
     def test_apikey(self):
         username= u'okfntest'

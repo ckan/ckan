@@ -62,13 +62,16 @@ class TestStats(TestController):
 
         model.repo.new_revision()
         for group in model.Session.query(model.Group):
-            group.packages = []
-        model.Group.by_name(u'tst1').packages = [model.Package.by_name(u'gils'),
-                                                  model.Package.by_name(u'us-gov-images'),
-                                                  model.Package.by_name(u'usa-courts-gov')]
-        model.Group.by_name(u'tst2').packages = [model.Package.by_name(u'us-gov-images'),
-                                                  model.Package.by_name(u'usa-courts-gov')]
-        model.Group.by_name(u'tst3').packages = [model.Package.by_name(u'usa-courts-gov')]
+            group.member_all = []
+        grp1 = model.Group.by_name(u'tst1')
+        grp2 = model.Group.by_name(u'tst2')
+        grp3 = model.Group.by_name(u'tst3')
+        model.Session.add(model.Member(group = grp1, table_name='package', table_id=model.Package.by_name(u'gils').id))
+        model.Session.add(model.Member(group = grp1, table_name='package', table_id=model.Package.by_name(u'us-gov-images').id))
+        model.Session.add(model.Member(group = grp1, table_name='package', table_id=model.Package.by_name(u'usa-courts-gov').id))
+        model.Session.add(model.Member(group = grp2, table_name='package', table_id=model.Package.by_name(u'us-gov-images').id))
+        model.Session.add(model.Member(group = grp2, table_name='package', table_id=model.Package.by_name(u'usa-courts-gov').id))
+        model.Session.add(model.Member(group = grp3, table_name='package', table_id=model.Package.by_name(u'usa-courts-gov').id))
         model.repo.commit_and_remove()
 
         res = Stats().largest_groups()

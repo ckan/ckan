@@ -81,7 +81,7 @@ def get_group_fieldset(combined=False, is_admin=False):
 def get_package_group_fieldset():
     if not 'new_package_group_fs' in fieldsets:
         # new_package_group_fs is the packages for the WUI form
-        builder = FormBuilder(model.PackageGroup)
+        builder = FormBuilder(model.Member)
         builder.add_field(PackageNameField('package_name'))
         builder.set_field_option('package_name', 'with_renderer', PackagesRenderer)
         builder.set_field_text('package_name', _('Package'))

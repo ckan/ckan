@@ -457,6 +457,8 @@ class PackageController(BaseController):
             if schema and not data:
                 old_data, errors = validate(old_data, schema, context=context)
             data = data or old_data
+            # Merge all elements for the complete package dictionary
+            c.pkg_dict = dict(old_data.items() + data.items())
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
@@ -656,6 +658,7 @@ class PackageController(BaseController):
             context = {'model':model,'user':c.user or c.author, 'package':pkg}
             check_access('package_edit_permissions',context)
             c.authz_editable = True
+            c.pkg_dict = get_action('package_show')(context, {'id': id})
         except NotAuthorized:
             c.authz_editable = False
         if not c.authz_editable:
@@ -752,18 +755,15 @@ class PackageController(BaseController):
 
         try:
             c.resource = get_action('resource_show')(context, {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+            # required for nav menu
+            c.pkg = context['package']
+            c.resource_json = json.dumps(c.resource)
+            c.pkg_dict = c.package
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-
-        try:
-            c.package = get_action('package_show')(context, {'id': id})
-        except NotFound:
-            abort(404, _('Package not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
-
         # get package license info
         license_id = c.package.get('license_id')
         try:

@@ -175,10 +175,10 @@ table caption {
   background-color: white;
 }
 tbody tr:nth-child(even) td, tbody tr.even td {
-  background-color: #FCF6CF;
+  background-color: #F9F9F9;
 }
 tbody tr:nth-child(odd) td, tbody tr.odd td {
-  background-color: #FEFEF2;
+  background-color: #F2F2F2;
 }
 tbody tr.table-empty td {
   background: #f8f8f8;
@@ -231,8 +231,14 @@ tbody tr.table-empty td {
 #minornavigation li {
   display: inline-block;
   margin-right: 3px;
-  border: 2px solid transparent;
-  padding: 5px 11px 5px 9px
+  padding: 5px 11px 5px 9px;
+
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-right: none;
+     -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px; 
+          border-radius: 5px; 
 }
 #minornavigation li.action {
   float: right;
@@ -240,18 +246,14 @@ tbody tr.table-empty td {
 #minornavigation li.current-tab {
   background: #000;
   background-color: #fff;
-  border: 1px solid #777;
-  border-bottom: 0px solid #ccc;
-  border-right: 0px solid #ccc;
-     -moz-border-radius: 5px; 
-  -webkit-border-radius: 5px; 
-          border-radius: 5px; 
+  border-color: #777;
 }
 #minornavigation li a {
   text-decoration: none;
   font-weight: bold;
 }
-#minornavigation li a img {
+#minornavigation li a img,
+#minornavigation li.disabled img:first-child {
   margin-bottom: -4px;
   padding-right: 5px;
 }
@@ -260,6 +262,78 @@ tbody tr.table-empty td {
 #minornavigation li.current-tab a:visited {
   color: #222;
 }
+#minornavigation .divider {
+  font-size: 14px;
+  color: #888;
+}
+#minornavigation li.disabled {
+  font-weight: bold;
+  color: #777;
+}
+
+/* ======================================== */
+/* MinorNavigation extension: Dropdown Menu */
+/* ======================================== */
+#minornavigation .dropdown {
+  position: relative;
+  display: inline-block;
+}
+#minornavigation .dropdown .dropdown-appears {
+  display: none;
+  z-index: 2;
+  position: absolute;
+  top: 24px;
+  left: -1px;
+  width: 100%;
+}
+#minornavigation .dropdown:hover {
+  background: #fff;
+  border-color: #ddd;
+}
+#minornavigation .dropdown:hover .dropdown-appears {
+  display: block;
+}
+#minornavigation .dropdown-items {
+  margin-top: 9px;
+  width: 250px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-top: none;
+  padding: 2px 0 6px 0;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  box-shadow: 1px 1px 3px #aaa;
+}
+#minornavigation .dropdown-items a {
+  display: block;
+  padding: 5px 12px;
+  margin: 2px 0;
+}
+#minornavigation .dropdown-items a:hover {
+  background: #f0f0f0;
+}
+/* White box is a hack to connect the LI to the DIV beneath it, covering up 
+ * that bottom bit of the mainnavigation bar. */
+#minornavigation .dropdown .white-box {
+  border-left: 1px solid #ddd;
+  background: #fff;
+  margin-right: -1px;
+  height: 9px;
+  position: absolute: 
+  top: 0;
+  left: 0;
+}
+/* Rules are different on current tab */
+#minornavigation .dropdown.current-tab:hover,
+#minornavigation .dropdown.current-tab .dropdown-items,
+#minornavigation .dropdown.current-tab .white-box {
+  border-color: #777;
+}
+#minornavigation .dropdown.current-tab .dropdown-items a,
+#minornavigation .dropdown.current-tab .dropdown-items a:visited {
+  color: #bb2222;
+}
+
 
 
 /* ======= */
@@ -508,12 +582,17 @@ form.simple-form input[type=password] {
 }
 .property-list li h3 {
   font-size: 1.1em;
-  font-weight: bold; 
   margin-bottom: 0.5em;
   margin-left: -2em;
 }
 .group.read .property-list li ul li {
   margin-left: -2.5em;
+}
+.group.read .notes p {
+  margin-bottom: 0;
+}
+.group-dataset-list {
+  margin: 2em 0;
 }
 
 
@@ -985,32 +1064,95 @@ a.url-edit {
 /* ===================== */
 /* = Dataset View Page = */
 /* ===================== */
-body.package.read #sidebar ul.tags, 
-body.package.read #sidebar ul.groups {
-  margin-bottom: 10px;
+body.package.read .sidebar-section {
+  margin-bottom: 2em;
 }
-body.package.read #dataset-resources { 
+body.package.read .tags, body.package.read .groups {
+    padding: 0;
+}
+body.package.read .tags li, body.package.read .groups li {
+    list-style-type: none;
+    display: inline-block;
+    padding: 3px 3px 3px 0px;
+    margin-right: 6px;
+    padding:0 5px 2px 5px;
+    border:none;
+    font-weight:normal;
+    font-size:0.8em;
+    background:#afc6e9;
+}
+body.package.read .tags a, body.package.read .groups a {
+    color: black;
+}
+body.package.read .tags li:hover,
+body.package.read .groups li:hover {
+    background: #bdf;
+}
+body.package.read .related-datasets {
+    padding: 0;
+}
+body.package.read .related-datasets li {
+    list-style-type: none;
+}
+
+img.open-data { margin: 1px 0 0 8px; vertical-align: top; }
+#dataset-resources { 
+    margin-top: 2em; 
     margin-bottom: 2em; 
 }
-body.package.read .dataset-resource { 
-    margin-bottom: 1em;
+body.package.read h3 {
+  margin-bottom: 8px;
 }
-body.package.read .resource-url { 
-    font-size: 1.3em;
+.dataset-resource { 
+  border-left: 2px solid #eee;
+  margin: 0;
+  padding: 8px;
+  margin-bottom: 16px;
 }
+.dataset-resource:hover {
+  border-left: 2px solid #aaa;
+  background: #f7f7f7;
+}
+
+.dataset-resource .main-link {
+  font-size: 125%;
+}
+.dataset-resource .view-more-link {
+  float: right;
+  color: #000;
+  text-align: middle;
+  margin-top: 4px;
+  padding: 3px 22px 3px 10px;
+  background: url('/images/icons/arrow-right-16-black.png') no-repeat right;
+  opacity:0.4;
+  filter:alpha(opacity=40); /* For IE8 and earlier */
+}
+.dataset-resource .view-more-link:hover {
+  opacity:1.0;
+  filter:alpha(opacity=100); /* For IE8 and earlier */
+  text-decoration: underline;
+}
+
+.dataset-resource .resource-url a { 
+    color: #888;
+}
+.dataset-resource .resource-url a:hover { 
+    color: #333;
+    text-decoration: underline;
+}
+.dataset-resource p {
+  margin: 0;
+}
+
 body.package.read .resource-information {
-    padding-left: 0;
-}
-body.package.read .resource-information li {
-    display: inline;
-    margin-right: 4px;
-    padding: 2px;
-    border: none;
-    font-weight: normal;
     color: #808080;
 }
 body.package.read .resource-format {
-    background:#ececec;
+    border: 1px solid #EEE;
+    margin-left: 8px;
+    padding: 2px 8px;
+    box-shadow: 1px 1px 3px #f7f7f7;
+    color: #808080;
 }
 .flash-messages .success .new-dataset {
   font-size: 150%;
@@ -1018,40 +1160,71 @@ body.package.read .resource-format {
 .flash-messages.success .new-dataset a {
   font-weight: bold;
 }
+body.package.read #sidebar li.widget-container {
+  border: 0
+}
+.notes {
+  padding: 8px; 
+  border-left: 2px solid #eee;
+  background: url('/images/ldquo.png') no-repeat top left #f7f7f7;
+}
+.notes #dataset-notes-toggle a {
+  cursor: pointer;
+}
+.notes #dataset-notes-toggle a.more:after {
+  content: '  »';
+  font-size: 150%;
+  position: relative;
+  bottom: -1px;
+}
+.notes #dataset-notes-toggle a.less:before {
+  content: '« ';
+  font-size: 150%;
+  position: relative;
+  bottom: -1px;
+}
+
+#notes-extract p {
+  margin-bottom: 0;
+}
+#notes-remainder {
+  margin-top: 1em;
+}
+.dataset-label {
+  font-weight: bold;
+  min-width: 10em;
+}
 
 
 /* ====================== */
 /* = Resource View Page = */
 /* ====================== */
+
 body.package.resource_read #sidebar { display: none; }
-body.package.resource_read #minornavigation { display: none; }
 body.package.resource_read #content { 
     border-right: 0; 
     width: 950px; 
 }
-body.package.resource_read #dataset-license img { vertical-align: top; }
-body.package.resource_read #resource-main-information { margin-bottom: 2em; }
-body.package.resource_read #resource-actions { margin-bottom: 2em; }
-body.package.resource_read #resource-actions a { color: #222; }
-body.package.resource_read #resource-description { margin-bottom: 2em; }
+
+.resource_read .notes {
+  margin-bottom: 1em;
+  font-size: 110%;
+}
+
+.resource_read .quick-info dt {
+  width: 115px;
+  float: left;
+  font-weight: normal;
+  color: gray;
+}
+
+.resource_read .resource-actions {
+  float: right;
+  text-align: right;
+}
+
 body.package.resource_read #dataset-description { margin-bottom: 2em; }
 body.package.resource_read #resource-explore { margin-bottom: 2em; }
-body.package.resource_read #resource-information-list { 
-    border: 1px solid #E0E0E0; 
-    padding: 10px;
-}
-body.package.resource_read #resource-information dt
-{
-    width: 10em;
-    float: left;
-	font-weight: bold;
-    text-align: right;
-}
-body.package.resource_read #resource-information dd
-{
-	margin-left: 14em;
-    margin-bottom: 1em;
-}
 
 
 /* ================== */

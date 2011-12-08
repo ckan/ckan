@@ -14,6 +14,7 @@ import ckan.model as model
 import ckan.lib.helpers as h
 import ckan.lib.field_types as field_types
 import ckan.misc
+import ckan.lib.dictization.model_save as model_save
 
 log = logging.getLogger(__name__)
 
@@ -701,28 +702,13 @@ class GroupSelectField(ConfiguredField):
 
         def _update_groups(self):
             new_group_ids = self._deserialize() or []
-            
-            # Get groups which have alread been associated.
-            old_groups = self.parent.model.groups
 
-            # Calculate which to append and which to remove.
-            editable_set = set([g.id for g in self.user_editable_groups])
-            old_group_ids = [g.id for g in old_groups]
-            new_set = set(new_group_ids)
-            old_set = set(old_group_ids)
-            append_set = (new_set - old_set).intersection(editable_set)
-            remove_set = (old_set - new_set).intersection(editable_set)
-            
-            # Create dataset group associations.
-            for id in append_set:
-                group = model.Session.query(model.Group).autoflush(False).get(id)
-                if group:
-                    self.parent.model.groups.append(group)
+            group_dicts = [dict(id = group_id) for 
+                           group_id in new_group_ids]
 
-            # Delete dataset group associations.
-            for group in self.parent.model.groups:
-                if group.id in remove_set:
-                    self.parent.model.groups.remove(group)
+            context = {'model': model, 'session': model.Session}
+            model_save.package_membership_list_save(
+                group_dicts, self.parent.model, context)
             
         def requires_label(self):
             return False
@@ -730,7 +716,7 @@ class GroupSelectField(ConfiguredField):
 
     class GroupSelectEditRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self, **kwargs):
-            return self.field.parent.model.groups
+            return self.field.parent.model.get_groups()
 
         def _get_user_editable_groups(self):
             return self.field.user_editable_groups

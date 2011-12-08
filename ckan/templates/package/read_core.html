@@ -4,55 +4,46 @@
   py:strip=""
   >
   <xi:include href="../_util.html" />
+
   <div id="dataset" class="dataset">
-    <!-- About dataset -->
-    <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
-      ${c.pkg_notes_formatted}
-    </div>
-    
-    <!-- Resources -->
-    <div id="dataset-resources" class="resources subsection">
-      <h3>Resources</h3>
-      <py:for each="res in c.pkg_dict.get('resources', [])">
-        <div class="dataset-resource" rel="dcat:distribution" resource="_:res${res.id}"
-          typeof="dcat:Distribution">
-          <div class="resource-url">
-              <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
-                <py:if test="res.get('name')">
-                  <span property="rdfs:label">${res.get('name')}</span>
-                </py:if>
-                <py:if test="not res.get('name')">
-                  <em>(no name)</em>
-                </py:if>
-              </a>
-          </div>
-          <div class="resource-description">${h.markdown_extract(res.get('description'))}</div>
-          <ul class="resource-information">
-            <li class="resource-format" property="dc:format">${res.get('format', '(unknown format)')}</li>
-            <li py:if="res.get('last_modified')">
+    <!-- Overview Section -->
+    <div id="dataset-overview">
+
+      <!-- Description -->
+      <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
+        ${c.pkg_notes_formatted}
+      </div>
+
+      <!-- Resources -->
+      <div id="dataset-resources" class="resources subsection">
+        <h3>Resources</h3>
+        <py:for each="res in c.pkg_dict.get('resources', [])">
+          <div class="dataset-resource">
+            <a class="view-more-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">View</a>
+            <a class="main-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_display_name(res)}</a>
+            &nbsp;&nbsp;
+            <span py:if="res.get('format')" class="resource-format" property="dc:format">${res.get('format')}</span>
+            <p class="resource-description" py:if="res.get('description')">${h.markdown_extract(res.get('description'))}</p>
+            <p class="resource-information" py:if="res.get('last_modified')">
               Last updated: ${h.time_ago_in_words_from_str(res.get('last_modified'), granularity='day')} ago
-            </li>
-          </ul>
-        </div>
-      </py:for>
-      <py:if test="not len(c.pkg_dict.get('resources', []))">
-        (none)
-      </py:if>
+            </p>
+            <p class="resource-url" rel="dcat:distribution" resource="_:res${res.id}" typeof="dcat:Distribution">
+              <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
+                ${res.get('url', '')}
+              </a>
+            </p>
+          </div>
+        </py:for>
+        <py:if test="not len(c.pkg_dict.get('resources', []))">
+          (none)
+        </py:if>
+      </div>
+
     </div>
 
-    <py:def function="details_item(label, value)">
-        <tr>
-          <td class="dataset-label">
-            ${label}
-          </td>
-          <td class="dataset-details">
-            ${value}
-          </td>
-        </tr>
-    </py:def>
-
-    <div class="details subsection">
+    <!-- Dataset Information Section -->
     <h3>Additional Information</h3>
+    <div id="dataset-information">
     <table>
       <thead>
         <tr>
@@ -61,18 +52,54 @@
         </tr>
       </thead>
       <tbody>
+        <tr py:if="c.pkg.url">
+          <td class="dataset-label">Source</td>
+          <td class="dataset-details" property="foaf:homepage">${c.pkg_url_link}</td>
+        </tr>
+
+        <tr py:if="c.pkg_author_link">
+          <td class="dataset-label">Author</td>
+          <td class="dataset-details" property="dc:creator">${c.pkg_author_link}</td>
+        </tr>
+
+        <tr py:if="c.pkg_maintainer_link">
+          <td class="dataset-label">Maintainer</td>
+          <td class="dataset-details" property="dc:contributor">${c.pkg_maintainer_link}</td>
+        </tr>
+
+        <tr py:if="c.pkg.version">
+          <td class="dataset-label">Version</td>
+          <td class="dataset-details">${c.pkg.version}</td>
+        </tr>
+
+        <tr py:if="c.eu_country">
+          <td class="dataset-label">Country</td>
+          <td class="dataset-details">${h.code_to_country(c.eu_country)}</td>
+        </tr>
+
+        <tr py:if="h.check_access('package_update',{'id':c.pkg.id})">
+          <td class="dataset-label">State</td>
+          <td class="dataset-details">${c.pkg.state}</td>
+        </tr>
+
+        <tr py:if="c.harvest_catalogue_name">
+          <td class="dataset-label">Harvest Source</td>
+          <td class="dataset-details">
+            <a href="${c.harvest_dataset_url}">Dataset page</a> on 
+            <a href="${c.harvest_catalogue_url}">${c.harvest_catalogue_name}</a>
+          </td>
+        </tr>
+
         <tr py:for="i, (key, value) in enumerate(c.pkg_extras)"
           rel="dc:relation" resource="_:extra${i}">
           <td class="dataset-label" property="rdfs:label">${_(key)}</td>
           <td class="dataset-details" property="rdf:value">${value}</td>
         </tr>
-        <py:if test="not len(c.pkg_extras)">
-          <tr class="table-empty"><td colspan="2">(none)</td></tr>
-        </py:if>
       </tbody>
     </table>
+
     </div>
-    
+
   </div> <!-- /dataset -->
 
 </html>
