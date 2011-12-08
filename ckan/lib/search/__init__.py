@@ -184,6 +184,8 @@ def check_solr_schema_version(schema_file=None):
                       be only used for testing purposes (Default is None)
     '''
 
+    import urllib2
+
     if SIMPLE_SEARCH:
         # Not using the SOLR search backend
         return False
@@ -195,16 +197,27 @@ def check_solr_schema_version(schema_file=None):
 
     # Try to get the schema XML file to extract the version
     if not schema_file:
+        solr_user = config.get('solr_user')
+        solr_password = config.get('solr_password')
+
+        http_auth = None
+        if solr_user is not None and solr_password is not None:
+            http_auth = solr_user + ':' + solr_password
+            http_auth = 'Basic ' + http_auth.encode('base64').strip()
+
         solr_url = config.get('solr_url', DEFAULT_SOLR_URL)
         url = solr_url.strip('/') + SOLR_SCHEMA_FILE_OFFSET
+
+        req = urllib2.Request(url = url)
+        if http_auth:
+            req.add_header('Authorization',http_auth)
+
+        res = urllib2.urlopen(req)
     else:
         url = 'file://%s' % schema_file
+        res = urllib2.urlopen(url)
 
-    import urllib2
     from lxml import etree
-
-    res = urllib2.urlopen(url)
-
     tree = etree.fromstring(res.read())
 
     version = tree.xpath('//schema/@version')
