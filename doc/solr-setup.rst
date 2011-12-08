@@ -50,7 +50,6 @@ and the admin site::
 
  http://localhost:8983/solr/admin
 
-
 .. note:: If you get the message `Could not start Jetty servlet engine because no Java Development Kit (JDK) was found.` then you will have to edit /etc/profile and add this line to the end such as this to the end (adjusting the path for your machine's jdk install)::
 
     JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
@@ -59,7 +58,6 @@ Now run::
 
        export JAVA_HOME
        sudo service jetty start
-
 
 
 This default setup will use the following locations in your file system:
@@ -88,8 +86,8 @@ same instance. This is specially useful when you want other applications than CK
 or different CKAN versions to use the same Solr instance. The different cores
 will have different paths in the Solr server URL::
 
- http://localhost:8983/solr/schema-1.2       # Used by CKAN up to 1.5
- http://localhost:8983/solr/schema-1.3       # Used by CKAN 1.5.1 and upwards
+ http://localhost:8983/solr/ckan-schema-1.2       # Used by CKAN up to 1.5
+ http://localhost:8983/solr/ckan-schema-1.3       # Used by CKAN 1.5.1 and upwards
  http://localhost:8983/solr/some-other-site  # Used by another site
 
 To set up a multicore Solr instance, repeat the steps on the previous section
@@ -147,6 +145,37 @@ that cores are using the right data directory::
 
     <dataDir>${dataDir}</dataDir>
 
+Troubleshooting
+---------------
+
+Solr requests and errors are logged in the web server log.
+
+* For jetty servers, they are located in::
+
+    /var/log/jetty/<date>.stderrout.log
+
+* For Tomcat servers, they are located in::
+
+    /var/log/tomcat6/catalina.<date>.log
+
+Some problems that can be found during the install:
+
+* When setting up a multi-core Solr instance, no cores are shown when visiting the
+  Solr index page, and the admin interface returns a 404 error.
+
+  Check the web server error log if you can find an error similar to this one::
+
+      WARNING: [iatiregistry.org] Solr index directory '/usr/share/solr/iatiregistry.org/data/index' doesn't exist. Creating new index...
+      07-Dec-2011 18:06:33 org.apache.solr.common.SolrException log
+      SEVERE: java.lang.RuntimeException: Cannot create directory: /usr/share/solr/iatiregistry.org/data/index
+            [...]
+
+  The dataDir is not properly configured. With our setup the data directory should
+  be under `/var/lib/solr/data`. Make sure that you defined the correct `dataDir`
+  in the `solr.xml` file and that in the `solrconfig.xml` file you have the
+  following configuration option::
+
+    <dataDir>${dataDir}</dataDir>
 
 Handling changes in the CKAN schema
 -----------------------------------
@@ -179,8 +208,8 @@ CKAN uses the following conventions for supporting different schemas:
   and provide a core for each schema version needed. The cores should be named following the
   convention `schema-<version>`, e.g.::
 
-    http://<solr-server>/solr/schema-1.2/
-    http://<solr-server>/solr/schema-1.3/
+    http://<solr-server>/solr/ckan-schema-1.2/
+    http://<solr-server>/solr/ckan-schema-1.3/
 
 When a new version of the schema becomes available, a new core is created, with a link to the
 latest schema.xml file in the CKAN source. That way, CKAN instances that use an older version
