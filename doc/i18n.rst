@@ -51,7 +51,7 @@ The Transifex workflow is as follows:
 * Get people to complete translations on Transifex
 * Pull locale .po files via ``tx pull``
 * ``python setup.py compile_catalog``
-* Mercurial Commit and push po and mo files
+* Git Commit and push po and mo files
 
 
 .. _i18n-manual:
@@ -103,9 +103,9 @@ We recommend using a translation tool, such as `poedit <http://www.poedit.net/>`
 
 When the po is complete, commit it to the CKAN i18n repo::
 
- hg add ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
- hg ci -m '[i18n]: New language po added: YOUR_LANGUAGE' ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
- hg push
+ git add ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
+ git commit -m '[i18n]: New language po added: YOUR_LANGUAGE' ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
+ git push
 
 .. note:: You need to be given credentials to do this - to request these, contact the `ckan-discuss <http://lists.okfn.org/mailman/listinfo/ckan-discuss>`_ list.
 

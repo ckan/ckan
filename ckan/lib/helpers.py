@@ -15,6 +15,7 @@ from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
+from pylons import url
 from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
@@ -237,10 +238,20 @@ def gravatar(email_hash, size=100, default="mm"):
 
 
 class Page(paginate.Page):
-    
+
+    def _page_url(self, page, partial=None, **kwargs):
+        routes_dict = url.environ['pylons.routes_dict']
+        kwargs['controller'] = routes_dict['controller']
+        kwargs['action'] = routes_dict['action']
+        if routes_dict.get('id'):
+            kwargs['id'] = routes_dict['id']
+        kwargs['page'] = page
+        return url(**kwargs)
+
     # Curry the pager method of the webhelpers.paginate.Page class, so we have
     # our custom layout set as default.
     def pager(self, *args, **kwargs):
+        self._url_generator = self._page_url
         kwargs.update(
             format=u"<div class='pager'>$link_previous ~2~ $link_next</div>",
             symbol_previous=u'« Prev', symbol_next=u'Next »'
@@ -283,9 +294,52 @@ def date_str_to_datetime(date_str):
     return datetime.datetime(*map(int, re.split('[^\d]', date_str)))
 
 def time_ago_in_words_from_str(date_str, granularity='month'):
-    return date.time_ago_in_words(date_str_to_datetime(date_str), granularity=granularity)
+    if date_str:
+        return date.time_ago_in_words(date_str_to_datetime(date_str), granularity=granularity)
+    else:
+        return 'Unknown'
 
 def button_attr(enable, type='primary'):
     if enable:
         return 'class="pretty-button %s"' % type
     return 'disabled class="pretty-button disabled"'
+
+def dataset_display_name(package_or_package_dict):
+    if isinstance(package_or_package_dict, dict):
+        return package_or_package_dict.get('title', '') or package_or_package_dict.get('name', '')
+    else:
+        return package_or_package_dict.title or package_or_package_dictname
+
+def dataset_link(package_or_package_dict):
+    if isinstance(package_or_package_dict, dict):
+        name = package_or_package_dict['name']
+    else:
+        name = package_or_package_dict.name
+    text = dataset_display_name(package_or_package_dict)
+    return link_to(
+        text,
+        url_for(controller='package', action='read', id=name)
+        )
+
+# TODO: (?) support resource objects as well
+def resource_display_name(resource_dict):
+    name = resource_dict['name']
+    description = resource_dict['description']
+    if name:
+        return name
+    elif description:
+        description = description.split('.')[0]
+        max_len = 60;
+        if len(description)>max_len: description = description[:max_len]+'...'
+        return description
+    else:
+        return '[no name] %s ' % resource_dict['id']
+
+def resource_link(resource_dict, package_id):
+    text = resource_display_name(resource_dict)
+    url = url_for(controller='package',
+        action='resource_read',
+        id=package_id,
+        resource_id=resource_dict['id'])
+    return link_to(text, url)
+

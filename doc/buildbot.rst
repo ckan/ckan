@@ -62,7 +62,7 @@ Rough commands::
   sudo chown buildslave:buildslave /home/buildslave
   sudo su buildslave
   cd ~
-  hg clone https://dread@bitbucket.org/okfn/buildbot-scripts .
+  git clone https://github.com/okfn/buildbot-scripts.git
   ssh-keygen -t rsa
   cp /home/buildslave/.ssh/id_rsa.pub  ~/.ssh/authorized_keys
   mkdir -p ckan/build

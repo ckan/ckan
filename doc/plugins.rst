@@ -180,7 +180,7 @@ Here's a list of some of the more commonly used plugin interfaces:
     Allows customisation of the default Authorization behaviour
 
 If you look in `ckan/plugins/interfaces.py
-<https://bitbucket.org/okfn/ckan/src/default/ckan/plugins/interfaces.py>`_ you
+<https://github.com/okfn/ckan/blob/master/ckan/plugins/interfaces.py>`_ you
 will see the latest plugin interfaces. Alternativlly see the `Plugin API
 documentation`_ below.
 
@@ -203,7 +203,7 @@ HTML to the page.
 
    This example is based on real code used to implement the ``ckanext-disqus`` plugin
    to add commenting to datasets. You can see the latest version of this code at
-   http://bitbucket.org/okfn/ckanext-disqus/src/tip/ckanext/plugins/disqus/__init__.py.
+   https://github.com/okfn/ckanext-disqus/blob/master/ckanext/plugins/disqus/__init__.py.
 
 First we set up logging and some helpers we'll need from Genshi to transfer the stream:
 
@@ -404,13 +404,6 @@ record is inserted into the database.
             def after_insert(mapper, connection, instance):
                     log.info('Object %r was inserted', instance)
 
-Authorization Group Plugins
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you are writing an authorization group plugin you might like to use the code
-at this URL as a basis:
-
-http://bitbucket.org/okfn/ckanextiati/src/tip/ckanext/iati/authz.py
 
 Publishing Your Extension
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -583,7 +576,7 @@ the source code run:
 
 ::
 
-    pip install -e hg+http://bitbucket.org/okfn/ckanext-queue#egg=ckanext-queue
+    pip install -e git+http://github.com/okfn/ckanext-queue#egg=ckanext-queue
 
 You will then see the source code in ``/pyenv/src/ckanext-queue/ckanext/queue``
 and ``README`` file in ``/pyenv/src/ckanext-queue/README.md``.

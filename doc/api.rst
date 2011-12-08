@@ -429,13 +429,9 @@ To obtain your API key:
 
 2. The user page shows the API Key: /user/me
 
-The key should be passed in the API request header:
+The key should be passed in the API request header ''Authorization'' (or an alternative may be provided such as ''X-CKAN-API-KEY''). For example::
 
-================= =====
-Header            Example value
-================= =====
-Authorization     ``fde34a3c-b716-4c39-8dc4-881ba115c6d4``
-================= =====
+  curl http://thedatahub.org/api/rest/package -d '{"name": "test"}' -H 'Authorization: fde34a3c-b716-4c39-8dc4-881ba115c6d4'
 
 If requests that are required to be authorized are not sent with a 
 valid Authorization header, for example the user associated with the 
@@ -497,33 +493,22 @@ The response format is JSON. Javascript calls may want to use the JSONP formatti
     ckan.api_url = http://api.example.com/
 
 
-dataset create_slug
-```````````````````
+dataset autocomplete
+````````````````````
 
-To generate a suggestion for a dataset name when adding a new dataset
-the following API call is made:
+There an autocomplete API for package names which matches on name or title.
 
-::
-
-    /api/2/util/dataset/create_slug?title=Dataset+1+Title+Typed+So+Far
-
-The return value is a JSON data structure:
+This URL:
 
 ::
 
-    {"valid": true, "name": "dataset_1_title_typed_so_far"}
+    /api/2/util/dataset/autocomplete?incomplete=a%20novel
 
-These are the keys returned:
+Returns:
 
-``valid`` 
+::
 
-    Can be ``True`` or ``False``. It is ``true`` when the title entered can be
-    successfully turned into a dataset name and when that dataset name is not
-    already being used. It is ``false`` otherwise.
-
-``name``
-
-    The suggested name for the dataset, based on the title
+    {"ResultSet": {"Result": [{"match_field": "title", "match_displayed": "A Novel By Tolstoy (annakarenina)", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}
 
 
 tag autocomplete
@@ -571,6 +556,19 @@ Example::
 Returns::
 
     "<p><a href="http://ibm.com/" target="_blank" rel="nofollow">http://ibm.com/</a>\n</p>"
+
+is slug valid
+`````````````
+
+Checks a name is valid for a new dataset (package) or group, with respect to it being used already.
+
+Example::
+
+    /api/2/util/is_slug_valid?slug=river-quality&type=package
+
+Response::
+
+    {"valid": true}
 
 munge package name
 ``````````````````

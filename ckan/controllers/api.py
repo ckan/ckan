@@ -7,7 +7,9 @@ from ckan.lib.base import BaseController, response, c, _, gettext, request
 from ckan.lib.helpers import json, date_str_to_datetime
 import ckan.model as model
 import ckan.rating
-from ckan.lib.search import query_for, QueryOptions, SearchIndexError, SearchError, DEFAULT_OPTIONS, convert_legacy_parameters_to_solr
+from ckan.lib.search import (query_for, QueryOptions, SearchIndexError, SearchError,
+                             SearchQueryError, DEFAULT_OPTIONS,
+                             convert_legacy_parameters_to_solr)
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.lib.munge import munge_name, munge_title_to_name, munge_tag
@@ -147,6 +149,13 @@ class ApiController(BaseController):
             log.error('Bad request data: %s' % str(inst))
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
+        if not isinstance(request_data, dict):
+            # this occurs if request_data is blank
+            log.error('Bad request data - not dict: %r' % request_data)
+            return self._finish_bad_request(
+                gettext('Bad request data: %s') % \
+                'Request data JSON decoded to %r but ' \
+                'it needs to be a dictionary.' % request_data)
         try:
             result = function(context, request_data)
             return_dict['success'] = True
@@ -173,6 +182,16 @@ class ApiController(BaseController):
             return_dict['success'] = False
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, return_dict, content_type='json')
+        except SearchQueryError, e:
+            return_dict['error'] = {'__type': 'Search Query Error',
+                                    'message': 'Search Query is invalid: %r' % e.args }
+            return_dict['success'] = False
+            return self._finish(400, return_dict, content_type='json')        
+        except SearchError, e:
+            return_dict['error'] = {'__type': 'Search Error',
+                                    'message': 'Search error: %r' % e.args }
+            return_dict['success'] = False
+            return self._finish(409, return_dict, content_type='json')        
         return self._finish_ok(return_dict)
 
     def list(self, ver=None, register=None, subregister=None, id=None):
@@ -582,6 +601,22 @@ class ApiController(BaseController):
         return self._finish_bad_request(gettext('Bad slug type: %s') % slugtype)
             
 
+    def dataset_autocomplete(self):
+        q = request.params.get('incomplete', '')
+        q_lower = q.lower()
+        limit = request.params.get('limit', 10)
+        tag_names = []
+        if q:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+
+            data_dict = {'q': q, 'limit': limit}
+
+            package_dicts = get_action('package_autocomplete')(context, data_dict)
+
+        resultSet = {'ResultSet': {'Result': package_dicts}}
+        return self._finish_ok(resultSet)
+
     def tag_autocomplete(self):
         q = request.params.get('incomplete', '')
         limit = request.params.get('limit', 10)
@@ -590,9 +625,9 @@ class ApiController(BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
 
-            data_dict = {'q':q,'limit':limit}
+            data_dict = {'q': q, 'limit': limit}
 
-            tag_names = get_action('tag_autocomplete')(context,data_dict)
+            tag_names = get_action('tag_autocomplete')(context, data_dict)
 
         resultSet = {
             'ResultSet': {

@@ -6,7 +6,8 @@ from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from ckan.logic import get_action
 
-from common import SearchIndexError, SearchError, make_connection, is_available, DEFAULT_SOLR_URL
+from common import (SearchIndexError, SearchError, SearchQueryError,
+                    make_connection, is_available, DEFAULT_SOLR_URL)
 from index import PackageSearchIndex, NoopSearchIndex
 from query import TagSearchQuery, ResourceSearchQuery, PackageSearchQuery, QueryOptions, convert_legacy_parameters_to_solr
 

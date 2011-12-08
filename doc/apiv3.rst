@@ -223,13 +223,9 @@ To obtain your API key:
 
 2. The user page shows the API Key: /user/me
 
-The key should be passed in the API request header:
+The key should be passed in the API request header ''Authorization'' (or an alternative may be provided such as ''X-CKAN-API-KEY''). For example::
 
-================= =====
-Header            Example value
-================= =====
-Authorization     ``fde34a3c-b716-4c39-8dc4-881ba115c6d4``
-================= =====
+  curl http://thedatahub.org/api/rest/package -d '{"name": "test"}' -H 'Authorization: fde34a3c-b716-4c39-8dc4-881ba115c6d4'
 
 If requests that are required to be authorized are not sent with a 
 valid Authorization header, for example the user associated with the 
@@ -370,14 +366,12 @@ These parameters are all the standard SOLR syntax (in contrast to the syntax use
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | sort                  | field name,   || sort=name asc                   | Changes the sort order according |
 |                       | asc / dec     |                                  | to the field and direction given.|
+|                       |               |                                  | default: score desc, name asc    |
 +-----------------------+---------------+----------------------------------+----------------------------------+
-| order_by              | field-name    | order_by=name                    | Specify either rank or the field |
-|                       | (default=rank)|                                  | to sort the results by           |
-+-----------------------+---------------+----------------------------------+----------------------------------+
-| offset, limit         | result-int    | offset=40&amp;limit=20           | Pagination options. Offset is the|
+| start, rows           | result-int    | start=40&amp;rows=20             | Pagination options. Start is the |
 |                       | (defaults:    |                                  | number of the first result and   |
-|                       | offset=0,     |                                  | limit is the number of results to|
-|                       | limit=20)     |                                  | return.                          |
+|                       | start=0,      |                                  | rows is the number of results to |
+|                       | rows=20)      |                                  | return.                          |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | all_fields            | 0 (default)   | all_fields=1                     | Each matching search result is   |
 |                       | or 1          |                                  | given as either a dataset name   |
