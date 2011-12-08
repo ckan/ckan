@@ -91,7 +91,7 @@ def register_pluggable_behaviour():
 
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_controller_behaviour is None:
-        _default_controller_behaviour = DefaultPluggablePackageController()
+        _default_controller_behaviour = DefaultDatasetForm()
 
 def _lookup_plugin(package_type):
     """
@@ -106,7 +106,7 @@ def _lookup_plugin(package_type):
     return _controller_behaviour_for.get(package_type,
                                          _default_controller_behaviour)
 
-class DefaultPluggablePackageController(object):
+class DefaultDatasetForm(object):
     """
     Provides a default implementation of the pluggable package controller behaviour.
 
