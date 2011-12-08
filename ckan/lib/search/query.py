@@ -35,7 +35,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
     non_solr_params = set(legacy_params.keys()) - VALID_SOLR_PARAMETERS
     for search_key in non_solr_params:
         value_obj = legacy_params[search_key]
-        value = str(value_obj).replace('+', ' ')
+        value = value_obj.replace('+', ' ') if isinstance(value_obj, basestring) else value_obj
         if search_key == 'all_fields':
             if value:
                 solr_params['fl'] = '*'
@@ -52,7 +52,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
                 tag_list = [value_obj]
             else:
                 raise SearchQueryError('Was expecting either a string or JSON list for the tags parameter: %r' % value)
-            solr_q_list.extend(['tags:%s' % tag for tag in tag_list])
+            solr_q_list.extend(['tags:"%s"' % tag for tag in tag_list])
         else:
             if ' ' in value:
                 value = '"%s"' % value
@@ -279,6 +279,16 @@ class PackageSearchQuery(SearchQuery):
             response = data['response']
             self.count = response.get('numFound', 0)
             self.results = response.get('docs', [])
+
+            # get any extras and add to 'extras' dict
+            for result in self.results:
+                extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
+                extras = {}
+                for extra_key in extra_keys:
+                    value = result.pop(extra_key)
+                    extras[extra_key[len('extras_'):]] = value
+                if extra_keys:
+                    result['extras'] = extras
 
             # if just fetching the id or name, return a list instead of a dict
             if query.get('fl') in ['id', 'name']:

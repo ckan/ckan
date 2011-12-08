@@ -10,6 +10,7 @@ import ckan.rating
 from ckan.lib.search import query_for, QueryOptions, SearchIndexError, SearchError, DEFAULT_OPTIONS, convert_legacy_parameters_to_solr
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.navl.dictization_functions import DataError
+from ckan.lib.munge import munge_name, munge_title_to_name, munge_tag
 from ckan.logic import get_action, check_access
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.lib.jsonp import jsonpify
@@ -150,10 +151,11 @@ class ApiController(BaseController):
             result = function(context, request_data)
             return_dict['success'] = True
             return_dict['result'] = result
-        except DataError:
-            log.error('Format incorrect: %s' % request_data)
+        except DataError, e:
+            log.error('Format incorrect: %s - %s' % (e.error, request_data))
             #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') % request_data)
+            return self._finish(400, _(u'Integrity Error') + \
+                                ': %s - %s' %  (e.error, request_data))
         except NotAuthorized:
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
@@ -291,10 +293,11 @@ class ApiController(BaseController):
         except ValidationError, e:
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
-        except DataError:
-            log.error('Format incorrect: %s' % request_data)
+        except DataError, e:
+            log.error('Format incorrect: %s - %s' % (e.error, request_data))
             #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') % request_data)
+            return self._finish(400, _(u'Integrity Error') + \
+                                ': %s - %s' %  (e.error, request_data))
         except SearchIndexError:
             log.error('Unable to add package to search index: %s' % request_data)
             return self._finish(500, _(u'Unable to add package to search index') % request_data)
@@ -343,10 +346,11 @@ class ApiController(BaseController):
         except ValidationError, e:
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
-        except DataError:
-            log.error('Format incorrect: %s' % request_data)
+        except DataError, e:
+            log.error('Format incorrect: %s - %s' % (e.error, request_data))
             #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') % request_data)
+            return self._finish(400, _(u'Integrity Error') + \
+                                ': %s - %s' %  (e.error, request_data))
         except SearchIndexError:
             log.error('Unable to update search index: %s' % request_data)
             return self._finish(500, _(u'Unable to update search index') % request_data)
@@ -613,3 +617,24 @@ class ApiController(BaseController):
             }
         }
         return self._finish_ok(resultSet)
+
+    def munge_package_name(self):
+        name = request.params.get('name')
+        munged_name = munge_name(name)
+        return self._finish_ok(munged_name)
+
+    def munge_title_to_package_name(self):
+        name = request.params.get('title') or request.params.get('name')
+        munged_name = munge_title_to_name(name)
+        return self._finish_ok(munged_name)        
+        
+    def munge_tag(self):
+        tag = request.params.get('tag') or request.params.get('name')
+        munged_tag = munge_tag(tag)
+        return self._finish_ok(munged_tag)
+
+    def status(self):
+        context = {'model': model, 'session': model.Session}
+        data_dict = {}
+        status = get_action('status_show')(context, data_dict)
+        return self._finish_ok(status)

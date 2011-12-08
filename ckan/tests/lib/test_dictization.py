@@ -18,6 +18,7 @@ from ckan.lib.dictization.model_save import (package_dict_save,
                                              group_dict_save,
                                              package_api_to_dict,
                                              group_api_to_dict,
+                                             package_tag_list_save,
                                             )
 from ckan.logic.action.update import make_latest_pending_package_active
 
@@ -44,6 +45,7 @@ class TestBasicDictize:
                         'type': u'dataset_group',
                         'state': u'active',
                         'title': u"Roger's books"}],
+            'isopen': True,
             'license_id': u'other-open',
             'maintainer': None,
             'maintainer_email': None,
@@ -88,7 +90,8 @@ class TestBasicDictize:
                             u'webstore_last_updated': None,
                             u'webstore_url': None}],
             'state': u'active',
-            'tags': [{'name': u'russian', 'state': u'active'},
+            'tags': [{'name': u'Flexible \u30a1', 'state': u'active'},
+                     {'name': u'russian', 'state': u'active'},
                      {'name': u'tolstoy', 'state': u'active'}],
             'title': u'A Novel By Tolstoy',
             'url': u'http://www.annakarenina.com',
@@ -430,17 +433,21 @@ class TestBasicDictize:
 
         print [(tag.state, tag.tag.name) for tag in sorted_tags]
 
-        assert len(sorted_tags) == 4, len(sorted_tags)
-        assert sorted_tags[0].state == 'pending-deleted'
-        assert sorted_tags[1].state == 'pending'
-        assert sorted_tags[2].state == 'active'
-        assert sorted_resources[2].current
-        assert sorted_tags[3].state == 'active'
+        assert len(sorted_tags) == 5, len(sorted_tags)
+        assert sorted_tags[0].state == 'pending'            # new_tag
+        assert sorted_tags[1].state == 'pending-deleted'    # Flexible
+        assert sorted_tags[2].state == 'active'             # tolstoy
+        assert sorted_tags[3].state == 'active'             # russian
+        assert sorted_tags[4].state == 'active'             # Flexible
+        assert sorted_tags[2].current
+        assert sorted_tags[3].current
+        assert sorted_tags[4].current
 
         assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[2].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[3].expired_timestamp) != '9999-12-31 00:00:00'
+        assert str(sorted_tags[3].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[4].expired_timestamp) != '9999-12-31 00:00:00'
 
         extras_revisions = model.Session.query(model.PackageExtraRevision).filter_by(package_id=anna1.id).all()
 
@@ -512,20 +519,23 @@ class TestBasicDictize:
 
         print [(tag.state, tag.tag.name) for tag in sorted_tags]
 
-        assert len(sorted_tags) == 5, len(sorted_tags)
-        assert sorted_tags[0].state == 'pending'
-        assert sorted_tags[1].state == 'pending-deleted'
-        assert sorted_tags[2].state == 'pending'
-        assert sorted_tags[3].state == 'active'
+        assert len(sorted_tags) == 6, len(sorted_tags)
+        assert sorted_tags[0].state == 'pending'            # newnew_tag
+        assert sorted_tags[1].state == 'pending'            # new_tag
+        assert sorted_tags[2].state == 'pending-deleted'    # Flexible
+        assert sorted_tags[3].state == 'active'             # tolstoy
+        assert sorted_tags[4].state == 'active'             # russian
+        assert sorted_tags[5].state == 'active'             # Flexible
         assert sorted_tags[3].current
-        assert sorted_tags[4].state == 'active'
         assert sorted_tags[4].current
+        assert sorted_tags[5].current
 
         assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[2].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[3].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[4].expired_timestamp) != '9999-12-31 00:00:00'
+        assert str(sorted_tags[4].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[5].expired_timestamp) != '9999-12-31 00:00:00'
 
         extras_revisions = model.Session.query(model.PackageExtraRevision).filter_by(package_id=anna1.id).all()
 
@@ -591,22 +601,25 @@ class TestBasicDictize:
         sorted_tags = sorted(tag_revisions, key=lambda x: (x.revision_timestamp, x.tag.name))[::-1]
 
         print [(tag.state, tag.tag.name) for tag in sorted_tags]
-
-        assert len(sorted_tags) == 5, len(sorted_tags)
-        assert sorted_tags[0].state == 'active'
+        
+        assert len(sorted_tags) == 6, len(sorted_tags)
+        assert sorted_tags[0].state == 'active'     # newnew_tag
+        assert sorted_tags[1].state == 'active'     # new_tag
+        assert sorted_tags[2].state == 'deleted'    # Flexible
+        assert sorted_tags[3].state == 'active'     # tolstoy
+        assert sorted_tags[4].state == 'active'     # russian
+        assert sorted_tags[5].state == 'active'     # Flexible
         assert sorted_tags[0].current
-        assert sorted_tags[1].state == 'deleted'
         assert sorted_tags[1].current
-        assert sorted_tags[2].state == 'active'
         assert sorted_tags[2].current
-        assert sorted_tags[3].state == 'active'
-        assert sorted_tags[4].state == 'active'
+        assert not sorted_tags[5].current
 
         assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[2].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[3].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[4].expired_timestamp) != '9999-12-31 00:00:00'
+        assert str(sorted_tags[4].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[5].expired_timestamp) != '9999-12-31 00:00:00'
 
         extras_revisions = model.Session.query(model.PackageExtraRevision).filter_by(package_id=anna1.id).all()
 
@@ -879,3 +892,35 @@ class TestBasicDictize:
                                                          'name': u'testgroup',
                                                          'packages': [{'id': u'annakarenina'}, {'id': u'warandpeace'}],
                                                          'title': u'Some Group Title'}, pformat(group_api_to_dict(api_group, context))
+
+    def test_18_package_tag_list_save(self):
+        name = u'testpkg18'
+        context = {'model': model,
+                   'session': model.Session}
+        pkg_dict = {'name': name}
+
+        rev = model.repo.new_revision()
+        package = table_dict_save(pkg_dict, model.Package, context)
+
+        tag_dicts = [{'name': 'tag1'}, {'name': 'tag2'}]
+        package_tag_list_save(tag_dicts, package, context)
+        model.repo.commit_and_remove()
+
+        pkg = model.Package.by_name(name)
+        assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1', 'tag2')))
+
+    def test_19_package_tag_list_save_duplicates(self):
+        name = u'testpkg19'
+        context = {'model': model,
+                   'session': model.Session}
+        pkg_dict = {'name': name}
+
+        rev = model.repo.new_revision()
+        package = table_dict_save(pkg_dict, model.Package, context)
+
+        tag_dicts = [{'name': 'tag1'}, {'name': 'tag1'}] # duplicate
+        package_tag_list_save(tag_dicts, package, context)
+        model.repo.commit_and_remove()
+
+        pkg = model.Package.by_name(name)
+        assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1',)))

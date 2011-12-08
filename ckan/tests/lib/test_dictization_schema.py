@@ -13,11 +13,17 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
 
 from ckan.lib.dictization.model_save import package_dict_save
 
-from ckan.logic.schema import default_package_schema, default_group_schema
+from ckan.logic.schema import default_package_schema, default_group_schema, \
+    default_tags_schema
 
 from ckan.lib.navl.dictization_functions import validate
 
 class TestBasicDictize:
+
+    def setup(self):
+        self.context = {'model': model,
+                        'session': model.Session}
+
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
@@ -47,14 +53,11 @@ class TestBasicDictize:
 
     def test_1_package_schema(self):
 
-        context = {'model': model,
-                   'session': model.Session}
-
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
 
         package_id = pkg.id
 
-        result = package_dictize(pkg, context)
+        result = package_dictize(pkg, self.context)
 
         self.remove_changable_columns(result)
 
@@ -62,7 +65,7 @@ class TestBasicDictize:
 
         result['name'] = 'anna2'
 
-        converted_data, errors = validate(result, default_package_schema(), context)
+        converted_data, errors = validate(result, default_package_schema(), self.context)
 
 
         pprint(errors)
@@ -84,7 +87,9 @@ class TestBasicDictize:
                                                 'hash': u'def456',
                                                 'size_extra': u'345',
                                                 'url': u'http://www.annakarenina.com/index.json'}],
-                                 'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
+                                 'tags': [{'name': u'Flexible \u30a1'},
+                                          {'name': u'russian'},
+                                          {'name': u'tolstoy'}],
                                  'title': u'A Novel By Tolstoy',
                                  'url': u'http://www.annakarenina.com',
                                  'version': u'0.7a'}, pformat(converted_data)
@@ -99,7 +104,7 @@ class TestBasicDictize:
         data["resources"][0]["url"] = 'fsdfafasfsaf'
         data["resources"][1].pop("url") 
 
-        converted_data, errors = validate(data, default_package_schema(), context)
+        converted_data, errors = validate(data, default_package_schema(), self.context)
 
         assert errors == {
             'name': [u'That URL is already in use.'],
@@ -109,14 +114,14 @@ class TestBasicDictize:
 
         data["id"] = package_id
 
-        converted_data, errors = validate(data, default_package_schema(), context)
+        converted_data, errors = validate(data, default_package_schema(), self.context)
 
         assert errors == {
             #'resources': [{}, {'url': [u'Missing value']}]
         }, pformat(errors)
 
         data['name'] = '????jfaiofjioafjij'
-        converted_data, errors = validate(data, default_package_schema(), context)
+        converted_data, errors = validate(data, default_package_schema(), self.context)
         assert errors == {
             'name': [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_'],
             #'resources': [{}, {'url': [u'Missing value']}]
@@ -124,14 +129,11 @@ class TestBasicDictize:
 
     def test_2_group_schema(self):
 
-        context = {'model': model,
-                   'session': model.Session}
-
         group = model.Session.query(model.Group).first()
 
-        data = group_dictize(group, context)
+        data = group_dictize(group, self.context)
 
-        converted_data, errors = validate(data, default_group_schema(), context)
+        converted_data, errors = validate(data, default_group_schema(), self.context)
         group_pack = sorted(group.active_packages().all(), key=lambda x:x.id)
 
         converted_data["packages"] = sorted(converted_data["packages"], key=lambda x:x["id"])
@@ -155,6 +157,75 @@ class TestBasicDictize:
         data["packages"][1].pop("id")
         data["packages"][1].pop("name")
 
-        converted_data, errors = validate(data, default_group_schema(), context)
+        converted_data, errors = validate(data, default_group_schema(), self.context)
         assert errors ==  {'packages': [{'id': [u'Dataset was not found.']}, {'id': [u'Missing value']}]} , pformat(errors)
 
+    def test_3_tag_schema_allows_spaces(self):
+        """Asserts that a tag name with space is valid"""
+        ignored = ""
+        data = {
+            'name': u'with space',
+            'revision_timestamp': ignored, 
+            'state': ignored
+            }
+
+        _, errors = validate(data, default_tags_schema(), self.context)
+        assert not errors, str(errors)
+
+    def test_4_tag_schema_allows_limited_punctuation(self):
+        """Asserts that a tag name with limited punctuation is valid"""
+        ignored = ""
+        data = {
+            'name': u'.-_',
+            'revision_timestamp': ignored,
+            'state': ignored
+            }
+
+        _, errors = validate(data, default_tags_schema(), self.context)
+        assert not errors, str(errors)
+
+    def test_5_tag_schema_allows_capital_letters(self):
+        """Asserts that tag names can have capital letters"""
+        ignored = ""
+        data = {
+            'name': u'CAPITALS',
+            'revision_timestamp': ignored,
+            'state': ignored
+            }
+
+        _, errors = validate(data, default_tags_schema(), self.context)
+        assert not errors, str(errors)
+
+    def test_6_tag_schema_disallows_most_punctuation(self):
+        """Asserts most punctuation is disallowed"""
+        not_allowed=r'!?"\'+=:;@#~[]{}()*&^%$,'
+        ignored = ""
+        data = {
+            'revision_timestamp': ignored,
+            'state': ignored
+        }
+        for ch in not_allowed:
+            data['name'] = "Character " + ch
+            _, errors = validate(data, default_tags_schema(), self.context)
+            assert errors, pprint(errors)
+            assert 'name' in errors
+            error_message = errors['name'][0]
+            assert data['name'] in error_message, error_message
+            assert "must be alphanumeric" in error_message
+
+    def test_7_tag_schema_disallows_whitespace_other_than_spaces(self):
+        """Asserts whitespace characters, such as tabs, are not allowed."""
+        not_allowed = '\t\n\r\f\v'
+        ignored = ""
+        data = {
+            'revision_timestamp': ignored,
+            'state': ignored
+        }
+        for ch in not_allowed:
+            data['name'] = "Bad " + ch + " character"
+            _, errors = validate(data, default_tags_schema(), self.context)
+            assert errors, repr(ch)
+            assert 'name' in errors
+            error_message = errors['name'][0]
+            assert data['name'] in error_message, error_message
+            assert "must be alphanumeric" in error_message

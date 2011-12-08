@@ -482,7 +482,7 @@ class TagField(ConfiguredField):
 
     class TagEditRenderer(formalchemy.fields.FieldRenderer):
         def render(self, **kwargs):
-            kwargs['value'] = ' '.join(self.value)
+            kwargs['value'] = ', '.join(self.value)
             kwargs['size'] = 60
             api_url = config.get('ckan.api_url', '/').rstrip('/')
             tagcomplete_url = api_url+h.url_for(controller='api',
@@ -496,7 +496,7 @@ class TagField(ConfiguredField):
         def _tag_links(self):
             tags = self.value
             tag_links = [h.link_to(tagname, h.url_for(controller='tag', action='read', id=tagname)) for tagname in tags]
-            return literal(' '.join(tag_links))
+            return literal(', '.join(tag_links))
 
         def render_readonly(self, **kwargs):
             tag_links = self._tag_links()
@@ -505,21 +505,29 @@ class TagField(ConfiguredField):
         def _serialized_value(self):
             # despite being a collection, there is only one field to get
             # the values from
-            tags_as_string = self.params.getone(self.name)
-            tags = tags_as_string.replace(',', ' ').lower().split()
+            tags_as_string = self.params.getone(self.name).strip()
+            if tags_as_string == "":
+                return []
+            tags = map(lambda s: s.strip(), tags_as_string.split(','))
             return tags
             
-    tagname_match = re.compile('[\w\-_.]*$', re.UNICODE)
-    tagname_uppercase = re.compile('[A-Z]')
+    tagname_match = re.compile('[^"]*$') # already split on commas
     def tag_name_validator(self, val, field):
         for tag in val:
+        
+            # formalchemy deserializes an empty string into None.
+            # This happens if the tagstring gets split on commas, and
+            # there's an empty string in the resulting list.
+            # e.g. "tag1,,tag2" ; "  ,tag1" and "tag1," will all result
+            # in an empty tag name.
+            if tag is None:
+                tag = u'' # let the minimum length validator take care of it.
+
             min_length = 2
             if len(tag) < min_length:
                 raise formalchemy.ValidationError(_('Tag "%s" length is less than minimum %s') % (tag, min_length))
             if not self.tagname_match.match(tag):
-                raise formalchemy.ValidationError(_('Tag "%s" must be alphanumeric characters or symbols: -_.') % (tag))
-            if self.tagname_uppercase.search(tag):
-                raise formalchemy.ValidationError(_('Tag "%s" must not be uppercase' % (tag)))
+                raise formalchemy.ValidationError(_('Tag "%s" must not contain any quotation marks: "') % (tag))
 
 class ExtrasField(ConfiguredField):
     '''A form field for arbitrary "extras" dataset data.'''

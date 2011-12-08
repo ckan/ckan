@@ -150,16 +150,19 @@ def package_tag_list_save(tag_dicts, package, context):
             pt.state in ['deleted', 'pending-deleted'] ]
         )
 
+    tag_names = set()
     tags = set()
     for tag_dict in tag_dicts:
-        obj = table_dict_save(tag_dict, model.Tag, context)
-        tags.add(obj)
+        if tag_dict.get('name') not in tag_names:
+            tag_obj = table_dict_save(tag_dict, model.Tag, context)
+            tags.add(tag_obj)
+            tag_names.add(tag_obj.name)
 
     # 3 cases
     # case 1: currently active but not in new list
     for tag in set(tag_package_tag.keys()) - tags:
         package_tag = tag_package_tag[tag]
-        if pending and package_tag.state <> 'deleted':
+        if pending and package_tag.state != 'deleted':
             package_tag.state = 'pending-deleted'
         else:
             package_tag.state = 'deleted'

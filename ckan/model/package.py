@@ -16,10 +16,13 @@ from domain_object import DomainObject
 import ckan.misc
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
-           'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_VERSION_MAX_LENGTH']
+           'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
+           'PACKAGE_VERSION_MAX_LENGTH']
 
 PACKAGE_NAME_MAX_LENGTH = 100
+PACKAGE_NAME_MIN_LENGTH = 2
 PACKAGE_VERSION_MAX_LENGTH = 100
+
 ## Our Domain Object Tables
 package_table = Table('package', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
@@ -189,6 +192,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # Set 'license' in _dict to cater for old clients.
         # Todo: Remove from Version 2?
         _dict['license'] = self.license.title if self.license else _dict.get('license_id', '')
+        _dict['isopen'] = self.isopen()
         tags = [tag.name for tag in self.tags]
         tags.sort() # so it is determinable
         _dict['tags'] = tags

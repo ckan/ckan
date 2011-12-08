@@ -23,7 +23,6 @@ from resource import *
 from rating import *
 from package_relationship import *
 from task_status import *
-from changeset import Changeset, Change, Changemask
 import ckan.migration
 from ckan.lib.helpers import OrderedDict, datetime_to_date_str
 from vdm.sqlalchemy.base import SQLAlchemySession

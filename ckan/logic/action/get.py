@@ -6,6 +6,7 @@ from pylons import config
 import ckan
 from ckan.logic import NotFound
 from ckan.logic import check_access
+from ckan.model import misc
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
@@ -139,20 +140,18 @@ def group_list(context, data_dict):
     query = query.filter(model.GroupRevision.current==True)
 
     if order_by == 'name':
-        query = query.order_by(model.Group.name.asc())
-        query = query.order_by(model.Group.title.asc())
+        sort_by, reverse = 'name', False
 
     groups = query.all()
 
     if order_by == 'packages':
-        groups = sorted(query.all(),
-                        key=lambda g: len(g.active_packages().all()),
-                        reverse=True)
+        sort_by, reverse = 'packages', True
+
+    group_list = group_list_dictize(groups, context,
+                                    lambda x:x[sort_by], reverse)
 
     if not all_fields:
-        group_list = [getattr(p, ref_group_by) for p in groups]
-    else:
-        group_list = group_list_dictize(groups,context)
+        group_list = [group[ref_group_by] for group in group_list]
 
     return group_list
 
@@ -439,8 +438,12 @@ def group_package_show(context, data_dict):
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit:
         query = query.limit(limit)
-    pack_rev = query.all()
-    return _package_list_with_resources(context, pack_rev)
+
+    result = []
+    for pkg_rev in query.all():
+        result.append(package_dictize(pkg_rev,context))
+
+    return result
 
 def tag_show(context, data_dict):
     '''Shows tag details'''
@@ -458,9 +461,11 @@ def tag_show(context, data_dict):
     check_access('tag_show',context, data_dict)
 
     tag_dict = tag_dictize(tag,context)
+
     extended_packages = []
     for package in tag_dict['packages']:
-        extended_packages.append(_extend_package_dict(package,context))
+        pkg = model.Package.get(package['id'])
+        extended_packages.append(package_dictize(pkg,context))
 
     tag_dict['packages'] = extended_packages
 
@@ -683,8 +688,7 @@ def package_search(context, data_dict):
             log.warning('package %s in index but not in database' % package)
             continue
 
-        result_dict = table_dictize(pkg, context)
-        result_dict = _extend_package_dict(result_dict,context)
+        result_dict = package_dictize(pkg,context)
         results.append(result_dict)
 
     return {
@@ -789,7 +793,8 @@ def tag_search(context, data_dict):
         return
 
     for term in terms:
-        q = q.filter(model.Tag.name.contains(term.lower()))
+        escaped_term = misc.escape_sql_like_special_characters(term, escape='\\')
+        q = q.filter(model.Tag.name.ilike('%' + escaped_term + '%'))
 
     count = q.count()
     q = q.offset(offset)
@@ -849,4 +854,5 @@ def status_show(context, data_dict):
         'ckan_version': ckan.__version__,
         'error_emails_to': config.get('email_to'),
         'locale_default': config.get('ckan.locale_default'),
+        'extensions': config.get('ckan.plugins').split(),
         }
