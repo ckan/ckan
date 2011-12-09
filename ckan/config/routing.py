@@ -8,6 +8,7 @@ refer to the routes manual at http://routes.groovie.org/docs/
 from pylons import config
 from routes import Mapper
 from ckan.controllers.package import register_pluggable_behaviour as register_pluggable_package_behaviour
+from ckan.controllers.group   import register_pluggable_behaviour as register_pluggable_group_behaviour
 from ckan.plugins import PluginImplementations, IRoutes
 
 routing_plugins = PluginImplementations(IRoutes)
@@ -179,6 +180,7 @@ def make_map():
     ###########
 
     register_pluggable_package_behaviour()
+    register_pluggable_group_behaviour()
     
     map.redirect("/packages", "/dataset")
     map.redirect("/packages/{url:.*}", "/dataset/{url}")
