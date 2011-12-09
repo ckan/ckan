@@ -80,7 +80,7 @@ class DefaultGroupForm(object):
            we don't want this being registered.
     """
 
-    def group_form(self):
+    def group_form(self):        
         return 'group/new_group_form.html'
 
     def form_to_db_schema(self):
@@ -174,9 +174,10 @@ class GroupController(BaseController):
 
 
     def read(self, id):
+        group_type = self._get_group_type(id.split('@')[0])        
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(group_type=type)}
         data_dict = {'id': id}
         try:
             c.group_dict = get_action('group_show')(context, data_dict)
@@ -233,10 +234,11 @@ class GroupController(BaseController):
         return render('group/new.html')
 
     def edit(self, id, data=None, errors=None, error_summary=None):
+        group_type = self._get_group_type(id.split('@')[0])                
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
-                   'schema': self._form_to_db_schema(),
+                   'schema': self._form_to_db_schema(group_type=group_type),
                    }
         data_dict = {'id': id}
 
@@ -269,9 +271,34 @@ class GroupController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context, data)
+        self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(), extra_vars=vars)
         return render('group/edit.html')
+
+    def _get_group_type(self, id):
+        """
+        Given the id of a group it determines the plugin to load 
+        based on the group's type name (type). The plugin found
+        will be returned, or None if there is no plugin associated with 
+        the type.
+
+        Uses a minimal context to do so.  The main use of this method
+        is for figuring out which plugin to delegate to.
+
+        aborts if an exception is raised.
+        """
+        global _controller_behaviour_for
+        
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+        try:
+            data = get_action('group_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('Group not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read group %s') % id)
+        return data['type']
+
 
     def _save_new(self, context):
         try:
