@@ -98,9 +98,9 @@ ALTER TABLE "group_revision"
 	ALTER COLUMN "type" set not null;
 
 ALTER TABLE "package"
-	ADD COLUMN "type_name" text;
+	ADD COLUMN "type" text;
 ALTER TABLE "package_revision"
-	ADD COLUMN "type_name" text;
+	ADD COLUMN "type" text;
 
 COMMIT;
     '''

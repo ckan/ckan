@@ -540,7 +540,7 @@ class PackageController(BaseController):
     def _get_package_type(self, id):
         """
         Given the id of a package it determines the plugin to load 
-        based on the package's type name (type_name). The plugin found
+        based on the package's type name (type). The plugin found
         will be returned, or None if there is no plugin associated with 
         the type.
 
@@ -560,7 +560,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
-        return data['type_name']
+        return data['type']
 
     def _save_new(self, context):
         try:
