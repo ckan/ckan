@@ -96,7 +96,8 @@ class TestActivity:
         activity = activities[-1]
         assert activity.object_id == package_created['id'], \
             str(activity.object_id)
-        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
+        assert activity.user_id == TestActivity.normal_user.id, \
+            str(activity.user_id)
         assert activity.activity_type == 'new package', \
             str(activity.activity_type)
         if not activity.id:
@@ -170,7 +171,8 @@ class TestActivity:
         activity = activities[-1]
         assert activity.object_id == updated_package['id'], \
             str(activity.object_id)
-        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
+        assert activity.user_id == TestActivity.normal_user.id, \
+            str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
         if not activity.id:
@@ -240,7 +242,8 @@ class TestActivity:
                 len(activities)))
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
+        assert activity.user_id == TestActivity.normal_user.id, \
+            str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
         if not activity.id:
@@ -305,7 +308,8 @@ class TestActivity:
         assert len(activities) == length_before + 1, str(activities)
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
+        assert activity.user_id == TestActivity.normal_user.id, \
+            str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
         if not activity.id:
@@ -371,7 +375,8 @@ class TestActivity:
                 len(activities)))
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
+        assert activity.user_id == TestActivity.normal_user.id, \
+            str(activity.user_id)
         # "Deleted" packages actually show up as changed (the package's status
         # changes to "deleted" but the package is not expunged).
         assert activity.activity_type == 'changed package', \
@@ -441,7 +446,8 @@ class TestActivity:
                 len(activities)))
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == "Unknown IP Address", str(activity.user_id)
+        assert activity.user_id == TestActivity.normal_user.id, \
+            str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
         if not activity.id:

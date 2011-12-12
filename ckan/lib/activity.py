@@ -2,9 +2,9 @@ from sqlalchemy.orm.session import SessionExtension
 import logging
 logger = logging.getLogger(__name__)
 
-def activity_stream_item(obj, activity_type, revision_id):
+def activity_stream_item(obj, activity_type, revision):
     try:
-        return obj.activity_stream_item(activity_type, revision_id)
+        return obj.activity_stream_item(activity_type, revision)
     except (AttributeError, TypeError):
         logger.debug("Object did not have a suitable "
             "activity_stream_item() method, it must not be a package.")
@@ -46,7 +46,7 @@ class DatasetActivitySessionExtension(SessionExtension):
         logger.debug("Looking for new packages...")
         for obj in obj_cache['new']:
             logger.debug("Looking at object %s" % obj)
-            activity = activity_stream_item(obj, 'new', revision.id)
+            activity = activity_stream_item(obj, 'new', revision)
             if activity is None:
                 continue
             # If the object returns an activity stream item we know that the
@@ -86,7 +86,7 @@ class DatasetActivitySessionExtension(SessionExtension):
                         activity = activities[package.id]
                     else:
                         activity = activity_stream_item(package, "changed",
-                                revision.id)
+                                revision)
                         activities[package.id] = activity
                     assert activity is not None
                     logger.debug("activity: %s" % activity)

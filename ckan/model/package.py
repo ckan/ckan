@@ -537,30 +537,18 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return fields
 
-    def activity_stream_item(self, activity_type, revision_id):
-        try:
-            user_id = c.user_obj.id
-        except TypeError:
-            # Cannot access user ID through Pylons context, try to get their IP
-            # address instead.
-            try:
-                user_id = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
-            except TypeError:
-                # Cannot access user IP address through Pylons request,
-                # fallback on a default value.
-                user_id = 'Unknown IP Address'
-        logger.debug("user_id: %s" % user_id)
+    def activity_stream_item(self, activity_type, revision):
         assert activity_type in ("new", "changed", "deleted"), \
             str(activity_type)
+        user_id = revision.user.id
         if activity_type == "new":
-            return Activity(user_id, self.id, revision_id, "new package",
-                None)
+            return Activity(user_id, self.id, revision.id, "new package", None)
         elif activity_type == "changed":
-            return Activity(user_id, self.id, revision_id, "changed package",
-                None)
+            return Activity(user_id, self.id, revision.id, "changed package",
+                    None)
         elif activity_type == "deleted":
-            return Activity(user_id, self.id, revision_id, "deleted package",
-                None)
+            return Activity(user_id, self.id, revision.id, "deleted package",
+                    None)
 
     def activity_stream_detail(self, activity_id, activity_type):
         return ActivityDetail(activity_id, self.id, u"Package", activity_type, 
