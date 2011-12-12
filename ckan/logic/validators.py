@@ -213,6 +213,11 @@ def tag_string_convert(key, data, errors, context):
         tag_name_validator(tag, context)
 
 def ignore_not_admin(key, data, errors, context):
+    # Deprecated in favour of ignore_not_package_admin
+    return ignore_not_package_admin(key, data, errors, context)
+
+def ignore_not_package_admin(key, data, errors, context):
+    '''Ignore if the user is not allowed to administer the package specified.'''
 
     model = context['model']
     user = context.get('user')
@@ -230,6 +235,29 @@ def ignore_not_admin(key, data, errors, context):
             authorized = False
 
     if (user and pkg and authorized):
+        return
+
+    data.pop(key)
+
+def ignore_not_group_admin(key, data, errors, context):
+    '''Ignore if the user is not allowed to administer for the group specified.'''
+
+    model = context['model']
+    user = context.get('user')
+
+    if user and Authorizer.is_sysadmin(user):
+        return
+
+    authorized = False
+    group = context.get('group')
+    if group:
+        try:
+            check_access('group_change_state',context)
+            authorized = True
+        except NotAuthorized:
+            authorized = False
+
+    if (user and group and authorized):
         return
 
     data.pop(key)

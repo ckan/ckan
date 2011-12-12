@@ -242,6 +242,30 @@ Ho ho ho
         offset = url_for(controller='group', action='edit', id=name)
         res = self.app.get(offset, status=404)
 
+    def test_delete(self):
+        group_name = 'deletetest'
+        CreateTestData.create_groups([{'name': group_name,
+                                       'packages': [self.packagename]}],
+                                     admin_user_name='russianfan')
+                                       
+        group = model.Group.by_name(group_name)
+        offset = url_for(controller='group', action='edit', id=group_name)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        main_res = self.main_div(res)
+        assert 'Edit: %s' % group.title in main_res, main_res
+        assert 'value="active" selected' in main_res, main_res
+        
+        # delete
+        form = res.forms['group-edit']
+        form['state'] = 'deleted'
+        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+
+        group = model.Group.by_name(group_name)
+        assert_equal(group.state, 'deleted')
+        res = self.app.get(offset, status=302)
+        res = res.follow()
+        assert res.request.url.startswith('/user/login'), res.request.url
+
 class TestNew(FunctionalTestCase):
     groupname = u'david'
 

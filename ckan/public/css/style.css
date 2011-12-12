@@ -588,6 +588,12 @@ form.simple-form input[type=password] {
 .group.read .property-list li ul li {
   margin-left: -2.5em;
 }
+.group.read .notes p {
+  margin-bottom: 0;
+}
+.group-dataset-list {
+  margin: 2em 0;
+}
 
 
 /* ============== */

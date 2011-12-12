@@ -167,7 +167,7 @@ def convert(converter, key, converted_data, errors, context):
         return
     except TypeError, e:
         ## hack to make sure the type error was caused by the wrong
-        ## number of arguements given.
+        ## number of arguments given.
         if not converter.__name__ in str(e):
             raise
     except Invalid, e:
@@ -182,7 +182,7 @@ def convert(converter, key, converted_data, errors, context):
         return
     except TypeError, e:
         ## hack to make sure the type error was caused by the wrong
-        ## number of arguements given.
+        ## number of arguments given.
         if not converter.__name__ in str(e):
             raise
 

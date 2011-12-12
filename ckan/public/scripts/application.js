@@ -819,6 +819,16 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
         DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
       });
     }
+    else if (resourceData.formatNormalized in {'html':'', 'htm':''} 
+        ||  resourceData.url.substring(0,23)=='http://docs.google.com/') {
+      // we displays a fullscreen dialog with the url in an iframe.
+      my.$dialog.empty();
+      var el = $('<iframe></iframe>');
+      el.attr('src', resourceData.url);
+      el.attr('width', '100%');
+      el.attr('height', '100%');
+      my.$dialog.append(el);
+    }
     else {
       // Cannot reliably preview this item - with no mimetype/format information, 
       // can't guarantee it's not a remote binary file such as an executable.
