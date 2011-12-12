@@ -102,7 +102,7 @@ class TestGroup(FunctionalTestCase):
         name = u'david'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert plugin.calls['read'] == 1, plugin.calls
+        assert plugin.calls['read'] == 2, plugin.calls
         plugins.unload(plugin)
 
     def test_read_and_authorized_to_edit(self):

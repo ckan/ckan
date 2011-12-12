@@ -272,7 +272,7 @@ class GroupController(BaseController):
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context, data, group_type=group_type)
-        c.form = render(self._group_form(), extra_vars=vars)
+        c.form = render(self._group_form(group_type), extra_vars=vars)
         return render('group/edit.html')
 
     def _get_group_type(self, id):
