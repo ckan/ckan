@@ -1661,12 +1661,15 @@ this.CKAN.View || (this.CKAN.View = {});
     // (Could add userid/username and/or a small random string to reduce
     // collisions but chances seem very low already)
     makeUploadKey: function(fileName) {
+      // google storage replaces ' ' with '+' which breaks things
+      // See http://trac.ckan.org/ticket/1518 for more.
+      var corrected = fileName.replace(/ /g, '-');
       // note that we put hh mm ss as hhmmss rather hh:mm:ss (former is 'basic
       // format')
       var now = new Date();
       // replace ':' with nothing
       var str = this.ISODateString(now).replace(':', '').replace(':', '');
-      return str  + '/' + fileName;
+      return str  + '/' + corrected;
     },
 
     updateFormData: function(key) {
