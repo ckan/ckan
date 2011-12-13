@@ -1,6 +1,12 @@
 @import url('/css/forms.css');
 @import url('/css/pretty_buttons.css');
 
+body.no-sidebar #sidebar { display: none; }
+body.no-sidebar #content { 
+  border-right: 0; 
+  width: 950px; 
+}
+
 .header.outer {
   background-color: #e2e2e2;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#e2e2e2), to(#cccccc)); 
