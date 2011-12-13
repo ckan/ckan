@@ -1614,7 +1614,7 @@ this.CKAN.View || (this.CKAN.View = {});
       }
       var tmpl = $.tmpl(CKAN.Templates.resourceUpload, tmplData);
       this.el.html(tmpl);
-      this.$messages = this.el.find('.messages');
+      this.$messages = this.el.find('.alert-message');
       this.setupFileUpload();
       return this;
     },
@@ -1687,6 +1687,7 @@ this.CKAN.View || (this.CKAN.View = {});
         error: function(jqXHR, textStatus, errorThrown) {
           // TODO: more graceful error handling (e.g. of 409)
           self.setMessage('Failed to get credentials for storage upload. Upload cannot proceed', 'error');
+          self.el.find('input[name="upload"]').hide();
         }
       });
     },
@@ -1739,8 +1740,8 @@ this.CKAN.View || (this.CKAN.View = {});
     },
 
     setMessage: function(msg, category) {
-      var category = category || 'notice';
-      this.$messages.removeClass('notice success error');
+      var category = category || 'info';
+      this.$messages.removeClass('info success error');
       this.$messages.addClass(category);
       this.$messages.show();
       this.$messages.html(msg);
