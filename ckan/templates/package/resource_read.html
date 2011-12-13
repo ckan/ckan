@@ -15,57 +15,69 @@
     <!-- data preview -->
     <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.grid.css" />
     <link rel="stylesheet" href="${g.site_url}/scripts/vendor/slickgrid/slick.columnpicker.css" />
-    <link rel="stylesheet" href="http://okfn.github.com/dataexplorer/src/table-view.css" />
+    <link rel="stylesheet" href="${g.site_url}/scripts/dataexplorer/table-view.css" />
     <!-- /data preview -->
+    <script type="text/javascript">
+      var preload_resource = ${c.resource_json};
+    </script>
   </py:def>
 
   <py:def function="page_title">
-    ${c.package.get('title', c.package['name'])} &gt;
-    ${c.resource.get('name', c.resource['id'])} - Datasets
+    ${h.dataset_display_name(c.package)} /
+    ${h.resource_display_name(c.resource)} - Dataset - Resource
   </py:def>
 
-  <py:def function="page_heading">${c.resource.get('name', c.resource['id'])}</py:def>
-  
+  <py:def function="page_heading">${h.dataset_display_name(c.package)} / ${h.resource_display_name(c.resource)}</py:def>
+
   <div py:match="content">
-    <div id="resource-main-information">
-      <div id="resource-dataset">
-        Dataset:
-        <span id="dataset-title" property="dc:title">
-          <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">
-            ${c.package.get('title', c.package['name'])} 
-          </a>
-        </span>
-        <span id="dataset-license">
-          <py:if test="c.package['isopen']">
-              <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
-                <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
-              </a>
-          </py:if>
-          <py:if test="not c.package['isopen']">
-              <span class="closed">
-                ${h.icon('lock')}
-              </span>
-          </py:if>
-        </span>
-      </div>
-      <div py:if="c.resource.get('last_modified')" id="resource-last-updated">
-        Last updated: ${h.time_ago_in_words_from_str(c.resource.get('last_modified'), granularity='day')}
-      </div>
+    <div class="notes" property="rdfs:label">
+      ${c.resource.get('description') or '(No description)'}
     </div>
 
-    <div id="resource-actions">
-      <a py:if="c.resource.get('url')" class="pretty-button" href="${c.resource.get('url')}">
+    <div class="resource-actions span-8">
+      <a py:if="c.resource.get('url')" class="pretty-button primary" href="${c.resource.get('url')}">
         <py:choose test="c.resource.get('resource_type')">
           <py:when test="'listing'">View</py:when>
           <py:when test="'service'">View</py:when>
           <py:when test="'api'">API Endpoint</py:when>
-          <py:otherwise>Download</py:otherwise>
+          <py:otherwise><img style="margin: 4px 8px 0 0;" src="${h.icon_url('arrow-down-16')}"/><span style="position: relative; bottom: 3px;">Download</span></py:otherwise>
         </py:choose>
         </a>
     </div>
 
-    <div py:if="c.resource.get('description')" id="resource-description" property="rdfs:label">
-      ${c.resource.get('description')}
+    <div class="quick-info .span-8">
+      <dl>
+        <dt>Part of dataset</dt>
+        <dd>
+          ${h.dataset_link(c.package)}
+        </dd>
+        <dt>Last updated</dt>
+        <dd>${h.time_ago_in_words_from_str(c.resource['last_modified'], granularity='day')}</dd>
+        <dt>Format</dt>
+        <dd>
+          ${c.resource['format'] or 'Unknown'}
+        </dd>
+        <dt>Licence</dt>
+        <dd>
+          <py:choose test="">
+            <span py:when="c.pkg.license and c.pkg.license.url"><a
+                href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
+            <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
+            <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
+          </py:choose>
+
+          <py:if test="c.pkg.isopen()">
+              <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+                <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+              </a>
+          </py:if>
+          <py:if test="not c.pkg.isopen()">
+              <span class="closed">
+                ${h.icon('lock')}
+              </span>
+          </py:if>
+        </dd>
+      </dl>
     </div>
 
     <div py:if="not c.resource.get('description') and c.package.get('notes')" id="dataset-description">
@@ -77,47 +89,31 @@
       <div>${h.markdown_extract(c.package.get('notes'), 300)}</div>
     </div>
 
-    <!-- TODO: hide this div if not available -->
-    <!-- <div id="resource-explore"> -->
-    <!--   <h2>Explore</h2> -->
-    <!--   <div> -->
-    <!--     TODO: data preview here -->
-    <!--   </div> -->
-    <!-- </div> -->
-
-    <div id="resource-information">
-      <h2>Resource Information</h2>
-      <dl id="resource-information-list">
-        <dt>Url</dt>
-        <dd><a href="${c.resource.get('url')}" rel="dcat:accessURL" target="_blank">
-          <span property="rdfs:label">${c.resource.get('url')}</span></a>
-        </dd>
-
-        <dt>Format</dt>
-        <dd><span property="dc:format">${c.resource.get('format', "(none)")}</span></dd>
-
-        <dt py:if="c.resource.get('resource_type')">Resource Type</dt>
-        <dd py:if="c.resource.get('resource_type')">
-          <span property="dc:format">${c.resource.get('resource_type', "(none)")}</span>
-        </dd>
-
-        <dt py:if="c.resource.get('size')">Size (Bytes)</dt>
-        <dd py:if="c.resource.get('size')">${c.resource.get('size')}</dd>
-
-        <dt py:if="c.resource.get('mimetype')">Mimetype</dt>
-        <dd py:if="c.resource.get('mimetype')">${c.resource.get('mimetype')}</dd>
-
-        <dt py:if="c.resource.get('mimetype_inner')">Mimetype (Inner)</dt>
-        <dd py:if="c.resource.get('mimetype_inner')">${c.resource.get('mimetype_inner')}</dd>
-
-        <dt py:if="c.resource.get('hash')">Hash</dt>
-        <dd py:if="c.resource.get('hash')">${c.resource.get('hash')}</dd>
-
-        <dt>ID</dt>
-        <dd>${c.resource.get('id')}</dd>
-      </dl>
+    <div class="resource-preview">
+      <h3>Preview</h3>
+      <div id="ckanext-datapreview"></div>
     </div>
-    <div id="ckanext-datapreview-dialog"></div>
+
+    <br/>
+    <div class="resource-information">
+      <h3>Additional Information</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr py:for="i, key in enumerate(sorted(c.resource.keys()))">
+            <py:if test="not key=='description'">
+              <td class="dataset-label" property="rdfs:label">${_(key)}</td>
+              <td class="dataset-details" property="rdf:value">${c.resource[key]}</td>
+            </py:if>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <py:def function="optional_footer">
@@ -126,14 +122,9 @@
     <script type="text/javascript" src="${g.site_url}/scripts/vendor/slickgrid/slick.grid.js"></script>
     <script type="text/javascript" src="${g.site_url}/scripts/vendor/slickgrid/slick.columnpicker.js"></script>
     <script type="text/javascript" src="${g.site_url}/scripts/vendor/flot/0.7/jquery.flot.js"></script>
-    <script src="https://github.com/okfn/dataexplorer/raw/master/src/table-view.js"></script>
-    <script src="https://github.com/okfn/dataexplorer/raw/master/src/table-view.ui.js"></script>
-    <script src="https://github.com/okfn/dataexplorer/raw/master/src/table-view-template.js"></script>
-    <!-- local copy, symlinked from your local checkout for dev purposes (to be removed at some point)
-    <script src="${g.site_url}/scripts/vendor/dataexplorer/table-view.js"></script>
-    <script src="${g.site_url}/scripts/vendor/dataexplorer/table-view.ui.js"></script>
-    <script src="${g.site_url}/scripts/vendor/dataexplorer/table-view-template.js"></script>
-         /data preview -->
+    <script src="${g.site_url}/scripts/dataexplorer/table-view.js"></script>
+    <script src="${g.site_url}/scripts/dataexplorer/table-view.ui.js"></script>
+    <script src="${g.site_url}/scripts/dataexplorer/table-view-template.js"></script>
   </py:def>
 
   <xi:include href="layout.html" />

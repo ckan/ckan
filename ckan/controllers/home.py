@@ -14,6 +14,7 @@ from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.base import *
 import ckan.lib.stats
 from ckan.lib.hash import get_redirect
+from ckan.lib.helpers import url_for
 
 class HomeController(BaseController):
     repo = model.repo
@@ -60,6 +61,27 @@ class HomeController(BaseController):
             c.package_count = 0
             c.groups = []
 
+        if c.userobj is not None:
+            msg = None
+            url = url_for(controller='user', action='edit')
+            is_google_id = \
+                c.userobj.name.startswith('https://www.google.com/accounts/o8/id')
+            if not c.userobj.email and (is_google_id and not c.userobj.fullname):
+                msg = _('Please <a href="%s">update your profile</a>'
+                    ' and add your email address and your full name. %s uses'
+                    ' your email address if you need to reset your'
+                    ' password.''') % (url, g.site_title)
+            elif not c.userobj.email:
+                msg = _('Please <a href="%s">update your profile</a>'
+                    ' and add your email address. %s uses your email address'
+                    ' if you need to reset your password.') \
+                    % (url, g.site_title)
+            elif is_google_id and not c.userobj.fullname:
+                msg = _('Please <a href="%s">update your profile</a>'
+                    ' and add your full name.') % (url)
+            if msg:
+                h.flash_notice(msg, allow_html=True)
+
         return render('home/index.html')
 
     def license(self):
@@ -84,7 +106,7 @@ class HomeController(BaseController):
                 # e.g. babel.Locale.parse('no').get_display_name() returns None
                 h.flash_notice(_("Language has been set to: English"))
             except:
-                h.flash_notice("Language has been set to: English")
+                h.flash_notice(_("Language has been set to: English"))
         else:
             abort(400, _("No language given!"))
         return_to = get_redirect()

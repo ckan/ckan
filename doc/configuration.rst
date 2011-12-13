@@ -410,8 +410,12 @@ CKAN uses Solr to index and search packages. The search index is linked to the v
 CKAN instance using the same `solr_url`_, they will each have a separate search index as long as their ``ckan.site_id`` values are different. If you are only running
 a single CKAN instance then this can be ignored.
 
+Note, if you change this value, you need to rebuild the search index.
+
 .. index::
    single: solr_url
+
+.. _solr_url:
 
 solr_url
 ^^^^^^^^
@@ -420,10 +424,11 @@ Example::
 
  solr_url = http://solr.okfn.org:8983/solr
  
-This configures the Solr server used for search. The SOLR schema must be the one in ``ckan/config/schema.xml``.
+This configures the Solr server used for search. The SOLR schema must be one of the ones in ``ckan/config/solr`` (generally the last one).
 
 Optionally, ``solr_user`` and ``solr_password`` can also be passed along to specify HTTP Basic authentication details for all Solr requests. 
 
+Note, if you change this value, you need to rebuild the search index.
 
 Site Settings
 -------------

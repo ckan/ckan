@@ -92,24 +92,21 @@ class CkanSessionExtension(SessionExtension):
 # SQLAlchemy database engine. Updated by model.init_model()
 engine = None
 
-if sqav.startswith("0.4"):
-    # SQLAlchemy session manager. Updated by model.init_model()
-    Session = scoped_session(sessionmaker(
-        autoflush=False,
-        transactional=True,
-        extension=[CkanSessionExtension(),
-                   extension.PluginSessionExtension(),
-                   DatasetActivitySessionExtension()],
-        ))
-else:
-    Session = scoped_session(sessionmaker(
-        autoflush=False,
-        autocommit=False,
-        expire_on_commit=False,
-        extension=[CkanSessionExtension(),
-                   extension.PluginSessionExtension(),
-                   DatasetActivitySessionExtension()],
-        ))
+Session = scoped_session(sessionmaker(
+    autoflush=False,
+    autocommit=False,
+    expire_on_commit=False,
+    extension=[CkanSessionExtension(), extension.PluginSessionExtension(),
+        DatasetActivitySessionExtension()],
+))
+
+create_local_session = sessionmaker(
+    autoflush=False,
+    autocommit=False,
+    expire_on_commit=False,
+    extension=[CkanSessionExtension(), extension.PluginSessionExtension(),
+        DatasetActivitySessionExtension()],
+)
 
 #mapper = Session.mapper
 mapper = orm.mapper

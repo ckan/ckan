@@ -18,6 +18,7 @@ Contents:
    install-from-package
    install-from-source
    post-installation
+   solr-setup
    theming
    loading_data
    paster

@@ -60,7 +60,6 @@ setup(
     dataset = ckan.lib.cli:DatasetCmd
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
-    changes = ckan.lib.cli:Changes
     notify = ckan.lib.cli:Notification
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
