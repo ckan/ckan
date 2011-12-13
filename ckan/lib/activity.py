@@ -2,9 +2,9 @@ from sqlalchemy.orm.session import SessionExtension
 import logging
 logger = logging.getLogger(__name__)
 
-def activity_stream_item(obj, activity_type, revision):
+def activity_stream_item(obj, activity_type, revision, user_id):
     try:
-        return obj.activity_stream_item(activity_type, revision)
+        return obj.activity_stream_item(activity_type, revision, user_id)
     except (AttributeError, TypeError):
         logger.debug("Object did not have a suitable "
             "activity_stream_item() method, it must not be a package.")
@@ -25,10 +25,21 @@ class DatasetActivitySessionExtension(SessionExtension):
         session.flush()
 
         try:
-            obj_cache = session._object_cache
+            object_cache = session._object_cache
             revision = session.revision
         except AttributeError:
+            logger.debug('session had no _object_cache or no revision,'
+                    ' skipping this commit', exc_info=True)
             return
+
+        if revision.user:
+            user_id = revision.user.id
+        else:
+            # If the user is not logged in then revision.user is None and
+            # revision.author is their IP address. Just log them as 'not logged
+            # in' rather than logging their IP address.
+            user_id = 'not logged in'
+        logger.debug('user_id: %s' % user_id)
 
         # The top-level objects that we will append to the activity table. The
         # keys here are package IDs, and the values are model.activity:Activity
@@ -44,9 +55,9 @@ class DatasetActivitySessionExtension(SessionExtension):
         # Log new packages first to prevent them from getting incorrectly
         # logged as changed packages.
         logger.debug("Looking for new packages...")
-        for obj in obj_cache['new']:
+        for obj in object_cache['new']:
             logger.debug("Looking at object %s" % obj)
-            activity = activity_stream_item(obj, 'new', revision)
+            activity = activity_stream_item(obj, 'new', revision, user_id)
             if activity is None:
                 continue
             # If the object returns an activity stream item we know that the
@@ -63,7 +74,7 @@ class DatasetActivitySessionExtension(SessionExtension):
         # Now process other objects.
         logger.debug("Looking for other objects...")
         for activity_type in ('new', 'changed', 'deleted'):
-            objects = obj_cache[activity_type]
+            objects = object_cache[activity_type]
             for obj in objects:
                 logger.debug("Looking at %s object %s" % (activity_type, obj))
                 if activity_type == "new" and obj.id in activities:
@@ -86,7 +97,7 @@ class DatasetActivitySessionExtension(SessionExtension):
                         activity = activities[package.id]
                     else:
                         activity = activity_stream_item(package, "changed",
-                                revision)
+                                revision, user_id)
                         activities[package.id] = activity
                     assert activity is not None
                     logger.debug("activity: %s" % activity)

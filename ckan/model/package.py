@@ -537,10 +537,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return fields
 
-    def activity_stream_item(self, activity_type, revision):
+    def activity_stream_item(self, activity_type, revision, user_id):
         assert activity_type in ("new", "changed", "deleted"), \
             str(activity_type)
-        user_id = revision.user.id
         if activity_type == "new":
             return Activity(user_id, self.id, revision.id, "new package", None)
         elif activity_type == "changed":

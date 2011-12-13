@@ -20,21 +20,19 @@ def _make_resource():
 
 class TestActivity:
 
-    @classmethod
-    def setup_class(cls):
+    def setUp(self):
         ckan.tests.CreateTestData.create()
-        cls.sysadmin_user = model.User.get('testsysadmin')
-        cls.normal_user = model.User.get('annafan')
+        self.sysadmin_user = model.User.get('testsysadmin')
+        self.normal_user = model.User.get('annafan')
 
-    @classmethod
-    def tearDownClass(cls):
+    def tearDown(self):
+        ckan.tests.CreateTestData.delete()
         model.repo.rebuild_db()
-        model.Session.remove()
 
     def _make_test_package(self):
         """Return a test package in dictionary form."""
         # A package with no resources, tags, extras or groups.
-        pkg1 = {
+        pkg = {
             'name' : 'test_package',
             'title' : 'My Test Package',
             'author' : 'test author',
@@ -57,21 +55,14 @@ class TestActivity:
                 'format': 'PDF',
                 'name': 'another example resource',
             }
-        pkg1['resources'] = [res1, res2]
+        pkg['resources'] = [res1, res2]
         # Add some tags to the package.
         tag1 = { 'name': 'a_test_tag' }
         tag2 = { 'name': 'another_test_tag' }
-        pkg1['tags'] = [tag1, tag2]
-        return pkg1
+        pkg['tags'] = [tag1, tag2]
+        return pkg
 
-    def test_create_package(self):
-        """
-        Test new package activity stream.
-
-        Test that correct activity stream item and detail items are emitted
-        when a new package is created.
-
-        """
+    def _create_package(self, user):
         # Record some details before creating a new package.
         length_before = len(model.Session.query(model.activity.Activity).all())
         details_length_before = len(model.Session.query(
@@ -79,8 +70,12 @@ class TestActivity:
         before = datetime.datetime.now()
 
         # Create a new package.
-        context = {'model': model, 'session': model.Session,
-                'user':TestActivity.normal_user.name}
+        if user is None:
+            context = {'model': model, 'session': model.Session,
+                    'user':'127.0.0.1'}
+        else:
+            context = {'model': model, 'session': model.Session,
+                    'user':user.name}
         request_data = self._make_test_package()
         package_created = package_create(context, request_data)
 
@@ -96,8 +91,11 @@ class TestActivity:
         activity = activities[-1]
         assert activity.object_id == package_created['id'], \
             str(activity.object_id)
-        assert activity.user_id == TestActivity.normal_user.id, \
-            str(activity.user_id)
+        if user:
+            user_id = user.id
+        else:
+            user_id = 'not logged in'
+        assert activity.user_id == user_id, str(activity.user_id)
         assert activity.activity_type == 'new package', \
             str(activity.activity_type)
         if not activity.id:
@@ -132,7 +130,27 @@ class TestActivity:
                     "package or any of its resources: %s" \
                     % str(detail.object_id))
 
-    def _add_resource(self, package):
+    def test_create_package(self):
+        """
+        Test new package activity stream.
+
+        Test that correct activity stream item and detail items are emitted
+        when a new package is created.
+
+        """
+        self._create_package(user=self.normal_user)
+
+    def test_create_package_not_logged_in(self):
+        """
+        Test new package activity stream when not logged in.
+
+        Test that correct activity stream item and detail items are emitted
+        when a new package is created by a user who is not logged in.
+
+        """
+        self._create_package(user=None)
+
+    def _add_resource(self, package, user):
         # Record some details before creating a new resource.
         length_before = len(model.Session.query(model.activity.Activity).all())
         details_length_before = len(model.Session.query(
@@ -146,8 +164,12 @@ class TestActivity:
         resource_ids_before = [resource.id for resource in package.resources]
 
         # Create a new resource.
-        context = {'model': model, 'session': model.Session,
-                'user':TestActivity.normal_user.name}
+        if user is None:
+            context = {'model': model, 'session': model.Session,
+                    'user':'127.0.0.1'}
+        else:
+            context = {'model': model, 'session': model.Session,
+                    'user':user.name}
         resources = resource_list_dictize(package.resources, context)
         resources.append(_make_resource())
         request_data = {
@@ -171,8 +193,11 @@ class TestActivity:
         activity = activities[-1]
         assert activity.object_id == updated_package['id'], \
             str(activity.object_id)
-        assert activity.user_id == TestActivity.normal_user.id, \
-            str(activity.user_id)
+        if user:
+            user_id = user.id
+        else:
+            user_id = 'not logged in'
+        assert activity.user_id == user_id, str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
         if not activity.id:
@@ -207,9 +232,20 @@ class TestActivity:
 
         """
         for package in model.Session.query(model.Package).all():
-            self._add_resource(package)
+            self._add_resource(package, user=self.normal_user)
 
-    def _update_package(self, package):
+    def test_add_resources_not_logged_in(self):
+        """
+        Test new resource activity stream when no user logged in.
+
+        Test that correct activity stream item and detail items are emitted
+        when a resource is added to a package by a user who is not logged in.
+
+        """
+        for package in model.Session.query(model.Package).all():
+            self._add_resource(package, user=None)
+
+    def _update_package(self, package, user):
         """
         Update the given package and test that the correct activity stream
         item and detail are emitted.
@@ -227,7 +263,7 @@ class TestActivity:
 
         # Update the package.
         context = {'model': model, 'session': model.Session,
-                'user':TestActivity.normal_user.name,
+                'user':self.normal_user.name,
                 'allow_partial_update':True}
         package_dict = {'id':package.id, 'title':'edited'}
         result = package_update(context, package_dict)
@@ -242,7 +278,7 @@ class TestActivity:
                 len(activities)))
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == TestActivity.normal_user.id, \
+        assert activity.user_id == self.normal_user.id, \
             str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
@@ -274,9 +310,20 @@ class TestActivity:
 
         """
         for package in model.Session.query(model.Package).all():
-            self._update_package(package)
+            self._update_package(package, user=self.normal_user)
 
-    def _update_resource(self, package, resource):
+    def test_update_package_not_logged_in(self):
+        """
+        Test updated package activity stream when not logged in.
+
+        Test that correct activity stream item and detail items are created
+        when packages are updated by a user who is not logged in.
+
+        """
+        for package in model.Session.query(model.Package).all():
+            self._update_package(package, user=None)
+
+    def _update_resource(self, package, resource, user):
         """
         Update the given resource and test that the correct activity stream
         item and detail are emitted.
@@ -294,9 +341,12 @@ class TestActivity:
         resource = model.Session.query(model.Resource).get(resource.id)
 
         # Update the resource.
-        context = {'model': model, 'session': model.Session,
-                'user':TestActivity.normal_user.name,
-                'allow_partial_update':True}
+        if user is None:
+            context = {'model': model, 'session': model.Session,
+                    'user':'127.0.0.1', 'allow_partial_update':True}
+        else:
+            context = {'model': model, 'session': model.Session,
+                    'user':user.name, 'allow_partial_update':True}
         resource_dict = {'id':resource.id, 'name':'edited'}
         result = resource_update(context, resource_dict)
 
@@ -308,8 +358,11 @@ class TestActivity:
         assert len(activities) == length_before + 1, str(activities)
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == TestActivity.normal_user.id, \
-            str(activity.user_id)
+        if user:
+            user_id = user.id
+        else:
+            user_id = 'not logged in'
+        assert activity.user_id == user_id, str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
         if not activity.id:
@@ -341,7 +394,21 @@ class TestActivity:
             # it belongs to may have been closed.
             pkg = model.Session.query(model.Package).get(package.id)
             for resource in pkg.resources:
-                self._update_resource(pkg, resource)
+                self._update_resource(pkg, resource, user=self.normal_user)
+
+    def test_update_resource_not_logged_in(self):
+        """
+        Test that a correct activity stream item and detail item are emitted
+        when a resource is updated by a user who is not logged in.
+
+        """
+        packages = model.Session.query(model.Package).all()
+        for package in packages:
+            # Query the model for the Package object again, as the session that
+            # it belongs to may have been closed.
+            pkg = model.Session.query(model.Package).get(package.id)
+            for resource in pkg.resources:
+                self._update_resource(pkg, resource, user=None)
 
     def _delete_package(self, package):
         """
@@ -361,7 +428,7 @@ class TestActivity:
 
         # Delete the package.
         context = {'model': model, 'session': model.Session,
-                'user':TestActivity.normal_user.name}
+                'user':self.normal_user.name}
         package_dict = {'id':package.id}
         result = package_delete(context, package_dict)
 
@@ -375,7 +442,7 @@ class TestActivity:
                 len(activities)))
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == TestActivity.normal_user.id, \
+        assert activity.user_id == self.normal_user.id, \
             str(activity.user_id)
         # "Deleted" packages actually show up as changed (the package's status
         # changes to "deleted" but the package is not expunged).
@@ -432,7 +499,7 @@ class TestActivity:
 
         # Delete the resources.
         context = {'model': model, 'session': model.Session,
-                'user':TestActivity.normal_user.name}
+                'user':self.normal_user.name}
         data_dict = { 'id':package.id, 'resources':[] }
         result = package_update(context, data_dict)
 
@@ -446,7 +513,7 @@ class TestActivity:
                 len(activities)))
         activity = activities[-1]
         assert activity.object_id == package.id, str(activity.object_id)
-        assert activity.user_id == TestActivity.normal_user.id, \
+        assert activity.user_id == self.normal_user.id, \
             str(activity.user_id)
         assert activity.activity_type == 'changed package', \
             str(activity.activity_type)
