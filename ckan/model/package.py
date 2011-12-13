@@ -502,14 +502,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @property
     def metadata_created(self):
         import ckan.model as model
-        q = model.Session.query(model.Revision).select_from(
-            model.revision_table.join(
-                model.package_revision_table,
-                and_(model.revision_table.c.id==model.package_revision_table.c.revision_id))
-            ).order_by(model.Revision.timestamp.asc())
+        q = model.Session.query(model.PackageRevision)\
+            .filter(model.PackageRevision.id == self.id)\
+            .order_by(model.PackageRevision.revision_timestamp.asc())
         ts = q.first()
         if ts is not None:
-            return ts.timestamp
+            return ts.revision_timestamp
 
     @staticmethod
     def get_fields(core_only=False, fields_to_ignore=None):

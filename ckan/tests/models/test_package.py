@@ -111,6 +111,34 @@ class TestPackage:
         assert_equal(out['notes'], pkg.notes)
         assert_equal(out['notes_rendered'], '<p>A <b>great</b> package [HTML_REMOVED] like <a href="/package/pollution_stats">package:pollution_stats</a>\n</p>')
 
+    def test_metadata_created_and_modified(self):
+        # create a new package
+        name = "test_metadata"
+        rev = model.repo.new_revision()
+        package = model.Package(name=name)
+        model.Session.add(package)
+        model.Session.flush()
+        revision_id = model.Session().revision.id
+        created_timestamp = model.Session().revision.timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp,\
+            (package.metadata_created, created_timestamp)
+        assert package.metadata_modified == created_timestamp,\
+            (package.metadata_modified, created_timestamp)
+
+        # update the package it
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        package.title = "test_metadata_new_title"
+        modified_timestamp = model.Session().revision.timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == modified_timestamp
+
 
 class TestPackageWithTags:
     """
