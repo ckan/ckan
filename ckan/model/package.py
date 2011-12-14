@@ -457,17 +457,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                         results[key] = value_diff
         return results
 
-    @staticmethod
-    def last_modified(*av):
+    @property
+    def metadata_modified(self):
         """
-        Return most recent timestamp for a package revision, with optionally
-        extra where clause.
+        Return most recent timestamp for a package revision.
         """
-        from ckan import model
-        where = []
-        for arg in av:
-            if isinstance(arg, expression.ClauseElement) or isinstance(arg, basestring):
-                where.append(arg)
+        import ckan.model as model
+
+        where = [model.package_table.c.id == self.id]
         where_clauses = [
             and_(model.package_table.c.revision_id == model.revision_table.c.id, *where),
             and_(model.package_extra_table.c.package_id == model.package_table.c.id,
@@ -484,10 +481,13 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             and_(model.package_tag_table.c.package_id == model.package_table.c.id,
                  model.package_tag_table.c.revision_id == model.revision_table.c.id, *where)
             ]
+
         query = union(*[select([model.revision_table.c.timestamp], x) for x in where_clauses]
                       ).order_by("timestamp DESC").limit(1)
+
         conn = model.meta.engine.connect()
         result = conn.execute(query).fetchone()
+
         if result:
             result_datetime = iso_date_to_datetime_for_sqlite(result[0])
             timestamp = result_datetime.utctimetuple()
@@ -495,20 +495,21 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         else:
             timestamp, usecs = gmtime(), 0
         # use timegm instead of mktime, because we don't want it localised
-        return timegm(timestamp) + usecs
+        return datetime.datetime.utcfromtimestamp(timegm(timestamp)+usecs)
 
-    @property
-    def metadata_modified(self):
-        import ckan.model as model
-        epochtime = self.last_modified(model.package_table.c.id==self.id)
-        return datetime.datetime.utcfromtimestamp(epochtime)
+        # q = model.Session.query(model.PackageRevision)\
+        #     .filter(model.PackageRevision.id == self.id)\
+        #     .order_by(model.PackageRevision.revision_timestamp.desc())
+        # ts = q.first()
+        # return ts.revision_timestamp
     
     @property
     def metadata_created(self):
         import ckan.model as model
         q = model.Session.query(model.PackageRevision)\
             .filter(model.PackageRevision.id == self.id)\
-            .order_by(model.PackageRevision.revision_timestamp.asc())
+            .order_by(model.PackageRevision.revision_timestamp.asc())\
+            .limit(1)
         ts = q.first()
         if ts is not None:
             return ts.revision_timestamp
