@@ -426,6 +426,16 @@ These parameters are all the standard SOLR syntax (in contrast to the syntax use
 |                       |               |                                                     | included in the results.         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 
+Search Examples
+---------------
+
+Sorting by modified date:
+
+::
+
+ $ curl http://thedatahub.org/api/action/package_search -d '{"q": "groups:lodcloud", sort": "metadata_modified asc"}' 
+
+
 Status Codes
 ~~~~~~~~~~~~
 
