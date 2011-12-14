@@ -57,7 +57,7 @@ CKAN.Templates.resourceUpload = ' \
       </dd> \
     </dl> \
   </form> \
-  <div class="messages" style="display: none;"></div> \
+  <div class="alert-message block-message" style="display: none;"></div> \
   </div> \
 </div> \
 ';
