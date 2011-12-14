@@ -2,29 +2,33 @@ import copy
 
 from nose.tools import assert_equal, assert_raises
 
+from ckan.lib.create_test_data import CreateTestData
+from ckan import plugins
+import ckan.lib.search as search
+
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase
 from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase
-from ckan import plugins
-import ckan.lib.search as search
 
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
 
 class PackagesTestCase(BaseModelApiTestCase):
 
-    reuse_common_fixtures = True
+    @classmethod
+    def setup_class(cls):
+        CreateTestData.create()
+        cls.user_name = u'annafan' # created in CreateTestData
+        cls.init_extra_environ(cls.user_name)
 
-    def setup(self):
-        model.Session.remove()
-        model.repo.init_db()
-        super(PackagesTestCase, self).setup()
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
 
     def teardown(self):
-        super(PackagesTestCase, self).teardown()
-        model.Session.connection().invalidate()
-
+        self.purge_package_by_name(self.package_fixture_data['name'])
+        
     def get_groups_identifiers(self, test_groups, users=[]):
         groups = []
         for grp in test_groups:
@@ -66,7 +70,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert offset in location
         res = self.app.get(location, status=self.STATUS_200_OK)
         # Check the database record.
-        self.remove()
+        model.Session.remove()
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
         self.assert_equal(package.title, self.package_fixture_data['title'])
@@ -108,14 +112,14 @@ class PackagesTestCase(BaseModelApiTestCase):
         for key, value in self.package_fixture_data['extras'].items():
             assert '"%s": "%s"' % (key, value) in res, res
 
-        self.remove()
+        model.Session.remove()
 
         # Test Packages Register Post 409 (conflict - create duplicate package).
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams, status=self.STATUS_409_CONFLICT,
                 extra_environ=self.extra_environ)
-        self.remove()
+        model.Session.remove()
 
     def test_register_post_with_group(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
@@ -133,7 +137,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                              extra_environ={'Authorization':str(user.apikey)})
 
         # Check the database record.
-        self.remove()
+        model.Session.remove()
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
         if self.get_expected_api_version() == '1':
@@ -183,7 +187,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
                               extra_environ={'Authorization':str(user.apikey)})
         # Check the database record.
-        self.remove()
+        model.Session.remove()
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
         if self.get_expected_api_version() == '1':
@@ -200,7 +204,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
                              extra_environ=self.extra_environ)
         # Check the database record.
-        self.remove()
+        model.Session.remove()
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
         self.assert_equal(package.title, self.package_fixture_data['title'])
@@ -214,7 +218,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                                 status=[self.STATUS_400_BAD_REQUEST,
                                         self.STATUS_201_CREATED],
                                 extra_environ=self.extra_environ)
-        self.remove()
+        model.Session.remove()
         # Some versions of webob work, some don't. No matter, we record this
         # behaviour.
         package = self.get_package_by_name(self.package_fixture_data['name'])
@@ -266,7 +270,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             data = self.dumps(self.package_fixture_data)
 
             self.post_json(offset, data, status=500, extra_environ=self.extra_environ)
-            self.remove()
+            model.Session.remove()
         finally:
             plugins.unload('synchronous_search')
             search.common.solr_url = solr_url
@@ -301,7 +305,7 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_get_not_found(self):
         offset = self.offset('/rest/dataset/22222')
         res = self.app.get(offset, status=self.STATUS_404_NOT_FOUND)
-        self.remove()
+        model.Session.remove()
 
     def test_entity_get_then_post(self):
         # (ticket 662) Ensure an entity you 'get' from a register can be
@@ -333,9 +337,12 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(self.package_offset(), params=postparams,
                             status=self.STATUS_201_CREATED,
                             extra_environ=extra_environ)
-        data_returned = self.loads(res.body)
-        assert_equal(data['name'], data_returned['name'])
-        assert_equal(data['license_id'], data_returned['license_id'])
+        try:
+            data_returned = self.loads(res.body)
+            assert_equal(data['name'], data_returned['name'])
+            assert_equal(data['license_id'], data_returned['license_id'])
+        finally:
+            self.purge_package_by_name(data['name'])
 
     def test_entity_post_changed_readonly(self):
         # (ticket 662) Edit a readonly field gives error
@@ -365,7 +372,6 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_404_NOT_FOUND,
                             extra_environ=self.extra_environ)
-        self.remove()
 
     def create_package_roles_revision(self, package_data):
         self.create_package(admins=[self.user], data=package_data)
@@ -420,58 +426,62 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = method_func(offset, params=params, status=self.STATUS_200_OK,
                           extra_environ=self.extra_environ)
 
-        # Check the returned package is as expected
-        pkg = self.loads(res.body)
-        assert_equal(pkg['name'], new_fixture_data['name'])
-        assert_equal(pkg['title'], new_fixture_data['title'])
-        assert_equal(set(pkg['tags']), set(new_fixture_data['tags']))
-        assert_equal(len(pkg['resources']), len(new_fixture_data['resources']))
-        expected_extras = copy.deepcopy(new_fixture_data['extras'])
-        del expected_extras['key2']
-        expected_extras['key1'] = old_fixture_data['extras']['key1']
-        assert_equal(pkg['extras'], expected_extras)
+        try:
+            # Check the returned package is as expected
+            pkg = self.loads(res.body)
+            assert_equal(pkg['name'], new_fixture_data['name'])
+            assert_equal(pkg['title'], new_fixture_data['title'])
+            assert_equal(set(pkg['tags']), set(new_fixture_data['tags']))
+            assert_equal(len(pkg['resources']), len(new_fixture_data['resources']))
+            expected_extras = copy.deepcopy(new_fixture_data['extras'])
+            del expected_extras['key2']
+            expected_extras['key1'] = old_fixture_data['extras']['key1']
+            assert_equal(pkg['extras'], expected_extras)
 
-        # Check submitted field have changed.
-        self.remove()
-        package = self.get_package_by_name(new_fixture_data['name'])
-        # - title
-        self.assert_equal(package.title, new_fixture_data['title'])
-        # - tags
-        package_tagnames = [tag.name for tag in package.tags]
-        for tagname in new_fixture_data['tags']:
-            assert tagname in package_tagnames, 'tag %r not in %r' % (tagname, package_tagnames)
-        # - resources
-        assert len(package.resources), "Package has no resources: %s" % package
-        self.assert_equal(len(package.resources), 2)
-        resource = package.resources[0]
-        self.assert_equal(resource.url, u'http://blah.com/file2.xml')
-        self.assert_equal(resource.format, u'xml')
-        self.assert_equal(resource.description, u'Appendix 1')
-        self.assert_equal(resource.hash, u'def123')
-        self.assert_equal(resource.alt_url, u'alt123')
-        self.assert_equal(resource.extras['size_extra'], u'400')
-        resource = package.resources[1]
-        self.assert_equal(resource.url, 'http://blah.com/file3.xml')
-        self.assert_equal(resource.format, u'xml')
-        self.assert_equal(resource.description, u'Appenddic 2')
-        self.assert_equal(resource.hash, u'ghi123')
-        self.assert_equal(resource.alt_url, u'alt123')
-        self.assert_equal(resource.extras['size_extra'], u'400')
+            # Check submitted field have changed.
+            model.Session.remove()
+            package = self.get_package_by_name(new_fixture_data['name'])
+            # - title
+            self.assert_equal(package.title, new_fixture_data['title'])
+            # - tags
+            package_tagnames = [tag.name for tag in package.tags]
+            for tagname in new_fixture_data['tags']:
+                assert tagname in package_tagnames, 'tag %r not in %r' % (tagname, package_tagnames)
+            # - resources
+            assert len(package.resources), "Package has no resources: %s" % package
+            self.assert_equal(len(package.resources), 2)
+            resource = package.resources[0]
+            self.assert_equal(resource.url, u'http://blah.com/file2.xml')
+            self.assert_equal(resource.format, u'xml')
+            self.assert_equal(resource.description, u'Appendix 1')
+            self.assert_equal(resource.hash, u'def123')
+            self.assert_equal(resource.alt_url, u'alt123')
+            self.assert_equal(resource.extras['size_extra'], u'400')
+            resource = package.resources[1]
+            self.assert_equal(resource.url, 'http://blah.com/file3.xml')
+            self.assert_equal(resource.format, u'xml')
+            self.assert_equal(resource.description, u'Appenddic 2')
+            self.assert_equal(resource.hash, u'ghi123')
+            self.assert_equal(resource.alt_url, u'alt123')
+            self.assert_equal(resource.extras['size_extra'], u'400')
 
-        # Check unsubmitted fields have not changed.
-        # - url
-        self.assert_equal(package.url, self.package_fixture_data['url'])
-        # - extras
+            # Check unsubmitted fields have not changed.
+            # - url
+            self.assert_equal(package.url, self.package_fixture_data['url'])
+            # - extras
 
-        self.assert_equal(len(package.extras), 4)
-        for key, value in {u'key1':u'val1',
-                           u'key3':u'val3',
-                           u'key7':['a','b'],
-                           u'key4':u''}.items():
-            self.assert_equal(package.extras[key], value)
-        # NB: key4 set to '' creates it
-        # but: key2 set to None will delete it
-        assert not package.extras.has_key('key2')
+            self.assert_equal(len(package.extras), 4)
+            for key, value in {u'key1':u'val1',
+                               u'key3':u'val3',
+                               u'key7':['a','b'],
+                               u'key4':u''}.items():
+                self.assert_equal(package.extras[key], value)
+            # NB: key4 set to '' creates it
+            # but: key2 set to None will delete it
+            assert not package.extras.has_key('key2')
+        finally:
+            self.purge_package_by_name(new_fixture_data['name'])
+
 
     def test_package_update_ok_by_id(self):
         self.assert_package_update_ok('id', 'post')
@@ -504,18 +514,21 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
                             extra_environ=self.extra_environ)
 
-        # Check the returned package is as expected
-        pkg = self.loads(res.body)
-        assert_equal(pkg['name'], new_fixture_data['name'])
-        expected_extras = copy.deepcopy(new_fixture_data['extras'])
-        del expected_extras['key1']
-        assert_equal(pkg['extras'], expected_extras)
+        try:
+            # Check the returned package is as expected
+            pkg = self.loads(res.body)
+            assert_equal(pkg['name'], new_fixture_data['name'])
+            expected_extras = copy.deepcopy(new_fixture_data['extras'])
+            del expected_extras['key1']
+            assert_equal(pkg['extras'], expected_extras)
 
-        # Check extra was deleted
-        self.remove()
-        package = self.get_package_by_name(new_fixture_data['name'])
-        # - title
-        self.assert_equal(package.extras, {})
+            # Check extra was deleted
+            model.Session.remove()
+            package = self.get_package_by_name(new_fixture_data['name'])
+            # - title
+            self.assert_equal(package.extras, {})
+        finally:
+            self.purge_package_by_name(new_fixture_data['name'])
 
     def test_package_update_do_not_delete_last_extra(self):
         old_fixture_data = {
@@ -535,17 +548,20 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
                             extra_environ=self.extra_environ)
 
-        # Check the returned package is as expected
-        pkg = self.loads(res.body)
-        assert_equal(pkg['name'], new_fixture_data['name'])
-        expected_extras = {u'key1': u'val1'} # should not be deleted
-        assert_equal(pkg['extras'], expected_extras)
+        try:
+            # Check the returned package is as expected
+            pkg = self.loads(res.body)
+            assert_equal(pkg['name'], new_fixture_data['name'])
+            expected_extras = {u'key1': u'val1'} # should not be deleted
+            assert_equal(pkg['extras'], expected_extras)
 
-        # Check extra was not deleted
-        self.remove()
-        package = self.get_package_by_name(new_fixture_data['name'])
-        # - title
-        assert len(package.extras) == 1, package.extras
+            # Check extra was not deleted
+            model.Session.remove()
+            package = self.get_package_by_name(new_fixture_data['name'])
+            # - title
+            assert len(package.extras) == 1, package.extras
+        finally:
+            self.purge_package_by_name(new_fixture_data['name'])
 
     def test_entity_update_readd_tag(self):
         name = self.package_fixture_data['name']
@@ -585,9 +601,12 @@ class PackagesTestCase(BaseModelApiTestCase):
         package2_name = u'somethingnew'
         package2_data = {'name': package2_name}
         package2 = self.create_package_roles_revision(package2_data)
-        package1_offset = self.package_offset(package1_name)
-        # trying to rename package 1 to package 2's name
-        self.post(package1_offset, package2_data, self.STATUS_409_CONFLICT)
+        try:
+            package1_offset = self.package_offset(package1_name)
+            # trying to rename package 1 to package 2's name
+            self.post(package1_offset, package2_data, self.STATUS_409_CONFLICT)
+        finally:
+            self.purge_package_by_name(package2_name)            
 
     def test_entity_update_empty(self):
         package1_name = self.package_fixture_data['name']

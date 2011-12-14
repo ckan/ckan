@@ -1,6 +1,7 @@
 import copy
 
 from ckan import model
+from ckan.lib.create_test_data import CreateTestData
 
 from nose.tools import assert_equal 
 
@@ -11,9 +12,19 @@ from ckan.tests.functional.api.base import ApiUnversionedTestCase as Unversioned
 
 class GroupsTestCase(BaseModelApiTestCase):
 
-    reuse_common_fixtures = True
-    user_name = u'russianfan'
+    @classmethod
+    def setup_class(cls):
+        CreateTestData.create()
+        cls.user_name = u'russianfan' # created in CreateTestData
+        cls.init_extra_environ(cls.user_name)
     
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def teardown(self):
+        self.purge_group_by_name(self.testgroupvalues['name'])
+
     def test_register_get_ok(self):
         offset = self.group_offset()
         res = self.app.get(offset, status=self.STATUS_200_OK)
