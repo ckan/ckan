@@ -1135,3 +1135,34 @@ class TestActionPackageSearch(WsgiAppCase):
                             status=400)
         assert '"message": "Search Query is invalid:' in res.body, res.body
         assert '"Invalid search parameters: [u\'weird_param\']' in res.body, res.body
+
+    def test_4_sort_by_metadata_modified(self):
+        # modify warandpeace
+        rev = model.repo.new_revision()
+        pkg = model.Package.get('warandpeace')
+        pkg.title = "War and Peace [UPDATED]"
+        model.repo.commit_and_remove()
+
+        # check that warandpeace is the first result when sorting by modification date
+        postparams = '%s=1' % json.dumps({
+            'q': '*:*',
+            'fl': 'name, metadata_modified',
+            'sort': u'metadata_modified desc'
+        })
+        res = self.app.post('/api/action/package_search', params=postparams)
+        result = json.loads(res.body)['result']
+        result_names = [r['name'] for r in result['results']]
+        assert result_names == ['warandpeace', 'annakarenina'], result_names
+
+        # modify annakarenina
+        rev = model.repo.new_revision()
+        pkg = model.Package.get('annakarenina')
+        pkg.title = "A Novel By Tolstoy [UPDATED]"
+        model.repo.commit_and_remove()
+
+        # check that annakarenina is now the first result when sorting by modification date
+        res = self.app.post('/api/action/package_search', params=postparams)
+        result = json.loads(res.body)['result']
+        result_names = [r['name'] for r in result['results']]
+        assert result_names == ['annakarenina', 'warandpeace'], result_names
+
