@@ -1,6 +1,19 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.5.1 XXXX-XX-XX
+=================
+
+Minor:
+ * Account creation disallowed with Open ID (create account in CKAN first) (#1386)
+ * Web UI improvements:
+  * Resource editing refreshed
+ * 'Task status' table added (#1363) - a step towards caching resource downloads (#1397)
+
+
+Bug fixes:
+ * Dataset property metadata_created was wrong (since XXX) (#1546)
+
 v1.5 2011-11-07
 ===============
 Major:
