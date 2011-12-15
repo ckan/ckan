@@ -99,7 +99,7 @@ class GroupsTestCase(BaseModelApiTestCase):
             model.Session.remove()
             group = model.Group.by_name(self.testgroupvalues['name'])
         assert group
-        assert len(group.member_all) == 2, group.packages
+        assert len(group.member_all) == 2, group.member_all
         user = model.User.by_name(self.user_name)
         model.setup_default_user_roles(group, [user])
 
