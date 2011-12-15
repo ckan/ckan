@@ -481,8 +481,11 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                  model.package_tag_table.c.revision_id == model.revision_table.c.id, *where)
             ]
         query = union(*[select([model.revision_table.c.timestamp], x) for x in where_clauses]
-                      ).order_by("timestamp DESC").limit(1)
-        conn = model.meta.engine.connect()
+                      ).order_by('timestamp DESC').limit(1)
+        # Use current connection because we might be in a 'before_commit' of
+        # a SessionExtension - only by using the current connection can we get
+        # at the newly created revision etc. objects.
+        conn = model.Session.connection() 
         result = conn.execute(query).fetchone()
         if result:
             result_datetime = iso_date_to_datetime_for_sqlite(result[0])
