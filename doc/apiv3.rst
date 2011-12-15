@@ -365,7 +365,7 @@ These parameters are all the standard SOLR syntax (in contrast to the syntax use
 |                       |               || fl=*                            |                                  |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | sort                  | field name,   || sort=name asc                   | Changes the sort order according |
-|                       | asc / dec     |                                  | to the field and direction given.|
+|                       | asc / dec     || sort=metadata_modified asc      | to the field and direction given.|
 |                       |               |                                  | default: score desc, name asc    |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | start, rows           | result-int    | start=40&amp;rows=20             | Pagination options. Start is the |
@@ -425,15 +425,6 @@ These parameters are all the standard SOLR syntax (in contrast to the syntax use
 | since_id              | Uuid          | since_id=6c9f32ef-1f93-4b2f-891b-fd01924ebe08       | The stated id will not be        |
 |                       |               |                                                     | included in the results.         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
-
-Search Examples
----------------
-
-Sorting by modified date:
-
-::
-
- $ curl http://thedatahub.org/api/action/package_search -d '{"q": "groups:lodcloud", sort": "metadata_modified asc"}' 
 
 
 Status Codes

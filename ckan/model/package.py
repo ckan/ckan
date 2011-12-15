@@ -460,7 +460,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @property
     def metadata_modified(self):
         """
-        Return most recent timestamp for a package revision.
+        Return most recent timestamp for revisions related to this package.
+        NB Excludes changes to the package's groups
         """
         import ckan.model as model
 
@@ -492,19 +493,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         if result:
             result_datetime = iso_date_to_datetime_for_sqlite(result[0])
-            timestamp = result_datetime.utctimetuple()
+            timestamp_without_usecs = result_datetime.utctimetuple()
             usecs = float(result_datetime.microsecond) / 1e6
-        else:
-            timestamp, usecs = gmtime(), 0
-        # use timegm instead of mktime, because we don't want it localised
-        return datetime.datetime.utcfromtimestamp(timegm(timestamp)+usecs)
+            # use timegm instead of mktime, because we don't want it localised
+            timestamp_float = timegm(timestamp_without_usecs) + usecs
+            return datetime.datetime.utcfromtimestamp(timestamp_float)
 
-        # q = model.Session.query(model.PackageRevision)\
-        #     .filter(model.PackageRevision.id == self.id)\
-        #     .order_by(model.PackageRevision.revision_timestamp.desc())
-        # ts = q.first()
-        # return ts.revision_timestamp
-    
     @property
     def metadata_created(self):
         import ckan.model as model

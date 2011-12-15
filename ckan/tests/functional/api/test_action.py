@@ -1180,5 +1180,4 @@ class TestActionPackageSearch(WsgiAppCase):
         result_names = [r['name'] for r in result['results']]
         assert result_names == ['warandpeace', 'annakarenina'], result_names
 
-        # TODO: add an extra to annararenina, check that it is the first result
 
