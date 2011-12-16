@@ -4,15 +4,32 @@ CKAN CHANGELOG
 v1.5.1 XXXX-XX-XX
 =================
 
+Major:
+ * SOLR schema is now versioned (#1498)
+
 Minor:
- * Account creation disallowed with Open ID (create account in CKAN first) (#1386)
  * Web UI improvements:
   * Resource editing refreshed
- * 'Task status' table added (#1363) - a step towards caching resource downloads (#1397)
-
+  * Group editing refreshed
+  * Indication that group creation requires logging-in (#1004)
+  * Users' pictures displayed using Gravatar (#1409)
+  * 'Welcome' banner shown to new users (#1378)
+ * Allow managing a dataset's groups also via package entity API (#1381)
+ * 'Task status' table added and logic layer (#1363, #1371, #1408) - a step towards caching resource downloads (#1397)
+ * Dataset listings in API standardised (#1490)
+ * Search ordering by modification and creation date (#191)
+ * Account creation disallowed with Open ID (create account in CKAN first) (#1386)
+ * User name can be modified (#1386)
+ * Email address required for registration (for password reset) (#1319)
+ * Atom feeds hidden for now
+ * New config options to ease CSS insertion into the template (#1380)
 
 Bug fixes:
- * Dataset property metadata_created was wrong (since XXX) (#1546)
+ * Group ordering on main page was alphabetical but should be by size (since 1.5) (#1487)
+ * Package could get added multiple times to same Group, distorting Group size (#1484)
+ * Search index corruption when multiple CKAN instances on a server all storing the same object (#1430)
+ * Dataset property metadata_created was wrong (since v1.3) (#1546)
+ * Tag browsing showed tags for deleted datasets (#920)
 
 v1.5 2011-11-07
 ===============
