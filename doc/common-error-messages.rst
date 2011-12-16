@@ -118,3 +118,10 @@ This suggests that the config file specified with the paster ``--config`` parame
 ===========================================
 
 This occurs when trying to ``import migrate.exceptions`` and is due to the version of sqlalchemy-migrate being used is too old - check the requires files for the version needed.
+
+``AssertionError: There is no script for 46 version``
+=====================================================
+
+This sort of message may be seen if you swap between different branches of CKAN. The .pyc file for database migration 46 exists, but the .py file no longer exists by swapping to an earlier branch. The solution is to delete all pyc files (which is harmless)::
+
+    find . -name "*.pyc" |xargs rm
