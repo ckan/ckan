@@ -411,14 +411,16 @@ class UserCmd(CkanCommand):
       user                            - lists users
       user list                       - lists users
       user <user-name>                - shows user properties
-      user add <user-name> [<apikey>] - add a user (prompts for password)
+      user add <user-name> [apikey=<apikey>] [password=<password>]
+                                      - add a user (prompts for password if
+                                        not supplied)
       user setpass <user-name>        - set user password (prompts)
       user remove <user-name>         - removes user from users
       user search <query>             - searches for a user name
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 3
+    max_args = 4
     min_args = 0
 
     def command(self):
@@ -510,12 +512,38 @@ class UserCmd(CkanCommand):
             print 'Need name of the user.'
             return
         username = self.args[1]
-        apikey = self.args[2] if len(self.args) > 2 else None
-        password = self.password_prompt()
         user = model.User.by_name(unicode(username))
         if user:
             print 'User "%s" already found' % username
             sys.exit(1)
+
+        # parse args
+        apikey = None
+        password = None
+        args = self.args[2:]
+        if len(args) == 1 and not (args[0].startswith('password') or \
+                                   args[0].startswith('apikey')):
+            # continue to support the old syntax of just supplying
+            # the apikey
+            apikey = args[0]
+        else:
+            # new syntax: password=foo apikey=bar
+            for arg in args:
+                split = arg.find('=')
+                if split == -1:
+                    split = arg.find(' ')
+                    if split == -1:
+                        raise ValueError('Could not parse arg: %r (expected "--<option>=<value>)")' % arg)
+                key, value = arg[:split], arg[split:]
+                if key == 'password':
+                    password = value
+                elif key == 'apikey':
+                    apikey = value
+                else:
+                    raise ValueError('Could not parse arg: %r (expected password/apikey argument)' % arg)
+
+        if not password:
+            password = self.password_prompt()
         
         print('Creating user: %r' % username)
 
