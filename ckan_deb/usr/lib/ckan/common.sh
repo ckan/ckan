@@ -151,7 +151,7 @@ ckan_ensure_db_exists () {
         exit 1
     else
         INSTANCE=$1
-        COMMAND_OUTPUT=`sudo -u postgres psql -l`
+        COMMAND_OUTPUT=`sudo -u postgres psql -c "select datname from pg_database where datname='$INSTANCE'"`
         if ! [[ "$COMMAND_OUTPUT" =~ ${INSTANCE} ]] ; then
             echo "Creating the database ..."
             sudo -u postgres createdb -O ${INSTANCE} ${INSTANCE}
