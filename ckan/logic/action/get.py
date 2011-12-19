@@ -20,7 +20,8 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_list_dictize,
                                                 tag_dictize,
                                                 task_status_dictize,
-                                                user_dictize)
+                                                user_dictize,
+                                                activity_list_dictize)
 
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
@@ -865,3 +866,11 @@ def status_show(context, data_dict):
         'locale_default': config.get('ckan.locale_default'),
         'extensions': config.get('ckan.plugins').split(),
         }
+
+def user_activity(context, data_dict):
+    '''Get a user's public activity stream as a list of dicts.'''
+    model = context['model']
+    user_id = data_dict['user_id']
+    activity_objects = model.Session.query(
+            model.activity.Activity).filter_by(user_id=user_id).all()
+    return activity_list_dictize(activity_objects, context)

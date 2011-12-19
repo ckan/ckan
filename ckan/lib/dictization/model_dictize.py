@@ -342,3 +342,14 @@ def package_to_api2(pkg, context):
     dictized['relationships'] = relationships 
     return dictized
 
+def activity_dictize(activity, context):
+    # TODO: Include any related activity detail items in the activity dict.
+    activity_dict = table_dictize(activity, context)
+    return activity_dict
+
+def activity_list_dictize(activity_list, context):
+    activity_dicts = []
+    for activity in activity_list:
+        activity_dict = activity_dictize(activity, context)
+        activity_dicts.append(activity_dict)
+    return activity_dicts
