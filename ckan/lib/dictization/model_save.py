@@ -294,14 +294,14 @@ def group_member_save(context, group_dict, member_table_name):
         name_or_id = entity_dict.get('id') or entity_dict.get('name')
         obj = ModelClass.get(name_or_id)
         if obj and obj not in entities.values():
-            entities[obj.id] = obj
+            entities[(obj.id, entity_dict.get('capacity', 'member'))] = obj
 
     members = session.query(Member).filter_by(
         table_name=member_table_name[:-1],
         group_id=group.id,
     ).all()
 
-    entity_member = dict((member.table_id, member) for member in members)
+    entity_member = dict(((member.table_id, member.capacity), member) for member in members)
 
     for entity_id in set(entity_member.keys()) - set(entities.keys()):
         entity_member[entity_id].state = 'deleted'
@@ -312,7 +312,9 @@ def group_member_save(context, group_dict, member_table_name):
         session.add(entity_member[entity_id])
 
     for entity_id in set(entities.keys()) - set(entity_member.keys()):
-        member = Member(group=group, table_id=entity_id, table_name=member_table_name[:-1])
+        member = Member(group=group, table_id=entity_id[0],
+                        table_name=member_table_name[:-1],
+                        capacity=entity_id[1])
         session.add(member)
 
 
