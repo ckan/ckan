@@ -319,8 +319,8 @@ def dataset_link(package_or_package_dict):
 
 # TODO: (?) support resource objects as well
 def resource_display_name(resource_dict):
-    name = resource_dict['name']
-    description = resource_dict['description']
+    name = resource_dict.get('name', None)
+    description = resource_dict.get('description', None)
     if name:
         return name
     elif description:
