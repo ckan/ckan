@@ -51,19 +51,19 @@ Loader Scripts
 
 Essentially each set of loader scripts converts the dataset metadata to the standard 'dataset' format, and then loads it into CKAN. 
 
-Loader scripts are generally stored into the `ckanext` repository. To get a flavour of what loader scripts look like, take a look at `the ONS scripts <https://bitbucket.org/okfn/ckanext-dgu/src/default/ckanext/dgu/ons/>`_.
+To get a flavour of what loader scripts look like, take a look at `the ONS scripts <https://bitbucket.org/okfn/ckanext-dgu/src/default/ckanext/dgu/ons/>`_.
 
 Loader Scripts for CSV and Excel
 ********************************
 
-For CSV and Excel formats, the `SpreadsheetPackageImporter` (found in ``ckan/lib/spreadsheet_importer.py``) loader script wraps the file in `SpreadsheetData` before extracting the records into `SpreadsheetDataRecords`.
+For CSV and Excel formats, the `SpreadsheetPackageImporter` (found in ``ckanext-importlib/ckanext/importlib/spreadsheet_importer.py``) loader script wraps the file in `SpreadsheetData` before extracting the records into `SpreadsheetDataRecords`.
 
 SpreadsheetPackageImporter copes with multiple title rows, data on multiple sheets, dates. The loader can reload datasets based on a unique key column in the spreadsheet, choose unique names for datasets if there is a clash, add/merge new resources for existing datasets and manage dataset groups.
 
 Loader Scripts for Google Spreadsheets
 **************************************
 
-The `GoogleSpreadsheetReader` class (found in ``ckanclient.loaders``) simplifies the process of loading data from Google Spreadsheets. 
+The `SimpleGoogleSpreadsheetReader` class (found in ``ckanclient.loaders``) simplifies the process of loading data from Google Spreadsheets. 
 
 `This script <https://bitbucket.org/okfn/ckanext/src/default/bin/ckanload-italy-nexa>`_ has a simple example of loading data from Google Spreadsheets. 
 
