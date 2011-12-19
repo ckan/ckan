@@ -76,9 +76,10 @@ class UserController(BaseController):
         c.page = h.Page(
             collection=users_list,
             page=page,
+            url=h.pager_url,
             item_count=users_list.count(),
             items_per_page=LIMIT
-            )
+        )
         return render('user/list.html')
 
     def read(self, id=None):
