@@ -62,6 +62,7 @@ class GroupController(BaseController):
         c.page = Page(
             collection=results,
             page=request.params.get('page', 1),
+            url=h.pager_url,
             items_per_page=20
         )
         return render('group/index.html')
@@ -99,6 +100,7 @@ class GroupController(BaseController):
         c.page = Page(
             collection=results,
             page=request.params.get('page', 1),
+            url=h.pager_url,
             items_per_page=50
         )
 

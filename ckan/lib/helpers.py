@@ -236,28 +236,24 @@ def linked_gravatar(email_hash, size=100, default="mm"):
 def gravatar(email_hash, size=100, default="mm"):
     return literal('<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s" />' % (email_hash, size, default))
 
+def pager_url(page, partial=None, **kwargs):
+    routes_dict = url.environ['pylons.routes_dict']
+    kwargs['controller'] = routes_dict['controller']
+    kwargs['action'] = routes_dict['action']
+    if routes_dict.get('id'):
+        kwargs['id'] = routes_dict['id']
+    kwargs['page'] = page
+    return url(**kwargs)
 
 class Page(paginate.Page):
-
-    def _page_url(self, page, partial=None, **kwargs):
-        routes_dict = url.environ['pylons.routes_dict']
-        kwargs['controller'] = routes_dict['controller']
-        kwargs['action'] = routes_dict['action']
-        if routes_dict.get('id'):
-            kwargs['id'] = routes_dict['id']
-        kwargs['page'] = page
-        return url(**kwargs)
-
     # Curry the pager method of the webhelpers.paginate.Page class, so we have
     # our custom layout set as default.
     def pager(self, *args, **kwargs):
-        self._url_generator = self._page_url
         kwargs.update(
             format=u"<div class='pager'>$link_previous ~2~ $link_next</div>",
             symbol_previous=u'« Prev', symbol_next=u'Next »'
         )
         return super(Page, self).pager(*args, **kwargs)
-
 
 def render_datetime(datetime_):
     '''Render a datetime object or timestamp string as a pretty string
