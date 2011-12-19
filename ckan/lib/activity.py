@@ -3,17 +3,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 def activity_stream_item(obj, activity_type, revision, user_id):
-    try:
-        return obj.activity_stream_item(activity_type, revision, user_id)
-    except (AttributeError, TypeError):
+    method = getattr(obj, "activity_stream_item", None)
+    if callable(method):
+        return method(activity_type, revision, user_id)
+    else:
         logger.debug("Object did not have a suitable "
             "activity_stream_item() method, it must not be a package.")
         return None
 
 def activity_stream_detail(obj, activity_id, activity_type):
-    try:
-        return obj.activity_stream_detail(activity_id, activity_type)
-    except (AttributeError, TypeError):
+    method = getattr(obj, "activity_stream_detail",
+            None)
+    if callable(method):
+        return method(activity_id, activity_type)
+    else:
         logger.debug("Object did not have a suitable  "
             "activity_stream_detail() method.")
         return None
