@@ -461,10 +461,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         NB Excludes changes to the package's groups
         """
         from ckan import model
-        where = []
-        for arg in av:
-            if isinstance(arg, expression.ClauseElement) or isinstance(arg, basestring):
-                where.append(arg)
+        where = [model.package_table.c.id == self.id]
         where_clauses = [
             and_(model.package_table.c.revision_id == model.revision_table.c.id, *where),
             and_(model.package_extra_table.c.package_id == model.package_table.c.id,
