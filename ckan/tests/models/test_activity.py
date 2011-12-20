@@ -9,7 +9,7 @@ from ckan.logic.action.create import package_create
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.delete import package_delete
 from ckan.lib.dictization.model_dictize import resource_list_dictize
-from ckan.logic.action.get import user_activity
+from ckan.logic.action.get import activity_show
 
 def _make_resource():
     return {
@@ -559,8 +559,8 @@ class TestActivity:
     def test_user_activity_stream(self):
         tester = model.Session.query(model.user.User).filter_by(name="tester").first()
         context = {'model':model}
-        data_dict = {'user_id':tester.id}
-        activities = user_activity(context, data_dict)
+        data_dict = {'id':tester.id}
+        activities = activity_show(context, data_dict)
         assert len(activities) == 2
         for activity in activities:
             assert activity['user_id'] == tester.id

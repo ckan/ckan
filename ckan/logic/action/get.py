@@ -867,10 +867,10 @@ def status_show(context, data_dict):
         'extensions': config.get('ckan.plugins').split(),
         }
 
-def user_activity(context, data_dict):
+def activity_show(context, data_dict):
     '''Get a user's public activity stream as a list of dicts.'''
     model = context['model']
-    user_id = data_dict['user_id']
+    user_id = data_dict['id']
     activity_objects = model.Session.query(
             model.activity.Activity).filter_by(user_id=user_id).all()
     return activity_list_dictize(activity_objects, context)
