@@ -35,7 +35,7 @@
     </div>
 
     <div class="resource-actions span-8">
-      <a py:if="c.resource.get('url')" class="pretty-button primary" href="${c.resource.get('url')}">
+      <a py:if="c.resource.get('url')" class="pretty-button primary resource-url-analytics" href="${c.resource.get('url')}">
         <py:choose test="c.resource.get('resource_type')">
           <py:when test="'listing'">View</py:when>
           <py:when test="'service'">View</py:when>
