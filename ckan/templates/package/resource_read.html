@@ -105,12 +105,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr py:for="i, key in enumerate(sorted(c.resource.keys()))">
-            <py:if test="not key=='description'">
+          <py:for each="i, key in enumerate(sorted(c.resource.keys()))">
+            <tr py:if="not key=='description'">
               <td class="dataset-label" property="rdfs:label">${_(key)}</td>
               <td class="dataset-details" property="rdf:value">${c.resource[key]}</td>
-            </py:if>
-          </tr>
+            </tr>
+          </py:for>
         </tbody>
       </table>
     </div>
