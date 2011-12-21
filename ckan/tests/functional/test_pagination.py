@@ -1,10 +1,11 @@
 from ckan.lib.create_test_data import CreateTestData
 import ckan.model as model
-from ckan.tests import TestController, url_for
+from ckan.tests import TestController, url_for, setup_test_search_index
 
 class TestPagination(TestController):
     @classmethod
     def setup_class(cls):
+        setup_test_search_index()
         model.repo.init_db()
 
         # no. entities per page is hardcoded into the controllers, so
@@ -29,6 +30,15 @@ class TestPagination(TestController):
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
+
+    def test_search(self):
+        res = self.app.get(url_for(controller='package', action='search', q='groups:group_00'))
+        assert 'href="/dataset?q=groups%3Agroup_00&amp;page=2"' in res
+        assert 'href="/dataset/package_19"' in res
+
+        res = self.app.get(url_for(controller='package', action='search', q='groups:group_00', page=2))
+        assert 'href="/dataset?q=groups%3Agroup_00&amp;page=1"' in res
+        assert 'href="/dataset/package_20"' in res
 
     def test_group_index(self):
         res = self.app.get(url_for(controller='group', action='index'))

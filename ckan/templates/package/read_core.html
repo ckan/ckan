@@ -28,8 +28,11 @@
               Last updated: ${h.time_ago_in_words_from_str(res.get('last_modified'), granularity='day')} ago
             </p>
             <p class="resource-url" rel="dcat:distribution" resource="_:res${res.id}" typeof="dcat:Distribution">
-              <a href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
+              <a class="resource-url-analytics" href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
                 ${res.get('url', '')}
+              </a>
+              <a py:if="res.get('cache_url')" class="resource-url-cached" href="${res.get('cache_url')}" target="_blank">
+                [cached]
               </a>
             </p>
           </div>

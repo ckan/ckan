@@ -17,6 +17,7 @@ import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
 import ckan.lib.search as search
+from ckan.logic.action import get, update
 from ckan.controllers.package import PackageController
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan import plugins
@@ -348,6 +349,21 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         res = self.app.get(offset)
         assert plugin.calls['read'] == 1, plugin.calls
         plugins.unload(plugin)
+
+    def test_resource_list(self):
+        name = 'annakarenina'
+        cache_url = 'http://thedatahub.org/test_cache_url.csv'
+        # add a cache_url to the first resource in the package
+        context = {'model': model, 'session': model.Session, 'user': 'testsysadmin'}
+        data = {'id': 'annakarenina'}
+        pkg = get.package_show(context, data)
+        pkg['resources'][0]['cache_url'] = cache_url
+        update.package_update(context, pkg)
+        # check that the cache url is included on the dataset view page
+        offset = url_for(controller='package', action='read', id=name)
+        res = self.app.get(offset)
+        assert '[cached]'in res
+        assert cache_url in res
 
 
 class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
