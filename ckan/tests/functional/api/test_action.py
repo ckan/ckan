@@ -934,3 +934,48 @@ class TestActionPackageSearch(WsgiAppCase):
                             status=400)
         assert '"message": "Search Query is invalid:' in res.body, res.body
         assert '"Invalid search parameters: [u\'weird_param\']' in res.body, res.body
+
+    def test_4_sort_by_metadata_modified(self):
+        search_params = '%s=1' % json.dumps({
+            'q': '*:*',
+            'fl': 'name, metadata_modified',
+            'sort': u'metadata_modified desc'
+        })
+
+        # modify warandpeace, check that it is the first search result
+        rev = model.repo.new_revision()
+        pkg = model.Package.get('warandpeace')
+        pkg.title = "War and Peace [UPDATED]"
+        model.repo.commit_and_remove()
+
+        res = self.app.post('/api/action/package_search', params=search_params)
+        result = json.loads(res.body)['result']
+        result_names = [r['name'] for r in result['results']]
+        assert result_names == ['warandpeace', 'annakarenina'], result_names
+
+        # modify annakarenina, check that it is the first search result
+        rev = model.repo.new_revision()
+        pkg = model.Package.get('annakarenina')
+        pkg.title = "A Novel By Tolstoy [UPDATED]"
+        model.repo.commit_and_remove()
+
+        res = self.app.post('/api/action/package_search', params=search_params)
+        result = json.loads(res.body)['result']
+        result_names = [r['name'] for r in result['results']]
+        assert result_names == ['annakarenina', 'warandpeace'], result_names
+
+        # add a tag to warandpeace, check that it is the first result
+        pkg = model.Package.get('warandpeace')
+        pkg_params = '%s=1' % json.dumps({'id': pkg.id})
+        res = self.app.post('/api/action/package_show', params=pkg_params)
+        pkg_dict = json.loads(res.body)['result']
+        pkg_dict['tags'].append({'name': 'new-tag'})
+        pkg_params = '%s=1' % json.dumps(pkg_dict)
+        res = self.app.post('/api/action/package_update', params=pkg_params,
+                            extra_environ={'Authorization': 'tester'})
+    
+        res = self.app.post('/api/action/package_search', params=search_params)
+        result = json.loads(res.body)['result']
+        result_names = [r['name'] for r in result['results']]
+        assert result_names == ['warandpeace', 'annakarenina'], result_names
+
