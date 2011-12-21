@@ -268,10 +268,12 @@ def package_to_api1(pkg, context):
     site_url = config.get('ckan.site_url', None)
     if site_url:
         dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
-    dictized['metadata_modified'] = pkg.metadata_modified.isoformat() \
-        if pkg.metadata_modified else None
-    dictized['metadata_created'] = pkg.metadata_created.isoformat() \
-        if pkg.metadata_created else None
+    metadata_modified = pkg.metadata_modified
+    dictized['metadata_modified'] = metadata_modified.isoformat() \
+        if metadata_modified else None
+    metadata_created = pkg.metadata_created
+    dictized['metadata_created'] = metadata_created.isoformat() \
+        if metadata_created else None
 
     subjects = dictized.pop("relationships_as_subject") 
     objects = dictized.pop("relationships_as_object") 
