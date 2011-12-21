@@ -97,6 +97,10 @@ ALTER TABLE "group"
 ALTER TABLE "group_revision"
 	ALTER COLUMN "type" set not null;
 
+ALTER TABLE "package"
+	ADD COLUMN "type" text;
+ALTER TABLE "package_revision"
+	ADD COLUMN "type" text;
 
 COMMIT;
     '''
