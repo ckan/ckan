@@ -7,9 +7,9 @@ refer to the routes manual at http://routes.groovie.org/docs/
 """
 from pylons import config
 from routes import Mapper
-from ckan.controllers.package import register_pluggable_behaviour as register_pluggable_package_behaviour
-from ckan.controllers.group   import register_pluggable_behaviour as register_pluggable_group_behaviour
 from ckan.plugins import PluginImplementations, IRoutes
+from ckan.controllers.package import register_pluggable_behaviour as register_package_behaviour
+from ckan.controllers.group   import register_pluggable_behaviour as register_group_behaviour
 
 routing_plugins = PluginImplementations(IRoutes)
 
@@ -178,9 +178,6 @@ def make_map():
     ###########
     ## /END API
     ###########
-
-    register_pluggable_package_behaviour()
-    register_pluggable_group_behaviour()
     
     map.redirect("/packages", "/dataset")
     map.redirect("/packages/{url:.*}", "/dataset/{url}")
@@ -232,17 +229,23 @@ def make_map():
     ##map.connect('/group/new', controller='group_formalchemy', action='new')
     ##map.connect('/group/edit/{id}', controller='group_formalchemy', action='edit')
 
-    map.connect('/group', controller='group', action='index')
-    map.connect('/group/list', controller='group', action='list')
-    map.connect('/group/new', controller='group', action='new')
-    map.connect('/group/{action}/{id}', controller='group',
+    # These named routes are used for custom group forms which will use the 
+    # names below based on the group.type (dataset_group is the default type)
+    map.connect('dataset_group_index', '/group', controller='group', action='index')
+    map.connect('dataset_group_list', '/group/list', controller='group', action='list')
+    map.connect('dataset_group_new',  '/group/new', controller='group', action='new')    
+    map.connect('dataset_group_action', '/group/{action}/{id}', controller='group',
         requirements=dict(action='|'.join([
         'edit',
         'authz',
         'history'
         ]))
         )
-    map.connect('/group/{id}', controller='group', action='read')
+    map.connect('dataset_group_read', '/group/{id}', controller='group', action='read')
+    
+    register_package_behaviour(map)
+    register_group_behaviour(map)    
+    
     # authz group
     map.redirect("/authorizationgroups", "/authorizationgroup")
     map.redirect("/authorizationgroups/{url:.*}", "/authorizationgroup/{url}")

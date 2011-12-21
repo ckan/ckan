@@ -23,7 +23,7 @@ _controller_behaviour_for = dict()
 # The fallback behaviour
 _default_controller_behaviour = None
 
-def register_pluggable_behaviour():
+def register_pluggable_behaviour(map):
     """
     Register the various IGroupForm instances.
 
@@ -42,6 +42,14 @@ def register_pluggable_behaviour():
             _default_controller_behaviour = plugin
 
         for group_type in plugin.group_types():
+            # Create the routes based on group_type here.....
+            map.connect('/%s/new' % (group_type,), controller='group', action='new')                
+            map.connect('%s_read' % (group_type,), '/%s/{id}' %  (group_type,), controller='group', action='read')                        
+            map.connect('%s_action' % (group_type,),
+                        '/%s/{action}/{id}' % (group_type,), controller='group',
+                requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
+            )            
+            
             if group_type in _controller_behaviour_for:
                 raise ValueError, "An existing IGroupForm is "\
                                   "already associated with the package type "\
@@ -51,6 +59,7 @@ def register_pluggable_behaviour():
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_controller_behaviour is None:
         _default_controller_behaviour = DefaultGroupForm()
+
 
 def _lookup_plugin(group_type):
     """
@@ -63,6 +72,7 @@ def _lookup_plugin(group_type):
         return _default_controller_behaviour
     return _controller_behaviour_for.get(group_type,
                                          _default_controller_behaviour)
+
 
 class DefaultGroupForm(object):
     """
@@ -79,7 +89,7 @@ class DefaultGroupForm(object):
     Note - this isn't a plugin implementation.  This is deliberate, as
            we don't want this being registered.
     """
-
+    
     def group_form(self):        
         return 'group/new_group_form.html'
 
@@ -212,17 +222,24 @@ class GroupController(BaseController):
         return render('group/read.html')
 
     def new(self, data=None, errors=None, error_summary=None):
+        
+        group_type = request.path.strip('/').split('/')[0]
+        if group_type == 'group':
+            group_type = None
+            if data:
+                data['type'] = group_type
+        
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'schema': self._form_to_db_schema(),
-                   'save': 'save' in request.params}
+                   'save': 'save' in request.params }
         try:
             check_access('group_create',context)
         except NotAuthorized:
             abort(401, _('Unauthorized to create a group'))
 
         if context['save'] and not data:
-            return self._save_new(context)
+            return self._save_new(context, group_type)
         
         data = data or {}
         errors = errors or {}
@@ -230,7 +247,7 @@ class GroupController(BaseController):
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context,data)
-        c.form = render(self._group_form(), extra_vars=vars)
+        c.form = render(self._group_form(group_type=group_type), extra_vars=vars)
         return render('group/new.html')
 
     def edit(self, id, data=None, errors=None, error_summary=None):
@@ -300,13 +317,16 @@ class GroupController(BaseController):
         return data['type']
 
 
-    def _save_new(self, context):
+    def _save_new(self, context, group_type=None):
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
+            data_dict['type'] = group_type or 'dataset_group'
             context['message'] = data_dict.get('log_message', '')
             group = get_action('group_create')(context, data_dict)
-            h.redirect_to(controller='group', action='read', id=group['name'])
+            
+            # Redirect to the appropriate _read route for the type of group
+            h.redirect_to( group['type'] + '_read', id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % '')
         except NotFound, e:

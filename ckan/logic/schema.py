@@ -141,6 +141,7 @@ def package_form_schema():
     schema['extras_validation'] = [duplicate_extras_key, ignore]
     schema['save'] = [ignore]
     schema['return_to'] = [ignore]
+    schema['type'] = [ignore, unicode]
 
     ##changes
     schema.pop("id")
@@ -158,6 +159,7 @@ def default_group_schema():
         'name': [not_empty, unicode, name_validator, group_name_validator],
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
+        'type': [ignore_missing, unicode],        
         'state': [ignore],
         'created': [ignore],
         'extras': default_extras_schema(),

@@ -57,7 +57,7 @@ _controller_behaviour_for = dict()
 # The fallback behaviour
 _default_controller_behaviour = None
 
-def register_pluggable_behaviour():
+def register_pluggable_behaviour(map):
     """
     Register the various IDatasetForm instances.
 
@@ -83,6 +83,9 @@ def register_pluggable_behaviour():
             _default_controller_behaviour = plugin
 
         for package_type in plugin.package_types():
+            # Create a connection between the newly named type and the package controller
+            map.connect('/%s/new' % (package_type,), controller='package', action='new')    
+                    
             if package_type in _controller_behaviour_for:
                 raise ValueError, "An existing IDatasetForm is "\
                                   "already associated with the package type "\
@@ -416,10 +419,15 @@ class PackageController(BaseController):
         return render('package/history.html')
 
     def new(self, data=None, errors=None, error_summary=None):
+        
+        package_type = request.path.strip('/').split('/')[0]
+        if package_type == 'group':
+            package_type = None
+        
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(package_type=package_type)}
 
         try:
             check_access('package_create',context)
@@ -435,7 +443,7 @@ class PackageController(BaseController):
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context, {'id': id})
-        c.form = render(self._package_form(), extra_vars=vars)
+        c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
 
         return render('package/new.html')
 
@@ -562,10 +570,11 @@ class PackageController(BaseController):
 
         return data['type']
 
-    def _save_new(self, context):
+    def _save_new(self, context, package_type=None):
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
+            data_dict['type'] = package_type
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
             pkg = get_action('package_create')(context, data_dict)
