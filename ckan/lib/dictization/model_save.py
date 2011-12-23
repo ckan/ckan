@@ -335,7 +335,6 @@ def group_dict_save(group_dict, context):
     group_member_save(context, group_dict, 'packages')
     group_member_save(context, group_dict, 'users')
     group_member_save(context, group_dict, 'groups')
-    group_member_save(context, group_dict, 'resources')
     group_member_save(context, group_dict, 'tags')
 
     extras = group_extras_save(group_dict.get("extras", {}), context)
