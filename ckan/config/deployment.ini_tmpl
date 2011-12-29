@@ -24,7 +24,7 @@ app_instance_uuid = ${app_instance_uuid}
 
 # List the names of CKAN extensions to activate.
 # Note: This line is required to be here for packaging, even if it is empty.
-ckan.plugins = 
+ckan.plugins = stats
 
 # If you'd like to fine-tune the individual locations of the cache data dirs
 # for the Cache data, or the Session saves, un-comment the desired settings
