@@ -26,7 +26,7 @@ def group_list_dictize(obj_list, context,
 
         group_dict['display_name'] = obj.display_name
 
-        group_dict['packages'] = len(obj.packages)
+        group_dict['packages'] = len(obj.active_packages().all())
 
         result_list.append(group_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
@@ -140,12 +140,12 @@ def package_dictize(pkg, context):
     result = _execute_with_revision(q, extra_rev, context)
     result_dict["extras"] = extras_list_dictize(result, context)
     #groups
-    group_rev = model.package_group_revision_table
+    member_rev = model.member_revision_table
     group = model.group_table
     q = select([group],
-               from_obj=group_rev.join(group, group.c.id == group_rev.c.group_id)
-               ).where(group_rev.c.package_id == pkg.id)
-    result = _execute_with_revision(q, group_rev, context)
+               from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
+               ).where(member_rev.c.table_id == pkg.id)
+    result = _execute_with_revision(q, member_rev, context)
     result_dict["groups"] = obj_list_dictize(result, context)
     #relations
     rel_rev = model.package_relationship_revision_table
@@ -162,19 +162,52 @@ def package_dictize(pkg, context):
 
     return result_dict
 
-def group_dictize(group, context):
+def _get_members(context, group, member_type):
 
+    model = context['model']
+    Entity = getattr(model, member_type[:-1].capitalize())
+    return model.Session.query(Entity).\
+               join(model.Member, model.Member.table_id == Entity.id).\
+               filter(model.Member.group_id == group.id).\
+               filter(model.Member.state == 'active').\
+               filter(model.Member.table_name == member_type[:-1]).all()
+
+
+def group_dictize(group, context):
+    model = context['model']
     result_dict = table_dictize(group, context)
-    
+
     result_dict['display_name'] = group.display_name
 
     result_dict['extras'] = extras_dict_dictize(
         group._extras, context)
 
     result_dict['packages'] = obj_list_dictize(
-        group.packages, context)
+        _get_members(context, group, 'packages'),
+        context)
+
+    result_dict['tags'] = tag_list_dictize(
+        _get_members(context, group, 'tags'),
+        context)
+
+    result_dict['groups'] = group_list_dictize(
+        _get_members(context, group, 'groups'),
+        context)
+
+    result_dict['users'] = user_list_dictize(
+        _get_members(context, group, 'users'),
+        context)
+
 
     return result_dict
+
+def tag_list_dictize(tag_list, context):
+
+    result_list = []
+    for tag in tag_list:
+        result_list.append(table_dictize(tag, context))
+
+    return result_list
 
 def tag_dictize(tag, context):
 
@@ -184,6 +217,18 @@ def tag_dictize(tag, context):
         tag.packages_ordered, context)
     
     return result_dict 
+
+def user_list_dictize(obj_list, context, 
+                      sort_key=lambda x:x['name'], reverse=False):
+
+    result_list = []
+
+    for obj in obj_list:
+        user_dict = user_dictize(obj, context)
+        user_dict.pop('apikey')
+        result_list.append(user_dict)
+    return sorted(result_list, key=sort_key, reverse=reverse)
+
 
 def user_dictize(user, context):
 

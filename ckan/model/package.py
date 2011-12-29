@@ -196,7 +196,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         tags = [tag.name for tag in self.tags]
         tags.sort() # so it is determinable
         _dict['tags'] = tags
-        groups = [getattr(group, ref_group_by) for group in self.groups]
+        groups = [getattr(group, ref_group_by) for group in self.get_groups()]
         groups.sort()
         _dict['groups'] = groups
         _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
@@ -498,6 +498,16 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             # use timegm instead of mktime, because we don't want it localised
             timestamp_float = timegm(timestamp_without_usecs) + usecs
             return datetime.datetime.utcfromtimestamp(timestamp_float)
+
+    def get_groups(self):
+        import ckan.model as model
+        if '_groups' not in self.__dict__:
+            self._groups = model.Session.query(model.Group).\
+               join(model.Member, model.Member.group_id == model.Group.id).\
+               join(model.Package, model.Package.id == model.Member.table_id).\
+               filter(model.Member.state == 'active').\
+               filter(model.Package.id == self.id).all()
+        return self._groups
 
     @property
     def metadata_created(self):

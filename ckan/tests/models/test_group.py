@@ -23,25 +23,33 @@ class TestGroup(object):
         grp = model.Group.by_name(u'group1')
         assert grp.title == u'Test Group'
         assert grp.description == u'This is a test group'
-        assert grp.packages == []
+        assert grp.active_packages().all() == []
 
     def test_2_add_packages(self):
         model.repo.new_revision()
+        
         self.russian_group = model.Group(name=u'russian',
                                          title=u'Russian Group',
                              description=u'This is the russian group')
         model.Session.add(self.russian_group)
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
-        self.russian_group.packages = [anna, war]
+        model.Session.add(model.Member(group=self.russian_group,
+                                       table_id=anna.id,
+                                       table_name='package')
+                         )
+        model.Session.add(model.Member(group=self.russian_group,
+                                       table_id=war.id,
+                                       table_name='package')
+                         )
         model.repo.commit_and_remove()
         
         grp = model.Group.by_name(u'russian')
         assert grp.title == u'Russian Group'
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
-        assert set(grp.packages) == set((anna, war)), grp.packages
-        assert grp in anna.groups
+        assert set(grp.active_packages().all()) == set((anna, war)), grp.active_packages().all()
+        assert grp in anna.get_groups()
 
 
 class TestGroupRevisions:

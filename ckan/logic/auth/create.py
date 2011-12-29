@@ -102,7 +102,9 @@ def check_group_auth(context, data_dict):
         groups.add(grp)
 
     if pkg:
-        groups = groups - set(pkg.groups)
+        pkg_groups = pkg.get_groups()
+
+        groups = groups - set(pkg_groups)
 
     for group in groups:
         if not check_access_old(group, model.Action.EDIT, context):

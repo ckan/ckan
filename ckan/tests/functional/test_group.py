@@ -66,7 +66,7 @@ class TestGroup(FunctionalTestCase):
         groupname = 'david'
         group = model.Group.by_name(unicode(groupname))
         group_title = group.title
-        group_packages_count = len(group.packages)
+        group_packages_count = len(group.active_packages().all())
         group_description = group.description
         self.check_named_element(res, 'tr', group_title, group_packages_count, group_description)
         res = res.click(group_title)
@@ -178,7 +178,7 @@ Ho ho ho
         assert group.description == newdesc, group
 
         # now look at datasets
-        assert len(group.packages) == 3
+        assert len(group.active_packages().all()) == 3
 
     def test_3_edit_form_has_new_package(self):
         # check for dataset in autocomplete
@@ -222,7 +222,7 @@ Ho ho ho
 
         # check package only added to the group once
         group = model.Group.by_name(group_name)
-        pkg_names = [pkg.name for pkg in group.packages]
+        pkg_names = [pkg.name for pkg in group.active_packages().all()]
         assert_equal(pkg_names, [self.packagename])
 
     def test_edit_plugin_hook(self):
@@ -306,7 +306,7 @@ class TestNew(FunctionalTestCase):
         assert fv[prefix+'name'].value == '', fv.fields
         assert fv[prefix+'title'].value == ''
         assert fv[prefix+'description'].value == ''
-        assert fv['packages__0__name'].value == '', fv['PackageGroup--package_name'].value
+        assert fv['packages__0__name'].value == '', fv['Member--package_name'].value
 
         # Edit form
         fv[prefix+'name'] = group_name
@@ -322,9 +322,9 @@ class TestNew(FunctionalTestCase):
         group = model.Group.by_name(group_name)
         assert group.title == group_title, group
         assert group.description == group_description, group
-        assert len(group.packages) == 1
+        assert len(group.active_packages().all()) == 1
         pkg = model.Package.by_name(self.packagename)
-        assert group.packages == [pkg]
+        assert group.active_packages().all() == [pkg]
 
     def test_3_new_duplicate_group(self):
         prefix = ''

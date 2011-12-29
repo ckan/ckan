@@ -11,22 +11,25 @@ from ckan.model import extension
 from sqlalchemy.ext.associationproxy import association_proxy
 
 __all__ = ['group_table', 'Group', 'package_revision_table',
-           'PackageGroup', 'GroupRevision', 'PackageGroupRevision',
-           'package_group_table', 'package_group_revision_table']
+           'Member', 'GroupRevision', 'MemberRevision',
+           'member_revision_table', 'member_table']
 
-package_group_table = Table('package_group', metadata,
+member_table = Table('member', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('package_id', UnicodeText, ForeignKey('package.id')),
+    Column('table_name', UnicodeText, nullable=False),
+    Column('table_id', UnicodeText, nullable=False),
+    Column('capacity', UnicodeText, nullable=False),
     Column('group_id', UnicodeText, ForeignKey('group.id')),
     )
     
-vdm.sqlalchemy.make_table_stateful(package_group_table)
-package_group_revision_table = make_revisioned_table(package_group_table)
+vdm.sqlalchemy.make_table_stateful(member_table)
+member_revision_table = make_revisioned_table(member_table)
 
 group_table = Table('group', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
     Column('name', UnicodeText, nullable=False, unique=True),
     Column('title', UnicodeText),
+    Column('type', UnicodeText, nullable=False),
     Column('description', UnicodeText),
     Column('created', DateTime, default=datetime.datetime.now),
     )
@@ -35,19 +38,30 @@ vdm.sqlalchemy.make_table_stateful(group_table)
 group_revision_table = make_revisioned_table(group_table)
 
 
-class PackageGroup(vdm.sqlalchemy.RevisionedObjectMixin,
+class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
+    def __init__(self, group=None, table_id=None, group_id=None,
+                 table_name=None, capacity='member', state='active'):
+        self.group = group
+        self.group_id = group_id
+        self.table_id = table_id
+        self.table_name = table_name
+        self.capacity = capacity
+        self.state = state
+        
     def related_packages(self):
-        return [self.package]
+        # TODO do we want to return all related packages or certain ones?
+        return Session.query(Package).filter_by(id=self.table_id).all()
 
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
             DomainObject):
-    def __init__(self, name=u'', title=u'', description=u''):
+    def __init__(self, name=u'', title=u'', description=u'', type=u'dataset_group'):
         self.name = name
         self.title = title
         self.description = description
+        self.type = type
 
     @property
     def display_name(self):
@@ -69,10 +83,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     def active_packages(self, load_eager=True):
         query = Session.query(Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
-               join('package_group_all', 'group').filter_by(id=self.id)
-        if load_eager:
-            query = query.options(eagerload_all('package_tags.tag'))
-            query = query.options(eagerload_all('resource_groups_all.resources_all'))
+               filter(group_table.c.id == self.id).\
+               filter(member_table.c.state == 'active').\
+               join(member_table, member_table.c.table_id == Package.id).\
+               join(group_table, group_table.c.id == member_table.c.group_id)
         return query
 
     @classmethod
@@ -91,8 +105,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             return
         package = Package.by_name(package_name)
         assert package
-        if not package in self.packages:
-            self.packages.append(package)
+        if not package in self.active_packages().all():
+            member = Member(group=self, table_id=package.id, table_name='package')
+            Session.add(member)
+
 
     @property
     def all_related_revisions(self):
@@ -105,7 +121,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             if not results.has_key(grp_rev.revision):
                 results[grp_rev.revision] = []
             results[grp_rev.revision].append(grp_rev)
-        for class_ in [PackageGroup, GroupExtra]:
+        for class_ in [Member, GroupExtra]:
             rev_class = class_.__revision_class__
             obj_revisions = Session.query(rev_class).filter_by(group_id=self.id).all()
             for obj_rev in obj_revisions:
@@ -125,42 +141,24 @@ mapper(Group, group_table,
        extension=[vdm.sqlalchemy.Revisioner(group_revision_table),],
 )
 
-
 vdm.sqlalchemy.modify_base_object_mapper(Group, Revision, State)
 GroupRevision = vdm.sqlalchemy.create_object_version(mapper, Group,
         group_revision_table)
 
-mapper(PackageGroup, package_group_table, properties={
+mapper(Member, member_table, properties={
     'group': relation(Group,
-        backref=backref('package_group_all', cascade='all, delete-orphan'),
-    ),
-    'package': relation(Package,
-        backref=backref('package_group_all', cascade='all, delete-orphan'),
+        backref=backref('member_all', cascade='all, delete-orphan')
     ),
 },
-    extension=[vdm.sqlalchemy.Revisioner(package_group_revision_table),],
+    extension=[vdm.sqlalchemy.Revisioner(member_revision_table),],
 )
 
-def _create_group(group):
-    return PackageGroup(group=group)
 
-def _create_package(package):
-    return PackageGroup(package=package)
+vdm.sqlalchemy.modify_base_object_mapper(Member, Revision, State)
+MemberRevision = vdm.sqlalchemy.create_object_version(mapper, Member,
+        member_revision_table)
 
-Package.groups = association_proxy('package_group_all', 'group', creator=_create_group)
-Group.packages = association_proxy('package_group_all', 'package', creator=_create_package)
-
-
-vdm.sqlalchemy.modify_base_object_mapper(PackageGroup, Revision, State)
-PackageGroupRevision = vdm.sqlalchemy.create_object_version(mapper, PackageGroup,
-        package_group_revision_table)
-
-PackageGroupRevision.related_packages = lambda self: [self.continuity.package]
+#TODO
+MemberRevision.related_packages = lambda self: [self.continuity.package]
 
 
-from vdm.sqlalchemy.base import add_stateful_versioned_m2m 
-#vdm.sqlalchemy.add_stateful_versioned_m2m(Package, PackageGroup, 'groups', 'group',
-#        'package_group')
-vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(GroupRevision, 'groups')
-vdm.sqlalchemy.add_stateful_versioned_m2m(Group, PackageGroup, 'groups', 'group',
-        'package_group')
