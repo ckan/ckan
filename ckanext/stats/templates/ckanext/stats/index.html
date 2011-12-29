@@ -31,14 +31,22 @@
     </style>
   </py:def>
 
+  <py:match path="minornavigation">
+    <ul class="tabbed">
+      <li class="current-tab">
+        <a href="">Home</a>
+      </li>
+    </ul>
+  </py:match>
+
   <div py:match="content">
-    <h3>Total number of packages</h3>
+    <h3>Total number of Datasets</h3>
     <div id="new_packages_graph" class="graph"></div>
 
-    <h3>Revisions to packages per week</h3>
+    <h3>Revisions to Datasets per week</h3>
     <div id="package_revisions_graph" class="graph"></div>
 
-    <h3>Top Rated Packages</h3>
+    <h3>Top Rated Datasets</h3>
     <table py:if="c.top_rated_packages">
       <tr><th>Package</th><th>Average rating</th><th>Number of ratings</th></tr>
       <tr py:for="package, rating, num_ratings in c.top_rated_packages">
@@ -47,7 +55,7 @@
     </table>
     <p py:if="not c.top_rated_packages">No ratings</p>
 
-    <h3>Most Edited Packages</h3>
+    <h3>Most Edited Datasets</h3>
     <table>
       <tr><th>Package</th><th>Number of edits</th></tr>
       <tr py:for="package, edits in c.most_edited_packages">
