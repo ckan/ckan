@@ -11,17 +11,22 @@ Extensions allow you to customise CKAN for your own requirements, without interf
 Finding Extensions
 ------------------
 
-Many CKAN extensions are listed on the CKAN wiki's `List of Extensions <http://wiki.ckan.net/List_of_Extensions>`_. All CKAN extensions can be found at `OKFN's GitHub page <https://github.com/okfn/>`_, prefaced with ``ckanext-``.
+All CKAN extensions are listed on the official `Extension listing on the CKAN
+wiki <http://wiki.ckan.net/List_of_Extensions>`_.
 
-Some popular extensions include: 
+Some popular extensions include:
 
+.. note::
+
+   Those marked with (x) are 'core' extensions and are shipped as part of the core CKAN distribution
+
+* ckanext-stats (x): Statistics (and visuals) about the datasets in a CKAN instance.
 * `ckanext-apps <https://github.com/okfn/ckanext-apps>`_: Apps and ideas catalogue extension for CKAN.
 * `ckanext-disqus <https://github.com/okfn/ckanext-disqus>`_: Allows users to comment on dataset pages with Disqus. 
 * `ckanext-follower <https://github.com/okfn/ckanext-follower>`_: Allow users to follow datasets.
 * `ckanext-googleanalytics <https://github.com/okfn/ckanext-googleanalytics>`_: Integrates Google Analytics data into CKAN. Gives download stats on dataset pages, list * of most popular datasets, etc.
 * `ckanext-qa <https://github.com/okfn/ckanext-qa>`_: Provides link checker, 5 stars of openness and other Quality Assurance features.
 * `ckanext-rdf <https://github.com/okfn/ckanext-rdf>`_: Consolidated handling of RDF export and import for CKAN. 
-* `ckanext-stats <https://github.com/okfn/ckanext-stats>`_: Statistics (and visuals) about the datasets in a CKAN instance.
 * `ckanext-wordpresser <https://github.com/okfn/ckanext-wordpresser>`_: CKAN plugin / WSGI middleware for combining CKAN with a Wordpress site. 
 * `ckanext-spatial <https://github.com/okfn/ckanext-spatial>`_: Adds geospatial capabilities to CKAN datasets, including a spatial search API. 
 
@@ -29,6 +34,10 @@ Installing an Extension
 -----------------------
 
 You can install an extension on a CKAN instance as follows.
+
+.. note::
+
+  Core extensions do not need to be installed -- just enabled (see below).
 
 1. First, ensure you are working within your virtualenv (see :doc:`prepare-extensions` if you are not sure what this means)::
 
@@ -46,26 +55,11 @@ You can install an extension on a CKAN instance as follows.
  
  The dependency you've installed will appear in the ``src/`` directory under your Python environment. 
 
-3. Add the names of any plugin implementations the extension uses to the CKAN
-config file. You can find these in the plugin's ``setup.py`` file under ``[ckan.plugins]``.
+Now the extension is installed you need to enable it.
 
- The config plugins variable is in the '[app:main]' section under 'ckan.plugins'. e.g.::
-
-       [app:main]
-       ckan.plugins = disqus
-
- If your extension implements multiple different plugin interfaces, separate them with spaces::
-
-       ckan.plugins = disqus amqp myplugin
-
-4. If necessary, restart WSGI, which usually means restarting Apache::
-
-       sudo /etc/init.d/apache2 restart
-
-Your extension should now be installed.
 
 Installing an Extension with Background Tasks
----------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some extensions need to run tasks in the background. In order to do this we use celery as a job queue.
 Examples of these types of extensions are:
@@ -93,4 +87,33 @@ Using this file as a template and copy to /etc/supservisor/conf.d::
 Also you can run::
 
    paster celeryd --config=/path/to/file.ini
+
+
+Enabling an Extension
+---------------------
+
+1. Add the names of the extension's plugins to the CKAN config file in the '[app:main]' section under 'ckan.plugins'. e.g.::
+
+       [app:main]
+       ckan.plugins = disqus
+
+   If your extension implements multiple different plugin interfaces, separate them with spaces::
+
+       ckan.plugins = disqus amqp myplugin
+
+   .. note::
+
+     Finding out the name of an extension's plugins: this information should
+     usually be provided in the extension's documentation, but you can also
+     find this information in the plugin's ``setup.py`` file under
+     ``[ckan.plugins]``.
+   
+2. To have this configuration change take effect it may be necessary to restart
+   WSGI, which usually means restarting Apache::
+
+       sudo /etc/init.d/apache2 restart
+
+Your extension should now be enabled. You can disable it at any time by
+removing it from the list of ckan.plugins in the config file.
+
 
