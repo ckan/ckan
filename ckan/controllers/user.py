@@ -261,7 +261,7 @@ class UserController(BaseController):
             return self.me()
         else:
             h.flash_error('Login failed. Bad username or password.' + \
-                          ' (Or if using OpenID, it hasn\'t been associated with an user account.)')
+                          ' (Or if using OpenID, it hasn\'t been associated with a user account.)')
             h.redirect_to(controller='user', action='login')
           
     def logged_out(self):
