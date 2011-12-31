@@ -534,7 +534,7 @@ class UserCmd(CkanCommand):
                     split = arg.find(' ')
                     if split == -1:
                         raise ValueError('Could not parse arg: %r (expected "--<option>=<value>)")' % arg)
-                key, value = arg[:split], arg[split:]
+                key, value = arg[:split], arg[split+1:]
                 if key == 'password':
                     password = value
                 elif key == 'apikey':
