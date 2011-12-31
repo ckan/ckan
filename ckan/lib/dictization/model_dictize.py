@@ -80,7 +80,18 @@ def resource_dictize(res, context):
 
 def _execute_with_revision(q, rev_table, context):
     '''
-    Raises NotFound if the context['revision_id'] does not exist.
+    Takes an SqlAlchemy query (q) that is (at its base) a Select on an
+    object revision table (rev_table), and normally it filters to the
+    'current' object revision (latest which has been moderated) and
+    returns that.
+
+    But you can provide revision_id, revision_date or pending in the
+    context and it will filter to an earlier time or the latest unmoderated
+    object revision.
+    
+    Raises NotFound if context['revision_id'] is provided, but the revision
+    ID does not exist.
+    
     Returns [] if there are no results.
 
     '''
@@ -110,6 +121,17 @@ def _execute_with_revision(q, rev_table, context):
 
 
 def package_dictize(pkg, context):
+    '''
+    Given a Package object, returns an equivalent dictionary.
+
+    Normally this is the current revision (most recent moderated version),
+    but you can provide revision_id, revision_date or pending in the
+    context and it will filter to an earlier time or the latest unmoderated
+    object revision.
+    
+    May raise NotFound. TODO: understand what the specific set of
+    circumstances are that cause this.
+    '''
     model = context['model']
     #package
     package_rev = model.package_revision_table
