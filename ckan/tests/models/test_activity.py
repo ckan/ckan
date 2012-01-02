@@ -266,7 +266,7 @@ class TestActivity:
                 'user':self.normal_user.name,
                 'allow_partial_update':True}
         package_dict = {'id':package.id, 'title':'edited'}
-        result = package_update(context, package_dict)
+        package_update(context, package_dict)
 
         # Record some details after updating the package.
         after = datetime.datetime.now()
@@ -348,7 +348,7 @@ class TestActivity:
             context = {'model': model, 'session': model.Session,
                     'user':user.name, 'allow_partial_update':True}
         resource_dict = {'id':resource.id, 'name':'edited'}
-        result = resource_update(context, resource_dict)
+        resource_update(context, resource_dict)
 
         # Record some details after updating the resource.
         after = datetime.datetime.now()
@@ -430,7 +430,7 @@ class TestActivity:
         context = {'model': model, 'session': model.Session,
                 'user':self.normal_user.name}
         package_dict = {'id':package.id}
-        result = package_delete(context, package_dict)
+        package_delete(context, package_dict)
 
         # Record some details after deleting the package.
         after = datetime.datetime.now()
@@ -501,7 +501,7 @@ class TestActivity:
         context = {'model': model, 'session': model.Session,
                 'user':self.normal_user.name}
         data_dict = { 'id':package.id, 'resources':[] }
-        result = package_update(context, data_dict)
+        package_update(context, data_dict)
 
         # Record some details after deleting the resources.
         after = datetime.datetime.now()
