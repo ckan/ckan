@@ -85,10 +85,6 @@ def register_pluggable_behaviour(map):
         for package_type in plugin.package_types():
             # Create a connection between the newly named type and the package controller
             # but first we need to make sure we are not clobbering an existing domain
-            if package_type == 'package':
-                raise Exception, "The plugin %r would overwrite the default package " \
-                                  "implementation urls" % plugin
-            
             map.connect('/%s/new' % (package_type,), controller='package', action='new')    
             map.connect('%s_read' % (package_type,), '/%s/{id}' %  (package_type,), controller='package', action='read')                        
             map.connect('%s_action' % (package_type,),

@@ -28,9 +28,7 @@ def make_map():
     # CUSTOM ROUTES HERE
     for plugin in routing_plugins:
         map = plugin.before_map(map)
-        
-    map.connect('*url', controller='home', action='cors_options',
-        conditions=dict(method=['OPTIONS']))
+
     map.connect('home', '/', controller='home', action='index')
     map.connect('/locale', controller='home', action='locale')
     map.connect('about', '/about', controller='home', action='about')
@@ -287,8 +285,12 @@ def make_map():
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
     
+    map.connect('*url', controller='home', action='cors_options',
+    conditions=dict(method=['OPTIONS']))
+
     for plugin in routing_plugins:
         map = plugin.after_map(map)
+    
     
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')

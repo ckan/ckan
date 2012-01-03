@@ -45,11 +45,9 @@ def register_pluggable_behaviour(map):
             # Create the routes based on group_type here, this will allow us to have top level
             # objects that are actually Groups, but first we need to make sure we are not 
             # clobbering an existing domain
-            from routes import url_for
-
-            u = url_for('/%s/new' % (group_type,) ) 
-            if u != '%s_new' % (group_type,):
-                raise Exception, "Plugin %r would overwrite the default group urls" % plugin
+            match = map.match('/%s/new' % (group_type,))
+            if match:
+                raise Exception, "Plugin %r would overwrite existing urls" % plugin
             
             map.connect('%s_new' % (group_type,), 
                         '/%s/new' % (group_type,), controller='group', action='new')                
