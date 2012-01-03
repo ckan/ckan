@@ -19,7 +19,11 @@ def group_list_dictize(obj_list, context,
     result_list = []
 
     for obj in obj_list:
-        group_dict = table_dictize(obj, context)
+        if context.get('with_capacity'):
+            obj, capacity = obj
+            group_dict = table_dictize(obj, context, capacity=capacity)
+        else:
+            group_dict = table_dictize(obj, context)
         group_dict.pop('created')
         if active and obj.state not in ('active', 'pending'):
             continue
@@ -188,7 +192,7 @@ def _get_members(context, group, member_type):
 
     model = context['model']
     Entity = getattr(model, member_type[:-1].capitalize())
-    return model.Session.query(Entity).\
+    return model.Session.query(Entity, model.Member.capacity).\
                join(model.Member, model.Member.table_id == Entity.id).\
                filter(model.Member.group_id == group.id).\
                filter(model.Member.state == 'active').\
@@ -203,6 +207,8 @@ def group_dictize(group, context):
 
     result_dict['extras'] = extras_dict_dictize(
         group._extras, context)
+
+    context['with_capacity'] = True
 
     result_dict['packages'] = obj_list_dictize(
         _get_members(context, group, 'packages'),
@@ -220,6 +226,7 @@ def group_dictize(group, context):
         _get_members(context, group, 'users'),
         context)
 
+    context['with_capacity'] = False
 
     return result_dict
 
@@ -227,7 +234,12 @@ def tag_list_dictize(tag_list, context):
 
     result_list = []
     for tag in tag_list:
-        result_list.append(table_dictize(tag, context))
+        if context.get('with_capacity'):
+            tag, capacity = tag
+            dictized = table_dictize(tag, context, capacity=capacity)
+        else:
+            dictized = table_dictize(tag, context)
+        result_list.append(dictized)
 
     return result_list
 
@@ -254,7 +266,11 @@ def user_list_dictize(obj_list, context,
 
 def user_dictize(user, context):
 
-    result_dict = table_dictize(user, context)
+    if context.get('with_capacity'):
+        user, capacity = user
+        result_dict = table_dictize(user, context, capacity=capacity)
+    else:
+        result_dict = table_dictize(user, context)
 
     del result_dict['password']
     
