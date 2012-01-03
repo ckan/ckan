@@ -8,7 +8,7 @@ from ckan.logic.action.create import package_create
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.delete import package_delete
 from ckan.lib.dictization.model_dictize import resource_list_dictize
-from ckan.logic.action.get import activity_show, activity_detail_show
+from ckan.logic.action.get import user_activity_list, activity_detail_list
 
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
@@ -64,13 +64,13 @@ def get_user_activity_stream(user_id):
     '''Return the public activity stream for the given user.'''
     context = {'model':model}
     data_dict = {'id':user_id}
-    return activity_show(context, data_dict)
+    return user_activity_list(context, data_dict)
 
 def get_activity_details(activity):
     '''Return the list of activity details for the given activity.'''
     context = {'model': model}
     data_dict = {'id': activity['id']}
-    return activity_detail_show(context, data_dict)
+    return activity_detail_list(context, data_dict)
 
 def record_details(user_id):
     details = {}

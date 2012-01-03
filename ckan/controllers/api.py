@@ -232,7 +232,7 @@ class ApiController(BaseController):
             'tag': get_action('tag_show_rest'),
             'dataset': get_action('package_show_rest'),
             'package': get_action('package_show_rest'),
-            'activity': get_action('activity_show'),
+            'activity': get_action('user_activity_list'),
             ('dataset', 'relationships'): get_action('package_relationships_list'),
             ('package', 'relationships'): get_action('package_relationships_list'),
         }
