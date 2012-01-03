@@ -148,7 +148,7 @@ class DefaultDatasetForm(object):
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
                                'extras_validation', 'save', 'return_to',
-                               'resources']
+                               'resources', 'type']
 
         schema_keys = package_form_schema().keys()
         keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
@@ -158,7 +158,7 @@ class DefaultDatasetForm(object):
         if missing_keys:
             #print data_dict
             #print missing_keys
-            log.info('incorrect form fields posted')
+            log.info('incorrect form fields posted, missing %s' % missing_keys )
             raise DataError(data_dict)
 
     def setup_template_variables(self, context, data_dict):

@@ -9,7 +9,8 @@ class TestCORS(TestController):
         self.ourapp = webtest.TestApp(self.wsgiapp)
         out = self.ourapp.request('/', method='OPTIONS')
         assert out.status_int == 200, out
-        print out
+        #print out
+        print out.body.decode('utf-8', 'ignore')
         assert len(str(out.body)) == 0, 'OPTIONS must return no content'
 
     def test_headers(self):

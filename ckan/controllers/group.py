@@ -45,7 +45,14 @@ def register_pluggable_behaviour(map):
             # Create the routes based on group_type here, this will allow us to have top level
             # objects that are actually Groups, but first we need to make sure we are not 
             # clobbering an existing domain
+            
+            # Our version of routes doesn't allow the environ to be passed into the match call
+            # and so we have to set it on the map instead.  This looks like a threading problem
+            # waiting to happen but it is executed sequentially from instead the routing setup
+            e = map.environ
+            map.environ = {'REQUEST_METHOD': 'GET'}
             match = map.match('/%s/new' % (group_type,))
+            map.environ = e
             if match:
                 raise Exception, "Plugin %r would overwrite existing urls" % plugin
             

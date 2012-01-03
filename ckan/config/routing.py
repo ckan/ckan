@@ -25,6 +25,8 @@ def make_map():
     map.connect('/error/{action}', controller='error')
     map.connect('/error/{action}/{id}', controller='error')
 
+    map.connect('*url', controller='home', action='cors_options', conditions=dict(method=['OPTIONS']))
+
     # CUSTOM ROUTES HERE
     for plugin in routing_plugins:
         map = plugin.before_map(map)
@@ -285,9 +287,6 @@ def make_map():
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
     
-    map.connect('*url', controller='home', action='cors_options',
-    conditions=dict(method=['OPTIONS']))
-
     for plugin in routing_plugins:
         map = plugin.after_map(map)
     
