@@ -125,3 +125,8 @@ This occurs when trying to ``import migrate.exceptions`` and is due to the versi
 This sort of message may be seen if you swap between different branches of CKAN. The .pyc file for database migration 46 exists, but the .py file no longer exists by swapping to an earlier branch. The solution is to delete all pyc files (which is harmless)::
 
     find . -name "*.pyc" |xargs rm
+
+``AssertionError: Unexpected files/directories in pyenv/src/ckan``
+==================================================================
+
+This occurs when installing CKAN source to a virtual environment when using an old version of pip. (e.g. pip 0.3.1 which comes with Ubuntu). Instead you should use pip 1.0.2 or higher, which will be found in your virtual environment: ``pyenv/bin/pip``
