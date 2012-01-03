@@ -120,8 +120,6 @@ class DatasetActivitySessionExtension(SessionExtension):
                     % (activity.id, activity.activity_type))
             session.add(activity)
 
-        session.flush()
-
         for key, activity_detail_list in activity_details.items():
             for activity_detail_obj in activity_detail_list:
                 logger.debug("Emitting activity detail: %s %s %s"
