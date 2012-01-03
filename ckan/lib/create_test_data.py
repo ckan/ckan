@@ -164,6 +164,7 @@ class CreateTestData(cli.CkanCommand):
                             pkg.tags.append(tag)
                             model.Session.flush()
                     elif attr == 'groups':
+                        model.Session.flush()
                         if isinstance(val, (str, unicode)):
                             group_names = val.split()
                         elif isinstance(val, list):
@@ -184,7 +185,8 @@ class CreateTestData(cli.CkanCommand):
                                     # session has not yet been committed at this point.
                                     # Fetch from the new_groups dict instead.
                                     group = new_groups[group_name]
-                            pkg.groups.append(group)
+                            member = model.Member(group=group, table_id=pkg.id, table_name='package')
+                            model.Session.add(member)
                     elif attr == 'license':
                         pkg.license_id = val
                     elif attr == 'license_id':
@@ -297,7 +299,8 @@ class CreateTestData(cli.CkanCommand):
             for pkg_name in pkg_names:
                 pkg = model.Package.by_name(unicode(pkg_name))
                 assert pkg, pkg_name
-                pkg.groups.append(group)
+                member = model.Member(group=group, table_id=pkg.id, table_name='package')
+                model.Session.add(member)
             model.Session.add(group)
             model.setup_default_user_roles(group, admin_users)
             cls.group_names.add(group_dict['name'])
@@ -396,9 +399,12 @@ left arrow <
         
         cls.group_names.add(u'david')
         cls.group_names.add(u'roger')
-        model.Session.add(model.PackageGroup(package=pkg1, group=david))
-        model.Session.add(model.PackageGroup(package=pkg2, group=david))
-        model.Session.add(model.PackageGroup(package=pkg1, group=roger))
+
+        model.Session.flush()
+        
+        model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=david))
+        model.Session.add(model.Member(table_id=pkg2.id, table_name='package', group=david))
+        model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=roger))
         # authz
         model.Session.add_all([
             model.User(name=u'tester', apikey=u'tester', password=u'tester'),

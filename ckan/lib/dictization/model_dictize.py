@@ -19,14 +19,18 @@ def group_list_dictize(obj_list, context,
     result_list = []
 
     for obj in obj_list:
-        group_dict = table_dictize(obj, context)
+        if context.get('with_capacity'):
+            obj, capacity = obj
+            group_dict = table_dictize(obj, context, capacity=capacity)
+        else:
+            group_dict = table_dictize(obj, context)
         group_dict.pop('created')
         if active and obj.state not in ('active', 'pending'):
             continue
 
         group_dict['display_name'] = obj.display_name
 
-        group_dict['packages'] = len(obj.packages)
+        group_dict['packages'] = len(obj.active_packages().all())
 
         result_list.append(group_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
@@ -80,7 +84,18 @@ def resource_dictize(res, context):
 
 def _execute_with_revision(q, rev_table, context):
     '''
-    Raises NotFound if the context['revision_id'] does not exist.
+    Takes an SqlAlchemy query (q) that is (at its base) a Select on an
+    object revision table (rev_table), and normally it filters to the
+    'current' object revision (latest which has been moderated) and
+    returns that.
+
+    But you can provide revision_id, revision_date or pending in the
+    context and it will filter to an earlier time or the latest unmoderated
+    object revision.
+    
+    Raises NotFound if context['revision_id'] is provided, but the revision
+    ID does not exist.
+    
     Returns [] if there are no results.
 
     '''
@@ -110,6 +125,17 @@ def _execute_with_revision(q, rev_table, context):
 
 
 def package_dictize(pkg, context):
+    '''
+    Given a Package object, returns an equivalent dictionary.
+
+    Normally this is the current revision (most recent moderated version),
+    but you can provide revision_id, revision_date or pending in the
+    context and it will filter to an earlier time or the latest unmoderated
+    object revision.
+    
+    May raise NotFound. TODO: understand what the specific set of
+    circumstances are that cause this.
+    '''
     model = context['model']
     #package
     package_rev = model.package_revision_table
@@ -140,12 +166,12 @@ def package_dictize(pkg, context):
     result = _execute_with_revision(q, extra_rev, context)
     result_dict["extras"] = extras_list_dictize(result, context)
     #groups
-    group_rev = model.package_group_revision_table
+    member_rev = model.member_revision_table
     group = model.group_table
     q = select([group],
-               from_obj=group_rev.join(group, group.c.id == group_rev.c.group_id)
-               ).where(group_rev.c.package_id == pkg.id)
-    result = _execute_with_revision(q, group_rev, context)
+               from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
+               ).where(member_rev.c.table_id == pkg.id)
+    result = _execute_with_revision(q, member_rev, context)
     result_dict["groups"] = obj_list_dictize(result, context)
     #relations
     rel_rev = model.package_relationship_revision_table
@@ -162,19 +188,60 @@ def package_dictize(pkg, context):
 
     return result_dict
 
-def group_dictize(group, context):
+def _get_members(context, group, member_type):
 
+    model = context['model']
+    Entity = getattr(model, member_type[:-1].capitalize())
+    return model.Session.query(Entity, model.Member.capacity).\
+               join(model.Member, model.Member.table_id == Entity.id).\
+               filter(model.Member.group_id == group.id).\
+               filter(model.Member.state == 'active').\
+               filter(model.Member.table_name == member_type[:-1]).all()
+
+
+def group_dictize(group, context):
+    model = context['model']
     result_dict = table_dictize(group, context)
-    
+
     result_dict['display_name'] = group.display_name
 
     result_dict['extras'] = extras_dict_dictize(
         group._extras, context)
 
+    context['with_capacity'] = True
+
     result_dict['packages'] = obj_list_dictize(
-        group.packages, context)
+        _get_members(context, group, 'packages'),
+        context)
+
+    result_dict['tags'] = tag_list_dictize(
+        _get_members(context, group, 'tags'),
+        context)
+
+    result_dict['groups'] = group_list_dictize(
+        _get_members(context, group, 'groups'),
+        context)
+
+    result_dict['users'] = user_list_dictize(
+        _get_members(context, group, 'users'),
+        context)
+
+    context['with_capacity'] = False
 
     return result_dict
+
+def tag_list_dictize(tag_list, context):
+
+    result_list = []
+    for tag in tag_list:
+        if context.get('with_capacity'):
+            tag, capacity = tag
+            dictized = table_dictize(tag, context, capacity=capacity)
+        else:
+            dictized = table_dictize(tag, context)
+        result_list.append(dictized)
+
+    return result_list
 
 def tag_dictize(tag, context):
 
@@ -185,9 +252,25 @@ def tag_dictize(tag, context):
     
     return result_dict 
 
+def user_list_dictize(obj_list, context, 
+                      sort_key=lambda x:x['name'], reverse=False):
+
+    result_list = []
+
+    for obj in obj_list:
+        user_dict = user_dictize(obj, context)
+        user_dict.pop('apikey')
+        result_list.append(user_dict)
+    return sorted(result_list, key=sort_key, reverse=reverse)
+
+
 def user_dictize(user, context):
 
-    result_dict = table_dictize(user, context)
+    if context.get('with_capacity'):
+        user, capacity = user
+        result_dict = table_dictize(user, context, capacity=capacity)
+    else:
+        result_dict = table_dictize(user, context)
 
     del result_dict['password']
     
@@ -263,10 +346,12 @@ def package_to_api1(pkg, context):
     site_url = config.get('ckan.site_url', None)
     if site_url:
         dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
-    dictized['metadata_modified'] = pkg.metadata_modified.isoformat() \
-        if pkg.metadata_modified else None
-    dictized['metadata_created'] = pkg.metadata_created.isoformat() \
-        if pkg.metadata_created else None
+    metadata_modified = pkg.metadata_modified
+    dictized['metadata_modified'] = metadata_modified.isoformat() \
+        if metadata_modified else None
+    metadata_created = pkg.metadata_created
+    dictized['metadata_created'] = metadata_created.isoformat() \
+        if metadata_created else None
 
     subjects = dictized.pop("relationships_as_subject") 
     objects = dictized.pop("relationships_as_object") 

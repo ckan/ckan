@@ -149,11 +149,11 @@ def group_list(context, data_dict):
     if order_by == 'packages':
         sort_by, reverse = 'packages', True
 
+    group_list = group_list_dictize(groups, context,
+                                    lambda x:x[sort_by], reverse)
+
     if not all_fields:
-        group_list = [getattr(p, ref_group_by) for p in groups]
-    else:
-        group_list = group_list_dictize(groups, context,
-                                        lambda x:x[sort_by], reverse)
+        group_list = [group[ref_group_by] for group in group_list]
 
     return group_list
 
@@ -176,7 +176,7 @@ def group_list_authz(context, data_dict):
     if available_only:
         package = context.get('package')
         if package:
-            groups = groups - set(package.groups)
+            groups = groups - set(package.get_groups())
 
     return [{'id':group.id,'name':group.name} for group in groups]
 
@@ -433,8 +433,8 @@ def group_package_show(context, data_dict):
     query = model.Session.query(model.PackageRevision)\
         .filter(model.PackageRevision.state=='active')\
         .filter(model.PackageRevision.current==True)\
-        .join(model.PackageGroup, model.PackageGroup.package_id==model.PackageRevision.id)\
-        .join(model.Group, model.Group.id==model.PackageGroup.group_id)\
+        .join(model.Member, model.Member.table_id==model.PackageRevision.id)\
+        .join(model.Group, model.Group.id==model.Member.group_id)\
         .filter_by(id=group.id)\
         .order_by(model.PackageRevision.name)
 

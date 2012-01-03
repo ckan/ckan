@@ -2,6 +2,7 @@ from nose.tools import assert_equal
 from nose.plugins.skip import SkipTest
 
 from ckan import model
+from ckan.lib.create_test_data import CreateTestData
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
@@ -10,7 +11,17 @@ from ckan.tests.functional.api.base import ApiUnversionedTestCase as Unversioned
 
 class RatingsTestCase(BaseModelApiTestCase):
 
-    reuse_common_fixtures = True
+    @classmethod
+    def setup_class(cls):
+        CreateTestData.create()
+        cls.testsysadmin = model.User.by_name(u'testsysadmin')
+        cls.comment = u'Comment umlaut: \xfc.'
+        cls.user_name = u'annafan' # created in CreateTestData
+        cls.init_extra_environ(cls.user_name)
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
 
     def test_register_get(self):
         raise SkipTest('"Rating register get" functionality is not implemented')

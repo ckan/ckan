@@ -17,6 +17,7 @@ import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
 import ckan.lib.search as search
+from ckan.logic.action import get, update
 from ckan.controllers.package import PackageController
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan import plugins
@@ -348,6 +349,21 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         res = self.app.get(offset)
         assert plugin.calls['read'] == 1, plugin.calls
         plugins.unload(plugin)
+
+    def test_resource_list(self):
+        name = 'annakarenina'
+        cache_url = 'http://thedatahub.org/test_cache_url.csv'
+        # add a cache_url to the first resource in the package
+        context = {'model': model, 'session': model.Session, 'user': 'testsysadmin'}
+        data = {'id': 'annakarenina'}
+        pkg = get.package_show(context, data)
+        pkg['resources'][0]['cache_url'] = cache_url
+        update.package_update(context, pkg)
+        # check that the cache url is included on the dataset view page
+        offset = url_for(controller='package', action='read', id=name)
+        res = self.app.get(offset)
+        assert '[cached]'in res
+        assert cache_url in res
 
 
 class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
@@ -868,7 +884,7 @@ class TestEdit(TestPackageForm):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
             grp = model.Group.by_name(u'david')
-            assert len(pkg.groups) == 0
+            assert len(pkg.get_groups()) == 0
             offset = url_for(controller='package', action='edit', id=pkg.name)
             res = self.app.get(offset)
             prefix = ''
@@ -884,7 +900,7 @@ class TestEdit(TestPackageForm):
             res = fv.submit('save')
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 0
+            assert len(pkg.get_groups()) == 0
         finally:
             self._reset_data()            
     
@@ -892,7 +908,7 @@ class TestEdit(TestPackageForm):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
             grp = model.Group.by_name(u'david')
-            assert len(pkg.groups) == 0
+            assert len(pkg.get_groups()) == 0
             offset = url_for(controller='package', action='edit', id=pkg.name)
             
             res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
@@ -904,7 +920,7 @@ class TestEdit(TestPackageForm):
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 1, pkg.groups
+            assert len(pkg.get_groups()) == 1, pkg.get_groups()
             assert 'david' in res, res
         finally:
             self._reset_data()
@@ -912,13 +928,13 @@ class TestEdit(TestPackageForm):
     def test_edit_700_groups_remove(self):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 0
+            assert len(pkg.get_groups()) == 0
             grp = model.Group.by_name(u'david')
             model.repo.new_revision()
-            model.Session.add(model.PackageGroup(package=pkg, group=grp))
+            model.Session.add(model.Member(table_id=pkg.id, table_name='package', group=grp))
             model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 1
+            assert len(pkg.get_groups()) == 1
             offset = url_for(controller='package', action='edit', id=pkg.name)
             res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
             prefix = ''
@@ -929,7 +945,7 @@ class TestEdit(TestPackageForm):
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
             model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 0
+            assert len(pkg.get_groups()) == 0
         finally:
             self._reset_data()
 
@@ -1107,7 +1123,7 @@ class TestNew(TestPackageForm):
         saved_tagnames.sort()
         expected_tagnames = sorted(tags)
         assert saved_tagnames == expected_tagnames, '%r != %r' % (saved_tagnames, expected_tagnames)
-        saved_groupnames = [str(group.name) for group in pkg.groups]
+        saved_groupnames = [str(group.name) for group in pkg.get_groups()]
         assert len(pkg.extras) == len(extras)
         for key, value in extras.items():
             assert pkg.extras[key] == value

@@ -12,7 +12,6 @@ from ckan.logic import check_access, get_action
 from ckan.lib.i18n import set_session_locale, get_lang
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.base import *
-import ckan.lib.stats
 from ckan.lib.hash import get_redirect
 from ckan.lib.helpers import url_for
 

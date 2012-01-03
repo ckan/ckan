@@ -24,7 +24,7 @@ app_instance_uuid = ${app_instance_uuid}
 
 # List the names of CKAN extensions to activate.
 # Note: This line is required to be here for packaging, even if it is empty.
-ckan.plugins = 
+ckan.plugins = stats
 
 # If you'd like to fine-tune the individual locations of the cache data dirs
 # for the Cache data, or the Session saves, un-comment the desired settings
@@ -159,6 +159,13 @@ ckan.locale_default = en
 # http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
 ckan.locale_order = en de fr it es pl ru nl sv no cs_CZ hu pt_BR fi bg ca sq sr sr_Latn
 ckan.locales_filtered_out = el ro lt sl
+
+## ===================================
+## Extensions
+
+## Config option to enable the (1 day) cache for stats
+## Default (if not defined) is True as stats computations are intensive
+# ckanext.stats.cache_enabled = True
 
 # Logging configuration
 [loggers]

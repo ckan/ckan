@@ -1,6 +1,7 @@
 from nose.tools import assert_equal 
 
 from ckan import model
+from ckan.lib.create_test_data import CreateTestData
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
@@ -9,7 +10,15 @@ from ckan.tests.functional.api.base import ApiUnversionedTestCase as Unversioned
 
 class RevisionsTestCase(BaseModelApiTestCase):
 
-    reuse_common_fixtures = True
+    @classmethod
+    def setup_class(cls):
+        CreateTestData.create()
+        cls.user_name = u'annafan' # created in CreateTestData
+        cls.init_extra_environ(cls.user_name)
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
     
     def test_register_get_ok(self):
         # Comparison list - newest first

@@ -37,10 +37,12 @@ class TestBasicDictize:
                {'key': u'original media', 'state': u'active', 'value': u'"book"'}],
             'groups': [{'description': u'These are books that David likes.',
                         'name': u'david',
+                        'type': u'dataset_group',
                         'state': u'active',
                         'title': u"Dave's books"},
                        {'description': u'Roger likes these books.',
                         'name': u'roger',
+                        'type': u'dataset_group',
                         'state': u'active',
                         'title': u"Roger's books"}],
             'isopen': True,
@@ -816,26 +818,62 @@ class TestBasicDictize:
 
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina3').first()
 
+        simple_group_dict = {'name': 'simple',
+                             'title': 'simple',
+                             'type': 'publisher',
+                            }
+        model.repo.new_revision()
+        group_dict_save(simple_group_dict, context)
+        model.Session.commit()
+        model.Session.remove()
+
+        context = {"model": model,
+                  "session": model.Session}
+
         group_dict = {'name': 'help',
                       'title': 'help',
                       'extras': [{'key': 'genre', 'value': u'"horror"'},
                                  {'key': 'media', 'value': u'"dvd"'}],
-                      'packages':[{'name': 'annakarenina2'}, {'id': pkg.id}]
+                      'packages':[{'name': 'annakarenina2'}, {'id': pkg.id, 'capacity': 'in'}],
+                      'users':[{'name': 'annafan'}],
+                      'groups':[{'name': 'simple'}],
+                      'tags':[{'name': 'russian'}]
                       }
-
 
         model.repo.new_revision()
         group_dict_save(group_dict, context)
         model.Session.commit()
         model.Session.remove()
-
+        
         group = model.Session.query(model.Group).filter_by(name=u'help').one()
+
+        context = {"model": model,
+                  "session": model.Session}
 
         group_dictized = group_dictize(group, context)
 
         expected =  {'description': u'',
                     'extras': [{'key': u'genre', 'state': u'active', 'value': u'"horror"'},
                                {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
+                    'tags': [{'capacity': 'member', 'name': u'russian'}],
+                    'groups': [{'description': u'',
+                               'capacity' : 'member',
+                               'display_name': u'simple',
+                               'name': u'simple',
+                               'packages': 0,
+                               'state': u'active',
+                               'title': u'simple',
+                               'type': u'publisher'}],
+                    'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
+                              'display_name': u'annafan',
+                              'capacity' : 'member',
+                              'email': None,
+                              'email_hash': 'd41d8cd98f00b204e9800998ecf8427e',
+                              'fullname': None,
+                              'name': u'annafan',
+                              'number_administered_packages': 1L,
+                              'number_of_edits': 0L,
+                              'reset_key': None}],
                     'name': u'help',
                     'display_name': u'help',
                     'packages': [{'author': None,
@@ -846,11 +884,14 @@ class TestBasicDictize:
                                   'name': u'annakarenina3',
                                   'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
                                   'state': u'active',
+                                  'capacity' : 'in',
                                   'title': u'A Novel By Tolstoy',
                                   'url': u'http://www.annakarenina.com',
                                   'version': u'0.7a'},
                                  {'author': None,
                                   'author_email': None,
+                                  'capacity' : 'member',
+                                  'title': u'A Novel By Tolstoy',
                                   'license_id': u'other-open',
                                   'maintainer': None,
                                   'maintainer_email': None,
@@ -861,7 +902,8 @@ class TestBasicDictize:
                                   'url': u'http://www.annakarenina.com',
                                   'version': u'0.7a'}],
                     'state': u'active',
-                    'title': u'help'}
+                    'title': u'help',
+                    'type': u'dataset_group'}
 
         expected['packages'] = sorted(expected['packages'], key=lambda x: x['name'])
 

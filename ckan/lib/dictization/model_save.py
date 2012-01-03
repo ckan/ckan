@@ -185,7 +185,7 @@ def package_tag_list_save(tag_dicts, package, context):
 
     package.package_tag_all[:] = tag_package_tag.values()
 
-def package_group_list_save(group_dicts, package, context):
+def package_membership_list_save(group_dicts, package, context):
 
     allow_partial_update = context.get("allow_partial_update", False)
     if not group_dicts and allow_partial_update:
@@ -195,9 +195,11 @@ def package_group_list_save(group_dicts, package, context):
     session = context["session"]
     pending = context.get('pending')
 
-    group_package_group = dict((package_group.group, package_group) 
-                               for package_group in
-                               package.package_group_all)
+    members = session.query(model.Member).filter_by(table_id = package.id)
+
+    group_member = dict((member.group, member) 
+                         for member in
+                         members)
     groups = set()
     for group_dict in group_dicts:
         id = group_dict.get("id")
@@ -208,25 +210,25 @@ def package_group_list_save(group_dicts, package, context):
             group = session.query(model.Group).filter_by(name=name).first()
         groups.add(group)
 
-    for group in groups - set(group_package_group.keys()):
-        package_group_obj = model.PackageGroup(package = package,
-                                               group = group,
-                                               state = 'active')
-        session.add(package_group_obj)
-        group_package_group[group] = package_group_obj
+    ## need to flush so we can get out the package id
+    model.Session.flush()
+    for group in groups - set(group_member.keys()):
+        member_obj = model.Member(table_id = package.id,
+                                  table_name = 'package',
+                                  group = group,
+                                  state = 'active')
+        session.add(member_obj)
 
-    for group in set(group_package_group.keys()) - groups:
-        group_package_group.pop(group)
-        continue
-        ### this is alternate behavioiur below which is correct
-        ### but not compatible with old behaviour
-        package_group = group_package_group[group]
-        if pending and package_group.state <> 'deleted':
-            package_group.state = 'pending-deleted'
-        else:
-            package_group.state = 'deleted'
 
-    package.package_group_all[:] = group_package_group.values()
+    for group in set(group_member.keys()) - groups:
+        member_obj = group_member[group]
+        member_obj.state = 'deleted'
+        session.add(member_obj)
+
+    for group in set(group_member.keys()) & groups:
+        member_obj = group_member[group]
+        member_obj.state = 'active'
+        session.add(member_obj)
 
     
 def relationship_list_save(relationship_dicts, package, attr, context):
@@ -269,7 +271,7 @@ def package_dict_save(pkg_dict, context):
 
     package_resource_list_save(pkg_dict.get("resources", []), pkg, context)
     package_tag_list_save(pkg_dict.get("tags", []), pkg, context)
-    package_group_list_save(pkg_dict.get("groups", []), pkg, context)
+    package_membership_list_save(pkg_dict.get("groups", []), pkg, context)
 
     subjects = pkg_dict.get('relationships_as_subject', [])
     relationship_list_save(subjects, pkg, 'relationships_as_subject', context)
@@ -280,6 +282,44 @@ def package_dict_save(pkg_dict, context):
 
     return pkg
 
+def group_member_save(context, group_dict, member_table_name):
+
+    model = context["model"]
+    session = context["session"]
+    group = context['group']
+    entity_list = group_dict.get(member_table_name, [])
+    entities = {}
+    Member = model.Member
+
+    ModelClass = getattr(model, member_table_name[:-1].capitalize())
+
+    for entity_dict in entity_list:
+        name_or_id = entity_dict.get('id') or entity_dict.get('name')
+        obj = ModelClass.get(name_or_id)
+        if obj and obj not in entities.values():
+            entities[(obj.id, entity_dict.get('capacity', 'member'))] = obj
+
+    members = session.query(Member).filter_by(
+        table_name=member_table_name[:-1],
+        group_id=group.id,
+    ).all()
+
+    entity_member = dict(((member.table_id, member.capacity), member) for member in members)
+
+    for entity_id in set(entity_member.keys()) - set(entities.keys()):
+        entity_member[entity_id].state = 'deleted'
+        session.add(entity_member[entity_id])
+
+    for entity_id in set(entity_member.keys()) & set(entities.keys()):
+        entity_member[entity_id].state = 'active'
+        session.add(entity_member[entity_id])
+
+    for entity_id in set(entities.keys()) - set(entity_member.keys()):
+        member = Member(group=group, table_id=entity_id[0],
+                        table_name=member_table_name[:-1],
+                        capacity=entity_id[1])
+        session.add(member)
+
 
 def group_dict_save(group_dict, context):
 
@@ -287,13 +327,19 @@ def group_dict_save(group_dict, context):
     session = context["session"]
     group = context.get("group")
     allow_partial_update = context.get("allow_partial_update", False)
-    
+
     Group = model.Group
-    Package = model.Package
     if group:
         group_dict["id"] = group.id 
 
     group = table_dict_save(group_dict, Group, context)
+    context['group'] = group
+
+    group_member_save(context, group_dict, 'packages')
+    group_member_save(context, group_dict, 'users')
+    group_member_save(context, group_dict, 'groups')
+    group_member_save(context, group_dict, 'tags')
+
     extras = group_extras_save(group_dict.get("extras", {}), context)
     if extras or not allow_partial_update:
         old_extras = set(group.extras.keys())
@@ -303,24 +349,9 @@ def group_dict_save(group_dict, context):
         for key in new_extras:
             group.extras[key] = extras[key] 
 
-    package_dicts = group_dict.get("packages", [])
-
-    packages = []
-
-    for package in package_dicts:
-        pkg = None
-        id = package.get("id")
-        if id:
-            pkg = session.query(Package).get(id)
-        if not pkg:
-            pkg = session.query(Package).filter_by(name=package["name"]).first()
-        if pkg and pkg not in packages:
-            packages.append(pkg)
-
-    if packages or not allow_partial_update:
-        group.packages[:] = packages
 
     return group
+
 
 def user_dict_save(user_dict, context):
 

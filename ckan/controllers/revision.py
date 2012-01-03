@@ -116,6 +116,7 @@ class RevisionController(BaseController):
             c.page = Page(
                 collection=query,
                 page=request.params.get('page', 1),
+                url=h.pager_url,
                 items_per_page=20
             )
             return render('revision/list.html')

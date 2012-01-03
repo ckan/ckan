@@ -354,7 +354,7 @@ class ApiUnversionedTestCase(Api1TestCase):
         return self.oldest_api_version
 
 
-class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
+class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
 
     testpackage_license_id = u'gpl-3.0'
     package_fixture_data = {
@@ -393,17 +393,21 @@ class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
 
     def setup(self):
         super(BaseModelApiTestCase, self).setup()
-        self.conditional_create_common_fixtures()
-        self.init_extra_environ()
+#        self.conditional_create_common_fixtures()
+#        self.init_extra_environ()
 
     def teardown(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+#        model.repo.rebuild_db()
         super(BaseModelApiTestCase, self).teardown()
 
-    def init_extra_environ(self):
-        self.user = model.User.by_name(self.user_name)
-        self.extra_environ={'Authorization' : str(self.user.apikey)}
+    @classmethod
+    def init_extra_environ(cls, user_name):
+        # essentially 'logs you in', so the http_request methods
+        # called elsewhere in this class are run with the specified
+        # user logged in.
+        cls.user = model.User.by_name(user_name)
+        cls.extra_environ={'Authorization' : str(cls.user.apikey)}
 
     def post_json(self, offset, data, status=None, extra_environ=None):
         ''' Posts data in the body in application/json format, used by

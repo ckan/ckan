@@ -1,0 +1,59 @@
+div.category-counts {
+}
+
+div.category-counts-over-time {
+  clear: both;
+}
+
+/***************************
+  * CHART LISTS
+  **************************/
+
+.chartlist { 
+  float: left; 
+  border-top: 1px solid #EEE; 
+  width: 90%;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.chartlist li { 
+  position: relative;
+  display: block;  
+  border-bottom: 1px solid #EEE; 
+  _zoom: 1;
+}
+.chartlist li a { 
+  display: block; 
+  padding: 0.4em 4.5em 0.4em 0.5em;
+  position: relative; 
+  z-index: 2; 
+}
+.chartlist .count { 
+  display: block; 
+  position: absolute; 
+  top: 0; 
+  right: 0; 
+  margin: 0 0.3em; 
+  text-align: right; 
+  color: #999; 
+  font-weight: bold; 
+  font-size: 0.875em; 
+  line-height: 2em; 
+  z-index: 999;
+}
+.chartlist .index { 
+  display: block; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  height: 100%; 
+  background: #B8E4F5; 
+  text-indent: -9999px; 
+  overflow: hidden; 
+  line-height: 2em;
+}
+.chartlist li:hover { 
+  background: #EFEFEF; 
+}
+

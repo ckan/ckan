@@ -1,6 +1,7 @@
 import copy
 
 from ckan import model
+from ckan.lib.create_test_data import CreateTestData
 
 from nose.tools import assert_equal 
 
@@ -11,9 +12,19 @@ from ckan.tests.functional.api.base import ApiUnversionedTestCase as Unversioned
 
 class GroupsTestCase(BaseModelApiTestCase):
 
-    reuse_common_fixtures = True
-    user_name = u'russianfan'
+    @classmethod
+    def setup_class(cls):
+        CreateTestData.create()
+        cls.user_name = u'russianfan' # created in CreateTestData
+        cls.init_extra_environ(cls.user_name)
     
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def teardown(self):
+        self.purge_group_by_name(self.testgroupvalues['name'])
+
     def test_register_get_ok(self):
         offset = self.group_offset()
         res = self.app.get(offset, status=self.STATUS_200_OK)
@@ -32,7 +43,10 @@ class GroupsTestCase(BaseModelApiTestCase):
         assert group
         assert group.title == self.testgroupvalues['title'], group
         assert group.description == self.testgroupvalues['description'], group
-        pkg_names = [pkg.name for pkg in group.packages]
+        pkg_ids = [member.table_id for member in group.member_all]
+        pkgs = model.Session.query(model.Package).filter(model.Package.id.in_(pkg_ids)).all()
+        pkg_names = [pkg.name for pkg in pkgs]
+
         assert set(pkg_names) == set(('annakarenina', 'warandpeace')), pkg_names
 
         # check register updated
@@ -63,6 +77,7 @@ class GroupsTestCase(BaseModelApiTestCase):
     def test_entity_get_ok(self):
         offset = self.group_offset(self.roger.name)
         res = self.app.get(offset, status=self.STATUS_200_OK)
+        
         self.assert_msg_represents_roger(msg=res.body)
         assert self.package_ref_from_name('annakarenina') in res, res
         assert self.group_ref_from_name('roger') in res, res
@@ -95,7 +110,7 @@ class GroupsTestCase(BaseModelApiTestCase):
             model.Session.remove()
             group = model.Group.by_name(self.testgroupvalues['name'])
         assert group
-        assert len(group.packages) == 2, group.packages
+        assert len(group.member_all) == 2, group.member_all
         user = model.User.by_name(self.user_name)
         model.setup_default_user_roles(group, [user])
 
@@ -108,10 +123,14 @@ class GroupsTestCase(BaseModelApiTestCase):
                             extra_environ=self.extra_environ)
         model.Session.remove()
         group = model.Session.query(model.Group).filter_by(name=group_vals['name']).one()
+        package = model.Session.query(model.Package).filter_by(name='annakarenina').one()
         assert group.name == group_vals['name']
         assert group.title == group_vals['title']
-        assert len(group.packages) == 1, group.packages
-        assert group.packages[0].name == group_vals['packages'][0]
+        assert len(group.member_all) == 2, group.member_all
+        assert len([mem for mem in group.member_all if mem.state == 'active']) == 1, group.member_all
+        for mem in group.member_all:
+            if mem.state == 'active':
+                assert mem.table_id == package.id
 
     def test_10_edit_group_name_duplicate(self):
         # create a group with testgroupvalues
