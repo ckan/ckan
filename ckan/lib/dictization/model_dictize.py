@@ -343,7 +343,6 @@ def package_to_api2(pkg, context):
     return dictized
 
 def activity_dictize(activity, context):
-    # TODO: Include any related activity detail items in the activity dict.
     activity_dict = table_dictize(activity, context)
     return activity_dict
 
@@ -353,3 +352,14 @@ def activity_list_dictize(activity_list, context):
         activity_dict = activity_dictize(activity, context)
         activity_dicts.append(activity_dict)
     return activity_dicts
+
+def activity_detail_dictize(activity_detail, context):
+    return table_dictize(activity_detail, context)
+
+def activity_detail_list_dictize(activity_detail_list, context):
+    activity_detail_dicts = []
+    for activity_detail in activity_detail_list:
+        activity_detail_dict = activity_detail_dictize(activity_detail,
+            context)
+        activity_detail_dicts.append(activity_detail_dict)
+    return activity_detail_dicts

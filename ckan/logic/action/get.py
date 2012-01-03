@@ -21,7 +21,8 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 tag_dictize,
                                                 task_status_dictize,
                                                 user_dictize,
-                                                activity_list_dictize)
+                                                activity_list_dictize,
+                                                activity_detail_list_dictize)
 
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
@@ -868,9 +869,19 @@ def status_show(context, data_dict):
         }
 
 def activity_show(context, data_dict):
-    '''Get a user's public activity stream as a list of dicts.'''
+    '''Return a user's public activity stream as a list of dicts.'''
     model = context['model']
     user_id = data_dict['id']
     activity_objects = model.Session.query(
             model.activity.Activity).filter_by(user_id=user_id).all()
     return activity_list_dictize(activity_objects, context)
+
+def activity_detail_show(context, data_dict):
+    '''Return an activity's list of activity detail items, as a list of dicts.
+    
+    '''
+    model = context['model']
+    activity_id = data_dict['id']
+    activity_detail_objects = model.Session.query(
+        model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
+    return activity_detail_list_dictize(activity_detail_objects, context)

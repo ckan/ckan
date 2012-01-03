@@ -8,7 +8,7 @@ from ckan.logic.action.create import package_create
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.delete import package_delete
 from ckan.lib.dictization.model_dictize import resource_list_dictize
-from ckan.logic.action.get import activity_show
+from ckan.logic.action.get import activity_show, activity_detail_show
 
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
@@ -66,11 +66,16 @@ def get_user_activity_stream(user_id):
     data_dict = {'id':user_id}
     return activity_show(context, data_dict)
 
+def get_activity_details(activity):
+    '''Return the list of activity details for the given activity.'''
+    context = {'model': model}
+    data_dict = {'id': activity['id']}
+    return activity_detail_show(context, data_dict)
+
 def record_details(user_id):
     details = {}
     details['user activity stream'] = get_user_activity_stream(user_id)
     details['time'] = datetime.datetime.now()
-    details['details'] = model.Session.query(model.activity.ActivityDetail).all()
     return details
 
 def find_new_activities(before, after):
@@ -132,24 +137,25 @@ class TestActivity:
         # Test that there are three activity details: one for the package
         # itself and one for each of its two resources, and test that each
         # contains the right data.
-        assert len(after['details']) == len(before['details']) + 3
-        new_details = after['details'][-3:]
-        for detail in new_details:
-            assert detail.activity_id == activity['id'], \
-                str(detail.activity_id)
-            assert detail.activity_type == "new", str(detail.activity_type)
-            if detail.object_id == package_created['id']:
-                assert detail.object_type == "Package", str(detail.object_type)
-            elif detail.object_id == package_created['resources'][0]['id']:
-                assert detail.object_type == "Resource", \
-                    str(detail.object_type)
-            elif detail.object_id == package_created['resources'][1]['id']:
-                assert detail.object_type == "Resource", \
-                    str(detail.object_type)
+        details = get_activity_details(activity)
+        assert len(details) == 3
+        for detail in details:
+            assert detail['activity_id'] == activity['id'], \
+                str(detail['activity_id'])
+            assert detail['activity_type'] == "new", str(detail['activity_type'])
+            if detail['object_id'] == package_created['id']:
+                assert detail['object_type'] == "Package", \
+                    str(detail['object_type'])
+            elif detail['object_id'] == package_created['resources'][0]['id']:
+                assert detail['object_type'] == "Resource", \
+                    str(detail['object_type'])
+            elif detail['object_id'] == package_created['resources'][1]['id']:
+                assert detail['object_type'] == "Resource", \
+                    str(detail['object_type'])
             else:
                 assert False, ("Activity detail's object_id did not match"
                     "package or any of its resources: %s" \
-                    % str(detail.object_id))
+                    % str(detail['object_id']))
 
     def test_create_package(self):
         """
@@ -223,16 +229,18 @@ class TestActivity:
             str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
-        assert len(after['details']) == len(before['details']) + 1
-        detail = after['details'][-1]
-        assert detail.activity_id == activity['id'], str(detail.activity_id)
+        details = get_activity_details(activity)        
+        assert len(details) == 1
+        detail = details[0]
+        assert detail['activity_id'] == activity['id'], \
+            str(detail['activity_id'])
         new_resource_ids = [id for id in resource_ids_after if id not in
                 resource_ids_before]
         assert len(new_resource_ids) == 1
         new_resource_id = new_resource_ids[0]
-        assert detail.object_id == new_resource_id, str(detail.object_id)
-        assert detail.object_type == "Resource", str(detail.object_type)
-        assert detail.activity_type == "new", str(detail.activity_type)
+        assert detail['object_id'] == new_resource_id, str(detail['object_id'])
+        assert detail['object_type'] == "Resource", str(detail['object_type'])
+        assert detail['activity_type'] == "new", str(detail['activity_type'])
 
     def test_add_resources(self):
         """
@@ -304,12 +312,15 @@ class TestActivity:
             str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
-        assert len(after['details']) == len(before['details']) + 1
-        detail = after['details'][-1]
-        assert detail.activity_id == activity['id'], str(detail.activity_id)
-        assert detail.object_id == package.id, str(detail.object_id)
-        assert detail.object_type == "Package", str(detail.object_type)
-        assert detail.activity_type == "changed", str(detail.activity_type)
+        details = get_activity_details(activity)
+        assert len(details) == 1
+        detail = details[0]
+        assert detail['activity_id'] == activity['id'], \
+            str(detail['activity_id'])
+        assert detail['object_id'] == package.id, str(detail['object_id'])
+        assert detail['object_type'] == "Package", str(detail['object_type'])
+        assert detail['activity_type'] == "changed", \
+            str(detail['activity_type'])
 
     def test_update_package(self):
         """
@@ -382,12 +393,15 @@ class TestActivity:
             str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
-        assert len(after['details']) == len(before['details']) + 1
-        detail = after['details'][-1]
-        assert detail.activity_id == activity['id'], str(detail.activity_id)
-        assert detail.object_id == resource.id, str(detail.object_id)
-        assert detail.object_type == "Resource", str(detail.object_type)
-        assert detail.activity_type == "changed", str(detail.activity_type)
+        details = get_activity_details(activity)
+        assert len(details) == 1
+        detail = details[0]
+        assert detail['activity_id'] == activity['id'], \
+            str(detail['activity_id'])
+        assert detail['object_id'] == resource.id, str(detail['object_id'])
+        assert detail['object_type'] == "Resource", str(detail['object_type'])
+        assert detail['activity_type'] == "changed", \
+            str(detail['activity_type'])
 
     def test_update_resource(self):
         """
@@ -461,14 +475,17 @@ class TestActivity:
             str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
-        assert len(after['details']) == len(before['details']) + 1
-        detail = after['details'][-1]
-        assert detail.activity_id == activity['id'], str(detail.activity_id)
-        assert detail.object_id == package.id, str(detail.object_id)
-        assert detail.object_type == "Package", str(detail.object_type)
+        details = get_activity_details(activity)
+        assert len(details) == 1
+        detail = details[0]        
+        assert detail['activity_id'] == activity['id'], \
+            str(detail['activity_id'])
+        assert detail['object_id'] == package.id, str(detail['object_id'])
+        assert detail['object_type'] == "Package", str(detail['object_type'])
         # "Deleted" packages actually show up as changed (the package's status
         # changes to "deleted" but the package is not expunged).
-        assert detail.activity_type == "changed", str(detail.activity_type)
+        assert detail['activity_type'] == "changed", \
+            str(detail['activity_type'])
 
     def test_delete_package(self):
         """
@@ -525,19 +542,18 @@ class TestActivity:
             str(activity['timestamp'])
 
         # Test for the presence of correct activity detail items.
-        if num_resources == 0:
-            assert len(after['details']) == len(before['details'])
-        else:
-            assert len(after['details']) == len(before['details']) + \
-                num_resources
-            new_details = after['details'][-num_resources:]
-            for detail in new_details:
-                assert detail.activity_id == activity['id'], \
-                    "activity_id should be %s but is %s" \
-                    % (activity['id'], detail.activity_id)
-                assert detail.object_id in resource_ids, str(detail.object_id)
-                assert detail.object_type == "Resource", str(detail.object_type)
-                assert detail.activity_type == "changed", str(detail.activity_type)
+        details = get_activity_details(activity)
+        assert len(details) == num_resources        
+        for detail in details:
+            assert detail['activity_id'] == activity['id'], \
+                "activity_id should be %s but is %s" \
+                % (activity['id'], detail['activity_id'])
+            assert detail['object_id'] in resource_ids, \
+                str(detail['object_id'])
+            assert detail['object_type'] == "Resource", \
+                str(detail['object_type'])
+            assert detail['activity_type'] == "changed", \
+                str(detail['activity_type'])
 
     def test_delete_resources(self):
         """
