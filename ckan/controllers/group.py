@@ -42,9 +42,13 @@ def register_pluggable_behaviour(map):
             _default_controller_behaviour = plugin
 
         for group_type in plugin.group_types():
-            # Create the routes based on group_type here.....
-            map.connect('/%s/new' % (group_type,), controller='group', action='new')                
-            map.connect('%s_read' % (group_type,), '/%s/{id}' %  (group_type,), controller='group', action='read')                        
+            # Create the routes based on group_type here, this will allow us to have top level
+            # objects that are actually Groups, but first we need to make sure we are not 
+            # clobbering an existing domain
+            map.connect('%s_new' % (group_type,), 
+                        '/%s/new' % (group_type,), controller='group', action='new')                
+            map.connect('%s_read' % (group_type,), 
+                        '/%s/{id}' %  (group_type,), controller='group', action='read')                        
             map.connect('%s_action' % (group_type,),
                         '/%s/{action}/{id}' % (group_type,), controller='group',
                 requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))

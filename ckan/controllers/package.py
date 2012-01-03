@@ -66,7 +66,7 @@ def register_pluggable_behaviour(map):
     exception will be raised.
     """
     global _default_controller_behaviour
-
+    
     # Check this method hasn't been invoked already.
     # TODO: This method seems to be being invoked more than once during running of
     #       the tests.  So I've disbabled this check until I figure out why.
@@ -84,7 +84,13 @@ def register_pluggable_behaviour(map):
 
         for package_type in plugin.package_types():
             # Create a connection between the newly named type and the package controller
+            # but first we need to make sure we are not clobbering an existing domain
             map.connect('/%s/new' % (package_type,), controller='package', action='new')    
+            map.connect('%s_read' % (package_type,), '/%s/{id}' %  (package_type,), controller='package', action='read')                        
+            map.connect('%s_action' % (package_type,),
+                        '/%s/{action}/{id}' % (package_type,), controller='package',
+                requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
+            )            
                     
             if package_type in _controller_behaviour_for:
                 raise ValueError, "An existing IDatasetForm is "\
