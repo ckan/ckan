@@ -34,11 +34,13 @@ class TestPagination(TestController):
     def test_search(self):
         res = self.app.get(url_for(controller='package', action='search', q='groups:group_00'))
         assert 'href="/dataset?q=groups%3Agroup_00&amp;page=2"' in res
-        assert 'href="/dataset/package_19"' in res
+        assert 'href="/dataset/package_00"' in res, res
+        assert 'href="/dataset/package_19"' in res, res
 
         res = self.app.get(url_for(controller='package', action='search', q='groups:group_00', page=2))
         assert 'href="/dataset?q=groups%3Agroup_00&amp;page=1"' in res
         assert 'href="/dataset/package_20"' in res
+        assert 'href="/dataset/package_39"' in res
 
     def test_group_index(self):
         res = self.app.get(url_for(controller='group', action='index'))
