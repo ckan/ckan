@@ -231,18 +231,19 @@ def make_map():
 
     # These named routes are used for custom group forms which will use the 
     # names below based on the group.type (dataset_group is the default type)
-    map.connect('dataset_group_index', '/group', controller='group', action='index')
-    map.connect('dataset_group_list', '/group/list', controller='group', action='list')
-    map.connect('dataset_group_new',  '/group/new', controller='group', action='new')    
-    map.connect('dataset_group_action', '/group/{action}/{id}', controller='group',
+    map.connect('group_index', '/group', controller='group', action='index')
+    map.connect('group_list', '/group/list', controller='group', action='list')
+    map.connect('group_new',  '/group/new', controller='group', action='new')    
+    map.connect('group_action', '/group/{action}/{id}', controller='group',
         requirements=dict(action='|'.join([
         'edit',
         'authz',
         'history'
         ]))
         )
-    map.connect('dataset_group_read', '/group/{id}', controller='group', action='read')
-    
+    map.connect('group_read', '/group/{id}', controller='group', action='read')
+
+
     register_package_behaviour(map)
     register_group_behaviour(map)    
     

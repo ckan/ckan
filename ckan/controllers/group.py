@@ -32,7 +32,7 @@ def register_pluggable_behaviour(map):
     exception will be raised.
     """
     global _default_controller_behaviour
-
+    
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in PluginImplementations(IGroupForm):
         if plugin.is_fallback():
@@ -45,6 +45,12 @@ def register_pluggable_behaviour(map):
             # Create the routes based on group_type here, this will allow us to have top level
             # objects that are actually Groups, but first we need to make sure we are not 
             # clobbering an existing domain
+            from routes import url_for
+
+            u = url_for('/%s/new' % (group_type,) ) 
+            if u != '%s_new' % (group_type,):
+                raise Exception, "Plugin %r would overwrite the default group urls" % plugin
+            
             map.connect('%s_new' % (group_type,), 
                         '/%s/new' % (group_type,), controller='group', action='new')                
             map.connect('%s_read' % (group_type,), 
@@ -325,7 +331,7 @@ class GroupController(BaseController):
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
-            data_dict['type'] = group_type or 'dataset_group'
+            data_dict['type'] = group_type or 'group'
             context['message'] = data_dict.get('log_message', '')
             group = get_action('group_create')(context, data_dict)
             
