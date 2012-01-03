@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-11-16 18:02+0000\n"
-"PO-Revision-Date: 2011-11-16 18:03+0000\n"
-"Last-Translator: dread <internet@davidread.org>\n"
+"PO-Revision-Date: 2011-11-24 21:42+0000\n"
+"Last-Translator: Augusto Herrmann <augusto.herrmann@gmail.com>\n"
 "Language-Team: Portuguese (Brazilian) (http://www.transifex.net/projects/p/ckan/team/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -152,7 +152,7 @@ msgstr ""
 #: ckan/controllers/api.py:578
 #, python-format
 msgid "Bad slug type: %s"
-msgstr ""
+msgstr "Tipo inválido de slug: %s"
 
 #: ckan/controllers/authorization_group.py:44
 #, python-format
@@ -189,7 +189,7 @@ msgstr "Não autorizado a ler o grupo %s"
 
 #: ckan/controllers/group.py:86
 msgid "Cannot render description"
-msgstr ""
+msgstr "Não foi possível exibir a descrição"
 
 #: ckan/controllers/group.py:161 ckan/controllers/group_formalchemy.py:93
 #: ckan/controllers/package.py:374 ckan/controllers/package_formalchemy.py:93
@@ -224,7 +224,8 @@ msgstr "Mensagem de log: "
 
 #: ckan/controllers/home.py:35
 msgid "This site is currently off-line. Database is not initialised."
-msgstr "Este sítio"
+msgstr ""
+"Este sítio está desconectado no momento. Base de dados não inicializada."
 
 #: ckan/controllers/home.py:77
 msgid "Invalid language specified"
@@ -242,7 +243,7 @@ msgstr "Nenhum idioma informado!"
 #: ckan/controllers/package.py:200
 #, python-format
 msgid "Invalid revision format: %r"
-msgstr "Formato de revisão inválido: %r"
+msgstr "Formato inválido de revisão: %r"
 
 #: ckan/controllers/package.py:210 ckan/controllers/package.py:242
 #: ckan/controllers/package.py:279 ckan/controllers/package.py:364
@@ -308,12 +309,12 @@ msgstr "Etiqueta não encontrada"
 
 #: ckan/controllers/user.py:129
 msgid "Unauthorized to create a user"
-msgstr "Não autorizado a criar usuário"
+msgstr "Não autorizado a criar um usuário"
 
 #: ckan/controllers/user.py:151
 #, python-format
 msgid "Unauthorized to create user %s"
-msgstr "Não autorizado a criar usuário %s"
+msgstr "Não autorizado a criar o usuário %s"
 
 #: ckan/controllers/user.py:153 ckan/controllers/user.py:201
 #: ckan/controllers/user.py:230 ckan/controllers/user.py:324
@@ -333,7 +334,7 @@ msgstr "Nenhum usuário especificado"
 #: ckan/controllers/user.py:342
 #, python-format
 msgid "Unauthorized to edit user %s"
-msgstr "Não autorizado a editar usuário %s"
+msgstr "Não autorizado a editar o usuário %s"
 
 #: ckan/controllers/user.py:206
 #, python-format
@@ -342,7 +343,7 @@ msgstr "Usuário %s não está autorizado a editar %s"
 
 #: ckan/controllers/user.py:225
 msgid "Profile updated"
-msgstr ""
+msgstr "Perfil atualizado"
 
 #: ckan/controllers/user.py:259
 #, python-format
@@ -371,7 +372,7 @@ msgstr "Não foi possível enviar link para redefinir: %s"
 
 #: ckan/controllers/user.py:328
 msgid "Invalid reset key. Please try again."
-msgstr "Chave de redefinição incorreta. Por favor, tente novamente."
+msgstr "Chave de redefinição inválida. Por favor, tente novamente."
 
 #: ckan/controllers/user.py:339
 msgid "Your password has been reset."
@@ -424,17 +425,17 @@ msgstr "Recurso(s) do conjunto de dados incompleto(s)."
 #: ckan/forms/common.py:517 ckan/logic/validators.py:150
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
-msgstr "Comprimento da Etiqueta \"%s\" é menor que o mínimo %s"
+msgstr "Comprimento da etiqueta \"%s\" é menor que o mínimo %s"
 
 #: ckan/forms/common.py:519 ckan/logic/validators.py:162
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr "A Etiqueta \"%s\" deve conter caracteres alfanuméricos ou símbolos: -_."
+msgstr "A etiqueta \"%s\" deve conter caracteres alfanuméricos ou símbolos: -_."
 
 #: ckan/forms/common.py:521 ckan/logic/validators.py:170
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
-msgstr "A Etiqueta \"%s\" não pode ter caixa alta"
+msgstr "A etiqueta \"%s\" não pode ter caixa alta"
 
 #: ckan/forms/common.py:538 ckan/logic/validators.py:128
 #, python-format
@@ -730,7 +731,7 @@ msgstr "Chave em branco"
 #: ckan/lib/mailer.py:21
 #, python-format
 msgid "Dear %s,"
-msgstr "prezado(a) %s,"
+msgstr "Prezado(a) %s,"
 
 #: ckan/lib/mailer.py:34
 #, python-format
@@ -739,7 +740,7 @@ msgstr "%s <%s>"
 
 #: ckan/lib/mailer.py:58
 msgid "No recipient email address available!"
-msgstr "Nenhum endereço de destinatário de mail disponível!"
+msgstr "Nenhum endereço de destinatário de e-mail disponível!"
 
 #: ckan/lib/mailer.py:63
 #, python-format
@@ -759,7 +760,7 @@ msgstr ""
 #: ckan/lib/mailer.py:95 ckan/templates/user/perform_reset.html:6
 #: ckan/templates/user/perform_reset.html:14
 msgid "Reset your password"
-msgstr "Mude sua senha"
+msgstr "Redefina sua senha"
 
 #: ckan/lib/package_saver.py:29
 msgid "Cannot render package description"
@@ -806,15 +807,17 @@ msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
 msgstr ""
+"Url deve conter puramente caracteres alfanuméricos (ascii) em caixa baixa e "
+"estes símbolos: "
 
 #: ckan/logic/validators.py:114
 msgid "That URL is already in use."
-msgstr ""
+msgstr "Essa URL já está em uso."
 
 #: ckan/logic/validators.py:154
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
-msgstr ""
+msgstr "O comprimento da etiqueta \"%s\" é maior que o máximo %i"
 
 #: ckan/logic/validators.py:221
 msgid "That login name is not available."
@@ -903,7 +906,7 @@ msgstr "Recurso não foi encontrado."
 #: ckan/logic/action/update.py:327
 #, python-format
 msgid "REST API: Update object %s"
-msgstr "REST API: Atualiza o objeto %s"
+msgstr "API REST: Atualiza o objeto %s"
 
 #: ckan/logic/action/update.py:205 ckan/logic/action/update.py:245
 msgid "Package was not found."
@@ -916,7 +919,7 @@ msgstr "API REST: Atualizar relacionamento entre pacotes: %s %s %s"
 
 #: ckan/logic/action/update.py:378
 msgid "TaskStatus was not found."
-msgstr ""
+msgstr "TaskStatus não foi encontrado."
 
 #: ckan/logic/auth/create.py:13
 #, python-format
@@ -978,7 +981,7 @@ msgstr "Usuário %s não autorizado a excluir o grupo %s"
 #: ckan/logic/auth/delete.py:55
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr ""
+msgstr "Usuário %s não está autorizado a excluir "
 
 #: ckan/logic/auth/get.py:78
 #, python-format
@@ -993,13 +996,13 @@ msgstr "Usuário %s não autorizado a ler o pacote %s"
 #: ckan/logic/auth/get.py:105 ckan/logic/auth/update.py:38
 msgid "No package found for this resource, cannot check auth."
 msgstr ""
-"Nenhum pacote encontrado para este recurso, não foi possível checar a "
+"Nenhum pacote encontrado para este recurso, não foi possível verificar a "
 "autenticação."
 
 #: ckan/logic/auth/get.py:111
 #, python-format
 msgid "User %s not authorized to read resource %s"
-msgstr ""
+msgstr "Usuário %s não está autorizado a ler o recurso %s"
 
 #: ckan/logic/auth/get.py:126
 #, python-format
@@ -1014,7 +1017,7 @@ msgstr "Usuário %s não autorizado a editar o pacote %s"
 #: ckan/logic/auth/update.py:44
 #, python-format
 msgid "User %s not authorized to read edit %s"
-msgstr ""
+msgstr "Usuário %s não está autorizado a ler editar %s"
 
 #: ckan/logic/auth/update.py:58
 #, python-format
@@ -1060,7 +1063,7 @@ msgstr "Usuário %s não autorizado a alterar o estado de revisão"
 #: ckan/logic/auth/update.py:155
 #, python-format
 msgid "User %s not authorized to update task_status table"
-msgstr ""
+msgstr "Usuário %s não está autorizado a atualizar a tabela "
 
 #: ckan/logic/auth/update.py:165
 msgid "Valid API key needed to edit a package"
@@ -1224,15 +1227,15 @@ msgstr "Olá, mundo!"
 
 #: ckan/templates/js_strings.html:18
 msgid "Checking..."
-msgstr ""
+msgstr "Verificando..."
 
 #: ckan/templates/js_strings.html:19
 msgid "This URL is available!"
-msgstr ""
+msgstr "Esta URL está disponível!"
 
 #: ckan/templates/js_strings.html:20
 msgid "This URL is already used, please use a different one."
-msgstr ""
+msgstr "Esta URL já é utilizada, por favor use uma diferente."
 
 #: ckan/templates/js_strings.html:22
 msgid "Failed to save, possibly due to invalid data "
@@ -1244,7 +1247,7 @@ msgstr "Adicionar Conjunto de Dados"
 
 #: ckan/templates/js_strings.html:24
 msgid "Add Group"
-msgstr ""
+msgstr "Adicionar Grupo"
 
 #: ckan/templates/js_strings.html:25
 msgid ""
@@ -1260,11 +1263,11 @@ msgstr "Carregando ..."
 
 #: ckan/templates/js_strings.html:27
 msgid "(no name)"
-msgstr ""
+msgstr "(nenhum nome)"
 
 #: ckan/templates/js_strings.html:28
 msgid "Delete the resource '%name%'?"
-msgstr ""
+msgstr "Excluir o recurso '%name%'?"
 
 #: ckan/templates/js_strings.html:33
 msgid "File URL"
@@ -1331,7 +1334,7 @@ msgstr "ID"
 
 #: ckan/templates/js_strings.html:49
 msgid "Done"
-msgstr ""
+msgstr "Pronto"
 
 #: ckan/templates/js_strings.html:50
 msgid "This resource has unsaved changes."
@@ -1343,19 +1346,19 @@ msgstr "Primeira vez em"
 
 #: ckan/templates/layout_base.html:51
 msgid "? Visit our"
-msgstr ""
+msgstr "? Visite nossa"
 
 #: ckan/templates/layout_base.html:51
 msgid "About page"
-msgstr ""
+msgstr "página Sobre"
 
 #: ckan/templates/layout_base.html:51
 msgid "to find out more."
-msgstr ""
+msgstr "para conhecer mais."
 
 #: ckan/templates/layout_base.html:52
 msgid "x"
-msgstr ""
+msgstr "x"
 
 #: ckan/templates/layout_base.html:59
 msgid "My account"
@@ -1459,7 +1462,7 @@ msgstr "Licenciado sob a"
 
 #: ckan/templates/layout_base.html:203
 msgid "Open Database License"
-msgstr "Licença de Banco de Dados Aberto"
+msgstr "Licença Aberta para de Bancos de Dados"
 
 #: ckan/templates/layout_base.html:204
 msgid "This Content and Data is Open"
@@ -1467,7 +1470,7 @@ msgstr "Este Conteúdo e Dados são Abertos"
 
 #: ckan/templates/layout_base.html:206
 msgid "Powered by"
-msgstr "Desenvolvido por"
+msgstr "Impulsionado por"
 
 #: ckan/templates/layout_base.html:207
 msgid "CKAN"
@@ -1695,7 +1698,7 @@ msgstr "Grupos de Conjuntos de Dados"
 
 #: ckan/templates/group/index.html:11
 msgid "What Are Groups?"
-msgstr ""
+msgstr "O que são Grupos?"
 
 #: ckan/templates/group/index.html:12
 msgid ""
@@ -1715,15 +1718,15 @@ msgstr "Histórico"
 
 #: ckan/templates/group/layout.html:26
 msgid "List Groups"
-msgstr ""
+msgstr "Listar Grupos"
 
 #: ckan/templates/group/layout.html:29
 msgid "Add a Group"
-msgstr ""
+msgstr "Adicionar um Grupo"
 
 #: ckan/templates/group/new.html:5 ckan/templates/group/new.html:6
 msgid "Add A Group"
-msgstr ""
+msgstr "Adicionar Um Grupo"
 
 #: ckan/templates/group/new_group_form.html:8
 #: ckan/templates/package/form.html:7
@@ -1744,7 +1747,7 @@ msgstr "O formulário contém entradas inválidas:"
 #: ckan/templates/group/new_group_form.html:22
 #: ckan/templates/package/new_package_form.html:44
 msgid "(edit)"
-msgstr ""
+msgstr "(editar)"
 
 #: ckan/templates/group/new_group_form.html:26
 msgid "2+ chars, lowercase, using only 'a-z0-9' and '-_'"
@@ -1995,11 +1998,11 @@ msgstr "Informação Básica"
 
 #: ckan/templates/package/edit.html:22
 msgid "Futher Information"
-msgstr ""
+msgstr "Mais Informações"
 
 #: ckan/templates/package/edit.html:24
 msgid "Groups & Tags"
-msgstr ""
+msgstr "Grupos & Etiquetas"
 
 #: ckan/templates/package/edit_form.html:13
 #: ckan/templates/package/new_package_form.html:203
@@ -2400,7 +2403,7 @@ msgstr "E-Mail:"
 
 #: ckan/templates/user/edit_user_form.html:22
 msgid "OpenID:"
-msgstr ""
+msgstr "OpenID:"
 
 #: ckan/templates/user/edit_user_form.html:25
 msgid "About:"
@@ -2428,11 +2431,11 @@ msgstr "Senha (repita):"
 
 #: ckan/templates/user/edit_user_form.html:49
 msgid "Change your username"
-msgstr ""
+msgstr "Altere o seu nome de usuário"
 
 #: ckan/templates/user/edit_user_form.html:51
 msgid "Username:"
-msgstr ""
+msgstr "Nome de usuário:"
 
 #: ckan/templates/user/layout.html:11
 msgid "My Profile"
@@ -2448,11 +2451,11 @@ msgstr "Sair"
 
 #: ckan/templates/user/layout.html:19
 msgid "View Profile"
-msgstr ""
+msgstr "Visualizar Perfil"
 
 #: ckan/templates/user/layout.html:25
 msgid "Register Account"
-msgstr ""
+msgstr "Registar Conta"
 
 #: ckan/templates/user/list.html:8
 msgid "user-list"
@@ -2527,7 +2530,7 @@ msgstr "Sair - Usuário"
 
 #: ckan/templates/user/logout.html:8
 msgid "Logout from"
-msgstr ""
+msgstr "Sair de"
 
 #: ckan/templates/user/logout.html:11
 msgid "You have logged out successfully."
@@ -2539,7 +2542,7 @@ msgstr "Registrar - Usuário"
 
 #: ckan/templates/user/new.html:6
 msgid "Register for a new Account"
-msgstr ""
+msgstr "Registrar uma nova Conta"
 
 #: ckan/templates/user/new_user_form.html:18
 msgid "3+ chars, using only 'a-z0-9' and '-_'"
@@ -2551,7 +2554,7 @@ msgstr "Nome completo (opcional)"
 
 #: ckan/templates/user/new_user_form.html:25
 msgid "E-Mail"
-msgstr ""
+msgstr "E-Mail"
 
 #: ckan/templates/user/read.html:5
 msgid "- User"
