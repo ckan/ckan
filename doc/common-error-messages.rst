@@ -130,3 +130,9 @@ This sort of message may be seen if you swap between different branches of CKAN.
 ==================================================================
 
 This occurs when installing CKAN source to a virtual environment when using an old version of pip. (e.g. pip 0.3.1 which comes with Ubuntu). Instead you should use pip 1.0.2 or higher, which will be found in your virtual environment: ``pyenv/bin/pip``
+
+``sqlalchemy.exc.IntegrityError: (IntegrityError) could not create unique index "user_name_key``
+================================================================================================
+
+This occurs when upgrading to CKAN 1.5.1 with a database with duplicate user names. See :ref:`upgrading`
+

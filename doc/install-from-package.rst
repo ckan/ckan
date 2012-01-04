@@ -687,20 +687,6 @@ Install the new CKAN and update all the dependencies:
 
 Now you need to make some manual changes. In the following commands replace ``std`` with the name of your CKAN instance. Perform these steps for each instance you wish to upgrade.
 
-#. Upgrade the database
-
-   First install pastescript:
-
-   ::
-   
-       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/pip install --ignore-installed pastescript
-
-   Then upgrade the database:
-
-   ::
-
-       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db upgrade --config=/etc/ckan/std/std.ini
-
 #. Upgrade the Solr schema
 
    Configure ``ckan.site_url`` or ``ckan.site_id`` in ``/etc/ckan/std/std.ini`` for SOLR search-index rebuild to work. eg:
@@ -718,11 +704,33 @@ Now you need to make some manual changes. In the following commands replace ``st
        sudo rm /usr/share/solr/conf/schema.xml
        sudo ln -s /usr/lib/pymodules/python2.6/ckan/config/solr/schema-1.3.xml /usr/share/solr/conf/schema.xml
 
-   Rebuild the search index (this can take some time):
+#. Upgrade the database
+
+   First install pastescript:
+
+   ::
+   
+       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/pip install --ignore-installed pastescript
+
+   Then upgrade the database:
 
    ::
 
-       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan search index rebuild --config=/etc/ckan/std/std.ini
+       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db upgrade --config=/etc/ckan/std/std.ini
+
+   If you get error ``sqlalchemy.exc.IntegrityError: (IntegrityError) could not create unique index "user_name_key`` then you need to rename users with duplicate names before it will work. For example::
+
+        sudo -u ckanstd paster --plugin=pylons shell /etc/ckan/std/std.ini
+        model.meta.engine.execute('SELECT name, count(name) AS NumOccurrences FROM "user" GROUP BY name HAVING(COUNT(name)>0);').fetchall()
+        users = model.Session.query(model.User).filter_by(name='https://www.google.com/accounts/o8/id?id=ABCDEF').all()
+        users[1].name = users[1].name[:-1]
+        model.repo.commit_and_remove()
+
+#. Rebuild the search index (this can take some time):
+
+   ::
+
+       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan search-index rebuild --config=/etc/ckan/std/std.ini
 
 #. Restart Apache
 
