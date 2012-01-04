@@ -48,9 +48,6 @@ class Authorizer(object):
             username = username.decode('utf8')
         assert isinstance(username, unicode), type(username)
         
-        if len(username) == 0:
-            return False
-            
         for extension in cls.extensions:
             authorized = extension.is_authorized(username,
                                                  action,
