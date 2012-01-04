@@ -14,9 +14,10 @@
 # Packages already on pypi.python.org
 solrpy==0.9.4
 formalchemy==1.4.1
+pairtree==0.7.1-T
+ofs>=0.4.1
 
 apachemiddleware==0.1.1
 licenses==0.6.1
 # markupsafe is required by webhelpers==1.2 required by formalchemy with SQLAlchemy 0.6
 markupsafe==0.9.2
-
