@@ -1,15 +1,10 @@
-import webtest
 from ckan.tests import TestController
 from ckan.tests import is_search_supported
 
 class TestCORS(TestController):
 
     def test_options(self):
-        # need webtest as it has request method
-        self.ourapp = webtest.TestApp(self.wsgiapp)
-        out = self.ourapp.request('/', method='OPTIONS')
-        assert out.status_int == 200, out
-        print out
+        out = self.app._gen_request(method='OPTIONS', url='/', status=200)
         assert len(str(out.body)) == 0, 'OPTIONS must return no content'
 
     def test_headers(self):
