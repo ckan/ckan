@@ -278,6 +278,40 @@ def make_map():
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
     
+    # Storage routes
+    map.connect('storage_api', "/api/storage", 
+                controller='storage_api', action='index')
+    map.connect('storage_api_set_metadata', '/api/storage/metadata/{label:.*}', 
+                controller='storage_api', action='set_metadata',
+                conditions={'method': ['PUT','POST']})
+    map.connect('storage_api_get_metadata', '/api/storage/metadata/{label:.*}', 
+                controller='storage_api', action='get_metadata',
+                conditions={'method': ['GET']})
+    map.connect('storage_api_auth_request',
+                '/api/storage/auth/request/{label:.*}',
+                controller='storage_api',
+                action='auth_request')
+    map.connect('storage_api_auth_form',
+                '/api/storage/auth/form/{label:.*}',
+                controller='storage_api',
+                action='auth_form')
+    map.connect('storage_upload', '/storage/upload',
+                controller='storage',
+                action='upload')
+    map.connect('storage_upload_handle', '/storage/upload_handle',
+                controller='storage',
+                action='upload_handle')
+    map.connect('storage_upload_success', '/storage/upload/success',
+                controller='storage',
+                action='success')
+    map.connect('storage_upload_success_empty', '/storage/upload/success_empty',
+                controller='storage',
+                action='success_empty')
+    map.connect('storage_file', '/storage/f/{label:.*}',
+                controller='storage',
+                action='file')
+    
+    
     for plugin in routing_plugins:
         map = plugin.after_map(map)
     

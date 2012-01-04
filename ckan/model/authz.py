@@ -47,7 +47,8 @@ class Action(Enum):
     SITE_READ = u'read-site'
     USER_READ = u'read-user'
     USER_CREATE = u'create-user'
-
+    UPLOAD_ACTION = u'file-upload'
+    
 class Role(Enum):
     ADMIN = u'admin'
     EDITOR = u'editor'
@@ -67,12 +68,14 @@ default_role_actions = [
     (Role.EDITOR, Action.USER_READ),
     (Role.EDITOR, Action.SITE_READ),
     (Role.EDITOR, Action.READ),
+    (Role.EDITOR, Action.UPLOAD_ACTION),    
     (Role.ANON_EDITOR, Action.EDIT),
     (Role.ANON_EDITOR, Action.PACKAGE_CREATE),
     (Role.ANON_EDITOR, Action.USER_CREATE),
     (Role.ANON_EDITOR, Action.USER_READ),
     (Role.ANON_EDITOR, Action.SITE_READ),
     (Role.ANON_EDITOR, Action.READ),
+    (Role.ANON_EDITOR, Action.UPLOAD_ACTION),        
     (Role.READER, Action.USER_CREATE),
     (Role.READER, Action.USER_READ),
     (Role.READER, Action.SITE_READ),
