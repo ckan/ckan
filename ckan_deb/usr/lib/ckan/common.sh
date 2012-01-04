@@ -112,9 +112,10 @@ ckan_create_config_file () {
         fi
         sed -e "s,^\(email_to\)[ =].*,\1 = root," \
             -e "s,^\(error_email_from\)[ =].*,\1 = ckan-${INSTANCE}@`hostname`," \
+            -e "s,# ckan\.site_id = ckan.net,ckan.site_id = ${INSTANCE}," \
             -e "s,^\(cache_dir\)[ =].*,\1 = /var/lib/ckan/${INSTANCE}/data," \
             -e "s,^\(who\.config_file\)[ =].*,\1 = /etc/ckan/${INSTANCE}/who.ini," \
-            -e "s,ckan\.log,/var/log/ckan/${INSTANCE}/${INSTANCE}.log," \
+            -e "s,\"ckan\.log\",\"/var/log/ckan/${INSTANCE}/${INSTANCE}.log\"," \
             -e "s,#solr_url = http://127.0.0.1:8983/solr,solr_url = http://127.0.0.1:8983/solr," \
             -i /etc/ckan/${INSTANCE}/${INSTANCE}.ini
         sudo chown ckan${INSTANCE}:ckan${INSTANCE} /etc/ckan/${INSTANCE}/${INSTANCE}.ini
