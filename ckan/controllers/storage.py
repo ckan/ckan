@@ -15,6 +15,7 @@ from ckan.lib.jsonp import jsonpify
 import ckan.model as model
 import ckan.authz as authz
 
+
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -154,9 +155,9 @@ class StorageController(BaseController):
         self.ofs.put_stream(bucket_id, label, stream.file, params)
         success_action_redirect = h.url_for('storage_upload_success', qualified=True,
                 bucket=BUCKET, label=label)
-        # Cannot redirect here as it breaks js file uploads (get infinite loop
+        # Do not redirect here as it breaks js file uploads (get infinite loop
         # in FF and crash in Chrome)
-        # h.redirect_to(success_action_redirect)
+
         return self.success(label)
 
     def success(self, label=None):
@@ -167,6 +168,18 @@ class StorageController(BaseController):
                 qualified=True
                 )
         c.upload_url = h.url_for('storage_upload')
+        
+        # TODO:
+        # Publish a job onto the queue for the archiver so that it can check
+        # this resource and upload to somewhere else out of bounds to this 
+        # request
+        # from ckan.lib.celery_app import celery
+        # from ckan.model.types import make_uuid
+        # task_id = make_uuid()
+        # context = {}
+        # data = label
+        # celery.send_task("archiver.upload", args=[context, data], task_id=task_id)
+        
         return render('storage/success.html')
 
     def success_empty(self, label=None):
