@@ -1,20 +1,21 @@
 CKAN CHANGELOG
 ++++++++++++++
 
-v1.5.1 XXXX-XX-XX
+v1.5.1 2011-01-04
 =================
 
 Major:
  * Background tasks (#1363, #1371, #1408)
+ * Fix for security issue affecting CKAN v1.5 (#1585)
 
 Minor:
  * Web UI improvements:
-  * Resource editing refreshed
-  * Group editing refreshed
-  * Indication that group creation requires logging-in (#1004)
-  * Users' pictures displayed using Gravatar (#1409)
-  * 'Welcome' banner shown to new users (#1378)
-  * Group package list now ordered alphabetically (#1502)
+    * Resource editing refreshed
+    * Group editing refreshed
+    * Indication that group creation requires logging-in (#1004)
+    * Users' pictures displayed using Gravatar (#1409)
+    * 'Welcome' banner shown to new users (#1378)
+    * Group package list now ordered alphabetically (#1502)
  * Allow managing a dataset's groups also via package entity API (#1381)
  * Dataset listings in API standardised (#1490)
  * Search ordering by modification and creation date (#191)
@@ -44,6 +45,8 @@ Bug fixes:
 
 v1.5 2011-11-07
 ===============
+**Deprecated due to security issue #1585**
+
 Major:
  * New visual theme (#1108)
     * Package & Resource edit overhaul (#1294/#1348/#1351/#1368/#1296)
