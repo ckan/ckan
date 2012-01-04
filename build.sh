@@ -68,7 +68,7 @@ cp ${CKAN_PATH}/build/buildkit/env/build/licenses/dist/buildkit/*.deb ${CKAN_PAT
 echo "done."
 
 # Add the .debs to the repository and the export the latest files for upload
-echo "Adding the packages to the $REPO_NAME repo ..."
-sudo -u buildkit buildkit repo remove -a $REPO_NAME
+echo "Adding the packages to the $REPO_NAME repo using files in ${CKAN_PATH}/dist/buildkit/*.deb ..."
+sudo -u buildkit buildkit repo remove -a $REPO_NAME dummy_arg
 sudo -u buildkit buildkit repo add $REPO_NAME ${CKAN_PATH}/dist/buildkit/*.deb
 echo "done."
