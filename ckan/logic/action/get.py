@@ -439,6 +439,9 @@ def group_package_show(context, data_dict):
     if limit:
         query = query.limit(limit)
 
+    if context.get('return_query'):
+        return query
+
     result = []
     for pkg_rev in query.all():
         result.append(package_dictize(pkg_rev, context))
