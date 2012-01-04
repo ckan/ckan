@@ -54,11 +54,11 @@ class TestPagination(TestController):
     def test_group_read(self):
         res = self.app.get(url_for(controller='group', action='read', id='group_00'))
         assert 'href="/group/group_00?page=2' in res
-        assert 'href="/dataset/package_49"' in res
+        assert 'href="/dataset/package_29"' in res
 
         res = self.app.get(url_for(controller='group', action='read', id='group_00', page=2))
         assert 'href="/group/group_00?page=1' in res
-        assert 'href="/dataset/package_50"' in res
+        assert 'href="/dataset/package_30"' in res
 
     def test_users_index(self):
         # allow for 2 extra users shown on user listing, 'logged_in' and 'visitor'
