@@ -109,7 +109,10 @@ This is how cores are defined::
     </solr>
 
 Note that each core has its own data directory. This is really important to
-prevent conflicts between cores.
+prevent conflicts between cores. Create them like this::
+
+    sudo mkdir /var/lib/solr/data/core0
+    sudo mkdir /var/lib/solr/data/core1
 
 For each core, we will create a folder with its name in `/usr/share/solr`,
 with a symbolic link to a specific configuration folder in `/etc/solr/`.
