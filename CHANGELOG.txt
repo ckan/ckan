@@ -9,6 +9,7 @@ Major:
  * Fix for security issue affecting CKAN v1.5 (#1585)
 
 Minor:
+ * Language support now excellent for European languages: en de fr it es no sv pl ru pt cs sr ca
  * Web UI improvements:
     * Resource editing refreshed
     * Group editing refreshed
