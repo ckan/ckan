@@ -126,7 +126,7 @@ class StorageController(BaseController):
         acl = 'public-read'
         fields = [ {
                 'name': self.ofs.conn.provider.metadata_prefix + 'uploaded-by',
-                'value': c.userobj.id
+                'value': c.userobj.name
                 }]
         conditions = [ '{"%s": "%s"}' % (x['name'], x['value']) for x in fields ]
         c.data = self.ofs.conn.build_post_form_args(
@@ -169,8 +169,8 @@ class StorageController(BaseController):
             abort(400, "No file stream.")
         del params['file']
         params['filename-original'] = stream.filename
-        params['_owner'] = c.userobj.id if c.userobj else ""
-        params['uploaded-by'] = c.userobj.id if c.userobj else ""
+        params['_owner'] = c.userobj.name if c.userobj else ""
+        params['uploaded-by'] = c.userobj.name if c.userobj else ""
         
         self.ofs.put_stream(bucket_id, label, stream.file, params)
         success_action_redirect = h.url_for('storage_upload_success', qualified=True,
@@ -377,7 +377,7 @@ class StorageAPIController(BaseController):
         acl = 'public-read'
         fields = [ {
                 'name': self.ofs.conn.provider.metadata_prefix + 'uploaded-by',
-                'value': c.userobj.id
+                'value': c.userobj.name
                 }]
         conditions = [ '{"%s": "%s"}' % (x['name'], x['value']) for x in
                 fields ]
