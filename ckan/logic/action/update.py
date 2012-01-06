@@ -379,7 +379,7 @@ def task_status_update(context, data_dict):
 
         if task_status is None:
             raise NotFound(_('TaskStatus was not found.'))
-
+    
     check_access('task_status_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
