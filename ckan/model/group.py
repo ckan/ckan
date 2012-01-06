@@ -57,7 +57,7 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
             DomainObject):
-    def __init__(self, name=u'', title=u'', description=u'', type=u'dataset_group'):
+    def __init__(self, name=u'', title=u'', description=u'', type=u'group'):
         self.name = name
         self.title = title
         self.description = description

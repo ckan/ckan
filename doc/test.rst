@@ -99,6 +99,13 @@ By default, tests are run using the model defined in ``ckan/model``, but by usin
 
    A common error when wanting to run tests against a particular database is to change ``sqlalchemy.url`` in ``test.ini`` or ``test-core.ini``. The problem is that these are versioned files and people have checked in these by mistake, creating problems for other developers and the CKAN buildbot. This is easily avoided by only changing ``sqlalchemy.url`` in your local ``development.ini`` and testing ``--with-pylons=test-core.ini``.
 
+Testing Core Extensions
+-----------------------
+
+Some extensions are in the CKAN core codebase and have their own suite of tests. For example::
+
+    nosetests --ckan ckanext/stats/tests
+
 Common error messages
 ---------------------
 

@@ -101,3 +101,13 @@ This suggests that the config file specified with the paster ``--config`` parame
 ===========================================
 
 This occurs when trying to ``import migrate.exceptions`` and is due to the version of sqlalchemy-migrate being used is too old - check the requires files for the version needed.
+
+``ckan.plugins.core.PluginNotFoundException: stats``
+====================================================
+
+After the CKAN 1.5.1 release, the Stats extension was merged into the core CKAN code, and the ckanext namespace needs registering before the tests will run::
+
+         cd pyenv/src/ckan
+         python setup.py develop
+
+Otherwise, this problem may be to enabling an extension which is not installed. See: :doc:`extensions`_.
