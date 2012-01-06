@@ -177,7 +177,6 @@ class StorageController(BaseController):
                 bucket=BUCKET, label=label)
         # Do not redirect here as it breaks js file uploads (get infinite loop
         # in FF and crash in Chrome)
-
         return self.success(label)
 
     def success(self, label=None):
@@ -187,19 +186,7 @@ class StorageController(BaseController):
                 label=label, 
                 qualified=True
                 )
-        c.upload_url = h.url_for('storage_upload')
-        
-        # TODO:
-        # Publish a job onto the queue for the archiver so that it can check
-        # this resource and upload to somewhere else out of bounds to this 
-        # request
-        # from ckan.lib.celery_app import celery
-        # from ckan.model.types import make_uuid
-        # task_id = make_uuid()
-        # context = {}
-        # data = label
-        # celery.send_task("archiver.upload", args=[context, data], task_id=task_id)
-        
+        c.upload_url = h.url_for('storage_upload')        
         return render('storage/success.html')
 
     def success_empty(self, label=None):
@@ -212,13 +199,11 @@ class StorageController(BaseController):
             # handle erroneous trailing slash by redirecting to url w/o slash
             if label.endswith('/'):
                 label = label[:-1]
-                file_url = h.url_for(
-                    'storage_file',
-                    label=label
-                    )
+                file_url = h.url_for( 'storage_file', label=label )
                 h.redirect_to(file_url)
             else:
                 abort(404)
+                
         file_url = self.ofs.get_url(BUCKET, label)
         if file_url.startswith("file://"):
             metadata = self.ofs.get_metadata(BUCKET, label)
