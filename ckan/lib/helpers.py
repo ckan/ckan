@@ -255,13 +255,12 @@ class Page(paginate.Page):
         )
         return super(Page, self).pager(*args, **kwargs)
 
-def render_datetime(datetime_):
+def render_datetime(datetime_, date_format='%Y-%m-%d %H:%M'):
     '''Render a datetime object or timestamp string as a pretty string
     (Y-m-d H:m).
     If timestamp is badly formatted, then a blank string is returned.
     '''
     from ckan import model
-    date_format = '%Y-%m-%d %H:%M'
     if isinstance(datetime_, datetime.datetime):
         return datetime_.strftime(date_format)
     elif isinstance(datetime_, basestring):

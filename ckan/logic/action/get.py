@@ -31,7 +31,9 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 tag_to_api1,
                                                 tag_to_api2)
 from ckan.lib.search import query_for, SearchError
+from ckan.lib.base import render
 import logging
+from webhelpers.html import literal
 
 log = logging.getLogger('ckan.logic')
 
@@ -885,3 +887,94 @@ def activity_detail_list(context, data_dict):
     activity_detail_objects = model.Session.query(
         model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
     return activity_detail_list_dictize(activity_detail_objects, context)
+
+def render_new_package_activity(context, activity):
+
+    # FIXME: Get package from 'data' key of activity dict, not from model.
+    package = package_show(context=context,
+        data_dict={'id': activity['object_id']})
+
+    return render('activity_streams/new_package.html',
+        extra_vars = {'activity':activity, 'package':package})
+
+def render_new_resource_activity(context, activity, detail):
+
+    # FIXME: Get package from 'data' key of activity dict, not from model.
+    package = package_show(context=context,
+        data_dict={'id': activity['object_id']})
+
+    # FIXME: Get resource from 'data' key of detail dict, not from model, then
+    # won't have to skip resources that have since been deleted from model.
+    try:
+        resource = resource_show(context=context,
+            data_dict={'id': detail['object_id']})
+    except NotFound:
+        return ''
+
+    return render('activity_streams/new_resource.html',
+        extra_vars = {'activity': activity, 'package': package, 'resource':
+          resource})
+
+def render_changed_resource_activity(context, activity, detail):
+
+    # FIXME: Get package from 'data' key of activity dict, not from model.
+    package = package_show(context=context,
+        data_dict={'id': activity['object_id']})
+
+    # FIXME: Get resource from 'data' key of detail dict, not from model, then
+    # won't have to skip resources that have since been deleted from model.
+    try:
+        resource = resource_show(context=context,
+            data_dict={'id': detail['object_id']})
+    except NotFound:
+        return ''
+
+    return render('activity_streams/changed_resource.html',
+        extra_vars = {'activity': activity, 'package': package, 'resource':
+          resource})
+
+def render_changed_package_activity(context, activity):
+    details = activity_detail_list(context=context,
+        data_dict={'id': activity['id']})
+    if len(details) == 1:
+        detail = details[0]
+        activity_detail_renderers = {
+            'Resource': {
+              'new': render_new_resource_activity,
+              'changed': render_changed_resource_activity
+              }
+            }
+        object_type = detail['object_type']
+        if activity_detail_renderers.has_key(object_type):
+            activity_type = detail['activity_type']
+            if activity_detail_renderers[object_type].has_key(activity_type):
+                renderer = activity_detail_renderers[object_type][activity_type]
+                return renderer(context, activity, detail)
+    
+    # FIXME: Get package from 'data' key of activity dict, not from model.
+    package = package_show(context=context,
+        data_dict={'id': activity['object_id']})
+
+    return render('activity_streams/changed_package.html',
+        extra_vars = {'activity':activity, 'package':package})
+
+# Global dictionary mapping activity types to functions that render activity
+# dicts to HTML snippets for including in HTML pages.
+activity_renderers = {
+  'new package' : render_new_package_activity,
+  'changed package' : render_changed_package_activity,
+  }
+
+def user_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of a user's public activity stream.
+    
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = user_activity_list(context, data_dict)
+    html = []
+    for activity in reversed(activity_stream):
+        activity_type = activity['activity_type']
+        html.append(activity_renderers[activity_type](context, activity))
+    return literal('\n'.join(html))

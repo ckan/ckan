@@ -196,6 +196,12 @@
     <img py:otherwise="" src="${h.icon_url('arrow_down_grey')}" title="No downloadable resources." alt="" />
   </py:def>
 
+  <py:def function="resource_summary(pkg, res)">
+      <a href="${h.url_for(controller='package', action='resource_read', id=pkg.id, resource_id=res.id)}">
+         ${h.resource_display_name(res)}
+      </a>
+  </py:def>
+
   <!--! Used by group listing -->
   <py:def function="package_summary(pkg)">
       <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">
