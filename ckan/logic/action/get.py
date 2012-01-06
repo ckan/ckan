@@ -892,49 +892,16 @@ def activity_detail_list(context, data_dict):
     return activity_detail_list_dictize(activity_detail_objects, context)
 
 def render_new_package_activity(context, activity):
-
-    # FIXME: Get package from 'data' key of activity dict, not from model.
-    package = package_show(context=context,
-        data_dict={'id': activity['object_id']})
-
     return render('activity_streams/new_package.html',
-        extra_vars = {'activity':activity, 'package':package})
+        extra_vars = {'activity': activity})
 
 def render_new_resource_activity(context, activity, detail):
-
-    # FIXME: Get package from 'data' key of activity dict, not from model.
-    package = package_show(context=context,
-        data_dict={'id': activity['object_id']})
-
-    # FIXME: Get resource from 'data' key of detail dict, not from model, then
-    # won't have to skip resources that have since been deleted from model.
-    try:
-        resource = resource_show(context=context,
-            data_dict={'id': detail['object_id']})
-    except NotFound:
-        return ''
-
     return render('activity_streams/new_resource.html',
-        extra_vars = {'activity': activity, 'package': package, 'resource':
-          resource})
+        extra_vars = {'activity': activity, 'detail': detail})
 
 def render_changed_resource_activity(context, activity, detail):
-
-    # FIXME: Get package from 'data' key of activity dict, not from model.
-    package = package_show(context=context,
-        data_dict={'id': activity['object_id']})
-
-    # FIXME: Get resource from 'data' key of detail dict, not from model, then
-    # won't have to skip resources that have since been deleted from model.
-    try:
-        resource = resource_show(context=context,
-            data_dict={'id': detail['object_id']})
-    except NotFound:
-        return ''
-
     return render('activity_streams/changed_resource.html',
-        extra_vars = {'activity': activity, 'package': package, 'resource':
-          resource})
+        extra_vars = {'activity': activity, 'detail': detail})
 
 def render_changed_package_activity(context, activity):
     details = activity_detail_list(context=context,
@@ -954,12 +921,8 @@ def render_changed_package_activity(context, activity):
                 renderer = activity_detail_renderers[object_type][activity_type]
                 return renderer(context, activity, detail)
     
-    # FIXME: Get package from 'data' key of activity dict, not from model.
-    package = package_show(context=context,
-        data_dict={'id': activity['object_id']})
-
     return render('activity_streams/changed_package.html',
-        extra_vars = {'activity':activity, 'package':package})
+        extra_vars = {'activity': activity})
 
 # Global dictionary mapping activity types to functions that render activity
 # dicts to HTML snippets for including in HTML pages.

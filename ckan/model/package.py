@@ -543,17 +543,22 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return fields
 
     def activity_stream_item(self, activity_type, revision, user_id):
+        import ckan.model as model
+        from ckan.lib.dictization.model_dictize import package_dictize
         assert activity_type in ("new", "changed", "deleted"), \
             str(activity_type)
         if activity_type == "new":
-            return Activity(user_id, self.id, revision.id, "new package", None)
+            return Activity(user_id, self.id, revision.id, "new package",
+                {'package': package_dictize(self, context={'model':model})})
         elif activity_type == "changed":
             return Activity(user_id, self.id, revision.id, "changed package",
-                    None)
+                {'package': package_dictize(self, context={'model':model})})
         elif activity_type == "deleted":
             return Activity(user_id, self.id, revision.id, "deleted package",
-                    None)
+                {'package': package_dictize(self, context={'model':model})})
 
     def activity_stream_detail(self, activity_id, activity_type):
+        import ckan.model as model
+        from ckan.lib.dictization.model_dictize import package_dictize
         return ActivityDetail(activity_id, self.id, u"Package", activity_type, 
-            data=None)
+            {'package': package_dictize(self, context={'model':model})})
