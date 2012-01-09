@@ -169,7 +169,7 @@ class StorageController(BaseController):
             abort(400, "No file stream.")
         del params['file']
         params['filename-original'] = stream.filename
-        params['_owner'] = c.userobj.name if c.userobj else ""
+        #params['_owner'] = c.userobj.name if c.userobj else ""
         params['uploaded-by'] = c.userobj.name if c.userobj else ""
         
         self.ofs.put_stream(bucket_id, label, stream.file, params)
