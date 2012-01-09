@@ -10,7 +10,7 @@
     <ul class="tabbed">
       <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}">${h.subnav_link(c, h.icon('package') + _('View'), controller='package', action='read', id=c.pkg.name)}</li>
       <py:choose>
-      <py:when test="len(c.pkg_dict.get('resources'))==0">
+      <py:when test="len(c.pkg_dict.get('resources', []))==0">
         <li class="disabled">
           ${h.icon('package-disabled') + _('Resources')} &nbsp;&nbsp;<img class="dropdown-arrow" src="/images/icons/arrow-open.gif"/>
         </li>

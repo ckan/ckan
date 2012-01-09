@@ -17,9 +17,9 @@ Make sure you've created a config file at ``pyenv/ckan/development.ini``. Then a
 
     . pyenv/bin/activate
 
-Install nose and ckanclient into your virtual environment::
+Install nose and other test-specific dependencies into your virtual environment::
 
-    pip install --ignore-installed nose ckanclient
+    pip install --ignore-installed -r pyenv/src/ckan/pip-requirements-test.txt
 
 At this point you will need to deactivate and then re-activate your
 virtual environment to ensure that all the scripts point to the correct

@@ -45,6 +45,7 @@
       <input type="hidden" name="action" value="verify" />
       <fieldset>
         <legend i18n:msg="site_title">Login using Open ID</legend>
+        <p i18n:msg="site_title">NB: To set-up your OpenID for this site, you first need to <a href="${h.url_for(controller='user', action='register')}">Register</a> and then edit your Profile to provide your OpenID.</p>
         <div id="openid_choice">
           <p>Please click your account provider:</p>
           <div id="openid_btns"></div>

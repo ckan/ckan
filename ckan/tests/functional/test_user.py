@@ -32,6 +32,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
     @classmethod
     def teardown_class(self):
+        # clear routes 'id' so that next test to run doesn't get it
+        self.app.get(url_for(controller='user', action='login', id=None))
         SmtpServerHarness.teardown_class()
         model.repo.rebuild_db()
 

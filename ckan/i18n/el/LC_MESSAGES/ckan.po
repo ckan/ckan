@@ -1,58 +1,27 @@
-# Greek translations for ckan.
+# Translations template for ckan.
 # Copyright (C) 2011 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
+# 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-11-16 18:02+0000\n"
-"PO-Revision-Date: 2011-11-29 11:29+0100\n"
+"PO-Revision-Date: 2011-11-16 18:03+0000\n"
 "Last-Translator: dread <internet@davidread.org>\n"
 "Language-Team: Greek (http://www.transifex.net/projects/p/ckan/team/el/)\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
+"Language: el\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: ckan/new_authz.py:18
 #, python-format
 msgid "Authorization function not found: %s"
 msgstr ""
-
-#: ckan/controllers/admin.py:19
-msgid "Need to be system administrator to administer"
-msgstr ""
-
-#: ckan/controllers/admin.py:105 ckan/lib/base.py:403
-#, fuzzy
-#| msgid "Changes"
-msgid "Changes Saved"
-msgstr "Αλλαγές"
-
-#: ckan/controllers/admin.py:142 ckan/lib/base.py:431
-#, fuzzy, python-format
-#| msgid "Unknown register: %s"
-msgid "unknown user:"
-msgstr "Άγνωστη Καταχώρηση: %s"
-
-#: ckan/controllers/admin.py:152 ckan/lib/base.py:443
-msgid "User Added"
-msgstr ""
-
-#: ckan/controllers/admin.py:159 ckan/lib/base.py:450
-#, fuzzy
-#| msgid "New Authorization Group"
-msgid "unknown authorization group:"
-msgstr "Νέα εξουσιοδοτημένη ομάδα:"
-
-#: ckan/controllers/admin.py:169 ckan/lib/base.py:462
-#, fuzzy
-#| msgid "Authorization Groups"
-msgid "Authorization Group Added"
-msgstr "Εξουσιοδοτημένες Ομάδες"
 
 #: ckan/controllers/admin.py:268
 #, python-format
@@ -61,20 +30,11 @@ msgid ""
 "packages %s"
 msgstr ""
 
-#: ckan/controllers/admin.py:287
-#, python-format
-msgid "Problem purging revision %s: %s"
-msgstr ""
-
-#: ckan/controllers/admin.py:289
+#: ckan/controllers/admin.py:290
 msgid "Purge complete"
 msgstr ""
 
-#: ckan/controllers/admin.py:291
-msgid "Action not implemented."
-msgstr ""
-
-#: ckan/controllers/api.py:38 ckan/controllers/authorization_group.py:22
+#: ckan/controllers/api.py:37 ckan/controllers/authorization_group.py:22
 #: ckan/controllers/group.py:58 ckan/controllers/home.py:27
 #: ckan/controllers/package.py:110 ckan/controllers/revision.py:29
 #: ckan/controllers/tag.py:22 ckan/controllers/user.py:31
@@ -83,109 +43,110 @@ msgstr ""
 msgid "Not authorized to see this page"
 msgstr ""
 
-#: ckan/controllers/api.py:97 ckan/controllers/api.py:161
+#: ckan/controllers/api.py:96 ckan/controllers/api.py:159
 msgid "Access denied"
 msgstr "Αδύνατη Πρόσβαση"
 
-#: ckan/controllers/api.py:103 ckan/controllers/api.py:166
+#: ckan/controllers/api.py:102 ckan/controllers/api.py:164
 msgid "Not found"
 msgstr "Δεν βρέθηκε"
 
-#: ckan/controllers/api.py:111
+#: ckan/controllers/api.py:110
 msgid "Bad request"
 msgstr ""
 
-#: ckan/controllers/api.py:139
+#: ckan/controllers/api.py:138
 #, python-format
 msgid "Action name not known: %s"
 msgstr ""
 
-#: ckan/controllers/api.py:149 ckan/controllers/api.py:271
-#: ckan/controllers/api.py:330
+#: ckan/controllers/api.py:148 ckan/controllers/api.py:269
+#: ckan/controllers/api.py:327
 #, python-format
 msgid "JSON Error: %s"
 msgstr "Λάθος JSON: %s"
 
-#: ckan/controllers/api.py:157 ckan/controllers/api.py:299
-#: ckan/controllers/api.py:352 ckan/controllers/group.py:182
+#: ckan/controllers/api.py:156 ckan/controllers/api.py:297
+#: ckan/controllers/api.py:349 ckan/controllers/group.py:182
 #: ckan/controllers/group.py:201 ckan/controllers/package.py:454
 #: ckan/controllers/package.py:483 ckan/controllers/user.py:155
 #: ckan/controllers/user.py:232 ckan/controllers/user.py:346
 msgid "Integrity Error"
 msgstr "Λάθος ακεραιότητας"
 
-#: ckan/controllers/api.py:200
+#: ckan/controllers/api.py:198
 #, python-format
 msgid "Cannot list entity of this type: %s"
 msgstr "Δεν παρέχεται λίστα μιας οντότητας αυτού του τύπου: %s"
 
-#: ckan/controllers/api.py:234
+#: ckan/controllers/api.py:232
 #, python-format
 msgid "Cannot read entity of this type: %s"
 msgstr "Δεν μπορείτε να διαβάσετε μια οντότητα αυτού του τύπου: %s"
 
-#: ckan/controllers/api.py:278
+#: ckan/controllers/api.py:276
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr "Δεν είναι δυνατή η δημιουργία μιας οντότητας αυτού του τύπου: %s %s"
 
-#: ckan/controllers/api.py:303
+#: ckan/controllers/api.py:300
 msgid "Unable to add package to search index"
 msgstr ""
 
-#: ckan/controllers/api.py:336
+#: ckan/controllers/api.py:333
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr "Δεν είναι δυνατή η ενημέρωση μιας οντότητας αυτού του τύπου: %s"
 
-#: ckan/controllers/api.py:356
+#: ckan/controllers/api.py:352
 msgid "Unable to update search index"
 msgstr ""
 
-#: ckan/controllers/api.py:382
+#: ckan/controllers/api.py:378
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr "Δεν είναι δυνατή η διαγραφή μιας οντότητας αυτού του τύπου: %s %s"
 
-#: ckan/controllers/api.py:406
+#: ckan/controllers/api.py:402
 msgid "No revision specified"
 msgstr ""
 
-#: ckan/controllers/api.py:410
+#: ckan/controllers/api.py:406
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr "Δεν υπάρχει έκδοση με id: %s"
 
-#: ckan/controllers/api.py:420
+#: ckan/controllers/api.py:416
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
-msgstr "Ελλειπή στοιχεία αναζήτησης ('since_id=UUID' or 'since_time=TIMESTAMP')"
+msgstr ""
+"Ελλειπή στοιχεία αναζήτησης ('since_id=UUID' or 'since_time=TIMESTAMP')"
 
-#: ckan/controllers/api.py:428
+#: ckan/controllers/api.py:424
 #, python-format
 msgid "Could not read parameters: %r"
 msgstr ""
 
-#: ckan/controllers/api.py:475
+#: ckan/controllers/api.py:471
 #, python-format
 msgid "Bad search option: %s"
 msgstr "Λάθος επιλογή αναζήτησης: %s"
 
-#: ckan/controllers/api.py:478
+#: ckan/controllers/api.py:474
 #, python-format
 msgid "Unknown register: %s"
 msgstr "Άγνωστη Καταχώρηση: %s"
 
-#: ckan/controllers/api.py:486
+#: ckan/controllers/api.py:482
 msgid "Malformed qjson value"
 msgstr ""
 
-#: ckan/controllers/api.py:495
+#: ckan/controllers/api.py:491
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr ""
 "Οι παράμετροι που ζητούνται πρέπει να είναι ακολουθούν την μορφή λεξικού "
 "json encoded."
 
-#: ckan/controllers/api.py:582
+#: ckan/controllers/api.py:578
 #, python-format
 msgid "Bad slug type: %s"
 msgstr ""
@@ -238,7 +199,7 @@ msgstr "Ο χρήστης %r δεν έχει δικαίωμα επεξεργασ
 #: ckan/controllers/package.py:281 ckan/controllers/package.py:366
 #: ckan/controllers/package.py:399 ckan/controllers/package.py:419
 #: ckan/controllers/package.py:452 ckan/controllers/package.py:481
-#: ckan/controllers/package.py:527 ckan/controllers/package.py:641
+#: ckan/controllers/package.py:527
 msgid "Package not found"
 msgstr "Το πακέτο δεν βρέθηκε"
 
@@ -266,7 +227,7 @@ msgstr ""
 msgid "Invalid language specified"
 msgstr ""
 
-#: ckan/controllers/home.py:85 ckan/controllers/home.py:87
+#: ckan/controllers/home.py:85
 msgid "Language has been set to: English"
 msgstr ""
 
@@ -284,7 +245,6 @@ msgstr ""
 #: ckan/controllers/package.py:279 ckan/controllers/package.py:364
 #: ckan/controllers/package.py:397 ckan/controllers/package.py:417
 #: ckan/controllers/package.py:450 ckan/controllers/package.py:479
-#: ckan/controllers/package.py:643
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr "Δεν έχετε δικαίωμα ανάγνωσης του πακέτου %s"
@@ -312,21 +272,9 @@ msgstr ""
 #: ckan/controllers/package.py:500
 #, python-format
 msgid ""
-"<span class=\"new-dataset\">Congratulations, your dataset has been "
-"created. <a href=\"%s\">Upload or link some data now &raquo;</a></span>"
+"<span class=\"new-dataset\">Congratulations, your dataset has been created. "
+"<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
 msgstr ""
-
-#: ckan/controllers/package.py:634
-#, fuzzy
-#| msgid "Group not found"
-msgid "Resource not found"
-msgstr "Δεν βρέθηκε η Ομάδα"
-
-#: ckan/controllers/package.py:636
-#, fuzzy, python-format
-#| msgid "Unauthorized to read package %s"
-msgid "Unauthorized to read resource %s"
-msgstr "Δεν έχετε δικαίωμα ανάγνωσης του πακέτου %s"
 
 #: ckan/controllers/revision.py:40
 msgid "CKAN Repository Revision History"
@@ -345,7 +293,7 @@ msgstr "Πακέτα που επηρεάστηκαν: %s.\n"
 msgid "Revision updated"
 msgstr ""
 
-#: ckan/controllers/tag.py:54 ckan/forms/common.py:941
+#: ckan/controllers/tag.py:54 ckan/forms/common.py:933
 msgid "Other"
 msgstr "Άλλο"
 
@@ -396,10 +344,6 @@ msgstr ""
 msgid "%s is now logged in"
 msgstr ""
 
-#: ckan/controllers/user.py:262
-msgid "Login failed. Bad username or password."
-msgstr ""
-
 #: ckan/controllers/user.py:299
 #, python-format
 msgid "\"%s\" matched several users"
@@ -427,10 +371,6 @@ msgstr ""
 msgid "Your password has been reset."
 msgstr ""
 
-#: ckan/controllers/user.py:359
-msgid "Error: Could not parse About text"
-msgstr ""
-
 #: ckan/controllers/user.py:367
 msgid "Your password must be 4 characters or longer."
 msgstr ""
@@ -439,7 +379,7 @@ msgstr ""
 msgid "The passwords you entered do not match."
 msgstr ""
 
-#: ckan/forms/common.py:25 ckan/logic/validators.py:96
+#: ckan/forms/common.py:25 ckan/logic/validators.py:94
 #, python-format
 msgid "Name must be at least %s characters long"
 msgstr "Το μήκος του ονόματος πρέπει να είναι τουλάχιστον %s χαρακτήρες"
@@ -456,7 +396,7 @@ msgstr ""
 msgid "Dataset name already exists in database"
 msgstr ""
 
-#: ckan/forms/common.py:53 ckan/logic/validators.py:166
+#: ckan/forms/common.py:53 ckan/logic/validators.py:144
 msgid "Group name already exists in database"
 msgstr "Το όνομα της ομάδας υπάρχει ήδη στην βάση δεδομένων"
 
@@ -465,7 +405,7 @@ msgstr "Το όνομα της ομάδας υπάρχει ήδη στην βά�
 msgid "Value does not match required format: %s"
 msgstr "Η τιμή που δεν ταιριάζει με το απαιτούμενο format: %s"
 
-#: ckan/forms/common.py:159 ckan/forms/common.py:789
+#: ckan/forms/common.py:159 ckan/forms/common.py:781
 #: ckan/templates/admin/trash.html:29
 #: ckan/templates/package/new_package_form.html:127
 msgid "(None)"
@@ -475,42 +415,50 @@ msgstr "(κενό)"
 msgid "Dataset resource(s) incomplete."
 msgstr ""
 
-#: ckan/forms/common.py:527 ckan/logic/validators.py:172
+#: ckan/forms/common.py:517 ckan/logic/validators.py:150
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
 msgstr "Το μήκος του tag \"%s\" είναι μικρότερο από το ελάχιστο απαιτούμενο %s"
 
-#: ckan/forms/common.py:529
+#: ckan/forms/common.py:519 ckan/logic/validators.py:162
 #, python-format
-msgid "Tag \"%s\" must not contain any quotation marks: \""
+msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
 msgstr ""
+"Το Tag \"%s\" αποτελούνται από αλφαριθμητικούς χαρακτήρες ή τα σύμβολα - και"
+" _"
 
-#: ckan/forms/common.py:546 ckan/logic/validators.py:150
+#: ckan/forms/common.py:521 ckan/logic/validators.py:170
+#, python-format
+msgid "Tag \"%s\" must not be uppercase"
+msgstr "Το Tag \"%s\" δεν μπορεί να περιέχει κεφαλαίους χαρακτήρες"
+
+#: ckan/forms/common.py:538 ckan/logic/validators.py:128
 #, python-format
 msgid "Duplicate key \"%s\""
 msgstr "Διπλό κλειδί  \"%s\""
 
-#: ckan/forms/common.py:549
+#: ckan/forms/common.py:541
 #, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
-msgstr "Επιπλέον ζεύγος κλειδιού-τιμής: δεν έχει τεθεί κλειδί για την τιμή \"%s\"."
+msgstr ""
+"Επιπλέον ζεύγος κλειδιού-τιμής: δεν έχει τεθεί κλειδί για την τιμή \"%s\"."
 
-#: ckan/forms/common.py:799 ckan/templates/package/new_package_form.html:133
+#: ckan/forms/common.py:791 ckan/templates/package/new_package_form.html:133
 msgid "Cannot add any groups."
 msgstr "Δεν μπορείτε να δημιουργήσετε ομάδες"
 
-#: ckan/forms/common.py:814 ckan/templates/package/new_package_form.html:124
+#: ckan/forms/common.py:806 ckan/templates/package/new_package_form.html:124
 msgid "Group"
 msgstr "Ομάδα"
 
-#: ckan/forms/common.py:844
+#: ckan/forms/common.py:836
 #, python-format
 msgid ""
 "Can't derived new group selection from serialized value structured like "
 "this: %s"
 msgstr ""
 
-#: ckan/forms/common.py:924
+#: ckan/forms/common.py:916
 msgid "other - please specify"
 msgstr "άλλο - προσδιορίστε"
 
@@ -546,8 +494,8 @@ msgstr ""
 
 #: ckan/forms/package.py:35
 msgid ""
-"It should not be a description though - save that for the Notes field. Do"
-" not give a trailing full stop."
+"It should not be a description though - save that for the Notes field. Do "
+"not give a trailing full stop."
 msgstr ""
 
 #: ckan/forms/package.py:39
@@ -556,9 +504,9 @@ msgstr ""
 
 #: ckan/forms/package.py:40
 msgid ""
-"It should be broadly humanly readable, in the spirit of Semantic Web "
-"URIs. Only use an acronym if it is widely recognised. Renaming is "
-"possible but discouraged."
+"It should be broadly humanly readable, in the spirit of Semantic Web URIs. "
+"Only use an acronym if it is widely recognised. Renaming is possible but "
+"discouraged."
 msgstr ""
 
 #: ckan/forms/package.py:41 ckan/templates/package/new_package_form.html:48
@@ -579,14 +527,14 @@ msgstr ""
 
 #: ckan/forms/package.py:55 ckan/templates/package/new_package_form.html:151
 msgid ""
-"The name of the main contact, for enquiries about this particular "
-"dataset, using the e-mail address in the following field."
+"The name of the main contact, for enquiries about this particular dataset, "
+"using the e-mail address in the following field."
 msgstr ""
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:158
 msgid ""
-"If there is another important contact person (in addition to the person "
-"in the Author field) then provide details here."
+"If there is another important contact person (in addition to the person in "
+"the Author field) then provide details here."
 msgstr ""
 
 #: ckan/forms/package.py:63
@@ -609,12 +557,12 @@ msgstr "Tags"
 #: ckan/forms/package.py:69
 #, python-format
 msgid ""
-"Comma-separated terms that may link this dataset to similar ones. For "
-"more information on conventions, see <a href=\"%s\">this wiki page</a>."
+"Terms that may link this dataset to similar ones. For more information on "
+"conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:143
-msgid "e.g. pollution, rivers, water quality"
+msgid "e.g. pollution rivers water-quality"
 msgstr ""
 
 #: ckan/forms/package.py:74
@@ -623,18 +571,17 @@ msgstr ""
 
 #: ckan/forms/package.py:75
 msgid ""
-"<br />These can be repeated as required. For example if the data is being"
-" supplied in multiple formats, or split into different areas or time "
-"periods, each file is a different 'resource' which should be described "
-"differently. They will all appear on the dataset page on CKAN "
-"together.<br /><br /> <b>URL:</b> This is the Internet link directly to "
-"the data - by selecting this link in a web browser, the user will "
-"immediately download the full data set. Note that datasets are not hosted"
-" on this site, but by the publisher of the data. Alternatively the URL "
-"can point to an API server such as a SPARQL endpoint or JSON-P "
-"service.<br /> <b>Format:</b> This should give the file format in which "
-"the data is supplied. <br /><b>Description</b> Any information you want "
-"to add to describe the resource.<br />"
+"<br />These can be repeated as required. For example if the data is being "
+"supplied in multiple formats, or split into different areas or time periods,"
+" each file is a different 'resource' which should be described differently. "
+"They will all appear on the dataset page on CKAN together.<br /><br /> "
+"<b>URL:</b> This is the Internet link directly to the data - by selecting "
+"this link in a web browser, the user will immediately download the full data"
+" set. Note that datasets are not hosted on this site, but by the publisher "
+"of the data. Alternatively the URL can point to an API server such as a "
+"SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the"
+" file format in which the data is supplied. <br /><b>Description</b> Any "
+"information you want to add to describe the resource.<br />"
 msgstr ""
 
 #: ckan/forms/package.py:76
@@ -653,10 +600,9 @@ msgstr ""
 
 #: ckan/forms/package.py:82
 msgid ""
-"It is often displayed with the package title. In particular, it should "
-"start with a short sentence that describes the data set succinctly, "
-"because the first few words alone may be used in some views of the data "
-"sets."
+"It is often displayed with the package title. In particular, it should start"
+" with a short sentence that describes the data set succinctly, because the "
+"first few words alone may be used in some views of the data sets."
 msgstr ""
 
 #: ckan/forms/package.py:83
@@ -745,11 +691,6 @@ msgstr ""
 msgid "Key blank"
 msgstr ""
 
-#: ckan/lib/i18n.py:193
-#, python-format
-msgid "Could not change language to %r: %s"
-msgstr ""
-
 #: ckan/lib/mailer.py:21
 #, python-format
 msgid "Dear %s,"
@@ -787,7 +728,7 @@ msgstr ""
 msgid "No web page given"
 msgstr ""
 
-#: ckan/lib/package_saver.py:95 ckan/logic/validators.py:47
+#: ckan/lib/package_saver.py:107 ckan/logic/validators.py:45
 msgid "No links are allowed in the log_message."
 msgstr "Δεν επιτρέπονται υπερσύνδεσμοι στο log_message"
 
@@ -795,100 +736,64 @@ msgstr "Δεν επιτρέπονται υπερσύνδεσμοι στο log_me
 msgid "No valid API key provided."
 msgstr ""
 
-#: ckan/logic/validators.py:16
+#: ckan/logic/validators.py:14
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
 msgstr ""
 
-#: ckan/logic/validators.py:28
+#: ckan/logic/validators.py:26
 msgid "Invalid integer"
 msgstr ""
 
-#: ckan/logic/validators.py:38
+#: ckan/logic/validators.py:36
 msgid "Date format incorrect"
 msgstr ""
 
-#: ckan/logic/validators.py:57 ckan/logic/validators.py:83
+#: ckan/logic/validators.py:55 ckan/logic/validators.py:81
 msgid "Dataset was not found."
 msgstr ""
 
-#: ckan/logic/validators.py:68
+#: ckan/logic/validators.py:66
 #, python-format
 msgid "Dataset with name %r does not exist."
 msgstr ""
 
-#: ckan/logic/validators.py:98
-#, fuzzy, python-format
-#| msgid "Name must be at least %s characters long"
-msgid "Name must be a maximum of %i characters long"
-msgstr "Το μήκος του ονόματος πρέπει να είναι τουλάχιστον %s χαρακτήρες"
-
-#: ckan/logic/validators.py:101
+#: ckan/logic/validators.py:96
 msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
 msgstr ""
 
-#: ckan/logic/validators.py:119
+#: ckan/logic/validators.py:114
 msgid "That URL is already in use."
 msgstr ""
 
-#: ckan/logic/validators.py:124
-#, fuzzy, python-format
-#| msgid "Tag \"%s\" length is less than minimum %s"
-msgid "Name \"%s\" length is less than minimum %s"
-msgstr "Το μήκος του tag \"%s\" είναι μικρότερο από το ελάχιστο απαιτούμενο %s"
-
-#: ckan/logic/validators.py:128
-#, fuzzy, python-format
-#| msgid "Tag \"%s\" length is less than minimum %s"
-msgid "Name \"%s\" length is more than maximum %s"
-msgstr "Το μήκος του tag \"%s\" είναι μικρότερο από το ελάχιστο απαιτούμενο %s"
-
-#: ckan/logic/validators.py:134
-#, fuzzy, python-format
-#| msgid "Name must be at least %s characters long"
-msgid "Version must be a maximum of %i characters long"
-msgstr "Το μήκος του ονόματος πρέπει να είναι τουλάχιστον %s χαρακτήρες"
-
-#: ckan/logic/validators.py:176
+#: ckan/logic/validators.py:154
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
 msgstr ""
 
-#: ckan/logic/validators.py:184
-#, python-format
-msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr ""
-"Το Tag \"%s\" αποτελούνται από αλφαριθμητικούς χαρακτήρες ή τα σύμβολα - "
-"και _"
-
-#: ckan/logic/validators.py:192
-#, python-format
-msgid "Tag \"%s\" must not be uppercase"
-msgstr "Το Tag \"%s\" δεν μπορεί να περιέχει κεφαλαίους χαρακτήρες"
-
-#: ckan/logic/validators.py:251
+#: ckan/logic/validators.py:221
 msgid "That login name is not available."
 msgstr ""
 
-#: ckan/logic/validators.py:260
+#: ckan/logic/validators.py:230
 msgid "Please enter both passwords"
 msgstr ""
 
-#: ckan/logic/validators.py:266
+#: ckan/logic/validators.py:236
 msgid "Your password must be 4 characters or longer"
 msgstr ""
 
-#: ckan/logic/validators.py:274
+#: ckan/logic/validators.py:244
 msgid "The passwords you entered do not match"
 msgstr ""
 
-#: ckan/logic/validators.py:286
+#: ckan/logic/validators.py:256
 msgid "Missing value"
 msgstr ""
 
-#: ckan/logic/validators.py:290
+#: ckan/logic/validators.py:260
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
@@ -1163,13 +1068,11 @@ msgid "has sibling %s"
 msgstr "αδελφός με %s"
 
 #: ckan/templates/_util.html:74 ckan/templates/_util.html:120
-#: ckan/templates/package/resource_read.html:40
 msgid "This dataset satisfies the Open Definition."
 msgstr ""
 
 #: ckan/templates/_util.html:75 ckan/templates/_util.html:121
 #: ckan/templates/package/read.html:104
-#: ckan/templates/package/resource_read.html:41
 msgid "[Open Data]"
 msgstr "[Open Data]"
 
@@ -1243,8 +1146,9 @@ msgid "Log Message"
 msgstr "Μήνυμα καταγραφής"
 
 #: ckan/templates/_util.html:394 ckan/templates/js_strings.html:21
-#: ckan/templates/package/read_core.html:38
-#: ckan/templates/package/read_core.html:70
+#: ckan/templates/package/read_core.html:31
+#: ckan/templates/package/read_core.html:40
+#: ckan/templates/package/read_core.html:74
 msgid "(none)"
 msgstr ""
 
@@ -1301,7 +1205,7 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: ckan/templates/js_strings.html:27 ckan/templates/package/read_core.html:25
+#: ckan/templates/js_strings.html:27
 msgid "(no name)"
 msgstr ""
 
@@ -1337,27 +1241,22 @@ msgstr ""
 #: ckan/templates/js_strings.html:40
 #: ckan/templates/group/new_group_form.html:20
 #: ckan/templates/package/new_package_form.html:42
-#: ckan/templates/package/resource_read.html:91
 msgid "Url"
 msgstr ""
 
-#: ckan/templates/js_strings.html:41
-#: ckan/templates/package/resource_read.html:96
+#: ckan/templates/js_strings.html:41 ckan/templates/package/read_core.html:19
 msgid "Format"
 msgstr "Format"
 
 #: ckan/templates/js_strings.html:42
-#: ckan/templates/package/resource_read.html:99
 msgid "Resource Type"
 msgstr ""
 
 #: ckan/templates/js_strings.html:43
-#: ckan/templates/package/resource_read.html:104
 msgid "Size (Bytes)"
 msgstr ""
 
 #: ckan/templates/js_strings.html:44
-#: ckan/templates/package/resource_read.html:107
 msgid "Mimetype"
 msgstr ""
 
@@ -1366,17 +1265,14 @@ msgid "Last Modified"
 msgstr ""
 
 #: ckan/templates/js_strings.html:46
-#: ckan/templates/package/resource_read.html:110
 msgid "Mimetype (Inner)"
 msgstr ""
 
 #: ckan/templates/js_strings.html:47
-#: ckan/templates/package/resource_read.html:113
 msgid "Hash"
 msgstr "Hash"
 
 #: ckan/templates/js_strings.html:48
-#: ckan/templates/package/resource_read.html:116
 msgid "ID"
 msgstr ""
 
@@ -1437,7 +1333,7 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: ckan/templates/layout_base.html:83 ckan/templates/layout_base.html:127
+#: ckan/templates/layout_base.html:84 ckan/templates/layout_base.html:127
 #: ckan/templates/layout_base.html:130 ckan/templates/home/about.html:6
 msgid "About"
 msgstr "Σχετικά"
@@ -1655,8 +1551,6 @@ msgstr "Υπάρχουν [1:%(item_count)s] εξουσιοδοτημένες ο�
 
 #: ckan/templates/authorization_group/layout.html:11
 #: ckan/templates/group/layout.html:11 ckan/templates/package/layout.html:11
-#: ckan/templates/package/resource_read.html:59
-#: ckan/templates/package/resource_read.html:60
 msgid "View"
 msgstr "Προβολή"
 
@@ -1671,12 +1565,9 @@ msgstr "Επεξεργασία"
 
 #: ckan/templates/authorization_group/layout.html:24
 msgid ""
-"Instead of specifying the privileges of specific users on a dataset or "
-"group,\n"
-"          you can also specify a set of users that will share the same "
-"rights. To do that, an    \n"
-"          [1:authorization group] can be set-up and users can be added to"
-" it."
+"Instead of specifying the privileges of specific users on a dataset or group,\n"
+"          you can also specify a set of users that will share the same rights. To do that, an    \n"
+"          [1:authorization group] can be set-up and users can be added to it."
 msgstr ""
 
 #: ckan/templates/authorization_group/layout.html:28
@@ -1751,10 +1642,10 @@ msgstr ""
 
 #: ckan/templates/group/index.html:12
 msgid ""
-"Whilst tags are great at collecting datasets together, there are "
-"occasions when you want to restrict users from editing a collection. A "
-"[1:group] can be set-up to specify which users have permission to add or "
-"remove datasets from it."
+"Whilst tags are great at collecting datasets together, there are occasions "
+"when you want to restrict users from editing a collection. A [1:group] can "
+"be set-up to specify which users have permission to add or remove datasets "
+"from it."
 msgstr ""
 
 #: ckan/templates/group/layout.html:15 ckan/templates/package/layout.html:15
@@ -1854,7 +1745,6 @@ msgid "Add datasets"
 msgstr ""
 
 #: ckan/templates/group/new_group_form.html:90
-#: ckan/templates/package/resource_read.html:74
 msgid "Dataset"
 msgstr ""
 
@@ -1877,8 +1767,7 @@ msgstr "Σχετικά με το CKAN"
 
 #: ckan/templates/home/about.html:11
 msgid ""
-"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of "
-"[2:open knowledge] datasets and projects\n"
+"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of [2:open knowledge] datasets and projects\n"
 "    (and a few closed ones)."
 msgstr ""
 
@@ -1888,15 +1777,15 @@ msgid ""
 "      content and data], especially in ways that are machine\n"
 "      automatable."
 msgstr ""
-"Το CKAN διευκολύνει την [1:εύρεση, τον διαμοιρασμό και την "
-"επαναχρησιμοποίηση ανοιχτών\n"
-"      δεδομένων και περιεχομένου], ιδιαιτέρως με τρόπους που είναι "
-"αυτοματοποιημένοι για ανάγνωση \n"
+"Το CKAN διευκολύνει την [1:εύρεση, τον διαμοιρασμό και την επαναχρησιμοποίηση ανοιχτών\n"
+"      δεδομένων και περιεχομένου], ιδιαιτέρως με τρόπους που είναι αυτοματοποιημένοι για ανάγνωση \n"
 "      από μηχανές."
 
 #: ckan/templates/home/about.html:20
-msgid "As a system CKAN functions as a synthesis of several different services:"
-msgstr "Ως σύστημα το CKAN λειτουργεί ως σύνθεση διαφορετικού τύπου υπηρεσιών:"
+msgid ""
+"As a system CKAN functions as a synthesis of several different services:"
+msgstr ""
+"Ως σύστημα το CKAN λειτουργεί ως σύνθεση διαφορετικού τύπου υπηρεσιών:"
 
 #: ckan/templates/home/about.html:22
 msgid "CKAN Features Overview"
@@ -1905,35 +1794,25 @@ msgstr "Επισκόπηση δυνατοτήτων του CKAN"
 #: ckan/templates/home/about.html:24
 msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
-"\t\ta dataset index and a wiki. As a registry it acts like [1:freshmeat] "
-"but for open data and\n"
+"\t\ta dataset index and a wiki. As a registry it acts like [1:freshmeat] but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
 
 #: ckan/templates/home/about.html:29
 msgid ""
 "First, thanks to its underlying [1:versioned domain model] CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. "
-"Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
-"allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, "
-"discovery\n"
-"\t\tand installation of material. In this respect it behaves like "
-"[2:CPAN] or [3:PyPI] in the software world -- though\n"
+"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, discovery\n"
+"\t\tand installation of material. In this respect it behaves like [2:CPAN] or [3:PyPI] in the software world -- though\n"
 "\t\tagain for [4:open data and content]\n"
 "\t\tnot code."
 msgstr ""
-"Πρωτίστως, χάρη [1:versioned domain model] στο οποίο στηρίζεται, το CKAN "
-"έχει ένα\n"
-"\t\twiki-like interface που επιτρέπει στον καθένα να προσθέτει και "
-"επεξεργάζεταο το υπάρχον υλικό. Κατά δεύτερον,\n"
-"\t\tκαι σε αντίθεση με τα wiki, το CKAN μπορεί να αποθηκεύσει 'δομημένη' "
-"πληροφορία, που του επιτρέπει\n"
-"\t\tνα παρέχει 'index'-like δυνατότητες όπως η αυτόματη καταγραφή, "
-"ανακάλυψη\n"
-"\t\tκαι εγκατάσταση υλικού. Υπό αυτό το πρόσμα, συμπεριφέρεται σαν "
-"[2:CPAN] ή [3:PyPI] ως λογισμικό -- όμως\n"
+"Πρωτίστως, χάρη [1:versioned domain model] στο οποίο στηρίζεται, το CKAN έχει ένα\n"
+"\t\twiki-like interface που επιτρέπει στον καθένα να προσθέτει και επεξεργάζεταο το υπάρχον υλικό. Κατά δεύτερον,\n"
+"\t\tκαι σε αντίθεση με τα wiki, το CKAN μπορεί να αποθηκεύσει 'δομημένη' πληροφορία, που του επιτρέπει\n"
+"\t\tνα παρέχει 'index'-like δυνατότητες όπως η αυτόματη καταγραφή, ανακάλυψη\n"
+"\t\tκαι εγκατάσταση υλικού. Υπό αυτό το πρόσμα, συμπεριφέρεται σαν [2:CPAN] ή [3:PyPI] ως λογισμικό -- όμως\n"
 "\t\tκαι πάλι για τα [4:ανοιχτά δεδομένα και περιεχόμενο]\n"
 "\t\tκαι όχι για κώδικα."
 
@@ -1943,8 +1822,7 @@ msgid ""
 "    be found in [1:these\n"
 "      slides]."
 msgstr ""
-"Περισσότερα σχετικά με το CKAN, και το υπόβαθρο σχετικά με την δημιουργία"
-" του\n"
+"Περισσότερα σχετικά με το CKAN, και το υπόβαθρο σχετικά με την δημιουργία του\n"
 "    μπορείτε να βρείτε [1:σ'αυτά τα slides]."
 
 #: ckan/templates/home/index.html:6
@@ -2030,7 +1908,8 @@ msgstr ""
 msgid "datasets."
 msgstr ""
 
-#: ckan/templates/package/comments.html:5 ckan/templates/package/history.html:6
+#: ckan/templates/package/comments.html:5
+#: ckan/templates/package/history.html:6
 msgid "- Datasets - History"
 msgstr ""
 
@@ -2079,8 +1958,8 @@ msgstr "πριν την αποθήκευση (ανοίγει σε νέο παρ�
 #: ckan/templates/package/new_package_form.html:222
 msgid ""
 "[1:Important:] By submitting content, you agree to release your "
-"contributions under the [2:Open Database License]. Please [3:refrain] "
-"from editing this page if you are [4:not] happy to do this."
+"contributions under the [2:Open Database License]. Please [3:refrain] from "
+"editing this page if you are [4:not] happy to do this."
 msgstr ""
 
 #: ckan/templates/package/history.html:61 ckan/templates/package/read.html:167
@@ -2097,6 +1976,7 @@ msgstr ""
 
 #: ckan/templates/package/new_package_form.html:16
 #: ckan/templates/package/new_package_form.html:89
+#: ckan/templates/package/read_core.html:18
 msgid "Resource"
 msgstr ""
 
@@ -2130,8 +2010,8 @@ msgstr ""
 
 #: ckan/templates/package/new_package_form.html:142
 msgid ""
-"Comma-separated terms that may link this dataset to similar ones. For "
-"more information on conventions, see [1:this wiki page]."
+"Terms that may link this dataset to similar ones. For more information on "
+"conventions, see [1:this wiki page]."
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:166
@@ -2145,7 +2025,6 @@ msgid ""
 msgstr ""
 
 #: ckan/templates/package/read.html:14
-#: ckan/templates/package/resource_read.html:24
 msgid "- Datasets"
 msgstr ""
 
@@ -2233,49 +2112,22 @@ msgstr ""
 msgid "RDF/Turtle"
 msgstr ""
 
-#: ckan/templates/package/read_core.html:32
-#: ckan/templates/package/resource_read.html:51
-msgid "Last updated:"
-msgstr ""
-
-#: ckan/templates/package/read_core.html:33
-msgid "ago"
-msgstr ""
-
-#: ckan/templates/package/read_core.html:55
-msgid "Additional Information"
+#: ckan/templates/package/read_core.html:20
+msgid "Actions"
 msgstr ""
 
 #: ckan/templates/package/read_core.html:59
+msgid "Additional Information"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:63
 #: ckan/templates/revision/diff.html:31
 msgid "Field"
 msgstr "Πεδίο"
 
-#: ckan/templates/package/read_core.html:60
+#: ckan/templates/package/read_core.html:64
 msgid "Value"
 msgstr ""
-
-#: ckan/templates/package/resource_read.html:31
-msgid "Dataset:"
-msgstr ""
-
-#: ckan/templates/package/resource_read.html:61
-msgid "API Endpoint"
-msgstr ""
-
-#: ckan/templates/package/resource_read.html:62
-msgid "Download"
-msgstr ""
-
-#: ckan/templates/package/resource_read.html:73
-msgid "From the"
-msgstr ""
-
-#: ckan/templates/package/resource_read.html:89
-#, fuzzy
-#| msgid "Basic information"
-msgid "Resource Information"
-msgstr "Βασικές Πληροφορίες"
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
@@ -2471,8 +2323,8 @@ msgstr ""
 msgid "Change your password"
 msgstr ""
 
-#: ckan/templates/user/edit_user_form.html:42 ckan/templates/user/login.html:31
-#: ckan/templates/user/new_user_form.html:28
+#: ckan/templates/user/edit_user_form.html:42
+#: ckan/templates/user/login.html:31 ckan/templates/user/new_user_form.html:28
 #: ckan/templates/user/perform_reset.html:15
 msgid "Password:"
 msgstr "Κωδικός ασφαλείας:"
@@ -2569,8 +2421,7 @@ msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "          using a single identity. Find out [1:more\n"
 "          about OpenID] and [2:how to get an\n"
-"          OpenID enabled account]. Probably the simplest way is sign up "
-"with a\n"
+"          OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "          free OpenID provider such as [3:https://www.myopenid.com/]."
 msgstr ""
 
@@ -2654,23 +2505,4 @@ msgstr ""
 msgid "User name:"
 msgstr ""
 
-#~ msgid ""
-#~ "Terms that may link this dataset "
-#~ "to similar ones. For more information"
-#~ " on conventions, see <a href=\"%s\">this"
-#~ " wiki page</a>."
-#~ msgstr ""
-
-#~ msgid "e.g. pollution rivers water-quality"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Terms that may link this dataset "
-#~ "to similar ones. For more information"
-#~ " on conventions, see [1:this wiki "
-#~ "page]."
-#~ msgstr ""
-
-#~ msgid "Actions"
-#~ msgstr ""
 

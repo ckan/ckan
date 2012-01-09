@@ -144,8 +144,8 @@ echo "Bringing the ${INSTANCE} INSTANCE out of maintenance mode ..."
 ckan_maintenance_off ${INSTANCE}
 
 # Restart Apache so it is aware of any changes
-echo "Restarting apache ..."
-/etc/init.d/apache2 restart 
+echo "Reloading apache ..."
+/etc/init.d/apache2 reload 
 
 # Install the new crontab
 echo "Enabling crontab for the ckan${INSTANCE} user ..."
