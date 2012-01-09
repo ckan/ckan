@@ -463,8 +463,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         Return most recent timestamp for revisions related to this package.
         NB Excludes changes to the package's groups
         """
-        import ckan.model as model
-
+        from ckan import model
         where = [model.package_table.c.id == self.id]
         where_clauses = [
             and_(model.package_table.c.revision_id == model.revision_table.c.id, *where),
@@ -514,8 +513,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         import ckan.model as model
         q = model.Session.query(model.PackageRevision)\
             .filter(model.PackageRevision.id == self.id)\
-            .order_by(model.PackageRevision.revision_timestamp.asc())\
-            .limit(1)
+            .order_by(model.PackageRevision.revision_timestamp.asc())
         ts = q.first()
         if ts is not None:
             return ts.revision_timestamp

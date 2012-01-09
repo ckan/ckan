@@ -1,8 +1,53 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.5.1 2011-01-04
+=================
+
+Major:
+ * Background tasks (#1363, #1371, #1408)
+ * Fix for security issue affecting CKAN v1.5 (#1585)
+
+Minor:
+ * Language support now excellent for European languages: en de fr it es no sv pl ru pt cs sr ca
+ * Web UI improvements:
+    * Resource editing refreshed
+    * Group editing refreshed
+    * Indication that group creation requires logging-in (#1004)
+    * Users' pictures displayed using Gravatar (#1409)
+    * 'Welcome' banner shown to new users (#1378)
+    * Group package list now ordered alphabetically (#1502)
+ * Allow managing a dataset's groups also via package entity API (#1381)
+ * Dataset listings in API standardised (#1490)
+ * Search ordering by modification and creation date (#191)
+ * Account creation disallowed with Open ID (create account in CKAN first) (#1386)
+ * User name can be modified (#1386)
+ * Email address required for registration (for password reset) (#1319)
+ * Atom feeds hidden for now
+ * New config options to ease CSS insertion into the template (#1380)
+ * Removed ETag browser cache headers (#1422)
+ * CKAN version number and admin contact in new 'status_show' API (#1087)
+ * Upgrade SQLAlchemy to 0.7.3 (#1433)
+ * SOLR schema is now versioned (#1498)
+
+Bug fixes:
+ * Group ordering on main page was alphabetical but should be by size (since 1.5) (#1487)
+ * Package could get added multiple times to same Group, distorting Group size (#1484)
+ * Search index corruption when multiple CKAN instances on a server all storing the same object (#1430)
+ * Dataset property metadata_created had wrong value (since v1.3) (#1546)
+ * Tag browsing showed tags for deleted datasets (#920)
+ * User name change field validation error (#1470)
+ * You couldn't edit a user with a unicode email address (#1479)
+ * Package search API results missed the extra fields (#1455)
+ * OpenID registration disablement explained better (#1532)
+ * Data upload (with ckanext-storage) failed if spaces in the filename (#1518)
+ * Resource download count fixed (integration with ckanext-googleanalytics) (#1451)
+
+
 v1.5 2011-11-07
 ===============
+**Deprecated due to security issue #1585**
+
 Major:
  * New visual theme (#1108)
     * Package & Resource edit overhaul (#1294/#1348/#1351/#1368/#1296)

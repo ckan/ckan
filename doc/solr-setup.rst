@@ -50,9 +50,9 @@ and the admin site::
 
  http://localhost:8983/solr/admin
 
-.. note:: If you get the message `Could not start Jetty servlet engine because no Java Development Kit (JDK) was found.` then you will have to edit /etc/profile and add this line to the end such as this to the end (adjusting the path for your machine's jdk install)::
+.. note:: If you get the message `Could not start Jetty servlet engine because no Java Development Kit (JDK) was found.` then you will have to edit /etc/profile and add this line to the end such as this to the end (adjusting the path for your machine's jdk install):
 
-    JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
+    ``JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/``
 
 Now run::
 
@@ -109,7 +109,10 @@ This is how cores are defined::
     </solr>
 
 Note that each core has its own data directory. This is really important to
-prevent conflicts between cores.
+prevent conflicts between cores. Create them like this::
+
+    sudo mkdir /var/lib/solr/data/core0
+    sudo mkdir /var/lib/solr/data/core1
 
 For each core, we will create a folder with its name in `/usr/share/solr`,
 with a symbolic link to a specific configuration folder in `/etc/solr/`.

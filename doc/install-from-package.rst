@@ -9,6 +9,7 @@ Package install requires you to use Ubuntu 10.04: either locally, through a virt
 * Using Ubuntu 10.04 directly.
 * :ref:`using-virtualbox`. This is suitable if you want to host your CKAN instance on a machine running any other OS. 
 * :ref:`using-amazon`. This is suitable if you want to host your CKAN instance in the cloud, on a ready-made Ubuntu OS.
+* :ref:`upgrading`. If you've already got a CKAN 1.5 installed from packages, follow this guide to upgrade to CKAN 1.5.1
 
 .. note:: We recommend you use package installation unless you are a core CKAN developer or have no access to Ubuntu 10.04 through any of the methods above, in which case, you should use :doc:`install-from-source`.
 
@@ -22,6 +23,7 @@ CKAN runs on Ubuntu 10.04. If you are already using Ubuntu 10.04, you can contin
 However, if you're not, you can either use VirtualBox to set up an Ubuntu VM on Windows, Linux, Macintosh and Solaris. Alternatively, you can use an Amazon EC2 instance.
 
 .. _using-virtualbox:
+
 
 Option A: Using VirtualBox
 ++++++++++++++++++++++++++
@@ -392,8 +394,8 @@ On your Ubuntu 10.04 system, open a terminal and run these commands to prepare y
 
     sudo apt-get update
     sudo apt-get install -y wget
-    echo "deb http://apt.okfn.org/ckan-1.5 lucid universe" | sudo tee /etc/apt/sources.list.d/okfn.list
-    wget -qO- "http://apt.okfn.org/packages_public.key" | sudo apt-key add -
+    echo "deb http://apt.ckan.org/ckan-1.5.1 lucid universe" | sudo tee /etc/apt/sources.list.d/okfn.list
+    wget -qO- "http://apt.ckan.org/packages_public.key" | sudo apt-key add -
     sudo apt-get update
 
 Now you are ready to install. If you already have a PostgreSQL and Solr
@@ -650,4 +652,89 @@ CKAN packaging is well tested and reliable with single instance CKAN installs.
 Multi-instance support is newer, and whilst we believe will work well, hasn't
 had the same degree of testing. If you hit any problems with multi-instance
 installs, do let us know and we'll help you fix them.
+
+.. _upgrading:
+
+Upgrading from CKAN 1.5
+-----------------------
+
+If you already have a CKAN 1.5 install and wish to upgrade, you can try the approach documented below.
+
+.. caution ::
+
+   Upgrading CKAN with packages is not well tested, so your milage may vary. Always make a backup first and be prepared to start again with a fresh 1.5.1 install.
+
+First remove the old CKAN:
+
+::
+
+    sudo apt-get remove ckan
+
+Then update the repositories:
+
+::
+
+    echo "deb http://apt.ckan.org/ckan-1.5.1 lucid universe" | sudo tee /etc/apt/sources.list.d/ckan.list
+    wget -qO- "http://apt.ckan.org/packages_public.key" | sudo apt-key add -
+    sudo apt-get update
+
+Install the new CKAN and update all the dependencies:
+
+::
+
+    sudo apt-get install -y ckan
+    sudo apt-get upgrade
+
+Now you need to make some manual changes. In the following commands replace ``std`` with the name of your CKAN instance. Perform these steps for each instance you wish to upgrade.
+
+#. Upgrade the Solr schema
+
+   Configure ``ckan.site_url`` or ``ckan.site_id`` in ``/etc/ckan/std/std.ini`` for SOLR search-index rebuild to work. eg:
+
+   ::
+
+       ckan.site_id = releasetest.ckan.org
+
+   The site_id must be unique so the domain name of the Solr instance is a good choice.
+
+   Install the new schema:
+
+   ::
+
+       sudo rm /usr/share/solr/conf/schema.xml
+       sudo ln -s /usr/lib/pymodules/python2.6/ckan/config/solr/schema-1.3.xml /usr/share/solr/conf/schema.xml
+
+#. Upgrade the database
+
+   First install pastescript:
+
+   ::
+   
+       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/pip install --ignore-installed pastescript
+
+   Then upgrade the database:
+
+   ::
+
+       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db upgrade --config=/etc/ckan/std/std.ini
+
+   If you get error ``sqlalchemy.exc.IntegrityError: (IntegrityError) could not create unique index "user_name_key`` then you need to rename users with duplicate names before it will work. For example::
+
+        sudo -u ckanstd paster --plugin=pylons shell /etc/ckan/std/std.ini
+        model.meta.engine.execute('SELECT name, count(name) AS NumOccurrences FROM "user" GROUP BY name HAVING(COUNT(name)>0);').fetchall()
+        users = model.Session.query(model.User).filter_by(name='https://www.google.com/accounts/o8/id?id=ABCDEF').all()
+        users[1].name = users[1].name[:-1]
+        model.repo.commit_and_remove()
+
+#. Rebuild the search index (this can take some time):
+
+   ::
+
+       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan search-index rebuild --config=/etc/ckan/std/std.ini
+
+#. Restart Apache
+
+   ::
+
+       sudo /etc/init.d/apache2 reload
 

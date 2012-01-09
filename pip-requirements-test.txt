@@ -2,3 +2,4 @@
 
 nose
 -e git+https://github.com/okfn/ckanclient#egg=ckanclient
+

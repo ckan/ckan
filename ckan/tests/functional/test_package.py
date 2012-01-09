@@ -840,6 +840,34 @@ class TestEdit(TestPackageForm):
         finally:
             self._reset_data()
 
+    # NB: Cannot test resources now because it is all javascript!
+##    def test_edit_invalid_resource(self):
+##        try:
+##            # Create new dataset
+##            pkg_name = u'test_res'
+##            CreateTestData.create_arbitrary({'name': pkg_name,
+##                                             'resources': [{'url': '1.pdf'}]})
+
+##            # Edit it
+##            pkg = model.Package.by_name(pkg_name)
+##            offset = url_for(controller='package', action='edit', id=pkg.name)
+##            res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
+##            assert 'Edit - Datasets' in res, res
+
+##            pkg = model.Package.by_name(pkg_name)
+
+##            # Amend form
+##            fv = res.forms['dataset-edit']
+
+##            fv['resources__0__size'] = 'abc'
+##            res = fv.submit('save', extra_environ={'REMOTE_USER':'testadmin'})
+
+##            # Check dataset page
+##            assert 'Errors in form' in res, res
+##            assert 'Package resource(s) invalid' in res, res
+##            assert 'Resource 1' in res, res
+##        finally:
+##            self._reset_data()
 
     def test_edit_bad_log_message(self):
         fv = self.res.forms['dataset-edit']
