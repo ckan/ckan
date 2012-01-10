@@ -314,7 +314,11 @@ Example::
 
 Default value:  ``standard``
 
-This sets the name of the form to use when editing a dataset. This can be a form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the ``setup.py`` file has an entry point for the form defined in the ``ckan.forms`` section. 
+This sets the name of the Formalchemy form to use when editing a dataset. 
+
+.. note:: This setting only applies to the deprecated Formalchemy forms. For enabling forms defined with a Navl schema, see :doc:`forms`.
+
+The value for this setting can be a Formalchemy form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the ``setup.py`` file has an entry point for the form defined in the ``ckan.forms`` section. 
 
 For more information on forms, see :doc:`forms`.
 
