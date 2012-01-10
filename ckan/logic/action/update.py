@@ -166,6 +166,7 @@ def resource_update(context, data_dict):
     context["resource"] = resource
 
     if not resource:
+        logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
     check_access('resource_update', context, data_dict)
@@ -181,7 +182,7 @@ def resource_update(context, data_dict):
     if 'message' in context:
         rev.message = context['message']
     else:
-        rev.message = _(u'REST API: Update object %s') % data.get("name")
+        rev.message = _(u'REST API: Update object %s') % data.get("name", "")
 
     resource = resource_dict_save(data, context)
     if not context.get('defer_commit'):

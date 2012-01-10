@@ -159,8 +159,9 @@ def task_status_update(context, data_dict):
         id = data_dict.get('entity_id',None)
         resource = model.Resource.get(id)
         
-    if resource.revision.author == user:
-        return {'success': True}
+    if resource and resource.revision:
+        if resource.revision.author == user:
+            return {'success': True}        
     
     authorized =  Authorizer().is_sysadmin(unicode(user))
     if not authorized:
