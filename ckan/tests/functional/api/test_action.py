@@ -1180,7 +1180,4 @@ class TestActionPackageSearch(WsgiAppCase):
         result_names = [r['name'] for r in result['results']]
         assert result_names == ['warandpeace', 'annakarenina'], result_names
 
-<<<<<<< HEAD
 
-=======
->>>>>>> release-v1.5.1c

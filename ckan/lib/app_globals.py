@@ -23,6 +23,7 @@ class Globals(object):
         self.site_url = config.get('ckan.site_url', '')
         self.site_url_nice = self.site_url.replace('http://','').replace('www.','')
         self.site_description = config.get('ckan.site_description', '')
+        self.site_about = config.get('ckan.site_about', '')
         
         self.facets = config.get('search.facets', 'groups tags res_format license').split()
         
