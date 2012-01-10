@@ -10,12 +10,14 @@ from ckan.lib.dictization import (table_dictize,
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_dictize,
                                                 group_dictize,
+                                                activity_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
                                                )
 from ckan.lib.dictization.model_save import (package_dict_save,
                                              resource_dict_save,
                                              group_dict_save,
+                                             activity_dict_save,
                                              package_api_to_dict,
                                              group_api_to_dict,
                                              package_tag_list_save,
@@ -963,3 +965,34 @@ class TestBasicDictize:
 
         pkg = model.Package.by_name(name)
         assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1',)))
+
+    def test_20_activity_save(self):
+
+        # Add a new Activity object to the database by passing a dict to
+        # activity_dict_save()
+        context = {"model": model, "session": model.Session}
+        user = model.User.by_name(u'tester')
+        revision = model.repo.new_revision()
+        activity_dict = {
+                'user_id': user.id,
+                'object_id': user.id,
+                'revision_id': revision.id,
+                'activity_type': 'changed user'
+                }
+        activity_dict_save(activity_dict, context)
+        model.Session.commit()
+
+        # Retrieve the newest Activity object from the database, check that its
+        # attributes match those of the dict we saved.
+        activity_obj = model.Session.query(model.Activity).all()[-1]
+        assert activity_obj.user_id == activity_dict['user_id']
+        assert activity_obj.object_id == activity_dict['object_id']
+        assert activity_obj.revision_id == activity_dict['revision_id']
+        assert activity_obj.activity_type == activity_dict['activity_type']
+
+        # The activity object should also have an ID and timestamp.
+        assert activity_obj.id
+        assert activity_obj.timestamp
+
+        # We didn't pass in any data so this should be empty.
+        assert not activity_obj.data

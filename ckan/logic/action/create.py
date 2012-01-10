@@ -16,11 +16,13 @@ from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              group_dict_save,
                                              package_api_to_dict,
                                              package_dict_save,
-                                             user_dict_save)
+                                             user_dict_save,
+                                             activity_dict_save)
 
 from ckan.lib.dictization.model_dictize import (group_dictize,
                                                 package_dictize,
-                                                user_dictize)
+                                                user_dictize,
+                                                activity_dictize)
 
 
 from ckan.logic.schema import default_create_package_schema, default_resource_schema
@@ -231,6 +233,14 @@ def user_create(context, data_dict):
 
     if not context.get('defer_commit'):
         model.repo.commit()        
+
+    activity_dict = {
+            'user_id': user.id,
+            'object_id': user.id,
+            'activity_type': 'new user',
+            }
+    activity_create(context, activity_dict)
+
     context['user'] = user
     context['id'] = user.id
     log.debug('Created user %s' % str(user.name))
@@ -278,3 +288,38 @@ def group_create_rest(context, data_dict):
 
     return group_dict
 
+def activity_create(context, activity_dict):
+    '''Create an activity stream event and add it to the model. Return a
+    dictionary representation of the new event.
+
+    This function doesn't do any authorisation or validation yet, it's only
+    meant to be used internally and not yet ready to be exposed e.g. via the
+    API.
+
+    Arguments:
+
+    context -- Pylons context dict with at least the 'model' key.
+
+    activity_dict -- A dict containing the values for the activity stream event
+    to be created. Should have keys 'user_id', 'object_id', 'activity_type' and
+    (optionally) 'data'.
+
+    '''
+    model = context['model']
+
+    revision = model.repo.new_revision()
+    revision.author = activity_dict['user']
+    if 'message' in context:
+        revision.message = context['message']
+    else:
+        revision.message = _(u'REST API: Create activity')
+    assert not activity_dict.has_key('revision_id')
+    activity_dict['revision_id'] = revision.id
+
+    activity = activity_dict_save(activity_dict, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    log.debug("Created '%s' activity" % activity.activity_type)
+    return activity_dictize(activity, context)

@@ -438,3 +438,20 @@ def task_status_dict_save(task_status_dict, context):
 
     task_status = table_dict_save(task_status_dict, model.TaskStatus, context)
     return task_status
+
+def activity_dict_save(activity_dict, context):
+
+    model = context['model']
+    session = context['session']
+
+    user_id = activity_dict['user_id']
+    object_id = activity_dict['object_id']
+    revision_id = activity_dict['revision_id']
+    activity_type = activity_dict['activity_type']
+    activity_obj = model.Activity(user_id, object_id, revision_id,
+            activity_type)
+    session.add(activity_obj)
+
+    # TODO: Handle activity details.
+
+    return activity_obj
