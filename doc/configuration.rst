@@ -70,6 +70,31 @@ This sets the logo used in the title bar.
 .. index::
    single: package_hide_extras
 
+site_about
+^^^^^^^^^^
+
+Example::
+
+ ckan.site_about=${g.site_title} is a community-driven catalogue of open data for the Greenfield area.
+
+Default value::
+
+ What was the <a href="http://thedatahub.org/dataset/house-prices-uk-from-1930">average price</a> of a house in the UK in 1935? When will India's projected population <a href="http://thedatahub.org/dataset/guardian-population-unitednations">overtake</a> that of China? Where can you see <a href="http://thedatahub.org/dataset/seattle-public-art">publicly-funded art</a> in Seattle? Data to answer many, many questions like these is out there on the Internet somewhere - but it is not always easy to find.</p>
+  
+  <p i18n:msg="">${g.site_title} is a community-run catalogue of useful sets of data on the Internet. You can collect links here to data from around the web for yourself and others to use, or search for data that others have collected. Depending on the type of data (and its conditions of use), ${g.site_title} may also be able to store a copy of the data or host it in a database, and provide some basic visualisation tools.
+
+This changes the text about the site on the 'About' page. i.e. replaces the text in the "About <site_name" section. The other sections of the About page are not affected.
+
+Format tips:
+
+ * multiline strings can be used by indenting following lines
+
+ * the format is basically HTML, but with Genshi-format strings
+
+ * the about text will be automatically be placed with-in paragraph tags ``<p>...</p>`` but you can start new paragraphs within that by using ``</p><p>``
+
+.. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
+
 package_hide_extras
 ^^^^^^^^^^^^^^^^^^^
 
