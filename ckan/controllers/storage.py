@@ -110,39 +110,6 @@ class StorageController(BaseController):
     def ofs(self):
         return get_ofs()
 
-    def _get_form_for_remote(self):
-        # would be nice to use filename of file
-        # problem is 'we' don't know this at this point and cannot add it to
-        # success_action_redirect and hence cannnot display to user afterwards
-        # + '/${filename}'
-        label = key_prefix + request.params.get('filepath', str(uuid.uuid4()))
-        method = 'POST'
-        authorize(method, BUCKET, label, c.userobj, self.ofs)
-        content_length_range = int(
-                config.get('ckanext.storage.max_content_length',
-                    50000000))
-        success_action_redirect = h.url_for('storage_upload_success', qualified=True,
-                bucket=BUCKET, label=label)
-        acl = 'public-read'
-        fields = [ {
-                'name': self.ofs.conn.provider.metadata_prefix + 'uploaded-by',
-                'value': c.userobj.name
-                }]
-        conditions = [ '{"%s": "%s"}' % (x['name'], x['value']) for x in fields ]
-        c.data = self.ofs.conn.build_post_form_args(
-            BUCKET,
-            label,
-            expires_in=3600,
-            max_content_length=content_length_range,
-            success_action_redirect=success_action_redirect,
-            acl=acl,
-            fields=fields,
-            conditions=conditions
-            )
-        for idx,field in enumerate(c.data['fields']):
-            if field['name'] == 'content-length-range':
-                del c.data['fields'][idx]
-        c.data_json = json.dumps(c.data, indent=2)
 
     def upload(self):
         label = key_prefix + request.params.get('filepath', str(uuid.uuid4()))
