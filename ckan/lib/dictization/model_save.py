@@ -261,8 +261,13 @@ def package_dict_save(pkg_dict, context):
     package = context.get("package")
     allow_partial_update = context.get("allow_partial_update", False)
     if package:
-        pkg_dict["id"] = package.id 
+        pkg_dict["id"] = package.id
     Package = model.Package
+
+    if 'metadata_created' in pkg_dict:
+        del pkg_dict['metadata_created']
+    if 'metadata_modified' in pkg_dict:
+        del pkg_dict['metadata_modified']
 
     pkg = table_dict_save(pkg_dict, Package, context)
 

@@ -37,24 +37,7 @@ def _package_list_with_resources(context, package_revision_list):
     package_list = []
     model = context["model"]
     for package in package_revision_list:
-        result_dict = table_dictize(package, context)
-        res_rev = model.resource_revision_table
-        resource_group = model.resource_group_table
-        query = select([res_rev], from_obj = res_rev.join(resource_group,
-                   resource_group.c.id == res_rev.c.resource_group_id))
-        query = query.where(resource_group.c.package_id == package.id)
-        result = query.where(res_rev.c.current == True).execute()
-        result_dict["resources"] = resource_list_dictize(result, context)
-        license_id = result_dict['license_id']
-        if license_id:
-            try:
-                isopen = model.Package.get_license_register()[license_id].isopen()
-                result_dict['isopen'] = isopen
-            except KeyError:
-                # TODO: create a log message this error?
-                result_dict['isopen'] = False
-        else:
-            result_dict['isopen'] = False
+        result_dict = package_dictize(package,context)
         package_list.append(result_dict)
     return package_list
 
