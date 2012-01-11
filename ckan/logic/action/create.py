@@ -218,7 +218,6 @@ def user_create(context, data_dict):
     '''Creates a new user'''
 
     model = context['model']
-    user = context['user']
     schema = context.get('schema') or default_user_schema()
 
     check_access('user_create', context, data_dict)
@@ -308,7 +307,7 @@ def activity_create(context, activity_dict):
     model = context['model']
 
     revision = model.repo.new_revision()
-    revision.author = activity_dict['user']
+    revision.author = activity_dict['user_id']
     if 'message' in context:
         revision.message = context['message']
     else:

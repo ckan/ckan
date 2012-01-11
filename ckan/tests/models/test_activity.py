@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 
 import ckan
 import ckan.model as model
-from ckan.logic.action.create import package_create
+from ckan.logic.action.create import package_create, user_create
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.delete import package_delete
 from ckan.lib.dictization.model_dictize import resource_list_dictize
@@ -112,7 +112,6 @@ class TestActivity:
         self.normal_user = model.User.get('annafan')
 
     def tearDown(self):
-        ckan.tests.CreateTestData.delete()
         model.repo.rebuild_db()
 
     def _create_package(self, user):
@@ -584,3 +583,48 @@ class TestActivity:
         """
         for package in model.Session.query(model.Package).all():
             self._delete_resources(package)
+
+    def test_create_user(self):
+        """
+        Test new user activity stream.
+
+        Test that correct activity stream item and detail item are created when
+        a new user is created.
+
+        """
+        before = datetime.datetime.now()
+
+        # Create a new user.
+        user_dict = {'name': 'testuser',
+                'about': 'Just a test user', 'email': 'me@test.org',
+                'password': 'testpass'}
+        context = {'model': model, 'session': model.Session,
+                'user': self.sysadmin_user.name}
+        user_created = user_create(context, user_dict)
+
+        after = record_details(user_created['id'])
+
+        user_activities = after['user activity stream']
+        assert len(user_activities) == 1, ("There should be 1 activity in "
+            "the user's activity stream, but found %i" % len(user_activities))
+        activity = user_activities[0]
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == user_created['id'], \
+            str(activity['object_id'])
+        assert activity['user_id'] == user_created['id'], \
+            str(activity['user_id'])
+        assert activity['activity_type'] == 'new user', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object should have an id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity object should have a revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert timestamp >= before and timestamp <= after['time'], \
+            str(activity['timestamp'])
+
+        details = get_activity_details(activity)
+        assert len(details) == 0, ("There shouldn't be any activity details"
+                " for a 'new user' activity")
