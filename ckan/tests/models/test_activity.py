@@ -9,6 +9,9 @@ from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.delete import package_delete
 from ckan.lib.dictization.model_dictize import resource_list_dictize
 from ckan.logic.action.get import user_activity_list, activity_detail_list
+from pylons.test import pylonsapp
+import paste.fixture
+from ckan.lib.helpers import json
 
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
@@ -66,6 +69,16 @@ def get_user_activity_stream(user_id):
     data_dict = {'id':user_id}
     return user_activity_list(context, data_dict)
 
+def get_user_activity_stream_from_api(user_id):
+    '''
+    Return the public activity stream for the given user, but get it via the
+    API instead of from the logic function directly.
+
+    '''
+    app = paste.fixture.TestApp(pylonsapp)
+    response = app.get("/api/1/rest/activity/%s" % user_id)
+    return json.loads(response.body)
+
 def get_activity_details(activity):
     '''Return the list of activity details for the given activity.'''
     context = {'model': model}
@@ -75,6 +88,12 @@ def get_activity_details(activity):
 def record_details(user_id):
     details = {}
     details['user activity stream'] = get_user_activity_stream(user_id)
+
+    # This tests the user activity stream API call, the result should be the
+    # same as from the controller function.
+    assert get_user_activity_stream_from_api(user_id) == \
+        details['user activity stream']
+
     details['time'] = datetime.datetime.now()
     return details
 
