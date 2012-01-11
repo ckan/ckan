@@ -116,6 +116,8 @@ class TestBasicDictize:
                 dict.pop(key)
             if 'timestamp' in key:
                 dict.pop(key)
+            if key in ['metadata_created','metadata_modified']:
+                dict.pop(key)
             if isinstance(value, list):
                 for new_dict in value:
                     self.remove_changable_columns(new_dict)
@@ -370,8 +372,8 @@ class TestBasicDictize:
         print anna_original
         print anna_after_save
 
-        assert self.remove_revision_id(anna_dictized) == self.remove_revision_id(package_dictized),\
-                "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
+        assert self.remove_changable_columns(anna_dictized) == self.remove_changable_columns(package_dictized)
+        assert "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
     def test_10_package_alter_pending(self):
 
