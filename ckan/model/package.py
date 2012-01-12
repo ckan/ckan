@@ -543,17 +543,19 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def activity_stream_item(self, activity_type, revision, user_id):
         import ckan.model as model
         from ckan.lib.dictization.model_dictize import package_dictize
+        from ckan.logic import NotFound
         assert activity_type in ("new", "changed", "deleted"), \
             str(activity_type)
-        if activity_type == "new":
-            return Activity(user_id, self.id, revision.id, "new package",
-                {'package': package_dictize(self, context={'model':model})})
-        elif activity_type == "changed":
-            return Activity(user_id, self.id, revision.id, "changed package",
-                {'package': package_dictize(self, context={'model':model})})
-        elif activity_type == "deleted":
-            return Activity(user_id, self.id, revision.id, "deleted package",
-                {'package': package_dictize(self, context={'model':model})})
+        try:
+            d = {'package': package_dictize(self, context={'model': model})}
+            return Activity(user_id, self.id, revision.id,
+                    "%s package" % activity_type, d)
+        except NotFound:
+            # This happens if this package is being purged and therefore has no
+            # current revision.
+            # TODO: Purge all related activity stream items when a model object
+            # is purged.
+            return None
 
     def activity_stream_detail(self, activity_id, activity_type):
         import ckan.model as model

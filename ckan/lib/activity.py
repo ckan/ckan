@@ -101,8 +101,9 @@ class DatasetActivitySessionExtension(SessionExtension):
                     else:
                         activity = activity_stream_item(package, "changed",
                                 revision, user_id)
+                        if activity is None: continue
                         activities[package.id] = activity
-                    assert activity is not None
+
                     logger.debug("activity: %s" % activity)
 
                     activity_detail = activity_stream_detail(obj, activity.id,
