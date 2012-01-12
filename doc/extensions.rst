@@ -58,37 +58,6 @@ You can install an extension on a CKAN instance as follows.
 Now the extension is installed you need to enable it.
 
 
-Installing an Extension with Background Tasks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Some extensions need to run tasks in the background. In order to do this we use celery as a job queue.
-Examples of these types of extensions are:
-
-* `ckanext-webstorer <https://github.org/okfn/ckanext-webstorer>`_: Put resources that are tabular into the webstore i.e give tabular data a restful api.
-* `ckanext-archiver <https://github.org/okfn/ckanext-archiver>`_: Archives resources so that ckan holds a copy of them i.e caches them.
-
-The above steps needs to be followed for these but also::
-
-5. The celery daemon needs to be started.  This can be done as simply as::
-
-   paster celeryd
-
-This only works if you have a development.ini file in ckan root.
-
-In production the daemon should be run with a different ini file and be run as an init script.
-The simplest way to do this is to install supervisor::
-
-    apt-get install supervisor
-
-Using this file as a template and copy to /etc/supservisor/conf.d::
-
-    https://github.com/okfn/ckan/blob/master/ckan/config/celery-supervisor.conf
-
-Also you can run::
-
-   paster celeryd --config=/path/to/file.ini
-
-
 Enabling an Extension
 ---------------------
 
@@ -117,3 +86,33 @@ Your extension should now be enabled. You can disable it at any time by
 removing it from the list of ckan.plugins in the config file.
 
 
+
+Enabling an Extension with Background Tasks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some extensions need to run tasks in the background. In order to do this we use celery as a job queue.
+Examples of these types of extensions are:
+
+* `ckanext-webstorer <https://github.org/okfn/ckanext-webstorer>`_: Put resources that are tabular into the webstore i.e give tabular data a restful api.
+* `ckanext-archiver <https://github.org/okfn/ckanext-archiver>`_: Archives resources so that ckan holds a copy of them i.e caches them.
+
+The above steps needs to be followed for these, but also:
+
+3. The celery daemon needs to be started.  This can be done as simply as::
+
+     paster celeryd
+
+   This only works if you have a ``development.ini`` file in ckan root.
+
+   In production the daemon should be run with a different ini file and be run as an init script.
+   The simplest way to do this is to install supervisor::
+
+     apt-get install supervisor
+
+   Using this file as a template and copy to ``/etc/supservisor/conf.d``::
+
+     https://github.com/okfn/ckan/blob/master/ckan/config/celery-supervisor.conf
+
+   Also you can run::
+
+     paster celeryd --config=/path/to/file.ini
