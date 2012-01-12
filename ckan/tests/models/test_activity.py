@@ -6,6 +6,7 @@ import ckan
 import ckan.model as model
 from ckan.logic.action.create import package_create, user_create
 from ckan.logic.action.update import package_update, resource_update
+from ckan.logic.action.update import user_update
 from ckan.logic.action.delete import package_delete
 from ckan.lib.dictization.model_dictize import resource_list_dictize
 from ckan.logic.action.get import user_activity_list, activity_detail_list
@@ -628,3 +629,57 @@ class TestActivity:
         details = get_activity_details(activity)
         assert len(details) == 0, ("There shouldn't be any activity details"
                 " for a 'new user' activity")
+
+    def _update_user(self, user):
+        """
+        Update the given user and test that the correct activity stream item
+        and detail are emitted.
+
+        """
+        before = record_details(user.id)
+
+        # Query for the user object again, as the session that it belongs to
+        # may have been closed.
+        user = model.Session.query(model.User).get(user.id)
+
+        # Update the user.
+        context = {'model': model, 'session': model.Session, 'user': user.name,
+                'allow_partial_update': True}
+        user_dict = {'id': user.id}
+        user_dict['about'] = 'edited'
+        if not user.email:
+            user_dict['email'] = 'there has to be a value in email or validate fails'
+        user_update(context, user_dict)
+
+        after = record_details(user.id)
+
+        # Find the new activity.
+        new_activities = find_new_activities(before, after)
+        assert len(new_activities) == 1, ("There should be 1 new activity in "
+            "the user's activity stream, but found %i" % len(new_activities))
+        activity = new_activities[0]
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == user.id, str(activity['object_id'])
+        assert activity['user_id'] == user.id, str(activity['user_id'])
+        assert activity['activity_type'] == 'changed user', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object has no id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity has no revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert timestamp >= before['time'] and timestamp <= after['time'], \
+            str(activity['timestamp'])
+
+    def test_update_user(self):
+        """
+        Test updated user activity stream.
+
+        Test that correct activity stream item is created when users are
+        updated.
+
+        """
+        for user in model.Session.query(model.User).all():
+            self._update_user(user)

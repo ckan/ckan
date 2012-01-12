@@ -30,6 +30,7 @@ from ckan.logic.schema import (default_update_group_schema,
                                default_update_resource_schema,
                                default_task_status_schema)
 from ckan.lib.navl.dictization_functions import validate
+
 log = logging.getLogger(__name__)
 
 def prettify(field_name):
@@ -359,7 +360,17 @@ def user_update(context, data_dict):
         raise ValidationError(errors, group_error_summary(errors))
 
     user = user_dict_save(data, context)
-    
+
+    activity_dict = {
+            'user_id': user.id,
+            'object_id': user.id,
+            'activity_type': 'changed user',
+            }
+    from ckan.logic.action.create import activity_create
+    activity_create(context, activity_dict)
+    # TODO: Also create an activity detail recording what exactly changed in
+    # the user.
+
     if not context.get('defer_commit'):
         model.repo.commit()        
     return user_dictize(user, context)
