@@ -152,16 +152,6 @@ def task_status_update(context, data_dict):
 
     if 'ignore_auth' in context and context['ignore_auth']:
         return {'success': True}
-
-    try:
-        resource = get_resource_object(context, data_dict)
-    except:
-        id = data_dict.get('entity_id',None)
-        resource = model.Resource.get(id)
-        
-    if resource and resource.revision:
-        if resource.revision.author == user:
-            return {'success': True}        
     
     authorized =  Authorizer().is_sysadmin(unicode(user))
     if not authorized:

@@ -166,6 +166,8 @@ class StorageController(BaseController):
             # handle erroneous trailing slash by redirecting to url w/o slash
             if label.endswith('/'):
                 label = label[:-1]
+                # This may be best being cached_url until we have moved it into
+                # permanent storage
                 file_url = h.url_for( 'storage_file', label=label )
                 h.redirect_to(file_url)
             else:
