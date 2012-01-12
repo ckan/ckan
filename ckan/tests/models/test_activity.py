@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 
 import ckan
 import ckan.model as model
-from ckan.logic.action.create import package_create, user_create
+from ckan.logic.action.create import package_create, user_create, group_create
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.update import user_update
 from ckan.logic.action.delete import package_delete
@@ -683,3 +683,37 @@ class TestActivity:
         """
         for user in model.Session.query(model.User).all():
             self._update_user(user)
+
+    def test_create_group(self):
+
+        user = self.normal_user
+
+        before = record_details(user.id)
+
+        # Create a new package.
+        context = {'model': model, 'session': model.Session, 'user': user.name}
+        request_data = {'name': 'a-new-group', 'title': 'A New Group'}
+        group_created = group_create(context, request_data)
+
+        after = record_details(user.id)
+
+        # Find the new activity.
+        new_activities = find_new_activities(before, after)
+        assert len(new_activities) == 1, ("There should be 1 new activity in "
+            "the user's activity stream, but found %i" % len(new_activities))
+        activity = new_activities[0]
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == group_created['id'], \
+            str(activity['object_id'])
+        assert activity['user_id'] == user.id, str(activity['user_id'])
+        assert activity['activity_type'] == 'new group', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object should have an id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity object should have a revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert timestamp >= before['time'] and timestamp <= after['time'], \
+            str(activity['timestamp'])

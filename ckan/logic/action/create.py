@@ -173,6 +173,15 @@ def group_create(context, data_dict):
     model.Session.flush()
     for item in PluginImplementations(IGroupController):
         item.create(group)
+
+    activity_dict = {
+            'user_id': model.User.by_name(user.decode('utf8')).id,
+            'object_id': group.id,
+            'activity_type': 'new group',
+            }
+    activity_dict['data'] = {'group': group_dictize(group, context)}
+    activity_create(context, activity_dict)
+
     if not context.get('defer_commit'):
         model.repo.commit()        
     context["group"] = group
