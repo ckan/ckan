@@ -306,6 +306,10 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert_equal(user.email, email)
         assert user.password
 
+        # no revision should be created - User is not revisioned
+        rev_id_after_test = model.repo.youngest_revision().id
+        assert_equal(rev_id_before_test, rev_id_after_test)
+
         # check cookies created
         cookie = res.request.environ['HTTP_COOKIE']
         # I think some versions of webob do not produce quotes, hence the 'or'
