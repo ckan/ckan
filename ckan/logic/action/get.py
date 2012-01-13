@@ -864,6 +864,14 @@ def user_activity_list(context, data_dict):
             model.activity.Activity).filter_by(user_id=user_id).all()
     return activity_list_dictize(activity_objects, context)
 
+def package_activity_list(context, data_dict):
+    '''Return a package's public activity stream as a list of dicts.'''
+    model = context['model']
+    package_id = data_dict['id']
+    activity_objects = model.Session.query(
+            model.activity.Activity).filter_by(object_id=package_id).all()
+    return activity_list_dictize(activity_objects, context)
+
 def activity_detail_list(context, data_dict):
     '''Return an activity's list of activity detail items, as a list of dicts.
     
@@ -934,14 +942,7 @@ activity_renderers = {
   'changed group' : render_changed_group_activity,
   }
 
-def user_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a user's public activity stream.
-    
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
-
-    '''
-    activity_stream = user_activity_list(context, data_dict)
+def _activity_list_to_html(context, activity_stream):
     html = []
     for activity in reversed(activity_stream):
         activity_type = activity['activity_type']
@@ -950,3 +951,23 @@ def user_activity_list_html(context, data_dict):
                 "type '%s'" % str(activity_type))
         html.append(activity_renderers[activity_type](context, activity))
     return literal('\n'.join(html))
+
+def user_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of a user's public activity stream.
+    
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = user_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)
+
+def package_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of a package's public activity stream.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = package_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)

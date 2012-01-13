@@ -29,6 +29,7 @@ import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
+import ckan.logic.action.get
 
 log = logging.getLogger('ckan.controllers')
 
@@ -215,7 +216,14 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
-        
+
+        # Add the package's activity stream (already rendered to HTML) to the
+        # template context for the package/read.html template to retrieve
+        # later.
+        c.package_activity_stream = \
+                ckan.logic.action.get.package_activity_list_html(context,
+                    {'id': c.current_package_id})
+
         if config.get('rdf_packages'):
             accept_header = request.headers.get('Accept', '*/*')
             for content_type, exts in negotiate(autoneg_cfg, accept_header):
