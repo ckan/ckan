@@ -16,6 +16,7 @@ from ckan.logic.schema import group_form_schema
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.lib.dictization.model_dictize import package_dictize
 import ckan.forms
+import ckan.logic.action.get
 
 class GroupController(BaseController):
 
@@ -110,6 +111,12 @@ class GroupController(BaseController):
         for pkg_rev in c.page.items:
             result.append(package_dictize(pkg_rev, context))
         c.page.items = result
+
+        # Add the group's activity stream (already rendered to HTML) to the
+        # template context for the group/read.html template to retrieve later.
+        c.group_activity_stream = \
+                ckan.logic.action.get.group_activity_list_html(context,
+                    {'id': c.group_dict['id']})
         
         return render('group/read.html')
 
