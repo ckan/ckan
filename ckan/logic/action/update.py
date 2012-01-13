@@ -332,6 +332,17 @@ def group_update(context, data_dict):
     for item in PluginImplementations(IGroupController):
         item.edit(group)
 
+    activity_dict = {
+            'user_id': model.User.by_name(user.decode('utf8')).id,
+            'object_id': group.id,
+            'activity_type': 'changed group',
+            }
+    activity_dict['data'] = {'group': group_dictize(group, context)}
+    from ckan.logic.action.create import activity_create
+    activity_create(context, activity_dict)
+    # TODO: Also create an activity detail recording what exactly changed in
+    # the group.
+
     if not context.get('defer_commit'):
         model.repo.commit()        
     if errors:
