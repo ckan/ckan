@@ -102,14 +102,14 @@ class DatasetActivitySessionExtension(SessionExtension):
                         activity = activity_stream_item(package, "changed",
                                 revision, user_id)
                         if activity is None: continue
-                        activities[package.id] = activity
-
                     logger.debug("activity: %s" % activity)
 
                     activity_detail = activity_stream_detail(obj, activity.id,
                             activity_type)
                     logger.debug("activity_detail: %s" % activity_detail)
                     if activity_detail is not None:
+                        if not package.id in activities:
+                            activities[package.id] = activity
                         if activity_details.has_key(activity.id):
                             activity_details[activity.id].append(
                                     activity_detail)

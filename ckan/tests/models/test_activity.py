@@ -529,6 +529,8 @@ class TestActivity:
         # belongs to may have been closed.
         package = model.Session.query(model.Package).get(package.id)
         num_resources = len(package.resources)
+        assert num_resources > 0, \
+                "Cannot delete resources if there aren't any."
         resource_ids = [resource.id for resource in package.resources]
 
         # Delete the resources.
@@ -582,7 +584,16 @@ class TestActivity:
         when resources are deleted from packages.
 
         """
+        packages_with_resources = []
         for package in model.Session.query(model.Package).all():
+            # Query for the package object again, as the session that it
+            # belongs to may have been closed.
+            package = model.Session.query(model.Package).get(package.id)
+            if len(package.resources) > 0:
+                packages_with_resources.append(package)
+        assert len(packages_with_resources) > 0, \
+                "Need some packages with resources to test deleting resources."
+        for package in packages_with_resources:
             self._delete_resources(package)
 
     def test_create_user(self):

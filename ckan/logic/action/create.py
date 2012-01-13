@@ -315,14 +315,8 @@ def activity_create(context, activity_dict):
     '''
     model = context['model']
 
-    revision = model.repo.new_revision()
-    revision.author = activity_dict['user_id']
-    if 'message' in context:
-        revision.message = context['message']
-    else:
-        revision.message = _(u'REST API: Create activity')
     assert not activity_dict.has_key('revision_id')
-    activity_dict['revision_id'] = revision.id
+    activity_dict['revision_id'] = model.Session.revision.id
 
     activity = activity_dict_save(activity_dict, context)
 
