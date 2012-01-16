@@ -212,6 +212,7 @@ class ApiController(BaseController):
             ('package', 'activity'): get_action('package_activity_list'),
             ('dataset', 'activity'): get_action('package_activity_list'),
             ('group', 'activity'): get_action('group_activity_list'),
+            ('user', 'activity'): get_action('user_activity_list')
         }
 
         action = action_map.get((register, subregister)) 
@@ -235,7 +236,6 @@ class ApiController(BaseController):
             'tag': get_action('tag_show_rest'),
             'dataset': get_action('package_show_rest'),
             'package': get_action('package_show_rest'),
-            'activity': get_action('user_activity_list'),
             ('dataset', 'relationships'): get_action('package_relationships_list'),
             ('package', 'relationships'): get_action('package_relationships_list'),
         }

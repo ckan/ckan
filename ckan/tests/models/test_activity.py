@@ -82,7 +82,7 @@ def get_group_activity_stream(group_id):
 
 def get_user_activity_stream_from_api(user_id):
     app = paste.fixture.TestApp(pylonsapp)
-    response = app.get("/api/2/rest/activity/%s" % user_id)
+    response = app.get("/api/2/rest/user/%s/activity" % user_id)
     return json.loads(response.body)
 
 def get_package_activity_stream_from_api(package_id):
