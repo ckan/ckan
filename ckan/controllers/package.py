@@ -141,11 +141,15 @@ class PackageController(BaseController):
 
         try:
             c.fields = []
+            search_extras = {}
             for (param, value) in request.params.items():
                 if not param in ['q', 'page'] \
                         and len(value) and not param.startswith('_'):
-                    c.fields.append((param, value))
-                    q += ' %s: "%s"' % (param, value)
+                    if not param.startswith('ext_'):
+                        c.fields.append((param, value))
+                        q += ' %s: "%s"' % (param, value)
+                    else:
+                        search_extras[param] = value
 
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
@@ -155,6 +159,7 @@ class PackageController(BaseController):
                 'facet.field':g.facets,
                 'rows':limit,
                 'start':(page-1)*limit,
+                'extras':search_extras
             }
 
             query = get_action('package_search')(context,data_dict)
