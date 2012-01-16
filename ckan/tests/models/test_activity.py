@@ -10,6 +10,7 @@ from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
 from ckan.lib.dictization.model_dictize import resource_list_dictize
 from ckan.logic.action.get import user_activity_list, activity_detail_list
+from ckan.logic.action.get import package_activity_list, group_activity_list
 from pylons.test import pylonsapp
 import paste.fixture
 from ckan.lib.helpers import json
@@ -70,6 +71,12 @@ def get_user_activity_stream(user_id):
     data_dict = {'id':user_id}
     return user_activity_list(context, data_dict)
 
+def get_package_activity_stream(package_id):
+    '''Return the public activity stream for the given package.'''
+    context = {'model':model}
+    data_dict = {'id':package_id}
+    return package_activity_list(context, data_dict)
+
 def get_user_activity_stream_from_api(user_id):
     '''
     Return the public activity stream for the given user, but get it via the
@@ -86,9 +93,12 @@ def get_activity_details(activity):
     data_dict = {'id': activity['id']}
     return activity_detail_list(context, data_dict)
 
-def record_details(user_id):
+def record_details(user_id, package_id=None):
     details = {}
     details['user activity stream'] = get_user_activity_stream(user_id)
+    if package_id is not None:
+        details['package activity stream'] = (
+                get_package_activity_stream(package_id))
 
     # This tests the user activity stream API call, the result should be the
     # same as from the controller function.
@@ -100,8 +110,8 @@ def record_details(user_id):
 
 def find_new_activities(before, after):
     new_activities = []
-    for activity in after['user activity stream']:
-        if activity not in before['user activity stream']:
+    for activity in after:
+        if activity not in before:
             new_activities.append(activity)
     return new_activities
 
@@ -130,13 +140,19 @@ class TestActivity:
         request_data = make_package()
         package_created = package_create(context, request_data)
 
-        after = record_details(user_id)
+        after = record_details(user_id, package_created['id'])
 
-        # Find the new activity.
-        new_activities = find_new_activities(before, after)
-        assert len(new_activities) == 1, ("There should be 1 new activity in "
-            "the user's activity stream, but found %i" % len(new_activities))
-        activity = new_activities[0]
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = after['package activity stream']
+        assert pkg_new_activities == user_new_activities
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package_created['id'], \
@@ -150,8 +166,8 @@ class TestActivity:
         if not activity.has_key('revision_id'):
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= after['time'], \
-            str(activity['timestamp'])
+        assert timestamp >= before['time'] and timestamp <= \
+            after['time'], str(activity['timestamp'])
 
         # Test that there are three activity details: one for the package
         # itself and one for each of its two resources, and test that each
@@ -161,14 +177,17 @@ class TestActivity:
         for detail in details:
             assert detail['activity_id'] == activity['id'], \
                 str(detail['activity_id'])
-            assert detail['activity_type'] == "new", str(detail['activity_type'])
+            assert detail['activity_type'] == "new", ( 
+                str(detail['activity_type']))
             if detail['object_id'] == package_created['id']:
                 assert detail['object_type'] == "Package", \
                     str(detail['object_type'])
-            elif detail['object_id'] == package_created['resources'][0]['id']:
-                assert detail['object_type'] == "Resource", \
-                    str(detail['object_type'])
-            elif detail['object_id'] == package_created['resources'][1]['id']:
+            elif (detail['object_id'] ==
+                package_created['resources'][0]['id']):
+                assert detail['object_type'] == "Resource", (
+                    str(detail['object_type']))
+            elif (detail['object_id'] ==
+                package_created['resources'][1]['id']):
                 assert detail['object_type'] == "Resource", \
                     str(detail['object_type'])
             else:
@@ -204,7 +223,7 @@ class TestActivity:
             user_name = '127.0.0.1'
             user_id = 'not logged in'
 
-        before = record_details(user_id)
+        before = record_details(user_id, package.id)
 
         # Query for the package object again, as the session that it belongs to
         # may have been closed.
@@ -222,17 +241,26 @@ class TestActivity:
                 }
         updated_package = package_update(context, request_data)
 
-        after = record_details(user_id)
+        after = record_details(user_id, package.id)
         resource_ids_after = [resource['id'] for resource in
                 updated_package['resources']]
         assert len(resource_ids_after) == len(resource_ids_before) + 1
 
-        # Find the new activity.
-        new_activities = find_new_activities(before, after)
-        assert len(new_activities) == 1, ("There should be 1 new activity in "
-            "the user's activity stream, but found %i" % len(new_activities))
-        activity = new_activities[0]
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
 
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
+
+        # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
             str(activity['object_id'])
         assert activity['user_id'] == user_id, str(activity['user_id'])
@@ -244,8 +272,8 @@ class TestActivity:
         if not activity.has_key('revision_id'):
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= after['time'], \
-            str(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+                timestamp <= after['time']), str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
         details = get_activity_details(activity)        
@@ -254,12 +282,15 @@ class TestActivity:
         assert detail['activity_id'] == activity['id'], \
             str(detail['activity_id'])
         new_resource_ids = [id for id in resource_ids_after if id not in
-                resource_ids_before]
+            resource_ids_before]
         assert len(new_resource_ids) == 1
         new_resource_id = new_resource_ids[0]
-        assert detail['object_id'] == new_resource_id, str(detail['object_id'])
-        assert detail['object_type'] == "Resource", str(detail['object_type'])
-        assert detail['activity_type'] == "new", str(detail['activity_type'])
+        assert detail['object_id'] == new_resource_id, ( 
+            str(detail['object_id']))
+        assert detail['object_type'] == "Resource", ( 
+            str(detail['object_type']))
+        assert detail['activity_type'] == "new", (
+            str(detail['activity_type']))
 
     def test_add_resources(self):
         """
@@ -296,7 +327,7 @@ class TestActivity:
             user_name = '127.0.0.1'
             user_id = 'not logged in'
 
-        before = record_details(user_id)
+        before = record_details(user_id, package.id)
 
         # Query for the package object again, as the session that it belongs to
         # may have been closed.
@@ -308,27 +339,36 @@ class TestActivity:
         package_dict = {'id': package.id, 'title': 'edited'}
         package_update(context, package_dict)
 
-        after = record_details(user_id)
+        after = record_details(user_id, package.id)
 
-        # Find the new activity.
-        new_activities = find_new_activities(before, after)
-        assert len(new_activities) == 1, ("There should be 1 new activity in "
-            "the user's activity stream, but found %i" % len(new_activities))
-        activity = new_activities[0]
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
 
         # Check that the new activity has the right attributes.
-        assert activity['object_id'] == package.id, str(activity['object_id'])
+        assert activity['object_id'] == package.id, (
+            str(activity['object_id']))
         assert activity['user_id'] == user_id, str(activity['user_id'])
-        assert activity['activity_type'] == 'changed package', \
-            str(activity['activity_type'])
+        assert activity['activity_type'] == 'changed package', (
+            str(activity['activity_type']))
         if not activity.has_key('id'):
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
         if not activity.has_key('revision_id'):
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= after['time'], \
-            str(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+                timestamp <= after['time']), str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
         details = get_activity_details(activity)
@@ -337,9 +377,10 @@ class TestActivity:
         assert detail['activity_id'] == activity['id'], \
             str(detail['activity_id'])
         assert detail['object_id'] == package.id, str(detail['object_id'])
-        assert detail['object_type'] == "Package", str(detail['object_type'])
-        assert detail['activity_type'] == "changed", \
-            str(detail['activity_type'])
+        assert detail['object_type'] == "Package", ( 
+            str(detail['object_type']))
+        assert detail['activity_type'] == "changed", (
+            str(detail['activity_type']))
 
     def test_update_package(self):
         """
@@ -376,7 +417,7 @@ class TestActivity:
             user_name = '127.0.0.1'
             user_id = 'not logged in'
 
-        before = record_details(user_id)
+        before = record_details(user_id, package.id)
 
         # Query for the Package and Resource objects again, as the session that
         # they belong to may have been closed.
@@ -389,38 +430,48 @@ class TestActivity:
         resource_dict = {'id':resource.id, 'name':'edited'}
         resource_update(context, resource_dict)
 
-        after = record_details(user_id)
+        after = record_details(user_id, package.id)
 
-        # Find the new activity.
-        new_activities = find_new_activities(before, after)
-        assert len(new_activities) == 1, ("There should be 1 new activity in "
-            "the user's activity stream, but found %i" % len(new_activities))
-        activity = new_activities[0]
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
 
         # Check that the new activity has the right attributes.
-        assert activity['object_id'] == package.id, str(activity['object_id'])
+        assert activity['object_id'] == package.id, (
+            str(activity['object_id']))
         assert activity['user_id'] == user_id, str(activity['user_id'])
-        assert activity['activity_type'] == 'changed package', \
-            str(activity['activity_type'])
+        assert activity['activity_type'] == 'changed package', (
+            str(activity['activity_type']))
         if not activity['id']:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
         if not activity['revision_id']:
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= after['time'], \
-            str(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+                timestamp <= after['time']), str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
         details = get_activity_details(activity)
         assert len(details) == 1
         detail = details[0]
-        assert detail['activity_id'] == activity['id'], \
-            str(detail['activity_id'])
+        assert detail['activity_id'] == activity['id'], (
+            str(detail['activity_id']))
         assert detail['object_id'] == resource.id, str(detail['object_id'])
-        assert detail['object_type'] == "Resource", str(detail['object_type'])
-        assert detail['activity_type'] == "changed", \
-            str(detail['activity_type'])
+        assert detail['object_type'] == "Resource", (
+            str(detail['object_type']))
+        assert detail['activity_type'] == "changed", (
+            str(detail['activity_type']))
 
     def test_update_resource(self):
         """
@@ -456,7 +507,7 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = record_details(self.normal_user.id)
+        before = record_details(self.normal_user.id, package.id)
 
         # Query for the package object again, as the session that it belongs to
         # may have been closed.
@@ -468,30 +519,39 @@ class TestActivity:
         package_dict = {'id':package.id}
         package_delete(context, package_dict)
 
-        after = record_details(self.normal_user.id)
+        after = record_details(self.normal_user.id, package.id)
 
-        # Find the new activity.
-        new_activities = find_new_activities(before, after)
-        assert len(new_activities) == 1, ("There should be 1 new activity in "
-            "the user's activity stream, but found %i" % len(new_activities))
-        activity = new_activities[0]
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
 
         # Check that the new activity has the right attributes.
-        assert activity['object_id'] == package.id, str(activity['object_id'])
-        assert activity['user_id'] == self.normal_user.id, \
-            str(activity['user_id'])
-        # "Deleted" packages actually show up as changed (the package's status
-        # changes to "deleted" but the package is not expunged).
-        assert activity['activity_type'] == 'changed package', \
-            str(activity['activity_type'])
+        assert activity['object_id'] == package.id, (
+                str(activity['object_id']))
+        assert activity['user_id'] == self.normal_user.id, (
+            str(activity['user_id']))
+        # "Deleted" packages actually show up as changed (the package's
+        # status changes to "deleted" but the package is not expunged).
+        assert activity['activity_type'] == 'changed package', (
+            str(activity['activity_type']))
         if not activity.has_key('id'):
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
         if not activity.has_key('revision_id'):
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= after['time'], \
-            str(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+                timestamp <= after['time']), str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
         details = get_activity_details(activity)
@@ -500,11 +560,12 @@ class TestActivity:
         assert detail['activity_id'] == activity['id'], \
             str(detail['activity_id'])
         assert detail['object_id'] == package.id, str(detail['object_id'])
-        assert detail['object_type'] == "Package", str(detail['object_type'])
-        # "Deleted" packages actually show up as changed (the package's status
-        # changes to "deleted" but the package is not expunged).
-        assert detail['activity_type'] == "changed", \
-            str(detail['activity_type'])
+        assert detail['object_type'] == "Package", (
+            str(detail['object_type']))
+        # "Deleted" packages actually show up as changed (the package's
+        # status changes to "deleted" but the package is not expunged).
+        assert detail['activity_type'] == "changed", (
+            str(detail['activity_type']))
 
     def test_delete_package(self):
         """
@@ -523,7 +584,7 @@ class TestActivity:
         correct activity item and detail items are emitted.
 
         """
-        before = record_details(self.normal_user.id)
+        before = record_details(self.normal_user.id, package.id)
 
         # Query the model for the Package object again, as the session that it
         # belongs to may have been closed.
@@ -539,42 +600,51 @@ class TestActivity:
         data_dict = { 'id':package.id, 'resources':[] }
         package_update(context, data_dict)
 
-        after = record_details(self.normal_user.id)
+        after = record_details(self.normal_user.id, package.id)
 
-        # Find the new activity.
-        new_activities = find_new_activities(before, after)
-        assert len(new_activities) == 1, ("There should be 1 new activity in "
-            "the user's activity stream, but found %i" % len(new_activities))
-        activity = new_activities[0]
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
 
         # Check that the new activity has the right attributes.
-        assert activity['object_id'] == package.id, str(activity['object_id'])
-        assert activity['user_id'] == self.normal_user.id, \
-            str(activity['user_id'])
-        assert activity['activity_type'] == 'changed package', \
-            str(activity['activity_type'])
+        assert activity['object_id'] == package.id, (
+            str(activity['object_id']))
+        assert activity['user_id'] == self.normal_user.id, (
+            str(activity['user_id']))
+        assert activity['activity_type'] == 'changed package', (
+            str(activity['activity_type']))
         if not activity.has_key('id'):
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
         if not activity.has_key('revision_id'):
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= after['time'], \
-            str(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+            timestamp <= after['time'], str(activity['timestamp']))
 
         # Test for the presence of correct activity detail items.
         details = get_activity_details(activity)
         assert len(details) == num_resources        
         for detail in details:
-            assert detail['activity_id'] == activity['id'], \
-                "activity_id should be %s but is %s" \
-                % (activity['id'], detail['activity_id'])
-            assert detail['object_id'] in resource_ids, \
-                str(detail['object_id'])
-            assert detail['object_type'] == "Resource", \
-                str(detail['object_type'])
-            assert detail['activity_type'] == "changed", \
-                str(detail['activity_type'])
+            assert detail['activity_id'] == activity['id'], (
+                "activity_id should be %s but is %s"
+                % (activity['id'], detail['activity_id']))
+            assert detail['object_id'] in resource_ids, (
+                str(detail['object_id']))
+            assert detail['object_type'] == "Resource", (
+                str(detail['object_type']))
+            assert detail['activity_type'] == "changed", (
+                str(detail['activity_type']))
 
     def test_delete_resources(self):
         """
@@ -665,7 +735,8 @@ class TestActivity:
         after = record_details(user.id)
 
         # Find the new activity.
-        new_activities = find_new_activities(before, after)
+        new_activities = find_new_activities(before['user activity stream'],
+            after['user activity stream'])
         assert len(new_activities) == 1, ("There should be 1 new activity in "
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
@@ -709,7 +780,8 @@ class TestActivity:
         after = record_details(user.id)
 
         # Find the new activity.
-        new_activities = find_new_activities(before, after)
+        new_activities = find_new_activities(before['user activity stream'],
+            after['user activity stream'])
         assert len(new_activities) == 1, ("There should be 1 new activity in "
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
@@ -746,7 +818,8 @@ class TestActivity:
         after = record_details(user.id)
 
         # Find the new activity.
-        new_activities = find_new_activities(before, after)
+        new_activities = find_new_activities(before['user activity stream'],
+            after['user activity stream'])
         assert len(new_activities) == 1, ("There should be 1 new activity in "
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
