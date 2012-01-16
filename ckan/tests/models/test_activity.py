@@ -82,17 +82,17 @@ def get_group_activity_stream(group_id):
 
 def get_user_activity_stream_from_api(user_id):
     app = paste.fixture.TestApp(pylonsapp)
-    response = app.get("/api/1/rest/activity/%s" % user_id)
+    response = app.get("/api/2/rest/activity/%s" % user_id)
     return json.loads(response.body)
 
 def get_package_activity_stream_from_api(package_id):
     app = paste.fixture.TestApp(pylonsapp)
-    response = app.get("/api/1/rest/dataset/%s/activity" % package_id)
+    response = app.get("/api/2/rest/dataset/%s/activity" % package_id)
     return json.loads(response.body)
 
 def get_group_activity_stream_from_api(group_id):
     app = paste.fixture.TestApp(pylonsapp)
-    response = app.get("/api/1/rest/group/%s/activity" % group_id)
+    response = app.get("/api/2/rest/group/%s/activity" % group_id)
     return json.loads(response.body)
 
 def get_activity_details(activity):
