@@ -66,31 +66,33 @@ def make_package():
     return pkg
 
 def get_user_activity_stream(user_id):
-    '''Return the public activity stream for the given user.'''
     context = {'model':model}
     data_dict = {'id':user_id}
     return user_activity_list(context, data_dict)
 
 def get_package_activity_stream(package_id):
-    '''Return the public activity stream for the given package.'''
     context = {'model':model}
     data_dict = {'id':package_id}
     return package_activity_list(context, data_dict)
 
 def get_group_activity_stream(group_id):
-    '''Return the public activity stream for the given group.'''
     context = {'model':model}
     data_dict = {'id':group_id}
     return group_activity_list(context, data_dict)
 
 def get_user_activity_stream_from_api(user_id):
-    '''
-    Return the public activity stream for the given user, but get it via the
-    API instead of from the logic function directly.
-
-    '''
     app = paste.fixture.TestApp(pylonsapp)
     response = app.get("/api/1/rest/activity/%s" % user_id)
+    return json.loads(response.body)
+
+def get_package_activity_stream_from_api(package_id):
+    app = paste.fixture.TestApp(pylonsapp)
+    response = app.get("/api/1/rest/dataset/%s/activity" % package_id)
+    return json.loads(response.body)
+
+def get_group_activity_stream_from_api(group_id):
+    app = paste.fixture.TestApp(pylonsapp)
+    response = app.get("/api/1/rest/group/%s/activity" % group_id)
     return json.loads(response.body)
 
 def get_activity_details(activity):
@@ -99,17 +101,25 @@ def get_activity_details(activity):
     data_dict = {'id': activity['id']}
     return activity_detail_list(context, data_dict)
 
-def record_details(user_id, package_id=None):
+def record_details(user_id, package_id=None, group_id=None):
     details = {}
     details['user activity stream'] = get_user_activity_stream(user_id)
+    assert get_user_activity_stream_from_api(user_id) == (
+        details['user activity stream'])
+
     if package_id is not None:
         details['package activity stream'] = (
                 get_package_activity_stream(package_id))
+        assert get_package_activity_stream_from_api(package_id) == (
+            details['package activity stream']), ("Results from API should "
+            "match results from controller function.")
 
-    # This tests the user activity stream API call, the result should be the
-    # same as from the controller function.
-    assert get_user_activity_stream_from_api(user_id) == \
-        details['user activity stream']
+    if group_id is not None:
+        details['group activity stream'] = (
+                get_group_activity_stream(group_id))
+        assert get_group_activity_stream_from_api(group_id) == (
+            details['group activity stream']), ("Results from API should "
+            "match results from controller function.")
 
     details['time'] = datetime.datetime.now()
     return details
@@ -783,7 +793,7 @@ class TestActivity:
         request_data = {'name': 'a-new-group', 'title': 'A New Group'}
         group_created = group_create(context, request_data)
 
-        after = record_details(user.id)
+        after = record_details(user.id, group_id=group_created['id'])
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -792,9 +802,8 @@ class TestActivity:
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
 
-        assert (get_group_activity_stream(group_created['id']) ==
-            new_activities), ("The same activity should also appear in the "
-            "group's activity stream.")
+        assert after['group activity stream'] == new_activities, ("The same "
+            "activity should also appear in the group's activity stream.")
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group_created['id'], \
@@ -817,7 +826,7 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = record_details(user.id)
+        before = record_details(user.id, group_id=group.id)
 
         # Update the group.
         context = {'model': model, 'session': model.Session, 'user': user.name,
@@ -825,7 +834,7 @@ class TestActivity:
         group_dict = {'id': group.id, 'title': 'edited'}
         group_updated = group_update(context, group_dict)
 
-        after = record_details(user.id)
+        after = record_details(user.id, group_id=group.id)
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -834,9 +843,9 @@ class TestActivity:
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
 
-        assert (get_group_activity_stream(group_updated['id']) ==
-            new_activities), ("The same activity should also appear in the "
-            "group's activity stream.")
+        assert find_new_activities(before["group activity stream"],
+            after['group activity stream']) == new_activities, ("The same "
+            "activity should also appear in the group's activity stream.")
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group.id, str(activity['object_id'])

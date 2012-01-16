@@ -209,6 +209,9 @@ class ApiController(BaseController):
             ('package', 'relationships'): get_action('package_relationships_list'),
             ('dataset', 'revisions'): get_action('package_revision_list'),
             ('package', 'revisions'): get_action('package_revision_list'),
+            ('package', 'activity'): get_action('package_activity_list'),
+            ('dataset', 'activity'): get_action('package_activity_list'),
+            ('group', 'activity'): get_action('group_activity_list'),
         }
 
         action = action_map.get((register, subregister)) 
