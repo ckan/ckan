@@ -77,6 +77,12 @@ def get_package_activity_stream(package_id):
     data_dict = {'id':package_id}
     return package_activity_list(context, data_dict)
 
+def get_group_activity_stream(group_id):
+    '''Return the public activity stream for the given group.'''
+    context = {'model':model}
+    data_dict = {'id':group_id}
+    return group_activity_list(context, data_dict)
+
 def get_user_activity_stream_from_api(user_id):
     '''
     Return the public activity stream for the given user, but get it via the
@@ -786,6 +792,10 @@ class TestActivity:
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
 
+        assert (get_group_activity_stream(group_created['id']) ==
+            new_activities), ("The same activity should also appear in the "
+            "group's activity stream.")
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group_created['id'], \
             str(activity['object_id'])
@@ -813,7 +823,7 @@ class TestActivity:
         context = {'model': model, 'session': model.Session, 'user': user.name,
                 'allow_partial_update': True}
         group_dict = {'id': group.id, 'title': 'edited'}
-        group_update(context, group_dict)
+        group_updated = group_update(context, group_dict)
 
         after = record_details(user.id)
 
@@ -823,6 +833,10 @@ class TestActivity:
         assert len(new_activities) == 1, ("There should be 1 new activity in "
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
+
+        assert (get_group_activity_stream(group_updated['id']) ==
+            new_activities), ("The same activity should also appear in the "
+            "group's activity stream.")
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group.id, str(activity['object_id'])
