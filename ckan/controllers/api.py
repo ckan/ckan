@@ -212,7 +212,8 @@ class ApiController(BaseController):
             ('package', 'activity'): get_action('package_activity_list'),
             ('dataset', 'activity'): get_action('package_activity_list'),
             ('group', 'activity'): get_action('group_activity_list'),
-            ('user', 'activity'): get_action('user_activity_list')
+            ('user', 'activity'): get_action('user_activity_list'),
+            ('activity', 'details'): get_action('activity_detail_list')
         }
 
         action = action_map.get((register, subregister)) 

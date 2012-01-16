@@ -99,7 +99,15 @@ def get_activity_details(activity):
     '''Return the list of activity details for the given activity.'''
     context = {'model': model}
     data_dict = {'id': activity['id']}
-    return activity_detail_list(context, data_dict)
+    details = activity_detail_list(context, data_dict)
+    assert details == get_activity_details_from_api(activity), ("Results from"
+        " API should match results from logic function.")
+    return details
+
+def get_activity_details_from_api(activity):
+    app = paste.fixture.TestApp(pylonsapp)
+    response = app.get("/api/2/rest/activity/%s/details" % activity['id'])
+    return json.loads(response.body)
 
 def record_details(user_id, package_id=None, group_id=None):
     details = {}
