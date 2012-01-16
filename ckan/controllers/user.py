@@ -240,6 +240,12 @@ class UserController(BaseController):
     def login(self):
         if 'error' in request.params:
             h.flash_error(request.params['error'])
+
+        if request.environ['SCRIPT_NAME'] and g.openid_enabled:
+            # #1662 restriction
+            log.warn('Cannot mount CKAN at a URL and login with OpenID.')
+            g.openid_enabled = False
+            
         return render('user/login.html')
     
     def logged_in(self):
@@ -308,7 +314,7 @@ class UserController(BaseController):
                 try:
                     mailer.send_reset_link(user_obj)
                     h.flash_success(_('Please check your inbox for a reset code.'))
-                    redirect('/')
+                    h.redirect_to('/')
                 except mailer.MailerException, e:
                     h.flash_error(_('Could not send reset link: %s') % unicode(e))
         return render('user/request_reset.html')
@@ -339,7 +345,7 @@ class UserController(BaseController):
                 user = get_action('user_update')(context, user_dict)
 
                 h.flash_success(_("Your password has been reset."))
-                redirect('/')
+                h.redirect_to('/')
             except NotAuthorized:
                 h.flash_error(_('Unauthorized to edit user %s') % id)
             except NotFound, e:
