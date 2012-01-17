@@ -10,7 +10,7 @@ fi
 
 if [ $# -lt 3 ]
 then    
-    echo "ERROR: Expected two arguments (instance name, hostname, local database [yes or no]) eg."
+    echo "ERROR: Wrong number of arguments. Expected: (instance name, hostname, local database [yes or no]) e.g."
     echo "       $0 std std.ckan.org yes"
     exit 1
 fi
