@@ -62,6 +62,7 @@ class ManageDb(CkanCommand):
     db init # create and put in default data
     db clean
     db upgrade [{version no.}] # Data migrate
+    db version # returns current version of data schema
     db dump {file-path} # dump to a pg_dump file
     db dump-rdf {dataset-name} {file-path}
     db simple-dump-csv {file-path}
@@ -100,6 +101,8 @@ class ManageDb(CkanCommand):
                 model.repo.upgrade_db(self.args[1])
             else:
                 model.repo.upgrade_db()
+        elif cmd == 'version':
+            self.version()
         elif cmd == 'dump':
             self.dump()
         elif cmd == 'load':
@@ -247,6 +250,10 @@ class ManageDb(CkanCommand):
         import ckan.lib.talis
         talis = ckan.lib.talis.Talis()
         return talis.send_rdf(talis_store, username, password)
+
+    def version(self):
+        from ckan.model import Session
+        print Session.execute('select version from migrate_version;').fetchall()
 
 
 class SearchIndexCommand(CkanCommand):
