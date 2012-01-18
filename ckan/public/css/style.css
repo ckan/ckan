@@ -594,9 +594,6 @@ form.simple-form input[type=password] {
 .group.read .property-list li ul li {
   margin-left: -2.5em;
 }
-.group.read .notes p {
-  margin-bottom: 0;
-}
 .group-dataset-list {
   margin: 2em 0;
 }
@@ -1177,16 +1174,16 @@ body.package.read #sidebar li.widget-container {
   border-left: 2px solid #eee;
   background: url('/images/ldquo.png') no-repeat top left #f7f7f7;
 }
-.notes #dataset-notes-toggle a {
+.notes #notes-toggle a {
   cursor: pointer;
 }
-.notes #dataset-notes-toggle a.more:after {
+.notes #notes-toggle a.more:after {
   content: '  »';
   font-size: 150%;
   position: relative;
   bottom: -1px;
 }
-.notes #dataset-notes-toggle a.less:before {
+.notes #notes-toggle a.less:before {
   content: '« ';
   font-size: 150%;
   position: relative;

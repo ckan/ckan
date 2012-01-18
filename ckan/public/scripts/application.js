@@ -23,10 +23,16 @@
       CKAN.Utils.setupWelcomeBanner($('.js-welcome-banner'));
     }
 
+    var isGroupView = $('body.group.read').length > 0;
+    if (isGroupView) {
+      // Show extract of notes field
+      CKAN.Utils.setupNotesExtract();
+    }
+
     var isDatasetView = $('body.package.read').length > 0;
     if (isDatasetView) {
       // Show extract of notes field
-      CKAN.Utils.setupDatasetViewNotesExtract();
+      CKAN.Utils.setupNotesExtract();
     }
 
     var isResourceView = $('body.package.resource_read').length > 0;
@@ -424,17 +430,17 @@ CKAN.Utils = function($, my) {
   // If notes field is more than 1 paragraph, just show the
   // first paragraph with a 'Read more' link that will expand
   // the div if clicked
-  my.setupDatasetViewNotesExtract = function() {
-    var notes = $('#dataset div.notes');
+  my.setupNotesExtract = function() {
+    var notes = $('#content div.notes');
     if(notes.find('p').length > 1){
       var extract = notes.children(':eq(0)');
       var remainder = notes.children(':gt(0)');
-      notes.html($.tmpl(CKAN.Templates.datasetNotesField));
+      notes.html($.tmpl(CKAN.Templates.notesField));
       notes.find('#notes-extract').html(extract);
       notes.find('#notes-remainder').html(remainder);
       notes.find('#notes-remainder').hide();
-      notes.find('#dataset-notes-toggle a').click(function(event){
-        notes.find('#dataset-notes-toggle a').toggle();
+      notes.find('#notes-toggle a').click(function(event){
+        notes.find('#notes-toggle a').toggle();
         var remainder = notes.find('#notes-remainder')
         if ($(event.target).hasClass('more')) {
           remainder.slideDown();
