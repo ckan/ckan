@@ -209,8 +209,7 @@ class ManageDb(CkanCommand):
         dump_filepath = self.args[1]
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
-        query = model.Session.query(model.Package)
-        dumper.SimpleDumper().dump_csv(dump_file, query)
+        dumper.SimpleDumper().dump(dump_file, format='csv')
 
     def simple_dump_json(self):
         from ckan import model
@@ -220,8 +219,7 @@ class ManageDb(CkanCommand):
         dump_filepath = self.args[1]
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
-        query = model.Session.query(model.Package)
-        dumper.SimpleDumper().dump_json(dump_file, query)
+        dumper.SimpleDumper().dump(dump_file, format='json')
 
     def dump_rdf(self):
         if len(self.args) < 3:
