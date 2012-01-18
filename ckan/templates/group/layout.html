@@ -14,12 +14,12 @@
       <li class="dropdown" py:attrs="{'class':'current-tab dropdown'} if c.action=='resource_read' else {'class':'dropdown'}">
         <div class="dropdown-appears">
           <div class="dropdown-items">
-            <a href="${h.url_for(controller='package', action='new')}?autogroup=${c.group.name}">New Dataset...</a>
+            <a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">New Dataset...</a>
             <a href="${h.url_for(controller='package', action='search')}">Existing Dataset...</a>
           </div>
         </div>
         <div class="dropdown-appears"><div class="white-box"></div></div>
-        <a href="${h.url_for(controller='package', action='new')}?autogroup=${c.group.name}">
+        <a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">
           ${h.icon('add') + _('Add Dataset')}</a>
         &nbsp;&nbsp;<img class="dropdown-arrow" src="/images/icons/arrow-open.gif"/>
       </li>
