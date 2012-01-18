@@ -56,7 +56,7 @@ def package_list(context, data_dict):
     user = context["user"]
     api = context.get("api_version", '1')
     ref_package_by = 'id' if api == '2' else 'name'
-    
+
     check_access('package_list', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)
@@ -119,7 +119,7 @@ def group_list(context, data_dict):
     if order_by not in set(('name', 'packages')):
         raise ValidationError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
-   
+
     check_access('group_list',context, data_dict)
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
@@ -157,7 +157,7 @@ def group_list_authz(context, data_dict):
 
     query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
     groups = set(query.all())
-    
+
     if available_only:
         package = context.get('package')
         if package:
@@ -311,7 +311,7 @@ def package_relationships_list(context, data_dict):
         rel = None
 
     check_access('package_relationships_list',context, data_dict)
-    
+
     # TODO: How to handle this object level authz?
     relationships = Authorizer().\
                     authorized_package_relationships(\
@@ -664,6 +664,10 @@ def package_search(context, data_dict):
 
     check_access('package_search', context, data_dict)
 
+    # check if some extension needs to modify the search params
+    for item in PluginImplementations(IPackageController):
+        data_dict = item.before_search(data_dict)
+
     # return a list of package ids
     data_dict['fl'] = 'id'
 
@@ -676,7 +680,7 @@ def package_search(context, data_dict):
         pkg_query = session.query(model.PackageRevision)\
             .filter(model.PackageRevision.id == package)\
             .filter(and_(
-                model.PackageRevision.state == u'active', 
+                model.PackageRevision.state == u'active',
                 model.PackageRevision.current == True
             ))
         pkg = pkg_query.first()
@@ -690,11 +694,18 @@ def package_search(context, data_dict):
         result_dict = package_dictize(pkg,context)
         results.append(result_dict)
 
-    return {
+
+    search_results = {
         'count': query.count,
         'facets': query.facets,
         'results': results
     }
+
+    # check if some extension needs to modify the search results
+    for item in PluginImplementations(IPackageController):
+        search_results = item.after_search(search_results,data_dict)
+
+    return search_results
 
 def _extend_package_dict(package_dict,context):
     model = context['model']
@@ -739,7 +750,7 @@ def resource_search(context, data_dict):
             raise SearchError('Field "%s" not recognised in Resource search.' % field)
         for term in terms:
             model_attr = getattr(model.Resource, field)
-            if field == 'hash':                
+            if field == 'hash':
                 q = q.filter(model_attr.ilike(unicode(term) + '%'))
             elif field in model.Resource.get_extra_columns():
                 model_attr = getattr(model.Resource, 'extras')
@@ -751,7 +762,7 @@ def resource_search(context, data_dict):
                 q = q.filter(like)
             else:
                 q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
-    
+
     if order_by is not None:
         if hasattr(model.Resource, order_by):
             q = q.order_by(getattr(model.Resource, order_by))
@@ -759,7 +770,7 @@ def resource_search(context, data_dict):
     count = q.count()
     q = q.offset(offset)
     q = q.limit(limit)
-    
+
     results = []
     for result in q:
         if isinstance(result, tuple) and isinstance(result[0], model.DomainObject):
@@ -902,6 +913,14 @@ def render_changed_resource_activity(context, activity, detail):
     return render('activity_streams/changed_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
+def render_added_tag_activity(context, activity, detail):
+    return render('activity_streams/added_tag.html',
+            extra_vars = {'activity': activity, 'detail': detail})
+
+def render_removed_tag_activity(context, activity, detail):
+    return render('activity_streams/removed_tag.html',
+            extra_vars = {'activity': activity, 'detail': detail})
+
 def render_changed_package_activity(context, activity):
     details = activity_detail_list(context=context,
         data_dict={'id': activity['id']})
@@ -911,7 +930,11 @@ def render_changed_package_activity(context, activity):
             'Resource': {
               'new': render_new_resource_activity,
               'changed': render_changed_resource_activity
-              }
+              },
+            'tag': {
+              'added': render_added_tag_activity,
+              'removed': render_removed_tag_activity,
+              },
             }
         object_type = detail['object_type']
         if activity_detail_renderers.has_key(object_type):

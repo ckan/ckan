@@ -7,6 +7,7 @@ from meta import *
 from domain_object import DomainObject
 from package import Package
 from core import *
+import activity
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
            'PackageTagRevision', 'package_tag_revision_table',
@@ -86,7 +87,6 @@ class Tag(DomainObject):
     def __repr__(self):
         return '<Tag %s>' % self.name
 
-
 class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
@@ -99,6 +99,34 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def __repr__(self):
         return '<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
+
+    def activity_stream_detail(self, activity_id, activity_type):
+        if activity_type == 'new':
+            # New PackageTag objects are recorded as 'added tag' events.
+            activity_type = 'added'
+        elif activity_type == 'changed':
+            # Changed PackageTag objects are recorded as 'removed tag' events.
+            # FIXME: This assumes that whenever a PackageTag is changed it's
+            # because its' state has been changed from 'active' to 'deleted'.
+            # Should do something more here to test whether that is in fact
+            # what has changed.
+            activity_type = 'removed'
+        else:
+            return None
+
+        # Return an 'added tag' or 'removed tag' activity.
+        from ckan.lib.dictization.model_dictize import package_dictize
+        from ckan.lib.dictization.model_dictize import tag_dictize
+        import ckan.model
+        c = {'model': ckan.model}
+        d = {'tag': tag_dictize(self.tag, c),
+            'package': package_dictize(self.package, c)}
+        return activity.ActivityDetail(
+            activity_id=activity_id,
+            object_id=self.id,
+            object_type='tag',
+            activity_type=activity_type,
+            data=d)
 
     @classmethod
     def by_name(self, package_name, tag_name, autoflush=True):

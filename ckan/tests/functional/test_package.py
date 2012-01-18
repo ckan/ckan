@@ -25,11 +25,11 @@ from ckan.rating import set_rating
 
 class MockPackageControllerPlugin(SingletonPlugin):
     implements(IPackageController)
-    
+
     def __init__(self):
         from collections import defaultdict
         self.calls = defaultdict(int)
-    
+
     def read(self, entity):
         self.calls['read'] += 1
 
@@ -47,7 +47,15 @@ class MockPackageControllerPlugin(SingletonPlugin):
 
     def delete(self, entity):
         self.calls['delete'] += 1
-    
+
+    def before_search(self, search_params):
+        self.calls['before_search'] += 1
+        return search_params
+
+    def after_search(self, search_results, search_params):
+        self.calls['after_search'] += 1
+        return search_results
+
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
@@ -57,7 +65,7 @@ class TestPackageBase(FunctionalTestCase):
     # Note: Can't put a quotation mark in key1 or value1 because
     # paste.fixture doesn't unescape the value in an input field
     # on form submission. (But it works in real life.)
-    
+
     def _assert_form_errors(self, res):
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'field_error' in res, res
@@ -79,7 +87,7 @@ class TestPackageForm(TestPackageBase):
         main_div_str = main_div.encode('utf8')
         assert params['name'] in main_div, main_div_str
         assert params['title'] in main_div, main_div_str
-        assert params['version'] in main_div, main_div_str 
+        assert params['version'] in main_div, main_div_str
         self.check_named_element(main_div, 'a', 'href="%s"' % params['url'])
         prefix = 'Dataset-%s-' % params.get('id', '')
         for res_index, values in self._get_resource_values(params['resources'], by_resource=True):
@@ -149,7 +157,7 @@ class TestPackageForm(TestPackageBase):
         self.check_tag(main_res, prefix+'version', params['version'])
         self.check_tag(main_res, prefix+'url', params['url'])
         #for res_index, res_field, expected_value in self._get_resource_values(params['resources']):
-        #    ## only check fields that are on the form 
+        #    ## only check fields that are on the form
         #    if res_field not in ['url', 'id', 'description', 'hash']:
         #        continue
         #    self.check_tag(main_res, '%sresources__%i__%s' % (prefix, res_index, res_field), expected_value)
@@ -180,7 +188,7 @@ class TestPackageForm(TestPackageBase):
                 self.check_tag(main_res, 'extras__%s__deleted' % num, 'checked')
 
         assert params['log_message'] in main_res, main_res
-    
+
     def _check_redirect(self, return_url_param, expected_redirect,
                         pkg_name_to_edit=''):
         '''
@@ -260,7 +268,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         print pkg_by_name_main
         res_diff = self.diff_html(pkg_by_name_main, pkg_by_id_main)
         assert not res_diff, res_diff.encode('utf8')
-        # not true as language selection link return url differs: 
+        # not true as language selection link return url differs:
         #assert len(res_by_id.body) == len(res.body)
 
         # only retrieve after app has been called
@@ -332,7 +340,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         #assert '%s - Datasets' % title in res, res
         #main_div = self.main_div(res)
         #assert title in main_div, main_div.encode('utf8')
-    
+
     def test_history(self):
         name = 'annakarenina'
         offset = url_for(controller='package', action='history', id=name)
@@ -340,7 +348,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert 'History' in res
         assert 'Revisions' in res
         assert name in res
-        
+
     def test_read_plugin_hook(self):
         plugin = MockPackageControllerPlugin()
         plugins.load(plugin)
@@ -376,7 +384,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         cls.date3 = datetime.datetime(2011, 1, 3)
         cls.today = datetime.datetime.now()
         cls.pkg_name = u'testpkg'
-        
+
         # create dataset
         rev = model.repo.new_revision()
         rev.timestamp = cls.date1
@@ -535,10 +543,10 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         # this revision doesn't exist in the db
         offset = self.offset + '@ccab6798-1f4b-4a22-bcf5-462703aa4594'
         res = self.app.get(offset, status=404)
-        
+
 class TestEdit(TestPackageForm):
     editpkg_name = u'editpkgtest'
-    
+
     @classmethod
     def setup_class(self):
         CreateTestData.create()
@@ -569,7 +577,7 @@ class TestEdit(TestPackageForm):
         self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
-        self.admin = model.User.by_name(u'testadmin')        
+        self.admin = model.User.by_name(u'testadmin')
         self.res = None #get's refreshed by setup
         model.Session.remove()
 
@@ -629,7 +637,7 @@ class TestEdit(TestPackageForm):
             res = self.app.get(offset)
             assert '%s - Datasets' % new_title in res, res
             pkg = model.Package.by_name(new_name)
-            assert pkg.title == new_title 
+            assert pkg.title == new_title
             assert pkg.url == newurl
             #assert pkg.resources[0].url == new_download_url
             assert pkg.version == newversion
@@ -667,7 +675,7 @@ class TestEdit(TestPackageForm):
         prefix = 'Dataset-%s-' % self.pkgid
         fv = self.res.forms['dataset-edit']
         assert not fv.fields.has_key(prefix + 'groups')
-        
+
     def test_edit_2_tags_and_groups(self):
         # testing tag updating
         newtagnames = [u'russian', u'tolstoy', u'superb book']
@@ -686,7 +694,7 @@ class TestEdit(TestPackageForm):
         assert len(pkg.tags) == len(newtagnames)
         outtags = [ tag.name for tag in pkg.tags ]
         for tag in newtags:
-            assert tag in outtags 
+            assert tag in outtags
         rev = model.Revision.youngest(model.Session)
         assert rev.author == 'Unknown IP Address'
         assert rev.message == exp_log_message
@@ -874,7 +882,7 @@ class TestEdit(TestPackageForm):
         prefix = ''
         fv['log_message'] = u'Free enlargements: http://drugs.com/' # spam
         res = fv.submit('save')
-        assert 'Error' in res, res 
+        assert 'Error' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
 
@@ -888,7 +896,7 @@ class TestEdit(TestPackageForm):
         # Ensure there is an error at the top of the form and by the field
         self._assert_form_errors(res)
 
-        
+
     def test_edit_plugin_hook(self):
         # just the absolute basics
         try:
@@ -921,24 +929,24 @@ class TestEdit(TestPackageForm):
             # XXX the following assertion fails since upgrade to
             # sqlalchemy 0.6.5; apparently outer joins are handled
             # differently in such a way that
-            # ckan.lib.base._get_user_editable_groups (which calls 
+            # ckan.lib.base._get_user_editable_groups (which calls
             # ckan.authz.authorized_query) now returns groups when it
-            # shouldn't.                             
+            # shouldn't.
             assert not name in fv.fields.keys(), fv.fields.keys()
             res = fv.submit('save')
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
             assert len(pkg.get_groups()) == 0
         finally:
-            self._reset_data()            
-    
+            self._reset_data()
+
     def test_edit_700_groups_add(self):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
             grp = model.Group.by_name(u'david')
             assert len(pkg.get_groups()) == 0
             offset = url_for(controller='package', action='edit', id=pkg.name)
-            
+
             res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
             prefix = ''
             field_name = prefix + "groups__0__id"
@@ -952,7 +960,7 @@ class TestEdit(TestPackageForm):
             assert 'david' in res, res
         finally:
             self._reset_data()
-    
+
     def test_edit_700_groups_remove(self):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
@@ -1190,7 +1198,7 @@ class TestNew(TestPackageForm):
         assert 'Error' in res, res
         assert 'That URL is already in use.' in res, res
         self._assert_form_errors(res)
-        
+
     def test_missing_fields(self):
         # A field is left out in the commit parameters.
         # (Spammers can cause this)
@@ -1231,6 +1239,7 @@ class TestNew(TestPackageForm):
         assert plugin.calls['create'] == 1, plugin.calls
         plugins.unload(plugin)
 
+
     def test_new_indexerror(self):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
         solr_url = search.common.solr_url
@@ -1253,6 +1262,28 @@ class TestNew(TestPackageForm):
         finally:
             plugins.unload('synchronous_search')
             search.common.solr_url = solr_url
+
+class TestSearch(TestPackageForm):
+    pkg_names = []
+
+    @classmethod
+    def setup_class(self):
+        model.repo.init_db()
+
+    @classmethod
+    def teardown_class(self):
+        self.purge_packages(self.pkg_names)
+        model.repo.rebuild_db()
+
+    def test_search_plugin_hooks(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+        offset = url_for(controller='package', action='search')
+        res = self.app.get(offset)
+        # get redirected ...
+        assert plugin.calls['before_search'] == 1, plugin.calls
+        assert plugin.calls['after_search'] == 1, plugin.calls
+        plugins.unload(plugin)
 
 class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'
@@ -1284,11 +1315,11 @@ class TestNonActivePackages(TestPackageBase):
         model.setup_default_user_roles(pkg, [admin])
         model.repo.commit_and_remove()
 
-        model.repo.new_revision()        
+        model.repo.new_revision()
         pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         pkg.delete() # becomes non active
         model.repo.commit_and_remove()
-        
+
 
     @classmethod
     def teardown_class(self):
@@ -1327,7 +1358,7 @@ class TestRevisions(TestPackageBase):
             pkg1.notes = cls.notes[i]
             model.repo.commit_and_remove()
 
-        cls.pkg1 = model.Package.by_name(cls.name)        
+        cls.pkg1 = model.Package.by_name(cls.name)
         cls.revision_ids = [rev[0].id for rev in cls.pkg1.all_related_revisions]
                            # revision ids are newest first
         cls.revision_timestamps = [rev[0].timestamp for rev in cls.pkg1.all_related_revisions]
@@ -1336,7 +1367,7 @@ class TestRevisions(TestPackageBase):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-    
+
     def test_0_read_history(self):
         res = self.app.get(self.offset)
         main_res = self.main_div(res)
@@ -1381,7 +1412,7 @@ class TestRevisions(TestPackageBase):
         assert 'This is an old revision of this dataset' in main_html
         assert 'at %s' % str(self.revision_timestamps[1])[:6] in main_html
 
-   
+
 class TestMarkdownHtmlWhitelist(TestPackageForm):
 
     pkg_name = u'markdownhtmlwhitelisttest'
@@ -1454,7 +1485,7 @@ class TestAutocomplete(PylonsTestCase, TestPackageBase):
     def test_package_autocomplete(self):
         query = 'a'
         res = self.app.get('/dataset/autocomplete?q=%s' % query)
-        
+
         expected = ['A Wonderful Story (warandpeace)|warandpeace','annakarenina|annakarenina']
         received = sorted(res.body.split('\n'))
         assert expected == received

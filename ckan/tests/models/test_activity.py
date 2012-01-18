@@ -160,7 +160,12 @@ class TestActivity:
         before = record_details(user_id)
 
         # Create a new package.
-        context = {'model': model, 'session': model.Session, 'user': user_name}
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user_name,
+            'allow_partial_update': True,
+            }
         request_data = make_package()
         package_created = package_create(context, request_data)
 
@@ -193,31 +198,41 @@ class TestActivity:
         assert timestamp >= before['time'] and timestamp <= \
             after['time'], str(activity['timestamp'])
 
-        # Test that there are three activity details: one for the package
-        # itself and one for each of its two resources, and test that each
-        # contains the right data.
         details = get_activity_details(activity)
-        assert len(details) == 3
+        # There should be five activity details: one for the package itself,
+        # one for each of its two resources, and one for each of its two tags.
+        assert len(details) == 5, "There should be five activity details."
+
+        detail_ids = [detail['object_id'] for detail in details]
+        assert detail_ids.count(package_created['id']) == 1, (
+            "There should be one activity detail for the package itself.")
+        for resource in package_created['resources']:
+            assert detail_ids.count(resource['id']) == 1, (
+                "There should be one activity detail for each of the "
+                "package's resources")
+
         for detail in details:
             assert detail['activity_id'] == activity['id'], \
                 str(detail['activity_id'])
-            assert detail['activity_type'] == "new", ( 
-                str(detail['activity_type']))
+
             if detail['object_id'] == package_created['id']:
+                assert detail['activity_type'] == "new", ( 
+                    str(detail['activity_type']))
                 assert detail['object_type'] == "Package", \
                     str(detail['object_type'])
-            elif (detail['object_id'] ==
-                package_created['resources'][0]['id']):
+
+            elif (detail['object_id'] in
+                [resource['id'] for resource in package_created['resources']]):
+                assert detail['activity_type'] == "new", ( 
+                    str(detail['activity_type']))
                 assert detail['object_type'] == "Resource", (
                     str(detail['object_type']))
-            elif (detail['object_id'] ==
-                package_created['resources'][1]['id']):
-                assert detail['object_type'] == "Resource", \
-                    str(detail['object_type'])
+
             else:
-                assert False, ("Activity detail's object_id did not match"
-                    "package or any of its resources: %s" \
-                    % str(detail['object_id']))
+                assert detail['activity_type'] == "added", ( 
+                    str(detail['activity_type']))
+                assert detail['object_type'] == "tag", (
+                    str(detail['object_type']))
 
     def test_create_package(self):
         """
@@ -256,12 +271,17 @@ class TestActivity:
         resource_ids_before = [resource.id for resource in package.resources]
 
         # Create a new resource.
-        context = {'model': model, 'session': model.Session, 'user': user_name}
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user_name,
+            'allow_partial_update': True,
+            }
         resources = resource_list_dictize(package.resources, context)
         resources.append(make_resource())
         request_data = {
-                'id':package.id,
-                'resources':resources
+                'id': package.id,
+                'resources': resources,
                 }
         updated_package = package_update(context, request_data)
 
@@ -301,7 +321,7 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = get_activity_details(activity)        
-        assert len(details) == 1
+        assert len(details) == 1, [(detail['activity_type'], detail['object_type']) for detail in details]
         detail = details[0]
         assert detail['activity_id'] == activity['id'], \
             str(detail['activity_id'])
@@ -619,9 +639,14 @@ class TestActivity:
         resource_ids = [resource.id for resource in package.resources]
 
         # Delete the resources.
-        context = {'model': model, 'session': model.Session,
-                'user':self.normal_user.name}
-        data_dict = { 'id':package.id, 'resources':[] }
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user':self.normal_user.name,
+            }
+        from ckan.lib.dictization.model_dictize import package_dictize
+        data_dict = package_dictize(package, context)
+        data_dict['resources'] = []
         package_update(context, data_dict)
 
         after = record_details(self.normal_user.id, package.id)
