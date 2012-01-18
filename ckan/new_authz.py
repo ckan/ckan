@@ -25,19 +25,28 @@ def _get_auth_function(action):
     # Rather than writing them out in full will use __import__
     # to load anything from ckan.auth that looks like it might
     # be an authorisation function
+    
+    # These lambdas are used to describe how we modify the name of the
+    modules = [
+        'ckan.logic.auth',
+        'ckan.logic.auth.publisher'
+    ]
+    
     for auth_module_name in ['get', 'create', 'update','delete']:
-        module_path = 'ckan.logic.auth.'+auth_module_name
-        try:
-            module = __import__(module_path)
-        except ImportError,e:
-            log.debug('No auth module for action "%s"' % auth_module_name)
-            continue
+        for modroot in module_keys.keys():
+            module_path = modroot + '.' + auth_module_name
+            try:
+                module = __import__(module_path)
+            except ImportError,e:
+                log.debug('No auth module for action "%s"' % auth_module_name)
+                continue
 
-        for part in module_path.split('.')[1:]:
-            module = getattr(module, part)
-        for k, v in module.__dict__.items():
-            if not k.startswith('_'):
-                _auth_functions[k] = v
+            for part in module_path.split('.')[1:]:
+                module = getattr(module, part)
+                
+            for key, v in module.__dict__.items():
+                if not key.startswith('_'):
+                    _auth_functions[key] = v
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_auth_function_plugins = {}
