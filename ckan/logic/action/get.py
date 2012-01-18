@@ -913,6 +913,14 @@ def render_changed_resource_activity(context, activity, detail):
     return render('activity_streams/changed_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
+def render_added_tag_activity(context, activity, detail):
+    return render('activity_streams/added_tag.html',
+            extra_vars = {'activity': activity, 'detail': detail})
+
+def render_removed_tag_activity(context, activity, detail):
+    return render('activity_streams/removed_tag.html',
+            extra_vars = {'activity': activity, 'detail': detail})
+
 def render_changed_package_activity(context, activity):
     details = activity_detail_list(context=context,
         data_dict={'id': activity['id']})
@@ -922,7 +930,11 @@ def render_changed_package_activity(context, activity):
             'Resource': {
               'new': render_new_resource_activity,
               'changed': render_changed_resource_activity
-              }
+              },
+            'tag': {
+              'added': render_added_tag_activity,
+              'removed': render_removed_tag_activity,
+              },
             }
         object_type = detail['object_type']
         if activity_detail_renderers.has_key(object_type):

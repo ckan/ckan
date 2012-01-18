@@ -1,0 +1,23 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+  <xi:include href="../_util.html" />
+<div>
+  <div style="font-weight:bold;">
+    ${h.linked_user(activity.user_id)}
+    <span style="background:yellow;">removed</span>
+    the tag
+    <a href="${h.url_for(controller='tag', action='read',
+                         id=detail.data.tag.name)}">
+        ${detail.data.tag.name}
+    </a>
+    from the dataset
+    ${package_summary(detail.data.package)}
+    ${h.render_datetime(activity.timestamp, '%B %d %Y')}
+  </div>
+</div>
+</html>
