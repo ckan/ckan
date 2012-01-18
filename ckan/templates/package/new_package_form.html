@@ -126,7 +126,7 @@
       <select id="groups__${len(data.get('groups', []))}__id" name="groups__${len(data.get('groups', []))}__id">
         <option selected="selected" value="">(None)</option>
         <py:for each="group in c.groups_available">
-          <option value="${group['id']}" >${group['name']}</option>
+        <option py:attrs="{'selected':'selected'} if group['name']==request.params.get('autogroup') else {}" value="${group['id']}" >${group['name']}</option>
         </py:for>
       </select>
     </dd> 
