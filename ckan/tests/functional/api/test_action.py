@@ -1196,6 +1196,12 @@ class MockPackageSearchPlugin(SingletonPlugin):
     def before_search(self, search_params):
         if 'extras' in search_params and 'ext_avoid' in search_params['extras']:
             assert 'q' in search_params
+
+        if 'extras' in search_params and 'ext_abort' in search_params['extras']:
+            assert 'q' in search_params
+            # Prevent the actual query
+            search_params['abort_search'] = True
+
         return search_params
 
     def after_search(self, search_results, search_params):
@@ -1244,4 +1250,21 @@ class TestSearchPluginInterface(WsgiAppCase):
             assert not avoid.lower() in result['title'].lower()
 
         assert results_dict['count'] == 1
+        plugins.unload(plugin)
+
+    def test_search_plugin_interface_abort(self):
+        plugin = MockPackageSearchPlugin()
+        plugins.load(plugin)
+
+        search_params = '%s=1' % json.dumps({
+            'q': '*:*',
+            'extras' : {'ext_abort':True}
+        })
+
+        res = self.app.post('/api/action/package_search', params=search_params)
+
+        # Check that the query was aborted and no results returned
+        res_dict = json.loads(res.body)['result']
+        assert res_dict['count'] == 0
+        assert len(res_dict['results']) == 0
         plugins.unload(plugin)

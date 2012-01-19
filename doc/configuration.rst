@@ -57,7 +57,7 @@ site_logo
 
 Example::
 
- ckan.site_logo=/images/ckan_logo_fullname_long.png
+ ckan.site_logo = /images/ckan_logo_fullname_long.png
 
 Default value:  (none)
 
@@ -69,6 +69,17 @@ This sets the logo used in the title bar.
 
 .. index::
    single: package_hide_extras
+
+favicon
+^^^^^^^
+
+Example::
+
+ ckan.favicon = http://okfn.org/wp-content/themes/okfn-master-wordpress-theme/images/favicon.ico
+
+Default value: ``/images/icons/ckan.ico``
+
+This sets the site's `favicon`. This icon is usually displayed by the browser in the tab heading and bookmark.
 
 site_about
 ^^^^^^^^^^

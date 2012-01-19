@@ -105,11 +105,6 @@ class TestBasicDictize:
         model.repo.rebuild_db()
         model.Session.remove()
 
-    def teardonwn(self):
-        model.Session.remove()
-
-
-
     def remove_changable_columns(self, dict):
         for key, value in dict.items():
             if key.endswith('id') and key <> 'license_id':
