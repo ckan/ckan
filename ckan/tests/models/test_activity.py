@@ -573,7 +573,7 @@ class TestActivity:
             len(user_new_activities))
         activity = user_new_activities[0]
 
-        # The same new activity should appear in the package's activity stream.
+        # The same new activity should appear in the package's stream.
         pkg_new_activities = (find_new_activities(
             before['package activity stream'],
             after['package activity stream']))
@@ -584,9 +584,7 @@ class TestActivity:
                 str(activity['object_id']))
         assert activity['user_id'] == self.normal_user.id, (
             str(activity['user_id']))
-        # "Deleted" packages actually show up as changed (the package's
-        # status changes to "deleted" but the package is not expunged).
-        assert activity['activity_type'] == 'changed package', (
+        assert activity['activity_type'] == 'deleted package', (
             str(activity['activity_type']))
         if not activity.has_key('id'):
             assert False, "activity object has no id value"
@@ -606,9 +604,7 @@ class TestActivity:
         assert detail['object_id'] == package.id, str(detail['object_id'])
         assert detail['object_type'] == "Package", (
             str(detail['object_type']))
-        # "Deleted" packages actually show up as changed (the package's
-        # status changes to "deleted" but the package is not expunged).
-        assert detail['activity_type'] == "changed", (
+        assert detail['activity_type'] == "deleted", (
             str(detail['activity_type']))
 
     def test_delete_package(self):

@@ -544,8 +544,24 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         import ckan.model
         import ckan.lib.dictization
         import ckan.logic
-        assert activity_type in ("new", "changed", "deleted"), (
+        assert activity_type in ("new", "changed"), (
             str(activity_type))
+
+        # Handle 'deleted' objects.
+        # When the user marks a package as deleted this comes through here as
+        # a 'changed' package activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and self.state == u'deleted':
+            if ckan.model.Session.query(ckan.model.Activity).filter_by(
+                    object_id=self.id, activity_type='deleted').all():
+                # A 'deleted' activity for this object has already been emitted
+                # FIXME: What if the object was deleted and then activated
+                # again?
+                return None
+            else:
+                # Emit a 'deleted' activity for this object.
+                activity_type = 'deleted'
+
         try:
             d = {'package': ckan.lib.dictization.table_dictize(self,
                 context={'model': ckan.model})}
@@ -561,6 +577,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def activity_stream_detail(self, activity_id, activity_type):
         import ckan.model
         import ckan.lib.dictization
+
+        # Handle 'deleted' objects.
+        # When the user marks a package as deleted this comes through here as
+        # a 'changed' package activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and self.state == u'deleted':
+            activity_type = 'deleted'
+
         package_dict = ckan.lib.dictization.table_dictize(self,
                 context={'model':ckan.model})
         return ActivityDetail(activity_id, self.id, u"Package", activity_type,

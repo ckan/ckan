@@ -915,6 +915,10 @@ def render_new_package_activity(context, activity):
     return render('activity_streams/new_package.html',
         extra_vars = {'activity': activity})
 
+def render_deleted_package_activity(context, activity):
+    return render('activity_streams/deleted_package.html',
+        extra_vars = {'activity': activity})
+
 def render_new_resource_activity(context, activity, detail):
     return render('activity_streams/new_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
@@ -977,6 +981,7 @@ def render_changed_group_activity(context, activity):
 activity_renderers = {
   'new package' : render_new_package_activity,
   'changed package' : render_changed_package_activity,
+  'deleted package' : render_deleted_package_activity,
   'new user' : render_new_user_activity,
   'changed user' : render_changed_user_activity,
   'new group' : render_new_group_activity,
