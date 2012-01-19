@@ -11,6 +11,11 @@ log = getLogger(__name__)
 _auth_functions = {}
 
 def is_authorized(action, context,data_dict=None):
+    
+    # Ideally if we can find out if this is a publisher user (i.e. is part 
+    # of a publisher) then we can add publisher_ to the front of the action
+    # name to use the publisher auth instead of the standard one.
+    
     auth_function = _get_auth_function(action)
     if auth_function:
         return auth_function(context, data_dict)
