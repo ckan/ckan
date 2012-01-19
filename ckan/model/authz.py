@@ -208,7 +208,7 @@ class UserObjectRole(DomainObject):
         commit, will add the role to the database twice. Since some other
         functions count the number of occurrences, that leaves a fairly obvious
         bug. But adding a commit here seems to break various tests.
-        So don't call this twice without committing, I guess...
+        So don\'t call this twice without committing, I guess...
         '''
         if cls.authorization_group_has_role(authorization_group, role, domain_obj):
             return
@@ -355,7 +355,7 @@ def give_all_packages_default_user_roles():
         print 'Creating default user for for %s with admins %s' % (pkg.name, admins)
         setup_default_user_roles(pkg, admins)
 
-# default user roles - used when the config doesn't specify them
+# default user roles - used when the config doesn\'t specify them
 default_default_user_roles = {
     'Package': {"visitor": ["editor"], "logged_in": ["editor"]},
     'Group': {"visitor": ["reader"], "logged_in": ["reader"]},

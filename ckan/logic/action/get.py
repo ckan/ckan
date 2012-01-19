@@ -668,36 +668,46 @@ def package_search(context, data_dict):
     for item in PluginImplementations(IPackageController):
         data_dict = item.before_search(data_dict)
 
-    # return a list of package ids
-    data_dict['fl'] = 'id'
-
-    query = query_for(model.Package)
-    query.run(data_dict)
+    # the extension may have decided that it's no necessary to perform the query
+    abort = data_dict.get('abort_search',False)
 
     results = []
-    for package in query.results:
-        # get the package object
-        pkg_query = session.query(model.PackageRevision)\
-            .filter(model.PackageRevision.id == package)\
-            .filter(and_(
-                model.PackageRevision.state == u'active',
-                model.PackageRevision.current == True
-            ))
-        pkg = pkg_query.first()
+    if not abort:
+        # return a list of package ids
+        data_dict['fl'] = 'id'
 
-        ## if the index has got a package that is not in ckan then
-        ## ignore it.
-        if not pkg:
-            log.warning('package %s in index but not in database' % package)
-            continue
+        query = query_for(model.Package)
+        query.run(data_dict)
 
-        result_dict = package_dictize(pkg,context)
-        results.append(result_dict)
+        for package in query.results:
+            # get the package object
+            pkg_query = session.query(model.PackageRevision)\
+                .filter(model.PackageRevision.id == package)\
+                .filter(and_(
+                    model.PackageRevision.state == u'active',
+                    model.PackageRevision.current == True
+                ))
+            pkg = pkg_query.first()
 
+            ## if the index has got a package that is not in ckan then
+            ## ignore it.
+            if not pkg:
+                log.warning('package %s in index but not in database' % package)
+                continue
+
+            result_dict = package_dictize(pkg,context)
+            results.append(result_dict)
+
+        count = query.count
+        facets = query.facets
+    else:
+        count = 0
+        facets = {}
+        results = []
 
     search_results = {
-        'count': query.count,
-        'facets': query.facets,
+        'count': count,
+        'facets': facets,
         'results': results
     }
 
