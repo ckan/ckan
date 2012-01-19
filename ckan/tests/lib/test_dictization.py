@@ -23,6 +23,7 @@ from ckan.lib.dictization.model_save import (package_dict_save,
                                              package_tag_list_save,
                                             )
 from ckan.logic.action.update import make_latest_pending_package_active
+import ckan.logic.action.get
 
 class TestBasicDictize:
     @classmethod
@@ -970,26 +971,26 @@ class TestBasicDictize:
         context = {"model": model, "session": model.Session}
         user = model.User.by_name(u'tester')
         revision = model.repo.new_revision()
-        activity_dict = {
+        sent = {
                 'user_id': user.id,
                 'object_id': user.id,
                 'revision_id': revision.id,
                 'activity_type': 'changed user'
                 }
-        activity_dict_save(activity_dict, context)
+        activity_dict_save(sent, context)
         model.Session.commit()
 
         # Retrieve the newest Activity object from the database, check that its
         # attributes match those of the dict we saved.
-        activity_obj = model.Session.query(model.Activity).all()[-1]
-        assert activity_obj.user_id == activity_dict['user_id']
-        assert activity_obj.object_id == activity_dict['object_id']
-        assert activity_obj.revision_id == activity_dict['revision_id']
-        assert activity_obj.activity_type == activity_dict['activity_type']
+        got = ckan.logic.action.get.user_activity_list(context, {'id': user.id})[-1]
+        assert got['user_id'] == sent['user_id']
+        assert got['object_id'] == sent['object_id']
+        assert got['revision_id'] == sent['revision_id']
+        assert got['activity_type'] == sent['activity_type']
 
         # The activity object should also have an ID and timestamp.
-        assert activity_obj.id
-        assert activity_obj.timestamp
+        assert got['id']
+        assert got['timestamp']
 
         # We didn't pass in any data so this should be empty.
-        assert not activity_obj.data
+        assert not got['data']
