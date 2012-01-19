@@ -904,3 +904,146 @@ class TestActivity:
         """
         for group in model.Session.query(model.Group).all():
             self._update_group(group, user=self.sysadmin_user)
+
+    def test_add_tag(self):
+        """
+        Test add tag activities.
+
+        If a package is updated by adding one new tag to it, a
+        'changed package' activity with a single 'added tag' activity detail
+        should be emitted.
+
+        """
+        # Get a package.
+        user = self.normal_user
+        pkg_name = u"warandpeace"
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user.name,
+        }
+        pkg_dict = ckan.logic.action.get.package_show(context,
+                {'id': pkg_name})
+
+        # Add one new tag to the package.
+        before = record_details(user.id, pkg_dict['id'])
+        new_tag_name = 'test tag'
+        assert new_tag_name not in [tag['name'] for tag in pkg_dict['tags']]
+        new_tag_list = pkg_dict['tags'] + [{'name': new_tag_name}]
+        data_dict = {
+            'id': pkg_dict['id'],
+            'tags': new_tag_list
+            }
+        ckan.logic.action.update.package_update(context, data_dict)
+        after = record_details(user.id, pkg_dict['id'])
+
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == pkg_dict['id'], (
+            str(activity['object_id']))
+        assert activity['user_id'] == user.id, str(activity['user_id'])
+        assert activity['activity_type'] == 'changed package', (
+            str(activity['activity_type']))
+        if not activity.has_key('id'):
+            assert False, "activity object has no id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity has no revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+                timestamp <= after['time']), str(activity['timestamp'])
+
+        # Test for the presence of a correct activity detail item.
+        details = get_activity_details(activity)
+        assert len(details) == 1
+        detail = details[0]
+        assert detail['activity_id'] == activity['id'], \
+            str(detail['activity_id'])
+        assert detail['object_type'] == "tag", (
+            str(detail['object_type']))
+        assert detail['activity_type'] == "added", (
+            str(detail['activity_type']))
+
+    def test_remove_tag(self):
+        """
+        Test remove tag activity.
+
+        If a package is updated by removing one tag from it, a
+        'changed package' activity with a single 'removed tag' activity detail
+        should be emitted.
+
+        """
+        # Get a package.
+        user = self.normal_user
+        pkg_name = u"warandpeace"
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user.name,
+        }
+        pkg_dict = ckan.logic.action.get.package_show(context,
+                {'id': pkg_name})
+
+        # Remove one tag from the package.
+        assert len(pkg_dict['tags']) >= 1, ("The package has to have at least"
+                " one tag to test removing a tag.")
+        before = record_details(user.id, pkg_dict['id'])
+        data_dict = {
+            'id': pkg_dict['id'],
+            'tags': pkg_dict['tags'][0:-1],
+            }
+        ckan.logic.action.update.package_update(context, data_dict)
+        after = record_details(user.id, pkg_dict['id'])
+
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == pkg_dict['id'], (
+            str(activity['object_id']))
+        assert activity['user_id'] == user.id, str(activity['user_id'])
+        assert activity['activity_type'] == 'changed package', (
+            str(activity['activity_type']))
+        if not activity.has_key('id'):
+            assert False, "activity object has no id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity has no revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+                timestamp <= after['time']), str(activity['timestamp'])
+
+        # Test for the presence of a correct activity detail item.
+        details = get_activity_details(activity)
+        assert len(details) == 1
+        detail = details[0]
+        assert detail['activity_id'] == activity['id'], \
+            str(detail['activity_id'])
+        assert detail['object_type'] == "tag", (
+            str(detail['object_type']))
+        assert detail['activity_type'] == "removed", (
+            str(detail['activity_type']))
