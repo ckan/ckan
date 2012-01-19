@@ -532,7 +532,7 @@ Authorization Settings
 ----------------------
 
 .. index::
-   single: default_roles
+   single: default_roles, auth_profile
 
 default_roles
 ^^^^^^^^^^^^^
@@ -549,6 +549,19 @@ Example::
 With this example setting, visitors and logged-in users can only read datasets that get created.
 
 Defaults: see in ``ckan/model/authz.py`` for: ``default_default_user_roles``
+
+
+auth_profile
+^^^^^^^^^^^^
+
+This allows you to specify the auth profile to use for this installation.  By default this is empty and uses the default authorisation code, if set to publisher it will use the publisher profile in ckan/logic/auth/publisher.
+
+Example::
+	auth.profile = publisher
+	
+With this example setting the publisher auth profile will be used.
+
+Defaults: The default authorisation from ``ckan/logic/auth/*`` will be used
 
 
 Plugin Settings

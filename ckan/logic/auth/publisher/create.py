@@ -5,7 +5,7 @@ from ckan.authz import Authorizer
 from ckan.lib.base import _
 
 
-def publisher_package_create(context, data_dict=None):
+def package_create(context, data_dict=None):
     model = context['model']
     user = context['user']
 
@@ -21,10 +21,10 @@ def publisher_package_create(context, data_dict=None):
 
     return {'success': True}
 
-def publisher_resource_create(context, data_dict):
+def resource_create(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
 
-def publisher_package_relationship_create(context, data_dict):
+def package_relationship_create(context, data_dict):
     model = context['model']
     user = context['user']
 
@@ -42,7 +42,7 @@ def publisher_package_relationship_create(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_group_create(context, data_dict=None):
+def group_create(context, data_dict=None):
     model = context['model']
     user = context['user']
    
@@ -52,7 +52,7 @@ def publisher_group_create(context, data_dict=None):
     else:
         return {'success': True}
 
-def publisher_authorization_group_create(context, data_dict=None):
+def authorization_group_create(context, data_dict=None):
     model = context['model']
     user = context['user']
    
@@ -62,11 +62,11 @@ def publisher_authorization_group_create(context, data_dict=None):
     else:
         return {'success': True}
 
-def publisher_rating_create(context, data_dict):
+def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
-def publisher_user_create(context, data_dict=None):
+def user_create(context, data_dict=None):
     model = context['model']
     user = context['user']
    
@@ -76,7 +76,7 @@ def publisher_user_create(context, data_dict=None):
     else:
         return {'success': True}
 
-def publisher_check_group_auth(context, data_dict):
+def check_group_auth(context, data_dict):
     if not data_dict:
         return True
 
@@ -116,7 +116,7 @@ def publisher_check_group_auth(context, data_dict):
 
 ## Modifications for rest api
 
-def publisher_package_create_rest(context, data_dict):
+def package_create_rest(context, data_dict):
     model = context['model']
     user = context['user']
     if user in (model.PSEUDO_USER__VISITOR, ''):
@@ -124,7 +124,7 @@ def publisher_package_create_rest(context, data_dict):
 
     return package_create(context, data_dict)
 
-def publisher_group_create_rest(context, data_dict):
+def group_create_rest(context, data_dict):
     model = context['model']
     user = context['user']
     if user in (model.PSEUDO_USER__VISITOR, ''):

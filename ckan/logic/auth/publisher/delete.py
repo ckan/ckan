@@ -6,7 +6,7 @@ from ckan.logic.auth.create import package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
-def publisher_package_delete(context, data_dict):
+def package_delete(context, data_dict):
     model = context['model']
     user = context['user']
     package = get_package_object(context, data_dict)
@@ -17,10 +17,10 @@ def publisher_package_delete(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_package_relationship_delete(context, data_dict):
+def package_relationship_delete(context, data_dict):
     return package_relationship_create(context, data_dict)
 
-def publisher_relationship_delete(context, data_dict):
+def relationship_delete(context, data_dict):
     model = context['model']
     user = context['user']
     relationship = context['relationship']
@@ -31,7 +31,7 @@ def publisher_relationship_delete(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_group_delete(context, data_dict):
+def group_delete(context, data_dict):
     model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
@@ -42,13 +42,13 @@ def publisher_group_delete(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_revision_undelete(context, data_dict):
+def revision_undelete(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
 
-def publisher_revision_delete(context, data_dict):
+def revision_delete(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
 
-def publisher_task_status_delete(context, data_dict):
+def task_status_delete(context, data_dict):
     model = context['model']
     user = context['user']
 

@@ -23,35 +23,41 @@ def is_authorized(action, context,data_dict=None):
         raise ValueError(_('Authorization function not found: %s' % action))
 
 def _get_auth_function(action):
+    from pylons import config
+            
     if _auth_functions:
         return _auth_functions.get(action)
+        
     # Otherwise look in all the plugins to resolve all possible
     # First get the default ones in the ckan/logic/auth directory
     # Rather than writing them out in full will use __import__
     # to load anything from ckan.auth that looks like it might
     # be an authorisation function
     
-    # These lambdas are used to describe how we modify the name of the
-    modules = [
-        'ckan.logic.auth',
-        'ckan.logic.auth.publisher'
-    ]
+    # We will load the auth profile from settings
+    module_root = 'ckan.logic.auth'
+    auth_profile = config.get('auth.profile', '')
+    if auth_profile:
+        module_root = '%s.%s' % (module_root, auth_profile)
+
+    log.info('Using auth profile at %s' % module_root)
     
     for auth_module_name in ['get', 'create', 'update','delete']:
-        for modroot in module_keys.keys():
-            module_path = modroot + '.' + auth_module_name
-            try:
-                module = __import__(module_path)
-            except ImportError,e:
-                log.debug('No auth module for action "%s"' % auth_module_name)
-                continue
+        module_path = '%s.%s' % (module_root, auth_module_name,)
+        try:
+            module = __import__(module_path)
+            log.info('Loaded module %r' % module)
+        except ImportError,e:
+            print 'Failed to find auth module'
+            log.debug('No auth module for action "%s"' % auth_module_name)
+            continue
 
-            for part in module_path.split('.')[1:]:
-                module = getattr(module, part)
-                
-            for key, v in module.__dict__.items():
-                if not key.startswith('_'):
-                    _auth_functions[key] = v
+        for part in module_path.split('.')[1:]:
+            module = getattr(module, part)
+            
+        for key, v in module.__dict__.items():
+            if not key.startswith('_'):
+                _auth_functions[key] = v
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_auth_function_plugins = {}

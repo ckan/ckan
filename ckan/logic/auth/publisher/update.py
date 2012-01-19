@@ -7,10 +7,10 @@ from ckan.logic.auth.create import check_group_auth, package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
-def publisher_make_latest_pending_package_active(context, data_dict):
-    return publisher_package_update(context, data_dict)
+def make_latest_pending_package_active(context, data_dict):
+    return package_update(context, data_dict)
 
-def publisher_package_update(context, data_dict):
+def package_update(context, data_dict):
     model = context['model']
     user = context.get('user')
     package = get_package_object(context, data_dict)
@@ -25,7 +25,7 @@ def publisher_package_update(context, data_dict):
 
     return {'success': True}
 
-def publisher_resource_update(context, data_dict):
+def resource_update(context, data_dict):
     model = context['model']
     user = context.get('user')
     resource = get_resource_object(context, data_dict)
@@ -47,10 +47,10 @@ def publisher_resource_update(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_package_relationship_update(context, data_dict):
+def package_relationship_update(context, data_dict):
     return package_relationship_create(context, data_dict)
 
-def publisher_package_change_state(context, data_dict):
+def package_change_state(context, data_dict):
     model = context['model']
     user = context['user']
     package = get_package_object(context, data_dict)
@@ -61,7 +61,7 @@ def publisher_package_change_state(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_package_edit_permissions(context, data_dict):
+def package_edit_permissions(context, data_dict):
     model = context['model']
     user = context['user']
     package = get_package_object(context, data_dict)
@@ -72,7 +72,7 @@ def publisher_package_edit_permissions(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_group_update(context, data_dict):
+def group_update(context, data_dict):
     model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
@@ -83,7 +83,7 @@ def publisher_group_update(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_group_change_state(context, data_dict):
+def group_change_state(context, data_dict):
     model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
@@ -94,7 +94,7 @@ def publisher_group_change_state(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_group_edit_permissions(context, data_dict):
+def group_edit_permissions(context, data_dict):
     model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
@@ -105,7 +105,7 @@ def publisher_group_edit_permissions(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_authorization_group_update(context, data_dict):
+def authorization_group_update(context, data_dict):
     model = context['model']
     user = context['user']
     authorization_group = get_authorization_group_object(context, data_dict)
@@ -116,7 +116,7 @@ def publisher_authorization_group_update(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_authorization_group_edit_permissions(context, data_dict):
+def authorization_group_edit_permissions(context, data_dict):
     model = context['model']
     user = context['user']
     authorization_group = get_authorization_group_object(context, data_dict)
@@ -127,7 +127,7 @@ def publisher_authorization_group_edit_permissions(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_user_update(context, data_dict):
+def user_update(context, data_dict):
     model = context['model']
     user = context['user']
     user_obj = get_user_object(context, data_dict)
@@ -138,7 +138,7 @@ def publisher_user_update(context, data_dict):
 
     return {'success': True}
 
-def publisher_revision_change_state(context, data_dict):
+def revision_change_state(context, data_dict):
     model = context['model']
     user = context['user']
 
@@ -148,7 +148,7 @@ def publisher_revision_change_state(context, data_dict):
     else:
         return {'success': True}
 
-def publisher_task_status_update(context, data_dict):
+def task_status_update(context, data_dict):
     model = context['model']
     user = context['user']
 
@@ -160,19 +160,19 @@ def publisher_task_status_update(context, data_dict):
 
 ## Modifications for rest api
 
-def publisher_package_update_rest(context, data_dict):
+def package_update_rest(context, data_dict):
     model = context['model']
     user = context['user']
     if user in (model.PSEUDO_USER__VISITOR, ''):
         return {'success': False, 'msg': _('Valid API key needed to edit a package')}
 
-    return publisher_package_update(context, data_dict)
+    return package_update(context, data_dict)
 
-def publisher_group_update_rest(context, data_dict):
+def group_update_rest(context, data_dict):
     model = context['model']
     user = context['user']
     if user in (model.PSEUDO_USER__VISITOR, ''):
         return {'success': False, 'msg': _('Valid API key needed to edit a group')}
 
-    return publisher_group_update(context, data_dict)
+    return group_update(context, data_dict)
 
