@@ -981,6 +981,10 @@ def render_changed_group_activity(context, activity):
     return render('activity_streams/changed_group.html',
         extra_vars = {'activity': activity})
 
+def render_deleted_group_activity(context, activity):
+    return render('activity_streams/deleted_group.html',
+        extra_vars = {'activity': activity})
+
 # Global dictionary mapping activity types to functions that render activity
 # dicts to HTML snippets for including in HTML pages.
 activity_renderers = {
@@ -991,6 +995,7 @@ activity_renderers = {
   'changed user' : render_changed_user_activity,
   'new group' : render_new_group_activity,
   'changed group' : render_changed_group_activity,
+  'deleted group' : render_deleted_group_activity,
   }
 
 def _activity_list_to_html(context, activity_stream):

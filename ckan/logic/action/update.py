@@ -338,12 +338,28 @@ def group_update(context, data_dict):
             'object_id': group.id,
             'activity_type': 'changed group',
             }
-    activity_dict['data'] = {'group':
-            ckan.lib.dictization.table_dictize(group, context)}
-    from ckan.logic.action.create import activity_create
-    activity_create(context, activity_dict)
-    # TODO: Also create an activity detail recording what exactly changed in
-    # the group.
+    # Handle 'deleted' groups.
+    # When the user marks a group as deleted this comes through here as
+    # a 'changed' group activity. We detect this and change it to a 'deleted'
+    # activity.
+    if group.state == u'deleted':
+        if ckan.model.Session.query(ckan.model.Activity).filter_by(
+                object_id=group.id, activity_type='deleted').all():
+            # A 'deleted group' activity for this group has already been
+            # emitted.
+            # FIXME: What if the group was deleted and then activated again?
+            activity_dict = None
+        else:
+            # We will emit a 'deleted group' activity.
+            activity_dict['activity_type'] = 'deleted group'
+    if activity_dict is not None:
+        activity_dict['data'] = {
+                'group': ckan.lib.dictization.table_dictize(group, context)
+                }
+        from ckan.logic.action.create import activity_create
+        activity_create(context, activity_dict)
+        # TODO: Also create an activity detail recording what exactly changed
+        # in the group.
 
     if not context.get('defer_commit'):
         model.repo.commit()        

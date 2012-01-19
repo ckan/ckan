@@ -901,6 +901,58 @@ class TestActivity:
         for group in model.Session.query(model.Group).all():
             self._update_group(group, user=self.sysadmin_user)
 
+    def _delete_group(self, group, user):
+        """
+        Delete the given group and test that the correct activity stream
+        item and detail are emitted.
+
+        """
+        before = record_details(user.id, group_id=group.id)
+
+        # Deleted the group.
+        context = {'model': model, 'session': model.Session,
+                'user': user.name, 'allow_partial_update': True}
+        group_dict = {'id': group.id, 'state': 'deleted'}
+        group_update(context, group_dict)
+
+        after = record_details(user.id, group_id=group.id)
+
+        # Find the new activity.
+        new_activities = find_new_activities(before['user activity stream'],
+            after['user activity stream'])
+        assert len(new_activities) == 1, ("There should be 1 new activity in "
+            "the user's activity stream, but found %i" % len(new_activities))
+        activity = new_activities[0]
+
+        assert find_new_activities(before["group activity stream"],
+            after['group activity stream']) == new_activities, ("The same "
+            "activity should also appear in the group's activity stream.")
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == group.id, str(activity['object_id'])
+        assert activity['user_id'] == user.id, str(activity['user_id'])
+        assert activity['activity_type'] == 'deleted group', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object has no id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity has no revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert timestamp >= before['time'] and timestamp <= after['time'], \
+            str(activity['timestamp'])
+
+    def test_delete_group(self):
+        """
+        Test deleted group activity stream.
+
+        Test that correct activity stream item and detail items are created
+        when groups are deleted.
+
+        """
+        for group in model.Session.query(model.Group).all():
+            self._delete_group(group, self.sysadmin_user)
+
     def test_add_tag(self):
         """
         Test add tag activities.
