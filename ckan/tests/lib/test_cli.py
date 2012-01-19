@@ -19,6 +19,10 @@ class TestDb:
         model.Package.by_name(u'warandpeace').delete()
         model.repo.commit_and_remove()
         
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()        
+
     def test_simple_dump_csv(self):
         csv_filepath = '/tmp/dump.tmp'
         self.db.args = ('simple-dump-csv %s' % csv_filepath).split()
