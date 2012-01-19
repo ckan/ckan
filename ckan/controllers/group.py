@@ -14,6 +14,7 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
 from ckan.logic.schema import group_form_schema
 from ckan.logic import tuplize_dict, clean_dict, parse_params
+from ckan.lib.dictization.model_dictize import package_dictize
 import ckan.forms
 
 class GroupController(BaseController):
@@ -95,15 +96,21 @@ class GroupController(BaseController):
         c.group_description_formatted = desc_formatted
         c.group_admins = self.authorizer.get_admins(c.group)
 
+        context['return_query'] = True
         results = get_action('group_package_show')(context, data_dict)
 
         c.page = Page(
             collection=results,
             page=request.params.get('page', 1),
             url=h.pager_url,
-            items_per_page=50
+            items_per_page=30
         )
 
+        result = []
+        for pkg_rev in c.page.items:
+            result.append(package_dictize(pkg_rev, context))
+        c.page.items = result
+        
         return render('group/read.html')
 
     def new(self, data=None, errors=None, error_summary=None):

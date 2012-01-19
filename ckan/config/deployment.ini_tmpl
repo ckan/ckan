@@ -109,7 +109,7 @@ ckan.site_description =
 ckan.site_url =
 
 ## Favicon (default is the CKAN software favicon)
-ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
+ckan.favicon = /images/icons/ckan.ico
 
 ## Solr support
 #solr_url = http://127.0.0.1:8983/solr

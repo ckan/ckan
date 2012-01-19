@@ -357,6 +357,12 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
 
+    def test_14_empty_parameter_ignored(self):
+        offset = self.base_url + '?groups=roger&title='
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        assert res_dict['count'] == 1, res_dic
+
 class TestPackageSearchApi1(Api1TestCase, PackageSearchApiTestCase,
                             LegacyOptionsTestCase): pass
 class TestPackageSearchApi2(Api2TestCase, PackageSearchApiTestCase,

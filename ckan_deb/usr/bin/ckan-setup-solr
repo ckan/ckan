@@ -22,6 +22,7 @@ sed \
     -e "s,#JETTY_PORT=8080,JETTY_PORT=8983," \
     -i /etc/default/jetty
 mv /usr/share/solr/conf/schema.xml /usr/share/solr/conf/schema.xml.`date --utc "+%Y-%m-%d_%T"`.bak 
-ln -s /usr/lib/pymodules/python2.6/ckan/config/schema.xml /usr/share/solr/conf/schema.xml
+ln -s /usr/lib/pymodules/python2.6/ckan/config/solr/schema-1.3.xml /usr/share/solr/conf/schema.xml
+service jetty stop
 service jetty start
 echo "done."

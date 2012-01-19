@@ -10,7 +10,7 @@ fi
 
 if [ $# -lt 3 ]
 then    
-    echo "ERROR: Expected two arguments (instance name, hostname, local database [yes or no]) eg."
+    echo "ERROR: Wrong number of arguments. Expected: (instance name, hostname, local database [yes or no]) e.g."
     echo "       $0 std std.ckan.org yes"
     exit 1
 fi
@@ -144,8 +144,8 @@ echo "Bringing the ${INSTANCE} INSTANCE out of maintenance mode ..."
 ckan_maintenance_off ${INSTANCE}
 
 # Restart Apache so it is aware of any changes
-echo "Restarting apache ..."
-/etc/init.d/apache2 restart 
+echo "Reloading apache ..."
+/etc/init.d/apache2 reload 
 
 # Install the new crontab
 echo "Enabling crontab for the ckan${INSTANCE} user ..."

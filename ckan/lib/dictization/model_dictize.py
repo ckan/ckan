@@ -2,6 +2,7 @@ from pylons import config
 from sqlalchemy.sql import select, and_
 import datetime
 
+from ckan.model import PackageRevision
 from ckan.lib.dictization import (obj_list_dictize,
                                   obj_dict_dictize,
                                   table_dictize)
@@ -181,11 +182,20 @@ def package_dictize(pkg, context):
     q = select([rel_rev]).where(rel_rev.c.object_package_id == pkg.id)
     result = _execute_with_revision(q, rel_rev, context)
     result_dict["relationships_as_object"] = obj_list_dictize(result, context)
-    #isopen
-    # Get an actual Package object, not a PackageRevision
-    pkg_object = model.Package.get(pkg.id)
-    result_dict['isopen'] = pkg_object.isopen if isinstance(pkg_object.isopen,bool) else pkg_object.isopen()
 
+    # Extra properties from the domain object
+    # We need an actual Package object for this, not a PackageRevision
+    if isinstance(pkg,PackageRevision):
+        pkg = model.Package.get(pkg.id)
+
+    # isopen
+    result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen,bool) else pkg.isopen()
+
+    # creation and modification date
+    result_dict['metadata_modified'] = pkg.metadata_modified.isoformat() \
+        if pkg.metadata_modified else None
+    result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
+        if pkg.metadata_created else None
     return result_dict
 
 def _get_members(context, group, member_type):

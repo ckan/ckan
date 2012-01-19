@@ -62,6 +62,7 @@ class ManageDb(CkanCommand):
     db init # create and put in default data
     db clean
     db upgrade [{version no.}] # Data migrate
+    db version # returns current version of data schema
     db dump {file-path} # dump to a pg_dump file
     db dump-rdf {dataset-name} {file-path}
     db simple-dump-csv {file-path}
@@ -100,6 +101,8 @@ class ManageDb(CkanCommand):
                 model.repo.upgrade_db(self.args[1])
             else:
                 model.repo.upgrade_db()
+        elif cmd == 'version':
+            self.version()
         elif cmd == 'dump':
             self.dump()
         elif cmd == 'load':
@@ -140,7 +143,7 @@ class ManageDb(CkanCommand):
         pg_cmd += ' -U %(db_user)s' % self.db_details
         if self.db_details.get('db_pass') not in (None, ''):
             pg_cmd = 'export PGPASSWORD=%(db_pass)s && ' % self.db_details + pg_cmd
-        if self.db_details.get('db_host') not in (None, '', 'localhost'):
+        if self.db_details.get('db_host') not in (None, ''):
             pg_cmd += ' -h %(db_host)s' % self.db_details
         if self.db_details.get('db_port') not in (None, ''):
             pg_cmd += ' -p %(db_port)s' % self.db_details
@@ -206,8 +209,7 @@ class ManageDb(CkanCommand):
         dump_filepath = self.args[1]
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
-        query = model.Session.query(model.Package)
-        dumper.SimpleDumper().dump_csv(dump_file, query)
+        dumper.SimpleDumper().dump(dump_file, format='csv')
 
     def simple_dump_json(self):
         from ckan import model
@@ -217,8 +219,7 @@ class ManageDb(CkanCommand):
         dump_filepath = self.args[1]
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
-        query = model.Session.query(model.Package)
-        dumper.SimpleDumper().dump_json(dump_file, query)
+        dumper.SimpleDumper().dump(dump_file, format='json')
 
     def dump_rdf(self):
         if len(self.args) < 3:
@@ -247,6 +248,10 @@ class ManageDb(CkanCommand):
         import ckan.lib.talis
         talis = ckan.lib.talis.Talis()
         return talis.send_rdf(talis_store, username, password)
+
+    def version(self):
+        from ckan.model import Session
+        print Session.execute('select version from migrate_version;').fetchall()
 
 
 class SearchIndexCommand(CkanCommand):
@@ -411,14 +416,16 @@ class UserCmd(CkanCommand):
       user                            - lists users
       user list                       - lists users
       user <user-name>                - shows user properties
-      user add <user-name> [<apikey>] - add a user (prompts for password)
+      user add <user-name> [apikey=<apikey>] [password=<password>]
+                                      - add a user (prompts for password if
+                                        not supplied)
       user setpass <user-name>        - set user password (prompts)
       user remove <user-name>         - removes user from users
       user search <query>             - searches for a user name
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 3
+    max_args = 4
     min_args = 0
 
     def command(self):
@@ -510,12 +517,38 @@ class UserCmd(CkanCommand):
             print 'Need name of the user.'
             return
         username = self.args[1]
-        apikey = self.args[2] if len(self.args) > 2 else None
-        password = self.password_prompt()
         user = model.User.by_name(unicode(username))
         if user:
             print 'User "%s" already found' % username
             sys.exit(1)
+
+        # parse args
+        apikey = None
+        password = None
+        args = self.args[2:]
+        if len(args) == 1 and not (args[0].startswith('password') or \
+                                   args[0].startswith('apikey')):
+            # continue to support the old syntax of just supplying
+            # the apikey
+            apikey = args[0]
+        else:
+            # new syntax: password=foo apikey=bar
+            for arg in args:
+                split = arg.find('=')
+                if split == -1:
+                    split = arg.find(' ')
+                    if split == -1:
+                        raise ValueError('Could not parse arg: %r (expected "--<option>=<value>)")' % arg)
+                key, value = arg[:split], arg[split+1:]
+                if key == 'password':
+                    password = value
+                elif key == 'apikey':
+                    apikey = value
+                else:
+                    raise ValueError('Could not parse arg: %r (expected password/apikey argument)' % arg)
+
+        if not password:
+            password = self.password_prompt()
         
         print('Creating user: %r' % username)
 
