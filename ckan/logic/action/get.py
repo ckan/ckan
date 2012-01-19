@@ -927,6 +927,10 @@ def render_changed_resource_activity(context, activity, detail):
     return render('activity_streams/changed_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
+def render_deleted_resource_activity(context, activity, detail):
+    return render('activity_streams/deleted_resource.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
 def render_added_tag_activity(context, activity, detail):
     return render('activity_streams/added_tag.html',
             extra_vars = {'activity': activity, 'detail': detail})
@@ -943,7 +947,8 @@ def render_changed_package_activity(context, activity):
         activity_detail_renderers = {
             'Resource': {
               'new': render_new_resource_activity,
-              'changed': render_changed_resource_activity
+              'changed': render_changed_resource_activity,
+              'deleted': render_deleted_resource_activity
               },
             'tag': {
               'added': render_added_tag_activity,

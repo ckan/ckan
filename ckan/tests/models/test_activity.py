@@ -679,7 +679,7 @@ class TestActivity:
 
         # Test for the presence of correct activity detail items.
         details = get_activity_details(activity)
-        assert len(details) == num_resources        
+        assert len(details) == num_resources
         for detail in details:
             assert detail['activity_id'] == activity['id'], (
                 "activity_id should be %s but is %s"
@@ -688,7 +688,7 @@ class TestActivity:
                 str(detail['object_id']))
             assert detail['object_type'] == "Resource", (
                 str(detail['object_type']))
-            assert detail['activity_type'] == "changed", (
+            assert detail['activity_type'] == "deleted", (
                 str(detail['activity_type']))
 
     def test_delete_resources(self):

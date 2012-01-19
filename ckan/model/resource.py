@@ -143,6 +143,14 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
     def activity_stream_detail(self, activity_id, activity_type):
         import ckan.model as model
         import ckan.lib.dictization
+
+        # Handle 'deleted' resources.
+        # When the user marks a resource as deleted this comes through here as
+        # a 'changed' resource activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and self.state == u'deleted':
+            activity_type = 'deleted'
+
         res_dict = ckan.lib.dictization.table_dictize(self,
                 context={'model':model})
         return ActivityDetail(activity_id, self.id, u"Resource", activity_type,
