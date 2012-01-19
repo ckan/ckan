@@ -142,9 +142,11 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def activity_stream_detail(self, activity_id, activity_type):
         import ckan.model as model
-        from ckan.lib.dictization.model_dictize import resource_dictize
+        import ckan.lib.dictization
+        res_dict = ckan.lib.dictization.table_dictize(self,
+                context={'model':model})
         return ActivityDetail(activity_id, self.id, u"Resource", activity_type,
-                {'resource': resource_dictize(self, context={'model':model})})
+                {'resource': res_dict})
 
 class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,

@@ -8,6 +8,7 @@ from ckan.logic import check_access
 
 from ckan.lib.base import _
 from vdm.sqlalchemy.base import SQLAlchemySession
+import ckan.lib.dictization
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
@@ -337,7 +338,8 @@ def group_update(context, data_dict):
             'object_id': group.id,
             'activity_type': 'changed group',
             }
-    activity_dict['data'] = {'group': group_dictize(group, context)}
+    activity_dict['data'] = {'group':
+            ckan.lib.dictization.table_dictize(group, context)}
     from ckan.logic.action.create import activity_create
     activity_create(context, activity_dict)
     # TODO: Also create an activity detail recording what exactly changed in

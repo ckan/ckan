@@ -7,6 +7,7 @@ from ckan.plugins import (PluginImplementations,
 from ckan.logic import NotFound, ValidationError
 from ckan.logic import check_access
 from ckan.lib.base import _
+import ckan.lib.dictization
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
                                                 group_to_api1,
@@ -179,7 +180,9 @@ def group_create(context, data_dict):
             'object_id': group.id,
             'activity_type': 'new group',
             }
-    activity_dict['data'] = {'group': group_dictize(group, context)}
+    activity_dict['data'] = {
+            'group': ckan.lib.dictization.table_dictize(group, context)
+            }
     activity_create(context, activity_dict)
 
     if not context.get('defer_commit'):

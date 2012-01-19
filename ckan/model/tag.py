@@ -115,12 +115,11 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
             return None
 
         # Return an 'added tag' or 'removed tag' activity.
-        from ckan.lib.dictization.model_dictize import package_dictize
-        from ckan.lib.dictization.model_dictize import tag_dictize
+        import ckan.lib.dictization
         import ckan.model
         c = {'model': ckan.model}
-        d = {'tag': tag_dictize(self.tag, c),
-            'package': package_dictize(self.package, c)}
+        d = {'tag': ckan.lib.dictization.table_dictize(self.tag, c),
+            'package': ckan.lib.dictization.table_dictize(self.package, c)}
         return activity.ActivityDetail(
             activity_id=activity_id,
             object_id=self.id,

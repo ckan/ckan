@@ -12,7 +12,7 @@
     <span style="background:yellow;">created</span>
     the group
     <a href="${h.url_for(controller='group', action='read', id=activity.data.group.name)}">
-        ${activity.data.group.display_name}
+        ${activity.data.group.name}
     </a>
     ${h.render_datetime(activity.timestamp, '%B %d %Y')}
   </div>

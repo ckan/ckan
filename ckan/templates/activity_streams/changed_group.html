@@ -12,7 +12,7 @@
     <span style="background:yellow;">updated</span>
     the group
     <a href="${h.url_for(controller='group', action='read', id=activity.data.group.name)}">
-        ${activity.data.group.display_name}
+        ${activity.data.group.name}
     </a>
   <div style="color:#999;">
     ${h.truncate(activity.data.group.description, length=80, whole_word=True)}
