@@ -6,7 +6,6 @@ from ckan.lib.base import _
 def package_create(context, data_dict=None):
     model = context['model']
     user = context['user']
-
     check1 = check_access_old(model.System(), model.Action.PACKAGE_CREATE, context)
 
     if not check1:
