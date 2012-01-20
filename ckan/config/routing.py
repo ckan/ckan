@@ -8,6 +8,8 @@ refer to the routes manual at http://routes.groovie.org/docs/
 from pylons import config
 from routes import Mapper
 from ckan.plugins import PluginImplementations, IRoutes
+from ckan.controllers.package import register_pluggable_behaviour as register_package_behaviour
+from ckan.controllers.group   import register_pluggable_behaviour as register_group_behaviour
 
 
 routing_plugins = PluginImplementations(IRoutes)
@@ -24,12 +26,12 @@ def make_map():
     map.connect('/error/{action}', controller='error')
     map.connect('/error/{action}/{id}', controller='error')
 
+    map.connect('*url', controller='home', action='cors_options', conditions=dict(method=['OPTIONS']))
+
     # CUSTOM ROUTES HERE
     for plugin in routing_plugins:
         map = plugin.before_map(map)
-        
-    map.connect('*url', controller='home', action='cors_options',
-        conditions=dict(method=['OPTIONS']))
+
     map.connect('home', '/', controller='home', action='index')
     map.connect('/locale', controller='home', action='locale')
     map.connect('about', '/about', controller='home', action='about')
@@ -179,7 +181,7 @@ def make_map():
     ###########
     ## /END API
     ###########
-
+    
     map.redirect("/packages", "/dataset")
     map.redirect("/packages/{url:.*}", "/dataset/{url}")
     map.redirect("/package", "/dataset")
@@ -230,17 +232,24 @@ def make_map():
     ##map.connect('/group/new', controller='group_formalchemy', action='new')
     ##map.connect('/group/edit/{id}', controller='group_formalchemy', action='edit')
 
-    map.connect('/group', controller='group', action='index')
-    map.connect('/group/list', controller='group', action='list')
-    map.connect('/group/new', controller='group', action='new')
-    map.connect('/group/{action}/{id}', controller='group',
+    # These named routes are used for custom group forms which will use the 
+    # names below based on the group.type (dataset_group is the default type)
+    map.connect('group_index', '/group', controller='group', action='index')
+    map.connect('group_list', '/group/list', controller='group', action='list')
+    map.connect('group_new',  '/group/new', controller='group', action='new')    
+    map.connect('group_action', '/group/{action}/{id}', controller='group',
         requirements=dict(action='|'.join([
         'edit',
         'authz',
         'history'
         ]))
         )
-    map.connect('/group/{id}', controller='group', action='read')
+    map.connect('group_read', '/group/{id}', controller='group', action='read')
+
+
+    register_package_behaviour(map)
+    register_group_behaviour(map)    
+    
     # authz group
     map.redirect("/authorizationgroups", "/authorizationgroup")
     map.redirect("/authorizationgroups/{url:.*}", "/authorizationgroup/{url}")
@@ -320,6 +329,7 @@ def make_map():
     
     for plugin in routing_plugins:
         map = plugin.after_map(map)
+    
     
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')
