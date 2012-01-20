@@ -38,7 +38,34 @@
       <p py:if="not c.q" i18n:msg="item_count">There are ${c.page.item_count} datasets in this group.</p>
       <p py:if="c.q">You searched for "${c.q}". Matched ${len(c.page.items)} out of ${c.page.item_count} datasets.</p>
       ${c.page.pager()}
-      ${package_list_from_dict(c.page.items)}
+
+      <py:for each="package in c.page.items">
+        <div class="search-result ${'fullyopen' if (package.isopen and package.get('resources')) else None}">
+          <a class="view-more-link" href="${h.url_for(controller='package', action='read', id=package.get('name'))}">View</a>
+          <a class="main-link" href="${h.url_for(controller='package', action='read', id=package.get('name'))}">${package.get('title') or package.get('name')}</a>
+          &nbsp;&nbsp;
+          <py:if test="package.resources">
+            <py:for each="resource in package.resources">
+              <py:if test="resource.get('format')">
+                <a href="${resource.get('url')}"
+                  title="${resource.get('description')}"><span class="format-box">${resource.get('format')}</span></a>
+              </py:if>
+            </py:for>
+          </py:if>
+          <p class="result-description">${h.markdown_extract(package.notes)}</p>
+
+          <span class="result-url">
+            <py:if test="package.isopen">
+              <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+                <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+              </a>
+            </py:if>
+            <py:if test="not package.isopen">
+              ${h.icon('lock')} Not Openly Licensed
+            </py:if>
+          </span>
+        </div>
+      </py:for>
       ${c.page.pager()}
     </div>
   </py:match>
