@@ -167,6 +167,8 @@ And there is an option for the default expiry time if not specified::
 
  ckan.cache.default_expires = 600
 
+
+
 Authentication Settings
 -----------------------
 
@@ -240,6 +242,35 @@ Example::
 Default value: (none)
 
 If you want to specify the ordering of all or some of the locales as they are offered to the user, then specify them here in the required order. Any locales that are available but not specified in this option, will still be offered at the end of the list.
+
+
+Storage Settings
+----------------
+
+.. index::
+   single: storage.bucket, storage.directory
+
+storage.bucket
+^^^^^^^^^^^^^^
+
+Example::
+
+  storage.bucket = ckan
+
+Default value:  ``None``
+
+This setting will change the bucket name for the uploaded files.
+
+storage.directory
+^^^^^^^^^^^^^^^^^
+
+Example::
+
+  storage.directory = /data/uploads/
+
+Default value:  ``None``
+
+Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
 
 
 
