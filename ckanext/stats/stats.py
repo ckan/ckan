@@ -1,18 +1,16 @@
 import datetime
 
-from paste.deploy.converters import asbool
-import pylons
+from pylons import config
 from sqlalchemy import *
+from paste.deploy.converters import asbool
 
 from ckan import model
 
-# Since #1422 the cache should always be enabled apart from when
-# running in tests. Therefore don't document this config option.
-cache_enabled = asbool(pylons.config.get('ckan.cache_enabled', 'True'))
-
+cache_enabled = asbool(config.get('ckanext.stats.cache_enabled', 'True'))
 if cache_enabled:
     from pylons import cache
     our_cache = cache.get_cache('stats', type='dbm')
+
 DATE_FORMAT = '%Y-%m-%d'
 
 def table(name):
@@ -183,11 +181,93 @@ class RevisionStats(object):
         return new_packages
 
     @classmethod
+    def get_deleted_packages(cls):
+        '''
+        @return: Returns list of deleted pkgs and date when they were deleted, in
+                 format: [(id, date_ordinal), ...]
+        '''
+        def deleted_packages():
+            # Can't filter by time in select because 'min' function has to
+            # be 'for all time' else you get first revision in the time period.
+            package_revision = table('package_revision')
+            revision = table('revision')
+            s = select([package_revision.c.id, func.min(revision.c.timestamp)], from_obj=[package_revision.join(revision)]).\
+                where(package_revision.c.state==model.State.DELETED).\
+                group_by(package_revision.c.id).\
+                order_by(func.min(revision.c.timestamp))
+            res = model.Session.execute(s).fetchall() # [(id, datetime), ...]
+            res_pickleable = []
+            for pkg_id, deleted_datetime in res:
+                res_pickleable.append((pkg_id, deleted_datetime.toordinal()))
+            return res_pickleable
+        if cache_enabled:
+            week_commences = cls.get_date_week_started(datetime.date.today())
+            key = 'all_deleted_packages_%s' + week_commences.strftime(DATE_FORMAT)
+            deleted_packages = our_cache.get_value(key=key,
+                                                   createfunc=deleted_packages)
+        else:
+            deleted_packages = deleted_packages()
+        return deleted_packages
+
+    @classmethod
+    def get_num_packages_by_week(cls):
+        def num_packages():
+            new_packages_by_week = cls.get_by_week('new_packages')
+            deleted_packages_by_week = cls.get_by_week('deleted_packages')
+            first_date = (min(datetime.datetime.strptime(new_packages_by_week[0][0], DATE_FORMAT),
+                              datetime.datetime.strptime(deleted_packages_by_week[0][0], DATE_FORMAT))).date()
+            cls._cumulative_num_pkgs = 0
+            new_pkgs = []
+            deleted_pkgs = []
+            def build_weekly_stats(week_commences, new_pkg_ids, deleted_pkg_ids):
+                num_pkgs = len(new_pkg_ids) - len(deleted_pkg_ids)
+                new_pkgs.extend([model.Session.query(model.Package).get(id).name for id in new_pkg_ids])
+                deleted_pkgs.extend([model.Session.query(model.Package).get(id).name for id in deleted_pkg_ids])
+                cls._cumulative_num_pkgs += num_pkgs
+                return (week_commences.strftime(DATE_FORMAT),
+                        num_pkgs, cls._cumulative_num_pkgs)
+            week_ends = first_date
+            today = datetime.date.today()
+            new_package_week_index = 0
+            deleted_package_week_index = 0
+            weekly_numbers = [] # [(week_commences, num_packages, cumulative_num_pkgs])]
+            while week_ends <= today:
+                week_commences = week_ends
+                week_ends = week_commences + datetime.timedelta(days=7)
+                if datetime.datetime.strptime(new_packages_by_week[new_package_week_index][0], DATE_FORMAT).date() == week_commences:
+                    new_pkg_ids = new_packages_by_week[new_package_week_index][1]
+                    new_package_week_index += 1
+                else:
+                    new_pkg_ids = []
+                if datetime.datetime.strptime(deleted_packages_by_week[deleted_package_week_index][0], DATE_FORMAT).date() == week_commences:
+                    deleted_pkg_ids = deleted_packages_by_week[deleted_package_week_index][1]
+                    deleted_package_week_index += 1
+                else:
+                    deleted_pkg_ids = []
+                weekly_numbers.append(build_weekly_stats(week_commences, new_pkg_ids, deleted_pkg_ids))
+            # just check we got to the end of each count
+            assert new_package_week_index == len(new_packages_by_week)
+            assert deleted_package_week_index == len(deleted_packages_by_week)
+            return weekly_numbers
+        if cache_enabled:
+            week_commences = cls.get_date_week_started(datetime.date.today())
+            key = 'number_packages_%s' + week_commences.strftime(DATE_FORMAT)
+            num_packages = our_cache.get_value(key=key,
+                                               createfunc=num_packages)
+        else:
+            num_packages = num_packages()
+        return num_packages        
+
+    @classmethod
     def get_by_week(cls, object_type):
         cls._object_type = object_type
         def objects_by_week():
             if cls._object_type == 'new_packages':
                 objects = cls.get_new_packages()
+                def get_date(object_date):
+                    return datetime.date.fromordinal(object_date)
+            elif cls._object_type == 'deleted_packages':
+                objects = cls.get_deleted_packages()
                 def get_date(object_date):
                     return datetime.date.fromordinal(object_date)
             elif cls._object_type == 'package_revisions':
@@ -241,12 +321,16 @@ class RevisionStats(object):
                      "package_revision_rate" number of package revisions
                      "new_packages" a list of the packages created
                      in a tuple with the date.
+                     "deleted_packages" a list of the packages deleted
+                     in a tuple with the date.
         @param dates: date range of interest - a tuple:
                      (start_date, end_date)
         '''
         assert isinstance(date_week_commences, datetime.date)
         if type_ in ('package_addition_rate', 'new_packages'):
             object_type = 'new_packages'
+        elif type_ == 'deleted_packages':
+            object_type = 'deleted_packages'
         elif type_ == 'package_revision_rate':
             object_type = 'package_revisions'
         else:
@@ -263,6 +347,6 @@ class RevisionStats(object):
         assert isinstance(object_ids, list)
         if type_ in ('package_revision_rate', 'package_addition_rate'):
             return len(object_ids)
-        elif type_ == 'new_packages':
+        elif type_ in ('new_packages', 'deleted_packages'):
             return [ model.Session.query(model.Package).get(pkg_id) \
                      for pkg_id in object_ids ]

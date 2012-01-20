@@ -9,4 +9,5 @@ source_lang = en
 # Namings not quite the same in Transifex and babel:
 # Transifex vs Babel (& CKAN)
 # 'sr@Latin'  vs 'sr_Latn'
-trans.sr@Latin = translations/sr_Latn/LC_MESSAGES/ckan.po
+trans.sr@Latin = ckan/i18n/sr_Latn/LC_MESSAGES/ckan.po
+trans.sr@latin = ckan/i18n/sr_Latn/LC_MESSAGES/ckan.po

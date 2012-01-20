@@ -57,7 +57,7 @@ site_logo
 
 Example::
 
- ckan.site_logo=/images/ckan_logo_fullname_long.png
+ ckan.site_logo = /images/ckan_logo_fullname_long.png
 
 Default value:  (none)
 
@@ -69,6 +69,42 @@ This sets the logo used in the title bar.
 
 .. index::
    single: package_hide_extras
+
+favicon
+^^^^^^^
+
+Example::
+
+ ckan.favicon = http://okfn.org/wp-content/themes/okfn-master-wordpress-theme/images/favicon.ico
+
+Default value: ``/images/icons/ckan.ico``
+
+This sets the site's `favicon`. This icon is usually displayed by the browser in the tab heading and bookmark.
+
+site_about
+^^^^^^^^^^
+
+Example::
+
+ ckan.site_about=${g.site_title} is a community-driven catalogue of open data for the Greenfield area.
+
+Default value::
+
+ What was the <a href="http://thedatahub.org/dataset/house-prices-uk-from-1930">average price</a> of a house in the UK in 1935? When will India's projected population <a href="http://thedatahub.org/dataset/guardian-population-unitednations">overtake</a> that of China? Where can you see <a href="http://thedatahub.org/dataset/seattle-public-art">publicly-funded art</a> in Seattle? Data to answer many, many questions like these is out there on the Internet somewhere - but it is not always easy to find.</p>
+  
+  <p i18n:msg="">${g.site_title} is a community-run catalogue of useful sets of data on the Internet. You can collect links here to data from around the web for yourself and others to use, or search for data that others have collected. Depending on the type of data (and its conditions of use), ${g.site_title} may also be able to store a copy of the data or host it in a database, and provide some basic visualisation tools.
+
+This changes the text about the site on the 'About' page. i.e. replaces the text in the "About <site_name" section. The other sections of the About page are not affected.
+
+Format tips:
+
+ * multiline strings can be used by indenting following lines
+
+ * the format is basically HTML, but with Genshi-format strings
+
+ * the about text will be automatically be placed with-in paragraph tags ``<p>...</p>`` but you can start new paragraphs within that by using ``</p><p>``
+
+.. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
 
 package_hide_extras
 ^^^^^^^^^^^^^^^^^^^
@@ -130,6 +166,8 @@ To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
 And there is an option for the default expiry time if not specified::
 
  ckan.cache.default_expires = 600
+
+
 
 Authentication Settings
 -----------------------
@@ -204,6 +242,35 @@ Example::
 Default value: (none)
 
 If you want to specify the ordering of all or some of the locales as they are offered to the user, then specify them here in the required order. Any locales that are available but not specified in this option, will still be offered at the end of the list.
+
+
+Storage Settings
+----------------
+
+.. index::
+   single: storage.bucket, storage.directory
+
+storage.bucket
+^^^^^^^^^^^^^^
+
+Example::
+
+  storage.bucket = ckan
+
+Default value:  ``None``
+
+This setting will change the bucket name for the uploaded files.
+
+storage.directory
+^^^^^^^^^^^^^^^^^
+
+Example::
+
+  storage.directory = /data/uploads/
+
+Default value:  ``None``
+
+Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
 
 
 
@@ -289,7 +356,11 @@ Example::
 
 Default value:  ``standard``
 
-This sets the name of the form to use when editing a dataset. This can be a form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the ``setup.py`` file has an entry point for the form defined in the ``ckan.forms`` section. 
+This sets the name of the Formalchemy form to use when editing a dataset. 
+
+.. note:: This setting only applies to the deprecated Formalchemy forms. For enabling forms defined with a Navl schema, see :doc:`forms`.
+
+The value for this setting can be a Formalchemy form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the ``setup.py`` file has an entry point for the form defined in the ``ckan.forms`` section. 
 
 For more information on forms, see :doc:`forms`.
 
@@ -410,8 +481,12 @@ CKAN uses Solr to index and search packages. The search index is linked to the v
 CKAN instance using the same `solr_url`_, they will each have a separate search index as long as their ``ckan.site_id`` values are different. If you are only running
 a single CKAN instance then this can be ignored.
 
+Note, if you change this value, you need to rebuild the search index.
+
 .. index::
    single: solr_url
+
+.. _solr_url:
 
 solr_url
 ^^^^^^^^
@@ -420,10 +495,11 @@ Example::
 
  solr_url = http://solr.okfn.org:8983/solr
  
-This configures the Solr server used for search. The SOLR schema must be the one in ``ckan/config/schema.xml``.
+This configures the Solr server used for search. The SOLR schema must be one of the ones in ``ckan/config/solr`` (generally the last one).
 
 Optionally, ``solr_user`` and ``solr_password`` can also be passed along to specify HTTP Basic authentication details for all Solr requests. 
 
+Note, if you change this value, you need to rebuild the search index.
 
 Site Settings
 -------------

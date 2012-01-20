@@ -250,21 +250,7 @@ Install the Source
 
 10. Setup Solr.
 
-   Edit the jetty config file (/etc/default/jetty by default on Ubuntu),
-   changing the following:
-
-   ::
-
-       NO_START=0            # (line 4)
-       JETTY_HOST=127.0.0.1  # (line 15)
-       JETTY_PORT=8983       # (line 18)
-
-   Then replace Solr's schema.xml file with a symlink to the one in the CKAN source (Note: The path ``~/pyenv/src/ckan/ckan/config/schema.xml`` will probably need to be to be adjusted for your system. Also ensure it is an absolute path.)
-
-   ::
-
-       sudo mv /usr/share/solr/conf/schema.xml /usr/share/solr/conf/schema.xml.bak
-       sudo ln -s ~/pyenv/src/ckan/ckan/config/schema.xml /usr/share/solr/conf/schema.xml
+   Set up Solr following the instructions on :ref:`solr-single` or :ref:`solr-multi-core` depending on your needs.
 
    Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:
 
@@ -273,25 +259,6 @@ Install the Source
        ckan.site_id=my_ckan_instance
        solr_url=http://127.0.0.1:8983/solr
 
-   You should now be able to start Solr:
-
-   ::
-
-       sudo service jetty start
-
-  .. note:: If you get the message `Could not start Jetty servlet engine because no Java Development Kit (JDK) was found.` then you will have to edit /etc/profile and add this line to the end such as this to the end (adjusting the path for your machine's jdk install)::
-
-       JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
-
-    Now run::
-
-       export JAVA_HOME
-       sudo service jetty start
-
-
-  Now you should check Solr is running ok by browsing: http://localhost:8983/solr/
-
-  For more information on Solr setup and configuration, see the CKAN wiki: http://wiki.ckan.net/Solr_Search
 
 
 11. Run the CKAN webserver.

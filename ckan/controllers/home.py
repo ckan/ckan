@@ -12,7 +12,6 @@ from ckan.logic import check_access, get_action
 from ckan.lib.i18n import set_session_locale, get_lang
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.base import *
-import ckan.lib.stats
 from ckan.lib.hash import get_redirect
 from ckan.lib.helpers import url_for
 
@@ -106,7 +105,7 @@ class HomeController(BaseController):
                 # e.g. babel.Locale.parse('no').get_display_name() returns None
                 h.flash_notice(_("Language has been set to: English"))
             except:
-                h.flash_notice("Language has been set to: English")
+                h.flash_notice(_("Language has been set to: English"))
         else:
             abort(400, _("No language given!"))
         return_to = get_redirect()

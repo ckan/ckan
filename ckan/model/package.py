@@ -458,17 +458,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                         results[key] = value_diff
         return results
 
-    @staticmethod
-    def last_modified(*av):
+    @property
+    def metadata_modified(self):
         """
-        Return most recent timestamp for a package revision, with optionally
-        extra where clause.
+        Return most recent timestamp for revisions related to this package.
+        NB Excludes changes to the package's groups
         """
         from ckan import model
-        where = []
-        for arg in av:
-            if isinstance(arg, expression.ClauseElement) or isinstance(arg, basestring):
-                where.append(arg)
+        where = [model.package_table.c.id == self.id]
         where_clauses = [
             and_(model.package_table.c.revision_id == model.revision_table.c.id, *where),
             and_(model.package_extra_table.c.package_id == model.package_table.c.id,
@@ -485,24 +482,22 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             and_(model.package_tag_table.c.package_id == model.package_table.c.id,
                  model.package_tag_table.c.revision_id == model.revision_table.c.id, *where)
             ]
+
         query = union(*[select([model.revision_table.c.timestamp], x) for x in where_clauses]
-                      ).order_by("timestamp DESC").limit(1)
-        conn = model.meta.engine.connect()
+                      ).order_by('timestamp DESC').limit(1)
+        # Use current connection because we might be in a 'before_commit' of
+        # a SessionExtension - only by using the current connection can we get
+        # at the newly created revision etc. objects.
+        conn = model.Session.connection() 
         result = conn.execute(query).fetchone()
+
         if result:
             result_datetime = iso_date_to_datetime_for_sqlite(result[0])
-            timestamp = result_datetime.utctimetuple()
+            timestamp_without_usecs = result_datetime.utctimetuple()
             usecs = float(result_datetime.microsecond) / 1e6
-        else:
-            timestamp, usecs = gmtime(), 0
-        # use timegm instead of mktime, because we don't want it localised
-        return timegm(timestamp) + usecs
-
-    @property
-    def metadata_modified(self):
-        import ckan.model as model
-        epochtime = self.last_modified(model.package_table.c.id==self.id)
-        return datetime.datetime.utcfromtimestamp(epochtime)
+            # use timegm instead of mktime, because we don't want it localised
+            timestamp_float = timegm(timestamp_without_usecs) + usecs
+            return datetime.datetime.utcfromtimestamp(timestamp_float)
 
     def get_groups(self):
         import ckan.model as model
@@ -514,18 +509,15 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                filter(model.Package.id == self.id).all()
         return self._groups
 
-
     @property
     def metadata_created(self):
         import ckan.model as model
-        q = model.Session.query(model.Revision).select_from(
-            model.revision_table.join(
-                model.package_revision_table,
-                and_(model.revision_table.c.id==model.package_revision_table.c.revision_id))
-            ).order_by(model.Revision.timestamp.asc())
+        q = model.Session.query(model.PackageRevision)\
+            .filter(model.PackageRevision.id == self.id)\
+            .order_by(model.PackageRevision.revision_timestamp.asc())
         ts = q.first()
         if ts is not None:
-            return ts.timestamp
+            return ts.revision_timestamp
 
     @staticmethod
     def get_fields(core_only=False, fields_to_ignore=None):

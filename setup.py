@@ -21,7 +21,9 @@ setup(
     ],
     extras_require = {
     },
+    zip_safe=False,
     packages=find_packages(exclude=['ez_setup']),
+    namespace_packages=['ckanext', 'ckanext.stats'],
     include_package_data=True,
     package_data={'ckan': [
         'i18n/*/LC_MESSAGES/*.mo',
@@ -60,7 +62,6 @@ setup(
     dataset = ckan.lib.cli:DatasetCmd
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
-    changes = ckan.lib.cli:Changes
     notify = ckan.lib.cli:Notification
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
@@ -84,6 +85,7 @@ setup(
 
     [ckan.plugins]
     synchronous_search = ckan.lib.search:SynchronousSearchPlugin
+    stats=ckanext.stats.plugin:StatsPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension

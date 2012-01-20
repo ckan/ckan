@@ -41,7 +41,7 @@ def package_error_summary(error_dict):
     error_summary = {}
     for key, error in error_dict.iteritems():
         if key == 'resources':
-            error_summary[_('Resources')] = _('Package resource(s) incomplete')
+            error_summary[_('Resources')] = _('Package resource(s) invalid')
         elif key == 'extras':
             error_summary[_('Extras')] = _('Missing Value')
         elif key == 'extras_validation':
@@ -166,6 +166,7 @@ def resource_update(context, data_dict):
     context["resource"] = resource
 
     if not resource:
+        logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
     check_access('resource_update', context, data_dict)
@@ -181,7 +182,7 @@ def resource_update(context, data_dict):
     if 'message' in context:
         rev.message = context['message']
     else:
-        rev.message = _(u'REST API: Update object %s') % data.get("name")
+        rev.message = _(u'REST API: Update object %s') % data.get("name", "")
 
     resource = resource_dict_save(data, context)
     if not context.get('defer_commit'):
@@ -339,7 +340,7 @@ def group_update(context, data_dict):
     return group_dictize(group, context)
 
 def user_update(context, data_dict):
-    '''Updates the user's details'''
+    '''Updates the user\'s details'''
 
     model = context['model']
     user = context['user']
@@ -379,7 +380,7 @@ def task_status_update(context, data_dict):
 
         if task_status is None:
             raise NotFound(_('TaskStatus was not found.'))
-
+    
     check_access('task_status_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)

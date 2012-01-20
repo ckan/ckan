@@ -33,20 +33,12 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         assert "Dave's books has 2 datasets" in res, res
         assert "Roger's books has 1 datasets" in res, res
 
-
-
-
-
     @search_related
     def test_packages_link(self):
         offset = url_for('home')
         res = self.app.get(offset)
         res.click('Search', index=0)
         
-    def test_404(self):
-        offset = '/some_nonexistent_url'
-        res = self.app.get(offset, status=404)
-
     def test_template_head_end(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -239,6 +231,25 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
             assert email_notice not in response
             assert fullname_notice not in response
             assert email_and_fullname_notice not in response
+
+class TestHomeControllerWithoutSearch(TestController, PylonsTestCase, HtmlCheckMethods):
+    @classmethod
+    def setup_class(cls):
+        PylonsTestCase.setup_class()
+        
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+        
+    def test_404(self):
+        offset = '/some_nonexistent_url'
+        res = self.app.get(offset, status=404)
+
+    def test_about(self):
+        offset = url_for(controller='home', action='about')
+        res = self.app.get(url_for('about'))
+        assert 'CKAN is a community-run catalogue' in res.body, res.body
+
 
 class TestDatabaseNotInitialised(TestController):
     @classmethod

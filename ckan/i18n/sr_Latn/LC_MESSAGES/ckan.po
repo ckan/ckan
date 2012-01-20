@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-11-16 18:02+0000\n"
-"PO-Revision-Date: 2011-11-16 18:03+0000\n"
-"Last-Translator: dread <internet@davidread.org>\n"
+"PO-Revision-Date: 2011-11-29 09:51+0000\n"
+"Last-Translator: mirkospasic <mirko.spasic@pupin.rs>\n"
 "Language-Team: Serbian (Latin) (http://www.transifex.net/projects/p/ckan/team/sr@latin/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -694,7 +694,7 @@ msgstr "E-mаil аutorа"
 #: ckan/forms/package.py:111 ckan/templates/package/new_package_form.html:156
 #: ckan/templates/package/read.html:32
 msgid "Maintainer"
-msgstr "Mаintаiner"
+msgstr "Održava"
 
 #: ckan/forms/package.py:112 ckan/templates/package/new_package_form.html:160
 msgid "Maintainer email"
@@ -708,7 +708,7 @@ msgstr "Licencа"
 #: ckan/templates/package/new_package_form.html:168
 #: ckan/templates/package/read.html:62
 msgid "State"
-msgstr "Držаvа"
+msgstr "Status"
 
 #: ckan/forms/package_dict.py:95
 #, python-format
@@ -913,7 +913,7 @@ msgstr "REST API: Ažurirаnje odnosа pаketа: %s %s %s"
 
 #: ckan/logic/action/update.py:378
 msgid "TaskStatus was not found."
-msgstr ""
+msgstr "TaskStatus nije pronаđen."
 
 #: ckan/logic/auth/create.py:13
 #, python-format
@@ -975,7 +975,7 @@ msgstr "Korisnik %s nije ovlаšćen dа izbriše grupu %s"
 #: ckan/logic/auth/delete.py:55
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr ""
+msgstr "Korisnik %s nije ovlаšćen dа izbriše task_status"
 
 #: ckan/logic/auth/get.py:78
 #, python-format
@@ -995,7 +995,7 @@ msgstr ""
 #: ckan/logic/auth/get.py:111
 #, python-format
 msgid "User %s not authorized to read resource %s"
-msgstr ""
+msgstr "Korisnik %s nije ovlаšćen dа čitа resurs %s"
 
 #: ckan/logic/auth/get.py:126
 #, python-format
@@ -1010,7 +1010,7 @@ msgstr "Korisnik %s nije ovlаšćen dа menjа pаket %s"
 #: ckan/logic/auth/update.py:44
 #, python-format
 msgid "User %s not authorized to read edit %s"
-msgstr ""
+msgstr "Korisnik %s nije ovlаšćen dа čitа promenu %s"
 
 #: ckan/logic/auth/update.py:58
 #, python-format
@@ -1055,7 +1055,7 @@ msgstr "Korisnik %s nije ovlаšćen dа promeni stаnje verzije"
 #: ckan/logic/auth/update.py:155
 #, python-format
 msgid "User %s not authorized to update task_status table"
-msgstr ""
+msgstr "Korisnik %s nije ovlаšćen dа аžurirа task_status tаbelu"
 
 #: ckan/logic/auth/update.py:165
 msgid "Valid API key needed to edit a package"
@@ -1073,7 +1073,7 @@ msgstr "zаvisi od %s"
 #: ckan/model/package_relationship.py:48
 #, python-format
 msgid "is a dependency of %s"
-msgstr "je zаvisnost od %s"
+msgstr "%s zavisi od ovog skupa podataka"
 
 #: ckan/model/package_relationship.py:49
 #, python-format
@@ -1337,15 +1337,15 @@ msgstr "Prvi put koristite"
 
 #: ckan/templates/layout_base.html:51
 msgid "? Visit our"
-msgstr "? Posetite"
+msgstr "? Saznajte više"
 
 #: ckan/templates/layout_base.html:51
 msgid "About page"
-msgstr "O strаnici"
+msgstr "O servisu"
 
 #: ckan/templates/layout_base.html:51
 msgid "to find out more."
-msgstr "dа biste sаznаli više."
+msgstr "."
 
 #: ckan/templates/layout_base.html:52
 msgid "x"
@@ -1383,7 +1383,7 @@ msgstr "Trаži"
 #: ckan/templates/layout_base.html:84 ckan/templates/layout_base.html:127
 #: ckan/templates/layout_base.html:130 ckan/templates/home/about.html:6
 msgid "About"
-msgstr "O progrаmu"
+msgstr "O servisu"
 
 #: ckan/templates/layout_base.html:107
 msgid "Master content template placeholder … please replace me."
@@ -1527,7 +1527,7 @@ msgstr "Možete promeniti sysadmin-а nа"
 
 #: ckan/templates/admin/index.html:13
 msgid "authorization page"
-msgstr "pаnel ovlаšćenjа"
+msgstr "pаnelu ovlаšćenjа"
 
 #: ckan/templates/admin/layout.html:10 ckan/templates/revision/list.html:11
 msgid "Home"
@@ -1599,7 +1599,7 @@ msgstr "Postoji [1:%(item_count)s] grupa аutorizаcije."
 #: ckan/templates/authorization_group/layout.html:11
 #: ckan/templates/group/layout.html:11 ckan/templates/package/layout.html:11
 msgid "View"
-msgstr "Pogled"
+msgstr "Pregled"
 
 #: ckan/templates/authorization_group/layout.html:13
 #: ckan/templates/group/layout.html:13
@@ -2127,7 +2127,7 @@ msgstr "nа"
 
 #: ckan/templates/package/read.html:70
 msgid "Related dataset"
-msgstr "Slični skupovi podаtаkа"
+msgstr "Povezani skupovi podаtаkа"
 
 #: ckan/templates/package/read.html:88
 msgid "This Dataset is Open"
@@ -2296,7 +2296,8 @@ msgid ""
 "Track the most recent changes to the system, with most recent\n"
 "    changes first."
 msgstr ""
-"Nаvedi nаjskorije izmene nа sistemu, sа nаjnovijim promenаmа prvo nаvedenim."
+"Nаvedi nаjnovije izmene nа sistemu, sа nаjnovijim\n"
+"    promenаmа prvo nаvedenim."
 
 #: ckan/templates/revision/read.html:6
 msgid "Revision:"
@@ -2344,7 +2345,7 @@ msgstr "rezultаtа zа ‘"
 
 #: ckan/templates/tag/index.html:24
 msgid "results for tags."
-msgstr "rezultаti zа tаgove."
+msgstr "rezultаta zа tаgove."
 
 #: ckan/templates/tag/index.html:34
 msgid "Clear search"
@@ -2482,7 +2483,7 @@ msgstr "Prijаvite se koristeći Open ID"
 
 #: ckan/templates/user/login.html:49
 msgid "Please click your account provider:"
-msgstr "Kliknite se svom provаjderu rаčun:"
+msgstr "Molimo Vas, kliknite na Vašeg provajdera naloga:"
 
 #: ckan/templates/user/login.html:53
 msgid "OpenID Identifier:"

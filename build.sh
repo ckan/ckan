@@ -15,11 +15,25 @@
 # Over time, as CKAN and its dependencies follow conventions more closely the
 # edge cases handled by this script should go away and the build should become
 # simpler.
+#
+# Install:
+#
+#     sudo apt-get update
+#     sudo apt-get install -y wget
+#     echo "deb http://apt.3aims.com/buildkit-0.2.2 lucid universe" | sudo tee /etc/apt/sources.list.d/3aims.list
+#     wget -qO- "http://apt.3aims.com/packages_public.key" | sudo apt-key add -
+#     sudo apt-get update
+#     sudo apt-get install buildkit-deb buildkit-apt-repo
 
-CKAN_PACKAGE_VERSION=08
-DEPS_PACKAGE_VERSION=05
-CKAN_PATH=/home/james/Documents/Work/OKFN/code/pyenv/src/ckan
-BUILDKIT_REPO_PATH="/var/lib/buildkit/repo/ckan-1.5"
+
+CKAN_PACKAGE_VERSION=$1
+DEPS_PACKAGE_VERSION=$2
+# If you don't run this command from the CKAN source directory, specify the 
+# path to CKAN here
+CKAN_PATH=$PWD
+# You'll need to create the repo if it doesn't exist:
+# sudo -u buildkit buildkit repo clone base_lucid ckan-1.5.1
+REPO_NAME="ckan-1.5.1"
 PIP_DOWNLOAD_CACHE=${CKAN_PATH}/build/env/cache
 EMAIL=packaging@okfn.org
 NAME="James Gardner"
@@ -54,8 +68,7 @@ cp ${CKAN_PATH}/build/buildkit/env/build/licenses/dist/buildkit/*.deb ${CKAN_PAT
 echo "done."
 
 # Add the .debs to the repository and the export the latest files for upload
-echo "Adding the packages to the $BUILDKIT_REPO_PATH repo ..."
-sudo -u buildkit buildkit repo remove -a $BUILDKIT_REPO_PATH
-sudo -u buildkit buildkit repo add $BUILDKIT_REPO_PATH ${CKAN_PATH}/dist/buildkit/*.deb
-echo "done."
-
+# echo "Adding the packages to the $REPO_NAME repo using files in ${CKAN_PATH}/dist/buildkit/*.deb ..."
+# sudo -u buildkit buildkit repo remove -a $REPO_NAME dummy_arg
+# sudo -u buildkit buildkit repo add $REPO_NAME ${CKAN_PATH}/dist/buildkit/*.deb
+# echo "done."

@@ -17,9 +17,9 @@ Make sure you've created a config file at ``pyenv/ckan/development.ini``. Then a
 
     . pyenv/bin/activate
 
-Install nose and ckanclient into your virtual environment::
+Install nose and other test-specific dependencies into your virtual environment::
 
-    pip install --ignore-installed nose ckanclient
+    pip install --ignore-installed -r pyenv/src/ckan/pip-requirements-test.txt
 
 At this point you will need to deactivate and then re-activate your
 virtual environment to ensure that all the scripts point to the correct
@@ -98,6 +98,13 @@ By default, tests are run using the model defined in ``ckan/model``, but by usin
 .. warning ::
 
    A common error when wanting to run tests against a particular database is to change ``sqlalchemy.url`` in ``test.ini`` or ``test-core.ini``. The problem is that these are versioned files and people have checked in these by mistake, creating problems for other developers and the CKAN buildbot. This is easily avoided by only changing ``sqlalchemy.url`` in your local ``development.ini`` and testing ``--with-pylons=test-core.ini``.
+
+Testing Core Extensions
+-----------------------
+
+Some extensions are in the CKAN core codebase and have their own suite of tests. For example::
+
+    nosetests --ckan ckanext/stats/tests
 
 Common error messages
 ---------------------

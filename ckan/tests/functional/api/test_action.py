@@ -12,6 +12,10 @@ from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering
 from ckan.tests import setup_test_search_index, search_related
 from ckan.logic import get_action, NotAuthorized
 
+from ckan import plugins
+from ckan.plugins import SingletonPlugin, implements, IPackageController
+
+
 class TestAction(WsgiAppCase):
 
     STATUS_200_OK = 200
@@ -156,8 +160,13 @@ class TestAction(WsgiAppCase):
         package_updated = json.loads(res.body)['result']
         package_updated.pop('revision_id')
         package_updated.pop('revision_timestamp')
+        package_updated.pop('metadata_created')
+        package_updated.pop('metadata_modified')
+
         package_created.pop('revision_id')
         package_created.pop('revision_timestamp')
+        package_created.pop('metadata_created')
+        package_created.pop('metadata_modified')
         assert package_updated == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))
 
     def test_18_create_package_not_authorized(self):
@@ -278,7 +287,7 @@ class TestAction(WsgiAppCase):
         number_of_russian_packages = len(res_obj['result'][russian_index]['packages'])   # warandpeace, annakarenina (moo?)
         number_of_tolstoy_packages = len(res_obj['result'][tolstoy_index]['packages'])   # annakarenina
         number_of_flexible_packages = len(res_obj['result'][flexible_index]['packages']) # warandpeace, annakarenina (moo?)
-        
+
         # Assert we have the correct number of packages, independantly of
         # whether the "moo" package may exist or not.
         assert number_of_russian_packages - number_of_tolstoy_packages == 1
@@ -647,7 +656,7 @@ class TestAction(WsgiAppCase):
 
     def test_15_tag_autocomplete_tag_with_foreign_characters(self):
         """Asserts autocomplete finds tags that contain foreign characters"""
-        
+
         CreateTestData.create_arbitrary([{
             'name': u'package-with-tag-that-has-a-foreign-character-1',
             'tags': [u'greek beta \u03b2'],
@@ -662,7 +671,7 @@ class TestAction(WsgiAppCase):
 
     def test_15_tag_autocomplete_tag_with_punctuation(self):
         """Asserts autocomplete finds tags that contain punctuation"""
-        
+
         CreateTestData.create_arbitrary([{
             'name': u'package-with-tag-that-has-a-fullstop-1',
             'tags': [u'fullstop.'],
@@ -679,7 +688,7 @@ class TestAction(WsgiAppCase):
         """
         Asserts autocomplete finds tags that contain capital letters
         """
-        
+
         CreateTestData.create_arbitrary([{
             'name': u'package-with-tag-that-has-a-capital-letter-1',
             'tags': [u'CAPITAL idea old chap'],
@@ -1090,6 +1099,7 @@ class TestAction(WsgiAppCase):
                             status=400)
         assert "Bad request - Bad request data: Request data JSON decoded to '' but it needs to be a dictionary." in res.body, res.body
 
+
 class TestActionPackageSearch(WsgiAppCase):
 
     @classmethod
@@ -1135,3 +1145,126 @@ class TestActionPackageSearch(WsgiAppCase):
                             status=400)
         assert '"message": "Search Query is invalid:' in res.body, res.body
         assert '"Invalid search parameters: [u\'weird_param\']' in res.body, res.body
+
+    def test_4_sort_by_metadata_modified(self):
+        search_params = '%s=1' % json.dumps({
+            'q': '*:*',
+            'fl': 'name, metadata_modified',
+            'sort': u'metadata_modified desc'
+        })
+
+        # modify warandpeace, check that it is the first search result
+        rev = model.repo.new_revision()
+        pkg = model.Package.get('warandpeace')
+        pkg.title = "War and Peace [UPDATED]"
+        model.repo.commit_and_remove()
+
+        res = self.app.post('/api/action/package_search', params=search_params)
+        result = json.loads(res.body)['result']
+        result_names = [r['name'] for r in result['results']]
+        assert result_names == ['warandpeace', 'annakarenina'], result_names
+
+        # modify annakarenina, check that it is the first search result
+        rev = model.repo.new_revision()
+        pkg = model.Package.get('annakarenina')
+        pkg.title = "A Novel By Tolstoy [UPDATED]"
+        model.repo.commit_and_remove()
+
+        res = self.app.post('/api/action/package_search', params=search_params)
+        result = json.loads(res.body)['result']
+        result_names = [r['name'] for r in result['results']]
+        assert result_names == ['annakarenina', 'warandpeace'], result_names
+
+        # add a tag to warandpeace, check that it is the first result
+        pkg = model.Package.get('warandpeace')
+        pkg_params = '%s=1' % json.dumps({'id': pkg.id})
+        res = self.app.post('/api/action/package_show', params=pkg_params)
+        pkg_dict = json.loads(res.body)['result']
+        pkg_dict['tags'].append({'name': 'new-tag'})
+        pkg_params = '%s=1' % json.dumps(pkg_dict)
+        res = self.app.post('/api/action/package_update', params=pkg_params,
+                            extra_environ={'Authorization': 'tester'})
+
+        res = self.app.post('/api/action/package_search', params=search_params)
+        result = json.loads(res.body)['result']
+        result_names = [r['name'] for r in result['results']]
+        assert result_names == ['warandpeace', 'annakarenina'], result_names
+
+class MockPackageSearchPlugin(SingletonPlugin):
+    implements(IPackageController, inherit=True)
+
+    def before_search(self, search_params):
+        if 'extras' in search_params and 'ext_avoid' in search_params['extras']:
+            assert 'q' in search_params
+
+        if 'extras' in search_params and 'ext_abort' in search_params['extras']:
+            assert 'q' in search_params
+            # Prevent the actual query
+            search_params['abort_search'] = True
+
+        return search_params
+
+    def after_search(self, search_results, search_params):
+
+        assert 'results' in search_results
+        assert 'count' in search_results
+        assert 'facets' in search_results
+
+        if 'extras' in search_params and 'ext_avoid' in search_params['extras']:
+            # Remove results with a certain value
+            avoid = search_params['extras']['ext_avoid']
+
+            for i,result in enumerate(search_results['results']):
+                if avoid.lower() in result['name'].lower() or avoid.lower() in result['title'].lower():
+                    search_results['results'].pop(i)
+                    search_results['count'] -= 1
+
+        return search_results
+
+class TestSearchPluginInterface(WsgiAppCase):
+
+    @classmethod
+    def setup_class(cls):
+        setup_test_search_index()
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def test_search_plugin_interface_search(self):
+        plugin = MockPackageSearchPlugin()
+        plugins.load(plugin)
+
+
+        avoid = 'Tolstoy'
+        search_params = '%s=1' % json.dumps({
+            'q': '*:*',
+            'extras' : {'ext_avoid':avoid}
+        })
+
+        res = self.app.post('/api/action/package_search', params=search_params)
+
+        results_dict = json.loads(res.body)['result']
+        for result in results_dict['results']:
+            assert not avoid.lower() in result['title'].lower()
+
+        assert results_dict['count'] == 1
+        plugins.unload(plugin)
+
+    def test_search_plugin_interface_abort(self):
+        plugin = MockPackageSearchPlugin()
+        plugins.load(plugin)
+
+        search_params = '%s=1' % json.dumps({
+            'q': '*:*',
+            'extras' : {'ext_abort':True}
+        })
+
+        res = self.app.post('/api/action/package_search', params=search_params)
+
+        # Check that the query was aborted and no results returned
+        res_dict = json.loads(res.body)['result']
+        assert res_dict['count'] == 0
+        assert len(res_dict['results']) == 0
+        plugins.unload(plugin)

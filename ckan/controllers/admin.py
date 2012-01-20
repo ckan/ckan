@@ -16,7 +16,7 @@ class AdminController(BaseController):
     def __before__(self, action, **params):
         super(AdminController, self).__before__(action, **params)
         if not ckan.authz.Authorizer().is_sysadmin(unicode(c.user)):
-            abort(401, 'Need to be system administrator to administer')        
+            abort(401, _('Need to be system administrator to administer'))        
         c.revision_change_state_allowed = (
             c.user and
             self.authorizer.is_authorized(c.user, model.Action.CHANGE_STATE,
@@ -102,7 +102,7 @@ class AdminController(BaseController):
 
             # finally commit the change to the database
             model.Session.commit()
-            h.flash_success("Changes Saved")
+            h.flash_success(_("Changes Saved"))
 
         if ('save' in request.POST):
             action_save_form('users')
@@ -139,7 +139,7 @@ class AdminController(BaseController):
                 user_object = model.User.by_name(new_user)
                 if user_object==None:
                     # The submitted user does not exist. Bail with flash message
-                    h.flash_error('unknown user:' + str (new_user))
+                    h.flash_error(_('unknown user:') + str (new_user))
                 else:
                     # Whenever our desired state is different from our current state, change it.
                     for (r,val) in desired_roles.items():
@@ -149,14 +149,14 @@ class AdminController(BaseController):
                         else:
                             if (r in current_roles):
                                 model.remove_user_from_role(user_object, r, model.System())
-                    h.flash_success("User Added")
+                    h.flash_success(_("User Added"))
 
             elif users_or_authz_groups=='authz_groups':
                 current_roles = [uor.role for uor in current_uors if ( uor.authorized_group and uor.authorized_group.name == new_user )]
                 user_object = model.AuthorizationGroup.by_name(new_user)
                 if user_object==None:
                     # The submitted user does not exist. Bail with flash message
-                    h.flash_error('unknown authorization group:' + str (new_user))
+                    h.flash_error(_('unknown authorization group:') + str (new_user))
                 else:
                     # Whenever our desired state is different from our current state, change it.
                     for (r,val) in desired_roles.items():
@@ -166,7 +166,7 @@ class AdminController(BaseController):
                         else:
                             if (r in current_roles):
                                 model.remove_authorization_group_from_role(user_object, r, model.System())
-                    h.flash_success("Authorization Group Added")
+                    h.flash_success(_("Authorization Group Added"))
 
 
             else:
@@ -265,7 +265,7 @@ class AdminController(BaseController):
                         for r in revisions:
                             affected_pkgs = set(r.packages).difference(set(c.deleted_packages))
                             if affected_pkgs:
-                                msg = _('Cannot purge package %s as ' + \
+                                msg = _('Cannot purge package %s as '
                                     'associated revision %s includes non-deleted packages %s')
                                 msg = msg % (pkg.id, r.id, [pkg.id for r in affected_pkgs])
                                 msgs.append(msg)
@@ -284,12 +284,11 @@ class AdminController(BaseController):
                         # Ensure that whatever 'head' pointer is used gets moved down to the next revision
                         model.repo.purge_revision(revision, leave_record=False)
                     except Exception, inst:
-                        msg = 'Problem purging revision %s: %s' % (id,
-                                inst)
+                        msg = _('Problem purging revision %s: %s') % (id, inst)
                         msgs.append(msg)
                 h.flash_success(_('Purge complete'))
             else:
-                msgs.append('Action not implemented.')
+                msgs.append(_('Action not implemented.'))
 
             for msg in msgs:
                 h.flash_error(msg)

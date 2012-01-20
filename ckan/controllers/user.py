@@ -76,9 +76,10 @@ class UserController(BaseController):
         c.page = h.Page(
             collection=users_list,
             page=page,
+            url=h.pager_url,
             item_count=users_list.count(),
             items_per_page=LIMIT
-            )
+        )
         return render('user/list.html')
 
     def read(self, id=None):
@@ -239,6 +240,12 @@ class UserController(BaseController):
     def login(self):
         if 'error' in request.params:
             h.flash_error(request.params['error'])
+
+        if request.environ['SCRIPT_NAME'] and g.openid_enabled:
+            # #1662 restriction
+            log.warn('Cannot mount CKAN at a URL and login with OpenID.')
+            g.openid_enabled = False
+            
         return render('user/login.html')
     
     def logged_in(self):
@@ -259,7 +266,8 @@ class UserController(BaseController):
             h.flash_success(_("%s is now logged in") % user_dict['display_name'])
             return self.me()
         else:
-            h.flash_error('Login failed. Bad username or password.')
+            h.flash_error('Login failed. Bad username or password.' + \
+                          ' (Or if using OpenID, it hasn\'t been associated with a user account.)')
             h.redirect_to(controller='user', action='login')
           
     def logged_out(self):
@@ -306,7 +314,7 @@ class UserController(BaseController):
                 try:
                     mailer.send_reset_link(user_obj)
                     h.flash_success(_('Please check your inbox for a reset code.'))
-                    redirect('/')
+                    h.redirect_to('/')
                 except mailer.MailerException, e:
                     h.flash_error(_('Could not send reset link: %s') % unicode(e))
         return render('user/request_reset.html')
@@ -337,7 +345,7 @@ class UserController(BaseController):
                 user = get_action('user_update')(context, user_dict)
 
                 h.flash_success(_("Your password has been reset."))
-                redirect('/')
+                h.redirect_to('/')
             except NotAuthorized:
                 h.flash_error(_('Unauthorized to edit user %s') % id)
             except NotFound, e:
@@ -356,7 +364,7 @@ class UserController(BaseController):
             html = genshi.HTML(about_formatted)
         except genshi.ParseError, e:
             log.error('Could not print "about" field Field: %r Error: %r', about, e)
-            html = 'Error: Could not parse About text'
+            html = _('Error: Could not parse About text')
         return html
     
     def _get_form_password(self):

@@ -12,7 +12,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 __all__ = ['group_table', 'Group', 'package_revision_table',
            'Member', 'GroupRevision', 'MemberRevision',
-           'member_revision_table']
+           'member_revision_table', 'member_table']
 
 member_table = Table('member', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
@@ -105,8 +105,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             return
         package = Package.by_name(package_name)
         assert package
-        if not package in self.packages:
-            self.packages.append(package)
+        if not package in self.active_packages().all():
+            member = Member(group=self, table_id=package.id, table_name='package')
+            Session.add(member)
+
 
     @property
     def all_related_revisions(self):

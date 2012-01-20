@@ -18,6 +18,7 @@ Contents:
    install-from-package
    install-from-source
    post-installation
+   solr-setup
    theming
    loading_data
    paster
@@ -30,6 +31,7 @@ Contents:
    database_dumps
    upgrade
    i18n
+   file-upload
    configuration
    api
    test

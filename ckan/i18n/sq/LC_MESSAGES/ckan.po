@@ -4,14 +4,15 @@
 # 
 # Translators:
 # abrahaj <a_brahaj@yahoo.com>, 2011.
+#   <a_brahaj@yahoo.com>, 2011.
 # <internet@davidread.org>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-11-16 18:02+0000\n"
-"PO-Revision-Date: 2011-11-16 18:03+0000\n"
-"Last-Translator: dread <internet@davidread.org>\n"
+"PO-Revision-Date: 2011-11-24 08:50+0000\n"
+"Last-Translator: abrahaj <a_brahaj@yahoo.com>\n"
 "Language-Team: Albanian (http://www.transifex.net/projects/p/ckan/team/sq/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -23,7 +24,7 @@ msgstr ""
 #: ckan/new_authz.py:18
 #, python-format
 msgid "Authorization function not found: %s"
-msgstr ""
+msgstr "Funksioni i autorizimit nuk u gjet:%s"
 
 #: ckan/controllers/admin.py:268
 #, python-format
@@ -43,7 +44,7 @@ msgstr ""
 #: ckan/controllers/user.py:72 ckan/controllers/user.py:95
 #: ckan/logic/auth/get.py:17
 msgid "Not authorized to see this page"
-msgstr ""
+msgstr "Nuk jeni i autorizuar për të parë këtë faqe"
 
 #: ckan/controllers/api.py:96 ckan/controllers/api.py:159
 msgid "Access denied"
@@ -55,12 +56,12 @@ msgstr "Nuk u gjet"
 
 #: ckan/controllers/api.py:110
 msgid "Bad request"
-msgstr ""
+msgstr "Kërkesë e gabuar"
 
 #: ckan/controllers/api.py:138
 #, python-format
 msgid "Action name not known: %s"
-msgstr ""
+msgstr "Emri i veprimit nuk është i njohur:%s"
 
 #: ckan/controllers/api.py:148 ckan/controllers/api.py:269
 #: ckan/controllers/api.py:327
@@ -111,7 +112,7 @@ msgstr "Nuk mund të fshij entin e këtij tipi: %s %s"
 
 #: ckan/controllers/api.py:402
 msgid "No revision specified"
-msgstr ""
+msgstr "Asnjë rishikim i specifikuar"
 
 #: ckan/controllers/api.py:406
 #, python-format
@@ -125,7 +126,7 @@ msgstr "Mungon termi i kërkimit ('some_UUID' ose 'since_time=TIMESTAMP')"
 #: ckan/controllers/api.py:424
 #, python-format
 msgid "Could not read parameters: %r"
-msgstr ""
+msgstr "Nuk munda të lexoja parametrat: %r"
 
 #: ckan/controllers/api.py:471
 #, python-format
@@ -139,7 +140,7 @@ msgstr "Regjistër i panjohur: %s"
 
 #: ckan/controllers/api.py:482
 msgid "Malformed qjson value"
-msgstr ""
+msgstr "Vlera qjson është e formuar gabim"
 
 #: ckan/controllers/api.py:491
 msgid "Request params must be in form of a json encoded dictionary."
@@ -183,7 +184,7 @@ msgstr "Përdoruesi %r nuk është i autorizuar të modifikojë autorizimet %s"
 #: ckan/controllers/group.py:178 ckan/controllers/group.py:197
 #, python-format
 msgid "Unauthorized to read group %s"
-msgstr ""
+msgstr "Të paautorizuar për të lexuar grupin %s"
 
 #: ckan/controllers/group.py:86
 msgid "Cannot render description"
@@ -223,10 +224,11 @@ msgstr "Mesazhet e log:"
 #: ckan/controllers/home.py:35
 msgid "This site is currently off-line. Database is not initialised."
 msgstr ""
+"Kjo faqe është aktualisht off-line. Baza e të dhënave nuk është ndezur."
 
 #: ckan/controllers/home.py:77
 msgid "Invalid language specified"
-msgstr ""
+msgstr "Gjuha nuk u gjend"
 
 #: ckan/controllers/home.py:85
 msgid "Language has been set to: English"
@@ -240,7 +242,7 @@ msgstr "Nuk ka gjuhë të caktuar!"
 #: ckan/controllers/package.py:200
 #, python-format
 msgid "Invalid revision format: %r"
-msgstr ""
+msgstr "Format rishikimi i pavlefshëm :%r"
 
 #: ckan/controllers/package.py:210 ckan/controllers/package.py:242
 #: ckan/controllers/package.py:279 ckan/controllers/package.py:364
@@ -276,6 +278,8 @@ msgid ""
 "<span class=\"new-dataset\">Congratulations, your dataset has been created. "
 "<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
 msgstr ""
+"<span class=\"new-dataset\">Urime, dataseti juaj është krijuar. <a "
+"href=\"%s\">Ngarko ose lidh të dhëna tani &raquo;</a></span>"
 
 #: ckan/controllers/revision.py:40
 msgid "CKAN Repository Revision History"
@@ -292,7 +296,7 @@ msgstr "Paketa të prekuara: %s.\n"
 
 #: ckan/controllers/revision.py:176
 msgid "Revision updated"
-msgstr ""
+msgstr "Rishikimi u përditësua"
 
 #: ckan/controllers/tag.py:54 ckan/forms/common.py:933
 msgid "Other"
@@ -300,41 +304,41 @@ msgstr "Tjetër"
 
 #: ckan/controllers/tag.py:67
 msgid "Tag not found"
-msgstr ""
+msgstr "Tag nuk u gjet"
 
 #: ckan/controllers/user.py:129
 msgid "Unauthorized to create a user"
-msgstr ""
+msgstr "Jeni të paautorizuar për të krijuar një përdorues"
 
 #: ckan/controllers/user.py:151
 #, python-format
 msgid "Unauthorized to create user %s"
-msgstr ""
+msgstr "Të paautorizuar për të krijuar përdoruesin %s"
 
 #: ckan/controllers/user.py:153 ckan/controllers/user.py:201
 #: ckan/controllers/user.py:230 ckan/controllers/user.py:324
 #: ckan/controllers/user.py:344
 msgid "User not found"
-msgstr ""
+msgstr "Përdoruesi nuk u gjet"
 
 #: ckan/controllers/user.py:157
 msgid "Bad Captcha. Please try again."
-msgstr ""
+msgstr "Captcha keqe. Ju lutem provoni përsëri."
 
 #: ckan/controllers/user.py:180
 msgid "No user specified"
-msgstr ""
+msgstr "Asnjë përdorues i përcaktuar"
 
 #: ckan/controllers/user.py:199 ckan/controllers/user.py:228
 #: ckan/controllers/user.py:342
 #, python-format
 msgid "Unauthorized to edit user %s"
-msgstr ""
+msgstr "Të paautorizuar për të redaktuar %s"
 
 #: ckan/controllers/user.py:206
 #, python-format
 msgid "User %s not authorized to edit %s"
-msgstr ""
+msgstr " Përdoruesi %s nuk është i autorizuar për të redaktuar %s"
 
 #: ckan/controllers/user.py:225
 msgid "Profile updated"
@@ -348,29 +352,29 @@ msgstr ""
 #: ckan/controllers/user.py:299
 #, python-format
 msgid "\"%s\" matched several users"
-msgstr ""
+msgstr "\"%s\" u gjet në disa përdorues"
 
 #: ckan/controllers/user.py:301 ckan/controllers/user.py:303
 #, python-format
 msgid "No such user: %s"
-msgstr ""
+msgstr "Asnjë përdorues i tillë:%s"
 
 #: ckan/controllers/user.py:308
 msgid "Please check your inbox for a reset code."
-msgstr ""
+msgstr "Ju lutem kontrolloni kutinë tuaj për një kod rigjenerimi"
 
 #: ckan/controllers/user.py:311
 #, python-format
 msgid "Could not send reset link: %s"
-msgstr ""
+msgstr "Nuk mund të dërgoni kodin për rigjenerim fjalëkalimi :%s"
 
 #: ckan/controllers/user.py:328
 msgid "Invalid reset key. Please try again."
-msgstr ""
+msgstr "Kod i gabuar rigjenerimi. Ju lutem provoni përsëri."
 
 #: ckan/controllers/user.py:339
 msgid "Your password has been reset."
-msgstr ""
+msgstr "Fjalëkalimi juaj është rigjeneruar"
 
 #: ckan/controllers/user.py:367
 msgid "Your password must be 4 characters or longer."
@@ -394,7 +398,7 @@ msgstr ""
 
 #: ckan/forms/common.py:40
 msgid "Dataset name already exists in database"
-msgstr ""
+msgstr "Emri dataset tashmë ekziston në bazën e të dhënave"
 
 #: ckan/forms/common.py:53 ckan/logic/validators.py:144
 msgid "Group name already exists in database"
@@ -413,7 +417,7 @@ msgstr "(Asnje)"
 
 #: ckan/forms/common.py:350
 msgid "Dataset resource(s) incomplete."
-msgstr ""
+msgstr "Dataset i burimeve është i paplotë."
 
 #: ckan/forms/common.py:517 ckan/logic/validators.py:150
 #, python-format
@@ -721,16 +725,16 @@ msgstr "Kyç bosh"
 #: ckan/lib/mailer.py:21
 #, python-format
 msgid "Dear %s,"
-msgstr ""
+msgstr "I nderuar %s,"
 
 #: ckan/lib/mailer.py:34
 #, python-format
 msgid "%s <%s>"
-msgstr ""
+msgstr "%s <%s>"
 
 #: ckan/lib/mailer.py:58
 msgid "No recipient email address available!"
-msgstr ""
+msgstr "No email marrësit adresa në dispozicion!"
 
 #: ckan/lib/mailer.py:63
 #, python-format
@@ -745,7 +749,7 @@ msgstr ""
 #: ckan/lib/mailer.py:95 ckan/templates/user/perform_reset.html:6
 #: ckan/templates/user/perform_reset.html:14
 msgid "Reset your password"
-msgstr ""
+msgstr "Rivendosni fjalëkalimin tuaj"
 
 #: ckan/lib/package_saver.py:29
 msgid "Cannot render package description"
@@ -761,7 +765,7 @@ msgstr "Nuk lejohen linke në messazhet log"
 
 #: ckan/logic/__init__.py:134
 msgid "No valid API key provided."
-msgstr ""
+msgstr "Nuk gjeta celes API"
 
 #: ckan/logic/validators.py:14
 #, python-format

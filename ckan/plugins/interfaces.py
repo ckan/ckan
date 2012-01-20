@@ -231,6 +231,37 @@ class IPackageController(Interface):
     def delete(self, entity):
         pass
 
+    def before_search(self, search_params):
+        '''
+            Extensions will receive a dictionary with the query parameters,
+            and should return a modified (or not) version of it.
+
+            search_params will include an 'extras' dictionary with all values
+            from fields starting with 'ext_', so extensions can receive user
+            input from specific fields.
+
+        '''
+        return search_params
+
+    def after_search(self, search_results, search_params):
+        '''
+            Extensions will receive the search results, as well as the search
+            parameters, and should return a modified (or not) object with the
+            same structure:
+
+                {'count': '', 'results': '', 'facets': ''}
+
+            Note that count and facets may need to be adjusted if the extension
+            changed the results for some reason.
+
+            search_params will include an 'extras' dictionary with all values
+            from fields starting with 'ext_', so extensions can receive user
+            input from specific fields.
+
+        '''
+
+        return search_results
+
 class IPluginObserver(Interface):
     """
     Plugin to the plugin loading mechanism

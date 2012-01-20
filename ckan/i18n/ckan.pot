@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 1.5.1b\n"
+"Project-Id-Version: ckan 1.5.2a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2011-11-16 18:02+0000\n"
+"POT-Creation-Date: 2011-11-29 11:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,6 +22,30 @@ msgstr ""
 msgid "Authorization function not found: %s"
 msgstr ""
 
+#: ckan/controllers/admin.py:19
+msgid "Need to be system administrator to administer"
+msgstr ""
+
+#: ckan/controllers/admin.py:105 ckan/lib/base.py:403
+msgid "Changes Saved"
+msgstr ""
+
+#: ckan/controllers/admin.py:142 ckan/lib/base.py:431
+msgid "unknown user:"
+msgstr ""
+
+#: ckan/controllers/admin.py:152 ckan/lib/base.py:443
+msgid "User Added"
+msgstr ""
+
+#: ckan/controllers/admin.py:159 ckan/lib/base.py:450
+msgid "unknown authorization group:"
+msgstr ""
+
+#: ckan/controllers/admin.py:169 ckan/lib/base.py:462
+msgid "Authorization Group Added"
+msgstr ""
+
 #: ckan/controllers/admin.py:268
 #, python-format
 msgid ""
@@ -29,11 +53,20 @@ msgid ""
 "packages %s"
 msgstr ""
 
-#: ckan/controllers/admin.py:290
+#: ckan/controllers/admin.py:287
+#, python-format
+msgid "Problem purging revision %s: %s"
+msgstr ""
+
+#: ckan/controllers/admin.py:289
 msgid "Purge complete"
 msgstr ""
 
-#: ckan/controllers/api.py:37 ckan/controllers/authorization_group.py:22
+#: ckan/controllers/admin.py:291
+msgid "Action not implemented."
+msgstr ""
+
+#: ckan/controllers/api.py:38 ckan/controllers/authorization_group.py:22
 #: ckan/controllers/group.py:58 ckan/controllers/home.py:27
 #: ckan/controllers/package.py:110 ckan/controllers/revision.py:29
 #: ckan/controllers/tag.py:22 ckan/controllers/user.py:31
@@ -42,107 +75,107 @@ msgstr ""
 msgid "Not authorized to see this page"
 msgstr ""
 
-#: ckan/controllers/api.py:96 ckan/controllers/api.py:159
+#: ckan/controllers/api.py:97 ckan/controllers/api.py:161
 msgid "Access denied"
 msgstr ""
 
-#: ckan/controllers/api.py:102 ckan/controllers/api.py:164
+#: ckan/controllers/api.py:103 ckan/controllers/api.py:166
 msgid "Not found"
 msgstr ""
 
-#: ckan/controllers/api.py:110
+#: ckan/controllers/api.py:111
 msgid "Bad request"
 msgstr ""
 
-#: ckan/controllers/api.py:138
+#: ckan/controllers/api.py:139
 #, python-format
 msgid "Action name not known: %s"
 msgstr ""
 
-#: ckan/controllers/api.py:148 ckan/controllers/api.py:269
-#: ckan/controllers/api.py:327
+#: ckan/controllers/api.py:149 ckan/controllers/api.py:271
+#: ckan/controllers/api.py:330
 #, python-format
 msgid "JSON Error: %s"
 msgstr ""
 
-#: ckan/controllers/api.py:156 ckan/controllers/api.py:297
-#: ckan/controllers/api.py:349 ckan/controllers/group.py:182
+#: ckan/controllers/api.py:157 ckan/controllers/api.py:299
+#: ckan/controllers/api.py:352 ckan/controllers/group.py:182
 #: ckan/controllers/group.py:201 ckan/controllers/package.py:454
 #: ckan/controllers/package.py:483 ckan/controllers/user.py:155
 #: ckan/controllers/user.py:232 ckan/controllers/user.py:346
 msgid "Integrity Error"
 msgstr ""
 
-#: ckan/controllers/api.py:198
+#: ckan/controllers/api.py:200
 #, python-format
 msgid "Cannot list entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/api.py:232
+#: ckan/controllers/api.py:234
 #, python-format
 msgid "Cannot read entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/api.py:276
+#: ckan/controllers/api.py:278
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr ""
 
-#: ckan/controllers/api.py:300
+#: ckan/controllers/api.py:303
 msgid "Unable to add package to search index"
 msgstr ""
 
-#: ckan/controllers/api.py:333
+#: ckan/controllers/api.py:336
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/api.py:352
+#: ckan/controllers/api.py:356
 msgid "Unable to update search index"
 msgstr ""
 
-#: ckan/controllers/api.py:378
+#: ckan/controllers/api.py:382
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr ""
 
-#: ckan/controllers/api.py:402
+#: ckan/controllers/api.py:406
 msgid "No revision specified"
 msgstr ""
 
-#: ckan/controllers/api.py:406
+#: ckan/controllers/api.py:410
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr ""
 
-#: ckan/controllers/api.py:416
+#: ckan/controllers/api.py:420
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
 msgstr ""
 
-#: ckan/controllers/api.py:424
+#: ckan/controllers/api.py:428
 #, python-format
 msgid "Could not read parameters: %r"
 msgstr ""
 
-#: ckan/controllers/api.py:471
+#: ckan/controllers/api.py:475
 #, python-format
 msgid "Bad search option: %s"
 msgstr ""
 
-#: ckan/controllers/api.py:474
+#: ckan/controllers/api.py:478
 #, python-format
 msgid "Unknown register: %s"
 msgstr ""
 
-#: ckan/controllers/api.py:482
+#: ckan/controllers/api.py:486
 msgid "Malformed qjson value"
 msgstr ""
 
-#: ckan/controllers/api.py:491
+#: ckan/controllers/api.py:495
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr ""
 
-#: ckan/controllers/api.py:578
+#: ckan/controllers/api.py:582
 #, python-format
 msgid "Bad slug type: %s"
 msgstr ""
@@ -195,7 +228,7 @@ msgstr ""
 #: ckan/controllers/package.py:281 ckan/controllers/package.py:366
 #: ckan/controllers/package.py:399 ckan/controllers/package.py:419
 #: ckan/controllers/package.py:452 ckan/controllers/package.py:481
-#: ckan/controllers/package.py:527
+#: ckan/controllers/package.py:527 ckan/controllers/package.py:641
 msgid "Package not found"
 msgstr ""
 
@@ -223,7 +256,7 @@ msgstr ""
 msgid "Invalid language specified"
 msgstr ""
 
-#: ckan/controllers/home.py:85
+#: ckan/controllers/home.py:85 ckan/controllers/home.py:87
 msgid "Language has been set to: English"
 msgstr ""
 
@@ -241,6 +274,7 @@ msgstr ""
 #: ckan/controllers/package.py:279 ckan/controllers/package.py:364
 #: ckan/controllers/package.py:397 ckan/controllers/package.py:417
 #: ckan/controllers/package.py:450 ckan/controllers/package.py:479
+#: ckan/controllers/package.py:643
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr ""
@@ -272,6 +306,15 @@ msgid ""
 "<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
 msgstr ""
 
+#: ckan/controllers/package.py:634
+msgid "Resource not found"
+msgstr ""
+
+#: ckan/controllers/package.py:636
+#, python-format
+msgid "Unauthorized to read resource %s"
+msgstr ""
+
 #: ckan/controllers/revision.py:40
 msgid "CKAN Repository Revision History"
 msgstr ""
@@ -289,7 +332,7 @@ msgstr ""
 msgid "Revision updated"
 msgstr ""
 
-#: ckan/controllers/tag.py:54 ckan/forms/common.py:933
+#: ckan/controllers/tag.py:54 ckan/forms/common.py:941
 msgid "Other"
 msgstr ""
 
@@ -340,6 +383,10 @@ msgstr ""
 msgid "%s is now logged in"
 msgstr ""
 
+#: ckan/controllers/user.py:262
+msgid "Login failed. Bad username or password."
+msgstr ""
+
 #: ckan/controllers/user.py:299
 #, python-format
 msgid "\"%s\" matched several users"
@@ -367,6 +414,10 @@ msgstr ""
 msgid "Your password has been reset."
 msgstr ""
 
+#: ckan/controllers/user.py:359
+msgid "Error: Could not parse About text"
+msgstr ""
+
 #: ckan/controllers/user.py:367
 msgid "Your password must be 4 characters or longer."
 msgstr ""
@@ -375,7 +426,7 @@ msgstr ""
 msgid "The passwords you entered do not match."
 msgstr ""
 
-#: ckan/forms/common.py:25 ckan/logic/validators.py:94
+#: ckan/forms/common.py:25 ckan/logic/validators.py:96
 #, python-format
 msgid "Name must be at least %s characters long"
 msgstr ""
@@ -390,7 +441,7 @@ msgstr ""
 msgid "Dataset name already exists in database"
 msgstr ""
 
-#: ckan/forms/common.py:53 ckan/logic/validators.py:144
+#: ckan/forms/common.py:53 ckan/logic/validators.py:166
 msgid "Group name already exists in database"
 msgstr ""
 
@@ -399,7 +450,7 @@ msgstr ""
 msgid "Value does not match required format: %s"
 msgstr ""
 
-#: ckan/forms/common.py:159 ckan/forms/common.py:781
+#: ckan/forms/common.py:159 ckan/forms/common.py:789
 #: ckan/templates/admin/trash.html:29
 #: ckan/templates/package/new_package_form.html:127
 msgid "(None)"
@@ -409,47 +460,42 @@ msgstr ""
 msgid "Dataset resource(s) incomplete."
 msgstr ""
 
-#: ckan/forms/common.py:517 ckan/logic/validators.py:150
+#: ckan/forms/common.py:527 ckan/logic/validators.py:172
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
 msgstr ""
 
-#: ckan/forms/common.py:519 ckan/logic/validators.py:162
+#: ckan/forms/common.py:529
 #, python-format
-msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
+msgid "Tag \"%s\" must not contain any quotation marks: \""
 msgstr ""
 
-#: ckan/forms/common.py:521 ckan/logic/validators.py:170
-#, python-format
-msgid "Tag \"%s\" must not be uppercase"
-msgstr ""
-
-#: ckan/forms/common.py:538 ckan/logic/validators.py:128
+#: ckan/forms/common.py:546 ckan/logic/validators.py:150
 #, python-format
 msgid "Duplicate key \"%s\""
 msgstr ""
 
-#: ckan/forms/common.py:541
+#: ckan/forms/common.py:549
 #, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
 msgstr ""
 
-#: ckan/forms/common.py:791 ckan/templates/package/new_package_form.html:133
+#: ckan/forms/common.py:799 ckan/templates/package/new_package_form.html:133
 msgid "Cannot add any groups."
 msgstr ""
 
-#: ckan/forms/common.py:806 ckan/templates/package/new_package_form.html:124
+#: ckan/forms/common.py:814 ckan/templates/package/new_package_form.html:124
 msgid "Group"
 msgstr ""
 
-#: ckan/forms/common.py:836
+#: ckan/forms/common.py:844
 #, python-format
 msgid ""
 "Can't derived new group selection from serialized value structured like this:"
 " %s"
 msgstr ""
 
-#: ckan/forms/common.py:916
+#: ckan/forms/common.py:924
 msgid "other - please specify"
 msgstr ""
 
@@ -547,12 +593,12 @@ msgstr ""
 #: ckan/forms/package.py:69
 #, python-format
 msgid ""
-"Terms that may link this dataset to similar ones. For more information on "
-"conventions, see <a href=\"%s\">this wiki page</a>."
+"Comma-separated terms that may link this dataset to similar ones. For more "
+"information on conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:143
-msgid "e.g. pollution rivers water-quality"
+msgid "e.g. pollution, rivers, water quality"
 msgstr ""
 
 #: ckan/forms/package.py:74
@@ -681,6 +727,11 @@ msgstr ""
 msgid "Key blank"
 msgstr ""
 
+#: ckan/lib/i18n.py:193
+#, python-format
+msgid "Could not change language to %r: %s"
+msgstr ""
+
 #: ckan/lib/mailer.py:21
 #, python-format
 msgid "Dear %s,"
@@ -718,7 +769,7 @@ msgstr ""
 msgid "No web page given"
 msgstr ""
 
-#: ckan/lib/package_saver.py:107 ckan/logic/validators.py:45
+#: ckan/lib/package_saver.py:95 ckan/logic/validators.py:47
 msgid "No links are allowed in the log_message."
 msgstr ""
 
@@ -726,64 +777,94 @@ msgstr ""
 msgid "No valid API key provided."
 msgstr ""
 
-#: ckan/logic/validators.py:14
+#: ckan/logic/validators.py:16
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
 msgstr ""
 
-#: ckan/logic/validators.py:26
+#: ckan/logic/validators.py:28
 msgid "Invalid integer"
 msgstr ""
 
-#: ckan/logic/validators.py:36
+#: ckan/logic/validators.py:38
 msgid "Date format incorrect"
 msgstr ""
 
-#: ckan/logic/validators.py:55 ckan/logic/validators.py:81
+#: ckan/logic/validators.py:57 ckan/logic/validators.py:83
 msgid "Dataset was not found."
 msgstr ""
 
-#: ckan/logic/validators.py:66
+#: ckan/logic/validators.py:68
 #, python-format
 msgid "Dataset with name %r does not exist."
 msgstr ""
 
-#: ckan/logic/validators.py:96
+#: ckan/logic/validators.py:98
+#, python-format
+msgid "Name must be a maximum of %i characters long"
+msgstr ""
+
+#: ckan/logic/validators.py:101
 msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
 msgstr ""
 
-#: ckan/logic/validators.py:114
+#: ckan/logic/validators.py:119
 msgid "That URL is already in use."
 msgstr ""
 
-#: ckan/logic/validators.py:154
+#: ckan/logic/validators.py:124
+#, python-format
+msgid "Name \"%s\" length is less than minimum %s"
+msgstr ""
+
+#: ckan/logic/validators.py:128
+#, python-format
+msgid "Name \"%s\" length is more than maximum %s"
+msgstr ""
+
+#: ckan/logic/validators.py:134
+#, python-format
+msgid "Version must be a maximum of %i characters long"
+msgstr ""
+
+#: ckan/logic/validators.py:176
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
 msgstr ""
 
-#: ckan/logic/validators.py:221
+#: ckan/logic/validators.py:184
+#, python-format
+msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
+msgstr ""
+
+#: ckan/logic/validators.py:192
+#, python-format
+msgid "Tag \"%s\" must not be uppercase"
+msgstr ""
+
+#: ckan/logic/validators.py:251
 msgid "That login name is not available."
 msgstr ""
 
-#: ckan/logic/validators.py:230
+#: ckan/logic/validators.py:260
 msgid "Please enter both passwords"
 msgstr ""
 
-#: ckan/logic/validators.py:236
+#: ckan/logic/validators.py:266
 msgid "Your password must be 4 characters or longer"
 msgstr ""
 
-#: ckan/logic/validators.py:244
+#: ckan/logic/validators.py:274
 msgid "The passwords you entered do not match"
 msgstr ""
 
-#: ckan/logic/validators.py:256
+#: ckan/logic/validators.py:286
 msgid "Missing value"
 msgstr ""
 
-#: ckan/logic/validators.py:260
+#: ckan/logic/validators.py:290
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
@@ -1058,11 +1139,13 @@ msgid "has sibling %s"
 msgstr ""
 
 #: ckan/templates/_util.html:74 ckan/templates/_util.html:120
+#: ckan/templates/package/resource_read.html:40
 msgid "This dataset satisfies the Open Definition."
 msgstr ""
 
 #: ckan/templates/_util.html:75 ckan/templates/_util.html:121
 #: ckan/templates/package/read.html:104
+#: ckan/templates/package/resource_read.html:41
 msgid "[Open Data]"
 msgstr ""
 
@@ -1135,9 +1218,8 @@ msgid "Log Message"
 msgstr ""
 
 #: ckan/templates/_util.html:394 ckan/templates/js_strings.html:21
-#: ckan/templates/package/read_core.html:31
-#: ckan/templates/package/read_core.html:40
-#: ckan/templates/package/read_core.html:74
+#: ckan/templates/package/read_core.html:38
+#: ckan/templates/package/read_core.html:70
 msgid "(none)"
 msgstr ""
 
@@ -1194,7 +1276,7 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: ckan/templates/js_strings.html:27
+#: ckan/templates/js_strings.html:27 ckan/templates/package/read_core.html:25
 msgid "(no name)"
 msgstr ""
 
@@ -1228,22 +1310,23 @@ msgstr ""
 
 #: ckan/templates/js_strings.html:40 ckan/templates/group/new_group_form.html:20
 #: ckan/templates/package/new_package_form.html:42
+#: ckan/templates/package/resource_read.html:91
 msgid "Url"
 msgstr ""
 
-#: ckan/templates/js_strings.html:41 ckan/templates/package/read_core.html:19
+#: ckan/templates/js_strings.html:41 ckan/templates/package/resource_read.html:96
 msgid "Format"
 msgstr ""
 
-#: ckan/templates/js_strings.html:42
+#: ckan/templates/js_strings.html:42 ckan/templates/package/resource_read.html:99
 msgid "Resource Type"
 msgstr ""
 
-#: ckan/templates/js_strings.html:43
+#: ckan/templates/js_strings.html:43 ckan/templates/package/resource_read.html:104
 msgid "Size (Bytes)"
 msgstr ""
 
-#: ckan/templates/js_strings.html:44
+#: ckan/templates/js_strings.html:44 ckan/templates/package/resource_read.html:107
 msgid "Mimetype"
 msgstr ""
 
@@ -1251,15 +1334,15 @@ msgstr ""
 msgid "Last Modified"
 msgstr ""
 
-#: ckan/templates/js_strings.html:46
+#: ckan/templates/js_strings.html:46 ckan/templates/package/resource_read.html:110
 msgid "Mimetype (Inner)"
 msgstr ""
 
-#: ckan/templates/js_strings.html:47
+#: ckan/templates/js_strings.html:47 ckan/templates/package/resource_read.html:113
 msgid "Hash"
 msgstr ""
 
-#: ckan/templates/js_strings.html:48
+#: ckan/templates/js_strings.html:48 ckan/templates/package/resource_read.html:116
 msgid "ID"
 msgstr ""
 
@@ -1319,7 +1402,7 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: ckan/templates/layout_base.html:84 ckan/templates/layout_base.html:127
+#: ckan/templates/layout_base.html:83 ckan/templates/layout_base.html:127
 #: ckan/templates/layout_base.html:130 ckan/templates/home/about.html:6
 msgid "About"
 msgstr ""
@@ -1535,6 +1618,8 @@ msgstr ""
 
 #: ckan/templates/authorization_group/layout.html:11
 #: ckan/templates/group/layout.html:11 ckan/templates/package/layout.html:11
+#: ckan/templates/package/resource_read.html:59
+#: ckan/templates/package/resource_read.html:60
 msgid "View"
 msgstr ""
 
@@ -1727,6 +1812,7 @@ msgid "Add datasets"
 msgstr ""
 
 #: ckan/templates/group/new_group_form.html:90
+#: ckan/templates/package/resource_read.html:74
 msgid "Dataset"
 msgstr ""
 
@@ -1949,7 +2035,6 @@ msgstr ""
 
 #: ckan/templates/package/new_package_form.html:16
 #: ckan/templates/package/new_package_form.html:89
-#: ckan/templates/package/read_core.html:18
 msgid "Resource"
 msgstr ""
 
@@ -1983,8 +2068,8 @@ msgstr ""
 
 #: ckan/templates/package/new_package_form.html:142
 msgid ""
-"Terms that may link this dataset to similar ones. For more information on "
-"conventions, see [1:this wiki page]."
+"Comma-separated terms that may link this dataset to similar ones. For more "
+"information on conventions, see [1:this wiki page]."
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:166
@@ -1997,7 +2082,7 @@ msgid ""
 "    [1:Click here to sign in] before saving (opens in new window)."
 msgstr ""
 
-#: ckan/templates/package/read.html:14
+#: ckan/templates/package/read.html:14 ckan/templates/package/resource_read.html:24
 msgid "- Datasets"
 msgstr ""
 
@@ -2085,20 +2170,45 @@ msgstr ""
 msgid "RDF/Turtle"
 msgstr ""
 
-#: ckan/templates/package/read_core.html:20
-msgid "Actions"
+#: ckan/templates/package/read_core.html:32
+#: ckan/templates/package/resource_read.html:51
+msgid "Last updated:"
 msgstr ""
 
-#: ckan/templates/package/read_core.html:59
+#: ckan/templates/package/read_core.html:33
+msgid "ago"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:55
 msgid "Additional Information"
 msgstr ""
 
-#: ckan/templates/package/read_core.html:63 ckan/templates/revision/diff.html:31
+#: ckan/templates/package/read_core.html:59 ckan/templates/revision/diff.html:31
 msgid "Field"
 msgstr ""
 
-#: ckan/templates/package/read_core.html:64
+#: ckan/templates/package/read_core.html:60
 msgid "Value"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:31
+msgid "Dataset:"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:61
+msgid "API Endpoint"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:62
+msgid "Download"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:73
+msgid "From the"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:89
+msgid "Resource Information"
 msgstr ""
 
 #: ckan/templates/package/resources.html:2

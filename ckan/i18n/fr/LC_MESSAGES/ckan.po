@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-11-16 18:02+0000\n"
-"PO-Revision-Date: 2011-11-16 18:03+0000\n"
-"Last-Translator: dread <internet@davidread.org>\n"
+"PO-Revision-Date: 2011-11-25 22:35+0000\n"
+"Last-Translator: keronos <aka.keronos@gmail.com>\n"
 "Language-Team: French (http://www.transifex.net/projects/p/ckan/team/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -151,7 +151,7 @@ msgstr "Les paramètres de la requête doivent être encodés au format json."
 #: ckan/controllers/api.py:578
 #, python-format
 msgid "Bad slug type: %s"
-msgstr ""
+msgstr "mauvais type de collant :%s"
 
 #: ckan/controllers/authorization_group.py:44
 #, python-format
@@ -188,7 +188,7 @@ msgstr "Vous n'êtes pas autorisé à lire le groupe %s"
 
 #: ckan/controllers/group.py:86
 msgid "Cannot render description"
-msgstr ""
+msgstr "Impossible de restituer la description"
 
 #: ckan/controllers/group.py:161 ckan/controllers/group_formalchemy.py:93
 #: ckan/controllers/package.py:374 ckan/controllers/package_formalchemy.py:93
@@ -343,7 +343,7 @@ msgstr "L'utilisateur %s n'est pas autorisé à modifier %s"
 
 #: ckan/controllers/user.py:225
 msgid "Profile updated"
-msgstr ""
+msgstr "Profil mis à jour"
 
 #: ckan/controllers/user.py:259
 #, python-format
@@ -815,15 +815,17 @@ msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
 msgstr ""
+"Les URL doivent être en caractères alphanumériques (ascii) minuscules "
+"uniquement et les symboles -_"
 
 #: ckan/logic/validators.py:114
 msgid "That URL is already in use."
-msgstr ""
+msgstr "Cette URL est déjà utilisée"
 
 #: ckan/logic/validators.py:154
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
-msgstr ""
+msgstr "La longueur du tag \"%s\" est supérieure à la longueur maximale %i"
 
 #: ckan/logic/validators.py:221
 msgid "That login name is not available."
@@ -927,7 +929,7 @@ msgstr "REST API: Mise à jour de la relation de paquet: %s %s %s"
 
 #: ckan/logic/action/update.py:378
 msgid "TaskStatus was not found."
-msgstr ""
+msgstr "Le statut de tâches n'a pas été trouvé"
 
 #: ckan/logic/auth/create.py:13
 #, python-format
@@ -991,7 +993,7 @@ msgstr "L'utilisateur %s n'est pas autorisé à supprimer le groupe %s"
 #: ckan/logic/auth/delete.py:55
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à supprimer task_status"
 
 #: ckan/logic/auth/get.py:78
 #, python-format
@@ -1012,7 +1014,7 @@ msgstr ""
 #: ckan/logic/auth/get.py:111
 #, python-format
 msgid "User %s not authorized to read resource %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à lire la ressource %s"
 
 #: ckan/logic/auth/get.py:126
 #, python-format
@@ -1027,7 +1029,7 @@ msgstr "L'utilisateur %s n'est pas autorisé à modifier le jeu de données %s"
 #: ckan/logic/auth/update.py:44
 #, python-format
 msgid "User %s not authorized to read edit %s"
-msgstr ""
+msgstr "L'utilisateur %s n'est pas autorisé à lire ou modifier %s"
 
 #: ckan/logic/auth/update.py:58
 #, python-format
@@ -1079,6 +1081,7 @@ msgstr "L'utilisateur %s n'est pas modifier l'état de révision"
 #, python-format
 msgid "User %s not authorized to update task_status table"
 msgstr ""
+"L'utilisateur %s n'est pas autorisé à mettre à jour la table task_status"
 
 #: ckan/logic/auth/update.py:165
 msgid "Valid API key needed to edit a package"
@@ -1239,15 +1242,15 @@ msgstr "Salut le monde!"
 
 #: ckan/templates/js_strings.html:18
 msgid "Checking..."
-msgstr ""
+msgstr "Vérification..."
 
 #: ckan/templates/js_strings.html:19
 msgid "This URL is available!"
-msgstr ""
+msgstr "Cette URL est disponible !"
 
 #: ckan/templates/js_strings.html:20
 msgid "This URL is already used, please use a different one."
-msgstr ""
+msgstr "Cette URL est déjà utilisée, merci d'en choisir une autre."
 
 #: ckan/templates/js_strings.html:22
 msgid "Failed to save, possibly due to invalid data "
@@ -1260,7 +1263,7 @@ msgstr "Ajouter un jeu de données"
 
 #: ckan/templates/js_strings.html:24
 msgid "Add Group"
-msgstr ""
+msgstr "Ajouter un groupe"
 
 #: ckan/templates/js_strings.html:25
 msgid ""
@@ -1276,11 +1279,11 @@ msgstr "Chargement..."
 
 #: ckan/templates/js_strings.html:27
 msgid "(no name)"
-msgstr ""
+msgstr "(pas de nom)"
 
 #: ckan/templates/js_strings.html:28
 msgid "Delete the resource '%name%'?"
-msgstr ""
+msgstr "Supprimer la ressource '%name%' ?"
 
 #: ckan/templates/js_strings.html:33
 msgid "File URL"
@@ -1347,7 +1350,7 @@ msgstr "ID"
 
 #: ckan/templates/js_strings.html:49
 msgid "Done"
-msgstr ""
+msgstr "Fait"
 
 #: ckan/templates/js_strings.html:50
 msgid "This resource has unsaved changes."
@@ -1359,19 +1362,19 @@ msgstr "Première fois à"
 
 #: ckan/templates/layout_base.html:51
 msgid "? Visit our"
-msgstr ""
+msgstr "? a visité notre"
 
 #: ckan/templates/layout_base.html:51
 msgid "About page"
-msgstr ""
+msgstr "Page A propos"
 
 #: ckan/templates/layout_base.html:51
 msgid "to find out more."
-msgstr ""
+msgstr "pour en savoir plus."
 
 #: ckan/templates/layout_base.html:52
 msgid "x"
-msgstr ""
+msgstr "x"
 
 #: ckan/templates/layout_base.html:59
 msgid "My account"
@@ -1711,7 +1714,7 @@ msgstr "Groupe de jeu de données"
 
 #: ckan/templates/group/index.html:11
 msgid "What Are Groups?"
-msgstr ""
+msgstr "Qu'est ce qu'un groupe ?"
 
 #: ckan/templates/group/index.html:12
 msgid ""
@@ -1732,15 +1735,15 @@ msgstr "Historique"
 
 #: ckan/templates/group/layout.html:26
 msgid "List Groups"
-msgstr ""
+msgstr "Liste des groupes"
 
 #: ckan/templates/group/layout.html:29
 msgid "Add a Group"
-msgstr ""
+msgstr "Ajouter un groupe"
 
 #: ckan/templates/group/new.html:5 ckan/templates/group/new.html:6
 msgid "Add A Group"
-msgstr ""
+msgstr "Ajouter un groupe"
 
 #: ckan/templates/group/new_group_form.html:8
 #: ckan/templates/package/form.html:7
@@ -1761,7 +1764,7 @@ msgstr "Le formulaire contient des entrées invalides :"
 #: ckan/templates/group/new_group_form.html:22
 #: ckan/templates/package/new_package_form.html:44
 msgid "(edit)"
-msgstr ""
+msgstr "(modifier)"
 
 #: ckan/templates/group/new_group_form.html:26
 msgid "2+ chars, lowercase, using only 'a-z0-9' and '-_'"
@@ -2011,11 +2014,11 @@ msgstr "Informations de base"
 
 #: ckan/templates/package/edit.html:22
 msgid "Futher Information"
-msgstr ""
+msgstr "Informations additionnelles"
 
 #: ckan/templates/package/edit.html:24
 msgid "Groups & Tags"
-msgstr ""
+msgstr "Groupes et tags"
 
 #: ckan/templates/package/edit_form.html:13
 #: ckan/templates/package/new_package_form.html:203
@@ -2415,7 +2418,7 @@ msgstr "Courriel:"
 
 #: ckan/templates/user/edit_user_form.html:22
 msgid "OpenID:"
-msgstr ""
+msgstr "OpenID:"
 
 #: ckan/templates/user/edit_user_form.html:25
 msgid "About:"
@@ -2443,11 +2446,11 @@ msgstr "Mot de passe (re-saisir):"
 
 #: ckan/templates/user/edit_user_form.html:49
 msgid "Change your username"
-msgstr ""
+msgstr "Modifier le nom d'utilisateur"
 
 #: ckan/templates/user/edit_user_form.html:51
 msgid "Username:"
-msgstr ""
+msgstr "nom d'utilisateur:"
 
 #: ckan/templates/user/layout.html:11
 msgid "My Profile"
@@ -2463,11 +2466,11 @@ msgstr "Déconnexion"
 
 #: ckan/templates/user/layout.html:19
 msgid "View Profile"
-msgstr ""
+msgstr "Voir le profile"
 
 #: ckan/templates/user/layout.html:25
 msgid "Register Account"
-msgstr ""
+msgstr "Enregistrer un compte"
 
 #: ckan/templates/user/list.html:8
 msgid "user-list"
@@ -2542,7 +2545,7 @@ msgstr "Se déconnecter - Utilisateur"
 
 #: ckan/templates/user/logout.html:8
 msgid "Logout from"
-msgstr ""
+msgstr "Formulaire de déconnexion"
 
 #: ckan/templates/user/logout.html:11
 msgid "You have logged out successfully."
@@ -2554,7 +2557,7 @@ msgstr "Enregistrement - Utilisateur"
 
 #: ckan/templates/user/new.html:6
 msgid "Register for a new Account"
-msgstr ""
+msgstr "Enregistrer un nouveau compte"
 
 #: ckan/templates/user/new_user_form.html:18
 msgid "3+ chars, using only 'a-z0-9' and '-_'"
@@ -2566,7 +2569,7 @@ msgstr "Nom complet (optionnel):"
 
 #: ckan/templates/user/new_user_form.html:25
 msgid "E-Mail"
-msgstr ""
+msgstr "courriel"
 
 #: ckan/templates/user/read.html:5
 msgid "- User"

@@ -36,7 +36,6 @@ __all__ = ['url_for',
            'TestController',
            'CreateTestData',
            'TestSearchIndexer',
-           'ModelMethods',
            'CheckMethods',
            'CommonFixtureMethods',
            'TestCase',
@@ -83,72 +82,6 @@ class BaseCase(object):
         cls._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
 
 
-class ModelMethods(BaseCase):
-
-    require_common_fixtures = True
-    reuse_common_fixtures = True
-    has_common_fixtures = False
-
-    def conditional_create_common_fixtures(self):
-        if self.require_common_fixtures:
-            self.create_common_fixtures()
-
-    def create_common_fixtures(self):
-        CreateTestData.create()
-        CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
-
-    def reuse_or_delete_common_fixtures(self):
-        if ModelMethods.has_common_fixtures and not self.reuse_common_fixtures:
-            ModelMethods.has_common_fixtures = False
-            self.delete_common_fixtures()
-            self.commit_remove()
-
-    def delete_common_fixtures(self):
-        CreateTestData.delete()
-
-    def rebuild(self):
-        model.repo.rebuild_db()
-        self.remove()
-
-    def add(self, domain_object):
-        model.Session.add(domain_object)
-
-    def add_commit(self, domain_object):
-        self.add(domain_object)
-        self.commit()
-
-    def add_commit_remove(self, domain_object):
-        self.add(domain_object)
-        self.commit_remove()
-
-    def delete(self, domain_object):
-        model.Session.delete(domain_object)
-
-    def delete_commit(self, domain_object):
-        self.delete(domain_object)
-        self.commit()
-
-    def delete_commit_remove(self, domain_object):
-        self.delete(domain_object)
-        self.commit()
-
-    @staticmethod
-    def commit():
-        model.Session.commit()
-
-    @classmethod
-    def commit_remove(cls):
-        cls.commit()
-        cls.remove()
-
-    @staticmethod
-    def remove():
-        model.Session.remove()
-
-    def count_packages(self):
-        return model.Session.query(model.Package).count()
-
-
 class CommonFixtureMethods(BaseCase):
 
     @classmethod
@@ -184,7 +117,7 @@ class CommonFixtureMethods(BaseCase):
         package = self.get_package_by_name(package_name)
         if package:
             package.purge()
-            self.commit_remove()
+            model.repo.commit_and_remove()
 
     @classmethod
     def purge_packages(cls, pkg_names):
@@ -198,6 +131,12 @@ class CommonFixtureMethods(BaseCase):
     def purge_all_packages(self):
         all_pkg_names = [pkg.name for pkg in model.Session.query(model.Package)]
         self.purge_packages(all_pkg_names)
+
+    def purge_group_by_name(self, group_name):
+        group = self.get_group_by_name(group_name)
+        if group:
+            group.purge()
+            model.repo.commit_and_remove()
 
     @classmethod
     def clear_all_tst_ratings(self):
@@ -270,7 +209,7 @@ class CheckMethods(BaseCase):
         assert isinstance(object, kind), "Object %s is not an instance of %s." % (object, kind)
 
 
-class TestCase(CommonFixtureMethods, ModelMethods, CheckMethods, BaseCase):
+class TestCase(CommonFixtureMethods, CheckMethods, BaseCase):
     def setup(self):
         super(TestCase, self).setup()
         self.conditional_create_common_fixtures()
@@ -332,10 +271,6 @@ class CkanServerCase(BaseCase):
 
 
 class TestController(CommonFixtureMethods, CkanServerCase, WsgiAppCase, BaseCase):
-
-    def commit_remove(self):
-        # Todo: Converge with ModelMethods.commit_remove().
-        model.repo.commit_and_remove()
 
     def assert_equal(self, *args, **kwds):
         assert_equal(*args, **kwds)

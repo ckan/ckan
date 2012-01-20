@@ -111,6 +111,87 @@ class TestPackage:
         assert_equal(out['notes'], pkg.notes)
         assert_equal(out['notes_rendered'], '<p>A <b>great</b> package [HTML_REMOVED] like <a href="/package/pollution_stats">package:pollution_stats</a>\n</p>')
 
+    def test_metadata_created_and_modified(self):
+        # create a new package
+        name = "test_metadata"
+        rev = model.repo.new_revision()
+        package = model.Package(name=name)
+        model.Session.add(package)
+        model.Session.flush()
+        revision_id = model.Session().revision.id
+        created_timestamp = model.Session().revision.timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp,\
+            (package.metadata_created, created_timestamp)
+        assert package.metadata_modified == created_timestamp,\
+            (package.metadata_modified, created_timestamp)
+
+        # update the package
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        package.title = "test_metadata_new_title"
+        modified_timestamp = model.Session().revision.timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == modified_timestamp
+        last_modified_timestamp = modified_timestamp
+
+        # update a package's tag
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        package.add_tag_by_name('new-tag')
+        modified_timestamp = model.Session().revision.timestamp
+        assert modified_timestamp != last_modified_timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == modified_timestamp
+        last_modified_timestamp = modified_timestamp
+
+        # update a package's extra
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        package.extras['new-key'] = 'value'
+        modified_timestamp = model.Session().revision.timestamp
+        assert modified_timestamp != last_modified_timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == modified_timestamp
+        last_modified_timestamp = modified_timestamp
+
+        # update a package's relationship
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        anna = model.Package.by_name(u'annakarenina')
+        package.add_relationship(u'child_of', anna)
+        modified_timestamp = model.Session().revision.timestamp
+        assert modified_timestamp != last_modified_timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == modified_timestamp
+        last_modified_timestamp = modified_timestamp
+
+        # update a package's group - NB no change this time
+        rev = model.repo.new_revision()
+        group = model.Group.by_name('roger')
+        group.add_package_by_name(name)
+        modified_timestamp = model.Session().revision.timestamp
+        assert modified_timestamp != last_modified_timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == last_modified_timestamp # no change
+
 
 class TestPackageWithTags:
     """

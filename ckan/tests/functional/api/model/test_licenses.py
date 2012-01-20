@@ -1,6 +1,7 @@
 from nose.tools import assert_equal 
 
 from ckan import model
+from ckan.lib.create_test_data import CreateTestData
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
@@ -9,7 +10,13 @@ from ckan.tests.functional.api.base import ApiUnversionedTestCase as Unversioned
 
 class LicensesTestCase(BaseModelApiTestCase):
 
-    reuse_common_fixtures = False
+    @classmethod
+    def setup_class(cls):
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
 
     def test_register_get_ok(self):
         from ckan.model.license import LicenseRegister

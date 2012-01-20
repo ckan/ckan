@@ -261,8 +261,13 @@ def package_dict_save(pkg_dict, context):
     package = context.get("package")
     allow_partial_update = context.get("allow_partial_update", False)
     if package:
-        pkg_dict["id"] = package.id 
+        pkg_dict["id"] = package.id
     Package = model.Package
+
+    if 'metadata_created' in pkg_dict:
+        del pkg_dict['metadata_created']
+    if 'metadata_modified' in pkg_dict:
+        del pkg_dict['metadata_modified']
 
     pkg = table_dict_save(pkg_dict, Package, context)
 
@@ -279,6 +284,44 @@ def package_dict_save(pkg_dict, context):
 
     return pkg
 
+def group_member_save(context, group_dict, member_table_name):
+
+    model = context["model"]
+    session = context["session"]
+    group = context['group']
+    entity_list = group_dict.get(member_table_name, [])
+    entities = {}
+    Member = model.Member
+
+    ModelClass = getattr(model, member_table_name[:-1].capitalize())
+
+    for entity_dict in entity_list:
+        name_or_id = entity_dict.get('id') or entity_dict.get('name')
+        obj = ModelClass.get(name_or_id)
+        if obj and obj not in entities.values():
+            entities[(obj.id, entity_dict.get('capacity', 'member'))] = obj
+
+    members = session.query(Member).filter_by(
+        table_name=member_table_name[:-1],
+        group_id=group.id,
+    ).all()
+
+    entity_member = dict(((member.table_id, member.capacity), member) for member in members)
+
+    for entity_id in set(entity_member.keys()) - set(entities.keys()):
+        entity_member[entity_id].state = 'deleted'
+        session.add(entity_member[entity_id])
+
+    for entity_id in set(entity_member.keys()) & set(entities.keys()):
+        entity_member[entity_id].state = 'active'
+        session.add(entity_member[entity_id])
+
+    for entity_id in set(entities.keys()) - set(entity_member.keys()):
+        member = Member(group=group, table_id=entity_id[0],
+                        table_name=member_table_name[:-1],
+                        capacity=entity_id[1])
+        session.add(member)
+
 
 def group_dict_save(group_dict, context):
 
@@ -286,14 +329,19 @@ def group_dict_save(group_dict, context):
     session = context["session"]
     group = context.get("group")
     allow_partial_update = context.get("allow_partial_update", False)
-    
+
     Group = model.Group
-    Package = model.Package
-    Member = model.Member
     if group:
         group_dict["id"] = group.id 
 
     group = table_dict_save(group_dict, Group, context)
+    context['group'] = group
+
+    group_member_save(context, group_dict, 'packages')
+    group_member_save(context, group_dict, 'users')
+    group_member_save(context, group_dict, 'groups')
+    group_member_save(context, group_dict, 'tags')
+
     extras = group_extras_save(group_dict.get("extras", {}), context)
     if extras or not allow_partial_update:
         old_extras = set(group.extras.keys())
@@ -303,38 +351,6 @@ def group_dict_save(group_dict, context):
         for key in new_extras:
             group.extras[key] = extras[key] 
 
-    package_dicts = group_dict.get("packages", [])
-
-    packages = {}
-
-    for package in package_dicts:
-        pkg = None
-        id = package.get("id")
-        if id:
-            pkg = session.query(Package).get(id)
-        if not pkg:
-            pkg = session.query(Package).filter_by(name=package["name"]).first()
-        if pkg and pkg not in packages.values():
-            packages[pkg.id] = pkg
-
-    members = session.query(Member).filter_by(
-        table_name='package',
-        group_id=group.id,
-    ).all()
-
-    package_member = dict((member.table_id, member) for member in members)
-
-    for package_id in set(package_member.keys()) - set(packages.keys()):
-        package_member[package_id].state = 'deleted'
-        session.add(package_member[package_id])
-
-    for package_id in set(package_member.keys()) & set(packages.keys()):
-        package_member[package_id].state = 'active'
-        session.add(package_member[package_id])
-
-    for package_id in set(packages.keys()) - set(package_member.keys()):
-        member = Member(group=group, table_id=package_id, table_name='package')
-        session.add(member)
 
     return group
 

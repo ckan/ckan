@@ -1614,7 +1614,7 @@ this.CKAN.View || (this.CKAN.View = {});
       }
       var tmpl = $.tmpl(CKAN.Templates.resourceUpload, tmplData);
       this.el.html(tmpl);
-      this.$messages = this.el.find('.messages');
+      this.$messages = this.el.find('.alert-message');
       this.setupFileUpload();
       return this;
     },
@@ -1661,12 +1661,15 @@ this.CKAN.View || (this.CKAN.View = {});
     // (Could add userid/username and/or a small random string to reduce
     // collisions but chances seem very low already)
     makeUploadKey: function(fileName) {
+      // google storage replaces ' ' with '+' which breaks things
+      // See http://trac.ckan.org/ticket/1518 for more.
+      var corrected = fileName.replace(/ /g, '-');
       // note that we put hh mm ss as hhmmss rather hh:mm:ss (former is 'basic
       // format')
       var now = new Date();
       // replace ':' with nothing
       var str = this.ISODateString(now).replace(':', '').replace(':', '');
-      return str  + '/' + fileName;
+      return str  + '/' + corrected;
     },
 
     updateFormData: function(key) {
@@ -1687,6 +1690,7 @@ this.CKAN.View || (this.CKAN.View = {});
         error: function(jqXHR, textStatus, errorThrown) {
           // TODO: more graceful error handling (e.g. of 409)
           self.setMessage('Failed to get credentials for storage upload. Upload cannot proceed', 'error');
+          self.el.find('input[name="upload"]').hide();
         }
       });
     },
@@ -1739,8 +1743,8 @@ this.CKAN.View || (this.CKAN.View = {});
     },
 
     setMessage: function(msg, category) {
-      var category = category || 'notice';
-      this.$messages.removeClass('notice success error');
+      var category = category || 'info';
+      this.$messages.removeClass('info success error');
       this.$messages.addClass(category);
       this.$messages.show();
       this.$messages.html(msg);

@@ -11,6 +11,7 @@ from ckan.plugins import PluginImplementations, IRoutes
 from ckan.controllers.package import register_pluggable_behaviour as register_package_behaviour
 from ckan.controllers.group   import register_pluggable_behaviour as register_group_behaviour
 
+
 routing_plugins = PluginImplementations(IRoutes)
 
 def make_map():
@@ -286,6 +287,43 @@ def make_map():
 
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
+    
+    # Storage routes
+    map.connect('storage_api', "/api/storage", 
+                controller='ckan.controllers.storage:StorageAPIController', 
+                action='index')
+    map.connect('storage_api_set_metadata', '/api/storage/metadata/{label:.*}', 
+                controller='ckan.controllers.storage:StorageAPIController', 
+                action='set_metadata',
+                conditions={'method': ['PUT','POST']})
+    map.connect('storage_api_get_metadata', '/api/storage/metadata/{label:.*}', 
+                controller='ckan.controllers.storage:StorageAPIController', 
+                action='get_metadata',
+                conditions={'method': ['GET']})
+    map.connect('storage_api_auth_request',
+                '/api/storage/auth/request/{label:.*}',
+                controller='ckan.controllers.storage:StorageAPIController',
+                action='auth_request')
+    map.connect('storage_api_auth_form',
+                '/api/storage/auth/form/{label:.*}',
+                controller='ckan.controllers.storage:StorageAPIController',
+                action='auth_form')
+    map.connect('storage_upload', '/storage/upload',
+                controller='ckan.controllers.storage:StorageController',
+                action='upload')
+    map.connect('storage_upload_handle', '/storage/upload_handle',
+                controller='ckan.controllers.storage:StorageController',
+                action='upload_handle')
+    map.connect('storage_upload_success', '/storage/upload/success',
+                controller='ckan.controllers.storage:StorageController',
+                action='success')
+    map.connect('storage_upload_success_empty', '/storage/upload/success_empty',
+                controller='ckan.controllers.storage:StorageController',
+                action='success_empty')
+    map.connect('storage_file', '/storage/f/{label:.*}',
+                controller='ckan.controllers.storage:StorageController',
+                action='file')
+    
     
     for plugin in routing_plugins:
         map = plugin.after_map(map)

@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-11-16 18:02+0000\n"
-"PO-Revision-Date: 2011-11-16 18:03+0000\n"
-"Last-Translator: dread <internet@davidread.org>\n"
+"PO-Revision-Date: 2011-11-29 09:49+0000\n"
+"Last-Translator: mirkospasic <mirko.spasic@pupin.rs>\n"
 "Language-Team: Serbian (http://www.transifex.net/projects/p/ckan/team/sr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -412,7 +412,7 @@ msgstr "Вредност не задовољава тражени формат: 
 #: ckan/templates/admin/trash.html:29
 #: ckan/templates/package/new_package_form.html:127
 msgid "(None)"
-msgstr "(Ништа)"
+msgstr "(Нема)"
 
 #: ckan/forms/common.py:350
 msgid "Dataset resource(s) incomplete."
@@ -694,7 +694,7 @@ msgstr "E-маил аутора"
 #: ckan/forms/package.py:111 ckan/templates/package/new_package_form.html:156
 #: ckan/templates/package/read.html:32
 msgid "Maintainer"
-msgstr "Маинтаинер"
+msgstr "Одржава"
 
 #: ckan/forms/package.py:112 ckan/templates/package/new_package_form.html:160
 msgid "Maintainer email"
@@ -708,7 +708,7 @@ msgstr "Лиценца"
 #: ckan/templates/package/new_package_form.html:168
 #: ckan/templates/package/read.html:62
 msgid "State"
-msgstr "Држава"
+msgstr "Статус"
 
 #: ckan/forms/package_dict.py:95
 #, python-format
@@ -912,7 +912,7 @@ msgstr "REST API: Ажурирање односа пакета: %s %s %s"
 
 #: ckan/logic/action/update.py:378
 msgid "TaskStatus was not found."
-msgstr ""
+msgstr "TaskStatus није пронађен."
 
 #: ckan/logic/auth/create.py:13
 #, python-format
@@ -974,7 +974,7 @@ msgstr "Корисник %s није овлашћен да избрише гру
 #: ckan/logic/auth/delete.py:55
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr ""
+msgstr "Корисник %s није овлашћен да избрише task_status"
 
 #: ckan/logic/auth/get.py:78
 #, python-format
@@ -994,7 +994,7 @@ msgstr ""
 #: ckan/logic/auth/get.py:111
 #, python-format
 msgid "User %s not authorized to read resource %s"
-msgstr ""
+msgstr "Корисник %s није овлашћен да чита ресурс %s"
 
 #: ckan/logic/auth/get.py:126
 #, python-format
@@ -1009,7 +1009,7 @@ msgstr "Корисник %s није овлашћен да мења пакет %
 #: ckan/logic/auth/update.py:44
 #, python-format
 msgid "User %s not authorized to read edit %s"
-msgstr ""
+msgstr "Корисник %s није овлашћен да чита промену %s"
 
 #: ckan/logic/auth/update.py:58
 #, python-format
@@ -1054,7 +1054,7 @@ msgstr "Корисник %s није овлашћен да промени ста
 #: ckan/logic/auth/update.py:155
 #, python-format
 msgid "User %s not authorized to update task_status table"
-msgstr ""
+msgstr "Корисник %s није овлашћен да ажурира task_status табелу"
 
 #: ckan/logic/auth/update.py:165
 msgid "Valid API key needed to edit a package"
@@ -1072,7 +1072,7 @@ msgstr "зависи од %s"
 #: ckan/model/package_relationship.py:48
 #, python-format
 msgid "is a dependency of %s"
-msgstr "је зависност од %s"
+msgstr "%s зависи од овог скупа података"
 
 #: ckan/model/package_relationship.py:49
 #, python-format
@@ -1336,15 +1336,15 @@ msgstr "Први пут користите"
 
 #: ckan/templates/layout_base.html:51
 msgid "? Visit our"
-msgstr "? Посетите"
+msgstr "? Сазнајте више"
 
 #: ckan/templates/layout_base.html:51
 msgid "About page"
-msgstr "О страници"
+msgstr "О сервису"
 
 #: ckan/templates/layout_base.html:51
 msgid "to find out more."
-msgstr "да бисте сазнали више."
+msgstr "."
 
 #: ckan/templates/layout_base.html:52
 msgid "x"
@@ -1382,7 +1382,7 @@ msgstr "Тражи"
 #: ckan/templates/layout_base.html:84 ckan/templates/layout_base.html:127
 #: ckan/templates/layout_base.html:130 ckan/templates/home/about.html:6
 msgid "About"
-msgstr "О програму"
+msgstr "О сервису"
 
 #: ckan/templates/layout_base.html:107
 msgid "Master content template placeholder … please replace me."
@@ -1526,7 +1526,7 @@ msgstr "Можете променити sysadmin-а на"
 
 #: ckan/templates/admin/index.html:13
 msgid "authorization page"
-msgstr "панел овлашћења"
+msgstr "панелу овлашћења"
 
 #: ckan/templates/admin/layout.html:10 ckan/templates/revision/list.html:11
 msgid "Home"
@@ -1598,7 +1598,7 @@ msgstr "Постоји [1:%(item_count)s] групa ауторизације."
 #: ckan/templates/authorization_group/layout.html:11
 #: ckan/templates/group/layout.html:11 ckan/templates/package/layout.html:11
 msgid "View"
-msgstr "Поглед"
+msgstr "Преглед"
 
 #: ckan/templates/authorization_group/layout.html:13
 #: ckan/templates/group/layout.html:13
@@ -2126,7 +2126,7 @@ msgstr "на"
 
 #: ckan/templates/package/read.html:70
 msgid "Related dataset"
-msgstr "Слични скупови података"
+msgstr "Повезани скупови података"
 
 #: ckan/templates/package/read.html:88
 msgid "This Dataset is Open"
@@ -2295,7 +2295,8 @@ msgid ""
 "Track the most recent changes to the system, with most recent\n"
 "    changes first."
 msgstr ""
-"Наведи најскорије измене на систему, са најновијим променама прво наведеним."
+"Листа најновијих измена на систему, са најновијим променама\n"
+"     прво наведеним."
 
 #: ckan/templates/revision/read.html:6
 msgid "Revision:"
@@ -2343,7 +2344,7 @@ msgstr "резултата за ‘"
 
 #: ckan/templates/tag/index.html:24
 msgid "results for tags."
-msgstr "резултати за тагове."
+msgstr "резултатa за тагове."
 
 #: ckan/templates/tag/index.html:34
 msgid "Clear search"
@@ -2380,7 +2381,7 @@ msgstr "Пуно име:"
 
 #: ckan/templates/user/edit_user_form.html:19
 msgid "E-Mail:"
-msgstr "E-mail:"
+msgstr "E-Mail:"
 
 #: ckan/templates/user/edit_user_form.html:22
 msgid "OpenID:"
@@ -2481,7 +2482,7 @@ msgstr "Пријавите се користећи Open ID"
 
 #: ckan/templates/user/login.html:49
 msgid "Please click your account provider:"
-msgstr "Кликните се свом провајдеру рачун:"
+msgstr "Молим Вас, кликните на Вашег провајдера налога:"
 
 #: ckan/templates/user/login.html:53
 msgid "OpenID Identifier:"
@@ -2531,7 +2532,7 @@ msgstr "3 или више карактера, употребљавати сам�
 
 #: ckan/templates/user/new_user_form.html:21
 msgid "Full name (optional):"
-msgstr "Пуно име (опционо):"
+msgstr "Пуно име(опционо):"
 
 #: ckan/templates/user/new_user_form.html:25
 msgid "E-Mail"

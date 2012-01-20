@@ -37,7 +37,8 @@ Using Transifex makes it easier to handle collaboration, with an online editor t
 
 Existing CKAN translation projects can be found at: https://www.transifex.net/projects/p/ckan/teams/
 
-Updated translations are automatically pushed to https://bitbucket.org/bboissin/ckan-i18n and these can be compiled and placed on CKAN servers by the server administrators.
+When leading up to a CKAN release, the strings are loaded onto Transifex and ckan-discuss list is emailed to encourage translation work. When the release is done, the latest translations on Transifex are checked back into CKAN.
+
 
 Transifex Administration
 ++++++++++++++++++++++++

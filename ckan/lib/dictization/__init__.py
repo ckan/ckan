@@ -9,7 +9,7 @@ from pylons import config
 # these functions.  Copy code from here as needed.
 
 
-def table_dictize(obj, context):
+def table_dictize(obj, context, **kw):
     '''Get any model object and represent it as a dict'''
 
     result_dict = {}
@@ -44,6 +44,8 @@ def table_dictize(obj, context):
         else:
             result_dict[name] = unicode(value)
 
+    result_dict.update(kw)
+
     return result_dict
 
 
@@ -54,9 +56,14 @@ def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
     active = context.get('active', True)
 
     for obj in obj_list:
+        if context.get('with_capacity'):
+            obj, capacity = obj
+            dictized = table_dictize(obj, context, capacity=capacity)
+        else:
+            dictized = table_dictize(obj, context)
         if active and obj.state not in ('active', 'pending'):
             continue
-        result_list.append(table_dictize(obj, context))
+        result_list.append(dictized)
 
     return sorted(result_list, key=sort_key)
 
