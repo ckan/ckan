@@ -142,7 +142,7 @@ def package_form_schema():
     schema['extras_validation'] = [duplicate_extras_key, ignore]
     schema['save'] = [ignore]
     schema['return_to'] = [ignore]
-    schema['type'] = [ignore, unicode]
+    schema['type'] = [ignore_missing, unicode]
 
     ##changes
     schema.pop("id")

@@ -101,6 +101,14 @@ ALTER TABLE "package"
 	ADD COLUMN "type" text;
 ALTER TABLE "package_revision"
 	ADD COLUMN "type" text;
+	
+update "package" set type = 'package';
+update package_revision set type = 'package';
+
+ALTER TABLE "package"
+	ADD COLUMN "type" set not null;
+ALTER TABLE "package_revision"
+	ADD COLUMN "type" set not null;
 
 COMMIT;
     '''
