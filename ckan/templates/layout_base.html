@@ -243,6 +243,7 @@
       // Declare js array from Python string
       ${['\'%s\', '%s  for s in config.get('ckan.plugins','').split(' ')]}
     ];
+    CKAN.SITE_URL = '${g.site_url}';
     $(document).ready(function() {
         var ckan_user = $.cookie("ckan_display_name");
         if (ckan_user) {
