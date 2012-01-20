@@ -15,6 +15,7 @@ def site_read(context, data_dict):
     """
     model = context['model']
     user = context.get('user')
+    
     if not Authorizer().is_authorized(user, model.Action.SITE_READ, model.System):
         return {'success': False, 'msg': _('Not authorized to see this page')}
 
