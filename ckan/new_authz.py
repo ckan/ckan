@@ -11,11 +11,6 @@ log = getLogger(__name__)
 _auth_functions = {}
 
 def is_authorized(action, context,data_dict=None):
-    
-    # Ideally if we can find out if this is a publisher user (i.e. is part 
-    # of a publisher) then we can add publisher_ to the front of the action
-    # name to use the publisher auth instead of the standard one.
-    
     auth_function = _get_auth_function(action)
     if auth_function:
         return auth_function(context, data_dict)
@@ -27,7 +22,7 @@ def _get_auth_function(action):
             
     if _auth_functions:
         return _auth_functions.get(action)
-        
+
     # Otherwise look in all the plugins to resolve all possible
     # First get the default ones in the ckan/logic/auth directory
     # Rather than writing them out in full will use __import__
@@ -36,7 +31,7 @@ def _get_auth_function(action):
     
     # We will load the auth profile from settings
     module_root = 'ckan.logic.auth'
-    auth_profile = config.get('auth.profile', '')
+    auth_profile = config.get('ckan.auth.profile', '')
     if auth_profile:
         module_root = '%s.%s' % (module_root, auth_profile)
 
@@ -46,15 +41,13 @@ def _get_auth_function(action):
         module_path = '%s.%s' % (module_root, auth_module_name,)
         try:
             module = __import__(module_path)
-            log.info('Loaded module %r' % module)
         except ImportError,e:
-            print 'Failed to find auth module'
             log.debug('No auth module for action "%s"' % auth_module_name)
             continue
 
         for part in module_path.split('.')[1:]:
             module = getattr(module, part)
-            
+
         for key, v in module.__dict__.items():
             if not key.startswith('_'):
                 _auth_functions[key] = v

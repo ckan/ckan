@@ -1,9 +1,9 @@
 from ckan.tests import *
 import ckan.forms
 import ckan.model as model
-from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.package_saver import PackageSaver
 from ckan.tests.pylons_controller import PylonsTestCase
+
+from pylons import config
 
 class TestAuthProfiles(PylonsTestCase):
 
@@ -15,6 +15,16 @@ class TestAuthProfiles(PylonsTestCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
+    def test_load_publisher_profile(self):
+        """ Ensure that the relevant config settings result in the appropriate
+            functions being loaded from the correct module """
+        from new_authz import is_authorized, _get_auth_function
+                
+        config['ckan.auth.profile'] = 'publisher'
+        _ = is_authorized('site_read', {'model': model, 'user': '127.0.0.1','reset_auth_profile':True})
+        s = str(_get_auth_function('site_read').__module__)
+        assert s == 'ckan.logic.auth.publisher.get', s
+        
     def test_authorizer_count(self):
         """ Ensure that we have the same number of auth functions in the 
             core auth profile as in the publisher auth profile """
@@ -25,7 +35,6 @@ class TestAuthProfiles(PylonsTestCase):
         }
         
         for module_root in modules.keys():
-            print module_root
             for auth_module_name in ['get', 'create', 'update','delete']:
                 module_path = '%s.%s' % (module_root, auth_module_name,)
                 module = __import__(module_path)
