@@ -192,7 +192,7 @@ def package_dictize(pkg, context):
     result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen,bool) else pkg.isopen()
 
     # type
-    result_dict['type']= pkg_object.type
+    result_dict['type']= pkg.type
 
     # creation and modification date
     result_dict['metadata_modified'] = pkg.metadata_modified.isoformat() \
