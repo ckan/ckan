@@ -28,8 +28,15 @@
       ${c.group_description_formatted}
     </div>
     <div class="group-dataset-list">
-      <h3>Datasets:</h3>
-      <p i18n:msg="item_count">There are ${c.page.item_count} datasets in this group.</p>
+      <div class="group-search-box">
+        <form method="GET" class="group-search" id="group-search">
+          <input type="search" name="q" class="search" placeholder="Search this group..." />
+          <input type="submit" value="Search" class="pretty-button primary button"/>
+        </form>
+      </div>
+      <h3>Datasets</h3>
+      <p py:if="not c.q" i18n:msg="item_count">There are ${c.page.item_count} datasets in this group.</p>
+      <p py:if="c.q">You searched for "${c.q}". Matched ${len(c.page.items)} out of ${c.page.item_count} datasets.</p>
       ${c.page.pager()}
       ${package_list_from_dict(c.page.items)}
       ${c.page.pager()}

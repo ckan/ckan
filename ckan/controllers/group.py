@@ -74,6 +74,7 @@ class GroupController(BaseController):
                    'user': c.user or c.author,
                    'schema': self._form_to_db_schema()}
         data_dict = {'id': id}
+        q = c.q = request.params.get('q') # unicode format (decoded from utf8)
         try:
             c.group_dict = get_action('group_show')(context, data_dict)
             c.group = context['group']
@@ -108,7 +109,9 @@ class GroupController(BaseController):
 
         result = []
         for pkg_rev in c.page.items:
-            result.append(package_dictize(pkg_rev, context))
+            pkg_dict = package_dictize(pkg_rev, context)
+            if (not q) or (q in pkg_dict['title']):
+                result.append(pkg_dict)
         c.page.items = result
         
         return render('group/read.html')

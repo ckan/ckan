@@ -598,6 +598,13 @@ form.simple-form input[type=password] {
   margin: 2em 0;
 }
 
+.group-search-box {
+  float: right;
+}
+.group-search-box input[type="search"] {
+  width: 300px;
+}
+
 
 /* ============== */
 /* = User Index = */
@@ -674,7 +681,7 @@ body.package.search #menusearch {
 .dataset-search {
   margin-bottom: 35px;
 }
-.dataset-search input.search {
+input.search {
   width: 100%;
   font-size: 1.2em;
   margin: 0px;
