@@ -8,8 +8,8 @@ The important settings for the CKAN .ini file are
 
 ::
 
-    storage.bucket = ckan 
-    storage.directory = /data/uploads/
+    ckan.storage.bucket = ckan 
+    ckan.storage.directory = /data/uploads/
 
 The directory where files will be stored should exist or be created before the system is used.
 
