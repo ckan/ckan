@@ -182,7 +182,7 @@ def package_dictize(pkg, context):
     q = select([rel_rev]).where(rel_rev.c.object_package_id == pkg.id)
     result = _execute_with_revision(q, rel_rev, context)
     result_dict["relationships_as_object"] = obj_list_dictize(result, context)
-
+    
     # Extra properties from the domain object
     # We need an actual Package object for this, not a PackageRevision
     if isinstance(pkg,PackageRevision):
@@ -191,11 +191,15 @@ def package_dictize(pkg, context):
     # isopen
     result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen,bool) else pkg.isopen()
 
+    # type
+    result_dict['type']= pkg.type
+
     # creation and modification date
     result_dict['metadata_modified'] = pkg.metadata_modified.isoformat() \
         if pkg.metadata_modified else None
     result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
         if pkg.metadata_created else None
+
     return result_dict
 
 def _get_members(context, group, member_type):

@@ -355,7 +355,13 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         name = u'annakarenina'
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
-        assert plugin.calls['read'] == 1, plugin.calls
+
+        # There are now two reads of the package.  The first to find out
+        # the package's type.  And the second is the actual read that
+        # existed before.  I don't know if this is a problem?  I expect it
+        # can be fixed by allowing the package to be passed in to the plugin,
+        # either via the function argument, or adding it to the c object.
+        assert plugin.calls['read'] == 2, plugin.calls
         plugins.unload(plugin)
 
     def test_resource_list(self):
