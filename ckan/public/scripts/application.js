@@ -448,6 +448,7 @@ CKAN.Utils = function($, my) {
         else {
           remainder.slideUp();
         }
+        return false;
       })
     }
   };

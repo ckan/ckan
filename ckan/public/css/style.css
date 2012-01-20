@@ -598,11 +598,12 @@ form.simple-form input[type=password] {
   margin: 2em 0;
 }
 
-.group-search-box {
-  float: right;
-}
 .group-search-box input[type="search"] {
-  width: 300px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+.group-search-box input[type="submit"] {
+  float: right;
 }
 
 
