@@ -319,7 +319,10 @@ def activity_create(context, activity_dict):
     model = context['model']
 
     assert not activity_dict.has_key('revision_id')
-    activity_dict['revision_id'] = model.Session.revision.id
+    if getattr(model.Session, "revision", None):
+        activity_dict['revision_id'] = model.Session.revision.id
+    else:
+        activity_dict['revision_id'] = None
 
     activity = activity_dict_save(activity_dict, context)
 

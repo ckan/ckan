@@ -395,6 +395,7 @@ def user_update(context, data_dict):
             'object_id': user.id,
             'activity_type': 'changed user',
             }
+
     from ckan.logic.action.create import activity_create
     activity_create(context, activity_dict)
     # TODO: Also create an activity detail recording what exactly changed in
