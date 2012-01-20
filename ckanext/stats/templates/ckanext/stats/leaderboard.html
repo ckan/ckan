@@ -11,8 +11,8 @@
   <script type="text/javascript">
     var solrCoreUrl = '${c.solr_core_url}';
   </script>
-  <script type="text/javascript" src="${g.site_url}/ckanext/stats/app.js"></script>
-  <link type="text/css" rel="stylesheet" media="all" href="${g.site_url}/ckanext/stats/style.css" />
+  <script type="text/javascript" src="${h.url_for('/ckanext/stats/app.js')}"></script>
+  <link type="text/css" rel="stylesheet" media="all" href="${h.url_for('/ckanext/stats/style.css')}" />
   </py:def>
 
   <div py:match="content">

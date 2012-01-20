@@ -116,7 +116,7 @@ Next, copy the ``layout.html`` template and add a reference to the new CSS file.
     py:strip="">
     <head py:match="head">
       ${select('*')}
-      <link rel="stylesheet" href="${g.site_url}/css/mycss.css" />
+      <link rel="stylesheet" href="${h.url_for('/css/mycss.css')}" />
     </head>
     <xi:include href="layout_base.html" />
   </html>
