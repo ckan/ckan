@@ -248,25 +248,25 @@ Storage Settings
 ----------------
 
 .. index::
-   single: storage.bucket, storage.directory
+   single: ckan.storage.bucket, ckan.storage.directory
 
-storage.bucket
-^^^^^^^^^^^^^^
+ckan.storage.bucket
+^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  storage.bucket = ckan
+  ckan.storage.bucket = ckan
 
 Default value:  ``None``
 
 This setting will change the bucket name for the uploaded files.
 
-storage.directory
-^^^^^^^^^^^^^^^^^
+ckan.storage.directory
+^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  storage.directory = /data/uploads/
+  ckan.storage.directory = /data/uploads/
 
 Default value:  ``None``
 
