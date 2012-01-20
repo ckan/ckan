@@ -24,8 +24,8 @@
 
   <py:match path="content">
     <h3 py:if="c.group['state'] != 'active'">State: ${c.group['state']}</h3>
-    <div class="notes" py:if="str(c.group_description_formatted).strip()">
-      ${c.group_description_formatted}
+    <div class="notes" py:if="str(c.description_formatted).strip()">
+      ${c.description_formatted}
     </div>
     <div class="group-dataset-list">
       <h3>Datasets</h3>
