@@ -2,6 +2,7 @@
 
 from ckan.logic.auth import get_package_object, get_group_object, get_authorization_group_object, \
     get_user_object, get_resource_object
+from ckan.logic.auth.publisher import _groups_intersect    
 from ckan.logic import check_access_old, NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
@@ -48,6 +49,8 @@ def group_create(context, data_dict=None):
     model = context['model']
     user = context['user']
    
+    # TODO: We need to check whether this group is being created within another group
+   
     authorized = check_access_old(model.System(), model.Action.GROUP_CREATE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
@@ -57,6 +60,8 @@ def group_create(context, data_dict=None):
 def authorization_group_create(context, data_dict=None):
     model = context['model']
     user = context['user']
+    
+    # TODO: We need to check whether this group is being created within another group    
    
     authorized = check_access_old(model.System(), model.Action.AUTHZ_GROUP_CREATE, context)
     if not authorized:

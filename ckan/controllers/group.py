@@ -31,7 +31,7 @@ class GroupController(BaseController):
 
     def _setup_template_variables(self, context):
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
-
+        
         ## This is messy as auths take domain object not data_dict
         context_group = context.get('group',None)
         group = context_group or c.group

@@ -89,6 +89,24 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return group
     # Todo: Make sure group names can't be changed to look like group IDs?
 
+    def members_of_type(self, object_type):
+        object_type_string = object_type.__name__.lower()
+        query = Session.query(object_type).\
+               filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
+               filter(group_table.c.id == self.id).\
+               filter(member_table.c.state == 'active').\
+               filter(member_table.c.table_name == object_type_string).\
+               join(member_table, member_table.c.table_id == getattr(object_type,'id') ).\
+               join(group_table, group_table.c.id == member_table.c.group_id)
+        return query
+
+    def add_child(self, object_instance):
+        object_type_string = object_instance.__class__.__name__.lower()        
+        if not object_instance in self.members_of_type(object_instance.__class__).all():
+            member = Member(group=self, table_id=getattr(object_instance,'id'), table_name=object_type_string)
+            Session.add(member)
+
+
     def active_packages(self, load_eager=True):
         query = Session.query(Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
@@ -114,9 +132,21 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             return
         package = Package.by_name(package_name)
         assert package
-        if not package in self.active_packages().all():
+        if not package in self.members_of_type( package.__class__ ).all():
             member = Member(group=self, table_id=package.id, table_name='package')
             Session.add(member)
+
+    def get_groups(self):
+        """ Get all groups that this group is within """
+        import ckan.model as model
+        if '_groups' not in self.__dict__:
+            self._groups = model.Session.query(model.Group).\
+               join(model.Member, model.Member.group_id == model.Group.id).\
+               join(model.Group, model.Group.id == model.Member.table_id).\
+               join(model.Package, model.Member.table_name == 'group' ).\
+               filter(model.Member.state == 'active').\
+               filter(model.Group.id == self.id).all()
+        return self._groups
 
 
     @property
@@ -169,5 +199,4 @@ MemberRevision = vdm.sqlalchemy.create_object_version(mapper, Member,
 
 #TODO
 MemberRevision.related_packages = lambda self: [self.continuity.package]
-
 

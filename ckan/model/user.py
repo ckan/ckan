@@ -145,6 +145,20 @@ class User(DomainObject):
         q = q.filter_by(user=self, role=model.Role.ADMIN)
         return q.count()
 
+    def is_in_group(self, group):
+        return group in self.get_groups()
+        
+    def get_groups(self):
+        import ckan.model as model
+        if '_groups' not in self.__dict__:
+            self._groups = model.Session.query(model.Group).\
+               join(model.Member, model.Member.group_id == model.Group.id).\
+               join(model.User, model.User.id == model.Member.table_id).\
+               join(model.Package, model.Member.table_name == 'user' ).\
+               filter(model.Member.state == 'active').\
+               filter(model.User.id == self.id).all()
+        return self._groups
+
     @classmethod
     def search(cls, querystr, sqlalchemy_query=None):
         '''Search name, fullname, email and openid.

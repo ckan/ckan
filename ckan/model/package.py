@@ -498,12 +498,16 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             timestamp_float = timegm(timestamp_without_usecs) + usecs
             return datetime.datetime.utcfromtimestamp(timestamp_float)
 
+    def is_in_group(self, group):
+        return group in self.get_groups()
+
     def get_groups(self):
         import ckan.model as model
         if '_groups' not in self.__dict__:
             self._groups = model.Session.query(model.Group).\
                join(model.Member, model.Member.group_id == model.Group.id).\
                join(model.Package, model.Package.id == model.Member.table_id).\
+               join(model.Package, model.Member.table_name == 'package' ).\
                filter(model.Member.state == 'active').\
                filter(model.Package.id == self.id).all()
         return self._groups
