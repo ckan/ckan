@@ -32,6 +32,9 @@ class CkanCommand(paste.script.command.Command):
     group_name = 'ckan'
 
     def _load_config(self):
+        # Avoids vdm logging warning
+        logging.basicConfig(level=logging.ERROR)
+
         from paste.deploy import appconfig
         from ckan.config.environment import load_environment
         if not self.options.config:
@@ -78,10 +81,7 @@ class ManageDb(CkanCommand):
     max_args = None
     min_args = 1
 
-    def command(self):
-        # Avoids vdm logging warning
-        logging.basicConfig(level=logging.ERROR)
-        
+    def command(self):        
         self._load_config()
         from ckan import model
         import ckan.lib.search as search
@@ -209,8 +209,7 @@ class ManageDb(CkanCommand):
         dump_filepath = self.args[1]
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
-        query = model.Session.query(model.Package)
-        dumper.SimpleDumper().dump_csv(dump_file, query)
+        dumper.SimpleDumper().dump(dump_file, format='csv')
 
     def simple_dump_json(self):
         from ckan import model
@@ -220,8 +219,7 @@ class ManageDb(CkanCommand):
         dump_filepath = self.args[1]
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
-        query = model.Session.query(model.Package)
-        dumper.SimpleDumper().dump_json(dump_file, query)
+        dumper.SimpleDumper().dump(dump_file, format='json')
 
     def dump_rdf(self):
         if len(self.args) < 3:

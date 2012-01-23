@@ -1,5 +1,5 @@
-@import url('/css/forms.css');
-@import url('/css/pretty_buttons.css');
+@import url('forms.css');
+@import url('pretty_buttons.css');
 
 body.no-sidebar #sidebar { display: none; }
 body.no-sidebar #content { 

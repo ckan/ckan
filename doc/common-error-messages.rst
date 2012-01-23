@@ -129,3 +129,7 @@ This occurs when installing CKAN source to a virtual environment when using an o
 
 This occurs when upgrading to CKAN 1.5.1 with a database with duplicate user names. See :ref:`upgrading`
 
+``ERROR:  must be member of role "okfn"`` & ``WARNING:  no privileges could be revoked for "public"``
+=====================================================================================================
+
+These are seen when loading a CKAN database from another machine. It is the result of the database tables being owned by a user that doesn't exist on the new machine. The owner of the table is not important, so this error is harmless and can be ignored.
