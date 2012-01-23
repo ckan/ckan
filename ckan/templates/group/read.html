@@ -40,6 +40,7 @@
         </py:for>
         <input type="submit" value="${_('Search')}" class="pretty-button primary button" />
       </form>
+      ${field_list()}   
 
       <p><span py:if="c.q">You searched for "${c.q}". </span>${c.page.item_count} datasets found.</p>
       ${c.page.pager()}
