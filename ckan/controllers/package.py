@@ -455,7 +455,7 @@ class PackageController(BaseController):
 
         self._setup_template_variables(context, {'id': id})
 
-        # TODO: This check is to maintain backwards compatibility the old way of creating
+        # TODO: This check is to maintain backwards compatibility with the old way of creating
         # custom forms. This behaviour is now deprecated.
         if hasattr(self, 'package_form'):
             c.form = render(self.package_form, extra_vars=vars)
@@ -501,7 +501,7 @@ class PackageController(BaseController):
 
         self._setup_template_variables(context, {'id': id}, package_type=package_type)
 
-        # TODO: This check is to maintain backwards compatibility the old way of creating
+        # TODO: This check is to maintain backwards compatibility with the old way of creating
         # custom forms. This behaviour is now deprecated.
         if hasattr(self, 'package_form'):
             c.form = render(self.package_form, extra_vars=vars)
