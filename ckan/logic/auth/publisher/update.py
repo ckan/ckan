@@ -170,8 +170,8 @@ def user_update(context, data_dict):
         return {'success': False, 'msg': _('User %s not authorized to edit user %s') % (str(user), user_obj.id)}
 
     # Only allow package update if the user and package groups intersect or user is editing self
-    if (user != user_obj.name) and 
-        not _groups_intersect( current_user.get_groups(), user_obj.get_groups() ):
+    if (user != user_obj.name) and \
+             not _groups_intersect( current_user.get_groups(), user_obj.get_groups() ):
         return {'success': False, 'msg': _('User %s not authorized to edit user') % str(user)}
 
     return {'success': True}
