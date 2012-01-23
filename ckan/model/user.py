@@ -152,11 +152,11 @@ class User(DomainObject):
         import ckan.model as model
         if '_groups' not in self.__dict__:
             self._groups = model.Session.query(model.Group).\
-               join(model.Member, model.Member.group_id == model.Group.id).\
+               join(model.Member, model.Member.group_id == model.Group.id and\
+                    model.Member.table_name == 'user' ).\
                join(model.User, model.User.id == model.Member.table_id).\
-               join(model.Package, model.Member.table_name == 'user' ).\
                filter(model.Member.state == 'active').\
-               filter(model.User.id == self.id).all()
+               filter(model.Member.table_id == self.id).all()
         return self._groups
 
     @classmethod

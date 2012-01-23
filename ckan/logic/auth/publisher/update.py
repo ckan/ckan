@@ -201,6 +201,7 @@ def task_status_update(context, data_dict):
 def package_update_rest(context, data_dict):
     model = context['model']
     user = context['user']
+    
     if user in (model.PSEUDO_USER__VISITOR, ''):
         return {'success': False, 'msg': _('Valid API key needed to edit a package')}
 

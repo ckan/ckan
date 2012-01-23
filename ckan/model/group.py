@@ -141,11 +141,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         import ckan.model as model
         if '_groups' not in self.__dict__:
             self._groups = model.Session.query(model.Group).\
-               join(model.Member, model.Member.group_id == model.Group.id).\
-               join(model.Group, model.Group.id == model.Member.table_id).\
-               join(model.Package, model.Member.table_name == 'group' ).\
+               join(model.Member, model.Member.group_id == self.id and \
+                    model.Member.table_name == 'group').\
                filter(model.Member.state == 'active').\
-               filter(model.Group.id == self.id).all()
+               filter(model.Member.table_id == self.id).all()
         return self._groups
 
 
