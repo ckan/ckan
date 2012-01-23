@@ -454,8 +454,13 @@ class PackageController(BaseController):
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context, {'id': id})
-        c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
 
+        # TODO: This check is to maintain backwards compatibility the old way of creating
+        # custom forms. This behaviour is now deprecated.
+        if hasattr(self, 'package_form'):
+            c.form = render(self.package_form, extra_vars=vars)
+        else:
+            c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
         return render('package/new.html')
 
 
@@ -496,7 +501,12 @@ class PackageController(BaseController):
 
         self._setup_template_variables(context, {'id': id}, package_type=package_type)
 
-        c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
+        # TODO: This check is to maintain backwards compatibility the old way of creating
+        # custom forms. This behaviour is now deprecated.
+        if hasattr(self, 'package_form'):
+            c.form = render(self.package_form, extra_vars=vars)
+        else:
+            c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
         return render('package/edit.html')
 
     def read_ajax(self, id, revision=None):
