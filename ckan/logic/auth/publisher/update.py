@@ -14,12 +14,7 @@ def package_update(context, data_dict):
     user = context.get('user')
     package = get_package_object(context, data_dict)
 
-    userobj = model.User.get( user )
-    
     # Only allow package update if the user and package groups intersect
-    if not _groups_intersect( userobj.get_groups(), package.get_groups() ):
-        return {'success': False, 'msg': _('User %s not authorized to edit packages in these groups') % str(user)}
-        
     check1 = check_access_old(package, model.Action.EDIT, context)
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), package.id)}
@@ -27,6 +22,13 @@ def package_update(context, data_dict):
         check2 = check_group_auth(context,data_dict)
         if not check2:
             return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
+
+    userobj = model.User.get( user )
+    if not userobj or \
+       not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
+        return {'success': False, 
+                'msg': _('User %s not authorized to edit packages in these groups') % str(user)}
+
 
     return {'success': True}
 
@@ -37,7 +39,7 @@ def resource_update(context, data_dict):
 
     # Only allow resource update if the user and resource packages groups intersect
     userobj = model.User.get( user )
-    if not _groups_intersect( userobj.get_groups(), resource.package.get_groups() ):
+    if not _groups_intersect( userobj.get_groups('publisher'), resource.resource_group.package.get_groups('publisher') ):
         return {'success': False, 'msg': _('User %s not authorized to edit resources in this package') % str(user)}
 
     # check authentication against package
@@ -65,14 +67,16 @@ def package_change_state(context, data_dict):
     user = context['user']
     package = get_package_object(context, data_dict)
 
-    userobj = model.User.get( user )
-    if not _groups_intersect( userobj.get_groups(), package.get_groups() ):
-        return {'success': False, 'msg': _('User %s not authorized to change this package state') % str(user)}
-
     authorized = check_access_old(package, model.Action.CHANGE_STATE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to change state of package %s') % (str(user),package.id)}
     else:
+        userobj = model.User.get( user )
+        if not userobj or \
+           not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
+            return {'success': False, 
+                     'msg': _('User %s not authorized to change this package state') % str(user)}
+        
         return {'success': True}
 
 def package_edit_permissions(context, data_dict):
@@ -82,7 +86,7 @@ def package_edit_permissions(context, data_dict):
 
     # Only allow package update if the user and package groups intersect
     userobj = model.User.get( user )
-    if not _groups_intersect( userobj.get_groups(), package.get_groups() ):
+    if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
         return {'success': False, 'msg': _('User %s not authorized to edit permissions of this package') % str(user)}
 
     authorized = check_access_old(package, model.Action.EDIT_PERMISSIONS, context)
@@ -98,7 +102,7 @@ def group_update(context, data_dict):
 
     # Only allow package update if the user and package groups intersect
     userobj = model.User.get( user )
-    if not _groups_intersect( userobj.get_groups(), group.get_groups() ):
+    if not _groups_intersect( userobj.get_groups('publisher'), group.get_groups('publisher') ):
         return {'success': False, 'msg': _('User %s not authorized to edit this group') % str(user)}
 
     authorized = check_access_old(group, model.Action.EDIT, context)
@@ -113,7 +117,7 @@ def group_change_state(context, data_dict):
     group = get_group_object(context, data_dict)
 
     userobj = model.User.get( user )
-    if not _groups_intersect( userobj.get_groups(), group.get_groups() ):
+    if not _groups_intersect( userobj.get_groups('publisher'), group.get_groups('publisher') ):
         return {'success': False, 'msg': _('User %s not authorized to change state of group') % str(user)}
     
     authorized = check_access_old(group, model.Action.CHANGE_STATE, context)
@@ -129,7 +133,7 @@ def group_edit_permissions(context, data_dict):
 
     # Only allow package update if the user and package groups intersect
     userobj = model.User.get( user )
-    if not _groups_intersect( userobj.get_groups(), group.get_groups() ):
+    if not _groups_intersect( userobj.get_groups('publisher'), group.get_groups('publisher') ):
         return {'success': False, 'msg': _('User %s not authorized to edit permissions of group') % str(user)}
     
     authorized = check_access_old(group, model.Action.EDIT_PERMISSIONS, context)
@@ -170,9 +174,11 @@ def user_update(context, data_dict):
         return {'success': False, 'msg': _('User %s not authorized to edit user %s') % (str(user), user_obj.id)}
 
     # Only allow package update if the user and package groups intersect or user is editing self
-    if (user != user_obj.name) and \
-             not _groups_intersect( current_user.get_groups(), user_obj.get_groups() ):
-        return {'success': False, 'msg': _('User %s not authorized to edit user') % str(user)}
+    
+    if (user != user_obj.name):
+        current_user = model.User.get( user )
+        if not _groups_intersect( current_user.get_groups('publisher'), user_obj.get_groups('publisher') ):
+            return {'success': False, 'msg': _('User %s not authorized to edit user') % str(user)}
 
     return {'success': True}
 

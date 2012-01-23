@@ -148,7 +148,7 @@ class User(DomainObject):
     def is_in_group(self, group):
         return group in self.get_groups()
         
-    def get_groups(self):
+    def get_groups(self, group_type=None):
         import ckan.model as model
         if '_groups' not in self.__dict__:
             self._groups = model.Session.query(model.Group).\
@@ -157,7 +157,11 @@ class User(DomainObject):
                join(model.User, model.User.id == model.Member.table_id).\
                filter(model.Member.state == 'active').\
                filter(model.Member.table_id == self.id).all()
-        return self._groups
+
+        if not group_type:
+            return self._groups
+        return [ x for x in self._groups if x.type == group_type ]
+
 
     @classmethod
     def search(cls, querystr, sqlalchemy_query=None):
