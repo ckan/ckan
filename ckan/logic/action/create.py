@@ -16,12 +16,13 @@ from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              group_dict_save,
                                              package_api_to_dict,
                                              package_dict_save,
-                                             user_dict_save)
+                                             user_dict_save,
+                                             vocabulary_dict_save)
 
 from ckan.lib.dictization.model_dictize import (group_dictize,
                                                 package_dictize,
-                                                user_dictize)
-
+                                                user_dictize,
+                                                vocabulary_dictize)
 
 from ckan.logic.schema import default_create_package_schema, default_resource_schema
 
@@ -278,3 +279,15 @@ def group_create_rest(context, data_dict):
 
     return group_dict
 
+def vocabulary_create(context, data_dict):
+    '''Add a new vocabulary to the site.'''
+
+    model = context['model']
+    vocabulary_dict = data_dict['vocabulary']
+    vocabulary = vocabulary_dict_save(vocabulary_dict, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    log.debug("Created vocabulary '%s'" % vocabulary.name)
+    return vocabulary_dictize(vocabulary, context)

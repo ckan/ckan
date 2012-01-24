@@ -20,7 +20,9 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_list_dictize,
                                                 tag_dictize,
                                                 task_status_dictize,
-                                                user_dictize)
+                                                user_dictize,
+                                                vocabulary_dictize,
+                                                vocabulary_list_dictize)
 
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
@@ -28,6 +30,7 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 group_to_api2,
                                                 tag_to_api1,
                                                 tag_to_api2)
+
 from ckan.lib.search import query_for, SearchError
 import logging
 
@@ -872,3 +875,27 @@ def status_show(context, data_dict):
         'locale_default': config.get('ckan.locale_default'),
         'extensions': config.get('ckan.plugins').split(),
         }
+
+def vocabulary_list(context, data_dict):
+    model = context['model']
+    vocabulary_objects = model.Session.query(model.Vocabulary).all()
+    return vocabulary_list_dictize(vocabulary_objects, context)
+
+def vocabulary_show(context, data_dict):
+    model = context['model']
+
+    if data_dict.has_key('id'):
+        vocabulary = model.Vocabulary.get(data_dict['id'])
+        if vocabulary is None:
+            raise NotFound
+    elif data_dict.has_key('name'):
+        vocabulary = model.Vocabulary.get(data_dict['name'])
+        if vocabulary is None:
+            raise NotFound
+    else:
+        raise NotFound
+
+    # TODO: check_access('vocabulary_show', context, data_dict)
+
+    vocabulary_dict = vocabulary_dictize(vocabulary, context)
+    return vocabulary_dict

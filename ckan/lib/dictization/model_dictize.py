@@ -441,3 +441,12 @@ def package_to_api2(pkg, context):
     dictized['relationships'] = relationships 
     return dictized
 
+def vocabulary_dictize(vocabulary, context):
+    vocabulary_dict = table_dictize(vocabulary, context)
+    return vocabulary_dict
+
+def vocabulary_list_dictize(vocabulary_list, context):
+    list_of_dicts = []
+    for vocabulary in vocabulary_list:
+        list_of_dicts.append(vocabulary_dictize(vocabulary, context))
+    return list_of_dicts

@@ -440,3 +440,14 @@ def task_status_dict_save(task_status_dict, context):
 
     task_status = table_dict_save(task_status_dict, model.TaskStatus, context)
     return task_status
+
+def vocabulary_dict_save(vocabulary_dict, context):
+
+    model = context['model']
+    session = context['session']
+
+    vocabulary_name = vocabulary_dict['name']
+    vocabulary_obj = model.Vocabulary(vocabulary_name)
+    session.add(vocabulary_obj)
+
+    return vocabulary_obj
