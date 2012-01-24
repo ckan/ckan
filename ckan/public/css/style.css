@@ -214,20 +214,27 @@ tbody tr.table-empty td {
 .hover-for-help.no-underline {
   border-bottom: none;
 }
-.hover-for-help > .inner {
+.hover-for-help > .help-text {
   position: absolute;
   top: 18px;
-  left: -30px;
+  left: -90px;
   display: none;
-  padding: 4px 8px;
+  padding: 2px 8px;
   font-size: 11px;
   background: #333;
   text-align: left;
-  width: 150px;
+  width: 250px;
   z-index: 3;
   color: #fff;
 }
-.hover-for-help:hover > .inner {
+.hover-for-help > .help-text > span {
+  display: block;
+  padding: 2px 0;
+}
+.hover-for-help > .help-text > span.fail {
+  color: #999;
+}
+.hover-for-help:hover > .help-text {
   display: block;
 }
 
@@ -1169,7 +1176,7 @@ body.package.read h3 {
   padding-top: 5px;
   text-align: right;
 }
-.search-result .error-hint {
+.search-result .hover-for-help {
   font-size: 11px;
 }
 .search-result .view-more-link:hover {

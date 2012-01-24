@@ -8,7 +8,6 @@
       CKAN.Utils.setupFormatAutocomplete($(this));
     });
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor'));
-    CKAN.Utils.setupHoverForHelp($('.hover-for-help'));
 
     // set up ckan js
     var config = {
@@ -428,16 +427,6 @@ CKAN.Utils = function($, my) {
       return false;
     });
   };
-
-  my.setupHoverForHelp = function(links) {
-    $.each(links, function(n,link) {
-      link = $(link);
-      var div = $('<div />');
-      div.html(link.attr('data'));
-      div.addClass('inner');
-      link.append(div);
-    });
-  }
 
   // If notes field is more than 1 paragraph, just show the
   // first paragraph with a 'Read more' link that will expand
