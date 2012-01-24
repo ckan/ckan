@@ -79,6 +79,10 @@ def make_map():
         controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister',
+        controller='api', action='create',
+        requirements=dict(register=register_list_str),
+        conditions=dict(method=['POST']))
     map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='create',
         requirements=dict(register=register_list_str),
@@ -135,6 +139,10 @@ def make_map():
         controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
+    map.connect('/api/rest/{register}/{id}/:subregister',
+        controller='api', action='create',
+        requirements=dict(register=register_list_str),
+        conditions=dict(method=['POST']))
     map.connect('/api/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='create',
         requirements=dict(register=register_list_str),

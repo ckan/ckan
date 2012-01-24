@@ -245,30 +245,6 @@ class Api1and2TestCase(object):
             package_ref = self.package_ref_from_name(package_name)
             return self.offset('/rest/rating/%s' % package_ref)
 
-    def relationship_offset(self, package_1_name=None,
-                            relationship_type=None,
-                            package_2_name=None,
-                            ):
-        assert package_1_name
-        package_1_ref = self.package_ref_from_name(package_1_name)
-        if package_2_name is None:
-            if not relationship_type:
-                return self.offset('/rest/dataset/%s/relationships' % \
-                                   package_1_ref)
-            else:
-                return self.offset('/rest/dataset/%s/%s' %
-                                   (package_1_ref, relationship_type))
-        else:
-            package_2_ref = self.package_ref_from_name(package_2_name)
-            if not relationship_type:
-                return self.offset('/rest/dataset/%s/relationships/%s' % \
-                                   (package_1_ref, package_2_ref))
-            else:
-                return self.offset('/rest/dataset/%s/%s/%s' % \
-                                   (package_1_ref,
-                                    relationship_type,
-                                    package_2_ref))
-
     def anna_offset(self, postfix=''):
         return self.package_offset('annakarenina') + postfix
 

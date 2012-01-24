@@ -28,8 +28,11 @@ from ckan.logic.schema import (default_update_group_schema,
                                default_update_package_schema,
                                default_update_user_schema,
                                default_update_resource_schema,
+                               default_update_relationship_schema,
                                default_task_status_schema)
 from ckan.lib.navl.dictization_functions import validate
+from ckan.logic.action import rename_keys
+
 log = logging.getLogger(__name__)
 
 def prettify(field_name):
@@ -75,6 +78,12 @@ def group_error_summary(error_dict):
     return error_summary
 
 def task_status_error_summary(error_dict):
+    error_summary = {}
+    for key, error in error_dict.iteritems():
+        error_summary[_(prettify(key))] = error[0]
+    return error_summary
+
+def relationship_error_summary(error_dict):
     error_summary = {}
     for key, error in error_dict.iteritems():
         error_summary[_(prettify(key))] = error[0]
@@ -278,18 +287,26 @@ def package_relationship_update(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = data_dict["id"]
-    id2 = data_dict["id2"]
-    rel = data_dict["rel"]
+    schema = context.get('schema') or default_update_relationship_schema()
     api = context.get('api_version') or '1'
+
+    id = data_dict['subject']
+    id2 = data_dict['object']
+    rel = data_dict['type']
     ref_package_by = 'id' if api == '2' else 'name'
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
     if not pkg1:
-        raise NotFound('First package named in address was not found.')
+        raise NotFound('Subject package %r was not found.' % id)
     if not pkg2:
-        return NotFound('Second package named in address was not found.')
+        return NotFound('Object package %r was not found.' % id2)
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, relationship_error_summary(errors))
 
     check_access('package_relationship_update', context, data_dict)
 
@@ -298,6 +315,7 @@ def package_relationship_update(context, data_dict):
         raise NotFound('This relationship between the packages was not found.')
     entity = existing_rels[0]
     comment = data_dict.get('comment', u'')
+    context['relationship'] = entity
     return _update_package_relationship(entity, comment, context)
 
 def group_update(context, data_dict):
@@ -470,3 +488,20 @@ def group_update_rest(context, data_dict):
         group_dict = group_to_api2(group, context)
 
     return group_dict
+
+def package_relationship_update_rest(context, data_dict):
+
+    # rename keys
+    key_map = {'id': 'subject',
+               'id2': 'object',
+               'rel': 'type'}
+
+    # We want 'destructive', so that the value of the subject,
+    # object and rel in the URI overwrite any values for these
+    # in params. This is because you are not allowed to change
+    # these values.
+    data_dict = rename_keys(data_dict, key_map, destructive=True)
+
+    relationship_dict = package_relationship_update(context, data_dict)
+
+    return relationship_dict

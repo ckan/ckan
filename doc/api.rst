@@ -199,6 +199,8 @@ Here are the methods of the Model API.
 +-------------------------------+--------+------------------+-------------------+
 | Dataset Relationship Entity   | GET    |                  | Pkg-Relationship  |
 +-------------------------------+--------+------------------+-------------------+
+| Dataset Relationships Register| POST   | Pkg-Relationship |                   |
++-------------------------------+--------+------------------+-------------------+
 | Dataset Relationship Entity   | PUT    | Pkg-Relationship |                   |
 +-------------------------------+--------+------------------+-------------------+
 | Dataset\'s Revisions Entity   | GET    |                  | Pkg-Revisions     |
@@ -210,29 +212,82 @@ Here are the methods of the Model API.
 | License List                  | GET    |                  | License-List      |
 +-------------------------------+--------+------------------+-------------------+
 
-* POSTing data to a register resource will create a new entity.
+In general:
 
-* PUT/POSTing data to an entity resource will update an existing entity.
+* GET to a register resource will *list* the entities of that type.
 
-* PUT operations may instead use the HTTP POST method.
+* GET of an entity resource will *show* the entity's properties.
+
+* POST of entity data to a register resource will *create* the new entity.
+
+* PUT of entity data to an existing entity resource will *update* it.
+
+It is usually clear whether you are trying to create or update, so in these cases, HTTP POST and PUT methods are accepted by CKAN interchangeably.
 
 Model Formats
 `````````````
 
-Here are the data formats for the Model API.
+Here are the data formats for the Model API:
 
-.. |format-dataset-ref| replace:: Dataset-Ref
-
-.. |format-dataset-register| replace:: [ |format-dataset-ref|, |format-dataset-ref|, |format-dataset-ref|, ... ]
-
-.. |format-dataset-entity| replace:: { id: Uuid, name: Name-String, title: String, version: String, url: String, resources: [ Resource, Resource, ...], author: String, author_email: String, maintainer: String, maintainer_email: String, license_id: String, tags: Tag-List, notes: String, extras: { Name-String: String, ... } }
-
-.. |format-group-ref| replace:: Group-Ref
-
-.. |format-group-register| replace:: [ |format-group-ref|, |format-group-ref|, |format-group-ref|, ... ]
-
-.. |format-group-entity| replace:: { name: Name-String, title: String, description: String, datasets: Dataset-List }
-
++--------------------+------------------------------------------------------------+
+| Name               | Format                                                     |
++====================+============================================================+
+| Dataset-Ref        | Dataset-Name-String (API v1) OR Dataset-Id-Uuid (API v2)   |
++--------------------+------------------------------------------------------------+
+| Dataset-List       | [ Dataset-Ref, Dataset-Ref, Dataset-Ref, ... ]             |
++--------------------+------------------------------------------------------------+
+| Dataset            | { id: Uuid, name: Name-String, title: String, version:     | 
+|                    | String, url: String, resources: [ Resource, Resource, ...],| 
+|                    | author: String, author_email: String, maintainer: String,  |
+|                    | maintainer_email: String, license_id: String,              |
+|                    | tags: Tag-List, notes: String, extras: { Name-String:      |
+|                    | String, ... } }                                            |
+|                    | See note below on additional fields upon GET of a dataset. |
++--------------------+------------------------------------------------------------+
+| Group-Ref          | Group-Name-String (API v1) OR Group-Id-Uuid (API v2)       |
++--------------------+------------------------------------------------------------+
+| Group-List         | [ Group-Ref, Group-Ref, Group-Ref, ... ]                   |
++--------------------+------------------------------------------------------------+
+| Group              | { name: Group-Name-String, title: String,                  |
+|                    | description: String, datasets: Dataset-List }              |
++--------------------+------------------------------------------------------------+
+| Tag-List           | [ Name-String, Name-String, Name-String, ... ]             |
++--------------------+------------------------------------------------------------+
+| Tag                | { name: Name-String }                                      |
++--------------------+------------------------------------------------------------+
+| Resource           | { url: String, format: String, description: String,        |
+|                    | hash: String }                                             |
++--------------------+------------------------------------------------------------+
+| Rating             | { dataset: Name-String, rating: int }                      |
++--------------------+------------------------------------------------------------+
+| Pkg-Relationships  | [ Pkg-Relationship, Pkg-Relationship, ... ]                |
++--------------------+------------------------------------------------------------+
+| Pkg-Relationship   | { subject: Dataset-Name-String,                            |
+|                    | object: Dataset-Name-String, type: Relationship-Type,      |
+|                    | comment: String }                                          |
++--------------------+------------------------------------------------------------+
+| Pkg-Revisions      | [ Pkg-Revision, Pkg-Revision, Pkg-Revision, ... ]          |
++--------------------+------------------------------------------------------------+
+| Pkg-Revision       | { id: Uuid, message: String, author: String,               |
+|                    | timestamp: Date-Time }                                     |
++--------------------+------------------------------------------------------------+
+|Relationship-Type   | One of: 'depends_on', 'dependency_of',                     |
+|                    | 'derives_from', 'has_derivation',                          |
+|                    | 'child_of', 'parent_of',                                   |
+|                    | 'links_to', 'linked_from'.                                 |
++--------------------+------------------------------------------------------------+
+| Revision-List      | [ revision_id, revision_id, revision_id, ... ]             |
++--------------------+------------------------------------------------------------+
+| Revision           | { id: Uuid, message: String, author: String,               |
+|                    | timestamp: Date-Time, datasets: Dataset-List }             |
++--------------------+------------------------------------------------------------+
+| License-List       | [ License, License, License, ... ]                         |
++--------------------+------------------------------------------------------------+
+| License            | { id: Name-String, title: String, is_okd_compliant:        |
+|                    | Boolean, is_osi_compliant: Boolean, tags: Tag-List,        |
+|                    | family: String, url: String, maintainer: String,           |
+|                    | date_created: Date-Time, status: String }                  |
++--------------------+------------------------------------------------------------+
 
 To send request data, create the JSON-format string (encode in UTF8) put it in the request body and send it using PUT or POST.
 
@@ -244,7 +299,25 @@ Notes:
 
  * To delete an 'extra' key-value pair, supply the key with JSON value: ``null``
 
- * When you read a dataset then some additional information is supplied that cannot current be adjusted throught the CKAN API. This includes info on Dataset Relationship ('relationships'), Group membership ('groups'), ratings ('ratings_average' and 'ratings_count'), full URL of the dataset in CKAN ('ckan_url') and Dataset ID ('id'). This is purely a convenience for clients, and only forms part of the Dataset on GET.
+ * When you read a dataset, some additional information is supplied that you cannot modify and POST back to the CKAN API. These 'read-only' fields are provided only on the Dataset GET. This is a convenience to clients, to save further requests. This applies to the following fields:
+    
+===================== ================================
+Key                   Description 
+===================== ================================
+id                    Unique Uuid for the Dataset
+revision_id           Latest revision ID for the core Package data (but is not affected by changes to tags, groups, extras, relationships etc)
+metadata_created      Date the Dataset (record) was created
+metadata_modified     Date the Dataset (record) was last modified
+relationships         info on Dataset Relationships
+ratings_average         
+ratings_count            
+ckan_url              full URL of the Dataset
+download_url (API v1) URL of the first Resource
+isopen                boolean indication of whether dataset is open according to Open Knowledge Definition, based on other fields
+notes_rendered        HTML rendered version of the Notes field (which may contain Markdown)
+===================== ================================
+   
+
 
 Search API
 ~~~~~~~~~~
