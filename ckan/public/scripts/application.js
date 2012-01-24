@@ -8,6 +8,8 @@
       CKAN.Utils.setupFormatAutocomplete($(this));
     });
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor'));
+    CKAN.Utils.setupMouseoverHelpLinks($('.mouseover-help-link'));
+
     // set up ckan js
     var config = {
       endpoint: CKAN.SITE_URL + '/'
@@ -426,6 +428,17 @@ CKAN.Utils = function($, my) {
       return false;
     });
   };
+
+  my.setupMouseoverHelpLinks = function(links) {
+    $.each(links, function(n,link) {
+      link = $(link);
+      link.click(function() { return false; });
+      var div = $('<div />');
+      div.html(link.attr('data'));
+      div.addClass('inner');
+      link.append(div);
+    });
+  }
 
   // If notes field is more than 1 paragraph, just show the
   // first paragraph with a 'Read more' link that will expand

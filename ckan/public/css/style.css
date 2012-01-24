@@ -207,7 +207,29 @@ tbody tr.table-empty td {
   font-size: 2.2em;
   font-weight: normal;
 }
-
+.mouseover-help-link {
+  border-bottom: 1px dashed #bb2222;
+  position: relative;
+}
+.mouseover-help-link:hover {
+  border-bottom: 1px dashed #183661;
+}
+.mouseover-help-link .inner {
+  position: absolute;
+  top: 18px;
+  left: -30px;
+  display: none;
+  padding: 4px 8px;
+  font-size: 11px;
+  background: #333;
+  text-align: left;
+  width: 150px;
+  z-index: 3;
+  color: #fff;
+}
+.mouseover-help-link:hover .inner {
+  display: block;
+}
 
 /* =============== */
 /* MinorNavigation */
@@ -1129,15 +1151,26 @@ body.package.read h3 {
 .search-result .main-link {
   font-size: 125%;
 }
-.search-result .view-more-link {
+.search-result .extra-links {
   float: right;
+}
+.search-result .view-more-link {
   color: #000;
-  text-align: middle;
+  display: block;
+  text-align: right;
   margin-top: 4px;
   padding: 3px 22px 3px 10px;
   background: url('/images/icons/arrow-right-16-black.png') no-repeat right;
   opacity:0.4;
   filter:alpha(opacity=40); /* For IE8 and earlier */
+}
+.search-result .star-rating {
+  display: block;
+  padding-top: 5px;
+  text-align: right;
+}
+.search-result .error-hint {
+  font-size: 11px;
 }
 .search-result .view-more-link:hover {
   opacity:1.0;

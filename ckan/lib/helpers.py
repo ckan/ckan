@@ -20,7 +20,7 @@ from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
-from i18n import get_available_locales
+from i18n import get_available_locales, _
 
 
 
@@ -337,6 +337,17 @@ def resource_display_name(resource_dict):
         return description
     else:
         return '[no name] %s ' % resource_dict['id']
+
+def resource_star_rating(resource_dict):
+    stars = 0 if ('index' in resource_dict.get('url')) else 3
+    out = ""
+    if stars==0: 
+        message = _('When we last checked, this resource was not available.');
+        out = literal('<a href="#" class="mouseover-help-link error-hint" data="%s">404?</a>' % message)
+    else:
+        for n in range(stars):
+            out += icon('star')
+    return out
 
 def resource_link(resource_dict, package_id):
     text = resource_display_name(resource_dict)
