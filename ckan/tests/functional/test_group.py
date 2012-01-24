@@ -6,6 +6,7 @@ import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 
 from ckan.tests import *
+from ckan.tests import setup_test_search_index
 from base import FunctionalTestCase
 from ckan.tests import search_related, is_search_supported
 
@@ -73,6 +74,8 @@ class TestGroup(FunctionalTestCase):
         assert groupname in res
         
     def test_read(self):
+        # Relies on the search index being available
+        setup_test_search_index()
         name = u'david'
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
@@ -86,7 +89,7 @@ class TestGroup(FunctionalTestCase):
             assert 'Administrators' in res, res
             assert 'russianfan' in main_res, main_res
             assert name in res, res
-            assert 'There are 2 datasets in this group' in self.strip_tags(main_res), main_res
+            assert '2 datasets found.' in self.strip_tags(main_res), main_res
             pkg = model.Package.by_name(pkgname)
             res = res.click(pkg.title)
             assert '%s - Datasets' % pkg.title in res
