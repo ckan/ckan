@@ -878,7 +878,7 @@ def status_show(context, data_dict):
         }
 
 def user_activity_list(context, data_dict):
-    '''Return a user's public activity stream as a list of dicts.'''
+    '''Return a user\'s public activity stream as a list of dicts.'''
     model = context['model']
     user_id = data_dict['id']
     activity_objects = model.Session.query(
@@ -886,7 +886,7 @@ def user_activity_list(context, data_dict):
     return activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
-    '''Return a package's public activity stream as a list of dicts.'''
+    '''Return a package\'s public activity stream as a list of dicts.'''
     model = context['model']
     package_id = data_dict['id']
     activity_objects = model.Session.query(
@@ -894,7 +894,7 @@ def package_activity_list(context, data_dict):
     return activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
-    '''Return a group's public activity stream as a list of dicts.'''
+    '''Return a group\'s public activity stream as a list of dicts.'''
     model = context['model']
     group_id = data_dict['id']
     activity_objects = model.Session.query(
@@ -902,7 +902,7 @@ def group_activity_list(context, data_dict):
     return activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
-    '''Return an activity's list of activity detail items, as a list of dicts.
+    '''Return an activity\'s list of activity detail items, as a list of dicts.
     
     '''
     model = context['model']
@@ -1009,7 +1009,7 @@ def _activity_list_to_html(context, activity_stream):
     return literal('\n'.join(html))
 
 def user_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a user's public activity stream.
+    '''Return an HTML rendering of a user\'s public activity stream.
     
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page.
@@ -1019,7 +1019,7 @@ def user_activity_list_html(context, data_dict):
     return _activity_list_to_html(context, activity_stream)
 
 def package_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a package's public activity stream.
+    '''Return an HTML rendering of a package\'s public activity stream.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page.
@@ -1029,7 +1029,7 @@ def package_activity_list_html(context, data_dict):
     return _activity_list_to_html(context, activity_stream)
 
 def group_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a group's public activity stream.
+    '''Return an HTML rendering of a group\'s public activity stream.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page.

@@ -140,13 +140,13 @@ def find_new_activities(before, after):
     return new_activities
 
 class TestActivity:
-
-    def setUp(self):
+    
+    def setup(self):
         ckan.tests.CreateTestData.create()
         self.sysadmin_user = model.User.get('testsysadmin')
         self.normal_user = model.User.get('annafan')
 
-    def tearDown(self):
+    def teardown(self):
         model.repo.rebuild_db()
 
     def _create_package(self, user):
