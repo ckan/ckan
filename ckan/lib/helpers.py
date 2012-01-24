@@ -143,6 +143,14 @@ def subnav_link(c, text, action, **kwargs):
         url_for(action=action, **kwargs),
         class_=('active' if c.action == action else '')
     )
+    
+def subnav_named_route(c, text, routename,**kwargs):
+    """ Generate a subnav element based on a named route """
+    return link_to(
+        text, 
+        url_for(routename, **kwargs),
+        class_=('active' if c.action == kwargs['action'] else '')
+    )    
 
 def facet_items(c, name, limit=10):
     from pylons import request

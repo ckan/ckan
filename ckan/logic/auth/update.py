@@ -1,5 +1,5 @@
 from ckan.logic import check_access_old, NotFound
-from ckan.logic.auth import get_package_object, get_group_object, get_authorization_group_object, \
+from ckan.logic.auth import get_package_object, get_resource_object,  get_group_object, get_authorization_group_object, \
     get_user_object, get_resource_object
 from ckan.logic.auth.create import check_group_auth, package_relationship_create
 from ckan.authz import Authorizer
@@ -150,6 +150,9 @@ def task_status_update(context, data_dict):
     model = context['model']
     user = context['user']
 
+    if 'ignore_auth' in context and context['ignore_auth']:
+        return {'success': True}
+    
     authorized =  Authorizer().is_sysadmin(unicode(user))
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to update task_status table') % str(user)}

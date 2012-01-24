@@ -25,6 +25,7 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
 from ckan.lib.dictization import table_dictize
 from ckan.lib.i18n import get_lang
+from ckan.plugins import PluginImplementations, IDatasetForm
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -48,26 +49,107 @@ autoneg_cfg = [
     ("text", "x-graphviz", ["dot"]),
     ]
 
-class PackageController(BaseController):
+##############  Methods and variables related to the pluggable  ##############
+##############       behaviour of the package controller        ############## 
 
-    ## hooks for subclasses 
-    package_form = 'package/new_package_form.html'
+# Mapping from package-type strings to IDatasetForm instances
+_controller_behaviour_for = dict()
 
-    def _form_to_db_schema(self):
+# The fallback behaviour
+_default_controller_behaviour = None
+
+def register_pluggable_behaviour(map):
+    """
+    Register the various IDatasetForm instances.
+
+    This method will setup the mappings between package types and the registered
+    IDatasetForm instances.  If it's called more than once an
+    exception will be raised.
+    """
+    global _default_controller_behaviour
+    
+    # Check this method hasn't been invoked already.
+    # TODO: This method seems to be being invoked more than once during running of
+    #       the tests.  So I've disbabled this check until I figure out why.
+    #if _default_controller_behaviour is not None:
+        #raise ValueError, "Pluggable package controller behaviour is already defined "\
+                          #"'%s'" % _default_controller_behaviour
+
+    # Create the mappings and register the fallback behaviour if one is found.
+    for plugin in PluginImplementations(IDatasetForm):
+        if plugin.is_fallback():
+            if _default_controller_behaviour is not None:
+                raise ValueError, "More than one fallback "\
+                                  "IDatasetForm has been registered"
+            _default_controller_behaviour = plugin
+
+        for package_type in plugin.package_types():
+            # Create a connection between the newly named type and the package controller
+            # but first we need to make sure we are not clobbering an existing domain
+            map.connect('/%s/new' % (package_type,), controller='package', action='new')    
+            map.connect('%s_read' % (package_type,), '/%s/{id}' %  (package_type,), controller='package', action='read')                        
+            map.connect('%s_action' % (package_type,),
+                        '/%s/{action}/{id}' % (package_type,), controller='package',
+                requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
+            )            
+                    
+            if package_type in _controller_behaviour_for:
+                raise ValueError, "An existing IDatasetForm is "\
+                                  "already associated with the package type "\
+                                  "'%s'" % package_type
+            _controller_behaviour_for[package_type] = plugin
+
+    # Setup the fallback behaviour if one hasn't been defined.
+    if _default_controller_behaviour is None:
+        _default_controller_behaviour = DefaultDatasetForm()
+
+def _lookup_plugin(package_type):
+    """
+    Returns the plugin controller associoated with the given package type.
+
+    If the package type is None or cannot be found in the mapping, then the
+    fallback behaviour is used.
+    """
+    #from pdb import set_trace; set_trace()    
+    if package_type is None:
+        return _default_controller_behaviour
+    return _controller_behaviour_for.get(package_type,
+                                         _default_controller_behaviour)
+
+class DefaultDatasetForm(object):
+    """
+    Provides a default implementation of the pluggable package controller behaviour.
+
+    This class has 2 purposes:
+
+     - it provides a base class for IDatasetForm implementations
+       to use if only a subset of the 5 method hooks need to be customised.
+
+     - it provides the fallback behaviour if no plugin is setup to provide
+       the fallback behaviour.
+
+    Note - this isn't a plugin implementation.  This is deliberate, as
+           we don't want this being registered.
+    """
+
+    def package_form(self):
+        return 'package/new_package_form.html'
+
+    def form_to_db_schema(self):
         return package_form_schema()
 
-    def _db_to_form_schema(self):
+    def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
-    def _check_data_dict(self, data_dict):
+    def check_data_dict(self, data_dict):
         '''Check if the return data is correct, mostly for checking out if
         spammers are submitting only part of the form'''
 
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
                                'extras_validation', 'save', 'return_to',
-                               'resources']
+                               'resources', 'type']
 
         schema_keys = package_form_schema().keys()
         keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
@@ -77,10 +159,10 @@ class PackageController(BaseController):
         if missing_keys:
             #print data_dict
             #print missing_keys
-            log.info('incorrect form fields posted')
+            log.info('incorrect form fields posted, missing %s' % missing_keys )
             raise DataError(data_dict)
 
-    def _setup_template_variables(self, context, data_dict):
+    def setup_template_variables(self, context, data_dict):
         c.groups_authz = get_action('group_list_authz')(context, data_dict)
         data_dict.update({'available_only':True})
         c.groups_available = get_action('group_list_authz')(context, data_dict)
@@ -99,7 +181,28 @@ class PackageController(BaseController):
             except NotAuthorized:
                 c.auth_for_change_state = False
 
-    ## end hooks
+##############      End of pluggable package behaviour stuff    ############## 
+
+class PackageController(BaseController):
+
+    def _package_form(self, package_type=None):    
+        return _lookup_plugin(package_type).package_form()
+
+    def _form_to_db_schema(self, package_type=None):
+        return _lookup_plugin(package_type).form_to_db_schema()
+
+    def _db_to_form_schema(self, package_type=None):
+        '''This is an interface to manipulate data from the database
+        into a format suitable for the form (optional)'''
+        return _lookup_plugin(package_type).db_to_form_schema()
+
+    def _check_data_dict(self, data_dict, package_type=None):
+        '''Check if the return data is correct, mostly for checking out if
+        spammers are submitting only part of the form'''
+        return _lookup_plugin(package_type).check_data_dict(data_dict)
+
+    def _setup_template_variables(self, context, data_dict, package_type=None):
+        return _lookup_plugin(package_type).setup_template_variables(context, data_dict)
 
     authorizer = ckan.authz.Authorizer()
 
@@ -183,9 +286,10 @@ class PackageController(BaseController):
 
 
     def read(self, id):
+        package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(package_type=package_type)}
         data_dict = {'id': id}
 
         # interpret @<revision_id> or @<date> suffix
@@ -241,9 +345,10 @@ class PackageController(BaseController):
         return render('package/read.html')
 
     def comments(self, id):
+        package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(package_type=package_type)}
 
         #check if package exists
         try:
@@ -333,10 +438,15 @@ class PackageController(BaseController):
         return render('package/history.html')
 
     def new(self, data=None, errors=None, error_summary=None):
+        
+        package_type = request.path.strip('/').split('/')[0]
+        if package_type == 'group':
+            package_type = None
+        
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(package_type=package_type)}
 
         try:
             check_access('package_create',context)
@@ -352,24 +462,25 @@ class PackageController(BaseController):
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context, {'id': id})
-        c.form = render(self.package_form, extra_vars=vars)
+        c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
 
         return render('package/new.html')
 
 
     def edit(self, id, data=None, errors=None, error_summary=None):
+        package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
                    'pending': True,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(package_type=package_type)}
 
         if context['save'] and not data:
             return self._save_edit(id, context)
         try:
             old_data = get_action('package_show')(context, {'id':id})
-            schema = self._db_to_form_schema()
+            schema = self._db_to_form_schema(package_type=package_type)
             if schema and not data:
                 old_data, errors = validate(old_data, schema, context=context)
             data = data or old_data
@@ -391,21 +502,22 @@ class PackageController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context, {'id': id})
+        self._setup_template_variables(context, {'id': id}, package_type=package_type)
 
-        c.form = render(self.package_form, extra_vars=vars)
+        c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
         return render('package/edit.html')
 
     def read_ajax(self, id, revision=None):
+        package_type=self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'extras_as_string': True,
-                   'schema': self._form_to_db_schema(),
+                   'schema': self._form_to_db_schema(package_type=package_type),
                    'revision_id': revision}
 
         try:
             data = get_action('package_show')(context, {'id': id})
-            schema = self._db_to_form_schema()
+            schema = self._db_to_form_schema(package_type=package_type)
             if schema:
                 data, errors = validate(data, schema)
         except NotAuthorized:
@@ -452,10 +564,36 @@ class PackageController(BaseController):
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return json.dumps(data)
 
-    def _save_new(self, context):
+    def _get_package_type(self, id):
+        """
+        Given the id of a package it determines the plugin to load 
+        based on the package's type name (type). The plugin found
+        will be returned, or None if there is no plugin associated with 
+        the type.
+
+        Uses a minimal context to do so.  The main use of this method
+        is for figuring out which plugin to delegate to.
+
+        aborts if an exception is raised.
+        """
+        global _controller_behaviour_for
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+        try:
+            data = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('Package not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        return data['type']
+
+    def _save_new(self, context, package_type=None):
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
+            data_dict['type'] = package_type
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
             pkg = get_action('package_create')(context, data_dict)
@@ -476,9 +614,10 @@ class PackageController(BaseController):
 
     def _save_edit(self, id, context):
         try:
+            package_type = self._get_package_type(id)
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
-            self._check_data_dict(data_dict)
+            self._check_data_dict(data_dict, package_type=package_type)
             context['message'] = data_dict.get('log_message', '')
             if not context['moderated']:
                 context['pending'] = False

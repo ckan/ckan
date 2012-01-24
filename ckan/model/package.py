@@ -40,6 +40,7 @@ package_table = Table('package', metadata,
         Column('maintainer_email', types.UnicodeText),                      
         Column('notes', types.UnicodeText),
         Column('license_id', types.UnicodeText),
+        Column('type', types.UnicodeText),
 )
 
 
