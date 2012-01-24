@@ -501,7 +501,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def is_in_group(self, group):
         return group in self.get_groups()
 
-    def get_groups(self, group_type=None):
+    def get_groups(self, group_type=None, capacity=None):
         import ckan.model as model
         if '_groups' not in self.__dict__:
             self._groups = model.Session.query(model.Group).\
@@ -511,9 +511,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                filter(model.Member.state == 'active').\
                filter(model.Member.table_id == self.id).all()
                
-        if not group_type:
-            return self._groups
-        return [ x for x in self._groups if x.type == group_type ]
+        groups = self._groups
+        if group_type:       
+            groups = [g for g in groups if g.type == group_type]
+        if capacity:       
+            groups = [g for g in groups if g.capacity == capacity]
+        return groups
 
     @property
     def metadata_created(self):

@@ -1,9 +1,7 @@
-# Updated: False
 from ckan.logic.auth import get_package_object, get_group_object, get_authorization_group_object, \
     get_user_object, get_resource_object
-from ckan.logic import check_access_old, NotFound
-from ckan.authz import Authorizer
 from ckan.lib.base import _
+from ckan.logic.auth.publisher import _groups_intersect
 from ckan.logic.auth import get_package_object, get_group_object, get_resource_object
 
 
@@ -14,12 +12,6 @@ def site_read(context, data_dict):
 
     ./ckan/controllers/api.py
     """
-    model = context['model']
-    user = context.get('user')
-    
-    if not Authorizer().is_authorized(user, model.Action.SITE_READ, model.System):
-        return {'success': False, 'msg': _('Not authorized to see this page')}
-
     return {'success': True}
 
 def package_search(context, data_dict):
@@ -66,55 +58,29 @@ def user_list(context, data_dict):
     return {'success': True}
 
 def package_relationships_list(context, data_dict):
-    model = context['model']
-    user = context.get('user')
-
-    id = data_dict['id']
-    id2 = data_dict.get('id2')
-    pkg1 = model.Package.get(id)
-    pkg2 = model.Package.get(id2)
-
-    authorized = Authorizer().\
-                    authorized_package_relationship(\
-                    user, pkg1, pkg2, action=model.Action.READ)
-
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read these packages') % str(user)}
-    else:
-        return {'success': True}
+    return {'success': True}
 
 def package_show(context, data_dict):
     model = context['model']
     user = context.get('user')
     package = get_package_object(context, data_dict)
-
-    authorized = check_access_old(package, model.Action.READ, context)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
-    else:
-        return {'success': True}
+    userobj = model.User.get( user )
+    
+    if package.state == 'deleted':
+        if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
+            return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+    
+    return {'success': True}
 
 def resource_show(context, data_dict):
     model = context['model']
     user = context.get('user')
     resource = get_resource_object(context, data_dict)
-
-    # check authentication against package
-    query = model.Session.query(model.Package)\
-        .join(model.ResourceGroup)\
-        .join(model.Resource)\
-        .filter(model.ResourceGroup.id == resource.resource_group_id)
-    pkg = query.first()
-    if not pkg:
-        raise NotFound(_('No package found for this resource, cannot check auth.'))
+    package = resource.revision_group.package
     
     pkg_dict = {'id': pkg.id}
-    authorized = package_show(context, pkg_dict).get('success')
-    
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user), resource.id)}
-    else:
-        return {'success': True}
+    return package_show(context, pkg_dict)
+
 
 def revision_show(context, data_dict):
     # No authz check in the logic function
@@ -124,12 +90,14 @@ def group_show(context, data_dict):
     model = context['model']
     user = context.get('user')
     group = get_group_object(context, data_dict)
-
-    authorized =  check_access_old(group, model.Action.READ, context)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read group %s') % (str(user),group.id)}
-    else:
-        return {'success': True}
+    userobj = model.User.get( user )
+            
+    if group.state == 'deleted':
+        if not user or \
+           not _groups_intersect( userobj.get_groups('publisher'), group.get_groups('publisher') ):
+            return {'success': False, 'msg': _('User %s not authorized to show group %s') % (str(user),group.id)}    
+    
+    return {'success': True}
 
 def tag_show(context, data_dict):
     # No authz check in the logic function

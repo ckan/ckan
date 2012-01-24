@@ -252,7 +252,7 @@ class TestAction(WsgiAppCase):
         assert 'timestamp' in edit
         assert_equal(edit['state'], 'active')
         assert_equal(edit['approved_timestamp'], None)
-        assert_equal(set(edit['groups']), set(('roger', 'david')))
+        assert_equal(set(edit['groups']), set(('default_publisher', 'roger', 'david')))
         assert_equal(edit['state'], 'active')
         assert edit['message'].startswith('Creating test data.')
         assert_equal(set(edit['packages']), set(('warandpeace', 'annakarenina')))
@@ -546,7 +546,8 @@ class TestAction(WsgiAppCase):
             {
                 'result': [
                     'david',
-                    'roger'
+                    'roger',
+                    'default_publisher'
                     ],
                 'help': 'Returns a list of groups',
                 'success': True
@@ -561,8 +562,8 @@ class TestAction(WsgiAppCase):
         assert res_obj['result'][0]['name'] == 'david'
         assert res_obj['result'][0]['display_name'] == 'Dave\'s books'
         assert res_obj['result'][0]['packages'] == 2
-        assert res_obj['result'][1]['name'] == 'roger'
-        assert res_obj['result'][1]['packages'] == 1
+        assert res_obj['result'][2]['name'] == 'roger', res_obj['result'][1]
+        assert res_obj['result'][2]['packages'] == 1
         assert 'id' in res_obj['result'][0]
         assert 'revision_id' in res_obj['result'][0]
         assert 'state' in res_obj['result'][0]

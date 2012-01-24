@@ -136,7 +136,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             member = Member(group=self, table_id=package.id, table_name='package')
             Session.add(member)
 
-    def get_groups(self, group_type=None):
+    def get_groups(self, group_type=None, capacity=None):
         """ Get all groups that this group is within """
         import ckan.model as model
         if '_groups' not in self.__dict__:
@@ -146,9 +146,12 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                filter(model.Member.state == 'active').\
                filter(model.Member.table_id == self.id).all()
                
-        if not group_type:
-            return self._groups
-        return [ x for x in self._groups if x.type == group_type ]
+        groups = self._groups
+        if group_type:       
+            groups = [g for g in groups if g.type == group_type]
+        if capacity:       
+            groups = [g for g in groups if g.capacity == capacity]
+        return groups
 
 
 
