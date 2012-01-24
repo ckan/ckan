@@ -573,7 +573,7 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/group_list',
                             params=postparams)
         res_obj = json.loads(res.body)
-        assert_equal(res_obj['result'], ['david',
+        assert_equal(sorted(res_obj['result']), ['david',
                                          'roger'])
 
     def test_13_group_list_by_size_all_fields(self):

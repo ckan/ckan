@@ -31,6 +31,7 @@ Contents:
    database_dumps
    upgrade
    i18n
+   file-upload
    configuration
    api
    test

@@ -101,6 +101,7 @@ ALTER TABLE "package"
 	ADD COLUMN "type" text;
 ALTER TABLE "package_revision"
 	ADD COLUMN "type" text;
+	
 
 COMMIT;
     '''
