@@ -1,13 +1,15 @@
 import genshi
 import datetime
+from urllib import urlencode
 
 from sqlalchemy.orm import eagerload_all
-from ckan.lib.base import BaseController, c, model, request, render, h
+from ckan.lib.base import BaseController, c, model, request, render, h, g
 from ckan.lib.base import ValidationException, abort, gettext
 from pylons.i18n import get_lang, _
 import ckan.authz as authz
 from ckan.authz import Authorizer
 from ckan.lib.helpers import Page
+from ckan.lib.search import SearchIndexError, SearchError
 from ckan.plugins import PluginImplementations, IGroupController, IGroupForm
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
@@ -176,7 +178,7 @@ class GroupController(BaseController):
         return _lookup_plugin(group_type).setup_template_variables(context,data_dict)
 
     ## end hooks
-    
+
     def index(self):
 
         context = {'model': model, 'session': model.Session,
@@ -206,6 +208,8 @@ class GroupController(BaseController):
                    'user': c.user or c.author,
                    'schema': self._form_to_db_schema(group_type=type)}
         data_dict = {'id': id}
+        q = c.q = request.params.get('q', '') # unicode format (decoded from utf8)
+
         try:
             c.group_dict = get_action('group_show')(context, data_dict)
             c.group = context['group']
@@ -213,35 +217,90 @@ class GroupController(BaseController):
             abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
+
+        # Search within group
+        q += ' groups: "%s"' % c.group_dict.get('name')
+
         try:
-            description_formatted = ckan.misc.MarkdownFormat().to_html(c.group.get('description',''))
+            description_formatted = ckan.misc.MarkdownFormat().to_html(c.group_dict.get('description',''))
             c.description_formatted = genshi.HTML(description_formatted)
         except Exception, e:
             error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render description")
             c.description_formatted = genshi.HTML(error_msg)
         
-        try:
-            desc_formatted = ckan.misc.MarkdownFormat().to_html(c.group.description)
-            desc_formatted = genshi.HTML(desc_formatted)
-        except genshi.ParseError, e:
-            desc_formatted = 'Error: Could not parse group description'
-        c.group_description_formatted = desc_formatted
         c.group_admins = self.authorizer.get_admins(c.group)
 
         context['return_query'] = True
-        results = get_action('group_package_show')(context, data_dict)
 
-        c.page = Page(
-            collection=results,
-            page=request.params.get('page', 1),
-            url=h.pager_url,
-            items_per_page=30
-        )
+        limit = 20
+        try:
+            page = int(request.params.get('page', 1))
+        except ValueError, e:
+            abort(400, ('"page" parameter must be an integer'))
+            
+        # most search operations should reset the page counter:
+        params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
 
-        result = []
-        for pkg_rev in c.page.items:
-            result.append(package_dictize(pkg_rev, context))
-        c.page.items = result
+        def search_url(params):
+            url = h.url_for(controller='group', action='read', id=c.group_dict.get('name'))
+            params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                            for k, v in params]
+            return url + u'?' + urlencode(params)
+
+        def drill_down_url(**by):
+            params = list(params_nopage)
+            params.extend(by.items())
+            return search_url(set(params))
+        
+        c.drill_down_url = drill_down_url 
+        
+        def remove_field(key, value):
+            params = list(params_nopage)
+            params.remove((key, value))
+            return search_url(params)
+
+        c.remove_field = remove_field
+
+        def pager_url(q=None, page=None):
+            params = list(params_nopage)
+            params.append(('page', page))
+            return search_url(params)
+
+        try:
+            c.fields = []
+            search_extras = {}
+            for (param, value) in request.params.items():
+                if not param in ['q', 'page'] \
+                        and len(value) and not param.startswith('_'):
+                    if not param.startswith('ext_'):
+                        c.fields.append((param, value))
+                        q += ' %s: "%s"' % (param, value)
+                    else:
+                        search_extras[param] = value
+
+            data_dict = {
+                'q':q,
+                'facet.field':g.facets,
+                'rows':limit,
+                'start':(page-1)*limit,
+                'extras':search_extras
+            }
+
+            query = get_action('package_search')(context,data_dict)
+
+            c.page = h.Page(
+                collection=query['results'],
+                page=page,
+                url=pager_url,
+                item_count=query['count'],
+                items_per_page=limit
+            )
+            c.facets = query['facets']
+            c.page.items = query['results']
+        except SearchError, se:
+            c.query_error = True
+            c.facets = {}
+            c.page = h.Page(collection=[])
         
         return render('group/read.html')
 
