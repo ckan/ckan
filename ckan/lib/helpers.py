@@ -343,7 +343,7 @@ def resource_star_rating(resource_dict):
 
     if stars==0: 
         message = _('When we last checked, this resource was not available.'),
-        return literal('<span class="hover-for-help"><span class="help-text">%s</span>404?</span>' % message)
+        return literal('<span class="hover-for-help semi-link"><span class="help-text">%s</span>404?</span>' % message)
 
     captions = [
         _('Available under an open license.'),
@@ -360,7 +360,7 @@ def resource_star_rating(resource_dict):
         caption += literal('<span class="%s">%s&nbsp; "%s"</span>' % (fail, text_stars, captions[i-1]))
 
     star_icons = stars * icon('star')
-    return literal('<span class="no-underline hover-for-help"><span class="help-text">%s</span><a href="http://lab.linkeddata.deri.ie/2010/star-scheme-by-example/" target="_blank">%s</a></span>' % (caption, star_icons))
+    return literal('<span class="hover-for-help"><span class="help-text">%s</span><a href="http://lab.linkeddata.deri.ie/2010/star-scheme-by-example/" target="_blank">%s</a></span>' % (caption, star_icons))
 
 def resource_link(resource_dict, package_id):
     text = resource_display_name(resource_dict)

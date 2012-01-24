@@ -208,11 +208,7 @@ tbody tr.table-empty td {
   font-weight: normal;
 }
 .hover-for-help {
-  border-bottom: 1px dashed #000;
   position: relative;
-}
-.hover-for-help.no-underline {
-  border-bottom: none;
 }
 .hover-for-help > .help-text {
   position: absolute;
@@ -236,6 +232,9 @@ tbody tr.table-empty td {
 }
 .hover-for-help:hover > .help-text {
   display: block;
+}
+.semi-link {
+  border-bottom: 1px dashed #000;
 }
 
 /* =============== */
