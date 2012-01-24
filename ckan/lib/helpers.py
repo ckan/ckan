@@ -343,7 +343,7 @@ def resource_star_rating(resource_dict):
     out = ""
     if stars==0: 
         message = _('When we last checked, this resource was not available.');
-        out = literal('<a href="#" class="mouseover-help-link error-hint" data="%s">404?</a>' % message)
+        out = literal('<span class="hover-for-help error-hint" data="%s">404?</span>' % message)
     else:
         for n in range(stars):
             out += icon('star')

@@ -207,14 +207,14 @@ tbody tr.table-empty td {
   font-size: 2.2em;
   font-weight: normal;
 }
-.mouseover-help-link {
-  border-bottom: 1px dashed #bb2222;
+.hover-for-help {
+  border-bottom: 1px dashed #000;
   position: relative;
 }
-.mouseover-help-link:hover {
-  border-bottom: 1px dashed #183661;
+.hover-for-help.no-underline {
+  border-bottom: none;
 }
-.mouseover-help-link .inner {
+.hover-for-help > .inner {
   position: absolute;
   top: 18px;
   left: -30px;
@@ -227,7 +227,7 @@ tbody tr.table-empty td {
   z-index: 3;
   color: #fff;
 }
-.mouseover-help-link:hover .inner {
+.hover-for-help:hover > .inner {
   display: block;
 }
 

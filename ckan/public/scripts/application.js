@@ -8,7 +8,7 @@
       CKAN.Utils.setupFormatAutocomplete($(this));
     });
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor'));
-    CKAN.Utils.setupMouseoverHelpLinks($('.mouseover-help-link'));
+    CKAN.Utils.setupHoverForHelp($('.hover-for-help'));
 
     // set up ckan js
     var config = {
@@ -429,10 +429,9 @@ CKAN.Utils = function($, my) {
     });
   };
 
-  my.setupMouseoverHelpLinks = function(links) {
+  my.setupHoverForHelp = function(links) {
     $.each(links, function(n,link) {
       link = $(link);
-      link.click(function() { return false; });
       var div = $('<div />');
       div.html(link.attr('data'));
       div.addClass('inner');
