@@ -218,7 +218,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def add_relationship(self, type_, related_package, comment=u''):
         '''Creates a new relationship between this package and a
-        related_package. It leaves the caller to commit the change.'''
+        related_package. It leaves the caller to commit the change.
+
+        Raises KeyError if the type_ is invalid.
+        '''
         import package_relationship
         from ckan import model
         if type_ in package_relationship.PackageRelationship.get_forward_types():

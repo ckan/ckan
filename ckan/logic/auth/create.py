@@ -26,8 +26,8 @@ def package_relationship_create(context, data_dict):
     model = context['model']
     user = context['user']
 
-    id = data_dict['id']
-    id2 = data_dict['id2']
+    id = data_dict['subject']
+    id2 = data_dict['object']
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
 
