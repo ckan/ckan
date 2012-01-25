@@ -73,7 +73,12 @@ supported by the CKAN version you are installing (it will generally be the highe
  sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
  sudo ln -s ~/ckan/ckan/config/solr/schema-1.3.xml /etc/solr/conf/schema.xml
 
-Restart jetty and check that Solr is still working.
+Now restart jetty::
+
+ sudo /etc/init.d/jetty stop
+ sudo /etc/init.d/jetty start
+
+And check that Solr is running by browsing http://localhost:8983/solr/ which should offer the Administration link.
 
 
 .. _solr-multi-core:
@@ -99,22 +104,23 @@ This is how cores are defined::
 
     <solr persistent="true" sharedLib="lib">
         <cores adminPath="/admin/cores">
-            <core name="core0" instanceDir="core0">
+            <core name="ckan-schema-1.2" instanceDir="core0">
                 <property name="dataDir" value="/var/lib/solr/data/core0" />
             </core>
-            <core name="core1" instanceDir="core1">
+            <core name="ckan-schema-1.3" instanceDir="core1">
                 <property name="dataDir" value="/var/lib/solr/data/core1" />
             </core>
         </cores>
     </solr>
 
-Note that each core has its own data directory. This is really important to
-prevent conflicts between cores. Create them like this::
+Adjust the names to match the CKAN schema versions you want to run.
+
+Note that each core is configured with its own data directory. This is really important to prevent conflicts between cores. Now create them like this::
 
     sudo mkdir /var/lib/solr/data/core0
     sudo mkdir /var/lib/solr/data/core1
 
-For each core, we will create a folder with its name in `/usr/share/solr`,
+For each core, we will create a folder in `/usr/share/solr`,
 with a symbolic link to a specific configuration folder in `/etc/solr/`.
 Copy the existing conf directory to the core directory and link it from
 the home dir like this::
@@ -126,6 +132,12 @@ the home dir like this::
     sudo mkdir /usr/share/solr/core0
     sudo ln -s /etc/solr/core0/conf /usr/share/solr/core0/conf
 
+Now configure the core to use the data directory you have created. Edit `/etc/solr/core0/conf/solrconfig.xml` and change the `<dataDir>` to this variable::
+
+    <dataDir>${dataDir}</dataDir>
+
+This will ensure the core uses the data directory specified earlier in `solr.xml`.
+
 Once you have your first core configured, to create new ones, you just need to
 add them to the `solr.xml` file and copy the existing configuration dir::
 
@@ -135,18 +147,19 @@ add them to the `solr.xml` file and copy the existing configuration dir::
     sudo mkdir /usr/share/solr/core1
     sudo ln -s /etc/solr/core1/conf /usr/share/solr/core1/conf
 
-After configuring the cores, restart Jetty and visit::
+Remember to ensure each core points to the correct CKAN schema. To change core1 to be ckan-schema-1.3::
 
-    http://localhost:8983/solr
+    sudo rm sudo rm /etc/solr/core1/conf/schema.xml
+    sudo ln -s <full-path>/schema-1.3.xml /etc/solr/core1/conf/schema.xml
 
-You should see a list of links to the admin sites for the different Solr cores.
+(where ``<full-path>`` is the full path to the schema file on your machine)
 
-**Note**: You should check that the `<dataDir>` directive in the `solrconfig.xml`
-file (located in the config dir) points to the correct location. The best thing
-to do is use the `dataDir` variable that we defined in `solr.xml` to ensure
-that cores are using the right data directory::
+Now restart jetty::
 
-    <dataDir>${dataDir}</dataDir>
+ sudo /etc/init.d/jetty stop
+ sudo /etc/init.d/jetty start
+
+And check that Solr is listing all the cores when browsing http://localhost:8983/solr/
 
 Troubleshooting
 ---------------
