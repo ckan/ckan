@@ -212,7 +212,7 @@ tbody tr.table-empty td {
 }
 .hover-for-help > .help-text {
   position: absolute;
-  top: 18px;
+  top: 24px;
   left: -90px;
   display: none;
   padding: 2px 8px;
@@ -236,6 +236,7 @@ tbody tr.table-empty td {
 .semi-link {
   border-bottom: 1px dashed #000;
 }
+
 
 /* =============== */
 /* MinorNavigation */
@@ -1169,14 +1170,6 @@ body.package.read h3 {
   background: url('/images/icons/arrow-right-16-black.png') no-repeat right;
   opacity:0.4;
   filter:alpha(opacity=40); /* For IE8 and earlier */
-}
-.search-result .star-rating {
-  display: block;
-  padding-top: 5px;
-  text-align: right;
-}
-.search-result .hover-for-help {
-  font-size: 11px;
 }
 .search-result .view-more-link:hover {
   opacity:1.0;

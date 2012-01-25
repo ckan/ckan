@@ -20,7 +20,7 @@ from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
-from i18n import get_available_locales, _
+from i18n import get_available_locales
 
 
 
@@ -337,30 +337,6 @@ def resource_display_name(resource_dict):
         return description
     else:
         return '[no name] %s ' % resource_dict['id']
-
-def resource_star_rating(resource_dict):
-    stars = 0 if ('index' in resource_dict.get('url')) else 3
-
-    if stars==0: 
-        message = _('When we last checked, this resource was not available.'),
-        return literal('<span class="hover-for-help semi-link"><span class="help-text">%s</span>404?</span>' % message)
-
-    captions = [
-        _('Available under an open license.'),
-        _('Available as structured data (eg. Excel instead of a scanned table).'),
-        _('Uses non-proprietary formats (e.g., CSV instead of Excel).'),
-        _('Uses URIs to identify things, so that people can link to it.'),
-        _('Linked to other data to provide context.')
-        ]
-
-    caption = ""
-    for i in range(5,0,-1):
-        fail = 'fail' if (i > stars) else ''
-        text_stars = i * '&#9733'
-        caption += literal('<span class="%s">%s&nbsp; "%s"</span>' % (fail, text_stars, captions[i-1]))
-
-    star_icons = stars * icon('star')
-    return literal('<span class="hover-for-help"><span class="help-text">%s</span><a href="http://lab.linkeddata.deri.ie/2010/star-scheme-by-example/" target="_blank">%s</a></span>' % (caption, star_icons))
 
 def resource_link(resource_dict, package_id):
     text = resource_display_name(resource_dict)
