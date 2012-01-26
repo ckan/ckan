@@ -492,7 +492,13 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
       var boundToUnload = false;
       return function() {
         if (!boundToUnload) {
-          CKAN.Utils.flashMessage(CKAN.Strings.youHaveUnsavedChanges,'notice');
+          var parentDiv = $('<div />').addClass('flash-messages');
+          var messageDiv = $('<div />').html(CKAN.Strings.youHaveUnsavedChanges).addClass('notice').hide();
+          parentDiv.append(messageDiv);
+          $('#unsaved-warning').append(parentDiv);
+          console.log($('#unsaved-warning'));
+          messageDiv.show(1200);
+
           boundToUnload = true;
           window.onbeforeunload = function () { 
             return CKAN.Strings.youHaveUnsavedChanges; 
