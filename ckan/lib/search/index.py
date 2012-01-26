@@ -19,14 +19,21 @@ RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_description",
 RELATIONSHIP_TYPES = PackageRelationship.types
 
 def clear_index():
+    import solr.core
     conn = make_connection()
     query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
     try:
         conn.delete_query(query)
         conn.commit()
     except socket.error, e:
-        log.error('Could not connect to SOLR: %r' % e)
+        err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
+        log.error(err)
+        raise SearchIndexError(err)
         raise
+##    except solr.core.SolrException, e:
+##        err = 'SOLR %r exception: %r' % (conn.url, e)
+##        log.error(err)
+##        raise SearchIndexError(err)
     finally:
         conn.close()
 

@@ -292,7 +292,6 @@ class PackageSearchQuery(SearchQuery):
 
         conn = make_connection()
         log.debug('Package query: %r' % query)
-        
         try:
             solr_response = conn.raw_query(**query)
         except SolrException, e:
