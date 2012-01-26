@@ -64,6 +64,7 @@ class TestPaginationPackage(TestController):
     def test_group_read_p1(self):
         res = self.app.get(url_for(controller='group', action='read', id='group_00'))
         assert 'href="/group/group_00?page=2' in res
+        print res.body
         pkg_numbers = scrape_search_results(res, 'dataset')
         assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29'], pkg_numbers)
 
