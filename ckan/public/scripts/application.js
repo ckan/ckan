@@ -31,7 +31,7 @@
 
     var isResourceView = $('body.package.resource_read').length > 0;
     if (isResourceView) {
-      CKANEXT.DATAPREVIEW.setupDataPreview(preload_resource);
+      CKANEXT.DATAPREVIEW.loadPreviewDialog(preload_resource);
     }
 
     var isDatasetNew = $('body.package.new').length > 0;
@@ -742,17 +742,6 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   my.dialogId = 'ckanext-datapreview';
   my.$dialog = $('#' + my.dialogId);
 
-  // Initialize data explorer on Resource view page
-  // 
-  // resourceData: resource as simple hash (suitable for initializing backbone model or result of backboneModel.toJSON())
-  my.setupDataPreview = function(resourceData) {
-    // initialize the tableviewer system
-    DATAEXPLORER.TABLEVIEW.initialize(my.dialogId);
-    resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
-
-    my.loadPreviewDialog(resourceData);
-  };
-
   // **Public: Loads a data preview**
   //
   // Fetches the preview data object from the link provided and loads the
@@ -763,8 +752,19 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   //
   // Returns nothing.
   my.loadPreviewDialog = function(resourceData) {
-    resourceData.url  = my.normalizeUrl(resourceData.url);
     my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
+
+    function initializeDataExplorer(dataset) {
+      var dataExplorer = new recline.View.DataExplorer({
+        el: my.$dialog
+        , model: dataset
+        , config: {
+          readOnly: true
+        }
+      });
+      // will have to refactor if this can get called multiple times
+      Backbone.history.start();
+    }
 
     // 4 situations
     // a) have a webstore_url
@@ -773,6 +773,9 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     // d) none of the above but worth iframing (assumption is
     // that if we got here (i.e. preview shown) worth doing
     // something ...)
+    resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
+
+    resourceData.url  = my.normalizeUrl(resourceData.url);
     if (resourceData.formatNormalized === '') {
       var tmp = resourceData.url.split('/');
       tmp = tmp[tmp.length - 1];
@@ -785,18 +788,21 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     }
 
     if (resourceData.webstore_url) {
-      var _url = resourceData.webstore_url + '.jsontuples?_limit=500';
-      my.getResourceDataDirect(_url, function(data) {
-        DATAEXPLORER.TABLEVIEW.showData(data);
-        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
+      var backend = new recline.Model.BackendWebstore({
+        url: resourceData.webstore_url
       });
+      recline.Model.setBackend(backend);
+      var dataset = backend.getDataset();
+      initializeDataExplorer(dataset);
     }
     else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
-      var _url = my.jsonpdataproxyUrl + '?url=' + resourceData.url + '&type=' + resourceData.formatNormalized;
-      my.getResourceDataDirect(_url, function(data) {
-        DATAEXPLORER.TABLEVIEW.showData(data);
-        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
+      var backend = new recline.Model.BackendDataProxy({
+        url: resourceData.url
+        , type: resourceData.formatNormalized
       });
+      recline.Model.setBackend(backend);
+      var dataset = backend.getDataset();
+      initializeDataExplorer(dataset);
     }
     else if (resourceData.formatNormalized in {
         'rdf+xml': '',
@@ -816,7 +822,6 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       var _url = my.jsonpdataproxyUrl + '?type=csv&url=' + resourceData.url;
       my.getResourceDataDirect(_url, function(data) {
         my.showPlainTextData(data);
-        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
       });
     }
     else if (resourceData.formatNormalized in {'html':'', 'htm':''} 
@@ -833,7 +838,10 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       // Cannot reliably preview this item - with no mimetype/format information, 
       // can't guarantee it's not a remote binary file such as an executable.
       var _msg = $('<p class="error">We are unable to preview this type of resource: ' + resourceData.formatNormalized + '</p>');
-      my.$dialog.html(_msg);
+      my.showError({
+        title: 'Unable to preview'
+        , message: _msg
+      });
     }
   };
 
@@ -884,20 +892,21 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   //
   // Returns nothing.
   my.showPlainTextData = function(data) {
-    // HACK: have to reach into DATAEXPLORER.TABLEVIEW dialog  a lot ...
-    DATAEXPLORER.TABLEVIEW.setupFullscreenDialog();
-
     if(data.error) {
-      DATAEXPLORER.TABLEVIEW.showError(data.error);
+      my.showError(data.error);
     } else {
       var content = $('<pre></pre>');
       for (var i=0; i<data.data.length; i++) {
         var row = data.data[i].join(',') + '\n';
         content.append(my.escapeHTML(row));
       }
-      DATAEXPLORER.TABLEVIEW.$dialog.dialog(DATAEXPLORER.TABLEVIEW.dialogOptions);
-      DATAEXPLORER.TABLEVIEW.$dialog.append(content);
+      my.$dialog.html(content);
     }
+  };
+
+  my.showError = function (error) {
+    var _html = '<strong>' + $.trim(error.title) + '</strong><br />' + $.trim(error.message);
+    my.$dialog.html(_html);
   };
 
   my.normalizeFormat = function(format) {
