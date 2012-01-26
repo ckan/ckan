@@ -80,6 +80,18 @@
         el: $el
       });
       view.render();
+
+      // Set up dataset delete button
+      var select = $('select.dataset-delete');
+      select.attr('disabled','disabled');
+      select.css({opacity: 0.3});
+      $('button.dataset-delete').click(function(e) {
+        select.removeAttr('disabled');
+        select.fadeTo('fast',1.0);
+        $(e.target).css({opacity:0});
+        $(e.target).attr('disabled','disabled');
+        return false;
+      });
     }
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
@@ -497,7 +509,7 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
           parentDiv.append(messageDiv);
           $('#unsaved-warning').append(parentDiv);
           console.log($('#unsaved-warning'));
-          messageDiv.show(1200);
+          messageDiv.show(200);
 
           boundToUnload = true;
           window.onbeforeunload = function () { 
@@ -507,7 +519,7 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
       }
     }();
 
-    $form.find('input').live('change', function(e) {
+    $form.find('input,select').live('change', function(e) {
       $target = $(e.target);
       // Entering text in the 'add' box does not represent a change
       if ($target.closest('.resource-add').length==0) {

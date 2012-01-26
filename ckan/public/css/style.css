@@ -963,6 +963,9 @@ ul.dataset-edit-nav li a:hover {
 .dataset-edit-form .resource-add .fileinfo {
   margin: 7px 0;
 }
+.dataset-edit-form button.dataset-delete {
+  vertical-align: top;
+}
 
 
 /* ================================ */
