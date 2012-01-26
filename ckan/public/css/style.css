@@ -1160,11 +1160,11 @@ body.package.read h3 {
 }
 .search-result .extra-links {
   float: right;
+  text-align: right;
 }
 .search-result .view-more-link {
   color: #000;
   display: block;
-  text-align: right;
   margin-top: 4px;
   padding: 3px 22px 3px 10px;
   background: url('/images/icons/arrow-right-16-black.png') no-repeat right;
