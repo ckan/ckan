@@ -207,6 +207,35 @@ tbody tr.table-empty td {
   font-size: 2.2em;
   font-weight: normal;
 }
+.hover-for-help {
+  position: relative;
+}
+.hover-for-help > .help-text {
+  position: absolute;
+  top: 24px;
+  left: -90px;
+  display: none;
+  padding: 2px 8px;
+  font-size: 11px;
+  background: #333;
+  text-align: left;
+  width: 250px;
+  z-index: 3;
+  color: #fff;
+}
+.hover-for-help > .help-text > span {
+  display: block;
+  padding: 2px 0;
+}
+.hover-for-help > .help-text > span.fail {
+  color: #999;
+}
+.hover-for-help:hover > .help-text {
+  display: block;
+}
+.semi-link {
+  border-bottom: 1px dashed #000;
+}
 
 
 /* =============== */
@@ -1129,10 +1158,13 @@ body.package.read h3 {
 .search-result .main-link {
   font-size: 125%;
 }
-.search-result .view-more-link {
+.search-result .extra-links {
   float: right;
+}
+.search-result .view-more-link {
   color: #000;
-  text-align: middle;
+  display: block;
+  text-align: right;
   margin-top: 4px;
   padding: 3px 22px 3px 10px;
   background: url('/images/icons/arrow-right-16-black.png') no-repeat right;

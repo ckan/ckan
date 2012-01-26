@@ -18,8 +18,10 @@
       <div id="dataset-resources" class="resources subsection">
         <h3>Resources</h3>
         <py:for each="res in c.pkg_dict.get('resources', [])">
-          <div class="search-result">
-            <a class="view-more-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">View</a>
+          <div class="search-result" id="${res['id']}">
+            <p class="extra-links">
+              <a class="view-more-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">View</a>
+            </p>
             <a class="main-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_display_name(res)}</a>
             &nbsp;&nbsp;
             <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
