@@ -2,12 +2,14 @@ from meta import Table, types, Session
 from core import metadata, Column, DomainObject, mapper
 from types import make_uuid
 
-MAX_VOCAB_NAME_LENGTH = 100
+VOCABULARY_NAME_MIN_LENGTH = 2
+VOCABULARY_NAME_MAX_LENGTH = 100
 
 vocabulary_table = Table(
     'vocabulary', metadata,
     Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-    Column('name', types.Unicode(MAX_VOCAB_NAME_LENGTH), nullable=False, unique=True),
+    Column('name', types.Unicode(VOCABULARY_NAME_MAX_LENGTH), nullable=False,
+        unique=True),
     )
 
 class Vocabulary(DomainObject):

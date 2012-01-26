@@ -55,3 +55,7 @@ def task_status_delete(context, data_dict):
         return {'success': False, 'msg': _('User %s not authorized to delete task_status') % str(user)}
     else:
         return {'success': True}
+
+def vocabulary_delete(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}

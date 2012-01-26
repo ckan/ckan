@@ -24,7 +24,9 @@ from ckan.lib.dictization.model_dictize import (group_dictize,
                                                 user_dictize,
                                                 vocabulary_dictize)
 
-from ckan.logic.schema import default_create_package_schema, default_resource_schema
+from ckan.logic.schema import (default_create_package_schema,
+                               default_resource_schema,
+                               default_create_vocabulary_schema)
 
 from ckan.logic.schema import default_group_schema, default_user_schema
 from ckan.lib.navl.dictization_functions import validate 
@@ -280,14 +282,34 @@ def group_create_rest(context, data_dict):
     return group_dict
 
 def vocabulary_create(context, data_dict):
-    '''Add a new vocabulary to the site.'''
 
     model = context['model']
-    vocabulary_dict = data_dict['vocabulary']
-    vocabulary = vocabulary_dict_save(vocabulary_dict, context)
+    user = context['user']
+    schema = context.get('schema') or default_create_vocabulary_schema()
+
+    model.Session.remove()
+    model.Session()._context = context
+
+    check_access('vocabulary_create', context, data_dict)
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, package_error_summary(errors))
+
+    rev = model.repo.new_revision()
+    rev.author = user
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'API: Create Vocabulary %s') % data.get('name')
+
+    vocabulary = vocabulary_dict_save(data, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug("Created vocabulary '%s'" % vocabulary.name)
+    log.debug('Created Vocabulary %s' % str(vocabulary.name))
+
     return vocabulary_dictize(vocabulary, context)

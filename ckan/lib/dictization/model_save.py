@@ -451,3 +451,13 @@ def vocabulary_dict_save(vocabulary_dict, context):
     session.add(vocabulary_obj)
 
     return vocabulary_obj
+
+def vocabulary_dict_update(vocabulary_dict, context):
+
+    model = context['model']
+    session = context['session']
+
+    vocabulary_obj = model.Vocabulary.get(vocabulary_dict['id'])
+    vocabulary_obj.name = vocabulary_dict['name']
+
+    return vocabulary_obj

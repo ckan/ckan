@@ -30,7 +30,9 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_password_not_empty,
                                    isodate,
                                    int_validator,
-                                   user_about_validator)
+                                   user_about_validator,
+                                   vocabulary_name_validator,
+                                   vocabulary_id_not_changed)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -264,4 +266,21 @@ def default_task_status_schema():
         'last_updated': [ignore_missing],
         'error': [ignore_missing]
     }
+    return schema
+
+def default_vocabulary_schema():
+    schema = {
+        'id': [ignore_empty, ignore_missing, unicode],
+        'name': [not_empty, unicode, vocabulary_name_validator],
+    }
+    return schema
+
+def default_create_vocabulary_schema():
+    schema = default_vocabulary_schema()
+    schema['id'] = [empty]
+    return schema
+
+def default_update_vocabulary_schema():
+    schema = default_vocabulary_schema()
+    schema['id'] = schema['id'] + [vocabulary_id_not_changed]
     return schema

@@ -159,6 +159,10 @@ def task_status_update(context, data_dict):
     else:
         return {'success': True}
 
+def vocabulary_update(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}
+
 ## Modifications for rest api
 
 def package_update_rest(context, data_dict):

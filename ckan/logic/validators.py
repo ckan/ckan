@@ -7,7 +7,9 @@ from ckan.logic import check_access, NotAuthorized
 from ckan.lib.helpers import date_str_to_datetime
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH,
-                        PACKAGE_VERSION_MAX_LENGTH)
+                        PACKAGE_VERSION_MAX_LENGTH,
+                        VOCABULARY_NAME_MAX_LENGTH,
+                        VOCABULARY_NAME_MIN_LENGTH)
 
 def package_id_not_changed(value, context):
 
@@ -317,4 +319,27 @@ def user_about_validator(value,context):
     if 'http://' in value or 'https://' in value:
         raise Invalid(_('Edit not allowed as it looks like spam. Please avoid links in your description.'))
 
+    return value
+
+def vocabulary_name_validator(name, context):
+    model = context['model']
+    session = context['session']
+
+    if len(name) < VOCABULARY_NAME_MIN_LENGTH:
+        raise Invalid(_('Name must be at least %s characters long') %
+            VOCABULARY_NAME_MIN_LENGTH)
+    if len(name) > VOCABULARY_NAME_MAX_LENGTH:
+        raise Invalid(_('Name must be a maximum of %i characters long') %
+                      VOCABULARY_NAME_MAX_LENGTH)
+    query = session.query(model.Vocabulary.name).filter_by(name=name)
+    result = query.first()
+    if result:
+        raise Invalid(_('That vocabulary name is already in use.'))
+    return name
+
+def vocabulary_id_not_changed(value, context):
+    vocabulary = context.get('vocabulary')
+    if vocabulary and value != vocabulary.id:
+        raise Invalid(_('Cannot change value of key from %s to %s. '
+                        'This key is read-only') % (vocabulary.id, value))
     return value

@@ -16,19 +16,22 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_dictize,
                                                 group_to_api1,
                                                 group_to_api2,
-                                                user_dictize)
+                                                user_dictize,
+                                                vocabulary_dictize)
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_api_to_dict,
                                              group_dict_save,
                                              user_dict_save,
                                              task_status_dict_save,
                                              package_dict_save,
-                                             resource_dict_save)
+                                             resource_dict_save,
+                                             vocabulary_dict_update)
 from ckan.logic.schema import (default_update_group_schema,
                                default_update_package_schema,
                                default_update_user_schema,
                                default_update_resource_schema,
-                               default_task_status_schema)
+                               default_task_status_schema,
+                               default_update_vocabulary_schema)
 from ckan.lib.navl.dictization_functions import validate
 log = logging.getLogger(__name__)
 
@@ -470,3 +473,37 @@ def group_update_rest(context, data_dict):
         group_dict = group_to_api2(group, context)
 
     return group_dict
+
+def vocabulary_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    vocab_id = data_dict['id']
+
+    model.Session.remove()
+    model.Session()._context = context
+
+    vocab = model.Vocabulary.get(vocab_id)
+    if vocab is None:
+        raise NotFound(_('Vocabulary was not found.'))
+
+    check_access('vocabulary_update', context, data_dict)
+
+    schema = context.get('schema') or default_update_vocabulary_schema()
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    rev = model.repo.new_revision()
+    rev.author = user
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'API: Update Vocabulary %s') % data.get('name')
+
+    updated_vocab = vocabulary_dict_update(data, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+    return vocabulary_dictize(updated_vocab, context)
