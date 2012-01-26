@@ -86,6 +86,7 @@ setup(
     [ckan.plugins]
     synchronous_search = ckan.lib.search:SynchronousSearchPlugin
     stats=ckanext.stats.plugin:StatsPlugin
+    publisher_form=ckanext.publisher_form.forms:PublisherForm
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension

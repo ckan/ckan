@@ -162,6 +162,7 @@ def group_create(context, data_dict):
 
     group = group_dict_save(data, context)
 
+    # TODO: Refactor to use new member for admin
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
     else:

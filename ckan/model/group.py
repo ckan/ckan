@@ -7,7 +7,7 @@ from domain_object import DomainObject
 from package import *
 from types import make_uuid
 import vdm.sqlalchemy
-from ckan.model import extension
+from ckan.model import extension, User
 from sqlalchemy.ext.associationproxy import association_proxy
 
 __all__ = ['group_table', 'Group', 'package_revision_table',
@@ -123,11 +123,14 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def as_dict(self, ref_package_by='name'):
         _dict = DomainObject.as_dict(self)
-        _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
+        _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]        
         _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
+        if ( self.type == 'publisher' ):
+            _dict['users'] = [getattr(user, "name") for user in self.members_of_type(User)]
         return _dict
 
     def add_package_by_name(self, package_name):
+        from pdb import set_trace; set_trace()
         if not package_name:
             return
         package = Package.by_name(package_name)

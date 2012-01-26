@@ -50,13 +50,9 @@ def register_pluggable_behaviour(map):
             # Our version of routes doesn't allow the environ to be passed into the match call
             # and so we have to set it on the map instead.  This looks like a threading problem
             # waiting to happen but it is executed sequentially from instead the routing setup
-            e = map.environ
-            map.environ = {'REQUEST_METHOD': 'GET'}
-            match = map.match('/%s/new' % (group_type,))
-            map.environ = e
-            if match:
-                raise Exception, "Plugin %r would overwrite existing urls" % plugin
-            
+
+            map.connect('%s_index' % (group_type,), 
+                        '/%s' % (group_type,), controller='group', action='index')                
             map.connect('%s_new' % (group_type,), 
                         '/%s/new' % (group_type,), controller='group', action='new')                
             map.connect('%s_read' % (group_type,), 
@@ -303,7 +299,6 @@ class GroupController(BaseController):
         group = context.get("group")
         c.group = group
 
-
         try:
             check_access('group_update',context)
         except NotAuthorized, e:
@@ -363,17 +358,17 @@ class GroupController(BaseController):
             return self.new(data_dict, errors, error_summary)
 
     def _save_edit(self, id, context):
-        try:
+        try:            
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
             group = get_action('group_update')(context, data_dict)
-            h.redirect_to(controller='group', action='read', id=group['name'])
+            h.redirect_to('%s_read' % group['type'], id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
         except NotFound, e:
-            abort(404, _('Package not found'))
+            abort(404, _('Group not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
         except ValidationError, e:

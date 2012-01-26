@@ -285,7 +285,6 @@ def package_dict_save(pkg_dict, context):
     return pkg
 
 def group_member_save(context, group_dict, member_table_name):
-
     model = context["model"]
     session = context["session"]
     group = context['group']
@@ -336,7 +335,7 @@ def group_dict_save(group_dict, context):
 
     group = table_dict_save(group_dict, Group, context)
     context['group'] = group
-
+    print group_dict
     group_member_save(context, group_dict, 'packages')
     group_member_save(context, group_dict, 'users')
     group_member_save(context, group_dict, 'groups')

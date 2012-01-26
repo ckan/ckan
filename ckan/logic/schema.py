@@ -179,6 +179,11 @@ def group_form_schema():
         "name": [not_empty, unicode],
         "__extras": [ignore]
     }
+    schema['users'] = {
+        "name": [not_empty, unicode],
+        "capacity": [ignore_missing],        
+        "__extras": [ignore]
+    }    
     return schema
 
 

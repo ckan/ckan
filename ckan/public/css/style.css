@@ -1240,7 +1240,8 @@ body.package.resource_read #resource-explore { margin-bottom: 2em; }
 /* = Add Group Page = */
 /* ================== */
 .group-create-form fieldset#extras,
-.group-create-form fieldset#datasets {
+.group-create-form fieldset#datasets,
+.group-create-form fieldset#users {
   display: none;
 }
 .group-create-form .description-label,
