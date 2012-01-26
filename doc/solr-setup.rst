@@ -92,7 +92,7 @@ or different CKAN versions to use the same Solr instance. The different cores
 will have different paths in the Solr server URL::
 
  http://localhost:8983/solr/ckan-schema-1.2       # Used by CKAN up to 1.5
- http://localhost:8983/solr/ckan-schema-1.3       # Used by CKAN 1.5.1 and upwards
+ http://localhost:8983/solr/ckan-schema-1.3       # Used by CKAN 1.5.1
  http://localhost:8983/solr/some-other-site  # Used by another site
 
 To set up a multicore Solr instance, repeat the steps on the previous section
@@ -117,14 +117,13 @@ Adjust the names to match the CKAN schema versions you want to run.
 
 Note that each core is configured with its own data directory. This is really important to prevent conflicts between cores. Now create them like this::
 
-    sudo mkdir /var/lib/solr/data/core0
-    sudo mkdir /var/lib/solr/data/core1
+    sudo -u jetty mkdir /var/lib/solr/data/core0
+    sudo -u jetty mkdir /var/lib/solr/data/core1
 
 For each core, we will create a folder in `/usr/share/solr`,
 with a symbolic link to a specific configuration folder in `/etc/solr/`.
 Copy the existing conf directory to the core directory and link it from
 the home dir like this::
-
 
     sudo mkdir /etc/solr/core0
     sudo mv /etc/solr/conf /etc/solr/core0/
