@@ -11,7 +11,7 @@
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor'));
     // set up ckan js
     var config = {
-      endpoint: '/'
+      endpoint: CKAN.SITE_URL + '/'
     };
     var client = new CKAN.Client(config);
     // serious hack to deal with hacky code in ckanjs
@@ -24,10 +24,16 @@
       CKAN.Utils.setupWelcomeBanner($('.js-welcome-banner'));
     }
 
+    var isGroupView = $('body.group.read').length > 0;
+    if (isGroupView) {
+      // Show extract of notes field
+      CKAN.Utils.setupNotesExtract();
+    }
+
     var isDatasetView = $('body.package.read').length > 0;
     if (isDatasetView) {
       // Show extract of notes field
-      CKAN.Utils.setupDatasetViewNotesExtract();
+      CKAN.Utils.setupNotesExtract();
     }
 
     var isResourceView = $('body.package.resource_read').length > 0;
@@ -140,7 +146,7 @@ CKAN.Utils = function($, my) {
     if (urlInput.length==0) throw "No urlInput found.";
     if (validMsg.length==0) throw "No validMsg found.";
 
-    var api_url = '/api/2/util/is_slug_valid';
+    var api_url = CKAN.SITE_URL + '/api/2/util/is_slug_valid';
     // (make length less than max, in case we need a few for '_' chars to de-clash slugs.)
     var MAX_SLUG_LENGTH = 90;
 
@@ -299,7 +305,7 @@ CKAN.Utils = function($, my) {
         source: function(request, callback) {
           // here request.term is whole list of tags so need to get last
           var _realTerm = request.term.split(',').pop().trim();
-          var url = '/api/2/util/tag/autocomplete?incomplete=' + _realTerm;
+          var url = CKAN.SITE_URL + '/api/2/util/tag/autocomplete?incomplete=' + _realTerm;
           $.getJSON(url, function(data) {
             // data = { ResultSet: { Result: [ {Name: tag} ] } } (Why oh why?)
             var tags = $.map(data.ResultSet.Result, function(value, idx) {
@@ -335,7 +341,7 @@ CKAN.Utils = function($, my) {
     elements.autocomplete({
       minLength: 1,
       source: function(request, callback) {
-        var url = '/api/2/util/resource/format_autocomplete?incomplete=' + request.term;
+        var url = CKAN.SITE_URL + '/api/2/util/resource/format_autocomplete?incomplete=' + request.term;
         $.getJSON(url, function(data) {
           // data = { ResultSet: { Result: [ {Name: tag} ] } } (Why oh why?)
           var formats = $.map(data.ResultSet.Result, function(value, idx) {
@@ -396,7 +402,7 @@ CKAN.Utils = function($, my) {
     elements.autocomplete({
       minLength: 2,
       source: function(request, callback) {
-        var url = '/api/2/util/user/autocomplete?q=' + request.term;
+        var url = CKAN.SITE_URL + '/api/2/util/user/autocomplete?q=' + request.term;
         $.getJSON(url, function(data) {
           $.each(data, function(idx, userobj) {
             var label = userobj.name;
@@ -419,7 +425,7 @@ CKAN.Utils = function($, my) {
     elements.autocomplete({
       minLength: 2,
       source: function(request, callback) {
-        var url = '/api/2/util/authorizationgroup/autocomplete?q=' + request.term;
+        var url = CKAN.SITE_URL + '/api/2/util/authorizationgroup/autocomplete?q=' + request.term;
         $.getJSON(url, function(data) {
           $.each(data, function(idx, userobj) {
             var label = userobj.name;
@@ -447,7 +453,7 @@ CKAN.Utils = function($, my) {
         $target.addClass('depressed');
         raw_markdown=textarea.val();
         preview.html("<em>"+CKAN.Strings.loading+"<em>");
-        $.post("/api/util/markdown", { q: raw_markdown },
+        $.post(CKAN.SITE_URL + "/api/util/markdown", { q: raw_markdown },
           function(data) { preview.html(data); }
         );
         preview.width(textarea.width())
@@ -467,17 +473,17 @@ CKAN.Utils = function($, my) {
   // If notes field is more than 1 paragraph, just show the
   // first paragraph with a 'Read more' link that will expand
   // the div if clicked
-  my.setupDatasetViewNotesExtract = function() {
-    var notes = $('#dataset div.notes');
+  my.setupNotesExtract = function() {
+    var notes = $('#content div.notes');
     if(notes.find('p').length > 1){
       var extract = notes.children(':eq(0)');
       var remainder = notes.children(':gt(0)');
-      notes.html($.tmpl(CKAN.Templates.datasetNotesField));
+      notes.html($.tmpl(CKAN.Templates.notesField));
       notes.find('#notes-extract').html(extract);
       notes.find('#notes-remainder').html(remainder);
       notes.find('#notes-remainder').hide();
-      notes.find('#dataset-notes-toggle a').click(function(event){
-        notes.find('#dataset-notes-toggle a').toggle();
+      notes.find('#notes-toggle a').click(function(event){
+        notes.find('#notes-toggle a').toggle();
         var remainder = notes.find('#notes-remainder')
         if ($(event.target).hasClass('more')) {
           remainder.slideDown();
@@ -485,6 +491,7 @@ CKAN.Utils = function($, my) {
         else {
           remainder.slideUp();
         }
+        return false;
       })
     }
   };

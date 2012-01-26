@@ -153,11 +153,11 @@ CKAN.Templates.resourceEntry = ' \
   </td> \
 ';
 
-CKAN.Templates.datasetNotesField = ' \
+CKAN.Templates.notesField = ' \
   <div id="notes-extract"> \
   </div> \
   <div id="notes-remainder"> \
   </div> \
-  <div id="dataset-notes-toggle"><a class="more" href="#">Read more</a><a class="less" href="#" style="display: none;">Read less</a></div> \
+  <div id="notes-toggle"><a class="more" href="#">Read more</a><a class="less" href="#" style="display: none;">Read less</a></div> \
 ';
 

@@ -105,12 +105,12 @@ This occurs when trying to ``import migrate.exceptions`` and is due to the versi
 ``ckan.plugins.core.PluginNotFoundException: stats``
 ====================================================
 
-After the CKAN 1.5.1 release, the Stats extension was merged into the core CKAN code, and the ckanext namespace needs registering before the tests will run::
+After the CKAN 1.5.1 release, the Stats and Storage extensions were merged into the core CKAN code, and the ckanext namespace needs registering before the tests will run::
 
          cd pyenv/src/ckan
          python setup.py develop
 
-Otherwise, this problem may be to enabling an extension which is not installed. See: :doc:`extensions`_.
+Otherwise, this problem may be because of specifying an extension in the CKAN config but having not installed it. See: :doc:`extensions`.
 
 ``AssertionError: There is no script for 46 version``
 =====================================================
