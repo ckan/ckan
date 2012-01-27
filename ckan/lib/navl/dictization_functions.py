@@ -60,9 +60,10 @@ def flatten_schema(schema, flattened=None, key=None):
     return flattened
 
 def get_all_key_combinations(data, flattented_schema):
-    '''compare the schema agaist the given data and get all valid tuples that
-    match the schema ignoring the last value in the tuple.'''
+    '''Compare the schema against the given data and get all valid tuples that
+    match the schema ignoring the last value in the tuple.
 
+    '''
     schema_prefixes = set([key[:-1] for key in flattented_schema])
     combinations = set([()])
 
@@ -206,7 +207,7 @@ def _remove_blank_keys(schema):
     return schema
 
 def validate(data, schema, context=None):
-    '''validate an unflattened nested dict agiast a schema'''
+    '''Validate an unflattened nested dict against a schema.'''
 
     context = context or {}
 

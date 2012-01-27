@@ -68,8 +68,9 @@ class ManageDb(CkanCommand):
     db version # returns current version of data schema
     db dump {file-path} # dump to a pg_dump file
     db dump-rdf {dataset-name} {file-path}
-    db simple-dump-csv {file-path}
-    db simple-dump-json {file-path}
+    db simple-dump-csv {file-path} # dump just datasets in CSV format
+    db simple-dump-json {file-path} # dump just datasets in JSON format
+    db user-dump-csv {file-path} # dump user information to a CSV file
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load a pg_dump from a file
     db load-only {file-path} # load a pg_dump from a file but don\'t do
@@ -115,6 +116,8 @@ class ManageDb(CkanCommand):
             self.simple_dump_json()
         elif cmd == 'dump-rdf':
             self.dump_rdf()
+        elif cmd == 'user-dump-csv':
+            self.user_dump_csv()
         elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
@@ -237,6 +240,15 @@ class ManageDb(CkanCommand):
         f = open(rdf_path, 'w')
         f.write(rdf)
         f.close()
+
+    def user_dump_csv(self):
+        if len(self.args) < 2:
+            print 'Need csv file path'
+            return
+        dump_filepath = self.args[1]
+        import ckan.lib.dumper as dumper
+        dump_file = open(dump_filepath, 'w')
+        dumper.UserDumper().dump(dump_file)
 
     def send_rdf(self):
         if len(self.args) < 4:
