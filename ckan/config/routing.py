@@ -8,14 +8,17 @@ refer to the routes manual at http://routes.groovie.org/docs/
 from pylons import config
 from routes import Mapper
 from ckan.plugins import PluginImplementations, IRoutes
-from ckan.controllers.package import register_pluggable_behaviour as register_package_behaviour
-from ckan.controllers.group   import register_pluggable_behaviour as register_group_behaviour
 
 
 routing_plugins = PluginImplementations(IRoutes)
 
 def make_map():
     """Create, configure and return the routes Mapper"""
+    # import controllers here rather than at root level because 
+    # pylons config is initialised by this point.
+    from ckan.controllers.package import register_pluggable_behaviour as register_package_behaviour
+    from ckan.controllers.group   import register_pluggable_behaviour as register_group_behaviour
+    
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
     map.minimization = False
@@ -81,6 +84,10 @@ def make_map():
         controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister',
+        controller='api', action='create',
+        requirements=dict(register=register_list_str),
+        conditions=dict(method=['POST']))
     map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='create',
         requirements=dict(register=register_list_str),
@@ -137,6 +144,10 @@ def make_map():
         controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
+    map.connect('/api/rest/{register}/{id}/:subregister',
+        controller='api', action='create',
+        requirements=dict(register=register_list_str),
+        conditions=dict(method=['POST']))
     map.connect('/api/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='create',
         requirements=dict(register=register_list_str),

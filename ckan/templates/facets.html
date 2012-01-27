@@ -5,9 +5,9 @@
   py:strip=""
   >
 
-<py:def function="facet_sidebar(code, limit=5, label=lambda n: n)">
+<py:def function="facet_sidebar(code, limit=5, label=lambda n: n, title=h.facet_title)">
     <div py:if="len(h.facet_items(c, code, limit=limit))" class="facet-box">
-        <h2>${h.facet_title(code)}</h2>
+        <h2>${title(code)}</h2>
         <ul class="facet-options">
             <li py:for="name, count in h.facet_items(c, code, limit=limit)"
                 py:if="not (code, name) in c.fields">

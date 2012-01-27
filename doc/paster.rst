@@ -233,4 +233,4 @@ For example, to create a new user called 'admin'::
 
 To delete the 'admin' user::
 
- paster --plugin=ckan user delete admin --config=/etc/ckan/std/std.ini
+ paster --plugin=ckan user remove admin --config=/etc/ckan/std/std.ini

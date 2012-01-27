@@ -7,7 +7,7 @@ from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from ckan.logic import get_action
 
 from common import (SearchIndexError, SearchError, SearchQueryError,
-                    make_connection, is_available, DEFAULT_SOLR_URL)
+                    make_connection, is_available, SolrSettings)
 from index import PackageSearchIndex, NoopSearchIndex
 from query import TagSearchQuery, ResourceSearchQuery, PackageSearchQuery, QueryOptions, convert_legacy_parameters_to_solr
 
@@ -197,15 +197,13 @@ def check_solr_schema_version(schema_file=None):
 
     # Try to get the schema XML file to extract the version
     if not schema_file:
-        solr_user = config.get('solr_user')
-        solr_password = config.get('solr_password')
+        solr_url, solr_user, solr_password = SolrSettings.get()
 
         http_auth = None
         if solr_user is not None and solr_password is not None:
             http_auth = solr_user + ':' + solr_password
             http_auth = 'Basic ' + http_auth.encode('base64').strip()
 
-        solr_url = config.get('solr_url', DEFAULT_SOLR_URL)
         url = solr_url.strip('/') + SOLR_SCHEMA_FILE_OFFSET
 
         req = urllib2.Request(url = url)

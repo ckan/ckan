@@ -19,7 +19,7 @@
 
     <dt><label class="field_opt" for="title">Url</label></dt>
     <dd class="name-field">
-      <span class="js-url-text url-text">${g.site_url+h.url_for(controller='group', action='index')+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a style="display: none;" href="#" class="url-edit js-url-editlink js-url-viewmode">(edit)</a></span>
+      <span class="js-url-text url-text">${url(controller='group', action='index')+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a style="display: none;" href="#" class="url-edit js-url-editlink js-url-viewmode">(edit)</a></span>
       <input style="display: none;" id="name" maxlength="100" name="name" type="text" class="url-input js-url-editmode js-url-input" value="${data.get('name', '')}" />
       <p class="js-url-is-valid">&nbsp;</p>
     </dd>

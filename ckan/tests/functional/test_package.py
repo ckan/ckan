@@ -22,6 +22,7 @@ from ckan.controllers.package import PackageController
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan import plugins
 from ckan.rating import set_rating
+from ckan.lib.search.common import SolrSettings
 
 class MockPackageControllerPlugin(SingletonPlugin):
     implements(IPackageController)
@@ -997,9 +998,9 @@ class TestEdit(TestPackageForm):
 
     def test_edit_indexerror(self):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
-        solr_url = search.common.solr_url
+        solr_url = SolrSettings.get()[0]
         try:
-            search.common.solr_url = bad_solr_url
+            SolrSettings.init(bad_solr_url)
             plugins.load('synchronous_search')
 
             fv = self.res.forms['dataset-edit']
@@ -1009,7 +1010,7 @@ class TestEdit(TestPackageForm):
             assert 'Unable to update search index' in res, res
         finally:
             plugins.unload('synchronous_search')
-            search.common.solr_url = solr_url
+            SolrSettings.init(solr_url)
 
 
 class TestNew(TestPackageForm):
@@ -1248,9 +1249,9 @@ class TestNew(TestPackageForm):
 
     def test_new_indexerror(self):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
-        solr_url = search.common.solr_url
+        solr_url = SolrSettings.get()[0]
         try:
-            search.common.solr_url = bad_solr_url
+            SolrSettings.init(bad_solr_url)
             plugins.load('synchronous_search')
             new_package_name = u'new-package-missing-solr'
 
@@ -1267,7 +1268,7 @@ class TestNew(TestPackageForm):
             assert 'Unable to add package to search index' in res, res
         finally:
             plugins.unload('synchronous_search')
-            search.common.solr_url = solr_url
+            SolrSettings.init(solr_url)
 
 class TestSearch(TestPackageForm):
     pkg_names = []

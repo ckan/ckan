@@ -183,7 +183,7 @@
 
   <!--! Dataset openness icons -->
   <img py:def="package_license_icon(package)"
-    src="${g.site_url}/images/icons/door_${'open' if package.isopen() else 'grey'}.png"
+    src="${h.url_for('/images/icons/door_%s.png' % 'open' if package.isopen() else 'grey')}"
     title="License: ${package.license.title if hasattr(package.license, 'title') else '?'}"
     alt="${'OPEN' if package.isopen() else 'CLOSED'}" />
 
