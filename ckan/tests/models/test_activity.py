@@ -145,6 +145,9 @@ class TestActivity:
         ckan.tests.CreateTestData.create()
         self.sysadmin_user = model.User.get('testsysadmin')
         self.normal_user = model.User.get('annafan')
+        self.warandpeace = model.Package.get('warandpeace')
+        self.annakarenina = model.Package.get('annakarenina')
+        self.app = paste.fixture.TestApp(pylonsapp)
 
     def teardown(self):
         model.repo.rebuild_db()
@@ -1095,3 +1098,377 @@ class TestActivity:
             str(detail['object_type']))
         assert detail['activity_type'] == "removed", (
             str(detail['activity_type']))
+
+    def _create_activity(self, user, package, params):
+        before = record_details(user.id, package.id)
+
+        response = self.app.post('/api/action/activity_create', 
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        assert response.json['success'] == True
+
+        after = record_details(user.id, package.id)
+
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == params['object_id'], (
+            str(activity['object_id']))
+        assert activity['user_id'] == params['user_id'], (
+            str(activity['user_id']))
+        assert activity['activity_type'] == params['activity_type'], (
+            str(activity['activity_type']))
+        if not activity.has_key('id'):
+            assert False, "activity object has no id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity has no revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+                timestamp <= after['time']), str(activity['timestamp'])
+
+    def test_activity_create_successful_no_data(self):
+        """Test creating an activity via the API, without passing the optional
+        data dict.
+
+        """
+        params = {
+            'user_id': self.sysadmin_user.id,
+            'object_id': self.warandpeace.id,
+            'activity_type': 'changed package',
+        }
+        self._create_activity(self.sysadmin_user, self.warandpeace, params)
+
+    def test_activity_create_successful_with_data(self):
+        """Test creating an activity via the API, with the optional data dict.
+
+        """
+        params = {
+            'user_id': self.sysadmin_user.id,
+            'object_id': self.annakarenina.id,
+            'activity_type': 'deleted package',
+            'data': {'a': 1, 'b': 2, 'c': 3}
+        }
+        self._create_activity(self.sysadmin_user, self.annakarenina, params)
+
+    def test_activity_create_no_authorization(self):
+        """Test the error response when the activity_create API is called
+        without an authorization header.
+
+        """
+        params = {
+            'user_id': self.sysadmin_user.id,
+            'object_id': self.warandpeace.id,
+            'activity_type': 'changed package',
+        }
+        response = self.app.post('/api/action/activity_create', 
+            params=json.dumps(params), status=403)
+        assert response.json['success'] == False
+
+    def test_activity_create_not_authorized(self):
+        """Test the error response when the activity_create API is called
+        with an authorization header for a user who is not authorized to
+        create activities.
+
+        """
+        params = {
+            'user_id': self.normal_user.id,
+            'object_id': self.warandpeace.id,
+            'activity_type': 'changed package',
+        }
+        response = self.app.post('/api/action/activity_create', 
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.normal_user.apikey)},
+            status=403)
+        assert response.json['success'] == False
+
+    def test_activity_create_authorization_not_exists(self):
+        """Test the error response when the activity_create API is called
+        with an authorization header with an API key that doesn't exist in the
+        model.
+
+        """
+        params = {
+            'user_id': self.normal_user.id,
+            'object_id': self.warandpeace.id,
+            'activity_type': 'changed package',
+        }
+        response = self.app.post('/api/action/activity_create', 
+            params=json.dumps(params),
+            extra_environ={'Authorization': 'xxxxxxxxxx'},
+            status=403)
+        assert response.json['success'] == False
+
+    def test_activity_create_with_id(self):
+        """Test that an ID passed to the activity_create API is ignored and not
+        used.
+
+        """
+        activity_id = '1234567890'
+        user = self.sysadmin_user
+        package = self.warandpeace
+        params = {
+            'id': activity_id,
+            'user_id': user.id,
+            'object_id': package.id,
+            'activity_type': 'changed package',
+        }
+        self._create_activity(self.sysadmin_user, self.warandpeace, params)
+        assert activity_id not in [activity['id'] for activity in 
+                get_user_activity_stream(user.id)]
+        assert activity_id not in [activity['id'] for activity in 
+                get_package_activity_stream(package.id)]
+
+    def test_activity_create_with_timestamp(self):
+        """Test that a timestamp passed to the activity_create API is ignored
+        and not used
+
+        """
+        params = {
+            'user_id': self.sysadmin_user.id,
+            'object_id': self.warandpeace.id,
+            'activity_type': 'changed package',
+            'timestamp': str(datetime.datetime.max),
+        }
+        self._create_activity(self.sysadmin_user, self.warandpeace, params)
+        params['timestamp'] = 'foobar' 
+        self._create_activity(self.sysadmin_user, self.warandpeace, params)
+
+    def test_activity_create_with_revision(self):
+        """Test that a revision_id passed to the activity_create API is ignored
+        and not used
+
+        """
+        revision_id = '1234567890'
+        user = self.sysadmin_user
+        package = self.warandpeace
+        params = {
+            'revision_id': revision_id,
+            'user_id': user.id,
+            'object_id': package.id,
+            'activity_type': 'changed package',
+        }
+        self._create_activity(self.sysadmin_user, self.warandpeace, params)
+        assert revision_id not in [activity['revision_id'] for activity in 
+                get_user_activity_stream(user.id)]
+        assert revision_id not in [activity['revision_id'] for activity in 
+                get_package_activity_stream(package.id)]
+
+    def test_activity_create_user_id_missing(self):
+        """Test the error response when the activity_create API is called with
+        no user ID.
+
+        """
+        params = {
+            'object_id': self.warandpeace.id,
+            'activity_type': 'changed package',
+        }
+        response = self.app.post('/api/action/activity_create', 
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'user_id'] == [u'Missing value'], (
+                response.json['error'][u'user_id'])
+
+    def test_activity_create_user_id_empty(self):
+        """Test the error response when the activity_create API is called with
+        an empty user ID.
+
+        """
+        params = {
+            'user_id': '',
+            'object_id': self.warandpeace.id,
+            'activity_type': 'changed package',
+        }
+        response = self.app.post('/api/action/activity_create', 
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'user_id'] == [u'Missing value'], (
+                response.json['error'][u'user_id'])
+
+        params['user_id'] = None
+        response = self.app.post('/api/action/activity_create', 
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'user_id'] == [u'Missing value'], (
+                response.json['error'][u'user_id'])
+
+    def test_activity_create_user_id_does_not_exist(self):
+        """Test the error response when the activity_create API is called with
+        a user ID that doesn't exist in the model.
+
+        """
+        params = {
+            'user_id': '1234567890abcdefghijk',
+            'object_id': self.warandpeace.id,
+            'activity_type': 'changed package',
+        }
+        response = self.app.post('/api/action/activity_create', 
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'user_id'] == [
+                u'That user ID does not exist.'], (
+                response.json['error'][u'user_id'])
+
+    def test_activity_create_object_id_missing(self):
+        """Test the error response when the activity_create API is called with
+        no object ID.
+
+        """
+        params = {
+            'user_id': self.sysadmin_user.id,
+            'activity_type': 'changed package',
+        }
+        response = self.app.post('/api/action/activity_create',
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'object_id'] == [
+                u'Missing value'], (
+                response.json['error'][u'user_id'])
+
+    def test_activity_create_object_id_empty(self):
+        """Test the error response when the activity_create API is called with
+        an empty object ID.
+
+        """
+        params = {
+            'object_id': '',
+            'user_id': self.sysadmin_user.id,
+            'activity_type': 'changed package',
+        }
+        response = self.app.post('/api/action/activity_create',
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'object_id'] == [
+                u'Missing value'], (
+                response.json['error'][u'user_id'])
+
+        params['object_id'] = None
+        response = self.app.post('/api/action/activity_create',
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'object_id'] == [
+                u'Missing value'], (
+                response.json['error'][u'user_id'])
+
+    def test_activity_create_object_id_does_not_exist(self):
+        """Test the error response when the activity_create API is called with
+        a user ID that doesn't exist in the model.
+
+        """
+        params = {
+            'object_id': '1234567890qwertyuiop',
+            'user_id': self.sysadmin_user.id,
+            'activity_type': 'changed package',
+        }
+        response = self.app.post('/api/action/activity_create',
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'object_id'] == [
+                u'Dataset was not found.'], (
+                response.json['error'][u'object_id'])
+
+    def test_activity_create_activity_type_missing(self):
+        """Test the error response when the activity_create API is called
+        without an activity_type.
+
+        """
+        params = {
+            'user_id': self.normal_user.id,
+            'object_id': self.warandpeace.id,
+        }
+        response = self.app.post('/api/action/activity_create',
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'object_id'] == [
+                u'Missing value'], (
+                response.json['error'][u'object_id'])
+
+    def test_activity_create_activity_type_empty(self):
+        """Test the error response when the activity_create API is called
+        with an empty activity_type.
+
+        """
+        params = {
+            'user_id': self.normal_user.id,
+            'object_id': self.warandpeace.id,
+            'activity_type': ''
+        }
+        response = self.app.post('/api/action/activity_create',
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'activity_type'] == [
+                u'Missing value'], (
+                response.json['error'][u'activity_type'])
+
+        params['activity_type'] = None
+        response = self.app.post('/api/action/activity_create',
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'activity_type'] == [
+                u'Missing value'], (
+                response.json['error'][u'activity_type'])
+
+    def test_activity_create_activity_type_not_exists(self):
+        """Test the error response when the activity_create API is called
+        with an activity_type that does not exist.
+
+        """
+        params = {
+            'user_id': self.normal_user.id,
+            'object_id': self.warandpeace.id,
+            'activity_type': 'foobar'
+        }
+        response = self.app.post('/api/action/activity_create',
+            params=json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+        assert response.json['success'] == False
+        assert response.json['error'][u'__type'] == u'Validation Error'
+        assert response.json['error'][u'activity_type'] == [
+            u"That activity type does not exist."], (
+                response.json['error'][u'activity_type'])

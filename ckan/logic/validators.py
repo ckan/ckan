@@ -144,8 +144,8 @@ def object_id_validator(key, activity_dict, errors, context):
     correct type (according to the 'activity_type' value of the activity_dict)
     with the given ID.
 
-    Raises NotImplemented if there is no object_id_validator for the 
-    activity_dict's 'activity_type' value.
+    Raises Invalid if there is no object_id_validator for the activity_dict's
+    'activity_type' value.
 
     """
     activity_type = activity_dict[('activity_type',)]
@@ -153,8 +153,8 @@ def object_id_validator(key, activity_dict, errors, context):
         object_id = activity_dict[('object_id',)]
         return object_id_validators[activity_type](object_id, context)
     else:
-        raise NotImplementedError, ("There is no object_id validator for "
-            "activity type '%s'" % str(activity_type))
+        raise Invalid(_("There is no object_id validator for "
+            "activity type '%s'" % str(activity_type)))
 
 def extras_unicode_convert(extras, context):
     for extra in extras:
