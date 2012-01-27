@@ -320,9 +320,9 @@ def package_relationship_update(context, data_dict):
     return _update_package_relationship(entity, comment, context)
 
 def group_update(context, data_dict):
-
     model = context['model']
     user = context['user']
+    session = context['session']
     schema = context.get('schema') or default_update_group_schema()
     id = data_dict['id']
 
@@ -335,7 +335,7 @@ def group_update(context, data_dict):
 
     data, errors = validate(data_dict, schema, context)
     if errors:
-        model.Session.rollback()
+        session.rollback()
         raise ValidationError(errors, group_error_summary(errors))
 
     rev = model.repo.new_revision()
@@ -361,7 +361,7 @@ def group_update(context, data_dict):
     # a 'changed' group activity. We detect this and change it to a 'deleted'
     # activity.
     if group.state == u'deleted':
-        if ckan.model.Session.query(ckan.model.Activity).filter_by(
+        if session.query(ckan.model.Activity).filter_by(
                 object_id=group.id, activity_type='deleted').all():
             # A 'deleted group' activity for this group has already been
             # emitted.
@@ -375,14 +375,19 @@ def group_update(context, data_dict):
                 'group': ckan.lib.dictization.table_dictize(group, context)
                 }
         from ckan.logic.action.create import activity_create
-        activity_create(context, activity_dict)
+        activity_create_context = {
+            'model': model,
+            'user': user,
+            'defer_commit':True,
+            'session': session
+        }
+        activity_create(activity_create_context, activity_dict,
+                ignore_auth=True)
         # TODO: Also create an activity detail recording what exactly changed
         # in the group.
 
     if not context.get('defer_commit'):
         model.repo.commit()        
-    if errors:
-        raise ValidationError(errors)
 
     return group_dictize(group, context)
 
@@ -391,6 +396,7 @@ def user_update(context, data_dict):
 
     model = context['model']
     user = context['user']
+    session = context['session']
     schema = context.get('schema') or default_update_user_schema() 
     id = data_dict['id']
 
@@ -403,7 +409,7 @@ def user_update(context, data_dict):
 
     data, errors = validate(data_dict, schema, context)
     if errors:
-        model.Session.rollback()
+        session.rollback()
         raise ValidationError(errors, group_error_summary(errors))
 
     user = user_dict_save(data, context)
@@ -413,9 +419,14 @@ def user_update(context, data_dict):
             'object_id': user.id,
             'activity_type': 'changed user',
             }
-
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit':True,
+        'session': session
+    }
     from ckan.logic.action.create import activity_create
-    activity_create(context, activity_dict)
+    activity_create(activity_create_context, activity_dict, ignore_auth=True)
     # TODO: Also create an activity detail recording what exactly changed in
     # the user.
 

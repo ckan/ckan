@@ -30,10 +30,12 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_password_not_empty,
                                    isodate,
                                    int_validator,
-                                   user_about_validator)
+                                   user_about_validator,
+                                   user_id_exists,
+                                   object_id_validator,
+                                   activity_type_exists)
 from formencode.validators import OneOf
 import ckan.model
-
 
 def default_resource_schema():
 
@@ -289,5 +291,20 @@ def default_task_status_schema():
         'state': [ignore_missing],
         'last_updated': [ignore_missing],
         'error': [ignore_missing]
+    }
+    return schema
+
+def default_create_activity_schema():
+    schema = {
+        'id': [ignore],
+        'timestamp': [ignore],
+        'user_id': [not_missing, not_empty, unicode, user_id_exists],
+        'object_id': [not_missing, not_empty, unicode, object_id_validator],
+        # We don't bother to validate revision ID, since it's always created
+        # internally by the activity_create() logic action function.
+        'revision_id': [],
+        'activity_type': [not_missing, not_empty, unicode,
+            activity_type_exists],
+        'data': [ignore_empty, ignore_missing, unicode],
     }
     return schema
