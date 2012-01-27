@@ -165,14 +165,6 @@
     <dd class="instructions basic">A number representing the version (if applicable)</dd>
     <dd class="hints">e.g. 1.2.0</dd>
 
-    <dt py:if="c.is_sysadmin or c.auth_for_change_state"><label class="field_opt" for="state">State</label></dt>
-    <dd py:if="c.is_sysadmin or c.auth_for_change_state">
-    <select id="state" name="state" >
-      <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
-      <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
-    </select>
-    </dd>
-
   </dl>
 </fieldset>
 
@@ -199,6 +191,21 @@
     </py:with>
   </dl>
 </fieldset>
+<fieldset id='delete' py:if="c.is_sysadmin or c.auth_for_change_state">
+  <dl>
+    <dt>Delete</dt>
+    <dd>
+      <p>Do you really want to change the state of this dataset? &nbsp;&nbsp;<button class="dataset-delete pretty-button">Yes!</button></p>
+      This dataset is&nbsp;&nbsp; 
+      <select class="dataset-delete" id="state" name="state" style="display:inline;">
+        <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
+        <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
+      </select>
+    </dd>
+  </dl>
+</fieldset>
+
+<div id="unsaved-warning"></div>
 
 <label for="log_message" class="edit-summary">Edit summary (briefly describe the changes you have made)</label>
 <textarea id="log_message" name="log_message" class="edit-summary short wide">${data.get('log_message', '')}</textarea>

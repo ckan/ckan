@@ -39,7 +39,7 @@ def default_resource_schema():
 
     schema = {
         'id': [ignore_empty, unicode],
-        'revistion_id': [ignore_missing, unicode],
+        'revision_id': [ignore_missing, unicode],
         'resource_group_id': [ignore],
         'package_id': [ignore],
         'url': [ignore_empty, unicode],#, URL(add_http=False)],

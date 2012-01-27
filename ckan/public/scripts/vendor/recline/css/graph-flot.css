@@ -1,0 +1,50 @@
+.data-graph-container .graph {
+  height: 500px;
+  margin-right: 200px;
+}
+
+.data-graph-container .legend table {
+  width: auto;
+  margin-bottom: 0;
+}
+
+.data-graph-container .legend td {
+  padding: 5px;
+  line-height: 13px;
+}
+
+/**********************************************************
+  * Editor
+  *********************************************************/
+
+.data-graph-container .editor {
+  float: right;
+  width: 200px;
+  padding-left: 0px;
+}
+
+.data-graph-container .editor-info {
+  padding-left: 4px;
+}
+
+.data-graph-container .editor-info {
+	cursor: pointer;
+}
+
+.data-graph-container .editor form {
+  padding-left: 4px;
+}
+
+.data-graph-container .editor select {
+	width: 100%;
+}
+
+.data-graph-container .editor-info {
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 10px;
+}
+
+.data-graph-container .editor-hide-info p {
+	display: none;
+}
+
