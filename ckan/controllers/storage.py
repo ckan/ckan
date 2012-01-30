@@ -397,17 +397,3 @@ class StorageAPIController(BaseController):
         data = self._get_form_data(label)
         return data
 
-    @jsonpify
-    def test(self, label):
-        '''Provide fields for a form upload to storage including
-        authentication.
-
-        :param label: label.
-        :return: json-encoded dictionary with action parameter and fields list.
-        '''
-        headers = dict(request.params)
-
-        data = { 'message': 'hello world', 'headers.keys()': headers.keys(), 'label': label }
-
-        return data
-
