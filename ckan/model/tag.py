@@ -1,5 +1,4 @@
-from sqlalchemy.orm import eagerload_all
-from sqlalchemy import and_
+import sqlalchemy
 import vdm.sqlalchemy
 
 from types import make_uuid
@@ -18,11 +17,11 @@ MIN_TAG_LENGTH = 2
 
 tag_table = Table('tag', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False,
-            unique=True),
+        Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False),
         Column('vocabulary_id',
             types.Unicode(vocabulary.VOCABULARY_NAME_MAX_LENGTH),
-            ForeignKey('vocabulary.id'))
+            ForeignKey('vocabulary.id')),
+        sqlalchemy.UniqueConstraint('name', 'vocabulary_id')
 )
 
 package_tag_table = Table('package_tag', metadata,
@@ -47,7 +46,7 @@ class Tag(DomainObject):
     def get(cls, reference):
         '''Returns a tag object referenced by its id or name.'''
         query = Session.query(cls).filter(cls.id==reference)
-        query = query.options(eagerload_all('package_tags'))
+        query = query.options(sqlalchemy.orm.eagerload_all('package_tags'))
         tag = query.first()
         if tag == None:
             tag = cls.by_name(reference)
@@ -71,7 +70,7 @@ class Tag(DomainObject):
     def all(cls):
         q = Session.query(cls)
         q = q.distinct().join(PackageTagRevision)
-        q = q.filter(and_(
+        q = q.filter(sqlalchemy.and_(
             PackageTagRevision.state == 'active', PackageTagRevision.current == True
         ))
         return q
@@ -81,7 +80,7 @@ class Tag(DomainObject):
         q = Session.query(Package)
         q = q.join(PackageTagRevision)
         q = q.filter(PackageTagRevision.tag_id == self.id)
-        q = q.filter(and_(
+        q = q.filter(sqlalchemy.and_(
             PackageTagRevision.state == 'active', PackageTagRevision.current == True
         ))
         packages = [p for p in q]
