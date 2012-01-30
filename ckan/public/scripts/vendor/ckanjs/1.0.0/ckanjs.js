@@ -200,7 +200,7 @@ this.CKAN.Client = (function (CKAN, $, _, Backbone, undefined) {
     // params and returns value are as for that API
     // key is file label/path 
     getStorageAuthForm: function(key, options) {
-      options.offset = '/storage/auth/form/' + key;
+      options.offset = '/api/storage/auth/form/' + key;
       this.apiCall(options);
     }
   });
