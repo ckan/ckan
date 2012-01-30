@@ -1045,7 +1045,7 @@ my.DataExplorer = Backbone.View.extend({
       </ul> \
       <div class="pagination"> \
         <form class="display-count"> \
-          Showing 0 to <input name="displayCount" type="text" value="{{displayCount}}" /> of  <span class="doc-count">{{docCount}}</span> \
+          Showing 0 to <input name="displayCount" type="text" value="{{displayCount}}" title="Edit and hit enter to change the number of rows displayed" /> of  <span class="doc-count">{{docCount}}</span> \
         </form> \
       </div> \
     </div> \
@@ -1067,7 +1067,7 @@ my.DataExplorer = Backbone.View.extend({
     var self = this;
     this.el = $(this.el);
     this.config = _.extend({
-        displayCount: 10
+        displayCount: 50
         , readOnly: false
       },
       options.config);

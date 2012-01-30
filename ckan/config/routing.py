@@ -276,6 +276,7 @@ def make_map():
     map.connect('/tag/{id}', controller='tag', action='read')
     # users
     map.redirect("/users/{url:.*}", "/user/{url}")
+    map.redirect("/user/", "/user")
     map.connect('/user/edit', controller='user', action='edit')
     # Note: openid users have slashes in their ids, so need the wildcard
     # in the route.

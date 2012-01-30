@@ -25,11 +25,6 @@
   width: 30px;
 }
 
-.doc-count {
-  font-weight: bold;
-  font-size: 120%;
-}
-
 .data-view-container {
   display: block;
   clear: both;
@@ -131,6 +126,11 @@
 /**********************************************************
   * Data Table
   *********************************************************/
+
+.data-table-container {
+  overflow: auto;
+  height: 550px;
+}
 
 .data-table {
   border: 1px solid #ccc;
