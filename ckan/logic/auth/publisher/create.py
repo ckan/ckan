@@ -1,7 +1,7 @@
 from ckan.logic.auth import get_package_object, get_group_object, get_authorization_group_object, \
     get_user_object, get_resource_object
 from ckan.logic.auth.publisher import _groups_intersect    
-from ckan.logic import check_access_old, NotFound
+from ckan.logic import NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
@@ -9,17 +9,6 @@ from ckan.lib.base import _
 def package_create(context, data_dict=None):
     model = context['model']
     user = context['user']
-
-    # We need the publisher group passed in as part of this request
-    try:
-        group = get_group_object( context )
-    except NotFound:
-        return {'success': False, 
-                'msg': _('User %s not authorized to create a package without a group specified') % str(user)}        
-    
-    userobj = model.User.get( user )
-    if not _groups_intersect( userobj.get_groups('publisher'), group.get_groups('publisher') ):
-        return {'success': False, 'msg': _('User %s not authorized to create a package here') % str(user)}    
 
     return {'success': True}
 

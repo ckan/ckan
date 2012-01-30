@@ -319,15 +319,10 @@ class CreateTestData(cli.CkanCommand):
  * Associated tags, etc etc
 '''
 
-        publisher_group = model.Group(name=u'default_publisher',
-                             title=u'Default publisher',
-                             description=u'The default test publisher', 
-                             type='publisher')
-        model.Session.add(publisher_group)
 
         cls.pkg_names = [u'annakarenina', u'warandpeace']
         pkg1 = model.Package(name=cls.pkg_names[0])
-        pkg1.group = publisher_group
+        #pkg1.group = publisher_group
         model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
@@ -381,7 +376,7 @@ left arrow <
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
 
-        pkg2.group = publisher_group
+        #pkg2.group = publisher_group
 
         # Flexible tag, allows spaces, upper-case,
         # and all punctuation except commas

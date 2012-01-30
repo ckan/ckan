@@ -26,7 +26,6 @@
       <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}" py:if="h.check_access('group_update',{'id':c.group.id})">
         <!-- TODO: We need to be able to change the URL below based on the type of the group -->
         ${h.subnav_named_route( c,h.icon('group_edit') + _('Edit'), c.group.type + '_action', action='edit', id=c.group.name )}
-        ${h.subnav_link(c, h.icon('group_edit') + _('Edit'), controller='group', action='edit', id=c.group.name)}
       </li>
       <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}" py:if="h.check_access('group_edit_permissions',{'id':c.group.id})">
         ${h.subnav_named_route(c, h.icon('lock') + _('Authorization'), c.group.type + '_action', controller='group', action='authz', id=c.group.name)}
@@ -42,8 +41,8 @@
         ${h.subnav_link(c, h.icon('group') + _('List Groups'), controller='group', action='index')}
       </li>
       <li py:attrs="{'class':'current-tab'} if c.action=='new' else {}">
-        <span class="ckan-logged-in" style="display: none;">${ h.subnav_link(c, h.icon('group_add') + _('Add a Group'), controller='group', action='new')}</span>
-        <span class="ckan-logged-out">${h.subnav_link(c, h.icon('group_add') + _('Login to Add a Group'), controller='group', action='new')}</span>
+        <span class="ckan-logged-in" style="display: none;">${ h.subnav_link(c, h.icon('group_add') + _('Add a Publisher'), controller='group', action='new')}</span>
+        <span class="ckan-logged-out">${h.subnav_link(c, h.icon('group_add') + _('Login to Add a Publisher'), controller='group', action='new')}</span>
       </li>
     </ul>
   </py:match>

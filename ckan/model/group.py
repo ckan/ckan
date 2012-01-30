@@ -130,7 +130,6 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return _dict
 
     def add_package_by_name(self, package_name):
-        from pdb import set_trace; set_trace()
         if not package_name:
             return
         package = Package.by_name(package_name)

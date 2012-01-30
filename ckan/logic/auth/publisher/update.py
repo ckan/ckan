@@ -12,12 +12,13 @@ def package_update(context, data_dict):
     model = context['model']
     user = context.get('user')
     package = get_package_object(context, data_dict)
-
-    userobj = model.User.get( user )
-    if not userobj or \
-       not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
-        return {'success': False, 
-                'msg': _('User %s not authorized to edit packages in these groups') % str(user)}
+#    group = get_group_object( context, data_dict )
+    
+#    userobj = model.User.get( user )
+#    if not userobj or \
+#       not _groups_intersect( userobj.get_groups('publisher'), [group] ):
+#        return {'success': False, 
+#                'msg': _('User %s not authorized to edit packages in these groups') % str(user)}
 
     return {'success': True}
 
@@ -46,10 +47,10 @@ def group_update(context, data_dict):
     model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
-
+ 
     # Only allow package update if the user and package groups intersect
     userobj = model.User.get( user )
-    if not _groups_intersect( userobj.get_groups('publisher', 'admin'), group.get_groups('publisher') ):
+    if not _groups_intersect( userobj.get_groups('publisher', 'admin'), [group] ):
         return {'success': False, 'msg': _('User %s not authorized to edit this group') % str(user)}
 
     return {'success': True}

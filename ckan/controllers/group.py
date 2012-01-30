@@ -301,7 +301,6 @@ class GroupController(BaseController):
         return render('group/read.html')
 
     def new(self, data=None, errors=None, error_summary=None):
-        
         group_type = request.path.strip('/').split('/')[0]
         if group_type == 'group':
             group_type = None
@@ -401,6 +400,7 @@ class GroupController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             data_dict['type'] = group_type or 'group'
             context['message'] = data_dict.get('log_message', '')
+            data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
             group = get_action('group_create')(context, data_dict)
             
             # Redirect to the appropriate _read route for the type of group

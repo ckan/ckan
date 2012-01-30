@@ -46,5 +46,6 @@ class TestAuthProfiles(PylonsTestCase):
                     if not key.startswith('_'):
                         modules[module_root] = modules[module_root] + 1
         
-        assert modules['ckan.logic.auth'] == modules['ckan.logic.auth.publisher']
+        # Differs based on auth imports
+        assert modules['ckan.logic.auth'] == modules['ckan.logic.auth.publisher'] - 3, modules
 

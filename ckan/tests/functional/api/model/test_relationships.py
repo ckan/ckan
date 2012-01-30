@@ -255,9 +255,9 @@ class RelationshipsTestCase(BaseModelApiTestCase):
         res = self.app.put(offset, params=postparams, status=[200],
                            extra_environ=self.extra_environ)
         print res.body
-        assert '123' not in res.body
-        assert '456' not in res.body
-        assert '789' in res.body
+        assert '123' not in res.body, res.body
+        assert '456' not in res.body, res.body
+        assert '789' in res.body, res.body
 
     def delete_annakarenina_parent_of_war_and_peace(self):
         offset = self.relationship_offset('annakarenina', 'parent_of', 'warandpeace')
