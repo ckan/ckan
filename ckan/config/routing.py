@@ -320,6 +320,10 @@ def make_map():
                 '/api/storage/auth/form/{label:.*}',
                 controller='ckan.controllers.storage:StorageAPIController',
                 action='auth_form')
+    map.connect('storage_api_test',
+                '/api/storage/test/{label:.*}',
+                controller='ckan.controllers.storage:StorageAPIController',
+                action='test')
     map.connect('storage_upload', '/storage/upload',
                 controller='ckan.controllers.storage:StorageController',
                 action='upload')
