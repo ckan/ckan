@@ -332,24 +332,13 @@ def group_create_rest(context, data_dict):
     return group_dict
 
 def activity_create(context, activity_dict, ignore_auth=False):
-    '''Create an activity stream event and add it to the model. Return a
-    dictionary representation of the new event.
-
-    This function doesn't do any authorisation or validation yet, it's only
-    meant to be used internally and not yet ready to be exposed e.g. via the
-    API.
-
-    Arguments:
-
-    context -- Pylons context dict with at least the 'model' key.
-
-    activity_dict -- A dict containing the values for the activity stream event
-    to be created. Should have keys 'user_id', 'object_id', 'activity_type' and
-    (optionally) 'data'.
+    '''Create a new activity stream event and return a dictionary
+    representation of the new event.
 
     '''
     model = context['model']
     user = context['user']
+    import pdb; pdb.set_trace()
 
     # Any revision_id that the caller attempts to pass in the activity_dict is
     # ignored and overwritten here.
