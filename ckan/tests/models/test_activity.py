@@ -9,8 +9,6 @@ from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
 from ckan.lib.dictization.model_dictize import resource_list_dictize
-from ckan.logic.action.get import user_activity_list, activity_detail_list
-from ckan.logic.action.get import package_activity_list, group_activity_list
 from pylons.test import pylonsapp
 import paste.fixture
 from ckan.lib.helpers import json
@@ -19,7 +17,7 @@ def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
     the same format used for timestamps in dictized activities (the format
     produced by datetime.datetime.isoformat())
-    
+
     '''
     return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f')
 
@@ -65,73 +63,6 @@ def make_package():
     pkg['tags'] = [tag1, tag2]
     return pkg
 
-def get_user_activity_stream(user_id):
-    context = {'model':model}
-    data_dict = {'id':user_id}
-    return user_activity_list(context, data_dict)
-
-def get_package_activity_stream(package_id):
-    context = {'model':model}
-    data_dict = {'id':package_id}
-    return package_activity_list(context, data_dict)
-
-def get_group_activity_stream(group_id):
-    context = {'model':model}
-    data_dict = {'id':group_id}
-    return group_activity_list(context, data_dict)
-
-def get_user_activity_stream_from_api(user_id):
-    app = paste.fixture.TestApp(pylonsapp)
-    response = app.get("/api/2/rest/user/%s/activity" % user_id)
-    return json.loads(response.body)
-
-def get_package_activity_stream_from_api(package_id):
-    app = paste.fixture.TestApp(pylonsapp)
-    response = app.get("/api/2/rest/dataset/%s/activity" % package_id)
-    return json.loads(response.body)
-
-def get_group_activity_stream_from_api(group_id):
-    app = paste.fixture.TestApp(pylonsapp)
-    response = app.get("/api/2/rest/group/%s/activity" % group_id)
-    return json.loads(response.body)
-
-def get_activity_details(activity):
-    '''Return the list of activity details for the given activity.'''
-    context = {'model': model}
-    data_dict = {'id': activity['id']}
-    details = activity_detail_list(context, data_dict)
-    assert details == get_activity_details_from_api(activity), ("Results from"
-        " API should match results from logic function.")
-    return details
-
-def get_activity_details_from_api(activity):
-    app = paste.fixture.TestApp(pylonsapp)
-    response = app.get("/api/2/rest/activity/%s/details" % activity['id'])
-    return json.loads(response.body)
-
-def record_details(user_id, package_id=None, group_id=None):
-    details = {}
-    details['user activity stream'] = get_user_activity_stream(user_id)
-    assert get_user_activity_stream_from_api(user_id) == (
-        details['user activity stream'])
-
-    if package_id is not None:
-        details['package activity stream'] = (
-                get_package_activity_stream(package_id))
-        assert get_package_activity_stream_from_api(package_id) == (
-            details['package activity stream']), ("Results from API should "
-            "match results from controller function.")
-
-    if group_id is not None:
-        details['group activity stream'] = (
-                get_group_activity_stream(group_id))
-        assert get_group_activity_stream_from_api(group_id) == (
-            details['group activity stream']), ("Results from API should "
-            "match results from controller function.")
-
-    details['time'] = datetime.datetime.now()
-    return details
-
 def find_new_activities(before, after):
     new_activities = []
     for activity in after:
@@ -140,7 +71,7 @@ def find_new_activities(before, after):
     return new_activities
 
 class TestActivity:
-    
+
     def setup(self):
         ckan.tests.CreateTestData.create()
         self.sysadmin_user = model.User.get('testsysadmin')
@@ -152,6 +83,38 @@ class TestActivity:
     def teardown(self):
         model.repo.rebuild_db()
 
+    def user_activity_stream(self, user_id):
+        response = self.app.get("/api/2/rest/user/%s/activity" % user_id)
+        return json.loads(response.body)
+
+    def package_activity_stream(self, package_id):
+        response = self.app.get("/api/2/rest/dataset/%s/activity" % package_id)
+        return json.loads(response.body)
+
+    def group_activity_stream(self, group_id):
+        response = self.app.get("/api/2/rest/group/%s/activity" % group_id)
+        return json.loads(response.body)
+
+    def activity_details(self, activity):
+        response = self.app.get(
+                "/api/2/rest/activity/%s/details" % activity['id'])
+        return json.loads(response.body)
+
+    def record_details(self, user_id, package_id=None, group_id=None):
+        details = {}
+        details['user activity stream'] = self.user_activity_stream(user_id)
+
+        if package_id is not None:
+            details['package activity stream'] = (
+                    self.package_activity_stream(package_id))
+
+        if group_id is not None:
+            details['group activity stream'] = (
+                self.group_activity_stream(group_id))
+
+        details['time'] = datetime.datetime.now()
+        return details
+
     def _create_package(self, user):
         if user:
             user_name = user.name
@@ -160,7 +123,7 @@ class TestActivity:
             user_name = '127.0.0.1'
             user_id = 'not logged in'
 
-        before = record_details(user_id)
+        before = self.record_details(user_id)
 
         # Create a new package.
         context = {
@@ -172,7 +135,7 @@ class TestActivity:
         request_data = make_package()
         package_created = package_create(context, request_data)
 
-        after = record_details(user_id, package_created['id'])
+        after = self.record_details(user_id, package_created['id'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -201,7 +164,7 @@ class TestActivity:
         assert timestamp >= before['time'] and timestamp <= \
             after['time'], str(activity['timestamp'])
 
-        details = get_activity_details(activity)
+        details = self.activity_details(activity)
         # There should be five activity details: one for the package itself,
         # one for each of its two resources, and one for each of its two tags.
         assert len(details) == 5, "There should be five activity details."
@@ -265,7 +228,7 @@ class TestActivity:
             user_name = '127.0.0.1'
             user_id = 'not logged in'
 
-        before = record_details(user_id, package.id)
+        before = self.record_details(user_id, package.id)
 
         # Query for the package object again, as the session that it belongs to
         # may have been closed.
@@ -288,7 +251,7 @@ class TestActivity:
                 }
         updated_package = package_update(context, request_data)
 
-        after = record_details(user_id, package.id)
+        after = self.record_details(user_id, package.id)
         resource_ids_after = [resource['id'] for resource in
                 updated_package['resources']]
         assert len(resource_ids_after) == len(resource_ids_before) + 1
@@ -323,7 +286,7 @@ class TestActivity:
                 timestamp <= after['time']), str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
-        details = get_activity_details(activity)        
+        details = self.activity_details(activity)
         assert len(details) == 1, [(detail['activity_type'], detail['object_type']) for detail in details]
         detail = details[0]
         assert detail['activity_id'] == activity['id'], \
@@ -374,7 +337,7 @@ class TestActivity:
             user_name = '127.0.0.1'
             user_id = 'not logged in'
 
-        before = record_details(user_id, package.id)
+        before = self.record_details(user_id, package.id)
 
         # Query for the package object again, as the session that it belongs to
         # may have been closed.
@@ -386,7 +349,7 @@ class TestActivity:
         package_dict = {'id': package.id, 'title': 'edited'}
         package_update(context, package_dict)
 
-        after = record_details(user_id, package.id)
+        after = self.record_details(user_id, package.id)
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -418,7 +381,7 @@ class TestActivity:
                 timestamp <= after['time']), str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
-        details = get_activity_details(activity)
+        details = self.activity_details(activity)
         assert len(details) == 1
         detail = details[0]
         assert detail['activity_id'] == activity['id'], \
@@ -464,7 +427,7 @@ class TestActivity:
             user_name = '127.0.0.1'
             user_id = 'not logged in'
 
-        before = record_details(user_id, package.id)
+        before = self.record_details(user_id, package.id)
 
         # Query for the Package and Resource objects again, as the session that
         # they belong to may have been closed.
@@ -477,7 +440,7 @@ class TestActivity:
         resource_dict = {'id':resource.id, 'name':'edited'}
         resource_update(context, resource_dict)
 
-        after = record_details(user_id, package.id)
+        after = self.record_details(user_id, package.id)
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -509,7 +472,7 @@ class TestActivity:
                 timestamp <= after['time']), str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
-        details = get_activity_details(activity)
+        details = self.activity_details(activity)
         assert len(details) == 1
         detail = details[0]
         assert detail['activity_id'] == activity['id'], (
@@ -554,7 +517,7 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = record_details(self.normal_user.id, package.id)
+        before = self.record_details(self.normal_user.id, package.id)
 
         # Query for the package object again, as the session that it belongs to
         # may have been closed.
@@ -566,7 +529,7 @@ class TestActivity:
         package_dict = {'id':package.id}
         package_delete(context, package_dict)
 
-        after = record_details(self.normal_user.id, package.id)
+        after = self.record_details(self.normal_user.id, package.id)
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -599,7 +562,7 @@ class TestActivity:
                 timestamp <= after['time']), str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
-        details = get_activity_details(activity)
+        details = self.activity_details(activity)
         assert len(details) == 1
         detail = details[0]        
         assert detail['activity_id'] == activity['id'], \
@@ -627,7 +590,7 @@ class TestActivity:
         correct activity item and detail items are emitted.
 
         """
-        before = record_details(self.normal_user.id, package.id)
+        before = self.record_details(self.normal_user.id, package.id)
 
         # Query the model for the Package object again, as the session that it
         # belongs to may have been closed.
@@ -648,7 +611,7 @@ class TestActivity:
         data_dict['resources'] = []
         package_update(context, data_dict)
 
-        after = record_details(self.normal_user.id, package.id)
+        after = self.record_details(self.normal_user.id, package.id)
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -681,7 +644,7 @@ class TestActivity:
             timestamp <= after['time'], str(activity['timestamp']))
 
         # Test for the presence of correct activity detail items.
-        details = get_activity_details(activity)
+        details = self.activity_details(activity)
         assert len(details) == num_resources
         for detail in details:
             assert detail['activity_id'] == activity['id'], (
@@ -732,7 +695,7 @@ class TestActivity:
                 'user': self.sysadmin_user.name}
         user_created = user_create(context, user_dict)
 
-        after = record_details(user_created['id'])
+        after = self.record_details(user_created['id'])
 
         user_activities = after['user activity stream']
         assert len(user_activities) == 1, ("There should be 1 activity in "
@@ -755,7 +718,7 @@ class TestActivity:
         assert timestamp >= before and timestamp <= after['time'], \
             str(activity['timestamp'])
 
-        details = get_activity_details(activity)
+        details = self.activity_details(activity)
         assert len(details) == 0, ("There shouldn't be any activity details"
                 " for a 'new user' activity")
 
@@ -765,7 +728,7 @@ class TestActivity:
         and detail are emitted.
 
         """
-        before = record_details(user.id)
+        before = self.record_details(user.id)
 
         # Query for the user object again, as the session that it belongs to
         # may have been closed.
@@ -780,7 +743,7 @@ class TestActivity:
             user_dict['email'] = 'there has to be a value in email or validate fails'
         user_update(context, user_dict)
 
-        after = record_details(user.id)
+        after = self.record_details(user.id)
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -818,14 +781,14 @@ class TestActivity:
 
         user = self.normal_user
 
-        before = record_details(user.id)
+        before = self.record_details(user.id)
 
         # Create a new group.
         context = {'model': model, 'session': model.Session, 'user': user.name}
         request_data = {'name': 'a-new-group', 'title': 'A New Group'}
         group_created = group_create(context, request_data)
 
-        after = record_details(user.id, group_id=group_created['id'])
+        after = self.record_details(user.id, group_id=group_created['id'])
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -858,7 +821,7 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = record_details(user.id, group_id=group.id)
+        before = self.record_details(user.id, group_id=group.id)
 
         # Update the group.
         context = {'model': model, 'session': model.Session, 'user': user.name,
@@ -866,7 +829,7 @@ class TestActivity:
         group_dict = {'id': group.id, 'title': 'edited'}
         group_updated = group_update(context, group_dict)
 
-        after = record_details(user.id, group_id=group.id)
+        after = self.record_details(user.id, group_id=group.id)
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -910,7 +873,7 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = record_details(user.id, group_id=group.id)
+        before = self.record_details(user.id, group_id=group.id)
 
         # Deleted the group.
         context = {'model': model, 'session': model.Session,
@@ -918,7 +881,7 @@ class TestActivity:
         group_dict = {'id': group.id, 'state': 'deleted'}
         group_update(context, group_dict)
 
-        after = record_details(user.id, group_id=group.id)
+        after = self.record_details(user.id, group_id=group.id)
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -977,7 +940,7 @@ class TestActivity:
                 {'id': pkg_name})
 
         # Add one new tag to the package.
-        before = record_details(user.id, pkg_dict['id'])
+        before = self.record_details(user.id, pkg_dict['id'])
         new_tag_name = 'test tag'
         assert new_tag_name not in [tag['name'] for tag in pkg_dict['tags']]
         new_tag_list = pkg_dict['tags'] + [{'name': new_tag_name}]
@@ -986,7 +949,7 @@ class TestActivity:
             'tags': new_tag_list
             }
         ckan.logic.action.update.package_update(context, data_dict)
-        after = record_details(user.id, pkg_dict['id'])
+        after = self.record_details(user.id, pkg_dict['id'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1018,7 +981,7 @@ class TestActivity:
                 timestamp <= after['time']), str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
-        details = get_activity_details(activity)
+        details = self.activity_details(activity)
         assert len(details) == 1
         detail = details[0]
         assert detail['activity_id'] == activity['id'], \
@@ -1051,13 +1014,13 @@ class TestActivity:
         # Remove one tag from the package.
         assert len(pkg_dict['tags']) >= 1, ("The package has to have at least"
                 " one tag to test removing a tag.")
-        before = record_details(user.id, pkg_dict['id'])
+        before = self.record_details(user.id, pkg_dict['id'])
         data_dict = {
             'id': pkg_dict['id'],
             'tags': pkg_dict['tags'][0:-1],
             }
         ckan.logic.action.update.package_update(context, data_dict)
-        after = record_details(user.id, pkg_dict['id'])
+        after = self.record_details(user.id, pkg_dict['id'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1089,7 +1052,7 @@ class TestActivity:
                 timestamp <= after['time']), str(activity['timestamp'])
 
         # Test for the presence of a correct activity detail item.
-        details = get_activity_details(activity)
+        details = self.activity_details(activity)
         assert len(details) == 1
         detail = details[0]
         assert detail['activity_id'] == activity['id'], \
@@ -1100,14 +1063,14 @@ class TestActivity:
             str(detail['activity_type']))
 
     def _create_activity(self, user, package, params):
-        before = record_details(user.id, package.id)
+        before = self.record_details(user.id, package.id)
 
         response = self.app.post('/api/action/activity_create', 
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         assert response.json['success'] == True
 
-        after = record_details(user.id, package.id)
+        after = self.record_details(user.id, package.id)
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1227,9 +1190,9 @@ class TestActivity:
         }
         self._create_activity(self.sysadmin_user, self.warandpeace, params)
         assert activity_id not in [activity['id'] for activity in 
-                get_user_activity_stream(user.id)]
+                self.user_activity_stream(user.id)]
         assert activity_id not in [activity['id'] for activity in 
-                get_package_activity_stream(package.id)]
+                self.package_activity_stream(package.id)]
 
     def test_activity_create_with_timestamp(self):
         """Test that a timestamp passed to the activity_create API is ignored
@@ -1262,9 +1225,9 @@ class TestActivity:
         }
         self._create_activity(self.sysadmin_user, self.warandpeace, params)
         assert revision_id not in [activity['revision_id'] for activity in 
-                get_user_activity_stream(user.id)]
+                self.user_activity_stream(user.id)]
         assert revision_id not in [activity['revision_id'] for activity in 
-                get_package_activity_stream(package.id)]
+                self.package_activity_stream(package.id)]
 
     def test_activity_create_user_id_missing(self):
         """Test the error response when the activity_create API is called with
