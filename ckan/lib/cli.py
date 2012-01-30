@@ -32,6 +32,9 @@ class CkanCommand(paste.script.command.Command):
     group_name = 'ckan'
 
     def _load_config(self):
+        # Avoids vdm logging warning
+        logging.basicConfig(level=logging.ERROR)
+
         from paste.deploy import appconfig
         from ckan.config.environment import load_environment
         if not self.options.config:
@@ -62,10 +65,12 @@ class ManageDb(CkanCommand):
     db init # create and put in default data
     db clean
     db upgrade [{version no.}] # Data migrate
+    db version # returns current version of data schema
     db dump {file-path} # dump to a pg_dump file
     db dump-rdf {dataset-name} {file-path}
-    db simple-dump-csv {file-path}
-    db simple-dump-json {file-path}
+    db simple-dump-csv {file-path} # dump just datasets in CSV format
+    db simple-dump-json {file-path} # dump just datasets in JSON format
+    db user-dump-csv {file-path} # dump user information to a CSV file
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load a pg_dump from a file
     db load-only {file-path} # load a pg_dump from a file but don\'t do
@@ -77,10 +82,7 @@ class ManageDb(CkanCommand):
     max_args = None
     min_args = 1
 
-    def command(self):
-        # Avoids vdm logging warning
-        logging.basicConfig(level=logging.ERROR)
-        
+    def command(self):        
         self._load_config()
         from ckan import model
         import ckan.lib.search as search
@@ -100,6 +102,8 @@ class ManageDb(CkanCommand):
                 model.repo.upgrade_db(self.args[1])
             else:
                 model.repo.upgrade_db()
+        elif cmd == 'version':
+            self.version()
         elif cmd == 'dump':
             self.dump()
         elif cmd == 'load':
@@ -112,6 +116,8 @@ class ManageDb(CkanCommand):
             self.simple_dump_json()
         elif cmd == 'dump-rdf':
             self.dump_rdf()
+        elif cmd == 'user-dump-csv':
+            self.user_dump_csv()
         elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
@@ -206,8 +212,7 @@ class ManageDb(CkanCommand):
         dump_filepath = self.args[1]
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
-        query = model.Session.query(model.Package)
-        dumper.SimpleDumper().dump_csv(dump_file, query)
+        dumper.SimpleDumper().dump(dump_file, format='csv')
 
     def simple_dump_json(self):
         from ckan import model
@@ -217,8 +222,7 @@ class ManageDb(CkanCommand):
         dump_filepath = self.args[1]
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
-        query = model.Session.query(model.Package)
-        dumper.SimpleDumper().dump_json(dump_file, query)
+        dumper.SimpleDumper().dump(dump_file, format='json')
 
     def dump_rdf(self):
         if len(self.args) < 3:
@@ -237,6 +241,15 @@ class ManageDb(CkanCommand):
         f.write(rdf)
         f.close()
 
+    def user_dump_csv(self):
+        if len(self.args) < 2:
+            print 'Need csv file path'
+            return
+        dump_filepath = self.args[1]
+        import ckan.lib.dumper as dumper
+        dump_file = open(dump_filepath, 'w')
+        dumper.UserDumper().dump(dump_file)
+
     def send_rdf(self):
         if len(self.args) < 4:
             print 'Need all arguments: {talis-store} {username} {password}'
@@ -247,6 +260,10 @@ class ManageDb(CkanCommand):
         import ckan.lib.talis
         talis = ckan.lib.talis.Talis()
         return talis.send_rdf(talis_store, username, password)
+
+    def version(self):
+        from ckan.model import Session
+        print Session.execute('select version from migrate_version;').fetchall()
 
 
 class SearchIndexCommand(CkanCommand):

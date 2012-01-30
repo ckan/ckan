@@ -23,15 +23,21 @@
       CKAN.Utils.setupWelcomeBanner($('.js-welcome-banner'));
     }
 
+    var isGroupView = $('body.group.read').length > 0;
+    if (isGroupView) {
+      // Show extract of notes field
+      CKAN.Utils.setupNotesExtract();
+    }
+
     var isDatasetView = $('body.package.read').length > 0;
     if (isDatasetView) {
       // Show extract of notes field
-      CKAN.Utils.setupDatasetViewNotesExtract();
+      CKAN.Utils.setupNotesExtract();
     }
 
     var isResourceView = $('body.package.resource_read').length > 0;
     if (isResourceView) {
-      CKANEXT.DATAPREVIEW.setupDataPreview(preload_resource);
+      CKANEXT.DATAPREVIEW.loadPreviewDialog(preload_resource);
     }
 
     var isDatasetNew = $('body.package.new').length > 0;
@@ -74,6 +80,18 @@
         el: $el
       });
       view.render();
+
+      // Set up dataset delete button
+      var select = $('select.dataset-delete');
+      select.attr('disabled','disabled');
+      select.css({opacity: 0.3});
+      $('button.dataset-delete').click(function(e) {
+        select.removeAttr('disabled');
+        select.fadeTo('fast',1.0);
+        $(e.target).css({opacity:0});
+        $(e.target).attr('disabled','disabled');
+        return false;
+      });
     }
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
@@ -424,17 +442,17 @@ CKAN.Utils = function($, my) {
   // If notes field is more than 1 paragraph, just show the
   // first paragraph with a 'Read more' link that will expand
   // the div if clicked
-  my.setupDatasetViewNotesExtract = function() {
-    var notes = $('#dataset div.notes');
+  my.setupNotesExtract = function() {
+    var notes = $('#content div.notes');
     if(notes.find('p').length > 1){
       var extract = notes.children(':eq(0)');
       var remainder = notes.children(':gt(0)');
-      notes.html($.tmpl(CKAN.Templates.datasetNotesField));
+      notes.html($.tmpl(CKAN.Templates.notesField));
       notes.find('#notes-extract').html(extract);
       notes.find('#notes-remainder').html(remainder);
       notes.find('#notes-remainder').hide();
-      notes.find('#dataset-notes-toggle a').click(function(event){
-        notes.find('#dataset-notes-toggle a').toggle();
+      notes.find('#notes-toggle a').click(function(event){
+        notes.find('#notes-toggle a').toggle();
         var remainder = notes.find('#notes-remainder')
         if ($(event.target).hasClass('more')) {
           remainder.slideDown();
@@ -442,6 +460,7 @@ CKAN.Utils = function($, my) {
         else {
           remainder.slideUp();
         }
+        return false;
       })
     }
   };
@@ -485,7 +504,13 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
       var boundToUnload = false;
       return function() {
         if (!boundToUnload) {
-          CKAN.Utils.flashMessage(CKAN.Strings.youHaveUnsavedChanges,'notice');
+          var parentDiv = $('<div />').addClass('flash-messages');
+          var messageDiv = $('<div />').html(CKAN.Strings.youHaveUnsavedChanges).addClass('notice').hide();
+          parentDiv.append(messageDiv);
+          $('#unsaved-warning').append(parentDiv);
+          console.log($('#unsaved-warning'));
+          messageDiv.show(200);
+
           boundToUnload = true;
           window.onbeforeunload = function () { 
             return CKAN.Strings.youHaveUnsavedChanges; 
@@ -494,7 +519,7 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
       }
     }();
 
-    $form.find('input').live('change', function(e) {
+    $form.find('input,select').live('change', function(e) {
       $target = $(e.target);
       // Entering text in the 'add' box does not represent a change
       if ($target.closest('.resource-add').length==0) {
@@ -742,17 +767,6 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   my.dialogId = 'ckanext-datapreview';
   my.$dialog = $('#' + my.dialogId);
 
-  // Initialize data explorer on Resource view page
-  // 
-  // resourceData: resource as simple hash (suitable for initializing backbone model or result of backboneModel.toJSON())
-  my.setupDataPreview = function(resourceData) {
-    // initialize the tableviewer system
-    DATAEXPLORER.TABLEVIEW.initialize(my.dialogId);
-    resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
-
-    my.loadPreviewDialog(resourceData);
-  };
-
   // **Public: Loads a data preview**
   //
   // Fetches the preview data object from the link provided and loads the
@@ -763,8 +777,19 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   //
   // Returns nothing.
   my.loadPreviewDialog = function(resourceData) {
-    resourceData.url  = my.normalizeUrl(resourceData.url);
     my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
+
+    function initializeDataExplorer(dataset) {
+      var dataExplorer = new recline.View.DataExplorer({
+        el: my.$dialog
+        , model: dataset
+        , config: {
+          readOnly: true
+        }
+      });
+      // will have to refactor if this can get called multiple times
+      Backbone.history.start();
+    }
 
     // 4 situations
     // a) have a webstore_url
@@ -773,6 +798,9 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     // d) none of the above but worth iframing (assumption is
     // that if we got here (i.e. preview shown) worth doing
     // something ...)
+    resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
+
+    resourceData.url  = my.normalizeUrl(resourceData.url);
     if (resourceData.formatNormalized === '') {
       var tmp = resourceData.url.split('/');
       tmp = tmp[tmp.length - 1];
@@ -785,18 +813,21 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     }
 
     if (resourceData.webstore_url) {
-      var _url = resourceData.webstore_url + '.jsontuples?_limit=500';
-      my.getResourceDataDirect(_url, function(data) {
-        DATAEXPLORER.TABLEVIEW.showData(data);
-        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
+      var backend = new recline.Model.BackendWebstore({
+        url: resourceData.webstore_url
       });
+      recline.Model.setBackend(backend);
+      var dataset = backend.getDataset();
+      initializeDataExplorer(dataset);
     }
     else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
-      var _url = my.jsonpdataproxyUrl + '?url=' + resourceData.url + '&type=' + resourceData.formatNormalized;
-      my.getResourceDataDirect(_url, function(data) {
-        DATAEXPLORER.TABLEVIEW.showData(data);
-        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
+      var backend = new recline.Model.BackendDataProxy({
+        url: resourceData.url
+        , type: resourceData.formatNormalized
       });
+      recline.Model.setBackend(backend);
+      var dataset = backend.getDataset();
+      initializeDataExplorer(dataset);
     }
     else if (resourceData.formatNormalized in {
         'rdf+xml': '',
@@ -816,7 +847,6 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       var _url = my.jsonpdataproxyUrl + '?type=csv&url=' + resourceData.url;
       my.getResourceDataDirect(_url, function(data) {
         my.showPlainTextData(data);
-        DATAEXPLORER.TABLEVIEW.$dialog.dialog('open');
       });
     }
     else if (resourceData.formatNormalized in {'html':'', 'htm':''} 
@@ -833,7 +863,10 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       // Cannot reliably preview this item - with no mimetype/format information, 
       // can't guarantee it's not a remote binary file such as an executable.
       var _msg = $('<p class="error">We are unable to preview this type of resource: ' + resourceData.formatNormalized + '</p>');
-      my.$dialog.html(_msg);
+      my.showError({
+        title: 'Unable to preview'
+        , message: _msg
+      });
     }
   };
 
@@ -884,20 +917,21 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   //
   // Returns nothing.
   my.showPlainTextData = function(data) {
-    // HACK: have to reach into DATAEXPLORER.TABLEVIEW dialog  a lot ...
-    DATAEXPLORER.TABLEVIEW.setupFullscreenDialog();
-
     if(data.error) {
-      DATAEXPLORER.TABLEVIEW.showError(data.error);
+      my.showError(data.error);
     } else {
       var content = $('<pre></pre>');
       for (var i=0; i<data.data.length; i++) {
         var row = data.data[i].join(',') + '\n';
         content.append(my.escapeHTML(row));
       }
-      DATAEXPLORER.TABLEVIEW.$dialog.dialog(DATAEXPLORER.TABLEVIEW.dialogOptions);
-      DATAEXPLORER.TABLEVIEW.$dialog.append(content);
+      my.$dialog.html(content);
     }
+  };
+
+  my.showError = function (error) {
+    var _html = '<strong>' + $.trim(error.title) + '</strong><br />' + $.trim(error.message);
+    my.$dialog.html(_html);
   };
 
   my.normalizeFormat = function(format) {

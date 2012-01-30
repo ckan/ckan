@@ -29,8 +29,8 @@ Contents:
    forms
    form-integration
    database_dumps
-   upgrade
    i18n
+   file-upload
    configuration
    api
    test

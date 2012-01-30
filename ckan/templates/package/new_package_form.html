@@ -100,7 +100,7 @@
       <li><h4>Add a resource:</h4></li>
       <li><button class="pretty-button js-link-file">Link to a file</button></li>
       <li><button class="pretty-button js-link-api">Link to an API</button></li>
-      <li class="js-upload-file" style="display:none;"><button class="pretty-button js-upload-file">Upload a file</button></li>
+      <li class="js-upload-file ckan-logged-in" style="display: none;"><button class="pretty-button js-upload-file">Upload a file</button></li>
     </ul>
   </div>
 </fieldset>
@@ -126,7 +126,7 @@
       <select id="groups__${len(data.get('groups', []))}__id" name="groups__${len(data.get('groups', []))}__id">
         <option selected="selected" value="">(None)</option>
         <py:for each="group in c.groups_available">
-          <option value="${group['id']}" >${group['name']}</option>
+        <option value="${group['id']}" >${group['name']}</option>
         </py:for>
       </select>
     </dd> 
@@ -165,14 +165,6 @@
     <dd class="instructions basic">A number representing the version (if applicable)</dd>
     <dd class="hints">e.g. 1.2.0</dd>
 
-    <dt py:if="c.is_sysadmin or c.auth_for_change_state"><label class="field_opt" for="state">State</label></dt>
-    <dd py:if="c.is_sysadmin or c.auth_for_change_state">
-    <select id="state" name="state" >
-      <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
-      <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
-    </select>
-    </dd>
-
   </dl>
 </fieldset>
 
@@ -199,6 +191,21 @@
     </py:with>
   </dl>
 </fieldset>
+<fieldset id='delete' py:if="c.is_sysadmin or c.auth_for_change_state">
+  <dl>
+    <dt>Delete</dt>
+    <dd>
+      <p>Do you really want to change the state of this dataset? &nbsp;&nbsp;<button class="dataset-delete pretty-button">Yes!</button></p>
+      This dataset is&nbsp;&nbsp; 
+      <select class="dataset-delete" id="state" name="state" style="display:inline;">
+        <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
+        <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
+      </select>
+    </dd>
+  </dl>
+</fieldset>
+
+<div id="unsaved-warning"></div>
 
 <label for="log_message" class="edit-summary">Edit summary (briefly describe the changes you have made)</label>
 <textarea id="log_message" name="log_message" class="edit-summary short wide">${data.get('log_message', '')}</textarea>

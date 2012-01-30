@@ -6,6 +6,7 @@ import itertools
 from pylons import config
 
 from common import SearchIndexError, make_connection
+from ckan.model import PackageRelationship
 
 log = logging.getLogger(__name__)
 
@@ -15,23 +16,24 @@ KEY_CHARS = string.digits + string.letters + "_-"
 SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
 RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_description", 
                                  "res_format", "res_url"]
-# HACK: this is copied over from model.PackageRelationship 
-RELATIONSHIP_TYPES = [
-    (u'depends_on', u'dependency_of'),
-    (u'derives_from', u'has_derivation'),
-    (u'links_to', u'linked_from'),
-    (u'child_of', u'parent_of'),
-]
+RELATIONSHIP_TYPES = PackageRelationship.types
 
 def clear_index():
+    import solr.core
     conn = make_connection()
     query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
     try:
         conn.delete_query(query)
         conn.commit()
     except socket.error, e:
-        log.error('Could not connect to SOLR: %r' % e)
+        err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
+        log.error(err)
+        raise SearchIndexError(err)
         raise
+##    except solr.core.SolrException, e:
+##        err = 'SOLR %r exception: %r' % (conn.url, e)
+##        log.error(err)
+##        raise SearchIndexError(err)
     finally:
         conn.close()
 

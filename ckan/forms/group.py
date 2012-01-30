@@ -49,7 +49,7 @@ class PackagesRenderer(formalchemy.fields.FieldRenderer):
 
 def build_group_form(is_admin=False, with_packages=False):
     builder = FormBuilder(model.Group)
-    builder.set_field_text('name', _('Name'), literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
+    builder.set_field_text('name', _('Name'), literal("<strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'<p></p>"))
     builder.set_field_option('name', 'validate', common.group_name_validator)
     builder.set_field_option('description', 'textarea', {'size':'60x15'})
     builder.add_field(ExtrasField('extras', hidden_label=True))

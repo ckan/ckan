@@ -80,6 +80,8 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         from ckan.lib import repoze_patch
         OpenIdIdentificationPlugin.identify = repoze_patch.identify
         OpenIdIdentificationPlugin.redirect_to_logged_in = repoze_patch.redirect_to_logged_in
+        OpenIdIdentificationPlugin._redirect_to_loginform = repoze_patch._redirect_to_loginform
+        OpenIdIdentificationPlugin.challenge = repoze_patch.challenge
 
         who_parser.identifiers = [i for i in who_parser.identifiers if \
                 not isinstance(i, OpenIdIdentificationPlugin)]

@@ -9,10 +9,16 @@ from pylons import config
 from routes import Mapper
 from ckan.plugins import PluginImplementations, IRoutes
 
+
 routing_plugins = PluginImplementations(IRoutes)
 
 def make_map():
     """Create, configure and return the routes Mapper"""
+    # import controllers here rather than at root level because 
+    # pylons config is initialised by this point.
+    from ckan.controllers.package import register_pluggable_behaviour as register_package_behaviour
+    from ckan.controllers.group   import register_pluggable_behaviour as register_group_behaviour
+    
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
     map.minimization = False
@@ -23,12 +29,12 @@ def make_map():
     map.connect('/error/{action}', controller='error')
     map.connect('/error/{action}/{id}', controller='error')
 
+    map.connect('*url', controller='home', action='cors_options', conditions=dict(method=['OPTIONS']))
+
     # CUSTOM ROUTES HERE
     for plugin in routing_plugins:
         map = plugin.before_map(map)
-        
-    map.connect('*url', controller='home', action='cors_options',
-        conditions=dict(method=['OPTIONS']))
+
     map.connect('home', '/', controller='home', action='index')
     map.connect('/locale', controller='home', action='locale')
     map.connect('about', '/about', controller='home', action='about')
@@ -76,6 +82,10 @@ def make_map():
         controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister',
+        controller='api', action='create',
+        requirements=dict(register=register_list_str),
+        conditions=dict(method=['POST']))
     map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='create',
         requirements=dict(register=register_list_str),
@@ -132,6 +142,10 @@ def make_map():
         controller='api', action='list',
         requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
+    map.connect('/api/rest/{register}/{id}/:subregister',
+        controller='api', action='create',
+        requirements=dict(register=register_list_str),
+        conditions=dict(method=['POST']))
     map.connect('/api/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='create',
         requirements=dict(register=register_list_str),
@@ -176,7 +190,7 @@ def make_map():
     ###########
     ## /END API
     ###########
-
+    
     map.redirect("/packages", "/dataset")
     map.redirect("/packages/{url:.*}", "/dataset/{url}")
     map.redirect("/package", "/dataset")
@@ -227,17 +241,24 @@ def make_map():
     ##map.connect('/group/new', controller='group_formalchemy', action='new')
     ##map.connect('/group/edit/{id}', controller='group_formalchemy', action='edit')
 
-    map.connect('/group', controller='group', action='index')
-    map.connect('/group/list', controller='group', action='list')
-    map.connect('/group/new', controller='group', action='new')
-    map.connect('/group/{action}/{id}', controller='group',
+    # These named routes are used for custom group forms which will use the 
+    # names below based on the group.type (dataset_group is the default type)
+    map.connect('group_index', '/group', controller='group', action='index')
+    map.connect('group_list', '/group/list', controller='group', action='list')
+    map.connect('group_new',  '/group/new', controller='group', action='new')    
+    map.connect('group_action', '/group/{action}/{id}', controller='group',
         requirements=dict(action='|'.join([
         'edit',
         'authz',
         'history'
         ]))
         )
-    map.connect('/group/{id}', controller='group', action='read')
+    map.connect('group_read', '/group/{id}', controller='group', action='read')
+
+
+    register_package_behaviour(map)
+    register_group_behaviour(map)    
+    
     # authz group
     map.redirect("/authorizationgroups", "/authorizationgroup")
     map.redirect("/authorizationgroups/{url:.*}", "/authorizationgroup/{url}")
@@ -255,6 +276,7 @@ def make_map():
     map.connect('/tag/{id}', controller='tag', action='read')
     # users
     map.redirect("/users/{url:.*}", "/user/{url}")
+    map.redirect("/user/", "/user")
     map.connect('/user/edit', controller='user', action='edit')
     # Note: openid users have slashes in their ids, so need the wildcard
     # in the route.
@@ -278,8 +300,46 @@ def make_map():
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
     
+    # Storage routes
+    map.connect('storage_api', "/api/storage", 
+                controller='ckan.controllers.storage:StorageAPIController', 
+                action='index')
+    map.connect('storage_api_set_metadata', '/api/storage/metadata/{label:.*}', 
+                controller='ckan.controllers.storage:StorageAPIController', 
+                action='set_metadata',
+                conditions={'method': ['PUT','POST']})
+    map.connect('storage_api_get_metadata', '/api/storage/metadata/{label:.*}', 
+                controller='ckan.controllers.storage:StorageAPIController', 
+                action='get_metadata',
+                conditions={'method': ['GET']})
+    map.connect('storage_api_auth_request',
+                '/api/storage/auth/request/{label:.*}',
+                controller='ckan.controllers.storage:StorageAPIController',
+                action='auth_request')
+    map.connect('storage_api_auth_form',
+                '/api/storage/auth/form/{label:.*}',
+                controller='ckan.controllers.storage:StorageAPIController',
+                action='auth_form')
+    map.connect('storage_upload', '/storage/upload',
+                controller='ckan.controllers.storage:StorageController',
+                action='upload')
+    map.connect('storage_upload_handle', '/storage/upload_handle',
+                controller='ckan.controllers.storage:StorageController',
+                action='upload_handle')
+    map.connect('storage_upload_success', '/storage/upload/success',
+                controller='ckan.controllers.storage:StorageController',
+                action='success')
+    map.connect('storage_upload_success_empty', '/storage/upload/success_empty',
+                controller='ckan.controllers.storage:StorageController',
+                action='success_empty')
+    map.connect('storage_file', '/storage/f/{label:.*}',
+                controller='ckan.controllers.storage:StorageController',
+                action='file')
+    
+    
     for plugin in routing_plugins:
         map = plugin.after_map(map)
+    
     
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')

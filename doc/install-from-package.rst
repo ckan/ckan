@@ -721,7 +721,7 @@ Now you need to make some manual changes. In the following commands replace ``st
    If you get error ``sqlalchemy.exc.IntegrityError: (IntegrityError) could not create unique index "user_name_key`` then you need to rename users with duplicate names before it will work. For example::
 
         sudo -u ckanstd paster --plugin=pylons shell /etc/ckan/std/std.ini
-        model.meta.engine.execute('SELECT name, count(name) AS NumOccurrences FROM "user" GROUP BY name HAVING(COUNT(name)>0);').fetchall()
+        model.meta.engine.execute('SELECT name, count(name) AS NumOccurrences FROM "user" GROUP BY name HAVING(COUNT(name)>1);').fetchall()
         users = model.Session.query(model.User).filter_by(name='https://www.google.com/accounts/o8/id?id=ABCDEF').all()
         users[1].name = users[1].name[:-1]
         model.repo.commit_and_remove()

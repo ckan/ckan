@@ -52,7 +52,7 @@ def package_list(context, data_dict):
     user = context["user"]
     api = context.get("api_version", '1')
     ref_package_by = 'id' if api == '2' else 'name'
-    
+
     check_access('package_list', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)
@@ -115,7 +115,7 @@ def group_list(context, data_dict):
     if order_by not in set(('name', 'packages')):
         raise ValidationError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
-   
+
     check_access('group_list',context, data_dict)
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
@@ -153,7 +153,7 @@ def group_list_authz(context, data_dict):
 
     query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
     groups = set(query.all())
-    
+
     if available_only:
         package = context.get('package')
         if package:
@@ -307,7 +307,7 @@ def package_relationships_list(context, data_dict):
         rel = None
 
     check_access('package_relationships_list',context, data_dict)
-    
+
     # TODO: How to handle this object level authz?
     relationships = Authorizer().\
                     authorized_package_relationships(\
@@ -660,37 +660,58 @@ def package_search(context, data_dict):
 
     check_access('package_search', context, data_dict)
 
-    # return a list of package ids
-    data_dict['fl'] = 'id'
+    # check if some extension needs to modify the search params
+    for item in PluginImplementations(IPackageController):
+        data_dict = item.before_search(data_dict)
 
-    query = query_for(model.Package)
-    query.run(data_dict)
+    # the extension may have decided that it's no necessary to perform the query
+    abort = data_dict.get('abort_search',False)
 
     results = []
-    for package in query.results:
-        # get the package object
-        pkg_query = session.query(model.PackageRevision)\
-            .filter(model.PackageRevision.id == package)\
-            .filter(and_(
-                model.PackageRevision.state == u'active', 
-                model.PackageRevision.current == True
-            ))
-        pkg = pkg_query.first()
+    if not abort:
+        # return a list of package ids
+        data_dict['fl'] = 'id'
 
-        ## if the index has got a package that is not in ckan then
-        ## ignore it.
-        if not pkg:
-            log.warning('package %s in index but not in database' % package)
-            continue
+        query = query_for(model.Package)
+        query.run(data_dict)
 
-        result_dict = package_dictize(pkg,context)
-        results.append(result_dict)
+        for package in query.results:
+            # get the package object
+            pkg_query = session.query(model.PackageRevision)\
+                .filter(model.PackageRevision.id == package)\
+                .filter(and_(
+                    model.PackageRevision.state == u'active',
+                    model.PackageRevision.current == True
+                ))
+            pkg = pkg_query.first()
 
-    return {
-        'count': query.count,
-        'facets': query.facets,
+            ## if the index has got a package that is not in ckan then
+            ## ignore it.
+            if not pkg:
+                log.warning('package %s in index but not in database' % package)
+                continue
+
+            result_dict = package_dictize(pkg,context)
+            results.append(result_dict)
+
+        count = query.count
+        facets = query.facets
+    else:
+        count = 0
+        facets = {}
+        results = []
+
+    search_results = {
+        'count': count,
+        'facets': facets,
         'results': results
     }
+
+    # check if some extension needs to modify the search results
+    for item in PluginImplementations(IPackageController):
+        search_results = item.after_search(search_results,data_dict)
+
+    return search_results
 
 def _extend_package_dict(package_dict,context):
     model = context['model']
@@ -735,7 +756,7 @@ def resource_search(context, data_dict):
             raise SearchError('Field "%s" not recognised in Resource search.' % field)
         for term in terms:
             model_attr = getattr(model.Resource, field)
-            if field == 'hash':                
+            if field == 'hash':
                 q = q.filter(model_attr.ilike(unicode(term) + '%'))
             elif field in model.Resource.get_extra_columns():
                 model_attr = getattr(model.Resource, 'extras')
@@ -747,7 +768,7 @@ def resource_search(context, data_dict):
                 q = q.filter(like)
             else:
                 q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
-    
+
     if order_by is not None:
         if hasattr(model.Resource, order_by):
             q = q.order_by(getattr(model.Resource, order_by))
@@ -755,7 +776,7 @@ def resource_search(context, data_dict):
     count = q.count()
     q = q.offset(offset)
     q = q.limit(limit)
-    
+
     results = []
     for result in q:
         if isinstance(result, tuple) and isinstance(result[0], model.DomainObject):

@@ -105,12 +105,12 @@ This occurs when trying to ``import migrate.exceptions`` and is due to the versi
 ``ckan.plugins.core.PluginNotFoundException: stats``
 ====================================================
 
-After the CKAN 1.5.1 release, the Stats extension was merged into the core CKAN code, and the ckanext namespace needs registering before the tests will run::
+After the CKAN 1.5.1 release, the Stats and Storage extensions were merged into the core CKAN code, and the ckanext namespace needs registering before the tests will run::
 
          cd pyenv/src/ckan
          python setup.py develop
 
-Otherwise, this problem may be to enabling an extension which is not installed. See: :doc:`extensions`_.
+Otherwise, this problem may be because of specifying an extension in the CKAN config but having not installed it. See: :doc:`extensions`.
 
 ``AssertionError: There is no script for 46 version``
 =====================================================
@@ -129,3 +129,7 @@ This occurs when installing CKAN source to a virtual environment when using an o
 
 This occurs when upgrading to CKAN 1.5.1 with a database with duplicate user names. See :ref:`upgrading`
 
+``ERROR:  must be member of role "okfn"`` & ``WARNING:  no privileges could be revoked for "public"``
+=====================================================================================================
+
+These are seen when loading a CKAN database from another machine. It is the result of the database tables being owned by a user that doesn't exist on the new machine. The owner of the table is not important, so this error is harmless and can be ignored.

@@ -57,7 +57,7 @@ site_logo
 
 Example::
 
- ckan.site_logo=/images/ckan_logo_fullname_long.png
+ ckan.site_logo = /images/ckan_logo_fullname_long.png
 
 Default value:  (none)
 
@@ -69,6 +69,17 @@ This sets the logo used in the title bar.
 
 .. index::
    single: package_hide_extras
+
+favicon
+^^^^^^^
+
+Example::
+
+ ckan.favicon = http://okfn.org/wp-content/themes/okfn-master-wordpress-theme/images/favicon.ico
+
+Default value: ``/images/icons/ckan.ico``
+
+This sets the site's `favicon`. This icon is usually displayed by the browser in the tab heading and bookmark.
 
 site_about
 ^^^^^^^^^^
@@ -156,6 +167,8 @@ And there is an option for the default expiry time if not specified::
 
  ckan.cache.default_expires = 600
 
+
+
 Authentication Settings
 -----------------------
 
@@ -229,6 +242,35 @@ Example::
 Default value: (none)
 
 If you want to specify the ordering of all or some of the locales as they are offered to the user, then specify them here in the required order. Any locales that are available but not specified in this option, will still be offered at the end of the list.
+
+
+Storage Settings
+----------------
+
+.. index::
+   single: ckan.storage.bucket, ckan.storage.directory
+
+ckan.storage.bucket
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.storage.bucket = ckan
+
+Default value:  ``None``
+
+This setting will change the bucket name for the uploaded files.
+
+ckan.storage.directory
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.storage.directory = /data/uploads/
+
+Default value:  ``None``
+
+Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
 
 
 
@@ -451,13 +493,27 @@ solr_url
 
 Example::
 
- solr_url = http://solr.okfn.org:8983/solr
- 
-This configures the Solr server used for search. The SOLR schema must be one of the ones in ``ckan/config/solr`` (generally the last one).
+ solr_url = http://solr.okfn.org:8983/solr/ckan-schema-1.3
 
-Optionally, ``solr_user`` and ``solr_password`` can also be passed along to specify HTTP Basic authentication details for all Solr requests. 
+Default value:  ``http://solr.okfn.org:8983/solr``
+ 
+This configures the Solr server used for search. The Solr schema found at that URL must be one of the ones in ``ckan/config/solr`` (generally the most recent one). A check of the schema version number occurs when CKAN starts.
+
+Optionally, ``solr_user`` and ``solr_password`` can also be configured to specify HTTP Basic authentication details for all Solr requests. 
 
 Note, if you change this value, you need to rebuild the search index.
+
+simple_search
+^^^^^^^^^^^^^
+
+Example::
+
+ ckan.simple_search = true
+
+Default value:  ``false``
+
+Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
+
 
 Site Settings
 -------------
@@ -551,7 +607,7 @@ plugins
 
 Example::
 
-  ckan.plugins = disqus synchronous_search datapreview googleanalytics stats storage follower
+  ckan.plugins = disqus datapreview googleanalytics follower
 
 Specify which CKAN extensions are to be enabled. 
 

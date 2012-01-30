@@ -47,10 +47,21 @@ class CkanNose(Plugin):
             '--ckan-migration',
             action='store_true',
             dest='ckan_migration',
-            help='set this when wanting to test migrations')        
+            help='set this when wanting to test migrations')
+        parser.add_option(
+            '--docstrings',
+            action='store_true',
+            dest='docstrings',
+            help='set this to display test docstrings instead of module names')
 
     def configure(self, settings, config):
         CkanNose.settings = settings
         if settings.is_ckan:
             self.enabled = True
             self.is_first_test = True
+
+    def describeTest(self, test):
+        if not CkanNose.settings.docstrings:
+            # display module name instead of docstring
+            return False
+

@@ -49,6 +49,7 @@ class TestBasicDictize:
             'license_id': u'other-open',
             'maintainer': None,
             'maintainer_email': None,
+            'type': None,
             'name': u'annakarenina',
             'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
             'relationships_as_object': [],
@@ -103,11 +104,6 @@ class TestBasicDictize:
         model.repo.rebuild_db()
         model.Session.remove()
 
-    def teardonwn(self):
-        model.Session.remove()
-
-
-
     def remove_changable_columns(self, dict):
         for key, value in dict.items():
             if key.endswith('id') and key <> 'license_id':
@@ -150,6 +146,7 @@ class TestBasicDictize:
             'maintainer': None,
             'maintainer_email': None,
             'name': u'annakarenina',
+            'type': None,
             'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
             'state': u'active',
             'title': u'A Novel By Tolstoy',
@@ -883,6 +880,7 @@ class TestBasicDictize:
                                   'license_id': u'other-open',
                                   'maintainer': None,
                                   'maintainer_email': None,
+                                  'type': None,
                                   'name': u'annakarenina3',
                                   'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
                                   'state': u'active',
@@ -897,6 +895,7 @@ class TestBasicDictize:
                                   'license_id': u'other-open',
                                   'maintainer': None,
                                   'maintainer_email': None,
+                                  'type': None,
                                   'name': u'annakarenina2',
                                   'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
                                   'state': u'active',
