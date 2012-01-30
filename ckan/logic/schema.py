@@ -160,9 +160,10 @@ def default_group_schema():
         'name': [not_empty, unicode, name_validator, group_name_validator],
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
-        'type': [ignore_missing, unicode],        
+        'type': [ignore_missing, unicode],
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
+        'approval_status': [ignore_missing, unicode],
         'extras': default_extras_schema(),
         '__extras': [ignore],
         'packages': {

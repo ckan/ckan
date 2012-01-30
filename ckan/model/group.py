@@ -67,11 +67,13 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
             DomainObject):
-    def __init__(self, name=u'', title=u'', description=u'', type=u'group'):
+    def __init__(self, name=u'', title=u'', description=u'', 
+                 type=u'group', approval_status=u"approved")
         self.name = name
         self.title = title
         self.description = description
         self.type = type
+        self.approval_status= approval_status
 
     @property
     def display_name(self):
@@ -91,6 +93,12 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     # Todo: Make sure group names can't be changed to look like group IDs?
 
     def set_approval_status(self, status):
+        """
+            Aproval status can be set on a group, where currently it does
+            nothing other than act as an indication of whether it was 
+            approved or not. It may be that we want to tie the object 
+            status to the approval status
+        """
         assert status in ["approved", "pending", "denied"]
         self.approval_status = status
         if status == "denied":
