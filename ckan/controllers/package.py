@@ -69,7 +69,6 @@ def register_pluggable_behaviour(map):
     
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in PluginImplementations(IDatasetForm):
-        print 'Processing %r' % plugin
         if plugin.is_fallback():
             if _default_controller_behaviour is not None:
                 raise ValueError, "More than one fallback "\

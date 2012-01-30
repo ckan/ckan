@@ -32,6 +32,7 @@ group_table = Table('group', metadata,
     Column('type', UnicodeText, nullable=False),
     Column('description', UnicodeText),
     Column('created', DateTime, default=datetime.datetime.now),
+    Column('approval_status', UnicodeText, default=u"approved"),
     )
 
 vdm.sqlalchemy.make_table_stateful(group_table)
@@ -88,6 +89,12 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             group = cls.by_name(reference)
         return group
     # Todo: Make sure group names can't be changed to look like group IDs?
+
+    def set_approval_status(self, status):
+        assert status in ["approved", "pending", "denied"]
+        self.approval_status = status
+        if status == "denied":
+            pass
 
     def members_of_type(self, object_type):
         object_type_string = object_type.__name__.lower()
