@@ -7,6 +7,7 @@ from meta import *
 from domain_object import DomainObject
 from package import Package
 from core import *
+import vocabulary
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
            'PackageTagRevision', 'package_tag_revision_table',
@@ -17,7 +18,11 @@ MIN_TAG_LENGTH = 2
 
 tag_table = Table('tag', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False, unique=True),
+        Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False,
+            unique=True),
+        Column('vocabulary_id',
+            types.Unicode(vocabulary.VOCABULARY_NAME_MAX_LENGTH),
+            ForeignKey('vocabulary.id'))
 )
 
 package_tag_table = Table('package_tag', metadata,
