@@ -338,7 +338,6 @@ def activity_create(context, activity_dict, ignore_auth=False):
     '''
     model = context['model']
     user = context['user']
-    import pdb; pdb.set_trace()
 
     # Any revision_id that the caller attempts to pass in the activity_dict is
     # ignored and overwritten here.
