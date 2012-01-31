@@ -7,7 +7,6 @@ from ckan import plugins
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic import check_access, NotAuthorized
-from new_authz import reset_auth_functions
         
 from pylons import config
 
@@ -516,8 +515,8 @@ class TestPublisherEdit(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):                        
-        reset_auth_functions('publisher')
-        config['ckan.auth.profile'] = 'publisher'
+        from ckan.tests.mock_publisher_auth import MockPublisherAuth
+        self.auth = MockPublisherAuth()
 
         model.Session.remove()
         CreateTestData.create(auth_profile='publisher')
@@ -529,9 +528,6 @@ class TestPublisherEdit(FunctionalTestCase):
 
     @classmethod
     def teardown_class(self):
-#        reset_auth_functions('')
-#        config['ckan.auth.profile'] = ''
-                
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
@@ -641,19 +637,27 @@ Ho ho ho
         res = self.app.get(offset, status=[302,401], extra_environ={'REMOTE_USER': 'non-existent'})        
 
     def test_edit_fail_auth(self):
-#        member_obj = model.Member(table_id = package.id,
-#                      table_name = 'package',
-#                      group = group,
-#                      group_id=group.id,
-#                      state = 'active')
-#        session.add(member_obj)
-
         context = { 'group': model.Group.by_name(self.groupname), 'model': model, 'user': 'russianfan' }
         try:
-            if check_access('group_update',context):
+            if self.auth.check_access('group_update',context, {}):
                 assert False, "Check access said we were allowed but we shouldn't really"
         except NotAuthorized, e:
-            assert False, str(e)
+            pass # Do nothing as this is what we expected
+
+    def test_edit_success_auth(self):
+        userobj = model.User.get('russianfan')
+        grp = model.Group.by_name(self.groupname)        
+        
+        def gg(*args, **kwargs):
+            return [grp]
+        model.User.get_groups = gg
+    
+        context = { 'group': grp, 'model': model, 'user': 'russianfan' }
+        try:
+            self.auth.check_access('group_update',context, {}):
+        except NotAuthorized, e:
+            assert False, "The user should have access"
+            
 
     def test_delete(self):
         group_name = 'deletetest'

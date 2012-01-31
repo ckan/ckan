@@ -12,7 +12,7 @@ class AuthFunctions:
     _functions = {}
 
 def reset_auth_functions(type=''):
-    AuthFunctions._functions = {}
+    AuthFunctions._functions.clear()
     _get_auth_function('resource_create', type)
 
 def is_authorized(action, context,data_dict=None):
@@ -24,7 +24,7 @@ def is_authorized(action, context,data_dict=None):
 
 def _get_auth_function(action, profile=None):
     from pylons import config
-
+    
     if AuthFunctions._functions:
         return AuthFunctions._functions.get(action)
 
