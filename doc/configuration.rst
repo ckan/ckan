@@ -493,13 +493,27 @@ solr_url
 
 Example::
 
- solr_url = http://solr.okfn.org:8983/solr
- 
-This configures the Solr server used for search. The SOLR schema must be one of the ones in ``ckan/config/solr`` (generally the last one).
+ solr_url = http://solr.okfn.org:8983/solr/ckan-schema-1.3
 
-Optionally, ``solr_user`` and ``solr_password`` can also be passed along to specify HTTP Basic authentication details for all Solr requests. 
+Default value:  ``http://solr.okfn.org:8983/solr``
+ 
+This configures the Solr server used for search. The Solr schema found at that URL must be one of the ones in ``ckan/config/solr`` (generally the most recent one). A check of the schema version number occurs when CKAN starts.
+
+Optionally, ``solr_user`` and ``solr_password`` can also be configured to specify HTTP Basic authentication details for all Solr requests. 
 
 Note, if you change this value, you need to rebuild the search index.
+
+simple_search
+^^^^^^^^^^^^^
+
+Example::
+
+ ckan.simple_search = true
+
+Default value:  ``false``
+
+Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
+
 
 Site Settings
 -------------
@@ -606,7 +620,7 @@ plugins
 
 Example::
 
-  ckan.plugins = disqus synchronous_search datapreview googleanalytics stats storage follower
+  ckan.plugins = disqus datapreview googleanalytics follower
 
 Specify which CKAN extensions are to be enabled. 
 

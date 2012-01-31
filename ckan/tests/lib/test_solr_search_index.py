@@ -96,6 +96,10 @@ class TestSolrSearchIndex(TestController):
         search.index_for('Package').clear()
         response = self.solr.query('title:penguin', fq=self.fq)
         assert len(response) == 0
+        # clear whilst empty
+        search.index_for('Package').clear()
+        response = self.solr.query('title:penguin', fq=self.fq)
+        assert len(response) == 0
 
 
 class TestSolrSearch:

@@ -1,3 +1,4 @@
+import logging
 import genshi
 import datetime
 from urllib import urlencode
@@ -9,7 +10,6 @@ from pylons.i18n import get_lang, _
 import ckan.authz as authz
 from ckan.authz import Authorizer
 from ckan.lib.helpers import Page
-from ckan.lib.search import SearchIndexError, SearchError
 from ckan.plugins import PluginImplementations, IGroupController, IGroupForm
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
@@ -19,6 +19,7 @@ from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.lib.dictization.model_dictize import package_dictize
 import ckan.forms
 
+log = logging.getLogger(__name__)
 
 # Mapping from group-type strings to IDatasetForm instances
 _controller_behaviour_for = dict()
@@ -199,6 +200,7 @@ class GroupController(BaseController):
 
 
     def read(self, id):
+        from ckan.lib.search import SearchError
         group_type = self._get_group_type(id.split('@')[0])        
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
@@ -294,6 +296,7 @@ class GroupController(BaseController):
             c.facets = query['facets']
             c.page.items = query['results']
         except SearchError, se:
+            log.error('Group search error: %r', se.args)
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])

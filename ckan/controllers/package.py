@@ -17,7 +17,6 @@ from ckan.lib.helpers import date_str_to_datetime
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import response, redirect, gettext
 from ckan.authz import Authorizer
-from ckan.lib.search import SearchIndexError, SearchError
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.lib.helpers import json
@@ -31,7 +30,7 @@ import ckan.authz
 import ckan.rating
 import ckan.misc
 
-log = logging.getLogger('ckan.controllers')
+log = logging.getLogger(__name__)
 
 def search_url(params):
     url = h.url_for(controller='package', action='search')
@@ -198,6 +197,7 @@ class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
 
     def search(self):
+        from ckan.lib.search import SearchError
         try:
             context = {'model':model,'user': c.user or c.author}
             check_access('site_read',context)
@@ -269,6 +269,7 @@ class PackageController(BaseController):
             c.facets = query['facets']
             c.page.items = query['results']
         except SearchError, se:
+            log.error('Package search error: %r', se.args)
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
@@ -587,6 +588,7 @@ class PackageController(BaseController):
         return data['type']
 
     def _save_new(self, context, package_type=None):
+        from ckan.lib.search import SearchIndexError
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
@@ -610,6 +612,7 @@ class PackageController(BaseController):
             return self.new(data_dict, errors, error_summary)
 
     def _save_edit(self, id, context):
+        from ckan.lib.search import SearchIndexError
         try:
             package_type = self._get_package_type(id)
             data_dict = clean_dict(unflatten(

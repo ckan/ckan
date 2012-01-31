@@ -47,7 +47,9 @@
 
       <py:for each="package in c.page.items">
         <div class="search-result ${'fullyopen' if (package.isopen and package.get('resources')) else None}">
-          <a class="view-more-link" href="${h.url_for(controller='package', action='read', id=package.get('name'))}">View</a>
+          <p class="extra-links">
+            <a class="view-more-link" href="${h.url_for(controller='package', action='read', id=package.get('name'))}">View</a>
+          </p>
           <a class="main-link" href="${h.url_for(controller='package', action='read', id=package.get('name'))}">${package.get('title') or package.get('name')}</a>
           &nbsp;&nbsp;
           <py:if test="package.resources">
