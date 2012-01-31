@@ -74,7 +74,7 @@ def group_update(context, data_dict):
     model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
-
+    
     authorized = check_access_old(group, model.Action.EDIT, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit group %s') % (str(user),group.id)}

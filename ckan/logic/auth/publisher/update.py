@@ -45,11 +45,16 @@ def package_edit_permissions(context, data_dict):
 
 def group_update(context, data_dict):
     model = context['model']
-    user = context['user']
+    user = context.get('user','')
     group = get_group_object(context, data_dict)
  
+    if not user:
+        return {'success': False, 'msg': _('Only members of this group are authorized to edit this group')} 
+        
     # Only allow package update if the user and package groups intersect
     userobj = model.User.get( user )
+    if not userobj:
+        return {'success': False, 'msg': _('Could not find user %s') % str(user)}         
     if not _groups_intersect( userobj.get_groups('publisher', 'admin'), [group] ):
         return {'success': False, 'msg': _('User %s not authorized to edit this group') % str(user)}
 

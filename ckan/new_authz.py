@@ -8,7 +8,12 @@ log = getLogger(__name__)
 
 # This is a private cache used by get_auth_function() and should never
 # be accessed directly
-_auth_functions = {}
+class AuthFunctions:
+    _functions = {}
+
+def reset_auth_functions(type=''):
+    AuthFunctions._functions = {}
+    _get_auth_function('resource_create', type)
 
 def is_authorized(action, context,data_dict=None):
     auth_function = _get_auth_function(action)
@@ -17,11 +22,11 @@ def is_authorized(action, context,data_dict=None):
     else:
         raise ValueError(_('Authorization function not found: %s' % action))
 
-def _get_auth_function(action):
+def _get_auth_function(action, profile=None):
     from pylons import config
-            
-    if _auth_functions:
-        return _auth_functions.get(action)
+
+    if AuthFunctions._functions:
+        return AuthFunctions._functions.get(action)
 
     # Otherwise look in all the plugins to resolve all possible
     # First get the default ones in the ckan/logic/auth directory
@@ -31,10 +36,14 @@ def _get_auth_function(action):
     
     # We will load the auth profile from settings
     module_root = 'ckan.logic.auth'
-    auth_profile = config.get('ckan.auth.profile', '')
+    if profile is not None:
+        auth_profile = profile
+    else:
+        auth_profile = config.get('ckan.auth.profile', '')
+        
     if auth_profile:
         module_root = '%s.%s' % (module_root, auth_profile)
-
+   
     log.info('Using auth profile at %s' % module_root)
     
     for auth_module_name in ['get', 'create', 'update','delete']:
@@ -50,7 +59,7 @@ def _get_auth_function(action):
 
         for key, v in module.__dict__.items():
             if not key.startswith('_'):
-                _auth_functions[key] = v
+                AuthFunctions._functions[key] = v
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_auth_function_plugins = {}
@@ -68,6 +77,6 @@ def _get_auth_function(action):
             resolved_auth_function_plugins[name] = plugin.name
             fetched_auth_functions[name] = auth_function
     # Use the updated ones in preference to the originals.
-    _auth_functions.update(fetched_auth_functions)
-    return _auth_functions.get(action)
+    AuthFunctions._functions.update(fetched_auth_functions)
+    return AuthFunctions._functions.get(action)
 

@@ -423,7 +423,7 @@ class GroupController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
             group = get_action('group_update')(context, data_dict)
-            h.redirect_to('%s_read' % group['type'], id=group['name'])
+            h.redirect_to('%s_read' % str(group['type']), id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
         except NotFound, e:

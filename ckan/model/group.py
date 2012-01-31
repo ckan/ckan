@@ -67,8 +67,9 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
             DomainObject):
+            
     def __init__(self, name=u'', title=u'', description=u'', 
-                 type=u'group', approval_status=u"approved")
+                 type=u'group', approval_status=u'approved' ):
         self.name = name
         self.title = title
         self.description = description

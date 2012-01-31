@@ -148,7 +148,7 @@ def subnav_named_route(c, text, routename,**kwargs):
     """ Generate a subnav element based on a named route """
     return link_to(
         text, 
-        url_for(routename, **kwargs),
+        url_for(str(routename), **kwargs),
         class_=('active' if c.action == kwargs['action'] else '')
     )    
 
