@@ -197,7 +197,7 @@
     <dd>
       <p>Do you really want to change the state of this dataset? &nbsp;&nbsp;<button class="dataset-delete pretty-button">Yes!</button></p>
       This dataset is&nbsp;&nbsp; 
-      <select class="dataset-delete" id="state" name="state" style="display:inline;">
+      <select id="state" class="dataset-delete" name="state" style="display:inline;">
         <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
         <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
       </select>
