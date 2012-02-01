@@ -53,7 +53,6 @@ def group_update(context, data_dict):
             
     # Only allow package update if the user and package groups intersect
     userobj = model.User.get( user )
-    
     if not userobj:
         return {'success': False, 'msg': _('Could not find user %s') % str(user)}         
     if not _groups_intersect( userobj.get_groups('publisher', 'admin'), [group] ):

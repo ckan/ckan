@@ -39,11 +39,16 @@ def relationship_delete(context, data_dict):
 def group_delete(context, data_dict):
     model = context['model']
     user = context['user']
+
+    if not user:
+        return {'success': False, 'msg': _('Only members of this group are authorized to delete this group')} 
     
     group = get_group_object(context, data_dict)
-    usergrps =  model.User.get( user ).get_groups('publisher', 'admin')
-    
-    authorized = _groups_intersect( usergrps, group.get_groups('publisher') )
+    userobj = model.User.get( user )
+    if not userobj:
+        return {'success': False, 'msg': _('Only members of this group are authorized to delete this group')} 
+            
+    authorized = _groups_intersect( userobj.get_groups('publisher', 'admin'), [group] )
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete group %s') % (str(user),group.id)}
     else:

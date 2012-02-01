@@ -33,16 +33,21 @@ def package_relationship_create(context, data_dict):
 
 def group_create(context, data_dict=None):
     model = context['model']
-    user = context['user']
+    user  = context['user']
+
+    if not user:
+        return {'success': False, 'msg': _('User is not authorized to create groups') }        
    
-    # TODO: We need to check whether this group is being created within another group
     try:
         group = get_group_object( context )
     except NotFound:
         return { 'success' : True }
         
-    usergrps = User.get( user ).get_groups('publisher')
-    authorized = _groups_intersect( usergrps, group.get_groups('publisher') )
+    userobj = model.User.get( user )
+    if not userobj:
+        return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}        
+        
+    authorized = _groups_intersect( userobj.get_groups('publisher'), [group] )
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
     else:
