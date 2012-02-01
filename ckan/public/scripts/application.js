@@ -861,10 +861,9 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     else {
       // Cannot reliably preview this item - with no mimetype/format information, 
       // can't guarantee it's not a remote binary file such as an executable.
-      var _msg = $('<p class="error">We are unable to preview this type of resource: ' + resourceData.formatNormalized + '</p>');
       my.showError({
-        title: 'Unable to preview'
-        , message: _msg
+        title: 'Preview not available for data type: ' + resourceData.formatNormalized
+        , message: ''
       });
     }
   };
@@ -929,7 +928,10 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   };
 
   my.showError = function (error) {
-    var _html = '<strong>' + $.trim(error.title) + '</strong><br />' + $.trim(error.message);
+    var _html = _.template(
+        '<div class="alert-message warning"><strong><%= title %></strong><br /><%= message %></div>'
+        , error
+        );
     my.$dialog.html(_html);
   };
 
