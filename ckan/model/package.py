@@ -178,7 +178,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return
         tag = Tag.by_name(tag_name, vocab=vocab, autoflush=autoflush)
         if not tag:
-            tag = Tag(name=tag_name, vocabulary=vocab)
+            if vocab:
+                tag = Tag(name=tag_name, vocabulary_id=vocab.id)
+            else:
+                tag = Tag(name=tag_name)
         if not tag in self.tags:
             self.tags.append(tag)
 
