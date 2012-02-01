@@ -1,3 +1,4 @@
+from pylons.i18n import _
 from ckan import model
 from ckan.lib.navl.dictization_functions import Invalid
 from ckan.lib.field_types import DateType, DateConvertError
@@ -45,11 +46,9 @@ def convert_to_tags(vocab):
         for tag in new_tags:
             tag_length_validator(tag, context)
             tag_name_validator(tag, context)
-        # get the vocab
         v = model.Vocabulary.get(vocab)
         if not v:
-            # TODO: raise an exception here
-            pass
+            raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
         # add new tags
         for num, tag in enumerate(new_tags):
             data[('tags', num+n, 'name')] = tag
