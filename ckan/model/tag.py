@@ -169,7 +169,7 @@ class Tag(DomainObject):
         return query
 
     @property
-    def packages_ordered(self, vocab_id_or_name=None):
+    def packages_ordered(self):
         """Return a list of all packages currently tagged with this tag.
 
         The list is sorted by package name.
