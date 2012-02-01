@@ -159,13 +159,25 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             hash=hash,
             **kw))
 
-    def add_tag_by_name(self, tagname, autoflush=True):
+    def add_tag_by_name(self, tag_name, vocab=None, autoflush=True):
+        """Add a tag with the given name to this package's tags.
+
+        By default only free tags (tags which do not belong to any vocabulary)
+        are used. If the optional argument vocab is given then only tags
+        belonging to that vocabulary will be used.
+
+        If no tag with the given name exists, one will be created. If the
+        optional argument vocab is given and no tag with the given name exists
+        in the given vocabulary, then a new tag will be created and added to
+        the vocabulary.
+
+        """
         from tag import Tag
-        if not tagname:
+        if not tag_name:
             return
-        tag = Tag.by_name(tagname, autoflush=autoflush)
+        tag = Tag.by_name(tag_name, vocab=vocab, autoflush=autoflush)
         if not tag:
-            tag = Tag(name=tagname)
+            tag = Tag(name=tag_name, vocabulary=vocab)
         if not tag in self.tags:
             self.tags.append(tag)
 
