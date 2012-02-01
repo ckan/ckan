@@ -3,18 +3,26 @@ from ckan.logic.converters import convert_to_tags
 from ckan.lib.navl.dictization_functions import unflatten
 
 class TestConverters:
+    @classmethod
+    def setup_class(cls):
+        # create a new vocabulary
+        cls.vocab = model.Vocabulary('test-vocab') 
+        model.Session.add(cls.vocab)
+        model.Session.commit()
+        model.Session.remove()
+
     def test_convert_to_tags(self):
         def convert(tag_string, vocab):
             key = 'vocab_tag_string'
             data = {key: tag_string}
             errors = []
             context = {'model': model, 'session': model.Session}
-            convert_to_tags('vocab')(key, data, errors, context)
+            convert_to_tags(vocab)(key, data, errors, context)
             del data[key]
             return data
 
-        data = unflatten(convert('tag1, tag2', 'vocab'))
+        data = unflatten(convert('tag1, tag2', 'test-vocab'))
         for tag in data['tags']:
-            assert tag['name'] in ['tag1', 'tag2']
-            assert tag['vocabulary'] == 'vocab'
+            assert tag['name'] in ['tag1', 'tag2'], tag['name']
+            assert tag['vocabulary_id'] == self.vocab.id, tag['vocabulary_id']
 
