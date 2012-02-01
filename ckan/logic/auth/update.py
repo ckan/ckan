@@ -1,7 +1,7 @@
 from ckan.logic import check_access_old, NotFound
 from ckan.logic.auth import get_package_object, get_resource_object,  get_group_object, get_authorization_group_object, \
     get_user_object, get_resource_object
-from ckan.logic.auth.create import check_group_auth, package_relationship_create
+from ckan.logic.auth.create import _check_group_auth, package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
@@ -17,7 +17,7 @@ def package_update(context, data_dict):
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), package.id)}
     else:
-        check2 = check_group_auth(context,data_dict)
+        check2 = _check_group_auth(context,data_dict)
         if not check2:
             return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
 

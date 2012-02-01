@@ -15,7 +15,6 @@ def package_create(context, data_dict=None):
         return {'success': True}
         
     return {'success': False, 'msg': 'You must be logged in to create a package'}
-    
 
 def resource_create(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
@@ -87,10 +86,6 @@ def rating_create(context, data_dict):
 def user_create(context, data_dict=None):
     return {'success': True}
 
-
-def check_group_auth(context, data_dict):
-    # Maintained for function count in profiles, until we can rename to _*
-    return True
 
 ## Modifications for rest api
 
