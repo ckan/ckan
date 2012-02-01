@@ -33,7 +33,7 @@ class TestAuthProfiles(PylonsTestCase):
             'ckan.logic.auth': 0,
             'ckan.logic.auth.publisher': 0
         }
-        
+
         for module_root in modules.keys():
             for auth_module_name in ['get', 'create', 'update','delete']:
                 module_path = '%s.%s' % (module_root, auth_module_name,)
@@ -46,6 +46,6 @@ class TestAuthProfiles(PylonsTestCase):
                     if not key.startswith('_'):
                         modules[module_root] = modules[module_root] + 1
         
-        # Differs based on auth imports
-        assert modules['ckan.logic.auth'] == modules['ckan.logic.auth.publisher'] - 3, modules
+        # The difference is the imported check_access_old in the default profile
+        assert modules['ckan.logic.auth'] == modules['ckan.logic.auth.publisher'] - 2, modules
 
