@@ -5,6 +5,7 @@ from nose.tools import assert_equal, assert_raises
 from ckan.lib.create_test_data import CreateTestData
 from ckan import plugins
 import ckan.lib.search as search
+from ckan.lib.search.common import SolrSettings
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase
@@ -266,9 +267,9 @@ class PackagesTestCase(BaseModelApiTestCase):
         Test that we can't add a package if Solr is down.
         """
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
-        solr_url = search.common.solr_url
+        original_settings = SolrSettings.get()[0]
         try:
-            search.common.solr_url = bad_solr_url
+            SolrSettings.init(bad_solr_url)
             plugins.load('synchronous_search')
 
             assert not self.get_package_by_name(self.package_fixture_data['name'])
@@ -279,7 +280,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             model.Session.remove()
         finally:
             plugins.unload('synchronous_search')
-            search.common.solr_url = solr_url
+            SolrSettings.init(original_settings)
 
     def test_register_post_tag_too_long(self):
         pkg = {'name': 'test_tag_too_long',
@@ -655,9 +656,9 @@ class PackagesTestCase(BaseModelApiTestCase):
         Test that we can't update a package if Solr is down.
         """
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
-        solr_url = search.common.solr_url
+        original_settings = SolrSettings.get()[0]
         try:
-            search.common.solr_url = bad_solr_url
+            SolrSettings.init(bad_solr_url)
             plugins.load('synchronous_search')
 
             assert_raises(
@@ -665,7 +666,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             )
         finally:
             plugins.unload('synchronous_search')
-            search.common.solr_url = solr_url
+            SolrSettings.init(original_settings)
 
     def test_entity_delete_ok(self):
         # create a package with package_fixture_data

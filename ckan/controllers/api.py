@@ -266,8 +266,8 @@ class ApiController(BaseController):
     def create(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
-            ('dataset', 'relationships'): get_action('package_relationship_create'),
-            ('package', 'relationships'): get_action('package_relationship_create'),
+            ('dataset', 'relationships'): get_action('package_relationship_create_rest'),
+            ('package', 'relationships'): get_action('package_relationship_create_rest'),
              'group': get_action('group_create_rest'),
              'dataset': get_action('package_create_rest'),
              'package': get_action('package_create_rest'),
@@ -275,8 +275,8 @@ class ApiController(BaseController):
         }
 
         for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = get_action('package_relationship_create')
-            action_map[('package', type)] = get_action('package_relationship_create')
+            action_map[('dataset', type)] = get_action('package_relationship_create_rest')
+            action_map[('package', type)] = get_action('package_relationship_create_rest')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver}
@@ -296,6 +296,7 @@ class ApiController(BaseController):
             return self._finish_bad_request(
                 gettext('Cannot create new entity of this type: %s %s') % \
                 (register, subregister))
+
         try:
             response_data = action(context, data_dict)
             location = None
@@ -325,17 +326,16 @@ class ApiController(BaseController):
             raise
             
     def update(self, ver=None, register=None, subregister=None, id=None, id2=None):
-
         action_map = {
-            ('dataset', 'relationships'): get_action('package_relationship_update'),
-            ('package', 'relationships'): get_action('package_relationship_update'),
+            ('dataset', 'relationships'): get_action('package_relationship_update_rest'),
+            ('package', 'relationships'): get_action('package_relationship_update_rest'),
              'dataset': get_action('package_update_rest'),
              'package': get_action('package_update_rest'),
              'group': get_action('group_update_rest'),
         }
         for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = get_action('package_relationship_update')
-            action_map[('package', type)] = get_action('package_relationship_update')
+            action_map[('dataset', type)] = get_action('package_relationship_update_rest')
+            action_map[('package', type)] = get_action('package_relationship_update_rest')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver, 'id': id}
@@ -376,15 +376,15 @@ class ApiController(BaseController):
 
     def delete(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
-            ('dataset', 'relationships'): get_action('package_relationship_delete'),
-            ('package', 'relationships'): get_action('package_relationship_delete'),
+            ('dataset', 'relationships'): get_action('package_relationship_delete_rest'),
+            ('package', 'relationships'): get_action('package_relationship_delete_rest'),
              'group': get_action('group_delete'),
              'dataset': get_action('package_delete'),
              'package': get_action('package_delete'),
         }
         for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = get_action('package_relationship_delete')
-            action_map[('package', type)] = get_action('package_relationship_delete')
+            action_map[('dataset', type)] = get_action('package_relationship_delete_rest')
+            action_map[('package', type)] = get_action('package_relationship_delete_rest')
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver}

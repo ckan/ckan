@@ -81,8 +81,11 @@ def load_environment(global_conf, app_conf):
                           'ckan.site_id for SOLR search-index rebuild to work.'
         config['ckan.site_id'] = ckan_host
 
-    # Check if SOLR schema is compatible
-    from ckan.lib.search import check_solr_schema_version
+    # Init SOLR settings and check if the schema is compatible
+    from ckan.lib.search import SolrSettings, check_solr_schema_version
+    SolrSettings.init(config.get('solr_url'),
+                      config.get('solr_user'),
+                      config.get('solr_password'))
     check_solr_schema_version()
 
     config['routes.map'] = make_map()

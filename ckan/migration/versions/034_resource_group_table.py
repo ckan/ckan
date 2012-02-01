@@ -110,7 +110,7 @@ ALTER TABLE resource
     # do data transfer
     # give resource group a hashed version of package uuid 
     # so that we can use the same hash calculation on  
-    # the resource and resource revistion table
+    # the resource and resource revision table
     migrate_engine.execute('''
 insert into resource_group 
     select 

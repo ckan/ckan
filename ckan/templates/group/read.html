@@ -3,6 +3,7 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
+  <xi:include href="../facets.html" />
   <py:def function="page_title">${c.group.display_name}</py:def>
   <py:def function="page_heading">${c.group.display_name}</py:def>
 
@@ -20,18 +21,59 @@
         </py:if>
       </ul>
     </li>
+    ${facet_sidebar('tags')}
+    ${facet_sidebar('res_format')}
   </py:match>
 
   <py:match path="content">
     <h3 py:if="c.group['state'] != 'active'">State: ${c.group['state']}</h3>
-    <div class="notes" py:if="str(c.group_description_formatted).strip()">
-      ${c.group_description_formatted}
+    <div class="notes" py:if="str(c.description_formatted).strip()">
+      ${c.description_formatted}
     </div>
     <div class="group-dataset-list">
-      <h3>Datasets:</h3>
-      <p i18n:msg="item_count">There are ${c.page.item_count} datasets in this group.</p>
+      <h3>Datasets</h3>
+
+      <form id="dataset-search" class="dataset-search" method="GET">
+        <input type="search" class="search" name="q" value="${c.q}" autocomplete="off" results="0" placeholder="${_('Search...')}" />
+        <py:for each="(k, v) in c.fields"> 
+          <input type="hidden" name="${k}" value="${v}" />  
+        </py:for>
+        <input type="submit" value="${_('Search')}" class="pretty-button primary button" />
+      </form>
+      ${field_list()}   
+
+      <p><span py:if="c.q">You searched for "${c.q}". </span>${c.page.item_count} datasets found.</p>
       ${c.page.pager()}
-      ${package_list_from_dict(c.page.items)}
+
+      <py:for each="package in c.page.items">
+        <div class="search-result ${'fullyopen' if (package.isopen and package.get('resources')) else None}">
+          <p class="extra-links">
+            <a class="view-more-link" href="${h.url_for(controller='package', action='read', id=package.get('name'))}">View</a>
+          </p>
+          <a class="main-link" href="${h.url_for(controller='package', action='read', id=package.get('name'))}">${package.get('title') or package.get('name')}</a>
+          &nbsp;&nbsp;
+          <py:if test="package.resources">
+            <py:for each="resource in package.resources">
+              <py:if test="resource.get('format')">
+                <a href="${resource.get('url')}"
+                  title="${resource.get('description')}"><span class="format-box">${resource.get('format')}</span></a>
+              </py:if>
+            </py:for>
+          </py:if>
+          <p class="result-description">${h.markdown_extract(package.notes)}</p>
+
+          <span class="result-url">
+            <py:if test="package.isopen">
+              <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+                <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+              </a>
+            </py:if>
+            <py:if test="not package.isopen">
+              ${h.icon('lock')} Not Openly Licensed
+            </py:if>
+          </span>
+        </div>
+      </py:for>
       ${c.page.pager()}
     </div>
   </py:match>

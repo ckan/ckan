@@ -23,10 +23,16 @@
       CKAN.Utils.setupWelcomeBanner($('.js-welcome-banner'));
     }
 
+    var isGroupView = $('body.group.read').length > 0;
+    if (isGroupView) {
+      // Show extract of notes field
+      CKAN.Utils.setupNotesExtract();
+    }
+
     var isDatasetView = $('body.package.read').length > 0;
     if (isDatasetView) {
       // Show extract of notes field
-      CKAN.Utils.setupDatasetViewNotesExtract();
+      CKAN.Utils.setupNotesExtract();
     }
 
     var isResourceView = $('body.package.resource_read').length > 0;
@@ -74,6 +80,18 @@
         el: $el
       });
       view.render();
+
+      // Set up dataset delete button
+      var select = $('select.dataset-delete');
+      select.attr('disabled','disabled');
+      select.css({opacity: 0.3});
+      $('button.dataset-delete').click(function(e) {
+        select.removeAttr('disabled');
+        select.fadeTo('fast',1.0);
+        $(e.target).css({opacity:0});
+        $(e.target).attr('disabled','disabled');
+        return false;
+      });
     }
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
@@ -424,17 +442,17 @@ CKAN.Utils = function($, my) {
   // If notes field is more than 1 paragraph, just show the
   // first paragraph with a 'Read more' link that will expand
   // the div if clicked
-  my.setupDatasetViewNotesExtract = function() {
-    var notes = $('#dataset div.notes');
+  my.setupNotesExtract = function() {
+    var notes = $('#content div.notes');
     if(notes.find('p').length > 1){
       var extract = notes.children(':eq(0)');
       var remainder = notes.children(':gt(0)');
-      notes.html($.tmpl(CKAN.Templates.datasetNotesField));
+      notes.html($.tmpl(CKAN.Templates.notesField));
       notes.find('#notes-extract').html(extract);
       notes.find('#notes-remainder').html(remainder);
       notes.find('#notes-remainder').hide();
-      notes.find('#dataset-notes-toggle a').click(function(event){
-        notes.find('#dataset-notes-toggle a').toggle();
+      notes.find('#notes-toggle a').click(function(event){
+        notes.find('#notes-toggle a').toggle();
         var remainder = notes.find('#notes-remainder')
         if ($(event.target).hasClass('more')) {
           remainder.slideDown();
@@ -442,6 +460,7 @@ CKAN.Utils = function($, my) {
         else {
           remainder.slideUp();
         }
+        return false;
       })
     }
   };
@@ -485,7 +504,13 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
       var boundToUnload = false;
       return function() {
         if (!boundToUnload) {
-          CKAN.Utils.flashMessage(CKAN.Strings.youHaveUnsavedChanges,'notice');
+          var parentDiv = $('<div />').addClass('flash-messages');
+          var messageDiv = $('<div />').html(CKAN.Strings.youHaveUnsavedChanges).addClass('notice').hide();
+          parentDiv.append(messageDiv);
+          $('#unsaved-warning').append(parentDiv);
+          console.log($('#unsaved-warning'));
+          messageDiv.show(200);
+
           boundToUnload = true;
           window.onbeforeunload = function () { 
             return CKAN.Strings.youHaveUnsavedChanges; 
@@ -494,7 +519,7 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
       }
     }();
 
-    $form.find('input').live('change', function(e) {
+    $form.find('input,select').live('change', function(e) {
       $target = $(e.target);
       // Entering text in the 'add' box does not represent a change
       if ($target.closest('.resource-add').length==0) {

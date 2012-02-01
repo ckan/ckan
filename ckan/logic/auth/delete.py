@@ -16,9 +16,10 @@ def package_delete(context, data_dict):
         return {'success': True}
 
 def package_relationship_delete(context, data_dict):
-    return package_relationship_create(context, data_dict)
-
-def relationship_delete(context, data_dict):
+    can_edit_this_relationship = package_relationship_create(context, data_dict)
+    if not can_edit_this_relationship['success']:
+        return can_edit_this_relationship
+    
     model = context['model']
     user = context['user']
     relationship = context['relationship']

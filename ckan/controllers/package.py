@@ -17,7 +17,6 @@ from ckan.lib.helpers import date_str_to_datetime
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import response, redirect, gettext
 from ckan.authz import Authorizer
-from ckan.lib.search import SearchIndexError, SearchError
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.lib.helpers import json
@@ -31,7 +30,7 @@ import ckan.authz
 import ckan.rating
 import ckan.misc
 
-log = logging.getLogger('ckan.controllers')
+log = logging.getLogger(__name__)
 
 def search_url(params):
     url = h.url_for(controller='package', action='search')
@@ -206,6 +205,7 @@ class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
 
     def search(self):
+        from ckan.lib.search import SearchError
         try:
             context = {'model':model,'user': c.user or c.author}
             check_access('site_read',context)
@@ -277,6 +277,7 @@ class PackageController(BaseController):
             c.facets = query['facets']
             c.page.items = query['results']
         except SearchError, se:
+            log.error('Package search error: %r', se.args)
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
@@ -448,14 +449,20 @@ class PackageController(BaseController):
         if context['save'] and not data:
             return self._save_new(context)
 
-        data = data or dict(request.params) 
+        data = data or clean_dict(unflatten(tuplize_dict(parse_params(request.params))))
+
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context, {'id': id})
-        c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
 
+        # TODO: This check is to maintain backwards compatibility with the old way of creating
+        # custom forms. This behaviour is now deprecated.
+        if hasattr(self, 'package_form'):
+            c.form = render(self.package_form, extra_vars=vars)
+        else:
+            c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
         return render('package/new.html')
 
 
@@ -496,7 +503,12 @@ class PackageController(BaseController):
 
         self._setup_template_variables(context, {'id': id}, package_type=package_type)
 
-        c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
+        # TODO: This check is to maintain backwards compatibility with the old way of creating
+        # custom forms. This behaviour is now deprecated.
+        if hasattr(self, 'package_form'):
+            c.form = render(self.package_form, extra_vars=vars)
+        else:
+            c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
         return render('package/edit.html')
 
     def read_ajax(self, id, revision=None):
@@ -582,6 +594,7 @@ class PackageController(BaseController):
         return data['type']
 
     def _save_new(self, context, package_type=None):
+        from ckan.lib.search import SearchIndexError
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
@@ -605,6 +618,7 @@ class PackageController(BaseController):
             return self.new(data_dict, errors, error_summary)
 
     def _save_edit(self, id, context):
+        from ckan.lib.search import SearchIndexError
         try:
             package_type = self._get_package_type(id)
             data_dict = clean_dict(unflatten(

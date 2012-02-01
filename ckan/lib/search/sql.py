@@ -24,7 +24,7 @@ class PackageSearchQuery(SearchQuery):
         def makelike(field):
             _attr = getattr(model.Package, field)
             return _attr.ilike('%' + term + '%')
-        if q and not (q == '""' or q == "''"):
+        if q and q not in ('""', "''", '*:*'):
             terms = q.split()
             # TODO: tags ...?
             fields = ['name', 'title', 'notes']

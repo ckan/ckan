@@ -4,7 +4,7 @@ from sqlalchemy import orm
 
 import ckan.model as model
 import ckan.model
-from helpers import json
+from helpers import json, OrderedDict
 
 class SimpleDumper(object):
     '''Dumps just package data but including tags, groups, license text etc'''
@@ -40,7 +40,7 @@ class SimpleDumper(object):
                         pkg_dict[name_] = value_
                     del pkg_dict[name]
             row_dicts.append(pkg_dict)
-        writer = PackagesCsvWriter(row_dicts)
+        writer = CsvWriter(row_dicts)
         writer.save(dump_file_obj)
 
     def dump_json(self, dump_file_obj, query):
@@ -201,7 +201,7 @@ class Dumper(object):
                         values={'name': record.name})
                 update.execute()
 
-class PackagesCsvWriter:
+class CsvWriter:
     def __init__(self, package_dict_list=None):
         self._rows = []
         self._col_titles = []
@@ -301,3 +301,25 @@ class PackagesXlWriter:
                     dict_[key_] = value_
                 del dict_[key]
         return dict_
+
+class UserDumper(object):
+    def dump(self, dump_file_obj):
+        query = model.Session.query(model.User)
+        query = query.order_by(model.User.created.asc())
+
+        columns = (('id', 'name', 'openid', 'fullname', 'email', 'created', 'about'))
+        row_dicts = []
+        for user in query:
+            row = OrderedDict()
+            for col in columns:
+                value = getattr(user, col)
+                if not value:
+                    value = ''
+                if col == 'created':
+                    value = str(value) # or maybe dd/mm/yyyy?
+                row[col] = value
+            row_dicts.append(row)
+
+        writer = CsvWriter(row_dicts)
+        writer.save(dump_file_obj)
+        dump_file_obj.close()
