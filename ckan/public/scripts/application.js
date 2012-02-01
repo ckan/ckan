@@ -508,7 +508,6 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
           var messageDiv = $('<div />').html(CKAN.Strings.youHaveUnsavedChanges).addClass('notice').hide();
           parentDiv.append(messageDiv);
           $('#unsaved-warning').append(parentDiv);
-          console.log($('#unsaved-warning'));
           messageDiv.show(200);
 
           boundToUnload = true;
