@@ -457,7 +457,7 @@ def vocabulary_dict_update(vocabulary_dict, context):
     model = context['model']
     session = context['session']
 
-    vocabulary_obj = model.Vocabulary.get(vocabulary_dict['id'])
+    vocabulary_obj = model.vocabulary.get(vocabulary_dict['id'])
     vocabulary_obj.name = vocabulary_dict['name']
 
     return vocabulary_obj

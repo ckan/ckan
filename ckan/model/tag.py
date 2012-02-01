@@ -7,7 +7,6 @@ from domain_object import DomainObject
 from package import Package
 from core import *
 import vocabulary
-from vocabulary import Vocabulary
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
            'PackageTagRevision', 'package_tag_revision_table',
@@ -111,7 +110,7 @@ class Tag(DomainObject):
 
         """
         if vocab_id_or_name:
-            vocab = Vocabulary.get(vocab_id_or_name)
+            vocab = vocabulary.get(vocab_id_or_name)
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
@@ -133,7 +132,7 @@ class Tag(DomainObject):
 
         """
         if vocab_id_or_name:
-            vocab = Vocabulary.get(vocab_id_or_name)
+            vocab = vocabulary.get(vocab_id_or_name)
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
@@ -155,7 +154,7 @@ class Tag(DomainObject):
 
         """
         if vocab_id_or_name:
-            vocab = Vocabulary.get(vocab_id_or_name)
+            vocab = vocabulary.get(vocab_id_or_name)
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
@@ -215,7 +214,7 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
 
         """
         if vocab_id_or_name:
-            vocab = Vocabulary.get(vocab_id_or_name)
+            vocab = vocabulary.get(vocab_id_or_name)
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None

@@ -108,7 +108,7 @@ def vocabulary_delete(context, data_dict):
     user = context['user']
     vocab_id = data_dict['id']
 
-    vocab_obj = model.Vocabulary.get(vocab_id)
+    vocab_obj = model.vocabulary.get(vocab_id)
     if vocab_obj is None:
         raise NotFound
 
