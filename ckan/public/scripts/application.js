@@ -858,6 +858,17 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       el.attr('height', '100%');
       my.$dialog.append(el);
     }
+    // images
+    else if (resourceData.formatNormalized in {'png':'', 'jpg':'', 'gif':''} 
+        ||  resourceData.resource_type=='image') {
+      // we displays a fullscreen dialog with the url in an iframe.
+      my.$dialog.empty();
+      var el = $('<img />');
+      el.attr('src', resourceData.url);
+      el.css('max-width', '100%');
+      el.css('border', 'solid 4px black');
+      my.$dialog.append(el);
+    }
     else {
       // Cannot reliably preview this item - with no mimetype/format information, 
       // can't guarantee it's not a remote binary file such as an executable.
