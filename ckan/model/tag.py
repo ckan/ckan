@@ -124,29 +124,63 @@ class Tag(DomainObject):
         # Todo: Make sure tag names can't be changed to look like tag IDs?
 
     @classmethod
-    def search_by_name(cls, text_query):
-        text_query = text_query.strip().lower()
-        q = Session.query(cls).filter(cls.name.contains(text_query))
-        q = q.distinct().join(cls.package_tags)
-        return q
-        
+    def search_by_name(cls, search_term, vocab_id_or_name=None):
+        """Return all tags that match the given search term.
+
+        By default only free tags (tags which do not belong to any vocabulary)
+        are returned. If the optional argument vocab_id_or_name is given then
+        only tags from that vocabulary are returned.
+
+        """
+        if vocab_id_or_name:
+            vocab = Vocabulary.get(vocab_id_or_name)
+            if vocab is None:
+                # The user specified an invalid vocab.
+                return None
+            query = Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
+        else:
+            query = Session.query(Tag)
+        search_term = search_term.strip().lower()
+        query = query.filter(Tag.name.contains(search_term))
+        query = query.distinct().join(Tag.package_tags)
+        return query
+
     @classmethod
-    def all(cls):
-        q = Session.query(cls)
-        q = q.distinct().join(PackageTagRevision)
-        q = q.filter(sqlalchemy.and_(
-            PackageTagRevision.state == 'active', PackageTagRevision.current == True
-        ))
-        return q
+    def all(cls, vocab_id_or_name=None):
+        """Return all tags that are currently applied to a package.
+
+        By default only free tags (tags which do not belong to any vocabulary)
+        are returned. If the optional argument vocab_id_or_name is given then
+        only tags from that vocabulary are returned.
+
+        """
+        if vocab_id_or_name:
+            vocab = Vocabulary.get(vocab_id_or_name)
+            if vocab is None:
+                # The user specified an invalid vocab.
+                return None
+            query = Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
+        else:
+            query = Session.query(Tag)
+        query = query.distinct().join(PackageTagRevision)
+        query = query.filter(sqlalchemy.and_(
+            PackageTagRevision.state == 'active',
+            PackageTagRevision.current == True))
+        return query
 
     @property
-    def packages_ordered(self):
+    def packages_ordered(self, vocab_id_or_name=None):
+        """Return a list of all packages currently tagged with this tag.
+
+        The list is sorted by package name.
+
+        """
         q = Session.query(Package)
         q = q.join(PackageTagRevision)
         q = q.filter(PackageTagRevision.tag_id == self.id)
         q = q.filter(sqlalchemy.and_(
-            PackageTagRevision.state == 'active', PackageTagRevision.current == True
-        ))
+            PackageTagRevision.state == 'active',
+            PackageTagRevision.current == True))
         packages = [p for p in q]
         ourcmp = lambda pkg1, pkg2: cmp(pkg1.name, pkg2.name)
         return sorted(packages, cmp=ourcmp)
@@ -169,12 +203,32 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
         return '<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
 
     @classmethod
-    def by_name(self, package_name, tag_name, autoflush=True):
-        q = Session.query(self).autoflush(autoflush).\
-            join('package').filter(Package.name==package_name).\
-            join('tag').filter(Tag.name==tag_name)
-        assert q.count() <= 1, q.all()
-        return q.first()
+    def by_name(self, package_name, tag_name, vocab_id_or_name=None,
+            autoflush=True):
+        """Return the one PackageTag for the given package and tag names, or
+        None if there is no PackageTag for that package and tag.
+
+        By default only PackageTags for free tags (tags which do not belong to
+        any vocabulary) are returned. If the optional argument vocab_id_or_name
+        is given then only PackageTags for tags from that vocabulary are
+        returned.
+
+        """
+        if vocab_id_or_name:
+            vocab = Vocabulary.get(vocab_id_or_name)
+            if vocab is None:
+                # The user specified an invalid vocab.
+                return None
+            query = (Session.query(PackageTag, Tag, Package)
+                    .filter(Tag.vocabulary_id == vocab.id)
+                    .filter(Package.name==package_name)
+                    .filter(Tag.name==tag_name))
+        else:
+            query = (Session.query(PackageTag)
+                    .filter(Package.name==package_name)
+                    .filter(Tag.name==tag_name))
+        query = query.autoflush(autoflush)
+        return query.one()[0]
 
     def related_packages(self):
         return [self.package]
