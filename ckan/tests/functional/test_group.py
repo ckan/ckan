@@ -654,7 +654,7 @@ Ho ho ho
     
         context = { 'group': grp, 'model': model, 'user': 'russianfan' }
         try:
-            self.auth.check_access('group_update',context, {}):
+            self.auth.check_access('group_update',context, {})
         except NotAuthorized, e:
             assert False, "The user should have access"
             

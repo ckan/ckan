@@ -10,10 +10,12 @@ def package_delete(context, data_dict):
     model = context['model']
     user = context['user']
     package = get_package_object(context, data_dict)
+    packageobj = model.Package.by_name( package )
     userobj = model.User.get( user )
 
     if not userobj or \
-       not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
+       not packageobj or \
+       not _groups_intersect( userobj.get_groups('publisher'), packageobj.get_groups('publisher') ):
         return {'success': False, 
                 'msg': _('User %s not authorized to delete packages in these group') % str(user)}
     return {'success': True}
@@ -37,6 +39,10 @@ def relationship_delete(context, data_dict):
         
 
 def group_delete(context, data_dict):
+    """
+    Group delete permission.  Checks that the user specified is within the group to be deleted
+    and also have 'admin' capacity.
+    """
     model = context['model']
     user = context['user']
 

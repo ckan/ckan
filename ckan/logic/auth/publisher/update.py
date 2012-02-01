@@ -12,13 +12,14 @@ def package_update(context, data_dict):
     model = context['model']
     user = context.get('user')
     package = get_package_object(context, data_dict)
-#    group = get_group_object( context, data_dict )
+    packageobj = model.Package.by_name( package )
     
-#    userobj = model.User.get( user )
-#    if not userobj or \
-#       not _groups_intersect( userobj.get_groups('publisher'), [group] ):
-#        return {'success': False, 
-#                'msg': _('User %s not authorized to edit packages in these groups') % str(user)}
+    userobj = model.User.get( user )
+    if not userobj or \
+       not packageobj or \
+       not _groups_intersect( userobj.get_groups('publisher'), packageobj.get_groups('publisher') ):
+        return {'success': False, 
+                'msg': _('User %s not authorized to edit packages in these groups') % str(user)}
 
     return {'success': True}
 
@@ -44,6 +45,10 @@ def package_edit_permissions(context, data_dict):
             'msg': _('Package edit permissions is not available')}
 
 def group_update(context, data_dict):
+    """
+    Group edit permission.  Checks that a valid user is supplied and that the user is 
+    a member of the group currently with any capacity.
+    """
     model = context['model']
     user = context.get('user','')
     group = get_group_object(context, data_dict)
@@ -54,11 +59,11 @@ def group_update(context, data_dict):
     # Only allow package update if the user and package groups intersect
     userobj = model.User.get( user )
     if not userobj:
-        return {'success': False, 'msg': _('Could not find user %s') % str(user)}         
-    if not _groups_intersect( userobj.get_groups('publisher', 'admin'), [group] ):
-        return {'success': False, 'msg': _('User %s not authorized to edit this group') % str(user)}
+        return { 'success' : False, 'msg': _('Could not find user %s') % str(user) }         
+    if not _groups_intersect( userobj.get_groups( 'publisher' ), [group] ):
+        return { 'success': False, 'msg': _('User %s not authorized to edit this group') % str(user) }
 
-    return {'success': True}
+    return { 'success': True }
 
 def group_change_state(context, data_dict):
     return group_update(context, data_dict)
