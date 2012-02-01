@@ -101,6 +101,84 @@ class TestPublisherGroups(FunctionalTestCase):
         self._run_fail_test( 'nosuchuser', 'group_delete' )
         
 
+class TestPublisherShow(FunctionalTestCase):
+    
+    @classmethod
+    def setup_class(self):                        
+        from ckan.tests.mock_publisher_auth import MockPublisherAuth
+        self.auth = MockPublisherAuth()
+
+        model.Session.remove()
+        CreateTestData.create(auth_profile='publisher')
+        self.groupname = u'david'
+        self.packagename = u'testpkg'
+        model.repo.new_revision()
+        model.Session.add(model.Package(name=self.packagename))
+        model.repo.commit_and_remove()
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def test_package_show_deleted_success(self):
+        userobj = model.User.get('russianfan')
+        grp = model.Group.by_name(self.groupname)     
+        pkg = model.Package.by_name(self.packagename)
+        pkg.state = 'deleted'
+        
+        f = model.User.get_groups
+        g = model.Package.get_groups
+        def gg(*args, **kwargs):
+            return [grp]
+        model.User.get_groups = gg
+        model.Package.get_groups = gg
+        
+        context = { 'package': pkg, 'model': model, 'user': userobj.name }
+        try:
+            self.auth.check_access('package_show', context, {})
+        except NotAuthorized, e:
+            assert False, "The user should have %s access: %r." % (action, e.extra_msg)
+        model.User.get_groups = f
+        model.Package.get_groups = g
+        pkg.state = "active"
+
+    def test_package_show_normal_success(self):
+        userobj = model.User.get('russianfan')
+        grp = model.Group.by_name(self.groupname)     
+        pkg = model.Package.by_name(self.packagename)
+        pkg.state = "active"
+        
+        context = { 'package': pkg, 'model': model, 'user': userobj.name }
+        try:
+            self.auth.check_access('package_show', context, {})
+        except NotAuthorized, e:
+            assert False, "The user should have %s access: %r." % ("package_show", e.extra_msg)
+        
+    def test_package_show_deleted_fail(self):
+        userobj = model.User.get('russianfan')
+        grp = model.Group.by_name(self.groupname)     
+        pkg = model.Package.by_name(self.packagename)
+        pkg.state = 'deleted'
+        
+        g = model.Package.get_groups
+        def gg(*args, **kwargs):
+            return [grp]
+        model.Package.get_groups = gg
+        
+        context = { 'package': pkg, 'model': model, 'user': userobj.name }
+        try:
+            self.auth.check_access('package_show', context, {})
+            assert False, "The user should not have access."            
+        except NotAuthorized, e:
+            pass
+        model.Package.get_groups = g
+        pkg.state = "active"
+        
+        
+
+
 class TestPublisherGroupPackages(FunctionalTestCase):
 
     @classmethod

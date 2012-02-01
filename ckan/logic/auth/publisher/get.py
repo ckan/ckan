@@ -66,6 +66,9 @@ def package_show(context, data_dict):
     package = get_package_object(context, data_dict)
     userobj = model.User.get( user )
     
+    if not userobj:
+        return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}    
+        
     if package.state == 'deleted':
         if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
@@ -77,6 +80,13 @@ def resource_show(context, data_dict):
     user = context.get('user')
     resource = get_resource_object(context, data_dict)
     package = resource.revision_group.package
+
+    if package.state == 'deleted':
+        userobj = model.User.get( user )
+        if not userobj:
+            return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user),package.id)}    
+        if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
+            return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
     
     pkg_dict = {'id': pkg.id}
     return package_show(context, pkg_dict)
