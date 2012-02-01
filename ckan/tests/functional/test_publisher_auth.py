@@ -192,3 +192,77 @@ class TestPublisherGroupPackages(FunctionalTestCase):
     def test_delete_unknown_fail(self):
         self._run_fail_test( 'nosuchuser', 'package_delete' )
         
+
+class TestPublisherPackageRelationships(FunctionalTestCase):
+
+    @classmethod
+    def setup_class(self):                        
+        from ckan.tests.mock_publisher_auth import MockPublisherAuth
+        self.auth = MockPublisherAuth()
+
+        model.Session.remove()
+        CreateTestData.create(auth_profile='publisher')
+        self.groupname = u'david'
+        self.package1name = u'testpkg'
+        self.package2name = u'testpkg2'
+        model.repo.new_revision()
+        model.Session.add(model.Package(name=self.package1name))
+        model.Session.add(model.Package(name=self.package2name))        
+        model.repo.commit_and_remove()
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def test_create_fail_user( self):
+        p1 = model.Package.by_name( self.package1name )
+        p2 = model.Package.by_name( self.package2name )        
+        
+        context = { 'model': model, 'user': 'russianfan' }
+        try:
+            self.auth.check_access('package_relationship_create', context, {'id': p1.id, 'id2': p2.id})
+            assert False, "The user should not have access."            
+        except NotAuthorized, e:
+            pass
+    
+    def test_create_fail_ddict( self):
+        p1 = model.Package.by_name( self.package1name )
+        p2 = model.Package.by_name( self.package2name )        
+        
+        context = { 'model': model, 'user': 'russianfan' }
+        try:
+            self.auth.check_access('package_relationship_create', context, {'id': p1.id})
+            assert False, "The user should not have access."            
+        except NotAuthorized, e:
+            pass
+            
+        try:
+            self.auth.check_access('package_relationship_create', context, {'id2': p2.id})
+            assert False, "The user should not have access."            
+        except NotAuthorized, e:
+            pass            
+                
+    def test_create_success(self):
+        userobj = model.User.get('russianfan')     
+
+        f = model.User.get_groups
+        g = model.Package.get_groups
+        def gg(*args, **kwargs):
+            return ['test_group']
+        model.User.get_groups = gg
+        model.Package.get_groups = gg
+    
+        p1 = model.Package.by_name( self.package1name )
+        p2 = model.Package.by_name( self.package2name )        
+        
+        context = { 'model': model, 'user': 'russianfan' }
+        try:
+            self.auth.check_access('package_relationship_create', context, {'id': p1.id, 'id2': p2.id})
+        except NotAuthorized, e:
+            assert False, "The user should have %s access: %r." % (action, e.extra_msg)
+        model.User.get_groups = f
+        model.Package.get_groups = g
+        
+

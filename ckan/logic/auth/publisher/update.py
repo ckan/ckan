@@ -29,6 +29,9 @@ def resource_update(context, data_dict):
     resource = get_resource_object(context, data_dict)
     userobj = model.User.get( user )
     
+    if not userobj:
+        return {'success': False, 'msg': _('User %s not authorized to edit resources in this package') % str(user)}        
+        
     if not _groups_intersect( userobj.get_groups('publisher'), resource.resource_group.package.get_groups('publisher') ):
         return {'success': False, 'msg': _('User %s not authorized to edit resources in this package') % str(user)}
 

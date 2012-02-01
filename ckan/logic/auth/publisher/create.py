@@ -24,10 +24,17 @@ def package_relationship_create(context, data_dict):
     model = context['model']
     user = context['user']
 
-    id = data_dict['id']
-    id2 = data_dict['id2']
-    pkg1grps = model.Package.get(id).get_groups('publisher')
-    pkg2grps = model.Package.get(id2).get_groups('publisher')
+    id = data_dict.get('id', '')
+    id2 = data_dict.get('id2', '')
+    
+    pkg1 = model.Package.get(id)
+    pkg2 = model.Package.get(id2)
+    
+    if not pkg1 or not pkg2:
+        return {'success': False, 'msg': _('Two package IDs are required')}    
+        
+    pkg1grps = pkg1.get_groups('publisher')
+    pkg2grps = pkg2.get_groups('publisher')
 
     usergrps = model.User.get( user ).get_groups('publisher')
     authorized = _groups_intersect( usergrps, pkg1grps ) and _groups_intersect( usergrps, pkg2grps )    
