@@ -1,3 +1,5 @@
+from pylons.i18n import _
+from ckan import model
 from ckan.lib.navl.dictization_functions import Invalid
 from ckan.lib.field_types import DateType, DateConvertError
 from ckan.logic.validators import tag_length_validator, tag_name_validator
@@ -33,10 +35,8 @@ def convert_to_tags(vocab):
     def callable(key, data, errors, context):
         tag_string = data.get(key)
         new_tags = [tag.strip() for tag in tag_string.split(',') if tag.strip()]
-
         if not new_tags:
             return
-
         # get current number of tags
         n = 0
         for k in data.keys():
@@ -47,16 +47,32 @@ def convert_to_tags(vocab):
         for tag in new_tags:
             tag_length_validator(tag, context)
             tag_name_validator(tag, context)
+        v = model.Vocabulary.get(vocab)
+        if not v:
+            raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
 
-        # add new tags
         for num, tag in enumerate(new_tags):
             data[('tags', num+n, 'name')] = tag
-            data[('tags', num+n, 'vocabulary')] = vocab
+            data[('tags', num+n, 'vocabulary_id')] = v.id
 
     return callable
 
 def convert_from_tags(vocab):
     def callable(key, data, errors, context):
-        pass
+        v = model.Vocabulary.get(vocab)
+        if not v:
+            raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
+
+        tags = {}
+        for k in data.keys():
+            if k[0] == 'tags':
+                if data[k].get('vocabulary_id') == v.id:
+                    tags[k] = data[k]
+
+        # TODO: vocab tags should be removed in a separate converter (and by default) 'tags'
+        for k in tags.keys():
+            del data[k]
+        data[key] = ', '.join([t['name'] for t in tags.values()])
+
     return callable
 
