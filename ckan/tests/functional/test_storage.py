@@ -81,7 +81,9 @@ class TestStorageAPIControllerLocal:
         # res = self.app.get(url, status=404)
 
 
-class TestStorageAPIControllerGoogle:
+# Disabling because requires access to google storage to run (and this is not
+# generally available to devs ...)
+class _TestStorageAPIControllerGoogle:
     @classmethod
     def setup_class(cls):
         config = appconfig('config:test.ini', relative_to=conf_dir)
