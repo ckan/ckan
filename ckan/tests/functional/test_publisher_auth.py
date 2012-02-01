@@ -123,7 +123,8 @@ class TestPublisherGroupPackages(FunctionalTestCase):
         model.Session.remove()
 
     def _run_fail_test( self, username, action):
-        context = { 'package': self.packagename, 'model': model, 'user': username }
+        pkg = model.Package.by_name(self.packagename)
+        context = { 'package': pkg, 'model': model, 'user': username }
         try:
             self.auth.check_access(action, context, {})
             assert False, "The user should not have access"
@@ -133,15 +134,16 @@ class TestPublisherGroupPackages(FunctionalTestCase):
     def _run_success_test( self, username, action):    
         userobj = model.User.get(username)
         grp = model.Group.by_name(self.groupname)     
-
+        pkg = model.Package.by_name(self.packagename)
+        
         f = model.User.get_groups
         g = model.Package.get_groups
         def gg(*args, **kwargs):
             return [grp]
         model.User.get_groups = gg
         model.Package.get_groups = gg
-    
-        context = { 'package': self.packagename, 'model': model, 'user': username }
+        
+        context = { 'package': pkg, 'model': model, 'user': username }
         try:
             self.auth.check_access(action, context, {})
         except NotAuthorized, e:

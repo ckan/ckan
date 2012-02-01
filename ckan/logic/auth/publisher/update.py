@@ -12,12 +12,10 @@ def package_update(context, data_dict):
     model = context['model']
     user = context.get('user')
     package = get_package_object(context, data_dict)
-    packageobj = model.Package.by_name( package )
     
     userobj = model.User.get( user )
     if not userobj or \
-       not packageobj or \
-       not _groups_intersect( userobj.get_groups('publisher'), packageobj.get_groups('publisher') ):
+       not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
         return {'success': False, 
                 'msg': _('User %s not authorized to edit packages in these groups') % str(user)}
 
