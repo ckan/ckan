@@ -7,6 +7,10 @@ from ckan.authz import Authorizer
 from ckan.lib.base import _
 
 def package_delete(context, data_dict):
+    """
+    Delete a package permission. User must be in at least one group that that 
+    package is also in.
+    """
     model = context['model']
     user = context['user']
     package = get_package_object(context, data_dict)
@@ -20,21 +24,6 @@ def package_delete(context, data_dict):
     
 def package_relationship_delete(context, data_dict):
     return package_relationship_create(context, data_dict)
-
-def relationship_delete(context, data_dict):
-    model = context['model']
-    user = context['user']
-    relationship = context['relationship']
-
-    pkg1groups = set( relationship.package1.get_groups('publisher') )
-    pkg2groups = set (relationship.package2.get_groups('publisher') )
-    usergrps =  model.User.get( user ).get_groups('publisher')
-    
-    if _groups_intersect( usergrps, pkg1groups ) and _groups_intersect( usergrps, pkg2groups ):
-        return {'success': True}    
-        
-    return {'success': False, 'msg': _('User %s not authorized to delete relationship %s') % (str(user),relationship.id)}
-        
 
 def group_delete(context, data_dict):
     """

@@ -22,6 +22,10 @@ def package_update(context, data_dict):
     return {'success': True}
 
 def resource_update(context, data_dict):
+    """
+    Update resource permission checks the user is in a group that the resource's 
+    package is also a member of.
+    """
     model = context['model']
     user = context.get('user')
     resource = get_resource_object(context, data_dict)

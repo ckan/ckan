@@ -21,6 +21,10 @@ def resource_create(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
 
 def package_relationship_create(context, data_dict):
+    """
+    Permission for users to create a new package relationship requires that the 
+    user share a group with both packages.
+    """
     model = context['model']
     user = context['user']
 

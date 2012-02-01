@@ -286,8 +286,18 @@ class TestPublisherPackageRelationships(FunctionalTestCase):
         self.package1name = u'testpkg'
         self.package2name = u'testpkg2'
         model.repo.new_revision()
-        model.Session.add(model.Package(name=self.package1name))
-        model.Session.add(model.Package(name=self.package2name))        
+        pkg1 = model.Package(name=self.package1name)
+        pkg2 = model.Package(name=self.package2name)
+        model.Session.add( pkg1 )
+        model.Session.add( pkg2 )  
+        model.Session.flush()
+        pkg1 = model.Package.by_name(self.package1name)
+        pkg2 = model.Package.by_name(self.package2name)        
+
+        self.rel = model.PackageRelationship(name="test", type='depends_on')
+        self.rel.subject = pkg1
+        self.rel.object = pkg2
+        model.Session.add( self.rel )
         model.repo.commit_and_remove()
 
     @classmethod
@@ -342,6 +352,28 @@ class TestPublisherPackageRelationships(FunctionalTestCase):
             self.auth.check_access('package_relationship_create', context, {'id': p1.id, 'id2': p2.id})
         except NotAuthorized, e:
             assert False, "The user should have %s access: %r." % (action, e.extra_msg)
+        model.User.get_groups = f
+        model.Package.get_groups = g
+
+    def test_delete_success(self):
+        userobj = model.User.get('russianfan')     
+
+        f = model.User.get_groups
+        g = model.Package.get_groups
+        def gg(*args, **kwargs):
+            return ['test_group']
+        model.User.get_groups = gg
+        model.Package.get_groups = gg
+        
+        p1 = model.Package.by_name( self.package1name )
+        p2 = model.Package.by_name( self.package2name )    
+                
+        context = { 'model': model, 'user': 'russianfan', 'relationship': self.rel }
+        try:
+            self.auth.check_access('package_relationship_delete', context, {'id': p1.id, 'id2': p2.id })
+        except NotAuthorized, e:
+            assert False, "The user should have %s access: %r." % ('package_relationship_delete', e.extra_msg)            
+            
         model.User.get_groups = f
         model.Package.get_groups = g
         

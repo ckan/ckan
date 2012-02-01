@@ -61,6 +61,7 @@ def package_relationships_list(context, data_dict):
     return {'success': True}
 
 def package_show(context, data_dict):
+    """ Package show permission checks the user group if the state is deleted """
     model = context['model']
     user = context.get('user')
     package = get_package_object(context, data_dict)
@@ -76,6 +77,7 @@ def package_show(context, data_dict):
     return {'success': True}
 
 def resource_show(context, data_dict):
+    """ Resource show permission checks the user group if the package state is deleted """    
     model = context['model']
     user = context.get('user')
     resource = get_resource_object(context, data_dict)
@@ -97,6 +99,7 @@ def revision_show(context, data_dict):
     return {'success': True}
 
 def group_show(context, data_dict):
+    """ Group show permission checks the user group if the state is deleted """
     model = context['model']
     user = context.get('user')
     group = get_group_object(context, data_dict)
