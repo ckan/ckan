@@ -8,14 +8,29 @@
 
   <py:match path="minornavigation">
     <ul py:if="c.group" class="tabbed">
-      <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}">${h.subnav_link(c, h.icon('group') + _('View'), controller='group', action='read', id=c.group.name)}</li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}">${h.subnav_named_route(c, h.icon('group') + _('View'), c.group.type + '_read',controller='group', action='read', id=c.group.name)}</li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='history' else {}">${h.subnav_named_route(c, h.icon('page_white_stack') + _('History'),  c.group.type + '_action', controller='group', action='history', id=c.group.name)}</li>
+      <span class="divider" py:if="h.check_access('group_update',{'id':c.group.id})">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+      <li class="dropdown" py:attrs="{'class':'current-tab dropdown'} if c.action=='resource_read' else {'class':'dropdown'}" py:if="h.check_access('group_update',{'id':c.group.id})">
+        <div class="dropdown-appears">
+          <div class="dropdown-items">
+            <a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">New Dataset...</a>
+            <a href="${h.url_for(controller='group', action='edit', id=c.group.name)}#datasets">Existing Dataset...</a>
+          </div>
+        </div>
+        <div class="dropdown-appears"><div class="white-box"></div></div>
+        <a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">
+          ${h.icon('add') + _('Add Dataset')}</a>
+        &nbsp;&nbsp;<img class="dropdown-arrow" src="/images/icons/arrow-open.gif"/>
+      </li>
       <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}" py:if="h.check_access('group_update',{'id':c.group.id})">
-        ${h.subnav_link(c, h.icon('group_edit') + _('Edit'), controller='group', action='edit', id=c.group.name)}
+        <!-- TODO: We need to be able to change the URL below based on the type of the group -->
+        ${h.subnav_named_route( c,h.icon('group_edit') + _('Edit'), c.group.type + '_action', action='edit', id=c.group.name )}
       </li>
-      <li py:attrs="{'class':'current-tab'} if c.action=='history' else {}">${h.subnav_link(c, h.icon('page_white_stack') + _('History'), controller='group', action='history', id=c.group.name)}</li>
       <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}" py:if="h.check_access('group_edit_permissions',{'id':c.group.id})">
-        ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='group', action='authz', id=c.group.name)}
+        ${h.subnav_named_route(c, h.icon('lock') + _('Authorization'), c.group.type + '_action', controller='group', action='authz', id=c.group.name)}
       </li>
+
       <!-- li class="action">
       ${h.subnav_link(c, h.icon('atom_feed') + _('Subscribe'),
       controller='group', action='history', id=c.group.name, format='atom', days=7)}

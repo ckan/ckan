@@ -1,5 +1,5 @@
-@import url('/css/forms.css');
-@import url('/css/pretty_buttons.css');
+@import url('forms.css');
+@import url('pretty_buttons.css');
 
 body.no-sidebar #sidebar { display: none; }
 body.no-sidebar #content { 
@@ -206,6 +206,35 @@ tbody tr.table-empty td {
   margin-bottom: 0.7em;
   font-size: 2.2em;
   font-weight: normal;
+}
+.hover-for-help {
+  position: relative;
+}
+.hover-for-help > .help-text {
+  position: absolute;
+  top: 24px;
+  left: -90px;
+  display: none;
+  padding: 2px 8px;
+  font-size: 11px;
+  background: #333;
+  text-align: left;
+  width: 250px;
+  z-index: 3;
+  color: #fff;
+}
+.hover-for-help > .help-text > span {
+  display: block;
+  padding: 2px 0;
+}
+.hover-for-help > .help-text > span.fail {
+  color: #999;
+}
+.hover-for-help:hover > .help-text {
+  display: block;
+}
+.semi-link {
+  border-bottom: 1px dashed #000;
 }
 
 
@@ -463,13 +492,13 @@ body.index.home .front-page .action-box-inner {
   min-height: 15em;
 }
 body.index.home .front-page .action-box-inner.collaborate {
-  background:url(/img/collaborate.png) no-repeat right top;
+  background:url(../img/collaborate.png) no-repeat right top;
 }
 body.index.home .front-page .action-box-inner.share {
-  background:url(/img/share.png) no-repeat right top;
+  background:url(../img/share.png) no-repeat right top;
 }
 body.index.home .front-page .action-box-inner.find {
-  background:url(/img/find.png) no-repeat right top;
+  background:url(../img/find.png) no-repeat right top;
 }
 body.index.home .front-page .action-box-inner a {
   font-weight: bold;
@@ -594,11 +623,16 @@ form.simple-form input[type=password] {
 .group.read .property-list li ul li {
   margin-left: -2.5em;
 }
-.group.read .notes p {
-  margin-bottom: 0;
-}
 .group-dataset-list {
   margin: 2em 0;
+}
+
+.group-search-box input[type="search"] {
+  width: 100%;
+  margin-bottom: 20px;
+}
+.group-search-box input[type="submit"] {
+  float: right;
 }
 
 
@@ -677,7 +711,7 @@ body.package.search #menusearch {
 .dataset-search {
   margin-bottom: 35px;
 }
-.dataset-search input.search {
+input.search {
   width: 100%;
   font-size: 1.2em;
   margin: 0px;
@@ -701,6 +735,7 @@ body.package.search #menusearch {
 /* ======================================== */
 /* = Dataset listing (eg. search results) = */
 /* ======================================== */
+/* TODO strip and use .search-result class in markup everywhere */
 ul.datasets {
 	padding-left: 0;
   margin: 0 0 1em 0;
@@ -928,6 +963,9 @@ ul.dataset-edit-nav li a:hover {
 .dataset-edit-form .resource-add .fileinfo {
   margin: 7px 0;
 }
+.dataset-edit-form button.dataset-delete {
+  vertical-align: top;
+}
 
 
 /* ================================ */
@@ -1109,44 +1147,57 @@ img.open-data { margin: 1px 0 0 8px; vertical-align: top; }
 body.package.read h3 {
   margin-bottom: 8px;
 }
-.dataset-resource { 
+.search-result { 
   border-left: 2px solid #eee;
   margin: 0;
   padding: 8px;
   margin-bottom: 16px;
 }
-.dataset-resource:hover {
+.search-result:hover {
   border-left: 2px solid #aaa;
   background: #f7f7f7;
 }
 
-.dataset-resource .main-link {
+.search-result .main-link {
   font-size: 125%;
 }
-.dataset-resource .view-more-link {
+.search-result .extra-links {
   float: right;
+  text-align: right;
+}
+.search-result .view-more-link {
   color: #000;
-  text-align: middle;
+  display: block;
   margin-top: 4px;
   padding: 3px 22px 3px 10px;
-  background: url('/images/icons/arrow-right-16-black.png') no-repeat right;
+  background: url('../images/icons/arrow-right-16-black.png') no-repeat right;
   opacity:0.4;
   filter:alpha(opacity=40); /* For IE8 and earlier */
 }
-.dataset-resource .view-more-link:hover {
+.search-result .view-more-link:hover {
   opacity:1.0;
   filter:alpha(opacity=100); /* For IE8 and earlier */
   text-decoration: underline;
 }
 
-.dataset-resource .resource-url a { 
+.search-result .result-url,
+.search-result .result-url a { 
     color: #888;
 }
-.dataset-resource .resource-url a:hover { 
+.search-result .result-url:hover,
+.search-result .result-url:hover a { 
     color: #333;
+}
+.search-result .result-url:hover a { 
     text-decoration: underline;
 }
-.dataset-resource p {
+.search-result .result-url img {
+  opacity: 0.5;
+}
+.search-result .result-url:hover img {
+  opacity: 1.0;
+}
+.search-result p {
   margin: 0;
 }
 .resource-url-cached {
@@ -1156,7 +1207,7 @@ body.package.read h3 {
 body.package.read .resource-information {
     color: #808080;
 }
-body.package.read .resource-format {
+.format-box {
     border: 1px solid #EEE;
     margin-left: 8px;
     padding: 2px 8px;
@@ -1175,18 +1226,18 @@ body.package.read #sidebar li.widget-container {
 .notes {
   padding: 8px; 
   border-left: 2px solid #eee;
-  background: url('/images/ldquo.png') no-repeat top left #f7f7f7;
+  background: url('../images/ldquo.png') no-repeat top left #f7f7f7;
 }
-.notes #dataset-notes-toggle a {
+.notes #notes-toggle a {
   cursor: pointer;
 }
-.notes #dataset-notes-toggle a.more:after {
+.notes #notes-toggle a.more:after {
   content: '  »';
   font-size: 150%;
   position: relative;
   bottom: -1px;
 }
-.notes #dataset-notes-toggle a.less:before {
+.notes #notes-toggle a.less:before {
   content: '« ';
   font-size: 150%;
   position: relative;

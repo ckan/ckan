@@ -572,7 +572,7 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/group_list',
                             params=postparams)
         res_obj = json.loads(res.body)
-        assert_equal(res_obj['result'], ['david',
+        assert_equal(sorted(res_obj['result']), ['david',
                                          'roger'])
 
     def test_13_group_list_by_size_all_fields(self):
@@ -1193,6 +1193,10 @@ class TestActionPackageSearch(WsgiAppCase):
 class MockPackageSearchPlugin(SingletonPlugin):
     implements(IPackageController, inherit=True)
 
+    def before_index(self, data_dict):
+        data_dict['extras_test'] = 'abcabcabc'
+        return data_dict
+
     def before_search(self, search_params):
         if 'extras' in search_params and 'ext_avoid' in search_params['extras']:
             assert 'q' in search_params
@@ -1268,3 +1272,28 @@ class TestSearchPluginInterface(WsgiAppCase):
         assert res_dict['count'] == 0
         assert len(res_dict['results']) == 0
         plugins.unload(plugin)
+
+    def test_before_index(self):
+        plugin = MockPackageSearchPlugin()
+        plugins.load(plugin)
+        # no datasets get aaaaaaaa
+        search_params = '%s=1' % json.dumps({
+            'q': 'aaaaaaaa',
+        })
+
+        res = self.app.post('/api/action/package_search', params=search_params)
+
+        res_dict = json.loads(res.body)['result']
+        assert res_dict['count'] == 0 
+        assert len(res_dict['results']) == 0
+        plugins.unload(plugin)
+
+        # all datasets should get abcabcabc
+        search_params = '%s=1' % json.dumps({
+            'q': 'abcabcabc',
+        })
+        res = self.app.post('/api/action/package_search', params=search_params)
+
+        res_dict = json.loads(res.body)['result']
+        assert res_dict['count'] == 2
+        assert len(res_dict['results']) == 2

@@ -23,13 +23,16 @@ from ckan.lib.dictization.model_dictize import (group_dictize,
                                                 user_dictize)
 
 
-from ckan.logic.schema import default_create_package_schema, default_resource_schema
+from ckan.logic.schema import default_create_package_schema, default_resource_schema, default_create_relationship_schema
 
 from ckan.logic.schema import default_group_schema, default_user_schema
 from ckan.lib.navl.dictization_functions import validate 
 from ckan.logic.action.update import (_update_package_relationship,
                                       package_error_summary,
-                                      group_error_summary)
+                                      group_error_summary,
+                                      relationship_error_summary)
+from ckan.logic.action import rename_keys
+
 log = logging.getLogger(__name__)
 
 def package_create(context, data_dict):
@@ -63,6 +66,7 @@ def package_create(context, data_dict):
     model.setup_default_user_roles(pkg, admins)
     # Needed to let extensions know the package id
     model.Session.flush()
+
     for item in PluginImplementations(IPackageController):
         item.create(pkg)
 
@@ -107,25 +111,31 @@ def package_relationship_create(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = data_dict["id"]
-    id2 = data_dict["id2"]
-    rel_type = data_dict["rel"]
+    schema = context.get('schema') or default_create_relationship_schema()
     api = context.get('api_version') or '1'
     ref_package_by = 'id' if api == '2' else 'name'
 
-    # Create a Package Relationship.
+    id = data_dict['subject']
+    id2 = data_dict['object']
+    rel_type = data_dict['type']
+    comment = data_dict.get('comment', u'')
+
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
     if not pkg1:
-        raise NotFound('First package named in address was not found.')
+        raise NotFound('Subject package %r was not found.' % id)
     if not pkg2:
-        return NotFound('Second package named in address was not found.')
+        return NotFound('Object package %r was not found.' % id2)
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, relationship_error_summary(errors))
 
     check_access('package_relationship_create', context, data_dict)
 
-    ##FIXME should have schema
-    comment = data_dict.get('comment', u'')
-
+    # Create a Package Relationship.
     existing_rels = pkg1.get_relationships_with(pkg2, rel_type)
     if existing_rels:
         return _update_package_relationship(existing_rels[0],
@@ -136,6 +146,8 @@ def package_relationship_create(context, data_dict):
     rel = pkg1.add_relationship(rel_type, pkg2, comment=comment)
     if not context.get('defer_commit'):
         model.repo.commit_and_remove()
+    context['relationship'] = rel
+
     relationship_dicts = rel.as_dict(ref_package_by=ref_package_by)
     return relationship_dicts
 
@@ -278,3 +290,14 @@ def group_create_rest(context, data_dict):
 
     return group_dict
 
+def package_relationship_create_rest(context, data_dict):
+    # rename keys
+    key_map = {'id': 'subject',
+               'id2': 'object',
+               'rel': 'type'}
+    # Don't be destructive to enable parameter values for
+    # object and type to override the URL parameters.
+    data_dict = rename_keys(data_dict, key_map, destructive=False)
+
+    relationship_dict = package_relationship_create(context, data_dict)
+    return relationship_dict

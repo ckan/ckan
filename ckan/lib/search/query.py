@@ -247,7 +247,14 @@ class PackageSearchQuery(SearchQuery):
             query['q'] = "*:*"
 
         # number of results
-        query['rows'] = min(1000, int(query.get('rows', 10)))
+        rows_to_return = min(1000, int(query.get('rows', 10)))
+        if rows_to_return > 0:
+            # #1683 Work around problem of last result being out of order
+            #       in SOLR 1.4
+            rows_to_query = rows_to_return + 1
+        else:
+            rows_to_query = rows_to_return
+        query['rows'] = rows_to_query
 
         # order by score if no 'sort' term given
         order_by = query.get('sort')
@@ -285,7 +292,6 @@ class PackageSearchQuery(SearchQuery):
 
         conn = make_connection()
         log.debug('Package query: %r' % query)
-        
         try:
             solr_response = conn.raw_query(**query)
         except SolrException, e:
@@ -296,6 +302,9 @@ class PackageSearchQuery(SearchQuery):
             response = data['response']
             self.count = response.get('numFound', 0)
             self.results = response.get('docs', [])
+
+            # #1683 Filter out the last row that is sometimes out of order
+            self.results = self.results[:rows_to_return]
 
             # get any extras and add to 'extras' dict
             for result in self.results:

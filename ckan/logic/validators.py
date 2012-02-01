@@ -193,18 +193,15 @@ def tag_not_uppercase(value, context):
     return value
 
 def tag_string_convert(key, data, errors, context):
+    '''Takes a list of tags that is a comma-separated string (in data[key])
+    and parses tag names. These are added to the data dict, enumerated. They
+    are also validated.'''
+    tag_string = data[key]
 
-    value = data[key]
+    tags = [tag.strip() \
+            for tag in tag_string.split(',') \
+            if tag.strip()]
 
-    # Ensure a tag string with only whitespace
-    # is converted to the empty list of tags.
-    # If we were to split(',') on this string,
-    # we'd get the non-empty list, [''].
-    if not value.strip():
-        return
-
-    tags = map(lambda s: s.strip(),
-               value.split(','))
     for num, tag in enumerate(tags):
         data[('tags', num, 'name')] = tag
 

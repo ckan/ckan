@@ -10,9 +10,7 @@ class TestStorageAPIController:
     @classmethod
     def setup_class(cls):
         config = appconfig('config:test.ini', relative_to=conf_dir)
-        config.local_conf['ckan.plugins'] = 'storage'
-        config.local_conf['ofs.impl'] = 'pairtree'
-        config.local_conf['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
+        config.local_conf['ckan.storage.directory'] = '/tmp/'
         wsgiapp = make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
@@ -30,9 +28,7 @@ class TestStorageAPIControllerLocal:
     @classmethod
     def setup_class(cls):
         config = appconfig('config:test.ini', relative_to=conf_dir)
-        config.local_conf['ckan.plugins'] = 'storage'
-        config.local_conf['ofs.impl'] = 'pairtree'
-        config.local_conf['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
+        config.local_conf['ckan.storage.directory'] = '/tmp/'
         wsgiapp = make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)
         CreateTestData.create()

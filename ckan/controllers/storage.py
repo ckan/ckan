@@ -31,9 +31,9 @@ log = getLogger(__name__)
 
 
 # pairtree_version0_1 file for identifying folders
-BUCKET = config['storage.bucket']
-key_prefix = config.get('storage.key_prefix', 'file/')
-storage_dir = config.get('storage.directory', '')
+BUCKET = config.get('ckan.storage.bucket', 'default')
+key_prefix = config.get('ckan.storage.key_prefix', 'file/')
+storage_dir = config.get('ckan.storage.directory', '')
 
 _eq_re = re.compile(r"^(.*)(=[0-9]*)$")
 def fix_stupid_pylons_encoding(data):
@@ -326,7 +326,7 @@ class StorageAPIController(BaseController):
     def _get_remote_form_data(self, label):
         method = 'POST'
         content_length_range = int(
-                config.get('ckanext.storage.max_content_length',
+                config.get('ckan.storage.max_content_length',
                     50000000))
         acl = 'public-read'
         fields = [ {

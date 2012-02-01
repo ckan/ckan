@@ -29,14 +29,14 @@
   </py:choose>
   <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css' />
 
-  <link rel="stylesheet" href="${g.site_url}/scripts/vendor/jqueryui/1.8.14/css/jquery-ui.custom.css" type="text/css" media="screen, print" />
-  <link rel="stylesheet" href="${g.site_url}/css/boilerplate.css?v=2" />
-  <link rel="stylesheet" href="${g.site_url}/css/blueprint/screen.css" type="text/css" media="screen, projection" />
-  <link rel="stylesheet" href="${g.site_url}/css/blueprint/print.css" type="text/css" media="print" />
+  <link rel="stylesheet" href="${h.url_for('/scripts/vendor/jqueryui/1.8.14/css/jquery-ui.custom.css')}" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="${h.url_for('/css/boilerplate.css?v=2')}" />
+  <link rel="stylesheet" href="${h.url_for('/css/blueprint/screen.css')}" type="text/css" media="screen, projection" />
+  <link rel="stylesheet" href="${h.url_for('/css/blueprint/print.css')}" type="text/css" media="print" />
   <!--[if lt IE 8]>
-    <link rel="stylesheet" href="${g.site_url}/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="${h.url_for('/css/blueprint/ie.css')}" type="text/css" media="screen, projection">
   <![endif]-->
-  <link rel="stylesheet" href="${g.site_url}/css/style.css?v=2" />
+  <link rel="stylesheet" href="${h.url_for('/css/style.css?v=2')}" />
 
   <py:if test="defined('optional_head')">
     ${optional_head()}
@@ -134,7 +134,7 @@
                 <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api'))}</li>
                 <li>${h.link_to(_('API Docs'), 'http://wiki.ckan.net/API')}</li>
               <li>
-                <a href="http://okfn.org/contact/">Contact Us</a>
+                <a href="http://ckan.org/contact/">Contact Us</a>
               </li>
               <li>
                 <a href="http://okfn.org/privacy-policy/">Privacy Policy</a>
@@ -218,31 +218,34 @@
 
   <!--script
   src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script-->
-  <script src="${g.site_url}/scripts/vendor/jquery/1.6.2/jquery.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/json2.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.tmpl/beta1/jquery.tmpl.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.cookie/jquery.cookie.min.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.placeholder/jquery.placeholder.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jqueryui/1.8.14/jquery-ui.min.js"></script>
+  <script src="${h.url_for('/scripts/vendor/jquery/1.6.2/jquery.js')}"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/vendor/json2.js')}"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/vendor/jquery.tmpl/beta1/jquery.tmpl.js')}"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/vendor/jquery.cookie/jquery.cookie.min.js')}"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/vendor/jquery.placeholder/jquery.placeholder.js')}"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/vendor/jqueryui/1.8.14/jquery-ui.min.js')}"></script>
   <!-- for ckanjs etc -->
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/underscore/1.1.6/underscore.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/backbone/0.5.1/backbone.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.fileupload/20110801/jquery.iframe-transport.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/ckanjs/1.0.0/ckanjs.js"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/vendor/underscore/1.1.6/underscore.js')}"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/vendor/backbone/0.5.1/backbone.js')}"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/vendor/jquery.fileupload/20110801/jquery.iframe-transport.js')}"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js')}"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/vendor/ckanjs/1.0.0/ckanjs.js')}"></script>
   <!-- Translated js strings live inside an html template. -->
   <xi:include href="js_strings.html" />
   <!-- finally our application js that sets everything up-->
-  <script type="text/javascript" src="${g.site_url}/scripts/application.js?lang=${c.locale}"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/templates.js"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/application.js?lang=${c.locale}')}"></script>
+  <script type="text/javascript" src="${h.url_for('/scripts/templates.js')}"></script>
 
-  <script src="${g.site_url}/scripts/vendor/modernizr/1.7/modernizr.min.js"></script>
+  <script src="${h.url_for('/scripts/vendor/modernizr/1.7/modernizr.min.js')}"></script>
 
   <script type="text/javascript">
     CKAN.plugins = [ 
       // Declare js array from Python string
       ${['\'%s\', '%s  for s in config.get('ckan.plugins','').split(' ')]}
     ];
+    CKAN.SITE_URL = '${h.url('/')}';
+    // later use will add offsets with leading '/' so ensure no trailing slash
+    CKAN.SITE_URL = CKAN.SITE_URL.replace(/\/$/, '');
     $(document).ready(function() {
         var ckan_user = $.cookie("ckan_display_name");
         if (ckan_user) {

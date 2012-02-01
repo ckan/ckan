@@ -23,6 +23,36 @@ class RelationshipsTestCase(BaseModelApiTestCase):
     def teardown_class(cls):
         model.repo.rebuild_db()
 
+    def teardown(self):
+        relationships = model.Session.query(model.PackageRelationship).all()
+        for rel in relationships:
+            rel.purge()
+        model.repo.commit_and_remove()
+
+    def relationship_offset(self, package_1_name=None,
+                            relationship_type=None,
+                            package_2_name=None,
+                            ):
+        assert package_1_name
+        package_1_ref = self.package_ref_from_name(package_1_name)
+        if package_2_name is None:
+            if not relationship_type:
+                return self.offset('/rest/dataset/%s/relationships' % \
+                                   package_1_ref)
+            else:
+                return self.offset('/rest/dataset/%s/%s' %
+                                   (package_1_ref, relationship_type))
+        else:
+            package_2_ref = self.package_ref_from_name(package_2_name)
+            if not relationship_type:
+                return self.offset('/rest/dataset/%s/relationships/%s' % \
+                                   (package_1_ref, package_2_ref))
+            else:
+                return self.offset('/rest/dataset/%s/%s/%s' % \
+                                   (package_1_ref,
+                                    relationship_type,
+                                    package_2_ref))
+
     def test_01_create_and_read_relationship(self):
         # check anna has no existing relationships
         assert not self.anna.get_relationships()
@@ -85,6 +115,32 @@ class RelationshipsTestCase(BaseModelApiTestCase):
         self.check_relationship_dict(rels[0],
                'annakarenina', 'parent_of', 'warandpeace', self.comment)
         
+    def test_02_create_relationship_way_2(self):
+        # Create a relationship using 2nd way
+        self.create_annakarenina_parent_of_war_and_peace(way=2)
+
+    def test_02_create_relationship_way_3(self):
+        # Create a relationship using 3rd way
+        self.create_annakarenina_parent_of_war_and_peace(way=3)
+
+    def test_02_create_relationship_way_4(self):
+        # Create a relationship using 4th way
+        self.create_annakarenina_parent_of_war_and_peace(way=4)
+
+    def test_02_create_link_relationship(self):
+        offset = self.relationship_offset('annakarenina')
+        data = {'type': 'links_to',
+                'object': 'warandpeace',
+                'comment':self.comment}
+        postparams = '%s=1' % self.dumps(data)
+        res = self.app.post(offset, params=postparams, status=[201],
+                            extra_environ=self.extra_environ)
+        # Check the response
+        rel = self.loads(res.body)
+        assert_equal(rel['type'], 'links_to')
+        assert_equal(rel['subject'], self.ref_package(self.anna))
+        assert_equal(rel['object'], self.ref_package(self.war))
+
     def test_03_update_relationship(self):
         # Create a relationship.
         self.create_annakarenina_parent_of_war_and_peace()
@@ -122,26 +178,40 @@ class RelationshipsTestCase(BaseModelApiTestCase):
         self.check_relationships_rest('warandpeace', 'annakarenina', expected)
 
     def test_create_relationship_unknown(self):
-        raise SkipTest() # leaving broken for now
         offset = self.relationship_offset('annakarenina', 'unheard_of_type', 'warandpeace')
         postparams = '%s=1' % self.dumps({'comment':self.comment})
-        res = self.app.post(offset, params=postparams, status=[400],
+        res = self.app.post(offset, params=postparams, status=[409],
                             extra_environ=self.extra_environ)
+        # error message is wrong - ends up in package_create,
+        # but at least there is an error
 
-    def test_create_relationship_incorrectly(self):
-        raise SkipTest() # leaving broken for now
-        offset = self.relationship_offset('annakarenina', 'relationships', 'warandpeace')
-        postparams = '%s=1' % self.dumps({'type':'parent_of'})
-        # type should do in the URL offset, not the params.
-        res = self.app.post(offset, params=postparams, status=[400],
-                            extra_environ=self.extra_environ)
-
-    def create_annakarenina_parent_of_war_and_peace(self):
+    def create_annakarenina_parent_of_war_and_peace(self, way=1):
         # Create package relationship.
+        # More than one 'way' to create a package.
         # Todo: Redesign this in a RESTful style, so that a relationship is 
         # created by posting a relationship to a relationship **register**.
-        offset = self.relationship_offset('annakarenina', 'parent_of', 'warandpeace')
-        postparams = '%s=1' % self.dumps({'comment':self.comment})
+        assert way in (1, 2, 3, 4)
+        if way == 1:
+            # Dataset Relationship Entity - old way (deprecated)
+            offset = self.relationship_offset('annakarenina', 'parent_of', 'warandpeace')
+            data = {'comment':self.comment}
+        elif way == 2:
+            # Dataset Relationships Register 1
+            offset = self.relationship_offset('annakarenina', 'relationships')
+            data = {'type': 'parent_of',
+                    'object': 'warandpeace',
+                    'comment':self.comment}
+        elif way == 3:
+            # Dataset Relationships Register 2
+            offset = self.relationship_offset('annakarenina', 'parent_of')
+            data = {'object': 'warandpeace',
+                    'comment':self.comment}
+        elif way == 4:
+            # Dataset Relationships Register 3
+            offset = self.relationship_offset('annakarenina', 'relationships', 'warandpeace')
+            data = {'type': 'parent_of',
+                    'comment':self.comment}
+        postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams, status=[201],
                             extra_environ=self.extra_environ)
         # Check the response
@@ -160,8 +230,8 @@ class RelationshipsTestCase(BaseModelApiTestCase):
     def update_annakarenina_parent_of_war_and_peace(self, comment=u'New comment.'):
         offset = self.relationship_offset('annakarenina', 'parent_of', 'warandpeace')
         postparams = '%s=1' % self.dumps({'comment':comment})
-        res = self.app.post(offset, params=postparams, status=[201], extra_environ=self.extra_environ)
-        # Check the response (normalised to 'child_of')
+        res = self.app.put(offset, params=postparams, status=[200], extra_environ=self.extra_environ)
+        # Check the response
         rel = self.loads(res.body)
         assert_equal(rel['type'], 'child_of')
         assert_equal(rel['subject'], self.ref_package(self.war))
@@ -175,10 +245,24 @@ class RelationshipsTestCase(BaseModelApiTestCase):
         assert rels[0].object.name == 'annakarenina'
         return res
 
+    def test_update_relationship_incorrectly(self):
+        self.create_annakarenina_parent_of_war_and_peace()
+        offset = self.relationship_offset('annakarenina', 'parent_of', 'warandpeace')
+        postparams = '%s=1' % self.dumps({'type': 'cat', 'object': 'Matilda', 'comment': 'Tabby'})
+        # Should only be able to change the comment.
+        # Todo: validate this properly and return an error
+        # Currently it just ignores the changed type and subject/object
+        res = self.app.put(offset, params=postparams, status=[200],
+                           extra_environ=self.extra_environ)
+        print res.body
+        assert 'cat' not in res.body
+        assert 'Matilda' not in res.body
+        assert 'Tabby' in res.body
+
     def delete_annakarenina_parent_of_war_and_peace(self):
         offset = self.relationship_offset('annakarenina', 'parent_of', 'warandpeace')
         res = self.app.delete(offset, status=[200], extra_environ=self.extra_environ)
-        assert not res.body
+        assert not res.body, res.body
 
     def get_relationships(self, package1_name=u'annakarenina', type='relationships', package2_name=None):
         offset = self.relationship_offset(package1_name, type, package2_name)

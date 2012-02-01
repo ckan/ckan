@@ -39,7 +39,7 @@ def default_resource_schema():
 
     schema = {
         'id': [ignore_empty, unicode],
-        'revistion_id': [ignore_missing, unicode],
+        'revision_id': [ignore_missing, unicode],
         'resource_group_id': [ignore],
         'package_id': [ignore],
         'url': [ignore_empty, unicode],#, URL(add_http=False)],
@@ -142,6 +142,7 @@ def package_form_schema():
     schema['extras_validation'] = [duplicate_extras_key, ignore]
     schema['save'] = [ignore]
     schema['return_to'] = [ignore]
+    schema['type'] = [ignore_missing, unicode]
 
     ##changes
     schema.pop("id")
@@ -159,6 +160,7 @@ def default_group_schema():
         'name': [not_empty, unicode, name_validator, group_name_validator],
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
+        'type': [ignore_missing, unicode],        
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
         'extras': default_extras_schema(),
@@ -200,14 +202,40 @@ def default_extras_schema():
 
 def default_relationship_schema():
 
-     schema = {
+    schema = {
          'id': [ignore_missing, unicode],
-         'subject_package_id': [ignore_missing, unicode],
-         'object_package_id': [ignore_missing, unicode],
+         'subject': [ignore_missing, unicode],
+         'object': [ignore_missing, unicode],
          'type': [not_empty, OneOf(ckan.model.PackageRelationship.get_all_types())],
          'comment': [ignore_missing, unicode],
          'state': [ignore],
-     }
+    }
+    return schema
+
+def default_create_relationship_schema():
+
+    schema = default_relationship_schema()
+    schema['id'] = [empty]
+    schema['subject'] = [not_empty, unicode, package_id_or_name_exists]
+    schema['object'] = [not_empty, unicode, package_id_or_name_exists]
+
+    return schema
+
+def default_update_relationship_schema():
+
+    schema = default_relationship_schema()
+    schema['id'] = [ignore_missing, package_id_not_changed]
+
+    # Todo: would like to check subject, object & type haven't changed, but
+    # no way to do this in schema
+    schema['subject'] = [ignore_missing]
+    schema['object'] = [ignore_missing]
+    schema['type'] = [ignore_missing]
+
+    return schema
+
+
+
 
 def default_user_schema():
 

@@ -143,6 +143,14 @@ def subnav_link(c, text, action, **kwargs):
         url_for(action=action, **kwargs),
         class_=('active' if c.action == action else '')
     )
+    
+def subnav_named_route(c, text, routename,**kwargs):
+    """ Generate a subnav element based on a named route """
+    return link_to(
+        text, 
+        url_for(routename, **kwargs),
+        class_=('active' if c.action == kwargs['action'] else '')
+    )    
 
 def facet_items(c, name, limit=10):
     from pylons import request
@@ -198,8 +206,7 @@ def linked_user(user, maxlength=0):
         _name = user.name if model.User.VALID_NAME.match(user.name) else user.id
         # Absolute URL of default user icon
         from pylons import config 
-        _site_url = config.get('ckan.site_url', '')
-        _icon_url_default = _site_url + icon_url("user")
+        _icon_url_default = icon_url("user")
         _icon = gravatar(user.email_hash, 16, _icon_url_default)+" "
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
@@ -222,7 +229,7 @@ def markdown_extract(text, extract_length=190):
     return unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True))
 
 def icon_url(name):
-    return '/images/icons/%s.png' % name
+    return url_for('/images/icons/%s.png' % name)
 
 def icon_html(url, alt=None):
     return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (url, alt))

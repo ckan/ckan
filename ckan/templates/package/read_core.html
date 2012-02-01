@@ -18,16 +18,18 @@
       <div id="dataset-resources" class="resources subsection">
         <h3>Resources</h3>
         <py:for each="res in c.pkg_dict.get('resources', [])">
-          <div class="dataset-resource">
-            <a class="view-more-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">View</a>
+          <div class="search-result" id="${res['id']}">
+            <p class="extra-links">
+              <a class="view-more-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">View</a>
+            </p>
             <a class="main-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_display_name(res)}</a>
             &nbsp;&nbsp;
-            <span py:if="res.get('format')" class="resource-format" property="dc:format">${res.get('format')}</span>
+            <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
             <p class="resource-description" py:if="res.get('description')">${h.markdown_extract(res.get('description'))}</p>
             <p class="resource-information" py:if="res.get('last_modified')">
               Last updated: ${h.time_ago_in_words_from_str(res.get('last_modified'), granularity='day')} ago
             </p>
-            <p class="resource-url" rel="dcat:distribution" resource="_:res${res.id}" typeof="dcat:Distribution">
+            <p class="result-url" rel="dcat:distribution" resource="_:res${res.id}" typeof="dcat:Distribution">
               <a class="resource-url-analytics" href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
                 ${res.get('url', '')}
               </a>
