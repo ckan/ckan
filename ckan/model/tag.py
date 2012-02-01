@@ -70,7 +70,7 @@ class Tag(DomainObject):
         return tag
 
     @classmethod
-    def by_name(cls, name, autoflush=True, vocab=None):
+    def by_name(cls, name, vocab=None, autoflush=True):
         """Return the tag object with the given name, or None if there is no
         tag with that name.
 
