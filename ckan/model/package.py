@@ -1,6 +1,7 @@
 import datetime
 from time import gmtime
 from calendar import timegm
+from operator import attrgetter
 
 from sqlalchemy.sql import select, and_, union, expression, or_
 from sqlalchemy.orm import eagerload_all
@@ -84,7 +85,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
         return self.resource_groups_all[0].resources
-    
+
     def update_resources(self, res_dicts, autoflush=True):
         '''Change this package\'s resources.
         @param res_dicts - ordered list of dicts, each detailing a resource
@@ -183,8 +184,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     @property
     def tags_ordered(self):
-        ourcmp = lambda tag1, tag2: cmp(tag1.name, tag2.name)
-        return sorted(self.tags, cmp=ourcmp)
+        """Return a sorted list of this package's tags
+
+        Tags are sorted by the names of the vocabularies that they belong to
+        and then (within vocabularies) by their tag names
+
+        """
+        sorted_tags = sorted(self.tags, key=attrgetter('name'))
+        return sorted_tags
 
     def isopen(self):
         if self.license and self.license.isopen():
