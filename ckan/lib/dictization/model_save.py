@@ -132,7 +132,6 @@ def group_extras_save(extras_dicts, context):
     return result_dict
 
 def package_tag_list_save(tag_dicts, package, context):
-    
     allow_partial_update = context.get("allow_partial_update", False)
     if not tag_dicts and allow_partial_update:
         return
@@ -150,13 +149,13 @@ def package_tag_list_save(tag_dicts, package, context):
             pt.state in ['deleted', 'pending-deleted'] ]
         )
 
-    tag_names = set()
+    tag_name_vocab = set()
     tags = set()
     for tag_dict in tag_dicts:
-        if tag_dict.get('name') not in tag_names:
+        if (tag_dict.get('name'), tag_dict.get('vocabulary_id')) not in tag_name_vocab:
             tag_obj = table_dict_save(tag_dict, model.Tag, context)
             tags.add(tag_obj)
-            tag_names.add(tag_obj.name)
+            tag_name_vocab.add((tag_obj.name, tag_obj.vocabulary_id))
 
     # 3 cases
     # case 1: currently active but not in new list
@@ -167,14 +166,14 @@ def package_tag_list_save(tag_dicts, package, context):
         else:
             package_tag.state = 'deleted'
 
-    # in new list but never used before
+    # case 2: in new list but never used before
     for tag in tags - set(tag_package_tag.keys()):
         state = 'pending' if pending else 'active'
         package_tag_obj = model.PackageTag(package, tag, state)
         session.add(package_tag_obj)
         tag_package_tag[tag] = package_tag_obj
 
-    # in new list and already used but in deleted state
+    # case 3: in new list and already used but in deleted state
     for tag in tags.intersection(set(tag_package_tag_inactive.keys())):
         state = 'pending' if pending else 'active'
         package_tag = tag_package_tag[tag]
