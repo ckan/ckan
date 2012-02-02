@@ -72,6 +72,7 @@ def package_create(context, data_dict):
     model.setup_default_user_roles(pkg, admins)
     # Needed to let extensions know the package id
     model.Session.flush()
+
     for item in PluginImplementations(IPackageController):
         item.create(pkg)
 

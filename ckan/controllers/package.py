@@ -31,7 +31,7 @@ import ckan.rating
 import ckan.misc
 import ckan.logic.action.get
 
-log = logging.getLogger('ckan.controllers')
+log = logging.getLogger(__name__)
 
 def search_url(params):
     url = h.url_for(controller='package', action='search')

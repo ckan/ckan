@@ -30,10 +30,8 @@ from logging import getLogger
 log = getLogger(__name__)
 
 
-# pairtree_version0_1 file for identifying folders
 BUCKET = config.get('ckan.storage.bucket', 'default')
 key_prefix = config.get('ckan.storage.key_prefix', 'file/')
-storage_dir = config.get('ckan.storage.directory', '')
 
 _eq_re = re.compile(r"^(.*)(=[0-9]*)$")
 def fix_stupid_pylons_encoding(data):
@@ -50,30 +48,16 @@ def fix_stupid_pylons_encoding(data):
 
 
 def get_ofs():
+    """Return a configured instance of the appropriate OFS driver.
     """
-    Return a configured instance of the appropriate OFS driver, in all
-    cases here this will be the local file storage so we fix the implementation
-    to use pairtree.
-    """
-    return get_impl("pairtree")(storage_dir=storage_dir)
-
-
-pairtree_marker_done = False
-def create_pairtree_marker():
-    """
-    Make sure that the file pairtree_version0_1 is present in storage_dir
-    and if not then create it.
-    """
-    global pairtree_marker_done
-    if pairtree_marker_done or not storage_dir:
-        return
-        
-    path = os.path.join(storage_dir, 'pairtree_version0_1')
-    if not os.path.exists( path ):
-        open(path, 'w').close() 
-        
-    pairtree_marker_done = True
-            
+    storage_backend = config['ofs.impl']
+    kw = {}
+    for k,v in config.items():
+        if not k.startswith('ofs.') or k == 'ofs.impl':
+            continue
+        kw[k[4:]] = v
+    ofs = get_impl(storage_backend)(**kw)
+    return ofs
 
 
 def authorize(method, bucket, key, user, ofs):
@@ -99,13 +83,6 @@ def authorize(method, bucket, key, user, ofs):
 class StorageController(BaseController):
     '''Upload to storage backend.
     '''
-    def __before__(self, action, **params):
-        super(StorageController, self).__before__(action, **params)
-        if not storage_dir:
-            abort(404)
-        else:
-            create_pairtree_marker()            
-    
     @property
     def ofs(self):
         return get_ofs()
@@ -188,14 +165,6 @@ class StorageController(BaseController):
 
 
 class StorageAPIController(BaseController):
-
-    def __before__(self, action, **params):
-        super(StorageAPIController, self).__before__(action, **params)
-        if not storage_dir:
-            abort(404)
-        else:
-            create_pairtree_marker()
-            
     @property
     def ofs(self):
         return get_ofs()
@@ -260,10 +229,16 @@ class StorageAPIController(BaseController):
     @jsonpify
     def get_metadata(self, label):
         bucket = BUCKET
-        url = h.url_for('storage_file',
-                label=label,
-                qualified=True
-                )
+        storage_backend = config['ofs.impl']
+        if storage_backend in ['google', 's3']:
+            if not label.startswith("/"):
+                label = "/" + label
+            url = "https://%s/%s%s" % (self.ofs.conn.server_name(), bucket, label)
+        else:
+            url = h.url_for('storage_file',
+                    label=label,
+                    qualified=True
+                    )
         if not self.ofs.exists(bucket, label):
             abort(404)
         metadata = self.ofs.get_metadata(bucket, label)
@@ -331,7 +306,7 @@ class StorageAPIController(BaseController):
         acl = 'public-read'
         fields = [ {
                 'name': self.ofs.conn.provider.metadata_prefix + 'uploaded-by',
-                'value': c.userobj.name
+                'value': c.userobj.id
                 }]
         conditions = [ '{"%s": "%s"}' % (x['name'], x['value']) for x in
                 fields ]
@@ -353,22 +328,30 @@ class StorageAPIController(BaseController):
             )
         # HACK: fix up some broken stuff from boto
         # e.g. should not have content-length-range in list of fields!
+        storage_backend = config['ofs.impl']
         for idx,field in enumerate(data['fields']):
+            if storage_backend == 'google':
+                if field['name'] == 'AWSAccessKeyId':
+                    field['name'] = 'GoogleAccessId'
             if field['name'] == 'content-length-range':
                 del data['fields'][idx]
         return data
 
     def _get_form_data(self, label):
-        data = {
-            'action': h.url_for('storage_upload_handle', qualified=True),
-            'fields': [
-                {
-                    'name': 'key',
-                    'value': label
-                }
-            ]
-        }
-        return data
+        storage_backend = config['ofs.impl']
+        if storage_backend in ['google', 's3']:
+            return self._get_remote_form_data(label)
+        else:
+            data = {
+                'action': h.url_for('storage_upload_handle', qualified=True),
+                'fields': [
+                    {
+                        'name': 'key',
+                        'value': label
+                    }
+                ]
+            }
+            return data
 
     @jsonpify
     def auth_form(self, label):

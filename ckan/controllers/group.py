@@ -1,3 +1,4 @@
+import logging
 import genshi
 import datetime
 from urllib import urlencode
@@ -19,6 +20,7 @@ from ckan.lib.dictization.model_dictize import package_dictize
 import ckan.forms
 import ckan.logic.action.get
 
+log = logging.getLogger(__name__)
 
 # Mapping from group-type strings to IDatasetForm instances
 _controller_behaviour_for = dict()

@@ -248,16 +248,16 @@ class RelationshipsTestCase(BaseModelApiTestCase):
     def test_update_relationship_incorrectly(self):
         self.create_annakarenina_parent_of_war_and_peace()
         offset = self.relationship_offset('annakarenina', 'parent_of', 'warandpeace')
-        postparams = '%s=1' % self.dumps({'type': 123, 'object': 456, 'comment': 789})
+        postparams = '%s=1' % self.dumps({'type': 'cat', 'object': 'Matilda', 'comment': 'Tabby'})
         # Should only be able to change the comment.
         # Todo: validate this properly and return an error
         # Currently it just ignores the changed type and subject/object
         res = self.app.put(offset, params=postparams, status=[200],
                            extra_environ=self.extra_environ)
         print res.body
-        assert '123' not in res.body
-        assert '456' not in res.body
-        assert '789' in res.body
+        assert 'cat' not in res.body
+        assert 'Matilda' not in res.body
+        assert 'Tabby' in res.body
 
     def delete_annakarenina_parent_of_war_and_peace(self):
         offset = self.relationship_offset('annakarenina', 'parent_of', 'warandpeace')

@@ -222,7 +222,7 @@ def group_name_to_title(name):
     return name
 
 def markdown_extract(text, extract_length=190):
-    if (text is None) or (text == ''):
+    if (text is None) or (text.strip() == ''):
         return ''
     html = fromstring(markdown(text))
     plain = html.xpath("string()")
@@ -310,7 +310,7 @@ def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
         return package_or_package_dict.get('title', '') or package_or_package_dict.get('name', '')
     else:
-        return package_or_package_dict.title or package_or_package_dictname
+        return package_or_package_dict.title or package_or_package_dict.name
 
 def dataset_link(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
