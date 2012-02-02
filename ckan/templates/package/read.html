@@ -45,11 +45,11 @@
       ${tag_list(c.pkg_dict.get('tags', ''))}
     </li>
 
-    <li py:if="c.pkg.get_groups()" class="sidebar-section">
+    <li py:if="c.pkg_dict.groups" class="sidebar-section">
       <h3>Groups</h3>
       <ul class="groups">
-        <li py:for="group in sorted(c.pkg.get_groups(), key=lambda g: g.display_name)">
-            <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
+        <li py:for="group in sorted(c.pkg_dict.groups, key=lambda g: g['title'] or g['name'])">
+        <a href="${h.url_for(controller='group', action='read', id=group['name'])}">${group.get('title') or group.get('name')}</a>
         </li>
       </ul>
     </li>
