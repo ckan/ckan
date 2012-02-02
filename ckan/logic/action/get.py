@@ -939,10 +939,26 @@ def render_removed_tag_activity(context, activity, detail):
     return render('activity_streams/removed_tag.html',
             extra_vars = {'activity': activity, 'detail': detail})
 
+def render_new_package_extra_activity(context, activity, detail):
+    return render('activity_streams/new_package_extra.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_changed_package_extra_activity(context, activity, detail):
+    return render('activity_streams/changed_package_extra.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_deleted_package_extra_activity(context, activity, detail):
+    return render('activity_streams/deleted_package_extra.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
 def render_changed_package_activity(context, activity):
     details = activity_detail_list(context=context,
         data_dict={'id': activity['id']})
+
     if len(details) == 1:
+        # If an activity has only one activity detail we try to find an
+        # activity detail renderer to use instead of rendering the normal
+        # 'changed package' template.
         detail = details[0]
         activity_detail_renderers = {
             'Resource': {
@@ -954,6 +970,11 @@ def render_changed_package_activity(context, activity):
               'added': render_added_tag_activity,
               'removed': render_removed_tag_activity,
               },
+            'PackageExtra': {
+                'new': render_new_package_extra_activity,
+                'changed': render_changed_package_extra_activity,
+                'deleted': render_deleted_package_extra_activity
+              },
             }
         object_type = detail['object_type']
         if activity_detail_renderers.has_key(object_type):
@@ -961,7 +982,7 @@ def render_changed_package_activity(context, activity):
             if activity_detail_renderers[object_type].has_key(activity_type):
                 renderer = activity_detail_renderers[object_type][activity_type]
                 return renderer(context, activity, detail)
-    
+
     return render('activity_streams/changed_package.html',
         extra_vars = {'activity': activity})
 
@@ -1005,7 +1026,8 @@ def _activity_list_to_html(context, activity_stream):
         if not activity_renderers.has_key(activity_type):
             raise NotImplementedError, ("No activity renderer for activity "
                 "type '%s'" % str(activity_type))
-        html.append(activity_renderers[activity_type](context, activity))
+        activity_html = activity_renderers[activity_type](context, activity)
+        html.append(activity_html)
     return literal('\n'.join(html))
 
 def user_activity_list_html(context, data_dict):
