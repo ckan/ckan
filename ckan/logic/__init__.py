@@ -29,7 +29,10 @@ class NotFound(ActionError):
 class NotAuthorized(ActionError):
     pass
 
-class ValidationError(ActionError):
+class ParameterError(ActionError):
+    pass
+
+class ValidationError(ParameterError):
     def __init__(self, error_dict, error_summary=None, extra_msg=None):
         self.error_dict = error_dict
         self.error_summary = error_summary

@@ -3,7 +3,7 @@ import re
 import datetime
 
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
-from ckan.logic import NotFound, ValidationError
+from ckan.logic import NotFound, ValidationError, ParameterError
 from ckan.logic import check_access
 
 from ckan.lib.base import _
@@ -517,10 +517,10 @@ def user_role_update(context, data_dict):
     new_user_ref = data_dict.get('user') # the user who is being given the new role
     new_authgroup_ref = data_dict.get('authorization_group') # the authgroup who is being given the new role
     if bool(new_user_ref) == bool(new_authgroup_ref):
-        raise ValidationError('You must provide either "user" or "authorization_group" parameter.')
+        raise ParameterError('You must provide either "user" or "authorization_group" parameter.')
     domain_object_ref = data_dict['domain_object']
     if not isinstance(data_dict['roles'], (list, tuple)):
-        raise ValidationError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
+        raise ParameterError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
     desired_roles = set(data_dict['roles'])
 
     if new_user_ref:
@@ -548,7 +548,7 @@ def user_role_update(context, data_dict):
         check_access('authorization_group_edit_permissions', context, data_dict)
     # Todo: 'system' object
     else:
-        raise ValidationError('Not possible to update roles for domain object type %s' % type(domain_object))
+        raise ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
 
     # current_uors: in order to avoid either creating a role twice or
     # deleting one which is non-existent, we need to get the users\'

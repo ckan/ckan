@@ -108,7 +108,6 @@ def _lookup_plugin(package_type):
     If the package type is None or cannot be found in the mapping, then the
     fallback behaviour is used.
     """
-    #from pdb import set_trace; set_trace()    
     if package_type is None:
         return _default_controller_behaviour
     return _controller_behaviour_for.get(package_type,

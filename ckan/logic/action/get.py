@@ -7,7 +7,7 @@ import logging
 
 import ckan
 from ckan.lib.base import _
-from ckan.logic import NotFound
+from ckan.logic import NotFound, ParameterError
 from ckan.logic import check_access
 from ckan.model import misc
 from ckan.plugins import (PluginImplementations,
@@ -116,7 +116,7 @@ def group_list(context, data_dict):
     ref_group_by = 'id' if api == '2' else 'name';
     order_by = data_dict.get('order_by', 'name')
     if order_by not in set(('name', 'packages')):
-        raise ValidationError('"order_by" value %r not implemented.' % order_by)
+        raise ParameterError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
 
     check_access('group_list',context, data_dict)
