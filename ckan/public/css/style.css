@@ -4,7 +4,7 @@
 body.no-sidebar #sidebar { display: none; }
 body.no-sidebar #content { 
   border-right: 0; 
-  width: 950px; 
+  width: 960px; 
 }
 
 .header.outer {
@@ -679,7 +679,7 @@ ul.userlist .badge {
 body.user.read #sidebar { display: none; }
 body.user.read #content { 
   border-right: 0; 
-  width: 950px; 
+  width: 960px; 
 }
 
 .user.read .page_heading {
@@ -697,6 +697,13 @@ body.user.read #content {
 .user.read .page_heading .fullname {
   font-weight: normal;
   color: #999;
+}
+
+.user.read .rule {
+  clear: both;
+  margin-bottom: 15px;
+  padding-top: 20px;
+  border-bottom: 1px solid #ddd;
 }
 
 .vcard dt {
@@ -1308,7 +1315,7 @@ body.package.read #sidebar li.widget-container {
 body.package.resource_read #sidebar { display: none; }
 body.package.resource_read #content { 
     border-right: 0; 
-    width: 950px; 
+    width: 960px; 
 }
 
 .resource_read .notes {

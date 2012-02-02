@@ -56,9 +56,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                                  'target="_blank"',
                                  'rel="nofollow"')
         assert 'Edit Profile' not in main_res, main_res
-        assert 'Number of edits:</strong> 3' in res, res
-        assert 'Number of datasets administered:</strong> 1' in res, res
-        assert 'Revision History' in res, res
 
     def test_user_read_without_id(self):
         offset = '/user/'
