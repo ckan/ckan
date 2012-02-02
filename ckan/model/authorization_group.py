@@ -35,6 +35,12 @@ class AuthorizationGroup(DomainObject):
             cls.name.ilike(qstr)))
         return query
 
+    @classmethod
+    def get(cls, auth_group_reference):
+        query = Session.query(cls).autoflush(False)
+        query = query.filter(or_(cls.name==auth_group_reference,
+                                 cls.id==auth_group_reference))
+        return query.first()
     
 class AuthorizationGroupUser(DomainObject):
     pass

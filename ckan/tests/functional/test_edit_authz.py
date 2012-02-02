@@ -6,8 +6,9 @@ import ckan.authz as authz
 
 def check_and_set_checkbox(theform, user, role, should_be, set_to):
    '''Given an authz form, find the checkbox associated with the strings user and role,
-   assert that it's in the state 'should_be', and set it to 'set_to' '''
-   user_role_string = '%s$%s' % (user, role)
+   assert that it\'s in the state 'should_be', and set it to 'set_to' '''
+   user_id = (model.User.get(user) or model.AuthorizationGroup.get(user)).id
+   user_role_string = '%s$%s' % (user_id, role)
    checkboxes = [x for x in theform.fields[user_role_string] \
                                    if x.__class__.__name__ == 'Checkbox']
 
@@ -283,7 +284,7 @@ class TestEditAuthz(TestController):
            # tick it and submit
            checkbox.checked=True
            res = form.submit('add', extra_environ={'REMOTE_USER':user})
-           assert "User Added" in res, "don't see flash message"
+           assert "User role(s) added" in res, "don't see flash message"
 
            # check that the page contains strings for everyone
            assert 'visitor' in res
@@ -369,7 +370,7 @@ class TestEditAuthz(TestController):
            # tick it and submit
            checkbox.checked=True
            res = form.submit('authz_add', extra_environ={'REMOTE_USER':user})
-           assert "Authorization Group Added" in res, "don't see flash message"
+           assert "User role(s) added" in res, "don't see flash message"
 
            # examine the new page for user names/authzgroup names
            assert 'visitor' in res

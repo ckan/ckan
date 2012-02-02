@@ -29,11 +29,10 @@ def clear_index():
         err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
         log.error(err)
         raise SearchIndexError(err)
-        raise
-##    except solr.core.SolrException, e:
-##        err = 'SOLR %r exception: %r' % (conn.url, e)
-##        log.error(err)
-##        raise SearchIndexError(err)
+    except solr.core.SolrException, e:
+        err = 'SOLR %r exception: %r' % (conn.url, e)
+        log.error(err)
+        raise SearchIndexError(err)
     finally:
         conn.close()
 
