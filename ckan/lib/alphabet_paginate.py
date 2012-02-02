@@ -21,7 +21,8 @@ from webhelpers.html.builder import HTML
 from routes import url_for
 
 class AlphaPage(object):
-    def __init__(self, collection, alpha_attribute, page, other_text, paging_threshold=50):
+    def __init__(self, collection, alpha_attribute, page, other_text, paging_threshold=50, 
+                url='/tag'):
         '''
         @param collection - sqlalchemy query of all the items to paginate
         @param alpha_attribute - name of the attribute (on each item of the
@@ -37,6 +38,7 @@ class AlphaPage(object):
         self.page = page
         self.other_text = other_text
         self.paging_threshold = paging_threshold
+        self.url = url
         
 
     def pager(self, q=None):
@@ -58,7 +60,7 @@ class AlphaPage(object):
         letters = [char for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'] + [self.other_text]
         for letter in letters:
             if letter != page:
-                page = HTML.a(class_='pager_link', href=url_for(controller='tag', action='index', page=letter), c=letter)
+                page = HTML.a(class_='pager_link', href=self.url + "?page=" + letter, c=letter)
             else:
                 page = HTML.span(class_='pager_curpage', c=letter)
             pages.append(page)                           
@@ -96,7 +98,10 @@ class AlphaPage(object):
         elif isinstance(self.collection,list):
             if self.item_count >= self.paging_threshold:
                 if self.page != self.other_text:
-                    items = [x for x in self.collection if x[0:1].lower() == self.page.lower()]
+                    if isinstance(self.collection[0], dict):
+                        items = [x for x in self.collection if x[self.alpha_attribute][0:1].lower() == self.page.lower()]                        
+                    else:
+                        items = [x for x in self.collection if x[0:1].lower() == self.page.lower()]
                 else:
                     # regexp search
                     items = [x for x in self.collection if re.match('^[^a-zA-Z].*',x)]
