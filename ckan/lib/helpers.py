@@ -253,10 +253,17 @@ def icon(name, alt=None):
     return icon_html(icon_url(name),alt)
 
 def linked_gravatar(email_hash, size=100, default="mm"):
-    return literal('<a href="http://gravatar.com" target="_blank">%s</a>' % gravatar(email_hash,size,default))
+    return literal('''<a href="https://gravatar.com/" target="_blank"
+        title="Update your avatar at gravatar.com">
+        %s</a>''' %
+            gravatar(email_hash,size,default)
+        )
 
 def gravatar(email_hash, size=100, default="mm"):
-    return literal('<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s" />' % (email_hash, size, default))
+    return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
+        class="gravatar" />'''
+        % (email_hash, size, default)
+        )
 
 def pager_url(page, partial=None, **kwargs):
     routes_dict = url.environ['pylons.routes_dict']
