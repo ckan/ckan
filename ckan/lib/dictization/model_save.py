@@ -74,6 +74,9 @@ def package_resource_list_save(res_dicts, package, context):
 
 
 def package_extras_save(extra_dicts, obj, context):
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not extra_dicts and allow_partial_update:
+        return
 
     model = context["model"]
     session = context["session"]
