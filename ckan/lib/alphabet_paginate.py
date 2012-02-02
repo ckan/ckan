@@ -22,7 +22,7 @@ from routes import url_for
 
 class AlphaPage(object):
     def __init__(self, collection, alpha_attribute, page, other_text, paging_threshold=50, 
-                url='/tag'):
+                controller_name='tag'):
         '''
         @param collection - sqlalchemy query of all the items to paginate
         @param alpha_attribute - name of the attribute (on each item of the
@@ -32,13 +32,17 @@ class AlphaPage(object):
                             non-alphabetic first character.
         @param paging_threshold - the minimum number of items required to
                               start paginating them.
+        @param controller_name - The name of the controller that will be linked to,
+                            which defaults to tag.  The controller name should be the
+                            same as the route so for some this will be the full 
+                            controller name such as 'A.B.controllers.C:Controller'
         '''
         self.collection = collection
         self.alpha_attribute = alpha_attribute
         self.page = page
         self.other_text = other_text
         self.paging_threshold = paging_threshold
-        self.url = url
+        self.controller_name = controller_name
         
 
     def pager(self, q=None):
@@ -60,7 +64,7 @@ class AlphaPage(object):
         letters = [char for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'] + [self.other_text]
         for letter in letters:
             if letter != page:
-                page = HTML.a(class_='pager_link', href=self.url + "?page=" + letter, c=letter)
+                page = HTML.a(class_='pager_link', href=url_for(controller=self.controller_name, action='index', page=letter),c=letter)
             else:
                 page = HTML.span(class_='pager_curpage', c=letter)
             pages.append(page)                           
