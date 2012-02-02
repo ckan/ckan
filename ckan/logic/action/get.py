@@ -491,8 +491,16 @@ def user_show(context, data_dict):
         revision_dict = revision_show(context,{'id':revision.id})
         revision_dict['state'] = revision.state
         revisions_list.append(revision_dict)
-
     user_dict['activity'] = revisions_list
+
+    user_dict['datasets'] = []
+    dataset_q = model.Session.query(model.Package).join(model.PackageRole
+            ).filter_by(user=user_obj, role=model.Role.ADMIN
+            ).limit(50)
+
+    for dataset in dataset_q:
+        dataset_dict = package_show(context, {'id': dataset.id})
+        user_dict['datasets'].append(dataset_dict)
 
     return user_dict
 
