@@ -194,6 +194,15 @@ def package_dictize(pkg, context):
     # type
     result_dict['type']= pkg.type
 
+    # licence
+    if pkg.license and pkg.license.url:
+        result_dict['license_url']= pkg.license.url
+        result_dict['license_title']= pkg.license.title.split('::')[-1]
+    elif pkg.license:
+        result_dict['license_title']= pkg.license.title
+    else:
+        result_dict['license_title']= pkg.license_id
+
     # creation and modification date
     result_dict['metadata_modified'] = pkg.metadata_modified.isoformat() \
         if pkg.metadata_modified else None

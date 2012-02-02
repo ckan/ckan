@@ -713,28 +713,6 @@ def package_search(context, data_dict):
 
     return search_results
 
-def _extend_package_dict(package_dict,context):
-    model = context['model']
-
-    resources = model.Session.query(model.Resource)\
-                .join(model.ResourceGroup)\
-                .filter(model.ResourceGroup.package_id == package_dict['id'])\
-                .all()
-    if resources:
-        package_dict['resources'] = resource_list_dictize(resources, context)
-    else:
-        package_dict['resources'] = []
-    license_id = package_dict.get('license_id')
-    if license_id:
-        try:
-            isopen = model.Package.get_license_register()[license_id].isopen()
-        except KeyError:
-            isopen = False
-        package_dict['isopen'] = isopen
-    else:
-        package_dict['isopen'] = False
-
-    return package_dict
 
 def resource_search(context, data_dict):
     model = context['model']

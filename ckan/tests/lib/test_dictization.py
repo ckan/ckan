@@ -47,6 +47,7 @@ class TestBasicDictize:
                         'title': u"Roger's books"}],
             'isopen': True,
             'license_id': u'other-open',
+            'license_title': u'OKD Compliant::Other (Open)',
             'maintainer': None,
             'maintainer_email': None,
             'type': None,
@@ -227,6 +228,7 @@ class TestBasicDictize:
         pprint(pkg.as_dict())
         asdict = pkg.as_dict()
         asdict['download_url'] = asdict['resources'][0]['url']
+        asdict['license_title'] = u'OKD Compliant::Other (Open)'
 
         assert package_to_api1(pkg, context) == asdict
 
@@ -241,6 +243,7 @@ class TestBasicDictize:
         pkg = model.Session.query(model.Package).filter_by(name='homer').one()
 
         as_dict = pkg.as_dict()
+        as_dict['license_title'] = None
         dictize = package_to_api1(pkg, context)
 
         as_dict["relationships"].sort(key=lambda x:x.items())
@@ -278,6 +281,7 @@ class TestBasicDictize:
         pkg = model.Session.query(model.Package).filter_by(name='homer').one()
 
         as_dict = pkg.as_dict(ref_package_by='id', ref_group_by='id')
+        as_dict['license_title'] = None
         dictize = package_to_api2(pkg, context)
 
         as_dict["relationships"].sort(key=lambda x:x.items())
