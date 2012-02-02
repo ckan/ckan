@@ -36,10 +36,10 @@
             <py:if test="c.user_dict['email']">
             ${h.mail_to(c.user_dict['email'], encode='javascript')}
             </py:if>
-            <em>No email</em>
+            No email
           </dd>
           <dt>Member since</dt>
-          <dd>${c.user_dict['created']}</dd>
+          <dd>${c.created_formatted}</dd>
           <dt>About</dt>
           <dd>${c.about_formatted}</dd>
         <py:if test="c.is_myself">

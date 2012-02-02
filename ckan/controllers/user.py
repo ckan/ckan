@@ -83,13 +83,10 @@ class UserController(BaseController):
         return render('user/list.html')
 
     def read(self, id=None):
-
         context = {'model': model,
                    'user': c.user or c.author}
-
         data_dict = {'id':id,
                      'user_obj':c.userobj}
-
         try:
             check_access('user_show',context, data_dict)
         except NotAuthorized:
@@ -103,7 +100,7 @@ class UserController(BaseController):
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
         c.about_formatted = self._format_about(user_dict['about'])
-
+        c.created_formatted = h.date_str_to_datetime(user_dict['created']).strftime('%b %d, %Y')
         return render('user/read.html')
     
     def me(self):
