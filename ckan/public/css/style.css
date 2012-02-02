@@ -78,8 +78,9 @@ header .account {
   float: right;
 }
 
-header .account img {
-  margin-bottom: -3px;
+header .account img.gravatar {
+  margin: 0 5px -5px 0;
+  border-radius: 3px;
 }
 
 
