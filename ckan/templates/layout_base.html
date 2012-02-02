@@ -247,7 +247,7 @@
     // later use will add offsets with leading '/' so ensure no trailing slash
     CKAN.SITE_URL = CKAN.SITE_URL.replace(/\/$/, '');
     $(document).ready(function() {
-        var ckan_user = $.cookie("ckan_display_name");
+        var ckan_user = '${c.user}';
         if (ckan_user) {
             $(".ckan-logged-out").hide();
             $(".ckan-logged-in").show();

@@ -2,26 +2,7 @@ import ckan.model as model
 from ckan.tests import *
 from ckan.lib.base import *
 import ckan.authz as authz
-
-
-def check_and_set_checkbox(theform, user, role, should_be, set_to):
-   '''Given an authz form, find the checkbox associated with the strings user and role,
-   assert that it's in the state 'should_be', and set it to 'set_to' '''
-   user_role_string = '%s$%s' % (user, role)
-   checkboxes = [x for x in theform.fields[user_role_string] \
-                                   if x.__class__.__name__ == 'Checkbox']
-
-   assert(len(checkboxes)==1), \
-        "there should only be one checkbox for %s/%s" % (user, role)
-   checkbox = checkboxes[0]
-
-   #checkbox should be unticked
-   assert checkbox.checked==should_be, \
-                 "%s/%s checkbox in unexpected state" % (user, role)
-
-   #tick or untick the box and return the form
-   checkbox.checked=set_to
-   return theform
+from test_edit_authz import check_and_set_checkbox
 
 
 class TestPackageEditAuthz(TestController):
@@ -87,7 +68,7 @@ class TestPackageEditAuthz(TestController):
             self.admin})
         assert self.pkgname in res
 
-        # all the package's users and roles should appear in tables
+        # all the package\'s users and roles should appear in tables
         assert '<tr' in res
         for (user,role) in self.package_roles():
             assert user in res
@@ -216,7 +197,7 @@ class TestPackageEditAuthz(TestController):
         # tick it and submit
         checkbox.checked=True
         res = form.submit('add', extra_environ={'REMOTE_USER':user})
-        assert "User Added" in res, "don't see flash message"
+        assert "User role(s) added" in res, "don't see flash message"
 
        # check that the page contains strings for everyone
         assert 'visitor' in res
@@ -284,7 +265,7 @@ class TestPackageEditAuthz(TestController):
         # tick it and submit
         checkbox.checked=True
         res = form.submit('authz_add', extra_environ={'REMOTE_USER':user})
-        assert "Authorization Group Added" in res, "don't see flash message"
+        assert "User role(s) added" in res, "don't see flash message"
 
         # examine the new page for user names/authzgroup names
         assert 'visitor' in res

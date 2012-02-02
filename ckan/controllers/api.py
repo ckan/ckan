@@ -14,7 +14,7 @@ from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.lib.munge import munge_name, munge_title_to_name, munge_tag
 from ckan.logic import get_action, check_access
-from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import NotFound, NotAuthorized, ValidationError, ParameterError
 from ckan.lib.jsonp import jsonpify
 from ckan.forms.common import package_exists, group_exists
 
@@ -173,6 +173,8 @@ class ApiController(BaseController):
         except NotFound:
             return_dict['error'] = {'__type': 'Not Found Error',
                                     'message': _('Not found')}
+            if e.extra_msg:
+                return_dict['error']['message'] += ': %s' % e.extra_msg
             return_dict['success'] = False
             return self._finish(404, return_dict, content_type='json')
         except ValidationError, e:
@@ -182,6 +184,13 @@ class ApiController(BaseController):
             return_dict['success'] = False
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, return_dict, content_type='json')
+        except ParameterError, e:
+            return_dict['error'] = {'__type': 'Parameter Error',
+                                    'message': '%s: %s' % \
+                                    (_('Parameter Error'), e.extra_msg)}
+            return_dict['success'] = False
+            log.error('Parameter error: %r' % e.extra_msg)
+            return self._finish(409, return_dict, content_type='json')            
         except SearchQueryError, e:
             return_dict['error'] = {'__type': 'Search Query Error',
                                     'message': 'Search Query is invalid: %r' % e.args }

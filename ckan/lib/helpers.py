@@ -214,6 +214,21 @@ def linked_user(user, maxlength=0):
         return _icon + link_to(displayname, 
                        url_for(controller='user', action='read', id=_name))
 
+def linked_authorization_group(authgroup, maxlength=0):
+    from ckan import model
+    from urllib import quote
+    if not isinstance(authgroup, model.AuthorizationGroup):
+        authgroup_name = unicode(authgroup)
+        authgroup = model.AuthorizationGroup.get(authgroup_name)
+        if not authgroup:
+            return authgroup_name
+    if authgroup:
+        displayname = authgroup.name or authgroup.id
+        if maxlength and len(display_name) > maxlength:
+            displayname = displayname[:maxlength] + '...'
+        return link_to(displayname, 
+                       url_for(controller='authorization_group', action='read', id=displayname))
+
 def group_name_to_title(name):
     from ckan import model
     group = model.Group.by_name(name)
@@ -222,7 +237,7 @@ def group_name_to_title(name):
     return name
 
 def markdown_extract(text, extract_length=190):
-    if (text is None) or (text == ''):
+    if (text is None) or (text.strip() == ''):
         return ''
     html = fromstring(markdown(text))
     plain = html.xpath("string()")
@@ -318,7 +333,7 @@ def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
         return package_or_package_dict.get('title', '') or package_or_package_dict.get('name', '')
     else:
-        return package_or_package_dict.title or package_or_package_dictname
+        return package_or_package_dict.title or package_or_package_dict.name
 
 def dataset_link(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
