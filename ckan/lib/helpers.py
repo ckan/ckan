@@ -238,16 +238,14 @@ def icon(name, alt=None):
     return icon_html(icon_url(name),alt)
 
 def linked_gravatar(email_hash, size=100, default="mm"):
-    return literal('''<a
-        href="https://gravatar.com/" target="_blank"
+    return literal('''<a href="https://gravatar.com/" target="_blank"
         title="Update your avatar at gravatar.com">
         %s</a>''' %
             gravatar(email_hash,size,default)
         )
 
 def gravatar(email_hash, size=100, default="mm"):
-    return literal('''<img
-        src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
+    return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
         class="gravatar" />'''
         % (email_hash, size, default)
         )
