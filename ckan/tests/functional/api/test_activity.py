@@ -8,6 +8,7 @@ from ckan.logic.action.create import package_create, user_create, group_create
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
+from ckan.logic.action.get import package_list, package_show
 from ckan.lib.dictization.model_dictize import resource_list_dictize
 from pylons.test import pylonsapp
 import paste.fixture
@@ -1435,3 +1436,382 @@ class TestActivity:
         assert response.json['error'][u'activity_type'] == [
             u"That activity type does not exist."], (
                 response.json['error'][u'activity_type'])
+
+    def _add_extra(self, package_dict, user):
+        if user:
+            user_name = user.name
+            user_id = user.id
+        else:
+            user_name = '127.0.0.1'
+            user_id = 'not logged in'
+
+        before = self.record_details(user_id, package_dict['id'])
+
+        extras_before = package_dict['extras']
+
+        # Create a new resource.
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user_name,
+            'allow_partial_update': True,
+            'extras_as_string': True
+            }
+        extras = list(extras_before)
+        extras.append({'key': 'quality', 'value': '10000'})
+        request_data = {
+                'id': package_dict['id'],
+                'extras': extras
+                }
+        updated_package = package_update(context, request_data)
+
+        after = self.record_details(user_id, package_dict['id'])
+        extras_after = updated_package['extras']
+        assert len(extras_after) == len(extras_before) + 1, (
+                "%s != %s" % (len(extras_after), len(extras_before) + 1))
+
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == updated_package['id'], \
+            str(activity['object_id'])
+        assert activity['user_id'] == user_id, str(activity['user_id'])
+        assert activity['activity_type'] == 'changed package', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object should have an id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity object should have a revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+                timestamp <= after['time']), str(activity['timestamp'])
+
+        # Test for the presence of a correct activity detail item.
+        details = self.activity_details(activity)
+        assert len(details) == 1, (
+                "There should be 1 activity detail but found %s"
+                % len(details))
+        detail = details[0]
+        assert detail['activity_id'] == activity['id'], \
+            str(detail['activity_id'])
+        new_extras = [extra for extra in extras_after if extra not in
+                extras_before]
+        assert len(new_extras) == 1, "%s != 1" % len(new_extras)
+        new_extra = new_extras[0]
+        assert detail['object_id'] == new_extra['id'], (
+            str(detail['object_id']))
+        assert detail['object_type'] == "PackageExtra", (
+            str(detail['object_type']))
+        assert detail['activity_type'] == "new", (
+            str(detail['activity_type']))
+
+    def test_add_extras(self):
+        """
+        Test new package extra activity stream.
+
+        Test that correct activity stream item and detail items are emitted
+        when an extra is added to a package.
+
+        """
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': self.normal_user.name,
+            'extras_as_string': True,
+            }
+        for package_name in package_list(context, {}):
+            package_dict = package_show(context, {'id': package_name})
+            self._add_extra(package_dict, user=self.normal_user)
+
+    def test_add_extras_not_logged_in(self):
+        """
+        Test new package extra activity stream when no user logged in.
+
+        Test that correct activity stream item and detail items are emitted
+        when an extra is added to a package by a user who is not logged in.
+
+        """
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': self.normal_user.name,
+            'extras_as_string': True,
+            }
+        for package_name in package_list(context, {}):
+            package_dict = package_show(context, {'id': package_name})
+            self._add_extra(package_dict, None)
+
+    def _update_extra(self, package_dict, user):
+        if user:
+            user_name = user.name
+            user_id = user.id
+        else:
+            user_name = '127.0.0.1'
+            user_id = 'not logged in'
+
+        before = self.record_details(user_id, package_dict['id'])
+
+        extras_before = package_dict['extras']
+        assert len(extras_before) > 0, (
+                "Can't update an extra if the package doesn't have any")
+
+        # Update the package's first extra.
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user_name,
+            'allow_partial_update': True,
+            'extras_as_string': True
+            }
+        extras = list(extras_before)
+        extras[0]['value'] = 'edited'
+        request_data = {
+                'id': package_dict['id'],
+                'extras': extras
+                }
+        updated_package = package_update(context, request_data)
+
+        after = self.record_details(user_id, package_dict['id'])
+        extras_after = updated_package['extras']
+        assert len(extras_after) == len(extras_before), (
+                "%s != %s" % (len(extras_after), len(extras_before)))
+
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == updated_package['id'], \
+            str(activity['object_id'])
+        assert activity['user_id'] == user_id, str(activity['user_id'])
+        assert activity['activity_type'] == 'changed package', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object should have an id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity object should have a revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+                timestamp <= after['time']), str(activity['timestamp'])
+
+        # Test for the presence of a correct activity detail item.
+        details = self.activity_details(activity)
+        assert len(details) == 1, (
+                "There should be 1 activity detail but found %s"
+                % len(details))
+        detail = details[0]
+        assert detail['activity_id'] == activity['id'], \
+            str(detail['activity_id'])
+        new_extras = [extra for extra in extras_after if extra not in
+                extras_before]
+        assert len(new_extras) == 1, "%s != 1" % len(new_extras)
+        new_extra = new_extras[0]
+        assert detail['object_id'] == new_extra['id'], (
+            str(detail['object_id']))
+        assert detail['object_type'] == "PackageExtra", (
+            str(detail['object_type']))
+        assert detail['activity_type'] == "changed", (
+            str(detail['activity_type']))
+
+    def test_update_extras(self):
+        """
+        Test changed package extra activity stream.
+
+        Test that correct activity stream item and detail items are emitted
+        when a package extra is changed.
+
+        """
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': self.normal_user.name,
+            'extras_as_string': True,
+            }
+        packages_with_extras = []
+        for package_name in package_list(context, {}):
+            package_dict = package_show(context, {'id': package_name})
+            if len(package_dict['extras']) > 0:
+                    packages_with_extras.append(package_dict)
+        assert len(packages_with_extras) > 0, (
+                "Need some packages with extras to test")
+        for package_dict in packages_with_extras:
+            self._update_extra(package_dict, user=self.normal_user)
+
+    def test_update_extras_not_logged_in(self):
+        """
+        Test changed package extra activity stream when no user logged in.
+
+        Test that correct activity stream item and detail items are emitted
+        when a package extra is changed by a user who is not logged in.
+
+        """
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': self.normal_user.name,
+            'extras_as_string': True,
+            }
+        packages_with_extras = []
+        for package_name in package_list(context, {}):
+            package_dict = package_show(context, {'id': package_name})
+            if len(package_dict['extras']) > 0:
+                    packages_with_extras.append(package_dict)
+        assert len(packages_with_extras) > 0, (
+                "Need some packages with extras to test")
+        for package_dict in packages_with_extras:
+            self._update_extra(package_dict, None)
+
+    def _delete_extra(self, package_dict, user):
+        if user:
+            user_name = user.name
+            user_id = user.id
+        else:
+            user_name = '127.0.0.1'
+            user_id = 'not logged in'
+
+        before = self.record_details(user_id, package_dict['id'])
+
+        extras_before = package_dict['extras']
+        assert len(extras_before) > 0, (
+                "Can't update an extra if the package doesn't have any")
+
+        # Update the package's first extra.
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user_name,
+            'allow_partial_update': True,
+            'extras_as_string': True
+            }
+        extras = list(extras_before)
+        del extras[0]
+        request_data = {
+                'id': package_dict['id'],
+                'extras': extras
+                }
+        updated_package = package_update(context, request_data)
+
+        after = self.record_details(user_id, package_dict['id'])
+        extras_after = updated_package['extras']
+        assert len(extras_after) == len(extras_before) - 1, (
+                "%s != %s" % (len(extras_after), len(extras_before) - 1))
+
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = (find_new_activities(
+            before['package activity stream'],
+            after['package activity stream']))
+        assert pkg_new_activities == user_new_activities
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == updated_package['id'], \
+            str(activity['object_id'])
+        assert activity['user_id'] == user_id, str(activity['user_id'])
+        assert activity['activity_type'] == 'changed package', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object should have an id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity object should have a revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert (timestamp >= before['time'] and
+                timestamp <= after['time']), str(activity['timestamp'])
+
+        # Test for the presence of a correct activity detail item.
+        details = self.activity_details(activity)
+        assert len(details) == 1, (
+                "There should be 1 activity detail but found %s"
+                % len(details))
+        detail = details[0]
+        assert detail['activity_id'] == activity['id'], \
+            str(detail['activity_id'])
+        deleted_extras = [extra for extra in extras_before if extra not in
+                extras_after]
+        assert len(deleted_extras) == 1, "%s != 1" % len(deleted_extras)
+        deleted_extra = deleted_extras[0]
+        assert detail['object_id'] == deleted_extra['id'], (
+            str(detail['object_id']))
+        assert detail['object_type'] == "PackageExtra", (
+            str(detail['object_type']))
+        assert detail['activity_type'] == "deleted", (
+            str(detail['activity_type']))
+
+    def test_delete_extras(self):
+        """
+        Test deleted package extra activity stream.
+
+        Test that correct activity stream item and detail items are emitted
+        when a package extra is deleted.
+
+        """
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': self.normal_user.name,
+            'extras_as_string': True,
+            }
+        packages_with_extras = []
+        for package_name in package_list(context, {}):
+            package_dict = package_show(context, {'id': package_name})
+            if len(package_dict['extras']) > 0:
+                    packages_with_extras.append(package_dict)
+        assert len(packages_with_extras) > 0, (
+                "Need some packages with extras to test")
+        for package_dict in packages_with_extras:
+            self._delete_extra(package_dict, user=self.normal_user)
+
+    def test_delete_extras_not_logged_in(self):
+        """
+        Test deleted package extra activity stream when no user logged in.
+
+        Test that correct activity stream item and detail items are emitted
+        when a package extra is deleted by a user who is not logged in.
+
+        """
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': self.normal_user.name,
+            'extras_as_string': True,
+            }
+        packages_with_extras = []
+        for package_name in package_list(context, {}):
+            package_dict = package_show(context, {'id': package_name})
+            if len(package_dict['extras']) > 0:
+                    packages_with_extras.append(package_dict)
+        assert len(packages_with_extras) > 0, (
+                "Need some packages with extras to test")
+        for package_dict in packages_with_extras:
+            self._delete_extra(package_dict, None)
