@@ -6,18 +6,11 @@
   py:strip=""
   >
   <xi:include href="../_util.html" />
-<div>
-  <div style="font-weight:bold;">
-    ${h.linked_user(activity.user_id)}
-    <span style="background:yellow;">added</span>
-    the tag
-    <a href="${h.url_for(controller='tag', action='read',
-                         id=detail.data.tag.name)}">
-        ${detail.data.tag.name}
-    </a>
-    to the dataset
-    ${package_summary(detail.data.package)}
-    ${h.render_datetime(activity.timestamp, '%B %d %Y')}
-  </div>
-</div>
+${activity_stream_event(
+  subject=h.linked_user(activity.user_id),
+  verb='added',
+  object=("the tag "+h.tag_link(detail.data.tag)+
+  " to the dataset "+h.dataset_link(detail.data.package)),
+  activity=activity
+  )}
 </html>

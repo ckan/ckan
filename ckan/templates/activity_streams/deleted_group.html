@@ -6,15 +6,10 @@
   py:strip=""
   >
   <xi:include href="../_util.html" />
-<div>
-  <div style="font-weight:bold;">
-    ${h.linked_user(activity.user_id)}
-    <span style="background:yellow;">deleted</span>
-    the group ${activity.data.group.name}
-  <div style="color:#999;">
-    ${h.truncate(activity.data.group.description, length=80, whole_word=True)}
-  </div>
-    ${h.render_datetime(activity.timestamp, '%B %d %Y')}
-  </div>
-</div>
+${activity_stream_event(
+  subject=h.linked_user(activity.user_id),
+  verb='deleted',
+  object="the group "+h.group_link(activity.data.group),
+  activity=activity
+  )}
 </html>

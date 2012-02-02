@@ -451,4 +451,23 @@
     </tr>
   </table>
 
+  <div py:def="activity_stream_event(subject, verb, object=None)">
+    <span class="activity_stream_event_subject">
+      ${subject}
+    </span>
+    <span class="activity_stream_event_verb">
+      ${verb}
+    </span>
+    <py:choose>
+      <span class="activity_stream_event_object" py:when="object">
+        ${object}
+      </span>
+      <py:otherwise>
+      </py:otherwise>
+    </py:choose>
+    <span class="activity_stream_event_date">
+      ${h.render_datetime(activity.timestamp, '%B %d %Y')}
+    </span>
+  </div>
+
 </html>

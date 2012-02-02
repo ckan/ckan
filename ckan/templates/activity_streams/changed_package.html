@@ -6,16 +6,9 @@
   py:strip=""
   >
   <xi:include href="../_util.html" />
-<div>
-  <div style="font-weight:bold;">
-    ${h.linked_user(activity.user_id)}
-    <span style="background:yellow;">updated</span>
-    the dataset
-    ${package_summary(activity.data.package)} <br/>
-    ${h.render_datetime(activity.timestamp, '%B %d %Y')}
-  </div>
-  <div style="color:#999;">
-    ${h.markdown_extract(activity.data.package.notes)}
-  </div>
-</div>
+${activity_stream_event(
+  subject=h.linked_user(activity.user_id),
+  verb='updated',
+  object="the dataset "+h.dataset_link(activity.data.package),
+  activity=activity)}
 </html>

@@ -345,3 +345,10 @@ def resource_link(resource_dict, package_id):
         resource_id=resource_dict['id'])
     return link_to(text, url)
 
+def tag_link(tag):
+    url = url_for(controller='tag', action='read', id=tag['name'])
+    return link_to(tag['name'], url)
+
+def group_link(group):
+    url = url_for(controller='group', action='read', id=group['name'])
+    return link_to(group['name'], url)
