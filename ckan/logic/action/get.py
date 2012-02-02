@@ -1,9 +1,12 @@
 from sqlalchemy.sql import select
+from sqlalchemy.orm import aliased
 from sqlalchemy import or_, and_, func, desc, case
 import uuid
 from pylons import config
+import logging
 
 import ckan
+from ckan.lib.base import _
 from ckan.logic import NotFound
 from ckan.logic import check_access
 from ckan.model import misc
@@ -29,7 +32,7 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 tag_to_api1,
                                                 tag_to_api2)
 from ckan.lib.search import query_for, SearchError
-import logging
+from ckan.logic.action import get_domain_object
 
 log = logging.getLogger('ckan.logic')
 
@@ -860,6 +863,62 @@ def get_site_user(context, data_dict):
             model.Session.commit()
     return {'name': user.name,
             'apikey': user.apikey}
+
+def roles_show(context, data_dict):
+    '''Returns the roles that users (and authorization groups) have on a
+    particular domain_object.
+    
+    If you specify a user (or authorization group) then the resulting roles
+    will be filtered by those of that user (or authorization group).
+
+    domain_object can be a package/group/authorization_group name or id.
+    '''
+    model = context['model']
+    session = context['session']
+    domain_object_ref = data_dict['domain_object']
+    user_ref = data_dict.get('user')
+    authgroup_ref = data_dict.get('authorization_group')
+
+    domain_object = get_domain_object(model, domain_object_ref)
+    if isinstance(domain_object, model.Package):
+        query = session.query(model.PackageRole).join('package')
+    elif isinstance(domain_object, model.Group):
+        query = session.query(model.GroupRole).join('group')
+    elif isinstance(domain_object, model.AuthorizationGroup):
+        query = session.query(model.AuthorizationGroupRole).join('authorization_group')
+    else:
+        raise NotFound(_('Cannot list entity of this type: %s') % type(domain_object).__name__)
+    # Filter by the domain_obj
+    query = query.filter_by(id=domain_object.id)
+
+    # Filter by the user / authorized_group
+    if user_ref:
+        user = model.User.get(user_ref)
+        if not user:
+            raise NotFound(_('unknown user:') + repr(user_ref))
+        query = query.join('user').filter_by(id=user.id)
+    if authgroup_ref:
+        authgroup = model.AuthorizationGroup.get(authgroup_ref)
+        if not authgroup:
+            raise NotFound('unknown authorization group:' + repr(authgroup_ref))
+        # we need an alias as we join to model.AuthorizationGroup table twice
+        ag = aliased(model.AuthorizationGroup)
+        query = query.join(ag, model.AuthorizationGroupRole.authorized_group) \
+                .filter_by(id=authgroup.id)
+
+    uors = query.all()
+
+    uors_dictized = [table_dictize(uor, context) for uor in uors]
+
+    result = {'domain_object_type': type(domain_object).__name__,
+              'domain_object_id': domain_object.id,
+              'roles': uors_dictized}
+    if user_ref:
+        result['user'] = user.id
+    if authgroup_ref:
+        result['authorization_group'] = authgroup.id
+
+    return result
 
 def status_show(context, data_dict):
     '''Provides information about the operation of this CKAN instance.'''

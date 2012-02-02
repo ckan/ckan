@@ -273,7 +273,7 @@
     <py:for each="user in users">
       <tr>
         <td>
-          ${user}
+          ${h.linked_authorization_group(user)}
         </td>
         <py:for each="role in roles">
           <td> 
