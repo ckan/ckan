@@ -3,13 +3,19 @@
   py:strip="">
   
   <py:def function="page_title">${c.user_dict['display_name']} - User</py:def>
-  <py:def function="page_heading">${c.user_dict['display_name']}</py:def>
-  <py:def function="body_class">user-view</py:def>
+  <py:def function="page_heading">
+    ${h.linked_gravatar(c.user_dict['email_hash'],48)}
+    <span class="username">
+    ${c.user_dict['name']}
+    </span>
+    <py:if test="c.user_dict['fullname']">
+    <span class="fullname">
+      (${c.user_dict['fullname']})
+    </span>
+    </py:if>
+  </py:def>
   
   <py:match path="primarysidebar">
-    <div class="gravatar">
-      ${h.gravatar(c.user_dict['email_hash'],120)}
-    </div>
     <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
       <h3>Activity</h3>
       <ul>
@@ -20,18 +26,47 @@
   </py:match>
 
   <div py:match="content">
-    <py:if test="c.is_myself">
-      <h3>My Account</h3>
-
-      <p>You are logged in.</p>
-      <ul>
-        <li>Your API key is: ${c.user_dict['apikey']}</li>
-      </ul>
-    </py:if>
-
-    <div class="about">
-      ${c.about_formatted}
+    <div class="row">
+      <div class="span-12">
+        <dl class="vcard">
+          <dt>Name</dt>
+          <dd>${c.user_dict['fullname'] or 'No name provided'}</dd>
+          <dt>Email</dt>
+          <dd>
+            <py:if test="c.user_dict['email']">
+            ${h.mail_to(c.user_dict['email'], encode='javascript')}
+            </py:if>
+            <em>No email</em>
+          </dd>
+          <dt>Member since</dt>
+          <dd>${c.user_dict['created']}</dd>
+          <dt>About</dt>
+          <dd>${c.about_formatted}</dd>
+        <py:if test="c.is_myself">
+          <!--checkpoint:is-myself-->
+          <dt>API Key</dt>
+          <dd>
+          ${c.user_dict['apikey']}
+          <br />
+          <em>&ndash; Note: your API key is visible only to you!</em>
+          </dd>
+        </py:if>
+        </dl>
+      </div>
+      <div class="span-11">
+        <ul class="stats">
+          <li>
+            <strong>${c.user_dict['number_administered_packages']}</strong>
+            <span>Datasets</span>
+          </li>
+          <li>
+            <strong>${c.user_dict['number_of_edits']}</strong>
+            <span>Edits</span>
+          </li>
+        </ul>
+      </div>
     </div>
+    <div class="clear"></div>
 
     <div class="changes">
       <h3>Recent changes</h3>
