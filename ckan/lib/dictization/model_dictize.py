@@ -26,7 +26,7 @@ def group_list_dictize(obj_list, context,
 
         group_dict['display_name'] = obj.display_name
 
-        group_dict['packages'] = len(obj.packages)
+        group_dict['packages'] = len(obj.active_packages().all())
 
         result_list.append(group_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
