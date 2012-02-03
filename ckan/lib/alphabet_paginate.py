@@ -35,7 +35,7 @@ class AlphaPage(object):
         @param controller_name - The name of the controller that will be linked to,
                             which defaults to tag.  The controller name should be the
                             same as the route so for some this will be the full 
-                            controller name such as 'A.B.controllers.C:Controller'
+                            controller name such as 'A.B.controllers.C:ClassName'
         '''
         self.collection = collection
         self.alpha_attribute = alpha_attribute
@@ -64,10 +64,10 @@ class AlphaPage(object):
         letters = [char for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'] + [self.other_text]
         for letter in letters:
             if letter != page:
-                page = HTML.a(class_='pager_link', href=url_for(controller=self.controller_name, action='index', page=letter),c=letter)
+                page_element = HTML.a(class_='pager_link', href=url_for(controller=self.controller_name, action='index', page=letter),c=letter)
             else:
-                page = HTML.span(class_='pager_curpage', c=letter)
-            pages.append(page)                           
+                page_element = HTML.span(class_='pager_curpage', c=letter)
+            pages.append(page_element)                           
         div = HTML.tag('div', class_='pager', *pages)
         return div
 
@@ -108,7 +108,10 @@ class AlphaPage(object):
                         items = [x for x in self.collection if x[0:1].lower() == self.page.lower()]
                 else:
                     # regexp search
-                    items = [x for x in self.collection if re.match('^[^a-zA-Z].*',x)]
+                    if isinstance(self.collection[0], dict):
+                        items = [x for x in self.collection if re.match('^[^a-zA-Z].*',x[self.alpha_attribute])]                        
+                    else:
+                        items = [x for x in self.collection if re.match('^[^a-zA-Z].*',x)]
                 items.sort()
             else:
                 items = self.collection
