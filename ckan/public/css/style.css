@@ -4,7 +4,7 @@
 body.no-sidebar #sidebar { display: none; }
 body.no-sidebar #content { 
   border-right: 0; 
-  width: 960px; 
+  width: 950px; 
 }
 
 .header.outer {
@@ -679,7 +679,7 @@ ul.userlist .badge {
 body.user.read #sidebar { display: none; }
 body.user.read #content { 
   border-right: 0; 
-  width: 960px; 
+  width: 950px; 
 }
 
 .user.read .page_heading {
@@ -736,6 +736,14 @@ body.user.read #content {
 
 .user.read ul.stats li span {
   color: #999;
+}
+
+.user.read .listing .datasets {
+  padding-right: 10px;
+}
+
+.user.read .listing .changes {
+  padding-left: 10px;
 }
 
 
@@ -1315,7 +1323,7 @@ body.package.read #sidebar li.widget-container {
 body.package.resource_read #sidebar { display: none; }
 body.package.resource_read #content { 
     border-right: 0; 
-    width: 960px; 
+    width: 950px; 
 }
 
 .resource_read .notes {

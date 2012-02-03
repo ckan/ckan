@@ -43,7 +43,7 @@
         </py:if>
         </dl>
       </div>
-      <div class="span-11">
+      <div class="span-12 last">
         <ul class="stats">
           <li>
             <strong>${c.user_dict['number_administered_packages']}</strong>
@@ -63,7 +63,7 @@
         <h2>Datasets</h2>
         ${package_list_from_dict(c.user_dict['datasets'])}
       </div>
-      <div class="changes span-12">
+      <div class="changes last">
         <h2>Public Activity</h2>
         <py:if test="c.user_dict['activity']">
         ${revision_list_from_dict(c.user_dict['activity'])}
