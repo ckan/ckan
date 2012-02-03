@@ -738,12 +738,11 @@ body.user.read #content {
   color: #999;
 }
 
-.user.read .listing .datasets {
-  padding-right: 10px;
+.user.read .listing > div.datasets .datasets {
+  padding-right: 15px;
 }
 
 .user.read .listing .changes {
-  padding-left: 10px;
 }
 
 
