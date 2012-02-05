@@ -881,29 +881,37 @@ def user_activity_list(context, data_dict):
     '''Return a user\'s public activity stream as a list of dicts.'''
     model = context['model']
     user_id = data_dict['id']
-    activity_objects = model.Session.query(
-            model.activity.Activity).filter_by(user_id=user_id).all()
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(user_id=user_id)
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
     return activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
     '''Return a package\'s public activity stream as a list of dicts.'''
     model = context['model']
     package_id = data_dict['id']
-    activity_objects = model.Session.query(
-            model.activity.Activity).filter_by(object_id=package_id).all()
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(object_id=package_id)
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
     return activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
     '''Return a group\'s public activity stream as a list of dicts.'''
     model = context['model']
     group_id = data_dict['id']
-    activity_objects = model.Session.query(
-            model.activity.Activity).filter_by(object_id=group_id).all()
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(object_id=group_id)
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
     return activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
     '''Return an activity\'s list of activity detail items, as a list of dicts.
-    
     '''
     model = context['model']
     activity_id = data_dict['id']
@@ -1021,7 +1029,7 @@ activity_renderers = {
 
 def _activity_list_to_html(context, activity_stream):
     html = []
-    for activity in reversed(activity_stream):
+    for activity in activity_stream:
         activity_type = activity['activity_type']
         if not activity_renderers.has_key(activity_type):
             raise NotImplementedError, ("No activity renderer for activity "
@@ -1032,7 +1040,7 @@ def _activity_list_to_html(context, activity_stream):
 
 def user_activity_list_html(context, data_dict):
     '''Return an HTML rendering of a user\'s public activity stream.
-    
+
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page.
 
