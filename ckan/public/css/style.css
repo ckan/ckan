@@ -1486,6 +1486,9 @@ body.authz form button {
 .activity-stream-activity .object {
 
 }
+.activity-stream-activity .target {
+
+}
 .activity-stream-activity .date {
     color:#999;
 

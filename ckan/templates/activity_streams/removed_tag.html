@@ -9,8 +9,8 @@
 ${activity_stream_activity(
   actor=h.linked_user(activity.user_id),
   verb='removed',
-  object=("the tag "+h.tag_link(detail.data.tag)+
-  " from the dataset "+h.dataset_link(detail.data.package)),
+  object="the tag "+h.tag_link(detail.data.tag),
+  target="from the dataset "+h.dataset_link(detail.data.package),
   activity=activity
   )}
 </html>

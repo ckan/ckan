@@ -451,7 +451,7 @@
     </tr>
   </table>
 
-  <div py:def="activity_stream_activity(actor, verb, object=None)"
+  <div py:def="activity_stream_activity(actor, verb, object=None, target=None)"
       class="activity-stream-activity">
     <span class="actor">
       ${actor}
@@ -462,6 +462,13 @@
     <py:choose>
       <span class="object" py:when="object">
         ${object}
+      </span>
+      <py:otherwise>
+      </py:otherwise>
+    </py:choose>
+    <py:choose>
+      <span class="target" py:when="target">
+        ${target}
       </span>
       <py:otherwise>
       </py:otherwise>

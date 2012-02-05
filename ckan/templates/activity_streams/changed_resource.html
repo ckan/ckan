@@ -9,9 +9,9 @@
 ${activity_stream_activity(
   actor=h.linked_user(activity.user_id),
   verb='updated',
-  object=('the resource '+h.resource_link(detail.data.resource,
-    activity.data.package.id)+' in the dataset '
-    +h.dataset_link(activity.data.package)),
+  object='the resource '+h.resource_link(detail.data.resource,
+    activity.data.package.id),
+  target='in the dataset '+h.dataset_link(activity.data.package),
   activity=activity
   )}
 </html>
