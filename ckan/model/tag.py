@@ -102,10 +102,11 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def activity_stream_detail(self, activity_id, activity_type):
         if activity_type == 'new':
-            # New PackageTag objects are recorded as 'added tag' events.
+            # New PackageTag objects are recorded as 'added tag' activities.
             activity_type = 'added'
         elif activity_type == 'changed':
-            # Changed PackageTag objects are recorded as 'removed tag' events.
+            # Changed PackageTag objects are recorded as 'removed tag'
+            # activities.
             # FIXME: This assumes that whenever a PackageTag is changed it's
             # because its' state has been changed from 'active' to 'deleted'.
             # Should do something more here to test whether that is in fact

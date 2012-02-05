@@ -22,7 +22,19 @@ def activity_stream_detail(obj, activity_id, activity_type):
         return None
 
 class DatasetActivitySessionExtension(SessionExtension):
+    """Session extension that emits activity stream activities for packages
+    and related objects.
 
+    An SQLAlchemy SessionExtension that watches for new, changed or deleted
+    Packages or objects with related packages (Resources, PackageExtras..)
+    being committed to the SQLAlchemy session and creates Activity and
+    ActivityDetail objects for these activities.
+
+    For most types of activity the Activity and ActivityDetail objects are
+    created in the relevant ckan/logic/action/ functions, but for Packages and
+    objects with related packages they are created by this class instead.
+
+    """
     def before_commit(self, session):
 
         session.flush()

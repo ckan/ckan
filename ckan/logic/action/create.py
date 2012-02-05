@@ -333,8 +333,8 @@ def group_create_rest(context, data_dict):
     return group_dict
 
 def activity_create(context, activity_dict, ignore_auth=False):
-    '''Create a new activity stream event and return a dictionary
-    representation of the new event.
+    '''Create a new activity stream activity and return a dictionary
+    representation of it.
 
     '''
     model = context['model']
