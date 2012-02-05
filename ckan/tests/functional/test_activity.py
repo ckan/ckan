@@ -5,9 +5,7 @@ from routes import url_for
 from ckan.logic.action.create import package_create, user_create, group_create
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.update import user_update, group_update
-from ckan.logic.action.delete import package_delete, group_delete
-from ckan.logic.action.get import package_list, package_show
-from ckan.lib.dictization.model_dictize import resource_list_dictize
+from ckan.logic.action.delete import package_delete
 from ckan.tests.html_check import HtmlCheckMethods
 
 class TestActivity(HtmlCheckMethods):
