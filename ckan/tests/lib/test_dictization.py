@@ -986,7 +986,8 @@ class TestBasicDictize:
 
         # Retrieve the newest Activity object from the database, check that its
         # attributes match those of the dict we saved.
-        got = ckan.logic.action.get.user_activity_list(context, {'id': user.id})[-1]
+        got = ckan.logic.action.get.user_activity_list(context,
+                {'id': user.id})[0]
         assert got['user_id'] == sent['user_id']
         assert got['object_id'] == sent['object_id']
         assert got['revision_id'] == sent['revision_id']
