@@ -506,7 +506,10 @@ def user_show(context, data_dict):
             ).limit(50)
 
     for dataset in dataset_q:
-        dataset_dict = package_show(context, {'id': dataset.id})
+        try:
+            dataset_dict = package_show(context, {'id': dataset.id})
+        except ckan.logic.NotAuthorized:
+            continue
         user_dict['datasets'].append(dataset_dict)
 
     return user_dict
