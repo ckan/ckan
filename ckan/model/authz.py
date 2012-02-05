@@ -97,7 +97,7 @@ user_object_role_table = Table('user_object_role', metadata,
            Column('id', UnicodeText, primary_key=True, default=make_uuid),
            Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=True),
            Column('authorized_group_id', UnicodeText, ForeignKey('authorization_group.id'), nullable=True),
-           Column('context', UnicodeText, nullable=False),
+           Column('context', UnicodeText, nullable=False), # stores subtype
            Column('role', UnicodeText)
            )
 
@@ -139,12 +139,10 @@ class UserObjectRole(DomainObject):
             return '<%s user="%s" role="%s" context="%s">' % \
                 (self.__class__.__name__, self.user.name, self.role, self.context)
         elif self.authorized_group:
-            return '<%s group="%s" role="%s" context="%s">' % \
+            return '<%s authorized_group="%s" role="%s" context="%s">' % \
                 (self.__class__.__name__, self.authorized_group.name, self.role, self.context)
         else:
             assert False, "UserObjectRole is neither for an authzgroup or for a user" 
-            
-
 
     @classmethod
     def get_object_role_class(cls, domain_obj):
@@ -239,16 +237,49 @@ class UserObjectRole(DomainObject):
 class PackageRole(UserObjectRole):
     protected_object = Package
     name = 'package'
+
+    def __repr__(self):
+        if self.user:
+            return '<%s user="%s" role="%s" package="%s">' % \
+                (self.__class__.__name__, self.user.name, self.role, self.package.name)
+        elif self.authorized_group:
+            return '<%s authorized_group="%s" role="%s" package="%s">' % \
+                (self.__class__.__name__, self.authorized_group.name, self.role, self.package.name)
+        else:
+            assert False, "%s is neither for an authzgroup or for a user" % self.__class__.__name__
+
 protected_objects[PackageRole.protected_object] = PackageRole
 
 class GroupRole(UserObjectRole):
     protected_object = Group
     name = 'group'
+
+    def __repr__(self):
+        if self.user:
+            return '<%s user="%s" role="%s" group="%s">' % \
+                (self.__class__.__name__, self.user.name, self.role, self.group.name)
+        elif self.authorized_group:
+            return '<%s authorized_group="%s" role="%s" group="%s">' % \
+                (self.__class__.__name__, self.authorized_group.name, self.role, self.group.name)
+        else:
+            assert False, "%s is neither for an authzgroup or for a user" % self.__class__.__name__
+
 protected_objects[GroupRole.protected_object] = GroupRole
 
 class AuthorizationGroupRole(UserObjectRole):
     protected_object = AuthorizationGroup
     name = 'authorization_group'
+
+    def __repr__(self):
+        if self.user:
+            return '<%s user="%s" role="%s" authorization_group="%s">' % \
+                (self.__class__.__name__, self.user.name, self.role, self.authorization_group.name)
+        elif self.authorized_group:
+            return '<%s authorized_group="%s" role="%s" authorization_group="%s">' % \
+                (self.__class__.__name__, self.authorized_group.name, self.role, self.authorization_group.name)
+        else:
+            assert False, "%s is neither for an authzgroup or for a user" % self.__class__.__name__
+
 protected_objects[AuthorizationGroupRole.protected_object] = AuthorizationGroupRole
 
 class SystemRole(UserObjectRole):

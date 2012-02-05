@@ -78,8 +78,9 @@ header .account {
   float: right;
 }
 
-header .account img {
-  margin-bottom: -3px;
+header .account img.gravatar {
+  margin: 0 5px -5px 0;
+  border-radius: 3px;
 }
 
 
@@ -671,10 +672,78 @@ ul.userlist .badge {
   margin-top: 5px;
 }
 
-
 /* ================== */
 /* = User Read page = */
 /* ================== */
+
+body.user.read #sidebar { display: none; }
+body.user.read #content { 
+  border-right: 0; 
+  width: 950px; 
+}
+
+.user.read .page_heading {
+  font-weight: bold;
+}
+
+.user.read .page_heading img.gravatar {
+  padding: 2px;
+  border: solid 1px #ddd;
+  vertical-align: middle;
+  margin-right: 5px;
+  margin-top: -3px;
+}
+
+.user.read .page_heading .fullname {
+  font-weight: normal;
+  color: #999;
+}
+
+.user.read .rule {
+  clear: both;
+  margin-bottom: 15px;
+  padding-top: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.vcard dt {
+  width: 115px;
+  float: left;
+  font-weight: normal;
+  color: #999;
+}
+
+.vcard dd {
+  margin-left: 115px;
+}
+
+.user.read ul.stats {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.user.read ul.stats li {
+  display: inline-block;
+  color: inherit;
+  width: 115px;
+}
+
+.user.read ul.stats li strong {
+  font-size: 36px;
+  display: block;
+  line-height: 35px;
+}
+
+.user.read ul.stats li span {
+  color: #999;
+}
+
+.user.read .listing > div.datasets .datasets {
+  padding-right: 15px;
+}
+
+.user.read .listing .changes {
+}
 
 
 /* ========================= */
@@ -922,16 +991,6 @@ ul.dataset-edit-nav li a:hover {
   -webkit-border-top-left-radius: 5px; 
           border-top-left-radius: 5px; 
   -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
-}
-
-
-
-.gravatar {
-  border: 1px solid #777;
-  padding: 1px;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 10px auto;
 }
 
 

@@ -56,7 +56,7 @@
       <header class="container">
         <div class="menu account">
           <span class="ckan-logged-in" style="display: none;">
-            <a href="${h.url_for(controller='user',action='me')}">${h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=16)}${c.user}</a>
+            <a href="${h.url_for(controller='user',action='me')}">${h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=20)}${c.user}</a>
             <a href="${h.url_for('/user/logout')}">Logout</a>
           </span>
           <span class="ckan-logged-out">
@@ -247,7 +247,7 @@
     // later use will add offsets with leading '/' so ensure no trailing slash
     CKAN.SITE_URL = CKAN.SITE_URL.replace(/\/$/, '');
     $(document).ready(function() {
-        var ckan_user = $.cookie("ckan_display_name");
+        var ckan_user = '${c.user}';
         if (ckan_user) {
             $(".ckan-logged-out").hide();
             $(".ckan-logged-in").show();

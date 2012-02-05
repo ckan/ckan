@@ -467,21 +467,11 @@ class GroupController(BaseController):
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
-        current_uors = self._get_userobjectroles(id)
-        self._handle_update_of_authz(current_uors, group)
-
-        # get the roles again as may have changed
-        user_object_roles = self._get_userobjectroles(id)
-        self._prepare_authz_info_for_render(user_object_roles)
+        roles = self._handle_update_of_authz(group)
+        self._prepare_authz_info_for_render(roles)
         return render('group/authz.html')
 
 
-    def _get_userobjectroles(self, group_id):
-        group = model.Group.get(group_id)
-        uors = model.Session.query(model.GroupRole).join('group').filter_by(name=group.name).all()
-        return uors
-
-       
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
             try:

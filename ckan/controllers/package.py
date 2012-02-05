@@ -109,7 +109,6 @@ def _lookup_plugin(package_type):
     If the package type is None or cannot be found in the mapping, then the
     fallback behaviour is used.
     """
-    #from pdb import set_trace; set_trace()    
     if package_type is None:
         return _default_controller_behaviour
     return _controller_behaviour_for.get(package_type,
@@ -706,20 +705,9 @@ class PackageController(BaseController):
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
-        current_uors = self._get_userobjectroles(id)
-        self._handle_update_of_authz(current_uors, pkg)
-
-        # get the roles again as may have changed
-        user_object_roles = self._get_userobjectroles(id)
-        self._prepare_authz_info_for_render(user_object_roles)
+        roles = self._handle_update_of_authz(pkg)
+        self._prepare_authz_info_for_render(roles)
         return render('package/authz.html')
-
-
-    def _get_userobjectroles(self, pkg_id):
-        pkg = model.Package.get(pkg_id)
-        uors = model.Session.query(model.PackageRole).join('package').filter_by(name=pkg.name).all()
-        return uors
-
 
     def autocomplete(self):
         # DEPRECATED in favour of /api/2/util/dataset/autocomplete

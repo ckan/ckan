@@ -214,6 +214,21 @@ def linked_user(user, maxlength=0):
         return _icon + link_to(displayname, 
                        url_for(controller='user', action='read', id=_name))
 
+def linked_authorization_group(authgroup, maxlength=0):
+    from ckan import model
+    from urllib import quote
+    if not isinstance(authgroup, model.AuthorizationGroup):
+        authgroup_name = unicode(authgroup)
+        authgroup = model.AuthorizationGroup.get(authgroup_name)
+        if not authgroup:
+            return authgroup_name
+    if authgroup:
+        displayname = authgroup.name or authgroup.id
+        if maxlength and len(display_name) > maxlength:
+            displayname = displayname[:maxlength] + '...'
+        return link_to(displayname, 
+                       url_for(controller='authorization_group', action='read', id=displayname))
+
 def group_name_to_title(name):
     from ckan import model
     group = model.Group.by_name(name)
@@ -238,10 +253,17 @@ def icon(name, alt=None):
     return icon_html(icon_url(name),alt)
 
 def linked_gravatar(email_hash, size=100, default="mm"):
-    return literal('<a href="http://gravatar.com" target="_blank">%s</a>' % gravatar(email_hash,size,default))
+    return literal('''<a href="https://gravatar.com/" target="_blank"
+        title="Update your avatar at gravatar.com">
+        %s</a>''' %
+            gravatar(email_hash,size,default)
+        )
 
 def gravatar(email_hash, size=100, default="mm"):
-    return literal('<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s" />' % (email_hash, size, default))
+    return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
+        class="gravatar" />'''
+        % (email_hash, size, default)
+        )
 
 def pager_url(page, partial=None, **kwargs):
     routes_dict = url.environ['pylons.routes_dict']

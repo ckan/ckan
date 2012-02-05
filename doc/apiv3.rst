@@ -79,6 +79,7 @@ tag_autocomplete                       q, limit
 format_autocomplete                    q, limit
 user_autocomplete                      q, limit
 package_search                         q, fields, facet_by, limit, offset
+roles_show                             domain_object, (user), (authorization_group)
 ====================================== ===========================
 
 new.py: 
@@ -111,6 +112,8 @@ group_update                           (group keys)
 user_update                            (user keys), reset_key
 package_update_rest                    (package keys)
 group_update_rest                      (group keys)
+user_role_update                       user OR authorization_group, domain_object, roles
+user_role_bulk_update                  user_roles, domain_object
 ====================================== ===========================
 
 delete.py:
@@ -194,6 +197,16 @@ id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754" (Read-only)
 name                     "country-uk"                           (Read-only) Add/remove tags from a package or group using update_package or update_group
 state                    "active"                               (Read-only) Add/remove tags from a package or group using update_package or update_group
 revision_timestamp       "2009-08-08T12:46:40.920443"           (Read-only)
+======================== ====================================== =============
+
+user_roles:
+
+======================== ====================================== =============
+key                      example value                          notes
+======================== ====================================== =============
+user                     "5ba3985d-447d-4919-867e-2ffe22281c40" Provide exactly one out of "user" and "authorization_group" parameters.
+authorization_group      "16f8f7ba-1a97-4d27-95ce-5e8827a0d75f"
+roles                    ['editor', 'admin']                    
 ======================== ====================================== =============
 
 Parameters

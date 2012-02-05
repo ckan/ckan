@@ -580,7 +580,16 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     $tr.html($.tmpl(
       CKAN.Templates.resourceEntry, 
       { resource: resource.toTemplateJSON(),
-        num: position
+        num: position,
+        resourceTypeOptions: [
+          ['file', 'Data File']
+          , ['api', 'API']
+          , ['image', 'Image']
+          , ['metadata', 'Metadata']
+          , ['documentation', 'Documentation']
+          , ['code', 'Code']
+          , ['example', 'Example']
+        ]
       }
     ));
     $tr.find('.js-resource-edit-expanded').hide();
