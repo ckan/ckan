@@ -8,7 +8,7 @@
   <xi:include href="../_util.html" />
 ${activity_stream_activity(
   actor=h.linked_user(activity.user_id),
-  verb='updated',
+  verb='deleted',
   object="the dataset "+h.dataset_link(activity.data.package),
   activity=activity)}
 </html>
