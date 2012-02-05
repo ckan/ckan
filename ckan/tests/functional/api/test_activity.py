@@ -1449,7 +1449,7 @@ class TestActivity:
 
         extras_before = package_dict['extras']
 
-        # Create a new resource.
+        # Create a new extra.
         context = {
             'model': model,
             'session': model.Session,
