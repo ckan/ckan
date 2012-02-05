@@ -6,8 +6,8 @@
   py:strip=""
   >
   <xi:include href="../_util.html" />
-${activity_stream_event(
-  subject=h.linked_user(activity.user_id),
+${activity_stream_activity(
+  actor=h.linked_user(activity.user_id),
   verb='added',
   object=('the resource '+h.resource_link(detail.data.resource,
     activity.data.package.id)+' to the dataset '

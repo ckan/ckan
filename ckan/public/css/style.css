@@ -1461,3 +1461,32 @@ body.authz form button {
 .alert-message.block-message.info p a {
   color: #404040;
 }
+
+/* ==================== */
+/* = Activity Streams = */
+/* ==================== */
+
+.activity-stream-activity {
+    padding-bottom:1em;
+
+}
+.activity-stream-activity a {
+    font-weight:bold;
+
+}
+.activity-stream-activity .actor {
+
+}
+.activity-stream-activity .verb {
+    background-color:PapayaWhip;
+    padding:.25em;
+    margin:.25em;
+
+}
+.activity-stream-activity .object {
+
+}
+.activity-stream-activity .date {
+    color:#999;
+
+}
