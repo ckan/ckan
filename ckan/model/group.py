@@ -51,6 +51,16 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         self.capacity = capacity
         self.state = state
         
+    @classmethod
+    def get(cls, reference):
+        '''Returns a group object referenced by its id or name.'''
+        query = Session.query(cls).filter(cls.id==reference)
+        member = query.first()
+        if member == None:
+            member = cls.by_name(reference)
+        return member
+        
+        
     def get_related(self, type):
         """ TODO: Determine if this is useful
             Get all objects that are members of the group of the specified type.
@@ -159,11 +169,11 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         import ckan.model as model
         if '_groups' not in self.__dict__:
             self._groups = model.Session.query(model.Group).\
-               join(model.Member, model.Member.group_id == self.id and \
+               join(model.Member, model.Member.group_id == model.Group.id and \
                     model.Member.table_name == 'group').\
                filter(model.Member.state == 'active').\
                filter(model.Member.table_id == self.id).all()
-               
+
         groups = self._groups
         if group_type:       
             groups = [g for g in groups if g.type == group_type]
