@@ -12,19 +12,22 @@ vocabulary_table = Table(
         unique=True),
     )
 
-def get(id_or_name):
-    """Return a Vocabulary object referenced by its id or name."""
-
-    query = Session.query(Vocabulary).filter(Vocabulary.id==id_or_name)
-    vocab = query.first()
-    if vocab is None:
-        vocab = Vocabulary.by_name(id_or_name)
-    return vocab
-
 class Vocabulary(DomainObject):
 
     def __init__(self, name):
         self.id = make_uuid()
         self.name = name
+
+    @classmethod
+    def get(cls, id_or_name):
+        """Return a Vocabulary object referenced by its id or name, or None if
+        there is no vocabulary with the given id or name.
+        
+        """
+        query = Session.query(Vocabulary).filter(Vocabulary.id==id_or_name)
+        vocab = query.first()
+        if vocab is None:
+            vocab = Vocabulary.by_name(id_or_name)
+        return vocab
 
 mapper(Vocabulary, vocabulary_table)

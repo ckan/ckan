@@ -500,7 +500,7 @@ def vocabulary_update(context, data_dict):
     model.Session.remove()
     model.Session()._context = context
 
-    vocab = model.vocabulary.get(vocab_id)
+    vocab = model.vocabulary.Vocabulary.get(vocab_id)
     if vocab is None:
         raise NotFound(_('Vocabulary was not found.'))
 

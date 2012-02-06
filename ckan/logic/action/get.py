@@ -885,11 +885,11 @@ def vocabulary_show(context, data_dict):
     model = context['model']
 
     if data_dict.has_key('id'):
-        vocabulary = model.vocabulary.get(data_dict['id'])
+        vocabulary = model.vocabulary.Vocabulary.get(data_dict['id'])
         if vocabulary is None:
             raise NotFound
     elif data_dict.has_key('name'):
-        vocabulary = model.vocabulary.get(data_dict['name'])
+        vocabulary = model.vocabulary.Vocabulary.get(data_dict['name'])
         if vocabulary is None:
             raise NotFound
     else:

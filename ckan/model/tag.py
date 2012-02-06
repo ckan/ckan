@@ -110,7 +110,7 @@ class Tag(DomainObject):
 
         """
         if vocab_id_or_name:
-            vocab = vocabulary.get(vocab_id_or_name)
+            vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
@@ -132,7 +132,7 @@ class Tag(DomainObject):
 
         """
         if vocab_id_or_name:
-            vocab = vocabulary.get(vocab_id_or_name)
+            vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
@@ -154,7 +154,7 @@ class Tag(DomainObject):
 
         """
         if vocab_id_or_name:
-            vocab = vocabulary.get(vocab_id_or_name)
+            vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
@@ -214,7 +214,7 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
 
         """
         if vocab_id_or_name:
-            vocab = vocabulary.get(vocab_id_or_name)
+            vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
