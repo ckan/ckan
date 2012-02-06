@@ -18,6 +18,7 @@ from ckan.logic.schema import group_form_schema
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.lib.dictization.model_dictize import package_dictize
 import ckan.forms
+import ckan.logic.action.get
 
 log = logging.getLogger(__name__)
 
@@ -300,6 +301,12 @@ class GroupController(BaseController):
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
+
+        # Add the group's activity stream (already rendered to HTML) to the
+        # template context for the group/read.html template to retrieve later.
+        c.group_activity_stream = \
+                ckan.logic.action.get.group_activity_list_html(context,
+                    {'id': c.group_dict['id']})
         
         return render('group/read.html')
 
@@ -455,21 +462,11 @@ class GroupController(BaseController):
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
-        current_uors = self._get_userobjectroles(id)
-        self._handle_update_of_authz(current_uors, group)
-
-        # get the roles again as may have changed
-        user_object_roles = self._get_userobjectroles(id)
-        self._prepare_authz_info_for_render(user_object_roles)
+        roles = self._handle_update_of_authz(group)
+        self._prepare_authz_info_for_render(roles)
         return render('group/authz.html')
 
 
-    def _get_userobjectroles(self, group_id):
-        group = model.Group.get(group_id)
-        uors = model.Session.query(model.GroupRole).join('group').filter_by(name=group.name).all()
-        return uors
-
-       
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
             try:

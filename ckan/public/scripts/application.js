@@ -551,7 +551,6 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
           var messageDiv = $('<div />').html(CKAN.Strings.youHaveUnsavedChanges).addClass('notice').hide();
           parentDiv.append(messageDiv);
           $('#unsaved-warning').append(parentDiv);
-          console.log($('#unsaved-warning'));
           messageDiv.show(200);
 
           boundToUnload = true;
@@ -624,7 +623,16 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     $tr.html($.tmpl(
       CKAN.Templates.resourceEntry, 
       { resource: resource.toTemplateJSON(),
-        num: position
+        num: position,
+        resourceTypeOptions: [
+          ['file', 'Data File']
+          , ['api', 'API']
+          , ['image', 'Image']
+          , ['metadata', 'Metadata']
+          , ['documentation', 'Documentation']
+          , ['code', 'Code']
+          , ['example', 'Example']
+        ]
       }
     ));
     $tr.find('.js-resource-edit-expanded').hide();
@@ -902,13 +910,23 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       el.attr('height', '100%');
       my.$dialog.append(el);
     }
+    // images
+    else if (resourceData.formatNormalized in {'png':'', 'jpg':'', 'gif':''} 
+        ||  resourceData.resource_type=='image') {
+      // we displays a fullscreen dialog with the url in an iframe.
+      my.$dialog.empty();
+      var el = $('<img />');
+      el.attr('src', resourceData.url);
+      el.css('max-width', '100%');
+      el.css('border', 'solid 4px black');
+      my.$dialog.append(el);
+    }
     else {
       // Cannot reliably preview this item - with no mimetype/format information, 
       // can't guarantee it's not a remote binary file such as an executable.
-      var _msg = $('<p class="error">We are unable to preview this type of resource: ' + resourceData.formatNormalized + '</p>');
       my.showError({
-        title: 'Unable to preview'
-        , message: _msg
+        title: 'Preview not available for data type: ' + resourceData.formatNormalized
+        , message: ''
       });
     }
   };
@@ -973,7 +991,10 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   };
 
   my.showError = function (error) {
-    var _html = '<strong>' + $.trim(error.title) + '</strong><br />' + $.trim(error.message);
+    var _html = _.template(
+        '<div class="alert-message warning"><strong><%= title %></strong><br /><%= message %></div>'
+        , error
+        );
     my.$dialog.html(_html);
   };
 

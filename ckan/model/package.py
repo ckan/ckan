@@ -1,11 +1,13 @@
 import datetime
 from time import gmtime
 from calendar import timegm
+import logging
+logger = logging.getLogger(__name__)
 
 from sqlalchemy.sql import select, and_, union, expression, or_
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import types, Column, Table
-from pylons import config
+from pylons import config, session, c, request
 from meta import metadata, Session
 import vdm.sqlalchemy
 
@@ -14,6 +16,7 @@ from core import make_revisioned_table, Revision, State
 from license import License, LicenseRegister
 from domain_object import DomainObject
 import ckan.misc
+from activity import Activity, ActivityDetail
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
@@ -51,7 +54,7 @@ package_revision_table = make_revisioned_table(package_table)
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
-    
+
     text_search_fields = ['name', 'title']
 
     def __init__(self, **kw):
@@ -551,3 +554,52 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return fields
 
+    def activity_stream_item(self, activity_type, revision, user_id):
+        import ckan.model
+        import ckan.lib.dictization
+        import ckan.logic
+        assert activity_type in ("new", "changed"), (
+            str(activity_type))
+
+        # Handle 'deleted' objects.
+        # When the user marks a package as deleted this comes through here as
+        # a 'changed' package activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and self.state == u'deleted':
+            if ckan.model.Session.query(ckan.model.Activity).filter_by(
+                    object_id=self.id, activity_type='deleted').all():
+                # A 'deleted' activity for this object has already been emitted
+                # FIXME: What if the object was deleted and then activated
+                # again?
+                return None
+            else:
+                # Emit a 'deleted' activity for this object.
+                activity_type = 'deleted'
+
+        try:
+            d = {'package': ckan.lib.dictization.table_dictize(self,
+                context={'model': ckan.model})}
+            return Activity(user_id, self.id, revision.id,
+                    "%s package" % activity_type, d)
+        except ckan.logic.NotFound:
+            # This happens if this package is being purged and therefore has no
+            # current revision.
+            # TODO: Purge all related activity stream items when a model object
+            # is purged.
+            return None
+
+    def activity_stream_detail(self, activity_id, activity_type):
+        import ckan.model
+        import ckan.lib.dictization
+
+        # Handle 'deleted' objects.
+        # When the user marks a package as deleted this comes through here as
+        # a 'changed' package activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and self.state == u'deleted':
+            activity_type = 'deleted'
+
+        package_dict = ckan.lib.dictization.table_dictize(self,
+                context={'model':ckan.model})
+        return ActivityDetail(activity_id, self.id, u"Package", activity_type,
+            {'package': package_dict })

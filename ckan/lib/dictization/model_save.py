@@ -46,6 +46,9 @@ def resource_dict_save(res_dict, context):
     return obj
 
 def package_resource_list_save(res_dicts, package, context):
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not res_dicts and allow_partial_update:
+        return
 
     pending = context.get('pending')
 
@@ -71,6 +74,9 @@ def package_resource_list_save(res_dicts, package, context):
 
 
 def package_extras_save(extra_dicts, obj, context):
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not extra_dicts and allow_partial_update:
+        return
 
     model = context["model"]
     session = context["session"]
@@ -448,3 +454,24 @@ def task_status_dict_save(task_status_dict, context):
 
     task_status = table_dict_save(task_status_dict, model.TaskStatus, context)
     return task_status
+
+def activity_dict_save(activity_dict, context):
+
+    model = context['model']
+    session = context['session']
+
+    user_id = activity_dict['user_id']
+    object_id = activity_dict['object_id']
+    revision_id = activity_dict['revision_id']
+    activity_type = activity_dict['activity_type']
+    if activity_dict.has_key('data'):
+        data = activity_dict['data']
+    else:
+        data = None
+    activity_obj = model.Activity(user_id, object_id, revision_id,
+            activity_type, data)
+    session.add(activity_obj)
+
+    # TODO: Handle activity details.
+
+    return activity_obj

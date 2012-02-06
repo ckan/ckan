@@ -129,3 +129,7 @@ def group_create_rest(context, data_dict):
         return {'success': False, 'msg': _('Valid API key needed to create a group')}
 
     return group_create(context, data_dict)
+
+def activity_create(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}

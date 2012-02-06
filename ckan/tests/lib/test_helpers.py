@@ -53,10 +53,11 @@ class TestHelpers(TestController):
 
     def test_gravatar(self):
         email = 'zephod@gmail.com'
-        expected =['<a href="http://gravatar.com" target="_blank">', '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm" />', '</a>']
+        expected =['<a href="https://gravatar.com/"',
+                '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=identicon"', '</a>']
         # Hash the email address
         import hashlib
         email_hash = hashlib.md5(email).hexdigest()
         res = h.linked_gravatar(email_hash, 200)
         for e in expected:
-            assert e in res, e
+            assert e in res, (e,res)

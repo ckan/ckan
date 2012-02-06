@@ -186,7 +186,6 @@ Ho ho ho
         pkg = model.Package.by_name(self.packagename)
         form['packages__2__name'] = pkg.name
 
-        
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         # should be read page
         # assert 'Groups - %s' % self.groupname in res, res

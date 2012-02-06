@@ -49,7 +49,9 @@ def make_map():
             'authorizationgroup',
             'revision',
             'licenses',
-            'rating'
+            'rating',
+            'user',
+            'activity'
             ]
     register_list_str = '|'.join(register_list)
 
