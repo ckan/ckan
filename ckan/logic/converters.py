@@ -1,5 +1,6 @@
 from pylons.i18n import _
 from ckan import model
+from ckan.model import vocabulary
 from ckan.lib.navl.dictization_functions import Invalid
 from ckan.lib.field_types import DateType, DateConvertError
 from ckan.logic.validators import tag_length_validator, tag_name_validator
@@ -47,7 +48,7 @@ def convert_to_tags(vocab):
         for tag in new_tags:
             tag_length_validator(tag, context)
             tag_name_validator(tag, context)
-        v = model.Vocabulary.get(vocab)
+        v = vocabulary.get(vocab)
         if not v:
             raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
 
@@ -59,7 +60,7 @@ def convert_to_tags(vocab):
 
 def convert_from_tags(vocab):
     def callable(key, data, errors, context):
-        v = model.Vocabulary.get(vocab)
+        v = vocabulary.get(vocab)
         if not v:
             raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
 
