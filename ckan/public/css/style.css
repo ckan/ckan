@@ -640,6 +640,7 @@ form.simple-form input[type=password] {
 /* ============== */
 /* = User Index = */
 /* ============== */
+
 ul.userlist, 
 ul.userlist ul {
   list-style-type: none;
@@ -658,7 +659,8 @@ ul.userlist li ul span.edits {
   margin-left: 3px;
 }
 ul.userlist .username img {
-  margin-bottom: -3px;
+  margin: 0 5px -6px 0;
+  border-radius: 3px;
 }
 ul.userlist .created {
   color: #888;
