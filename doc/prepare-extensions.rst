@@ -8,7 +8,9 @@ Firstly, you'll need to set up and enter a virtual Python environment, as follow
 
 ::
 
-    sudo apt-get install python-virtualenv mercurial
+    # install software we need (virtualenv and git to retrieve the source code)
+    sudo apt-get install python-virtualenv git-core
+    # create a python virtual env and activate
     virtualenv /home/ubuntu/pyenv
     . /home/ubuntu/pyenv/bin/activate
 
