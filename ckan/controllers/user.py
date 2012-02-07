@@ -103,8 +103,6 @@ class UserController(BaseController):
         c.about_formatted = self._format_about(user_dict['about'])
         c.user_activity_stream = user_activity_list_html(context,
             {'id':c.user_dict['id']})
-
-        c.created_formatted = h.date_str_to_datetime(user_dict['created']).strftime('%b %d, %Y')
         return render('user/read.html')
 
     def me(self):
