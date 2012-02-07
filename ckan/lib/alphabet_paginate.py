@@ -105,7 +105,7 @@ class AlphaPage(object):
                     if isinstance(self.collection[0], dict):
                         items = [x for x in self.collection if x[self.alpha_attribute][0:1].lower() == self.page.lower()]                        
                     else:
-                        items = [x for x in self.collection if x[0:1].lower() == self.page.lower()]
+                        items = [x for x in self.collection if getattr(x,self.alpha_attribute)[0:1].lower() == self.page.lower()]
                 else:
                     # regexp search
                     if isinstance(self.collection[0], dict):
