@@ -340,3 +340,11 @@ def vocabulary_id_not_changed(value, context):
         raise Invalid(_('Cannot change value of key from %s to %s. '
                         'This key is read-only') % (vocabulary.id, value))
     return value
+
+def vocabulary_id_exists(value, context):
+    model = context['model']
+    session = context['session']
+    result = session.query(model.Vocabulary).get(value)
+    if not result:
+        raise Invalid(_('Tag vocabulary was not found.'))
+    return value

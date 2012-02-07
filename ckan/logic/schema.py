@@ -32,7 +32,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    int_validator,
                                    user_about_validator,
                                    vocabulary_name_validator,
-                                   vocabulary_id_not_changed)
+                                   vocabulary_id_not_changed,
+                                   vocabulary_id_exists)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -71,13 +72,13 @@ def default_update_resource_schema():
     return schema
 
 def default_tags_schema():
-
     schema = {
         'name': [not_empty,
                  unicode,
                  tag_length_validator,
                  tag_name_validator,
                 ],
+        'vocabulary_id': [ignore_missing, unicode, vocabulary_id_exists],
         'revision_timestamp': [ignore],
         'state': [ignore],
     }

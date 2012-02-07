@@ -32,6 +32,16 @@ def date_to_form(value, context):
         raise Invalid(str(e))
     return value
 
+def free_tags_only(key, data, errors, context):
+    tag_number = key[1]
+    to_delete = []
+    if data.get(('tags', tag_number, 'vocabulary_id')):
+        to_delete.append(tag_number)
+    for k in data.keys():
+        for n in to_delete:
+            if k[0] == 'tags' and k[1] == n:
+                del data[k]
+
 def convert_to_tags(vocab):
     def callable(key, data, errors, context):
         tag_string = data.get(key)
@@ -67,11 +77,6 @@ def convert_from_tags(vocab):
             if k[0] == 'tags':
                 if data[k].get('vocabulary_id') == v.id:
                     tags[k] = data[k]
-
-        # TODO: vocab tags should be removed in a separate converter (and by default) 'tags'
-        for k in tags.keys():
-            del data[k]
         data[key] = ', '.join([t['name'] for t in tags.values()])
-
     return callable
 
