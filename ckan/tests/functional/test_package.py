@@ -1016,6 +1016,33 @@ class TestEdit(TestPackageForm):
             plugins.unload('synchronous_search')
             SolrSettings.init(solr_url)
 
+    def test_edit_pkg_with_relationships(self):
+        # 1786
+        try:
+            # add a relationship to a package
+            pkg = model.Package.by_name(self.editpkg_name)
+            anna = model.Package.by_name(u'annakarenina')
+            model.repo.new_revision()
+            pkg.add_relationship(u'depends_on', anna)
+            model.repo.commit_and_remove()
+            
+            # check relationship before the test
+            rels = model.Package.by_name(self.editpkg_name).get_relationships()
+            assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
+
+            # edit the package
+            self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
+            self.res = self.app.get(self.offset)
+            fv = self.res.forms['dataset-edit']
+            fv['title'] = u'New Title'
+            res = fv.submit('save')
+
+            # check relationship still exists
+            rels = model.Package.by_name(self.editpkg_name).get_relationships()
+            assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
+            
+        finally:
+            self._reset_data()
 
 class TestNew(TestPackageForm):
     pkg_names = []
