@@ -451,8 +451,8 @@
     </tr>
   </table>
 
-  <div py:def="activity_stream_activity(actor, verb, object=None, target=None)"
-      class="activity-stream-activity">
+  <div py:def="activity_div(actor, verb, object=None, target=None)"
+      class="activity">
     <span class="actor">
       ${actor}
     </span>
@@ -474,7 +474,7 @@
       </py:otherwise>
     </py:choose>
     <span class="date">
-      ${h.render_datetime(activity.timestamp, '%B %d %Y')}
+      ${h.render_datetime(activity.timestamp)}
     </span>
   </div>
 

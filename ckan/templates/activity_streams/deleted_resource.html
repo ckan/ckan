@@ -6,11 +6,10 @@
   py:strip=""
   >
   <xi:include href="../_util.html" />
-${activity_stream_activity(
+${activity_div(
   actor=h.linked_user(activity.user_id),
   verb='deleted',
-  object='the resource '+h.resource_link(detail.data.resource,
-                                         activity.data.package.id),
+  object='the resource '+h.resource_display_name(detail.data.resource),
   target='from the dataset '+h.dataset_link(activity.data.package),
   activity=activity
   )}

@@ -6,7 +6,7 @@
   py:strip=""
   >
   <xi:include href="../_util.html" />
-${activity_stream_activity(
+${activity_div(
   actor=h.linked_user(activity.user_id),
   verb='added',
   object='the resource '+h.resource_link(detail.data.resource,
