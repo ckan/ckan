@@ -1,8 +1,12 @@
+import json
 from ckan import model
 from ckan.logic.converters import convert_to_tags, convert_from_tags, free_tags_only
 from ckan.lib.navl.dictization_functions import unflatten
+from ckan.lib.create_test_data import CreateTestData
+from ckan.tests import WsgiAppCase
+from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering
 
-class TestConverters:
+class TestConverters(object):
     @classmethod
     def setup_class(cls):
         # create a new vocabulary
@@ -52,3 +56,30 @@ class TestConverters:
         assert len(data) == 2
         assert ('tags', 1, 'vocabulary_id') in data.keys()
         assert ('tags', 1, '__extras') in data.keys()
+
+class TestAPI(WsgiAppCase):
+    @classmethod
+    def setup_class(cls):
+        CreateTestData.create()
+        cls.vocab = model.Vocabulary('test-vocab') 
+        model.Session.add(cls.vocab)
+        cls.vocab_tag = model.Tag('vocab-tag', cls.vocab.id)
+        model.Session.add(cls.vocab_tag)
+        model.Session.commit()
+        model.Session.remove()
+
+    def test_tag_list(self):
+        postparams = '%s=1' % json.dumps({'vocabulary_name': self.vocab.name})
+        res = self.app.post('/api/action/tag_list', params=postparams)
+        body = json.loads(res.body)
+        assert_dicts_equal_ignoring_ordering(
+            json.loads(res.body),
+            {'help': 'Returns a list of tags',
+             'success': True,
+             'result': [self.vocab_tag.name]}
+        )
+
+    def test_tag_list_invalid_vocab_name_404(self):
+        postparams = '%s=1' % json.dumps({'vocabulary_name': 'invalid-vocab-name'})
+        res = self.app.post('/api/action/tag_list', params=postparams, status=404)
+
