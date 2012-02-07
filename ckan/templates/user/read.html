@@ -31,8 +31,8 @@
             </py:if>
           </dd>
           <dt>Member since</dt>
-          <dd>${c.created_formatted}</dd>
-          <py:if test="c.about_formatted">
+          <dd>${h.render_datetime(c.user_dict['created'])}</dd>
+          <py:if test="unicode(c.about_formatted)">
           <dt>About</dt>
           <dd>${c.about_formatted}</dd>
           </py:if>
