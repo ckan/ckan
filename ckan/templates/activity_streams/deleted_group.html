@@ -9,7 +9,7 @@
 ${activity_stream_activity(
   actor=h.linked_user(activity.user_id),
   verb='deleted',
-  object="the group "+h.group_link(activity.data.group),
+  object="the group "+activity.data.group.name,
   activity=activity
   )}
 </html>
