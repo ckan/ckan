@@ -1,5 +1,5 @@
 from ckan import model
-from ckan.logic.converters import convert_to_tags
+from ckan.logic.converters import convert_to_tags, convert_from_tags, free_tags_only
 from ckan.lib.navl.dictization_functions import unflatten
 
 class TestConverters:
@@ -26,3 +26,29 @@ class TestConverters:
             assert tag['name'] in ['tag1', 'tag2'], tag['name']
             assert tag['vocabulary_id'] == self.vocab.id, tag['vocabulary_id']
 
+    def test_convert_from_tags(self):
+        key = 'tags'
+        data = {
+            ('tags', 0, '__extras'): {'name': 'tag1', 'vocabulary_id': self.vocab.id},
+            ('tags', 1, '__extras'): {'name': 'tag2', 'vocabulary_id': self.vocab.id}
+        }
+        errors = []
+        context = {'model': model, 'session': model.Session}
+        convert_from_tags(self.vocab.name)(key, data, errors, context)
+        assert 'tag1' in data['tags']
+        assert 'tag2' in data['tags']
+
+    def test_free_tags_only(self):
+        key = ('tags', 0, '__extras')
+        data = {
+            ('tags', 0, '__extras'): {'name': 'tag1', 'vocabulary_id': self.vocab.id},
+            ('tags', 0, 'vocabulary_id'): self.vocab.id,
+            ('tags', 1, '__extras'): {'name': 'tag2', 'vocabulary_id': None},
+            ('tags', 1, 'vocabulary_id'): None
+        }
+        errors = []
+        context = {'model': model, 'session': model.Session}
+        free_tags_only(key, data, errors, context)
+        assert len(data) == 2
+        assert ('tags', 1, 'vocabulary_id') in data.keys()
+        assert ('tags', 1, '__extras') in data.keys()
