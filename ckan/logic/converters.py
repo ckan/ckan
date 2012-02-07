@@ -44,23 +44,21 @@ def convert_to_tags(vocab):
             if k[0] == 'tags':
                 n = max(n, k[1] + 1)
 
-        # validate
         for tag in new_tags:
             tag_length_validator(tag, context)
             tag_name_validator(tag, context)
-        v = vocabulary.get(vocab)
+        v = model.Vocabulary.get(vocab)
         if not v:
             raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
 
         for num, tag in enumerate(new_tags):
             data[('tags', num+n, 'name')] = tag
             data[('tags', num+n, 'vocabulary_id')] = v.id
-
     return callable
 
 def convert_from_tags(vocab):
     def callable(key, data, errors, context):
-        v = vocabulary.get(vocab)
+        v = model.Vocabulary.get(vocab)
         if not v:
             raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
 
