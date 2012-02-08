@@ -45,26 +45,15 @@ class Tag(DomainObject):
         self.purge()
 
     @classmethod
-    def by_id(cls, tag_id, autoflush=True, vocab=None):
+    def by_id(cls, tag_id, autoflush=True):
         """Return the tag object with the given id, or None if there is no
         tag with that id.
 
-        By default only free tags (tags which do not belong to any vocabulary)
-        are returned. If the optional argument vocab is given then only tags
-        from that vocabulary are returned, or None if there is no tag with that
-        id in that vocabulary.
-
         Arguments:
         tag_id -- The id of the tag to return.
-        vocab -- A Vocabulary object for the vocabulary to look in (optional).
 
         """
-        if vocab:
-            query = Session.query(Tag).filter(Tag.id==tag_id).filter(
-                Tag.vocabulary_id==vocab.id)
-        else:
-            query = Session.query(Tag).filter(Tag.id==tag_id).filter(
-                Tag.vocabulary_id==None)
+        query = Session.query(Tag).filter(Tag.id==tag_id)
         query = query.autoflush(autoflush)
         tag = query.first()
         return tag
@@ -110,17 +99,21 @@ class Tag(DomainObject):
         vocab_id_or_name -- The id or name of the vocabulary to look in.
 
         """
-        if vocab_id_or_name:
-            vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
-            if vocab is None:
-                # The user specified an invalid vocab.
-                return None
+        # First try to get the tag by ID.
+        tag = Tag.by_id(tag_id_or_name)
+        if tag:
+            return tag
         else:
-            vocab = None
-        tag = Tag.by_id(tag_id_or_name, vocab=vocab)
-        if not tag:
+            # If that didn't work, try to get the tag by name and vocabulary.
+            if vocab_id_or_name:
+                vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
+                if vocab is None:
+                    # The user specified an invalid vocab.
+                    return None
+            else:
+                vocab = None
             tag = Tag.by_name(tag_id_or_name, vocab=vocab)
-        return tag
+            return tag
         # Todo: Make sure tag names can't be changed to look like tag IDs?
 
     @classmethod
