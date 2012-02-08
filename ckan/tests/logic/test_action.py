@@ -1225,6 +1225,12 @@ class MockPackageSearchPlugin(SingletonPlugin):
 
         return search_results
 
+    def before_view(self, data_dict):
+        
+        data_dict['title'] = 'string_not_found_in_rest_of_template'
+
+        return data_dict
+
 class TestSearchPluginInterface(WsgiAppCase):
 
     @classmethod
@@ -1297,3 +1303,16 @@ class TestSearchPluginInterface(WsgiAppCase):
         res_dict = json.loads(res.body)['result']
         assert res_dict['count'] == 2
         assert len(res_dict['results']) == 2
+
+    def test_before_view(self):
+        plugin = MockPackageSearchPlugin()
+        plugins.load(plugin)
+        res = self.app.get('/dataset/annakarenina')
+
+        assert 'string_not_found_in_rest_of_template' in res.body
+        
+        res = self.app.get('/dataset?q=')
+        assert res.body.count('string_not_found_in_rest_of_template') == 2
+        
+        plugins.unload(plugin)
+

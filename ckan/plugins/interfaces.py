@@ -270,6 +270,13 @@ class IPackageController(Interface):
              an altered version.
         '''
         return pkg_dict
+
+    def before_view(self, pkg_dict):
+        '''
+             Extensions will recieve this before the dataset gets displayed. The dictionary
+             passed will be the one that gets sent to the template.
+        '''
+        return pkg_dict
         
 
 class IPluginObserver(Interface):

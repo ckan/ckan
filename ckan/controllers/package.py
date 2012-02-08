@@ -24,7 +24,7 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
 from ckan.lib.dictization import table_dictize
 from ckan.lib.i18n import get_lang
-from ckan.plugins import PluginImplementations, IDatasetForm
+from ckan.plugins import PluginImplementations, IDatasetForm, IPackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -255,7 +255,7 @@ class PackageController(BaseController):
                         search_extras[param] = value
 
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'for_view': True}
 
             data_dict = {
                 'q':q,
@@ -289,7 +289,8 @@ class PackageController(BaseController):
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(package_type=package_type)}
+                   'schema': self._form_to_db_schema(package_type=package_type),
+                   'for_view': True}
         data_dict = {'id': id}
 
         # interpret @<revision_id> or @<date> suffix

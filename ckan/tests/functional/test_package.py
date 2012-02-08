@@ -61,6 +61,10 @@ class MockPackageControllerPlugin(SingletonPlugin):
         self.calls['before_index'] += 1
         return search_params
 
+    def before_view(self, search_params):
+        self.calls['before_view'] += 1
+        return search_params
+
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 

@@ -1,5 +1,6 @@
 from pylons import config
 from sqlalchemy.sql import select, and_
+from ckan.plugins import PluginImplementations, IDatasetForm, IPackageController
 import datetime
 
 from ckan.model import PackageRevision
@@ -208,6 +209,11 @@ def package_dictize(pkg, context):
         if pkg.metadata_modified else None
     result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
         if pkg.metadata_created else None
+
+    if context.get('for_view'):
+        for item in PluginImplementations(IPackageController):
+            result_dict = item.before_view(result_dict)
+
 
     return result_dict
 
