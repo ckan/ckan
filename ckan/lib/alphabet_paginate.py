@@ -43,6 +43,11 @@ class AlphaPage(object):
         self.other_text = other_text
         self.paging_threshold = paging_threshold
         self.controller_name = controller_name
+        self.available = dict( (c,0,) for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" )
+        for c in self.collection:
+            x = getattr(c, self.alpha_attribute)[0]
+            self.available[x] = self.available.get(x, 0) + 1
+            
         
 
     def pager(self, q=None):
@@ -64,7 +69,10 @@ class AlphaPage(object):
         letters = [char for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'] + [self.other_text]
         for letter in letters:
             if letter != page:
-                page_element = HTML.a(class_='pager_link', href=url_for(controller=self.controller_name, action='index', page=letter),c=letter)
+                if self.available.get(letter, 0):
+                    page_element = HTML.a(class_='pager_link', href=url_for(controller=self.controller_name, action='index', page=letter),c=letter)
+                else:
+                    page_element = HTML.span(class_="pager_empty", c=letter)                    
             else:
                 page_element = HTML.span(class_='pager_curpage', c=letter)
             pages.append(page_element)                           
