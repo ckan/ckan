@@ -361,7 +361,7 @@ You can then log in like this:
 
 ::
 
-    ssh -i ~/Downloads/ckan_test.pem ubuntu@ec2-46-51-149-132.eu-west-1.compute.amazonaws.com 
+    ssh -i ~/Downloads/ckan_test.pem ubuntu@ec2-79-125-86-107.eu-west-1.compute.amazonaws.com 
 
 The first time you connect you'll see this, choose ``yes``:
 
@@ -448,8 +448,8 @@ Instance Hostname/domain name
     requests directly to CKAN.
 
     If you are using Amazon EC2, you will use the public DNS of your server as
-    this argument. These look soemthing like
-    ``ec2-46-51-149-132.eu-west-1.compute.amazonaws.com``. If you are using a VM,
+    this argument. These look something like
+    ``ec2-79-125-86-107.eu-west-1.compute.amazonaws.com``. If you are using a VM,
     this will be the hostname of the VM you have configured in your ``/etc/hosts``
     file.
 
