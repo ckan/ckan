@@ -1,9 +1,9 @@
 from pylons.i18n import _
 from ckan import model
-from ckan.model import vocabulary
 from ckan.lib.navl.dictization_functions import Invalid
 from ckan.lib.field_types import DateType, DateConvertError
-from ckan.logic.validators import tag_length_validator, tag_name_validator
+from ckan.logic.validators import tag_length_validator, tag_name_validator, \
+    tag_in_vocabulary_validator
 
 def convert_to_extras(key, data, errors, context):
     extras = data.get(('extras',), [])
@@ -32,35 +32,48 @@ def date_to_form(value, context):
         raise Invalid(str(e))
     return value
 
+def free_tags_only(key, data, errors, context):
+    tag_number = key[1]
+    to_delete = []
+    if data.get(('tags', tag_number, 'vocabulary_id')):
+        to_delete.append(tag_number)
+    for k in data.keys():
+        for n in to_delete:
+            if k[0] == 'tags' and k[1] == n:
+                del data[k]
+
 def convert_to_tags(vocab):
     def callable(key, data, errors, context):
-        tag_string = data.get(key)
-        new_tags = [tag.strip() for tag in tag_string.split(',') if tag.strip()]
+        new_tags = data.get(key)
         if not new_tags:
             return
+        if isinstance(new_tags, basestring):
+            new_tags = [new_tags]
+
         # get current number of tags
         n = 0
         for k in data.keys():
             if k[0] == 'tags':
                 n = max(n, k[1] + 1)
 
-        # validate
+        v = model.Vocabulary.get(vocab)
+        if not v:
+            raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
+        context['vocabulary'] = v
+
         for tag in new_tags:
             tag_length_validator(tag, context)
             tag_name_validator(tag, context)
-        v = vocabulary.get(vocab)
-        if not v:
-            raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
+            tag_in_vocabulary_validator(tag, context)
 
         for num, tag in enumerate(new_tags):
             data[('tags', num+n, 'name')] = tag
             data[('tags', num+n, 'vocabulary_id')] = v.id
-
     return callable
 
 def convert_from_tags(vocab):
     def callable(key, data, errors, context):
-        v = vocabulary.get(vocab)
+        v = model.Vocabulary.get(vocab)
         if not v:
             raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
 
@@ -69,11 +82,6 @@ def convert_from_tags(vocab):
             if k[0] == 'tags':
                 if data[k].get('vocabulary_id') == v.id:
                     tags[k] = data[k]
-
-        # TODO: vocab tags should be removed in a separate converter (and by default) 'tags'
-        for k in tags.keys():
-            del data[k]
         data[key] = ', '.join([t['name'] for t in tags.values()])
-
     return callable
 

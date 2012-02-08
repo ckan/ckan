@@ -1,6 +1,6 @@
 import re
 import datetime
-from pylons.i18n import _, ungettext, N_, gettext
+from pylons.i18n import _
 from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unflatten
 from ckan.authz import Authorizer
 from ckan.logic import check_access, NotAuthorized
@@ -340,3 +340,25 @@ def vocabulary_id_not_changed(value, context):
         raise Invalid(_('Cannot change value of key from %s to %s. '
                         'This key is read-only') % (vocabulary.id, value))
     return value
+
+def vocabulary_id_exists(value, context):
+    model = context['model']
+    session = context['session']
+    result = session.query(model.Vocabulary).get(value)
+    if not result:
+        raise Invalid(_('Tag vocabulary was not found.'))
+    return value
+
+def tag_in_vocabulary_validator(value, context):
+    model = context['model']
+    session = context['session']
+    vocabulary = context.get('vocabulary')
+    if vocabulary:
+        query = session.query(model.Tag)\
+            .filter(model.Tag.vocabulary_id==vocabulary.id)\
+            .filter(model.Tag.name==value)\
+            .count()
+        if not query:
+            raise Invalid(_('Tag %s does not belong to vocabulary %s') % (value, vocabulary.name))
+    return value
+

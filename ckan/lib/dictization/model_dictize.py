@@ -340,7 +340,7 @@ def package_to_api1(pkg, context):
     dictized.pop("revision_timestamp")
 
     dictized["groups"] = [group["name"] for group in dictized["groups"]]
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
+    dictized["tags"] = [tag["name"] for tag in dictized["tags"] if not tag.get('vocabulary_id')]
     dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
     dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
@@ -397,7 +397,7 @@ def package_to_api2(pkg, context):
     dictized["groups"] = [group["id"] for group in dictized["groups"]]
     dictized.pop("revision_timestamp")
     
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
+    dictized["tags"] = [tag["name"] for tag in dictized["tags"] if not tag.get('vocabulary_id')]
     dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
 

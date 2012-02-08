@@ -216,6 +216,15 @@ def tag_list(context, data_dict):
     else:
         tags = model.Session.query(model.Tag).all()
 
+    # filter by vocabulary
+    if data_dict.get('vocabulary_name'):
+        vocab = model.Vocabulary.get(data_dict['vocabulary_name'])
+        if not vocab:
+            raise NotFound
+        tags = [tag for tag in tags if tag.vocabulary_id == vocab.id]
+    else:
+        tags = [tag for tag in tags if not tag.vocabulary_id]
+
     tag_list = []
     if all_fields:
         for tag in tags:
