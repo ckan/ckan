@@ -446,3 +446,23 @@ def tag_in_vocabulary_validator(value, context):
             raise Invalid(_('Tag %s does not belong to vocabulary %s') % (value, vocabulary.name))
     return value
 
+def tag_not_in_vocabulary(key, tag_dict, errors, context):
+    tag_name = tag_dict[('name',)]
+    if not tag_name:
+        raise Invalid(_('No tag name'))
+    if tag_dict.has_key(('vocabulary_id',)):
+        vocabulary_id = tag_dict[('vocabulary_id',)]
+    else:
+        vocabulary_id = None
+    model = context['model']
+    session = context['session']
+
+    query = session.query(model.Tag)
+    query = query.filter(model.Tag.vocabulary_id==vocabulary_id)
+    query = query.filter(model.Tag.name==tag_name)
+    count = query.count()
+    if count > 0:
+        raise Invalid(_('Tag %s already belongs to vocabulary %s') %
+                (tag_name, vocabulary_id))
+    else:
+        return

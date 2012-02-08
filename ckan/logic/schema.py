@@ -36,7 +36,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    vocabulary_id_exists,
                                    user_id_exists,
                                    object_id_validator,
-                                   activity_type_exists)
+                                   activity_type_exists,
+                                   tag_not_in_vocabulary)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -75,7 +76,8 @@ def default_update_resource_schema():
 
 def default_tags_schema():
     schema = {
-        'name': [not_empty,
+        'name': [not_missing,
+                 not_empty,
                  unicode,
                  tag_length_validator,
                  tag_name_validator,
@@ -88,6 +90,13 @@ def default_tags_schema():
 
 def default_create_tag_schema():
     schema = default_tags_schema()
+    # When creating a tag via the create_tag() logic action function, a
+    # vocabulary_id _must_ be given (you cannot create free tags via this
+    # function).
+    schema['vocabulary_id'] = [not_missing, not_empty, unicode,
+            vocabulary_id_exists, tag_not_in_vocabulary]
+    # You're not allowed to specify your own ID when creating a tag.
+    schema['id'] = [empty]
     return schema
 
 def default_package_schema():

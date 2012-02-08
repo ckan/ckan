@@ -174,7 +174,7 @@ class TestVocabulary(object):
     def test_vocabulary_create_id(self):
         '''Test error response when user tries to supply their own ID when
         creating a vocabulary.
-        
+
         '''
         params = {'id': 'xxx', 'name': 'foobar'}
         param_string = json.dumps(params)
@@ -337,11 +337,141 @@ class TestVocabulary(object):
         assert response.json['success'] == False
 
     def test_add_tag_to_vocab(self):
-        vocab = self._create_vocabulary(vocab_name="Musical Genres",
-                user=self.sysadmin_user)
+        '''Test that a tag can be added to and then retrieved from a vocab.'''
+        vocab = self.genre_vocab
         tags_before = self._list_tags(vocab)
-        assert len(tags_before) == 0, tags_before
         tag_created = self._create_tag(self.sysadmin_user, 'noise', vocab)
         tags_after = self._list_tags(vocab)
-        assert len(tags_after) == 1
-        assert tag_created['name'] in tags_after
+        new_tag_names = [tag_name for tag_name in tags_after if tag_name not in 
+                tags_before]
+        assert len(new_tag_names) == 1
+        assert tag_created['name'] in new_tag_names
+
+    def test_add_tag_no_vocab(self):
+        '''Test the error response when a user tries to create a tab without
+        specifying a vocab.
+
+        '''
+        tag_dict = {'name': 'noise'}
+        tag_string = json.dumps(tag_dict)
+        response = self.app.post('/api/action/tag_create',
+                params=tag_string,
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=409)
+        assert response.json['success'] == False
+
+    def test_add_tag_vocab_not_exists(self):
+        '''Test the error response when a user tries to add a tag to a vocab
+        that doesn't exist.
+
+        '''
+        tag_dict = {'name': 'noise', 'vocabulary_id': 'does not exist'}
+        tag_string = json.dumps(tag_dict)
+        response = self.app.post('/api/action/tag_create',
+                params=tag_string,
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=409)
+        assert response.json['success'] == False
+
+    def test_add_tag_already_added(self):
+        '''Test the error response when a user tries to add a tag to a vocab 
+        that already has a tag with the same name.
+
+        '''
+        self.test_add_tag_to_vocab()
+        vocab = self.genre_vocab
+        tag_dict = {'name': 'noise', 'vocabulary_id': vocab['id']}
+        tag_string = json.dumps(tag_dict)
+        response = self.app.post('/api/action/tag_create',
+                params=tag_string,
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=409)
+        assert response.json['success'] == False
+
+    def test_add_tag_with_id(self):
+        '''Test the error response when a user tries to specify the tag ID when
+        adding a tag to a vocab.
+
+        '''
+        tag_dict = {
+                'id': 'dsagdsgsgsd',
+                'name': 'noise',
+                'vocabulary_id': self.genre_vocab['id']
+                }
+        tag_string = json.dumps(tag_dict)
+        response = self.app.post('/api/action/tag_create',
+                params=tag_string,
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=409)
+        assert response.json['success'] == False
+
+    def test_add_tag_without_name(self):
+        '''Test the error response when a user tries to create a tag without a
+        name.
+
+        '''
+        tag_dict = {
+                'vocabulary_id': self.genre_vocab['id']
+                }
+        tag_string = json.dumps(tag_dict)
+        response = self.app.post('/api/action/tag_create',
+                params=tag_string,
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=409)
+        assert response.json['success'] == False
+
+    def test_add_tag_invalid_name(self):
+        for name in ('Not a valid tag name!', '', None):
+            tag_dict = {
+                    'name': name,
+                    'vocabulary_id': self.genre_vocab['id']
+                    }
+            tag_string = json.dumps(tag_dict)
+            response = self.app.post('/api/action/tag_create',
+                    params=tag_string,
+                    extra_environ = {'Authorization':
+                        str(self.sysadmin_user.apikey)},
+                    status=409)
+            assert response.json['success'] == False
+
+    def test_add_tag_invalid_vocab_id(self):
+        tag_dict = {
+                'name': 'noise',
+                'vocabulary_id': 'xxcxzczxczxc',
+                }
+        tag_string = json.dumps(tag_dict)
+        response = self.app.post('/api/action/tag_create',
+                params=tag_string,
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=409)
+        assert response.json['success'] == False
+
+    def test_add_tag_not_logged_in(self):
+        tag_dict = {
+                'name': 'noise',
+                'vocabulary_id': self.genre_vocab['id']
+                }
+        tag_string = json.dumps(tag_dict)
+        response = self.app.post('/api/action/tag_create',
+                params=tag_string,
+                status=403)
+        assert response.json['success'] == False
+
+    def test_add_tag_not_authorized(self):
+        tag_dict = {
+                'name': 'noise',
+                'vocabulary_id': self.genre_vocab['id']
+                }
+        tag_string = json.dumps(tag_dict)
+        response = self.app.post('/api/action/tag_create',
+                params=tag_string,
+                    extra_environ = {'Authorization':
+                        str(self.normal_user.apikey)},
+                status=403)
+        assert response.json['success'] == False
