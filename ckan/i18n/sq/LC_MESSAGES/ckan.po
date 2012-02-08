@@ -4,14 +4,14 @@
 # 
 # Translators:
 # abrahaj <a_brahaj@yahoo.com>, 2011.
-#   <a_brahaj@yahoo.com>, 2011.
+#   <a_brahaj@yahoo.com>, 2011, 2012.
 # <internet@davidread.org>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
 "POT-Creation-Date: 2011-11-16 18:02+0000\n"
-"PO-Revision-Date: 2011-11-24 08:50+0000\n"
+"PO-Revision-Date: 2012-01-19 09:49+0000\n"
 "Last-Translator: abrahaj <a_brahaj@yahoo.com>\n"
 "Language-Team: Albanian (http://www.transifex.net/projects/p/ckan/team/sq/)\n"
 "MIME-Version: 1.0\n"
