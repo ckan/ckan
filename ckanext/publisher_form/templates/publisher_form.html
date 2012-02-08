@@ -126,7 +126,7 @@
     <dt><label class="field_opt" for="packages__${len(data.get('packages', []))}__name">Dataset</label></dt>
     <dd><input class="autocomplete-dataset" id="datasets__${len(data.get('packages', []))}__name" name="packages__${len(data.get('packages', []))}__name" type="text" /></dd>
   </dl>
-  <dl>
+  <dl py:if="c.group">
 	<dd>
 		<a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">Add a new dataset</a>
 	</dd>
