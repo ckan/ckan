@@ -1527,30 +1527,30 @@ body.authz form button {
 /* = Activity Streams = */
 /* ==================== */
 
-.activity-stream-activity {
+.activity-stream .activity {
     padding-bottom:1em;
 
 }
-.activity-stream-activity a {
+.activity-stream .activity a {
     font-weight:bold;
 
 }
-.activity-stream-activity .actor {
+.activity-stream .activity .actor {
 
 }
-.activity-stream-activity .verb {
+.activity-stream .activity .verb {
     background-color:PapayaWhip;
     padding:.25em;
     margin:.25em;
 
 }
-.activity-stream-activity .object {
+.activity-stream .activity .object {
 
 }
-.activity-stream-activity .target {
+.activity-stream .activity .target {
 
 }
-.activity-stream-activity .date {
+.activity-stream .activity .date {
     color:#999;
 
 }

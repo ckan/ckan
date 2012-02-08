@@ -201,5 +201,5 @@ class TestActivity(HtmlCheckMethods):
         # By now we've created >15 activities, but only the latest 15 should
         # appear on the page.
         result = self.app.get(offset, status=200)
-        assert result.body.count('<div class="activity-stream-activity">') \
+        assert result.body.count('<div class="activity">') \
                 == 15
