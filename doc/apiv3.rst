@@ -150,7 +150,7 @@ license_id               "cc-by"                                ID of the licens
 extras                   []                                      
 tags                     ["government-spending"]                List of tags associated with this dataset.
 groups                   ["spending", "country-uk"]             List of groups this dataset is a member of.
-relationships_as_subject []                                     List of relationships (edit this only using relationship specific command). The 'type' of the relationship is described in terms of this package being the subject and the related package being the object.
+relationships_as_subject []                                     List of relationships. The 'type' of the relationship is described in terms of this package being the subject and the related package being the object.
 state                    active                                 May be ``deleted`` or other custom states like ``pending``.
 revision_id              "f645243a-7334-44e2-b87c-64231700a9a6" (Read-only) ID of the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships).
 revision_timestamp       "2010-12-21T15:26:17.345502"           (Read-only) Time and date when the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships). ISO format. UTC timezone assumed.
