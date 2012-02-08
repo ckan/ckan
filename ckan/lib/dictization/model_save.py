@@ -489,3 +489,11 @@ def vocabulary_dict_update(vocabulary_dict, context):
     vocabulary_obj.name = vocabulary_dict['name']
 
     return vocabulary_obj
+
+def tag_dict_save(tag_dict, context):
+    model = context['model']
+    tag = context.get('tag')
+    if tag:
+        tag_dict['id'] = tag.id
+    tag = table_dict_save(tag_dict, model.Tag, context)
+    return tag

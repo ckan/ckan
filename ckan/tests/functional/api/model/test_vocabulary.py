@@ -139,6 +139,30 @@ class TestVocabulary(object):
                 status=404)
         assert response.json['success'] == False
 
+    def _list_tags(self, vocabulary, user=None):
+        params = {'vocabulary_name': vocabulary['name']}
+        if user:
+            extra_environ = {'Authorization' : str(user.apikey)}
+        else:
+            extra_environ = None
+        response = self._post('/api/action/tag_list', params=params,
+                extra_environ=extra_environ)
+        assert response['success'] == True
+        return response['result']
+
+    def _create_tag(self, user, tag_name, vocabulary=None):
+        tag_dict = {'name': tag_name}
+        if vocabulary:
+            tag_dict['vocabulary_id'] = vocabulary['id']
+        if user:
+            extra_environ = {'Authorization' : str(user.apikey)}
+        else:
+            extra_environ = None
+        response = self._post('/api/action/tag_create', params=tag_dict,
+                extra_environ=extra_environ)
+        assert response['success'] == True
+        return response['result']
+
     def test_vocabulary_create(self):
         '''Test adding a new vocabulary to a CKAN instance via the action
         API.
@@ -311,3 +335,13 @@ class TestVocabulary(object):
                     str(self.normal_user.apikey)},
                 status=403)
         assert response.json['success'] == False
+
+    def test_add_tag_to_vocab(self):
+        vocab = self._create_vocabulary(vocab_name="Musical Genres",
+                user=self.sysadmin_user)
+        tags_before = self._list_tags(vocab)
+        assert len(tags_before) == 0, tags_before
+        tag_created = self._create_tag(self.sysadmin_user, 'noise', vocab)
+        tags_after = self._list_tags(vocab)
+        assert len(tags_after) == 1
+        assert tag_created['name'] in tags_after

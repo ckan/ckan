@@ -19,19 +19,22 @@ from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_dict_save,
                                              user_dict_save,
                                              vocabulary_dict_save,
+                                             tag_dict_save,
                                              activity_dict_save)
 
 from ckan.lib.dictization.model_dictize import (group_dictize,
                                                 package_dictize,
                                                 user_dictize,
                                                 vocabulary_dictize,
+                                                tag_dictize,
                                                 activity_dictize)
 
 from ckan.logic.schema import (default_create_package_schema,
                                default_resource_schema,
                                default_create_relationship_schema,
                                default_create_vocabulary_schema,
-                               default_create_activity_schema)
+                               default_create_activity_schema,
+                               default_create_tag_schema)
 
 from ckan.logic.schema import default_group_schema, default_user_schema
 from ckan.lib.navl.dictization_functions import validate 
@@ -409,3 +412,23 @@ def package_relationship_create_rest(context, data_dict):
 
     relationship_dict = package_relationship_create(context, data_dict)
     return relationship_dict
+
+def tag_create(context, tag_dict):
+    '''Create a new tag and return a dictionary representation of it.'''
+
+    model = context['model']
+
+    check_access('tag_create', context, tag_dict)
+
+    schema = context.get('schema') or default_create_tag_schema()
+    data, errors = validate(tag_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    tag = tag_dict_save(tag_dict, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    log.debug("Created tag '%s' " % tag)
+    return tag_dictize(tag, context)

@@ -86,6 +86,10 @@ def default_tags_schema():
     }
     return schema
 
+def default_create_tag_schema():
+    schema = default_tags_schema()
+    return schema
+
 def default_package_schema():
 
     schema = {
