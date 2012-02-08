@@ -1,9 +1,9 @@
 from pylons.i18n import _
 from ckan import model
-from ckan.model import vocabulary
 from ckan.lib.navl.dictization_functions import Invalid
 from ckan.lib.field_types import DateType, DateConvertError
-from ckan.logic.validators import tag_length_validator, tag_name_validator
+from ckan.logic.validators import tag_length_validator, tag_name_validator, \
+    tag_in_vocabulary_validator
 
 def convert_to_extras(key, data, errors, context):
     extras = data.get(('extras',), [])
@@ -44,22 +44,27 @@ def free_tags_only(key, data, errors, context):
 
 def convert_to_tags(vocab):
     def callable(key, data, errors, context):
-        tag_string = data.get(key)
-        new_tags = [tag.strip() for tag in tag_string.split(',') if tag.strip()]
+        new_tags = data.get(key)
         if not new_tags:
             return
+        if isinstance(new_tags, basestring):
+            new_tags = [new_tags]
+
         # get current number of tags
         n = 0
         for k in data.keys():
             if k[0] == 'tags':
                 n = max(n, k[1] + 1)
 
-        for tag in new_tags:
-            tag_length_validator(tag, context)
-            tag_name_validator(tag, context)
         v = model.Vocabulary.get(vocab)
         if not v:
             raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
+        context['vocabulary'] = v
+
+        for tag in new_tags:
+            tag_length_validator(tag, context)
+            tag_name_validator(tag, context)
+            tag_in_vocabulary_validator(tag, context)
 
         for num, tag in enumerate(new_tags):
             data[('tags', num+n, 'name')] = tag
