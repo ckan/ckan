@@ -22,11 +22,11 @@ class TestHelpers(TestController):
 
     def test_render_datetime(self):
         res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
-        assert_equal(res, '2008-04-13 20:40')
+        assert_equal(res, 'Apr 13, 2008')
 
     def test_render_datetime_but_from_string(self):
         res = h.render_datetime('2008-04-13T20:40:20.123456')
-        assert_equal(res, '2008-04-13 20:40')
+        assert_equal(res, 'Apr 13, 2008')
 
     def test_render_datetime_blank(self):
         res = h.render_datetime(None)

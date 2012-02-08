@@ -47,7 +47,7 @@
               <a href="${h.url_for(controller='revision',action='read',id=rev['id'])}">${rev['id'][:4]}&#8230;</a>
             </td>
             <td>
-              <a href="${h.url_for(controller='package',action='read',id='%s@%s' % (c.pkg_dict['name'], rev['timestamp']))}" title="${'Read dataset as of %s' % rev['timestamp']}">${h.render_datetime(rev['timestamp'])}</a></td>
+              <a href="${h.url_for(controller='package',action='read',id='%s@%s' % (c.pkg_dict['name'], rev['timestamp']))}" title="${'Read dataset as of %s' % rev['timestamp']}">${h.render_datetime(rev['timestamp'], with_hours=True)}</a></td>
             <td>${h.linked_user(rev['author'])}</td>
             <td>${rev['message']}</td>
           </tr> 

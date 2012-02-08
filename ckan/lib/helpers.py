@@ -281,11 +281,15 @@ class Page(paginate.Page):
         )
         return super(Page, self).pager(*args, **kwargs)
 
-def render_datetime(datetime_, date_format='%Y-%m-%d %H:%M'):
+def render_datetime(datetime_, date_format=None, with_hours=False):
     '''Render a datetime object or timestamp string as a pretty string
     (Y-m-d H:m).
     If timestamp is badly formatted, then a blank string is returned.
     '''
+    if not date_format: 
+        date_format = '%b %d, %Y'
+        if with_hours:
+            date_format += ', %H:%M'
     if isinstance(datetime_, datetime.datetime):
         return datetime_.strftime(date_format)
     elif isinstance(datetime_, basestring):
