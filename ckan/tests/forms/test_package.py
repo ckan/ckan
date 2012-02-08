@@ -153,7 +153,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         assert outpkg.notes == indict['Package--notes']
 
         # test tags
-        taglist = [ tag.name for tag in outpkg.tags ]
+        taglist = [ tag.name for tag in outpkg.get_tags() ]
         assert u'russian' in taglist, taglist
         assert u'tolstoy' in taglist, taglist
         assert newtagname in taglist
@@ -205,7 +205,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         assert outpkg.notes == indict[prefix+'notes']
 
         # test tags
-        taglist = [ tag.name for tag in outpkg.tags ]
+        taglist = [ tag.name for tag in outpkg.get_tags() ]
         assert u'russian' in taglist, taglist
         assert u'tolstoy' not in taglist, taglist
         assert newtagname in taglist
@@ -382,7 +382,7 @@ class TestValidation:
             fs.sync()
             model.repo.commit_and_remove()
             anna = model.Package.by_name(u'annakarenina')
-            taglist = [ tag.name for tag in anna.tags ]
+            taglist = [ tag.name for tag in anna.get_tags() ]
             assert len(taglist) == 1
             assert u'tag name' in taglist
 
@@ -404,7 +404,7 @@ class TestValidation:
         fs.sync()
         model.repo.commit_and_remove()
         anna = model.Package.by_name(u'annakarenina')
-        taglist = [ tag.name for tag in anna.tags ]
+        taglist = [ tag.name for tag in anna.get_tags() ]
         assert len(taglist) == 2
         assert u'tag name one' in taglist
         assert u'tag name two' in taglist

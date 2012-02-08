@@ -262,7 +262,7 @@ def tag_dictize(tag, context):
     result_dict = table_dictize(tag, context)
 
     result_dict["packages"] = obj_list_dictize(
-        tag.packages_ordered, context)
+        tag.packages, context)
     
     return result_dict 
 

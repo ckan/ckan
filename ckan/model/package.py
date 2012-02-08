@@ -3,7 +3,7 @@ from time import gmtime
 from calendar import timegm
 from operator import attrgetter
 
-from sqlalchemy.sql import select, and_, union, expression, or_
+from sqlalchemy.sql import select, and_, union, expression, or_, desc
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import types, Column, Table
 from pylons import config
@@ -48,11 +48,10 @@ package_revision_table = make_revisioned_table(package_table)
 ## -------------------
 ## Mapped classes
 
-
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
-    
+
     text_search_fields = ['name', 'title']
 
     def __init__(self, **kw):
@@ -160,6 +159,19 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             hash=hash,
             **kw))
 
+    def add_tag(self, tag):
+        import ckan.model as model
+        if tag in self.get_tags(tag.vocabulary):
+            return
+        else:
+            package_tag = model.PackageTag(self, tag)
+            model.Session.add(package_tag)
+            model.Session.commit()
+
+    def add_tags(self, tags):
+        for tag in tags:
+            self.add_tag(tag)
+
     def add_tag_by_name(self, tag_name, vocab=None, autoflush=True):
         """Add a tag with the given name to this package's tags.
 
@@ -176,25 +188,47 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         from tag import Tag
         if not tag_name:
             return
+        # Get the named tag.
         tag = Tag.by_name(tag_name, vocab=vocab, autoflush=autoflush)
         if not tag:
+            # Tag doesn't exist yet, make a new one.
             if vocab:
                 tag = Tag(name=tag_name, vocabulary_id=vocab.id)
             else:
                 tag = Tag(name=tag_name)
-        if not tag in self.tags:
-            self.tags.append(tag)
+        assert tag is not None
+        self.add_tag(tag)
 
-    @property
-    def tags_ordered(self):
+    def get_tags(self, vocab=None):
         """Return a sorted list of this package's tags
 
-        Tags are sorted by the names of the vocabularies that they belong to
-        and then (within vocabularies) by their tag names
+        Tags are sorted by their names.
 
         """
-        sorted_tags = sorted(self.tags, key=attrgetter('name'))
-        return sorted_tags
+        import ckan.model as model
+        query = model.Session.query(model.Tag)
+        query = query.join(model.PackageTagRevision)
+        query = query.filter(model.PackageTagRevision.tag_id == model.Tag.id)
+        query = query.filter(model.PackageTagRevision.package_id == self.id)
+        query = query.filter(and_(
+            model.PackageTagRevision.state == 'active',
+            model.PackageTagRevision.current == True))
+        if vocab:
+            query = query.filter(model.Tag.vocabulary_id == vocab.id)
+        else:
+            query = query.filter(model.Tag.vocabulary_id == None)
+        query = query.order_by(model.Tag.name)
+        tags = query.all()
+        return tags
+
+    def remove_tag(self, tag):
+        import ckan.model as model
+        query = model.Session.query(model.PackageTag)
+        query = query.filter(model.PackageTag.package_id == self.id)
+        query = query.filter(model.PackageTag.tag_id == tag.id)
+        package_tag = query.one()
+        package_tag.delete()
+        model.Session.commit()
 
     def isopen(self):
         if self.license and self.license.isopen():
@@ -216,7 +250,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # Todo: Remove from Version 2?
         _dict['license'] = self.license.title if self.license else _dict.get('license_id', '')
         _dict['isopen'] = self.isopen()
-        tags = [tag.name for tag in self.tags]
+        tags = [tag.name for tag in self.get_tags()]
         tags.sort() # so it is determinable
         _dict['tags'] = tags
         groups = [getattr(group, ref_group_by) for group in self.get_groups()]

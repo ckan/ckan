@@ -161,7 +161,7 @@ class CreateTestData(cli.CkanCommand):
                                 tag = model.Tag(name=tag_name)
                                 cls.tag_names.append(tag_name)
                                 model.Session.add(tag)    
-                            pkg.tags.append(tag)
+                            pkg.add_tag(tag)
                             model.Session.flush()
                     elif attr == 'groups':
                         model.Session.flush()
@@ -379,8 +379,8 @@ left arrow <
 
         for obj in [pkg2, tag1, tag2, tag3]:
             model.Session.add(obj)
-        pkg1.tags = [tag1, tag2, tag3]
-        pkg2.tags = [ tag1, tag3 ]
+        pkg1.add_tags([tag1, tag2, tag3])
+        pkg2.add_tags([ tag1, tag3 ])
         cls.tag_names = [ t.name for t in (tag1, tag2, tag3) ]
         pkg1.license_id = u'other-open'
         pkg2.license_id = u'cc-nc' # closed license

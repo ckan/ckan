@@ -168,7 +168,7 @@ class Tag(DomainObject):
         return query
 
     @property
-    def packages_ordered(self):
+    def packages(self):
         """Return a list of all packages currently tagged with this tag.
 
         The list is sorted by package name.
@@ -180,13 +180,12 @@ class Tag(DomainObject):
         q = q.filter(sqlalchemy.and_(
             PackageTagRevision.state == 'active',
             PackageTagRevision.current == True))
-        packages = [p for p in q]
-        ourcmp = lambda pkg1, pkg2: cmp(pkg1.name, pkg2.name)
-        return sorted(packages, cmp=ourcmp)
+        q = q.order_by(Package.name)
+        packages = q.all()
+        return packages
 
     def __repr__(self):
         return '<Tag %s>' % self.name
-
 
 class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
@@ -233,9 +232,11 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
         return [self.package]
 
 mapper(Tag, tag_table, properties={
-    'package_tags':relation(PackageTag, backref='tag',
+    'package_tags': relation(PackageTag, backref='tag',
         cascade='all, delete, delete-orphan',
         ),
+    'vocabulary': relation(vocabulary.Vocabulary, backref='tags',
+        order_by=tag_table.c.name)
     },
     order_by=tag_table.c.name,
     )
@@ -258,10 +259,3 @@ PackageTagRevision = vdm.sqlalchemy.create_object_version(mapper, PackageTag,
         package_tag_revision_table)
 
 PackageTagRevision.related_packages = lambda self: [self.continuity.package]
-
-from vdm.sqlalchemy.base import add_stateful_versioned_m2m 
-vdm.sqlalchemy.add_stateful_versioned_m2m(Package, PackageTag, 'tags', 'tag',
-        'package_tags')
-vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(PackageRevision, 'tags')
-vdm.sqlalchemy.add_stateful_versioned_m2m(Tag, PackageTag, 'packages', 'package',
-        'package_tags')
