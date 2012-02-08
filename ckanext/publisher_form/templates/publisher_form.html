@@ -82,12 +82,12 @@
   <h3>Users</h3>
   <dl py:if="data.get('users')"> 
     <py:for each="num, user in enumerate(data.get('users'))">
-      <dt><input checked="checked" id="users__${num}__name" name="users__${num}__name" type="checkbox" value="${user['name']}"/>
+      <dt py:if="c.is_superuser_or_groupadmin"><input checked="checked" id="users__${num}__name" name="users__${num}__name" type="checkbox" value="${user['name']}"/>
 	</dt>
 	      <dd>
 	        <label for="users__${num}__name">${user['name']} ${user['capacity']}</label>
 		  </dd>
-		  <dd>
+		  <dd py:if="c.is_superuser_or_groupadmin">
 			  <input type="radio" name="users__${num}__capacity" value="admin"  py:attrs="{'checked': 'checked' if user['capacity'] == 'admin' else None}"> Admin</input>
 			  <input type="radio" name="users__${num}__capacity" value="editor" py:attrs="{'checked': 'checked' if user['capacity'] in ['editor','member'] else None}"> Editor</input>	
 		  </dd>
@@ -95,16 +95,18 @@
   </dl>
   <p py:if="not data.get('users')">There are no users currently in this publisher.</p>
 
-
-  <h3>Add users</h3>
-  <dl>
-    <dt><label class="field_opt" for="users__${len(data.get('users', []))}__name">User</label></dt>
-	<dd>
-		<input type="radio" name="add-user-capacity" value="admin"> Admin</input>
-		<input type="radio" name="add-user-capacity" value="editor" checked="true"> Editor</input>
-	</dd>
-    <dd><input class="autocomplete-publisher-user" id="users__${len(data.get('users', [])) + 1}__name" name="users__${len(data.get('users', []))}__name" type="text" /></dd>
-  </dl>
+Super? ${c.is_superuser_or_groupadmin}
+  <span py:if="c.is_superuser_or_groupadmin">
+	  <h3>Add users</h3>
+	  <dl>
+	    <dt><label class="field_opt" for="users__${len(data.get('users', []))}__name">User</label></dt>
+		<dd>
+			<input type="radio" name="add-user-capacity" value="admin"> Admin</input>
+			<input type="radio" name="add-user-capacity" value="editor" checked="true"> Editor</input>
+		</dd>
+	    <dd><input class="autocomplete-publisher-user" id="users__${len(data.get('users', [])) + 1}__name" name="users__${len(data.get('users', []))}__name" type="text" /></dd>
+	  </dl>
+	</span>
 </fieldset>
 
 
@@ -124,6 +126,11 @@
   <dl>
     <dt><label class="field_opt" for="packages__${len(data.get('packages', []))}__name">Dataset</label></dt>
     <dd><input class="autocomplete-dataset" id="datasets__${len(data.get('packages', []))}__name" name="packages__${len(data.get('packages', []))}__name" type="text" /></dd>
+  </dl>
+  <dl>
+	<dd>
+		<a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">Add a new dataset</a>
+	</dd>
   </dl>
 </fieldset>
 

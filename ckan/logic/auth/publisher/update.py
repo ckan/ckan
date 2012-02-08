@@ -57,15 +57,21 @@ def group_update(context, data_dict):
     model = context['model']
     user = context.get('user','')
     group = get_group_object(context, data_dict)
- 
+
     if not user:
         return {'success': False, 'msg': _('Only members of this group are authorized to edit this group')} 
+
+    # Sys admins should be allowed to update groups
+    if Authorizer().is_sysadmin(unicode(user)):
+        return { 'success': True }
             
     # Only allow package update if the user and package groups intersect
     userobj = model.User.get( user )
     if not userobj:
         return { 'success' : False, 'msg': _('Could not find user %s') % str(user) }         
-    if not _groups_intersect( userobj.get_groups( 'publisher' ), [group] ):
+
+    # Only admins of this group should be able to update this group
+    if not _groups_intersect( userobj.get_groups( 'publisher', 'admin' ), [group] ):
         return { 'success': False, 'msg': _('User %s not authorized to edit this group') % str(user) }
 
     return { 'success': True }
