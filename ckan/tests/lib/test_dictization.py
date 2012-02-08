@@ -10,17 +10,20 @@ from ckan.lib.dictization import (table_dictize,
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_dictize,
                                                 group_dictize,
+                                                activity_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
                                                )
 from ckan.lib.dictization.model_save import (package_dict_save,
                                              resource_dict_save,
                                              group_dict_save,
+                                             activity_dict_save,
                                              package_api_to_dict,
                                              group_api_to_dict,
                                              package_tag_list_save,
                                             )
 from ckan.logic.action.update import make_latest_pending_package_active
+import ckan.logic.action.get
 
 class TestBasicDictize:
     @classmethod
@@ -965,3 +968,35 @@ class TestBasicDictize:
 
         pkg = model.Package.by_name(name)
         assert_equal(set([tag.name for tag in pkg.get_tags()]), set(('tag1',)))
+
+    def test_20_activity_save(self):
+
+        # Add a new Activity object to the database by passing a dict to
+        # activity_dict_save()
+        context = {"model": model, "session": model.Session}
+        user = model.User.by_name(u'tester')
+        revision = model.repo.new_revision()
+        sent = {
+                'user_id': user.id,
+                'object_id': user.id,
+                'revision_id': revision.id,
+                'activity_type': 'changed user'
+                }
+        activity_dict_save(sent, context)
+        model.Session.commit()
+
+        # Retrieve the newest Activity object from the database, check that its
+        # attributes match those of the dict we saved.
+        got = ckan.logic.action.get.user_activity_list(context,
+                {'id': user.id})[0]
+        assert got['user_id'] == sent['user_id']
+        assert got['object_id'] == sent['object_id']
+        assert got['revision_id'] == sent['revision_id']
+        assert got['activity_type'] == sent['activity_type']
+
+        # The activity object should also have an ID and timestamp.
+        assert got['id']
+        assert got['timestamp']
+
+        # We didn't pass in any data so this should be empty.
+        assert not got['data']

@@ -7,12 +7,17 @@ import ckan.model as model
 from ckan.tests import TestController, url_for, setup_test_search_index
 
 def scrape_search_results(response, object_type):
-    assert object_type in ('dataset', 'group', 'user')
-    results = re.findall('href="/%s/%s_(\d\d)"' % (object_type, object_type),
-                         str(response))
+    assert object_type in ('dataset', 'group_dataset', 'group', 'user')
+    if object_type is not 'group_dataset':
+        results = re.findall('href="/%s/%s_(\d\d)"' % (object_type, object_type),
+                             str(response))
+    else:
+        object_type = 'dataset'
+        results = re.findall('class="main-link" href="/%s/%s_(\d\d)"' % (object_type, object_type),
+                             str(response))        
     return results
 
-def test_scrape():
+def test_scrape_user():
     html = '''
           <li class="username">
           <img src="http://gravatar.com/avatar/d41d8cd98f00b204e9800998ecf8427e?s=16&amp;d=http://test.ckan.net/images/icons/user.png" /> <a href="/user/user_00">user_00</a>
@@ -25,6 +30,24 @@ def test_scrape():
       '''
     res = scrape_search_results(html, 'user')
     assert_equal(res, ['00', '01'])
+
+def test_scrape_group_dataset():
+    html = '''
+        <div class="search-result ">
+          <a class="view-more-link" href="/dataset/dataset_13">View</a>
+          <a class="main-link" href="/dataset/dataset_13">dataset_13</a>
+          
+          <p class="result-description"></p>
+
+          <span class="result-url">
+
+              <img src="/images/icons/lock.png" height="16px" width="16px" alt="None" />  Not Openly Licensed
+            
+          </span>
+        </div>
+      '''
+    res = scrape_search_results(html, 'group_dataset')
+    assert_equal(res, ['13'])
     
 class TestPaginationPackage(TestController):
     @classmethod
@@ -61,18 +84,17 @@ class TestPaginationPackage(TestController):
         pkg_numbers = scrape_search_results(res, 'dataset')
         assert_equal(['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39'], pkg_numbers)
 
-    def test_group_read_p1(self):
+    def test_group_datasets_read_p1(self):
         res = self.app.get(url_for(controller='group', action='read', id='group_00'))
         assert 'href="/group/group_00?page=2' in res
-        print res.body
-        pkg_numbers = scrape_search_results(res, 'dataset')
-        assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29'], pkg_numbers)
+        pkg_numbers = scrape_search_results(res, 'group_dataset')
+        assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'], pkg_numbers)
 
-    def test_group_read_p2(self):
+    def test_group_datasets_read_p2(self):
         res = self.app.get(url_for(controller='group', action='read', id='group_00', page=2))
         assert 'href="/group/group_00?page=1' in res
-        pkg_numbers = scrape_search_results(res, 'dataset')
-        assert_equal(['30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50'], pkg_numbers)
+        pkg_numbers = scrape_search_results(res, 'group_dataset')
+        assert_equal(['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39'], pkg_numbers)
 
 class TestPaginationGroup(TestController):
     @classmethod

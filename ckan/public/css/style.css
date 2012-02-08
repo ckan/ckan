@@ -78,8 +78,9 @@ header .account {
   float: right;
 }
 
-header .account img {
-  margin-bottom: -3px;
+header .account img.gravatar {
+  margin: 0 5px -5px 0;
+  border-radius: 3px;
 }
 
 
@@ -492,13 +493,13 @@ body.index.home .front-page .action-box-inner {
   min-height: 15em;
 }
 body.index.home .front-page .action-box-inner.collaborate {
-  background:url(/img/collaborate.png) no-repeat right top;
+  background:url(../img/collaborate.png) no-repeat right top;
 }
 body.index.home .front-page .action-box-inner.share {
-  background:url(/img/share.png) no-repeat right top;
+  background:url(../img/share.png) no-repeat right top;
 }
 body.index.home .front-page .action-box-inner.find {
-  background:url(/img/find.png) no-repeat right top;
+  background:url(../img/find.png) no-repeat right top;
 }
 body.index.home .front-page .action-box-inner a {
   font-weight: bold;
@@ -639,6 +640,7 @@ form.simple-form input[type=password] {
 /* ============== */
 /* = User Index = */
 /* ============== */
+
 ul.userlist, 
 ul.userlist ul {
   list-style-type: none;
@@ -657,7 +659,8 @@ ul.userlist li ul span.edits {
   margin-left: 3px;
 }
 ul.userlist .username img {
-  margin-bottom: -3px;
+  margin: 0 5px -6px 0;
+  border-radius: 3px;
 }
 ul.userlist .created {
   color: #888;
@@ -671,10 +674,78 @@ ul.userlist .badge {
   margin-top: 5px;
 }
 
-
 /* ================== */
 /* = User Read page = */
 /* ================== */
+
+body.user.read #sidebar { display: none; }
+body.user.read #content { 
+  border-right: 0; 
+  width: 950px; 
+}
+
+.user.read .page_heading {
+  font-weight: bold;
+}
+
+.user.read .page_heading img.gravatar {
+  padding: 2px;
+  border: solid 1px #ddd;
+  vertical-align: middle;
+  margin-right: 5px;
+  margin-top: -3px;
+}
+
+.user.read .page_heading .fullname {
+  font-weight: normal;
+  color: #999;
+}
+
+.user.read .rule {
+  clear: both;
+  margin-bottom: 15px;
+  padding-top: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.vcard dt {
+  width: 115px;
+  float: left;
+  font-weight: normal;
+  color: #999;
+}
+
+.vcard dd {
+  margin-left: 115px;
+}
+
+.user.read ul.stats {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.user.read ul.stats li {
+  display: inline-block;
+  color: inherit;
+  width: 115px;
+}
+
+.user.read ul.stats li strong {
+  font-size: 36px;
+  display: block;
+  line-height: 35px;
+}
+
+.user.read ul.stats li span {
+  color: #999;
+}
+
+.user.read .listing > div.datasets .datasets {
+  padding-right: 15px;
+}
+
+.user.read .listing .changes {
+}
 
 
 /* ========================= */
@@ -925,16 +996,6 @@ ul.dataset-edit-nav li a:hover {
 }
 
 
-
-.gravatar {
-  border: 1px solid #777;
-  padding: 1px;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 10px auto;
-}
-
-
 /* ===================== */
 /* = Edit Dataset Page = */
 /* ===================== */
@@ -962,6 +1023,9 @@ ul.dataset-edit-nav li a:hover {
 }
 .dataset-edit-form .resource-add .fileinfo {
   margin: 7px 0;
+}
+.dataset-edit-form button.dataset-delete {
+  vertical-align: top;
 }
 
 
@@ -1167,7 +1231,7 @@ body.package.read h3 {
   display: block;
   margin-top: 4px;
   padding: 3px 22px 3px 10px;
-  background: url('/images/icons/arrow-right-16-black.png') no-repeat right;
+  background: url('../images/icons/arrow-right-16-black.png') no-repeat right;
   opacity:0.4;
   filter:alpha(opacity=40); /* For IE8 and earlier */
 }
@@ -1223,7 +1287,7 @@ body.package.read #sidebar li.widget-container {
 .notes {
   padding: 8px; 
   border-left: 2px solid #eee;
-  background: url('/images/ldquo.png') no-repeat top left #f7f7f7;
+  background: url('../images/ldquo.png') no-repeat top left #f7f7f7;
 }
 .notes #notes-toggle a {
   cursor: pointer;
@@ -1457,4 +1521,36 @@ body.authz form button {
 .alert-message.block-message.success p a,
 .alert-message.block-message.info p a {
   color: #404040;
+}
+
+/* ==================== */
+/* = Activity Streams = */
+/* ==================== */
+
+.activity-stream .activity {
+    padding-bottom:1em;
+
+}
+.activity-stream .activity a {
+    font-weight:bold;
+
+}
+.activity-stream .activity .actor {
+
+}
+.activity-stream .activity .verb {
+    background-color:PapayaWhip;
+    padding:.25em;
+    margin:.25em;
+
+}
+.activity-stream .activity .object {
+
+}
+.activity-stream .activity .target {
+
+}
+.activity-stream .activity .date {
+    color:#999;
+
 }

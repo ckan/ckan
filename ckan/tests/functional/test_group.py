@@ -1,3 +1,5 @@
+import re
+
 from nose.tools import assert_equal
 
 from ckan.plugins import SingletonPlugin, implements, IGroupController
@@ -73,27 +75,6 @@ class TestGroup(FunctionalTestCase):
         res = res.click(group_title)
         assert groupname in res
         
-    def test_read(self):
-        # Relies on the search index being available
-        setup_test_search_index()
-        name = u'david'
-        title = u'Dave\'s books'
-        pkgname = u'warandpeace'
-        group = model.Group.by_name(name)
-        for group_ref in (group.name, group.id):
-            offset = url_for(controller='group', action='read', id=group_ref)
-            res = self.app.get(offset)
-            main_res = self.main_div(res)
-            assert title in res, res
-            #assert 'edit' not in main_res, main_res
-            assert 'Administrators' in res, res
-            assert 'russianfan' in main_res, main_res
-            assert name in res, res
-            assert '2 datasets found.' in self.strip_tags(main_res), main_res
-            pkg = model.Package.by_name(pkgname)
-            res = res.click(pkg.title)
-            assert '%s - Datasets' % pkg.title in res
-
     def test_read_non_existent(self):
         name = u'group_does_not_exist'
         offset = url_for(controller='group', action='read', id=name)
@@ -123,6 +104,38 @@ class TestGroup(FunctionalTestCase):
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Add A Group' in res, res
 
+class TestGroupWithSearch(FunctionalTestCase):
+
+    @classmethod
+    def setup_class(self):
+        setup_test_search_index()
+        model.Session.remove()
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_read(self):
+        # Relies on the search index being available
+        name = u'david'
+        title = u'Dave\'s books'
+        pkgname = u'warandpeace'
+        group = model.Group.by_name(name)
+        for group_ref in (group.name, group.id):
+            offset = url_for(controller='group', action='read', id=group_ref)
+            res = self.app.get(offset)
+            main_res = self.main_div(res)
+            assert title in res, res
+            #assert 'edit' not in main_res, main_res
+            assert 'Administrators' in res, res
+            assert 'russianfan' in main_res, main_res
+            assert name in res, res
+            no_datasets_found = int(re.search('(\d*) datasets found', main_res).groups()[0])
+            assert_equal(no_datasets_found, 2)
+            pkg = model.Package.by_name(pkgname)
+            res = res.click(pkg.title)
+            assert '%s - Datasets' % pkg.title in res
 
 class TestEdit(FunctionalTestCase):
 
@@ -170,7 +183,6 @@ Ho ho ho
         pkg = model.Package.by_name(self.packagename)
         form['packages__2__name'] = pkg.name
 
-        
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         # should be read page
         # assert 'Groups - %s' % self.groupname in res, res

@@ -7,6 +7,8 @@ from pylons import config
 
 from common import SearchIndexError, make_connection
 from ckan.model import PackageRelationship
+from ckan.plugins import (PluginImplementations,
+                          IPackageController)
 
 log = logging.getLogger(__name__)
 
@@ -29,11 +31,10 @@ def clear_index():
         err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
         log.error(err)
         raise SearchIndexError(err)
-        raise
-##    except solr.core.SolrException, e:
-##        err = 'SOLR %r exception: %r' % (conn.url, e)
-##        log.error(err)
-##        raise SearchIndexError(err)
+    except solr.core.SolrException, e:
+        err = 'SOLR %r exception: %r' % (conn.url, e)
+        log.error(err)
+        raise SearchIndexError(err)
     finally:
         conn.close()
 
@@ -137,6 +138,11 @@ class PackageSearchIndex(SearchIndex):
         # add a unique index_id to avoid conflicts
         import hashlib
         pkg_dict['index_id'] = hashlib.md5('%s%s' % (pkg_dict['id'],config.get('ckan.site_id'))).hexdigest()
+
+        for item in PluginImplementations(IPackageController):
+            pkg_dict = item.before_index(pkg_dict)
+
+        assert pkg_dict, 'Plugin must return non empty package dict on index'
 
         # send to solr:  
         try:

@@ -33,16 +33,18 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_about_validator,
                                    vocabulary_name_validator,
                                    vocabulary_id_not_changed,
-                                   vocabulary_id_exists)
+                                   vocabulary_id_exists,
+                                   user_id_exists,
+                                   object_id_validator,
+                                   activity_type_exists)
 from formencode.validators import OneOf
 import ckan.model
-
 
 def default_resource_schema():
 
     schema = {
         'id': [ignore_empty, unicode],
-        'revistion_id': [ignore_missing, unicode],
+        'revision_id': [ignore_missing, unicode],
         'resource_group_id': [ignore],
         'package_id': [ignore],
         'url': [ignore_empty, unicode],#, URL(add_http=False)],
@@ -310,4 +312,19 @@ def default_create_vocabulary_schema():
 def default_update_vocabulary_schema():
     schema = default_vocabulary_schema()
     schema['id'] = schema['id'] + [vocabulary_id_not_changed]
+    return schema
+
+def default_create_activity_schema():
+    schema = {
+        'id': [ignore],
+        'timestamp': [ignore],
+        'user_id': [not_missing, not_empty, unicode, user_id_exists],
+        'object_id': [not_missing, not_empty, unicode, object_id_validator],
+        # We don't bother to validate revision ID, since it's always created
+        # internally by the activity_create() logic action function.
+        'revision_id': [],
+        'activity_type': [not_missing, not_empty, unicode,
+            activity_type_exists],
+        'data': [ignore_empty, ignore_missing, unicode],
+    }
     return schema

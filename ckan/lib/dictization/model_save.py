@@ -46,6 +46,9 @@ def resource_dict_save(res_dict, context):
     return obj
 
 def package_resource_list_save(res_dicts, package, context):
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not res_dicts and allow_partial_update:
+        return
 
     pending = context.get('pending')
 
@@ -71,6 +74,9 @@ def package_resource_list_save(res_dicts, package, context):
 
 
 def package_extras_save(extra_dicts, obj, context):
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not extra_dicts and allow_partial_update:
+        return
 
     model = context["model"]
     session = context["session"]
@@ -274,10 +280,14 @@ def package_dict_save(pkg_dict, context):
     package_tag_list_save(pkg_dict.get("tags", []), pkg, context)
     package_membership_list_save(pkg_dict.get("groups", []), pkg, context)
 
-    subjects = pkg_dict.get('relationships_as_subject', [])
-    relationship_list_save(subjects, pkg, 'relationships_as_subject', context)
-    objects = pkg_dict.get('relationships_as_object', [])
-    relationship_list_save(subjects, pkg, 'relationships_as_object', context)
+    # relationships are not considered 'part' of the package, so only
+    # process this if the key is provided
+    if 'relationships_as_subject' in pkg_dict:
+        subjects = pkg_dict.get('relationships_as_subject', [])
+        relationship_list_save(subjects, pkg, 'relationships_as_subject', context)
+    if 'relationships_as_object' in pkg_dict:
+        objects = pkg_dict.get('relationships_as_object', [])
+        relationship_list_save(objects, pkg, 'relationships_as_object', context)
 
     extras = package_extras_save(pkg_dict.get("extras", []), pkg, context)
 
@@ -440,12 +450,31 @@ def task_status_dict_save(task_status_dict, context):
     task_status = table_dict_save(task_status_dict, model.TaskStatus, context)
     return task_status
 
-def vocabulary_dict_save(vocabulary_dict, context):
+def activity_dict_save(activity_dict, context):
 
     model = context['model']
     session = context['session']
+    user_id = activity_dict['user_id']
+    object_id = activity_dict['object_id']
+    revision_id = activity_dict['revision_id']
+    activity_type = activity_dict['activity_type']
+    if activity_dict.has_key('data'):
+        data = activity_dict['data']
+    else:
+        data = None
+    activity_obj = model.Activity(user_id, object_id, revision_id,
+            activity_type, data)
+    session.add(activity_obj)
 
+    # TODO: Handle activity details.
+
+    return activity_obj
+
+def vocabulary_dict_save(vocabulary_dict, context):
+    model = context['model']
+    session = context['session']
     vocabulary_name = vocabulary_dict['name']
+
     vocabulary_obj = model.Vocabulary(vocabulary_name)
     session.add(vocabulary_obj)
 

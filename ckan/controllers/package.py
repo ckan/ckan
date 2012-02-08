@@ -29,8 +29,9 @@ import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
+import ckan.logic.action.get
 
-log = logging.getLogger('ckan.controllers')
+log = logging.getLogger(__name__)
 
 def search_url(params):
     url = h.url_for(controller='package', action='search')
@@ -108,7 +109,6 @@ def _lookup_plugin(package_type):
     If the package type is None or cannot be found in the mapping, then the
     fallback behaviour is used.
     """
-    #from pdb import set_trace; set_trace()    
     if package_type is None:
         return _default_controller_behaviour
     return _controller_behaviour_for.get(package_type,
@@ -325,7 +325,14 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
-        
+
+        # Add the package's activity stream (already rendered to HTML) to the
+        # template context for the package/read.html template to retrieve
+        # later.
+        c.package_activity_stream = \
+                ckan.logic.action.get.package_activity_list_html(context,
+                    {'id': c.current_package_id})
+
         if config.get('rdf_packages'):
             accept_header = request.headers.get('Accept', '*/*')
             for content_type, exts in negotiate(autoneg_cfg, accept_header):
@@ -698,20 +705,9 @@ class PackageController(BaseController):
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
-        current_uors = self._get_userobjectroles(id)
-        self._handle_update_of_authz(current_uors, pkg)
-
-        # get the roles again as may have changed
-        user_object_roles = self._get_userobjectroles(id)
-        self._prepare_authz_info_for_render(user_object_roles)
+        roles = self._handle_update_of_authz(pkg)
+        self._prepare_authz_info_for_render(roles)
         return render('package/authz.html')
-
-
-    def _get_userobjectroles(self, pkg_id):
-        pkg = model.Package.get(pkg_id)
-        uors = model.Session.query(model.PackageRole).join('package').filter_by(name=pkg.name).all()
-        return uors
-
 
     def autocomplete(self):
         # DEPRECATED in favour of /api/2/util/dataset/autocomplete

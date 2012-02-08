@@ -133,3 +133,7 @@ def group_create_rest(context, data_dict):
 def vocabulary_create(context, data_dict):
     user = context['user']
     return {'success': Authorizer.is_sysadmin(user)}
+
+def activity_create(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}
