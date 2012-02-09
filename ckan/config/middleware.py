@@ -123,3 +123,51 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         app = Cascade(extra_static_parsers+static_parsers)
 
     return app
+
+class I18nMiddleware(object):
+    """I18n Middleware selects the language based on the url
+    eg /fr/home is French"""
+    def __init__(self, app, config):
+        self.app = app
+        self.default_locale = config['ckan.locale_default']
+        self.local_list = config['ckan.locale_order'].split()
+        # we want to know the root of the site in case it is in a
+        # subdirectory so that we can correctly rewrite the urls.
+
+    def __call__(self, environ, start_response):
+        # strip the language selector from the requested url
+        # and set environ variables for the language selected
+        # CKAN_LANG is the language code eg en, fr
+        # CKAN_LANG_IS_DEFAULT is set to True or False
+        path_parts = environ['PATH_INFO'].split('/')
+        if len(path_parts) > 1 and path_parts[1] in self.local_list:
+            environ['CKAN_LANG'] = path_parts[1]
+            environ['CKAN_LANG_IS_DEFAULT'] = False
+            # rewrite url
+            if len(path_parts) > 2:
+                environ['PATH_INFO'] = '/'.join([''] + path_parts[2:])
+            else:
+                environ['PATH_INFO'] = '/'
+        else:
+            # See if we have a language the browser requests. If this is
+            # not the site default language then redirect to that
+            # language eg for french -> /fr/....
+            browser_langs = environ['HTTP_ACCEPT_LANGUAGE']
+            languages = browser_langs.split(';')[0].split(',')
+            for language in languages:
+                if language in self.local_list:
+                    if language != self.default_locale:
+                        # if this is not the default locale of the site
+                        # then we will redirect to the url using that
+                        # language here.
+                        root = environ['SCRIPT_NAME']
+                        url = environ['PATH_INFO']
+                        url = url[len(root):]
+                        url = '/%s%s%s' % (root, language,  url)
+                        start_response('200 OK', [('Content-Type', 'text/html'),('Refresh', '0; url=%s' % url)])
+                        return []
+                    break
+            # use default language from config
+            environ['CKAN_LANG'] = self.default_locale
+            environ['CKAN_LANG_IS_DEFAULT'] = True
+        return self.app(environ, start_response)
