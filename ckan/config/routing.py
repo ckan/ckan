@@ -36,7 +36,6 @@ def make_map():
         map = plugin.before_map(map)
 
     map.connect('home', '/', controller='home', action='index')
-    map.connect('/locale', controller='home', action='locale')
     map.connect('about', '/about', controller='home', action='about')
 
     # CKAN API versioned.
