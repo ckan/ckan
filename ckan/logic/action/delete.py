@@ -114,10 +114,6 @@ def vocabulary_delete(context, data_dict):
 
     check_access('vocabulary_delete', context, data_dict)
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    rev.message = _(u'REST API: Delete Vocabulary: %s') % vocab_obj.name
-
     vocab_obj.delete()
     model.repo.commit()
 

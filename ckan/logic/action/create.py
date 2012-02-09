@@ -354,13 +354,6 @@ def vocabulary_create(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors, package_error_summary(errors))
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'API: Create Vocabulary %s') % data.get('name')
-
     vocabulary = vocabulary_dict_save(data, context)
 
     if not context.get('defer_commit'):

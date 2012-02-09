@@ -565,13 +565,6 @@ def vocabulary_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'API: Update Vocabulary %s') % data.get('name')
-
     updated_vocab = vocabulary_dict_update(data, context)
 
     if not context.get('defer_commit'):
@@ -679,4 +672,3 @@ def user_role_bulk_update(context, data_dict):
                              'domain_object': data_dict['domain_object']}
             user_role_update(context, uro_data_dict)
     return roles_show(context, data_dict)
-
