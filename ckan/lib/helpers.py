@@ -15,13 +15,15 @@ from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
-from pylons import url
+from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
-from routes import url_for, redirect_to
+from pylons import request
+from pylons import config
+from routes import redirect_to
+from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
 from i18n import get_available_locales
-
 
 
 try:
@@ -34,6 +36,55 @@ try:
 except ImportError:
     import simplejson as json
     
+
+def url(*args, **kw):
+    """Create url adding i18n information if selected
+    wrapper for pylons.url"""
+    my_url = _pylons_default_url(*args, **kw)
+    return _add_i18n_to_url(my_url, **kw)
+
+def url_for(*args, **kw):
+    """Create url adding i18n information if selected
+    wrapper for routes.url_for"""
+    my_url = _routes_default_url_for(*args, **kw)
+    return _add_i18n_to_url(my_url, **kw)
+
+def url_for_static(*args, **kw):
+    """Create url for static content that does not get translated
+    eg css, js
+    wrapper for routes.url_for"""
+    my_url = _routes_default_url_for(*args, **kw)
+    return my_url
+
+def _add_i18n_to_url(url, **kw):
+    # If the locale keyword param is provided then the url is rewritten
+    # using that locale .If return_to is provided this is used as the url
+    # (as part of the language changing feature).
+    # A locale of default will not add locale info to the url.
+    default_locale = False
+    locale = kw.pop('locale', None)
+    allowed_locales = ['default'] + config['ckan.locale_order'].split()
+    if locale and locale not in allowed_locales:
+        locale = None
+    if locale:
+        if locale == 'default':
+            default_locale = True
+        return_to = kw.pop('return_to', None)
+        if return_to:
+            url = return_to
+    else:
+        locale = request.environ['CKAN_LANG']
+        default_locale = request.environ['CKAN_LANG_IS_DEFAULT']
+    # only rewrite the url if not default
+    root = request.environ['SCRIPT_NAME']
+    if not default_locale:
+        # we need to strip the root from the url and the add it before
+        # the language specification.
+        url = url[len(root):]
+        url = '/%s%s%s' % (root, locale,  url)
+    else:
+        url = '%s%s' % (root, url)
+    return url
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
