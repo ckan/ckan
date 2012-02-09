@@ -1,4 +1,4 @@
-from ckan.logic import NotFound
+from ckan.logic import NotFound, ParameterError, ValidationError
 from ckan.lib.base import _
 from ckan.logic import check_access
 from ckan.logic.action import rename_keys
@@ -119,6 +119,27 @@ def vocabulary_delete(context, data_dict):
     rev.message = _(u'REST API: Delete Vocabulary: %s') % vocab_obj.name
 
     vocab_obj.delete()
+    model.repo.commit()
+
+def tag_delete(context, data_dict):
+    model = context['model']
+    user = context['user']
+
+    if not data_dict.has_key('tag_name'):
+        raise ParameterError(_("Missing 'tag_name' parameter."))
+
+    if not data_dict.has_key('vocabulary_name'):
+        raise ParameterError(_("Missing 'vocabulary_name' parameter."))
+
+    tag_obj = model.tag.Tag.get(data_dict['tag_name'],
+            data_dict['vocabulary_name'])
+
+    if tag_obj is None:
+        raise NotFound
+
+    check_access('tag_delete', context, data_dict)
+
+    tag_obj.delete()
     model.repo.commit()
 
 def package_relationship_delete_rest(context, data_dict):

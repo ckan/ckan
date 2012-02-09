@@ -60,3 +60,7 @@ def task_status_delete(context, data_dict):
 def vocabulary_delete(context, data_dict):
     user = context['user']
     return {'success': Authorizer.is_sysadmin(user)}
+
+def tag_delete(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}
