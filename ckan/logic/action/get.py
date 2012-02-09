@@ -978,8 +978,6 @@ def vocabulary_show(context, data_dict):
     else:
         raise NotFound
 
-    # TODO: check_access('vocabulary_show', context, data_dict)
-
     vocabulary_dict = vocabulary_dictize(vocabulary, context)
     return vocabulary_dict
 
