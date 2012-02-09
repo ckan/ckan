@@ -98,7 +98,7 @@ class RevisionController(BaseController):
                 if revision.message:
                     item_title += ': %s' % (revision.message or '')
                 item_link = h.url_for(action='read', id=revision.id)
-                item_description = _('Packages affected: %s.\n') % pkgs
+                item_description = _('Datasets affected: %s.\n') % pkgs
                 item_description += '%s' % (revision.message or '')
                 item_author_name = revision.author
                 item_pubdate = revision.timestamp
