@@ -490,6 +490,49 @@ class TestVocabulary(object):
                 status=403)
         assert response.json['success'] == False
 
+    def test_add_vocab_tag_to_dataset(self):
+        '''Test that a tag belonging to a vocab can be added to a dataset,
+        retrieved from the dataset, and then removed from the dataset.'''
+
+        # First add a tag to the vocab.
+        vocab = self.genre_vocab
+        tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
+
+        # Get a package from the API.
+        package = (self._post('/api/action/package_show',
+            {'id': self._post('/api/action/package_list')['result'][0]})
+            ['result'])
+
+        # Add the new vocab tag to the package.
+        package['tags'].append(tag)
+        updated_package = (self._post('/api/action/package_update',
+                params={'id': package['id'], 'tags': package['tags']},
+                extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+                ['result'])
+
+        # Test that the new vocab tag was added to the package.
+        tags_in_pkg = [tag_in_pkg for tag_in_pkg in updated_package['tags'] if
+                tag_in_pkg['name'] == tag['name'] and
+                tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
+        assert len(tags_in_pkg) == 1
+
+        # Remove the new vocab tag from the package.
+        package['tags'].remove(tag)
+        updated_package = (self._post('/api/action/package_update',
+                params={'id': package['id'], 'tags': package['tags']},
+                extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+                ['result'])
+
+        # Test that the tag no longer appears in the list of tags for the
+        # package.
+        package = (self._post('/api/action/package_show',
+            {'id': self._post('/api/action/package_list')['result'][0]})
+            ['result'])
+        tags_in_pkg = [tag_in_pkg for tag_in_pkg in package['tags'] if
+                tag_in_pkg['name'] == tag['name'] and
+                tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
+        assert len(tags_in_pkg) == 0
+
     def test_delete_tag_from_vocab(self):
         '''Test that a tag can be deleted from a vocab.'''
 
@@ -498,17 +541,47 @@ class TestVocabulary(object):
         # First add a tag to the vocab.
         tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
 
+        # Get a package from the API.
+        package = (self._post('/api/action/package_show',
+            {'id': self._post('/api/action/package_list')['result'][0]})
+            ['result'])
+
+        # Add the new vocab tag to the package.
+        package['tags'].append(tag)
+        updated_package = (self._post('/api/action/package_update',
+                params={'id': package['id'], 'tags': package['tags']},
+                extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+                ['result'])
+
+        # Test that the new vocab tag was added to the package.
+        tags_in_pkg = [tag_in_pkg for tag_in_pkg in updated_package['tags'] if
+                tag_in_pkg['name'] == tag['name'] and
+                tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
+        assert len(tags_in_pkg) == 1
+
         # Now delete the tag from the vocab.
         tags_before = self._list_tags(vocab)
         self._delete_tag(self.sysadmin_user, tag, vocab)
-        tags_after = self._list_tags(vocab)
 
+        # Test that the tag no longer appears in the list of tags for the
+        # vocab.
+        tags_after = self._list_tags(vocab)
         assert len(tags_after) == len(tags_before) - 1
         assert tag['name'] not in tags_after
         difference = [tag_name for tag_name in tags_before if tag_name not in
                 tags_after]
         assert len(difference) == 1
         assert tag['name'] in difference
+
+        # Test that the tag no longer appears in the list of tags for the
+        # package.
+        package = (self._post('/api/action/package_show',
+            {'id': self._post('/api/action/package_list')['result'][0]})
+            ['result'])
+        tags_in_pkg = [tag_in_pkg for tag_in_pkg in package['tags'] if
+                tag_in_pkg['name'] == tag['name'] and
+                tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
+        assert len(tags_in_pkg) == 0
 
     def test_delete_tag_no_name(self):
         '''Test the error response when a user tries to delete a tag without
