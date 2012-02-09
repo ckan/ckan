@@ -150,7 +150,11 @@ def set_session_locale(locale):
     session.save()
 
 def handle_request(request, tmpl_context):
-    from pylons import session
+    lang = request.environ.get('CKAN_LANG')
+    if lang != 'en':
+        set_lang(lang)
+    tmpl_context.language = lang
+    return lang
 
     # Work out what language to show the page in.
     locales = [] # Locale objects. Ordered highest preference first.
