@@ -67,16 +67,16 @@ class HomeController(BaseController):
                 c.userobj.name.startswith('https://www.google.com/accounts/o8/id')
             if not c.userobj.email and (is_google_id and not c.userobj.fullname):
                 msg = _('Please <a href="%s">update your profile</a>'
-                    ' and add your email address and your full name. ') + \
+                    ' and add your email address and your full name. ') % url + \
                     _('%s uses your email address'
                       ' if you need to reset your password.') \
-                      % (url, g.site_title)
+                      % g.site_title
             elif not c.userobj.email:
                 msg = _('Please <a href="%s">update your profile</a>'
-                        ' and add your email address. ') + \
+                        ' and add your email address. ') % url + \
                         _('%s uses your email address'
                           ' if you need to reset your password.') \
-                          % (url, g.site_title)
+                          % g.site_title
             elif is_google_id and not c.userobj.fullname:
                 msg = _('Please <a href="%s">update your profile</a>'
                     ' and add your full name.') % (url)
