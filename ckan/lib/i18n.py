@@ -5,6 +5,7 @@ from pylons.i18n import _, add_fallback, set_lang, gettext, LanguageError
 from pylons.i18n.translation import _get_translator
 from babel import Locale, localedata
 from babel.core import LOCALE_ALIASES
+from pylons import config
 
 import ckan.i18n
 
@@ -150,7 +151,7 @@ def set_session_locale(locale):
     session.save()
 
 def handle_request(request, tmpl_context):
-    lang = request.environ.get('CKAN_LANG')
+    lang = request.environ.get('CKAN_LANG', config['ckan.locale_default'])
     if lang != 'en':
         set_lang(lang)
     tmpl_context.language = lang
