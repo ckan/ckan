@@ -6,10 +6,10 @@ This is where it gets interesting! The CKAN software can be customised with 'ext
 
 Extensions allow you to customise CKAN for your own requirements, without interfering with the basic CKAN system.
 
-.. warning:: This is an advanced topic. At the moment, you need to have prepared your system to work with extensions, as described in :doc:`prepare-extensions`. We are working to make the most popular extensions more easily available as Debian packages. 
+.. warning:: This is an advanced topic.
 
-Finding Extensions
-------------------
+Choosing Extensions
+-------------------
 
 All CKAN extensions are listed on the official `Extension listing on the CKAN
 wiki <http://wiki.ckan.net/List_of_Extensions>`_.
@@ -37,25 +37,23 @@ You can install an extension on a CKAN instance as follows.
 
 .. note::
 
-  Core extensions do not need to be installed -- just enabled (see below).
+  'Core' extensions do not need to be installed -- just enabled (see below).
 
-1. First, ensure you are working within your virtualenv (see :doc:`prepare-extensions` if you are not sure what this means)::
+#. Locate your CKAN virtual environment (pyenv) in your filesystem. It is usually in a directory similar to this: ``/var/lib/ckan/INSTANCE_NAME/pyenv``
 
-   . /home/ubuntu/pyenv/bin/activate
+If it is not here, to get the definitive answer, check your CKAN Apache configuration (``/etc/apache2/sites-enabled``) for your WSGIScriptAlias (e.g. ``/var/lib/ckan/colorado/wsgi.py``) which has an ``execfile`` instruction. The first parameter is the pyenv directory plus ``/bin/activate_this.py``. e.g. ``/var/lib/ckan/colorado/pyenv/bin/activate_this.py`` means the pyenv dir is: ``/var/lib/ckan/colorado/pyenv``.
 
-2. Install the extension package code using ``pip``.
+#. Install the extension package code into your pyenv using ``pip``.
 
  For example, to install the Disqus extension, which allows users to comment on datasets::
 
-       pip install -E ~/var/srvc/ckan.net/pyenv git+https://github.com/okfn/ckanext-disqus.git
-
- The ``-E`` parameter is for your CKAN Python environment (e.g. ``~/var/srvc/ckan.net/pyenv``). 
+       /var/lib/ckan/INSTANCE_NAME/pyenv/bin/pip install -E /var/lib/ckan/INSTANCE_NAME/pyenv -e git+https://github.com/okfn/ckanext-disqus.git#egg=ckanext-disqus
 
  Prefix the source URL with the repo type (``hg+`` for Mercurial, ``git+`` for Git).
  
  The dependency you've installed will appear in the ``src/`` directory under your Python environment. 
 
-Now the extension is installed you need to enable it.
+Now the extension is installed, so now you can enable it.
 
 
 Enabling an Extension
