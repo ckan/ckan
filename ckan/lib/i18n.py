@@ -156,28 +156,6 @@ def handle_request(request, tmpl_context):
     tmpl_context.language = lang
     return lang
 
-def set_lang_list(locales):
-    '''Takes a list of locales (ordered by reducing preference) and tries
-    to set them in order. If one fails then it puts up a flash message and
-    tries the next.'''
-    import ckan.lib.helpers as h
-    failed_locales = set()
-    for locale in locales:
-        # try locales in order of preference until one works
-        try:
-            if str(locale) == 'en':
-                # There is no language file for English, so if we set_lang
-                # we would get an error. Just don't set_lang and finish.
-                break
-            set_lang(str(locale))
-            break
-        except LanguageError, e:
-            if str(locale) not in failed_locales:
-                h.flash_error(_('Could not change language to %r: %s') % \
-                              (str(locale), e))
-                failed_locales.add(str(locale))
-    return locale
-
 def get_lang():
     '''Returns the current language. Based on babel.i18n.get_lang but works
     when set_lang has not been run (i.e. still in English).'''
