@@ -73,7 +73,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
             default_locale = True
         return_to = kw.pop('return_to', None)
         if return_to:
-            url = return_to
+            url_to_amend = return_to
     else:
         try:
             locale = request.environ.get('CKAN_LANG')
