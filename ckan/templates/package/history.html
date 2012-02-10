@@ -12,7 +12,7 @@
         <h4>Updates</h4>
         <p class="atom-feed-link dataset-history-link">
           <a
-            href="${url(controller='package', action='history', id=c.pkg_dict['name'], format='atom', days=7)}"
+            href="${h.url(controller='package', action='history', id=c.pkg_dict['name'], format='atom', days=7)}"
             title="${g.site_title} - Dataset History - ${c.pkg_dict['name']}">
             Subscribe &raquo;</a>
         </p>
@@ -59,7 +59,7 @@
 
   <py:def function="optional_feed">
   <link rel="alternate" type="application/atom+xml" title="Dataset History"
-    href="${url(controller='package', action='history', id=c.pkg_dict['name'], format='atom', days=7)}" />
+    href="${h.url(controller='package', action='history', id=c.pkg_dict['name'], format='atom', days=7)}" />
   </py:def>
 
   <xi:include href="layout.html" />
