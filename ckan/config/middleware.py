@@ -10,6 +10,7 @@ from pylons import config
 from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
+from babel import negotiate_locale
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 from ckan.plugins import PluginImplementations
@@ -152,24 +153,22 @@ class I18nMiddleware(object):
             # See if we have a language the browser requests. If this is
             # not the site default language then redirect to that
             # language eg for french -> /fr/....
-            browser_langs = environ.get('HTTP_ACCEPT_LANGUAGE', 'en')
-            languages = browser_langs.split(';')[0].split(',')
-            for language in languages:
-                if language in self.local_list:
-                    if language != self.default_locale:
-                        # if this is not the default locale of the site
-                        # then we will redirect to the url using that
-                        # language here.
-                        root = environ['SCRIPT_NAME']
-                        url = environ['PATH_INFO']
-                        url = url[len(root):]
-                        url = '/%s%s%s' % (root, language,  url)
-                        headers = []
-                        headers.append(('Content-Type', 'text/html'))
-                        headers.append(('Refresh', '0; url=%s' % url))
-                        start_response('200 OK', headers)
-                        return []
-                    break
+            languages = environ.get('HTTP_ACCEPT_LANGUAGE', 'en')
+            languages = languages.replace('-', '_')
+            languages = languages.split(';')[0].split(',')
+            language = negotiate_locale(languages, self.local_list)
+            # if this is not the default locale of the site then we will
+            # redirect to the url using that language here.
+            if language != self.default_locale:
+                root = environ['SCRIPT_NAME']
+                url = environ['PATH_INFO']
+                url = url[len(root):]
+                url = '/%s%s%s' % (root, language,  url)
+                headers = []
+                headers.append(('Content-Type', 'text/html'))
+                headers.append(('Refresh', '0; url=%s' % url))
+                start_response('200 OK', headers)
+                return []
             # use default language from config
             environ['CKAN_LANG'] = self.default_locale
             environ['CKAN_LANG_IS_DEFAULT'] = True
