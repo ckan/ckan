@@ -64,14 +64,18 @@ def package_relationships_list(context, data_dict):
 def package_show(context, data_dict):
     """ Package show permission checks the user group if the state is deleted """
     model = context['model']
-    user = context.get('user')
     package = get_package_object(context, data_dict)
-    userobj = model.User.get( user )
-    
-    if not userobj:
-        return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}    
         
     if package.state == 'deleted':
+        user = context.get('user')
+
+        if not user:
+            return {'success': False, 'msg': _('User not authorized to read package %s') % (package.id)}
+
+        userobj = model.User.get( user )
+        if not userobj:
+            return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+
         if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
     
