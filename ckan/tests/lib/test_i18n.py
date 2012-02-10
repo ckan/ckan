@@ -127,7 +127,7 @@ class TestI18n(PylonsTestCase):
     
     def test_handle_request__default(self):
         assert_equal(self.handle_request(),
-                     'en')
+                     config['ckan.locale_default'])
         
     def test_handle_request__session(self):
         assert_equal(self.handle_request(session_language='fr'),
