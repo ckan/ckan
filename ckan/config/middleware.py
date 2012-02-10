@@ -133,8 +133,6 @@ class I18nMiddleware(object):
         self.app = app
         self.default_locale = config['ckan.locale_default']
         self.local_list = config['ckan.locale_order'].split()
-        # we want to know the root of the site in case it is in a
-        # subdirectory so that we can correctly rewrite the urls.
 
     def __call__(self, environ, start_response):
         # strip the language selector from the requested url
@@ -166,7 +164,10 @@ class I18nMiddleware(object):
                         url = environ['PATH_INFO']
                         url = url[len(root):]
                         url = '/%s%s%s' % (root, language,  url)
-                        start_response('200 OK', [('Content-Type', 'text/html'),('Refresh', '0; url=%s' % url)])
+                        headers = []
+                        headers.append(('Content-Type', 'text/html'))
+                        headers.append(('Refresh', '0; url=%s' % url))
+                        start_response('200 OK', headers)
                         return []
                     break
             # use default language from config
