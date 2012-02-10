@@ -129,9 +129,13 @@ class TestI18n(PylonsTestCase):
         assert_equal(self.handle_request(),
                      config['ckan.locale_default'])
         
-    def test_handle_request__session(self):
-        assert_equal(self.handle_request(session_language='fr'),
-                     'fr')
+## Session no longer used to set languages so test no longer relevant
+## see #1653
+
+##    def test_handle_request__session(self):
+##        assert_equal(self.handle_request(session_language='fr'),
+##                     'fr')
+
 ## Browser lang detection disabled - see #1452
 
 ##    def test_handle_request__header(self):
