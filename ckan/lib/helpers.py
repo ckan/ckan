@@ -314,7 +314,7 @@ def gravatar(email_hash, size=100, default="identicon"):
         )
 
 def pager_url(page, partial=None, **kwargs):
-    routes_dict = url.environ['pylons.routes_dict']
+    routes_dict = _pylons_default_url.environ['pylons.routes_dict']
     kwargs['controller'] = routes_dict['controller']
     kwargs['action'] = routes_dict['action']
     if routes_dict.get('id'):
