@@ -93,6 +93,15 @@
         $(e.target).attr('disabled','disabled');
         return false;
       });
+
+      // Highlight form errors in the tab buttons
+      for (field_id in form_errors) {
+        var field = $('#'+field_id);
+        if (field !== undefined) {
+          var fieldset_id = field.parents('fieldset').last().attr('id');
+          $('#section-'+fieldset_id).addClass('fieldset_button_error');
+        }
+      }
     }
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
