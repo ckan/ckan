@@ -78,12 +78,6 @@ header .account {
   float: right;
 }
 
-header .account img.gravatar {
-  margin: 0 5px -5px 0;
-  border-radius: 3px;
-}
-
-
 header .search {
   margin: 1px;
   margin-left: 1em;
@@ -238,6 +232,10 @@ tbody tr.table-empty td {
   border-bottom: 1px dashed #000;
 }
 
+img.gravatar {
+  margin: 0 5px -5px 0;
+  border-radius: 3px;
+}
 
 /* =============== */
 /* MinorNavigation */
