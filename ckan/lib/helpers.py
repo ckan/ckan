@@ -75,9 +75,15 @@ def _add_i18n_to_url(url_to_amend, **kw):
         if return_to:
             url = return_to
     else:
-        locale = request.environ.get('CKAN_LANG')
-        default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
-    root = request.environ.get('SCRIPT_NAME', '')
+        try:
+            locale = request.environ.get('CKAN_LANG')
+            default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
+        except TypeError:
+            default_locale = True
+    try:
+        root = request.environ.get('SCRIPT_NAME', '')
+    except TypeError:
+        root = ''
     if default_locale:
         url = '%s%s' % (root, url_to_amend)
     else:
