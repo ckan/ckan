@@ -152,7 +152,7 @@ class I18nMiddleware(object):
             # See if we have a language the browser requests. If this is
             # not the site default language then redirect to that
             # language eg for french -> /fr/....
-            browser_langs = environ['HTTP_ACCEPT_LANGUAGE']
+            browser_langs = environ.get('HTTP_ACCEPT_LANGUAGE', 'en')
             languages = browser_langs.split(';')[0].split(',')
             for language in languages:
                 if language in self.local_list:
