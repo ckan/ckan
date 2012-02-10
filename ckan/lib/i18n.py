@@ -156,27 +156,6 @@ def handle_request(request, tmpl_context):
     tmpl_context.language = lang
     return lang
 
-    # Work out what language to show the page in.
-    locales = [] # Locale objects. Ordered highest preference first.
-    tmpl_context.language = None
-    if session.get('locale'):
-        # First look for locale saved in the session (by home controller)
-        locales.append(Locale.parse(session.get('locale')))
-
-    # Browser language detection disabled temporarily - see #1452
-##    else:
-##        # Next try to detect languages in the HTTP_ACCEPT_LANGUAGE header
-##        locale = Locales().negotiate_known_locale(request.languages)
-##        if locale:
-##            locales.append(locale)
-
-    # Next try the default locale in the CKAN config file
-    locales.append(Locales().get_default_locale())
-
-    locale = set_lang_list(locales)
-    tmpl_context.language = locale.language
-    return locale
-
 def set_lang_list(locales):
     '''Takes a list of locales (ordered by reducing preference) and tries
     to set them in order. If one fails then it puts up a flash message and
