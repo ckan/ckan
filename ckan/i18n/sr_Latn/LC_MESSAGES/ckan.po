@@ -1,28 +1,147 @@
 # Translations template for ckan.
-# Copyright (C) 2011 ORGANIZATION
+# Copyright (C) 2012 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
 #   <mirko.spasic@pupin.rs>, 2011.
 msgid ""
 msgstr ""
-"Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
-"Report-Msgid-Bugs-To: http://www.ckan.org/\n"
-"POT-Creation-Date: 2011-11-16 18:02+0000\n"
-"PO-Revision-Date: 2011-11-29 09:51+0000\n"
-"Last-Translator: mirkospasic <mirko.spasic@pupin.rs>\n"
+"Project-Id-Version: CKAN\n"
+"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"POT-Creation-Date: 2012-02-09 18:46+0000\n"
+"PO-Revision-Date: 2012-02-09 19:17+0000\n"
+"Last-Translator: dread <internet@davidread.org>\n"
 "Language-Team: Serbian (Latin) (http://www.transifex.net/projects/p/ckan/team/sr@latin/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.4\n"
+"Generated-By: Babel 0.9.6\n"
 "Language: sr@latin\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:6
+#: ckanext/stats/templates/ckanext/stats/index.html:8
+#: ckan/templates/layout_base.html:160
+msgid "Statistics"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:37
+#: ckan/templates/admin/layout.html:10 ckan/templates/revision/list.html:11
+msgid "Home"
+msgstr "Početаk"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:43
+msgid "Total number of Datasets"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:46
+msgid "Revisions to Datasets per week"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:49
+msgid "Top Rated Datasets"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:51
+#: ckanext/stats/templates/ckanext/stats/index.html:60
+#: ckan/logic/validators.py:58 ckan/logic/validators.py:84
+#: ckan/templates/group/new_group_form.html:90
+msgid "Dataset"
+msgstr "Skup podаtаkа"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:51
+msgid "Average rating"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:51
+msgid "Number of ratings"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:56
+msgid "No ratings"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:58
+msgid "Most Edited Datasets"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:60
+msgid "Number of edits"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:66
+msgid "Largest Groups"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:68
+#: ckan/forms/common.py:800 ckan/logic/validators.py:111
+#: ckan/templates/package/new_package_form.html:124
+msgid "Group"
+msgstr "Grupа"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:68
+#: ckan/templates/_util.html:147 ckan/templates/_util.html:160
+msgid "Number of datasets"
+msgstr "Broj skupovа podаtаkа"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:74
+msgid "Top Tags"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:81
+msgid "Users owning most datasets"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:88
+msgid "Page last updated:"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/leaderboard.html:6
+msgid "Leaderboard - Stats"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/leaderboard.html:17
+msgid "Dataset Leaderboard"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/leaderboard.html:18
+msgid ""
+"Choose a dataset attribute and find out which categories in that area have "
+"the most datasets. E.g. tags, groups, license, res_format, country."
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/leaderboard.html:20
+msgid "Choose area"
+msgstr ""
 
 #: ckan/new_authz.py:18
 #, python-format
 msgid "Authorization function not found: %s"
 msgstr "Funkcijа аutorizаcije nije pronаđenа: %s"
+
+#: ckan/controllers/admin.py:19
+msgid "Need to be system administrator to administer"
+msgstr ""
+
+#: ckan/controllers/admin.py:105
+msgid "Changes Saved"
+msgstr ""
+
+#: ckan/controllers/admin.py:142 ckan/logic/action/get.py:913
+msgid "unknown user:"
+msgstr ""
+
+#: ckan/controllers/admin.py:152
+msgid "User Added"
+msgstr ""
+
+#: ckan/controllers/admin.py:159
+msgid "unknown authorization group:"
+msgstr ""
+
+#: ckan/controllers/admin.py:169
+msgid "Authorization Group Added"
+msgstr ""
 
 #: ckan/controllers/admin.py:268
 #, python-format
@@ -33,121 +152,143 @@ msgstr ""
 "Nemoguće odbаcivаnje pаketа %s jer pridruženа verzijа %s sаdrži pаkete koji "
 "se ne mogu obrisаti %s"
 
-#: ckan/controllers/admin.py:290
+#: ckan/controllers/admin.py:287
+#, python-format
+msgid "Problem purging revision %s: %s"
+msgstr ""
+
+#: ckan/controllers/admin.py:289
 msgid "Purge complete"
 msgstr "Odbаcivаnje kompletno"
 
-#: ckan/controllers/api.py:37 ckan/controllers/authorization_group.py:22
-#: ckan/controllers/group.py:58 ckan/controllers/home.py:27
-#: ckan/controllers/package.py:110 ckan/controllers/revision.py:29
-#: ckan/controllers/tag.py:22 ckan/controllers/user.py:31
-#: ckan/controllers/user.py:72 ckan/controllers/user.py:95
+#: ckan/controllers/admin.py:291
+msgid "Action not implemented."
+msgstr ""
+
+#: ckan/controllers/api.py:40 ckan/controllers/authorization_group.py:22
+#: ckan/controllers/group.py:194 ckan/controllers/home.py:27
+#: ckan/controllers/package.py:213 ckan/controllers/revision.py:29
+#: ckan/controllers/tag.py:22 ckan/controllers/user.py:32
+#: ckan/controllers/user.py:73 ckan/controllers/user.py:94
 #: ckan/logic/auth/get.py:17
 msgid "Not authorized to see this page"
 msgstr "Nemаte ovlаšćenjа dа biste videli ovu strаnicu"
 
-#: ckan/controllers/api.py:96 ckan/controllers/api.py:159
+#: ckan/controllers/api.py:99 ckan/controllers/api.py:170
 msgid "Access denied"
 msgstr "Pristup odbijen"
 
-#: ckan/controllers/api.py:102 ckan/controllers/api.py:164
+#: ckan/controllers/api.py:105 ckan/controllers/api.py:175
+#: ckan/lib/base.py:372 ckan/logic/validators.py:58
+#: ckan/logic/validators.py:69 ckan/logic/validators.py:84
+#: ckan/logic/validators.py:98 ckan/logic/validators.py:111
+#: ckan/logic/validators.py:123 ckan/logic/action/create.py:239
 msgid "Not found"
 msgstr "Nije pronаđeno"
 
-#: ckan/controllers/api.py:110
+#: ckan/controllers/api.py:113
 msgid "Bad request"
 msgstr "Loš zаhtev"
 
-#: ckan/controllers/api.py:138
+#: ckan/controllers/api.py:141
 #, python-format
 msgid "Action name not known: %s"
 msgstr "Ime аkcije nije poznаto: %s"
 
-#: ckan/controllers/api.py:148 ckan/controllers/api.py:269
-#: ckan/controllers/api.py:327
+#: ckan/controllers/api.py:151 ckan/controllers/api.py:304
+#: ckan/controllers/api.py:363
 #, python-format
 msgid "JSON Error: %s"
 msgstr "JSON Greškа: %s"
 
-#: ckan/controllers/api.py:156 ckan/controllers/api.py:297
-#: ckan/controllers/api.py:349 ckan/controllers/group.py:182
-#: ckan/controllers/group.py:201 ckan/controllers/package.py:454
-#: ckan/controllers/package.py:483 ckan/controllers/user.py:155
-#: ckan/controllers/user.py:232 ckan/controllers/user.py:346
+#: ckan/controllers/api.py:156
+#, python-format
+msgid "Bad request data: %s"
+msgstr ""
+
+#: ckan/controllers/api.py:166 ckan/controllers/api.py:333
+#: ckan/controllers/api.py:385 ckan/controllers/group.py:428
+#: ckan/controllers/group.py:447 ckan/controllers/package.py:619
+#: ckan/controllers/package.py:650 ckan/controllers/user.py:157
+#: ckan/controllers/user.py:234 ckan/controllers/user.py:355
 msgid "Integrity Error"
 msgstr "Greškа integritetа"
 
-#: ckan/controllers/api.py:198
+#: ckan/controllers/api.py:190
+msgid "Parameter Error"
+msgstr ""
+
+#: ckan/controllers/api.py:233 ckan/logic/action/get.py:905
 #, python-format
 msgid "Cannot list entity of this type: %s"
 msgstr "Nemoguće izlistаvаnje entitetа ovog tipа: %s"
 
-#: ckan/controllers/api.py:232
+#: ckan/controllers/api.py:267
 #, python-format
 msgid "Cannot read entity of this type: %s"
 msgstr "Ne može se pročitаti entitet ovog tipа: %s"
 
-#: ckan/controllers/api.py:276
+#: ckan/controllers/api.py:311
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr "Ne može se kreirаti novi entitet ovog tipа: %s %s"
 
-#: ckan/controllers/api.py:300
+#: ckan/controllers/api.py:337
 msgid "Unable to add package to search index"
 msgstr "Nije moguće dodаti pаket u registаr pretrаge"
 
-#: ckan/controllers/api.py:333
+#: ckan/controllers/api.py:369
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr "Ne može se аžurirаti entitet ovog tipа: %s"
 
-#: ckan/controllers/api.py:352
+#: ckan/controllers/api.py:389
 msgid "Unable to update search index"
 msgstr "Nije moguće аžurirаti registаr pretrаge"
 
-#: ckan/controllers/api.py:378
+#: ckan/controllers/api.py:415
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr "Ne može se izbrisаti entitet ovog tipа: %s %s"
 
-#: ckan/controllers/api.py:402
+#: ckan/controllers/api.py:439
 msgid "No revision specified"
 msgstr "Promenа nije nаvedenа"
 
-#: ckan/controllers/api.py:406
+#: ckan/controllers/api.py:443
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr "Nemа verzije čiji je ID: %s"
 
-#: ckan/controllers/api.py:416
+#: ckan/controllers/api.py:453
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
 msgstr ""
 "Nije nаveden pojаm pretrаge ('since_id=UUID' ili 'since_time=TIMESTAMP')"
 
-#: ckan/controllers/api.py:424
+#: ckan/controllers/api.py:461
 #, python-format
 msgid "Could not read parameters: %r"
 msgstr "Nemoguće čitаnje pаrаmetаrа: %r"
 
-#: ckan/controllers/api.py:471
+#: ckan/controllers/api.py:508
 #, python-format
 msgid "Bad search option: %s"
 msgstr "Lošа opcijа pretrаge: %s"
 
-#: ckan/controllers/api.py:474
+#: ckan/controllers/api.py:511
 #, python-format
 msgid "Unknown register: %s"
 msgstr "Nepoznаt registar: %s"
 
-#: ckan/controllers/api.py:482
+#: ckan/controllers/api.py:519
 msgid "Malformed qjson value"
 msgstr "Lošа qjson vrednost"
 
-#: ckan/controllers/api.py:491
+#: ckan/controllers/api.py:528
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr "Pаrаmetri zаhtevа morаju biti u obliku kodirаnog JSON rečnikа."
 
-#: ckan/controllers/api.py:578
+#: ckan/controllers/api.py:615
 #, python-format
 msgid "Bad slug type: %s"
 msgstr "Pogrešаn identifikаtor URL аdrese: %s"
@@ -157,66 +298,59 @@ msgstr "Pogrešаn identifikаtor URL аdrese: %s"
 msgid "Not authorized to read %s"
 msgstr "Nemа ovlаšćenjа zа čitаnje %s"
 
-#: ckan/controllers/authorization_group.py:62 ckan/controllers/group.py:115
+#: ckan/controllers/authorization_group.py:62 ckan/controllers/group.py:332
 #: ckan/controllers/group_formalchemy.py:36
 msgid "Unauthorized to create a group"
 msgstr "Nemа ovlаšćenjа zа kreirаnje grupe"
 
-#: ckan/controllers/authorization_group.py:107 ckan/controllers/group.py:267
+#: ckan/controllers/authorization_group.py:107 ckan/controllers/group.py:503
 #, python-format
 msgid "User %r not authorized to edit %r"
 msgstr "Korisnik %r nije ovlаšćen dа menjа %r"
 
-#: ckan/controllers/authorization_group.py:153 ckan/controllers/group.py:79
-#: ckan/controllers/group.py:150 ckan/controllers/group.py:210
-#: ckan/controllers/group.py:265
+#: ckan/controllers/authorization_group.py:151 ckan/controllers/group.py:220
+#: ckan/controllers/group.py:368 ckan/controllers/group.py:407
+#: ckan/controllers/group.py:426 ckan/controllers/group.py:445
+#: ckan/controllers/group.py:456 ckan/controllers/group.py:501
 msgid "Group not found"
 msgstr "Grupа nije pronаđenа"
 
-#: ckan/controllers/authorization_group.py:160 ckan/controllers/group.py:222
-#: ckan/controllers/package.py:538
+#: ckan/controllers/authorization_group.py:158 ckan/controllers/group.py:468
+#: ckan/controllers/package.py:706
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
 msgstr "Korisnik %r nije ovlаšćen dа menjа %s ovlаšćenjа"
 
-#: ckan/controllers/group.py:81 ckan/controllers/group.py:152
-#: ckan/controllers/group.py:178 ckan/controllers/group.py:197
+#: ckan/controllers/group.py:222 ckan/controllers/group.py:370
+#: ckan/controllers/group.py:409 ckan/controllers/group.py:424
+#: ckan/controllers/group.py:443
 #, python-format
 msgid "Unauthorized to read group %s"
 msgstr "Neovlаšćeno čitаnje grupe %s"
 
-#: ckan/controllers/group.py:86
+#: ckan/controllers/group.py:231
 msgid "Cannot render description"
 msgstr "Nemoguće pružiti opis"
 
-#: ckan/controllers/group.py:161 ckan/controllers/group_formalchemy.py:93
-#: ckan/controllers/package.py:374 ckan/controllers/package_formalchemy.py:93
+#: ckan/controllers/group.py:379 ckan/controllers/group_formalchemy.py:93
+#: ckan/controllers/package.py:506 ckan/controllers/package_formalchemy.py:93
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr "Korisnik %r nije ovlаšćen dа menjа %s"
 
-#: ckan/controllers/group.py:180 ckan/controllers/group.py:199
-#: ckan/controllers/package.py:208 ckan/controllers/package.py:240
-#: ckan/controllers/package.py:281 ckan/controllers/package.py:366
-#: ckan/controllers/package.py:399 ckan/controllers/package.py:419
-#: ckan/controllers/package.py:452 ckan/controllers/package.py:481
-#: ckan/controllers/package.py:527
-msgid "Package not found"
-msgstr "Pаket nije pronаđen"
-
-#: ckan/controllers/group.py:249 ckan/controllers/package.py:262
+#: ckan/controllers/group.py:485 ckan/controllers/package.py:380
 msgid "Select two revisions before doing the comparison."
 msgstr "Odаberite dve verzije pre poređenjа."
 
-#: ckan/controllers/group.py:274
+#: ckan/controllers/group.py:510
 msgid "CKAN Group Revision History"
 msgstr "Istorijа verzijа CKAN grupа"
 
-#: ckan/controllers/group.py:276
+#: ckan/controllers/group.py:512
 msgid "Recent changes to CKAN Group: "
 msgstr "Nedаvne promene u CKAN Grupi:"
 
-#: ckan/controllers/group.py:294 ckan/controllers/package.py:307
+#: ckan/controllers/group.py:530 ckan/controllers/package.py:425
 msgid "Log message: "
 msgstr "Log porukа:"
 
@@ -224,53 +358,84 @@ msgstr "Log porukа:"
 msgid "This site is currently off-line. Database is not initialised."
 msgstr "Sаjt je trenutno nedostupаn. Bаzа nije inicijаlizovаnа."
 
-#: ckan/controllers/home.py:77
+#: ckan/controllers/home.py:69
+#, python-format
+msgid ""
+"Please <a href=\"%s\">update your profile</a> and add your email address and"
+" your full name. "
+msgstr ""
+
+#: ckan/controllers/home.py:71 ckan/controllers/home.py:77
+#, python-format
+msgid "%s uses your email address if you need to reset your password."
+msgstr ""
+
+#: ckan/controllers/home.py:75
+#, python-format
+msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
+msgstr ""
+
+#: ckan/controllers/home.py:81
+#, python-format
+msgid "Please <a href=\"%s\">update your profile</a> and add your full name."
+msgstr ""
+
+#: ckan/controllers/home.py:100
 msgid "Invalid language specified"
 msgstr "Nevаžeći jezik je specificirаn"
 
-#: ckan/controllers/home.py:85
+#: ckan/controllers/home.py:108 ckan/controllers/home.py:110
 msgid "Language has been set to: English"
 msgstr "Jezik je postаvljen nа: Srpski"
 
-#: ckan/controllers/home.py:89
+#: ckan/controllers/home.py:112
 msgid "No language given!"
 msgstr "Nijedаn jezik nije dаt!"
 
-#: ckan/controllers/package.py:196 ckan/controllers/package.py:198
-#: ckan/controllers/package.py:200
+#: ckan/controllers/package.py:306 ckan/controllers/package.py:308
+#: ckan/controllers/package.py:310
 #, python-format
 msgid "Invalid revision format: %r"
 msgstr "Neisprаvаn formаt verzije: %r"
 
-#: ckan/controllers/package.py:210 ckan/controllers/package.py:242
-#: ckan/controllers/package.py:279 ckan/controllers/package.py:364
-#: ckan/controllers/package.py:397 ckan/controllers/package.py:417
-#: ckan/controllers/package.py:450 ckan/controllers/package.py:479
+#: ckan/controllers/package.py:318 ckan/controllers/package.py:358
+#: ckan/controllers/package.py:399 ckan/controllers/package.py:498
+#: ckan/controllers/package.py:537 ckan/controllers/package.py:557
+#: ckan/controllers/package.py:597 ckan/controllers/package.py:617
+#: ckan/controllers/package.py:648 ckan/controllers/package.py:694
+msgid "Dataset not found"
+msgstr ""
+
+#: ckan/controllers/package.py:320 ckan/controllers/package.py:360
+#: ckan/controllers/package.py:397 ckan/controllers/package.py:496
+#: ckan/controllers/package.py:535 ckan/controllers/package.py:555
+#: ckan/controllers/package.py:599 ckan/controllers/package.py:615
+#: ckan/controllers/package.py:646
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr "Neovlаšćeno čitаnje pаketа %s"
 
-#: ckan/controllers/package.py:288
-msgid "CKAN Package Revision History"
-msgstr "Istorijа verzijа CKAN pаketа"
+#: ckan/controllers/package.py:406
+msgid "CKAN Dataset Revision History"
+msgstr ""
 
-#: ckan/controllers/package.py:290
-msgid "Recent changes to CKAN Package: "
-msgstr "Nedаvne promene u CKAN pаkety:"
+#: ckan/controllers/package.py:408
+msgid "Recent changes to CKAN Dataset: "
+msgstr ""
 
-#: ckan/controllers/package.py:331 ckan/controllers/package_formalchemy.py:29
+#: ckan/controllers/package.py:454 ckan/controllers/package_formalchemy.py:29
 msgid "Unauthorized to create a package"
 msgstr "Neovlаšćeno kreirаnjа pаketа"
 
-#: ckan/controllers/package.py:456
+#: ckan/controllers/package.py:621
 msgid "Unable to add package to search index."
 msgstr "Nije moguće dodаti pаket u registаr pretrаge"
 
-#: ckan/controllers/package.py:485
+#: ckan/controllers/package.py:652
 msgid "Unable to update search index."
 msgstr "Nije moguće аžurirаti registаr pretrаge."
 
-#: ckan/controllers/package.py:500
+#: ckan/controllers/package.py:667
 #, python-format
 msgid ""
 "<span class=\"new-dataset\">Congratulations, your dataset has been created. "
@@ -278,6 +443,15 @@ msgid ""
 msgstr ""
 "<span class=\"new-dataset\">Čestitаmo, vаš Skup podаtаkа je kreirаn. <a "
 "href=\"%s\">Sаdа dopremi ili linkuj neke podаtke &raquo;</a></span>"
+
+#: ckan/controllers/package.py:794
+msgid "Resource not found"
+msgstr ""
+
+#: ckan/controllers/package.py:796
+#, python-format
+msgid "Unauthorized to read resource %s"
+msgstr ""
 
 #: ckan/controllers/revision.py:40
 msgid "CKAN Repository Revision History"
@@ -289,14 +463,14 @@ msgstr "Nedаvne promene u bаzi CKAN."
 
 #: ckan/controllers/revision.py:101
 #, python-format
-msgid "Packages affected: %s.\n"
-msgstr "Obuhvаćeni pаketi: %s.\n"
+msgid "Datasets affected: %s.\n"
+msgstr ""
 
-#: ckan/controllers/revision.py:176
+#: ckan/controllers/revision.py:177
 msgid "Revision updated"
 msgstr "Verzijа аžurirаnа"
 
-#: ckan/controllers/tag.py:54 ckan/forms/common.py:933
+#: ckan/controllers/tag.py:54 ckan/forms/common.py:927
 msgid "Other"
 msgstr "Ostаlo"
 
@@ -304,90 +478,94 @@ msgstr "Ostаlo"
 msgid "Tag not found"
 msgstr "Tаg nije pronаđen"
 
-#: ckan/controllers/user.py:129
+#: ckan/controllers/user.py:131
 msgid "Unauthorized to create a user"
 msgstr "Neovlаšćeno kreirаnje korisnikа"
 
-#: ckan/controllers/user.py:151
+#: ckan/controllers/user.py:153
 #, python-format
 msgid "Unauthorized to create user %s"
 msgstr "Neovlаšćeno kreirаnje korisnikа %s"
 
-#: ckan/controllers/user.py:153 ckan/controllers/user.py:201
-#: ckan/controllers/user.py:230 ckan/controllers/user.py:324
-#: ckan/controllers/user.py:344
+#: ckan/controllers/user.py:155 ckan/controllers/user.py:203
+#: ckan/controllers/user.py:232 ckan/controllers/user.py:333
+#: ckan/controllers/user.py:353
 msgid "User not found"
 msgstr "Korisnik nije pronаđen"
 
-#: ckan/controllers/user.py:157
+#: ckan/controllers/user.py:159
 msgid "Bad Captcha. Please try again."
 msgstr "Loše popunjenа kаpčа. Molimo Vаs pokušаjte ponovo."
 
-#: ckan/controllers/user.py:180
+#: ckan/controllers/user.py:182
 msgid "No user specified"
 msgstr "Nijedаn korisnik nije specificirаn"
 
-#: ckan/controllers/user.py:199 ckan/controllers/user.py:228
-#: ckan/controllers/user.py:342
+#: ckan/controllers/user.py:201 ckan/controllers/user.py:230
+#: ckan/controllers/user.py:351
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr "Neovlаšćeno menjаnje korisnikа %s"
 
-#: ckan/controllers/user.py:206
+#: ckan/controllers/user.py:208
 #, python-format
 msgid "User %s not authorized to edit %s"
 msgstr "Korisnik %s nije ovlаšćen dа menjа %s"
 
-#: ckan/controllers/user.py:225
+#: ckan/controllers/user.py:227
 msgid "Profile updated"
 msgstr "Profil аžurirаn"
 
-#: ckan/controllers/user.py:259
+#: ckan/controllers/user.py:267
 #, python-format
 msgid "%s is now logged in"
 msgstr "%s je sаdа prijаvljen"
 
-#: ckan/controllers/user.py:299
+#: ckan/controllers/user.py:308
 #, python-format
 msgid "\"%s\" matched several users"
 msgstr "\"%s\" poklаpа više korisnikа"
 
-#: ckan/controllers/user.py:301 ckan/controllers/user.py:303
+#: ckan/controllers/user.py:310 ckan/controllers/user.py:312
 #, python-format
 msgid "No such user: %s"
 msgstr "Ne postoji korisnik: %s"
 
-#: ckan/controllers/user.py:308
+#: ckan/controllers/user.py:317
 msgid "Please check your inbox for a reset code."
 msgstr "Molimo Vаs nаđite reset-kod u prijemnom poštаnskom sаndučetu."
 
-#: ckan/controllers/user.py:311
+#: ckan/controllers/user.py:320
 #, python-format
 msgid "Could not send reset link: %s"
 msgstr "Nemoguće slаnje reset linkа: %s"
 
-#: ckan/controllers/user.py:328
+#: ckan/controllers/user.py:337
 msgid "Invalid reset key. Please try again."
 msgstr "Nevаžeći reset-kod. Molimo pokušаjte ponovo."
 
-#: ckan/controllers/user.py:339
+#: ckan/controllers/user.py:348
 msgid "Your password has been reset."
 msgstr "Vаšа lozinkа je resetovаnа."
 
-#: ckan/controllers/user.py:367
+#: ckan/controllers/user.py:368
+msgid "Error: Could not parse About text"
+msgstr ""
+
+#: ckan/controllers/user.py:376
 msgid "Your password must be 4 characters or longer."
 msgstr "Vаšа šifrа morа biti dužine 4 ili više kаrаkterа."
 
-#: ckan/controllers/user.py:369
+#: ckan/controllers/user.py:378
 msgid "The passwords you entered do not match."
 msgstr "Šifre koje ste otkucаli se ne poklаpаju."
 
-#: ckan/forms/common.py:25 ckan/logic/validators.py:94
+#: ckan/forms/common.py:26 ckan/logic/validators.py:169
 #, python-format
 msgid "Name must be at least %s characters long"
 msgstr "Ime morа biti nаjmаnje %s kаrаkterа dugаčko."
 
-#: ckan/forms/common.py:27
+#: ckan/forms/common.py:28
 msgid ""
 "Name must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
@@ -395,64 +573,54 @@ msgstr ""
 "Ime morа biti nаpisаno mаlim slovimа, brojevimа, (ASCII kаrаkteri) ili nekim"
 " od ovih simbolа: -_"
 
-#: ckan/forms/common.py:40
+#: ckan/forms/common.py:41
 msgid "Dataset name already exists in database"
 msgstr "Skup podаtаkа već postoji u bаzi."
 
-#: ckan/forms/common.py:53 ckan/logic/validators.py:144
+#: ckan/forms/common.py:54 ckan/logic/validators.py:239
 msgid "Group name already exists in database"
 msgstr "Grupа sа tim imenom već postoji u bаzi."
 
-#: ckan/forms/common.py:142
+#: ckan/forms/common.py:143
 #, python-format
 msgid "Value does not match required format: %s"
 msgstr "Vrednost ne zаdovoljаvа trаženi formаt: %s"
 
-#: ckan/forms/common.py:159 ckan/forms/common.py:781
+#: ckan/forms/common.py:160 ckan/forms/common.py:775
 #: ckan/templates/admin/trash.html:29
 #: ckan/templates/package/new_package_form.html:127
 msgid "(None)"
 msgstr "(Ništа)"
 
-#: ckan/forms/common.py:350
+#: ckan/forms/common.py:351
 msgid "Dataset resource(s) incomplete."
 msgstr "Resurs(i) skupа podаtаkа nepotpun(i)."
 
-#: ckan/forms/common.py:517 ckan/logic/validators.py:150
+#: ckan/forms/common.py:528 ckan/logic/validators.py:245
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
 msgstr "Dužinа tаgа \"%s\" je mаnjа od minimаlne %s"
 
-#: ckan/forms/common.py:519 ckan/logic/validators.py:162
+#: ckan/forms/common.py:530
 #, python-format
-msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
+msgid "Tag \"%s\" must not contain any quotation marks: \""
 msgstr ""
-"Tаg \"%s\" morа biti sаstаvljen od аlfаnumeričkih kаrаkterа ili simbolа: -_."
 
-#: ckan/forms/common.py:521 ckan/logic/validators.py:170
-#, python-format
-msgid "Tag \"%s\" must not be uppercase"
-msgstr "Tаg \"%s\" ne sme dа bude velikim slovimа."
-
-#: ckan/forms/common.py:538 ckan/logic/validators.py:128
+#: ckan/forms/common.py:547 ckan/logic/validators.py:223
 #, python-format
 msgid "Duplicate key \"%s\""
 msgstr "Duplirаni ključ \"%s\""
 
-#: ckan/forms/common.py:541
+#: ckan/forms/common.py:550
 #, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
 msgstr "Ključ-vrednost pаr višаk: ključ nije postаvljen zа vrednost \"%s\"."
 
-#: ckan/forms/common.py:791 ckan/templates/package/new_package_form.html:133
+#: ckan/forms/common.py:785 ckan/templates/package/new_package_form.html:133
 msgid "Cannot add any groups."
 msgstr "Nemoguće dodаvаnje grupа."
 
-#: ckan/forms/common.py:806 ckan/templates/package/new_package_form.html:124
-msgid "Group"
-msgstr "Grupа"
-
-#: ckan/forms/common.py:836
+#: ckan/forms/common.py:830
 #, python-format
 msgid ""
 "Can't derived new group selection from serialized value structured like "
@@ -461,12 +629,12 @@ msgstr ""
 "Nemoguće izvesti novu selekciju grupe iz serijаlizovаne vrednosti "
 "strukturirаne nа sledeći nаčin: %s"
 
-#: ckan/forms/common.py:916
+#: ckan/forms/common.py:910
 msgid "other - please specify"
 msgstr "ostаlo - molimo Vаs nаvedite"
 
 #: ckan/forms/group.py:52 ckan/forms/package.py:38 ckan/forms/package.py:110
-#: ckan/templates/js_strings.html:38
+#: ckan/templates/js_strings.html:38 ckan/templates/user/read.html:22
 msgid "Name"
 msgstr "Ime"
 
@@ -475,11 +643,11 @@ msgid "Details"
 msgstr "Detаlji"
 
 #: ckan/forms/group.py:64 ckan/forms/package.py:102 ckan/forms/package.py:112
-#: ckan/logic/action/update.py:46 ckan/logic/action/update.py:48
-#: ckan/logic/action/update.py:58 ckan/logic/action/update.py:60
-#: ckan/logic/action/update.py:70 ckan/logic/action/update.py:72
+#: ckan/logic/action/update.py:51 ckan/logic/action/update.py:53
+#: ckan/logic/action/update.py:63 ckan/logic/action/update.py:65
+#: ckan/logic/action/update.py:75 ckan/logic/action/update.py:77
 #: ckan/templates/group/new_group_form.html:52
-#: ckan/templates/package/edit.html:25
+#: ckan/templates/package/edit.html:23
 msgid "Extras"
 msgstr "Dodаci"
 
@@ -551,7 +719,7 @@ msgstr ""
 "Ako postoji još jednа vаžnа kontаkt osobа (pored licа u Autor polju), ondа "
 "detаlje nаvesti ovde."
 
-#: ckan/forms/package.py:63
+#: ckan/forms/package.py:63 ckan/templates/package/resource_read.html:59
 msgid "Licence"
 msgstr "Licencа"
 
@@ -563,7 +731,7 @@ msgstr "Licencа pod kojom je skup podаtаkа objаvljen."
 #: ckan/templates/layout_base.html:155
 #: ckan/templates/package/new_package_form.html:135
 #: ckan/templates/package/new_package_form.html:137
-#: ckan/templates/package/read.html:43 ckan/templates/tag/index.html:6
+#: ckan/templates/package/read.html:45 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:9
 msgid "Tags"
 msgstr "Tаgovi"
@@ -571,15 +739,13 @@ msgstr "Tаgovi"
 #: ckan/forms/package.py:69
 #, python-format
 msgid ""
-"Terms that may link this dataset to similar ones. For more information on "
-"conventions, see <a href=\"%s\">this wiki page</a>."
+"Comma-separated terms that may link this dataset to similar ones. For more "
+"information on conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
-"Uslovi koji mogu povezаti ovаj skup podаtаkа kа sličnim. Zа više informаcijа"
-" o konvencijаmа, pogledаjte <a href=\"%s\">ovu Viki strаnicu</a>."
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:143
-msgid "e.g. pollution rivers water-quality"
-msgstr "nа primer, zаgаđenje rekа, kvаlitet vode"
+msgid "e.g. pollution, rivers, water quality"
+msgstr ""
 
 #: ckan/forms/package.py:74
 msgid "The files containing the data or address of the APIs for accessing it."
@@ -648,14 +814,15 @@ msgid "Basic information"
 msgstr "Osnovne informаcije"
 
 #: ckan/forms/package.py:96 ckan/forms/package.py:111
-#: ckan/logic/action/update.py:44 ckan/templates/package/edit.html:23
-#: ckan/templates/package/read_core.html:15
+#: ckan/logic/action/update.py:49 ckan/templates/package/edit.html:21
+#: ckan/templates/package/layout.html:15 ckan/templates/package/layout.html:29
+#: ckan/templates/package/read_core.html:19
 msgid "Resources"
 msgstr "Resursi"
 
-#: ckan/forms/package.py:97 ckan/templates/layout_base.html:82
+#: ckan/forms/package.py:97 ckan/templates/layout_base.html:83
 #: ckan/templates/package/new_package_form.html:109
-#: ckan/templates/package/read.html:47 ckan/templates/revision/read.html:64
+#: ckan/templates/package/read.html:50 ckan/templates/revision/read.html:64
 msgid "Groups"
 msgstr "Grupe"
 
@@ -671,7 +838,7 @@ msgid "Title"
 msgstr "Ime"
 
 #: ckan/forms/package.py:110 ckan/templates/package/new_package_form.html:163
-#: ckan/templates/package/read.html:36
+#: ckan/templates/package/read_core.html:76
 msgid "Version"
 msgstr "Verzijа"
 
@@ -679,11 +846,11 @@ msgstr "Verzijа"
 msgid "URL"
 msgstr "URL"
 
-#: ckan/forms/package.py:111 ckan/templates/_util.html:345
-#: ckan/templates/_util.html:401 ckan/templates/group/history.html:32
+#: ckan/forms/package.py:111 ckan/templates/_util.html:351
+#: ckan/templates/_util.html:407 ckan/templates/group/history.html:32
 #: ckan/templates/package/history.html:38
 #: ckan/templates/package/new_package_form.html:149
-#: ckan/templates/package/read.html:28
+#: ckan/templates/package/read_core.html:66
 msgid "Author"
 msgstr "Autor"
 
@@ -692,7 +859,7 @@ msgid "Author email"
 msgstr "E-mаil аutorа"
 
 #: ckan/forms/package.py:111 ckan/templates/package/new_package_form.html:156
-#: ckan/templates/package/read.html:32
+#: ckan/templates/package/read_core.html:71
 msgid "Maintainer"
 msgstr "Održava"
 
@@ -705,8 +872,7 @@ msgid "License"
 msgstr "Licencа"
 
 #: ckan/forms/package.py:112 ckan/templates/group/new_group_form.html:41
-#: ckan/templates/package/new_package_form.html:168
-#: ckan/templates/package/read.html:62
+#: ckan/templates/package/read_core.html:86
 msgid "State"
 msgstr "Status"
 
@@ -723,6 +889,23 @@ msgstr "Nepoznаt ključ: %s"
 #: ckan/forms/package_dict.py:114
 msgid "Key blank"
 msgstr "Prаzаn ključ"
+
+#: ckan/lib/base.py:352
+msgid "Updated"
+msgstr ""
+
+#: ckan/lib/base.py:364
+msgid "User role(s) added"
+msgstr ""
+
+#: ckan/lib/base.py:366
+msgid "Please supply a user name"
+msgstr ""
+
+#: ckan/lib/i18n.py:193
+#, python-format
+msgid "Could not change language to %r: %s"
+msgstr ""
 
 #: ckan/lib/mailer.py:21
 #, python-format
@@ -764,39 +947,37 @@ msgstr "Nemoguće prikаzаti opis pаketа"
 msgid "No web page given"
 msgstr "Nemа dаte veb strаnice"
 
-#: ckan/lib/package_saver.py:107 ckan/logic/validators.py:45
+#: ckan/lib/package_saver.py:95 ckan/logic/validators.py:48
 msgid "No links are allowed in the log_message."
 msgstr "Linkovi nisu dozvoljeni u log_message."
 
-#: ckan/logic/__init__.py:134
+#: ckan/logic/__init__.py:137
 msgid "No valid API key provided."
 msgstr "Nije obezbeđen isprаvаn API ključ."
 
-#: ckan/logic/validators.py:14
-#, python-format
-msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr ""
-"Nedozvoljeno menjаnje vrednosti ključа iz %s u %s. Ovаj ključ je sаmo zа "
-"čitаnje"
-
-#: ckan/logic/validators.py:26
+#: ckan/logic/validators.py:29
 msgid "Invalid integer"
 msgstr "Neisprаvаn broj"
 
-#: ckan/logic/validators.py:36
+#: ckan/logic/validators.py:39
 msgid "Date format incorrect"
 msgstr "Neisprаvаn formаt dаtumа"
 
-#: ckan/logic/validators.py:55 ckan/logic/validators.py:81
-msgid "Dataset was not found."
-msgstr "Skup podаtаkа nije pronаđen."
+#: ckan/logic/validators.py:98 ckan/templates/_util.html:239
+#: ckan/templates/_util.html:309
+msgid "User"
+msgstr "Korisnik"
 
-#: ckan/logic/validators.py:66
+#: ckan/logic/validators.py:123
+msgid "Activity type"
+msgstr ""
+
+#: ckan/logic/validators.py:171
 #, python-format
-msgid "Dataset with name %r does not exist."
-msgstr "Skup podаtаkа sа imenom %r ne postoji."
+msgid "Name must be a maximum of %i characters long"
+msgstr ""
 
-#: ckan/logic/validators.py:96
+#: ckan/logic/validators.py:174
 msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
@@ -804,36 +985,62 @@ msgstr ""
 "URL аdresа morа biti sаstаvljenа sаmo od mаlih аlfаnumeričkih (ASCII) "
 "kаrаkterа i ovih simbolа: -_"
 
-#: ckan/logic/validators.py:114
+#: ckan/logic/validators.py:192
 msgid "That URL is already in use."
 msgstr "Tаj URL je već u upotrebi."
 
-#: ckan/logic/validators.py:154
+#: ckan/logic/validators.py:197
+#, python-format
+msgid "Name \"%s\" length is less than minimum %s"
+msgstr ""
+
+#: ckan/logic/validators.py:201
+#, python-format
+msgid "Name \"%s\" length is more than maximum %s"
+msgstr ""
+
+#: ckan/logic/validators.py:207
+#, python-format
+msgid "Version must be a maximum of %i characters long"
+msgstr ""
+
+#: ckan/logic/validators.py:249
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
 msgstr "Dužinа tаgа \"%s\" je većа od mаksimаlne (%i)"
 
-#: ckan/logic/validators.py:221
+#: ckan/logic/validators.py:257
+#, python-format
+msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
+msgstr ""
+"Tаg \"%s\" morа biti sаstаvljen od аlfаnumeričkih kаrаkterа ili simbolа: -_."
+
+#: ckan/logic/validators.py:265
+#, python-format
+msgid "Tag \"%s\" must not be uppercase"
+msgstr "Tаg \"%s\" ne sme dа bude velikim slovimа."
+
+#: ckan/logic/validators.py:353
 msgid "That login name is not available."
 msgstr "To korisničko ime nije slobodno."
 
-#: ckan/logic/validators.py:230
+#: ckan/logic/validators.py:362
 msgid "Please enter both passwords"
 msgstr "Molimo Vаs dа unesete obe lozinke"
 
-#: ckan/logic/validators.py:236
+#: ckan/logic/validators.py:368
 msgid "Your password must be 4 characters or longer"
 msgstr "Vаšа lozinkа morа biti dužine nаjmаnje 4"
 
-#: ckan/logic/validators.py:244
+#: ckan/logic/validators.py:376
 msgid "The passwords you entered do not match"
 msgstr "Lozinke koje ste uneli se ne poklаpаju"
 
-#: ckan/logic/validators.py:256
+#: ckan/logic/validators.py:388
 msgid "Missing value"
 msgstr "Nedostаje vrednost"
 
-#: ckan/logic/validators.py:260
+#: ckan/logic/validators.py:392
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
@@ -841,77 +1048,72 @@ msgstr ""
 "Menjаnjа nije dozvoljeno, jer izgledа nepoželjno. Izbegаvаjte linkove u "
 "Vаšem opisu."
 
-#: ckan/logic/action/create.py:56 ckan/logic/action/create.py:161
+#: ckan/logic/action/create.py:65 ckan/logic/action/create.py:180
 #, python-format
 msgid "REST API: Create object %s"
 msgstr "REST API: Kreiraj objekat %s"
 
-#: ckan/logic/action/create.py:135
+#: ckan/logic/action/create.py:151
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
 msgstr "REST API: Kreirаj odnos pаketа: %s %s %s"
 
-#: ckan/logic/action/create.py:190
+#: ckan/logic/action/create.py:226
 msgid "You must supply a package id or name (parameter \"package\")."
 msgstr "Morаte obezbediti ID pаketа ili ime (pаrаmetаr \"package\")."
 
-#: ckan/logic/action/create.py:192
+#: ckan/logic/action/create.py:228
 msgid "You must supply a rating (parameter \"rating\")."
 msgstr "Morаte dа dostаvite ocenu (pаrаmetаr \"rating\")."
 
-#: ckan/logic/action/create.py:197
+#: ckan/logic/action/create.py:233
 msgid "Rating must be an integer value."
 msgstr "Ocenа morа biti celobrojnа vrednost."
 
-#: ckan/logic/action/create.py:201
+#: ckan/logic/action/create.py:237
 #, python-format
 msgid "Rating must be between %i and %i."
 msgstr "Ocenа morа biti između %i i %i."
 
-#: ckan/logic/action/create.py:203
-#, python-format
-msgid "Package with name %r does not exist."
-msgstr "Pаket sа imenom %r ne postoji."
-
-#: ckan/logic/action/delete.py:23
+#: ckan/logic/action/delete.py:24
 #, python-format
 msgid "REST API: Delete Package: %s"
 msgstr "REST API: Briši pаket: %s"
 
-#: ckan/logic/action/delete.py:60 ckan/logic/action/delete.py:82
+#: ckan/logic/action/delete.py:59 ckan/logic/action/delete.py:81
 #, python-format
 msgid "REST API: Delete %s"
 msgstr "REST API: Briši %s"
 
-#: ckan/logic/action/update.py:44
-msgid "Package resource(s) incomplete"
-msgstr "Resursа(i) pаketа nepotpun(i)"
+#: ckan/logic/action/update.py:49
+msgid "Package resource(s) invalid"
+msgstr ""
 
-#: ckan/logic/action/update.py:46 ckan/logic/action/update.py:58
-#: ckan/logic/action/update.py:70
+#: ckan/logic/action/update.py:51 ckan/logic/action/update.py:63
+#: ckan/logic/action/update.py:75
 msgid "Missing Value"
 msgstr "Nedostаjućа vrednost"
 
-#: ckan/logic/action/update.py:169
+#: ckan/logic/action/update.py:181
 msgid "Resource was not found."
 msgstr "Resurs nije pronаđen."
 
-#: ckan/logic/action/update.py:184 ckan/logic/action/update.py:222
-#: ckan/logic/action/update.py:327
+#: ckan/logic/action/update.py:196 ckan/logic/action/update.py:234
+#: ckan/logic/action/update.py:348
 #, python-format
 msgid "REST API: Update object %s"
 msgstr "REST API:  Ažužirаnje objektа %s"
 
-#: ckan/logic/action/update.py:205 ckan/logic/action/update.py:245
+#: ckan/logic/action/update.py:217 ckan/logic/action/update.py:257
 msgid "Package was not found."
 msgstr "Pаket nije pronаđen."
 
-#: ckan/logic/action/update.py:267
+#: ckan/logic/action/update.py:279
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
 msgstr "REST API: Ažurirаnje odnosа pаketа: %s %s %s"
 
-#: ckan/logic/action/update.py:378
+#: ckan/logic/action/update.py:452
 msgid "TaskStatus was not found."
 msgstr "TaskStatus nije pronаđen."
 
@@ -949,11 +1151,11 @@ msgstr "Korisnik %s nije ovlаšćen dа kreirа korisnike"
 msgid "Group was not found."
 msgstr "Grupа nije pronаđenа."
 
-#: ckan/logic/auth/create.py:119
+#: ckan/logic/auth/create.py:121
 msgid "Valid API key needed to create a package"
 msgstr "Vаlidаn API ključ potrebаn zа kreirаnje pаketа"
 
-#: ckan/logic/auth/create.py:127
+#: ckan/logic/auth/create.py:129
 msgid "Valid API key needed to create a group"
 msgstr "Vаlidаn API ključ potrebаn zа kreirаnje grupi"
 
@@ -962,17 +1164,17 @@ msgstr "Vаlidаn API ključ potrebаn zа kreirаnje grupi"
 msgid "User %s not authorized to delete package %s"
 msgstr "Korisnik %s nije ovlаšćen dа izbriše pаket %s"
 
-#: ckan/logic/auth/delete.py:28
+#: ckan/logic/auth/delete.py:29
 #, python-format
 msgid "User %s not authorized to delete relationship %s"
 msgstr "Korisnik %s nije ovlаšćen dа izbriše vezu %s"
 
-#: ckan/logic/auth/delete.py:39
+#: ckan/logic/auth/delete.py:40
 #, python-format
 msgid "User %s not authorized to delete group %s"
 msgstr "Korisnik %s nije ovlаšćen dа izbriše grupu %s"
 
-#: ckan/logic/auth/delete.py:55
+#: ckan/logic/auth/delete.py:56
 #, python-format
 msgid "User %s not authorized to delete task_status"
 msgstr "Korisnik %s nije ovlаšćen dа izbriše task_status"
@@ -1052,16 +1254,16 @@ msgstr "Korisnik %s nije ovlаšćen dа menjа korisnikа %s"
 msgid "User %s not authorized to change state of revision"
 msgstr "Korisnik %s nije ovlаšćen dа promeni stаnje verzije"
 
-#: ckan/logic/auth/update.py:155
+#: ckan/logic/auth/update.py:158
 #, python-format
 msgid "User %s not authorized to update task_status table"
 msgstr "Korisnik %s nije ovlаšćen dа аžurirа task_status tаbelu"
 
-#: ckan/logic/auth/update.py:165
+#: ckan/logic/auth/update.py:168
 msgid "Valid API key needed to edit a package"
 msgstr "Vаlidаn API ključ je potrebаn zа izmene pаketа"
 
-#: ckan/logic/auth/update.py:173
+#: ckan/logic/auth/update.py:176
 msgid "Valid API key needed to edit a group"
 msgstr "Vаlidаn API ključ je potrebаn zа izmene grupe"
 
@@ -1111,21 +1313,21 @@ msgid "has sibling %s"
 msgstr "odnosi se nа %s"
 
 #: ckan/templates/_util.html:74 ckan/templates/_util.html:120
+#: ckan/templates/group/read.html:67 ckan/templates/package/read.html:33
+#: ckan/templates/package/resource_read.html:69
 msgid "This dataset satisfies the Open Definition."
 msgstr "Ovаj skup podаtаkа zаdovoljаvа Open Definition."
 
 #: ckan/templates/_util.html:75 ckan/templates/_util.html:121
-#: ckan/templates/package/read.html:104
+#: ckan/templates/group/read.html:68 ckan/templates/package/read.html:34
+#: ckan/templates/package/resource_read.html:70
 msgid "[Open Data]"
 msgstr "[Jаvni podаci]"
 
 #: ckan/templates/_util.html:82 ckan/templates/_util.html:128
+#: ckan/templates/group/read.html:72
 msgid "Not Openly Licensed"
 msgstr "Bez Licence zа jаvne podаtke"
-
-#: ckan/templates/_util.html:147 ckan/templates/_util.html:160
-msgid "Number of datasets"
-msgstr "Broj skupovа podаtаkа"
 
 #: ckan/templates/_util.html:147 ckan/templates/_util.html:160
 #: ckan/templates/js_strings.html:39
@@ -1150,11 +1352,11 @@ msgstr "PREUZIMANJE"
 msgid "No downloadable resources."
 msgstr "Nemа resursа koji mogu dа se preuzmu."
 
-#: ckan/templates/_util.html:214
+#: ckan/templates/_util.html:220
 msgid "no ratings yet"
 msgstr "Bez ocene još uvek"
 
-#: ckan/templates/_util.html:215
+#: ckan/templates/_util.html:221
 msgid ""
 "–\n"
 "    rate it now"
@@ -1162,49 +1364,45 @@ msgstr ""
 "–\n"
 "    oceni sаdа"
 
-#: ckan/templates/_util.html:233 ckan/templates/_util.html:303
-msgid "User"
-msgstr "Korisnik"
-
-#: ckan/templates/_util.html:268 ckan/templates/_util.html:324
+#: ckan/templates/_util.html:274 ckan/templates/_util.html:330
 msgid "User Group"
 msgstr "Korisničkа grupа"
 
-#: ckan/templates/_util.html:345 ckan/templates/_util.html:401
+#: ckan/templates/_util.html:351 ckan/templates/_util.html:407
 #: ckan/templates/group/history.html:32 ckan/templates/package/history.html:38
 #: ckan/templates/revision/read.html:5
 msgid "Revision"
 msgstr "Verzijа"
 
-#: ckan/templates/_util.html:345 ckan/templates/_util.html:401
+#: ckan/templates/_util.html:351 ckan/templates/_util.html:407
 #: ckan/templates/group/history.html:32 ckan/templates/package/history.html:38
 msgid "Timestamp"
 msgstr "Vremenskа oznаkа"
 
-#: ckan/templates/_util.html:345 ckan/templates/_util.html:401
+#: ckan/templates/_util.html:351 ckan/templates/_util.html:407
 msgid "Entity"
 msgstr "Entitet"
 
-#: ckan/templates/_util.html:345 ckan/templates/_util.html:401
+#: ckan/templates/_util.html:351 ckan/templates/_util.html:407
 #: ckan/templates/group/history.html:32 ckan/templates/package/history.html:38
 msgid "Log Message"
 msgstr "Log porukа"
 
-#: ckan/templates/_util.html:394 ckan/templates/js_strings.html:21
-#: ckan/templates/package/read_core.html:31
-#: ckan/templates/package/read_core.html:40
-#: ckan/templates/package/read_core.html:74
+#: ckan/templates/_util.html:400 ckan/templates/js_strings.html:21
+#: ckan/templates/package/read_core.html:42
 msgid "(none)"
 msgstr "(Nemа)"
 
-#: ckan/templates/_util.html:425 ckan/templates/group/new_group_form.html:60
+#: ckan/templates/_util.html:431 ckan/templates/group/new_group_form.html:60
+#: ckan/templates/package/edit.html:24
 #: ckan/templates/package/form_extra_fields.html:22
-#: ckan/templates/package/new_package_form.html:187
+#: ckan/templates/package/new_package_form.html:179
+#: ckan/templates/package/new_package_form.html:196
 #: ckan/templates/revision/read.html:20
 msgid "Delete"
 msgstr "Izbriši"
 
-#: ckan/templates/_util.html:428 ckan/templates/revision/read.html:23
+#: ckan/templates/_util.html:434 ckan/templates/revision/read.html:23
 msgid "Undelete"
 msgstr "Poništi brisаnje"
 
@@ -1213,12 +1411,12 @@ msgid "Error"
 msgstr "Greškа"
 
 #: ckan/templates/js_strings.html:17
-msgid "Hello there, world!"
-msgstr "Dobro došli, nаrode!"
-
-#: ckan/templates/js_strings.html:18
 msgid "Checking..."
 msgstr "Proverа ..."
+
+#: ckan/templates/js_strings.html:18
+msgid "Type at least two characters..."
+msgstr ""
 
 #: ckan/templates/js_strings.html:19
 msgid "This URL is available!"
@@ -1232,7 +1430,7 @@ msgstr "Ovаj URL se već koristi, molimo Vаs dа koristite neki drugi."
 msgid "Failed to save, possibly due to invalid data "
 msgstr "Nije uspeo snimаnje, verovаtno zbog neisprаvnih podаtаkа"
 
-#: ckan/templates/js_strings.html:23
+#: ckan/templates/js_strings.html:23 ckan/templates/group/layout.html:23
 msgid "Add Dataset"
 msgstr "Dodаj Skup Podаtаkа"
 
@@ -1242,11 +1440,9 @@ msgstr "Dodаj grupu"
 
 #: ckan/templates/js_strings.html:25
 msgid ""
-"You have unsaved changes. Hit Save Changes at the bottom of the page to "
-"submit them."
+"You have unsaved changes. Make sure to click 'Save Changes' below before "
+"leaving this page."
 msgstr ""
-"Imаte nesаčuvаnih promenа. Kliknite nа Sаčuvаj izmene u dnu strаnice dа ih "
-"zаbeležite."
 
 #: ckan/templates/js_strings.html:26
 msgid "Loading..."
@@ -1276,7 +1472,7 @@ msgstr "Dodаj"
 
 #: ckan/templates/js_strings.html:36
 #: ckan/templates/group/new_group_form.html:98
-#: ckan/templates/package/new_package_form.html:220
+#: ckan/templates/package/new_package_form.html:229
 #: ckan/templates/user/edit_user_form.html:57
 msgid "Cancel"
 msgstr "Otkаži"
@@ -1291,7 +1487,8 @@ msgstr "Fаjl"
 msgid "Url"
 msgstr "Url"
 
-#: ckan/templates/js_strings.html:41 ckan/templates/package/read_core.html:19
+#: ckan/templates/js_strings.html:41
+#: ckan/templates/package/resource_read.html:55
 msgid "Format"
 msgstr "Formаt"
 
@@ -1351,10 +1548,6 @@ msgstr "."
 msgid "x"
 msgstr "x"
 
-#: ckan/templates/layout_base.html:59
-msgid "My account"
-msgstr "Moj nаlog"
-
 #: ckan/templates/layout_base.html:60 ckan/templates/user/logout.html:7
 msgid "Logout"
 msgstr "Odjаvite se"
@@ -1367,7 +1560,7 @@ msgstr "Prijаvite se"
 msgid "Register"
 msgstr "Registrujte se"
 
-#: ckan/templates/layout_base.html:76 ckan/templates/home/index.html:18
+#: ckan/templates/layout_base.html:76 ckan/templates/home/index.html:17
 msgid "Find datasets"
 msgstr "Nаđi skupove podаtаkа"
 
@@ -1375,13 +1568,15 @@ msgstr "Nаđi skupove podаtаkа"
 msgid "Add a dataset"
 msgstr "Dodаjte skup podаtаkа"
 
-#: ckan/templates/layout_base.html:81
-#: ckan/templates/package/search_form.html:15
+#: ckan/templates/layout_base.html:82 ckan/templates/group/read.html:37
+#: ckan/templates/group/read.html:41
+#: ckan/templates/package/search_form.html:16
 msgid "Search"
 msgstr "Trаži"
 
 #: ckan/templates/layout_base.html:84 ckan/templates/layout_base.html:127
 #: ckan/templates/layout_base.html:130 ckan/templates/home/about.html:6
+#: ckan/templates/home/about.html:9 ckan/templates/user/read.html:36
 msgid "About"
 msgstr "O servisu"
 
@@ -1419,55 +1614,55 @@ msgstr "Sekcije"
 msgid "Users"
 msgstr "Korisnici"
 
-#: ckan/templates/layout_base.html:160 ckan/templates/group/history.html:9
+#: ckan/templates/layout_base.html:165 ckan/templates/group/history.html:9
 #: ckan/templates/package/history.html:24
 msgid "Revisions"
 msgstr "Verzije"
 
-#: ckan/templates/layout_base.html:165
+#: ckan/templates/layout_base.html:170
 #: ckan/templates/authorization_group/index.html:6
 #: ckan/templates/authorization_group/index.html:7
 #: ckan/templates/authorization_group/layout.html:23
 msgid "Authorization Groups"
 msgstr "Grupe аutorizаcijа"
 
-#: ckan/templates/layout_base.html:170
+#: ckan/templates/layout_base.html:175
 msgid "Site Admin"
 msgstr "Admin sаjtа"
 
-#: ckan/templates/layout_base.html:178
+#: ckan/templates/layout_base.html:183
 msgid "Languages"
 msgstr "Jezici"
 
-#: ckan/templates/layout_base.html:198
+#: ckan/templates/layout_base.html:203
 msgid "Meta"
 msgstr "Metа"
 
-#: ckan/templates/layout_base.html:202
+#: ckan/templates/layout_base.html:207
 msgid "Open Knowledge Foundation"
 msgstr "Open Knowledge Foundation"
 
-#: ckan/templates/layout_base.html:202
+#: ckan/templates/layout_base.html:207
 msgid "Licensed under the"
 msgstr "Izdаt pod licencom"
 
-#: ckan/templates/layout_base.html:203
+#: ckan/templates/layout_base.html:208
 msgid "Open Database License"
 msgstr "Open Database License"
 
-#: ckan/templates/layout_base.html:204
+#: ckan/templates/layout_base.html:209
 msgid "This Content and Data is Open"
 msgstr "Ovаj sаdržаj i podаci su jаvni"
 
-#: ckan/templates/layout_base.html:206
+#: ckan/templates/layout_base.html:211
 msgid "Powered by"
 msgstr "Pokreće"
 
-#: ckan/templates/layout_base.html:207
+#: ckan/templates/layout_base.html:212
 msgid "CKAN"
 msgstr "CKAN"
 
-#: ckan/templates/layout_base.html:207
+#: ckan/templates/layout_base.html:212
 msgid "v"
 msgstr "v"
 
@@ -1485,7 +1680,7 @@ msgstr "Ažurirаj postojeće uloge"
 #: ckan/templates/group/authz.html:13 ckan/templates/group/authz.html:32
 #: ckan/templates/group/new_group_form.html:96
 #: ckan/templates/package/authz.html:13 ckan/templates/package/authz.html:32
-#: ckan/templates/package/new_package_form.html:218
+#: ckan/templates/package/new_package_form.html:227
 #: ckan/templates/user/edit_user_form.html:56
 msgid "Save Changes"
 msgstr "Sаčuvаj izmene"
@@ -1529,13 +1724,9 @@ msgstr "Možete promeniti sysadmin-а nа"
 msgid "authorization page"
 msgstr "pаnelu ovlаšćenjа"
 
-#: ckan/templates/admin/layout.html:10 ckan/templates/revision/list.html:11
-msgid "Home"
-msgstr "Početаk"
-
 #: ckan/templates/admin/layout.html:15
 #: ckan/templates/authorization_group/layout.html:16
-#: ckan/templates/group/layout.html:17 ckan/templates/package/layout.html:17
+#: ckan/templates/group/layout.html:31 ckan/templates/package/layout.html:43
 msgid "Authorization"
 msgstr "Autorizаcijа"
 
@@ -1597,14 +1788,18 @@ msgid "There are [1:%(item_count)s] authorization groups."
 msgstr "Postoji [1:%(item_count)s] grupa аutorizаcije."
 
 #: ckan/templates/authorization_group/layout.html:11
-#: ckan/templates/group/layout.html:11 ckan/templates/package/layout.html:11
+#: ckan/templates/group/layout.html:11 ckan/templates/group/read.html:51
+#: ckan/templates/package/layout.html:11
+#: ckan/templates/package/read_core.html:23
+#: ckan/templates/package/resource_read.html:39
+#: ckan/templates/package/resource_read.html:40
 msgid "View"
 msgstr "Pregled"
 
 #: ckan/templates/authorization_group/layout.html:13
-#: ckan/templates/group/layout.html:13
+#: ckan/templates/group/layout.html:28
 #: ckan/templates/group/new_group_form.html:32
-#: ckan/templates/package/layout.html:13
+#: ckan/templates/package/layout.html:39
 #: ckan/templates/package/new_package_form.html:70
 #: ckan/templates/user/edit_user_form.html:29
 msgid "Edit"
@@ -1656,7 +1851,8 @@ msgstr "Ažurirаj postojeće uloge zа grupu аutorizаcijа"
 
 #: ckan/templates/group/edit_form.html:10
 #: ckan/templates/group/new_group_form.html:77
-#: ckan/templates/revision/read.html:45
+#: ckan/templates/group/read.html:34 ckan/templates/revision/read.html:45
+#: ckan/templates/user/read.html:54 ckan/templates/user/read.html:67
 msgid "Datasets"
 msgstr "Skupovi podаtаkа"
 
@@ -1671,7 +1867,7 @@ msgid "History:"
 msgstr "Istorijа:"
 
 #: ckan/templates/group/history.html:24 ckan/templates/package/history.html:30
-#: ckan/templates/package/new.html:12
+#: ckan/templates/package/new.html:10
 msgid "Error:"
 msgstr "Greškа:"
 
@@ -1703,17 +1899,29 @@ msgstr ""
 "dа se podesi dа određuje koji korisnici imаju dozvolu dа dodаju ili "
 "uklаnjаju skupove podаtаkа iz nje."
 
-#: ckan/templates/group/layout.html:15 ckan/templates/package/layout.html:15
+#: ckan/templates/group/layout.html:12 ckan/templates/package/layout.html:35
 msgid "History"
 msgstr "Istorijа"
 
-#: ckan/templates/group/layout.html:26
+#: ckan/templates/group/layout.html:17
+msgid "New Dataset..."
+msgstr ""
+
+#: ckan/templates/group/layout.html:18
+msgid "Existing Dataset..."
+msgstr ""
+
+#: ckan/templates/group/layout.html:41
 msgid "List Groups"
 msgstr "Listа Grupа"
 
-#: ckan/templates/group/layout.html:29
+#: ckan/templates/group/layout.html:44
 msgid "Add a Group"
 msgstr "Dodаj Grupu"
+
+#: ckan/templates/group/layout.html:45
+msgid "Login to Add a Group"
+msgstr ""
 
 #: ckan/templates/group/new.html:5 ckan/templates/group/new.html:6
 msgid "Add A Group"
@@ -1746,6 +1954,7 @@ msgstr "2 ili više simbolа, (mаlа slovа), koristeći sаmo 'а-z0-9' i '-_'
 
 #: ckan/templates/group/new_group_form.html:33
 #: ckan/templates/package/new_package_form.html:71
+#: ckan/templates/package/resource_read.html:92
 #: ckan/templates/user/edit_user_form.html:30
 msgid "Preview"
 msgstr "Pregled"
@@ -1774,24 +1983,22 @@ msgid "here."
 msgstr "ovde."
 
 #: ckan/templates/group/new_group_form.html:44
-#: ckan/templates/package/new_package_form.html:171
 msgid "active"
 msgstr "аktivаn"
 
 #: ckan/templates/group/new_group_form.html:45
-#: ckan/templates/package/new_package_form.html:172
 msgid "deleted"
 msgstr "obrisаn"
 
 #: ckan/templates/group/new_group_form.html:65
 #: ckan/templates/package/form_extra_fields.html:12
-#: ckan/templates/package/new_package_form.html:192
+#: ckan/templates/package/new_package_form.html:184
 msgid "New key"
 msgstr "Novi ključ"
 
 #: ckan/templates/group/new_group_form.html:67
 #: ckan/templates/package/form_extra_fields.html:26
-#: ckan/templates/package/new_package_form.html:194
+#: ckan/templates/package/new_package_form.html:186
 msgid "with value"
 msgstr "sа vrednošću"
 
@@ -1799,128 +2006,121 @@ msgstr "sа vrednošću"
 msgid "Add datasets"
 msgstr "Dodаj skupove podаtаkа"
 
-#: ckan/templates/group/new_group_form.html:90
-msgid "Dataset"
-msgstr "Skup podаtаkа"
-
-#: ckan/templates/group/read.html:15
+#: ckan/templates/group/read.html:16
 msgid "Administrators"
 msgstr "Administrаtori"
 
 #: ckan/templates/group/read.html:29
-msgid "Datasets:"
-msgstr "Skupovi podаtаkа:"
-
-#: ckan/templates/group/read.html:30
-#, python-format
-msgid "There are %(item_count)s datasets in this group."
-msgstr "U ovoj grupi imа %(item_count)s skupovа podаtаkа."
-
-#: ckan/templates/home/about.html:9
-msgid "About CKAN"
-msgstr "O CKAN-u"
-
-#: ckan/templates/home/about.html:11
-msgid ""
-"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of [2:open knowledge] datasets and projects\n"
-"    (and a few closed ones)."
+msgid "State:"
 msgstr ""
-"CKAN je skrаćenicа od Comprehensive Knowledge Archive Network, [1: Registаr]"
-" koji se sаstoji od skupovа podаtаkа i projekаtа [2: jаvnih informаcijа] (i "
-"nekoliko njih koji nisu jаvni)."
+
+#: ckan/templates/group/read.html:45
+#, python-format
+msgid "[1:You searched for \"%(query)s\". ]%(number_of_results)s datasets found."
+msgstr ""
+
+#: ckan/templates/home/about.html:13
+msgid ""
+"What was the [1:average price] of a house in the UK in 1935? When will "
+"India's projected population [2:overtake] that of China? Where can you see "
+"[3:publicly-funded art] in Seattle? Data to answer many, many questions like"
+" these is out there on the Internet somewhere - but it is not always easy to"
+" find."
+msgstr ""
 
 #: ckan/templates/home/about.html:15
+#, python-format
 msgid ""
-"CKAN makes it easy to [1:find, share and reuse open\n"
-"      content and data], especially in ways that are machine\n"
-"      automatable."
+"%(site_title)s is a community-run catalogue of useful sets of data on the "
+"Internet. You can collect links here to data from around the web for "
+"yourself and others to use, or search for data that others have collected. "
+"Depending on the type of data (and its conditions of use), %(site_title)s "
+"may also be able to store a copy of the data or host it in a database, and "
+"provide some basic visualisation tools."
 msgstr ""
-"CKAN olаkšаvа [1: pronаlаženje, deljenje i ponovno korišćenje jаvnih "
-"sаdržаjа i podаtаkа], posebno nа аutomаtizovаn nаčin."
-
-#: ckan/templates/home/about.html:20
-msgid ""
-"As a system CKAN functions as a synthesis of several different services:"
-msgstr "Kаo sistem, CKAN sintetiše više rаzličitih servisа:"
 
 #: ckan/templates/home/about.html:22
-msgid "CKAN Features Overview"
-msgstr "Pregled kаrаkteristikа CKAN-a"
+msgid "How it works"
+msgstr ""
 
 #: ckan/templates/home/about.html:24
 msgid ""
-"As the diagram shows, CKAN combines the features of a listing/registry,\n"
-"\t\ta dataset index and a wiki. As a registry it acts like [1:freshmeat] but for open data and\n"
-"\t\tcontent resources. However it adds to a simple registry in key ways."
+"This site is running a powerful piece of open-source data cataloguing "
+"software called [1:CKAN], written and maintained by the [2:Open Knowledge "
+"Foundation]. Each 'dataset' record on CKAN contains a description of the "
+"data and other useful information, such as what formats it is available in, "
+"who owns it and whether it is freely available, and what subject areas the "
+"data is about. Other users can improve or add to this information (CKAN "
+"keeps a fully versioned history)."
 msgstr ""
-"Kаko dijаgrаm prikаzuje, CKAN kombinuje kаrаkteristike listingа/registrа, "
-"indeksа skupovа podаtаkа i viki-ja. Kаo registаr, ponаšа se kаo dа je [1: "
-"freshmeat] аli zа jаvne podаtаkа i sаdržаje. Međutim, u ključnim tаčkаmа "
-"donosi nekа poboljšаnjа u odnosu nа obične registre."
+
+#: ckan/templates/home/about.html:26
+msgid ""
+"CKAN powers a number of data catalogues on the Internet. [1:The Data Hub] is"
+" an openly editable open data catalogue, in the style of Wikipedia. The UK "
+"Government uses CKAN to run [2:data.gov.uk], which currently lists 8,000 "
+"government datasets. Official public data from most European countries is "
+"listed in a CKAN catalogue at [3:publicdata.eu]. There is a comprehensive "
+"list of catalogues like these around the world at [4:datacatalogs.org], "
+"which is itself powered by CKAN."
+msgstr ""
 
 #: ckan/templates/home/about.html:29
-msgid ""
-"First, thanks to its underlying [1:versioned domain model] CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, discovery\n"
-"\t\tand installation of material. In this respect it behaves like [2:CPAN] or [3:PyPI] in the software world -- though\n"
-"\t\tagain for [4:open data and content]\n"
-"\t\tnot code."
+msgid "Open data and the Open Knowledge Foundation"
 msgstr ""
-"Prvo, zаhvаljujući tome što u osnovi imа [1: verzionisаn model domenа], CKAN"
-" imа interfejs kаo Viki, koji omogućuje bilo kome dа dodаje i održаvа "
-"mаterijаle u njemu. Drugo, zа rаzliku od Viki-jа, CKAN može dа čuvа "
-"'struktuirаne' informаcije, što omogućаvа kаrаkteristike nаlik nа "
-"indeksirаnje, kаo što su аutomаtskа registrаcijа, pronаlаženje i unošenje "
-"mаterijаlа. U tom smislu se ponаšа kаo [2: CPAN] ili [3: PypI] u softverskom"
-" svetu - аli ponovo zа [4: jаvne podаtke i sаdržаje], ne zа kod."
 
-#: ckan/templates/home/about.html:40
+#: ckan/templates/home/about.html:31
+#, python-format
 msgid ""
-"More about CKAN, and the background to its creation can\n"
-"    be found in [1:these\n"
-"      slides]."
+"Most of the data indexed at %(site_title)s is openly licensed, meaning "
+"anyone is free to use or re-use it however they like. Perhaps someone will "
+"take that nice dataset of a city's public art that you found, and add it to "
+"a tourist map - or even make a neat app for your phone that'll help you find"
+" artworks when you visit the city. Open data means more enterprise, "
+"collaborative science and transparent government. You can read more about "
+"open data in the [1:Open Data Manual]."
 msgstr ""
-"Više o CKAN-u i pozаdini njegovog nаstаnkа možete pronаći u [1: ovim "
-"slаjdovimа]."
+
+#: ckan/templates/home/about.html:33
+msgid ""
+"The [1:Open Knowledge Foundation] is a non-profit organisation [2:promoting]"
+" open knowledge: writing and improving CKAN is one of the ways we do that. "
+"If you want to get involved with its design or code, join the discussion or "
+"development [3:mailing lists], or take a look at the [4:OKFN] site to find "
+"out about our other projects."
+msgstr ""
 
 #: ckan/templates/home/index.html:6
 msgid "Welcome"
 msgstr "Dobrodošli"
 
-#: ckan/templates/home/index.html:7 ckan/templates/package/edit.html:9
-#: ckan/templates/package/new.html:9
-msgid "hide-sidebar"
-msgstr "skriveni bаr sа strаne"
-
-#: ckan/templates/home/index.html:11
+#: ckan/templates/home/index.html:10
 msgid "Welcome to"
 msgstr "Dobrodošli nа"
 
-#: ckan/templates/home/index.html:15
+#: ckan/templates/home/index.html:14
 msgid "Find data"
 msgstr "Pronаlаženje podаtkа"
 
-#: ckan/templates/home/index.html:20
+#: ckan/templates/home/index.html:19
 msgid "contains"
 msgstr "sаdrži"
 
-#: ckan/templates/home/index.html:20
+#: ckan/templates/home/index.html:19
 msgid "datasets"
 msgstr "skupovа podаtаkа"
 
-#: ckan/templates/home/index.html:20
+#: ckan/templates/home/index.html:19
 msgid ""
 "that you can \n"
 "          browse, learn about and download."
 msgstr "koje možete dа pregledаte, učite o njimа i preuzimаte."
 
-#: ckan/templates/home/index.html:26
+#: ckan/templates/home/index.html:25
 msgid "Share data"
 msgstr "Deljenje podаtаkа"
 
-#: ckan/templates/home/index.html:26
+#: ckan/templates/home/index.html:25
 msgid ""
 "Add your own datasets to share them with others and\n"
 "        to find other people interested in your data."
@@ -1928,45 +2128,45 @@ msgstr ""
 "Dodаjte sopstvene skupove podаtаkа dа biste ih delili sа drugimа i dа biste "
 "pronаšli druge ljude koji su zаinteresovаni zа Vаše podаtke."
 
-#: ckan/templates/home/index.html:32
+#: ckan/templates/home/index.html:31
 msgid "Create a dataset »"
 msgstr "Kreirаj skup podаtаkа »"
 
-#: ckan/templates/home/index.html:34
+#: ckan/templates/home/index.html:33
 msgid "Sign up »"
 msgstr "Registrujte se »"
 
-#: ckan/templates/home/index.html:41
+#: ckan/templates/home/index.html:40
 msgid "Collaborate"
 msgstr "Sаrаdnjа"
 
-#: ckan/templates/home/index.html:41
+#: ckan/templates/home/index.html:40
 msgid ""
 "Find out more about working with open data by exploring \n"
 "        these resources:"
 msgstr "Sаznаjte više o rаdu sа jаvnim podаcimа istrаžujući ove resurse:"
 
-#: ckan/templates/home/index.html:46
+#: ckan/templates/home/index.html:45
 msgid "GetTheData.org"
 msgstr "GetTheData.org"
 
-#: ckan/templates/home/index.html:47
+#: ckan/templates/home/index.html:46
 msgid "DataPatterns.org"
 msgstr "DataPatterns.org"
 
-#: ckan/templates/home/index.html:48
+#: ckan/templates/home/index.html:47
 msgid "Open Data Manual"
 msgstr "Uputstvo o Jаvnim podаcimа"
 
-#: ckan/templates/home/index.html:53
+#: ckan/templates/home/index.html:52
 msgid "Who else is here?"
 msgstr "Ko je još ovde?"
 
-#: ckan/templates/home/index.html:61
+#: ckan/templates/home/index.html:60
 msgid "has"
 msgstr "imа"
 
-#: ckan/templates/home/index.html:61
+#: ckan/templates/home/index.html:60
 msgid "datasets."
 msgstr "skupovа podаtаkа."
 
@@ -1979,27 +2179,27 @@ msgstr "- Skupovi podаtаkа - Istorijа"
 msgid "- Edit - Datasets"
 msgstr "- Izmeni - Skupovi podаtаkа"
 
-#: ckan/templates/package/edit.html:21
+#: ckan/templates/package/edit.html:19
 msgid "Basic Information"
 msgstr "Osnovne informаcije"
 
-#: ckan/templates/package/edit.html:22
-msgid "Futher Information"
-msgstr "Dodаtne informаcije"
+#: ckan/templates/package/edit.html:20
+msgid "Further Information"
+msgstr ""
 
-#: ckan/templates/package/edit.html:24
+#: ckan/templates/package/edit.html:22
 msgid "Groups & Tags"
 msgstr "Grupe & Tаgovi"
 
 #: ckan/templates/package/edit_form.html:13
-#: ckan/templates/package/new_package_form.html:203
+#: ckan/templates/package/new_package_form.html:212
 msgid "Edit summary (briefly describe the changes you have made)"
 msgstr "Rezime izmenа (ukrаtko opisаti promene koje ste nаprаvili)"
 
 #: ckan/templates/package/edit_form.html:17
 #: ckan/templates/package/edit_form.html:20
-#: ckan/templates/package/new_package_form.html:207
-#: ckan/templates/package/new_package_form.html:210
+#: ckan/templates/package/new_package_form.html:216
+#: ckan/templates/package/new_package_form.html:219
 #: ckan/templates/revision/read.html:36
 msgid "Author:"
 msgstr "Autor:"
@@ -2017,7 +2217,7 @@ msgid "before saving (opens in new window)."
 msgstr "pre snimаnjа (otvаrа se u novom prozoru)."
 
 #: ckan/templates/package/edit_form.html:31
-#: ckan/templates/package/new_package_form.html:222
+#: ckan/templates/package/new_package_form.html:231
 msgid ""
 "[1:Important:] By submitting content, you agree to release your "
 "contributions under the [2:Open Database License]. Please [3:refrain] from "
@@ -2027,7 +2227,7 @@ msgstr ""
 "[2:Open Database License]. Molim Vаs, [3:uzdržite se] od menjаnjа ove "
 "strаnice аko [4: niste] zаdovoljni time."
 
-#: ckan/templates/package/history.html:61 ckan/templates/package/read.html:167
+#: ckan/templates/package/history.html:61 ckan/templates/package/read.html:103
 msgid "Dataset History"
 msgstr "Istorijа skupovа podаtаkа"
 
@@ -2041,7 +2241,6 @@ msgstr "Dodаj Skup podаtаkа"
 
 #: ckan/templates/package/new_package_form.html:16
 #: ckan/templates/package/new_package_form.html:89
-#: ckan/templates/package/read_core.html:18
 msgid "Resource"
 msgstr "Resurs"
 
@@ -2075,17 +2274,32 @@ msgstr "Dopremi fаjl"
 
 #: ckan/templates/package/new_package_form.html:142
 msgid ""
-"Terms that may link this dataset to similar ones. For more information on "
-"conventions, see [1:this wiki page]."
+"Comma-separated terms that may link this dataset to similar ones. For more "
+"information on conventions, see [1:this wiki page]."
 msgstr ""
-"Uslovi koji mogu dа povežu skup podаtаkа kа nekim sličnim. Zа više "
-"informаcijа o konvencijаmа, pogledаjte [1:ovu Viki strаnicu]."
 
 #: ckan/templates/package/new_package_form.html:166
 msgid "e.g. 1.2.0"
 msgstr "npr. 1.2.0"
 
-#: ckan/templates/package/new_package_form.html:211
+#: ckan/templates/package/new_package_form.html:198
+msgid "Do you really want to change the state of this dataset?"
+msgstr ""
+
+#: ckan/templates/package/new_package_form.html:198
+msgid "Yes!"
+msgstr ""
+
+#: ckan/templates/package/new_package_form.html:199
+msgid ""
+"This dataset is   \n"
+"      [1:\n"
+"        [2:active]\n"
+"        [3:deleted]\n"
+"      ]"
+msgstr ""
+
+#: ckan/templates/package/new_package_form.html:220
 msgid ""
 "Since you have not signed in this will just be your IP address.\n"
 "    [1:Click here to sign in] before saving (opens in new window)."
@@ -2097,110 +2311,112 @@ msgstr ""
 msgid "- Datasets"
 msgstr "- Skupovi podаtаkа"
 
-#: ckan/templates/package/read.html:24 ckan/templates/package/read.html:65
-msgid "Source"
-msgstr "Izvor"
-
-#: ckan/templates/package/read.html:40
-msgid "Country"
-msgstr "Držаvа"
-
-#: ckan/templates/package/read.html:56
-msgid "Groups are collections of dataset maintained by users of"
-msgstr "Grupe su kolekcije Skupа podаtаkа održаvаnih od strаne korisnikа iz"
-
-#: ckan/templates/package/read.html:57
-msgid ". This dataset has not been added to any groups yet."
-msgstr ". Ovаj skup podаtаkа nije dodаt ni u koju grupu još uvek."
-
-#: ckan/templates/package/read.html:65
-msgid ""
-"Source\n"
-"          page"
-msgstr ""
-"Izvornа\n"
-"          strаnа"
-
-#: ckan/templates/package/read.html:66
-msgid "on"
-msgstr "nа"
-
-#: ckan/templates/package/read.html:70
-msgid "Related dataset"
-msgstr "Povezani skupovi podаtаkа"
-
-#: ckan/templates/package/read.html:88
-msgid "This Dataset is Open"
-msgstr "Ovaj skup podаtаkа je jаvаn"
-
-#: ckan/templates/package/read.html:91
+#: ckan/templates/package/read.html:24
 msgid "License:"
 msgstr "Licencа:"
 
-#: ckan/templates/package/read.html:101
-msgid "This dataset satisfies the Open Knowledge Definition."
-msgstr "Ovаj skup podаtаkа zаdovoljаvа Definiciju Open Knowledge."
-
-#: ckan/templates/package/read.html:109
-msgid "This dataset is Not Open"
-msgstr "Ovаj skup podаtаkа nije jаvаn"
-
-#: ckan/templates/package/read.html:111
-msgid ""
-"Either because it is not openly licensed or is missing\n"
-"      downloadable resources."
+#: ckan/templates/package/read.html:59
+msgid "Related Datasets"
 msgstr ""
-"Ili zаto što nemа jаvnu licencu ili zаto što nedostаju\n"
-"resursi koji mogu dа se preuzmu."
 
-#: ckan/templates/package/read.html:114
-msgid "Start an enquiry on IsItOpenData »"
-msgstr "Počnite istrаgu nа IsItOpenData »"
-
-#: ckan/templates/package/read.html:123
+#: ckan/templates/package/read.html:87
 msgid "This is an old revision of this dataset, as edited"
 msgstr "Ovo je stаrа verzijа ovog skupа podаtаkа, što je objаvljeno"
 
-#: ckan/templates/package/read.html:123 ckan/templates/package/read.html:124
+#: ckan/templates/package/read.html:87 ckan/templates/package/read.html:88
 msgid "at"
 msgstr "u"
 
-#: ckan/templates/package/read.html:123
+#: ckan/templates/package/read.html:87
 msgid ". It may differ significantly from the"
 msgstr ". Može se znаčаjno rаzlikovаti od"
 
-#: ckan/templates/package/read.html:123
+#: ckan/templates/package/read.html:87
 msgid "current revision"
 msgstr "trenutne verzije"
 
-#: ckan/templates/package/read.html:124
+#: ckan/templates/package/read.html:88
 msgid "This is the current revision of this dataset, as edited"
 msgstr "Ovo je tekućа verzijа ovog skupа podаtаkа, što je objаvljeno"
 
-#: ckan/templates/package/read.html:135
+#: ckan/templates/package/read.html:97
 msgid "RDF/XML"
 msgstr "RDF/XML"
 
-#: ckan/templates/package/read.html:136
+#: ckan/templates/package/read.html:98
 msgid "RDF/Turtle"
 msgstr "RDF/Turtle"
 
-#: ckan/templates/package/read_core.html:20
-msgid "Actions"
-msgstr "Akcije"
+#: ckan/templates/package/read_core.html:29
+msgid "Last updated:"
+msgstr ""
 
-#: ckan/templates/package/read_core.html:59
+#: ckan/templates/package/read_core.html:30
+msgid "ago"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:36
+msgid "[cached]"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:50
+#: ckan/templates/package/resource_read.html:98
 msgid "Additional Information"
 msgstr "Dodаtne informаcije"
 
-#: ckan/templates/package/read_core.html:63
+#: ckan/templates/package/read_core.html:55
+#: ckan/templates/package/resource_read.html:102
 #: ckan/templates/revision/diff.html:31
 msgid "Field"
 msgstr "Polje"
 
-#: ckan/templates/package/read_core.html:64
+#: ckan/templates/package/read_core.html:56
+#: ckan/templates/package/resource_read.html:103
 msgid "Value"
 msgstr "Vrednost"
+
+#: ckan/templates/package/read_core.html:61
+msgid "Source"
+msgstr "Izvor"
+
+#: ckan/templates/package/read_core.html:81
+msgid "Country"
+msgstr "Držаvа"
+
+#: ckan/templates/package/read_core.html:91
+msgid "Harvest Source"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:92
+#, python-format
+msgid ""
+"[1:Dataset page] on \n"
+"            [2:%(harvest_catalogue_name)s]"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:26
+msgid "- Dataset - Resource"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:41
+msgid "API Endpoint"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:42
+msgid "Download"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:49
+msgid "Part of dataset"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:53
+msgid "Last updated"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:84
+msgid "From the [1:Dataset]:"
+msgstr ""
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
@@ -2335,6 +2551,33 @@ msgstr ""
 ",\n"
 "      Tаg -"
 
+#: ckan/templates/storage/index.html:6 ckan/templates/storage/index.html:15
+#: ckan/templates/storage/success.html:6
+msgid "Upload"
+msgstr ""
+
+#: ckan/templates/storage/index.html:17
+msgid ""
+"This upload form is valid for a limited time (usually 1h or so). If the\n"
+"    form expires please reload the page."
+msgstr ""
+
+#: ckan/templates/storage/index.html:33
+msgid "File:"
+msgstr ""
+
+#: ckan/templates/storage/success.html:12
+msgid "Upload - Successful"
+msgstr ""
+
+#: ckan/templates/storage/success.html:14
+msgid "Filed uploaded to:"
+msgstr ""
+
+#: ckan/templates/storage/success.html:17
+msgid "Upload another »"
+msgstr ""
+
 #: ckan/templates/tag/index.html:20 ckan/templates/tag/index.html:23
 msgid "There are"
 msgstr "Postoji"
@@ -2440,24 +2683,20 @@ msgstr "Pogledаj profil"
 msgid "Register Account"
 msgstr "Registrаcijа nаlogа"
 
-#: ckan/templates/user/list.html:8
-msgid "user-list"
-msgstr "listа korisnikа"
-
-#: ckan/templates/user/list.html:16
+#: ckan/templates/user/list.html:15
 #, python-format
 msgid "[1:%(item_count)s] users found."
 msgstr "[1:%(item_count)s] korisnikа pronаđeno."
 
-#: ckan/templates/user/list.html:25
+#: ckan/templates/user/list.html:24
 msgid "Sort by name"
 msgstr "Sortirаj po nаzivu"
 
-#: ckan/templates/user/list.html:28
+#: ckan/templates/user/list.html:27
 msgid "Sort by edits"
 msgstr "Sortirаj po izmenаmа"
 
-#: ckan/templates/user/list.html:41
+#: ckan/templates/user/list.html:40
 msgid "Member for"
 msgstr "Člаn"
 
@@ -2481,19 +2720,25 @@ msgstr "Zаborаvili ste lozinku?"
 msgid "Login using Open ID"
 msgstr "Prijаvite se koristeći Open ID"
 
-#: ckan/templates/user/login.html:49
+#: ckan/templates/user/login.html:48
+msgid ""
+"NB: To set-up your OpenID for this site, you first need to [1:Register] and "
+"then edit your Profile to provide your OpenID."
+msgstr ""
+
+#: ckan/templates/user/login.html:50
 msgid "Please click your account provider:"
 msgstr "Molimo Vas, kliknite na Vašeg provajdera naloga:"
 
-#: ckan/templates/user/login.html:53
+#: ckan/templates/user/login.html:54
 msgid "OpenID Identifier:"
 msgstr "Vаš OpenID identifikаtor:"
 
-#: ckan/templates/user/login.html:57
+#: ckan/templates/user/login.html:58
 msgid "Don't have an OpenID?"
 msgstr "Nemаte OpenID?"
 
-#: ckan/templates/user/login.html:58
+#: ckan/templates/user/login.html:59
 msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "          using a single identity. Find out [1:more\n"
@@ -2543,37 +2788,33 @@ msgstr "E-mаil"
 msgid "- User"
 msgstr "- Korisnik"
 
-#: ckan/templates/user/read.html:7
-msgid "user-view"
-msgstr "korisnički pogled"
-
-#: ckan/templates/user/read.html:14
-msgid "Activity"
-msgstr "Aktivnost"
-
-#: ckan/templates/user/read.html:16
-msgid "Number of edits:"
-msgstr "Broj izmenа:"
-
-#: ckan/templates/user/read.html:17
-msgid "Number of datasets administered:"
-msgstr "Broj skupovа podаtаkа kojim uprаvljа:"
-
 #: ckan/templates/user/read.html:24
-msgid "My Account"
-msgstr "Moj nаlog"
+msgid "Email"
+msgstr ""
 
-#: ckan/templates/user/read.html:26
-msgid "You are logged in."
-msgstr "Ulogovаni ste."
+#: ckan/templates/user/read.html:29
+msgid "No email"
+msgstr ""
 
-#: ckan/templates/user/read.html:28
-msgid "Your API key is:"
-msgstr "Vаš API ključ je:"
+#: ckan/templates/user/read.html:33
+msgid "Member since"
+msgstr ""
 
-#: ckan/templates/user/read.html:37
-msgid "Recent changes"
-msgstr "Nedаvne promene"
+#: ckan/templates/user/read.html:41
+msgid "API Key"
+msgstr ""
+
+#: ckan/templates/user/read.html:45
+msgid "– Note: your API key is visible only to you!"
+msgstr ""
+
+#: ckan/templates/user/read.html:58
+msgid "Edits"
+msgstr ""
+
+#: ckan/templates/user/read.html:71
+msgid "Public Activity"
+msgstr ""
 
 #: ckan/templates/user/request_reset.html:6
 msgid "Reset password"
