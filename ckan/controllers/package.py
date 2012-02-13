@@ -30,6 +30,7 @@ import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.logic.action.get
+from home import CACHE_PARAMETER
 
 log = logging.getLogger(__name__)
 
@@ -456,7 +457,8 @@ class PackageController(BaseController):
         if context['save'] and not data:
             return self._save_new(context)
 
-        data = data or clean_dict(unflatten(tuplize_dict(parse_params(request.params))))
+        data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+            request.params, ignore_keys=[CACHE_PARAMETER]))))
 
         errors = errors or {}
         error_summary = error_summary or {}

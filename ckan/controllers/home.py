@@ -15,6 +15,8 @@ from ckan.lib.base import *
 from ckan.lib.hash import get_redirect
 from ckan.lib.helpers import url_for
 
+CACHE_PARAMETER = '__cache'
+
 class HomeController(BaseController):
     repo = model.repo
 
@@ -116,7 +118,7 @@ class HomeController(BaseController):
             return 
         return_to += '&' if '?' in return_to else '?'
         # hack to prevent next page being cached
-        return_to += '__cache=%s' %  int(random.random()*100000000)
+        return_to += '%s=%s' % (CACHE_PARAMETER, int(random.random()*100000000))
         redirect_to(return_to)
 
     def cache(self, id):
