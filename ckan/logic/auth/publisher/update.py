@@ -13,6 +13,9 @@ def package_update(context, data_dict):
     user = context.get('user')
     package = get_package_object(context, data_dict)
     
+    if Authorizer().is_sysadmin(unicode(user)):
+        return { 'success': True }
+    
     userobj = model.User.get( user )
     if not userobj or \
        not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):

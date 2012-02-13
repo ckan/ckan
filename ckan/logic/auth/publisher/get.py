@@ -67,6 +67,9 @@ def package_show(context, data_dict):
     package = get_package_object(context, data_dict)
         
     if package.state == 'deleted':
+        if 'ignore_auth' in context and context['ignore_auth']:
+            return {'success': True}            
+            
         user = context.get('user')
 
         if not user:
