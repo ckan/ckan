@@ -46,12 +46,13 @@ def _get_locales():
         locale_list.append(locale)
     # order the list if specified
     ordered_list = [locale_default]
-    if locale_order:
-        for locale in locale_order:
-            if locale in locale_list:
-                ordered_list.append(locale)
-    else:
-        ordered_list += locale_list
+    for locale in locale_order:
+        if locale in locale_list:
+            ordered_list.append(locale)
+            # added so remove from our list
+            locale_list.remove(locale)
+    # add any remaining locales not ordered
+    ordered_list += locale_list
 
     return ordered_list
 
