@@ -31,12 +31,16 @@ def _get_locales():
 
     locale_list = []
     for locale in locales:
+        # no duplicates
         if locale in locale_list:
             continue
+        # if offered locales then check locale is offered
         if locales_offered and locale not in locales_offered:
             continue
+        # remove if filtered out
         if locale in filtered_out:
             continue
+        # ignore the default as it will be added first
         if locale == locale_default:
             continue
         locale_list.append(locale)
