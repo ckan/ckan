@@ -1,4 +1,5 @@
 import logging
+import cgi
 
 from paste.util.multidict import MultiDict 
 from webob.multidict import UnicodeMultiDict
@@ -70,7 +71,8 @@ class ApiController(BaseController):
             if status_int==200 and request.params.has_key('callback') and \
                    (request.method == 'GET' or \
                     c.logic_function and request.method == 'POST'):
-                callback = request.params['callback']
+                # escape callback to remove '<', '&', '>' chars
+                callback = cgi.escape(request.params['callback'])
                 response_msg = self._wrap_jsonp(callback, response_msg)
         return response_msg
 
