@@ -189,10 +189,7 @@
   current_url_hash = ckan.lib.hash.get_message_hash(current_url)
 ?>
               <li py:for="locale in h.get_available_locales()">
-              <a href="${h.url(controller='home', action='locale', 
-                             locale=str(locale), 
-                             return_to=current_url,
-                             hash=current_url_hash)}">
+              <a href="${h.url(current_url, locale=str(locale))}">
                   ${locale.display_name or locale.english_name}
                 </a>
               </li>

@@ -41,14 +41,16 @@ except ImportError:
 def url(*args, **kw):
     """Create url adding i18n information if selected
     wrapper for pylons.url"""
+    locale = kw.pop('locale', None)
     my_url = _pylons_default_url(*args, **kw)
-    return _add_i18n_to_url(my_url, **kw)
+    return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 def url_for(*args, **kw):
     """Create url adding i18n information if selected
     wrapper for routes.url_for"""
+    locale = kw.pop('locale', None)
     my_url = _routes_default_url_for(*args, **kw)
-    return _add_i18n_to_url(my_url, **kw)
+    return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 def url_for_static(*args, **kw):
     """Create url for static content that does not get translated
@@ -73,9 +75,6 @@ def _add_i18n_to_url(url_to_amend, **kw):
     if locale:
         if locale == 'default':
             default_locale = True
-        return_to = kw.pop('return_to', None)
-        if return_to:
-            url_to_amend = return_to
     else:
         try:
             locale = request.environ.get('CKAN_LANG')
