@@ -45,7 +45,7 @@ class AlphaPage(object):
         self.controller_name = controller_name
         self.available = dict( (c,0,) for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" )
         for c in self.collection:
-            x = getattr(c, self.alpha_attribute)[0]
+            x = c if isinstance( c, unicode ) else getattr(c, self.alpha_attribute)[0]
             self.available[x] = self.available.get(x, 0) + 1
             
         

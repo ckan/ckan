@@ -40,8 +40,8 @@ class TestPages:
         assert pager.startswith('<div class="pager">'), pager
         assert '<span class="pager_curpage">A</span>' in pager, pager
         url_base = '/packages'
-        assert re.search('\<a class="pager_link" href="[^?]*\?page=B"\>B\<\/a\>', pager), pager
-        assert re.search('\<a class="pager_link" href="[^?]*\?page=Other"\>Other\<\/a\>', pager), pager
+        assert re.search('\<span class="pager_empty"\>B\<\/span\>', pager), pager
+        assert re.search('\<span class="pager_empty"\>Other\<\/span\>', pager), pager
 
 
     def test_02_package_items(self):

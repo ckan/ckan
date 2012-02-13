@@ -34,6 +34,11 @@ class TestAuthProfiles(PylonsTestCase):
             'ckan.logic.auth.publisher': 0
         }
 
+        module_items = {
+            'ckan.logic.auth': [],
+            'ckan.logic.auth.publisher': []
+        }
+
         for module_root in modules.keys():
             for auth_module_name in ['get', 'create', 'update','delete']:
                 module_path = '%s.%s' % (module_root, auth_module_name,)
@@ -45,6 +50,15 @@ class TestAuthProfiles(PylonsTestCase):
                 for key, v in module.__dict__.items():
                     if not key.startswith('_'):
                         modules[module_root] = modules[module_root] + 1
+                        module_items[module_root].append( key )
         
-        assert modules['ckan.logic.auth'] == modules['ckan.logic.auth.publisher'], modules
+        err = []
+        if modules['ckan.logic.auth'] != modules['ckan.logic.auth.publisher']:
+            oldauth = module_items['ckan.logic.auth']
+            pubauth = module_items['ckan.logic.auth.publisher']
+            for e in [n for n in oldauth if not n in pubauth]:
+                err.append( '%s is in auth but not publisher auth ' % e )
+            for e in [n for n in  pubauth if not n in oldauth]:
+                err.append( '%s is in publisher auth but not auth ' % e )
+        assert modules['ckan.logic.auth'] == modules['ckan.logic.auth.publisher'], err
 
