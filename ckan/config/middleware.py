@@ -53,9 +53,11 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     # Routing/Session/Cache Middleware
     app = RoutesMiddleware(app, config['routes.map'])
     app = SessionMiddleware(app, config)
-    app = CacheMiddleware(app, config)
+    #app = CacheMiddleware(app, config)
     # NOTE: I18nMiddleware should not be cached as can create
     #       redirects based on browser language settings.
+    #       We need to take the language settings into accout. For now
+    #       disable the cacheing.
     app = I18nMiddleware(app, config)
     
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
