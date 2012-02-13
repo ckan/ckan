@@ -13,11 +13,20 @@ class TestConverters(object):
         cls.vocab = model.Vocabulary('test-vocab') 
         model.Session.add(cls.vocab)
         model.Session.commit()
+        vocab_tag_1 = model.Tag('tag1', cls.vocab.id)
+        vocab_tag_2 = model.Tag('tag2', cls.vocab.id)
+        model.Session.add(vocab_tag_1)
+        model.Session.add(vocab_tag_2)
+        model.Session.commit()
         model.Session.remove()
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
 
     def test_convert_to_tags(self):
         def convert(tag_string, vocab):
-            key = 'vocab_tag_string'
+            key = 'vocab_tags'
             data = {key: tag_string}
             errors = []
             context = {'model': model, 'session': model.Session}
@@ -25,7 +34,7 @@ class TestConverters(object):
             del data[key]
             return data
 
-        data = unflatten(convert('tag1, tag2', 'test-vocab'))
+        data = unflatten(convert(['tag1', 'tag2'], 'test-vocab'))
         for tag in data['tags']:
             assert tag['name'] in ['tag1', 'tag2'], tag['name']
             assert tag['vocabulary_id'] == self.vocab.id, tag['vocabulary_id']
@@ -67,6 +76,10 @@ class TestAPI(WsgiAppCase):
         model.Session.add(cls.vocab_tag)
         model.Session.commit()
         model.Session.remove()
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
 
     def test_tag_list(self):
         postparams = '%s=1' % json.dumps({'vocabulary_name': self.vocab.name})
