@@ -168,9 +168,8 @@ class I18nMiddleware(object):
                 url = url[len(root):]
                 url = '/%s%s%s' % (root, language,  url)
                 headers = []
-                headers.append(('Content-Type', 'text/html'))
-                headers.append(('Refresh', '0; url=%s' % url))
-                start_response('200 OK', headers)
+                headers.append(('Location', url))
+                start_response('302 Found', headers)
                 return []
             # use default language from config
             environ['CKAN_LANG'] = self.default_locale
