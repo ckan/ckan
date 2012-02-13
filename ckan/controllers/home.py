@@ -9,7 +9,7 @@ import sqlalchemy.exc
 from ckan.authz import Authorizer
 from ckan.logic import NotAuthorized
 from ckan.logic import check_access, get_action
-from ckan.lib.i18n import set_session_locale, get_lang
+from ckan.lib.i18n import get_lang
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.base import *
 from ckan.lib.hash import get_redirect
