@@ -505,15 +505,25 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             timestamp_float = timegm(timestamp_without_usecs) + usecs
             return datetime.datetime.utcfromtimestamp(timestamp_float)
 
-    def get_groups(self):
+    def is_in_group(self, group):
+        return group in self.get_groups()
+
+    def get_groups(self, group_type=None, capacity=None):
         import ckan.model as model
         if '_groups' not in self.__dict__:
             self._groups = model.Session.query(model.Group).\
-               join(model.Member, model.Member.group_id == model.Group.id).\
+               join(model.Member, model.Member.group_id == model.Group.id and \
+                    model.Member.table_name == 'package' ).\
                join(model.Package, model.Package.id == model.Member.table_id).\
                filter(model.Member.state == 'active').\
-               filter(model.Package.id == self.id).all()
-        return self._groups
+               filter(model.Member.table_id == self.id).all()
+               
+        groups = self._groups
+        if group_type:       
+            groups = [g for g in groups if g.type == group_type]
+        if capacity:       
+            groups = [g for g in groups if g.capacity == capacity]
+        return groups
 
     @property
     def metadata_created(self):
