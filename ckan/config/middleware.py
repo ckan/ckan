@@ -15,6 +15,7 @@ from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
+from ckan.lib.i18n import get_locales
 
 from ckan.config.environment import load_environment
 
@@ -134,8 +135,8 @@ class I18nMiddleware(object):
     eg /fr/home is French"""
     def __init__(self, app, config):
         self.app = app
-        self.default_locale = config['ckan.locale_default']
-        self.local_list = config['ckan.locale_order'].split()
+        self.default_locale = config.get('ckan.locale_default', 'en')
+        self.local_list = get_locales()
 
     def __call__(self, environ, start_response):
         # strip the language selector from the requested url

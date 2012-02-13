@@ -22,6 +22,8 @@ from routes import redirect_to
 from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
+from i18n import get_locales
+# get_available_locales not used here but passed to template context
 from i18n import get_available_locales
 
 
@@ -65,7 +67,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
 
     default_locale = False
     locale = kw.pop('locale', None)
-    allowed_locales = ['default'] + config['ckan.locale_order'].split()
+    allowed_locales = ['default'] + get_locales()
     if locale and locale not in allowed_locales:
         locale = None
     if locale:
