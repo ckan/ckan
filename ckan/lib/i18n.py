@@ -44,19 +44,30 @@ def _get_locales():
         if locale == locale_default:
             continue
         locale_list.append(locale)
-    ordered_list = [Locale.parse(locale_default)]
-    for locale in locale_order:
-        if locale in locale_list:
-            ordered_list.append(Locale.parse(locale))
+    # order the list if specified
+    ordered_list = [locale_default]
+    if locale_order:
+        for locale in locale_order:
+            if locale in locale_list:
+                ordered_list.append(locale)
+    else:
+        ordered_list += locale_list
 
     return ordered_list
 
 available_locales = None
+locales = None
+
+def get_locales():
+    if not locales:
+        global locales
+        locales = _get_locales()
+    return locales
 
 def get_available_locales():
     if not available_locales:
         global available_locales
-        available_locales = _get_locales()
+        available_locales = map(Locale.parse, get_locales())
     return available_locales
 
 def handle_request(request, tmpl_context):
