@@ -455,6 +455,7 @@ class PackageController(BaseController):
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id})
 
