@@ -546,7 +546,7 @@ search_items = [{'name':'gils',
                           'format':'DOC',
                           'description':'http://www.statistics.gov.uk/hub/id/119-34565'}],
               'groups':'ukgov test1 test2 penguin',
-              'license':'gpl-3.0',
+              'license':'odc-by',
               'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>
               
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal
