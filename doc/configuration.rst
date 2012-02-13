@@ -392,17 +392,18 @@ A url pointing to a JSON file containing a list of licence objects. This list
 determines the licences offered by the system to users, for example when
 creating or editing a dataset.
 
-This is entirely optional - by default, the system will use the CKAN list of
-licences available in the `Python licenses package <http://pypi.python.org/pypi/licenses>`_.
+This is entirely optional - by default, the system will use an internal cached
+version of the CKAN list of licences available from the
+http://licenses.opendefinition.org/licenses/groups/ckan.json.
 
-More details about the CKAN license objects - including the licence format and some
+More details about the license objects - including the licence format and some
 example licence lists - can be found at the `Open Licenses Service 
 <http://licenses.opendefinition.org/>`_.
 
 Examples::
  
- licenses_group_url = file:///path/to/my/local/json-list-of-licenses.js
- licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_original
+ licenses_group_url = file:///path/to/my/local/json-list-of-licenses.json
+ licenses_group_url = http://licenses.opendefinition.org/licenses/groups/od.json
 
 
 Messaging Settings
