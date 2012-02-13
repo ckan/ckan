@@ -281,10 +281,14 @@ def package_dict_save(pkg_dict, context):
     package_tag_list_save(pkg_dict.get("tags", []), pkg, context)
     package_membership_list_save(pkg_dict.get("groups", []), pkg, context)
 
-    subjects = pkg_dict.get('relationships_as_subject', [])
-    relationship_list_save(subjects, pkg, 'relationships_as_subject', context)
-    objects = pkg_dict.get('relationships_as_object', [])
-    relationship_list_save(subjects, pkg, 'relationships_as_object', context)
+    # relationships are not considered 'part' of the package, so only
+    # process this if the key is provided
+    if 'relationships_as_subject' in pkg_dict:
+        subjects = pkg_dict.get('relationships_as_subject', [])
+        relationship_list_save(subjects, pkg, 'relationships_as_subject', context)
+    if 'relationships_as_object' in pkg_dict:
+        objects = pkg_dict.get('relationships_as_object', [])
+        relationship_list_save(objects, pkg, 'relationships_as_object', context)
 
     extras = package_extras_save(pkg_dict.get("extras", []), pkg, context)
 

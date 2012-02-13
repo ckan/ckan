@@ -204,10 +204,7 @@ def linked_user(user, maxlength=0):
             return user_name
     if user:
         _name = user.name if model.User.VALID_NAME.match(user.name) else user.id
-        # Absolute URL of default user icon
-        from pylons import config 
-        _icon_url_default = icon_url("user")
-        _icon = gravatar(user.email_hash, 16, _icon_url_default)+" "
+        _icon = gravatar(user.email_hash, 20)
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
@@ -252,14 +249,14 @@ def icon_html(url, alt=None):
 def icon(name, alt=None):
     return icon_html(icon_url(name),alt)
 
-def linked_gravatar(email_hash, size=100, default="mm"):
+def linked_gravatar(email_hash, size=100, default="identicon"):
     return literal('''<a href="https://gravatar.com/" target="_blank"
         title="Update your avatar at gravatar.com">
         %s</a>''' %
             gravatar(email_hash,size,default)
         )
 
-def gravatar(email_hash, size=100, default="mm"):
+def gravatar(email_hash, size=100, default="identicon"):
     return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
         class="gravatar" />'''
         % (email_hash, size, default)
@@ -284,12 +281,15 @@ class Page(paginate.Page):
         )
         return super(Page, self).pager(*args, **kwargs)
 
-def render_datetime(datetime_, date_format='%Y-%m-%d %H:%M'):
+def render_datetime(datetime_, date_format=None, with_hours=False):
     '''Render a datetime object or timestamp string as a pretty string
     (Y-m-d H:m).
     If timestamp is badly formatted, then a blank string is returned.
     '''
-    from ckan import model
+    if not date_format: 
+        date_format = '%b %d, %Y'
+        if with_hours:
+            date_format += ', %H:%M'
     if isinstance(datetime_, datetime.datetime):
         return datetime_.strftime(date_format)
     elif isinstance(datetime_, basestring):

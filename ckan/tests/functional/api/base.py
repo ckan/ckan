@@ -278,13 +278,6 @@ class Api1and2TestCase(object):
         assert cls.ref_group_by in ['id', 'name']
         return getattr(group, cls.ref_group_by)
 
-    @classmethod
-    def _list_package_refs(cls, packages):
-        return [getattr(p, cls.ref_package_by) for p in packages]
-
-    @classmethod
-    def _list_group_refs(cls, groups):
-        return [getattr(p, cls.ref_group_by) for p in groups]
 
 class Api1TestCase(Api1and2TestCase):
 

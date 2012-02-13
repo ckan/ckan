@@ -78,12 +78,6 @@ header .account {
   float: right;
 }
 
-header .account img.gravatar {
-  margin: 0 5px -5px 0;
-  border-radius: 3px;
-}
-
-
 header .search {
   margin: 1px;
   margin-left: 1em;
@@ -238,6 +232,10 @@ tbody tr.table-empty td {
   border-bottom: 1px dashed #000;
 }
 
+img.gravatar {
+  margin: 0 5px -5px 0;
+  border-radius: 3px;
+}
 
 /* =============== */
 /* MinorNavigation */
@@ -640,6 +638,7 @@ form.simple-form input[type=password] {
 /* ============== */
 /* = User Index = */
 /* ============== */
+
 ul.userlist, 
 ul.userlist ul {
   list-style-type: none;
@@ -658,7 +657,8 @@ ul.userlist li ul span.edits {
   margin-left: 3px;
 }
 ul.userlist .username img {
-  margin-bottom: -3px;
+  margin: 0 5px -6px 0;
+  border-radius: 3px;
 }
 ul.userlist .created {
   color: #888;
@@ -1525,30 +1525,30 @@ body.authz form button {
 /* = Activity Streams = */
 /* ==================== */
 
-.activity-stream-activity {
+.activity-stream .activity {
     padding-bottom:1em;
 
 }
-.activity-stream-activity a {
+.activity-stream .activity a {
     font-weight:bold;
 
 }
-.activity-stream-activity .actor {
+.activity-stream .activity .actor {
 
 }
-.activity-stream-activity .verb {
+.activity-stream .activity .verb {
     background-color:PapayaWhip;
     padding:.25em;
     margin:.25em;
 
 }
-.activity-stream-activity .object {
+.activity-stream .activity .object {
 
 }
-.activity-stream-activity .target {
+.activity-stream .activity .target {
 
 }
-.activity-stream-activity .date {
+.activity-stream .activity .date {
     color:#999;
 
 }

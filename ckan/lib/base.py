@@ -87,6 +87,18 @@ class BaseController(WSGIController):
         i18n.handle_request(request, c)
 
     def _identify_user(self):
+        '''
+        Identifies the user using two methods:
+        a) If he has logged into the web interface then repoze.who will
+           set REMOTE_USER.
+        b) For API calls he may set a header with his API key.
+        If the user is identified then:
+          c.user = user name (unicode)
+          c.author = user name
+        otherwise:
+          c.user = None
+          c.author = user\'s IP address (unicode)
+        '''
         # see if it was proxied first
         c.remote_addr = request.environ.get('HTTP_X_FORWARDED_FOR', '')
         if not c.remote_addr:
@@ -98,7 +110,7 @@ class BaseController(WSGIController):
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
             if c.userobj is None:
-                # This occurs when you are logged in with openid, clean db
+                # This occurs when you are logged in, clean db
                 # and then restart i.e. only really for testers. There is no
                 # user object, so even though repoze thinks you are logged in
                 # and your cookie has ckan_display_name, we need to force user

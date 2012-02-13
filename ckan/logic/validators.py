@@ -1,5 +1,6 @@
-import re
 import datetime
+from itertools import count
+import re
 from pylons.i18n import _, ungettext, N_, gettext
 from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unflatten
 from ckan.authz import Authorizer
@@ -268,13 +269,17 @@ def tag_string_convert(key, data, errors, context):
     '''Takes a list of tags that is a comma-separated string (in data[key])
     and parses tag names. These are added to the data dict, enumerated. They
     are also validated.'''
-    tag_string = data[key]
 
-    tags = [tag.strip() \
-            for tag in tag_string.split(',') \
-            if tag.strip()]
+    if isinstance(data[key], basestring):
+        tags = [tag.strip() \
+                for tag in data[key].split(',') \
+                if tag.strip()]
+    else:
+        tags = data[key]
 
-    for num, tag in enumerate(tags):
+    current_index = max( [int(k[1]) for k in data.keys() if len(k) == 3 and k[0] == 'tags'] + [-1] )
+
+    for num, tag in zip(count(current_index+1), tags):
         data[('tags', num, 'name')] = tag
 
     for tag in tags:
