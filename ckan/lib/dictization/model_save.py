@@ -219,6 +219,7 @@ def package_membership_list_save(group_dicts, package, context):
         member_obj = model.Member(table_id = package.id,
                                   table_name = 'package',
                                   group = group,
+                                  group_id=group.id,
                                   state = 'active')
         session.add(member_obj)
 
@@ -262,7 +263,8 @@ def relationship_list_save(relationship_dicts, package, attr, context):
         relationship_list.append(relationship)
 
 def package_dict_save(pkg_dict, context):
-
+    import uuid
+    
     model = context["model"]
     package = context.get("package")
     allow_partial_update = context.get("allow_partial_update", False)
@@ -276,6 +278,9 @@ def package_dict_save(pkg_dict, context):
         del pkg_dict['metadata_modified']
 
     pkg = table_dict_save(pkg_dict, Package, context)
+
+    if not pkg.id:
+        pkg.id = str(uuid.uuid4())
 
     package_resource_list_save(pkg_dict.get("resources", []), pkg, context)
     package_tag_list_save(pkg_dict.get("tags", []), pkg, context)
@@ -295,7 +300,6 @@ def package_dict_save(pkg_dict, context):
     return pkg
 
 def group_member_save(context, group_dict, member_table_name):
-
     model = context["model"]
     session = context["session"]
     group = context['group']
@@ -327,14 +331,15 @@ def group_member_save(context, group_dict, member_table_name):
         session.add(entity_member[entity_id])
 
     for entity_id in set(entities.keys()) - set(entity_member.keys()):
-        member = Member(group=group, table_id=entity_id[0],
+        member = Member(group=group, group_id=group.id, table_id=entity_id[0],
                         table_name=member_table_name[:-1],
                         capacity=entity_id[1])
         session.add(member)
 
 
 def group_dict_save(group_dict, context):
-
+    import uuid 
+    
     model = context["model"]
     session = context["session"]
     group = context.get("group")
@@ -345,6 +350,9 @@ def group_dict_save(group_dict, context):
         group_dict["id"] = group.id 
 
     group = table_dict_save(group_dict, Group, context)
+    if not group.id:
+        group.id = str(uuid.uuid4())
+        
     context['group'] = group
 
     group_member_save(context, group_dict, 'packages')

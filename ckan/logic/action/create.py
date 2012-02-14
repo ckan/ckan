@@ -180,7 +180,7 @@ def group_create(context, data_dict):
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     group = group_dict_save(data, context)
-
+    
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
     else:
@@ -188,6 +188,7 @@ def group_create(context, data_dict):
     model.setup_default_user_roles(group, admins)
     # Needed to let extensions know the group id
     session.flush()
+
     for item in PluginImplementations(IGroupController):
         item.create(group)
 

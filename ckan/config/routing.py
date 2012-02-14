@@ -257,9 +257,9 @@ def make_map():
         )
     map.connect('group_read', '/group/{id}', controller='group', action='read')
 
-
     register_package_behaviour(map)
     register_group_behaviour(map)    
+
     
     # authz group
     map.redirect("/authorizationgroups", "/authorizationgroup")
