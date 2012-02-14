@@ -3,14 +3,16 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+#   <dimi.span@gmail.com>, 2012.
+# Spiros Alexiou <spiros.alexiou@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-02-09 18:46+0000\n"
-"PO-Revision-Date: 2012-02-09 19:13+0000\n"
-"Last-Translator: dread <internet@davidread.org>\n"
-"Language-Team: Greek (http://www.transifex.net/projects/p/ckan/team/el/)\n"
+"PO-Revision-Date: 2012-02-13 21:29+0000\n"
+"Last-Translator: dimispan <dimi.span@gmail.com>\n"
+"Language-Team: Greek (http://www.transifex.net/projects/p/ckan/language/el/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,7 +24,7 @@ msgstr ""
 #: ckanext/stats/templates/ckanext/stats/index.html:8
 #: ckan/templates/layout_base.html:160
 msgid "Statistics"
-msgstr ""
+msgstr "Στατιστικά στοιχεία"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:37
 #: ckan/templates/admin/layout.html:10 ckan/templates/revision/list.html:11
@@ -31,11 +33,11 @@ msgstr "Αρχική"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:43
 msgid "Total number of Datasets"
-msgstr ""
+msgstr "Συνολικός αριθμός Συνόλων Δεδομένων"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:46
 msgid "Revisions to Datasets per week"
-msgstr ""
+msgstr "Εκδόσεις Συνόλων Δεδομένων ανά εβδομάδα"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:49
 msgid "Top Rated Datasets"
@@ -46,11 +48,11 @@ msgstr ""
 #: ckan/logic/validators.py:58 ckan/logic/validators.py:84
 #: ckan/templates/group/new_group_form.html:90
 msgid "Dataset"
-msgstr ""
+msgstr "Σύνολο Δεδομένων"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:51
 msgid "Average rating"
-msgstr ""
+msgstr "Μέση βαθμολογία"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:51
 msgid "Number of ratings"
@@ -81,7 +83,7 @@ msgstr "Ομάδα"
 #: ckanext/stats/templates/ckanext/stats/index.html:68
 #: ckan/templates/_util.html:147 ckan/templates/_util.html:160
 msgid "Number of datasets"
-msgstr ""
+msgstr "Αριθμός Συνόλων Δεδομένων"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:74
 msgid "Top Tags"
@@ -124,15 +126,15 @@ msgstr ""
 
 #: ckan/controllers/admin.py:105
 msgid "Changes Saved"
-msgstr ""
+msgstr "Οι αλλαγές αποθηκεύθηκαν"
 
 #: ckan/controllers/admin.py:142 ckan/logic/action/get.py:913
 msgid "unknown user:"
-msgstr ""
+msgstr "Άγνωστος χρήστης:"
 
 #: ckan/controllers/admin.py:152
 msgid "User Added"
-msgstr ""
+msgstr "Ο χρήστης προστέθηκε"
 
 #: ckan/controllers/admin.py:159
 msgid "unknown authorization group:"
@@ -259,8 +261,7 @@ msgstr "Δεν υπάρχει έκδοση με id: %s"
 
 #: ckan/controllers/api.py:453
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
-msgstr ""
-"Ελλειπή στοιχεία αναζήτησης ('since_id=UUID' or 'since_time=TIMESTAMP')"
+msgstr "Ελλιπή στοιχεία αναζήτησης ('since_id=UUID' or 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:461
 #, python-format
@@ -283,9 +284,7 @@ msgstr ""
 
 #: ckan/controllers/api.py:528
 msgid "Request params must be in form of a json encoded dictionary."
-msgstr ""
-"Οι παράμετροι που ζητούνται πρέπει να είναι ακολουθούν την μορφή λεξικού "
-"json encoded."
+msgstr "Οι παράμετροι που ζητούνται πρέπει να είναι ακολουθούν την μορφή λεξικού json encoded."
 
 #: ckan/controllers/api.py:615
 #, python-format
@@ -343,11 +342,11 @@ msgstr "Θα πρέπει να επιλέξτε δύο εκδόσεις πριν
 
 #: ckan/controllers/group.py:510
 msgid "CKAN Group Revision History"
-msgstr ""
+msgstr "Ιστορικό Εκδόσεων Ομάδας CKAN"
 
 #: ckan/controllers/group.py:512
 msgid "Recent changes to CKAN Group: "
-msgstr ""
+msgstr "Πρόσφατες αλλαγές στη CKAN Ομάδα: "
 
 #: ckan/controllers/group.py:530 ckan/controllers/package.py:425
 msgid "Log message: "
@@ -403,7 +402,7 @@ msgstr ""
 #: ckan/controllers/package.py:597 ckan/controllers/package.py:617
 #: ckan/controllers/package.py:648 ckan/controllers/package.py:694
 msgid "Dataset not found"
-msgstr ""
+msgstr "Το Σύνολο Δεδομένων δεν βρέθηκε"
 
 #: ckan/controllers/package.py:320 ckan/controllers/package.py:360
 #: ckan/controllers/package.py:397 ckan/controllers/package.py:496
@@ -416,11 +415,11 @@ msgstr "Δεν έχετε δικαίωμα ανάγνωσης του πακέτ�
 
 #: ckan/controllers/package.py:406
 msgid "CKAN Dataset Revision History"
-msgstr ""
+msgstr "Ιστορικό Εκδόσεων CKAN Συνόλου Δεδομένων "
 
 #: ckan/controllers/package.py:408
 msgid "Recent changes to CKAN Dataset: "
-msgstr ""
+msgstr "Πρόσφατες αλλαγές στο CKAN Σύνολο Δεδομένων: "
 
 #: ckan/controllers/package.py:454 ckan/controllers/package_formalchemy.py:29
 msgid "Unauthorized to create a package"
@@ -488,7 +487,7 @@ msgstr ""
 #: ckan/controllers/user.py:232 ckan/controllers/user.py:333
 #: ckan/controllers/user.py:353
 msgid "User not found"
-msgstr ""
+msgstr "Ο χρήστης δεν βρέθηκε"
 
 #: ckan/controllers/user.py:159
 msgid "Bad Captcha. Please try again."
@@ -502,7 +501,7 @@ msgstr ""
 #: ckan/controllers/user.py:351
 #, python-format
 msgid "Unauthorized to edit user %s"
-msgstr ""
+msgstr "Δεν έχετε δικαίωμα επεξεργασίας του χρήστη %s"
 
 #: ckan/controllers/user.py:208
 #, python-format
@@ -566,9 +565,7 @@ msgstr "Το μήκος του ονόματος πρέπει να είναι τ�
 msgid ""
 "Name must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
-"Το όνομα μπορεί να αποτελείται μόνο από πεζά αλφαριθμητικά (χαρακτήρες "
-"ascii) και τα σύμβολα - (παύλα) και _ (κάτω παύλα)"
+msgstr "Το όνομα μπορεί να αποτελείται μόνο από πεζά αλφαριθμητικά (χαρακτήρες ascii) και τα σύμβολα - (παύλα) και _ (κάτω παύλα)"
 
 #: ckan/forms/common.py:41
 msgid "Dataset name already exists in database"
@@ -611,8 +608,7 @@ msgstr "Διπλό κλειδί  \"%s\""
 #: ckan/forms/common.py:550
 #, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
-msgstr ""
-"Επιπλέον ζεύγος κλειδιού-τιμής: δεν έχει τεθεί κλειδί για την τιμή \"%s\"."
+msgstr "Επιπλέον ζεύγος κλειδιού-τιμής: δεν έχει τεθεί κλειδί για την τιμή \"%s\"."
 
 #: ckan/forms/common.py:785 ckan/templates/package/new_package_form.html:133
 msgid "Cannot add any groups."
@@ -975,9 +971,7 @@ msgstr ""
 #: ckan/logic/validators.py:257
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr ""
-"Το Tag \"%s\" αποτελούνται από αλφαριθμητικούς χαρακτήρες ή τα σύμβολα - και"
-" _"
+msgstr "Το Tag \"%s\" αποτελούνται από αλφαριθμητικούς χαρακτήρες ή τα σύμβολα - και _"
 
 #: ckan/logic/validators.py:265
 #, python-format
@@ -1082,17 +1076,17 @@ msgstr ""
 #: ckan/logic/auth/create.py:13
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr ""
+msgstr "Ο χρήστης %s δεν έχει δικαίωμα δημιουργίας πακέτων"
 
 #: ckan/logic/auth/create.py:18 ckan/logic/auth/update.py:22
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr ""
+msgstr "Ο χρήστης %s δεν έχει δικαίωμα επεξεργασίας αυτών των Ομάδων"
 
 #: ckan/logic/auth/create.py:39
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr ""
+msgstr "Ο χρήστης %s δεν έχει δικαίωμα επεξεργασίας αυτών των πακέτων"
 
 #: ckan/logic/auth/create.py:49
 #, python-format
@@ -1144,7 +1138,7 @@ msgstr ""
 #: ckan/logic/auth/get.py:78
 #, python-format
 msgid "User %s not authorized to read these packages"
-msgstr ""
+msgstr "Ο χρήστης %s δεν έχει δικαίωμα ανάγνωσης αυτών των πακέτων"
 
 #: ckan/logic/auth/get.py:89
 #, python-format
@@ -1619,7 +1613,7 @@ msgstr ""
 
 #: ckan/templates/layout_base.html:212
 msgid "CKAN"
-msgstr ""
+msgstr "CKAN"
 
 #: ckan/templates/layout_base.html:212
 msgid "v"
@@ -1809,7 +1803,7 @@ msgstr ""
 #: ckan/templates/group/read.html:34 ckan/templates/revision/read.html:45
 #: ckan/templates/user/read.html:54 ckan/templates/user/read.html:67
 msgid "Datasets"
-msgstr ""
+msgstr "Σύνολα Δεδομένων"
 
 #: ckan/templates/group/edit_form.html:17
 #: ckan/templates/group/new_group_form.html:86
@@ -1856,7 +1850,7 @@ msgstr "Ιστορία"
 
 #: ckan/templates/group/layout.html:17
 msgid "New Dataset..."
-msgstr ""
+msgstr "Νέο Σύνολο Δεδομένων..."
 
 #: ckan/templates/group/layout.html:18
 msgid "Existing Dataset..."
@@ -2348,15 +2342,15 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:42
 msgid "Download"
-msgstr ""
+msgstr "Download"
 
 #: ckan/templates/package/resource_read.html:49
 msgid "Part of dataset"
-msgstr ""
+msgstr "Μέρος του dataset"
 
 #: ckan/templates/package/resource_read.html:53
 msgid "Last updated"
-msgstr ""
+msgstr "Τελευταία ενημέρωση"
 
 #: ckan/templates/package/resource_read.html:84
 msgid "From the [1:Dataset]:"
@@ -2368,35 +2362,35 @@ msgstr "Μερικές πηγές"
 
 #: ckan/templates/package/search.html:9 ckan/templates/package/search.html:10
 msgid "Search -"
-msgstr ""
+msgstr "Αναζήτηση -"
 
 #: ckan/templates/package/search.html:16
 msgid "Do you know of a dataset that should be added to"
-msgstr ""
+msgstr "Γνωρίζετε κάποιο dataset που θα έπρεπε να προστεθεί στο"
 
 #: ckan/templates/package/search.html:20
 msgid "Register it now"
-msgstr ""
+msgstr "Καταχωρήστε το τώρα"
 
 #: ckan/templates/package/search.html:29
 msgid "Other access"
-msgstr ""
+msgstr "Άλλη πρόσβαση"
 
 #: ckan/templates/package/search.html:35
 msgid "You can also access this registry using the"
-msgstr ""
+msgstr "Μπορείτε επίσης να έχετε πρόσβαση σ' αυτή την καταχώρηση χρησιμοποιώντας το"
 
 #: ckan/templates/package/search.html:37
 msgid "(see"
-msgstr ""
+msgstr "(βλέπε "
 
 #: ckan/templates/package/search.html:38
 msgid "or download a"
-msgstr ""
+msgstr "ή κατεβάστε ένα"
 
 #: ckan/templates/package/search.html:39
 msgid "full"
-msgstr ""
+msgstr "πλήρες"
 
 #: ckan/templates/package/search.html:39
 msgid "dump"
@@ -2487,9 +2481,7 @@ msgstr ""
 msgid ""
 ",\n"
 "      Tag -"
-msgstr ""
-",\n"
-"      Tag -"
+msgstr ",\n      Tag -"
 
 #: ckan/templates/storage/index.html:6 ckan/templates/storage/index.html:15
 #: ckan/templates/storage/success.html:6
@@ -2672,7 +2664,7 @@ msgstr "Παρακαλώ, κάντε κλικ στον πάροχο του λο�
 
 #: ckan/templates/user/login.html:54
 msgid "OpenID Identifier:"
-msgstr ""
+msgstr "Αναγνωριστικό OpenID"
 
 #: ckan/templates/user/login.html:58
 msgid "Don't have an OpenID?"
@@ -2693,7 +2685,7 @@ msgstr "Έξοδος - Χρήστη"
 
 #: ckan/templates/user/logout.html:8
 msgid "Logout from"
-msgstr ""
+msgstr "Αποσύνδεση από"
 
 #: ckan/templates/user/logout.html:11
 msgid "You have logged out successfully."
@@ -2705,19 +2697,19 @@ msgstr ""
 
 #: ckan/templates/user/new.html:6
 msgid "Register for a new Account"
-msgstr ""
+msgstr "Εγγραφείτε για έκδοση νέου Λογαριασμού"
 
 #: ckan/templates/user/new_user_form.html:18
 msgid "3+ chars, using only 'a-z0-9' and '-_'"
-msgstr ""
+msgstr "3+ χαρακ., μεταξύ των 'a-z0-9' and '-_'"
 
 #: ckan/templates/user/new_user_form.html:21
 msgid "Full name (optional):"
-msgstr ""
+msgstr "Πλήρες όνομα (προαιρετικό):"
 
 #: ckan/templates/user/new_user_form.html:25
 msgid "E-Mail"
-msgstr ""
+msgstr "E-Mail"
 
 #: ckan/templates/user/read.html:5
 msgid "- User"
@@ -2725,27 +2717,27 @@ msgstr "- Χρήστης"
 
 #: ckan/templates/user/read.html:24
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: ckan/templates/user/read.html:29
 msgid "No email"
-msgstr ""
+msgstr "Χωρίς email"
 
 #: ckan/templates/user/read.html:33
 msgid "Member since"
-msgstr ""
+msgstr "Μέλος από"
 
 #: ckan/templates/user/read.html:41
 msgid "API Key"
-msgstr ""
+msgstr "API Key"
 
 #: ckan/templates/user/read.html:45
 msgid "– Note: your API key is visible only to you!"
-msgstr ""
+msgstr "- Σημείωση: το API key σας είναι ορατό μόνο από εσάς"
 
 #: ckan/templates/user/read.html:58
 msgid "Edits"
-msgstr ""
+msgstr "Αλλαγές"
 
 #: ckan/templates/user/read.html:71
 msgid "Public Activity"
@@ -2753,14 +2745,12 @@ msgstr ""
 
 #: ckan/templates/user/request_reset.html:6
 msgid "Reset password"
-msgstr ""
+msgstr "Επαναφορά κωδικού"
 
 #: ckan/templates/user/request_reset.html:7
 msgid "Request a password reset"
-msgstr ""
+msgstr "Αίτημα επαναφοράς κωδικού"
 
 #: ckan/templates/user/request_reset.html:13
 msgid "User name:"
-msgstr ""
-
-
+msgstr "Όνομα χρήστη:"

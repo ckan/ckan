@@ -1,30 +1,31 @@
-# Translations template for ckan.
+# Russian translations for ckan.
 # Copyright (C) 2012 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# 
+#
 # Translators:
-# alexey medvetsky <ushchent@gmail.com>, 2011.
+# alexey medvetsky <ushchent@gmail.com>, 2011, 2012.
 # Alfred Tessman <alfred.tessman@gmail.com>, 2011.
 msgid ""
 msgstr ""
-"Project-Id-Version: CKAN\n"
+"Project-Id-Version:  CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-02-09 18:46+0000\n"
-"PO-Revision-Date: 2012-02-09 19:17+0000\n"
-"Last-Translator: dread <internet@davidread.org>\n"
-"Language-Team: Russian (http://www.transifex.net/projects/p/ckan/team/ru/)\n"
+"PO-Revision-Date: 2012-02-13 19:38+0000\n"
+"Last-Translator: alexey medvetsky <ushchent@gmail.com>\n"
+"Language-Team: Russian "
+"(http://www.transifex.net/projects/p/ckan/language/ru/)\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
-"Language: ru\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:6
 #: ckanext/stats/templates/ckanext/stats/index.html:8
 #: ckan/templates/layout_base.html:160
 msgid "Statistics"
-msgstr ""
+msgstr "Статистика"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:37
 #: ckan/templates/admin/layout.html:10 ckan/templates/revision/list.html:11
@@ -33,15 +34,15 @@ msgstr "Главная страница"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:43
 msgid "Total number of Datasets"
-msgstr ""
+msgstr "Всего пакетов данных"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:46
 msgid "Revisions to Datasets per week"
-msgstr ""
+msgstr "Число редакций пакетов за неделю"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:49
 msgid "Top Rated Datasets"
-msgstr ""
+msgstr "Самые популярные пакеты данных"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:51
 #: ckanext/stats/templates/ckanext/stats/index.html:60
@@ -52,30 +53,30 @@ msgstr "Набор данных"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:51
 msgid "Average rating"
-msgstr ""
+msgstr "Средняя оценка"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:51
 msgid "Number of ratings"
-msgstr ""
+msgstr "Количество оценок"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:56
 msgid "No ratings"
-msgstr ""
+msgstr "Нет оценок"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 msgid "Most Edited Datasets"
-msgstr ""
+msgstr "Самые часто редактируемые пакеты данных"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:60
 msgid "Number of edits"
-msgstr ""
+msgstr "Количество редакций"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:66
 msgid "Largest Groups"
-msgstr ""
+msgstr "Самые большие группы"
 
-#: ckanext/stats/templates/ckanext/stats/index.html:68
-#: ckan/forms/common.py:800 ckan/logic/validators.py:111
+#: ckanext/stats/templates/ckanext/stats/index.html:68 ckan/forms/common.py:800
+#: ckan/logic/validators.py:111
 #: ckan/templates/package/new_package_form.html:124
 msgid "Group"
 msgstr "Группа"
@@ -87,19 +88,19 @@ msgstr "Количество пакетов"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:74
 msgid "Top Tags"
-msgstr ""
+msgstr "Самые популярные метки"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:81
 msgid "Users owning most datasets"
-msgstr ""
+msgstr "Пользователи, зарегистрировавшие наибольшее количество пакетов данных"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:88
 msgid "Page last updated:"
-msgstr ""
+msgstr "Последнее изменение страницы "
 
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:6
 msgid "Leaderboard - Stats"
-msgstr ""
+msgstr "Статистика Доски почета"
 
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:17
 msgid "Dataset Leaderboard"
@@ -107,13 +108,16 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:18
 msgid ""
-"Choose a dataset attribute and find out which categories in that area have "
-"the most datasets. E.g. tags, groups, license, res_format, country."
+"Choose a dataset attribute and find out which categories in that area "
+"have the most datasets. E.g. tags, groups, license, res_format, country."
 msgstr ""
+"Выберите свойство пакета данных и узнайте, какие связанные категории "
+"содержат наибольшее количество пакетов. Например, метки, группы, "
+"лицензия, страна."
 
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
-msgstr ""
+msgstr "Выберите область"
 
 #: ckan/new_authz.py:18
 #, python-format
@@ -122,27 +126,27 @@ msgstr "Функция авторизации не найдена: %s"
 
 #: ckan/controllers/admin.py:19
 msgid "Need to be system administrator to administer"
-msgstr ""
+msgstr "Для этого действия необходимы права администратора."
 
 #: ckan/controllers/admin.py:105
 msgid "Changes Saved"
-msgstr ""
+msgstr "Изменения сохранены"
 
 #: ckan/controllers/admin.py:142 ckan/logic/action/get.py:913
 msgid "unknown user:"
-msgstr ""
+msgstr "неизвестный пользователь:"
 
 #: ckan/controllers/admin.py:152
 msgid "User Added"
-msgstr ""
+msgstr "Пользователь добавлен"
 
 #: ckan/controllers/admin.py:159
 msgid "unknown authorization group:"
-msgstr ""
+msgstr "неизвестная группа авторизации:"
 
 #: ckan/controllers/admin.py:169
 msgid "Authorization Group Added"
-msgstr ""
+msgstr "Группа авторизации добавлена"
 
 #: ckan/controllers/admin.py:268
 #, python-format
@@ -156,7 +160,7 @@ msgstr ""
 #: ckan/controllers/admin.py:287
 #, python-format
 msgid "Problem purging revision %s: %s"
-msgstr ""
+msgstr "При удалении редакции %s возникла проблема %s"
 
 #: ckan/controllers/admin.py:289
 msgid "Purge complete"
@@ -164,7 +168,7 @@ msgstr "Очищение заверншено"
 
 #: ckan/controllers/admin.py:291
 msgid "Action not implemented."
-msgstr ""
+msgstr "Действие не вступило в силу"
 
 #: ckan/controllers/api.py:40 ckan/controllers/authorization_group.py:22
 #: ckan/controllers/group.py:194 ckan/controllers/home.py:27
@@ -179,11 +183,11 @@ msgstr "Недостаточно прав для просмотра этой с�
 msgid "Access denied"
 msgstr "Отказано в доступе"
 
-#: ckan/controllers/api.py:105 ckan/controllers/api.py:175
-#: ckan/lib/base.py:372 ckan/logic/validators.py:58
-#: ckan/logic/validators.py:69 ckan/logic/validators.py:84
-#: ckan/logic/validators.py:98 ckan/logic/validators.py:111
-#: ckan/logic/validators.py:123 ckan/logic/action/create.py:239
+#: ckan/controllers/api.py:105 ckan/controllers/api.py:175 ckan/lib/base.py:372
+#: ckan/logic/validators.py:58 ckan/logic/validators.py:69
+#: ckan/logic/validators.py:84 ckan/logic/validators.py:98
+#: ckan/logic/validators.py:111 ckan/logic/validators.py:123
+#: ckan/logic/action/create.py:239
 msgid "Not found"
 msgstr "Не найдено"
 
@@ -205,7 +209,7 @@ msgstr "Ошибка JSON: %s"
 #: ckan/controllers/api.py:156
 #, python-format
 msgid "Bad request data: %s"
-msgstr ""
+msgstr "Неверные данные запроса: %s"
 
 #: ckan/controllers/api.py:166 ckan/controllers/api.py:333
 #: ckan/controllers/api.py:385 ckan/controllers/group.py:428
@@ -217,7 +221,7 @@ msgstr "Ошибка целостности"
 
 #: ckan/controllers/api.py:190
 msgid "Parameter Error"
-msgstr ""
+msgstr "Ошибка параметра"
 
 #: ckan/controllers/api.py:233 ckan/logic/action/get.py:905
 #, python-format
@@ -263,8 +267,7 @@ msgstr "Версии с идентификатором %s не существу�
 
 #: ckan/controllers/api.py:453
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
-msgstr ""
-"Поисковый запрос не обнаружен ('since_id=UUID' или 'since_time=TIMESTAMP')"
+msgstr "Поисковый запрос не обнаружен ('since_id=UUID' или 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:461
 #, python-format
@@ -292,7 +295,7 @@ msgstr "Параметры запроса должны содержаться в
 #: ckan/controllers/api.py:615
 #, python-format
 msgid "Bad slug type: %s"
-msgstr ""
+msgstr "Неверный тип адреса (slug): %s"
 
 #: ckan/controllers/authorization_group.py:44
 #, python-format
@@ -366,8 +369,8 @@ msgstr ""
 #: ckan/controllers/home.py:69
 #, python-format
 msgid ""
-"Please <a href=\"%s\">update your profile</a> and add your email address and"
-" your full name. "
+"Please <a href=\"%s\">update your profile</a> and add your email address "
+"and your full name. "
 msgstr ""
 
 #: ckan/controllers/home.py:71 ckan/controllers/home.py:77
@@ -409,7 +412,7 @@ msgstr "Неверный формат проверки: %r"
 #: ckan/controllers/package.py:597 ckan/controllers/package.py:617
 #: ckan/controllers/package.py:648 ckan/controllers/package.py:694
 msgid "Dataset not found"
-msgstr ""
+msgstr "Пакет данных не найден"
 
 #: ckan/controllers/package.py:320 ckan/controllers/package.py:360
 #: ckan/controllers/package.py:397 ckan/controllers/package.py:496
@@ -422,11 +425,11 @@ msgstr "Недостаточно прав для просмотра пакета
 
 #: ckan/controllers/package.py:406
 msgid "CKAN Dataset Revision History"
-msgstr ""
+msgstr "История редакций CKAN"
 
 #: ckan/controllers/package.py:408
 msgid "Recent changes to CKAN Dataset: "
-msgstr ""
+msgstr "Последние изменения в пакете CKAN"
 
 #: ckan/controllers/package.py:454 ckan/controllers/package_formalchemy.py:29
 msgid "Unauthorized to create a package"
@@ -443,20 +446,20 @@ msgstr "Невозможно обновить поисковый индекс."
 #: ckan/controllers/package.py:667
 #, python-format
 msgid ""
-"<span class=\"new-dataset\">Congratulations, your dataset has been created. "
-"<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
+"<span class=\"new-dataset\">Congratulations, your dataset has been "
+"created. <a href=\"%s\">Upload or link some data now &raquo;</a></span>"
 msgstr ""
 "<span class=\"new-dataset\">Поздравляем, ваш набор данных был создан. <a "
 "href=\"%s\">Загрузить или присоединить данные сейчас &raquo;</a></span>"
 
 #: ckan/controllers/package.py:794
 msgid "Resource not found"
-msgstr ""
+msgstr "Файлы не найдены"
 
 #: ckan/controllers/package.py:796
 #, python-format
 msgid "Unauthorized to read resource %s"
-msgstr ""
+msgstr "Недостаточно прав для просмотра файлов %s"
 
 #: ckan/controllers/revision.py:40
 msgid "CKAN Repository Revision History"
@@ -469,7 +472,7 @@ msgstr "Последние изменения базы CKAN"
 #: ckan/controllers/revision.py:101
 #, python-format
 msgid "Datasets affected: %s.\n"
-msgstr ""
+msgstr "Изменения затронули %s пакетов\n"
 
 #: ckan/controllers/revision.py:177
 msgid "Revision updated"
@@ -519,7 +522,7 @@ msgstr "Пользователь %s не имеет право редактир�
 
 #: ckan/controllers/user.py:227
 msgid "Profile updated"
-msgstr ""
+msgstr "Данные обновлены"
 
 #: ckan/controllers/user.py:267
 #, python-format
@@ -629,8 +632,8 @@ msgid ""
 "Can't derived new group selection from serialized value structured like "
 "this: %s"
 msgstr ""
-"Невозможно провести групповой отбор из серийного значения с этой структурой:"
-" %s"
+"Невозможно провести групповой отбор из серийного значения с этой "
+"структурой: %s"
 
 #: ckan/forms/common.py:910
 msgid "other - please specify"
@@ -668,11 +671,11 @@ msgstr "Краткое название пакета"
 
 #: ckan/forms/package.py:35
 msgid ""
-"It should not be a description though - save that for the Notes field. Do "
-"not give a trailing full stop."
+"It should not be a description though - save that for the Notes field. Do"
+" not give a trailing full stop."
 msgstr ""
-"Это не описание. Пжл., введите описание в поле \"Заметки\". Берегите время "
-"ваших коллег."
+"Это не описание. Пжл., введите описание в поле \"Заметки\". Берегите "
+"время ваших коллег."
 
 #: ckan/forms/package.py:39
 msgid "A unique identifier for the package."
@@ -680,9 +683,9 @@ msgstr "Уникальный идентификатор пакета"
 
 #: ckan/forms/package.py:40
 msgid ""
-"It should be broadly humanly readable, in the spirit of Semantic Web URIs. "
-"Only use an acronym if it is widely recognised. Renaming is possible but "
-"discouraged."
+"It should be broadly humanly readable, in the spirit of Semantic Web "
+"URIs. Only use an acronym if it is widely recognised. Renaming is "
+"possible but discouraged."
 msgstr ""
 "Он должен быть понятен человеку и написан в духе Semantic Web URI. "
 "Используйте аббревиатуры только если они широко известны. Вы можете "
@@ -691,8 +694,8 @@ msgstr ""
 #: ckan/forms/package.py:41 ckan/templates/package/new_package_form.html:48
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
 msgstr ""
-"Две и более буквы в нижнем регистре, допустимы только символы 'a-z0-9' and "
-"'-_'"
+"Две и более буквы в нижнем регистре, допустимы только символы 'a-z0-9' "
+"and '-_'"
 
 #: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:165
 msgid "A number representing the version (if applicable)"
@@ -708,18 +711,17 @@ msgstr "См. например, http://www.example.com/growth-figures.html"
 
 #: ckan/forms/package.py:55 ckan/templates/package/new_package_form.html:151
 msgid ""
-"The name of the main contact, for enquiries about this particular dataset, "
-"using the e-mail address in the following field."
+"The name of the main contact, for enquiries about this particular "
+"dataset, using the e-mail address in the following field."
 msgstr ""
 "Имя контактного лица для связи по поводу пакета и электронный адрес в "
 "следующем поле."
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:158
 msgid ""
-"If there is another important contact person (in addition to the person in "
-"the Author field) then provide details here."
-msgstr ""
-"В случае необходимости оставьте здесь контактную информацию другого лица."
+"If there is another important contact person (in addition to the person "
+"in the Author field) then provide details here."
+msgstr "В случае необходимости оставьте здесь контактную информацию другого лица."
 
 #: ckan/forms/package.py:63 ckan/templates/package/resource_read.html:59
 msgid "Licence"
@@ -741,13 +743,13 @@ msgstr "Теги"
 #: ckan/forms/package.py:69
 #, python-format
 msgid ""
-"Comma-separated terms that may link this dataset to similar ones. For more "
-"information on conventions, see <a href=\"%s\">this wiki page</a>."
+"Comma-separated terms that may link this dataset to similar ones. For "
+"more information on conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:143
 msgid "e.g. pollution, rivers, water quality"
-msgstr ""
+msgstr "напр., загрязнение, реки, качество воды"
 
 #: ckan/forms/package.py:74
 msgid "The files containing the data or address of the APIs for accessing it."
@@ -755,28 +757,30 @@ msgstr "Файлы, которые содержат данные или API дл
 
 #: ckan/forms/package.py:75
 msgid ""
-"<br />These can be repeated as required. For example if the data is being "
-"supplied in multiple formats, or split into different areas or time periods,"
-" each file is a different 'resource' which should be described differently. "
-"They will all appear on the dataset page on CKAN together.<br /><br /> "
-"<b>URL:</b> This is the Internet link directly to the data - by selecting "
-"this link in a web browser, the user will immediately download the full data"
-" set. Note that datasets are not hosted on this site, but by the publisher "
-"of the data. Alternatively the URL can point to an API server such as a "
-"SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the"
-" file format in which the data is supplied. <br /><b>Description</b> Any "
-"information you want to add to describe the resource.<br />"
+"<br />These can be repeated as required. For example if the data is being"
+" supplied in multiple formats, or split into different areas or time "
+"periods, each file is a different 'resource' which should be described "
+"differently. They will all appear on the dataset page on CKAN "
+"together.<br /><br /> <b>URL:</b> This is the Internet link directly to "
+"the data - by selecting this link in a web browser, the user will "
+"immediately download the full data set. Note that datasets are not hosted"
+" on this site, but by the publisher of the data. Alternatively the URL "
+"can point to an API server such as a SPARQL endpoint or JSON-P "
+"service.<br /> <b>Format:</b> This should give the file format in which "
+"the data is supplied. <br /><b>Description</b> Any information you want "
+"to add to describe the resource.<br />"
 msgstr ""
-"<br /> При необходимости это можно повторять. Если данные предоставлены в "
-"нескольких форматах или разделены на разные области или временные периоды, "
-"то каждый файл является отдельным \"ресурсом\", который требует отдельного "
-"описания. Все описания отображаются вместе на странице пакета данных.<br "
-"/><br /> <b>URL:</b> Эта прямая гиперссылка на данные. Кликнув по ней, "
-"пользователь загрузит весь пакет. Обратите внимание, что пакеты хранятся не "
-"на этом сайте, а на сайте владельца пакета. Кроме этого, гиперссылка может "
-"вести на сервер API, напр. SPARQL или службу JSON-P.<br /> <b>Format:</b> "
-"Здесь можно узнать формат предоставления данных. <br /><b>Описание</b> Здесь"
-" можно ввести дополнительное описание ресурса.<br />"
+"<br /> При необходимости это можно повторять. Если данные предоставлены в"
+" нескольких форматах или разделены на разные области или временные "
+"периоды, то каждый файл является отдельным \"ресурсом\", который требует "
+"отдельного описания. Все описания отображаются вместе на странице пакета "
+"данных.<br /><br /> <b>URL:</b> Эта прямая гиперссылка на данные. Кликнув"
+" по ней, пользователь загрузит весь пакет. Обратите внимание, что пакеты "
+"хранятся не на этом сайте, а на сайте владельца пакета. Кроме этого, "
+"гиперссылка может вести на сервер API, напр. SPARQL или службу JSON-P.<br"
+" /> <b>Format:</b> Здесь можно узнать формат предоставления данных. <br "
+"/><b>Описание</b> Здесь можно ввести дополнительное описание ресурса.<br "
+"/>"
 
 #: ckan/forms/package.py:76
 msgid ""
@@ -794,13 +798,14 @@ msgstr "Основное описание пакета"
 
 #: ckan/forms/package.py:82
 msgid ""
-"It is often displayed with the package title. In particular, it should start"
-" with a short sentence that describes the data set succinctly, because the "
-"first few words alone may be used in some views of the data sets."
+"It is often displayed with the package title. In particular, it should "
+"start with a short sentence that describes the data set succinctly, "
+"because the first few words alone may be used in some views of the data "
+"sets."
 msgstr ""
-"Оно сопровождает название пакета. Желательно, чтобы уже первое предложение "
-"исчерпывающе описывало пакет, потому что первые два слова описания могут "
-"отображаться вместе с пакетом. "
+"Оно сопровождает название пакета. Желательно, чтобы уже первое "
+"предложение исчерпывающе описывало пакет, потому что первые два слова "
+"описания могут отображаться вместе с пакетом. "
 
 #: ckan/forms/package.py:83
 #, python-format
@@ -890,20 +895,20 @@ msgstr "Пустой ключ"
 
 #: ckan/lib/base.py:352
 msgid "Updated"
-msgstr ""
+msgstr "Обновлено"
 
 #: ckan/lib/base.py:364
 msgid "User role(s) added"
-msgstr ""
+msgstr "Добавлены роли пользователя(ей)"
 
 #: ckan/lib/base.py:366
 msgid "Please supply a user name"
-msgstr ""
+msgstr "Пожалуйста, укажите имя пользователя"
 
 #: ckan/lib/i18n.py:193
 #, python-format
 msgid "Could not change language to %r: %s"
-msgstr ""
+msgstr "Не удалось изменить язык на %r: %s"
 
 #: ckan/lib/mailer.py:21
 #, python-format
@@ -983,7 +988,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:192
 msgid "That URL is already in use."
-msgstr ""
+msgstr "Этот URL уже используется"
 
 #: ckan/logic/validators.py:197
 #, python-format
@@ -1120,8 +1125,7 @@ msgstr "Пользователь %s не имеет достаточно пра�
 #: ckan/logic/auth/create.py:18 ckan/logic/auth/update.py:22
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr ""
-"Пользователь %s не имеет достаточно прав для редактирования этих группы"
+msgstr "Пользователь %s не имеет достаточно прав для редактирования этих группы"
 
 #: ckan/logic/auth/create.py:39
 #, python-format
@@ -1138,8 +1142,7 @@ msgstr "Пользователь %s не имеет достаточно пра�
 #: ckan/logic/auth/create.py:59
 #, python-format
 msgid "User %s not authorized to create authorization groups"
-msgstr ""
-"Пользователь %s не имеет достаточно прав для создания групп авторизации"
+msgstr "Пользователь %s не имеет достаточно прав для создания групп авторизации"
 
 #: ckan/logic/auth/create.py:73
 #, python-format
@@ -1190,8 +1193,7 @@ msgstr "Пользователь %s не имеет прав для просмо
 
 #: ckan/logic/auth/get.py:105 ckan/logic/auth/update.py:38
 msgid "No package found for this resource, cannot check auth."
-msgstr ""
-"Для этого ресурса не найдено пакетов. Невозможно проверить подлинность."
+msgstr "Для этого ресурса не найдено пакетов. Невозможно проверить подлинность."
 
 #: ckan/logic/auth/get.py:111
 #, python-format
@@ -1221,8 +1223,7 @@ msgstr "Пользователь %s не имеет прав для измене
 #: ckan/logic/auth/update.py:69
 #, python-format
 msgid "User %s not authorized to edit permissions of package %s"
-msgstr ""
-"Пользователь %s не имеет прав для редактирования прав доступа к пакету %s"
+msgstr "Пользователь %s не имеет прав для редактирования прав доступа к пакету %s"
 
 #: ckan/logic/auth/update.py:80
 #, python-format
@@ -1238,7 +1239,8 @@ msgstr "Пользователь %s не имеет прав для измене
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
 msgstr ""
-"Пользователь %s не имеет прав для редактирования прав доступа для группы %s"
+"Пользователь %s не имеет прав для редактирования прав доступа для группы "
+"%s"
 
 #: ckan/logic/auth/update.py:113 ckan/logic/auth/update.py:124
 #, python-format
@@ -1251,7 +1253,8 @@ msgstr ""
 #, python-format
 msgid "User %s not authorized to edit user %s"
 msgstr ""
-"Пользователь %s не имеет достаточно прав для редактирования пользователя %s"
+"Пользователь %s не имеет достаточно прав для редактирования пользователя "
+"%s"
 
 #: ckan/logic/auth/update.py:145
 #, python-format
@@ -1575,8 +1578,7 @@ msgid "Add a dataset"
 msgstr "Добавить пакет"
 
 #: ckan/templates/layout_base.html:82 ckan/templates/group/read.html:37
-#: ckan/templates/group/read.html:41
-#: ckan/templates/package/search_form.html:16
+#: ckan/templates/group/read.html:41 ckan/templates/package/search_form.html:16
 msgid "Search"
 msgstr "Поиск"
 
@@ -1813,18 +1815,21 @@ msgstr "Редактировать"
 
 #: ckan/templates/authorization_group/layout.html:24
 msgid ""
-"Instead of specifying the privileges of specific users on a dataset or group,\n"
-"          you can also specify a set of users that will share the same rights. To do that, an    \n"
-"          [1:authorization group] can be set-up and users can be added to it."
+"Instead of specifying the privileges of specific users on a dataset or "
+"group,\n"
+"          you can also specify a set of users that will share the same "
+"rights. To do that, an    \n"
+"          [1:authorization group] can be set-up and users can be added to"
+" it."
 msgstr ""
 "Вместо задания привилегий отдельным пользователям для работы с пакетом,\n"
-"вы можете задать нескольким пользователям одинаковые права. Для этого можно создать\n"
+"вы можете задать нескольким пользователям одинаковые права. Для этого "
+"можно создать\n"
 "[1: группу авторизации] и добавить в нее пользователей."
 
 #: ckan/templates/authorization_group/layout.html:28
 msgid "To create a new authorization group, please first [1:login]."
-msgstr ""
-"Для создания новой группы авторизации нужно сначала  [1:войти в систему]."
+msgstr "Для создания новой группы авторизации нужно сначала  [1:войти в систему]."
 
 #: ckan/templates/authorization_group/layout.html:32
 msgid "Create a new authorization group"
@@ -1895,15 +1900,15 @@ msgstr ""
 
 #: ckan/templates/group/index.html:12
 msgid ""
-"Whilst tags are great at collecting datasets together, there are occasions "
-"when you want to restrict users from editing a collection. A [1:group] can "
-"be set-up to specify which users have permission to add or remove datasets "
-"from it."
+"Whilst tags are great at collecting datasets together, there are "
+"occasions when you want to restrict users from editing a collection. A "
+"[1:group] can be set-up to specify which users have permission to add or "
+"remove datasets from it."
 msgstr ""
 "Теги очень удобны для группировки пакетов данных, но иногда требуется "
 "ограничить пользователей в праве редактировать группу пакетов. Для того, "
-"чтобы разрешить конкретным пользователям добавлять или удалять пакеты, можно"
-" создать [1: группу]."
+"чтобы разрешить конкретным пользователям добавлять или удалять пакеты, "
+"можно создать [1: группу]."
 
 #: ckan/templates/group/layout.html:12 ckan/templates/package/layout.html:35
 msgid "History"
@@ -2028,21 +2033,21 @@ msgstr ""
 #: ckan/templates/home/about.html:13
 msgid ""
 "What was the [1:average price] of a house in the UK in 1935? When will "
-"India's projected population [2:overtake] that of China? Where can you see "
-"[3:publicly-funded art] in Seattle? Data to answer many, many questions like"
-" these is out there on the Internet somewhere - but it is not always easy to"
-" find."
+"India's projected population [2:overtake] that of China? Where can you "
+"see [3:publicly-funded art] in Seattle? Data to answer many, many "
+"questions like these is out there on the Internet somewhere - but it is "
+"not always easy to find."
 msgstr ""
 
 #: ckan/templates/home/about.html:15
 #, python-format
 msgid ""
-"%(site_title)s is a community-run catalogue of useful sets of data on the "
-"Internet. You can collect links here to data from around the web for "
-"yourself and others to use, or search for data that others have collected. "
-"Depending on the type of data (and its conditions of use), %(site_title)s "
-"may also be able to store a copy of the data or host it in a database, and "
-"provide some basic visualisation tools."
+"%(site_title)s is a community-run catalogue of useful sets of data on the"
+" Internet. You can collect links here to data from around the web for "
+"yourself and others to use, or search for data that others have "
+"collected. Depending on the type of data (and its conditions of use), "
+"%(site_title)s may also be able to store a copy of the data or host it in"
+" a database, and provide some basic visualisation tools."
 msgstr ""
 
 #: ckan/templates/home/about.html:22
@@ -2052,23 +2057,23 @@ msgstr ""
 #: ckan/templates/home/about.html:24
 msgid ""
 "This site is running a powerful piece of open-source data cataloguing "
-"software called [1:CKAN], written and maintained by the [2:Open Knowledge "
-"Foundation]. Each 'dataset' record on CKAN contains a description of the "
-"data and other useful information, such as what formats it is available in, "
-"who owns it and whether it is freely available, and what subject areas the "
-"data is about. Other users can improve or add to this information (CKAN "
-"keeps a fully versioned history)."
+"software called [1:CKAN], written and maintained by the [2:Open Knowledge"
+" Foundation]. Each 'dataset' record on CKAN contains a description of the"
+" data and other useful information, such as what formats it is available "
+"in, who owns it and whether it is freely available, and what subject "
+"areas the data is about. Other users can improve or add to this "
+"information (CKAN keeps a fully versioned history)."
 msgstr ""
 
 #: ckan/templates/home/about.html:26
 msgid ""
-"CKAN powers a number of data catalogues on the Internet. [1:The Data Hub] is"
-" an openly editable open data catalogue, in the style of Wikipedia. The UK "
-"Government uses CKAN to run [2:data.gov.uk], which currently lists 8,000 "
-"government datasets. Official public data from most European countries is "
-"listed in a CKAN catalogue at [3:publicdata.eu]. There is a comprehensive "
-"list of catalogues like these around the world at [4:datacatalogs.org], "
-"which is itself powered by CKAN."
+"CKAN powers a number of data catalogues on the Internet. [1:The Data Hub]"
+" is an openly editable open data catalogue, in the style of Wikipedia. "
+"The UK Government uses CKAN to run [2:data.gov.uk], which currently lists"
+" 8,000 government datasets. Official public data from most European "
+"countries is listed in a CKAN catalogue at [3:publicdata.eu]. There is a "
+"comprehensive list of catalogues like these around the world at "
+"[4:datacatalogs.org], which is itself powered by CKAN."
 msgstr ""
 
 #: ckan/templates/home/about.html:29
@@ -2079,21 +2084,21 @@ msgstr ""
 #, python-format
 msgid ""
 "Most of the data indexed at %(site_title)s is openly licensed, meaning "
-"anyone is free to use or re-use it however they like. Perhaps someone will "
-"take that nice dataset of a city's public art that you found, and add it to "
-"a tourist map - or even make a neat app for your phone that'll help you find"
-" artworks when you visit the city. Open data means more enterprise, "
-"collaborative science and transparent government. You can read more about "
-"open data in the [1:Open Data Manual]."
+"anyone is free to use or re-use it however they like. Perhaps someone "
+"will take that nice dataset of a city's public art that you found, and "
+"add it to a tourist map - or even make a neat app for your phone that'll "
+"help you find artworks when you visit the city. Open data means more "
+"enterprise, collaborative science and transparent government. You can "
+"read more about open data in the [1:Open Data Manual]."
 msgstr ""
 
 #: ckan/templates/home/about.html:33
 msgid ""
-"The [1:Open Knowledge Foundation] is a non-profit organisation [2:promoting]"
-" open knowledge: writing and improving CKAN is one of the ways we do that. "
-"If you want to get involved with its design or code, join the discussion or "
-"development [3:mailing lists], or take a look at the [4:OKFN] site to find "
-"out about our other projects."
+"The [1:Open Knowledge Foundation] is a non-profit organisation "
+"[2:promoting] open knowledge: writing and improving CKAN is one of the "
+"ways we do that. If you want to get involved with its design or code, "
+"join the discussion or development [3:mailing lists], or take a look at "
+"the [4:OKFN] site to find out about our other projects."
 msgstr ""
 
 #: ckan/templates/home/index.html:6
@@ -2180,8 +2185,7 @@ msgstr "имеет"
 msgid "datasets."
 msgstr "пакетов"
 
-#: ckan/templates/package/comments.html:5
-#: ckan/templates/package/history.html:6
+#: ckan/templates/package/comments.html:5 ckan/templates/package/history.html:6
 msgid "- Datasets - History"
 msgstr "- Пакеты данных - История"
 
@@ -2230,8 +2234,8 @@ msgstr "перед сохранением (открывается в новом 
 #: ckan/templates/package/new_package_form.html:231
 msgid ""
 "[1:Important:] By submitting content, you agree to release your "
-"contributions under the [2:Open Database License]. Please [3:refrain] from "
-"editing this page if you are [4:not] happy to do this."
+"contributions under the [2:Open Database License]. Please [3:refrain] "
+"from editing this page if you are [4:not] happy to do this."
 msgstr ""
 "[1:ВАЖНО:] Добавление данных означает ваше согласие распространять их по "
 "лицензии [2:Open Database License]. Пожалуйста, [3:воздержитесь] от "
@@ -2284,8 +2288,8 @@ msgstr "Вложить файл"
 
 #: ckan/templates/package/new_package_form.html:142
 msgid ""
-"Comma-separated terms that may link this dataset to similar ones. For more "
-"information on conventions, see [1:this wiki page]."
+"Comma-separated terms that may link this dataset to similar ones. For "
+"more information on conventions, see [1:this wiki page]."
 msgstr ""
 
 #: ckan/templates/package/new_package_form.html:166
@@ -2314,8 +2318,10 @@ msgid ""
 "Since you have not signed in this will just be your IP address.\n"
 "    [1:Click here to sign in] before saving (opens in new window)."
 msgstr ""
-"Вы не вошли в систему, поэтому для идентификации будет использован ваш IP-адрес.\n"
-"    [1:Нажмите здесь для входа в систему] перед сохранением (страница откроется в новом окне)."
+"Вы не вошли в систему, поэтому для идентификации будет использован ваш "
+"IP-адрес.\n"
+"    [1:Нажмите здесь для входа в систему] перед сохранением (страница "
+"откроется в новом окне)."
 
 #: ckan/templates/package/read.html:14
 msgid "- Datasets"
@@ -2653,8 +2659,8 @@ msgstr "Немного о себе..."
 msgid "Change your password"
 msgstr "Изменить пароль"
 
-#: ckan/templates/user/edit_user_form.html:42
-#: ckan/templates/user/login.html:31 ckan/templates/user/new_user_form.html:28
+#: ckan/templates/user/edit_user_form.html:42 ckan/templates/user/login.html:31
+#: ckan/templates/user/new_user_form.html:28
 #: ckan/templates/user/perform_reset.html:15
 msgid "Password:"
 msgstr "Пароль:"
@@ -2732,8 +2738,8 @@ msgstr "Войти с помощью Open ID"
 
 #: ckan/templates/user/login.html:48
 msgid ""
-"NB: To set-up your OpenID for this site, you first need to [1:Register] and "
-"then edit your Profile to provide your OpenID."
+"NB: To set-up your OpenID for this site, you first need to [1:Register] "
+"and then edit your Profile to provide your OpenID."
 msgstr ""
 
 #: ckan/templates/user/login.html:50
@@ -2753,13 +2759,16 @@ msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "          using a single identity. Find out [1:more\n"
 "          about OpenID] and [2:how to get an\n"
-"          OpenID enabled account]. Probably the simplest way is sign up with a\n"
+"          OpenID enabled account]. Probably the simplest way is sign up "
+"with a\n"
 "          free OpenID provider such as [3:https://www.myopenid.com/]."
 msgstr ""
-"OpenID - это служба, которая позволяет регистрироваться на разных веб-сайтах\n"
+"OpenID - это служба, которая позволяет регистрироваться на разных "
+"веб-сайтах\n"
 "с под одним именем пользователя. См. [1:подробнее\n"
 "о службе OpenID] и [2:правилах регистрации\n"
-"]. Проще всего зарегистрироваться через бесплатную службу OpenID, напр. [3:https://www.myopenid.com/]."
+"]. Проще всего зарегистрироваться через бесплатную службу OpenID, напр. "
+"[3:https://www.myopenid.com/]."
 
 #: ckan/templates/user/logout.html:5
 msgid "Logout - User"
@@ -2836,5 +2845,4 @@ msgstr "Запросить сброс пароля"
 #: ckan/templates/user/request_reset.html:13
 msgid "User name:"
 msgstr "Имя пользователя"
-
 
