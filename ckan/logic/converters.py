@@ -77,11 +77,11 @@ def convert_from_tags(vocab):
         if not v:
             raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
 
-        tags = {}
+        tags = []
         for k in data.keys():
             if k[0] == 'tags':
                 if data[k].get('vocabulary_id') == v.id:
-                    tags[k] = data[k]
-        data[key] = ', '.join([t['name'] for t in tags.values()])
+                    tags.append(data[k]['name'])
+        data[key] = tags
     return callable
 
