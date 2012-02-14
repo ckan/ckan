@@ -315,7 +315,7 @@ class TestAction(WsgiAppCase):
         dataset = result['datasets'][0]
         assert_equal(dataset['name'], u'annakarenina')
 
-    def test_06_tag_list(self):
+    def test_06a_tag_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/tag_list', params=postparams)
         assert_dicts_equal_ignoring_ordering(
@@ -353,6 +353,40 @@ class TestAction(WsgiAppCase):
         assert 'id' in res_obj['result'][0]
         assert 'id' in res_obj['result'][1]
         assert 'id' in res_obj['result'][2]
+
+    def test_06b_tag_list_vocab(self):
+        vocab_name = 'test-vocab'
+        tag_name = 'test-vocab-tag'
+
+        # create vocab
+        params = json.dumps({'name': vocab_name})
+        extra_environ = {'Authorization' : str(self.sysadmin_user.apikey)}
+        response = self.app.post('/api/action/vocabulary_create', params=params,
+                                 extra_environ=extra_environ)
+        assert response.json['success']
+        vocab_id = response.json['result']['id']
+
+        # create new tag with vocab
+        params = json.dumps({'name': tag_name, 'vocabulary_id': vocab_id})
+        extra_environ = {'Authorization' : str(self.sysadmin_user.apikey)}
+        response = self.app.post('/api/action/tag_create', params=params,
+                                 extra_environ=extra_environ)
+        assert response.json['success'] == True
+
+        # check that tag shows up in list
+        params = '%s=1' % json.dumps({'vocabulary_name': vocab_name})
+        res = self.app.post('/api/action/tag_list', params=params)
+        body = json.loads(res.body)
+        assert_dicts_equal_ignoring_ordering(
+            json.loads(res.body),
+            {'help': 'Returns a list of tags',
+             'success': True,
+             'result': [tag_name]}
+        )
+
+        # check that invalid vocab name results in a 404
+        params = '%s=1' % json.dumps({'vocabulary_name': 'invalid-vocab-name'})
+        res = self.app.post('/api/action/tag_list', params=params, status=404)
 
     def test_07_tag_show(self):
         postparams = '%s=1' % json.dumps({'id':'russian'})
