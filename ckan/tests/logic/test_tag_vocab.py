@@ -3,18 +3,22 @@ from pylons import request, tmpl_context as c
 from genshi.input import HTML
 from genshi.filters import Transformer
 from ckan import model
+from ckan.logic import get_action
 from ckan.logic.converters import convert_to_tags, convert_from_tags, free_tags_only
+from ckan.logic.schema import package_form_schema
 from ckan.lib.navl.dictization_functions import unflatten
+from ckan.lib.navl.validators import ignore_missing, keep_extras
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
 from ckan import plugins
 from ckan.tests import WsgiAppCase
 
+TEST_VOCAB_NAME = 'test-vocab'
+
 class TestConverters(object):
     @classmethod
     def setup_class(cls):
-        # create a new vocabulary
-        cls.vocab = model.Vocabulary('test-vocab') 
+        cls.vocab = model.Vocabulary(TEST_VOCAB_NAME) 
         model.Session.add(cls.vocab)
         model.Session.commit()
         vocab_tag_1 = model.Tag('tag1', cls.vocab.id)
@@ -81,9 +85,11 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
     def package_types(self):
         return ["mock_vocab_tags_plugin"]
 
+    def package_form(self):
+        return 'package/new_package_form.html'
+
     def setup_template_variables(self, context, data_dict=None):
-        # c.vocab_tags = get_action('tag_list')(context, {'vocabulary_name': self.vocab_name})
-        pass
+        c.vocab_tags = get_action('tag_list')(context, {'vocabulary_name': TEST_VOCAB_NAME})
 
     def form_to_db_schema(self):
         # schema = package_form_schema()
@@ -94,15 +100,14 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
         pass
 
     def db_to_form_schema(self):
-        # schema = package_form_schema()
-        # schema.update({
-        #     'tags': {
-        #         '__extras': [keep_extras, free_tags_only]
-        #     },
-        #     'vocab_tags_selected': [convert_from_tags(self.vocab_name), ignore_missing],
-        # })
-        # return schema
-        pass
+        schema = package_form_schema()
+        schema.update({
+            'tags': {
+                '__extras': [keep_extras, free_tags_only]
+            },
+            'vocab_tags_selected': [convert_from_tags(TEST_VOCAB_NAME), ignore_missing],
+        })
+        return schema
 
     def filter(self, stream):
         routes = request.environ.get('pylons.routes_dict')
@@ -114,6 +119,18 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
                     if tag.get('vocabulary_id'):
                         stream = stream | Transformer('body')\
                             .append(HTML('<p>%s</p>' % tag.get('name')))
+        if routes.get('controller') == 'package' \
+            and routes.get('action') == 'edit':
+                # add vocabs tag select box to edit page
+                html = '<select id="vocab_tags" name="vocab_tags" size="60" multiple="multiple">'
+                selected_tags = c.pkg_dict.get('vocab_tags_selected', [])
+                for tag in c.vocab_tags:
+                    if tag in selected_tags:
+                        html += '<option selected="selected" value="%s">%s</option>' % (tag, tag)
+                    else:
+                        html += '<option value="%s">%s</option>' % (tag, tag)
+                html += '</select>'
+                stream = stream | Transformer('fieldset[@id="groups"]').append(HTML(html))
         return stream
 
 
@@ -123,18 +140,32 @@ class TestWUI(WsgiAppCase):
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.dset = model.Package.get('warandpeace')
-        cls.vocab_name = 'vocab'
-        cls.tag_name = 'vocab-tag'
+        cls.tag1_name = 'vocab-tag-1'
+        cls.tag2_name = 'vocab-tag-2'
+
+        cls.plugin = MockVocabTagsPlugin()
+        plugins.load(cls.plugin)
+
+        # this is a hack so that the plugin is properly registered with
+        # the package controller class.
+        from ckan.controllers import package as package_controller
+        package_controller._default_controller_behaviour = cls.plugin
+
+        # create a test vocab
+        params = json.dumps({'name': TEST_VOCAB_NAME})
+        extra_environ = {'Authorization' : str(cls.sysadmin_user.apikey)}
+        response = cls.app.post('/api/action/vocabulary_create', params=params,
+                                extra_environ=extra_environ)
+        assert json.loads(response.body)['success']
 
     @classmethod
     def teardown_class(cls):
+        plugins.unload(cls.plugin)
         model.repo.rebuild_db()
 
-    def _create_vocabulary(self, vocab_name):
+    def _get_vocab_id(self, vocab_name):
         params = json.dumps({'name': vocab_name})
-        extra_environ = {'Authorization' : str(self.sysadmin_user.apikey)}
-        response = self.app.post('/api/action/vocabulary_create', params=params,
-                                 extra_environ=extra_environ)
+        response = self.app.post('/api/action/vocabulary_show', params=params)
         assert json.loads(response.body)['success']
         return json.loads(response.body)['result']['id']
 
@@ -143,7 +174,7 @@ class TestWUI(WsgiAppCase):
         extra_environ = {'Authorization' : str(self.sysadmin_user.apikey)}
         response = self.app.post('/api/action/tag_create', params=params,
                                  extra_environ=extra_environ)
-        assert response.json['success']
+        assert json.loads(response.body)['success']
 
     def _add_vocab_tag_to_dataset(self, dataset_id, vocab_id, tag_name):
         params = json.dumps({'id': dataset_id})
@@ -153,15 +184,21 @@ class TestWUI(WsgiAppCase):
         params = json.dumps(dataset)
         response = self.app.post('/api/action/package_update', params=params,
                                  extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-        assert response.json['success']
+        assert json.loads(response.body)['success']
 
     def test_01_dataset_view(self):
-        plugin = MockVocabTagsPlugin()
-        plugins.load(plugin)
-        vocab_id = self._create_vocabulary(self.vocab_name)
-        self._add_vocab_tag(vocab_id, self.tag_name)
-        self._add_vocab_tag_to_dataset(self.dset.id, vocab_id, self.tag_name)
+        vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
+        self._add_vocab_tag(vocab_id, self.tag1_name)
+        self._add_vocab_tag_to_dataset(self.dset.id, vocab_id, self.tag1_name)
         response = self.app.get(h.url_for(controller='package', action='read', id=self.dset.id))
-        assert self.vocab_name in response.body
+        assert self.tag1_name in response.body
 
+    def test_02_dataset_edit_add_tag(self):
+        vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
+        self._add_vocab_tag(vocab_id, self.tag2_name)
+        response = self.app.get(h.url_for(controller='package', action='edit', id=self.dset.id))
+        # fv = response.forms['dataset-edit']
+        # fv['vocab_tags'] = ['']
+        # response = fv.submit('save')
+        # response = response.follow()
 
