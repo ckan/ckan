@@ -154,7 +154,7 @@ class Tag(DomainObject):
                 return None
             query = Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
         else:
-            query = Session.query(Tag)
+            query = Session.query(Tag).filter(Tag.vocabulary_id == None)
         query = query.distinct().join(PackageTagRevision)
         query = query.filter(sqlalchemy.and_(
             PackageTagRevision.state == 'active',

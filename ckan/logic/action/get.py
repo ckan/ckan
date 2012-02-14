@@ -609,26 +609,12 @@ def package_autocomplete(context, data_dict):
 
 def tag_autocomplete(context, data_dict):
     '''Returns tags containing the provided string'''
-
-    model = context['model']
-    session = context['session']
-    user = context['user']
-
     check_access('tag_autocomplete', context, data_dict)
-
-    q = data_dict.get('q', None)
-    if not q:
+    matching_tags = tag_search(context, data_dict)
+    if matching_tags:
+        return [tag.name for tag in matching_tags['results']]
+    else:
         return []
-
-    limit = data_dict.get('limit',10)
-
-    query = query_for('tag')
-    query.run(query=q,
-              return_objects=True,
-              limit=10,
-              username=user)
-
-    return [tag.name for tag in query.results]
 
 def format_autocomplete(context, data_dict):
     '''Returns formats containing the provided string'''
@@ -819,9 +805,8 @@ def resource_search(context, data_dict):
 
 def tag_search(context, data_dict):
     model = context['model']
-    session = context['session']
 
-    query = data_dict.get('query')
+    query = data_dict.get('query') or data_dict.get('q')
     terms = [query] if query else []
 
     fields = data_dict.get('fields', {})
@@ -830,7 +815,20 @@ def tag_search(context, data_dict):
 
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Tag)
-    q = q.distinct().join(model.Tag.package_tags)
+
+    if data_dict.has_key('vocabulary_name'):
+        # Filter by vocabulary.
+        vocab = model.Vocabulary.get(data_dict['vocabulary_name'])
+        if not vocab:
+            raise NotFound
+        q = q.filter(model.Tag.vocabulary_id == vocab.id)
+    else:
+        # If no vocabulary_name in data dict then show free tags only.
+        q = q.filter(model.Tag.vocabulary_id == None)
+        # If we're searching free tags, limit results to tags that are
+        # currently applied to a package.
+        q = q.distinct().join(model.Tag.package_tags)
+
     for field, value in fields.items():
         if field in ('tag', 'tags'):
             terms.append(value)

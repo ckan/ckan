@@ -31,14 +31,60 @@ class TestAction(WsgiAppCase):
     normal_user = None
 
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
         CreateTestData.create()
-        self.sysadmin_user = model.User.get('testsysadmin')
-        self.normal_user = model.User.get('annafan')
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.normal_user = model.User.get('annafan')
+        cls.make_some_vocab_tags()
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
         model.repo.rebuild_db()
+
+    @classmethod
+    def make_some_vocab_tags(cls):
+        model.repo.new_revision()
+
+        # Create a couple of vocabularies.
+        genre_vocab = model.Vocabulary(u'genre')
+        model.Session.add(genre_vocab)
+        composers_vocab = model.Vocabulary(u'composers')
+        model.Session.add(composers_vocab)
+
+        # Create some tags that belong to vocabularies.
+        sonata_tag = model.Tag(name=u'sonata', vocabulary_id=genre_vocab.id)
+        model.Session.add(sonata_tag)
+
+        bach_tag = model.Tag(name=u'Bach', vocabulary_id=composers_vocab.id)
+        model.Session.add(bach_tag)
+
+        neoclassical_tag = model.Tag(name='neoclassical',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neoclassical_tag)
+
+        neofolk_tag = model.Tag(name='neofolk', vocabulary_id=genre_vocab.id)
+        model.Session.add(neofolk_tag)
+
+        neomedieval_tag = model.Tag(name='neomedieval',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neomedieval_tag)
+
+        neoprog_tag = model.Tag(name='neoprog',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neoprog_tag)
+
+        neopsychedelia_tag = model.Tag(name='neopsychedelia',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neopsychedelia_tag)
+
+        neosoul_tag = model.Tag(name='neosoul', vocabulary_id=genre_vocab.id)
+        model.Session.add(neosoul_tag)
+
+        nerdcore_tag = model.Tag(name='nerdcore', vocabulary_id=genre_vocab.id)
+        model.Session.add(nerdcore_tag)
+
+        model.Package.get('warandpeace').add_tag(bach_tag)
+        model.Package.get('annakarenina').add_tag(sonata_tag)
 
     def _add_basic_package(self, package_name=u'test_package', **kwargs):
         package = {
@@ -826,6 +872,55 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert res_obj['success']
         assert 'MIX of CAPITALS and LOWER case' in res_obj['result'], res_obj['result']
+
+    def test_15_tag_autocomplete_with_vocab_and_empty_query(self):
+        for q in ('missing', None, '', '  '):
+            paramd = {'vocabulary_name': u'genre'}
+            if q != 'missing':
+                paramd['q'] = q
+            params = json.dumps(paramd)
+            res = self.app.post('/api/action/tag_autocomplete', params=params)
+            assert res.json['success'] is True
+            assert res.json['result'] == []
+
+    def test_15_tag_autocomplete_with_vocab_and_single_match(self):
+        paramd = {'vocabulary_name': u'genre', 'q': 'son'}
+        params = json.dumps(paramd)
+        res = self.app.post('/api/action/tag_autocomplete', params=params)
+        assert res.json['success'] is True
+        assert res.json['result'] == ['sonata'], res.json['result']
+
+    def test_15_tag_autocomplete_with_vocab_and_multiple_matches(self):
+        paramd = {'vocabulary_name': 'genre', 'q': 'neo'}
+        params = json.dumps(paramd)
+        res = self.app.post('/api/action/tag_autocomplete', params=params)
+        assert res.json['success'] is True
+        assert res.json['result'] == ['neoclassical', 'neofolk', 'neomedieval',
+                'neoprog', 'neopsychedelia', 'neosoul'], res.json['result']
+
+    def test_15_tag_autocomplete_with_vocab_and_no_matches(self):
+        paramd = {'vocabulary_name': 'composers', 'q': 'Jonny Greenwood'}
+        params = json.dumps(paramd)
+        res = self.app.post('/api/action/tag_autocomplete', params=params)
+        assert res.json['success'] is True
+        assert res.json['result'] == []
+
+    def test_15_tag_autocomplete_with_vocab_that_does_not_exist(self):
+        for q in ('', 'neo'):
+            paramd = {'vocabulary_name': 'does_not_exist', 'q': q}
+            params = json.dumps(paramd)
+            res = self.app.post('/api/action/tag_autocomplete', params=params,
+                    status=404)
+            assert res.json['success'] is False
+
+    def test_15_tag_autocomplete_with_invalid_vocab(self):
+        for vocab_name in (None, '', 'a', 'e'*200):
+            for q in (None, '', 'son'):
+                paramd = {'vocabulary_name': vocab_name, 'q': q}
+                params = json.dumps(paramd)
+                res = self.app.post('/api/action/tag_autocomplete', params=params,
+                        status=404)
+                assert res.json['success'] is False
 
     def test_16_user_autocomplete(self):
         #Empty query
