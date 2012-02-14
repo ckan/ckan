@@ -118,7 +118,6 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     def members_of_type(self, object_type, capacity=None):
         object_type_string = object_type.__name__.lower()
         query = Session.query(object_type).\
-               filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
                filter(group_table.c.id == self.id).\
                filter(member_table.c.state == 'active').\
                filter(member_table.c.table_name == object_type_string)
