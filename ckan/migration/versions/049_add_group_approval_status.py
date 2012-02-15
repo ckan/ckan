@@ -8,7 +8,6 @@ ALTER TABLE "group"
 
 ALTER TABLE group_revision
 	ADD COLUMN approval_status text;
-	
 
 update "group" set approval_status = 'approved';
 update group_revision set approval_status = 'approved';
