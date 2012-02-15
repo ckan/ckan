@@ -6,6 +6,10 @@ from ckan.logic.auth.publisher.create import package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
+# FIXME: Which is worse, 'from module import foo' or duplicating these
+# functions in this module?
+from ckan.logic.auth.delete import vocabulary_delete, tag_delete
+
 def package_delete(context, data_dict):
     """
     Delete a package permission. User must be in at least one group that that 
