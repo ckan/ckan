@@ -312,7 +312,7 @@ class TestAction(WsgiAppCase):
         assert 'timestamp' in edit
         assert_equal(edit['state'], 'active')
         assert_equal(edit['approved_timestamp'], None)
-        assert_equal(set(edit['groups']), set(('roger', 'david')))
+        assert_equal(set(edit['groups']), set(( 'roger', 'david')))
         assert_equal(edit['state'], 'active')
         assert edit['message'].startswith('Creating test data.')
         assert_equal(set(edit['packages']), set(('warandpeace', 'annakarenina')))
@@ -651,7 +651,7 @@ class TestAction(WsgiAppCase):
             {
                 'result': [
                     'david',
-                    'roger'
+                    'roger',
                     ],
                 'help': 'Returns a list of groups',
                 'success': True
@@ -666,7 +666,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['result'][0]['name'] == 'david'
         assert res_obj['result'][0]['display_name'] == 'Dave\'s books'
         assert res_obj['result'][0]['packages'] == 2
-        assert res_obj['result'][1]['name'] == 'roger'
+        assert res_obj['result'][1]['name'] == 'roger', res_obj['result'][1]
         assert res_obj['result'][1]['packages'] == 1
         assert 'id' in res_obj['result'][0]
         assert 'revision_id' in res_obj['result'][0]
@@ -677,8 +677,7 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/group_list',
                             params=postparams)
         res_obj = json.loads(res.body)
-        assert_equal(sorted(res_obj['result']), ['david',
-                                         'roger'])
+        assert_equal(sorted(res_obj['result']), ['david','roger'])
 
     def test_13_group_list_by_size_all_fields(self):
         postparams = '%s=1' % json.dumps({'order_by': 'packages',

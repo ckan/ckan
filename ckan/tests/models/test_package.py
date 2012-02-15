@@ -19,7 +19,7 @@ class TestPackage:
         self.pkg1 = model.Package(name=self.name)
         model.Session.add(self.pkg1)
         self.pkg1.notes = self.notes
-        self.pkg1.license_id = u'gpl-3.0'
+        self.pkg1.license_id = u'odc-by'
         model.Session.commit()
         model.Session.remove()
 
@@ -71,8 +71,8 @@ class TestPackage:
         package = model.Package.by_name(self.name)
         assert package.name == self.name
         assert package.notes == self.notes
-        assert package.license.id == u'gpl-3.0'
-        assert package.license.title == u'OSI Approved::GNU General Public License version 3.0 (GPLv3)', package.license.title
+        assert package.license.id == u'odc-by'
+        assert package.license.title == u'Open Data Commons Attribution License', package.license.title
 
     def test_update_package(self):
         newnotes = u'Written by Beethoven'

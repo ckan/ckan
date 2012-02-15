@@ -42,12 +42,14 @@ class TestBasicDictize:
                         'name': u'david',
                         'type': u'group',
                         'state': u'active',
-                        'title': u"Dave's books"},
+                        'title': u"Dave's books",
+                        "approval_status": u"approved"},
                        {'description': u'Roger likes these books.',
                         'name': u'roger',
                         'type': u'group',
                         'state': u'active',
-                        'title': u"Roger's books"}],
+                        'title': u"Roger's books",
+                        "approval_status": u"approved"}],
             'isopen': True,
             'license_id': u'other-open',
             'maintainer': None,
@@ -834,6 +836,7 @@ class TestBasicDictize:
 
         group_dict = {'name': 'help',
                       'title': 'help',
+                      'approval_status': 'approved',
                       'extras': [{'key': 'genre', 'value': u'"horror"'},
                                  {'key': 'media', 'value': u'"dvd"'}],
                       'packages':[{'name': 'annakarenina2'}, {'id': pkg.id, 'capacity': 'in'}],
@@ -865,7 +868,8 @@ class TestBasicDictize:
                                'packages': 0,
                                'state': u'active',
                                'title': u'simple',
-                               'type': u'publisher'}],
+                               'type': u'publisher',
+                               'approval_status': u'approved'}],
                     'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
                               'display_name': u'annafan',
                               'capacity' : 'member',
@@ -906,13 +910,12 @@ class TestBasicDictize:
                                   'url': u'http://www.annakarenina.com',
                                   'version': u'0.7a'}],
                     'state': u'active',
+                    'approval_status': u'approved',
                     'title': u'help',
                     'type': u'group'}
 
         expected['packages'] = sorted(expected['packages'], key=lambda x: x['name'])
-
         result = self.remove_changable_columns(group_dictized)
-
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
         assert result == expected, pformat(result)

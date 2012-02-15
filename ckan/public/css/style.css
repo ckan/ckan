@@ -78,12 +78,6 @@ header .account {
   float: right;
 }
 
-header .account img.gravatar {
-  margin: 0 5px -5px 0;
-  border-radius: 3px;
-}
-
-
 header .search {
   margin: 1px;
   margin-left: 1em;
@@ -238,6 +232,10 @@ tbody tr.table-empty td {
   border-bottom: 1px dashed #000;
 }
 
+img.gravatar {
+  margin: 0 5px -5px 0;
+  border-radius: 3px;
+}
 
 /* =============== */
 /* MinorNavigation */
@@ -430,7 +428,6 @@ tbody tr.table-empty td {
 	font-weight: bold;
 	border: 1px solid #ddd;
 }
-
 
 /* ====== */
 /* Facets */
@@ -1352,7 +1349,8 @@ body.package.resource_read #resource-explore { margin-bottom: 2em; }
 /* = Add Group Page = */
 /* ================== */
 .group-create-form fieldset#extras,
-.group-create-form fieldset#datasets {
+.group-create-form fieldset#datasets,
+.group-create-form fieldset#users {
   display: none;
 }
 .group-create-form .description-label,

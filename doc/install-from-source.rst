@@ -150,72 +150,65 @@ locations:
 6. Setup a PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  List existing databases:
+List existing databases:
 
   ::
 
-sudo -u postgres psql -l
+    sudo -u postgres psql -l
 
-  It is advisable to ensure that the encoding of databases is 'UTF8', or 
-  internationalisation may be a problem. Since changing the encoding of PostgreSQL
-  may mean deleting existing databases, it is suggested that this is fixed before
-  continuing with the CKAN install.
+It is advisable to ensure that the encoding of databases is 'UTF8', or 
+internationalisation may be a problem. Since changing the encoding of PostgreSQL
+may mean deleting existing databases, it is suggested that this is fixed before
+continuing with the CKAN install.
 
-  Next you'll need to create a database user if one doesn't already exist.
+Next you'll need to create a database user if one doesn't already exist.
 
   .. tip ::
 
-If you choose a database name, user or password which are different from the example values suggested below then you'll need to change the sqlalchemy.url value accordingly in the CKAN configuration file you'll create in the next step.
+    If you choose a database name, user or password which are different from the example values suggested below then you'll need to change the sqlalchemy.url value accordingly in the CKAN configuration file that you'll create in the next step.
 
-  Here we create a user called ``ckanuser`` and will enter ``pass`` for the password when prompted:
-
-  ::
-
-sudo -u postgres createuser -S -D -R -P ckanuser
-
-  Now create the database (owned by ``ckanuser``), which we'll call ``ckantest``:
+Here we create a user called ``ckanuser`` and will enter ``pass`` for the password when prompted:
 
   ::
 
-sudo -u postgres createdb -O ckanuser ckantest
+    sudo -u postgres createuser -S -D -R -P ckanuser
+
+Now create the database (owned by ``ckanuser``), which we'll call ``ckantest``:
+
+  ::
+
+    sudo -u postgres createdb -O ckanuser ckantest
 
 7. Create a CKAN config file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  Make sure you are in an activated environment (see step 3) so that Python
-  Paste and other modules are put on the python path (your command prompt will
-  start with ``(pyenv)`` if you have) then change into the ``ckan`` directory
-  which will have been created when you installed CKAN in step 4 and create the
-  CKAN config file using Paste. These instructions call it ``development.ini`` since that is the required name for running the CKAN tests. But for a server deployment then you might want to call it say after the server hostname e.g. ``test.ckan.net.ini``.
+Make sure you are in an activated environment (see step 3) so that Python
+Paste and other modules are put on the python path (your command prompt will
+start with ``(pyenv)`` if you have) then change into the ``ckan`` directory
+which will have been created when you installed CKAN in step 4 and create the
+CKAN config file using Paste. These instructions call it ``development.ini`` since that is the required name for running the CKAN tests. But for a server deployment then you might want to call it say after the server hostname e.g. ``test.ckan.net.ini``.
 
   ::
 
-cd pyenv/src/ckan
-paster make-config ckan development.ini
+    cd pyenv/src/ckan
+    paster make-config ckan development.ini
 
-  If you used a different database name or password when creating the database
-  in step 5 you'll need to now edit ``development.ini`` and change the
-  ``sqlalchemy.url`` line, filling in the database name, user and password you used.
+If you used a different database name or password when creating the database
+in step 5 you'll need to now edit ``development.ini`` and change the
+``sqlalchemy.url`` line, filling in the database name, user and password you used.
 
   ::
   
-sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
+    sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
 
-  If you're using a remote host with password authentication rather than SSL authentication, use::
+If you're using a remote host with password authentication rather than SSL authentication, use::
 
-sqlalchemy.url = postgresql://<user>:<password>@<remotehost>/ckan?sslmode=disable
+    sqlalchemy.url = postgresql://<user>:<password>@<remotehost>/ckan?sslmode=disable
 
-  .. caution ::
+.. caution ::
 
-  Advanced users: If you have installed CKAN using the Fabric file capability (deprecated),
-  your config file will be called something like ``pyenv/ckan.net.ini``. 
-  This is fine but CKAN probably won't be 
-  able to find your ``who.ini`` file. To fix this edit ``pyenv/ckan.net.ini``, 
-  search for the line ``who.config_file = %(here)s/who.ini`` and change it
-  to ``who.config_file = who.ini``.
+  Legacy installs of CKAN may have the config file in the pyenv directory, e.g. ``pyenv/ckan.net.ini``. This is fine but CKAN probably won't be able to find your ``who.ini`` file. To fix this edit ``pyenv/ckan.net.ini``, search for the line ``who.config_file = %(here)s/who.ini`` and change it to ``who.config_file = who.ini``.
 
-  We are moving to a new deployment system where this incompatibility 
-  will be fixed.
 
 8. Create database tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -243,14 +236,14 @@ sqlalchemy.url = postgresql://<user>:<password>@<remotehost>/ckan?sslmode=disabl
 9. Create the cache directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  You need to create the Pylon's cache directory specified by 'cache_dir' 
-  in the config file.
+You need to create the Pylon's cache directory specified by 'cache_dir' 
+in the config file.
 
-  (from the ``pyenv/src/ckan`` directory):
+(from the ``pyenv/src/ckan`` directory):
 
   ::
 
-mkdir data
+    mkdir data
 
 
 10. Setup Solr
@@ -262,8 +255,8 @@ Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variable
 
 ::
 
- ckan.site_id=my_ckan_instance
- solr_url=http://127.0.0.1:8983/solr
+    ckan.site_id=my_ckan_instance
+    solr_url=http://127.0.0.1:8983/solr
 
 
 
@@ -277,12 +270,12 @@ Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variable
 
   ::
 
-paster serve development.ini
+    paster serve development.ini
 
 12. Point your web browser at: http://127.0.0.1:5000/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- The CKAN homepage should load.
+The CKAN homepage should load.
 
 Finally, make sure that tests pass, as described in :ref:`basic-tests`.
 

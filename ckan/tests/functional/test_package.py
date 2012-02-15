@@ -788,7 +788,7 @@ class TestEdit(TestPackageForm):
                          )
             assert len(resources[0]) == 5
             notes = u'Very important'
-            license_id = u'gpl-3.0'
+            license_id = u'odc-by'
             state = model.State.ACTIVE
             tags = (u'tag1', u'tag2', u'tag 3')
             tags_txt = u','.join(tags)
@@ -1152,7 +1152,7 @@ class TestNew(TestPackageForm):
         url = u'http://something.com/somewhere.zip'
         download_url = u'http://something.com/somewhere-else.zip'
         notes = u'Very important'
-        license_id = u'gpl-3.0'
+        license_id = u'odc-by'
         tags = (u'tag1', u'tag2.', u'tag 3', u'SomeCaps')
         tags_txt = u','.join(tags)
         extras = {self.key1:self.value1, 'key2':'value2', 'key3':'value3'}

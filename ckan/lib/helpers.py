@@ -33,7 +33,7 @@ try:
     import json
 except ImportError:
     import simplejson as json
-    
+
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -56,16 +56,16 @@ class Message(object):
     __unicode__ = __str__
 
     def __html__(self):
-        if self.allow_html: 
+        if self.allow_html:
             return self.message
         else:
             return escape(self.message)
 
 class _Flash(object):
-    
+
     # List of allowed categories.  If None, allow any category.
     categories = ["warning", "notice", "error", "success"]
-    
+
     # Default category if none is specified.
     default_category = "notice"
 
@@ -112,13 +112,13 @@ class _Flash(object):
 
 _flash = _Flash()
 
-def flash_notice(message, allow_html=False): 
+def flash_notice(message, allow_html=False):
     _flash(message, category='notice', allow_html=allow_html)
 
-def flash_error(message, allow_html=False): 
+def flash_error(message, allow_html=False):
     _flash(message, category='error', allow_html=allow_html)
 
-def flash_success(message, allow_html=False): 
+def flash_success(message, allow_html=False):
     _flash(message, category='success', allow_html=allow_html)
 
 def are_there_flash_messages():
@@ -126,12 +126,12 @@ def are_there_flash_messages():
 
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):
-    highlight_actions = kwargs.pop("highlight_actions", 
+    highlight_actions = kwargs.pop("highlight_actions",
                                    kwargs["action"]).split()
     return link_to(
         text,
         url_for(controller=controller, **kwargs),
-        class_=('active' if 
+        class_=('active' if
                 c.controller == controller and c.action in highlight_actions
                 else '')
     )
@@ -139,22 +139,22 @@ def nav_link(c, text, controller, **kwargs):
 # FIXME: shouldn't have to pass the c object in to this.
 def subnav_link(c, text, action, **kwargs):
     return link_to(
-        text, 
+        text,
         url_for(action=action, **kwargs),
         class_=('active' if c.action == action else '')
     )
-    
+
 def subnav_named_route(c, text, routename,**kwargs):
     """ Generate a subnav element based on a named route """
     return link_to(
-        text, 
-        url_for(routename, **kwargs),
+        text,
+        url_for(str(routename), **kwargs),
         class_=('active' if c.action == kwargs['action'] else '')
-    )    
+    )
 
 def facet_items(c, name, limit=10):
     from pylons import request
-    if not c.facets or not c.facets.get(name): 
+    if not c.facets or not c.facets.get(name):
         return []
     facets = []
     for k, v in c.facets.get(name).items():
@@ -165,7 +165,7 @@ def facet_items(c, name, limit=10):
     return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
 
 def facet_title(name):
-    from pylons import config 
+    from pylons import config
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
 def am_authorized(c, action, domain_object=None):
@@ -208,7 +208,7 @@ def linked_user(user, maxlength=0):
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
-        return _icon + link_to(displayname, 
+        return _icon + link_to(displayname,
                        url_for(controller='user', action='read', id=_name))
 
 def linked_authorization_group(authgroup, maxlength=0):
@@ -223,7 +223,7 @@ def linked_authorization_group(authgroup, maxlength=0):
         displayname = authgroup.name or authgroup.id
         if maxlength and len(display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
-        return link_to(displayname, 
+        return link_to(displayname,
                        url_for(controller='authorization_group', action='read', id=displayname))
 
 def group_name_to_title(name):
@@ -286,7 +286,7 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
     (Y-m-d H:m).
     If timestamp is badly formatted, then a blank string is returned.
     '''
-    if not date_format: 
+    if not date_format:
         date_format = '%b %d, %Y'
         if with_hours:
             date_format += ', %H:%M'

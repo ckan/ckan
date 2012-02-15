@@ -442,6 +442,8 @@ class PackageController(BaseController):
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema(package_type=package_type)}
 
+        # Package needs to have a publisher group in the call to check_access
+        # and also to save it
         try:
             check_access('package_create',context)
         except NotAuthorized:

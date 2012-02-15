@@ -113,7 +113,7 @@ def _make_latest_rev_active(context, q):
         latest_rev.state = 'active'
 
     session.add(latest_rev)
-        
+
     ##this is just a way to get the latest revision that changed
     ##in order to timestamp
     old_latest = context.get('latest_revision_date')
@@ -162,10 +162,10 @@ def make_latest_pending_package_active(context, data_dict):
     revision = q.first()
     revision.approved_timestamp = datetime.datetime.now()
     session.add(revision)
-    
+
     if not context.get('defer_commit'):
-        session.commit()        
-    session.remove()        
+        session.commit()
+    session.remove()
 
 
 def resource_update(context, data_dict):
@@ -200,14 +200,14 @@ def resource_update(context, data_dict):
 
     resource = resource_dict_save(data, context)
     if not context.get('defer_commit'):
-        model.repo.commit()        
+        model.repo.commit()
     return resource_dictize(resource, context)
 
 
 def package_update(context, data_dict):
     model = context['model']
     user = context['user']
-    
+
     id = data_dict["id"]
     schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
@@ -223,7 +223,7 @@ def package_update(context, data_dict):
     check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
-    
+
 
     if errors:
         model.Session.rollback()
@@ -241,13 +241,13 @@ def package_update(context, data_dict):
     for item in PluginImplementations(IPackageController):
         item.edit(pkg)
     if not context.get('defer_commit'):
-        model.repo.commit()        
+        model.repo.commit()
     return package_dictize(pkg, context)
 
 def package_update_validate(context, data_dict):
     model = context['model']
     user = context['user']
-    
+
     id = data_dict["id"]
     schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
@@ -279,7 +279,7 @@ def _update_package_relationship(relationship, comment, context):
     if is_changed:
         rev = model.repo.new_revision()
         rev.author = context["user"]
-        rev.message = (_(u'REST API: Update package relationship: %s %s %s') % 
+        rev.message = (_(u'REST API: Update package relationship: %s %s %s') %
             (relationship.subject, relationship.type, relationship.object))
         relationship.comment = comment
         if not context.get('defer_commit'):
@@ -329,6 +329,7 @@ def group_update(context, data_dict):
     session = context['session']
     schema = context.get('schema') or default_update_group_schema()
     id = data_dict['id']
+    parent = context.get('parent', None)
 
     group = model.Group.get(id)
     context["group"] = group
@@ -344,13 +345,26 @@ def group_update(context, data_dict):
 
     rev = model.repo.new_revision()
     rev.author = user
-    
+
     if 'message' in context:
         rev.message = context['message']
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
     group = group_dict_save(data, context)
+
+    if parent:
+        parent_group = model.Group.get( parent )
+        if parent_group and not parent_group in group.get_groups(group.type):
+            # Delete all of this groups memberships
+            current = session.query(model.Member).\
+               filter(model.Member.table_id == group.id).\
+               filter(model.Member.table_name == "group").all()
+            for c in current:
+                session.delete(c)
+            member = model.Member(group=parent_group, table_id=group.id, table_name='group')
+            session.add(member)
+
 
     for item in PluginImplementations(IGroupController):
         item.edit(group)
@@ -391,7 +405,7 @@ def group_update(context, data_dict):
         # in the group.
 
     if not context.get('defer_commit'):
-        model.repo.commit()        
+        model.repo.commit()
 
     return group_dictize(group, context)
 
@@ -401,7 +415,7 @@ def user_update(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema') or default_update_user_schema() 
+    schema = context.get('schema') or default_update_user_schema()
     id = data_dict['id']
 
     user_obj = model.User.get(id)
@@ -435,7 +449,7 @@ def user_update(context, data_dict):
     # the user.
 
     if not context.get('defer_commit'):
-        model.repo.commit()        
+        model.repo.commit()
     return user_dictize(user, context)
 
 def task_status_update(context, data_dict):
@@ -453,7 +467,7 @@ def task_status_update(context, data_dict):
 
         if task_status is None:
             raise NotFound(_('TaskStatus was not found.'))
-    
+
     check_access('task_status_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
@@ -614,7 +628,7 @@ def user_role_update(context, data_dict):
     else:
         user_object = model.AuthorizationGroup.get(new_authgroup_ref)
         if not user_object:
-            raise NotFound('Cannot find authorization group %r' % new_authgroup_ref)        
+            raise NotFound('Cannot find authorization group %r' % new_authgroup_ref)
         data_dict['authorization_group'] = user_object.id
         add_user_to_role_func = model.add_authorization_group_to_role
         remove_user_from_role_func = model.remove_authorization_group_from_role

@@ -392,17 +392,18 @@ A url pointing to a JSON file containing a list of licence objects. This list
 determines the licences offered by the system to users, for example when
 creating or editing a dataset.
 
-This is entirely optional - by default, the system will use the CKAN list of
-licences available in the `Python licenses package <http://pypi.python.org/pypi/licenses>`_.
+This is entirely optional - by default, the system will use an internal cached
+version of the CKAN list of licences available from the
+http://licenses.opendefinition.org/licenses/groups/ckan.json.
 
-More details about the CKAN license objects - including the licence format and some
+More details about the license objects - including the licence format and some
 example licence lists - can be found at the `Open Licenses Service 
 <http://licenses.opendefinition.org/>`_.
 
 Examples::
  
- licenses_group_url = file:///path/to/my/local/json-list-of-licenses.js
- licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_original
+ licenses_group_url = file:///path/to/my/local/json-list-of-licenses.json
+ licenses_group_url = http://licenses.opendefinition.org/licenses/groups/od.json
 
 
 Messaging Settings
@@ -577,7 +578,7 @@ Authorization Settings
 ----------------------
 
 .. index::
-   single: default_roles
+   single: default_roles, auth_profile
 
 default_roles
 ^^^^^^^^^^^^^
@@ -594,6 +595,19 @@ Example::
 With this example setting, visitors and logged-in users can only read datasets that get created.
 
 Defaults: see in ``ckan/model/authz.py`` for: ``default_default_user_roles``
+
+
+auth_profile
+^^^^^^^^^^^^
+
+This allows you to specify the auth profile to use for this installation.  By default this is empty and uses the default authorisation code, if set to publisher it will use the publisher profile in ckan/logic/auth/publisher.
+
+Example::
+	auth.profile = publisher
+	
+With this example setting the publisher auth profile will be used.
+
+Defaults: The default authorisation from ``ckan/logic/auth/*`` will be used
 
 
 Plugin Settings

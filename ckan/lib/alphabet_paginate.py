@@ -7,7 +7,7 @@ Based on webhelpers.paginator, but each page is for items beginning
             collection=query,
             page=request.params.get('page', 'A'),
         )
-    Template:            
+    Template:
         ${c.page.pager()}
         ${package_list(c.page.items)}
         ${c.page.pager()}
@@ -21,7 +21,8 @@ from webhelpers.html.builder import HTML
 from routes import url_for
 
 class AlphaPage(object):
-    def __init__(self, collection, alpha_attribute, page, other_text, paging_threshold=50):
+    def __init__(self, collection, alpha_attribute, page, other_text, paging_threshold=50,
+                controller_name='tag'):
         '''
         @param collection - sqlalchemy query of all the items to paginate
         @param alpha_attribute - name of the attribute (on each item of the
@@ -31,13 +32,23 @@ class AlphaPage(object):
                             non-alphabetic first character.
         @param paging_threshold - the minimum number of items required to
                               start paginating them.
+        @param controller_name - The name of the controller that will be linked to,
+                            which defaults to tag.  The controller name should be the
+                            same as the route so for some this will be the full
+                            controller name such as 'A.B.controllers.C:ClassName'
         '''
         self.collection = collection
         self.alpha_attribute = alpha_attribute
         self.page = page
         self.other_text = other_text
         self.paging_threshold = paging_threshold
-        
+        self.controller_name = controller_name
+        self.available = dict( (c,0,) for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" )
+        for c in self.collection:
+            x = c[0] if isinstance( c, unicode ) else getattr(c, self.alpha_attribute)[0]
+            self.available[x] = self.available.get(x, 0) + 1
+
+
 
     def pager(self, q=None):
         '''Returns pager html - for navigating between the pages.
@@ -58,10 +69,13 @@ class AlphaPage(object):
         letters = [char for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'] + [self.other_text]
         for letter in letters:
             if letter != page:
-                page = HTML.a(class_='pager_link', href=url_for(controller='tag', action='index', page=letter), c=letter)
+                if self.available.get(letter, 0):
+                    page_element = HTML.a(class_='pager_link', href=url_for(controller=self.controller_name, action='index', page=letter),c=letter)
+                else:
+                    page_element = HTML.span(class_="pager_empty", c=letter)
             else:
-                page = HTML.span(class_='pager_curpage', c=letter)
-            pages.append(page)                           
+                page_element = HTML.span(class_='pager_curpage', c=letter)
+            pages.append(page_element)
         div = HTML.tag('div', class_='pager', *pages)
         return div
 
@@ -75,7 +89,7 @@ class AlphaPage(object):
                 attribute = getattr(query.table.c,
                                     self.alpha_attribute)
             elif sqav.startswith("0.5"):
-                 attribute = getattr(query._entity_zero().selectable.c,	
+                 attribute = getattr(query._entity_zero().selectable.c,
                                      self.alpha_attribute)
             else:
                 entity = getattr(query.column_descriptions[0]['expr'],
@@ -96,10 +110,18 @@ class AlphaPage(object):
         elif isinstance(self.collection,list):
             if self.item_count >= self.paging_threshold:
                 if self.page != self.other_text:
-                    items = [x for x in self.collection if x[0:1].lower() == self.page.lower()]
+                    if isinstance(self.collection[0], dict):
+                        items = [x for x in self.collection if x[self.alpha_attribute][0:1].lower() == self.page.lower()]
+                    elif isinstance(self.collection[0], unicode):
+                        items = [x for x in self.collection if x[0:1].lower() == self.page.lower()]
+                    else:
+                        items = [x for x in self.collection if getattr(x,self.alpha_attribute)[0:1].lower() == self.page.lower()]
                 else:
                     # regexp search
-                    items = [x for x in self.collection if re.match('^[^a-zA-Z].*',x)]
+                    if isinstance(self.collection[0], dict):
+                        items = [x for x in self.collection if re.match('^[^a-zA-Z].*',x[self.alpha_attribute])]
+                    else:
+                        items = [x for x in self.collection if re.match('^[^a-zA-Z].*',x)]
                 items.sort()
             else:
                 items = self.collection
