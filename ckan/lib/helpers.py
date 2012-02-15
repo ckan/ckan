@@ -7,6 +7,7 @@ available to Controllers. This module is available to templates as 'h'.
 """
 import datetime
 import re
+import urllib
 
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
@@ -249,14 +250,23 @@ def icon_html(url, alt=None):
 def icon(name, alt=None):
     return icon_html(icon_url(name),alt)
 
-def linked_gravatar(email_hash, size=100, default="identicon"):
+def linked_gravatar(email_hash, size=100, default=None):
     return literal('''<a href="https://gravatar.com/" target="_blank"
         title="Update your avatar at gravatar.com">
         %s</a>''' %
             gravatar(email_hash,size,default)
         )
 
-def gravatar(email_hash, size=100, default="identicon"):
+_VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro']
+def gravatar(email_hash, size=100, default=None):
+    if default is None:
+        from pylons import config 
+        default = config.get('ckan.gravatar_default', 'identicon')
+
+    if not default in _VALID_GRAVATAR_DEFAULTS:
+        # treat the default as a url
+        default = urllib.quote(default, safe='')
+
     return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
         class="gravatar" />'''
         % (email_hash, size, default)
