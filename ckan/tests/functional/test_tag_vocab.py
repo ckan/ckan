@@ -20,7 +20,7 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IGenshiStreamFilter)
 
     def is_fallback(self):
-        return True
+        return False
 
     def package_types(self):
         return ["mock_vocab_tags_plugin"]
@@ -149,6 +149,7 @@ class TestWUI(WsgiAppCase):
         # this is a hack so that the plugin is properly registered with
         # the package controller class.
         from ckan.controllers import package as package_controller
+        cls.old_default_controller = package_controller._default_controller_behaviour
         package_controller._default_controller_behaviour = cls.plugin
 
         # create a test vocab
@@ -174,6 +175,8 @@ class TestWUI(WsgiAppCase):
     def teardown_class(cls):
         plugins.unload(cls.plugin)
         model.repo.rebuild_db()
+        from ckan.controllers import package as package_controller
+        package_controller._default_controller_behaviour = cls.old_default_controller
 
     def _get_vocab_id(self, vocab_name):
         params = json.dumps({'name': vocab_name})
