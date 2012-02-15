@@ -225,15 +225,35 @@ class TestWUI(WsgiAppCase):
                                  extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         assert json.loads(response.body)['success']
 
+    def _remove_vocab_tags(self, dataset_id, vocab_id, tag_name):
+        params = json.dumps({'id': dataset_id})
+        response = self.app.post('/api/action/package_show', params=params)
+        dataset = json.loads(response.body)['result']
+        dataset['tags'] = [t for t in dataset['tags'] if not t['name'] == tag_name]
+        params = json.dumps(dataset)
+        response = self.app.post('/api/action/package_update', params=params,
+                                 extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        assert json.loads(response.body)['success']
+
+        # TODO: should really be able to delete a tag with tag name and vocab ID,
+        # update tag_delete then change this
+        params = json.dumps({'tag_name': tag_name, 'vocabulary_name': TEST_VOCAB_NAME})
+        extra_environ = {'Authorization' : str(self.sysadmin_user.apikey)}
+        response = self.app.post('/api/action/tag_delete', params=params,
+                                 extra_environ=extra_environ)
+        assert json.loads(response.body)['success']
+
     def test_01_dataset_view(self):
         vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
         self._add_vocab_tag(vocab_id, self.tag1_name)
         self._add_vocab_tag_to_dataset(self.dset.id, vocab_id, self.tag1_name)
         response = self.app.get(h.url_for(controller='package', action='read', id=self.dset.id))
         assert self.tag1_name in response.body
+        self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
 
     def test_02_dataset_edit_change_vocab_tag(self):
         vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
+        self._add_vocab_tag(vocab_id, self.tag1_name)
         self._add_vocab_tag(vocab_id, self.tag2_name)
         url = h.url_for(controller='package', action='edit', id=self.dset.id)
         response = self.app.get(url)
@@ -243,4 +263,6 @@ class TestWUI(WsgiAppCase):
         response = response.follow()
         assert not self.tag1_name in response.body
         assert self.tag2_name in response.body
+        self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
+        self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
 
