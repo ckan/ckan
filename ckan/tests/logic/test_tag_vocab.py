@@ -145,6 +145,11 @@ class Select(paste.fixture.Field):
         self.selectedIndex = None
 
     def value__set(self, value):
+        if not value:
+            self.selectedIndex = None
+            self.options = [(option, False) for (option, checked) in self.options]
+            return
+
         for i, (option, checked) in enumerate(self.options):
             if option == str(value):
                 self.selectedIndex = i
@@ -162,11 +167,7 @@ class Select(paste.fixture.Field):
             for option, checked in self.options:
                 if checked:
                     return option
-            else:
-                if self.options:
-                    return self.options[0][0]
-                else:
-                    return None
+            return None
 
     value = property(value__get, value__set)
 
@@ -196,6 +197,18 @@ class TestWUI(WsgiAppCase):
         response = cls.app.post('/api/action/vocabulary_create', params=params,
                                 extra_environ=extra_environ)
         assert json.loads(response.body)['success']
+        vocab_id = json.loads(response.body)['result']['id']
+
+        # add tags to the vocab
+        extra_environ = {'Authorization' : str(cls.sysadmin_user.apikey)}
+        params = json.dumps({'name': cls.tag1_name, 'vocabulary_id': vocab_id})
+        response = cls.app.post('/api/action/tag_create', params=params,
+                                 extra_environ=extra_environ)
+        assert json.loads(response.body)['success']
+        params = json.dumps({'name': cls.tag2_name, 'vocabulary_id': vocab_id})
+        response = cls.app.post('/api/action/tag_create', params=params,
+                                 extra_environ=extra_environ)
+        assert json.loads(response.body)['success']
 
     @classmethod
     def teardown_class(cls):
@@ -207,13 +220,6 @@ class TestWUI(WsgiAppCase):
         response = self.app.post('/api/action/vocabulary_show', params=params)
         assert json.loads(response.body)['success']
         return json.loads(response.body)['result']['id']
-
-    def _add_vocab_tag(self, vocab_id, tag_name):
-        params = json.dumps({'name': tag_name, 'vocabulary_id': vocab_id})
-        extra_environ = {'Authorization' : str(self.sysadmin_user.apikey)}
-        response = self.app.post('/api/action/tag_create', params=params,
-                                 extra_environ=extra_environ)
-        assert json.loads(response.body)['success']
 
     def _add_vocab_tag_to_dataset(self, dataset_id, vocab_id, tag_name):
         params = json.dumps({'id': dataset_id})
@@ -235,17 +241,8 @@ class TestWUI(WsgiAppCase):
                                  extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         assert json.loads(response.body)['success']
 
-        # TODO: should really be able to delete a tag with tag name and vocab ID,
-        # update tag_delete then change this
-        params = json.dumps({'tag_name': tag_name, 'vocabulary_name': TEST_VOCAB_NAME})
-        extra_environ = {'Authorization' : str(self.sysadmin_user.apikey)}
-        response = self.app.post('/api/action/tag_delete', params=params,
-                                 extra_environ=extra_environ)
-        assert json.loads(response.body)['success']
-
     def test_01_dataset_view(self):
         vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
-        self._add_vocab_tag(vocab_id, self.tag1_name)
         self._add_vocab_tag_to_dataset(self.dset.id, vocab_id, self.tag1_name)
         response = self.app.get(h.url_for(controller='package', action='read', id=self.dset.id))
         assert self.tag1_name in response.body
@@ -253,8 +250,6 @@ class TestWUI(WsgiAppCase):
 
     def test_02_dataset_edit_add_vocab_tag(self):
         vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
-        self._add_vocab_tag(vocab_id, self.tag1_name)
-        self._add_vocab_tag(vocab_id, self.tag2_name)
         url = h.url_for(controller='package', action='edit', id=self.dset.id)
         response = self.app.get(url)
         fv = response.forms['dataset-edit']
@@ -264,5 +259,30 @@ class TestWUI(WsgiAppCase):
         assert not self.tag1_name in response.body
         assert self.tag2_name in response.body
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
+        self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
+
+    def test_03_dataset_edit_remove_vocab_tag(self):
+        vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
+        self._add_vocab_tag_to_dataset(self.dset.id, vocab_id, self.tag1_name)
+        url = h.url_for(controller='package', action='edit', id=self.dset.id)
+        response = self.app.get(url)
+        fv = response.forms['dataset-edit']
+        fv['vocab_tags'] = ''
+        response = fv.submit('save')
+        response = response.follow()
+        assert not self.tag1_name in response.body
+        self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
+
+    def test_04_dataset_edit_change_vocab_tag(self):
+        vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
+        self._add_vocab_tag_to_dataset(self.dset.id, vocab_id, self.tag1_name)
+        url = h.url_for(controller='package', action='edit', id=self.dset.id)
+        response = self.app.get(url)
+        fv = response.forms['dataset-edit']
+        fv['vocab_tags'] = self.tag2_name
+        response = fv.submit('save')
+        response = response.follow()
+        assert not self.tag1_name in response.body
+        assert self.tag2_name in response.body
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
 
