@@ -19,6 +19,8 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IDatasetForm, inherit=True)
     plugins.implements(plugins.IGenshiStreamFilter)
 
+    active = False
+
     def is_fallback(self):
         return False
 
@@ -49,27 +51,28 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
         return schema
 
     def filter(self, stream):
-        routes = request.environ.get('pylons.routes_dict')
-        if routes.get('controller') == 'package' \
-            and routes.get('action') == 'read':
-                # add vocab tags to the bottom of the page
-                tags = c.pkg_dict.get('tags', [])
-                for tag in tags:
-                    if tag.get('vocabulary_id'):
-                        stream = stream | Transformer('body')\
-                            .append(HTML('<p>%s</p>' % tag.get('name')))
-        if routes.get('controller') == 'package' \
-            and routes.get('action') == 'edit':
-                # add vocabs tag select box to edit page
-                html = '<select id="vocab_tags" name="vocab_tags" size="60" multiple="multiple">'
-                selected_tags = c.pkg_dict.get('vocab_tags_selected', [])
-                for tag in c.vocab_tags:
-                    if tag in selected_tags:
-                        html += '<option selected="selected" value="%s">%s</option>' % (tag, tag)
-                    else:
-                        html += '<option value="%s">%s</option>' % (tag, tag)
-                html += '</select>'
-                stream = stream | Transformer('fieldset[@id="groups"]').append(HTML(html))
+        if self.active:
+            routes = request.environ.get('pylons.routes_dict')
+            if routes.get('controller') == 'package' \
+                and routes.get('action') == 'read':
+                    # add vocab tags to the bottom of the page
+                    tags = c.pkg_dict.get('tags', [])
+                    for tag in tags:
+                        if tag.get('vocabulary_id'):
+                            stream = stream | Transformer('body')\
+                                .append(HTML('<p>%s</p>' % tag.get('name')))
+            if routes.get('controller') == 'package' \
+                and routes.get('action') == 'edit':
+                    # add vocabs tag select box to edit page
+                    html = '<select id="vocab_tags" name="vocab_tags" size="60" multiple="multiple">'
+                    selected_tags = c.pkg_dict.get('vocab_tags_selected', [])
+                    for tag in c.vocab_tags:
+                        if tag in selected_tags:
+                            html += '<option selected="selected" value="%s">%s</option>' % (tag, tag)
+                        else:
+                            html += '<option value="%s">%s</option>' % (tag, tag)
+                    html += '</select>'
+                    stream = stream | Transformer('fieldset[@id="groups"]').append(HTML(html))
         return stream
 
 
@@ -119,7 +122,7 @@ class Select(paste.fixture.Field):
             if not v in [option for (option, checked) in self.options]:
                 raise ValueError("Option %r not found (from %s)"
                     % (value, ', '.join(
-                    [repr(o) for o, c in self.options]))
+                    [repr(o) for o, checked in self.options]))
                 )
 
         new_options = [(option, True) for (option, checked) in self.options if option in value]
@@ -130,7 +133,6 @@ class Select(paste.fixture.Field):
         return [option for (option, checked) in self.options if checked]
 
     value = property(value__get, value__set)
-
 
 
 class TestWUI(WsgiAppCase):
@@ -144,6 +146,7 @@ class TestWUI(WsgiAppCase):
 
         cls.plugin = MockVocabTagsPlugin()
         plugins.load(cls.plugin)
+        cls.plugin.active = True
 
         # this is a hack so that the plugin is properly registered with
         # the package controller class.
@@ -177,6 +180,7 @@ class TestWUI(WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         plugins.unload(cls.plugin)
+        cls.plugin.active = False
         from ckan.controllers import package as package_controller
         package_controller._default_controller_behaviour = cls.old_default_controller
         paste.fixture.Field.classes['select'] = cls.old_select
