@@ -74,12 +74,38 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
 
 
 # paste.fixture.Field.Select does not handle multiple selects currently,
-# so replace with our own implementation here
-#
-# TODO: this still only handles a single value, fix and test multiple
+# so replace with our own implementations of Form and Select
+class Form(paste.fixture.Form):
+    def __init__(self, response, text):
+        paste.fixture.Form.__init__(self, response, text)
+
+    def submit_fields(self, name=None, index=None):
+        """
+        Return a list of ``[(name, value), ...]`` for the current
+        state of the form.
+        """
+        submit = []
+        if name is not None:
+            field = self.get(name, index=index)
+            submit.append((field.name, field.value_if_submitted()))
+        for name, fields in self.fields.items():
+            if name is None:
+                continue
+            for field in fields:
+                value = field.value
+                if value is None:
+                    continue
+                if isinstance(value, list):
+                    for v in value:
+                        submit.append((name, v))
+                else:
+                    submit.append((name, value))
+        return submit
+
+
 class Select(paste.fixture.Field):
     def __init__(self, *args, **attrs):
-        super(Select, self).__init__(*args, **attrs)
+        paste.fixture.Field.__init__(self, *args, **attrs)
         self.options = []
         self.selectedIndex = None
 
@@ -89,24 +115,19 @@ class Select(paste.fixture.Field):
             self.options = [(option, False) for (option, checked) in self.options]
             return
 
-        for i, (option, checked) in enumerate(self.options):
-            if option == str(value):
-                self.selectedIndex = i
-                break
-        else:
-            raise ValueError(
-                "Option %r not found (from %s)"
-                % (value, ', '.join(
-                [repr(o) for o, c in self.options])))
+        for v in value:
+            if not v in [option for (option, checked) in self.options]:
+                raise ValueError("Option %r not found (from %s)"
+                    % (value, ', '.join(
+                    [repr(o) for o, c in self.options]))
+                )
+
+        new_options = [(option, True) for (option, checked) in self.options if option in value]
+        new_options += [(option, False) for (option, checked) in self.options if not option in value]
+        self.options = new_options
 
     def value__get(self):
-        if self.selectedIndex is not None:
-            return self.options[self.selectedIndex][0]
-        else:
-            for option, checked in self.options:
-                if checked:
-                    return option
-            return None
+        return [option for (option, checked) in self.options if checked]
 
     value = property(value__get, value__set)
 
@@ -192,7 +213,8 @@ class TestWUI(WsgiAppCase):
         url = h.url_for(controller='package', action='edit', id=self.dset.id)
         response = self.app.get(url)
         fv = response.forms['dataset-edit']
-        fv['vocab_tags'] = self.tag2_name
+        fv = Form(fv.response, fv.text)
+        fv['vocab_tags'] = [self.tag2_name]
         response = fv.submit('save')
         response = response.follow()
         assert not self.tag1_name in response.body
@@ -206,7 +228,8 @@ class TestWUI(WsgiAppCase):
         url = h.url_for(controller='package', action='edit', id=self.dset.id)
         response = self.app.get(url)
         fv = response.forms['dataset-edit']
-        fv['vocab_tags'] = ''
+        fv = Form(fv.response, fv.text)
+        fv['vocab_tags'] = []
         response = fv.submit('save')
         response = response.follow()
         assert not self.tag1_name in response.body
@@ -218,10 +241,25 @@ class TestWUI(WsgiAppCase):
         url = h.url_for(controller='package', action='edit', id=self.dset.id)
         response = self.app.get(url)
         fv = response.forms['dataset-edit']
-        fv['vocab_tags'] = self.tag2_name
+        fv = Form(fv.response, fv.text)
+        fv['vocab_tags'] = [self.tag2_name]
         response = fv.submit('save')
         response = response.follow()
         assert not self.tag1_name in response.body
         assert self.tag2_name in response.body
+        self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
+
+    def test_05_dataset_edit_add_multiple_vocab_tags(self):
+        vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
+        url = h.url_for(controller='package', action='edit', id=self.dset.id)
+        response = self.app.get(url)
+        fv = response.forms['dataset-edit']
+        fv = Form(fv.response, fv.text)
+        fv['vocab_tags'] = [self.tag1_name, self.tag2_name]
+        response = fv.submit('save')
+        response = response.follow()
+        assert self.tag1_name in response.body
+        assert self.tag2_name in response.body
+        self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
 
