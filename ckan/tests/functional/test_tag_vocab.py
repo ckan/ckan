@@ -131,7 +131,6 @@ class Select(paste.fixture.Field):
 
     value = property(value__get, value__set)
 
-paste.fixture.Field.classes['select'] = Select
 
 
 class TestWUI(WsgiAppCase):
@@ -151,6 +150,10 @@ class TestWUI(WsgiAppCase):
         from ckan.controllers import package as package_controller
         cls.old_default_controller = package_controller._default_controller_behaviour
         package_controller._default_controller_behaviour = cls.plugin
+
+        # use our custom select class for this test suite
+        cls.old_select = paste.fixture.Field.classes['select']
+        paste.fixture.Field.classes['select'] = Select
 
         # create a test vocab
         params = json.dumps({'name': TEST_VOCAB_NAME})
@@ -174,9 +177,10 @@ class TestWUI(WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         plugins.unload(cls.plugin)
-        model.repo.rebuild_db()
         from ckan.controllers import package as package_controller
         package_controller._default_controller_behaviour = cls.old_default_controller
+        paste.fixture.Field.classes['select'] = cls.old_select
+        model.repo.rebuild_db()
 
     def _get_vocab_id(self, vocab_name):
         params = json.dumps({'name': vocab_name})
