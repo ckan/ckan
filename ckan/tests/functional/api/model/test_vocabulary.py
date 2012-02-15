@@ -165,9 +165,8 @@ class TestVocabulary(object):
         assert response['success'] == True
         return response['result']
 
-    def _delete_tag(self, user, tag, vocabulary):
-        params = {'tag_name': tag['name'],
-                'vocabulary_name': vocabulary['name']}
+    def _delete_tag(self, user, tag_id_or_name, vocab_id_or_name):
+        params = {'id': tag_id_or_name, 'vocabulary_id': vocab_id_or_name}
         if user:
             extra_environ = {'Authorization' : str(user.apikey)}
         else:
@@ -538,69 +537,82 @@ class TestVocabulary(object):
 
         vocab = self.genre_vocab
 
-        # First add a tag to the vocab.
-        tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
+        # First add some tags to the vocab.
+        noise_tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
+        ragga_tag = self._create_tag(self.sysadmin_user, 'ragga', vocab)
+        grunge_tag = self._create_tag(self.sysadmin_user, 'grunge', vocab)
+        funk_tag = self._create_tag(self.sysadmin_user, 'funk', vocab)
+        tags = (noise_tag, ragga_tag, grunge_tag, funk_tag)
 
         # Get a package from the API.
         package = (self._post('/api/action/package_show',
             {'id': self._post('/api/action/package_list')['result'][0]})
             ['result'])
 
-        # Add the new vocab tag to the package.
-        package['tags'].append(tag)
+        # Add the new vocab tags to the package.
+        for tag in tags:
+            package['tags'].append(tag)
         updated_package = (self._post('/api/action/package_update',
                 params={'id': package['id'], 'tags': package['tags']},
                 extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
                 ['result'])
 
-        # Test that the new vocab tag was added to the package.
-        tags_in_pkg = [tag_in_pkg for tag_in_pkg in updated_package['tags'] if
-                tag_in_pkg['name'] == tag['name'] and
-                tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
-        assert len(tags_in_pkg) == 1
+        # Test that the new vocab tags were added to the package.
+        for tag in tags:
+            tags_in_pkg = [tag_in_pkg for tag_in_pkg in
+                    updated_package['tags'] if tag_in_pkg['name'] ==
+                    tag['name'] and tag_in_pkg['vocabulary_id'] ==
+                    tag['vocabulary_id']]
+            assert len(tags_in_pkg) == 1
 
-        # Now delete the tag from the vocab.
+        # Now delete the tags from the vocab.
         tags_before = self._list_tags(vocab)
-        self._delete_tag(self.sysadmin_user, tag, vocab)
+        self._delete_tag(self.sysadmin_user, noise_tag['name'], vocab['name'])
+        self._delete_tag(self.sysadmin_user, ragga_tag['id'], vocab['name'])
+        self._delete_tag(self.sysadmin_user, grunge_tag['id'], vocab['id'])
+        self._delete_tag(self.sysadmin_user, funk_tag['name'], vocab['id'])
 
-        # Test that the tag no longer appears in the list of tags for the
+        # Test that the tags no longer appear in the list of tags for the
         # vocab.
         tags_after = self._list_tags(vocab)
-        assert len(tags_after) == len(tags_before) - 1
+        assert len(tags_after) == len(tags_before) - 4
         assert tag['name'] not in tags_after
         difference = [tag_name for tag_name in tags_before if tag_name not in
                 tags_after]
-        assert len(difference) == 1
-        assert tag['name'] in difference
+        assert sorted(difference) == sorted([tag['name'] for tag in tags])
 
-        # Test that the tag no longer appears in the list of tags for the
+        # Test that the tags no longer appear in the list of tags for the
         # package.
         package = (self._post('/api/action/package_show',
             {'id': self._post('/api/action/package_list')['result'][0]})
             ['result'])
-        tags_in_pkg = [tag_in_pkg for tag_in_pkg in package['tags'] if
-                tag_in_pkg['name'] == tag['name'] and
-                tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
-        assert len(tags_in_pkg) == 0
+        for tag in tags:
+            tags_in_pkg = [tag_in_pkg for tag_in_pkg in package['tags'] if
+                    tag_in_pkg['name'] == tag['name'] and
+                    tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
+            assert len(tags_in_pkg) == 0
 
-    def test_delete_tag_no_name(self):
+    def test_delete_tag_no_id(self):
         '''Test the error response when a user tries to delete a tag without
-        giving the tag name.
+        giving the tag id.
 
         '''
         vocab = self.genre_vocab
         tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
 
-        # Now try to delete the tag from the vocab.
-        params = {'vocab_name': vocab['name']}
-        response = self.app.post('/api/action/tag_delete',
-                params=json.dumps(params),
-                extra_environ = {'Authorization':
-                    str(self.sysadmin_user.apikey)},
-                status=409)
-        assert response.json['success'] == False
-        assert (response.json['error']['message'] ==
-                u"Parameter Error: Missing 'tag_name' parameter.")
+        for tag_id in ('missing', '', None):
+            # Now try to delete the tag from the vocab.
+            params = {'vocabulary_id': vocab['name']}
+            if tag_id != 'missing':
+                params['id'] = tag_id
+            response = self.app.post('/api/action/tag_delete',
+                    params=json.dumps(params),
+                    extra_environ = {'Authorization':
+                        str(self.sysadmin_user.apikey)},
+                    status=409)
+            assert response.json['success'] == False
+            msg = response.json['error']['message']
+            assert msg == u"Parameter Error: Missing 'id' parameter.", msg
 
     def test_delete_tag_no_vocab(self):
         '''Test the error response when a user tries to delete a tag without
@@ -611,15 +623,19 @@ class TestVocabulary(object):
         tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
 
         # Now try to delete the tag from the vocab.
-        params = {'tag_name': tag['name']}
-        response = self.app.post('/api/action/tag_delete',
-                params=json.dumps(params),
-                extra_environ = {'Authorization':
-                    str(self.sysadmin_user.apikey)},
-                status=409)
-        assert response.json['success'] == False
-        assert (response.json['error']['message'] ==
-                u"Parameter Error: Missing 'vocabulary_name' parameter.")
+        for vocab_name in ('', None, 'missing'):
+            params = {'id': tag['name']}
+            if vocab_name != 'missing':
+                params['vocabulary_id'] = vocab_name
+            response = self.app.post('/api/action/tag_delete',
+                    params=json.dumps(params),
+                    extra_environ = {'Authorization':
+                        str(self.sysadmin_user.apikey)},
+                    status=409)
+            assert response.json['success'] == False
+            msg = response.json['error']['message']
+            assert msg == \
+                    u"Parameter Error: Missing 'vocabulary_id' parameter.", msg
 
     def test_delete_tag_not_exists(self):
         '''Test the error response when a user tries to delete a from a vocab
@@ -629,16 +645,16 @@ class TestVocabulary(object):
         vocab = self.genre_vocab
         tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
 
-        params = {'tag_name': 'nonexistent',
-                'vocabulary_name': self.genre_vocab['name']}
+        params = {'id': 'nonexistent',
+                'vocabulary_id': self.genre_vocab['name']}
         response = self.app.post('/api/action/tag_delete',
                 params=json.dumps(params),
                 extra_environ = {'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=404)
         assert response.json['success'] == False
-        assert (response.json['error']['message'] ==
-                u"Not found")
+        msg = response.json['error']['message']
+        assert msg == u"Not found", msg
 
     def test_delete_tag_vocab_not_exists(self):
         '''Test the error response when a user tries to delete a from a vocab
@@ -648,16 +664,16 @@ class TestVocabulary(object):
         vocab = self.genre_vocab
         tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
 
-        params = {'tag_name': tag['name'],
-                'vocabulary_name': 'nonexistent'}
+        params = {'id': tag['name'],
+                'vocabulary_id': 'nonexistent'}
         response = self.app.post('/api/action/tag_delete',
                 params=json.dumps(params),
                 extra_environ = {'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=404)
         assert response.json['success'] == False
-        assert (response.json['error']['message'] ==
-                u"Not found")
+        msg = response.json['error']['message']
+        assert msg == u"Not found", msg
 
     def test_delete_tag_invalid_tag(self):
         '''Test the error response when a user tries to delete a tag but gives
@@ -667,17 +683,17 @@ class TestVocabulary(object):
         vocab = self.genre_vocab
         tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
 
-        for tag_name in ('Invalid!', '', None):
-            params = {'tag_name': tag_name,
-                    'vocabulary_name': self.genre_vocab['name']}
+        for tag_name in ('Invalid!', ' '):
+            params = {'id': tag_name,
+                    'vocabulary_id': self.genre_vocab['name']}
             response = self.app.post('/api/action/tag_delete',
                     params=json.dumps(params),
                     extra_environ = {'Authorization':
                         str(self.sysadmin_user.apikey)},
                     status=404)
             assert response.json['success'] == False
-            assert (response.json['error']['message'] ==
-                    u"Not found")
+            msg = response.json['error']['message']
+            assert msg == u"Not found", msg
 
     def test_delete_tag_invalid_vocab(self):
         '''Test the error response when a user tries to delete a tag but gives
@@ -687,42 +703,41 @@ class TestVocabulary(object):
         vocab = self.genre_vocab
         tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
 
-        for vocab_name in ('Invalid!', '', None):
-            params = {'tag_name': tag['name'],
-                    'vocabulary_name': vocab_name}
+        for vocab_name in ('Invalid!', ' '):
+            params = {'id': tag['name'], 'vocabulary_id': vocab_name}
             response = self.app.post('/api/action/tag_delete',
                     params=json.dumps(params),
                     extra_environ = {'Authorization':
                         str(self.sysadmin_user.apikey)},
                     status=404)
             assert response.json['success'] == False
-            assert (response.json['error']['message'] ==
-                    u"Not found")
+            msg = response.json['error']['message']
+            assert msg == u"Not found", msg
 
     def test_delete_tag_not_logged_in(self):
         vocab = self.genre_vocab
         tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
 
-        params = {'tag_name': tag['name'],
-                'vocabulary_name': self.genre_vocab['name']}
+        params = {'id': tag['name'],
+                'vocabulary_id': self.genre_vocab['name']}
         response = self.app.post('/api/action/tag_delete',
                 params=json.dumps(params),
                 status=403)
         assert response.json['success'] == False
-        assert (response.json['error']['message'] ==
-                u"Access denied")
+        msg = response.json['error']['message']
+        assert msg == u"Access denied", msg
 
     def test_delete_tag_not_authorized(self):
         vocab = self.genre_vocab
         tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
 
-        params = {'tag_name': tag['name'],
-                'vocabulary_name': self.genre_vocab['name']}
+        params = {'id': tag['name'],
+                'vocabulary_id': self.genre_vocab['name']}
         response = self.app.post('/api/action/tag_delete',
                 params=json.dumps(params),
                 extra_environ = {'Authorization':
                     str(self.normal_user.apikey)},
                 status=403)
         assert response.json['success'] == False
-        assert (response.json['error']['message'] ==
-                u"Access denied")
+        msg = response.json['error']['message']
+        assert msg == u"Access denied"

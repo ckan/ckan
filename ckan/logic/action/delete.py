@@ -119,16 +119,17 @@ def vocabulary_delete(context, data_dict):
 
 def tag_delete(context, data_dict):
     model = context['model']
-    user = context['user']
 
-    if not data_dict.has_key('tag_name'):
-        raise ParameterError(_("Missing 'tag_name' parameter."))
+    if not data_dict.has_key('id') or not data_dict['id']:
+        raise ParameterError(_("Missing 'id' parameter."))
+    tag_id_or_name = data_dict['id']
 
-    if not data_dict.has_key('vocabulary_name'):
-        raise ParameterError(_("Missing 'vocabulary_name' parameter."))
+    if (not data_dict.has_key('vocabulary_id') or not
+            data_dict['vocabulary_id']):
+        raise ParameterError(_("Missing 'vocabulary_id' parameter."))
+    vocab_id_or_name = data_dict['vocabulary_id']
 
-    tag_obj = model.tag.Tag.get(data_dict['tag_name'],
-            data_dict['vocabulary_name'])
+    tag_obj = model.tag.Tag.get(tag_id_or_name, vocab_id_or_name)
 
     if tag_obj is None:
         raise NotFound
