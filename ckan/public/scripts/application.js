@@ -404,10 +404,9 @@ CKAN.Utils = function($, my) {
         input_box.attr('name', new_name)
         input_box.attr('id', new_name)
 
-        var capacity = $("input:radio[name=add-user-capacity]:checked").val();
         parent_dd.before(
           '<input type="hidden" name="' + old_name + '" value="' + ui.item.value + '">' +
-          '<input type="hidden" name="' + old_name.replace('__name','__capacity') + '" value="' + capacity + '">' +
+          '<input type="hidden" name="' + old_name.replace('__name','__capacity') + '" value="editor">' +
           '<dd>' + ui.item.label + '</dd>'
         );
 

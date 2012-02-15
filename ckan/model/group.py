@@ -116,14 +116,15 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             pass
 
     def members_of_type(self, object_type, capacity=None):
+        from ckan import model
         object_type_string = object_type.__name__.lower()
         query = Session.query(object_type).\
                filter(group_table.c.id == self.id).\
-               filter(member_table.c.state == 'active').\
-               filter(member_table.c.table_name == object_type_string)
+               filter(model.Member.state == 'active').\
+               filter(model.Member.table_name == object_type_string)
 
         if capacity:
-            query = query.filter(member_table.c.capacity == capacity)
+            query = query.filter(model.Member.capacity == capacity)
 
         query = query.join(member_table, member_table.c.table_id == getattr(object_type,'id') ).\
                join(group_table, group_table.c.id == member_table.c.group_id)
