@@ -251,7 +251,7 @@ class TestWUI(WsgiAppCase):
         assert self.tag1_name in response.body
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
 
-    def test_02_dataset_edit_change_vocab_tag(self):
+    def test_02_dataset_edit_add_vocab_tag(self):
         vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
         self._add_vocab_tag(vocab_id, self.tag1_name)
         self._add_vocab_tag(vocab_id, self.tag2_name)
