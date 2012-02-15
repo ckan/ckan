@@ -165,8 +165,10 @@ class TestVocabulary(object):
         assert response['success'] == True
         return response['result']
 
-    def _delete_tag(self, user, tag_id_or_name, vocab_id_or_name):
-        params = {'id': tag_id_or_name, 'vocabulary_id': vocab_id_or_name}
+    def _delete_tag(self, user, tag_id_or_name, vocab_id_or_name=None):
+        params = {'id': tag_id_or_name}
+        if vocab_id_or_name:
+            params['vocabulary_id'] = vocab_id_or_name
         if user:
             extra_environ = {'Authorization' : str(user.apikey)}
         else:
@@ -592,6 +594,56 @@ class TestVocabulary(object):
                     tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
             assert len(tags_in_pkg) == 0
 
+    def test_delete_free_tag(self):
+        '''Test that a free tag can be deleted via the API, and is
+        automatically removed from datasets.
+
+        '''
+        # Get a package from the API.
+        package = (self._post('/api/action/package_show',
+            {'id': self._post('/api/action/package_list')['result'][0]})
+            ['result'])
+        package_id = package['id']
+
+        # Add some new free tags to the package.
+        tags = package['tags']
+        tags.append({'name': 'ducks'})
+        tags.append({'name': 'birds'})
+        self._post('/api/action/package_update',
+                params={'id': package['id'], 'tags': tags},
+                extra_environ={'Authorization':
+                    str(self.sysadmin_user.apikey)})
+
+        # Test that the new tags appear in the list of tags.
+        tags = self._list_tags()
+        assert [tag for tag in tags].count('ducks') == 1
+        assert [tag for tag in tags].count('birds') == 1
+
+        # Test that the new tags appear in the package's list of tags.
+        package = (self._post('/api/action/package_show',
+            {'id': package_id})['result'])
+        packages_tags = [tag['name'] for tag in package['tags']]
+        assert [tag for tag in packages_tags].count('ducks') == 1
+        assert [tag for tag in packages_tags].count('birds') == 1
+
+        # Now delete the tags.
+        self._delete_tag(self.sysadmin_user, 'ducks')
+        birds_tag_id = self._post('/api/action/tag_show',
+                {'id': 'birds'})['result']['id']
+        self._delete_tag(self.sysadmin_user, birds_tag_id)
+
+        # Test that the tags no longer appear in the list of tags.
+        tags = self._list_tags()
+        assert [tag for tag in tags].count('ducks') == 0
+        assert [tag for tag in tags].count('birds') == 0
+
+        # Test that the tags no longer appear in the package's list of tags.
+        package = (self._post('/api/action/package_show',
+            {'id': package_id})['result'])
+        packages_tags = [tag['name'] for tag in package['tags']]
+        assert [tag for tag in packages_tags].count('ducks') == 0
+        assert [tag for tag in packages_tags].count('birds') == 0
+
     def test_delete_tag_no_id(self):
         '''Test the error response when a user tries to delete a tag without
         giving the tag id.
@@ -615,8 +667,8 @@ class TestVocabulary(object):
             assert msg == u"Parameter Error: Missing 'id' parameter.", msg
 
     def test_delete_tag_no_vocab(self):
-        '''Test the error response when a user tries to delete a tag without
-        giving the vocab name.
+        '''Test the error response when a user tries to delete a vocab tag
+        without giving the vocab name.
 
         '''
         vocab = self.genre_vocab
@@ -631,11 +683,10 @@ class TestVocabulary(object):
                     params=json.dumps(params),
                     extra_environ = {'Authorization':
                         str(self.sysadmin_user.apikey)},
-                    status=409)
+                    status=404)
             assert response.json['success'] == False
             msg = response.json['error']['message']
-            assert msg == \
-                    u"Parameter Error: Missing 'vocabulary_id' parameter.", msg
+            assert msg == u"Not found", msg
 
     def test_delete_tag_not_exists(self):
         '''Test the error response when a user tries to delete a from a vocab
