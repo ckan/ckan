@@ -342,8 +342,7 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
-                   'pending': True,
-                   'schema': self._form_to_db_schema(package_type=package_type)}
+                   'pending': True,}
 
         if context['save'] and not data:
             return self._save_edit(id, context)

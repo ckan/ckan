@@ -8,7 +8,7 @@ import ckan.logic
 from ckan.plugins import PluginImplementations, IDatasetForm, IGroupForm
 
 log = logging.getLogger(__name__)
-print '...'
+
 # Mapping from package-type strings to IDatasetForm instances
 _package_plugins = {}
 # The fallback behaviour

@@ -6,6 +6,8 @@ from ckan.lib.navl.dictization_functions import flatten_dict, DataError
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IActions
 
+log = logging.getLogger(__name__)
+
 class AttributeDict(dict):
     def __getattr__(self, name):
         try:
@@ -37,8 +39,6 @@ class ValidationError(ParameterError):
         self.error_dict = error_dict
         self.error_summary = error_summary
         self.extra_msg = extra_msg
-
-log = logging.getLogger(__name__)
 
 def parse_params(params):
     parsed = {}

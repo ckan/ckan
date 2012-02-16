@@ -3,10 +3,11 @@ import re
 import datetime
 
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
-from ckan.logic import NotFound, ValidationError, ParameterError
-from ckan.logic import check_access
+from ckan.logic import NotFound, ValidationError, ParameterError, NotAuthorized
+from ckan.logic import get_action, check_access
+from lib_plugin import lookup_package_plugin
 
-from ckan.lib.base import _
+from ckan.lib.base import _, abort
 from vdm.sqlalchemy.base import SQLAlchemySession
 import ckan.lib.dictization
 from ckan.lib.dictization.model_dictize import (package_dictize,
@@ -205,12 +206,33 @@ def resource_update(context, data_dict):
     return resource_dictize(resource, context)
 
 
+def _get_package_type(id, context):
+    """
+    Given the id of a package it determines the plugin to load
+    based on the package's type name (type). The plugin found
+    will be returned, or None if there is no plugin associated with
+    the type.
+
+    aborts if an exception is raised.
+    """
+
+    try:
+        data = get_action('package_show')(context, {'id': id})
+    except NotFound:
+        abort(404, _('Package not found'))
+    except NotAuthorized:
+        abort(401, _('Unauthorized to read package %s') % id)
+    return data['type']
+
+
 def package_update(context, data_dict):
+
     model = context['model']
     user = context['user']
-
     id = data_dict["id"]
-    schema = context.get('schema') or default_update_package_schema()
+
+    package_type = _get_package_type(id, context)
+    schema = lookup_package_plugin(package_type).form_to_db_schema()
     model.Session.remove()
     model.Session()._context = context
 
@@ -224,7 +246,6 @@ def package_update(context, data_dict):
     check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
-
 
     if errors:
         model.Session.rollback()
