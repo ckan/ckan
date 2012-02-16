@@ -139,4 +139,11 @@ These are seen when loading a CKAN database from another machine. It is the resu
 
 This is usually seen when you run the paster command with one user, and CKAN is deployed on Apache (for example) which runs as another user. The usual remedy is to run the paster command as user ``www-data``. i.e..::
 
-sudo -u www-data paster ...
+  sudo -u www-data paster ...
+
+``ImportError: No module named genshi.template``
+================================================
+
+This is seen when running a paster command. The problem is paster is not recognising the python virtual environment where genshi (and other CKAN libraries) are installed. To resolve this, supply the path to the copy of paster in the virtual environment. e.g.::
+
+  pyenv/bin/paster ...

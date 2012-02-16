@@ -28,7 +28,7 @@ different instances that share the same schema version.
 To install Solr (if you are following the :doc:`install-from-source` or
 :doc:`install-from-package` instructions, you already did this)::
 
- sudo apt-get install solr-jetty
+ sudo apt-get install solr-jetty openjdk-6-jdk
 
 You'll need to edit the Jetty configuration file (`/etc/default/jetty`) with the
 suitable values::
@@ -148,7 +148,7 @@ add them to the `solr.xml` file and copy the existing configuration dir::
 
 Remember to ensure each core points to the correct CKAN schema. To change core1 to be ckan-schema-1.3::
 
-    sudo rm sudo rm /etc/solr/core1/conf/schema.xml
+    sudo rm /etc/solr/core1/conf/schema.xml
     sudo ln -s <full-path>/schema-1.3.xml /etc/solr/core1/conf/schema.xml
 
 (where ``<full-path>`` is the full path to the schema file on your machine)
