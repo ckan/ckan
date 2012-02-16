@@ -137,14 +137,15 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             member = Member(group=self, table_id=getattr(object_instance,'id'), table_name=object_type_string)
             Session.add(member)
 
-    def get_children_groups(self):
-        # TODO: Investigate Using members_of_type gives an error about
-        # group appearing too many times in query
-        members = Session.query(Member).\
-               filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
-               filter(Member.table_name == "group").\
-               filter(Member.group_id == self.id).all()
-        return [ Group.get( m.table_id ) for m in members ]
+    def get_children_groups(self, type='group'):
+        # Returns a list of dicts where each dict contains "id", "name", and "title"
+        # When querying with a CTE specifying a model in the query parameter causes
+        # problems as it returns only the first level deep apparently not recursing
+        # any deeper than that.  If we simplify and request only specific fields then
+        # if returns the full depth of the hierarchy.
+        results = Session.query("id","name", "title").\
+                from_statement(HIERARCHY_CTE).params(id=self.id,type=type).all()
+        return [ { "id":idf, "name": name, "title": title } for idf,name,title in results ]
 
     def active_packages(self, load_eager=True):
         query = Session.query(Package).\
@@ -251,3 +252,16 @@ MemberRevision = vdm.sqlalchemy.create_object_version(mapper, Member,
 #TODO
 MemberRevision.related_packages = lambda self: [self.continuity.package]
 
+HIERARCHY_CTE =  """
+    WITH RECURSIVE subtree(id) AS (
+        SELECT M.* FROM public.member AS M
+        WHERE M.table_name = 'group' AND M.state = 'active'
+        UNION ALL
+        SELECT M.* FROM public.member M, subtree SG
+        WHERE M.table_id = SG.group_id AND M.table_name = 'group' AND
+              M.state = 'active' )
+
+    SELECT G.* FROM subtree AS ST
+    INNER JOIN public.group G ON G.id = ST.table_id
+    WHERE group_id = :id AND G.type = :type
+"""
