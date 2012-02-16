@@ -40,6 +40,10 @@ class MockGroupControllerPlugin(SingletonPlugin):
     def delete(self, entity):
         self.calls['delete'] += 1
 
+    def before_view(self, data_dict):
+        self.calls['before_view'] += 1
+        return data_dict
+
 class TestGroup(FunctionalTestCase):
 
     @classmethod

@@ -52,7 +52,7 @@ class TestBasicDictize:
                         "approval_status": u"approved"}],
             'isopen': True,
             'license_id': u'other-open',
-            'license_title': u'OKD Compliant::Other (Open)',
+            'license_title': u'Other (Open)',
             'maintainer': None,
             'maintainer_email': None,
             'type': None,
@@ -216,11 +216,10 @@ class TestBasicDictize:
 
         pprint(result)
         pprint(self.package_expected)
+        print "\n".join(unified_diff(pformat(result).split("\n"), pformat(self.package_expected).split("\n")))
 
         assert sorted(result.values()) == sorted(self.package_expected.values())
         assert result == self.package_expected
-
-
 
     def test_03_package_to_api1(self):
 
@@ -233,7 +232,7 @@ class TestBasicDictize:
         pprint(pkg.as_dict())
         asdict = pkg.as_dict()
         asdict['download_url'] = asdict['resources'][0]['url']
-        asdict['license_title'] = u'OKD Compliant::Other (Open)'
+        asdict['license_title'] = u'Other (Open)'
 
         assert package_to_api1(pkg, context) == asdict
 

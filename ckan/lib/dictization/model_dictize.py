@@ -1,6 +1,6 @@
 from pylons import config
 from sqlalchemy.sql import select, and_
-from ckan.plugins import PluginImplementations, IDatasetForm, IPackageController
+from ckan.plugins import PluginImplementations, IDatasetForm, IPackageController, IGroupController
 import datetime
 
 from ckan.model import PackageRevision
@@ -256,6 +256,10 @@ def group_dictize(group, context):
         context)
 
     context['with_capacity'] = False
+
+    if context.get('for_view'):
+        for item in PluginImplementations(IGroupController):
+            result_dict = item.before_view(result_dict)
 
     return result_dict
 
