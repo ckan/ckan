@@ -48,8 +48,8 @@ def register_package_plugins(map):
     """
     Register the various IDatasetForm instances.
 
-    This method will setup the mappings between package types and the registered
-    IDatasetForm instances.  If it's called more than once an
+    This method will setup the mappings between package types and the
+    registered IDatasetForm instances. If it's called more than once an
     exception will be raised.
     """
     global _default_package_plugin
@@ -63,11 +63,14 @@ def register_package_plugins(map):
             _default_package_plugin = plugin
 
         for package_type in plugin.package_types():
-            # Create a connection between the newly named type and the package controller
-            map.connect('/%s/new' % (package_type,), controller='package', action='new')
-            map.connect('%s_read' % (package_type,), '/%s/{id}' %  (package_type,), controller='package', action='read')
-            map.connect('%s_action' % (package_type,),
-                        '/%s/{action}/{id}' % (package_type,), controller='package',
+            # Create a connection between the newly named type and the
+            # package controller
+            map.connect('/%s/new' % package_type,
+                        controller='package', action='new')
+            map.connect('%s_read' % package_type, '/%s/{id}' % package_type,
+                        controller='package', action='read')
+            map.connect('%s_action' % package_type,
+                        '/%s/{action}/{id}' % package_type, controller='package',
                 requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
             )
 
@@ -88,8 +91,8 @@ def register_group_plugins(map):
     """
     Register the various IGroupForm instances.
 
-    This method will setup the mappings between package types and the registered
-    IGroupForm instances.  If it's called more than once an
+    This method will setup the mappings between package types and the
+    registered IGroupForm instances. If it's called more than once an
     exception will be raised.
     """
     global _default_group_plugin
@@ -103,22 +106,25 @@ def register_group_plugins(map):
             _default_group_plugin = plugin
 
         for group_type in plugin.group_types():
-            # Create the routes based on group_type here, this will allow us to have top level
-            # objects that are actually Groups, but first we need to make sure we are not
+            # Create the routes based on group_type here, this will
+            # allow us to have top level objects that are actually
+            # Groups, but first we need to make sure we are not
             # clobbering an existing domain
 
-            # Our version of routes doesn't allow the environ to be passed into the match call
-            # and so we have to set it on the map instead.  This looks like a threading problem
-            # waiting to happen but it is executed sequentially from instead the routing setup
+            # Our version of routes doesn't allow the environ to be
+            # passed into the match call and so we have to set it on the
+            # map instead. This looks like a threading problem waiting
+            # to happen but it is executed sequentially from instead the
+            # routing setup
 
-            map.connect('%s_index' % (group_type,),
-                        '/%s' % (group_type,), controller='group', action='index')
-            map.connect('%s_new' % (group_type,),
-                        '/%s/new' % (group_type,), controller='group', action='new')
-            map.connect('%s_read' % (group_type,),
-                        '/%s/{id}' %  (group_type,), controller='group', action='read')
-            map.connect('%s_action' % (group_type,),
-                        '/%s/{action}/{id}' % (group_type,), controller='group',
+            map.connect('%s_index' % group_type, '/%s' % group_type,
+                        controller='group', action='index')
+            map.connect('%s_new' % group_type, '/%s/new' % group_type,
+                        controller='group', action='new')
+            map.connect('%s_read' % group_type, '/%s/{id}' % group_type,
+                        controller='group', action='read')
+            map.connect('%s_action' % group_type,
+                        '/%s/{action}/{id}' % group_type, controller='group',
                 requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
             )
 
@@ -135,18 +141,19 @@ def register_group_plugins(map):
 
 class DefaultDatasetForm(object):
     """
-    Provides a default implementation of the pluggable package controller behaviour.
+    Provides a default implementation of the pluggable package
+    controller behaviour.
 
     This class has 2 purposes:
 
-     - it provides a base class for IDatasetForm implementations
-       to use if only a subset of the 5 method hooks need to be customised.
+     - it provides a base class for IDatasetForm implementations to use
+       if only a subset of the 5 method hooks need to be customised.
 
-     - it provides the fallback behaviour if no plugin is setup to provide
-       the fallback behaviour.
+     - it provides the fallback behaviour if no plugin is setup to
+       provide the fallback behaviour.
 
-    Note - this isn't a plugin implementation.  This is deliberate, as
-           we don't want this being registered.
+    Note - this isn't a plugin implementation. This is deliberate, as we
+           don't want this being registered.
     """
 
     # this is to prevent import issues
@@ -166,8 +173,8 @@ class DefaultDatasetForm(object):
         into a format suitable for the form (optional)'''
 
     def check_data_dict(self, data_dict):
-        '''Check if the return data is correct, mostly for checking out if
-        spammers are submitting only part of the form'''
+        '''Check if the return data is correct, mostly for checking out
+        if spammers are submitting only part of the form'''
 
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
@@ -180,26 +187,25 @@ class DefaultDatasetForm(object):
         missing_keys = keys_in_schema - set(data_dict.keys())
 
         if missing_keys:
-            #print data_dict
-            #print missing_keys
-            log.info('incorrect form fields posted, missing %s' % missing_keys )
+            log.info('incorrect form fields posted, missing %s' % missing_keys)
             raise DataError(data_dict)
 
     def setup_template_variables(self, context, data_dict):
-        c.groups_authz = ckan.logic.get_action('group_list_authz')(context, data_dict)
+        authz_fn = ckan.logic.get_action('group_list_authz')
+        c.groups_authz = authz_fn(context, data_dict)
         data_dict.update({'available_only':True})
-        c.groups_available = ckan.logic.get_action('group_list_authz')(context, data_dict)
+        c.groups_available = authz_fn(context, data_dict)
         c.licences = [('', '')] + model.Package.get_license_options()
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
-        context_pkg = context.get('package',None)
+        context_pkg = context.get('package', None)
         pkg = context_pkg or c.pkg
         if pkg:
             try:
                 if not context_pkg:
                     context['package'] = pkg
-                ckan.logic.check_access('package_change_state',context)
+                ckan.logic.check_access('package_change_state', context)
                 c.auth_for_change_state = True
             except ckan.logic.NotAuthorized:
                 c.auth_for_change_state = False
@@ -207,18 +213,19 @@ class DefaultDatasetForm(object):
 
 class DefaultGroupForm(object):
     """
-    Provides a default implementation of the pluggable Group controller behaviour.
+    Provides a default implementation of the pluggable Group controller
+    behaviour.
 
     This class has 2 purposes:
 
-     - it provides a base class for IGroupForm implementations
-       to use if only a subset of the method hooks need to be customised.
+     - it provides a base class for IGroupForm implementations to use if
+       only a subset of the method hooks need to be customised.
 
-     - it provides the fallback behaviour if no plugin is setup to provide
-       the fallback behaviour.
+     - it provides the fallback behaviour if no plugin is setup to
+       provide the fallback behaviour.
 
-    Note - this isn't a plugin implementation.  This is deliberate, as
-           we don't want this being registered.
+    Note - this isn't a plugin implementation. This is deliberate, as we
+           don't want this being registered.
     """
     # prevent import issues
     group_form_schema = None
@@ -238,8 +245,8 @@ class DefaultGroupForm(object):
 
 
     def check_data_dict(self, data_dict):
-        '''Check if the return data is correct, mostly for checking out if
-        spammers are submitting only part of the form
+        '''Check if the return data is correct, mostly for checking out
+        if spammers are submitting only part of the form
 
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
@@ -263,13 +270,13 @@ class DefaultGroupForm(object):
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
-        context_group = context.get('group',None)
+        context_group = context.get('group', None)
         group = context_group or c.group
         if group:
             try:
                 if not context_group:
                     context['group'] = group
-                ckan.logic.check_access('group_change_state',context)
+                ckan.logic.check_access('group_change_state', context)
                 c.auth_for_change_state = True
             except ckan.logic.NotAuthorized:
                 c.auth_for_change_state = False
