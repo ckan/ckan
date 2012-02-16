@@ -147,9 +147,13 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return query
 
     @classmethod
-    def search_by_name(cls, text_query):
+    def search_by_name(cls, text_query, group_type=None):
         text_query = text_query.strip().lower()
-        return Session.query(cls).filter(cls.name.contains(text_query))
+        if not group_type:
+            q = Session.query(cls).filter(cls.name.contains(text_query))
+        else:
+            q = Session.query(cls).filter(cls.name.contains(text_query)).filter(cls.type==group_type)
+        return q.order_by(cls.title)
 
     def as_dict(self, ref_package_by='name'):
         _dict = DomainObject.as_dict(self)

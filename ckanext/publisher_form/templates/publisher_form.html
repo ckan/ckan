@@ -1,5 +1,5 @@
 
-<form id="publisher-edit" action="" method="post" 
+<form id="publisher-edit" action="" method="post"
     py:attrs="{'class':'has-errors'} if errors else {}"
     xmlns:i18n="http://genshi.edgewall.org/i18n"
     xmlns:py="http://genshi.edgewall.org/"
@@ -52,7 +52,7 @@
     </dd>
   </dl>
 </fieldset>
-  
+
 <fieldset id="extras">
   <h3>Extras</h3>
   <dl>
@@ -80,7 +80,7 @@
 
 <fieldset id="users">
   <h3>Users</h3>
-  <dl py:if="data.get('users')"> 
+  <dl py:if="data.get('users')">
     <py:for each="num, user in enumerate(data.get('users'))">
       <dt py:if="c.is_superuser_or_groupadmin"><input checked="checked" id="users__${num}__name" name="users__${num}__name" type="checkbox" value="${user['name']}"/>
 	</dt>
@@ -89,7 +89,7 @@
 		  </dd>
 		  <dd py:if="c.is_superuser_or_groupadmin">
 			  <input type="radio" name="users__${num}__capacity" value="admin"  py:attrs="{'checked': 'checked' if user['capacity'] == 'admin' else None}"> Admin</input>
-			  <input type="radio" name="users__${num}__capacity" value="editor" py:attrs="{'checked': 'checked' if user['capacity'] in ['editor','member'] else None}"> Editor</input>	
+			  <input type="radio" name="users__${num}__capacity" value="editor" py:attrs="{'checked': 'checked' if user['capacity'] in ['editor','member'] else None}"> Editor</input>
 		  </dd>
     </py:for>
   </dl>
@@ -99,10 +99,7 @@
 	  <h3>Add users</h3>
 	  <dl>
 	    <dt><label class="field_opt" for="users__${len(data.get('users', []))}__name">User</label></dt>
-		<dd>
-			<input type="radio" name="add-user-capacity" value="admin"> Admin</input>
-			<input type="radio" name="add-user-capacity" value="editor" checked="true"> Editor</input>
-		</dd>
+		<input type="hidden" name="add-user-capacity" value="editor"></input>
 	    <dd><input class="autocomplete-publisher-user" id="users__${len(data.get('users', [])) + 1}__name" name="users__${len(data.get('users', []))}__name" type="text" /></dd>
 	  </dl>
 	</span>
