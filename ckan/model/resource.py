@@ -9,6 +9,7 @@ from types import make_uuid, JsonDictType
 from core import *
 from package import *
 from ckan.model import extension
+from ckan.model.activity import ActivityDetail
 
 __all__ = ['Resource', 'resource_table', 
            'ResourceGroup', 'resource_group_table',
@@ -139,6 +140,21 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
     def related_packages(self):
         return [self.resource_group.package]
 
+    def activity_stream_detail(self, activity_id, activity_type):
+        import ckan.model as model
+        import ckan.lib.dictization
+
+        # Handle 'deleted' resources.
+        # When the user marks a resource as deleted this comes through here as
+        # a 'changed' resource activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and self.state == u'deleted':
+            activity_type = 'deleted'
+
+        res_dict = ckan.lib.dictization.table_dictize(self,
+                context={'model':model})
+        return ActivityDetail(activity_id, self.id, u"Resource", activity_type,
+                {'resource': res_dict})
 
 class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,

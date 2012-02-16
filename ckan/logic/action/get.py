@@ -1,10 +1,13 @@
 from sqlalchemy.sql import select
+from sqlalchemy.orm import aliased
 from sqlalchemy import or_, and_, func, desc, case
 import uuid
 from pylons import config
+import logging
 
 import ckan
-from ckan.logic import NotFound
+from ckan.lib.base import _
+from ckan.logic import NotFound, ParameterError, ValidationError
 from ckan.logic import check_access
 from ckan.model import misc
 from ckan.plugins import (PluginImplementations,
@@ -20,7 +23,9 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_list_dictize,
                                                 tag_dictize,
                                                 task_status_dictize,
-                                                user_dictize)
+                                                user_dictize,
+                                                activity_list_dictize,
+                                                activity_detail_list_dictize)
 
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
@@ -29,7 +34,9 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 tag_to_api1,
                                                 tag_to_api2)
 from ckan.lib.search import query_for, SearchError
-import logging
+from ckan.lib.base import render
+from webhelpers.html import literal
+from ckan.logic.action import get_domain_object
 
 log = logging.getLogger('ckan.logic')
 
@@ -113,7 +120,7 @@ def group_list(context, data_dict):
     ref_group_by = 'id' if api == '2' else 'name';
     order_by = data_dict.get('order_by', 'name')
     if order_by not in set(('name', 'packages')):
-        raise ValidationError('"order_by" value %r not implemented.' % order_by)
+        raise ParameterError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
 
     check_access('group_list',context, data_dict)
@@ -491,8 +498,19 @@ def user_show(context, data_dict):
         revision_dict = revision_show(context,{'id':revision.id})
         revision_dict['state'] = revision.state
         revisions_list.append(revision_dict)
-
     user_dict['activity'] = revisions_list
+
+    user_dict['datasets'] = []
+    dataset_q = model.Session.query(model.Package).join(model.PackageRole
+            ).filter_by(user=user_obj, role=model.Role.ADMIN
+            ).limit(50)
+
+    for dataset in dataset_q:
+        try:
+            dataset_dict = package_show(context, {'id': dataset.id})
+        except ckan.logic.NotAuthorized:
+            continue
+        user_dict['datasets'].append(dataset_dict)
 
     return user_dict
 
@@ -821,6 +839,32 @@ def task_status_show(context, data_dict):
     task_status_dict = task_status_dictize(task_status, context)
     return task_status_dict
 
+
+def term_translation_show(context, data_dict):
+    model = context['model']
+
+    trans_table = model.term_translation_table 
+
+    q = select([trans_table])
+
+    if 'term' not in data_dict:
+        raise ValidationError({'term': 'term not it data'})
+    
+    q = q.where(trans_table.c.term == data_dict['term'])
+
+    if 'lang_code' in data_dict:
+        q = q.where(trans_table.c.lang_code == data_dict['lang_code'])
+
+    conn = model.Session.connection()
+    cursor = conn.execute(q)
+
+    results = []
+
+    for row in cursor:
+        results.append(table_dictize(row, context))
+
+    return results
+
 def get_site_user(context, data_dict):
     check_access('get_site_user', context, data_dict)
     model = context['model']
@@ -839,6 +883,62 @@ def get_site_user(context, data_dict):
     return {'name': user.name,
             'apikey': user.apikey}
 
+def roles_show(context, data_dict):
+    '''Returns the roles that users (and authorization groups) have on a
+    particular domain_object.
+    
+    If you specify a user (or authorization group) then the resulting roles
+    will be filtered by those of that user (or authorization group).
+
+    domain_object can be a package/group/authorization_group name or id.
+    '''
+    model = context['model']
+    session = context['session']
+    domain_object_ref = data_dict['domain_object']
+    user_ref = data_dict.get('user')
+    authgroup_ref = data_dict.get('authorization_group')
+
+    domain_object = get_domain_object(model, domain_object_ref)
+    if isinstance(domain_object, model.Package):
+        query = session.query(model.PackageRole).join('package')
+    elif isinstance(domain_object, model.Group):
+        query = session.query(model.GroupRole).join('group')
+    elif isinstance(domain_object, model.AuthorizationGroup):
+        query = session.query(model.AuthorizationGroupRole).join('authorization_group')
+    else:
+        raise NotFound(_('Cannot list entity of this type: %s') % type(domain_object).__name__)
+    # Filter by the domain_obj
+    query = query.filter_by(id=domain_object.id)
+
+    # Filter by the user / authorized_group
+    if user_ref:
+        user = model.User.get(user_ref)
+        if not user:
+            raise NotFound(_('unknown user:') + repr(user_ref))
+        query = query.join('user').filter_by(id=user.id)
+    if authgroup_ref:
+        authgroup = model.AuthorizationGroup.get(authgroup_ref)
+        if not authgroup:
+            raise NotFound('unknown authorization group:' + repr(authgroup_ref))
+        # we need an alias as we join to model.AuthorizationGroup table twice
+        ag = aliased(model.AuthorizationGroup)
+        query = query.join(ag, model.AuthorizationGroupRole.authorized_group) \
+                .filter_by(id=authgroup.id)
+
+    uors = query.all()
+
+    uors_dictized = [table_dictize(uor, context) for uor in uors]
+
+    result = {'domain_object_type': type(domain_object).__name__,
+              'domain_object_id': domain_object.id,
+              'roles': uors_dictized}
+    if user_ref:
+        result['user'] = user.id
+    if authgroup_ref:
+        result['authorization_group'] = authgroup.id
+
+    return result
+
 def status_show(context, data_dict):
     '''Provides information about the operation of this CKAN instance.'''
     return {
@@ -850,3 +950,194 @@ def status_show(context, data_dict):
         'locale_default': config.get('ckan.locale_default'),
         'extensions': config.get('ckan.plugins').split(),
         }
+
+def user_activity_list(context, data_dict):
+    '''Return a user\'s public activity stream as a list of dicts.'''
+    model = context['model']
+    user_id = data_dict['id']
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(user_id=user_id)
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+    return activity_list_dictize(activity_objects, context)
+
+def package_activity_list(context, data_dict):
+    '''Return a package\'s public activity stream as a list of dicts.'''
+    model = context['model']
+    package_id = data_dict['id']
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(object_id=package_id)
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+    return activity_list_dictize(activity_objects, context)
+
+def group_activity_list(context, data_dict):
+    '''Return a group\'s public activity stream as a list of dicts.'''
+    model = context['model']
+    group_id = data_dict['id']
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(object_id=group_id)
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+    return activity_list_dictize(activity_objects, context)
+
+def activity_detail_list(context, data_dict):
+    '''Return an activity\'s list of activity detail items, as a list of dicts.
+    '''
+    model = context['model']
+    activity_id = data_dict['id']
+    activity_detail_objects = model.Session.query(
+        model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
+    return activity_detail_list_dictize(activity_detail_objects, context)
+
+def render_new_package_activity(context, activity):
+    return render('activity_streams/new_package.html',
+        extra_vars = {'activity': activity})
+
+def render_deleted_package_activity(context, activity):
+    return render('activity_streams/deleted_package.html',
+        extra_vars = {'activity': activity})
+
+def render_new_resource_activity(context, activity, detail):
+    return render('activity_streams/new_resource.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_changed_resource_activity(context, activity, detail):
+    return render('activity_streams/changed_resource.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_deleted_resource_activity(context, activity, detail):
+    return render('activity_streams/deleted_resource.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_added_tag_activity(context, activity, detail):
+    return render('activity_streams/added_tag.html',
+            extra_vars = {'activity': activity, 'detail': detail})
+
+def render_removed_tag_activity(context, activity, detail):
+    return render('activity_streams/removed_tag.html',
+            extra_vars = {'activity': activity, 'detail': detail})
+
+def render_new_package_extra_activity(context, activity, detail):
+    return render('activity_streams/new_package_extra.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_changed_package_extra_activity(context, activity, detail):
+    return render('activity_streams/changed_package_extra.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_deleted_package_extra_activity(context, activity, detail):
+    return render('activity_streams/deleted_package_extra.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_changed_package_activity(context, activity):
+    details = activity_detail_list(context=context,
+        data_dict={'id': activity['id']})
+
+    if len(details) == 1:
+        # If an activity has only one activity detail we try to find an
+        # activity detail renderer to use instead of rendering the normal
+        # 'changed package' template.
+        detail = details[0]
+        activity_detail_renderers = {
+            'Resource': {
+              'new': render_new_resource_activity,
+              'changed': render_changed_resource_activity,
+              'deleted': render_deleted_resource_activity
+              },
+            'tag': {
+              'added': render_added_tag_activity,
+              'removed': render_removed_tag_activity,
+              },
+            'PackageExtra': {
+                'new': render_new_package_extra_activity,
+                'changed': render_changed_package_extra_activity,
+                'deleted': render_deleted_package_extra_activity
+              },
+            }
+        object_type = detail['object_type']
+        if activity_detail_renderers.has_key(object_type):
+            activity_type = detail['activity_type']
+            if activity_detail_renderers[object_type].has_key(activity_type):
+                renderer = activity_detail_renderers[object_type][activity_type]
+                return renderer(context, activity, detail)
+
+    return render('activity_streams/changed_package.html',
+        extra_vars = {'activity': activity})
+
+def render_new_user_activity(context, activity):
+    return render('activity_streams/new_user.html',
+        extra_vars = {'activity': activity})
+
+def render_changed_user_activity(context, activity):
+    return render('activity_streams/changed_user.html',
+        extra_vars = {'activity': activity})
+
+def render_new_group_activity(context, activity):
+    return render('activity_streams/new_group.html',
+        extra_vars = {'activity': activity})
+
+def render_changed_group_activity(context, activity):
+    return render('activity_streams/changed_group.html',
+        extra_vars = {'activity': activity})
+
+def render_deleted_group_activity(context, activity):
+    return render('activity_streams/deleted_group.html',
+        extra_vars = {'activity': activity})
+
+# Global dictionary mapping activity types to functions that render activity
+# dicts to HTML snippets for including in HTML pages.
+activity_renderers = {
+  'new package' : render_new_package_activity,
+  'changed package' : render_changed_package_activity,
+  'deleted package' : render_deleted_package_activity,
+  'new user' : render_new_user_activity,
+  'changed user' : render_changed_user_activity,
+  'new group' : render_new_group_activity,
+  'changed group' : render_changed_group_activity,
+  'deleted group' : render_deleted_group_activity,
+  }
+
+def _activity_list_to_html(context, activity_stream):
+    html = []
+    for activity in activity_stream:
+        activity_type = activity['activity_type']
+        if not activity_renderers.has_key(activity_type):
+            raise NotImplementedError, ("No activity renderer for activity "
+                "type '%s'" % str(activity_type))
+        activity_html = activity_renderers[activity_type](context, activity)
+        html.append(activity_html)
+    return literal('\n'.join(html))
+
+def user_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of a user\'s public activity stream.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = user_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)
+
+def package_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of a package\'s public activity stream.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = package_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)
+
+def group_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of a group\'s public activity stream.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = group_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)

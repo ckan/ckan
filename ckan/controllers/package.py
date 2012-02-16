@@ -29,6 +29,7 @@ import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
+import ckan.logic.action.get
 
 log = logging.getLogger(__name__)
 
@@ -66,13 +67,6 @@ def register_pluggable_behaviour(map):
     """
     global _default_controller_behaviour
     
-    # Check this method hasn't been invoked already.
-    # TODO: This method seems to be being invoked more than once during running of
-    #       the tests.  So I've disbabled this check until I figure out why.
-    #if _default_controller_behaviour is not None:
-        #raise ValueError, "Pluggable package controller behaviour is already defined "\
-                          #"'%s'" % _default_controller_behaviour
-
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in PluginImplementations(IDatasetForm):
         if plugin.is_fallback():
@@ -83,7 +77,6 @@ def register_pluggable_behaviour(map):
 
         for package_type in plugin.package_types():
             # Create a connection between the newly named type and the package controller
-            # but first we need to make sure we are not clobbering an existing domain
             map.connect('/%s/new' % (package_type,), controller='package', action='new')    
             map.connect('%s_read' % (package_type,), '/%s/{id}' %  (package_type,), controller='package', action='read')                        
             map.connect('%s_action' % (package_type,),
@@ -108,7 +101,6 @@ def _lookup_plugin(package_type):
     If the package type is None or cannot be found in the mapping, then the
     fallback behaviour is used.
     """
-    #from pdb import set_trace; set_trace()    
     if package_type is None:
         return _default_controller_behaviour
     return _controller_behaviour_for.get(package_type,
@@ -326,7 +318,14 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
-        
+
+        # Add the package's activity stream (already rendered to HTML) to the
+        # template context for the package/read.html template to retrieve
+        # later.
+        c.package_activity_stream = \
+                ckan.logic.action.get.package_activity_list_html(context,
+                    {'id': c.current_package_id})
+
         if config.get('rdf_packages'):
             accept_header = request.headers.get('Accept', '*/*')
             for content_type, exts in negotiate(autoneg_cfg, accept_header):
@@ -442,6 +441,8 @@ class PackageController(BaseController):
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema(package_type=package_type)}
 
+        # Package needs to have a publisher group in the call to check_access
+        # and also to save it
         try:
             check_access('package_create',context)
         except NotAuthorized:
@@ -699,20 +700,9 @@ class PackageController(BaseController):
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
-        current_uors = self._get_userobjectroles(id)
-        self._handle_update_of_authz(current_uors, pkg)
-
-        # get the roles again as may have changed
-        user_object_roles = self._get_userobjectroles(id)
-        self._prepare_authz_info_for_render(user_object_roles)
+        roles = self._handle_update_of_authz(pkg)
+        self._prepare_authz_info_for_render(roles)
         return render('package/authz.html')
-
-
-    def _get_userobjectroles(self, pkg_id):
-        pkg = model.Package.get(pkg_id)
-        uors = model.Session.query(model.PackageRole).join('package').filter_by(name=pkg.name).all()
-        return uors
-
 
     def autocomplete(self):
         # DEPRECATED in favour of /api/2/util/dataset/autocomplete

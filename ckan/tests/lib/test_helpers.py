@@ -22,11 +22,11 @@ class TestHelpers(TestController):
 
     def test_render_datetime(self):
         res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
-        assert_equal(res, '2008-04-13 20:40')
+        assert_equal(res, 'Apr 13, 2008')
 
     def test_render_datetime_but_from_string(self):
         res = h.render_datetime('2008-04-13T20:40:20.123456')
-        assert_equal(res, '2008-04-13 20:40')
+        assert_equal(res, 'Apr 13, 2008')
 
     def test_render_datetime_blank(self):
         res = h.render_datetime(None)
@@ -53,10 +53,11 @@ class TestHelpers(TestController):
 
     def test_gravatar(self):
         email = 'zephod@gmail.com'
-        expected =['<a href="http://gravatar.com" target="_blank">', '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm" />', '</a>']
+        expected =['<a href="https://gravatar.com/"',
+                '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=identicon"', '</a>']
         # Hash the email address
         import hashlib
         email_hash = hashlib.md5(email).hexdigest()
         res = h.linked_gravatar(email_hash, 200)
         for e in expected:
-            assert e in res, e
+            assert e in res, (e,res)

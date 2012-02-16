@@ -507,7 +507,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
         assert 'This is an old revision of this dataset' in main_html
-        assert 'at 2011-01-01 00:00' in main_html
+        assert 'at Jan 01, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title1' in res
@@ -525,7 +525,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
         assert 'This is an old revision of this dataset' in main_html
-        assert 'at 2011-01-02 00:00' in main_html
+        assert 'at Jan 02, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title2' in res
@@ -544,7 +544,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         print 'MAIN', main_html
         assert 'This is an old revision of this dataset' not in main_html
         assert 'This is the current revision of this dataset' in main_html
-        assert 'at 2011-01-03 00:00' in main_html
+        assert 'at Jan 03, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title3' in res
@@ -792,7 +792,7 @@ class TestEdit(TestPackageForm):
                          )
             assert len(resources[0]) == 5
             notes = u'Very important'
-            license_id = u'gpl-3.0'
+            license_id = u'odc-by'
             state = model.State.ACTIVE
             tags = (u'tag1', u'tag2', u'tag 3')
             tags_txt = u','.join(tags)
@@ -1020,6 +1020,33 @@ class TestEdit(TestPackageForm):
             plugins.unload('synchronous_search')
             SolrSettings.init(solr_url)
 
+    def test_edit_pkg_with_relationships(self):
+        # 1786
+        try:
+            # add a relationship to a package
+            pkg = model.Package.by_name(self.editpkg_name)
+            anna = model.Package.by_name(u'annakarenina')
+            model.repo.new_revision()
+            pkg.add_relationship(u'depends_on', anna)
+            model.repo.commit_and_remove()
+            
+            # check relationship before the test
+            rels = model.Package.by_name(self.editpkg_name).get_relationships()
+            assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
+
+            # edit the package
+            self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
+            self.res = self.app.get(self.offset)
+            fv = self.res.forms['dataset-edit']
+            fv['title'] = u'New Title'
+            res = fv.submit('save')
+
+            # check relationship still exists
+            rels = model.Package.by_name(self.editpkg_name).get_relationships()
+            assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
+            
+        finally:
+            self._reset_data()
 
 class TestNew(TestPackageForm):
     pkg_names = []
@@ -1129,7 +1156,7 @@ class TestNew(TestPackageForm):
         url = u'http://something.com/somewhere.zip'
         download_url = u'http://something.com/somewhere-else.zip'
         notes = u'Very important'
-        license_id = u'gpl-3.0'
+        license_id = u'odc-by'
         tags = (u'tag1', u'tag2.', u'tag 3', u'SomeCaps')
         tags_txt = u','.join(tags)
         extras = {self.key1:self.value1, 'key2':'value2', 'key3':'value3'}
@@ -1425,7 +1452,6 @@ class TestRevisions(TestPackageBase):
         res = res.click(href=url)
         main_html = self.main_div(res)
         assert 'This is an old revision of this dataset' in main_html
-        assert 'at %s' % str(self.revision_timestamps[1])[:6] in main_html
 
 
 class TestMarkdownHtmlWhitelist(TestPackageForm):

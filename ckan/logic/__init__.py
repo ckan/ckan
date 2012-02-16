@@ -1,7 +1,7 @@
 import logging
 from ckan.lib.base import _
 import ckan.authz
-import ckan.new_authz as new_authz
+from ckan.new_authz import is_authorized
 from ckan.lib.navl.dictization_functions import flatten_dict, DataError
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IActions
@@ -29,7 +29,10 @@ class NotFound(ActionError):
 class NotAuthorized(ActionError):
     pass
 
-class ValidationError(ActionError):
+class ParameterError(ActionError):
+    pass
+
+class ValidationError(ParameterError):
     def __init__(self, error_dict, error_summary=None, extra_msg=None):
         self.error_dict = error_dict
         self.error_summary = error_summary
@@ -126,7 +129,7 @@ def check_access(action, context, data_dict=None):
         #    # TODO Check the API key is valid at some point too!
         #    log.debug('Valid API key needed to make changes')
         #    raise NotAuthorized
-        logic_authorization = new_authz.is_authorized(action, context, data_dict)
+        logic_authorization = is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg','')
             raise NotAuthorized(msg)

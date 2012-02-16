@@ -157,21 +157,9 @@ class AuthorizationGroupController(BaseController):
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
-        current_uors = self._get_userobjectroles(id)
-        self._handle_update_of_authz(current_uors, authorization_group)
-
-        # get the roles again as may have changed
-        user_object_roles = self._get_userobjectroles(id)
-        self._prepare_authz_info_for_render(user_object_roles)
+        roles = self._handle_update_of_authz(authorization_group)
+        self._prepare_authz_info_for_render(roles)
         return render('authorization_group/authz.html')
-
-
-    def _get_userobjectroles(self, authzgroup_name_or_id):
-        authorization_group = model.AuthorizationGroup.by_name(authzgroup_name_or_id)  or\
-               model.Session.query(model.AuthorizationGroup).get(authzgroup_name_or_id)
-        uors = model.Session.query(model.AuthorizationGroupRole).join('authorization_group').\
-               filter_by(id=authorization_group.id).all()
-        return uors
 
 
     def _render_edit_form(self, fs):

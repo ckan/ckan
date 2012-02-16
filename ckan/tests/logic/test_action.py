@@ -11,6 +11,7 @@ from ckan.tests import WsgiAppCase
 from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering
 from ckan.tests import setup_test_search_index, search_related
 from ckan.logic import get_action, NotAuthorized
+from ckan.logic.action import get_domain_object
 
 from ckan import plugins
 from ckan.plugins import SingletonPlugin, implements, IPackageController
@@ -252,11 +253,21 @@ class TestAction(WsgiAppCase):
         assert 'timestamp' in edit
         assert_equal(edit['state'], 'active')
         assert_equal(edit['approved_timestamp'], None)
-        assert_equal(set(edit['groups']), set(('roger', 'david')))
+        assert_equal(set(edit['groups']), set(( 'roger', 'david')))
         assert_equal(edit['state'], 'active')
         assert edit['message'].startswith('Creating test data.')
         assert_equal(set(edit['packages']), set(('warandpeace', 'annakarenina')))
         assert 'id' in edit
+
+    def test_05b_user_show_datasets(self):
+        postparams = '%s=1' % json.dumps({'id':'annafan'})
+        res = self.app.post('/api/action/user_show', params=postparams)
+        res_obj = json.loads(res.body)
+        result = res_obj['result']
+        datasets = result['datasets']
+        assert_equal(len(datasets), 1)
+        dataset = result['datasets'][0]
+        assert_equal(dataset['name'], u'annakarenina')
 
     def test_06_tag_list(self):
         postparams = '%s=1' % json.dumps({})
@@ -546,7 +557,7 @@ class TestAction(WsgiAppCase):
             {
                 'result': [
                     'david',
-                    'roger'
+                    'roger',
                     ],
                 'help': 'Returns a list of groups',
                 'success': True
@@ -561,7 +572,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['result'][0]['name'] == 'david'
         assert res_obj['result'][0]['display_name'] == 'Dave\'s books'
         assert res_obj['result'][0]['packages'] == 2
-        assert res_obj['result'][1]['name'] == 'roger'
+        assert res_obj['result'][1]['name'] == 'roger', res_obj['result'][1]
         assert res_obj['result'][1]['packages'] == 1
         assert 'id' in res_obj['result'][0]
         assert 'revision_id' in res_obj['result'][0]
@@ -572,8 +583,7 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/group_list',
                             params=postparams)
         res_obj = json.loads(res.body)
-        assert_equal(sorted(res_obj['result']), ['david',
-                                         'roger'])
+        assert_equal(sorted(res_obj['result']), ['david','roger'])
 
     def test_13_group_list_by_size_all_fields(self):
         postparams = '%s=1' % json.dumps({'order_by': 'packages',
@@ -1098,6 +1108,302 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/package_list', params=postparams,
                             status=400)
         assert "Bad request - Bad request data: Request data JSON decoded to '' but it needs to be a dictionary." in res.body, res.body
+
+    def test_32_get_domain_object(self):
+        anna = model.Package.by_name(u'annakarenina')
+        assert_equal(get_domain_object(model, anna.name).name, anna.name)
+        assert_equal(get_domain_object(model, anna.id).name, anna.name)
+        group = model.Group.by_name(u'david')
+        assert_equal(get_domain_object(model, group.name).name, group.name)
+        assert_equal(get_domain_object(model, group.id).name, group.name)
+
+    def test_33_roles_show(self):
+        anna = model.Package.by_name(u'annakarenina')
+        annafan = model.User.by_name(u'annafan')
+        postparams = '%s=1' % json.dumps({'domain_object': anna.id})
+        res = self.app.post('/api/action/roles_show', params=postparams,
+                            extra_environ={'Authorization': str(annafan.apikey)},
+                            status=200)
+        results = json.loads(res.body)['result']
+        anna = model.Package.by_name(u'annakarenina')
+        assert_equal(results['domain_object_id'], anna.id)
+        assert_equal(results['domain_object_type'], 'Package')
+        roles = results['roles']
+        assert len(roles) > 2, results
+        assert set(roles[0].keys()) > set(('user_id', 'package_id', 'role',
+                                           'context', 'user_object_role_id'))
+
+    def test_34_roles_show_for_user(self):
+        anna = model.Package.by_name(u'annakarenina')
+        annafan = model.User.by_name(u'annafan')
+        postparams = '%s=1' % json.dumps({'domain_object': anna.id,
+                                          'user': 'annafan'})
+        res = self.app.post('/api/action/roles_show', params=postparams,
+                            extra_environ={'Authorization': str(annafan.apikey)},
+                            status=200)
+        results = json.loads(res.body)['result']
+        anna = model.Package.by_name(u'annakarenina')
+        assert_equal(results['domain_object_id'], anna.id)
+        assert_equal(results['domain_object_type'], 'Package')
+        roles = results['roles']
+        assert_equal(len(roles), 1)
+        assert set(roles[0].keys()) > set(('user_id', 'package_id', 'role',
+                                           'context', 'user_object_role_id'))
+
+    def test_34_roles_show_for_authgroup_on_authgroup(self):
+        anna = model.Package.by_name(u'annakarenina')
+        annafan = model.User.by_name(u'annafan')
+        authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
+        authgroup2 = model.AuthorizationGroup.by_name(u'anotherauthzgroup')
+        
+        model.add_authorization_group_to_role(authgroup2, 'editor', authgroup)
+        model.repo.commit_and_remove()
+        
+        postparams = '%s=1' % json.dumps({'domain_object': authgroup.id,
+                                          'authorization_group': authgroup2.id})
+        res = self.app.post('/api/action/roles_show', params=postparams,
+                            extra_environ={'Authorization': str(annafan.apikey)},
+                            status=200)
+        
+        authgroup_roles = self.get_roles(authgroup.id, authgroup_ref=authgroup2.name)
+        assert_equal(authgroup_roles, ['"anotherauthzgroup" is "editor" on "anauthzgroup"'])
+
+    def test_35_user_role_update(self):
+        anna = model.Package.by_name(u'annakarenina')
+        annafan = model.User.by_name(u'annafan')
+        roles_before = get_action('roles_show') \
+                                 ({'model': model, 'session': model.Session}, \
+                                  {'domain_object': anna.id,
+                                   'user': 'tester'})
+        postparams = '%s=1' % json.dumps({'user': 'tester',
+                                          'domain_object': anna.id,
+                                          'roles': ['reader']})
+
+        res = self.app.post('/api/action/user_role_update', params=postparams,
+                            extra_environ={'Authorization': str(annafan.apikey)},
+                            status=200)
+        results = json.loads(res.body)['result']
+        assert_equal(len(results['roles']), 1)
+        anna = model.Package.by_name(u'annakarenina')
+        tester = model.User.by_name(u'tester')
+        assert_equal(results['roles'][0]['role'], 'reader')
+        assert_equal(results['roles'][0]['package_id'], anna.id)
+        assert_equal(results['roles'][0]['user_id'], tester.id)
+        
+        roles_after = get_action('roles_show') \
+                      ({'model': model, 'session': model.Session}, \
+                       {'domain_object': anna.id,
+                        'user': 'tester'})
+        assert_equal(results['roles'], roles_after['roles'])
+
+    def get_roles(self, domain_object_ref, user_ref=None, authgroup_ref=None,
+                  prettify=True):
+        data_dict = {'domain_object': domain_object_ref}
+        if user_ref:
+            data_dict['user'] = user_ref
+        if authgroup_ref:
+            data_dict['authorization_group'] = authgroup_ref
+        role_dicts = get_action('roles_show') \
+                     ({'model': model, 'session': model.Session}, \
+                      data_dict)['roles']
+        if prettify:
+            role_dicts = self.prettify_role_dicts(role_dicts)
+        return role_dicts
+
+    def prettify_role_dicts(self, role_dicts, one_per_line=True):
+        '''Replace ids with names'''
+        pretty_roles = []
+        for role_dict in role_dicts:
+            pretty_role = {}
+            for key, value in role_dict.items():
+                if key.endswith('_id') and value and key != 'user_object_role_id':
+                    pretty_key = key[:key.find('_id')]
+                    domain_object = get_domain_object(model, value)
+                    pretty_value = domain_object.name
+                    pretty_role[pretty_key] = pretty_value
+                else:
+                    pretty_role[key] = value
+            if one_per_line:
+                pretty_role = '"%s" is "%s" on "%s"' % (
+                    pretty_role.get('user') or pretty_role.get('authorized_group'),
+                    pretty_role['role'],
+                    pretty_role.get('package') or pretty_role.get('group') or pretty_role.get('authorization_group'))
+            pretty_roles.append(pretty_role)
+        return pretty_roles
+
+    def test_36_user_role_update_for_auth_group(self):
+        anna = model.Package.by_name(u'annakarenina')
+        annafan = model.User.by_name(u'annafan')
+        authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
+        all_roles_before = self.get_roles(anna.id)
+        authgroup_roles_before = self.get_roles(anna.id, authgroup_ref=authgroup.name)
+        assert_equal(len(authgroup_roles_before), 0)
+        postparams = '%s=1' % json.dumps({'authorization_group': authgroup.name,
+                                          'domain_object': anna.id,
+                                          'roles': ['editor']})
+
+        res = self.app.post('/api/action/user_role_update', params=postparams,
+                            extra_environ={'Authorization': str(annafan.apikey)},
+                            status=200)
+
+        results = json.loads(res.body)['result']
+        assert_equal(len(results['roles']), 1)
+        anna = model.Package.by_name(u'annakarenina')
+        authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
+
+        assert_equal(results['roles'][0]['role'], 'editor')
+        assert_equal(results['roles'][0]['package_id'], anna.id)
+        assert_equal(results['roles'][0]['authorized_group_id'], authgroup.id)
+        
+        all_roles_after = self.get_roles(anna.id)
+        authgroup_roles_after = self.get_roles(anna.id, authgroup_ref=authgroup.name)
+        assert_equal(set(all_roles_before) ^ set(all_roles_after),
+                     set([u'"anauthzgroup" is "editor" on "annakarenina"']))
+        
+        roles_after = get_action('roles_show') \
+                      ({'model': model, 'session': model.Session}, \
+                       {'domain_object': anna.id,
+                        'authorization_group': authgroup.name})
+        assert_equal(results['roles'], roles_after['roles'])
+
+    def test_37_user_role_update_disallowed(self):
+        anna = model.Package.by_name(u'annakarenina')
+        postparams = '%s=1' % json.dumps({'user': 'tester',
+                                          'domain_object': anna.id,
+                                          'roles': ['editor']})
+        # tester has no admin priviledges for this package
+        res = self.app.post('/api/action/user_role_update', params=postparams,
+                            extra_environ={'Authorization': 'tester'},
+                            status=403)
+
+    def test_38_user_role_bulk_update(self):
+        anna = model.Package.by_name(u'annakarenina')
+        annafan = model.User.by_name(u'annafan')
+        all_roles_before = self.get_roles(anna.id)
+        user_roles_before = self.get_roles(anna.id, user_ref=annafan.name)
+        roles_before = get_action('roles_show') \
+                                 ({'model': model, 'session': model.Session}, \
+                                  {'domain_object': anna.id})
+        postparams = '%s=1' % json.dumps({'domain_object': anna.id,
+                                          'user_roles': [
+                    {'user': 'annafan',
+                     'roles': ('admin', 'editor')},
+                    {'user': 'russianfan',
+                     'roles': ['editor']},
+                                              ]})
+
+        res = self.app.post('/api/action/user_role_bulk_update', params=postparams,
+                            extra_environ={'Authorization': str(annafan.apikey)},
+                            status=200)
+        results = json.loads(res.body)['result']
+
+        # check there are 2 new roles (not 3 because annafan is already admin)
+        all_roles_after = self.get_roles(anna.id)
+        user_roles_after = self.get_roles(anna.id, user_ref=annafan.name)
+        assert_equal(set(all_roles_before) ^ set(all_roles_after),
+                     set([u'"annafan" is "editor" on "annakarenina"',
+                          u'"russianfan" is "editor" on "annakarenina"']))
+
+        roles_after = get_action('roles_show') \
+                      ({'model': model, 'session': model.Session}, \
+                       {'domain_object': anna.id})
+        assert_equal(results['roles'], roles_after['roles'])
+
+class TestActionTermTranslation(WsgiAppCase):
+
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+        self.sysadmin_user = model.User.get('testsysadmin')
+        self.normal_user = model.User.get('annafan')
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_1_update_single(self):
+        postparams = '%s=1' % json.dumps(
+            {"term" : "moo",
+             "term_translation": "moo",
+             "lang_code" : "fr"
+            }
+        )
+
+        res = self.app.post('/api/action/term_translation_update', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['success']
+
+        postparams = '%s=1' % json.dumps(
+            {"term" : "moo",
+             "term_translation": "moomoo",
+             "lang_code" : "fr"
+            }
+        )
+
+        res = self.app.post('/api/action/term_translation_update', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['success']
+
+        postparams = '%s=1' % json.dumps(
+            {"term" : "moo",
+             "term_translation": "moomoo",
+             "lang_code" : "en"
+            }
+        )
+
+        res = self.app.post('/api/action/term_translation_update', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['success']
+
+        postparams = '%s=1' % json.dumps({"term" : "moo"})
+
+        res = self.app.post('/api/action/term_translation_show', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['success']
+        assert json.loads(res.body)['result'] == [{u'lang_code': u'fr', u'term': u'moo', u'term_translation': u'moomoo'},
+                                                  {u'lang_code': u'en', u'term': u'moo', u'term_translation': u'moomoo'}], json.loads(res.body)
+
+    def test_2_update_many(self):
+
+        postparams = '%s=1' % json.dumps({'data': [
+             {"term" : "many",
+              "term_translation": "manymoo",
+              "lang_code" : "fr"
+             },
+             {"term" : "many",
+              "term_translation": "manymoo",
+              "lang_code" : "en"
+             },
+             {"term" : "many",
+              "term_translation": "manymoomoo",
+              "lang_code" : "en"
+             }
+            ]
+        }
+        )
+        res = self.app.post('/api/action/term_translation_update_many', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['result']['success'] == '3 rows updated', json.loads(res.body)
+
+        postparams = '%s=1' % json.dumps({"term" : "many"})
+        res = self.app.post('/api/action/term_translation_show', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['result'] == [{u'lang_code': u'fr', u'term': u'many', u'term_translation': u'manymoo'},
+                                                  {u'lang_code': u'en', u'term': u'many', u'term_translation': u'manymoomoo'}], json.loads(res.body)
+
+
 
 
 class TestActionPackageSearch(WsgiAppCase):

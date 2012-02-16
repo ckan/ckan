@@ -145,7 +145,8 @@ class TestBasicDictize:
                                  'packages': sorted([{'id': group_pack[0].id},
                                               {'id': group_pack[1].id,
                                                }], key=lambda x:x["id"]),
-                                 'title': u"Dave's books"}
+                                 'title': u"Dave's books",
+                                 'approval_status': u'approved'}
 
 
         assert not errors
