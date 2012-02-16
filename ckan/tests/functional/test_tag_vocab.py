@@ -31,7 +31,7 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
         return 'package/new_package_form.html'
 
     def setup_template_variables(self, context, data_dict=None):
-        c.vocab_tags = get_action('tag_list')(context, {'vocabulary_name': TEST_VOCAB_NAME})
+        c.vocab_tags = get_action('tag_list')(context, {'vocabulary_id': TEST_VOCAB_NAME})
 
     def form_to_db_schema(self):
         schema = package_form_schema()

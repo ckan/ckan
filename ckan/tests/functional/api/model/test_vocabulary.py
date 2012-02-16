@@ -142,7 +142,7 @@ class TestVocabulary(object):
     def _list_tags(self, vocabulary=None, user=None):
         params = {}
         if vocabulary:
-            params['vocabulary_name'] = vocabulary['name']
+            params['vocabulary_id'] = vocabulary['id']
         if user:
             extra_environ = {'Authorization' : str(user.apikey)}
         else:
@@ -724,7 +724,8 @@ class TestVocabulary(object):
                 status=404)
         assert response.json['success'] == False
         msg = response.json['error']['message']
-        assert msg == u"Not found", msg
+        assert msg == u"Not found: could not find vocabulary 'nonexistent'", \
+                msg
 
     def test_delete_tag_invalid_tag(self):
         '''Test the error response when a user tries to delete a tag but gives
@@ -763,7 +764,8 @@ class TestVocabulary(object):
                     status=404)
             assert response.json['success'] == False
             msg = response.json['error']['message']
-            assert msg == u"Not found", msg
+            assert msg == u"Not found: could not find vocabulary '%s'" \
+                    % vocab_name, msg
 
     def test_delete_tag_not_logged_in(self):
         vocab = self.genre_vocab

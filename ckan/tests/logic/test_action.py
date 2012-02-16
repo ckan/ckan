@@ -99,6 +99,8 @@ class TestAction(WsgiAppCase):
         model.Package.get('warandpeace').add_tag(bach_tag)
         model.Package.get('annakarenina').add_tag(sonata_tag)
 
+        model.Session.commit()
+
     def _add_basic_package(self, package_name=u'test_package', **kwargs):
         package = {
             'name': package_name,
@@ -331,12 +333,13 @@ class TestAction(WsgiAppCase):
     def test_06a_tag_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/tag_list', params=postparams)
-        assert_dicts_equal_ignoring_ordering(
-            json.loads(res.body),
-            {'help': 'Returns a list of tags',
-             'success': True,
-             'result': ['russian', 'tolstoy', u'Flexible \u30a1', 'tollbooth',
-                 'tolkien', 'toledo', 'tolerance']})
+        resbody = json.loads(res.body)
+        assert resbody['success'] is True
+        assert sorted(resbody['result']) == sorted(['russian', 'tolstoy',
+                u'Flexible \u30a1', 'tollbooth', 'tolkien', 'toledo',
+                'tolerance'])
+        assert resbody['help'].startswith(
+                'Return a list of tag dictionaries.')
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
         res = self.app.post('/api/action/tag_list', params=postparams)
@@ -388,18 +391,15 @@ class TestAction(WsgiAppCase):
         assert response.json['success'] == True
 
         # check that tag shows up in list
-        params = '%s=1' % json.dumps({'vocabulary_name': vocab_name})
+        params = '%s=1' % json.dumps({'vocabulary_id': vocab_name})
         res = self.app.post('/api/action/tag_list', params=params)
         body = json.loads(res.body)
-        assert_dicts_equal_ignoring_ordering(
-            json.loads(res.body),
-            {'help': 'Returns a list of tags',
-             'success': True,
-             'result': [tag_name]}
-        )
+        assert body['success'] is True
+        assert body['result'] == [tag_name]
+        assert body['help'].startswith('Return a list of tag dictionaries.')
 
         # check that invalid vocab name results in a 404
-        params = '%s=1' % json.dumps({'vocabulary_name': 'invalid-vocab-name'})
+        params = '%s=1' % json.dumps({'vocabulary_id': 'invalid-vocab-name'})
         res = self.app.post('/api/action/tag_list', params=params, status=404)
 
     def test_07_tag_show(self):
@@ -763,7 +763,7 @@ class TestAction(WsgiAppCase):
 
     def test_15a_tag_search_with_vocab_and_empty_query(self):
         for q in ('missing', None, '', '  '):
-            paramd = {'vocabulary_name': 'genre'}
+            paramd = {'vocabulary_id': 'genre'}
             if q != 'missing':
                 paramd['q'] = q
             params = json.dumps(paramd)
@@ -773,7 +773,7 @@ class TestAction(WsgiAppCase):
             assert res.json['result']['results'] == []
 
     def test_15a_tag_search_with_vocab_and_one_match(self):
-        paramd = {'q': 'son', 'vocabulary_name': 'genre' }
+        paramd = {'q': 'son', 'vocabulary_id': 'genre' }
         params = json.dumps(paramd)
         res = self.app.post('/api/action/tag_search', params=params)
         assert res.json['success'] is True
@@ -783,7 +783,7 @@ class TestAction(WsgiAppCase):
         assert tag_dicts[0]['name'] == 'sonata'
 
     def test_15a_tag_search_with_vocab_and_multiple_matches(self):
-        paramd = {'q': 'neo', 'vocabulary_name': 'genre' }
+        paramd = {'q': 'neo', 'vocabulary_id': 'genre' }
         params = json.dumps(paramd)
         res = self.app.post('/api/action/tag_search', params=params)
         assert res.json['success'] is True
@@ -793,7 +793,7 @@ class TestAction(WsgiAppCase):
             'neofolk', 'neomedieval', 'neoprog', 'neopsychedelia', 'neosoul'))
 
     def test_15a_tag_search_with_vocab_and_no_matches(self):
-        paramd = {'q': 'xxxxxxx', 'vocabulary_name': 'genre' }
+        paramd = {'q': 'xxxxxxx', 'vocabulary_id': 'genre' }
         params = json.dumps(paramd)
         res = self.app.post('/api/action/tag_search', params=params)
         assert res.json['success'] is True
@@ -802,13 +802,13 @@ class TestAction(WsgiAppCase):
         assert tag_dicts == []
 
     def test_15a_tag_search_with_vocab_that_does_not_exist(self):
-        paramd = {'q': 'neo', 'vocabulary_name': 'xxxxxx' }
+        paramd = {'q': 'neo', 'vocabulary_id': 'xxxxxx' }
         params = json.dumps(paramd)
         self.app.post('/api/action/tag_search', params=params, status=404)
 
     def test_15a_tag_search_with_invalid_vocab(self):
         for vocab_name in (None, '', 'a', 'e'*200):
-            paramd = {'q': 'neo', 'vocabulary_name': vocab_name }
+            paramd = {'q': 'neo', 'vocabulary_id': vocab_name }
             params = json.dumps(paramd)
             self.app.post('/api/action/tag_search', params=params, status=404)
 
@@ -817,21 +817,19 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/tag_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj == {
-            'help': 'Returns tags containing the provided string',
-            'result': [],
-            'success': True
-        }
+        assert res_obj['success'] == True
+        assert res_obj['result'] == []
+        assert res_obj['help'].startswith(
+                'Return a list of tag names that contain the given string.')
 
         #Normal query
         postparams = '%s=1' % json.dumps({'q':'r'})
         res = self.app.post('/api/action/tag_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj == {
-            'help': 'Returns tags containing the provided string',
-            'result': ['russian', 'tolerance'],
-            'success': True
-        }
+        assert res_obj['success'] == True
+        assert res_obj['result'] == ['russian', 'tolerance']
+        assert res_obj['help'].startswith(
+                'Return a list of tag names that contain the given string.')
 
     def test_15_tag_autocomplete_tag_with_spaces(self):
         """Asserts autocomplete finds tags that contain spaces"""
@@ -978,7 +976,7 @@ class TestAction(WsgiAppCase):
 
     def test_15_tag_autocomplete_with_vocab_and_empty_query(self):
         for q in ('missing', None, '', '  '):
-            paramd = {'vocabulary_name': u'genre'}
+            paramd = {'vocabulary_id': u'genre'}
             if q != 'missing':
                 paramd['q'] = q
             params = json.dumps(paramd)
@@ -987,14 +985,14 @@ class TestAction(WsgiAppCase):
             assert res.json['result'] == []
 
     def test_15_tag_autocomplete_with_vocab_and_single_match(self):
-        paramd = {'vocabulary_name': u'genre', 'q': 'son'}
+        paramd = {'vocabulary_id': u'genre', 'q': 'son'}
         params = json.dumps(paramd)
         res = self.app.post('/api/action/tag_autocomplete', params=params)
         assert res.json['success'] is True
         assert res.json['result'] == ['sonata'], res.json['result']
 
     def test_15_tag_autocomplete_with_vocab_and_multiple_matches(self):
-        paramd = {'vocabulary_name': 'genre', 'q': 'neo'}
+        paramd = {'vocabulary_id': 'genre', 'q': 'neo'}
         params = json.dumps(paramd)
         res = self.app.post('/api/action/tag_autocomplete', params=params)
         assert res.json['success'] is True
@@ -1002,7 +1000,7 @@ class TestAction(WsgiAppCase):
             'neomedieval', 'neoprog', 'neopsychedelia', 'neosoul'))
 
     def test_15_tag_autocomplete_with_vocab_and_no_matches(self):
-        paramd = {'vocabulary_name': 'composers', 'q': 'Jonny Greenwood'}
+        paramd = {'vocabulary_id': 'composers', 'q': 'Jonny Greenwood'}
         params = json.dumps(paramd)
         res = self.app.post('/api/action/tag_autocomplete', params=params)
         assert res.json['success'] is True
@@ -1010,7 +1008,7 @@ class TestAction(WsgiAppCase):
 
     def test_15_tag_autocomplete_with_vocab_that_does_not_exist(self):
         for q in ('', 'neo'):
-            paramd = {'vocabulary_name': 'does_not_exist', 'q': q}
+            paramd = {'vocabulary_id': 'does_not_exist', 'q': q}
             params = json.dumps(paramd)
             res = self.app.post('/api/action/tag_autocomplete', params=params,
                     status=404)
@@ -1019,7 +1017,7 @@ class TestAction(WsgiAppCase):
     def test_15_tag_autocomplete_with_invalid_vocab(self):
         for vocab_name in (None, '', 'a', 'e'*200):
             for q in (None, '', 'son'):
-                paramd = {'vocabulary_name': vocab_name, 'q': q}
+                paramd = {'vocabulary_id': vocab_name, 'q': q}
                 params = json.dumps(paramd)
                 res = self.app.post('/api/action/tag_autocomplete', params=params,
                         status=404)

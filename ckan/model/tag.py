@@ -8,6 +8,7 @@ from package import Package
 from core import *
 import vocabulary
 import activity
+import ckan
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
            'PackageTagRevision', 'package_tag_revision_table',
@@ -109,7 +110,8 @@ class Tag(DomainObject):
                 vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
                 if vocab is None:
                     # The user specified an invalid vocab.
-                    return None
+                    raise ckan.logic.NotFound("could not find vocabulary '%s'"
+                            % vocab_id_or_name)
             else:
                 vocab = None
             tag = Tag.by_name(tag_id_or_name, vocab=vocab)
@@ -151,14 +153,15 @@ class Tag(DomainObject):
             vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
             if vocab is None:
                 # The user specified an invalid vocab.
-                return None
+                raise ckan.logic.NotFound("could not find vocabulary '%s'"
+                        % vocab_id_or_name)
             query = Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
         else:
             query = Session.query(Tag).filter(Tag.vocabulary_id == None)
-        query = query.distinct().join(PackageTagRevision)
-        query = query.filter(sqlalchemy.and_(
-            PackageTagRevision.state == 'active',
-            PackageTagRevision.current == True))
+            query = query.distinct().join(PackageTagRevision)
+            query = query.filter(sqlalchemy.and_(
+                PackageTagRevision.state == 'active',
+                PackageTagRevision.current == True))
         return query
 
     @property

@@ -198,37 +198,41 @@ def licence_list(context, data_dict):
     return licences
 
 def tag_list(context, data_dict):
-    '''Returns a list of tags'''
+    '''Return a list of tag dictionaries.
 
+    If a query is provided in the data_dict with key 'query' or 'q', then only
+    tags whose names match the given query will be returned. Otherwise, all
+    tags will be returned.
+
+    By default only free tags (tags that don't belong to a vocabulary) are
+    returned. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be returned instead.
+
+    '''
     model = context['model']
     user = context['user']
 
+    vocab_id_or_name = data_dict.get('vocabulary_id')
+    query = data_dict.get('query') or data_dict.get('q')
+    if query:
+        query = query.strip()
     all_fields = data_dict.get('all_fields', None)
 
-    check_access('tag_list',context, data_dict)
+    check_access('tag_list', context, data_dict)
 
-    q = data_dict.get('q','')
-    if q:
+    if query:
         tags = _tag_search(context, data_dict)
     else:
-        tags = model.Session.query(model.Tag).all()
-
-    # filter by vocabulary
-    if data_dict.get('vocabulary_name'):
-        vocab = model.Vocabulary.get(data_dict['vocabulary_name'])
-        if not vocab:
-            raise NotFound
-        tags = [tag for tag in tags if tag.vocabulary_id == vocab.id]
-    else:
-        tags = [tag for tag in tags if not tag.vocabulary_id]
+        tags = model.Tag.all(vocab_id_or_name)
 
     tag_list = []
-    if all_fields:
-        for tag in tags:
-            result_dict = tag_dictize(tag, context)
-            tag_list.append(result_dict)
-    else:
-        tag_list = [tag.name for tag in tags]
+    if tags:
+        if all_fields:
+            for tag in tags:
+                result_dict = tag_dictize(tag, context)
+                tag_list.append(result_dict)
+        else:
+            tag_list.extend([tag.name for tag in tags])
 
     return tag_list
 
@@ -791,8 +795,8 @@ def _tag_search(context, data_dict):
     'q'.
 
     By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_name' is provided in the data_dict then tags
-    belonging to the named vocabulary will be searched instead.
+    searched. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be searched instead.
 
     '''
     model = context['model']
@@ -809,9 +813,9 @@ def _tag_search(context, data_dict):
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Tag)
 
-    if data_dict.has_key('vocabulary_name'):
+    if data_dict.has_key('vocabulary_id'):
         # Filter by vocabulary.
-        vocab = model.Vocabulary.get(data_dict['vocabulary_name'])
+        vocab = model.Vocabulary.get(data_dict['vocabulary_id'])
         if not vocab:
             raise NotFound
         q = q.filter(model.Tag.vocabulary_id == vocab.id)
@@ -844,8 +848,8 @@ def tag_search(context, data_dict):
     'q'.
 
     By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_name' is provided in the data_dict then tags
-    belonging to the named vocabulary will be searched instead.
+    searched. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be searched instead.
 
     Returns a dictionary with keys 'count' (the number of tags in the result)
     and 'results' (the list of tag dicts).
@@ -862,8 +866,8 @@ def tag_autocomplete(context, data_dict):
     'q'.
 
     By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_name' is provided in the data_dict then tags
-    belonging to the named vocabulary will be searched instead.
+    searched. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be searched instead.
 
     '''
     check_access('tag_autocomplete', context, data_dict)
