@@ -1309,6 +1309,103 @@ class TestAction(WsgiAppCase):
                        {'domain_object': anna.id})
         assert_equal(results['roles'], roles_after['roles'])
 
+class TestActionTermTranslation(WsgiAppCase):
+
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+        self.sysadmin_user = model.User.get('testsysadmin')
+        self.normal_user = model.User.get('annafan')
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_1_update_single(self):
+        postparams = '%s=1' % json.dumps(
+            {"term" : "moo",
+             "term_translation": "moo",
+             "lang_code" : "fr"
+            }
+        )
+
+        res = self.app.post('/api/action/term_translation_update', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['success']
+
+        postparams = '%s=1' % json.dumps(
+            {"term" : "moo",
+             "term_translation": "moomoo",
+             "lang_code" : "fr"
+            }
+        )
+
+        res = self.app.post('/api/action/term_translation_update', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['success']
+
+        postparams = '%s=1' % json.dumps(
+            {"term" : "moo",
+             "term_translation": "moomoo",
+             "lang_code" : "en"
+            }
+        )
+
+        res = self.app.post('/api/action/term_translation_update', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['success']
+
+        postparams = '%s=1' % json.dumps({"term" : "moo"})
+
+        res = self.app.post('/api/action/term_translation_show', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['success']
+        assert json.loads(res.body)['result'] == [{u'lang_code': u'fr', u'term': u'moo', u'term_translation': u'moomoo'},
+                                                  {u'lang_code': u'en', u'term': u'moo', u'term_translation': u'moomoo'}], json.loads(res.body)
+
+    def test_2_update_many(self):
+
+        postparams = '%s=1' % json.dumps({'data': [
+             {"term" : "many",
+              "term_translation": "manymoo",
+              "lang_code" : "fr"
+             },
+             {"term" : "many",
+              "term_translation": "manymoo",
+              "lang_code" : "en"
+             },
+             {"term" : "many",
+              "term_translation": "manymoomoo",
+              "lang_code" : "en"
+             }
+            ]
+        }
+        )
+        res = self.app.post('/api/action/term_translation_update_many', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['result']['success'] == '3 rows updated', json.loads(res.body)
+
+        postparams = '%s=1' % json.dumps({"term" : "many"})
+        res = self.app.post('/api/action/term_translation_show', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=200)
+
+        assert json.loads(res.body)['result'] == [{u'lang_code': u'fr', u'term': u'many', u'term_translation': u'manymoo'},
+                                                  {u'lang_code': u'en', u'term': u'many', u'term_translation': u'manymoomoo'}], json.loads(res.body)
+
+
+
+
 class TestActionPackageSearch(WsgiAppCase):
 
     @classmethod
