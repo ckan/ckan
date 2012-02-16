@@ -281,7 +281,7 @@ def tag_dictize(tag, context):
     result_dict = table_dictize(tag, context)
 
     result_dict["packages"] = obj_list_dictize(
-        tag.packages_ordered, context)
+        tag.packages, context)
     
     return result_dict 
 
@@ -359,7 +359,7 @@ def package_to_api1(pkg, context):
     dictized.pop("revision_timestamp")
 
     dictized["groups"] = [group["name"] for group in dictized["groups"]]
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
+    dictized["tags"] = [tag["name"] for tag in dictized["tags"] if not tag.get('vocabulary_id')]
     dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
     dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
@@ -416,7 +416,7 @@ def package_to_api2(pkg, context):
     dictized["groups"] = [group["id"] for group in dictized["groups"]]
     dictized.pop("revision_timestamp")
     
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
+    dictized["tags"] = [tag["name"] for tag in dictized["tags"] if not tag.get('vocabulary_id')]
     dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
 
@@ -460,24 +460,24 @@ def package_to_api2(pkg, context):
     dictized['relationships'] = relationships 
     return dictized
 
+def vocabulary_dictize(vocabulary, context):
+    vocabulary_dict = table_dictize(vocabulary, context)
+    return vocabulary_dict
+
+def vocabulary_list_dictize(vocabulary_list, context):
+    return [vocabulary_dictize(vocabulary, context)
+            for vocabulary in vocabulary_list]
+
 def activity_dictize(activity, context):
     activity_dict = table_dictize(activity, context)
     return activity_dict
 
 def activity_list_dictize(activity_list, context):
-    activity_dicts = []
-    for activity in activity_list:
-        activity_dict = activity_dictize(activity, context)
-        activity_dicts.append(activity_dict)
-    return activity_dicts
+    return [activity_dictize(activity, context) for activity in activity_list]
 
 def activity_detail_dictize(activity_detail, context):
     return table_dictize(activity_detail, context)
 
 def activity_detail_list_dictize(activity_detail_list, context):
-    activity_detail_dicts = []
-    for activity_detail in activity_detail_list:
-        activity_detail_dict = activity_detail_dictize(activity_detail,
-            context)
-        activity_detail_dicts.append(activity_detail_dict)
-    return activity_detail_dicts
+    return [activity_detail_dictize(activity_detail, context)
+            for activity_detail in activity_detail_list]

@@ -1,4 +1,5 @@
 import datetime
+from pylons.i18n import _
 from itertools import count
 import re
 from pylons.i18n import _, ungettext, N_, gettext
@@ -8,7 +9,9 @@ from ckan.logic import check_access, NotAuthorized
 from ckan.lib.helpers import date_str_to_datetime
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH,
-                        PACKAGE_VERSION_MAX_LENGTH)
+                        PACKAGE_VERSION_MAX_LENGTH,
+                        VOCABULARY_NAME_MAX_LENGTH,
+                        VOCABULARY_NAME_MIN_LENGTH)
 
 def package_id_not_changed(value, context):
 
@@ -270,6 +273,12 @@ def tag_string_convert(key, data, errors, context):
     and parses tag names. These are added to the data dict, enumerated. They
     are also validated.'''
 
+    tag_string = data[key]
+
+    tags = [tag.strip() \
+            for tag in tag_string.split(',') \
+            if tag.strip()]
+
     if isinstance(data[key], basestring):
         tags = [tag.strip() \
                 for tag in data[key].split(',') \
@@ -392,3 +401,68 @@ def user_about_validator(value,context):
         raise Invalid(_('Edit not allowed as it looks like spam. Please avoid links in your description.'))
 
     return value
+
+def vocabulary_name_validator(name, context):
+    model = context['model']
+    session = context['session']
+
+    if len(name) < VOCABULARY_NAME_MIN_LENGTH:
+        raise Invalid(_('Name must be at least %s characters long') %
+            VOCABULARY_NAME_MIN_LENGTH)
+    if len(name) > VOCABULARY_NAME_MAX_LENGTH:
+        raise Invalid(_('Name must be a maximum of %i characters long') %
+                      VOCABULARY_NAME_MAX_LENGTH)
+    query = session.query(model.Vocabulary.name).filter_by(name=name)
+    result = query.first()
+    if result:
+        raise Invalid(_('That vocabulary name is already in use.'))
+    return name
+
+def vocabulary_id_not_changed(value, context):
+    vocabulary = context.get('vocabulary')
+    if vocabulary and value != vocabulary.id:
+        raise Invalid(_('Cannot change value of key from %s to %s. '
+                        'This key is read-only') % (vocabulary.id, value))
+    return value
+
+def vocabulary_id_exists(value, context):
+    model = context['model']
+    session = context['session']
+    result = session.query(model.Vocabulary).get(value)
+    if not result:
+        raise Invalid(_('Tag vocabulary was not found.'))
+    return value
+
+def tag_in_vocabulary_validator(value, context):
+    model = context['model']
+    session = context['session']
+    vocabulary = context.get('vocabulary')
+    if vocabulary:
+        query = session.query(model.Tag)\
+            .filter(model.Tag.vocabulary_id==vocabulary.id)\
+            .filter(model.Tag.name==value)\
+            .count()
+        if not query:
+            raise Invalid(_('Tag %s does not belong to vocabulary %s') % (value, vocabulary.name))
+    return value
+
+def tag_not_in_vocabulary(key, tag_dict, errors, context):
+    tag_name = tag_dict[('name',)]
+    if not tag_name:
+        raise Invalid(_('No tag name'))
+    if tag_dict.has_key(('vocabulary_id',)):
+        vocabulary_id = tag_dict[('vocabulary_id',)]
+    else:
+        vocabulary_id = None
+    model = context['model']
+    session = context['session']
+
+    query = session.query(model.Tag)
+    query = query.filter(model.Tag.vocabulary_id==vocabulary_id)
+    query = query.filter(model.Tag.name==tag_name)
+    count = query.count()
+    if count > 0:
+        raise Invalid(_('Tag %s already belongs to vocabulary %s') %
+                (tag_name, vocabulary_id))
+    else:
+        return

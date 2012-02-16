@@ -956,7 +956,8 @@ class TestBasicDictize:
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(name)
-        assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1', 'tag2')))
+        assert_equal(set([tag.name for tag in pkg.get_tags()]),
+                set(('tag1', 'tag2')))
 
     def test_19_package_tag_list_save_duplicates(self):
         name = u'testpkg19'
@@ -972,7 +973,7 @@ class TestBasicDictize:
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(name)
-        assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1',)))
+        assert_equal(set([tag.name for tag in pkg.get_tags()]), set(('tag1',)))
 
     def test_20_activity_save(self):
 

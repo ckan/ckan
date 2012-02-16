@@ -5,6 +5,10 @@ from ckan.logic.auth.publisher.create import package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
+# FIXME: Which is worse, 'from module import foo' or duplicating these
+# functions in this module?
+from ckan.logic.auth.update import vocabulary_update
+
 def make_latest_pending_package_active(context, data_dict):
     return package_update(context, data_dict)
 

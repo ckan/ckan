@@ -77,7 +77,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.assert_equal(package.title, self.package_fixture_data['title'])
         self.assert_equal(package.url, self.package_fixture_data['url'])
         self.assert_equal(package.license_id, self.testpackage_license_id)
-        self.assert_equal(len(package.tags), 2)
+        self.assert_equal(len(package.get_tags()), 2)
         self.assert_equal(len(package.extras), 2)
         for key, value in self.package_fixture_data['extras'].items():
             self.assert_equal(package.extras[key], value)
@@ -451,7 +451,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             # - title
             self.assert_equal(package.title, new_fixture_data['title'])
             # - tags
-            package_tagnames = [tag.name for tag in package.tags]
+            package_tagnames = [tag.name for tag in package.get_tags()]
             for tagname in new_fixture_data['tags']:
                 assert tagname in package_tagnames, 'tag %r not in %r' % (tagname, package_tagnames)
             # - resources
@@ -619,7 +619,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert_equal(pkg['tags'], ['tag 1.'])
 
         package = self.get_package_by_name(new_fixture_data['name'])
-        assert len(package.tags) == 1, package.tags
+        assert len(package.get_tags()) == 1, package.get_tags()
 
         # now reinstate the tag
         params = '%s=1' % self.dumps(old_fixture_data)

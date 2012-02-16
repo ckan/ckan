@@ -18,18 +18,23 @@ from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_api_to_dict,
                                              package_dict_save,
                                              user_dict_save,
+                                             vocabulary_dict_save,
+                                             tag_dict_save,
                                              activity_dict_save)
 
 from ckan.lib.dictization.model_dictize import (group_dictize,
                                                 package_dictize,
                                                 user_dictize,
+                                                vocabulary_dictize,
+                                                tag_dictize,
                                                 activity_dictize)
-
 
 from ckan.logic.schema import (default_create_package_schema,
                                default_resource_schema,
                                default_create_relationship_schema,
-                               default_create_activity_schema)
+                               default_create_vocabulary_schema,
+                               default_create_activity_schema,
+                               default_create_tag_schema)
 
 from ckan.logic.schema import default_group_schema, default_user_schema
 from ckan.lib.navl.dictization_functions import validate
@@ -340,6 +345,32 @@ def group_create_rest(context, data_dict):
 
     return group_dict
 
+def vocabulary_create(context, data_dict):
+
+    model = context['model']
+    user = context['user']
+    schema = context.get('schema') or default_create_vocabulary_schema()
+
+    model.Session.remove()
+    model.Session()._context = context
+
+    check_access('vocabulary_create', context, data_dict)
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, package_error_summary(errors))
+
+    vocabulary = vocabulary_dict_save(data, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    log.debug('Created Vocabulary %s' % str(vocabulary.name))
+
+    return vocabulary_dictize(vocabulary, context)
+
 def activity_create(context, activity_dict, ignore_auth=False):
     '''Create a new activity stream activity and return a dictionary
     representation of it.
@@ -383,3 +414,22 @@ def package_relationship_create_rest(context, data_dict):
     relationship_dict = package_relationship_create(context, data_dict)
     return relationship_dict
 
+def tag_create(context, tag_dict):
+    '''Create a new tag and return a dictionary representation of it.'''
+
+    model = context['model']
+
+    check_access('tag_create', context, tag_dict)
+
+    schema = context.get('schema') or default_create_tag_schema()
+    data, errors = validate(tag_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    tag = tag_dict_save(tag_dict, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    log.debug("Created tag '%s' " % tag)
+    return tag_dictize(tag, context)

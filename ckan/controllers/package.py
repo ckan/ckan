@@ -66,6 +66,8 @@ def register_pluggable_behaviour(map):
     exception will be raised.
     """
     global _default_controller_behaviour
+    _default_controller_behaviour = None
+    _controller_behaviour_for.clear()
     
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in PluginImplementations(IDatasetForm):

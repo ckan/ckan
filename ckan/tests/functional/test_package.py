@@ -706,8 +706,8 @@ class TestEdit(TestPackageForm):
         res = res.follow()
         assert '%s - Datasets' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
-        assert len(pkg.tags) == len(newtagnames)
-        outtags = [ tag.name for tag in pkg.tags ]
+        assert len(pkg.get_tags()) == len(newtagnames)
+        outtags = [ tag.name for tag in pkg.get_tags() ]
         for tag in newtags:
             assert tag in outtags
         rev = model.Revision.youngest(model.Session)
@@ -760,7 +760,7 @@ class TestEdit(TestPackageForm):
             pkg.version = u'2.2'
             t1 = model.Tag(name=u'one')
             t2 = model.Tag(name=u'two words')
-            pkg.tags = [t1, t2]
+            pkg.add_tags([t1, t2])
             pkg.state = model.State.DELETED
             pkg.license_id = u'other-open'
             extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
@@ -842,7 +842,7 @@ class TestEdit(TestPackageForm):
             #        assert getattr(pkg.resources[res_index], res_field) == resource[field_index]
             assert pkg.notes == notes
             assert pkg.license.id == license_id
-            saved_tagnames = [str(tag.name) for tag in pkg.tags]
+            saved_tagnames = [str(tag.name) for tag in pkg.get_tags()]
             saved_tagnames.sort()
             expected_tagnames = list(tags)
             expected_tagnames.sort()
@@ -1197,7 +1197,7 @@ class TestNew(TestPackageForm):
         #assert pkg.resources[0].url == download_url
         assert pkg.notes == notes
         assert pkg.license.id == license_id
-        saved_tagnames = [str(tag.name) for tag in pkg.tags]
+        saved_tagnames = [str(tag.name) for tag in pkg.get_tags()]
         saved_tagnames.sort()
         expected_tagnames = sorted(tags)
         assert saved_tagnames == expected_tagnames, '%r != %r' % (saved_tagnames, expected_tagnames)

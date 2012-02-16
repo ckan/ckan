@@ -17,20 +17,23 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_dictize,
                                                 group_to_api1,
                                                 group_to_api2,
-                                                user_dictize)
+                                                user_dictize,
+                                                vocabulary_dictize)
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_api_to_dict,
                                              group_dict_save,
                                              user_dict_save,
                                              task_status_dict_save,
                                              package_dict_save,
-                                             resource_dict_save)
+                                             resource_dict_save,
+                                             vocabulary_dict_update)
 from ckan.logic.schema import (default_update_group_schema,
                                default_update_package_schema,
                                default_update_user_schema,
                                default_update_resource_schema,
+                               default_task_status_schema,
                                default_update_relationship_schema,
-                               default_task_status_schema)
+                               default_update_vocabulary_schema)
 from ckan.lib.navl.dictization_functions import validate
 import ckan.lib.navl.validators as validators
 from ckan.logic.action import rename_keys, get_domain_object
@@ -610,6 +613,33 @@ def group_update_rest(context, data_dict):
 
     return group_dict
 
+def vocabulary_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    vocab_id = data_dict['id']
+
+    model.Session.remove()
+    model.Session()._context = context
+
+    vocab = model.vocabulary.Vocabulary.get(vocab_id)
+    if vocab is None:
+        raise NotFound(_('Vocabulary was not found.'))
+
+    check_access('vocabulary_update', context, data_dict)
+
+    schema = context.get('schema') or default_update_vocabulary_schema()
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    updated_vocab = vocabulary_dict_update(data, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+    return vocabulary_dictize(updated_vocab, context)
+
 def package_relationship_update_rest(context, data_dict):
 
     # rename keys
@@ -711,4 +741,3 @@ def user_role_bulk_update(context, data_dict):
                              'domain_object': data_dict['domain_object']}
             user_role_update(context, uro_data_dict)
     return roles_show(context, data_dict)
-

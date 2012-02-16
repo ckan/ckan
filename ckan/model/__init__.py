@@ -23,6 +23,7 @@ from resource import *
 from rating import *
 from package_relationship import *
 from task_status import *
+from vocabulary import *
 from activity import *
 from term_translation import *
 import ckan.migration
