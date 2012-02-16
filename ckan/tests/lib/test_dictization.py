@@ -52,6 +52,7 @@ class TestBasicDictize:
                         "approval_status": u"approved"}],
             'isopen': True,
             'license_id': u'other-open',
+            'license_title': u'Other (Open)',
             'maintainer': None,
             'maintainer_email': None,
             'type': None,
@@ -215,11 +216,10 @@ class TestBasicDictize:
 
         pprint(result)
         pprint(self.package_expected)
+        print "\n".join(unified_diff(pformat(result).split("\n"), pformat(self.package_expected).split("\n")))
 
         assert sorted(result.values()) == sorted(self.package_expected.values())
         assert result == self.package_expected
-
-
 
     def test_03_package_to_api1(self):
 
@@ -232,6 +232,7 @@ class TestBasicDictize:
         pprint(pkg.as_dict())
         asdict = pkg.as_dict()
         asdict['download_url'] = asdict['resources'][0]['url']
+        asdict['license_title'] = u'Other (Open)'
 
         assert package_to_api1(pkg, context) == asdict
 
@@ -246,6 +247,7 @@ class TestBasicDictize:
         pkg = model.Session.query(model.Package).filter_by(name='homer').one()
 
         as_dict = pkg.as_dict()
+        as_dict['license_title'] = None
         dictize = package_to_api1(pkg, context)
 
         as_dict["relationships"].sort(key=lambda x:x.items())
@@ -283,6 +285,7 @@ class TestBasicDictize:
         pkg = model.Session.query(model.Package).filter_by(name='homer').one()
 
         as_dict = pkg.as_dict(ref_package_by='id', ref_group_by='id')
+        as_dict['license_title'] = None
         dictize = package_to_api2(pkg, context)
 
         as_dict["relationships"].sort(key=lambda x:x.items())

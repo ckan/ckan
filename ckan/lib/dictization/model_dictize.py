@@ -1,5 +1,6 @@
 from pylons import config
 from sqlalchemy.sql import select, and_
+from ckan.plugins import PluginImplementations, IDatasetForm, IPackageController, IGroupController
 import datetime
 
 from ckan.model import PackageRevision
@@ -194,11 +195,25 @@ def package_dictize(pkg, context):
     # type
     result_dict['type']= pkg.type
 
+    # licence
+    if pkg.license and pkg.license.url:
+        result_dict['license_url']= pkg.license.url
+        result_dict['license_title']= pkg.license.title.split('::')[-1]
+    elif pkg.license:
+        result_dict['license_title']= pkg.license.title
+    else:
+        result_dict['license_title']= pkg.license_id
+
     # creation and modification date
     result_dict['metadata_modified'] = pkg.metadata_modified.isoformat() \
         if pkg.metadata_modified else None
     result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
         if pkg.metadata_created else None
+
+    if context.get('for_view'):
+        for item in PluginImplementations(IPackageController):
+            result_dict = item.before_view(result_dict)
+
 
     return result_dict
 
@@ -241,6 +256,10 @@ def group_dictize(group, context):
         context)
 
     context['with_capacity'] = False
+
+    if context.get('for_view'):
+        for item in PluginImplementations(IGroupController):
+            result_dict = item.before_view(result_dict)
 
     return result_dict
 

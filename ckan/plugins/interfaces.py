@@ -207,6 +207,13 @@ class IGroupController(Interface):
     def delete(self, entity):
         pass
 
+    def before_view(self, pkg_dict):
+        '''
+             Extensions will recieve this before the group gets displayed. The dictionary
+             passed will be the one that gets sent to the template.
+        '''
+        return pkg_dict
+
 class IPackageController(Interface):
     """
     Hook into the package controller.
@@ -268,6 +275,13 @@ class IPackageController(Interface):
              This is essentially a flattened dict (except for multlivlaued fields such as tags
              of all the terms sent to the indexer.  The extension can modify this by returning
              an altered version.
+        '''
+        return pkg_dict
+
+    def before_view(self, pkg_dict):
+        '''
+             Extensions will recieve this before the dataset gets displayed. The dictionary
+             passed will be the one that gets sent to the template.
         '''
         return pkg_dict
         

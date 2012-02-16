@@ -7,7 +7,7 @@ import logging
 
 import ckan
 from ckan.lib.base import _
-from ckan.logic import NotFound, ParameterError
+from ckan.logic import NotFound, ParameterError, ValidationError
 from ckan.logic import check_access
 from ckan.model import misc
 from ckan.plugins import (PluginImplementations,
@@ -714,28 +714,6 @@ def package_search(context, data_dict):
 
     return search_results
 
-def _extend_package_dict(package_dict,context):
-    model = context['model']
-
-    resources = model.Session.query(model.Resource)\
-                .join(model.ResourceGroup)\
-                .filter(model.ResourceGroup.package_id == package_dict['id'])\
-                .all()
-    if resources:
-        package_dict['resources'] = resource_list_dictize(resources, context)
-    else:
-        package_dict['resources'] = []
-    license_id = package_dict.get('license_id')
-    if license_id:
-        try:
-            isopen = model.Package.get_license_register()[license_id].isopen()
-        except KeyError:
-            isopen = False
-        package_dict['isopen'] = isopen
-    else:
-        package_dict['isopen'] = False
-
-    return package_dict
 
 def resource_search(context, data_dict):
     model = context['model']
@@ -901,6 +879,32 @@ def task_status_show(context, data_dict):
 
     task_status_dict = task_status_dictize(task_status, context)
     return task_status_dict
+
+
+def term_translation_show(context, data_dict):
+    model = context['model']
+
+    trans_table = model.term_translation_table 
+
+    q = select([trans_table])
+
+    if 'term' not in data_dict:
+        raise ValidationError({'term': 'term not it data'})
+    
+    q = q.where(trans_table.c.term == data_dict['term'])
+
+    if 'lang_code' in data_dict:
+        q = q.where(trans_table.c.lang_code == data_dict['lang_code'])
+
+    conn = model.Session.connection()
+    cursor = conn.execute(q)
+
+    results = []
+
+    for row in cursor:
+        results.append(table_dictize(row, context))
+
+    return results
 
 def get_site_user(context, data_dict):
     check_access('get_site_user', context, data_dict)
