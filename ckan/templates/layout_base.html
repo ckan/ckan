@@ -243,6 +243,9 @@
       // Declare js array from Python string
       ${['\'%s\', '%s  for s in config.get('ckan.plugins','').split(' ')]}
     ];
+    <py:if test="config.get('ckan.storage.bucket', '')">
+    CKAN.plugins.push('storage');
+    </py:if>
     CKAN.SITE_URL = '${h.url('/')}';
     // later use will add offsets with leading '/' so ensure no trailing slash
     CKAN.SITE_URL = CKAN.SITE_URL.replace(/\/$/, '');
