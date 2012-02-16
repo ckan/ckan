@@ -171,7 +171,7 @@ class TagSearchQuery(SearchQuery):
             if options.all_fields:
                 results['results'] = [r.as_dict() for r in results['results']]
             else:
-                results['results'] = [r.name for r in results['results']]
+                results['results'] = [r['name'] for r in results['results']]
         
         self.count = results['count']
         self.results = results['results']
