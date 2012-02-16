@@ -1,4 +1,5 @@
 import logging
+from lib.plugins import lookup_package_plugin
 
 import ckan.rating as ratings
 from ckan.plugins import (PluginImplementations,
@@ -50,7 +51,7 @@ def package_create(context, data_dict):
 
     model = context['model']
     user = context['user']
-    schema = context.get('schema') or default_create_package_schema()
+    schema = lookup_package_plugin().form_to_db_schema()
     model.Session.remove()
     model.Session()._context = context
 
@@ -93,8 +94,7 @@ def package_create(context, data_dict):
 
 def package_create_validate(context, data_dict):
     model = context['model']
-    user = context['user']
-    schema = context.get('schema') or default_create_package_schema()
+    schema = lookup_package_plugin().form_to_db_schema()
     model.Session.remove()
     model.Session()._context = context
 

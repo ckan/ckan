@@ -149,7 +149,6 @@ class PackageController(BaseController):
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(package_type=package_type),
                    'for_view': True}
         data_dict = {'id': id}
 
@@ -208,8 +207,7 @@ class PackageController(BaseController):
     def comments(self, id):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(package_type=package_type)}
+                   'user': c.user or c.author, 'extras_as_string': True,}
 
         #check if package exists
         try:
@@ -306,8 +304,7 @@ class PackageController(BaseController):
         
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'save': 'save' in request.params,
-                   'schema': self._form_to_db_schema(package_type=package_type)}
+                   'save': 'save' in request.params,}
 
         # Package needs to have a publisher group in the call to check_access
         # and also to save it
