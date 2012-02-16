@@ -219,6 +219,8 @@ class GroupController(BaseController):
 
         # Search within group
         q += ' groups: "%s"' % c.group_dict.get('name')
+        for gp in c.group.get_children_groups( ):
+            q += ' groups: "%s"' % gp.name
 
         try:
             description_formatted = ckan.misc.MarkdownFormat().to_html(c.group_dict.get('description',''))

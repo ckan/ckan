@@ -119,15 +119,15 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         from ckan import model
         object_type_string = object_type.__name__.lower()
         query = Session.query(object_type).\
-               filter(group_table.c.id == self.id).\
+               filter(model.Group.id == self.id).\
                filter(model.Member.state == 'active').\
                filter(model.Member.table_name == object_type_string)
 
         if capacity:
             query = query.filter(model.Member.capacity == capacity)
 
-        query = query.join(member_table, member_table.c.table_id == getattr(object_type,'id') ).\
-               join(group_table, group_table.c.id == member_table.c.group_id)
+        query = query.join(model.Member, member_table.c.table_id == getattr(object_type,'id') ).\
+               join(model.Group, group_table.c.id == member_table.c.group_id)
 
         return query
 
@@ -137,6 +137,14 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             member = Member(group=self, table_id=getattr(object_instance,'id'), table_name=object_type_string)
             Session.add(member)
 
+    def get_children_groups(self):
+        # TODO: Investigate Using members_of_type gives an error about
+        # group appearing too many times in query
+        members = Session.query(Member).\
+               filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
+               filter(Member.table_name == "group").\
+               filter(Member.group_id == self.id).all()
+        return [ Group.get( m.table_id ) for m in members ]
 
     def active_packages(self, load_eager=True):
         query = Session.query(Package).\
