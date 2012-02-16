@@ -5,7 +5,7 @@ import datetime
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
 from ckan.logic import NotFound, ValidationError, ParameterError, NotAuthorized
 from ckan.logic import get_action, check_access
-from lib_plugin import lookup_package_plugin
+from lib.plugins import lookup_package_plugin
 
 from ckan.lib.base import _, abort
 from vdm.sqlalchemy.base import SQLAlchemySession
