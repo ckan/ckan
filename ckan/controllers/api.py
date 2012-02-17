@@ -33,6 +33,14 @@ class ApiController(BaseController):
     _actions = {}
 
     def __call__(self, environ, start_response):
+        # we need to intercept and fix the api version
+        # as it will have a "/" at the start
+        routes_dict = environ['pylons.routes_dict']
+        api_version = routes_dict.get('ver')
+        if api_version:
+            api_version = api_version[1:]
+            routes_dict['ver'] = api_version
+
         self._identify_user()
         try:
             context = {'model':model,'user': c.user or c.author}
