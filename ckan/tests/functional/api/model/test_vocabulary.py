@@ -343,6 +343,22 @@ class TestVocabulary(object):
                 status=404)
         assert response.json['success'] == False
 
+    def test_vocabulary_delete_no_id(self):
+        '''Test the error response given when a user tries to delete a
+        vocabulary without giving the vocabulary id.
+
+        '''
+        params = {}
+        param_string = json.dumps(params)
+        response = self.app.post('/api/action/vocabulary_delete',
+                params=param_string,
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=409)
+        assert response.json['success'] == False
+        assert response.json['error'].has_key('id')
+        assert response.json['error']['id'] == 'id not in data'
+
     def test_vocabulary_delete_not_logged_in(self):
         '''Test that users who are not logged in cannot delete vocabularies.'''
         params = {'id': self.genre_vocab['id']}

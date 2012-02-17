@@ -105,7 +105,10 @@ def task_status_delete(context, data_dict):
 
 def vocabulary_delete(context, data_dict):
     model = context['model']
-    vocab_id = data_dict['id']
+
+    vocab_id = data_dict.get('id')
+    if not vocab_id:
+        raise ValidationError({'id': _('id not in data')})
 
     vocab_obj = model.vocabulary.Vocabulary.get(vocab_id)
     if vocab_obj is None:
