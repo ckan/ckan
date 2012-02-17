@@ -105,12 +105,11 @@ def task_status_delete(context, data_dict):
 
 def vocabulary_delete(context, data_dict):
     model = context['model']
-    user = context['user']
     vocab_id = data_dict['id']
 
     vocab_obj = model.vocabulary.Vocabulary.get(vocab_id)
     if vocab_obj is None:
-        raise NotFound
+        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
     check_access('vocabulary_delete', context, data_dict)
 

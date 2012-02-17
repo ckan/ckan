@@ -615,7 +615,6 @@ def group_update_rest(context, data_dict):
 
 def vocabulary_update(context, data_dict):
     model = context['model']
-    user = context['user']
     vocab_id = data_dict['id']
 
     model.Session.remove()
@@ -623,7 +622,7 @@ def vocabulary_update(context, data_dict):
 
     vocab = model.vocabulary.Vocabulary.get(vocab_id)
     if vocab is None:
-        raise NotFound(_('Vocabulary was not found.'))
+        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
     check_access('vocabulary_update', context, data_dict)
 
