@@ -60,7 +60,7 @@ class TestVocabulary(object):
         params = {'id': created_vocab['id']}
         response = self._post('/api/action/vocabulary_show', params)
         # Check that retrieving the vocab by name gives the same result.
-        by_name_params = {'name': created_vocab['name']}
+        by_name_params = {'id': created_vocab['name']}
         assert response == self._post('/api/action/vocabulary_show',
                 by_name_params)
         # Check that it matches what we created.
@@ -101,7 +101,7 @@ class TestVocabulary(object):
         params = {'id': updated_vocab['id']}
         response = self._post('/api/action/vocabulary_show', params)
         # Check that retrieving the vocab by name gives the same result.
-        by_name_params = {'name': updated_vocab['name']}
+        by_name_params = {'id': updated_vocab['name']}
         assert response == self._post('/api/action/vocabulary_show',
                 by_name_params)
         # Check that it matches what we created.

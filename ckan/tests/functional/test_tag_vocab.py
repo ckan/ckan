@@ -187,7 +187,7 @@ class TestWUI(WsgiAppCase):
         model.repo.rebuild_db()
 
     def _get_vocab_id(self, vocab_name):
-        params = json.dumps({'name': vocab_name})
+        params = json.dumps({'id': vocab_name})
         response = self.app.post('/api/action/vocabulary_show', params=params)
         assert json.loads(response.body)['success']
         return json.loads(response.body)['result']['id']
