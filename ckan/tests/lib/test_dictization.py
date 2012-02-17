@@ -42,14 +42,17 @@ class TestBasicDictize:
                         'name': u'david',
                         'type': u'group',
                         'state': u'active',
-                        'title': u"Dave's books"},
+                        'title': u"Dave's books",
+                        "approval_status": u"approved"},
                        {'description': u'Roger likes these books.',
                         'name': u'roger',
                         'type': u'group',
                         'state': u'active',
-                        'title': u"Roger's books"}],
+                        'title': u"Roger's books",
+                        "approval_status": u"approved"}],
             'isopen': True,
             'license_id': u'other-open',
+            'license_title': u'Other (Open)',
             'maintainer': None,
             'maintainer_email': None,
             'type': None,
@@ -213,11 +216,10 @@ class TestBasicDictize:
 
         pprint(result)
         pprint(self.package_expected)
+        print "\n".join(unified_diff(pformat(result).split("\n"), pformat(self.package_expected).split("\n")))
 
         assert sorted(result.values()) == sorted(self.package_expected.values())
         assert result == self.package_expected
-
-
 
     def test_03_package_to_api1(self):
 
@@ -230,6 +232,7 @@ class TestBasicDictize:
         pprint(pkg.as_dict())
         asdict = pkg.as_dict()
         asdict['download_url'] = asdict['resources'][0]['url']
+        asdict['license_title'] = u'Other (Open)'
 
         assert package_to_api1(pkg, context) == asdict
 
@@ -244,6 +247,7 @@ class TestBasicDictize:
         pkg = model.Session.query(model.Package).filter_by(name='homer').one()
 
         as_dict = pkg.as_dict()
+        as_dict['license_title'] = None
         dictize = package_to_api1(pkg, context)
 
         as_dict["relationships"].sort(key=lambda x:x.items())
@@ -281,6 +285,7 @@ class TestBasicDictize:
         pkg = model.Session.query(model.Package).filter_by(name='homer').one()
 
         as_dict = pkg.as_dict(ref_package_by='id', ref_group_by='id')
+        as_dict['license_title'] = None
         dictize = package_to_api2(pkg, context)
 
         as_dict["relationships"].sort(key=lambda x:x.items())
@@ -834,6 +839,7 @@ class TestBasicDictize:
 
         group_dict = {'name': 'help',
                       'title': 'help',
+                      'approval_status': 'approved',
                       'extras': [{'key': 'genre', 'value': u'"horror"'},
                                  {'key': 'media', 'value': u'"dvd"'}],
                       'packages':[{'name': 'annakarenina2'}, {'id': pkg.id, 'capacity': 'in'}],
@@ -865,7 +871,8 @@ class TestBasicDictize:
                                'packages': 0,
                                'state': u'active',
                                'title': u'simple',
-                               'type': u'publisher'}],
+                               'type': u'publisher',
+                               'approval_status': u'approved'}],
                     'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
                               'display_name': u'annafan',
                               'capacity' : 'member',
@@ -906,13 +913,12 @@ class TestBasicDictize:
                                   'url': u'http://www.annakarenina.com',
                                   'version': u'0.7a'}],
                     'state': u'active',
+                    'approval_status': u'approved',
                     'title': u'help',
                     'type': u'group'}
 
         expected['packages'] = sorted(expected['packages'], key=lambda x: x['name'])
-
         result = self.remove_changable_columns(group_dictized)
-
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
         assert result == expected, pformat(result)
@@ -950,7 +956,8 @@ class TestBasicDictize:
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(name)
-        assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1', 'tag2')))
+        assert_equal(set([tag.name for tag in pkg.get_tags()]),
+                set(('tag1', 'tag2')))
 
     def test_19_package_tag_list_save_duplicates(self):
         name = u'testpkg19'
@@ -966,7 +973,7 @@ class TestBasicDictize:
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(name)
-        assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1',)))
+        assert_equal(set([tag.name for tag in pkg.get_tags()]), set(('tag1',)))
 
     def test_20_activity_save(self):
 

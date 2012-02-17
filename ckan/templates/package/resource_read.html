@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="${h.url_for('/scripts/vendor/recline/css/graph-flot.css')}" />
     <!-- /data preview -->
     <script type="text/javascript">
-      var preload_resource = ${c.resource_json};
+      var preload_resource = ${h.literal(c.resource_json)};
     </script>
   </py:def>
 

@@ -452,16 +452,12 @@ class TagField(ConfiguredField):
     class TagField(formalchemy.Field):
         @property
         def raw_value(self):
-            tag_objects = self.model.tags
+            tag_objects = self.model.get_tags()
             tag_names = [tag.name for tag in tag_objects]
             return tag_names
         
         def sync(self):
             if not self.is_readonly():
-                # Note: You might think that you could just assign
-                # self.model.tags with tag objects, but the model 
-                # (add_stateful_versioned_m2m) doesn't support this -
-                # you must edit each PackageTag individually.
                 self._update_tags()
 
         def _update_tags(self):

@@ -7,7 +7,7 @@ import logging
 
 import ckan
 from ckan.lib.base import _
-from ckan.logic import NotFound, ParameterError
+from ckan.logic import NotFound, ParameterError, ValidationError
 from ckan.logic import check_access
 from ckan.model import misc
 from ckan.plugins import (PluginImplementations,
@@ -24,6 +24,8 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 tag_dictize,
                                                 task_status_dictize,
                                                 user_dictize,
+                                                vocabulary_dictize,
+                                                vocabulary_list_dictize,
                                                 activity_list_dictize,
                                                 activity_detail_list_dictize)
 
@@ -33,6 +35,7 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 group_to_api2,
                                                 tag_to_api1,
                                                 tag_to_api2)
+
 from ckan.lib.search import query_for, SearchError
 from ckan.lib.base import render
 from webhelpers.html import literal
@@ -195,38 +198,40 @@ def licence_list(context, data_dict):
     return licences
 
 def tag_list(context, data_dict):
-    '''Returns a list of tags'''
+    '''Return a list of tag dictionaries.
 
+    If a query is provided in the data_dict with key 'query' or 'q', then only
+    tags whose names match the given query will be returned. Otherwise, all
+    tags will be returned.
+
+    By default only free tags (tags that don't belong to a vocabulary) are
+    returned. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be returned instead.
+
+    '''
     model = context['model']
-    user = context['user']
 
-    all_fields = data_dict.get('all_fields',None)
+    vocab_id_or_name = data_dict.get('vocabulary_id')
+    query = data_dict.get('query') or data_dict.get('q')
+    if query:
+        query = query.strip()
+    all_fields = data_dict.get('all_fields', None)
 
-    check_access('tag_list',context, data_dict)
+    check_access('tag_list', context, data_dict)
 
-    q = data_dict.get('q','')
-    if q:
-        limit = data_dict.get('limit',25)
-        offset = data_dict.get('offset',0)
-        return_objects = data_dict.get('return_objects',True)
-
-        query = query_for(model.Tag)
-        query.run(query=q,
-                  limit=limit,
-                  offset=offset,
-                  return_objects=return_objects,
-                  username=user)
-        tags = query.results
+    if query:
+        tags = _tag_search(context, data_dict)
     else:
-        tags = model.Session.query(model.Tag).all()
+        tags = model.Tag.all(vocab_id_or_name)
 
     tag_list = []
-    if all_fields:
-        for tag in tags:
-            result_dict = tag_dictize(tag, context)
-            tag_list.append(result_dict)
-    else:
-        tag_list = [tag.name for tag in tags]
+    if tags:
+        if all_fields:
+            for tag in tags:
+                result_dict = tag_dictize(tag, context)
+                tag_list.append(result_dict)
+        else:
+            tag_list.extend([tag.name for tag in tags])
 
     return tag_list
 
@@ -442,7 +447,6 @@ def tag_show(context, data_dict):
     '''Shows tag details'''
 
     model = context['model']
-    api = context.get('api_version') or '1'
     id = data_dict['id']
 
     tag = model.Tag.get(id)
@@ -595,29 +599,6 @@ def package_autocomplete(context, data_dict):
 
     return pkg_list
 
-def tag_autocomplete(context, data_dict):
-    '''Returns tags containing the provided string'''
-
-    model = context['model']
-    session = context['session']
-    user = context['user']
-
-    check_access('tag_autocomplete', context, data_dict)
-
-    q = data_dict.get('q', None)
-    if not q:
-        return []
-
-    limit = data_dict.get('limit',10)
-
-    query = query_for('tag')
-    query.run(query=q,
-              return_objects=True,
-              limit=10,
-              username=user)
-
-    return [tag.name for tag in query.results]
-
 def format_autocomplete(context, data_dict):
     '''Returns formats containing the provided string'''
     model = context['model']
@@ -731,28 +712,6 @@ def package_search(context, data_dict):
 
     return search_results
 
-def _extend_package_dict(package_dict,context):
-    model = context['model']
-
-    resources = model.Session.query(model.Resource)\
-                .join(model.ResourceGroup)\
-                .filter(model.ResourceGroup.package_id == package_dict['id'])\
-                .all()
-    if resources:
-        package_dict['resources'] = resource_list_dictize(resources, context)
-    else:
-        package_dict['resources'] = []
-    license_id = package_dict.get('license_id')
-    if license_id:
-        try:
-            isopen = model.Package.get_license_register()[license_id].isopen()
-        except KeyError:
-            isopen = False
-        package_dict['isopen'] = isopen
-    else:
-        package_dict['isopen'] = False
-
-    return package_dict
 
 def resource_search(context, data_dict):
     model = context['model']
@@ -805,11 +764,22 @@ def resource_search(context, data_dict):
 
     return {'count': count, 'results': results}
 
-def tag_search(context, data_dict):
-    model = context['model']
-    session = context['session']
+def _tag_search(context, data_dict):
+    '''Return a list of tag objects that contain the given string.
 
-    query = data_dict.get('query')
+    The query string should be provided in the data_dict with key 'query' or
+    'q'.
+
+    By default only free tags (tags that don't belong to a vocabulary) are
+    searched. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be searched instead.
+
+    '''
+    model = context['model']
+
+    query = data_dict.get('query') or data_dict.get('q')
+    if query:
+        query = query.strip()
     terms = [query] if query else []
 
     fields = data_dict.get('fields', {})
@@ -818,23 +788,70 @@ def tag_search(context, data_dict):
 
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Tag)
-    q = q.distinct().join(model.Tag.package_tags)
+
+    if data_dict.has_key('vocabulary_id'):
+        # Filter by vocabulary.
+        vocab = model.Vocabulary.get(data_dict['vocabulary_id'])
+        if not vocab:
+            raise NotFound
+        q = q.filter(model.Tag.vocabulary_id == vocab.id)
+    else:
+        # If no vocabulary_name in data dict then show free tags only.
+        q = q.filter(model.Tag.vocabulary_id == None)
+        # If we're searching free tags, limit results to tags that are
+        # currently applied to a package.
+        q = q.distinct().join(model.Tag.package_tags)
+
     for field, value in fields.items():
         if field in ('tag', 'tags'):
             terms.append(value)
 
     if not len(terms):
-        return
+        return []
 
     for term in terms:
         escaped_term = misc.escape_sql_like_special_characters(term, escape='\\')
         q = q.filter(model.Tag.name.ilike('%' + escaped_term + '%'))
 
-    count = q.count()
     q = q.offset(offset)
     q = q.limit(limit)
-    results = [r for r in q]
-    return {'count': count, 'results': results}
+    return q.all()
+
+def tag_search(context, data_dict):
+    '''Return a list of tag dictionaries that contain the given string.
+
+    The query string should be provided in the data_dict with key 'query' or
+    'q'.
+
+    By default only free tags (tags that don't belong to a vocabulary) are
+    searched. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be searched instead.
+
+    Returns a dictionary with keys 'count' (the number of tags in the result)
+    and 'results' (the list of tag dicts).
+
+    '''
+    tags = _tag_search(context, data_dict)
+    return {'count': len(tags),
+            'results': [table_dictize(tag, context) for tag in tags]}
+
+def tag_autocomplete(context, data_dict):
+    '''Return a list of tag names that contain the given string.
+
+    The query string should be provided in the data_dict with key 'query' or
+    'q'.
+
+    By default only free tags (tags that don't belong to a vocabulary) are
+    searched. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be searched instead.
+
+    '''
+    check_access('tag_autocomplete', context, data_dict)
+    matching_tags = _tag_search(context, data_dict)
+    if matching_tags:
+        return [tag.name for tag in matching_tags]
+    else:
+        return []
 
 def task_status_show(context, data_dict):
     model = context['model']
@@ -860,6 +877,32 @@ def task_status_show(context, data_dict):
 
     task_status_dict = task_status_dictize(task_status, context)
     return task_status_dict
+
+
+def term_translation_show(context, data_dict):
+    model = context['model']
+
+    trans_table = model.term_translation_table 
+
+    q = select([trans_table])
+
+    if 'term' not in data_dict:
+        raise ValidationError({'term': 'term not it data'})
+    
+    q = q.where(trans_table.c.term == data_dict['term'])
+
+    if 'lang_code' in data_dict:
+        q = q.where(trans_table.c.lang_code == data_dict['lang_code'])
+
+    conn = model.Session.connection()
+    cursor = conn.execute(q)
+
+    results = []
+
+    for row in cursor:
+        results.append(table_dictize(row, context))
+
+    return results
 
 def get_site_user(context, data_dict):
     check_access('get_site_user', context, data_dict)
@@ -946,6 +989,22 @@ def status_show(context, data_dict):
         'locale_default': config.get('ckan.locale_default'),
         'extensions': config.get('ckan.plugins').split(),
         }
+
+def vocabulary_list(context, data_dict):
+    model = context['model']
+    vocabulary_objects = model.Session.query(model.Vocabulary).all()
+    return vocabulary_list_dictize(vocabulary_objects, context)
+
+def vocabulary_show(context, data_dict):
+    model = context['model']
+    vocab_id = data_dict.get('id')
+    if not vocab_id:
+        raise ValidationError({'id': _('id not in data')})
+    vocabulary = model.vocabulary.Vocabulary.get(vocab_id)
+    if vocabulary is None:
+        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
+    vocabulary_dict = vocabulary_dictize(vocabulary, context)
+    return vocabulary_dict
 
 def user_activity_list(context, data_dict):
     '''Return a user\'s public activity stream as a list of dicts.'''
