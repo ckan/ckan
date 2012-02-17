@@ -54,12 +54,8 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     # Routing/Session/Cache Middleware
     app = RoutesMiddleware(app, config['routes.map'])
     app = SessionMiddleware(app, config)
-    #app = CacheMiddleware(app, config)
-    # NOTE: I18nMiddleware should not be cached as can create
-    #       redirects based on browser language settings.
-    #       We need to take the language settings into accout. For now
-    #       disable the cacheing.
     app = I18nMiddleware(app, config)
+    app = CacheMiddleware(app, config)
     
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
@@ -153,24 +149,6 @@ class I18nMiddleware(object):
             else:
                 environ['PATH_INFO'] = '/'
         else:
-            # See if we have a language the browser requests. If this is
-            # not the site default language then redirect to that
-            # language eg for french -> /fr/....
-            languages = environ.get('HTTP_ACCEPT_LANGUAGE', 'en')
-            languages = languages.replace('-', '_')
-            languages = languages.split(';')[0].split(',')
-            language = negotiate_locale(languages, self.local_list)
-            # if this is not the default locale of the site then we will
-            # redirect to the url using that language here.
-            if language != self.default_locale:
-                root = environ['SCRIPT_NAME']
-                url = environ['PATH_INFO']
-                url = url[len(root):]
-                url = '/%s%s%s' % (root, language,  url)
-                headers = []
-                headers.append(('Location', url))
-                start_response('302 Found', headers)
-                return []
             # use default language from config
             environ['CKAN_LANG'] = self.default_locale
             environ['CKAN_LANG_IS_DEFAULT'] = True
