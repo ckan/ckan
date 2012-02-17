@@ -294,6 +294,18 @@ class TestVocabulary(object):
                 status=409)
         assert response.json['success'] == False
 
+    def test_vocabulary_update_no_id(self):
+        params = {'name': 'bagel radio'}
+        param_string = json.dumps(params)
+        response = self.app.post('/api/action/vocabulary_update',
+                params=param_string,
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=409)
+        assert response.json['success'] == False
+        assert response.json['error'].has_key('id')
+        assert response.json['error']['id'] == 'id not in data'
+
     def test_vocabulary_update_not_logged_in(self):
         '''Test that users who are not logged in cannot update vocabularies.'''
         params = {'id': self.genre_vocab['id']}

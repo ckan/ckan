@@ -615,7 +615,9 @@ def group_update_rest(context, data_dict):
 
 def vocabulary_update(context, data_dict):
     model = context['model']
-    vocab_id = data_dict['id']
+    vocab_id = data_dict.get('id')
+    if not vocab_id:
+        raise ValidationError({'id': _('id not in data')})
 
     model.Session.remove()
     model.Session()._context = context
