@@ -691,8 +691,8 @@ class TestVocabulary(object):
                         str(self.sysadmin_user.apikey)},
                     status=409)
             assert response.json['success'] == False
-            msg = response.json['error']['message']
-            assert msg == u"Parameter Error: Missing 'id' parameter.", msg
+            assert response.json['error'].has_key('id')
+            assert response.json['error']['id'] == 'id not in data'
 
     def test_delete_tag_no_vocab(self):
         '''Test the error response when a user tries to delete a vocab tag
@@ -714,7 +714,8 @@ class TestVocabulary(object):
                     status=404)
             assert response.json['success'] == False
             msg = response.json['error']['message']
-            assert msg == u"Not found", msg
+            assert msg == u'Not found: Could not find tag "%s"' % tag['name'], \
+                    msg
 
     def test_delete_tag_not_exists(self):
         '''Test the error response when a user tries to delete a from a vocab
@@ -733,7 +734,8 @@ class TestVocabulary(object):
                 status=404)
         assert response.json['success'] == False
         msg = response.json['error']['message']
-        assert msg == u"Not found", msg
+        assert msg == u'Not found: Could not find tag "%s"' % 'nonexistent', \
+                msg
 
     def test_delete_tag_vocab_not_exists(self):
         '''Test the error response when a user tries to delete a from a vocab
@@ -773,7 +775,7 @@ class TestVocabulary(object):
                     status=404)
             assert response.json['success'] == False
             msg = response.json['error']['message']
-            assert msg == u"Not found", msg
+            assert msg == u'Not found: Could not find tag "%s"' % tag_name, msg
 
     def test_delete_tag_invalid_vocab(self):
         '''Test the error response when a user tries to delete a tag but gives

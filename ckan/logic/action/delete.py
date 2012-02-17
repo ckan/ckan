@@ -123,7 +123,7 @@ def tag_delete(context, data_dict):
     model = context['model']
 
     if not data_dict.has_key('id') or not data_dict['id']:
-        raise ParameterError(_("Missing 'id' parameter."))
+        raise ValidationError({'id': _('id not in data')})
     tag_id_or_name = data_dict['id']
 
     vocab_id_or_name = data_dict.get('vocabulary_id')
@@ -131,7 +131,7 @@ def tag_delete(context, data_dict):
     tag_obj = model.tag.Tag.get(tag_id_or_name, vocab_id_or_name)
 
     if tag_obj is None:
-        raise NotFound
+        raise NotFound(_('Could not find tag "%s"') % tag_id_or_name)
 
     check_access('tag_delete', context, data_dict)
 
