@@ -11,7 +11,6 @@ import ckan.rating
 from ckan.lib.search import (query_for, QueryOptions, SearchIndexError, SearchError,
                              SearchQueryError, DEFAULT_OPTIONS,
                              convert_legacy_parameters_to_solr)
-from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.lib.munge import munge_name, munge_title_to_name, munge_tag
 from ckan.logic import get_action, check_access
