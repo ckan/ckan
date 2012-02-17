@@ -615,12 +615,10 @@ def group_update_rest(context, data_dict):
 
 def vocabulary_update(context, data_dict):
     model = context['model']
+
     vocab_id = data_dict.get('id')
     if not vocab_id:
         raise ValidationError({'id': _('id not in data')})
-
-    model.Session.remove()
-    model.Session()._context = context
 
     vocab = model.vocabulary.Vocabulary.get(vocab_id)
     if vocab is None:
@@ -639,6 +637,7 @@ def vocabulary_update(context, data_dict):
 
     if not context.get('defer_commit'):
         model.repo.commit()
+
     return vocabulary_dictize(updated_vocab, context)
 
 def package_relationship_update_rest(context, data_dict):

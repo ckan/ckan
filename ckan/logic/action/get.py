@@ -210,7 +210,6 @@ def tag_list(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
 
     vocab_id_or_name = data_dict.get('vocabulary_id')
     query = data_dict.get('query') or data_dict.get('q')
@@ -448,7 +447,6 @@ def tag_show(context, data_dict):
     '''Shows tag details'''
 
     model = context['model']
-    api = context.get('api_version') or '1'
     id = data_dict['id']
 
     tag = model.Tag.get(id)
