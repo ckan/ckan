@@ -235,6 +235,9 @@ def make_map():
     map.connect('/dataset/{id}/resource/{resource_id}',
         controller='package', action="resource_read"
     )
+    map.connect('webstore', '/api/resource/{id}/data',
+        controller='webstore', action='data'
+        )
 
     # group
     map.redirect("/groups", "/group")
