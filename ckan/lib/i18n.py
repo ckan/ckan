@@ -60,14 +60,14 @@ available_locales = None
 locales = None
 
 def get_locales():
+    global locales
     if not locales:
-        global locales
         locales = _get_locales()
     return locales
 
 def get_available_locales():
+    global available_locales
     if not available_locales:
-        global available_locales
         available_locales = map(Locale.parse, get_locales())
     return available_locales
 
