@@ -18,8 +18,15 @@ class TestWebstoreController(TestController, PylonsTestCase):
     def test_read(self):
         dataset = model.Package.by_name(CreateTestData.pkg_names[0])
         resource_id = dataset.resources[0].id
-        offset = url_for('webstore', id=resource_id)
+        offset = url_for('webstore_read', id=resource_id)
         res = self.app.get(offset)
         assert_equal(res.status, 200)
         assert_equal(res.body, resource_id)
+
+    def test_update(self):
+        dataset = model.Package.by_name(CreateTestData.pkg_names[0])
+        resource_id = dataset.resources[0].id
+        offset = url_for('webstore_write', id=resource_id)
+        res = self.app.post(offset)
+        assert res.status in [401,302]
 
