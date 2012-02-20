@@ -300,7 +300,7 @@ def markdown_extract(text, extract_length=190):
     return unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True))
 
 def icon_url(name):
-    return url_for('/images/icons/%s.png' % name)
+    return url_for_static('/images/icons/%s.png' % name)
 
 def icon_html(url, alt=None):
     return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (url, alt))
