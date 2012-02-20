@@ -66,7 +66,7 @@
           </span>
         </div>
         <a href="${h.url('home')}">
-          <img width="64" src="${g.site_logo}" alt="${g.site_title} Logo" title="${g.site_title} Logo" id="logo" />
+          <img width="64" src="${h.url_for_static(g.site_logo)}" alt="${g.site_title} Logo" title="${g.site_title} Logo" id="logo" />
         </a>
         <div id="site-name">
           <a href="${h.url('home')}">${g.site_title} &mdash; ${g.site_description}</a>
@@ -185,9 +185,7 @@
           <div class="textwidget">
             <ul>
 <?python
-  import ckan.lib.hash
-  current_url = request.path_qs.encode('utf-8')
-  current_url_hash = ckan.lib.hash.get_message_hash(current_url)
+  current_url = request.environ['CKAN_CURRENT_URL'].encode('utf-8')
 ?>
               <li py:for="locale in h.get_available_locales()">
               <a href="${h.url(current_url, locale=str(locale))}">
