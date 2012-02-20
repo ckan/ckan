@@ -1,4 +1,4 @@
-from ckan.logic import NotFound
+from ckan.logic import NotFound, ParameterError, ValidationError
 from ckan.lib.base import _
 from ckan.logic import check_access
 from ckan.logic.action import rename_keys
@@ -103,6 +103,41 @@ def task_status_delete(context, data_dict):
     entity.delete()
     model.Session.commit()
 
+def vocabulary_delete(context, data_dict):
+    model = context['model']
+
+    vocab_id = data_dict.get('id')
+    if not vocab_id:
+        raise ValidationError({'id': _('id not in data')})
+
+    vocab_obj = model.vocabulary.Vocabulary.get(vocab_id)
+    if vocab_obj is None:
+        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
+
+    check_access('vocabulary_delete', context, data_dict)
+
+    vocab_obj.delete()
+    model.repo.commit()
+
+def tag_delete(context, data_dict):
+    model = context['model']
+
+    if not data_dict.has_key('id') or not data_dict['id']:
+        raise ValidationError({'id': _('id not in data')})
+    tag_id_or_name = data_dict['id']
+
+    vocab_id_or_name = data_dict.get('vocabulary_id')
+
+    tag_obj = model.tag.Tag.get(tag_id_or_name, vocab_id_or_name)
+
+    if tag_obj is None:
+        raise NotFound(_('Could not find tag "%s"') % tag_id_or_name)
+
+    check_access('tag_delete', context, data_dict)
+
+    tag_obj.delete()
+    model.repo.commit()
+
 def package_relationship_delete_rest(context, data_dict):
 
     # rename keys
@@ -116,5 +151,3 @@ def package_relationship_delete_rest(context, data_dict):
     data_dict = rename_keys(data_dict, key_map, destructive=True)
 
     package_relationship_delete(context, data_dict)
-
-    

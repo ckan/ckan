@@ -229,7 +229,7 @@ class TestUsage(TestController, AuthzTestBase):
         for mode in cls.roles:
             pkg = model.Package(name=unicode(mode))
             model.Session.add(pkg)
-            pkg.tags.append(tag)
+            pkg.add_tag(tag)
             model.Session.add(model.Group(name=unicode(mode)))
         entities_to_test_deleting = []
         for interface in cls.INTERFACES:
@@ -525,7 +525,7 @@ class TestSiteRead(TestController, AuthzTestBase):
         pkg = model.Package.by_name(cls.ENTITY_NAME)
         group = model.Group.by_name(cls.ENTITY_NAME)
         tag = model.Tag.by_name(cls.ENTITY_NAME)
-        pkg.tags.append(tag)
+        pkg.add_tag(tag)
         model.add_user_to_role(site_reader, cls.TRUSTED_ROLE, model.System())
         model.add_user_to_role(site_reader, cls.TRUSTED_ROLE, pkg)
         model.add_user_to_role(site_reader, cls.TRUSTED_ROLE, group)

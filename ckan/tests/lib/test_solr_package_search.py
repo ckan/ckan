@@ -45,8 +45,8 @@ class TestSearch(TestController):
         gils = model.Package.by_name(u'gils')
         # an existing tag used only by gils
         cls.tagname = u'registry'
-        idx = [t.name for t in gils.tags].index(cls.tagname)
-        del gils.tags[idx]
+        idx = [t.name for t in gils.get_tags()].index(cls.tagname)
+        gils.remove_tag(gils.get_tags()[idx])
         model.repo.commit_and_remove()
 
     @classmethod

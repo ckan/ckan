@@ -5,6 +5,10 @@ from ckan.logic.auth.publisher.create import package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
+# FIXME: Which is worse, 'from module import foo' or duplicating these
+# functions in this module?
+from ckan.logic.auth.update import vocabulary_update
+
 def make_latest_pending_package_active(context, data_dict):
     return package_update(context, data_dict)
 
@@ -117,11 +121,30 @@ def task_status_update(context, data_dict):
     model = context['model']
     user = context['user']
 
+    if 'ignore_auth' in context and context['ignore_auth']:
+        return {'success': True}
+
     authorized =  Authorizer().is_sysadmin(unicode(user))
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to update task_status table') % str(user)}
     else:
         return {'success': True}
+
+def term_translation_update(context, data_dict):
+
+    model = context['model']
+    user = context['user']
+
+    if 'ignore_auth' in context and context['ignore_auth']:
+        return {'success': True}
+
+    authorized =  Authorizer().is_sysadmin(unicode(user))
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to update term_translation table') % str(user)}
+    else:
+        return {'success': True}
+
+
 
 ## Modifications for rest api
 

@@ -17,21 +17,25 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_dictize,
                                                 group_to_api1,
                                                 group_to_api2,
-                                                user_dictize)
+                                                user_dictize,
+                                                vocabulary_dictize)
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_api_to_dict,
                                              group_dict_save,
                                              user_dict_save,
                                              task_status_dict_save,
                                              package_dict_save,
-                                             resource_dict_save)
+                                             resource_dict_save,
+                                             vocabulary_dict_update)
 from ckan.logic.schema import (default_update_group_schema,
                                default_update_package_schema,
                                default_update_user_schema,
                                default_update_resource_schema,
+                               default_task_status_schema,
                                default_update_relationship_schema,
-                               default_task_status_schema)
+                               default_update_vocabulary_schema)
 from ckan.lib.navl.dictization_functions import validate
+import ckan.lib.navl.validators as validators
 from ckan.logic.action import rename_keys, get_domain_object
 from ckan.logic.action.get import roles_show
 
@@ -492,6 +496,60 @@ def task_status_update_many(context, data_dict):
         model.Session.commit()
     return {'results': results}
 
+def term_translation_update(context, data_dict):
+    model = context['model']
+
+    check_access('term_translation_update', context, data_dict)
+
+    schema = {'term': [validators.not_empty, unicode],
+              'term_translation': [validators.not_empty, unicode],
+              'lang_code': [validators.not_empty, unicode]}
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    trans_table = model.term_translation_table 
+
+    update = trans_table.update()
+    update = update.where(trans_table.c.term == data['term'])
+    update = update.where(trans_table.c.lang_code == data['lang_code'])
+    update = update.values(term_translation = data['term_translation'])
+
+    conn = model.Session.connection()
+    result = conn.execute(update)
+
+    # insert if not updated
+    if not result.rowcount:
+        conn.execute(trans_table.insert().values(**data))
+
+    if not context.get('defer_commit'):
+        model.Session.commit()
+
+    return data
+    
+def term_translation_update_many(context, data_dict):
+    model = context['model']
+    
+
+    if not data_dict.get('data') and isinstance(data_dict, list):
+        raise ValidationError(
+            {'error': 
+             'term_translation_update_many needs to have a list of dicts in field data'}
+        )
+
+    context['defer_commit'] = True
+
+    for num, row in enumerate(data_dict['data']):
+        term_translation_update(context, row)
+
+    model.Session.commit()
+
+    return {'success': '%s rows updated' % (num + 1)}
+
+
 ## Modifications for rest api
 
 def package_update_rest(context, data_dict):
@@ -554,6 +612,33 @@ def group_update_rest(context, data_dict):
         group_dict = group_to_api2(group, context)
 
     return group_dict
+
+def vocabulary_update(context, data_dict):
+    model = context['model']
+
+    vocab_id = data_dict.get('id')
+    if not vocab_id:
+        raise ValidationError({'id': _('id not in data')})
+
+    vocab = model.vocabulary.Vocabulary.get(vocab_id)
+    if vocab is None:
+        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
+
+    check_access('vocabulary_update', context, data_dict)
+
+    schema = context.get('schema') or default_update_vocabulary_schema()
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    updated_vocab = vocabulary_dict_update(data, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    return vocabulary_dictize(updated_vocab, context)
 
 def package_relationship_update_rest(context, data_dict):
 
@@ -656,4 +741,3 @@ def user_role_bulk_update(context, data_dict):
                              'domain_object': data_dict['domain_object']}
             user_role_update(context, uro_data_dict)
     return roles_show(context, data_dict)
-
