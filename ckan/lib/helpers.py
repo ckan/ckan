@@ -25,6 +25,7 @@ from lxml.html import fromstring
 import i18n
 
 get_available_locales = i18n.get_available_locales
+get_locales_dict = i18n.get_locales_dict
 
 try:
     from collections import OrderedDict # from python 2.7

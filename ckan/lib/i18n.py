@@ -57,6 +57,7 @@ def _get_locales():
 
 available_locales = None
 locales = None
+locales_dict = None
 
 def get_locales():
     ''' Get list of available locales
@@ -66,6 +67,17 @@ def get_locales():
     if not locales:
         locales = _get_locales()
     return locales
+
+def get_locales_dict():
+    ''' Get a dict of the available locales
+    e.g.  { 'en' : Locale('en'), 'de' : Locale('de'), ... } '''
+    global locales_dict
+    if not locales_dict:
+        locales = _get_locales()
+        locales_dict = {}
+        for locale in locales:
+            locales_dict[str(locale)] = Locale.parse(locale)
+    return locales_dict
 
 def get_available_locales():
     ''' Get a list of the available locales
