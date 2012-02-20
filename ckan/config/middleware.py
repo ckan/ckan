@@ -151,4 +151,16 @@ class I18nMiddleware(object):
             # use default language from config
             environ['CKAN_LANG'] = self.default_locale
             environ['CKAN_LANG_IS_DEFAULT'] = True
+
+        # It's useful to know the current application url
+        # We only update once for a request so we can keep
+        # the original url which helps with 404 pages etc
+        if 'CKAN_CURRENT_URL' not in environ:
+            path_info = environ['PATH_INFO']
+            qs = environ['QUERY_STRING']
+            if qs:
+                environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
+            else:
+                environ['CKAN_CURRENT_URL'] = path_info
+
         return self.app(environ, start_response)
