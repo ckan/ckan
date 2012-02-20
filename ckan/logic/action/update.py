@@ -138,7 +138,7 @@ def resource_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, resource_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
