@@ -15,6 +15,9 @@ class TestWebstoreController(TestController, PylonsTestCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
+    # TODO: do we test authz. In essence authz is same as for resource read /
+    # edit which in turn is same as dataset read / edit and which is tested
+    # extensively elsewhere ...
     def test_read(self):
         dataset = model.Package.by_name(CreateTestData.pkg_names[0])
         resource_id = dataset.resources[0].id
