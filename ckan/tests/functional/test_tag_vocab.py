@@ -234,50 +234,29 @@ class TestWUI(WsgiAppCase):
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
 
     def test_02_dataset_edit_add_free_and_vocab_tags_then_edit_again(self):
-
-        # Visit the new dataset page.
-        prefix = ''
-        name = u'foobar'
-        offset = url_for(controller='package', action='new')
-        response = self.app.get(offset)
-
-        # Enter new dataset name and save it.
-        fv = response.forms['dataset-edit']
-        fv[prefix+'name'] = name
-        response = fv.submit('save')
-        assert not 'Error' in response, response
-        response = response.follow()
-
-        # Retrieve the new dataset from the API.
-        package = model.Package.by_name(name)
-        assert package
-        assert package.name == name
-
-        # Visit the dataset edit page.
-        url = h.url_for(controller='package', action='edit', id=package.id)
+        vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
+        url = h.url_for(controller='package', action='edit', id=self.dset.id)
         response = self.app.get(url)
         fv = response.forms['dataset-edit']
         fv = Form(fv.response, fv.text)
 
         # Add a free tag with a space in its name.
-        tag_name = 'water quality'
-        fv[prefix + 'tag_string'] = tag_name
+        fv['tag_string'] = 'water quality'
 
         # Add a vocab tag.
         fv['vocab_tags'] = [self.tag2_name]
 
-        # Save the dataset.
+        # Save the dataset and visit the page again
         response = fv.submit('save')
         response = response.follow()
         assert not self.tag1_name in response.body
         assert self.tag2_name in response.body
-
-        # Visit the dataset edit page again.
-        url = h.url_for(controller='package', action='edit', id=package.id)
+        url = h.url_for(controller='package', action='edit', id=self.dset.id)
         response = self.app.get(url)
         fv = response.forms['dataset-edit']
         fv = Form(fv.response, fv.text)
-        # Boom.
+        assert fv['vocab_tags'].value == [self.tag2_name], fv['vocab_tags'].value
+        self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
 
     def test_03_dataset_edit_remove_vocab_tag(self):
         vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
