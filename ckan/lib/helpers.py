@@ -91,7 +91,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         # we need to strip the root from the url and the add it before
         # the language specification.
         url = url_to_amend[len(root):]
-        url = '/%s%s%s' % (root, locale,  url)
+        url = '%s/%s%s' % (root, locale,  url)
     return url
 
 class Message(object):
