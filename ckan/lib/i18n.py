@@ -1,10 +1,9 @@
 import os
 
-import pylons
-from pylons.i18n import set_lang
 from babel import Locale, localedata
 from babel.core import LOCALE_ALIASES
 from pylons import config
+from pylons import i18n
 
 import ckan.i18n
 
@@ -60,28 +59,34 @@ available_locales = None
 locales = None
 
 def get_locales():
+    ''' Get list of available locales
+    e.g. [ 'en', 'de', ... ]
+    '''
     global locales
     if not locales:
         locales = _get_locales()
     return locales
 
 def get_available_locales():
+    ''' Get a list of the available locales
+    e.g.  [ Locale('en'), Locale('de'), ... ] '''
     global available_locales
     if not available_locales:
         available_locales = map(Locale.parse, get_locales())
     return available_locales
 
 def handle_request(request, tmpl_context):
+    ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG', config['ckan.locale_default'])
     if lang != 'en':
-        set_lang(lang)
+        i18n.set_lang(lang)
     tmpl_context.language = lang
     return lang
 
 def get_lang():
-    '''Returns the current language. Based on babel.i18n.get_lang but works
-    when set_lang has not been run (i.e. still in English).'''
-    langs = pylons.i18n.get_lang()
+    ''' Returns the current language. Based on babel.i18n.get_lang but
+    works when set_lang has not been run (i.e. still in English). '''
+    langs = i18n.get_lang()
     if langs:
         return langs[0]
     else:
