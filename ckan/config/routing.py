@@ -235,13 +235,16 @@ def make_map():
     map.connect('/dataset/{id}/resource/{resource_id}',
         controller='package', action="resource_read"
     )
-    map.connect('webstore_read', '/api/resource/{id}/data',
-        controller='webstore', action='read',
+    map.redirect('/dataset/{id}/resource/{resource_id}/data{url:.*?}',
+        '/api/resource/{resource_id}/data{url}', id=None
+    )
+    map.connect('webstore_read', '/api/resource/{id}/data{url:.*?}',
+        controller='webstore', action='read', url='',
         conditions={'method': ['GET']}
         )
-    map.connect('webstore_write', '/api/resource/{id}/data',
-        controller='webstore', action='write',
-        conditions={'method': ['PUT','POST']}
+    map.connect('webstore_write', '/api/resource/{id}/data{url:.*?}',
+        controller='webstore', action='write', url='',
+        conditions={'method': ['PUT','POST', 'DELETE']}
         )
 
     # group
