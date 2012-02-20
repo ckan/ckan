@@ -1,5 +1,4 @@
 import logging
-import re
 import datetime
 
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
@@ -37,64 +36,12 @@ from ckan.logic.schema import (default_update_group_schema,
                                default_update_vocabulary_schema)
 from ckan.lib.navl.dictization_functions import validate
 import ckan.lib.navl.validators as validators
-from ckan.logic.action import rename_keys, get_domain_object
+from ckan.logic.action import rename_keys, get_domain_object, error_summary
 from ckan.logic.action.get import roles_show
 
 log = logging.getLogger(__name__)
 
-def prettify(field_name):
-    field_name = re.sub('(?<!\w)[Uu]rl(?!\w)', 'URL', field_name.replace('_', ' ').capitalize())
-    return _(field_name.replace('_', ' '))
 
-def package_error_summary(error_dict):
-
-    error_summary = {}
-    for key, error in error_dict.iteritems():
-        if key == 'resources':
-            error_summary[_('Resources')] = _('Package resource(s) invalid')
-        elif key == 'extras':
-            error_summary[_('Extras')] = _('Missing Value')
-        elif key == 'extras_validation':
-            error_summary[_('Extras')] = error[0]
-        else:
-            error_summary[_(prettify(key))] = error[0]
-    return error_summary
-
-def resource_error_summary(error_dict):
-
-    error_summary = {}
-    for key, error in error_dict.iteritems():
-        if key == 'extras':
-            error_summary[_('Extras')] = _('Missing Value')
-        elif key == 'extras_validation':
-            error_summary[_('Extras')] = error[0]
-        else:
-            error_summary[_(prettify(key))] = error[0]
-    return error_summary
-
-def group_error_summary(error_dict):
-
-    error_summary = {}
-    for key, error in error_dict.iteritems():
-        if key == 'extras':
-            error_summary[_('Extras')] = _('Missing Value')
-        elif key == 'extras_validation':
-            error_summary[_('Extras')] = error[0]
-        else:
-            error_summary[_(prettify(key))] = error[0]
-    return error_summary
-
-def task_status_error_summary(error_dict):
-    error_summary = {}
-    for key, error in error_dict.iteritems():
-        error_summary[_(prettify(key))] = error[0]
-    return error_summary
-
-def relationship_error_summary(error_dict):
-    error_summary = {}
-    for key, error in error_dict.iteritems():
-        error_summary[_(prettify(key))] = error[0]
-    return error_summary
 
 def _make_latest_rev_active(context, q):
 
@@ -249,7 +196,7 @@ def package_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, package_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -289,7 +236,7 @@ def package_update_validate(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, package_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
     return data
 
 
@@ -333,7 +280,7 @@ def package_relationship_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, relationship_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     check_access('package_relationship_update', context, data_dict)
 
@@ -363,7 +310,7 @@ def group_update(context, data_dict):
     data, errors = validate(data_dict, schema, context)
     if errors:
         session.rollback()
-        raise ValidationError(errors, group_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -450,7 +397,7 @@ def user_update(context, data_dict):
     data, errors = validate(data_dict, schema, context)
     if errors:
         session.rollback()
-        raise ValidationError(errors, group_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     user = user_dict_save(data, context)
 
@@ -496,7 +443,7 @@ def task_status_update(context, data_dict):
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, task_status_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     task_status = task_status_dict_save(data, context)
 

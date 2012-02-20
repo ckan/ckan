@@ -30,7 +30,7 @@ from ckan.lib.dictization.model_dictize import (group_dictize,
                                                 tag_dictize,
                                                 activity_dictize)
 
-from ckan.logic.schema import (default_create_package_schema,
+from ckan.logic.schema import (
                                default_resource_schema,
                                default_create_relationship_schema,
                                default_create_vocabulary_schema,
@@ -39,11 +39,8 @@ from ckan.logic.schema import (default_create_package_schema,
 
 from ckan.logic.schema import default_group_schema, default_user_schema
 from ckan.lib.navl.dictization_functions import validate
-from ckan.logic.action.update import (_update_package_relationship,
-                                      package_error_summary,
-                                      group_error_summary,
-                                      relationship_error_summary)
-from ckan.logic.action import rename_keys
+from ckan.logic.action.update import _update_package_relationship
+from ckan.logic.action import rename_keys, error_summary
 
 log = logging.getLogger(__name__)
 
@@ -61,7 +58,7 @@ def package_create(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, package_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -104,7 +101,7 @@ def package_create_validate(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, package_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
     else:
         return data
 
@@ -142,7 +139,7 @@ def package_relationship_create(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, relationship_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     check_access('package_relationship_create', context, data_dict)
 
@@ -175,7 +172,7 @@ def group_create(context, data_dict):
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, group_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -274,7 +271,7 @@ def user_create(context, data_dict):
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, group_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     user = user_dict_save(data, context)
 
@@ -360,7 +357,7 @@ def vocabulary_create(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, package_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     vocabulary = vocabulary_dict_save(data, context)
 
