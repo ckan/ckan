@@ -4,7 +4,6 @@ import ckan.model as model
 class WebstoreController(BaseController):
     def read(self, id):
         resource = model.Session.query(model.Resource).get(id)
-        print 'here'
         if not resource:
             abort(404)
         return resource.id
