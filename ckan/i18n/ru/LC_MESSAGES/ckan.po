@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-02-09 18:46+0000\n"
-"PO-Revision-Date: 2012-02-13 19:38+0000\n"
+"PO-Revision-Date: 2012-02-16 13:12+0000\n"
 "Last-Translator: alexey medvetsky <ushchent@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.net/projects/p/ckan/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -598,7 +598,7 @@ msgstr "Тег \"%s\" короче минимального значения %s"
 #: ckan/forms/common.py:530
 #, python-format
 msgid "Tag \"%s\" must not contain any quotation marks: \""
-msgstr ""
+msgstr "Метки \"%s\" добжны содержать кавычки: \""
 
 #: ckan/forms/common.py:547 ckan/logic/validators.py:223
 #, python-format
@@ -931,18 +931,18 @@ msgstr "Пользователь"
 
 #: ckan/logic/validators.py:123
 msgid "Activity type"
-msgstr ""
+msgstr "Тип процесса"
 
 #: ckan/logic/validators.py:171
 #, python-format
 msgid "Name must be a maximum of %i characters long"
-msgstr ""
+msgstr "Имя должно содержать максимум %i символов"
 
 #: ckan/logic/validators.py:174
 msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
+msgstr "Url должен быть указан символами только числобуквенными символами (ascii) в нижнем регистре, а также этими символами: -_"
 
 #: ckan/logic/validators.py:192
 msgid "That URL is already in use."
@@ -1133,7 +1133,7 @@ msgstr "Пользователь %s не имеет прав для удален
 #: ckan/logic/auth/delete.py:56
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr ""
+msgstr "Пользователь %s не имеет прав для удаления task_status"
 
 #: ckan/logic/auth/get.py:78
 #, python-format
@@ -1365,15 +1365,15 @@ msgstr "Ошибка"
 
 #: ckan/templates/js_strings.html:17
 msgid "Checking..."
-msgstr ""
+msgstr "Идет проверка..."
 
 #: ckan/templates/js_strings.html:18
 msgid "Type at least two characters..."
-msgstr ""
+msgstr "Введите минимум 3 символа..."
 
 #: ckan/templates/js_strings.html:19
 msgid "This URL is available!"
-msgstr ""
+msgstr "URL доступен!"
 
 #: ckan/templates/js_strings.html:20
 msgid "This URL is already used, please use a different one."
@@ -1389,7 +1389,7 @@ msgstr "Добавить пакет"
 
 #: ckan/templates/js_strings.html:24
 msgid "Add Group"
-msgstr ""
+msgstr "Добавить группу"
 
 #: ckan/templates/js_strings.html:25
 msgid ""

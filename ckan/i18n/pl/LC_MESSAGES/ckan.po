@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-02-09 18:46+0000\n"
-"PO-Revision-Date: 2012-02-14 12:09+0000\n"
+"PO-Revision-Date: 2012-02-16 17:08+0000\n"
 "Last-Translator: apohllo <apohllo@o2.pl>\n"
 "Language-Team: Polish (http://www.transifex.net/projects/p/ckan/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -37,7 +37,7 @@ msgstr "Liczba zbiorów danych"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:46
 msgid "Revisions to Datasets per week"
-msgstr ""
+msgstr "Liczba zmian zbioru danych na tydzień"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:49
 msgid "Top Rated Datasets"
@@ -64,7 +64,7 @@ msgstr "Brak ocen"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 msgid "Most Edited Datasets"
-msgstr ""
+msgstr "Najczęściej edytowane zbiory danych"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:60
 msgid "Number of edits"
@@ -87,7 +87,7 @@ msgstr "Liczba zbiorów danych"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:74
 msgid "Top Tags"
-msgstr ""
+msgstr "Najczęstsze tagi"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:81
 msgid "Users owning most datasets"
@@ -122,7 +122,7 @@ msgstr "Funkcja autoryzjacji nie została znaleziona: %s"
 
 #: ckan/controllers/admin.py:19
 msgid "Need to be system administrator to administer"
-msgstr ""
+msgstr "Aby zarządzać trzeba mieć uprawnienia administratora"
 
 #: ckan/controllers/admin.py:105
 msgid "Changes Saved"
@@ -154,7 +154,7 @@ msgstr "Nie można unicestwić pakietu %s ponieważ wersja %s posiada pakiety, k
 #: ckan/controllers/admin.py:287
 #, python-format
 msgid "Problem purging revision %s: %s"
-msgstr ""
+msgstr "Wystąpił problem przy usuwaniu wersji %s: %s"
 
 #: ckan/controllers/admin.py:289
 msgid "Purge complete"
@@ -203,7 +203,7 @@ msgstr "Błąd JSON: %s"
 #: ckan/controllers/api.py:156
 #, python-format
 msgid "Bad request data: %s"
-msgstr ""
+msgstr "Błędne żądanie: %s"
 
 #: ckan/controllers/api.py:166 ckan/controllers/api.py:333
 #: ckan/controllers/api.py:385 ckan/controllers/group.py:428
@@ -361,22 +361,22 @@ msgstr "Strona w tej chwili nie działa. Baza danych nie została zainicjowana."
 msgid ""
 "Please <a href=\"%s\">update your profile</a> and add your email address and"
 " your full name. "
-msgstr ""
+msgstr "Prosimy o <a href=\"%s\">zaktualizowanie profilu</a> i dodanie  imienia, nazwiska oraz adresu e-mail."
 
 #: ckan/controllers/home.py:71 ckan/controllers/home.py:77
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr ""
+msgstr "%s używa Twojego adresu e-mail jeśli chcesz zrestartować hasło."
 
 #: ckan/controllers/home.py:75
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
-msgstr ""
+msgstr "Prosimy o <a href=\"%s\">zaktualizowanie profilu</a> i dodanie adresu e-mail."
 
 #: ckan/controllers/home.py:81
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your full name."
-msgstr ""
+msgstr "Prosimy o <a href=\"%s\">zaktualizowanie profilu</a> i dodanie  imienia oraz nazwiska."
 
 #: ckan/controllers/home.py:100
 msgid "Invalid language specified"
@@ -415,7 +415,7 @@ msgstr "Brak autoryzacji by wyświetlić pakiet %s"
 
 #: ckan/controllers/package.py:406
 msgid "CKAN Dataset Revision History"
-msgstr ""
+msgstr "Historia zmian zbioru danych CKAN."
 
 #: ckan/controllers/package.py:408
 msgid "Recent changes to CKAN Dataset: "
@@ -447,7 +447,7 @@ msgstr "Zasób nie został znaleziony"
 #: ckan/controllers/package.py:796
 #, python-format
 msgid "Unauthorized to read resource %s"
-msgstr ""
+msgstr "Brak autoryzacji do odczytania zasobu %s"
 
 #: ckan/controllers/revision.py:40
 msgid "CKAN Repository Revision History"
@@ -460,7 +460,7 @@ msgstr "Ostatnie zmiany w repozytorium CKAN."
 #: ckan/controllers/revision.py:101
 #, python-format
 msgid "Datasets affected: %s.\n"
-msgstr ""
+msgstr "Zmodyfikowane zbiory danych: %s.\n"
 
 #: ckan/controllers/revision.py:177
 msgid "Revision updated"
@@ -546,7 +546,7 @@ msgstr "Twoje hasło zostało zresetowane."
 
 #: ckan/controllers/user.py:368
 msgid "Error: Could not parse About text"
-msgstr ""
+msgstr "Błąd: nie można sparsować tekstu \"O ...\""
 
 #: ckan/controllers/user.py:376
 msgid "Your password must be 4 characters or longer."
@@ -598,7 +598,7 @@ msgstr "Tag \"%s\" jest krótszy od wymagego minimum %s"
 #: ckan/forms/common.py:530
 #, python-format
 msgid "Tag \"%s\" must not contain any quotation marks: \""
-msgstr ""
+msgstr "Tag \"%s\" nie może zawierać żadnych cudzysłowów: \""
 
 #: ckan/forms/common.py:547 ckan/logic/validators.py:223
 #, python-format
@@ -722,7 +722,7 @@ msgstr "Tagi"
 msgid ""
 "Comma-separated terms that may link this dataset to similar ones. For more "
 "information on conventions, see <a href=\"%s\">this wiki page</a>."
-msgstr ""
+msgstr "Lista terminów oddzielonych, które służą do powiązania tego zbioru danych z innymi, podobnymi. Więcej informacji dotyczących stosowanych konwencji można znaleźć <a href=\"%s\">na stronie wiki</a>."
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:143
 msgid "e.g. pollution, rivers, water quality"
@@ -856,11 +856,11 @@ msgstr "Pusty klucz"
 
 #: ckan/lib/base.py:352
 msgid "Updated"
-msgstr ""
+msgstr "Zaktualizowano"
 
 #: ckan/lib/base.py:364
 msgid "User role(s) added"
-msgstr ""
+msgstr "Role użytkownika zostały dodane"
 
 #: ckan/lib/base.py:366
 msgid "Please supply a user name"
@@ -869,7 +869,7 @@ msgstr "Należy podać nazwę użytkownika"
 #: ckan/lib/i18n.py:193
 #, python-format
 msgid "Could not change language to %r: %s"
-msgstr ""
+msgstr "Nie można zmienić języka na %r: %s."
 
 #: ckan/lib/mailer.py:21
 #, python-format
@@ -936,7 +936,7 @@ msgstr "Typ aktywności"
 #: ckan/logic/validators.py:171
 #, python-format
 msgid "Name must be a maximum of %i characters long"
-msgstr ""
+msgstr "Nazwa może zawierać maksymalnie %i znaków"
 
 #: ckan/logic/validators.py:174
 msgid ""
@@ -951,12 +951,12 @@ msgstr "Ten URL jest już używany."
 #: ckan/logic/validators.py:197
 #, python-format
 msgid "Name \"%s\" length is less than minimum %s"
-msgstr ""
+msgstr "Nazwa \"%s\" jest krótsza niż wymagane minimum %s"
 
 #: ckan/logic/validators.py:201
 #, python-format
 msgid "Name \"%s\" length is more than maximum %s"
-msgstr ""
+msgstr "Nazwa \"%s\" jest dłuższa niż dopuszczalne maksimum %s"
 
 #: ckan/logic/validators.py:207
 #, python-format
@@ -1043,7 +1043,7 @@ msgstr "REST API: Usuń %s"
 
 #: ckan/logic/action/update.py:49
 msgid "Package resource(s) invalid"
-msgstr ""
+msgstr "Niepoprawne zasoby pakietu"
 
 #: ckan/logic/action/update.py:51 ckan/logic/action/update.py:63
 #: ckan/logic/action/update.py:75
@@ -1395,7 +1395,7 @@ msgstr "Dodaj grupę"
 msgid ""
 "You have unsaved changes. Make sure to click 'Save Changes' below before "
 "leaving this page."
-msgstr ""
+msgstr "Na stronie są niezapisane zmiany. Upewnij się aby kliknąć przycisk 'Zapisz zmiany' przed opuszczeniem tej strony."
 
 #: ckan/templates/js_strings.html:26
 msgid "Loading..."
@@ -1971,7 +1971,7 @@ msgid ""
 "[3:publicly-funded art] in Seattle? Data to answer many, many questions like"
 " these is out there on the Internet somewhere - but it is not always easy to"
 " find."
-msgstr ""
+msgstr "Jaka była [1:średnia cena] domu w Wielkiej Brytanii w 1935? Kiedy przewidywana wielkość populacji Indii [2:będzie większa] niż populacji Chin? Gdzie w Seattle można znaleźć [3:sztukę finansowaną ze środków publicznych]? Dane potrzebne by odpowiedzieć na te pytania są dostępne w Internecie, ale czasami trudno je znaleźć."
 
 #: ckan/templates/home/about.html:15
 #, python-format
@@ -1982,7 +1982,7 @@ msgid ""
 "Depending on the type of data (and its conditions of use), %(site_title)s "
 "may also be able to store a copy of the data or host it in a database, and "
 "provide some basic visualisation tools."
-msgstr ""
+msgstr "%(site_title)s jest tworzonym przez społeczność katalogiem przydatnych zbiorów danych, które można znaleźć w Internecie. Możesz gromadzić tutaj odnośniki do zbiorów danych przydatnych dla Ciebie oraz innych osób lub szukać wśród zbiorów danych, które zgromadzili inni. W zależności od rodzaju danych (oraz warunków jego użytkowania) %(site_title)s może również zawierać kopię tych danych bądź przechowywać je w bazie danych, dostarczając przy tym prostych narzędzi wizualizacyjnych."
 
 #: ckan/templates/home/about.html:22
 msgid "How it works"
@@ -2012,7 +2012,7 @@ msgstr ""
 
 #: ckan/templates/home/about.html:29
 msgid "Open data and the Open Knowledge Foundation"
-msgstr ""
+msgstr "Otwarte dane oraz Fundacja Otwartej Wiedzy (Open Knowledge Foundation)"
 
 #: ckan/templates/home/about.html:31
 #, python-format
@@ -2024,7 +2024,7 @@ msgid ""
 " artworks when you visit the city. Open data means more enterprise, "
 "collaborative science and transparent government. You can read more about "
 "open data in the [1:Open Data Manual]."
-msgstr ""
+msgstr "Większość danych indeksowanych w %(site_title)s dostępnych jest na wolnych licencjach, przez co każdy może używać i przekształcać je w dowolny sposób. Być może ktoś wykorzysta jakiś ładny zbiór publicznie dostępnych informacji na temat sztuki, który znalazłaś/eś i doda je do mapy turystycznej - albo nawet stworzy aplikację na Twój telefon, która pomoże znaleźć Ci sztukę, kiedy będziesz zwiedzać miasto. Otwarte dane oznaczają bardziej uspołecznioną wiedzę oraz bardziej otwarty rząd. Możesz dowiedzieć się więcej na ich temat czytając [1:Podręcznik Otwartych Danych]."
 
 #: ckan/templates/home/about.html:33
 msgid ""
@@ -2216,7 +2216,7 @@ msgstr "Prześlij plik"
 msgid ""
 "Comma-separated terms that may link this dataset to similar ones. For more "
 "information on conventions, see [1:this wiki page]."
-msgstr ""
+msgstr "Oddzielone przecinkami terminy, które pomogą powiązać ten zbiór danych z podobnymi. Więcej informacji na temat używanych konwencji dostępnych jest na [1:tej stronie wiki]."
 
 #: ckan/templates/package/new_package_form.html:166
 msgid "e.g. 1.2.0"
@@ -2224,7 +2224,7 @@ msgstr "np. 1.2.0"
 
 #: ckan/templates/package/new_package_form.html:198
 msgid "Do you really want to change the state of this dataset?"
-msgstr ""
+msgstr "Czy na pewno chcesz zmienić stan tego zbioru danych?"
 
 #: ckan/templates/package/new_package_form.html:198
 msgid "Yes!"
@@ -2237,7 +2237,7 @@ msgid ""
 "        [2:active]\n"
 "        [3:deleted]\n"
 "      ]"
-msgstr ""
+msgstr "Ten zbiór danych jest\n      [1:\n        [2:aktywny]\n        [3:usunięty]\n      ]"
 
 #: ckan/templates/package/new_package_form.html:220
 msgid ""
@@ -2323,22 +2323,22 @@ msgstr "Kraj"
 
 #: ckan/templates/package/read_core.html:91
 msgid "Harvest Source"
-msgstr ""
+msgstr "Źródło danych"
 
 #: ckan/templates/package/read_core.html:92
 #, python-format
 msgid ""
 "[1:Dataset page] on \n"
 "            [2:%(harvest_catalogue_name)s]"
-msgstr ""
+msgstr "[1:Strona zbioru danych] w\n            [2:%(harvest_catalogue_name)s]"
 
 #: ckan/templates/package/resource_read.html:26
 msgid "- Dataset - Resource"
-msgstr ""
+msgstr "- Zbiór danych - Zasób"
 
 #: ckan/templates/package/resource_read.html:41
 msgid "API Endpoint"
-msgstr ""
+msgstr "Punkt dostępowy API"
 
 #: ckan/templates/package/resource_read.html:42
 msgid "Download"
@@ -2354,7 +2354,7 @@ msgstr "Ostatnia modyfikacja"
 
 #: ckan/templates/package/resource_read.html:84
 msgid "From the [1:Dataset]:"
-msgstr ""
+msgstr "Ze [1:zbioru danych]:"
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
@@ -2492,7 +2492,7 @@ msgstr "Prześlij plik"
 msgid ""
 "This upload form is valid for a limited time (usually 1h or so). If the\n"
 "    form expires please reload the page."
-msgstr ""
+msgstr "Ten formularz jest aktualny przez ograniczony czas (zwykle 1 godzinę). Jeśli\n    formularz przestanie być aktualny, przeładuj stronę."
 
 #: ckan/templates/storage/index.html:33
 msgid "File:"
@@ -2656,7 +2656,7 @@ msgstr "Zaloguj się używając Open ID"
 msgid ""
 "NB: To set-up your OpenID for this site, you first need to [1:Register] and "
 "then edit your Profile to provide your OpenID."
-msgstr ""
+msgstr "Uwaga: aby ustalić swój identyfikator OpenID dla tej strony, musisz najpierw się [1:Zarejestrować] a następnie zmodyfikować swój profil podając swój identyfikator OpenID."
 
 #: ckan/templates/user/login.html:50
 msgid "Please click your account provider:"

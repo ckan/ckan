@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-02-09 18:46+0000\n"
-"PO-Revision-Date: 2012-02-13 06:15+0000\n"
+"PO-Revision-Date: 2012-02-16 12:32+0000\n"
 "Last-Translator: egonwillighagen <egon.willighagen@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.net/projects/p/ckan/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -35,7 +35,7 @@ msgstr "Home"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:43
 msgid "Total number of Datasets"
-msgstr ""
+msgstr "Totaal aantal datasets"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:46
 msgid "Revisions to Datasets per week"
@@ -74,7 +74,7 @@ msgstr "Aantal veranderingen"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:66
 msgid "Largest Groups"
-msgstr ""
+msgstr "Grootste groepen"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:68
 #: ckan/forms/common.py:800 ckan/logic/validators.py:111
@@ -89,11 +89,11 @@ msgstr "Aantal datasets"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:74
 msgid "Top Tags"
-msgstr ""
+msgstr "Top labels"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:81
 msgid "Users owning most datasets"
-msgstr ""
+msgstr "Gebruikers met de meeste datasets"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:88
 msgid "Page last updated:"
@@ -120,7 +120,7 @@ msgstr "Kies thema"
 #: ckan/new_authz.py:18
 #, python-format
 msgid "Authorization function not found: %s"
-msgstr ""
+msgstr "Authorisatiefunctie niet gevonden: %s"
 
 #: ckan/controllers/admin.py:19
 msgid "Need to be system administrator to administer"
@@ -128,7 +128,7 @@ msgstr ""
 
 #: ckan/controllers/admin.py:105
 msgid "Changes Saved"
-msgstr ""
+msgstr "Wijzigingen opgeslagen"
 
 #: ckan/controllers/admin.py:142 ckan/logic/action/get.py:913
 msgid "unknown user:"
@@ -144,7 +144,7 @@ msgstr ""
 
 #: ckan/controllers/admin.py:169
 msgid "Authorization Group Added"
-msgstr ""
+msgstr "Authorisatiegroep toegevoegd"
 
 #: ckan/controllers/admin.py:268
 #, python-format
@@ -160,11 +160,11 @@ msgstr ""
 
 #: ckan/controllers/admin.py:289
 msgid "Purge complete"
-msgstr ""
+msgstr "Verwijderen afgerond"
 
 #: ckan/controllers/admin.py:291
 msgid "Action not implemented."
-msgstr ""
+msgstr "Actie niet geïmplementeerd"
 
 #: ckan/controllers/api.py:40 ckan/controllers/authorization_group.py:22
 #: ckan/controllers/group.py:194 ckan/controllers/home.py:27
@@ -189,7 +189,7 @@ msgstr "Niet gevonden"
 
 #: ckan/controllers/api.py:113
 msgid "Bad request"
-msgstr ""
+msgstr "Onjuiste aanvraag"
 
 #: ckan/controllers/api.py:141
 #, python-format
@@ -217,7 +217,7 @@ msgstr "Integriteits fout"
 
 #: ckan/controllers/api.py:190
 msgid "Parameter Error"
-msgstr ""
+msgstr "Parameterfout"
 
 #: ckan/controllers/api.py:233 ckan/logic/action/get.py:905
 #, python-format
@@ -474,7 +474,7 @@ msgstr "Andere"
 
 #: ckan/controllers/tag.py:67
 msgid "Tag not found"
-msgstr ""
+msgstr "Label niet gevonden"
 
 #: ckan/controllers/user.py:131
 msgid "Unauthorized to create a user"
@@ -489,7 +489,7 @@ msgstr ""
 #: ckan/controllers/user.py:232 ckan/controllers/user.py:333
 #: ckan/controllers/user.py:353
 msgid "User not found"
-msgstr ""
+msgstr "Gebruiker niet gevonden"
 
 #: ckan/controllers/user.py:159
 msgid "Bad Captcha. Please try again."
@@ -497,7 +497,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:182
 msgid "No user specified"
-msgstr ""
+msgstr "Gebruiker niet gegeven"
 
 #: ckan/controllers/user.py:201 ckan/controllers/user.py:230
 #: ckan/controllers/user.py:351
@@ -871,7 +871,7 @@ msgstr ""
 #: ckan/lib/i18n.py:193
 #, python-format
 msgid "Could not change language to %r: %s"
-msgstr ""
+msgstr "Kan niet naar %r veranderen: %s"
 
 #: ckan/lib/mailer.py:21
 #, python-format
@@ -933,7 +933,7 @@ msgstr "Gebruiker"
 
 #: ckan/logic/validators.py:123
 msgid "Activity type"
-msgstr ""
+msgstr "Soort activiteit"
 
 #: ckan/logic/validators.py:171
 #, python-format
