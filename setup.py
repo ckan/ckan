@@ -88,6 +88,8 @@ setup(
     stats=ckanext.stats.plugin:StatsPlugin
     publisher_form=ckanext.publisher_form.forms:PublisherForm
     publisher_dataset_form=ckanext.publisher_form.forms:PublisherDatasetForm
+    multilingual_dataset=ckanext.multilingual.plugin:MultilingualDataset
+    multilingual_group=ckanext.multilingual.plugin:MultilingualGroup
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
