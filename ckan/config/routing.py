@@ -100,7 +100,7 @@ def make_map():
             conditions=dict(method=['DELETE']))
 
     # /api/2/util
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/2}') as m:
+    with SubMapper(map, controller='api', path_prefix='/api/2') as m:
         m.connect('/util/user/autocomplete', action='user_autocomplete')
         m.connect('/util/is_slug_valid', action='is_slug_valid',
                   conditions=dict(method=['GET']))
