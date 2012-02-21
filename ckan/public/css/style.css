@@ -308,6 +308,9 @@ img.gravatar {
 /* ======================================== */
 /* MinorNavigation extension: Dropdown Menu */
 /* ======================================== */
+.dropdown-appears hr {
+  margin: 5px 0;
+}
 #minornavigation .dropdown {
   position: relative;
   display: inline-block;

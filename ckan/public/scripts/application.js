@@ -35,6 +35,10 @@
     if (isDatasetView) {
       // Show extract of notes field
       CKAN.Utils.setupNotesExtract();
+      $('.js-scroll-resources').click(function() {
+        var header = $('#dataset-resources > h3:first-child');
+        $("html,body").animate({ scrollTop: header.offset().top }, 500);
+      });
     }
 
     var isResourceView = $('body.package.resource_read').length > 0;
@@ -62,6 +66,7 @@
       e.preventDefault();
       window.location = ($(e.target).attr('action'));
     });
+
 
     var isDatasetEdit = $('body.package.edit').length > 0;
     if (isDatasetEdit) {
