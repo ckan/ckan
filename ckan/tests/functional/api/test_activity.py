@@ -96,6 +96,15 @@ class TestActivity:
         response = self.app.get("/api/2/rest/group/%s/activity" % group_id)
         return json.loads(response.body)
 
+    def recently_changed_datasets_stream(self):
+        response = self.app.post(
+                '/api/action/recently_changed_packages_activity_list',
+                params=json.dumps({}),
+                status=200)
+        assert response.json['success'] == True
+        activities = response.json['result']
+        return activities
+
     def activity_details(self, activity):
         response = self.app.get(
                 "/api/2/rest/activity/%s/details" % activity['id'])
@@ -112,6 +121,9 @@ class TestActivity:
         if group_id is not None:
             details['group activity stream'] = (
                 self.group_activity_stream(group_id))
+
+        details['recently changed datasets stream'] = \
+                self.recently_changed_datasets_stream()
 
         details['time'] = datetime.datetime.now()
         return details
@@ -149,6 +161,13 @@ class TestActivity:
         # The same new activity should appear in the package's activity stream.
         pkg_new_activities = after['package activity stream']
         assert pkg_new_activities == user_new_activities
+
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package_created['id'], \
@@ -271,6 +290,13 @@ class TestActivity:
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
 
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
             str(activity['object_id'])
@@ -366,6 +392,13 @@ class TestActivity:
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
 
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
             str(activity['object_id']))
@@ -457,6 +490,13 @@ class TestActivity:
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
 
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
             str(activity['object_id']))
@@ -546,6 +586,13 @@ class TestActivity:
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
 
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
                 str(activity['object_id']))
@@ -627,6 +674,13 @@ class TestActivity:
             before['package activity stream'],
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
+
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
@@ -966,6 +1020,13 @@ class TestActivity:
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
 
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == pkg_dict['id'], (
             str(activity['object_id']))
@@ -1036,6 +1097,13 @@ class TestActivity:
             before['package activity stream'],
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
+
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == pkg_dict['id'], (
@@ -1484,6 +1552,13 @@ class TestActivity:
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
 
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
             str(activity['object_id'])
@@ -1602,6 +1677,13 @@ class TestActivity:
             before['package activity stream'],
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
+
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -1733,6 +1815,13 @@ class TestActivity:
             before['package activity stream'],
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
+
+        # The same new activity should appear in the recently changed datasets
+        # stream.
+        assert find_new_activities(
+                before['recently changed datasets stream'],
+                after['recently changed datasets stream']) \
+                        == user_new_activities
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
