@@ -624,6 +624,11 @@ def vocabulary_update(context, data_dict):
     if vocab is None:
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
+    data_dict['id'] = vocab.id
+    if data_dict.has_key('name'):
+        if data_dict['name'] == vocab.name:
+            del data_dict['name']
+
     check_access('vocabulary_update', context, data_dict)
 
     schema = context.get('schema') or default_update_vocabulary_schema()

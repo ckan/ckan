@@ -462,6 +462,9 @@ def package_to_api2(pkg, context):
 
 def vocabulary_dictize(vocabulary, context):
     vocabulary_dict = table_dictize(vocabulary, context)
+    assert not vocabulary_dict.has_key('tags')
+    vocabulary_dict['tags'] = [tag_dictize(tag, context) for tag
+            in vocabulary.tags]
     return vocabulary_dict
 
 def vocabulary_list_dictize(vocabulary_list, context):
