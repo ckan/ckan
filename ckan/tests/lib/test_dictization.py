@@ -1,4 +1,4 @@
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_not_in, assert_in
 from pprint import pprint, pformat
 from difflib import unified_diff
 
@@ -218,8 +218,6 @@ class TestBasicDictize:
 
         assert sorted(result.values()) == sorted(self.package_expected.values())
         assert result == self.package_expected
-
-
 
     def test_03_package_to_api1(self):
 
@@ -1002,3 +1000,47 @@ class TestBasicDictize:
 
         # We didn't pass in any data so this should be empty.
         assert not got['data']
+
+
+    def test_21_package_dictization_with_deleted_group(self):
+        """
+        Ensure that the dictization does not return groups that the dataset has
+        been removed from.
+        """
+        # Create a new dataset and 2 new groups
+        model.repo.new_revision()
+        pkg = model.Package(name='testing-deleted-groups')
+        group_1 = model.Group(name='test-group-1')
+        group_2 = model.Group(name='test-group-2')
+        model.Session.add(pkg)
+        model.Session.add(group_1)
+        model.Session.add(group_2)
+        model.Session.flush()
+        
+        # Add the dataset to group_1, and signal that the dataset used
+        # to be a member of group_2 by setting its membership state to 'deleted'
+        membership_1 = model.Member(table_id = pkg.id,
+                                    table_name = 'package',
+                                    group = group_1,
+                                    group_id = group_1.id,
+                                    state = 'active')
+
+        membership_2 = model.Member(table_id = pkg.id,
+                                    table_name = 'package',
+                                    group = group_2,
+                                    group_id = group_2.id,
+                                    state = 'deleted')
+        
+        model.Session.add(membership_1)
+        model.Session.add(membership_2)
+        model.repo.commit()
+
+        # Dictize the dataset
+        context = {"model": model,
+                   "session": model.Session}
+
+        result = package_dictize(pkg, context)
+        self.remove_changable_columns(result)
+        assert_not_in('test-group-2', [ g['name'] for g in result['groups'] ])
+        assert_in('test-group-1', [ g['name'] for g in result['groups'] ])
+
