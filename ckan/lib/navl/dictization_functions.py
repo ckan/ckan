@@ -366,7 +366,9 @@ def unflatten(data):
     for flattend_key in sorted(data.keys(), key=flattened_order_key):
         current_pos = unflattened
 
-        if len(flattend_key) > 1 and not flattend_key[0] in convert_to_list:
+        if (len(flattend_key) > 1
+            and not flattend_key[0] in convert_to_list
+            and not flattend_key[0] in unflattened):
             convert_to_list.append(flattend_key[0])
 
         for key in flattend_key[:-1]:
