@@ -478,6 +478,23 @@ def activity_dict_save(activity_dict, context):
 
     return activity_obj
 
+def vocabulary_tag_list_save(new_tag_dicts, vocabulary_obj, context):
+    model = context['model']
+    session = context['session']
+
+    # First delete any tags not in new_tag_dicts.
+    for tag in vocabulary_obj.tags:
+        if tag.name not in [tag['name'] for tag in new_tag_dicts]:
+            tag.delete()
+    # Now add any new tags.
+    for tag_dict in new_tag_dicts:
+        current_tag_names = [tag.name for tag in vocabulary_obj.tags]
+        if tag_dict['name'] not in current_tag_names:
+            # Make sure the tag belongs to this vocab..
+            tag_dict['vocabulary_id'] = vocabulary_obj.id
+            # then add it.
+            tag_dict_save(tag_dict, {'model': model, 'session': session})
+
 def vocabulary_dict_save(vocabulary_dict, context):
     model = context['model']
     session = context['session']
@@ -485,6 +502,10 @@ def vocabulary_dict_save(vocabulary_dict, context):
 
     vocabulary_obj = model.Vocabulary(vocabulary_name)
     session.add(vocabulary_obj)
+
+    if vocabulary_dict.has_key('tags'):
+        vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
+            context)
 
     return vocabulary_obj
 
@@ -494,7 +515,13 @@ def vocabulary_dict_update(vocabulary_dict, context):
     session = context['session']
 
     vocabulary_obj = model.vocabulary.Vocabulary.get(vocabulary_dict['id'])
-    vocabulary_obj.name = vocabulary_dict['name']
+
+    if vocabulary_dict.has_key('name'):
+        vocabulary_obj.name = vocabulary_dict['name']
+
+    if vocabulary_dict.has_key('tags'):
+        vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
+            context)
 
     return vocabulary_obj
 
