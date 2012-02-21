@@ -505,24 +505,26 @@ CKAN.Utils = function($, my) {
   // the div if clicked
   my.setupNotesExtract = function() {
     var notes = $('#content div.notes');
-    if(notes.find('p').length > 1){
-      var extract = notes.children(':eq(0)');
-      var remainder = notes.children(':gt(0)');
-      notes.html($.tmpl(CKAN.Templates.notesField));
-      notes.find('#notes-extract').html(extract);
-      notes.find('#notes-remainder').html(remainder);
-      notes.find('#notes-remainder').hide();
-      notes.find('#notes-toggle a').click(function(event){
-        notes.find('#notes-toggle a').toggle();
-        var remainder = notes.find('#notes-remainder')
-        if ($(event.target).hasClass('more')) {
-          remainder.slideDown();
+    var paragraphs = notes.find('#notes-extract > *');
+    if (paragraphs.length==0) {
+      notes.hide();
+    }
+    else if (paragraphs.length > 1) {
+      var remainder = notes.find('#notes-remainder');
+      $.each(paragraphs,function(i,para) {
+        if (i > 0) remainder.append($(para).remove());
+      });
+      notes.find('#notes-toggle').show();
+      notes.find('#notes-toggle button').click(
+        function(event){
+          notes.find('#notes-toggle button').toggle();
+          if ($(event.target).hasClass('more'))
+            remainder.slideDown();
+          else
+            remainder.slideUp();
+          return false;
         }
-        else {
-          remainder.slideUp();
-        }
-        return false;
-      })
+      );
     }
   };
 

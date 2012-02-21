@@ -1282,31 +1282,31 @@ body.package.read #sidebar li.widget-container {
   border: 0
 }
 .notes {
-  padding: 8px; 
-  border-left: 2px solid #eee;
   background: url('../images/ldquo.png') no-repeat top left #f7f7f7;
+  border: 1px solid #eee;
+  border-radius: 5px;
 }
-.notes #notes-toggle a {
+.notes > div {
+  padding: 8px;
+}
+#notes-toggle {
+  padding: 0;
+  height: 23px;
+}
+.notes #notes-toggle button {
   cursor: pointer;
+  width: 100%;
+  height: 23px;
+  padding: 4px;
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid #eee;
 }
-.notes #notes-toggle a.more:after {
-  content: '  »';
-  font-size: 150%;
-  position: relative;
-  bottom: -1px;
-}
-.notes #notes-toggle a.less:before {
-  content: '« ';
-  font-size: 150%;
-  position: relative;
-  bottom: -1px;
-}
-
 #notes-extract p {
   margin-bottom: 0;
 }
-#notes-remainder {
-  margin-top: 1em;
+#notes-remainder p:last-child {
+  margin-bottom: 0;
 }
 .dataset-label {
   font-weight: bold;
