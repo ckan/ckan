@@ -34,13 +34,11 @@ def date_to_form(value, context):
 
 def free_tags_only(key, data, errors, context):
     tag_number = key[1]
-    to_delete = []
-    if data.get(('tags', tag_number, 'vocabulary_id')):
-        to_delete.append(tag_number)
+    if not data.get(('tags', tag_number, 'vocabulary_id')):
+        return
     for k in data.keys():
-        for n in to_delete:
-            if k[0] == 'tags' and k[1] == n:
-                del data[k]
+        if k[0] == 'tags' and k[1] == tag_number:
+            del data[k]
 
 def convert_to_tags(vocab):
     def callable(key, data, errors, context):

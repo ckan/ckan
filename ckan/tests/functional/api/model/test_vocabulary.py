@@ -74,6 +74,10 @@ class TestVocabulary(object):
             extra_environ = {'Authorization' : str(user.apikey)}
         else:
             extra_environ = None
+
+        original_vocab = self._post('/api/action/vocabulary_show',
+                {'id': params.get('id') or params.get('name')})['result']
+
         response = self._post('/api/action/vocabulary_update', params=params,
                 extra_environ=extra_environ)
 
@@ -81,14 +85,21 @@ class TestVocabulary(object):
         assert response['success'] == True
         assert response['result']
         updated_vocab = response['result']
+        # id should never change.
+        assert updated_vocab['id'] == original_vocab['id']
         if params.has_key('id'):
             assert updated_vocab['id'] == params['id']
-        else:
-            assert updated_vocab['id']
+        # name should change only if given in params.
         if params.has_key('name'):
             assert updated_vocab['name'] == params['name']
         else:
-            assert updated_vocab['name']
+            assert updated_vocab['name'] == original_vocab['name']
+        # tags should change only if given in params.
+        if params.has_key('tags'):
+            assert sorted([tag['name'] for tag in params['tags']]) \
+                    == sorted([tag['name'] for tag in updated_vocab['tags']])
+        else:
+            assert updated_vocab['tags'] == original_vocab['tags']
 
         # Get the list of vocabularies.
         response = self._post('/api/action/vocabulary_list')
@@ -186,6 +197,107 @@ class TestVocabulary(object):
         self._create_vocabulary(vocab_name="My cool vocab",
                 user=self.sysadmin_user)
 
+    def test_vocabulary_create_with_tags(self):
+        '''Test adding a new vocabulary with some tags.
+
+        '''
+        params = {'name': 'foobar'}
+        tag1 = {'name': 'foo'}
+        tag2 = {'name': 'bar'}
+        params['tags'] = [tag1, tag2]
+        response = self._post('/api/action/vocabulary_create',
+                params=params,
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)})
+        assert response['success'] == True
+        assert response['result']
+        created_vocab = response['result']
+        assert created_vocab['name'] == 'foobar'
+        assert created_vocab['id']
+
+        # Get the list of vocabularies.
+        response = self._post('/api/action/vocabulary_list')
+        # Check that the vocabulary we created is in the list.
+        assert response['success'] == True
+        assert response['result']
+        assert response['result'].count(created_vocab) == 1
+
+        # Get the created vocabulary.
+        params = {'id': created_vocab['id']}
+        response = self._post('/api/action/vocabulary_show', params)
+        # Check that retrieving the vocab by name gives the same result.
+        by_name_params = {'id': created_vocab['name']}
+        assert response == self._post('/api/action/vocabulary_show',
+                by_name_params)
+        # Check that it matches what we created.
+        assert response['success'] == True
+        assert response['result'] == created_vocab
+
+        # Get the list of tags for the vocabulary.
+        tags = self._list_tags(created_vocab)
+        assert len(tags) == 2
+        assert tags.count('foo') == 1
+        assert tags.count('bar') == 1
+
+    def test_vocabulary_create_bad_tags(self):
+        '''Test creating new vocabularies with invalid tags.
+
+        '''
+        for tags in (
+                [{'id': 'xxx'}, {'name': 'foo'}],
+                [{'name': 'foo'}, {'name': None}],
+                [{'name': 'foo'}, {'name': ''}],
+                [{'name': 'foo'}, {'name': 'f'}],
+                [{'name': 'f'*200}, {'name': 'foo'}],
+                [{'name': 'Invalid!'}, {'name': 'foo'}],
+                ):
+            params = {'name': 'foobar', 'tags': tags}
+            response = self.app.post('/api/action/vocabulary_create',
+                    params=json.dumps(params),
+                    extra_environ = {'Authorization':
+                        str(self.sysadmin_user.apikey)},
+                    status=409)
+            assert response.json['success'] == False
+            assert response.json['error'].has_key('tags')
+            assert len(response.json['error']) == 2
+
+    def test_vocabulary_create_none_tags(self):
+        '''Test creating new vocabularies with None for 'tags'.
+
+        '''
+        params = {'name': 'foobar', 'tags': None}
+        response = self.app.post('/api/action/vocabulary_create',
+                params=json.dumps(params),
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=400)
+        assert response.body == ("Integrity Error: Only lists of dicts can "
+            "be placed against subschema tags - {u'name': u'foobar', "
+            "u'tags': None}")
+
+    def test_vocabulary_create_empty_tags(self):
+        '''Test creating new vocabularies with [] for 'tags'.
+
+        '''
+        params = {'name': 'foobar', 'tags': []}
+        response = self.app.post('/api/action/vocabulary_create',
+                params=json.dumps(params),
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=200)
+        assert response.json['success'] == True
+        assert response.json['result']
+        created_vocab = response.json['result']
+        assert created_vocab['name'] == 'foobar'
+        assert created_vocab['id']
+        assert created_vocab['tags'] == []
+        params = {'id': created_vocab['id']}
+        response = self._post('/api/action/vocabulary_show', params)
+        assert response['success'] == True
+        assert response['result'] == created_vocab
+        tags = self._list_tags(created_vocab)
+        assert tags == []
+
     def test_vocabulary_create_id(self):
         '''Test error response when user tries to supply their own ID when
         creating a vocabulary.
@@ -199,6 +311,8 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=409)
         assert response.json['success'] == False
+        assert response.json['error']['id'] == [u'The input field id was '
+            'not expected.']
 
     def test_vocabulary_create_no_name(self):
         '''Test error response when user tries to create a vocab without a
@@ -213,6 +327,7 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=409)
         assert response.json['success'] == False
+        assert response.json['error']['name'] == [u'Missing value']
 
     def test_vocabulary_create_invalid_name(self):
         '''Test error response when user tries to create a vocab with an
@@ -228,6 +343,7 @@ class TestVocabulary(object):
                         str(self.sysadmin_user.apikey)},
                     status=409)
             assert response.json['success'] == False
+            assert response.json['error']['name']
 
     def test_vocabulary_create_exists(self):
         '''Test error response when user tries to create a vocab that already
@@ -242,6 +358,8 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=409)
         assert response.json['success'] == False
+        assert response.json['error']['name'] == [u'That vocabulary name is '
+            'already in use.']
 
     def test_vocabulary_create_not_logged_in(self):
         '''Test that users who are not logged in cannot create vocabularies.'''
@@ -253,6 +371,7 @@ class TestVocabulary(object):
                 params=param_string,
                 status=403)
         assert response.json['success'] == False
+        assert response.json['error']['message'] == 'Access denied'
 
     def test_vocabulary_create_not_authorized(self):
         '''Test that users who are not authorized cannot create vocabs.'''
@@ -265,10 +384,52 @@ class TestVocabulary(object):
                     str(self.normal_user.apikey)},
                 status=403)
         assert response.json['success'] == False
+        assert response.json['error']['message'] == 'Access denied'
 
-    def test_vocabulary_update(self):
+    def test_vocabulary_update_id_only(self):
+        self._update_vocabulary({'id': self.genre_vocab['id']},
+                self.sysadmin_user)
+    
+    def test_vocabulary_update_id_and_same_name(self):
         self._update_vocabulary({'id': self.genre_vocab['id'],
-            'name': 'updated_name'}, self.sysadmin_user)
+            'name': self.genre_vocab['name']}, self.sysadmin_user)
+
+    def test_vocabulary_update_id_and_new_name(self):
+        self._update_vocabulary({'id': self.genre_vocab['id'],
+            'name': 'new name'}, self.sysadmin_user)
+
+    def test_vocabulary_update_id_and_same_tags(self):
+        self._update_vocabulary({'id': self.genre_vocab['id'],
+            'tags': self.genre_vocab['tags']}, self.sysadmin_user)
+
+    def test_vocabulary_update_id_and_new_tags(self):
+        tags = [
+                {'name': 'new test tag one'},
+                {'name': 'new test tag two'},
+                {'name': 'new test tag three'},
+                ]
+        self._update_vocabulary({'id': self.genre_vocab['id'], 'tags': tags},
+                self.sysadmin_user)
+
+    def test_vocabulary_update_id_same_name_and_same_tags(self):
+        self._update_vocabulary({'id': self.genre_vocab['id'],
+            'name': self.genre_vocab['name'],
+            'tags': self.genre_vocab['tags']}, self.sysadmin_user)
+
+    def test_vocabulary_update_id_same_name_and_new_tags(self):
+        tags = [
+                {'name': 'new test tag one'},
+                {'name': 'new test tag two'},
+                {'name': 'new test tag three'},
+                ]
+        self._update_vocabulary({'id': self.genre_vocab['id'],
+            'name': self.genre_vocab['name'],
+            'tags': tags}, self.sysadmin_user)
+
+    def test_vocabulary_update_id_new_name_and_same_tags(self):
+        self._update_vocabulary({'id': self.genre_vocab['id'],
+            'name': 'new name',
+            'tags': self.genre_vocab['tags']}, self.sysadmin_user)
 
     def test_vocabulary_update_not_exists(self):
         '''Test the error response given when a user tries to update a
@@ -283,16 +444,7 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=404)
         assert response.json['success'] == False
-
-    def test_vocabulary_update_no_name(self):
-        params = {'id': self.genre_vocab['id']}
-        param_string = json.dumps(params)
-        response = self.app.post('/api/action/vocabulary_update',
-                params=param_string,
-                extra_environ = {'Authorization':
-                    str(self.sysadmin_user.apikey)},
-                status=409)
-        assert response.json['success'] == False
+        assert response.json['error']['message'].startswith('Not found: ')
 
     def test_vocabulary_update_no_id(self):
         params = {'name': 'bagel radio'}
@@ -314,6 +466,29 @@ class TestVocabulary(object):
                 params=param_string,
                 status=403)
         assert response.json['success'] == False
+        assert response.json['error']['message'] == 'Access denied'
+
+    def test_vocabulary_update_with_tags(self):
+        tags = [
+                {'name': 'drone'},
+                {'name': 'noise'},
+                {'name': 'fuzz'},
+                {'name': 'field recordings'},
+                {'name': 'hypnagogia'},
+                {'name': 'textures without rhythm'},
+                ]
+        self._update_vocabulary(
+                {
+                    'id': self.genre_vocab['id'],
+                    'name': self.genre_vocab['name'],
+                    'tags': tags
+                },
+                self.sysadmin_user)
+
+        params = {'id': self.genre_vocab['id']}
+        response = self._post('/api/action/vocabulary_show', params)
+        # Check that retrieving the vocab by name gives the same result.
+        assert len(response['result']['tags']) == len(tags)
 
     def test_vocabulary_update_not_authorized(self):
         '''Test that users who are not authorized cannot update vocabs.'''
@@ -325,6 +500,64 @@ class TestVocabulary(object):
                     str(self.normal_user.apikey)},
                 status=403)
         assert response.json['success'] == False
+        assert response.json['error']['message'] == 'Access denied'
+
+    def test_vocabulary_update_bad_tags(self):
+        '''Test updating vocabularies with invalid tags.
+
+        '''
+        for tags in (
+                [{'id': 'xxx'}, {'name': 'foo'}],
+                [{'name': 'foo'}, {'name': None}],
+                [{'name': 'foo'}, {'name': ''}],
+                [{'name': 'foo'}, {'name': 'f'}],
+                [{'name': 'f'*200}, {'name': 'foo'}],
+                [{'name': 'Invalid!'}, {'name': 'foo'}],
+                ):
+            params = {'id': self.genre_vocab['name'], 'tags': tags}
+            response = self.app.post('/api/action/vocabulary_update',
+                    params=json.dumps(params),
+                    extra_environ = {'Authorization':
+                        str(self.sysadmin_user.apikey)},
+                    status=409)
+            assert response.json['success'] == False
+            assert response.json['error']['tags']
+
+    def test_vocabulary_update_none_tags(self):
+        '''Test updating vocabularies with None for 'tags'.
+
+        '''
+        params = {'id': self.genre_vocab['id'], 'tags': None}
+        response = self.app.post('/api/action/vocabulary_update',
+                params=json.dumps(params),
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=400)
+        assert response.body.startswith("Integrity Error: Only lists of "
+            "dicts can be placed against subschema tags")
+
+    def test_vocabulary_update_empty_tags(self):
+        '''Test updating vocabularies with [] for 'tags'.
+
+        '''
+        params = {'id': self.genre_vocab['id'], 'tags': []}
+        response = self.app.post('/api/action/vocabulary_update',
+                params=json.dumps(params),
+                extra_environ = {'Authorization':
+                    str(self.sysadmin_user.apikey)},
+                status=200)
+        assert response.json['success'] == True
+        assert response.json['result']
+        updated_vocab = response.json['result']
+        assert updated_vocab['name'] == self.genre_vocab['name']
+        assert updated_vocab['id'] == self.genre_vocab['id']
+        assert updated_vocab['tags'] == []
+        params = {'id': updated_vocab['id']}
+        response = self._post('/api/action/vocabulary_show', params)
+        assert response['success'] == True
+        assert response['result'] == updated_vocab
+        tags = self._list_tags(updated_vocab)
+        assert tags == []
 
     def test_vocabulary_delete(self):
         self._delete_vocabulary(self.genre_vocab['id'], self.sysadmin_user)
@@ -342,6 +575,8 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=404)
         assert response.json['success'] == False
+        assert response.json['error']['message'].startswith('Not found: '
+                'Could not find vocabulary')
 
     def test_vocabulary_delete_no_id(self):
         '''Test the error response given when a user tries to delete a
@@ -367,6 +602,7 @@ class TestVocabulary(object):
                 params=param_string,
                 status=403)
         assert response.json['success'] == False
+        assert response.json['error']['message'] == 'Access denied'
 
     def test_vocabulary_delete_not_authorized(self):
         '''Test that users who are not authorized cannot delete vocabs.'''
@@ -378,6 +614,7 @@ class TestVocabulary(object):
                     str(self.normal_user.apikey)},
                 status=403)
         assert response.json['success'] == False
+        assert response.json['error']['message'] == 'Access denied'
 
     def test_add_tag_to_vocab(self):
         '''Test that a tag can be added to and then retrieved from a vocab.'''
@@ -403,6 +640,7 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=409)
         assert response.json['success'] == False
+        assert response.json['error']['vocabulary_id'] == ['Missing value']
 
     def test_add_tag_vocab_not_exists(self):
         '''Test the error response when a user tries to add a tag to a vocab
@@ -417,6 +655,8 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=409)
         assert response.json['success'] == False
+        assert response.json['error']['vocabulary_id'] == [
+                'Tag vocabulary was not found.']
 
     def test_add_tag_already_added(self):
         '''Test the error response when a user tries to add a tag to a vocab 
@@ -433,6 +673,8 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=409)
         assert response.json['success'] == False
+        assert response.json['error']['vocabulary_id'][0].startswith(
+            'Tag noise already belongs to vocabulary')
 
     def test_add_tag_with_id(self):
         '''Test the error response when a user tries to specify the tag ID when
@@ -451,6 +693,8 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=409)
         assert response.json['success'] == False
+        assert response.json['error']['id'] == [u'The input field id was not '
+            'expected.']
 
     def test_add_tag_without_name(self):
         '''Test the error response when a user tries to create a tag without a
@@ -467,6 +711,7 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=409)
         assert response.json['success'] == False
+        assert response.json['error']['name'] == [u'Missing value']
 
     def test_add_tag_invalid_name(self):
         for name in ('Not a valid tag name!', '', None):
@@ -481,6 +726,7 @@ class TestVocabulary(object):
                         str(self.sysadmin_user.apikey)},
                     status=409)
             assert response.json['success'] == False
+            assert response.json['error']['name']
 
     def test_add_tag_invalid_vocab_id(self):
         tag_dict = {
@@ -494,6 +740,8 @@ class TestVocabulary(object):
                     str(self.sysadmin_user.apikey)},
                 status=409)
         assert response.json['success'] == False
+        assert response.json['error']['vocabulary_id'] == [
+                u'Tag vocabulary was not found.']
 
     def test_add_tag_not_logged_in(self):
         tag_dict = {
@@ -505,6 +753,7 @@ class TestVocabulary(object):
                 params=tag_string,
                 status=403)
         assert response.json['success'] == False
+        assert response.json['error']['message'] == 'Access denied'
 
     def test_add_tag_not_authorized(self):
         tag_dict = {
@@ -518,6 +767,7 @@ class TestVocabulary(object):
                         str(self.normal_user.apikey)},
                 status=403)
         assert response.json['success'] == False
+        assert response.json['error']['message'] == 'Access denied'
 
     def test_add_vocab_tag_to_dataset(self):
         '''Test that a tag belonging to a vocab can be added to a dataset,
