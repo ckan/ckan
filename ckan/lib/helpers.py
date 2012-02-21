@@ -18,7 +18,7 @@ import webhelpers.date as date
 from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
 from pylons import config
-from routes import redirect_to
+from routes import redirect_to as _redirect_to
 from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
@@ -37,6 +37,9 @@ try:
 except ImportError:
     import simplejson as json
 
+def redirect_to(*args, **kw):
+    '''A routes.redirect_to wrapper to retain the i18n settings'''
+    return _redirect_to(url_for(*args, **kw))
 
 def url(*args, **kw):
     """Create url adding i18n information if selected
