@@ -153,33 +153,12 @@ def resource_update(context, data_dict):
     return resource_dictize(resource, context)
 
 
-def _get_package_type(id, context):
-    """
-    Given the id of a package it determines the plugin to load
-    based on the package's type name (type). The plugin found
-    will be returned, or None if there is no plugin associated with
-    the type.
-
-    aborts if an exception is raised.
-    """
-
-    try:
-        data = get_action('package_show')(context, {'id': id})
-    except NotFound:
-        abort(404, _('Package not found'))
-    except NotAuthorized:
-        abort(401, _('Unauthorized to read package %s') % id)
-    return data['type']
-
 
 def package_update(context, data_dict):
 
     model = context['model']
     user = context['user']
     id = data_dict["id"]
-
-    package_type = _get_package_type(id, context)
-    schema = lookup_package_plugin(package_type).form_to_db_schema()
     model.Session.remove()
     model.Session()._context = context
 
@@ -190,6 +169,7 @@ def package_update(context, data_dict):
         raise NotFound(_('Package was not found.'))
     data_dict["id"] = pkg.id
 
+    schema = lookup_package_plugin(pkg.type).form_to_db_schema()
     check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
