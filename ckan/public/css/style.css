@@ -237,6 +237,11 @@ img.gravatar {
   border-radius: 3px;
 }
 
+.inline-icon {
+  margin-bottom: -4px;
+  padding-right: 5px;
+}
+
 /* =============== */
 /* MinorNavigation */
 /* =============== */
@@ -285,11 +290,6 @@ img.gravatar {
 #minornavigation li a {
   text-decoration: none;
   font-weight: bold;
-}
-#minornavigation li a img,
-#minornavigation li.disabled img:first-child {
-  margin-bottom: -4px;
-  padding-right: 5px;
 }
 #minornavigation li.current-tab a,
 #minornavigation li.current-tab a:hover,
