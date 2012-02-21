@@ -11,7 +11,7 @@ from ckan.lib.navl.validators import ignore_missing, keep_extras
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
 from ckan import plugins
-from ckan.tests import WsgiAppCase
+from ckan.tests import WsgiAppCase, url_for
 
 TEST_VOCAB_NAME = 'test-vocab'
 
@@ -134,7 +134,6 @@ class Select(paste.fixture.Field):
 
     value = property(value__get, value__set)
 
-
 class TestWUI(WsgiAppCase):
     @classmethod
     def setup_class(cls):
@@ -187,7 +186,7 @@ class TestWUI(WsgiAppCase):
         model.repo.rebuild_db()
 
     def _get_vocab_id(self, vocab_name):
-        params = json.dumps({'name': vocab_name})
+        params = json.dumps({'id': vocab_name})
         response = self.app.post('/api/action/vocabulary_show', params=params)
         assert json.loads(response.body)['success']
         return json.loads(response.body)['result']['id']
@@ -215,7 +214,8 @@ class TestWUI(WsgiAppCase):
     def test_01_dataset_view(self):
         vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
         self._add_vocab_tag_to_dataset(self.dset.id, vocab_id, self.tag1_name)
-        response = self.app.get(h.url_for(controller='package', action='read', id=self.dset.id))
+        response = self.app.get(h.url_for(controller='package', action='read',
+            id=self.dset.id))
         assert self.tag1_name in response.body
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
 
@@ -231,6 +231,31 @@ class TestWUI(WsgiAppCase):
         assert not self.tag1_name in response.body
         assert self.tag2_name in response.body
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
+        self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
+
+    def test_02_dataset_edit_add_free_and_vocab_tags_then_edit_again(self):
+        vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
+        url = h.url_for(controller='package', action='edit', id=self.dset.id)
+        response = self.app.get(url)
+        fv = response.forms['dataset-edit']
+        fv = Form(fv.response, fv.text)
+
+        # Add a free tag with a space in its name.
+        fv['tag_string'] = 'water quality'
+
+        # Add a vocab tag.
+        fv['vocab_tags'] = [self.tag2_name]
+
+        # Save the dataset and visit the page again
+        response = fv.submit('save')
+        response = response.follow()
+        assert not self.tag1_name in response.body
+        assert self.tag2_name in response.body
+        url = h.url_for(controller='package', action='edit', id=self.dset.id)
+        response = self.app.get(url)
+        fv = response.forms['dataset-edit']
+        fv = Form(fv.response, fv.text)
+        assert fv['vocab_tags'].value == [self.tag2_name], fv['vocab_tags'].value
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
 
     def test_03_dataset_edit_remove_vocab_tag(self):

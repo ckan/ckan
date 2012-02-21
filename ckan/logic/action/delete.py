@@ -105,12 +105,14 @@ def task_status_delete(context, data_dict):
 
 def vocabulary_delete(context, data_dict):
     model = context['model']
-    user = context['user']
-    vocab_id = data_dict['id']
+
+    vocab_id = data_dict.get('id')
+    if not vocab_id:
+        raise ValidationError({'id': _('id not in data')})
 
     vocab_obj = model.vocabulary.Vocabulary.get(vocab_id)
     if vocab_obj is None:
-        raise NotFound
+        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
     check_access('vocabulary_delete', context, data_dict)
 
@@ -121,7 +123,7 @@ def tag_delete(context, data_dict):
     model = context['model']
 
     if not data_dict.has_key('id') or not data_dict['id']:
-        raise ParameterError(_("Missing 'id' parameter."))
+        raise ValidationError({'id': _('id not in data')})
     tag_id_or_name = data_dict['id']
 
     vocab_id_or_name = data_dict.get('vocabulary_id')
@@ -129,7 +131,7 @@ def tag_delete(context, data_dict):
     tag_obj = model.tag.Tag.get(tag_id_or_name, vocab_id_or_name)
 
     if tag_obj is None:
-        raise NotFound
+        raise NotFound(_('Could not find tag "%s"') % tag_id_or_name)
 
     check_access('tag_delete', context, data_dict)
 

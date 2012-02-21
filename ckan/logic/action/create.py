@@ -345,7 +345,6 @@ def group_create_rest(context, data_dict):
 def vocabulary_create(context, data_dict):
 
     model = context['model']
-    user = context['user']
     schema = context.get('schema') or default_create_vocabulary_schema()
 
     model.Session.remove()
@@ -365,7 +364,7 @@ def vocabulary_create(context, data_dict):
         model.repo.commit()
 
     log.debug('Created Vocabulary %s' % str(vocabulary.name))
-
+  
     return vocabulary_dictize(vocabulary, context)
 
 def activity_create(context, activity_dict, ignore_auth=False):

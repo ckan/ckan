@@ -210,7 +210,6 @@ def tag_list(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
 
     vocab_id_or_name = data_dict.get('vocabulary_id')
     query = data_dict.get('query') or data_dict.get('q')
@@ -448,7 +447,6 @@ def tag_show(context, data_dict):
     '''Shows tag details'''
 
     model = context['model']
-    api = context.get('api_version') or '1'
     id = data_dict['id']
 
     tag = model.Tag.get(id)
@@ -999,18 +997,12 @@ def vocabulary_list(context, data_dict):
 
 def vocabulary_show(context, data_dict):
     model = context['model']
-
-    if data_dict.has_key('id'):
-        vocabulary = model.vocabulary.Vocabulary.get(data_dict['id'])
-        if vocabulary is None:
-            raise NotFound
-    elif data_dict.has_key('name'):
-        vocabulary = model.vocabulary.Vocabulary.get(data_dict['name'])
-        if vocabulary is None:
-            raise NotFound
-    else:
-        raise NotFound
-
+    vocab_id = data_dict.get('id')
+    if not vocab_id:
+        raise ValidationError({'id': _('id not in data')})
+    vocabulary = model.vocabulary.Vocabulary.get(vocab_id)
+    if vocabulary is None:
+        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
     vocabulary_dict = vocabulary_dictize(vocabulary, context)
     return vocabulary_dict
 
