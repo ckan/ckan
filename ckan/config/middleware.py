@@ -159,7 +159,7 @@ class I18nMiddleware(object):
 
             # Current application url
             path_info = environ['PATH_INFO']
-            qs = environ['QUERY_STRING']
+            qs = environ.get('QUERY_STRING')
             if qs:
                 environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
             else:
