@@ -210,6 +210,10 @@ def package_dictize(pkg, context):
     result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
         if pkg.metadata_created else None
 
+    assert not result_dict.has_key('display name')
+    for tag in result_dict['tags']:
+        tag['display name'] = tag['name']
+
     if context.get('for_view'):
         for item in PluginImplementations(IPackageController):
             result_dict = item.before_view(result_dict)

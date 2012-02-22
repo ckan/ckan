@@ -882,14 +882,14 @@ def task_status_show(context, data_dict):
 def term_translation_show(context, data_dict):
     model = context['model']
 
-    trans_table = model.term_translation_table 
+    trans_table = model.term_translation_table
 
     q = select([trans_table])
 
-    if 'term' not in data_dict:
-        raise ValidationError({'term': 'term not it data'})
-    
-    q = q.where(trans_table.c.term == data_dict['term'])
+    if 'terms' not in data_dict:
+        raise ValidationError({'terms': 'terms not it data'})
+
+    q = q.where(trans_table.c.term.in_(data_dict['terms']))
 
     if 'lang_code' in data_dict:
         q = q.where(trans_table.c.lang_code == data_dict['lang_code'])
