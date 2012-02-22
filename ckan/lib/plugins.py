@@ -6,6 +6,7 @@ from ckan.authz import Authorizer
 import ckan.logic
 
 from ckan.plugins import PluginImplementations, IDatasetForm, IGroupForm
+from ckan.logic import schema
 
 log = logging.getLogger(__name__)
 
@@ -156,17 +157,11 @@ class DefaultDatasetForm(object):
            don't want this being registered.
     """
 
-    # this is to prevent import issues
-    package_form_schema = None
-
     def package_form(self):
         return 'package/new_package_form.html'
 
     def form_to_db_schema(self):
-        if not self.package_form_schema:
-            from ckan.logic.schema import package_form_schema
-            self.package_form_schema = package_form_schema
-        return self.package_form_schema()
+        return schema.package_form_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
@@ -227,17 +222,12 @@ class DefaultGroupForm(object):
     Note - this isn't a plugin implementation. This is deliberate, as we
            don't want this being registered.
     """
-    # prevent import issues
-    group_form_schema = None
 
     def group_form(self):
         return 'group/new_group_form.html'
 
     def form_to_db_schema(self):
-        if not self.group_form_schema:
-            from ckan.logic.schema import group_form_schema
-            self.group_form_schema = group_form_schema
-        return self.group_form_schema()
+        return schema.group_form_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
