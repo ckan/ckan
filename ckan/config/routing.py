@@ -224,6 +224,7 @@ def make_map():
     map.connect('/dataset/{action}/{id}', controller='package',
         requirements=dict(action='|'.join([
         'edit',
+        'editresources',
         'authz',
         'history',
         'read_ajax',

@@ -20,6 +20,12 @@
       client: client
     };
 
+    // Buttons with href-action should navigate when clicked
+    $('input.href-action').click(function(e) {
+      e.preventDefault();
+      window.location = ($(e.target).attr('action'));
+    });
+
     var isFrontPage = $('body.index.home').length > 0;
     if (isFrontPage) {
       CKAN.Utils.setupWelcomeBanner($('.js-welcome-banner'));
@@ -45,7 +51,6 @@
     if (isResourceView) {
       CKANEXT.DATAPREVIEW.loadPreviewDialog(preload_resource);
     }
-
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       // Set up magic URL slug editor
@@ -61,45 +66,34 @@
       $("#title").focus();
     }
 
-    // Buttons with href-action should navigate when clicked
-    $('input.href-action').click(function(e) {
-      e.preventDefault();
-      window.location = ($(e.target).attr('action'));
-    });
-
-
     var isDatasetEdit = $('body.package.edit').length > 0;
     if (isDatasetEdit) {
+      CKAN.Utils.warnOnFormChanges($('form#dataset-edit'));
       CKAN.Utils.setupUrlEditor('package',readOnly=true);
+
+      // Set up hashtag nagivigation
+      CKAN.Utils.setupDatasetEditNavigation();
+
+      // Set up dataset delete button
+      CKAN.Utils.setupDatasetDeleteButton();
+    }
+    var isDatasetResourceEdit = $('body.package.editresources').length > 0;
+    if (isDatasetResourceEdit) {
       // Selectively enable the upload button
       var storageEnabled = $.inArray('storage',CKAN.plugins)>=0;
       if (storageEnabled) {
         $('li.js-upload-file').show();
       }
-
-      // Set up hashtag nagivigation
-      CKAN.Utils.setupDatasetEditNavigation();
-
+      // Backbone model/view
       var _dataset = new CKAN.Model.Dataset(preload_dataset);
       var $el=$('form#dataset-edit');
-      var view=new CKAN.View.DatasetEditForm({
+      var view=new CKAN.View.DatasetEditResourcesForm({
         model: _dataset,
         el: $el
       });
       view.render();
-
-      // Set up dataset delete button
-      var select = $('select.dataset-delete');
-      select.attr('disabled','disabled');
-      select.css({opacity: 0.3});
-      $('button.dataset-delete').click(function(e) {
-        select.removeAttr('disabled');
-        select.fadeTo('fast',1.0);
-        $(e.target).css({opacity:0});
-        $(e.target).attr('disabled','disabled');
-        return false;
-      });
     }
+
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
       CKAN.Utils.setupUrlEditor('group',readOnly=true);
@@ -257,7 +251,20 @@ CKAN.Utils = function($, my) {
         urlInput.focus();
       });
     }
-  }
+  };
+
+  my.setupDatasetDeleteButton = function() {
+    var select = $('select.dataset-delete');
+    select.attr('disabled','disabled');
+    select.css({opacity: 0.3});
+    $('button.dataset-delete').click(function(e) {
+      select.removeAttr('disabled');
+      select.fadeTo('fast',1.0);
+      $(e.target).css({opacity:0});
+      $(e.target).attr('disabled','disabled');
+      return false;
+    });
+  };
 
   // Attach dataset autocompletion to provided elements
   //
@@ -533,6 +540,40 @@ CKAN.Utils = function($, my) {
     }
   };
 
+  my.warnOnFormChanges = function() {
+    var boundToUnload = false;
+    return function($form) {
+      var flashWarning = function() {
+        if (boundToUnload) return;
+        boundToUnload = true;
+        // Show a flash message
+        var parentDiv = $('<div />').addClass('flash-messages');
+        var messageDiv = $('<div />').html(CKAN.Strings.youHaveUnsavedChanges).addClass('notice').hide();
+        parentDiv.append(messageDiv);
+        $('#unsaved-warning').append(parentDiv);
+        messageDiv.show(200);
+        // Bind to the window departure event
+        window.onbeforeunload = function () {
+          return CKAN.Strings.youHaveUnsavedChanges;
+        };
+      }
+      // Hook form modifications to flashWarning
+      $form.find('input,select').live('change', function(e) {
+        $target = $(e.target);
+        // Entering text in the 'add' box does not represent a change
+        if ($target.closest('.resource-add').length==0) {
+          flashWarning();
+        }
+      });
+      // Don't stop us leaving
+      $form.submit(function() {
+        window.onbeforeunload = null;
+      });
+      // Calling functions might hook to flashWarning
+      return flashWarning;
+    };
+  }();
+
   // Show/hide fieldset sections from the edit dataset form.
   my.setupDatasetEditNavigation = function() {
 
@@ -563,43 +604,14 @@ CKAN.Utils = function($, my) {
 }(jQuery, CKAN.Utils || {});
 
 
-CKAN.View.DatasetEditForm = Backbone.View.extend({
+CKAN.View.DatasetEditResourcesForm = Backbone.View.extend({
   initialize: function() {
     var resources = this.model.get('resources');
     var $form = this.el;
+    var flashWarning = CKAN.Utils.warnOnFormChanges($form);
 
-    var changesMade = function() {
-      var boundToUnload = false;
-      return function() {
-        if (!boundToUnload) {
-          var parentDiv = $('<div />').addClass('flash-messages');
-          var messageDiv = $('<div />').html(CKAN.Strings.youHaveUnsavedChanges).addClass('notice').hide();
-          parentDiv.append(messageDiv);
-          $('#unsaved-warning').append(parentDiv);
-          messageDiv.show(200);
-
-          boundToUnload = true;
-          window.onbeforeunload = function () {
-            return CKAN.Strings.youHaveUnsavedChanges;
-          };
-        }
-      }
-    }();
-
-    $form.find('input,select').live('change', function(e) {
-      $target = $(e.target);
-      // Entering text in the 'add' box does not represent a change
-      if ($target.closest('.resource-add').length==0) {
-        changesMade();
-      }
-    });
-    resources.bind('add', changesMade);
-    resources.bind('remove', changesMade);
-
-    $form.submit(function() {
-      // Don't stop us leaving
-      window.onbeforeunload = null;
-    });
+    resources.bind('add', flashWarning);
+    resources.bind('remove', flashWarning);
 
     // Table for editing resources
     var $el = this.el.find('.js-resource-editor');

@@ -999,14 +999,28 @@ ul.dataset-edit-nav li a:hover {
 /* ===================== */
 /* = Edit Dataset Page = */
 /* ===================== */
-.dataset-edit-form .edit-summary {
-  /* Needs refactoring. Clutters the page too much. */
+.dataset-edit-form fieldset#resources {
   display: none;
 }
-.dataset-edit-form input#Resource--url {
+.dataset-edit-form button.dataset-delete {
+  vertical-align: middle;
+}
+
+
+/* ======================= */
+/* = Edit Resources Page = */
+/* ======================= */
+.dataset-editresources-form fieldset#basic-information,
+.dataset-editresources-form fieldset#groups,
+.dataset-editresources-form fieldset#further-information,
+.dataset-editresources-form fieldset#extras,
+.dataset-editresources-form fieldset#delete {
+  display: none;
+}
+.dataset-editresources-form input#Resource--url {
   width: 60%;
 }
-.dataset-edit-form .resource-add {
+.dataset-editresources-form .resource-add {
   background: #eee;
   padding-top: 10px;
   padding-bottom: 5px;
@@ -1014,18 +1028,15 @@ ul.dataset-edit-nav li a:hover {
   border-left: none;
   border-right: none;
 }
-.dataset-edit-form .resource-add li h4 {
+.dataset-editresources-form .resource-add li h4 {
   display: inline;
   padding-right: 20px;
 }
-.dataset-edit-form .resource-add .subpane {
+.dataset-editresources-form .resource-add .subpane {
   margin-top: 10px;
 }
-.dataset-edit-form .resource-add .fileinfo {
+.dataset-editresources-form .resource-add .fileinfo {
   margin: 7px 0;
-}
-.dataset-edit-form button.dataset-delete {
-  vertical-align: top;
 }
 
 

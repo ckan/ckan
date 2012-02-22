@@ -8,19 +8,12 @@
 
   <py:def function="body_class">hide-sidebar</py:def>
 
-  <py:def function="optional_head">
-    <script>
-      var preload_dataset = ${h.literal(c.pkg_json)};
-    </script>
-  </py:def>
-
   <py:match path="primarysidebar">
     <li class="widget-container widget_text">
       <ul class="dataset-edit-nav">
         <!-- One button for each fieldset -->
         <li><a href="#section-basic-information">Basic Information</a></li>
         <li><a href="#section-further-information">Further Information</a></li>
-        <li><a href="#section-resources">Resources</a></li>
         <li><a href="#section-groups">Groups &amp; Tags</a></li>
         <li><a href="#section-extras">Extras</a></li>
         <li py:if="c.is_sysadmin or c.auth_for_change_state"><a href="#section-delete">Delete</a></li>

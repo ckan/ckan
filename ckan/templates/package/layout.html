@@ -22,8 +22,8 @@
             <div class="dropdown-items">
               <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
                 ${h.link_to(
-                  h.icon('package_add') + _('Add / Edit resources'), 
-                  h.url_for(action='edit', id=c.pkg.name, controller='package')+'#section-resources'
+                  h.icon('page_white_add') + _('Add / Edit resources'), 
+                  h.url_for(action='editresources', id=c.pkg.name, controller='package')
                   )}
                 <hr py:if="len(c.pkg_dict.get('resources',[]))>0"/>
               </py:if>
@@ -33,7 +33,7 @@
             </div>
           </div>
           <div class="dropdown-appears"><div class="white-box"></div></div>
-          <a href="${h.url_for(controller='package', action='read', id=c.pkg.name)}#dataset-resources" class="js-scroll-resources">${h.icon('package') + _('Resources') + ' (' + str(len(c.pkg_dict.get('resources',[]))) + ')'}</a>
+          <a href="${h.url_for(controller='package', action='read', id=c.pkg.name)}#dataset-resources" class="js-scroll-resources">${h.icon('page_white_stack') + _('Resources') + ' (' + str(len(c.pkg_dict.get('resources',[]))) + ')'}</a>
           &nbsp;&nbsp;<img class="dropdown-arrow" src="${h.url_for_static('/images/icons/arrow-open.gif')}"/>
         </li>
       </py:otherwise>
@@ -42,7 +42,7 @@
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
         <span class="divider">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
         <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}">
-          ${h.subnav_link(c, h.icon('package_edit') + _('Edit'), controller='package', action='edit', id=c.pkg.name)}
+          ${h.subnav_link(c, h.icon('package_edit') + _('Settings'), controller='package', action='edit', id=c.pkg.name)}
         </li>
       </py:if>
       <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}" py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
