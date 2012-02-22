@@ -254,11 +254,9 @@ def make_map():
     with SubMapper(map, controller='ckan.controllers.storage:StorageAPIController') as m:
         m.connect('storage_api', '/api/storage', action='index')
         m.connect('storage_api_set_metadata', '/api/storage/metadata/{label:.*}',
-                  action='set_metadata',
-                  conditions=PUT_POST)
+                  action='set_metadata', conditions=PUT_POST)
         m.connect('storage_api_get_metadata', '/api/storage/metadata/{label:.*}',
-                  action='get_metadata',
-                  conditions=GET})
+                  action='get_metadata', conditions=GET)
         m.connect('storage_api_auth_request',
                   '/api/storage/auth/request/{label:.*}',
                   action='auth_request')
