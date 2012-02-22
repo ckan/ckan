@@ -120,7 +120,7 @@ def make_map():
                   conditions=GET)
         m.connect('/util/resource/format_autocomplete',
                   action='format_autocomplete', conditions=GET)
-        m.connect('/util/authorizationgroup/autocomplete', 
+        m.connect('/util/authorizationgroup/autocomplete',
                   action='authorizationgroup_autocomplete')
         m.connect('/util/group/autocomplete', action='group_autocomplete')
 
@@ -128,7 +128,7 @@ def make_map():
     with SubMapper(map, controller='api', path_prefix='/api') as m:
         m.connect('/util/markdown', action='markdown')
         m.connect('/util/dataset/munge_name', action='munge_package_name')
-        m.connect('/util/dataset/munge_title_to_name', 
+        m.connect('/util/dataset/munge_title_to_name',
                   action='munge_title_to_package_name')
         m.connect('/util/tag/munge', action='munge_tag')
         m.connect('/util/status', action='status')
@@ -141,43 +141,42 @@ def make_map():
     map.redirect('/packages/{url:.*}', '/dataset/{url}')
     map.redirect('/package', '/dataset')
     map.redirect('/package/{url:.*}', '/dataset/{url}')
-    map.connect('/dataset', controller='package', action='search')
 
     ##to get back formalchemy uncomment these lines
     ##map.connect('/package/new', controller='package_formalchemy', action='new')
     ##map.connect('/package/edit/{id}', controller='package_formalchemy', action='edit')
 
-    map.connect('/dataset/{action}', controller='package',
-        requirements=dict(action='|'.join([
-            'list',
-            'new',
-            'autocomplete',
-            'search'
-            ]))
-        )
+    with SubMapper(map, controller='package') as m:
+        m.connect('/dataset', action='search')
+        m.connect('/dataset/{action}',
+          requirements=dict(action='|'.join([
+              'list',
+              'new',
+              'autocomplete',
+              'search'
+              ]))
+          )
 
-    map.connect('/dataset', controller='package', action='index')
-    map.connect('/dataset/{action}/{id}/{revision}', controller='package', action='read_ajax',
-        requirements=dict(action='|'.join([
-        'read',
-        'edit',
-        'authz',
-        'history',
-        ]))
-    )
-    map.connect('/dataset/{action}/{id}', controller='package',
-        requirements=dict(action='|'.join([
-        'edit',
-        'authz',
-        'history',
-        'read_ajax',
-        'history_ajax',
-        ]))
+        m.connect('/dataset', action='index')
+        m.connect('/dataset/{action}/{id}/{revision}', action='read_ajax',
+          requirements=dict(action='|'.join([
+          'read',
+          'edit',
+          'authz',
+          'history',
+          ]))
         )
-    map.connect('/dataset/{id}', controller='package', action='read')
-    map.connect('/dataset/{id}/resource/{resource_id}',
-        controller='package', action='resource_read'
-    )
+        m.connect('/dataset/{action}/{id}',
+          requirements=dict(action='|'.join([
+          'edit',
+          'authz',
+          'history',
+          'read_ajax',
+          'history_ajax',
+          ]))
+          )
+        m.connect('/dataset/{id}', action='read')
+        m.connect('/dataset/{id}/resource/{resource_id}', action='resource_read')
 
     # group
     map.redirect('/groups', '/group')
@@ -189,17 +188,18 @@ def make_map():
 
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type (dataset_group is the default type)
-    map.connect('group_index', '/group', controller='group', action='index')
-    map.connect('group_list', '/group/list', controller='group', action='list')
-    map.connect('group_new',  '/group/new', controller='group', action='new')
-    map.connect('group_action', '/group/{action}/{id}', controller='group',
-        requirements=dict(action='|'.join([
-        'edit',
-        'authz',
-        'history'
-        ]))
-        )
-    map.connect('group_read', '/group/{id}', controller='group', action='read')
+    with SubMapper(map, controller='group') as m:
+        m.connect('group_index', '/group', action='index')
+        m.connect('group_list', '/group/list', action='list')
+        m.connect('group_new',  '/group/new', action='new')
+        m.connect('group_action', '/group/{action}/{id}',
+          requirements=dict(action='|'.join([
+          'edit',
+          'authz',
+          'history'
+          ]))
+          )
+        m.connect('group_read', '/group/{id}', action='read')
 
     register_package_behaviour(map)
     register_group_behaviour(map)
@@ -263,6 +263,8 @@ def make_map():
         m.connect('storage_api_auth_form',
                   '/api/storage/auth/form/{label:.*}',
                   action='auth_form')
+
+    with SubMapper(map, controller='ckan.controllers.storage:StorageController') as m:
         m.connect('storage_upload', '/storage/upload',
                   action='upload')
         m.connect('storage_upload_handle', '/storage/upload_handle',
