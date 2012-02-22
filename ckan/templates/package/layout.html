@@ -20,11 +20,13 @@
         <li class="dropdown" py:attrs="{'class':'current-tab dropdown'} if c.action=='resource_read' else {'class':'dropdown'}">
           <div class="dropdown-appears">
             <div class="dropdown-items">
-              ${h.link_to(
-                h.icon('package_add') + _('Add / Edit resources'), 
-                h.url_for(action='edit', id=c.pkg.name, controller='package')+'#section-resources'
-                )}
-              <hr py:if="len(c.pkg_dict.get('resources',[]))>0"/>
+              <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
+                ${h.link_to(
+                  h.icon('package_add') + _('Add / Edit resources'), 
+                  h.url_for(action='edit', id=c.pkg.name, controller='package')+'#section-resources'
+                  )}
+                <hr py:if="len(c.pkg_dict.get('resources',[]))>0"/>
+              </py:if>
               <py:for each="res in c.pkg_dict.get('resources', [])">
               <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_icon(res) + h.resource_display_name(res)}</a>
               </py:for>
