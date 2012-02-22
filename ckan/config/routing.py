@@ -16,6 +16,16 @@ def make_map():
     """Create, configure and return the routes Mapper"""
     # import controllers here rather than at root level because
     # pylons config is initialised by this point.
+
+
+    # Helpers to reduce code clutter
+    GET = dict(method=['GET'])
+    PUT = dict(method=['PUT'])
+    POST = dict(method=['POST'])
+    DELETE = dict(method=['DELETE'])
+    GET_POST = dict(method=['GET', 'POST'])
+    PUT_POST = dict(method=['PUT','POST'])
+
     from ckan.controllers.package import register_pluggable_behaviour as register_package_behaviour
     from ckan.controllers.group   import register_pluggable_behaviour as register_group_behaviour
 
@@ -57,7 +67,7 @@ def make_map():
     # /api ver 3 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/3|}', ver='/3') as m:
         m.connect('/action/{logic_function}', action='action',
-                  conditions=dict(method=['GET', 'POST']))
+                  conditions=GET_POST)
 
     # /api ver 1, 2, 3 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}', ver='/1') as m:
@@ -68,48 +78,48 @@ def make_map():
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/1') as m:
         m.connect('/tag_counts', action='tag_counts')
         m.connect('/rest', action='index')
-        m.connect('/qos/throughput/', action='throughput', conditions=dict(method=['GET']))
+        m.connect('/qos/throughput/', action='throughput', conditions=GET)
 
     # /api/rest ver 1, 2 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/1',
                    requirements=dict(register=register_list_str)) as m:
 
         m.connect('/rest/{register}', action='list',
-            conditions=dict(method=['GET']))
+            conditions=GET)
         m.connect('/rest/{register}', action='create',
-            conditions=dict(method=['POST']))
+            conditions=POST)
         m.connect('/rest/{register}/{id}', action='show',
-            conditions=dict(method=['GET']))
+            conditions=GET)
         m.connect('/rest/{register}/{id}', action='update',
-            conditions=dict(method=['PUT']))
+            conditions=PUT)
         m.connect('/rest/{register}/{id}', action='update',
-            conditions=dict(method=['POST']))
+            conditions=POST)
         m.connect('/rest/{register}/{id}', action='delete',
-            conditions=dict(method=['DELETE']))
+            conditions=DELETE)
         m.connect('/rest/{register}/{id}/:subregister', action='list',
-            conditions=dict(method=['GET']))
+            conditions=GET)
         m.connect('/rest/{register}/{id}/:subregister', action='create',
-            conditions=dict(method=['POST']))
+            conditions=POST)
         m.connect('/rest/{register}/{id}/:subregister/{id2}', action='create',
-            conditions=dict(method=['POST']))
+            conditions=POST)
         m.connect('/rest/{register}/{id}/:subregister/{id2}', action='show',
-            conditions=dict(method=['GET']))
+            conditions=GET)
         m.connect('/rest/{register}/{id}/:subregister/{id2}', action='update',
-            conditions=dict(method=['PUT']))
+            conditions=PUT)
         m.connect('/rest/{register}/{id}/:subregister/{id2}', action='delete',
-            conditions=dict(method=['DELETE']))
+            conditions=DELETE)
 
     # /api/2/util
     with SubMapper(map, controller='api', path_prefix='/api{ver:/2}', ver='/2') as m:
         m.connect('/util/user/autocomplete', action='user_autocomplete')
         m.connect('/util/is_slug_valid', action='is_slug_valid',
-                  conditions=dict(method=['GET']))
+                  conditions=GET)
         m.connect('/util/dataset/autocomplete', action='dataset_autocomplete',
-                  conditions=dict(method=['GET']))
+                  conditions=GET)
         m.connect('/util/tag/autocomplete', action='tag_autocomplete',
-                  conditions=dict(method=['GET']))
+                  conditions=GET)
         m.connect('/util/resource/format_autocomplete',
-                  action='format_autocomplete', conditions=dict(method=['GET']))
+                  action='format_autocomplete', conditions=GET)
         m.connect('/util/authorizationgroup/autocomplete', 
                   action='authorizationgroup_autocomplete')
         m.connect('/util/group/autocomplete', action='group_autocomplete')
@@ -245,10 +255,10 @@ def make_map():
         m.connect('storage_api', '/api/storage', action='index')
         m.connect('storage_api_set_metadata', '/api/storage/metadata/{label:.*}',
                   action='set_metadata',
-                  conditions={'method': ['PUT','POST']})
+                  conditions=PUT_POST)
         m.connect('storage_api_get_metadata', '/api/storage/metadata/{label:.*}',
                   action='get_metadata',
-                  conditions={'method': ['GET']})
+                  conditions=GET})
         m.connect('storage_api_auth_request',
                   '/api/storage/auth/request/{label:.*}',
                   action='auth_request')
