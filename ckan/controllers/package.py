@@ -67,6 +67,12 @@ def register_pluggable_behaviour(map):
     """
     global _default_controller_behaviour
     
+    # This function should have not effect if called more than once.
+    # This should not occur in normal deployment, but it may happen when
+    # running unit tests.
+    if _default_controller_behaviour is not None:
+        return
+
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in PluginImplementations(IDatasetForm):
         if plugin.is_fallback():
