@@ -52,6 +52,13 @@ def url_for(*args, **kw):
     """Create url adding i18n information if selected
     wrapper for routes.url_for"""
     locale = kw.pop('locale', None)
+    # routes will get the wrong url for APIs if the ver is not provided
+    if kw.get('controller') == 'api':
+        ver = kw.get('ver')
+        if not ver:
+            raise Exception('api calls must specify the version! e.g. ver=1')
+        # fix ver to include the slash
+        kw['ver'] = '/%s' % ver
     my_url = _routes_default_url_for(*args, **kw)
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
