@@ -67,7 +67,7 @@ class TestSearch(FunctionalTestCase):
 
         # multiple words
         res = self.app.get('/dataset?q=Government%20Expenditure')
-        result = self._check_results(res, 1, 'uk-government-expenditure')
+        result = self._check_results(res, 5, 'uk-government-expenditure')
 
 class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
 
