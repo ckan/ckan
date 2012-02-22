@@ -17,7 +17,7 @@ class TestUtil(ControllerTestCase):
         
     def test_package_slug_valid(self):
         response = self.app.get(
-            url=url_for(controller='api', action='is_slug_valid'),
+            url=url_for(controller='api', action='is_slug_valid', ver=2),
             params={
                'type': u'package',
                'slug': u'A New Title * With & Funny CHARacters',
@@ -28,7 +28,7 @@ class TestUtil(ControllerTestCase):
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
         response = self.app.get(
-            url=url_for(controller='api', action='is_slug_valid'),
+            url=url_for(controller='api', action='is_slug_valid', ver=2),
             params={
                'type': u'package',
                'slug': u'warandpeace',
@@ -39,7 +39,7 @@ class TestUtil(ControllerTestCase):
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_dataset_autocomplete_match_name(self):
-        url = url_for(controller='api', action='dataset_autocomplete')
+        url = url_for(controller='api', action='dataset_autocomplete', ver=2)
         assert_equal(url, '/api/2/util/dataset/autocomplete')
         response = self.app.get(
             url=url,
@@ -52,7 +52,7 @@ class TestUtil(ControllerTestCase):
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_dataset_autocomplete_match_title(self):
-        url = url_for(controller='api', action='dataset_autocomplete')
+        url = url_for(controller='api', action='dataset_autocomplete', ver=2)
         assert_equal(url, '/api/2/util/dataset/autocomplete')
         response = self.app.get(
             url=url,
@@ -65,7 +65,7 @@ class TestUtil(ControllerTestCase):
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_tag_autocomplete(self):
-        url = url_for(controller='api', action='tag_autocomplete')
+        url = url_for(controller='api', action='tag_autocomplete', ver=2)
         assert_equal(url, '/api/2/util/tag/autocomplete')
         response = self.app.get(
             url=url,
@@ -80,7 +80,7 @@ class TestUtil(ControllerTestCase):
     def test_markdown(self):
         markdown = '''##Title'''
         response = self.app.get(
-            url=url_for(controller='api', action='markdown'),
+            url=url_for(controller='api', action='markdown', ver=2),
             params={'q': markdown},
             status=200,
         )
@@ -88,7 +88,7 @@ class TestUtil(ControllerTestCase):
         
     def test_munge_package_name(self):
         response = self.app.get(
-            url=url_for(controller='api', action='munge_package_name'),
+            url=url_for(controller='api', action='munge_package_name', ver=2),
             params={'name': 'test name'},
             status=200,
         )
@@ -96,7 +96,7 @@ class TestUtil(ControllerTestCase):
 
     def test_munge_title_to_package_name(self):
         response = self.app.get(
-            url=url_for(controller='api', action='munge_title_to_package_name'),
+            url=url_for(controller='api', action='munge_title_to_package_name', ver=2),
             params={'name': 'Test title'},
             status=200,
         )
@@ -104,7 +104,7 @@ class TestUtil(ControllerTestCase):
 
     def test_munge_tag(self):
         response = self.app.get(
-            url=url_for(controller='api', action='munge_tag'),
+            url=url_for(controller='api', action='munge_tag', ver=2),
             params={'name': 'Test subject'},
             status=200,
         )
@@ -112,7 +112,7 @@ class TestUtil(ControllerTestCase):
 
     def test_status(self):
         response = self.app.get(
-            url=url_for(controller='api', action='status'),
+            url=url_for(controller='api', action='status', ver=2),
             params={},
             status=200,
         )
