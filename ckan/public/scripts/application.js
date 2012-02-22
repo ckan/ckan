@@ -92,6 +92,9 @@
         el: $el
       });
       view.render();
+
+      $( ".drag-drop-list" ).sortable();
+      $( ".drag-drop-list" ).disableSelection();
     }
 
     var isGroupEdit = $('body.group.edit').length > 0;
@@ -635,15 +638,32 @@ CKAN.View.DatasetEditResourcesForm = Backbone.View.extend({
 
 CKAN.View.ResourceEditList = Backbone.View.extend({
   initialize: function() {
-    _.bindAll(this, 'addResource', 'removeResource');
+    _.bindAll(this, 'addResource', 'removeResource', 'sortStop');
     this.collection.bind('add', this.addResource);
     this.collection.bind('remove', this.removeResource);
     this.collection.each(this.addResource);
+    this.el.bind("sortstop", this.sortStop);
+    $(this.el.find('li:first-child .js-resource-edit-toggle')).click();
+  },
+
+  sortStop: function(event,ui) {
+    $.each(this.el.find('li'), function(li_idx, li) {
+      var resource = $(li).data('resource');
+      if (resource) {
+        var $table = resource.view_table;
+        $.each($table.find('input'), function(input_idx, input) {
+          var name = $(input).attr('name');
+          name = name.replace(/(resources__)\d+(.*)/, '$1'+li_idx+'$2')
+          $(input).attr('name',name);
+        });
+      }
+    });
   },
 
   nextIndex: function() {
     var maxId=-1;
-    this.el.find('input').each(function(idx,input) {
+    var root = $('.editresources-right');
+    root.find('input').each(function(idx,input) {
       var splitName=$(input).attr('name').split('__');
       if (splitName.length>1) {
         var myId = parseInt(splitName[1])
@@ -654,12 +674,11 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
   },
 
   addResource: function(resource) {
+    var self = this;
     var position = this.nextIndex();
     // Create a row from the template
-    var $tr = $('<tr />');
-    $tr.html($.tmpl(
-      CKAN.Templates.resourceEntry,
-      { resource: resource.toTemplateJSON(),
+    var resource_object = { 
+        resource: resource.toTemplateJSON(),
         num: position,
         resourceTypeOptions: [
           ['file', 'Data File']
@@ -670,56 +689,39 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
           , ['code', 'Code']
           , ['example', 'Example']
         ]
-      }
-    ));
-    $tr.find('.js-resource-edit-expanded').hide();
-    this.el.append($tr);
-    resource.view_tr = $tr;
+      };
+    var $li = $($.tmpl(CKAN.Templates.resourceEntry, resource_object));
+    var $table = $($.tmpl(CKAN.Templates.resourceTable, resource_object));
+    this.el.append($li);
+    $('.editresources-right').append($table);
+
+    // Associate the resource with the DOM object
+    resource.view_row = $li;
+    resource.view_table = $table;
+    $li.data('resource', resource);
 
     // == Inner Function: Toggle the expanded options set == //
     var toggleOpen = function(triggerEvent) {
       if (triggerEvent) triggerEvent.preventDefault();
-      var animTime = 350;
-      var expandedTable = $tr.find('.js-resource-edit-expanded');
-      var finalHeight = expandedTable.height();
-      var icon = 'closed';
-
-      if (expandedTable.is(':visible')) {
-        expandedTable.animate(
-            {height:0},
-            animTime,
-            function() {
-              expandedTable.height(finalHeight);
-              expandedTable.hide();
-            }
-        );
-      }
-      else {
-        expandedTable.show();
-        expandedTable.height(0);
-        // Transition to its true height
-        expandedTable.animate({height:finalHeight}, animTime);
-        $tr.find('.js-resource-edit-name').focus();
-        icon = 'open';
-      }
-      $tr.find('.js-resource-edit-toggle').css("background-image", "url('/images/icons/arrow-"+icon+".gif')");
+      // Close all tables
+      $('.editresources-right .js-resource-edit-expanded').hide();
+      $table.show();
     };
 
     // == Inner Function: Delete the row == //
-    var collection = this.collection;
     var deleteResource = function(triggerEvent) {
       if (triggerEvent) triggerEvent.preventDefault();
       confirmMessage = CKAN.Strings.deleteThisResourceQuestion;
       resourceName = resource.attributes.name || CKAN.Strings.noNameBrackets;
       confirmMessage = confirmMessage.replace('%name%', resourceName);
       if (confirm(confirmMessage)) {
-        collection.remove(resource);
+        self.collection.remove(resource);
       }
     };
 
     // == Inner Functions: Update the name as you type == //
     var setName = function(newName) {
-      $link = $tr.find('.js-resource-edit-toggle');
+      $link = $li.find('.js-resource-edit-toggle');
       newName = newName || ('<em>'+CKAN.Strings.noNameBrackets+'</em>');
       // Need to structurally modify the DOM to force a re-render of text
       $link.html('<ema>'+newName+'</span>');
@@ -733,19 +735,19 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
       toggleOpen();
     }
 
-    var nameBox = $tr.find('input.js-resource-edit-name');
+    var nameBox = $li.find('input.js-resource-edit-name');
     CKAN.Utils.bindInputChanges(nameBox,nameBoxChanged);
 
-    $tr.find('.js-resource-edit-toggle').click(toggleOpen);
-    $tr.find('.js-resource-edit-delete').click(deleteResource);
+    $li.find('.js-resource-edit-toggle').click(toggleOpen);
+    $li.find('.js-resource-edit-delete').click(deleteResource);
     // Initialise name
     setName(resource.attributes.name);
   },
 
   removeResource: function(resource) {
-    if (resource.view_tr) {
-      resource.view_tr.remove();
-      delete resource.view_tr;
+    if (resource.view_row) {
+      resource.view_row.remove();
+      delete resource.view_row;
     }
   },
 });
