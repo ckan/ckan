@@ -194,7 +194,7 @@ CKAN config file using Paste. These instructions call it ``development.ini`` sin
     paster make-config ckan development.ini
 
 If you used a different database name or password when creating the database
-in step 5 you'll need to now edit ``development.ini`` and change the
+in step 6 you'll need to now edit ``development.ini`` and change the
 ``sqlalchemy.url`` line, filling in the database name, user and password you used.
 
   ::
@@ -210,7 +210,20 @@ If you're using a remote host with password authentication rather than SSL authe
   Legacy installs of CKAN may have the config file in the pyenv directory, e.g. ``pyenv/ckan.net.ini``. This is fine but CKAN probably won't be able to find your ``who.ini`` file. To fix this edit ``pyenv/ckan.net.ini``, search for the line ``who.config_file = %(here)s/who.ini`` and change it to ``who.config_file = who.ini``.
 
 
-8. Create database tables
+8. Setup Solr
+~~~~~~~~~~~~~~
+
+Set up Solr following the instructions on :ref:`solr-single` or :ref:`solr-multi-core` depending on your needs.
+
+Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:
+
+::
+
+    ckan.site_id=my_ckan_instance
+    solr_url=http://127.0.0.1:8983/solr
+
+
+9. Create database tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now that you have a configuration file that has the correct settings for
@@ -228,12 +241,12 @@ or if your config file is something else, you need to specify it. e.g.::
 
   paster --plugin=ckan db init --config=test.ckan.net.ini
 
-You should see ``Initialising DB: SUCCESS``. 
+You should see ``Initialising DB: SUCCESS``. (There will also be some ``SAWarning``s which can be ignored and probably also an error/warning about "connecting to the SOLR server", which will be addressed in a couple of steps time.)
 
 If the command prompts for a password it is likely you haven't set up the 
 database configuration correctly in step 6.
 
-9. Create the cache and session directories
+10. Create the cache and session directories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You need to create two directories for CKAN to put temporary files:
@@ -247,19 +260,6 @@ You need to create two directories for CKAN to put temporary files:
     mkdir data sstore
 
 
-10. Setup Solr
-~~~~~~~~~~~~~~
-
-Set up Solr following the instructions on :ref:`solr-single` or :ref:`solr-multi-core` depending on your needs.
-
-Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:
-
-::
-
-    ckan.site_id=my_ckan_instance
-    solr_url=http://127.0.0.1:8983/solr
-
-
 11. Link to who.ini
 ~~~~~~~~~~~~~~~~~~~
 
@@ -268,10 +268,12 @@ Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variable
     ln -s pyenv/src/ckan/who.ini
 
 
-12. Run the CKAN webserver
+12. Test the CKAN webserver
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NB If you've started a new shell, you'll have to activate the environment
+You can use Paste to serve CKAN from the command-line. This is a simple and lightweight way to serve CKAN and is especially useful for testing. However a production deployment will probably want to be served using Apache or nginx - see :doc:`post-installation`
+
+.. note: If you've started a new shell, you'll have to activate the environment
 again first - see step 3.
 
 (from the ``pyenv/src/ckan`` directory):
@@ -280,17 +282,19 @@ again first - see step 3.
 
     paster serve development.ini
 
-13. Point your web browser at: http://127.0.0.1:5000/
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+13. Browse CKAN
+~~~~~~~~~~~~~~~
+
+Point your web browser at: http://127.0.0.1:5000/
 
 The CKAN homepage should load.
 
-.. note:: if you installed CKAN on a remote machine then you will need to run the web browser on that machine. For example run `w3m` in a separate ssh session to the one running paster.
+.. note:: if you installed CKAN on a remote machine then you will need to run the web browser on that same machine. For example run the textual web browser `w3m` in a separate ssh session to the one running `paster serve`.
 
 Finally, if doing development you should make sure that tests pass, as described in :ref:`basic-tests`.
 
-14. You are Done
+14. You are done
 ~~~~~~~~~~~~~~~~
 
-You can now proceed to :doc:`post-installation`.
+You can now proceed to :doc:`post-installation` which covers getting an administrator account created and deploying using Apache.
 
