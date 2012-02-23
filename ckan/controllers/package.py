@@ -239,12 +239,13 @@ class PackageController(BaseController):
         try:
             c.fields = []
             search_extras = {}
+            fq = ''
             for (param, value) in request.params.items():
                 if not param in ['q', 'page'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
-                        q += ' %s: "%s"' % (param, value)
+                        fq += ' %s:"%s"' % (param, value)
                     else:
                         search_extras[param] = value
 
@@ -253,6 +254,7 @@ class PackageController(BaseController):
 
             data_dict = {
                 'q':q,
+                'fq':fq,
                 'facet.field':g.facets,
                 'rows':limit,
                 'start':(page-1)*limit,
