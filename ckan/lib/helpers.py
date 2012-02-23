@@ -321,19 +321,18 @@ def resource_icon(res):
     # also: 'page_white_link'
         return icon(icon_name)
     else:
-        return format_icon(res.get('format',''))
+        return icon(format_icon(res.get('format','')))
 
 def format_icon(_format):
-    icon_name = 'page_white'
     _format = _format.lower()
-    if ('json' in _format): icon_name = 'page_white_cup'
-    if ('csv' in _format): icon_name = 'page_white_gear'
-    if ('xls' in _format): icon_name = 'page_white_excel'
-    if ('zip' in _format): icon_name = 'page_white_compressed'
-    if ('api' in _format): icon_name = 'page_white_database'
-    if ('plain text' in _format): icon_name = 'page_white_text'
-    if ('xml' in _format): icon_name = 'page_white_code'
-    return icon(icon_name)
+    if ('json' in _format): return 'page_white_cup'
+    if ('csv' in _format): return 'page_white_gear'
+    if ('xls' in _format): return 'page_white_excel'
+    if ('zip' in _format): return 'page_white_compressed'
+    if ('api' in _format): return 'page_white_database'
+    if ('plain text' in _format): return 'page_white_text'
+    if ('xml' in _format): return 'page_white_code'
+    return 'page_white'
 
 def linked_gravatar(email_hash, size=100, default="identicon"):
     return literal('''<a href="https://gravatar.com/" target="_blank"

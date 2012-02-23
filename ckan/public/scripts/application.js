@@ -680,6 +680,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     var resource_object = { 
         resource: resource.toTemplateJSON(),
         num: position,
+        resource_icon: '/images/icons/page_white.png',
         resourceTypeOptions: [
           ['file', 'Data File']
           , ['api', 'API']
@@ -721,13 +722,21 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
 
     // == Inner Functions: Update the name as you type == //
     var setName = function(newName) {
-      $link = $li.find('.js-resource-edit-open');
       newName = newName || ('<em>'+CKAN.Strings.noNameBrackets+'</em>');
       // Need to structurally modify the DOM to force a re-render of text
+      $link = $li.find('.js-resource-edit-open');
       $link.html('<span>'+newName+'</span>');
     };
-    var nameBoxChanged = function(e) {
-      setName($(e.target).val());
+    // == Inner function: Updates the icon as you type == //
+    var setFormat = function(newFormat) {
+      // Ask the server which icon to use
+      $.getJSON('/api/2/util/format_icon?format='+newFormat, function(data) {
+        if (data.icon) {
+          // Maybe I'll refactor the table to be inside the li
+          $li   .find('.js-resource-icon').attr('src',data.icon);
+          $table.find('.js-resource-icon').attr('src',data.icon);
+        }
+      });
     }
 
     // Trigger animation
@@ -736,12 +745,15 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     }
 
     var nameBox = $table.find('input.js-resource-edit-name');
-    CKAN.Utils.bindInputChanges(nameBox,nameBoxChanged);
+    CKAN.Utils.bindInputChanges(nameBox,function(e) { setName($(e.target).val()); });
+    var formatBox = $table.find('input.js-resource-edit-format');
+    CKAN.Utils.bindInputChanges(formatBox,function(e) { setFormat($(e.target).val()); });
 
     $li.find('.js-resource-edit-open').click(openTable);
     $li.find('.js-resource-edit-delete').click(deleteResource);
     // Initialise name
     setName(resource.attributes.name);
+    setFormat(resource.attributes.format);
   },
 
   removeResource: function(resource) {

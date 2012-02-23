@@ -12,7 +12,7 @@
             <li py:for="name, count in h.facet_items(c, code, limit=limit)"
                 py:if="not (code, name) in c.fields">
                 <a href="${c.drill_down_url(**{code: name})}">
-                  <span py:if="'format' in code.lower()">${h.format_icon(name)}</span>
+                  <span py:if="'format' in code.lower()">${h.icon(h.format_icon(name))}</span>
                   ${label(name)}</a> (${count})
             </li>
         </ul>

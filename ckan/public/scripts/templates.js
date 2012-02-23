@@ -67,6 +67,7 @@ CKAN.Templates.resourceUpload = ' \
 CKAN.Templates.resourceEntry = ' \
   <li class="ui-state-default resource-edit"> \
     <div class="drag-bars">|||</div> \
+    <img class="js-resource-icon inline-icon resource-icon" src="${resource_icon}" /> \
     <a class="resource-edit-expand js-resource-edit-open" href="#">${resource.name}</a>\
   </li> \
   <!-- \
@@ -112,9 +113,11 @@ CKAN.Templates.resourceTable = ' \
           </td> \
         </tr> \
         </tr><tr> \
-          <td class="dataset-label" property="rdfs:label">'+CKAN.Strings.format+'</td> \
+          <td class="dataset-label" property="rdfs:label">'+CKAN.Strings.format +'\
+          &nbsp;&nbsp;<img class="js-resource-icon inline-icon resource-icon" src="${resource_icon}" /> \
+          </td> \
           <td class="dataset-details" property="rdf:value"> \
-            <input name="resources__${num}__format" type="text" value="${resource.format}" class="long autocomplete-format" /> \
+            <input name="resources__${num}__format" type="text" value="${resource.format}" class="long js-resource-edit-format autocomplete-format" /> \
           </td> \
         </tr> \
         </tr><tr> \
