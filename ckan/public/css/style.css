@@ -247,6 +247,16 @@ img.gravatar {
   margin: 0; 
   padding: 0; 
 }
+.drag-drop-list .drag-bars {
+  font-size: 12px;
+  color: #ccc;
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  padding-left: 18px;
+  padding-right: 12px;
+  cursor: move;
+}
 .drag-drop-list li {
   margin-bottom: 3px;
   cursor: move;
@@ -1510,11 +1520,31 @@ body.authz form button {
 
 
 /* Dev */
+.resource-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.resource-list li {
+  margin-bottom: 4px;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid #eee;
+  position: relative;
+}
+.resource-list li a {
+  display: block;
+  padding: 5px 10px;
+}
+.resource-list li:hover {
+  border-color: #ccc;
+}
+
 fieldset#resources {
   position: relative;
   padding: 0;
 }
-.resource-list {
+.dataset-editresources-form .resource-list {
   width: 400px;
   min-height: 300px;
   margin-bottom: 40px;
@@ -1524,24 +1554,15 @@ li.resource-edit {
   position: relative;
   z-index: 1;
   background: #fff;
-  border: 1px solid #eee;
 }
 li.resource-edit:hover {
-  border-color: #ccc;
   margin-right: 1px;
   border-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 li.resource-edit a {
-  display: block;
-  cursor: move;
-}
-li.resource-edit .drag-bars {
-  font-size: 12px;
-  color: #ccc;
-  display: inline-block;
-  text-align: center;
-  vertical-align: middle;
-  padding: 5px 8px;
+  padding-left: 0;
 }
 li.resource-edit:hover .drag-bars {
   color: #999;
@@ -1552,6 +1573,8 @@ li.resource-edit.active {
   border-right: 0;
   background: #f9f9f9;
   margin-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .resource-details-container {
