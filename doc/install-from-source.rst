@@ -193,9 +193,15 @@ CKAN config file using Paste. These instructions call it ``development.ini`` sin
     cd pyenv/src/ckan
     paster make-config ckan development.ini
 
+<<<<<<< HEAD
 If you used a different database name or password when creating the database
 in step 5 you'll need to now edit ``development.ini`` and change the
 ``sqlalchemy.url`` line, filling in the database name, user and password you used.
+=======
+  If you used a different database name or password when creating the database
+  in step 6 you'll need to now edit ``development.ini`` and change the
+  ``sqlalchemy.url`` line, filling in the database name, user and password you used.
+>>>>>>> 34c53f7... [master][noticket][doc]: Rearrange order to avoid warnings on paster db init.
 
   ::
   
@@ -210,8 +216,23 @@ If you're using a remote host with password authentication rather than SSL authe
   Legacy installs of CKAN may have the config file in the pyenv directory, e.g. ``pyenv/ckan.net.ini``. This is fine but CKAN probably won't be able to find your ``who.ini`` file. To fix this edit ``pyenv/ckan.net.ini``, search for the line ``who.config_file = %(here)s/who.ini`` and change it to ``who.config_file = who.ini``.
 
 
+<<<<<<< HEAD
 8. Create database tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+8. Setup Solr.
+
+   Set up Solr following the instructions on :ref:`solr-single` or :ref:`solr-multi-core` depending on your needs.
+
+   Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:
+
+   ::
+
+       ckan.site_id=my_ckan_instance
+       solr_url=http://127.0.0.1:8983/solr
+
+9. Create database tables.
+>>>>>>> 34c53f7... [master][noticket][doc]: Rearrange order to avoid warnings on paster db init.
 
 Now that you have a configuration file that has the correct settings for
 your database, you'll need to create the tables. Make sure you are still in an
@@ -233,8 +254,12 @@ You should see ``Initialising DB: SUCCESS``.
 If the command prompts for a password it is likely you haven't set up the 
 database configuration correctly in step 6.
 
+<<<<<<< HEAD
 9. Create the cache and session directories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+10. Create the cache directory.
+>>>>>>> 34c53f7... [master][noticket][doc]: Rearrange order to avoid warnings on paster db init.
 
 You need to create two directories for CKAN to put temporary files:
  * Pylon's cache directory, specified by `cache_dir` in the config file.
@@ -246,6 +271,7 @@ You need to create two directories for CKAN to put temporary files:
 
     mkdir data sstore
 
+<<<<<<< HEAD
 
 10. Setup Solr
 ~~~~~~~~~~~~~~
@@ -264,6 +290,9 @@ Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variable
 ~~~~~~~~~~~~~~~~~~~
 
 ``who.ini`` (the Repoze.who configuration) needs to be accessible in the same directory as your CKAN config file. So if your config file is not in ``pyenv/src/ckan``, then cd to the directory with your config file and create a symbolic link to ``who.ini``. e.g.::
+=======
+11. Run the CKAN webserver.
+>>>>>>> 34c53f7... [master][noticket][doc]: Rearrange order to avoid warnings on paster db init.
 
     ln -s pyenv/src/ckan/who.ini
 
