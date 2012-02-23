@@ -513,52 +513,15 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render('package/edit.html')
+
+        if (c.action == u'editresources'):
+          return render('package/editresources.html')
+        else:
+          return render('package/edit.html')
 
     def editresources(self, id, data=None, errors=None, error_summary=None):
-        package_type = self._get_package_type(id)
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
-                   'save': 'save' in request.params,
-                   'moderated': config.get('moderated'),
-                   'pending': True,
-                   'schema': self._form_to_db_schema(package_type=package_type)}
-
-        if context['save'] and not data:
-            return self._save_edit(id, context)
-        try:
-            old_data = get_action('package_show')(context, {'id':id})
-            schema = self._db_to_form_schema(package_type=package_type)
-            if schema and not data:
-                old_data, errors = validate(old_data, schema, context=context)
-            data = data or old_data
-            # Merge all elements for the complete package dictionary
-            c.pkg_dict = dict(old_data.items() + data.items())
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % '')
-        except NotFound:
-            abort(404, _('Package not found'))
-
-        c.pkg = context.get("package")
-        c.pkg_json = json.dumps(data)
-
-        try:
-            check_access('package_update',context)
-        except NotAuthorized, e:
-            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
-
-        errors = errors or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
-
-        self._setup_template_variables(context, {'id': id}, package_type=package_type)
-
-        # TODO: This check is to maintain backwards compatibility with the old way of creating
-        # custom forms. This behaviour is now deprecated.
-        if hasattr(self, 'package_form'):
-            c.form = render(self.package_form, extra_vars=vars)
-        else:
-            c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render('package/editresources.html')
+        '''Hook method made available for routing purposes.'''
+        return self.edit(id,data,errors,error_summary)
 
     def read_ajax(self, id, revision=None):
         package_type=self._get_package_type(id)

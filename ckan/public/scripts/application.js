@@ -651,7 +651,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
       var resource = $(li).data('resource');
       if (resource) {
         var $table = resource.view_table;
-        $.each($table.find('input'), function(input_idx, input) {
+        $.each($table.find('input,textarea'), function(input_idx, input) {
           var name = $(input).attr('name');
           name = name.replace(/(resources__)\d+(.*)/, '$1'+li_idx+'$2')
           $(input).attr('name',name);
