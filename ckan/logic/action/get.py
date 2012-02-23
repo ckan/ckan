@@ -891,8 +891,8 @@ def term_translation_show(context, data_dict):
 
     q = q.where(trans_table.c.term.in_(data_dict['terms']))
 
-    if 'lang_code' in data_dict:
-        q = q.where(trans_table.c.lang_code == data_dict['lang_code'])
+    if 'lang_codes' in data_dict:
+        q = q.where(trans_table.c.lang_code.in_(data_dict['lang_codes']))
 
     conn = model.Session.connection()
     cursor = conn.execute(q)

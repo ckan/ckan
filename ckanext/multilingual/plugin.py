@@ -14,7 +14,8 @@ class MultilingualDataset(SingletonPlugin):
     # FIXME: Look for translation in fallback language when none found in
     # desired language.
     def before_view(self, data_dict):
-        lang_code = pylons.request.environ['CKAN_LANG']
+        desired_lang_code = pylons.request.environ['CKAN_LANG']
+        fallback_lang_code = pylons.config.get('ckan.locale_default', 'en')
 
         # Get a flattened copy of data_dict to do the translation on.
         flattened = ckan.lib.navl.dictization_functions.flatten_dict(
@@ -36,13 +37,20 @@ class MultilingualDataset(SingletonPlugin):
         # Get the translations of all the terms (as a list of dictionaries).
         translations = ckan.logic.action.get.term_translation_show(
                 {'model': ckan.model},
-                {'terms': terms, 'lang_code': lang_code})
+                {'terms': terms,
+                    'lang_codes': (desired_lang_code, fallback_lang_code)})
 
         # Transform the translations into a more convenient structure.
-        translations_dict = {}
+        desired_translations = {}
+        fallback_translations = {}
         for translation in translations:
-            translations_dict[translation['term']] = (
-                    translation['term_translation'])
+            if translation['lang_code'] == desired_lang_code:
+                desired_translations[translation['term']] = (
+                        translation['term_translation'])
+            else:
+                assert translation['lang_code'] == fallback_lang_code
+                fallback_translations[translation['term']] = (
+                        translation['term_translation'])
 
         # Make a copy of the flattened data dict with all the terms replaced by
         # their translations, where available.
@@ -51,11 +59,19 @@ class MultilingualDataset(SingletonPlugin):
             if value in (None, True, False):
                 translated_flattened[key] = value
             elif isinstance(value, basestring):
-                translated_flattened[key] = translations_dict.get(value, value)
+                if desired_translations.has_key(value):
+                    translated_flattened[key] = desired_translations[value]
+                else:
+                    translated_flattened[key] = fallback_translations.get(
+                            value, value)
             else:
                 translated_value = []
                 for item in value:
-                    translated_value.append(translations_dict.get(item, item))
+                    if desired_translations.has_key(value):
+                        translated_flattened[key] = desired_translations[value]
+                    else:
+                        translated_flattened[key] = fallback_translations.get(
+                                value, value)
                 translated_flattened[key] = translated_value
 
         # Finally unflatten and return the translated data dict.
