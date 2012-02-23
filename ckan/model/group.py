@@ -103,6 +103,20 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return group
     # Todo: Make sure group names can't be changed to look like group IDs?
 
+    @classmethod
+    def all(cls, group_type=None, state=('active',)):
+        """
+        Returns all groups.
+        """
+        q = Session.query(cls)
+        if state:
+            q = q.filter(cls.state.in_(state))
+
+        if group_type:
+            q = q.filter(cls.type==group_type)
+
+        return q.order_by(cls.title)
+
     def set_approval_status(self, status):
         """
             Aproval status can be set on a group, where currently it does

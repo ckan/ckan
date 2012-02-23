@@ -171,7 +171,8 @@ def package_dictize(pkg, context):
     group = model.group_table
     q = select([group],
                from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
-               ).where(member_rev.c.table_id == pkg.id)
+               ).where(member_rev.c.table_id == pkg.id)\
+                .where(member_rev.c.state == 'active')
     result = _execute_with_revision(q, member_rev, context)
     result_dict["groups"] = obj_list_dictize(result, context)
     #relations
