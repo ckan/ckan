@@ -147,3 +147,11 @@ This is usually seen when you run the paster command with one user, and CKAN is 
 This is seen when running a paster command. The problem is paster is not recognising the python virtual environment where genshi (and other CKAN libraries) are installed. To resolve this, supply the path to the copy of paster in the virtual environment. e.g.::
 
   pyenv/bin/paster ...
+
+``type "geometry" does not exist``
+==================================
+(also ``function public.multipolygonfromtext(text) does not exist`` ``permission denied for language c``)
+
+This may occur when you are using psql or ``paster db load``. It means that the database dump was taken from a Postgres database that was spatially enabled (PostGIS installed) and you are loading it into one that is not.
+
+To make your Postgres cluster spatially enabled, see the instructions here: https://github.com/okfn/ckanext-spatial/blob/master/README.rst

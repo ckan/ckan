@@ -7,6 +7,7 @@ Major:
  * Tags not restricted to just letters and dashes (#1453)
 
 Minor:
+ * Database dumps now exclude deleted packages (#1623)
 
 Bug fixes:
  * Unicode characters in field-specific API search queries caused exception (since CKAN 1.5) (#1798)
