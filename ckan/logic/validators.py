@@ -111,6 +111,16 @@ def group_id_exists(group_id, context):
         raise Invalid(_("That group ID does not exist."))
     return group_id
 
+def group_id_or_name_exists(reference, context):
+    """
+    Raises Invalid if a group identified by the name or id cannot be found.
+    """
+    model = context['model']
+    result = model.Group.get(reference)
+    if not result:
+        raise Invalid(_('That group name or ID does not exist.'))
+    return reference
+
 def activity_type_exists(activity_type):
     """Raises Invalid if there is no registered activity renderer for the
     given activity_type. Otherwise returns the given activity_type.
