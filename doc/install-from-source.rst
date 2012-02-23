@@ -191,7 +191,7 @@ Install the Source
       paster make-config ckan development.ini
 
   If you used a different database name or password when creating the database
-  in step 5 you'll need to now edit ``development.ini`` and change the
+  in step 6 you'll need to now edit ``development.ini`` and change the
   ``sqlalchemy.url`` line, filling in the database name, user and password you used.
 
   ::
@@ -214,7 +214,18 @@ Install the Source
      We are moving to a new deployment system where this incompatibility 
      will be fixed.
 
-8. Create database tables.
+8. Setup Solr.
+
+   Set up Solr following the instructions on :ref:`solr-single` or :ref:`solr-multi-core` depending on your needs.
+
+   Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:
+
+   ::
+
+       ckan.site_id=my_ckan_instance
+       solr_url=http://127.0.0.1:8983/solr
+
+9. Create database tables.
 
   Now that you have a configuration file that has the correct settings for
   your database, you'll need to create the tables. Make sure you are still in an
@@ -236,7 +247,7 @@ Install the Source
   If the command prompts for a password it is likely you haven't set up the 
   database configuration correctly in step 6.
 
-9. Create the cache directory.
+10. Create the cache directory.
 
   You need to create the Pylon's cache directory specified by 'cache_dir' 
   in the config file.
@@ -246,20 +257,6 @@ Install the Source
   ::
 
       mkdir data
-
-
-10. Setup Solr.
-
-   Set up Solr following the instructions on :ref:`solr-single` or :ref:`solr-multi-core` depending on your needs.
-
-   Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:
-
-   ::
-
-       ckan.site_id=my_ckan_instance
-       solr_url=http://127.0.0.1:8983/solr
-
-
 
 11. Run the CKAN webserver.
 
