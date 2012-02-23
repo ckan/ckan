@@ -735,7 +735,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     var setName = function(newName) {
       newName = newName || ('<em>'+CKAN.Strings.noNameBrackets+'</em>');
       // Need to structurally modify the DOM to force a re-render of text
-      $link = $li.find('.js-resource-edit-open');
+      $link = $li.find('.js-resource-edit-name');
       $link.html('<span>'+newName+'</span>');
     };
     // == Inner function: Updates the icon as you type == //

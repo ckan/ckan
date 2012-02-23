@@ -251,15 +251,6 @@ img.gravatar {
   margin-bottom: 3px;
   cursor: move;
 }
-.drag-drop-list .drag-bars {
-  font-size: 12px;
-  color: #ccc;
-  display: inline-block;
-  text-align: center;
-  vertical-align: middle;
-  padding: 6px 10px;
-  margin-right: 10px;
-}
 
 /* =============== */
 /* MinorNavigation */
@@ -1529,7 +1520,7 @@ fieldset#resources {
   margin-bottom: 40px;
 }
 li.resource-edit {
-  margin-right: 10px;
+  margin-right: 20px;
   position: relative;
   z-index: 1;
   background: #fff;
@@ -1537,17 +1528,34 @@ li.resource-edit {
 }
 li.resource-edit:hover {
   border-color: #ccc;
+  margin-right: 1px;
+  border-right: 0;
+}
+li.resource-edit a {
+  display: block;
+  cursor: move;
+}
+li.resource-edit .drag-bars {
+  font-size: 12px;
+  color: #ccc;
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  padding: 5px 8px;
+}
+li.resource-edit:hover .drag-bars {
+  color: #999;
 }
 
 li.resource-edit.active {
   border-color: #888;
   border-right: 0;
-  background: #eee;
+  background: #f9f9f9;
   margin-right: 0;
 }
 
 .resource-details-container {
-  background: #eee;
+  background: #f9f9f9;
   border: 1px solid #888;
   box-shadow: 2px 2px 4px #888;
   margin-bottom: 20px;
