@@ -15,14 +15,17 @@ from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
-from pylons import url
+from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
-from routes import url_for, redirect_to
+from pylons import config
+from routes import redirect_to as _redirect_to
+from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
-from i18n import get_available_locales
+import i18n
 
-
+get_available_locales = i18n.get_available_locales
+get_locales_dict = i18n.get_locales_dict
 
 try:
     from collections import OrderedDict # from python 2.7
@@ -33,7 +36,66 @@ try:
     import json
 except ImportError:
     import simplejson as json
-    
+
+def redirect_to(*args, **kw):
+    '''A routes.redirect_to wrapper to retain the i18n settings'''
+    return _redirect_to(url_for(*args, **kw))
+
+def url(*args, **kw):
+    """Create url adding i18n information if selected
+    wrapper for pylons.url"""
+    locale = kw.pop('locale', None)
+    my_url = _pylons_default_url(*args, **kw)
+    return _add_i18n_to_url(my_url, locale=locale, **kw)
+
+def url_for(*args, **kw):
+    """Create url adding i18n information if selected
+    wrapper for routes.url_for"""
+    locale = kw.pop('locale', None)
+    my_url = _routes_default_url_for(*args, **kw)
+    return _add_i18n_to_url(my_url, locale=locale, **kw)
+
+def url_for_static(*args, **kw):
+    """Create url for static content that does not get translated
+    eg css, js
+    wrapper for routes.url_for"""
+    my_url = _routes_default_url_for(*args, **kw)
+    return my_url
+
+def _add_i18n_to_url(url_to_amend, **kw):
+    # If the locale keyword param is provided then the url is rewritten
+    # using that locale .If return_to is provided this is used as the url
+    # (as part of the language changing feature).
+    # A locale of default will not add locale info to the url.
+
+    from pylons import request
+
+    default_locale = False
+    locale = kw.pop('locale', None)
+    allowed_locales = ['default'] + i18n.get_locales()
+    if locale and locale not in allowed_locales:
+        locale = None
+    if locale:
+        if locale == 'default':
+            default_locale = True
+    else:
+        try:
+            locale = request.environ.get('CKAN_LANG')
+            default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
+        except TypeError:
+            default_locale = True
+    try:
+        root = request.environ.get('SCRIPT_NAME', '')
+    except TypeError:
+        root = ''
+    if default_locale:
+        url = '%s%s' % (root, url_to_amend)
+    else:
+        # we need to strip the root from the url and the add it before
+        # the language specification.
+        url = url_to_amend[len(root):]
+        url = '%s/%s%s' % (root, locale,  url)
+    return url
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -56,16 +118,16 @@ class Message(object):
     __unicode__ = __str__
 
     def __html__(self):
-        if self.allow_html: 
+        if self.allow_html:
             return self.message
         else:
             return escape(self.message)
 
 class _Flash(object):
-    
+
     # List of allowed categories.  If None, allow any category.
     categories = ["warning", "notice", "error", "success"]
-    
+
     # Default category if none is specified.
     default_category = "notice"
 
@@ -112,13 +174,13 @@ class _Flash(object):
 
 _flash = _Flash()
 
-def flash_notice(message, allow_html=False): 
+def flash_notice(message, allow_html=False):
     _flash(message, category='notice', allow_html=allow_html)
 
-def flash_error(message, allow_html=False): 
+def flash_error(message, allow_html=False):
     _flash(message, category='error', allow_html=allow_html)
 
-def flash_success(message, allow_html=False): 
+def flash_success(message, allow_html=False):
     _flash(message, category='success', allow_html=allow_html)
 
 def are_there_flash_messages():
@@ -126,12 +188,12 @@ def are_there_flash_messages():
 
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):
-    highlight_actions = kwargs.pop("highlight_actions", 
+    highlight_actions = kwargs.pop("highlight_actions",
                                    kwargs["action"]).split()
     return link_to(
         text,
         url_for(controller=controller, **kwargs),
-        class_=('active' if 
+        class_=('active' if
                 c.controller == controller and c.action in highlight_actions
                 else '')
     )
@@ -139,22 +201,22 @@ def nav_link(c, text, controller, **kwargs):
 # FIXME: shouldn't have to pass the c object in to this.
 def subnav_link(c, text, action, **kwargs):
     return link_to(
-        text, 
+        text,
         url_for(action=action, **kwargs),
         class_=('active' if c.action == action else '')
     )
-    
+
 def subnav_named_route(c, text, routename,**kwargs):
     """ Generate a subnav element based on a named route """
     return link_to(
-        text, 
-        url_for(routename, **kwargs),
+        text,
+        url_for(str(routename), **kwargs),
         class_=('active' if c.action == kwargs['action'] else '')
-    )    
+    )
 
 def facet_items(c, name, limit=10):
     from pylons import request
-    if not c.facets or not c.facets.get(name): 
+    if not c.facets or not c.facets.get(name):
         return []
     facets = []
     for k, v in c.facets.get(name).items():
@@ -165,7 +227,7 @@ def facet_items(c, name, limit=10):
     return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
 
 def facet_title(name):
-    from pylons import config 
+    from pylons import config
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
 def am_authorized(c, action, domain_object=None):
@@ -204,14 +266,11 @@ def linked_user(user, maxlength=0):
             return user_name
     if user:
         _name = user.name if model.User.VALID_NAME.match(user.name) else user.id
-        # Absolute URL of default user icon
-        from pylons import config 
-        _icon_url_default = icon_url("user")
-        _icon = gravatar(user.email_hash, 16, _icon_url_default)+" "
+        _icon = gravatar(user.email_hash, 20)
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
-        return _icon + link_to(displayname, 
+        return _icon + link_to(displayname,
                        url_for(controller='user', action='read', id=_name))
 
 def linked_authorization_group(authgroup, maxlength=0):
@@ -226,7 +285,7 @@ def linked_authorization_group(authgroup, maxlength=0):
         displayname = authgroup.name or authgroup.id
         if maxlength and len(display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
-        return link_to(displayname, 
+        return link_to(displayname,
                        url_for(controller='authorization_group', action='read', id=displayname))
 
 def group_name_to_title(name):
@@ -244,7 +303,7 @@ def markdown_extract(text, extract_length=190):
     return unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True))
 
 def icon_url(name):
-    return url_for('/images/icons/%s.png' % name)
+    return url_for_static('/images/icons/%s.png' % name)
 
 def icon_html(url, alt=None):
     return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (url, alt))
@@ -252,14 +311,21 @@ def icon_html(url, alt=None):
 def icon(name, alt=None):
     return icon_html(icon_url(name),alt)
 
-def linked_gravatar(email_hash, size=100, default="mm"):
-    return literal('<a href="http://gravatar.com" target="_blank">%s</a>' % gravatar(email_hash,size,default))
+def linked_gravatar(email_hash, size=100, default="identicon"):
+    return literal('''<a href="https://gravatar.com/" target="_blank"
+        title="Update your avatar at gravatar.com">
+        %s</a>''' %
+            gravatar(email_hash,size,default)
+        )
 
-def gravatar(email_hash, size=100, default="mm"):
-    return literal('<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s" />' % (email_hash, size, default))
+def gravatar(email_hash, size=100, default="identicon"):
+    return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
+        class="gravatar" />'''
+        % (email_hash, size, default)
+        )
 
 def pager_url(page, partial=None, **kwargs):
-    routes_dict = url.environ['pylons.routes_dict']
+    routes_dict = _pylons_default_url.environ['pylons.routes_dict']
     kwargs['controller'] = routes_dict['controller']
     kwargs['action'] = routes_dict['action']
     if routes_dict.get('id'):
@@ -277,13 +343,15 @@ class Page(paginate.Page):
         )
         return super(Page, self).pager(*args, **kwargs)
 
-def render_datetime(datetime_):
+def render_datetime(datetime_, date_format=None, with_hours=False):
     '''Render a datetime object or timestamp string as a pretty string
     (Y-m-d H:m).
     If timestamp is badly formatted, then a blank string is returned.
     '''
-    from ckan import model
-    date_format = '%Y-%m-%d %H:%M'
+    if not date_format:
+        date_format = '%b %d, %Y'
+        if with_hours:
+            date_format += ', %H:%M'
     if isinstance(datetime_, datetime.datetime):
         return datetime_.strftime(date_format)
     elif isinstance(datetime_, basestring):
@@ -361,3 +429,10 @@ def resource_link(resource_dict, package_id):
         resource_id=resource_dict['id'])
     return link_to(text, url)
 
+def tag_link(tag):
+    url = url_for(controller='tag', action='read', id=tag['name'])
+    return link_to(tag['name'], url)
+
+def group_link(group):
+    url = url_for(controller='group', action='read', id=group['name'])
+    return link_to(group['name'], url)

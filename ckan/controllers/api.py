@@ -1,6 +1,7 @@
 import logging
+import cgi
 
-from paste.util.multidict import MultiDict 
+from paste.util.multidict import MultiDict
 from webob.multidict import UnicodeMultiDict
 
 from ckan.lib.base import BaseController, response, c, _, gettext, request
@@ -70,7 +71,8 @@ class ApiController(BaseController):
             if status_int==200 and request.params.has_key('callback') and \
                    (request.method == 'GET' or \
                     c.logic_function and request.method == 'POST'):
-                callback = request.params['callback']
+                # escape callback to remove '<', '&', '>' chars
+                callback = cgi.escape(request.params['callback'])
                 response_msg = self._wrap_jsonp(callback, response_msg)
         return response_msg
 
@@ -131,15 +133,15 @@ class ApiController(BaseController):
     def get_api(self, ver=None):
         response_data = {}
         response_data['version'] = ver or '1'
-        return self._finish_ok(response_data) 
-    
+        return self._finish_ok(response_data)
+
     def action(self, logic_function):
         function = get_action(logic_function)
         if not function:
             log.error('Can\'t find logic function: %s' % logic_function)
             return self._finish_bad_request(
                 gettext('Action name not known: %s') % str(logic_function))
-        
+
         context = {'model': model, 'session': model.Session, 'user': c.user}
         model.Session()._context = context
         return_dict = {'help': function.__doc__}
@@ -170,7 +172,7 @@ class ApiController(BaseController):
                                     'message': _('Access denied')}
             return_dict['success'] = False
             return self._finish(403, return_dict, content_type='json')
-        except NotFound:
+        except NotFound, e:
             return_dict['error'] = {'__type': 'Not Found Error',
                                     'message': _('Not found')}
             if e.extra_msg:
@@ -178,7 +180,7 @@ class ApiController(BaseController):
             return_dict['success'] = False
             return self._finish(404, return_dict, content_type='json')
         except ValidationError, e:
-            error_dict = e.error_dict 
+            error_dict = e.error_dict
             error_dict['__type'] = 'Validation Error'
             return_dict['error'] = error_dict
             return_dict['success'] = False
@@ -190,17 +192,17 @@ class ApiController(BaseController):
                                     (_('Parameter Error'), e.extra_msg)}
             return_dict['success'] = False
             log.error('Parameter error: %r' % e.extra_msg)
-            return self._finish(409, return_dict, content_type='json')            
+            return self._finish(409, return_dict, content_type='json')
         except SearchQueryError, e:
             return_dict['error'] = {'__type': 'Search Query Error',
                                     'message': 'Search Query is invalid: %r' % e.args }
             return_dict['success'] = False
-            return self._finish(400, return_dict, content_type='json')        
+            return self._finish(400, return_dict, content_type='json')
         except SearchError, e:
             return_dict['error'] = {'__type': 'Search Error',
                                     'message': 'Search error: %r' % e.args }
             return_dict['success'] = False
-            return self._finish(409, return_dict, content_type='json')        
+            return self._finish(409, return_dict, content_type='json')
         return self._finish_ok(return_dict)
 
     def list(self, ver=None, register=None, subregister=None, id=None):
@@ -218,9 +220,14 @@ class ApiController(BaseController):
             ('package', 'relationships'): get_action('package_relationships_list'),
             ('dataset', 'revisions'): get_action('package_revision_list'),
             ('package', 'revisions'): get_action('package_revision_list'),
+            ('package', 'activity'): get_action('package_activity_list'),
+            ('dataset', 'activity'): get_action('package_activity_list'),
+            ('group', 'activity'): get_action('group_activity_list'),
+            ('user', 'activity'): get_action('user_activity_list'),
+            ('activity', 'details'): get_action('activity_detail_list')
         }
 
-        action = action_map.get((register, subregister)) 
+        action = action_map.get((register, subregister))
         if not action:
             action = action_map.get(register)
         if not action:
@@ -254,14 +261,14 @@ class ApiController(BaseController):
             action_map[('package', type)] = get_action('package_relationships_list')
         log.debug('show: %s' % context)
 
-        action = action_map.get((register, subregister)) 
+        action = action_map.get((register, subregister))
         if not action:
             action = action_map.get(register)
         if not action:
             return self._finish_bad_request(
                 gettext('Cannot read entity of this type: %s') % register)
         try:
-            
+
             return self._finish_ok(action(context, data_dict))
         except NotFound, e:
             extra_msg = e.extra_msg
@@ -298,7 +305,7 @@ class ApiController(BaseController):
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
 
-        action = action_map.get((register, subregister)) 
+        action = action_map.get((register, subregister))
         if not action:
             action = action_map.get(register)
         if not action:
@@ -333,7 +340,7 @@ class ApiController(BaseController):
         except:
             model.Session.rollback()
             raise
-            
+
     def update(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
             ('dataset', 'relationships'): get_action('package_relationship_update_rest'),
@@ -356,7 +363,7 @@ class ApiController(BaseController):
         except ValueError, inst:
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
-        action = action_map.get((register, subregister)) 
+        action = action_map.get((register, subregister))
         if not action:
             action = action_map.get(register)
         if not action:
@@ -402,7 +409,7 @@ class ApiController(BaseController):
 
         log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
 
-        action = action_map.get((register, subregister)) 
+        action = action_map.get((register, subregister))
         if not action:
             action = action_map.get(register)
         if not action:
@@ -422,7 +429,7 @@ class ApiController(BaseController):
             return self._finish(409, e.error_dict, content_type='json')
 
     def search(self, ver=None, register=None):
-        
+
         log.debug('search %s params: %r' % (register, request.params))
         ver = ver or '1' # i.e. default to v1
         if register == 'revision':
@@ -461,7 +468,7 @@ class ApiController(BaseController):
                 params['fl'] = 'id' if ver == '2' else 'name'
 
             try:
-                if register == 'resource': 
+                if register == 'resource':
                     query = query_for(model.Resource)
 
                     # resource search still uses ckan query parser
@@ -521,7 +528,7 @@ class ApiController(BaseController):
             params = request_params
         if not isinstance(params, (UnicodeMultiDict, dict)):
             raise ValueError, _('Request params must be in form of a json encoded dictionary.')
-        return params        
+        return params
 
     def markdown(self, ver=None):
         raw_markdown = request.params.get('q', '')
@@ -577,6 +584,27 @@ class ApiController(BaseController):
             user_list = get_action('user_autocomplete')(context,data_dict)
         return user_list
 
+    @jsonpify
+    def group_autocomplete(self):
+        q = request.params.get('q', '')
+        t = request.params.get('type', None)
+        limit = request.params.get('limit', 20)
+        try:
+            limit = int(limit)
+        except:
+            limit = 20
+        limit = min(50, limit)
+
+        query = model.Group.search_by_name(q, t)
+        def convert_to_dict(user):
+            out = {}
+            for k in ['id', 'name', 'title']:
+                out[k] = getattr(user, k)
+            return out
+        query = query.limit(limit)
+        out = map(convert_to_dict, query.all())
+        return out
+
 
     @jsonpify
     def authorizationgroup_autocomplete(self):
@@ -587,7 +615,7 @@ class ApiController(BaseController):
         except:
             limit = 20
         limit = min(50, limit)
-    
+
         query = model.AuthorizationGroup.search(q)
         def convert_to_dict(user):
             out = {}
@@ -608,7 +636,7 @@ class ApiController(BaseController):
             response_data = dict(valid=not bool(group_exists(slug)))
             return self._finish_ok(response_data)
         return self._finish_bad_request(gettext('Bad slug type: %s') % slugtype)
-            
+
 
     def dataset_autocomplete(self):
         q = request.params.get('incomplete', '')
@@ -670,8 +698,8 @@ class ApiController(BaseController):
     def munge_title_to_package_name(self):
         name = request.params.get('title') or request.params.get('name')
         munged_name = munge_title_to_name(name)
-        return self._finish_ok(munged_name)        
-        
+        return self._finish_ok(munged_name)
+
     def munge_tag(self):
         tag = request.params.get('tag') or request.params.get('name')
         munged_tag = munge_tag(tag)

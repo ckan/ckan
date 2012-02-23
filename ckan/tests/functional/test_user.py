@@ -48,7 +48,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         main_res = self.main_div(res)
         assert 'annafan' in res, res
         assert 'Logged in' not in main_res, main_res
-        assert 'My Account' not in main_res, main_res
+        assert 'checkpoint:is-myself' not in main_res, main_res
         assert 'about' in main_res, main_res
         assert 'I love reading Annakarenina' in res, main_res
         self.check_named_element(res, 'a',
@@ -56,9 +56,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                                  'target="_blank"',
                                  'rel="nofollow"')
         assert 'Edit Profile' not in main_res, main_res
-        assert 'Number of edits:</strong> 3' in res, res
-        assert 'Number of datasets administered:</strong> 1' in res, res
-        assert 'Revision History' in res, res
 
     def test_user_read_without_id(self):
         offset = '/user/'
@@ -74,7 +71,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': str(user.name)})
         main_res = self.main_div(res)
         assert 'annafan' in main_res, main_res
-        assert 'My Account' in main_res, main_res
+        assert 'checkpoint:is-myself' in main_res, main_res
 
     def test_user_read_logged_in(self):
         user = model.User.by_name(u'annafan')
@@ -82,7 +79,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, extra_environ={'REMOTE_USER': str(user.name)})
         main_res = self.main_div(res)
         assert 'annafan' in res, res
-        assert 'My Account' in main_res, main_res
+        assert 'checkpoint:is-myself' in main_res, main_res
         assert 'Edit Profile' in main_res, main_res
 
     def test_user_read_about_unfinished(self):
@@ -181,7 +178,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = res.follow()
         assert_equal(res.status, 200)
         assert 'testlogin is now logged in' in res.body
-        assert 'My Account' in res.body
+        assert 'checkpoint:is-myself' in res.body
 
         # check user object created
         user = model.User.by_name(username)
@@ -383,7 +380,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
         offset = url_for(controller='user', action='read', id='okfntest')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'okfntest'})
-        assert 'Your API key is: %s' % user.apikey in res, res
+        assert user.apikey in res, res
 
     def test_user_create(self):
         # create/register user

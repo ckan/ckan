@@ -1,0 +1,16 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+  <xi:include href="../_util.html" />
+${activity_div(
+  actor=h.linked_user(activity.user_id),
+  verb='deleted',
+  object='the resource '+h.resource_display_name(detail.data.resource),
+  target='from the dataset '+h.dataset_link(activity.data.package),
+  activity=activity
+  )}
+</html>

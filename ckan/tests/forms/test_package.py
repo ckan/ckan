@@ -134,7 +134,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         indict['Package--name'] = u'testname'
         indict['Package--notes'] = u'some new notes'
         indict['Package--tags'] = u'russian, tolstoy, ' + newtagname,
-        indict['Package--license_id'] = u'gpl-3.0'
+        indict['Package--license_id'] = u'odc-by'
         indict['Package--extras-newfield0-key'] = u'testkey'
         indict['Package--extras-newfield0-value'] = u'testvalue'
         indict['Package--resources-0-url'] = u'http:/1'
@@ -153,7 +153,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         assert outpkg.notes == indict['Package--notes']
 
         # test tags
-        taglist = [ tag.name for tag in outpkg.tags ]
+        taglist = [ tag.name for tag in outpkg.get_tags() ]
         assert u'russian' in taglist, taglist
         assert u'tolstoy' in taglist, taglist
         assert newtagname in taglist
@@ -185,7 +185,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         indict[prefix + 'name'] = u'annakaren'
         indict[prefix + 'notes'] = u'new notes'
         indict[prefix + 'tags'] = u'russian ,' + newtagname
-        indict[prefix + 'license_id'] = u'gpl-3.0'
+        indict[prefix + 'license_id'] = u'odc-by'
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
         indict[prefix + 'extras-newfield0-value'] = u'testvalue'
         indict[prefix + 'resources-0-url'] = u'http:/1'
@@ -205,7 +205,7 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         assert outpkg.notes == indict[prefix+'notes']
 
         # test tags
-        taglist = [ tag.name for tag in outpkg.tags ]
+        taglist = [ tag.name for tag in outpkg.get_tags() ]
         assert u'russian' in taglist, taglist
         assert u'tolstoy' not in taglist, taglist
         assert newtagname in taglist
@@ -382,7 +382,7 @@ class TestValidation:
             fs.sync()
             model.repo.commit_and_remove()
             anna = model.Package.by_name(u'annakarenina')
-            taglist = [ tag.name for tag in anna.tags ]
+            taglist = [ tag.name for tag in anna.get_tags() ]
             assert len(taglist) == 1
             assert u'tag name' in taglist
 
@@ -404,7 +404,7 @@ class TestValidation:
         fs.sync()
         model.repo.commit_and_remove()
         anna = model.Package.by_name(u'annakarenina')
-        taglist = [ tag.name for tag in anna.tags ]
+        taglist = [ tag.name for tag in anna.get_tags() ]
         assert len(taglist) == 2
         assert u'tag name one' in taglist
         assert u'tag name two' in taglist

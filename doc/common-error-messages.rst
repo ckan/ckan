@@ -133,3 +133,10 @@ This occurs when upgrading to CKAN 1.5.1 with a database with duplicate user nam
 =====================================================================================================
 
 These are seen when loading a CKAN database from another machine. It is the result of the database tables being owned by a user that doesn't exist on the new machine. The owner of the table is not important, so this error is harmless and can be ignored.
+
+``IOError: [Errno 13] Permission denied: '/var/log/ckan/colorado/colorado.log'``
+================================================================================
+
+This is usually seen when you run the paster command with one user, and CKAN is deployed on Apache (for example) which runs as another user. The usual remedy is to run the paster command as user ``www-data``. i.e..::
+
+sudo -u www-data paster ...

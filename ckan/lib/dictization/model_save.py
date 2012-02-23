@@ -46,6 +46,9 @@ def resource_dict_save(res_dict, context):
     return obj
 
 def package_resource_list_save(res_dicts, package, context):
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not res_dicts and allow_partial_update:
+        return
 
     pending = context.get('pending')
 
@@ -71,6 +74,9 @@ def package_resource_list_save(res_dicts, package, context):
 
 
 def package_extras_save(extra_dicts, obj, context):
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not extra_dicts and allow_partial_update:
+        return
 
     model = context["model"]
     session = context["session"]
@@ -132,7 +138,6 @@ def group_extras_save(extras_dicts, context):
     return result_dict
 
 def package_tag_list_save(tag_dicts, package, context):
-    
     allow_partial_update = context.get("allow_partial_update", False)
     if not tag_dicts and allow_partial_update:
         return
@@ -150,13 +155,13 @@ def package_tag_list_save(tag_dicts, package, context):
             pt.state in ['deleted', 'pending-deleted'] ]
         )
 
-    tag_names = set()
+    tag_name_vocab = set()
     tags = set()
     for tag_dict in tag_dicts:
-        if tag_dict.get('name') not in tag_names:
+        if (tag_dict.get('name'), tag_dict.get('vocabulary_id')) not in tag_name_vocab:
             tag_obj = table_dict_save(tag_dict, model.Tag, context)
             tags.add(tag_obj)
-            tag_names.add(tag_obj.name)
+            tag_name_vocab.add((tag_obj.name, tag_obj.vocabulary_id))
 
     # 3 cases
     # case 1: currently active but not in new list
@@ -167,14 +172,14 @@ def package_tag_list_save(tag_dicts, package, context):
         else:
             package_tag.state = 'deleted'
 
-    # in new list but never used before
+    # case 2: in new list but never used before
     for tag in tags - set(tag_package_tag.keys()):
         state = 'pending' if pending else 'active'
         package_tag_obj = model.PackageTag(package, tag, state)
         session.add(package_tag_obj)
         tag_package_tag[tag] = package_tag_obj
 
-    # in new list and already used but in deleted state
+    # case 3: in new list and already used but in deleted state
     for tag in tags.intersection(set(tag_package_tag_inactive.keys())):
         state = 'pending' if pending else 'active'
         package_tag = tag_package_tag[tag]
@@ -213,6 +218,7 @@ def package_membership_list_save(group_dicts, package, context):
         member_obj = model.Member(table_id = package.id,
                                   table_name = 'package',
                                   group = group,
+                                  group_id=group.id,
                                   state = 'active')
         session.add(member_obj)
 
@@ -256,7 +262,8 @@ def relationship_list_save(relationship_dicts, package, attr, context):
         relationship_list.append(relationship)
 
 def package_dict_save(pkg_dict, context):
-
+    import uuid
+    
     model = context["model"]
     package = context.get("package")
     allow_partial_update = context.get("allow_partial_update", False)
@@ -271,21 +278,27 @@ def package_dict_save(pkg_dict, context):
 
     pkg = table_dict_save(pkg_dict, Package, context)
 
+    if not pkg.id:
+        pkg.id = str(uuid.uuid4())
+
     package_resource_list_save(pkg_dict.get("resources", []), pkg, context)
     package_tag_list_save(pkg_dict.get("tags", []), pkg, context)
     package_membership_list_save(pkg_dict.get("groups", []), pkg, context)
 
-    subjects = pkg_dict.get('relationships_as_subject', [])
-    relationship_list_save(subjects, pkg, 'relationships_as_subject', context)
-    objects = pkg_dict.get('relationships_as_object', [])
-    relationship_list_save(subjects, pkg, 'relationships_as_object', context)
+    # relationships are not considered 'part' of the package, so only
+    # process this if the key is provided
+    if 'relationships_as_subject' in pkg_dict:
+        subjects = pkg_dict.get('relationships_as_subject', [])
+        relationship_list_save(subjects, pkg, 'relationships_as_subject', context)
+    if 'relationships_as_object' in pkg_dict:
+        objects = pkg_dict.get('relationships_as_object', [])
+        relationship_list_save(objects, pkg, 'relationships_as_object', context)
 
     extras = package_extras_save(pkg_dict.get("extras", []), pkg, context)
 
     return pkg
 
 def group_member_save(context, group_dict, member_table_name):
-
     model = context["model"]
     session = context["session"]
     group = context['group']
@@ -317,14 +330,15 @@ def group_member_save(context, group_dict, member_table_name):
         session.add(entity_member[entity_id])
 
     for entity_id in set(entities.keys()) - set(entity_member.keys()):
-        member = Member(group=group, table_id=entity_id[0],
+        member = Member(group=group, group_id=group.id, table_id=entity_id[0],
                         table_name=member_table_name[:-1],
                         capacity=entity_id[1])
         session.add(member)
 
 
 def group_dict_save(group_dict, context):
-
+    import uuid 
+    
     model = context["model"]
     session = context["session"]
     group = context.get("group")
@@ -335,6 +349,9 @@ def group_dict_save(group_dict, context):
         group_dict["id"] = group.id 
 
     group = table_dict_save(group_dict, Group, context)
+    if not group.id:
+        group.id = str(uuid.uuid4())
+        
     context['group'] = group
 
     group_member_save(context, group_dict, 'packages')
@@ -440,3 +457,78 @@ def task_status_dict_save(task_status_dict, context):
 
     task_status = table_dict_save(task_status_dict, model.TaskStatus, context)
     return task_status
+
+def activity_dict_save(activity_dict, context):
+
+    model = context['model']
+    session = context['session']
+    user_id = activity_dict['user_id']
+    object_id = activity_dict['object_id']
+    revision_id = activity_dict['revision_id']
+    activity_type = activity_dict['activity_type']
+    if activity_dict.has_key('data'):
+        data = activity_dict['data']
+    else:
+        data = None
+    activity_obj = model.Activity(user_id, object_id, revision_id,
+            activity_type, data)
+    session.add(activity_obj)
+
+    # TODO: Handle activity details.
+
+    return activity_obj
+
+def vocabulary_tag_list_save(new_tag_dicts, vocabulary_obj, context):
+    model = context['model']
+    session = context['session']
+
+    # First delete any tags not in new_tag_dicts.
+    for tag in vocabulary_obj.tags:
+        if tag.name not in [tag['name'] for tag in new_tag_dicts]:
+            tag.delete()
+    # Now add any new tags.
+    for tag_dict in new_tag_dicts:
+        current_tag_names = [tag.name for tag in vocabulary_obj.tags]
+        if tag_dict['name'] not in current_tag_names:
+            # Make sure the tag belongs to this vocab..
+            tag_dict['vocabulary_id'] = vocabulary_obj.id
+            # then add it.
+            tag_dict_save(tag_dict, {'model': model, 'session': session})
+
+def vocabulary_dict_save(vocabulary_dict, context):
+    model = context['model']
+    session = context['session']
+    vocabulary_name = vocabulary_dict['name']
+
+    vocabulary_obj = model.Vocabulary(vocabulary_name)
+    session.add(vocabulary_obj)
+
+    if vocabulary_dict.has_key('tags'):
+        vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
+            context)
+
+    return vocabulary_obj
+
+def vocabulary_dict_update(vocabulary_dict, context):
+
+    model = context['model']
+    session = context['session']
+
+    vocabulary_obj = model.vocabulary.Vocabulary.get(vocabulary_dict['id'])
+
+    if vocabulary_dict.has_key('name'):
+        vocabulary_obj.name = vocabulary_dict['name']
+
+    if vocabulary_dict.has_key('tags'):
+        vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
+            context)
+
+    return vocabulary_obj
+
+def tag_dict_save(tag_dict, context):
+    model = context['model']
+    tag = context.get('tag')
+    if tag:
+        tag_dict['id'] = tag.id
+    tag = table_dict_save(tag_dict, model.Tag, context)
+    return tag

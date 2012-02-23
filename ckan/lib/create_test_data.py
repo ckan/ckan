@@ -161,7 +161,7 @@ class CreateTestData(cli.CkanCommand):
                                 tag = model.Tag(name=tag_name)
                                 cls.tag_names.append(tag_name)
                                 model.Session.add(tag)    
-                            pkg.tags.append(tag)
+                            pkg.add_tag(tag)
                             model.Session.flush()
                     elif attr == 'groups':
                         model.Session.flush()
@@ -273,7 +273,7 @@ class CreateTestData(cli.CkanCommand):
         
 
     @classmethod
-    def create_groups(cls, group_dicts, admin_user_name=None):
+    def create_groups(cls, group_dicts, admin_user_name=None, auth_profile=""):
         '''A more featured interface for creating groups.
         All group fields can be filled, packages added and they can
         have an admin user.'''
@@ -289,6 +289,7 @@ class CreateTestData(cli.CkanCommand):
         group_attributes = set(('name', 'title', 'description', 'parent_id'))
         for group_dict in group_dicts:
             group = model.Group(name=unicode(group_dict['name']))
+            group.type = auth_profile or 'group'
             for key in group_dict:
                 if key in group_attributes:
                     setattr(group, key, group_dict[key])
@@ -307,7 +308,7 @@ class CreateTestData(cli.CkanCommand):
         model.repo.commit_and_remove()
 
     @classmethod
-    def create(cls):
+    def create(cls, auth_profile=""):
         import ckan.model as model
         model.Session.remove()
         rev = model.repo.new_revision()
@@ -318,8 +319,13 @@ class CreateTestData(cli.CkanCommand):
  * Package: warandpeace
  * Associated tags, etc etc
 '''
+        if auth_profile == "publisher":
+            publisher_group = model.Group(name=u"publisher_group", type="publisher")
+
         cls.pkg_names = [u'annakarenina', u'warandpeace']
         pkg1 = model.Package(name=cls.pkg_names[0])
+        if auth_profile == "publisher":        
+            pkg1.group = publisher_group
         model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
@@ -373,14 +379,17 @@ left arrow <
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
 
+        if auth_profile == "publisher":        
+            pkg2.group = publisher_group
+
         # Flexible tag, allows spaces, upper-case,
         # and all punctuation except commas
         tag3 = model.Tag(name=u'Flexible \u30a1')
 
         for obj in [pkg2, tag1, tag2, tag3]:
             model.Session.add(obj)
-        pkg1.tags = [tag1, tag2, tag3]
-        pkg2.tags = [ tag1, tag3 ]
+        pkg1.add_tags([tag1, tag2, tag3])
+        pkg2.add_tags([ tag1, tag3 ])
         cls.tag_names = [ t.name for t in (tag1, tag2, tag3) ]
         pkg1.license_id = u'other-open'
         pkg2.license_id = u'cc-nc' # closed license
@@ -390,10 +399,12 @@ left arrow <
         # group
         david = model.Group(name=u'david',
                              title=u'Dave\'s books',
-                             description=u'These are books that David likes.')
+                             description=u'These are books that David likes.',
+                             type=auth_profile or 'group')
         roger = model.Group(name=u'roger',
                              title=u'Roger\'s books',
-                             description=u'Roger likes these books.')
+                             description=u'Roger likes these books.',
+                             type=auth_profile or 'group')
         for obj in [david, roger]:
             model.Session.add(obj)
         
@@ -546,7 +557,7 @@ search_items = [{'name':'gils',
                           'format':'DOC',
                           'description':'http://www.statistics.gov.uk/hub/id/119-34565'}],
               'groups':'ukgov test1 test2 penguin',
-              'license':'gpl-3.0',
+              'license':'odc-by',
               'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>
               
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal

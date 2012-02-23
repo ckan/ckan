@@ -18,6 +18,7 @@ from ckan.logic.schema import group_form_schema
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.lib.dictization.model_dictize import package_dictize
 import ckan.forms
+import ckan.logic.action.get
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ def register_pluggable_behaviour(map):
     exception will be raised.
     """
     global _default_controller_behaviour
-    
+
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in PluginImplementations(IGroupForm):
         if plugin.is_fallback():
@@ -47,28 +48,24 @@ def register_pluggable_behaviour(map):
 
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will allow us to have top level
-            # objects that are actually Groups, but first we need to make sure we are not 
+            # objects that are actually Groups, but first we need to make sure we are not
             # clobbering an existing domain
-            
+
             # Our version of routes doesn't allow the environ to be passed into the match call
             # and so we have to set it on the map instead.  This looks like a threading problem
             # waiting to happen but it is executed sequentially from instead the routing setup
-            e = map.environ
-            map.environ = {'REQUEST_METHOD': 'GET'}
-            match = map.match('/%s/new' % (group_type,))
-            map.environ = e
-            if match:
-                raise Exception, "Plugin %r would overwrite existing urls" % plugin
-            
-            map.connect('%s_new' % (group_type,), 
-                        '/%s/new' % (group_type,), controller='group', action='new')                
-            map.connect('%s_read' % (group_type,), 
-                        '/%s/{id}' %  (group_type,), controller='group', action='read')                        
+
+            map.connect('%s_index' % (group_type,),
+                        '/%s' % (group_type,), controller='group', action='index')
+            map.connect('%s_new' % (group_type,),
+                        '/%s/new' % (group_type,), controller='group', action='new')
+            map.connect('%s_read' % (group_type,),
+                        '/%s/{id}' %  (group_type,), controller='group', action='read')
             map.connect('%s_action' % (group_type,),
                         '/%s/{action}/{id}' % (group_type,), controller='group',
                 requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
-            )            
-            
+            )
+
             if group_type in _controller_behaviour_for:
                 raise ValueError, "An existing IGroupForm is "\
                                   "already associated with the package type "\
@@ -108,8 +105,8 @@ class DefaultGroupForm(object):
     Note - this isn't a plugin implementation.  This is deliberate, as
            we don't want this being registered.
     """
-    
-    def group_form(self):        
+
+    def group_form(self):
         return 'group/new_group_form.html'
 
     def form_to_db_schema(self):
@@ -157,16 +154,16 @@ class DefaultGroupForm(object):
             except NotAuthorized:
                 c.auth_for_change_state = False
 
-##############      End of pluggable group behaviour     ############## 
+##############      End of pluggable group behaviour     ##############
 
 
 class GroupController(BaseController):
 
-    ## hooks for subclasses 
+    ## hooks for subclasses
 
     def _group_form(self, group_type=None):
         return _lookup_plugin(group_type).group_form()
-        
+
     def _form_to_db_schema(self, group_type=None):
         return _lookup_plugin(group_type).form_to_db_schema()
 
@@ -191,7 +188,7 @@ class GroupController(BaseController):
             check_access('site_read', context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
-        
+
         results = get_action('group_list')(context, data_dict)
 
         c.page = Page(
@@ -205,10 +202,11 @@ class GroupController(BaseController):
 
     def read(self, id):
         from ckan.lib.search import SearchError
-        group_type = self._get_group_type(id.split('@')[0])        
+        group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(group_type=type)}
+                   'schema': self._form_to_db_schema(group_type=type),
+                   'for_view': True}
         data_dict = {'id': id}
         q = c.q = request.params.get('q', '') # unicode format (decoded from utf8)
 
@@ -229,7 +227,7 @@ class GroupController(BaseController):
         except Exception, e:
             error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render description")
             c.description_formatted = genshi.HTML(error_msg)
-        
+
         c.group_admins = self.authorizer.get_admins(c.group)
 
         context['return_query'] = True
@@ -239,7 +237,7 @@ class GroupController(BaseController):
             page = int(request.params.get('page', 1))
         except ValueError, e:
             abort(400, ('"page" parameter must be an integer'))
-            
+
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
 
@@ -253,9 +251,9 @@ class GroupController(BaseController):
             params = list(params_nopage)
             params.extend(by.items())
             return search_url(set(params))
-        
-        c.drill_down_url = drill_down_url 
-        
+
+        c.drill_down_url = drill_down_url
+
         def remove_field(key, value):
             params = list(params_nopage)
             params.remove((key, value))
@@ -304,21 +302,27 @@ class GroupController(BaseController):
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
-        
+
+        # Add the group's activity stream (already rendered to HTML) to the
+        # template context for the group/read.html template to retrieve later.
+        c.group_activity_stream = \
+                ckan.logic.action.get.group_activity_list_html(context,
+                    {'id': c.group_dict['id']})
+
         return render('group/read.html')
 
     def new(self, data=None, errors=None, error_summary=None):
-        
         group_type = request.path.strip('/').split('/')[0]
         if group_type == 'group':
             group_type = None
             if data:
                 data['type'] = group_type
-        
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'schema': self._form_to_db_schema(),
-                   'save': 'save' in request.params }
+                   'save': 'save' in request.params,
+                   'parent': request.params.get('parent', None)}
         try:
             check_access('group_create',context)
         except NotAuthorized:
@@ -326,7 +330,7 @@ class GroupController(BaseController):
 
         if context['save'] and not data:
             return self._save_new(context, group_type)
-        
+
         data = data or {}
         errors = errors or {}
         error_summary = error_summary or {}
@@ -337,11 +341,12 @@ class GroupController(BaseController):
         return render('group/new.html')
 
     def edit(self, id, data=None, errors=None, error_summary=None):
-        group_type = self._get_group_type(id.split('@')[0])                
+        group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema(group_type=group_type),
+                   'parent': request.params.get('parent', None)
                    }
         data_dict = {'id': id}
 
@@ -365,7 +370,6 @@ class GroupController(BaseController):
         group = context.get("group")
         c.group = group
 
-
         try:
             check_access('group_update',context)
         except NotAuthorized, e:
@@ -380,9 +384,9 @@ class GroupController(BaseController):
 
     def _get_group_type(self, id):
         """
-        Given the id of a group it determines the plugin to load 
+        Given the id of a group it determines the plugin to load
         based on the group's type name (type). The plugin found
-        will be returned, or None if there is no plugin associated with 
+        will be returned, or None if there is no plugin associated with
         the type.
 
         Uses a minimal context to do so.  The main use of this method
@@ -391,7 +395,7 @@ class GroupController(BaseController):
         aborts if an exception is raised.
         """
         global _controller_behaviour_for
-        
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         try:
@@ -409,8 +413,9 @@ class GroupController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             data_dict['type'] = group_type or 'group'
             context['message'] = data_dict.get('log_message', '')
+            data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
             group = get_action('group_create')(context, data_dict)
-            
+
             # Redirect to the appropriate _read route for the type of group
             h.redirect_to( group['type'] + '_read', id=group['name'])
         except NotAuthorized:
@@ -431,11 +436,11 @@ class GroupController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
             group = get_action('group_update')(context, data_dict)
-            h.redirect_to(controller='group', action='read', id=group['name'])
+            h.redirect_to('%s_read' % str(group['type']), id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
         except NotFound, e:
-            abort(404, _('Package not found'))
+            abort(404, _('Group not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
         except ValidationError, e:

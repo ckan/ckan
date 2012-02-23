@@ -35,6 +35,5 @@ class TestLicense(TestCase):
             license = self.licenses[license_id]
             self.assert_unicode(license.id)
             self.assert_unicode(license.title)
-            self.assert_datetime(license.date_created)
             self.assert_unicode(license.url)
 

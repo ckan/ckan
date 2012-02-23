@@ -6,7 +6,7 @@ This Administration Guide covers how to set up and manage `CKAN <http://ckan.org
 
 * The first two sections cover your two options for installing CKAN: package or source install.
 * The rest of the first half of the Guide, up to :doc:`authorization`, cover setup and basic admin. 
-* The second half of the Guide, from :doc:`prepare-extensions` onwards, covers advanced tasks, including extensions and forms. 
+* The second half of the Guide, from :doc:`extensions` onwards, covers advanced tasks, including extensions and forms. 
 
 For high-level information on what CKAN is, see the `CKAN website <http://ckan.org>`_.
 
@@ -23,9 +23,8 @@ Contents:
    loading_data
    paster
    authorization
-   prepare-extensions
    extensions
-   plugins
+   writing-extensions
    forms
    form-integration
    database_dumps

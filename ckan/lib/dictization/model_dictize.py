@@ -1,5 +1,6 @@
 from pylons import config
 from sqlalchemy.sql import select, and_
+from ckan.plugins import PluginImplementations, IDatasetForm, IPackageController, IGroupController
 import datetime
 
 from ckan.model import PackageRevision
@@ -194,11 +195,25 @@ def package_dictize(pkg, context):
     # type
     result_dict['type']= pkg.type
 
+    # licence
+    if pkg.license and pkg.license.url:
+        result_dict['license_url']= pkg.license.url
+        result_dict['license_title']= pkg.license.title.split('::')[-1]
+    elif pkg.license:
+        result_dict['license_title']= pkg.license.title
+    else:
+        result_dict['license_title']= pkg.license_id
+
     # creation and modification date
     result_dict['metadata_modified'] = pkg.metadata_modified.isoformat() \
         if pkg.metadata_modified else None
     result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
         if pkg.metadata_created else None
+
+    if context.get('for_view'):
+        for item in PluginImplementations(IPackageController):
+            result_dict = item.before_view(result_dict)
+
 
     return result_dict
 
@@ -242,6 +257,10 @@ def group_dictize(group, context):
 
     context['with_capacity'] = False
 
+    if context.get('for_view'):
+        for item in PluginImplementations(IGroupController):
+            result_dict = item.before_view(result_dict)
+
     return result_dict
 
 def tag_list_dictize(tag_list, context):
@@ -262,7 +281,7 @@ def tag_dictize(tag, context):
     result_dict = table_dictize(tag, context)
 
     result_dict["packages"] = obj_list_dictize(
-        tag.packages_ordered, context)
+        tag.packages, context)
     
     return result_dict 
 
@@ -340,7 +359,7 @@ def package_to_api1(pkg, context):
     dictized.pop("revision_timestamp")
 
     dictized["groups"] = [group["name"] for group in dictized["groups"]]
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
+    dictized["tags"] = [tag["name"] for tag in dictized["tags"] if not tag.get('vocabulary_id')]
     dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
     dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
@@ -397,7 +416,7 @@ def package_to_api2(pkg, context):
     dictized["groups"] = [group["id"] for group in dictized["groups"]]
     dictized.pop("revision_timestamp")
     
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
+    dictized["tags"] = [tag["name"] for tag in dictized["tags"] if not tag.get('vocabulary_id')]
     dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
 
@@ -441,3 +460,27 @@ def package_to_api2(pkg, context):
     dictized['relationships'] = relationships 
     return dictized
 
+def vocabulary_dictize(vocabulary, context):
+    vocabulary_dict = table_dictize(vocabulary, context)
+    assert not vocabulary_dict.has_key('tags')
+    vocabulary_dict['tags'] = [tag_dictize(tag, context) for tag
+            in vocabulary.tags]
+    return vocabulary_dict
+
+def vocabulary_list_dictize(vocabulary_list, context):
+    return [vocabulary_dictize(vocabulary, context)
+            for vocabulary in vocabulary_list]
+
+def activity_dictize(activity, context):
+    activity_dict = table_dictize(activity, context)
+    return activity_dict
+
+def activity_list_dictize(activity_list, context):
+    return [activity_dictize(activity, context) for activity in activity_list]
+
+def activity_detail_dictize(activity_detail, context):
+    return table_dictize(activity_detail, context)
+
+def activity_detail_list_dictize(activity_detail_list, context):
+    return [activity_detail_dictize(activity_detail, context)
+            for activity_detail in activity_detail_list]

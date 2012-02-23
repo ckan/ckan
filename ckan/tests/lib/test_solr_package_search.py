@@ -45,8 +45,8 @@ class TestSearch(TestController):
         gils = model.Package.by_name(u'gils')
         # an existing tag used only by gils
         cls.tagname = u'registry'
-        idx = [t.name for t in gils.tags].index(cls.tagname)
-        del gils.tags[idx]
+        idx = [t.name for t in gils.get_tags()].index(cls.tagname)
+        gils.remove_tag(gils.get_tags()[idx])
         model.repo.commit_and_remove()
 
     @classmethod
@@ -92,13 +92,17 @@ class TestSearch(TestController):
         assert self._pkg_names(result) == 'se-opengov', self._pkg_names(result)
         # multiple words
         result = search.query_for(model.Package).run({'q': u'Government Expenditure'})
-        assert self._pkg_names(result) == 'uk-government-expenditure', self._pkg_names(result)
+        # uk-government-expenditure is the best match but all other results should be retured
+        assert self._pkg_names(result).startswith('uk-government-expenditure'), self._pkg_names(result)
+        # se-opengov has only government in tags, all others hav it in title.
+        assert self._pkg_names(result).endswith('se-opengov'), self._pkg_names(result)
         # multiple words wrong order
         result = search.query_for(model.Package).run({'q': u'Expenditure Government'})
-        assert self._pkg_names(result) == 'uk-government-expenditure', self._pkg_names(result)
-        # multiple words, one doesn't match
+        assert self._pkg_names(result).startswith('uk-government-expenditure'), self._pkg_names(result)
+        assert self._pkg_names(result).endswith('se-opengov'), self._pkg_names(result)
+        # multiple words all should match government
         result = search.query_for(model.Package).run({'q': u'Expenditure Government China'})
-        assert len(result['results']) == 0, self._pkg_names(result)
+        assert len(result['results']) == 5, self._pkg_names(result)
 
     def test_3_licence(self):
         # this should result, but it is here to check that at least it does not error
@@ -315,6 +319,7 @@ class TestSearchOverall(TestController):
         check_search_results('annakarenina', 1, ['annakarenina'])
         check_search_results('warandpeace', 1, ['warandpeace'])
         check_search_results('', 2)
+        
         check_search_results('A Novel By Tolstoy', 1, ['annakarenina'])
         check_search_results('title:Novel', 1, ['annakarenina'])
         check_search_results('title:peace', 0)

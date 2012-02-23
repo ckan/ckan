@@ -61,6 +61,10 @@ class MockPackageControllerPlugin(SingletonPlugin):
         self.calls['before_index'] += 1
         return search_params
 
+    def before_view(self, search_params):
+        self.calls['before_view'] += 1
+        return search_params
+
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
@@ -503,7 +507,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
         assert 'This is an old revision of this dataset' in main_html
-        assert 'at 2011-01-01 00:00' in main_html
+        assert 'at Jan 01, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title1' in res
@@ -521,7 +525,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
         assert 'This is an old revision of this dataset' in main_html
-        assert 'at 2011-01-02 00:00' in main_html
+        assert 'at Jan 02, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title2' in res
@@ -540,7 +544,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         print 'MAIN', main_html
         assert 'This is an old revision of this dataset' not in main_html
         assert 'This is the current revision of this dataset' in main_html
-        assert 'at 2011-01-03 00:00' in main_html
+        assert 'at Jan 03, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title3' in res
@@ -702,8 +706,8 @@ class TestEdit(TestPackageForm):
         res = res.follow()
         assert '%s - Datasets' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
-        assert len(pkg.tags) == len(newtagnames)
-        outtags = [ tag.name for tag in pkg.tags ]
+        assert len(pkg.get_tags()) == len(newtagnames)
+        outtags = [ tag.name for tag in pkg.get_tags() ]
         for tag in newtags:
             assert tag in outtags
         rev = model.Revision.youngest(model.Session)
@@ -756,7 +760,7 @@ class TestEdit(TestPackageForm):
             pkg.version = u'2.2'
             t1 = model.Tag(name=u'one')
             t2 = model.Tag(name=u'two words')
-            pkg.tags = [t1, t2]
+            pkg.add_tags([t1, t2])
             pkg.state = model.State.DELETED
             pkg.license_id = u'other-open'
             extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
@@ -788,7 +792,7 @@ class TestEdit(TestPackageForm):
                          )
             assert len(resources[0]) == 5
             notes = u'Very important'
-            license_id = u'gpl-3.0'
+            license_id = u'odc-by'
             state = model.State.ACTIVE
             tags = (u'tag1', u'tag2', u'tag 3')
             tags_txt = u','.join(tags)
@@ -838,7 +842,7 @@ class TestEdit(TestPackageForm):
             #        assert getattr(pkg.resources[res_index], res_field) == resource[field_index]
             assert pkg.notes == notes
             assert pkg.license.id == license_id
-            saved_tagnames = [str(tag.name) for tag in pkg.tags]
+            saved_tagnames = [str(tag.name) for tag in pkg.get_tags()]
             saved_tagnames.sort()
             expected_tagnames = list(tags)
             expected_tagnames.sort()
@@ -1016,6 +1020,33 @@ class TestEdit(TestPackageForm):
             plugins.unload('synchronous_search')
             SolrSettings.init(solr_url)
 
+    def test_edit_pkg_with_relationships(self):
+        # 1786
+        try:
+            # add a relationship to a package
+            pkg = model.Package.by_name(self.editpkg_name)
+            anna = model.Package.by_name(u'annakarenina')
+            model.repo.new_revision()
+            pkg.add_relationship(u'depends_on', anna)
+            model.repo.commit_and_remove()
+            
+            # check relationship before the test
+            rels = model.Package.by_name(self.editpkg_name).get_relationships()
+            assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
+
+            # edit the package
+            self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
+            self.res = self.app.get(self.offset)
+            fv = self.res.forms['dataset-edit']
+            fv['title'] = u'New Title'
+            res = fv.submit('save')
+
+            # check relationship still exists
+            rels = model.Package.by_name(self.editpkg_name).get_relationships()
+            assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
+            
+        finally:
+            self._reset_data()
 
 class TestNew(TestPackageForm):
     pkg_names = []
@@ -1125,7 +1156,7 @@ class TestNew(TestPackageForm):
         url = u'http://something.com/somewhere.zip'
         download_url = u'http://something.com/somewhere-else.zip'
         notes = u'Very important'
-        license_id = u'gpl-3.0'
+        license_id = u'odc-by'
         tags = (u'tag1', u'tag2.', u'tag 3', u'SomeCaps')
         tags_txt = u','.join(tags)
         extras = {self.key1:self.value1, 'key2':'value2', 'key3':'value3'}
@@ -1166,7 +1197,7 @@ class TestNew(TestPackageForm):
         #assert pkg.resources[0].url == download_url
         assert pkg.notes == notes
         assert pkg.license.id == license_id
-        saved_tagnames = [str(tag.name) for tag in pkg.tags]
+        saved_tagnames = [str(tag.name) for tag in pkg.get_tags()]
         saved_tagnames.sort()
         expected_tagnames = sorted(tags)
         assert saved_tagnames == expected_tagnames, '%r != %r' % (saved_tagnames, expected_tagnames)
@@ -1421,7 +1452,6 @@ class TestRevisions(TestPackageBase):
         res = res.click(href=url)
         main_html = self.main_div(res)
         assert 'This is an old revision of this dataset' in main_html
-        assert 'at %s' % str(self.revision_timestamps[1])[:6] in main_html
 
 
 class TestMarkdownHtmlWhitelist(TestPackageForm):

@@ -1,6 +1,8 @@
 (function ($) {
   $(document).ready(function () {
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
+    CKAN.Utils.setupPublisherUserAutocomplete($('input.autocomplete-publisher-user'));
+    CKAN.Utils.setupGroupAutocomplete($('input.autocomplete-group'));
     CKAN.Utils.setupAuthzGroupAutocomplete($('input.autocomplete-authzgroup'));
     CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-dataset'));
     CKAN.Utils.setupTagAutocomplete($('input.autocomplete-tag'));
@@ -60,7 +62,7 @@
       e.preventDefault();
       window.location = ($(e.target).attr('action'));
     });
-    
+
     var isDatasetEdit = $('body.package.edit').length > 0;
     if (isDatasetEdit) {
       CKAN.Utils.setupUrlEditor('package',readOnly=true);
@@ -163,10 +165,10 @@ CKAN.Utils = function($, my) {
 
     var titleChanged = function() {
       var lastTitle = "";
-      var regexToHyphen = [ new RegExp('[ .:/_]', 'g'), 
-                        new RegExp('[^a-zA-Z0-9-_]', 'g'), 
+      var regexToHyphen = [ new RegExp('[ .:/_]', 'g'),
+                        new RegExp('[^a-zA-Z0-9-_]', 'g'),
                         new RegExp('-+', 'g')];
-      var regexToDelete = [ new RegExp('^-*', 'g'), 
+      var regexToDelete = [ new RegExp('^-*', 'g'),
                         new RegExp('-*$', 'g')];
 
       var titleToSlug = function(title) {
@@ -364,6 +366,48 @@ CKAN.Utils = function($, my) {
     });
   };
 
+  my.setupPublisherUserAutocomplete = function(elements) {
+    elements.autocomplete({
+      minLength: 2,
+      source: function(request, callback) {
+        var url = '/api/2/util/user/autocomplete?q=' + request.term;
+        $.getJSON(url, function(data) {
+          $.each(data, function(idx, userobj) {
+            var label = userobj.name;
+            if (userobj.fullname) {
+              label += ' [' + userobj.fullname + ']';
+            }
+            userobj.label = label;
+            userobj.value = userobj.name;
+          });
+          callback(data);
+        });
+      },
+       select: function(event, ui) {
+        var input_box = $(this);
+        input_box.val('');
+        var parent_dd = input_box.parent('dd');
+        var old_name = input_box.attr('name');
+        var field_name_regex = /^(\S+)__(\d+)__(\S+)$/;
+        var split = old_name.match(field_name_regex);
+
+        var new_name = split[1] + '__' + (parseInt(split[2]) + 1) + '__' + split[3]
+        input_box.attr('name', new_name)
+        input_box.attr('id', new_name)
+
+        var capacity = $("input:radio[name=add-user-capacity]:checked").val();
+        parent_dd.before(
+          '<input type="hidden" name="' + old_name + '" value="' + ui.item.value + '">' +
+          '<input type="hidden" name="' + old_name.replace('__name','__capacity') + '" value="' + capacity + '">' +
+          '<dd>' + ui.item.label + '</dd>'
+        );
+
+        return false; // to cancel the event ;)
+      }
+    });
+  };
+
+
   // Attach user autocompletion to provided elements
   //
   // Requires: jquery-ui autocomplete
@@ -395,6 +439,23 @@ CKAN.Utils = function($, my) {
       minLength: 2,
       source: function(request, callback) {
         var url = CKAN.SITE_URL + '/api/2/util/authorizationgroup/autocomplete?q=' + request.term;
+        $.getJSON(url, function(data) {
+          $.each(data, function(idx, userobj) {
+            var label = userobj.name;
+            userobj.label = label;
+            userobj.value = userobj.name;
+          });
+          callback(data);
+        });
+      }
+    });
+  };
+
+  my.setupGroupAutocomplete = function(elements) {
+    elements.autocomplete({
+      minLength: 2,
+      source: function(request, callback) {
+        var url = CKAN.SITE_URL + '/api/2/util/group/autocomplete?q=' + request.term;
         $.getJSON(url, function(data) {
           $.each(data, function(idx, userobj) {
             var label = userobj.name;
@@ -465,7 +526,7 @@ CKAN.Utils = function($, my) {
     }
   };
 
-  // Show/hide fieldset sections from the edit dataset form. 
+  // Show/hide fieldset sections from the edit dataset form.
   my.setupDatasetEditNavigation = function() {
 
     function showSection(sectionToShowId) {
@@ -480,7 +541,7 @@ CKAN.Utils = function($, my) {
     // Prefix="#section-"
     var initialSection = window.location.hash.slice(9) || 'basic-information';
     showSection(initialSection);
-    
+
     // Adjust form state on click
     $('.dataset-edit-nav li a').live('click', function(e) {
       var $el = $(e.target);
@@ -488,7 +549,7 @@ CKAN.Utils = function($, my) {
       var showMe = $el.attr('href').slice(9);
       showSection(showMe);
       return false;
-    });  
+    });
   };
 
   return my;
@@ -511,8 +572,8 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
           messageDiv.show(200);
 
           boundToUnload = true;
-          window.onbeforeunload = function () { 
-            return CKAN.Strings.youHaveUnsavedChanges; 
+          window.onbeforeunload = function () {
+            return CKAN.Strings.youHaveUnsavedChanges;
           };
         }
       }
@@ -578,9 +639,18 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     // Create a row from the template
     var $tr = $('<tr />');
     $tr.html($.tmpl(
-      CKAN.Templates.resourceEntry, 
+      CKAN.Templates.resourceEntry,
       { resource: resource.toTemplateJSON(),
-        num: position
+        num: position,
+        resourceTypeOptions: [
+          ['file', 'Data File']
+          , ['api', 'API']
+          , ['image', 'Image']
+          , ['metadata', 'Metadata']
+          , ['documentation', 'Documentation']
+          , ['code', 'Code']
+          , ['example', 'Example']
+        ]
       }
     ));
     $tr.find('.js-resource-edit-expanded').hide();
@@ -599,9 +669,9 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
         expandedTable.animate(
             {height:0},
             animTime,
-            function() { 
+            function() {
               expandedTable.height(finalHeight);
-              expandedTable.hide(); 
+              expandedTable.hide();
             }
         );
       }
@@ -629,7 +699,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     };
 
     // == Inner Functions: Update the name as you type == //
-    var setName = function(newName) { 
+    var setName = function(newName) {
       $link = $tr.find('.js-resource-edit-toggle');
       newName = newName || ('<em>'+CKAN.Strings.noNameBrackets+'</em>');
       // Need to structurally modify the DOM to force a re-render of text
@@ -687,10 +757,10 @@ CKAN.View.ResourceAddTabs = Backbone.View.extend({
   clickButton: function(e) {
     e.preventDefault();
     var $target = $(e.target);
-    
+
     if ($target.is('.depressed')) {
       this.reset();
-    } 
+    }
     else {
       this.reset();
       $target.addClass('depressed');
@@ -848,7 +918,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
         my.showPlainTextData(data);
       });
     }
-    else if (resourceData.formatNormalized in {'html':'', 'htm':''} 
+    else if (resourceData.formatNormalized in {'html':'', 'htm':''}
         ||  resourceData.url.substring(0,23)=='http://docs.google.com/') {
       // we displays a fullscreen dialog with the url in an iframe.
       my.$dialog.empty();
@@ -859,7 +929,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       my.$dialog.append(el);
     }
     // images
-    else if (resourceData.formatNormalized in {'png':'', 'jpg':'', 'gif':''} 
+    else if (resourceData.formatNormalized in {'png':'', 'jpg':'', 'gif':''}
         ||  resourceData.resource_type=='image') {
       // we displays a fullscreen dialog with the url in an iframe.
       my.$dialog.empty();
@@ -870,7 +940,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       my.$dialog.append(el);
     }
     else {
-      // Cannot reliably preview this item - with no mimetype/format information, 
+      // Cannot reliably preview this item - with no mimetype/format information,
       // can't guarantee it's not a remote binary file such as an executable.
       my.showError({
         title: 'Preview not available for data type: ' + resourceData.formatNormalized

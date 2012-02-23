@@ -102,11 +102,15 @@ CKAN.Templates.resourceEntry = ' \
       <td class="resource-edit-label">'+CKAN.Strings.resourceType+'</td> \
       <td class="resource-edit-value"> \
         {{if resource.resource_type=="file.upload"}} \
-          ${resource.resource_type} \
+          Data File (Uploaded) \
           <input name="resources__${num}__resource_type" type="hidden" value="${resource.resource_type}" /> \
         {{/if}} \
         {{if resource.resource_type!="file.upload"}} \
-          <input name="resources__${num}__resource_type" type="text" value="${resource.resource_type}" /> \
+          <select name="resources__${num}__resource_type" class="short"> \
+            {{each resourceTypeOptions}} \
+            <option value="${$value[0]}" {{if $value[0]==resource.resource_type}}selected="selected"{{/if}}>${$value[1]}</option> \
+            {{/each}} \
+          </select> \
         {{/if}} \
       </td> \
       </tr> \

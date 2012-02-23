@@ -10,17 +10,20 @@ from ckan.lib.dictization import (table_dictize,
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_dictize,
                                                 group_dictize,
+                                                activity_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
                                                )
 from ckan.lib.dictization.model_save import (package_dict_save,
                                              resource_dict_save,
                                              group_dict_save,
+                                             activity_dict_save,
                                              package_api_to_dict,
                                              group_api_to_dict,
                                              package_tag_list_save,
                                             )
 from ckan.logic.action.update import make_latest_pending_package_active
+import ckan.logic.action.get
 
 class TestBasicDictize:
     @classmethod
@@ -39,14 +42,17 @@ class TestBasicDictize:
                         'name': u'david',
                         'type': u'group',
                         'state': u'active',
-                        'title': u"Dave's books"},
+                        'title': u"Dave's books",
+                        "approval_status": u"approved"},
                        {'description': u'Roger likes these books.',
                         'name': u'roger',
                         'type': u'group',
                         'state': u'active',
-                        'title': u"Roger's books"}],
+                        'title': u"Roger's books",
+                        "approval_status": u"approved"}],
             'isopen': True,
             'license_id': u'other-open',
+            'license_title': u'Other (Open)',
             'maintainer': None,
             'maintainer_email': None,
             'type': None,
@@ -210,11 +216,10 @@ class TestBasicDictize:
 
         pprint(result)
         pprint(self.package_expected)
+        print "\n".join(unified_diff(pformat(result).split("\n"), pformat(self.package_expected).split("\n")))
 
         assert sorted(result.values()) == sorted(self.package_expected.values())
         assert result == self.package_expected
-
-
 
     def test_03_package_to_api1(self):
 
@@ -227,6 +232,7 @@ class TestBasicDictize:
         pprint(pkg.as_dict())
         asdict = pkg.as_dict()
         asdict['download_url'] = asdict['resources'][0]['url']
+        asdict['license_title'] = u'Other (Open)'
 
         assert package_to_api1(pkg, context) == asdict
 
@@ -241,6 +247,7 @@ class TestBasicDictize:
         pkg = model.Session.query(model.Package).filter_by(name='homer').one()
 
         as_dict = pkg.as_dict()
+        as_dict['license_title'] = None
         dictize = package_to_api1(pkg, context)
 
         as_dict["relationships"].sort(key=lambda x:x.items())
@@ -278,6 +285,7 @@ class TestBasicDictize:
         pkg = model.Session.query(model.Package).filter_by(name='homer').one()
 
         as_dict = pkg.as_dict(ref_package_by='id', ref_group_by='id')
+        as_dict['license_title'] = None
         dictize = package_to_api2(pkg, context)
 
         as_dict["relationships"].sort(key=lambda x:x.items())
@@ -831,6 +839,7 @@ class TestBasicDictize:
 
         group_dict = {'name': 'help',
                       'title': 'help',
+                      'approval_status': 'approved',
                       'extras': [{'key': 'genre', 'value': u'"horror"'},
                                  {'key': 'media', 'value': u'"dvd"'}],
                       'packages':[{'name': 'annakarenina2'}, {'id': pkg.id, 'capacity': 'in'}],
@@ -862,7 +871,8 @@ class TestBasicDictize:
                                'packages': 0,
                                'state': u'active',
                                'title': u'simple',
-                               'type': u'publisher'}],
+                               'type': u'publisher',
+                               'approval_status': u'approved'}],
                     'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
                               'display_name': u'annafan',
                               'capacity' : 'member',
@@ -903,13 +913,12 @@ class TestBasicDictize:
                                   'url': u'http://www.annakarenina.com',
                                   'version': u'0.7a'}],
                     'state': u'active',
+                    'approval_status': u'approved',
                     'title': u'help',
                     'type': u'group'}
 
         expected['packages'] = sorted(expected['packages'], key=lambda x: x['name'])
-
         result = self.remove_changable_columns(group_dictized)
-
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
         assert result == expected, pformat(result)
@@ -947,7 +956,8 @@ class TestBasicDictize:
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(name)
-        assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1', 'tag2')))
+        assert_equal(set([tag.name for tag in pkg.get_tags()]),
+                set(('tag1', 'tag2')))
 
     def test_19_package_tag_list_save_duplicates(self):
         name = u'testpkg19'
@@ -963,4 +973,36 @@ class TestBasicDictize:
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(name)
-        assert_equal(set([tag.name for tag in pkg.tags]), set(('tag1',)))
+        assert_equal(set([tag.name for tag in pkg.get_tags()]), set(('tag1',)))
+
+    def test_20_activity_save(self):
+
+        # Add a new Activity object to the database by passing a dict to
+        # activity_dict_save()
+        context = {"model": model, "session": model.Session}
+        user = model.User.by_name(u'tester')
+        revision = model.repo.new_revision()
+        sent = {
+                'user_id': user.id,
+                'object_id': user.id,
+                'revision_id': revision.id,
+                'activity_type': 'changed user'
+                }
+        activity_dict_save(sent, context)
+        model.Session.commit()
+
+        # Retrieve the newest Activity object from the database, check that its
+        # attributes match those of the dict we saved.
+        got = ckan.logic.action.get.user_activity_list(context,
+                {'id': user.id})[0]
+        assert got['user_id'] == sent['user_id']
+        assert got['object_id'] == sent['object_id']
+        assert got['revision_id'] == sent['revision_id']
+        assert got['activity_type'] == sent['activity_type']
+
+        # The activity object should also have an ID and timestamp.
+        assert got['id']
+        assert got['timestamp']
+
+        # We didn't pass in any data so this should be empty.
+        assert not got['data']

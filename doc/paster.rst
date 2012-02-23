@@ -14,14 +14,61 @@ Paster is run on the command line on the server running CKAN. This section cover
 Understanding Paster
 ====================
 
-The basic paster format is:: 
+At its simplest, paster commands can be thought of like this::
+
+  paster <ckan commands>
+
+But there are various extra elements to the commandline that usually need adding. We shall build them up:
+
+#. Enabling CKAN commands
+=========================
+
+Paster is used for many things aside from CKAN. You usually need to tell paster that you want to enable the CKAN commands::
+
+  paster --plugin=ckan <ckan commands>
+
+You know you need to do this if you get the error ``Command 'user' not known`` for a valid CKAN command.
+
+(Alternatively, CKAN commands are enabled by default if your current directory is the CKAN source directory)
+
+#. Pointing to your CKAN config
+===============================
+
+Paster needs to know where your CKAN config file is (so it knows which database and search index to deal with etc.)::
 
   paster --plugin=ckan <ckan commands> --config=<config file>
+
+If you forget to specify ``--config`` then you will get error ``AssertionError: Config filename '/home/okfn/development.ini' does not exist.``
+
+(Paster defaults to looking for development.ini in the current directory.)
 
 For example, to initialise a database::
 
   paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
 
+#. Virtual environments
+=======================
+
+You often need to run paster within your CKAN virtual environment (pyenv). If CKAN was installed as 'source' then you can activate it as usual before running the paster command::
+
+  . ~/pyenv/bin/activate
+  paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
+
+The alternative, which also suits a CKAN 'package' install, is to simply give the full path to the paster in your pyenv::
+
+  /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
+
+
+#. Running Paster on a deployment
+=================================
+
+If CKAN is deployed with Apache on this machine, then you should run paster as the same user, which is usually ``www-data``. This is because paster will write to the same CKAN logfile as the Apache process and file permissions need to match. 
+
+ For example::
+
+  sudo -u www-data /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
+
+Otherwise you will get an error such as: ``IOError: [Errno 13] Permission denied: '/var/log/ckan/std/std.log'``.
 
 .. _paster-help:
 

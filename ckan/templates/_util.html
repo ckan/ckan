@@ -26,9 +26,11 @@
   <!--! List of tags: pass in a collection of tags and this renders the standard
         tag listing -->
   <ul py:def="tag_list(tags)" class="tags clearfix">
-    <li py:for="tag in tags">
+    <py:for each="tag in tags">
+    <li py:if="not tag.get('vocabulary_id')">
       ${h.link_to(tag['name'], h.url_for(controller='tag', action='read', id=tag['name']))}
     </li>
+    </py:for>
   </ul>
 
   <!--! List of tags: pass in a list of tag name and this renders the standard
@@ -194,6 +196,12 @@
     </a>
 
     <img py:otherwise="" src="${h.icon_url('arrow_down_grey')}" title="No downloadable resources." alt="" />
+  </py:def>
+
+  <py:def function="resource_summary(pkg, res)">
+      <a href="${h.url_for(controller='package', action='resource_read', id=pkg.id, resource_id=res.id)}">
+         ${h.resource_display_name(res)}
+      </a>
   </py:def>
 
   <!--! Used by group listing -->
@@ -378,7 +386,7 @@
         </div>
         </py:if>
       </td>
-      <td>${h.render_datetime(revision.timestamp)}</td>
+      <td>${h.render_datetime(revision.timestamp, with_hours=True)}</td>
       <td>${h.linked_user(revision.author)}</td>
       <td>
         <py:for each="pkg in revision.packages">
@@ -444,5 +452,32 @@
       <td>${revision['message']}</td>
     </tr>
   </table>
+
+  <div py:def="activity_div(actor, verb, object=None, target=None)"
+      class="activity">
+    <span class="actor">
+      ${actor}
+    </span>
+    <span class="verb">
+      ${verb}
+    </span>
+    <py:choose>
+      <span class="object" py:when="object">
+        ${object}
+      </span>
+      <py:otherwise>
+      </py:otherwise>
+    </py:choose>
+    <py:choose>
+      <span class="target" py:when="target">
+        ${target}
+      </span>
+      <py:otherwise>
+      </py:otherwise>
+    </py:choose>
+    <span class="date">
+      ${h.render_datetime(activity.timestamp)}
+    </span>
+  </div>
 
 </html>

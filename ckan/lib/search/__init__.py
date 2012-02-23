@@ -127,7 +127,7 @@ def rebuild(package=None):
     else:
         # rebuild index
         package_index.clear()
-        for pkg in model.Session.query(model.Package).all():
+        for pkg in model.Session.query(model.Package).filter(model.Package.state == 'active').all():
             package_index.insert_dict(
                 get_action('package_show_rest')(
                     {'model': model, 'ignore_auth': True},

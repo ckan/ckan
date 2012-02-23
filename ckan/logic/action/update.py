@@ -8,6 +8,7 @@ from ckan.logic import check_access
 
 from ckan.lib.base import _
 from vdm.sqlalchemy.base import SQLAlchemySession
+import ckan.lib.dictization
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
@@ -16,21 +17,25 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_dictize,
                                                 group_to_api1,
                                                 group_to_api2,
-                                                user_dictize)
+                                                user_dictize,
+                                                vocabulary_dictize)
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_api_to_dict,
                                              group_dict_save,
                                              user_dict_save,
                                              task_status_dict_save,
                                              package_dict_save,
-                                             resource_dict_save)
+                                             resource_dict_save,
+                                             vocabulary_dict_update)
 from ckan.logic.schema import (default_update_group_schema,
                                default_update_package_schema,
                                default_update_user_schema,
                                default_update_resource_schema,
+                               default_task_status_schema,
                                default_update_relationship_schema,
-                               default_task_status_schema)
+                               default_update_vocabulary_schema)
 from ckan.lib.navl.dictization_functions import validate
+import ckan.lib.navl.validators as validators
 from ckan.logic.action import rename_keys, get_domain_object
 from ckan.logic.action.get import roles_show
 
@@ -109,7 +114,7 @@ def _make_latest_rev_active(context, q):
         latest_rev.state = 'active'
 
     session.add(latest_rev)
-        
+
     ##this is just a way to get the latest revision that changed
     ##in order to timestamp
     old_latest = context.get('latest_revision_date')
@@ -158,10 +163,10 @@ def make_latest_pending_package_active(context, data_dict):
     revision = q.first()
     revision.approved_timestamp = datetime.datetime.now()
     session.add(revision)
-    
+
     if not context.get('defer_commit'):
-        session.commit()        
-    session.remove()        
+        session.commit()
+    session.remove()
 
 
 def resource_update(context, data_dict):
@@ -196,14 +201,14 @@ def resource_update(context, data_dict):
 
     resource = resource_dict_save(data, context)
     if not context.get('defer_commit'):
-        model.repo.commit()        
+        model.repo.commit()
     return resource_dictize(resource, context)
 
 
 def package_update(context, data_dict):
     model = context['model']
     user = context['user']
-    
+
     id = data_dict["id"]
     schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
@@ -219,7 +224,7 @@ def package_update(context, data_dict):
     check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
-    
+
 
     if errors:
         model.Session.rollback()
@@ -237,13 +242,13 @@ def package_update(context, data_dict):
     for item in PluginImplementations(IPackageController):
         item.edit(pkg)
     if not context.get('defer_commit'):
-        model.repo.commit()        
+        model.repo.commit()
     return package_dictize(pkg, context)
 
 def package_update_validate(context, data_dict):
     model = context['model']
     user = context['user']
-    
+
     id = data_dict["id"]
     schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
@@ -275,7 +280,7 @@ def _update_package_relationship(relationship, comment, context):
     if is_changed:
         rev = model.repo.new_revision()
         rev.author = context["user"]
-        rev.message = (_(u'REST API: Update package relationship: %s %s %s') % 
+        rev.message = (_(u'REST API: Update package relationship: %s %s %s') %
             (relationship.subject, relationship.type, relationship.object))
         relationship.comment = comment
         if not context.get('defer_commit'):
@@ -320,11 +325,12 @@ def package_relationship_update(context, data_dict):
     return _update_package_relationship(entity, comment, context)
 
 def group_update(context, data_dict):
-
     model = context['model']
     user = context['user']
+    session = context['session']
     schema = context.get('schema') or default_update_group_schema()
     id = data_dict['id']
+    parent = context.get('parent', None)
 
     group = model.Group.get(id)
     context["group"] = group
@@ -335,12 +341,12 @@ def group_update(context, data_dict):
 
     data, errors = validate(data_dict, schema, context)
     if errors:
-        model.Session.rollback()
+        session.rollback()
         raise ValidationError(errors, group_error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
-    
+
     if 'message' in context:
         rev.message = context['message']
     else:
@@ -348,13 +354,59 @@ def group_update(context, data_dict):
 
     group = group_dict_save(data, context)
 
+    if parent:
+        parent_group = model.Group.get( parent )
+        if parent_group and not parent_group in group.get_groups(group.type):
+            # Delete all of this groups memberships
+            current = session.query(model.Member).\
+               filter(model.Member.table_id == group.id).\
+               filter(model.Member.table_name == "group").all()
+            for c in current:
+                session.delete(c)
+            member = model.Member(group=parent_group, table_id=group.id, table_name='group')
+            session.add(member)
+
+
     for item in PluginImplementations(IGroupController):
         item.edit(group)
 
+    activity_dict = {
+            'user_id': model.User.by_name(user.decode('utf8')).id,
+            'object_id': group.id,
+            'activity_type': 'changed group',
+            }
+    # Handle 'deleted' groups.
+    # When the user marks a group as deleted this comes through here as
+    # a 'changed' group activity. We detect this and change it to a 'deleted'
+    # activity.
+    if group.state == u'deleted':
+        if session.query(ckan.model.Activity).filter_by(
+                object_id=group.id, activity_type='deleted').all():
+            # A 'deleted group' activity for this group has already been
+            # emitted.
+            # FIXME: What if the group was deleted and then activated again?
+            activity_dict = None
+        else:
+            # We will emit a 'deleted group' activity.
+            activity_dict['activity_type'] = 'deleted group'
+    if activity_dict is not None:
+        activity_dict['data'] = {
+                'group': ckan.lib.dictization.table_dictize(group, context)
+                }
+        from ckan.logic.action.create import activity_create
+        activity_create_context = {
+            'model': model,
+            'user': user,
+            'defer_commit':True,
+            'session': session
+        }
+        activity_create(activity_create_context, activity_dict,
+                ignore_auth=True)
+        # TODO: Also create an activity detail recording what exactly changed
+        # in the group.
+
     if not context.get('defer_commit'):
-        model.repo.commit()        
-    if errors:
-        raise ValidationError(errors)
+        model.repo.commit()
 
     return group_dictize(group, context)
 
@@ -363,7 +415,8 @@ def user_update(context, data_dict):
 
     model = context['model']
     user = context['user']
-    schema = context.get('schema') or default_update_user_schema() 
+    session = context['session']
+    schema = context.get('schema') or default_update_user_schema()
     id = data_dict['id']
 
     user_obj = model.User.get(id)
@@ -375,13 +428,29 @@ def user_update(context, data_dict):
 
     data, errors = validate(data_dict, schema, context)
     if errors:
-        model.Session.rollback()
+        session.rollback()
         raise ValidationError(errors, group_error_summary(errors))
 
     user = user_dict_save(data, context)
-    
+
+    activity_dict = {
+            'user_id': user.id,
+            'object_id': user.id,
+            'activity_type': 'changed user',
+            }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit':True,
+        'session': session
+    }
+    from ckan.logic.action.create import activity_create
+    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    # TODO: Also create an activity detail recording what exactly changed in
+    # the user.
+
     if not context.get('defer_commit'):
-        model.repo.commit()        
+        model.repo.commit()
     return user_dictize(user, context)
 
 def task_status_update(context, data_dict):
@@ -399,7 +468,7 @@ def task_status_update(context, data_dict):
 
         if task_status is None:
             raise NotFound(_('TaskStatus was not found.'))
-    
+
     check_access('task_status_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
@@ -426,6 +495,60 @@ def task_status_update_many(context, data_dict):
     if not context.get('defer_commit'):
         model.Session.commit()
     return {'results': results}
+
+def term_translation_update(context, data_dict):
+    model = context['model']
+
+    check_access('term_translation_update', context, data_dict)
+
+    schema = {'term': [validators.not_empty, unicode],
+              'term_translation': [validators.not_empty, unicode],
+              'lang_code': [validators.not_empty, unicode]}
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    trans_table = model.term_translation_table 
+
+    update = trans_table.update()
+    update = update.where(trans_table.c.term == data['term'])
+    update = update.where(trans_table.c.lang_code == data['lang_code'])
+    update = update.values(term_translation = data['term_translation'])
+
+    conn = model.Session.connection()
+    result = conn.execute(update)
+
+    # insert if not updated
+    if not result.rowcount:
+        conn.execute(trans_table.insert().values(**data))
+
+    if not context.get('defer_commit'):
+        model.Session.commit()
+
+    return data
+    
+def term_translation_update_many(context, data_dict):
+    model = context['model']
+    
+
+    if not data_dict.get('data') and isinstance(data_dict, list):
+        raise ValidationError(
+            {'error': 
+             'term_translation_update_many needs to have a list of dicts in field data'}
+        )
+
+    context['defer_commit'] = True
+
+    for num, row in enumerate(data_dict['data']):
+        term_translation_update(context, row)
+
+    model.Session.commit()
+
+    return {'success': '%s rows updated' % (num + 1)}
+
 
 ## Modifications for rest api
 
@@ -490,6 +613,38 @@ def group_update_rest(context, data_dict):
 
     return group_dict
 
+def vocabulary_update(context, data_dict):
+    model = context['model']
+
+    vocab_id = data_dict.get('id')
+    if not vocab_id:
+        raise ValidationError({'id': _('id not in data')})
+
+    vocab = model.vocabulary.Vocabulary.get(vocab_id)
+    if vocab is None:
+        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
+
+    data_dict['id'] = vocab.id
+    if data_dict.has_key('name'):
+        if data_dict['name'] == vocab.name:
+            del data_dict['name']
+
+    check_access('vocabulary_update', context, data_dict)
+
+    schema = context.get('schema') or default_update_vocabulary_schema()
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    updated_vocab = vocabulary_dict_update(data, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    return vocabulary_dictize(updated_vocab, context)
+
 def package_relationship_update_rest(context, data_dict):
 
     # rename keys
@@ -533,7 +688,7 @@ def user_role_update(context, data_dict):
     else:
         user_object = model.AuthorizationGroup.get(new_authgroup_ref)
         if not user_object:
-            raise NotFound('Cannot find authorization group %r' % new_authgroup_ref)        
+            raise NotFound('Cannot find authorization group %r' % new_authgroup_ref)
         data_dict['authorization_group'] = user_object.id
         add_user_to_role_func = model.add_authorization_group_to_role
         remove_user_from_role_func = model.remove_authorization_group_from_role
@@ -591,4 +746,3 @@ def user_role_bulk_update(context, data_dict):
                              'domain_object': data_dict['domain_object']}
             user_role_update(context, uro_data_dict)
     return roles_show(context, data_dict)
-

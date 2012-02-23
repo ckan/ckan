@@ -7,7 +7,7 @@ import logging
 
 import ckan
 from ckan.lib.base import _
-from ckan.logic import NotFound, ParameterError
+from ckan.logic import NotFound, ParameterError, ValidationError
 from ckan.logic import check_access
 from ckan.model import misc
 from ckan.plugins import (PluginImplementations,
@@ -23,7 +23,11 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_list_dictize,
                                                 tag_dictize,
                                                 task_status_dictize,
-                                                user_dictize)
+                                                user_dictize,
+                                                vocabulary_dictize,
+                                                vocabulary_list_dictize,
+                                                activity_list_dictize,
+                                                activity_detail_list_dictize)
 
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
@@ -31,7 +35,10 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 group_to_api2,
                                                 tag_to_api1,
                                                 tag_to_api2)
+
 from ckan.lib.search import query_for, SearchError
+from ckan.lib.base import render
+from webhelpers.html import literal
 from ckan.logic.action import get_domain_object
 
 log = logging.getLogger('ckan.logic')
@@ -191,38 +198,40 @@ def licence_list(context, data_dict):
     return licences
 
 def tag_list(context, data_dict):
-    '''Returns a list of tags'''
+    '''Return a list of tag dictionaries.
 
+    If a query is provided in the data_dict with key 'query' or 'q', then only
+    tags whose names match the given query will be returned. Otherwise, all
+    tags will be returned.
+
+    By default only free tags (tags that don't belong to a vocabulary) are
+    returned. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be returned instead.
+
+    '''
     model = context['model']
-    user = context['user']
 
-    all_fields = data_dict.get('all_fields',None)
+    vocab_id_or_name = data_dict.get('vocabulary_id')
+    query = data_dict.get('query') or data_dict.get('q')
+    if query:
+        query = query.strip()
+    all_fields = data_dict.get('all_fields', None)
 
-    check_access('tag_list',context, data_dict)
+    check_access('tag_list', context, data_dict)
 
-    q = data_dict.get('q','')
-    if q:
-        limit = data_dict.get('limit',25)
-        offset = data_dict.get('offset',0)
-        return_objects = data_dict.get('return_objects',True)
-
-        query = query_for(model.Tag)
-        query.run(query=q,
-                  limit=limit,
-                  offset=offset,
-                  return_objects=return_objects,
-                  username=user)
-        tags = query.results
+    if query:
+        tags = _tag_search(context, data_dict)
     else:
-        tags = model.Session.query(model.Tag).all()
+        tags = model.Tag.all(vocab_id_or_name)
 
     tag_list = []
-    if all_fields:
-        for tag in tags:
-            result_dict = tag_dictize(tag, context)
-            tag_list.append(result_dict)
-    else:
-        tag_list = [tag.name for tag in tags]
+    if tags:
+        if all_fields:
+            for tag in tags:
+                result_dict = tag_dictize(tag, context)
+                tag_list.append(result_dict)
+        else:
+            tag_list.extend([tag.name for tag in tags])
 
     return tag_list
 
@@ -438,7 +447,6 @@ def tag_show(context, data_dict):
     '''Shows tag details'''
 
     model = context['model']
-    api = context.get('api_version') or '1'
     id = data_dict['id']
 
     tag = model.Tag.get(id)
@@ -494,8 +502,19 @@ def user_show(context, data_dict):
         revision_dict = revision_show(context,{'id':revision.id})
         revision_dict['state'] = revision.state
         revisions_list.append(revision_dict)
-
     user_dict['activity'] = revisions_list
+
+    user_dict['datasets'] = []
+    dataset_q = model.Session.query(model.Package).join(model.PackageRole
+            ).filter_by(user=user_obj, role=model.Role.ADMIN
+            ).limit(50)
+
+    for dataset in dataset_q:
+        try:
+            dataset_dict = package_show(context, {'id': dataset.id})
+        except ckan.logic.NotAuthorized:
+            continue
+        user_dict['datasets'].append(dataset_dict)
 
     return user_dict
 
@@ -579,29 +598,6 @@ def package_autocomplete(context, data_dict):
         pkg_list.append(result_dict)
 
     return pkg_list
-
-def tag_autocomplete(context, data_dict):
-    '''Returns tags containing the provided string'''
-
-    model = context['model']
-    session = context['session']
-    user = context['user']
-
-    check_access('tag_autocomplete', context, data_dict)
-
-    q = data_dict.get('q', None)
-    if not q:
-        return []
-
-    limit = data_dict.get('limit',10)
-
-    query = query_for('tag')
-    query.run(query=q,
-              return_objects=True,
-              limit=10,
-              username=user)
-
-    return [tag.name for tag in query.results]
 
 def format_autocomplete(context, data_dict):
     '''Returns formats containing the provided string'''
@@ -716,28 +712,6 @@ def package_search(context, data_dict):
 
     return search_results
 
-def _extend_package_dict(package_dict,context):
-    model = context['model']
-
-    resources = model.Session.query(model.Resource)\
-                .join(model.ResourceGroup)\
-                .filter(model.ResourceGroup.package_id == package_dict['id'])\
-                .all()
-    if resources:
-        package_dict['resources'] = resource_list_dictize(resources, context)
-    else:
-        package_dict['resources'] = []
-    license_id = package_dict.get('license_id')
-    if license_id:
-        try:
-            isopen = model.Package.get_license_register()[license_id].isopen()
-        except KeyError:
-            isopen = False
-        package_dict['isopen'] = isopen
-    else:
-        package_dict['isopen'] = False
-
-    return package_dict
 
 def resource_search(context, data_dict):
     model = context['model']
@@ -790,11 +764,22 @@ def resource_search(context, data_dict):
 
     return {'count': count, 'results': results}
 
-def tag_search(context, data_dict):
-    model = context['model']
-    session = context['session']
+def _tag_search(context, data_dict):
+    '''Return a list of tag objects that contain the given string.
 
-    query = data_dict.get('query')
+    The query string should be provided in the data_dict with key 'query' or
+    'q'.
+
+    By default only free tags (tags that don't belong to a vocabulary) are
+    searched. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be searched instead.
+
+    '''
+    model = context['model']
+
+    query = data_dict.get('query') or data_dict.get('q')
+    if query:
+        query = query.strip()
     terms = [query] if query else []
 
     fields = data_dict.get('fields', {})
@@ -803,23 +788,70 @@ def tag_search(context, data_dict):
 
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Tag)
-    q = q.distinct().join(model.Tag.package_tags)
+
+    if data_dict.has_key('vocabulary_id'):
+        # Filter by vocabulary.
+        vocab = model.Vocabulary.get(data_dict['vocabulary_id'])
+        if not vocab:
+            raise NotFound
+        q = q.filter(model.Tag.vocabulary_id == vocab.id)
+    else:
+        # If no vocabulary_name in data dict then show free tags only.
+        q = q.filter(model.Tag.vocabulary_id == None)
+        # If we're searching free tags, limit results to tags that are
+        # currently applied to a package.
+        q = q.distinct().join(model.Tag.package_tags)
+
     for field, value in fields.items():
         if field in ('tag', 'tags'):
             terms.append(value)
 
     if not len(terms):
-        return
+        return []
 
     for term in terms:
         escaped_term = misc.escape_sql_like_special_characters(term, escape='\\')
         q = q.filter(model.Tag.name.ilike('%' + escaped_term + '%'))
 
-    count = q.count()
     q = q.offset(offset)
     q = q.limit(limit)
-    results = [r for r in q]
-    return {'count': count, 'results': results}
+    return q.all()
+
+def tag_search(context, data_dict):
+    '''Return a list of tag dictionaries that contain the given string.
+
+    The query string should be provided in the data_dict with key 'query' or
+    'q'.
+
+    By default only free tags (tags that don't belong to a vocabulary) are
+    searched. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be searched instead.
+
+    Returns a dictionary with keys 'count' (the number of tags in the result)
+    and 'results' (the list of tag dicts).
+
+    '''
+    tags = _tag_search(context, data_dict)
+    return {'count': len(tags),
+            'results': [table_dictize(tag, context) for tag in tags]}
+
+def tag_autocomplete(context, data_dict):
+    '''Return a list of tag names that contain the given string.
+
+    The query string should be provided in the data_dict with key 'query' or
+    'q'.
+
+    By default only free tags (tags that don't belong to a vocabulary) are
+    searched. If a 'vocabulary_id' is provided in the data_dict then tags
+    belonging to the given vocabulary (id or name) will be searched instead.
+
+    '''
+    check_access('tag_autocomplete', context, data_dict)
+    matching_tags = _tag_search(context, data_dict)
+    if matching_tags:
+        return [tag.name for tag in matching_tags]
+    else:
+        return []
 
 def task_status_show(context, data_dict):
     model = context['model']
@@ -845,6 +877,32 @@ def task_status_show(context, data_dict):
 
     task_status_dict = task_status_dictize(task_status, context)
     return task_status_dict
+
+
+def term_translation_show(context, data_dict):
+    model = context['model']
+
+    trans_table = model.term_translation_table 
+
+    q = select([trans_table])
+
+    if 'term' not in data_dict:
+        raise ValidationError({'term': 'term not it data'})
+    
+    q = q.where(trans_table.c.term == data_dict['term'])
+
+    if 'lang_code' in data_dict:
+        q = q.where(trans_table.c.lang_code == data_dict['lang_code'])
+
+    conn = model.Session.connection()
+    cursor = conn.execute(q)
+
+    results = []
+
+    for row in cursor:
+        results.append(table_dictize(row, context))
+
+    return results
 
 def get_site_user(context, data_dict):
     check_access('get_site_user', context, data_dict)
@@ -931,3 +989,210 @@ def status_show(context, data_dict):
         'locale_default': config.get('ckan.locale_default'),
         'extensions': config.get('ckan.plugins').split(),
         }
+
+def vocabulary_list(context, data_dict):
+    model = context['model']
+    vocabulary_objects = model.Session.query(model.Vocabulary).all()
+    return vocabulary_list_dictize(vocabulary_objects, context)
+
+def vocabulary_show(context, data_dict):
+    model = context['model']
+    vocab_id = data_dict.get('id')
+    if not vocab_id:
+        raise ValidationError({'id': _('id not in data')})
+    vocabulary = model.vocabulary.Vocabulary.get(vocab_id)
+    if vocabulary is None:
+        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
+    vocabulary_dict = vocabulary_dictize(vocabulary, context)
+    return vocabulary_dict
+
+def user_activity_list(context, data_dict):
+    '''Return a user\'s public activity stream as a list of dicts.'''
+    model = context['model']
+    user_id = data_dict['id']
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(user_id=user_id)
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+    return activity_list_dictize(activity_objects, context)
+
+def package_activity_list(context, data_dict):
+    '''Return a package\'s public activity stream as a list of dicts.'''
+    model = context['model']
+    package_id = data_dict['id']
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(object_id=package_id)
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+    return activity_list_dictize(activity_objects, context)
+
+def group_activity_list(context, data_dict):
+    '''Return a group\'s public activity stream as a list of dicts.'''
+    model = context['model']
+    group_id = data_dict['id']
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(object_id=group_id)
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+    return activity_list_dictize(activity_objects, context)
+
+def activity_detail_list(context, data_dict):
+    '''Return an activity\'s list of activity detail items, as a list of dicts.
+    '''
+    model = context['model']
+    activity_id = data_dict['id']
+    activity_detail_objects = model.Session.query(
+        model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
+    return activity_detail_list_dictize(activity_detail_objects, context)
+
+def render_new_package_activity(context, activity):
+    return render('activity_streams/new_package.html',
+        extra_vars = {'activity': activity})
+
+def render_deleted_package_activity(context, activity):
+    return render('activity_streams/deleted_package.html',
+        extra_vars = {'activity': activity})
+
+def render_new_resource_activity(context, activity, detail):
+    return render('activity_streams/new_resource.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_changed_resource_activity(context, activity, detail):
+    return render('activity_streams/changed_resource.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_deleted_resource_activity(context, activity, detail):
+    return render('activity_streams/deleted_resource.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_added_tag_activity(context, activity, detail):
+    return render('activity_streams/added_tag.html',
+            extra_vars = {'activity': activity, 'detail': detail})
+
+def render_removed_tag_activity(context, activity, detail):
+    return render('activity_streams/removed_tag.html',
+            extra_vars = {'activity': activity, 'detail': detail})
+
+def render_new_package_extra_activity(context, activity, detail):
+    return render('activity_streams/new_package_extra.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_changed_package_extra_activity(context, activity, detail):
+    return render('activity_streams/changed_package_extra.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_deleted_package_extra_activity(context, activity, detail):
+    return render('activity_streams/deleted_package_extra.html',
+        extra_vars = {'activity': activity, 'detail': detail})
+
+def render_changed_package_activity(context, activity):
+    details = activity_detail_list(context=context,
+        data_dict={'id': activity['id']})
+
+    if len(details) == 1:
+        # If an activity has only one activity detail we try to find an
+        # activity detail renderer to use instead of rendering the normal
+        # 'changed package' template.
+        detail = details[0]
+        activity_detail_renderers = {
+            'Resource': {
+              'new': render_new_resource_activity,
+              'changed': render_changed_resource_activity,
+              'deleted': render_deleted_resource_activity
+              },
+            'tag': {
+              'added': render_added_tag_activity,
+              'removed': render_removed_tag_activity,
+              },
+            'PackageExtra': {
+                'new': render_new_package_extra_activity,
+                'changed': render_changed_package_extra_activity,
+                'deleted': render_deleted_package_extra_activity
+              },
+            }
+        object_type = detail['object_type']
+        if activity_detail_renderers.has_key(object_type):
+            activity_type = detail['activity_type']
+            if activity_detail_renderers[object_type].has_key(activity_type):
+                renderer = activity_detail_renderers[object_type][activity_type]
+                return renderer(context, activity, detail)
+
+    return render('activity_streams/changed_package.html',
+        extra_vars = {'activity': activity})
+
+def render_new_user_activity(context, activity):
+    return render('activity_streams/new_user.html',
+        extra_vars = {'activity': activity})
+
+def render_changed_user_activity(context, activity):
+    return render('activity_streams/changed_user.html',
+        extra_vars = {'activity': activity})
+
+def render_new_group_activity(context, activity):
+    return render('activity_streams/new_group.html',
+        extra_vars = {'activity': activity})
+
+def render_changed_group_activity(context, activity):
+    return render('activity_streams/changed_group.html',
+        extra_vars = {'activity': activity})
+
+def render_deleted_group_activity(context, activity):
+    return render('activity_streams/deleted_group.html',
+        extra_vars = {'activity': activity})
+
+# Global dictionary mapping activity types to functions that render activity
+# dicts to HTML snippets for including in HTML pages.
+activity_renderers = {
+  'new package' : render_new_package_activity,
+  'changed package' : render_changed_package_activity,
+  'deleted package' : render_deleted_package_activity,
+  'new user' : render_new_user_activity,
+  'changed user' : render_changed_user_activity,
+  'new group' : render_new_group_activity,
+  'changed group' : render_changed_group_activity,
+  'deleted group' : render_deleted_group_activity,
+  }
+
+def _activity_list_to_html(context, activity_stream):
+    html = []
+    for activity in activity_stream:
+        activity_type = activity['activity_type']
+        if not activity_renderers.has_key(activity_type):
+            raise NotImplementedError, ("No activity renderer for activity "
+                "type '%s'" % str(activity_type))
+        activity_html = activity_renderers[activity_type](context, activity)
+        html.append(activity_html)
+    return literal('\n'.join(html))
+
+def user_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of a user\'s public activity stream.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = user_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)
+
+def package_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of a package\'s public activity stream.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = package_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)
+
+def group_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of a group\'s public activity stream.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = group_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)

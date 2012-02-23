@@ -1,7 +1,7 @@
 from ckan.logic import check_access_old, NotFound
 from ckan.logic.auth import get_package_object, get_resource_object,  get_group_object, get_authorization_group_object, \
     get_user_object, get_resource_object
-from ckan.logic.auth.create import check_group_auth, package_relationship_create
+from ckan.logic.auth.create import _check_group_auth, package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
@@ -17,7 +17,7 @@ def package_update(context, data_dict):
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), package.id)}
     else:
-        check2 = check_group_auth(context,data_dict)
+        check2 = _check_group_auth(context,data_dict)
         if not check2:
             return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
 
@@ -74,7 +74,7 @@ def group_update(context, data_dict):
     model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
-
+    
     authorized = check_access_old(group, model.Action.EDIT, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit group %s') % (str(user),group.id)}
@@ -156,6 +156,24 @@ def task_status_update(context, data_dict):
     authorized =  Authorizer().is_sysadmin(unicode(user))
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to update task_status table') % str(user)}
+    else:
+        return {'success': True}
+
+def vocabulary_update(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}
+
+def term_translation_update(context, data_dict):
+
+    model = context['model']
+    user = context['user']
+
+    if 'ignore_auth' in context and context['ignore_auth']:
+        return {'success': True}
+
+    authorized =  Authorizer().is_sysadmin(unicode(user))
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to update term_translation table') % str(user)}
     else:
         return {'success': True}
 

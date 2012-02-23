@@ -78,11 +78,6 @@ header .account {
   float: right;
 }
 
-header .account img {
-  margin-bottom: -3px;
-}
-
-
 header .search {
   margin: 1px;
   margin-left: 1em;
@@ -237,6 +232,10 @@ tbody tr.table-empty td {
   border-bottom: 1px dashed #000;
 }
 
+img.gravatar {
+  margin: 0 5px -5px 0;
+  border-radius: 3px;
+}
 
 /* =============== */
 /* MinorNavigation */
@@ -429,7 +428,6 @@ tbody tr.table-empty td {
 	font-weight: bold;
 	border: 1px solid #ddd;
 }
-
 
 /* ====== */
 /* Facets */
@@ -639,6 +637,7 @@ form.simple-form input[type=password] {
 /* ============== */
 /* = User Index = */
 /* ============== */
+
 ul.userlist, 
 ul.userlist ul {
   list-style-type: none;
@@ -657,7 +656,8 @@ ul.userlist li ul span.edits {
   margin-left: 3px;
 }
 ul.userlist .username img {
-  margin-bottom: -3px;
+  margin: 0 5px -6px 0;
+  border-radius: 3px;
 }
 ul.userlist .created {
   color: #888;
@@ -671,10 +671,78 @@ ul.userlist .badge {
   margin-top: 5px;
 }
 
-
 /* ================== */
 /* = User Read page = */
 /* ================== */
+
+body.user.read #sidebar { display: none; }
+body.user.read #content { 
+  border-right: 0; 
+  width: 950px; 
+}
+
+.user.read .page_heading {
+  font-weight: bold;
+}
+
+.user.read .page_heading img.gravatar {
+  padding: 2px;
+  border: solid 1px #ddd;
+  vertical-align: middle;
+  margin-right: 5px;
+  margin-top: -3px;
+}
+
+.user.read .page_heading .fullname {
+  font-weight: normal;
+  color: #999;
+}
+
+.user.read .rule {
+  clear: both;
+  margin-bottom: 15px;
+  padding-top: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.vcard dt {
+  width: 115px;
+  float: left;
+  font-weight: normal;
+  color: #999;
+}
+
+.vcard dd {
+  margin-left: 115px;
+}
+
+.user.read ul.stats {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.user.read ul.stats li {
+  display: inline-block;
+  color: inherit;
+  width: 115px;
+}
+
+.user.read ul.stats li strong {
+  font-size: 36px;
+  display: block;
+  line-height: 35px;
+}
+
+.user.read ul.stats li span {
+  color: #999;
+}
+
+.user.read .listing > div.datasets .datasets {
+  padding-right: 15px;
+}
+
+.user.read .listing .changes {
+}
 
 
 /* ========================= */
@@ -922,16 +990,6 @@ ul.dataset-edit-nav li a:hover {
   -webkit-border-top-left-radius: 5px; 
           border-top-left-radius: 5px; 
   -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
-}
-
-
-
-.gravatar {
-  border: 1px solid #777;
-  padding: 1px;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 10px auto;
 }
 
 
@@ -1291,7 +1349,8 @@ body.package.resource_read #resource-explore { margin-bottom: 2em; }
 /* = Add Group Page = */
 /* ================== */
 .group-create-form fieldset#extras,
-.group-create-form fieldset#datasets {
+.group-create-form fieldset#datasets,
+.group-create-form fieldset#users {
   display: none;
 }
 .group-create-form .description-label,
@@ -1460,4 +1519,36 @@ body.authz form button {
 .alert-message.block-message.success p a,
 .alert-message.block-message.info p a {
   color: #404040;
+}
+
+/* ==================== */
+/* = Activity Streams = */
+/* ==================== */
+
+.activity-stream .activity {
+    padding-bottom:1em;
+
+}
+.activity-stream .activity a {
+    font-weight:bold;
+
+}
+.activity-stream .activity .actor {
+
+}
+.activity-stream .activity .verb {
+    background-color:PapayaWhip;
+    padding:.25em;
+    margin:.25em;
+
+}
+.activity-stream .activity .object {
+
+}
+.activity-stream .activity .target {
+
+}
+.activity-stream .activity .date {
+    color:#999;
+
 }

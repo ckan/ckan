@@ -24,11 +24,12 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
 from ckan.lib.dictization import table_dictize
 from ckan.lib.i18n import get_lang
-from ckan.plugins import PluginImplementations, IDatasetForm
+from ckan.plugins import PluginImplementations, IDatasetForm, IPackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
+import ckan.logic.action.get
 
 log = logging.getLogger(__name__)
 
@@ -65,14 +66,9 @@ def register_pluggable_behaviour(map):
     exception will be raised.
     """
     global _default_controller_behaviour
+    _default_controller_behaviour = None
+    _controller_behaviour_for.clear()
     
-    # Check this method hasn't been invoked already.
-    # TODO: This method seems to be being invoked more than once during running of
-    #       the tests.  So I've disbabled this check until I figure out why.
-    #if _default_controller_behaviour is not None:
-        #raise ValueError, "Pluggable package controller behaviour is already defined "\
-                          #"'%s'" % _default_controller_behaviour
-
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in PluginImplementations(IDatasetForm):
         if plugin.is_fallback():
@@ -83,7 +79,6 @@ def register_pluggable_behaviour(map):
 
         for package_type in plugin.package_types():
             # Create a connection between the newly named type and the package controller
-            # but first we need to make sure we are not clobbering an existing domain
             map.connect('/%s/new' % (package_type,), controller='package', action='new')    
             map.connect('%s_read' % (package_type,), '/%s/{id}' %  (package_type,), controller='package', action='read')                        
             map.connect('%s_action' % (package_type,),
@@ -244,20 +239,22 @@ class PackageController(BaseController):
         try:
             c.fields = []
             search_extras = {}
+            fq = ''
             for (param, value) in request.params.items():
                 if not param in ['q', 'page'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
-                        q += ' %s: "%s"' % (param, value)
+                        fq += ' %s:"%s"' % (param, value)
                     else:
                         search_extras[param] = value
 
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'for_view': True}
 
             data_dict = {
                 'q':q,
+                'fq':fq,
                 'facet.field':g.facets,
                 'rows':limit,
                 'start':(page-1)*limit,
@@ -288,7 +285,8 @@ class PackageController(BaseController):
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(package_type=package_type)}
+                   'schema': self._form_to_db_schema(package_type=package_type),
+                   'for_view': True}
         data_dict = {'id': id}
 
         # interpret @<revision_id> or @<date> suffix
@@ -324,7 +322,14 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
-        
+
+        # Add the package's activity stream (already rendered to HTML) to the
+        # template context for the package/read.html template to retrieve
+        # later.
+        c.package_activity_stream = \
+                ckan.logic.action.get.package_activity_list_html(context,
+                    {'id': c.current_package_id})
+
         if config.get('rdf_packages'):
             accept_header = request.headers.get('Accept', '*/*')
             for content_type, exts in negotiate(autoneg_cfg, accept_header):
@@ -440,6 +445,8 @@ class PackageController(BaseController):
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema(package_type=package_type)}
 
+        # Package needs to have a publisher group in the call to check_access
+        # and also to save it
         try:
             check_access('package_create',context)
         except NotAuthorized:

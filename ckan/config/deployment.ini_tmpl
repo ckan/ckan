@@ -52,8 +52,8 @@ who.log_file = %(cache_dir)s/who_log.ini
 # Location of RDF versions of datasets
 #rdf_packages = http://semantic.ckan.net/record/
 
-# Location of licenses group (defaults to local Python licenses dataset)
-#licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_original
+# Location of licenses group (defaults to cached local version of ckan group)
+#licenses_group_url = http://licenses.opendefinition.org/licenses/groups/ckan.json
 
 # Dataset form to use
 package_form = standard

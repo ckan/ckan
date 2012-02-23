@@ -30,10 +30,16 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_password_not_empty,
                                    isodate,
                                    int_validator,
-                                   user_about_validator)
+                                   user_about_validator,
+                                   vocabulary_name_validator,
+                                   vocabulary_id_not_changed,
+                                   vocabulary_id_exists,
+                                   user_id_exists,
+                                   object_id_validator,
+                                   activity_type_exists,
+                                   tag_not_in_vocabulary)
 from formencode.validators import OneOf
 import ckan.model
-
 
 def default_resource_schema():
 
@@ -69,16 +75,28 @@ def default_update_resource_schema():
     return schema
 
 def default_tags_schema():
-
     schema = {
-        'name': [not_empty,
+        'name': [not_missing,
+                 not_empty,
                  unicode,
                  tag_length_validator,
                  tag_name_validator,
                 ],
+        'vocabulary_id': [ignore_missing, unicode, vocabulary_id_exists],
         'revision_timestamp': [ignore],
         'state': [ignore],
     }
+    return schema
+
+def default_create_tag_schema():
+    schema = default_tags_schema()
+    # When creating a tag via the create_tag() logic action function, a
+    # vocabulary_id _must_ be given (you cannot create free tags via this
+    # function).
+    schema['vocabulary_id'] = [not_missing, not_empty, unicode,
+            vocabulary_id_exists, tag_not_in_vocabulary]
+    # You're not allowed to specify your own ID when creating a tag.
+    schema['id'] = [empty]
     return schema
 
 def default_package_schema():
@@ -160,13 +178,24 @@ def default_group_schema():
         'name': [not_empty, unicode, name_validator, group_name_validator],
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
-        'type': [ignore_missing, unicode],        
+        'type': [ignore_missing, unicode],
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
+        'approval_status': [ignore_missing, unicode],
         'extras': default_extras_schema(),
         '__extras': [ignore],
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
+            "__extras": [ignore]
+        },
+        'users': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
+            "__extras": [ignore]
+        },
+        'groups': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
             "__extras": [ignore]
         }
     }
@@ -179,6 +208,11 @@ def group_form_schema():
         "name": [not_empty, unicode],
         "__extras": [ignore]
     }
+    schema['users'] = {
+        "name": [not_empty, unicode],
+        "capacity": [ignore_missing],        
+        "__extras": [ignore]
+    }    
     return schema
 
 
@@ -289,5 +323,39 @@ def default_task_status_schema():
         'state': [ignore_missing],
         'last_updated': [ignore_missing],
         'error': [ignore_missing]
+    }
+    return schema
+
+def default_vocabulary_schema():
+    schema = {
+        'id': [ignore_missing, unicode, vocabulary_id_exists],
+        'name': [not_empty, unicode, vocabulary_name_validator],
+        'tags': default_tags_schema(),
+    }
+    return schema
+
+def default_create_vocabulary_schema():
+    schema = default_vocabulary_schema()
+    schema['id'] = [empty]
+    return schema
+
+def default_update_vocabulary_schema():
+    schema = default_vocabulary_schema()
+    schema['id'] = [ignore_missing, vocabulary_id_not_changed]
+    schema['name'] = [ignore_missing, vocabulary_name_validator]
+    return schema
+
+def default_create_activity_schema():
+    schema = {
+        'id': [ignore],
+        'timestamp': [ignore],
+        'user_id': [not_missing, not_empty, unicode, user_id_exists],
+        'object_id': [not_missing, not_empty, unicode, object_id_validator],
+        # We don't bother to validate revision ID, since it's always created
+        # internally by the activity_create() logic action function.
+        'revision_id': [],
+        'activity_type': [not_missing, not_empty, unicode,
+            activity_type_exists],
+        'data': [ignore_empty, ignore_missing, unicode],
     }
     return schema
