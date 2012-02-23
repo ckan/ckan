@@ -521,7 +521,7 @@ def package_show_rest(context, data_dict):
 
     logic.check_access('package_show_rest',context, data_dict)
 
-    package_show(context, data_dict)
+    logic.get_action('package_show')(context, data_dict)
 
     api = context.get('api_version') or '1'
     pkg = context['package']
