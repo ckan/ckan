@@ -16,9 +16,6 @@ from ckan.lib.captcha import check_recaptcha, CaptchaError
 
 log = logging.getLogger(__name__)
 
-def login_form():
-    return render('user/login_form.html').replace('FORM_ACTION', '%s')
-
 class UserController(BaseController):
 
     def __before__(self, action, **env):
@@ -131,6 +128,10 @@ class UserController(BaseController):
 
         if context['save'] and not data:
             return self._save_new(context)
+
+        if c.user and not data:
+            # #1799 Don't offer the registration form if already logged in
+            return render('user/logout_first.html')            
         
         data = data or {}
         errors = errors or {}
@@ -162,11 +163,16 @@ class UserController(BaseController):
             errors = e.error_dict
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
-        # Redirect to a URL picked up by repoze.who which performs the login
-        h.redirect_to('/login_generic?login=%s&password=%s' % (
-            str(data_dict['name']),
-            quote(data_dict['password1'].encode('utf-8'))))
-
+        if not c.user:
+            # Redirect to a URL picked up by repoze.who which performs the login
+            h.redirect_to('/login_generic?login=%s&password=%s' % (
+                str(data_dict['name']),
+                quote(data_dict['password1'].encode('utf-8'))))
+        else:
+            # #1799 User has managed to register whilst logged in - warn user
+            # they are not re-logged in as new user.
+            h.flash_success(_('User "%s" is now registered but you are still logged in as "%s" from before') % (data_dict['name'], c.user))
+            return render('user/logout_first.html')
 
     def edit(self, id=None, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session,
@@ -245,8 +251,11 @@ class UserController(BaseController):
             # #1662 restriction
             log.warn('Cannot mount CKAN at a URL and login with OpenID.')
             g.openid_enabled = False
-            
-        return render('user/login.html')
+
+        if not c.user:
+            return render('user/login.html')
+        else:
+            return render('user/logout_first.html')
     
     def logged_in(self):
         if c.user:
