@@ -185,7 +185,7 @@
             <ul>
 <?python
   import ckan.lib.hash
-  current_url = request.path_qs.encode('utf-8')
+  current_url = request.path_info.encode('utf-8')
   current_url_hash = ckan.lib.hash.get_message_hash(current_url)
 ?>
               <li py:for="locale in h.get_available_locales()">
