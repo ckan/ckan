@@ -13,7 +13,7 @@ msgstr ""
 "POT-Creation-Date: 2012-02-09 18:46+0000\n"
 "PO-Revision-Date: 2012-02-09 19:16+0000\n"
 "Last-Translator: dread <internet@davidread.org>\n"
-"Language-Team: Czech (Czech Republic) (http://www.transifex.net/projects/p/ckan/team/cs_CZ/)\n"
+"Language-Team: Czech (Czech Republic) (http://www.transifex.net/projects/p/ckan/language/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -150,9 +150,7 @@ msgstr ""
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr ""
-"Balíček %s nelze vymazat, dokud propojená revize %s obsahuje nesmazané "
-"balíčky %s"
+msgstr "Balíček %s nelze vymazat, dokud propojená revize %s obsahuje nesmazané balíčky %s"
 
 #: ckan/controllers/admin.py:287
 #, python-format
@@ -264,8 +262,7 @@ msgstr "Neexistuje verze s id: %s"
 
 #: ckan/controllers/api.py:453
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
-msgstr ""
-"Ve vyhledávání chybí výraz ('since_id=UUID' nebo 'since_time=TIMESTAMP')"
+msgstr "Ve vyhledávání chybí výraz ('since_id=UUID' nebo 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:461
 #, python-format
@@ -442,9 +439,7 @@ msgstr "Vyhledávací index nelze aktualizovat."
 msgid ""
 "<span class=\"new-dataset\">Congratulations, your dataset has been created. "
 "<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
-msgstr ""
-"<span class=\"new-dataset\">Gratulujeme, váš dataset byl vytvořen. <a "
-"href=\"%s\">Nahrajte nebo odkažte na nová data &raquo;</a></span>"
+msgstr "<span class=\"new-dataset\">Gratulujeme, váš dataset byl vytvořen. <a href=\"%s\">Nahrajte nebo odkažte na nová data &raquo;</a></span>"
 
 #: ckan/controllers/package.py:794
 msgid "Resource not found"
@@ -571,9 +566,7 @@ msgstr "Název musí být dlouhý alespoň %s znaků"
 msgid ""
 "Name must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
-"Název může obsahovat pouze malá písmena bez diakritiky, číslice a znaky - "
-"(pomlčka) a _ (podtržítko)"
+msgstr "Název může obsahovat pouze malá písmena bez diakritiky, číslice a znaky - (pomlčka) a _ (podtržítko)"
 
 #: ckan/forms/common.py:41
 msgid "Dataset name already exists in database"
@@ -627,9 +620,7 @@ msgstr "Nelze přidat žádné skupiny."
 msgid ""
 "Can't derived new group selection from serialized value structured like "
 "this: %s"
-msgstr ""
-"Nelze odvodit výber nové skupiny ze serializované hodnoty strukturované "
-"takto: %s"
+msgstr "Nelze odvodit výber nové skupiny ze serializované hodnoty strukturované takto: %s"
 
 #: ckan/forms/common.py:910
 msgid "other - please specify"
@@ -669,9 +660,7 @@ msgstr "Stručný a popisný název množiny dat."
 msgid ""
 "It should not be a description though - save that for the Notes field. Do "
 "not give a trailing full stop."
-msgstr ""
-"Neměl by to ale bý popis, ten si nechte pro pole Poznámky. Na konci nepište "
-"tečku."
+msgstr "Neměl by to ale bý popis, ten si nechte pro pole Poznámky. Na konci nepište tečku."
 
 #: ckan/forms/package.py:39
 msgid "A unique identifier for the package."
@@ -682,10 +671,7 @@ msgid ""
 "It should be broadly humanly readable, in the spirit of Semantic Web URIs. "
 "Only use an acronym if it is widely recognised. Renaming is possible but "
 "discouraged."
-msgstr ""
-"Mělo by to být v zásadě lidsky čitelné, v duchu URI sémantického webu. "
-"Zkratku použijte pouze, pokud je všeobecně uznávána. Přejmenování je možné, "
-"ale nedoporučuje se."
+msgstr "Mělo by to být v zásadě lidsky čitelné, v duchu URI sémantického webu. Zkratku použijte pouze, pokud je všeobecně uznávána. Přejmenování je možné, ale nedoporučuje se."
 
 #: ckan/forms/package.py:41 ckan/templates/package/new_package_form.html:48
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
@@ -707,17 +693,13 @@ msgstr "např. http://www.priklad.cz/grafy-rustu.html"
 msgid ""
 "The name of the main contact, for enquiries about this particular dataset, "
 "using the e-mail address in the following field."
-msgstr ""
-"Jméno hlavního kontaktu pro dotazy o tomto konkrétním datasetu, který "
-"používá email v následujícím poli."
+msgstr "Jméno hlavního kontaktu pro dotazy o tomto konkrétním datasetu, který používá email v následujícím poli."
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:158
 msgid ""
 "If there is another important contact person (in addition to the person in "
 "the Author field) then provide details here."
-msgstr ""
-"Pokud existuje jiná důležitá kontaktní osoba (kromě osoby v poli Autor), "
-"uveďte ji zde."
+msgstr "Pokud existuje jiná důležitá kontaktní osoba (kromě osoby v poli Autor), uveďte ji zde."
 
 #: ckan/forms/package.py:63 ckan/templates/package/resource_read.html:59
 msgid "Licence"
@@ -764,25 +746,13 @@ msgid ""
 "SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the"
 " file format in which the data is supplied. <br /><b>Description</b> Any "
 "information you want to add to describe the resource.<br />"
-msgstr ""
-"<br />Podle potřeby se mohou opakovat. Například pokud jsou data dostupná ve"
-" více formátech nebo rozdělená podle různých oblastí nebo období, každý "
-"soubor je jiný zdroj, který by měl být popsán jinak. Všechny se pak společně"
-" objeví na CKANu, na stránce datasetu.<br /><br /> <b>URL:</b> Jedná se o "
-"internetový odkaz přímo na data - otevřením tohoto odkazu ve webovém "
-"prohlížeči může uživatel ihned stáhnout celý soubor dat. Všimněte si, že "
-"datové soubory nejsou uloženy na této stránce, ale zůstávají na stránkách "
-"jejich vydavatele. Případně může URL odkazovat na API serveru, jakým je "
-"například endpoint, SPARQL nebo služby JSON-P. <br /> <b>Formát:</b> Sem by "
-"měl být zadán formát souboru, v němž jsou data dostupná.<br /> <b>Popis</b> "
-"Veškeré informace, které chcete přidat k popsání zdroje.<br />"
+msgstr "<br />Podle potřeby se mohou opakovat. Například pokud jsou data dostupná ve více formátech nebo rozdělená podle různých oblastí nebo období, každý soubor je jiný zdroj, který by měl být popsán jinak. Všechny se pak společně objeví na CKANu, na stránce datasetu.<br /><br /> <b>URL:</b> Jedná se o internetový odkaz přímo na data - otevřením tohoto odkazu ve webovém prohlížeči může uživatel ihned stáhnout celý soubor dat. Všimněte si, že datové soubory nejsou uloženy na této stránce, ale zůstávají na stránkách jejich vydavatele. Případně může URL odkazovat na API serveru, jakým je například endpoint, SPARQL nebo služby JSON-P. <br /> <b>Formát:</b> Sem by měl být zadán formát souboru, v němž jsou data dostupná.<br /> <b>Popis</b> Veškeré informace, které chcete přidat k popsání zdroje.<br />"
 
 #: ckan/forms/package.py:76
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
-msgstr ""
-"Výběr formátů: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Jiné dle potřeby"
+msgstr "Výběr formátů: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Jiné dle potřeby"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 msgid "Notes"
@@ -797,10 +767,7 @@ msgid ""
 "It is often displayed with the package title. In particular, it should start"
 " with a short sentence that describes the data set succinctly, because the "
 "first few words alone may be used in some views of the data sets."
-msgstr ""
-"Často je zobrazen spolu s názvem balíčku. Začít by měl krátkou větou, která "
-"stručně popíše soubor dat, protože prvních několik slov může být použito v "
-"některých pohledech na soubor dat."
+msgstr "Často je zobrazen spolu s názvem balíčku. Začít by měl krátkou větou, která stručně popíše soubor dat, protože prvních několik slov může být použito v některých pohledech na soubor dat."
 
 #: ckan/forms/package.py:83
 #, python-format
@@ -927,12 +894,7 @@ msgid ""
 "Please click the following link to confirm this request:\n"
 "\n"
 "   %(reset_link)s\n"
-msgstr ""
-"Požádal jste o obnovení svého hesla na %(site_title)s.\n"
-"\n"
-"Klikněte prosím na následující odkaz pro potvrzení vašeho požadavku:\n"
-"\n"
-"   %(reset_link)s\n"
+msgstr "Požádal jste o obnovení svého hesla na %(site_title)s.\n\nKlikněte prosím na následující odkaz pro potvrzení vašeho požadavku:\n\n   %(reset_link)s\n"
 
 #: ckan/lib/mailer.py:95 ckan/templates/user/perform_reset.html:6
 #: ckan/templates/user/perform_reset.html:14
@@ -981,9 +943,7 @@ msgstr ""
 msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
-"URL může obsahovat pouze malá písmena bez diakritiky, číslice a znaky - "
-"(pomlčka) a _ (podtržítko)"
+msgstr "URL může obsahovat pouze malá písmena bez diakritiky, číslice a znaky - (pomlčka) a _ (podtržítko)"
 
 #: ckan/logic/validators.py:192
 msgid "That URL is already in use."
@@ -1012,9 +972,7 @@ msgstr "Délka tag \"%s\" je větší než povolené maximum %i"
 #: ckan/logic/validators.py:257
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr ""
-"Tag \"%s\" může obsahovat pouze malá písmena bez diakritiky, číslice a znaky"
-" - (pomlčka) a _ (podtržítko)"
+msgstr "Tag \"%s\" může obsahovat pouze malá písmena bez diakritiky, číslice a znaky - (pomlčka) a _ (podtržítko)"
 
 #: ckan/logic/validators.py:265
 #, python-format
@@ -1045,9 +1003,7 @@ msgstr "Chybějící hodnota"
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
-msgstr ""
-"Úprava nebyla povolena, protože vypadá jako spam. Vyhněte se prosím v popisu"
-" odkazům."
+msgstr "Úprava nebyla povolena, protože vypadá jako spam. Vyhněte se prosím v popisu odkazům."
 
 #: ckan/logic/action/create.py:65 ckan/logic/action/create.py:180
 #, python-format
@@ -1192,8 +1148,7 @@ msgstr "Uživatel %s nemá oprávnění číst balíček %s"
 
 #: ckan/logic/auth/get.py:105 ckan/logic/auth/update.py:38
 msgid "No package found for this resource, cannot check auth."
-msgstr ""
-"Pro tento zdroj nebyl nalezen žádný balíček, nelze zkontrolovat oprávnění."
+msgstr "Pro tento zdroj nebyl nalezen žádný balíček, nelze zkontrolovat oprávnění."
 
 #: ckan/logic/auth/get.py:111
 #, python-format
@@ -1361,9 +1316,7 @@ msgstr "zatím bez hodnocení"
 msgid ""
 "–\n"
 "    rate it now"
-msgstr ""
-"–\n"
-"    ohodnoťte nyní"
+msgstr "–\n    ohodnoťte nyní"
 
 #: ckan/templates/_util.html:274 ckan/templates/_util.html:330
 msgid "User Group"
@@ -1811,16 +1764,11 @@ msgid ""
 "Instead of specifying the privileges of specific users on a dataset or group,\n"
 "          you can also specify a set of users that will share the same rights. To do that, an    \n"
 "          [1:authorization group] can be set-up and users can be added to it."
-msgstr ""
-"Místo zadávání oprávnění konkrétním uživatelům pro datasety či skupiny,\n"
-"          můžete zadat skupinu uživatelů, kteří budou sdílet stejná práva. K tomuto slouží    \n"
-"          [1:autorizační skupina], kterou můžete vytvořit a uživatele do ní zařadit."
+msgstr "Místo zadávání oprávnění konkrétním uživatelům pro datasety či skupiny,\n          můžete zadat skupinu uživatelů, kteří budou sdílet stejná práva. K tomuto slouží    \n          [1:autorizační skupina], kterou můžete vytvořit a uživatele do ní zařadit."
 
 #: ckan/templates/authorization_group/layout.html:28
 msgid "To create a new authorization group, please first [1:login]."
-msgstr ""
-"Pokud chcete vytvořit novou autorizační skupinu, musíte se nejdřív "
-"[1:přihlásit]."
+msgstr "Pokud chcete vytvořit novou autorizační skupinu, musíte se nejdřív [1:přihlásit]."
 
 #: ckan/templates/authorization_group/layout.html:32
 msgid "Create a new authorization group"
@@ -1895,10 +1843,7 @@ msgid ""
 "when you want to restrict users from editing a collection. A [1:group] can "
 "be set-up to specify which users have permission to add or remove datasets "
 "from it."
-msgstr ""
-"I když jsou tagy skvělé pro tvoření kolekcí datasetů, existují případy kdy "
-"chcete zabrátnit uživatelům v úpravě kolekce. Může být vytvořena [1:skupina]"
-" určující kteří uživatelé mají právo přidávat a odebírat datasety z kolekce."
+msgstr "I když jsou tagy skvělé pro tvoření kolekcí datasetů, existují případy kdy chcete zabrátnit uživatelům v úpravě kolekce. Může být vytvořena [1:skupina] určující kteří uživatelé mají právo přidávat a odebírat datasety z kolekce."
 
 #: ckan/templates/group/layout.html:12 ckan/templates/package/layout.html:35
 msgid "History"
@@ -2115,9 +2060,7 @@ msgstr "datasetů"
 msgid ""
 "that you can \n"
 "          browse, learn about and download."
-msgstr ""
-", které můžete\n"
-"          procházet, poznávat a stahovat."
+msgstr ", které můžete\n          procházet, poznávat a stahovat."
 
 #: ckan/templates/home/index.html:25
 msgid "Share data"
@@ -2127,9 +2070,7 @@ msgstr "Sdílení dat"
 msgid ""
 "Add your own datasets to share them with others and\n"
 "        to find other people interested in your data."
-msgstr ""
-"Vytvořte vlastní datasety a podělte se o ně s ostatními\n"
-"        a najděte další, kteří se zajímají o vaše data."
+msgstr "Vytvořte vlastní datasety a podělte se o ně s ostatními\n        a najděte další, kteří se zajímají o vaše data."
 
 #: ckan/templates/home/index.html:31
 msgid "Create a dataset »"
@@ -2147,9 +2088,7 @@ msgstr "Spolupracovat"
 msgid ""
 "Find out more about working with open data by exploring \n"
 "        these resources:"
-msgstr ""
-"Více se o práci s otevřenými daty můžete dozvědět\n"
-"        na těchto zdrojích:"
+msgstr "Více se o práci s otevřenými daty můžete dozvědět\n        na těchto zdrojích:"
 
 #: ckan/templates/home/index.html:45
 msgid "GetTheData.org"
@@ -2227,10 +2166,7 @@ msgid ""
 "[1:Important:] By submitting content, you agree to release your "
 "contributions under the [2:Open Database License]. Please [3:refrain] from "
 "editing this page if you are [4:not] happy to do this."
-msgstr ""
-"[1:Důležité:] Zasláním obsahu souhlasíte se zveřejněním vašeho příspěvku pod"
-" [2:Otevřenou licencí]. Prosím, [3:neprovádějte] úpravy této stránky, pokud "
-"si to [4:nepřejete]."
+msgstr "[1:Důležité:] Zasláním obsahu souhlasíte se zveřejněním vašeho příspěvku pod [2:Otevřenou licencí]. Prosím, [3:neprovádějte] úpravy této stránky, pokud si to [4:nepřejete]."
 
 #: ckan/templates/package/history.html:61 ckan/templates/package/read.html:103
 msgid "Dataset History"
@@ -2308,9 +2244,7 @@ msgstr ""
 msgid ""
 "Since you have not signed in this will just be your IP address.\n"
 "    [1:Click here to sign in] before saving (opens in new window)."
-msgstr ""
-"Protože nejste přihlášen(a), bude to vaše IP adresa.\n"
-"    Před uložením [1:klikněte pro přihlášení sem] (otevře se v novém okně)."
+msgstr "Protože nejste přihlášen(a), bude to vaše IP adresa.\n    Před uložením [1:klikněte pro přihlášení sem] (otevře se v novém okně)."
 
 #: ckan/templates/package/read.html:14
 msgid "- Datasets"
@@ -2467,9 +2401,7 @@ msgstr "výpis"
 msgid ""
 "[1:There was an error while searching.] \n"
 "            Please try again."
-msgstr ""
-"[1:Při hledání došlo k chybě.]\n"
-"            Prosím zkuste to znovu."
+msgstr "[1:Při hledání došlo k chybě.]\n            Prosím zkuste to znovu."
 
 #: ckan/templates/package/search.html:55
 #, python-format
@@ -2516,9 +2448,7 @@ msgstr "Historie verzí"
 msgid ""
 "Track the most recent changes to the system, with most recent\n"
 "    changes first."
-msgstr ""
-"Zobrazuje poslední změny v systému, s tím, že poslední změny\n"
-"    jsou zobrazeny jako první."
+msgstr "Zobrazuje poslední změny v systému, s tím, že poslední změny\n    jsou zobrazeny jako první."
 
 #: ckan/templates/revision/read.html:6
 msgid "Revision:"
@@ -2552,9 +2482,7 @@ msgstr "Dataset -"
 msgid ""
 ",\n"
 "      Tag -"
-msgstr ""
-",\n"
-"      Tag -"
+msgstr ",\n      Tag -"
 
 #: ckan/templates/storage/index.html:6 ckan/templates/storage/index.html:15
 #: ckan/templates/storage/success.html:6
@@ -2750,12 +2678,7 @@ msgid ""
 "          about OpenID] and [2:how to get an\n"
 "          OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "          free OpenID provider such as [3:https://www.myopenid.com/]."
-msgstr ""
-"OpenID je služba, která umožňuje přihlášení na mnoho různých webů\n"
-"        za použití jediné identifikace. Zjistit [1:víc\n"
-"        o OpenID] a [2:postup pro vytvoření\n"
-"        OpenID účtu]. Pravděpodobně nejjednodušší je založení účtu u některého\n"
-"        bezplatného poskytovatele OpenID jako je [3:https://www.myopenid.com/]."
+msgstr "OpenID je služba, která umožňuje přihlášení na mnoho různých webů\n        za použití jediné identifikace. Zjistit [1:víc\n        o OpenID] a [2:postup pro vytvoření\n        OpenID účtu]. Pravděpodobně nejjednodušší je založení účtu u některého\n        bezplatného poskytovatele OpenID jako je [3:https://www.myopenid.com/]."
 
 #: ckan/templates/user/logout.html:5
 msgid "Logout - User"
@@ -2832,5 +2755,3 @@ msgstr "Žádost o obnovení hesla"
 #: ckan/templates/user/request_reset.html:13
 msgid "User name:"
 msgstr "Uživatelské jméno:"
-
-

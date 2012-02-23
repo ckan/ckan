@@ -247,7 +247,7 @@ If the command prompts for a password it is likely you haven't set up the
 database configuration correctly in step 6.
 
 10. Create the cache and session directories
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You need to create two directories for CKAN to put temporary files:
  * Pylon's cache directory, specified by `cache_dir` in the config file.

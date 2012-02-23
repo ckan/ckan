@@ -15,7 +15,7 @@ msgstr ""
 "POT-Creation-Date: 2012-02-09 18:46+0000\n"
 "PO-Revision-Date: 2012-02-09 19:15+0000\n"
 "Last-Translator: dread <internet@davidread.org>\n"
-"Language-Team: Hungarian (http://www.transifex.net/projects/p/ckan/team/hu/)\n"
+"Language-Team: Hungarian (http://www.transifex.net/projects/p/ckan/language/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -264,8 +264,7 @@ msgstr "Nincs ilyen azonosítóval rendelkező verzió: %s"
 
 #: ckan/controllers/api.py:453
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
-msgstr ""
-"Hiányzó keresési kifejezés ('since_id=UUID' vagy 'since_time=TIMESTAMP')"
+msgstr "Hiányzó keresési kifejezés ('since_id=UUID' vagy 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:461
 #, python-format
@@ -442,9 +441,7 @@ msgstr ""
 msgid ""
 "<span class=\"new-dataset\">Congratulations, your dataset has been created. "
 "<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
-msgstr ""
-"<span class=\"new-dataset\">Gratulálunk, az ön adatgyűjteménye létrejött. <a"
-" href=\"%s\">Töltsön vagy hivatkozzon valamilyen adatforráshoz</a></span>"
+msgstr "<span class=\"new-dataset\">Gratulálunk, az ön adatgyűjteménye létrejött. <a href=\"%s\">Töltsön vagy hivatkozzon valamilyen adatforráshoz</a></span>"
 
 #: ckan/controllers/package.py:794
 msgid "Resource not found"
@@ -757,9 +754,7 @@ msgstr ""
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
-msgstr ""
-"Formátum választás: CSV | RDF | XML | XBRL | SDMX | HTML + RDFa | Egyéb "
-"(ígény szerint)"
+msgstr "Formátum választás: CSV | RDF | XML | XBRL | SDMX | HTML + RDFa | Egyéb (ígény szerint)"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 msgid "Notes"
@@ -979,8 +974,7 @@ msgstr ""
 #: ckan/logic/validators.py:257
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr ""
-"A '%s' cimke csak betűket és számokat '-' és '_' jeleket tartalmazhat."
+msgstr "A '%s' cimke csak betűket és számokat '-' és '_' jeleket tartalmazhat."
 
 #: ckan/logic/validators.py:265
 #, python-format
@@ -1772,10 +1766,7 @@ msgid ""
 "Instead of specifying the privileges of specific users on a dataset or group,\n"
 "          you can also specify a set of users that will share the same rights. To do that, an    \n"
 "          [1:authorization group] can be set-up and users can be added to it."
-msgstr ""
-"Ahelyett, hogy adott felhasználónak adna jogokat, adjon jogot egy csomagnak vagy csoportnak, valamint lehetőség van arra, hogy adott felhasználóknak ugyanolyan jogot állítson be.\n"
-"         Ehhez\n"
-"          [1:authorization group] létrehozása szükséges, amelyhez felhasználókat kell hozzáadni."
+msgstr "Ahelyett, hogy adott felhasználónak adna jogokat, adjon jogot egy csomagnak vagy csoportnak, valamint lehetőség van arra, hogy adott felhasználóknak ugyanolyan jogot állítson be.\n         Ehhez\n          [1:authorization group] létrehozása szükséges, amelyhez felhasználókat kell hozzáadni."
 
 #: ckan/templates/authorization_group/layout.html:28
 msgid "To create a new authorization group, please first [1:login]."
@@ -1854,12 +1845,7 @@ msgid ""
 "when you want to restrict users from editing a collection. A [1:group] can "
 "be set-up to specify which users have permission to add or remove datasets "
 "from it."
-msgstr ""
-"A címkék nagyon hasznosak a csomagok összerendelésénél, mindazonáltal "
-"előfordulhat, hogy érdemes korlátozni, mely felhasználók módosíthatják a "
-"címkéhez tartozó csomagok listáját. Egy csoport létrehozásával "
-"meghatározhatjuk mely felhasználók szerkeszthetik az címkéhez tartozó "
-"csomagok listáját."
+msgstr "A címkék nagyon hasznosak a csomagok összerendelésénél, mindazonáltal előfordulhat, hogy érdemes korlátozni, mely felhasználók módosíthatják a címkéhez tartozó csomagok listáját. Egy csoport létrehozásával meghatározhatjuk mely felhasználók szerkeszthetik az címkéhez tartozó csomagok listáját."
 
 #: ckan/templates/group/layout.html:12 ckan/templates/package/layout.html:35
 msgid "History"
@@ -2464,9 +2450,7 @@ msgstr "Előzmények"
 msgid ""
 "Track the most recent changes to the system, with most recent\n"
 "    changes first."
-msgstr ""
-"Ez az oldal a csomagadatbázis összes változását megjeleníti időrendi "
-"sorrendben visszafelé."
+msgstr "Ez az oldal a csomagadatbázis összes változását megjeleníti időrendi sorrendben visszafelé."
 
 #: ckan/templates/revision/read.html:6
 msgid "Revision:"
@@ -2773,5 +2757,3 @@ msgstr "Kérjen jelszó visszaállítást"
 #: ckan/templates/user/request_reset.html:13
 msgid "User name:"
 msgstr "Felhasználó név:"
-
-

@@ -504,7 +504,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
         assert 'This is an old revision of this dataset' in main_html
-        assert 'at 2011-01-01 00:00' in main_html
+        assert 'at Jan 01, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title1' in res
@@ -522,7 +522,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
         assert 'This is an old revision of this dataset' in main_html
-        assert 'at 2011-01-02 00:00' in main_html
+        assert 'at Jan 02, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title2' in res
@@ -541,7 +541,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         print 'MAIN', main_html
         assert 'This is an old revision of this dataset' not in main_html
         assert 'This is the current revision of this dataset' in main_html
-        assert 'at 2011-01-03 00:00' in main_html
+        assert 'at Jan 03, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html
         assert 'title3' in res
@@ -1461,7 +1461,6 @@ class TestRevisions(TestPackageBase):
         res = res.click(href=url)
         main_html = self.main_div(res)
         assert 'This is an old revision of this dataset' in main_html
-        assert 'at %s' % str(self.revision_timestamps[1])[:6] in main_html
 
 
 class TestMarkdownHtmlWhitelist(TestPackageForm):

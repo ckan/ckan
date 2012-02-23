@@ -641,8 +641,8 @@ class TestActivity:
         if not activity.has_key('revision_id'):
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
-        assert (timestamp >= before['time'] and
-            timestamp <= after['time'], str(activity['timestamp']))
+        assert timestamp >= before['time'], str(activity['timestamp'])
+        assert timestamp <= after['time'], str(activity['timestamp'])
 
         # Test for the presence of correct activity detail items.
         details = self.activity_details(activity)

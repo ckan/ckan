@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+#   <egon.willighagen@gmail.com>, 2012.
 # <internet@davidread.org>, 2011.
 # OpenDataBaas <paul@oller.nl>, 2011.
 # TonZijlstra <ton.zijlstra@gmail.com>, 2011.
@@ -11,9 +12,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-02-09 18:46+0000\n"
-"PO-Revision-Date: 2012-02-09 19:17+0000\n"
-"Last-Translator: dread <internet@davidread.org>\n"
-"Language-Team: Dutch (http://www.transifex.net/projects/p/ckan/team/nl/)\n"
+"PO-Revision-Date: 2012-02-16 12:32+0000\n"
+"Last-Translator: egonwillighagen <egon.willighagen@gmail.com>\n"
+"Language-Team: Dutch (http://www.transifex.net/projects/p/ckan/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -25,7 +26,7 @@ msgstr ""
 #: ckanext/stats/templates/ckanext/stats/index.html:8
 #: ckan/templates/layout_base.html:160
 msgid "Statistics"
-msgstr ""
+msgstr "Statistieken"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:37
 #: ckan/templates/admin/layout.html:10 ckan/templates/revision/list.html:11
@@ -34,7 +35,7 @@ msgstr "Home"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:43
 msgid "Total number of Datasets"
-msgstr ""
+msgstr "Totaal aantal datasets"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:46
 msgid "Revisions to Datasets per week"
@@ -49,31 +50,31 @@ msgstr ""
 #: ckan/logic/validators.py:58 ckan/logic/validators.py:84
 #: ckan/templates/group/new_group_form.html:90
 msgid "Dataset"
-msgstr ""
+msgstr "Dataset"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:51
 msgid "Average rating"
-msgstr ""
+msgstr "Gemiddelde score"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:51
 msgid "Number of ratings"
-msgstr ""
+msgstr "Aantal scores"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:56
 msgid "No ratings"
-msgstr ""
+msgstr "Geen score"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 msgid "Most Edited Datasets"
-msgstr ""
+msgstr "Meest bewerkte dataset"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:60
 msgid "Number of edits"
-msgstr ""
+msgstr "Aantal veranderingen"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:66
 msgid "Largest Groups"
-msgstr ""
+msgstr "Grootste groepen"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:68
 #: ckan/forms/common.py:800 ckan/logic/validators.py:111
@@ -84,19 +85,19 @@ msgstr "Groep"
 #: ckanext/stats/templates/ckanext/stats/index.html:68
 #: ckan/templates/_util.html:147 ckan/templates/_util.html:160
 msgid "Number of datasets"
-msgstr ""
+msgstr "Aantal datasets"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:74
 msgid "Top Tags"
-msgstr ""
+msgstr "Top labels"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:81
 msgid "Users owning most datasets"
-msgstr ""
+msgstr "Gebruikers met de meeste datasets"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:88
 msgid "Page last updated:"
-msgstr ""
+msgstr "Pagina laatst bijgewerkt:"
 
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:6
 msgid "Leaderboard - Stats"
@@ -114,12 +115,12 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
-msgstr ""
+msgstr "Kies thema"
 
 #: ckan/new_authz.py:18
 #, python-format
 msgid "Authorization function not found: %s"
-msgstr ""
+msgstr "Authorisatiefunctie niet gevonden: %s"
 
 #: ckan/controllers/admin.py:19
 msgid "Need to be system administrator to administer"
@@ -127,15 +128,15 @@ msgstr ""
 
 #: ckan/controllers/admin.py:105
 msgid "Changes Saved"
-msgstr ""
+msgstr "Wijzigingen opgeslagen"
 
 #: ckan/controllers/admin.py:142 ckan/logic/action/get.py:913
 msgid "unknown user:"
-msgstr ""
+msgstr "onbekende gebruiker:"
 
 #: ckan/controllers/admin.py:152
 msgid "User Added"
-msgstr ""
+msgstr "Gebruiker Toegevoegd"
 
 #: ckan/controllers/admin.py:159
 msgid "unknown authorization group:"
@@ -143,7 +144,7 @@ msgstr ""
 
 #: ckan/controllers/admin.py:169
 msgid "Authorization Group Added"
-msgstr ""
+msgstr "Authorisatiegroep toegevoegd"
 
 #: ckan/controllers/admin.py:268
 #, python-format
@@ -159,11 +160,11 @@ msgstr ""
 
 #: ckan/controllers/admin.py:289
 msgid "Purge complete"
-msgstr ""
+msgstr "Verwijderen afgerond"
 
 #: ckan/controllers/admin.py:291
 msgid "Action not implemented."
-msgstr ""
+msgstr "Actie niet geïmplementeerd"
 
 #: ckan/controllers/api.py:40 ckan/controllers/authorization_group.py:22
 #: ckan/controllers/group.py:194 ckan/controllers/home.py:27
@@ -188,7 +189,7 @@ msgstr "Niet gevonden"
 
 #: ckan/controllers/api.py:113
 msgid "Bad request"
-msgstr ""
+msgstr "Onjuiste aanvraag"
 
 #: ckan/controllers/api.py:141
 #, python-format
@@ -216,7 +217,7 @@ msgstr "Integriteits fout"
 
 #: ckan/controllers/api.py:190
 msgid "Parameter Error"
-msgstr ""
+msgstr "Parameterfout"
 
 #: ckan/controllers/api.py:233 ckan/logic/action/get.py:905
 #, python-format
@@ -253,7 +254,7 @@ msgstr "Kan entiteit niet aanpassen van type: %s %s"
 
 #: ckan/controllers/api.py:439
 msgid "No revision specified"
-msgstr ""
+msgstr "Geen versie aangegeven"
 
 #: ckan/controllers/api.py:443
 #, python-format
@@ -285,8 +286,7 @@ msgstr ""
 
 #: ckan/controllers/api.py:528
 msgid "Request params must be in form of a json encoded dictionary."
-msgstr ""
-"Opgevraagde parameters moeten zich bevinden in een json encoded dictionary"
+msgstr "Opgevraagde parameters moeten zich bevinden in een json encoded dictionary"
 
 #: ckan/controllers/api.py:615
 #, python-format
@@ -382,7 +382,7 @@ msgstr ""
 
 #: ckan/controllers/home.py:100
 msgid "Invalid language specified"
-msgstr ""
+msgstr "Ongeldige taal gekozen"
 
 #: ckan/controllers/home.py:108 ckan/controllers/home.py:110
 msgid "Language has been set to: English"
@@ -404,7 +404,7 @@ msgstr ""
 #: ckan/controllers/package.py:597 ckan/controllers/package.py:617
 #: ckan/controllers/package.py:648 ckan/controllers/package.py:694
 msgid "Dataset not found"
-msgstr ""
+msgstr "Dataset niet gevonden"
 
 #: ckan/controllers/package.py:320 ckan/controllers/package.py:360
 #: ckan/controllers/package.py:397 ckan/controllers/package.py:496
@@ -444,7 +444,7 @@ msgstr ""
 
 #: ckan/controllers/package.py:794
 msgid "Resource not found"
-msgstr ""
+msgstr "Bestand niet gevonden"
 
 #: ckan/controllers/package.py:796
 #, python-format
@@ -466,7 +466,7 @@ msgstr ""
 
 #: ckan/controllers/revision.py:177
 msgid "Revision updated"
-msgstr ""
+msgstr "Versie bijgewerkt"
 
 #: ckan/controllers/tag.py:54 ckan/forms/common.py:927
 msgid "Other"
@@ -474,7 +474,7 @@ msgstr "Andere"
 
 #: ckan/controllers/tag.py:67
 msgid "Tag not found"
-msgstr ""
+msgstr "Label niet gevonden"
 
 #: ckan/controllers/user.py:131
 msgid "Unauthorized to create a user"
@@ -489,7 +489,7 @@ msgstr ""
 #: ckan/controllers/user.py:232 ckan/controllers/user.py:333
 #: ckan/controllers/user.py:353
 msgid "User not found"
-msgstr ""
+msgstr "Gebruiker niet gevonden"
 
 #: ckan/controllers/user.py:159
 msgid "Bad Captcha. Please try again."
@@ -497,7 +497,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:182
 msgid "No user specified"
-msgstr ""
+msgstr "Gebruiker niet gegeven"
 
 #: ckan/controllers/user.py:201 ckan/controllers/user.py:230
 #: ckan/controllers/user.py:351
@@ -517,7 +517,7 @@ msgstr ""
 #: ckan/controllers/user.py:267
 #, python-format
 msgid "%s is now logged in"
-msgstr ""
+msgstr "%s is nu ingelogd"
 
 #: ckan/controllers/user.py:308
 #, python-format
@@ -527,7 +527,7 @@ msgstr ""
 #: ckan/controllers/user.py:310 ckan/controllers/user.py:312
 #, python-format
 msgid "No such user: %s"
-msgstr ""
+msgstr "Geen gebruiker: %s"
 
 #: ckan/controllers/user.py:317
 msgid "Please check your inbox for a reset code."
@@ -544,7 +544,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:348
 msgid "Your password has been reset."
-msgstr ""
+msgstr "Uw wachtwoord is gereset."
 
 #: ckan/controllers/user.py:368
 msgid "Error: Could not parse About text"
@@ -567,9 +567,7 @@ msgstr "Naam moet tenminste %s karakters lang zijn"
 msgid ""
 "Name must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
-"Naam kan alleen bestaan uit kleine (ascii) karakters en de volgende "
-"symbolen: -_"
+msgstr "Naam kan alleen bestaan uit kleine (ascii) karakters en de volgende symbolen: -_"
 
 #: ckan/forms/common.py:41
 msgid "Dataset name already exists in database"
@@ -612,8 +610,7 @@ msgstr "Dubbele sleutel \"%s\""
 #: ckan/forms/common.py:550
 #, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
-msgstr ""
-"Extra sleutel-waarde koppel: sleutel is niet aangepast voor waarde \"%s\"."
+msgstr "Extra sleutel-waarde koppel: sleutel is niet aangepast voor waarde \"%s\"."
 
 #: ckan/forms/common.py:785 ckan/templates/package/new_package_form.html:133
 msgid "Cannot add any groups."
@@ -624,9 +621,7 @@ msgstr "Kan geen groep toevoegen"
 msgid ""
 "Can't derived new group selection from serialized value structured like "
 "this: %s"
-msgstr ""
-"Kan geen nieuwe groep selectie afleiden uit geserialiseerde waarde "
-"gestructureerd als volgt: %s"
+msgstr "Kan geen nieuwe groep selectie afleiden uit geserialiseerde waarde gestructureerd als volgt: %s"
 
 #: ckan/forms/common.py:910
 msgid "other - please specify"
@@ -666,9 +661,7 @@ msgstr "Een korte beschrijvende titel voor de dataset."
 msgid ""
 "It should not be a description though - save that for the Notes field. Do "
 "not give a trailing full stop."
-msgstr ""
-"Het moet echter geen beschrijving worden - dat komt in het Beschrijving "
-"veld. Eindig niet met een punt (.)."
+msgstr "Het moet echter geen beschrijving worden - dat komt in het Beschrijving veld. Eindig niet met een punt (.)."
 
 #: ckan/forms/package.py:39
 msgid "A unique identifier for the package."
@@ -679,16 +672,11 @@ msgid ""
 "It should be broadly humanly readable, in the spirit of Semantic Web URIs. "
 "Only use an acronym if it is widely recognised. Renaming is possible but "
 "discouraged."
-msgstr ""
-"Dit zou globaal voor mensen begrijpelijk moeten zijn, in de geest van "
-"semantische web URI's. Gebruik alleen afkortingen als die breed herkend "
-"worden. Later hernoemen is op zich mogelijk maar wordt niet aangemoedigd."
+msgstr "Dit zou globaal voor mensen begrijpelijk moeten zijn, in de geest van semantische web URI's. Gebruik alleen afkortingen als die breed herkend worden. Later hernoemen is op zich mogelijk maar wordt niet aangemoedigd."
 
 #: ckan/forms/package.py:41 ckan/templates/package/new_package_form.html:48
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
-msgstr ""
-"Meer dan 2 karakters, alleen kleine letters, gebruik alleen 'a-z', '0-9' en "
-"'_'"
+msgstr "Meer dan 2 karakters, alleen kleine letters, gebruik alleen 'a-z', '0-9' en '_'"
 
 #: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:165
 msgid "A number representing the version (if applicable)"
@@ -696,8 +684,7 @@ msgstr "Een versienummer (indien van toepassing)"
 
 #: ckan/forms/package.py:50 ckan/templates/package/new_package_form.html:53
 msgid "The URL for the web page describing the data (not the data itself)."
-msgstr ""
-"De URL van de webpagina die de dataset beschrijft (niet van de data zelf)"
+msgstr "De URL van de webpagina die de dataset beschrijft (niet van de data zelf)"
 
 #: ckan/forms/package.py:51 ckan/templates/package/new_package_form.html:54
 msgid "e.g. http://www.example.com/growth-figures.html"
@@ -707,17 +694,13 @@ msgstr "Bijvoorbeeld http://www.example.com/growth-figures.html"
 msgid ""
 "The name of the main contact, for enquiries about this particular dataset, "
 "using the e-mail address in the following field."
-msgstr ""
-"Naam van de contactpersoon, voor vragen over deze data, via het e-mail adres"
-" in het volgende veld"
+msgstr "Naam van de contactpersoon, voor vragen over deze data, via het e-mail adres in het volgende veld"
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:158
 msgid ""
 "If there is another important contact person (in addition to the person in "
 "the Author field) then provide details here."
-msgstr ""
-"Als er nog een andere belangrijke contactpersoon is (naast degene genoemd in"
-" het veld Auteur), noem deze dan hier."
+msgstr "Als er nog een andere belangrijke contactpersoon is (naast degene genoemd in het veld Auteur), noem deze dan hier."
 
 #: ckan/forms/package.py:63 ckan/templates/package/resource_read.html:59
 msgid "Licence"
@@ -749,8 +732,7 @@ msgstr ""
 
 #: ckan/forms/package.py:74
 msgid "The files containing the data or address of the APIs for accessing it."
-msgstr ""
-"De bestanden met de data of het adres van de API om toegang te krijgen."
+msgstr "De bestanden met de data of het adres van de API om toegang te krijgen."
 
 #: ckan/forms/package.py:75
 msgid ""
@@ -765,28 +747,13 @@ msgid ""
 "SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the"
 " file format in which the data is supplied. <br /><b>Description</b> Any "
 "information you want to add to describe the resource.<br />"
-msgstr ""
-"<br /> Deze kan herhaald worden als het nodig is. Bijvoorbeeld als de "
-"gegevens worden geleverd in verschillende formaten, of verdeeld in "
-"verschillende onderwerpen of perioden, elk bestand is een andere 'bron' die "
-"specifiek moet worden beschreven. De datasets worden gezamenlijk worden "
-"getoond op de dataset pagina op CKAN. <br /><br /> <b>URL:</b> Dit is de "
-"link direct naar de gegevens - door het selecteren van deze link in een web "
-"browser zal direct worden gestart met het downloaden van de volledige "
-"dataset. Merk op dat de datasets niet worden gehost op deze site, maar door "
-"de eigenaar van de datasets. Als alternatief kan de URL verwijzen naar een "
-"API-server, zoals een SPARQL eindpunt of JSON-P service. <br /> "
-"<b>Formaat:</b> Dit geeft het bestandsformaat waarin de gegevens worden "
-"geleverd. <br /> <b>Omschrijving</b> Alle informatie die u wilt toevoegen om"
-" de bron te beschrijven. <br />"
+msgstr "<br /> Deze kan herhaald worden als het nodig is. Bijvoorbeeld als de gegevens worden geleverd in verschillende formaten, of verdeeld in verschillende onderwerpen of perioden, elk bestand is een andere 'bron' die specifiek moet worden beschreven. De datasets worden gezamenlijk worden getoond op de dataset pagina op CKAN. <br /><br /> <b>URL:</b> Dit is de link direct naar de gegevens - door het selecteren van deze link in een web browser zal direct worden gestart met het downloaden van de volledige dataset. Merk op dat de datasets niet worden gehost op deze site, maar door de eigenaar van de datasets. Als alternatief kan de URL verwijzen naar een API-server, zoals een SPARQL eindpunt of JSON-P service. <br /> <b>Formaat:</b> Dit geeft het bestandsformaat waarin de gegevens worden geleverd. <br /> <b>Omschrijving</b> Alle informatie die u wilt toevoegen om de bron te beschrijven. <br />"
 
 #: ckan/forms/package.py:76
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
-msgstr ""
-"Keuzes voor het formaat: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Anders,"
-" indien van toepassing"
+msgstr "Keuzes voor het formaat: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Anders, indien van toepassing"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 msgid "Notes"
@@ -801,9 +768,7 @@ msgid ""
 "It is often displayed with the package title. In particular, it should start"
 " with a short sentence that describes the data set succinctly, because the "
 "first few words alone may be used in some views of the data sets."
-msgstr ""
-"Het wordt meestal getoond met de package titel. Begin met een korte zin die "
-"de dataset beschrijft."
+msgstr "Het wordt meestal getoond met de package titel. Begin met een korte zin die de dataset beschrijft."
 
 #: ckan/forms/package.py:83
 #, python-format
@@ -893,7 +858,7 @@ msgstr "Sleutel leeg"
 
 #: ckan/lib/base.py:352
 msgid "Updated"
-msgstr ""
+msgstr "Bijgewerkt"
 
 #: ckan/lib/base.py:364
 msgid "User role(s) added"
@@ -906,17 +871,17 @@ msgstr ""
 #: ckan/lib/i18n.py:193
 #, python-format
 msgid "Could not change language to %r: %s"
-msgstr ""
+msgstr "Kan niet naar %r veranderen: %s"
 
 #: ckan/lib/mailer.py:21
 #, python-format
 msgid "Dear %s,"
-msgstr ""
+msgstr "Beste %s,"
 
 #: ckan/lib/mailer.py:34
 #, python-format
 msgid "%s <%s>"
-msgstr ""
+msgstr "%s <%s>"
 
 #: ckan/lib/mailer.py:58
 msgid "No recipient email address available!"
@@ -955,20 +920,20 @@ msgstr ""
 
 #: ckan/logic/validators.py:29
 msgid "Invalid integer"
-msgstr ""
+msgstr "Ongeldig geheel getal"
 
 #: ckan/logic/validators.py:39
 msgid "Date format incorrect"
-msgstr ""
+msgstr "Datumformaat onjuist"
 
 #: ckan/logic/validators.py:98 ckan/templates/_util.html:239
 #: ckan/templates/_util.html:309
 msgid "User"
-msgstr ""
+msgstr "Gebruiker"
 
 #: ckan/logic/validators.py:123
 msgid "Activity type"
-msgstr ""
+msgstr "Soort activiteit"
 
 #: ckan/logic/validators.py:171
 #, python-format
@@ -983,7 +948,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:192
 msgid "That URL is already in use."
-msgstr ""
+msgstr "Deze URL is al in gebruik."
 
 #: ckan/logic/validators.py:197
 #, python-format
@@ -1033,7 +998,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:388
 msgid "Missing value"
-msgstr ""
+msgstr "Missende waarde"
 
 #: ckan/logic/validators.py:392
 msgid ""
@@ -1085,7 +1050,7 @@ msgstr ""
 #: ckan/logic/action/update.py:51 ckan/logic/action/update.py:63
 #: ckan/logic/action/update.py:75
 msgid "Missing Value"
-msgstr ""
+msgstr "Missende Waarde"
 
 #: ckan/logic/action/update.py:181
 msgid "Resource was not found."
@@ -1108,7 +1073,7 @@ msgstr "REST API: Bijwerken package relaties: %s %s %s"
 
 #: ckan/logic/action/update.py:452
 msgid "TaskStatus was not found."
-msgstr ""
+msgstr "Versie bijgewerkt"
 
 #: ckan/logic/auth/create.py:13
 #, python-format
@@ -1352,9 +1317,7 @@ msgstr "Nog geen beoordeling"
 msgid ""
 "–\n"
 "    rate it now"
-msgstr ""
-"–\n"
-"    Nu beoordelen"
+msgstr "–\n    Nu beoordelen"
 
 #: ckan/templates/_util.html:274 ckan/templates/_util.html:330
 msgid "User Group"
@@ -1460,24 +1423,24 @@ msgstr ""
 #: ckan/templates/authorization_group/authz.html:22
 #: ckan/templates/authorization_group/authz.html:40
 msgid "Add"
-msgstr ""
+msgstr "Toevoegen"
 
 #: ckan/templates/js_strings.html:36
 #: ckan/templates/group/new_group_form.html:98
 #: ckan/templates/package/new_package_form.html:229
 #: ckan/templates/user/edit_user_form.html:57
 msgid "Cancel"
-msgstr ""
+msgstr "Afbreken"
 
 #: ckan/templates/js_strings.html:37
 msgid "File"
-msgstr ""
+msgstr "Bestand"
 
 #: ckan/templates/js_strings.html:40
 #: ckan/templates/group/new_group_form.html:20
 #: ckan/templates/package/new_package_form.html:42
 msgid "Url"
-msgstr ""
+msgstr "Url"
 
 #: ckan/templates/js_strings.html:41
 #: ckan/templates/package/resource_read.html:55
@@ -1490,7 +1453,7 @@ msgstr ""
 
 #: ckan/templates/js_strings.html:43
 msgid "Size (Bytes)"
-msgstr ""
+msgstr "Grootte (Bytes)"
 
 #: ckan/templates/js_strings.html:44
 msgid "Mimetype"
@@ -1510,11 +1473,11 @@ msgstr "Hash"
 
 #: ckan/templates/js_strings.html:48
 msgid "ID"
-msgstr ""
+msgstr "Missende Waarde"
 
 #: ckan/templates/js_strings.html:49
 msgid "Done"
-msgstr ""
+msgstr "Klaar"
 
 #: ckan/templates/js_strings.html:50
 msgid "This resource has unsaved changes."
@@ -1968,7 +1931,7 @@ msgstr ""
 
 #: ckan/templates/group/new_group_form.html:44
 msgid "active"
-msgstr ""
+msgstr "Klaar"
 
 #: ckan/templates/group/new_group_form.html:45
 msgid "deleted"
@@ -2520,9 +2483,7 @@ msgstr ""
 msgid ""
 ",\n"
 "      Tag -"
-msgstr ""
-",\n"
-"      Tag -"
+msgstr ",\n      Tag -"
 
 #: ckan/templates/storage/index.html:6 ckan/templates/storage/index.html:15
 #: ckan/templates/storage/success.html:6
@@ -2795,5 +2756,3 @@ msgstr ""
 #: ckan/templates/user/request_reset.html:13
 msgid "User name:"
 msgstr ""
-
-

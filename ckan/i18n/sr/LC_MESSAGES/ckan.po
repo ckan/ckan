@@ -11,7 +11,7 @@ msgstr ""
 "POT-Creation-Date: 2012-02-09 18:46+0000\n"
 "PO-Revision-Date: 2012-02-10 14:47+0000\n"
 "Last-Translator: mirkospasic <mirko.spasic@pupin.rs>\n"
-"Language-Team: Serbian (http://www.transifex.net/projects/p/ckan/team/sr/)\n"
+"Language-Team: Serbian (http://www.transifex.net/projects/p/ckan/language/sr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -148,9 +148,7 @@ msgstr "Додата група ауторизација"
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr ""
-"Немогуће одбацивање пакета %s јер придружена верзија %s садржи пакете који "
-"се не могу обрисати %s"
+msgstr "Немогуће одбацивање пакета %s јер придружена верзија %s садржи пакете који се не могу обрисати %s"
 
 #: ckan/controllers/admin.py:287
 #, python-format
@@ -262,8 +260,7 @@ msgstr "Нема верзије чији је ID: %s"
 
 #: ckan/controllers/api.py:453
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
-msgstr ""
-"Није наведен појам претраге ('since_id=UUID' или 'since_time=TIMESTAMP')"
+msgstr "Није наведен појам претраге ('since_id=UUID' или 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:461
 #, python-format
@@ -440,9 +437,7 @@ msgstr "Није могуће ажурирати регистар претраг
 msgid ""
 "<span class=\"new-dataset\">Congratulations, your dataset has been created. "
 "<a href=\"%s\">Upload or link some data now &raquo;</a></span>"
-msgstr ""
-"<span class=\"new-dataset\">Честитамо, ваш Скуп података је креиран. <a "
-"href=\"%s\">Сада допреми или линкуј неке податке &raquo;</a></span>"
+msgstr "<span class=\"new-dataset\">Честитамо, ваш Скуп података је креиран. <a href=\"%s\">Сада допреми или линкуј неке податке &raquo;</a></span>"
 
 #: ckan/controllers/package.py:794
 msgid "Resource not found"
@@ -569,9 +564,7 @@ msgstr "Име мора бити најмање %s карактера дугач
 msgid ""
 "Name must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
-"Име мора бити написано малим словима, бројевима, (ASCII карактери) или неким"
-" од ових симбола: -_"
+msgstr "Име мора бити написано малим словима, бројевима, (ASCII карактери) или неким од ових симбола: -_"
 
 #: ckan/forms/common.py:41
 msgid "Dataset name already exists in database"
@@ -625,9 +618,7 @@ msgstr "Немогуће додавање група."
 msgid ""
 "Can't derived new group selection from serialized value structured like "
 "this: %s"
-msgstr ""
-"Немогуће извести нову селекцију групе из серијализоване вредности "
-"структуриране на следећи начин: %s"
+msgstr "Немогуће извести нову селекцију групе из серијализоване вредности структуриране на следећи начин: %s"
 
 #: ckan/forms/common.py:910
 msgid "other - please specify"
@@ -667,9 +658,7 @@ msgstr "Краћи описни назив скупа података."
 msgid ""
 "It should not be a description though - save that for the Notes field. Do "
 "not give a trailing full stop."
-msgstr ""
-"Ово не би требало да буде опис, мада - сачувајте га у пољу Белешке. Немојте "
-"стављати тачку на крају."
+msgstr "Ово не би требало да буде опис, мада - сачувајте га у пољу Белешке. Немојте стављати тачку на крају."
 
 #: ckan/forms/package.py:39
 msgid "A unique identifier for the package."
@@ -680,16 +669,11 @@ msgid ""
 "It should be broadly humanly readable, in the spirit of Semantic Web URIs. "
 "Only use an acronym if it is widely recognised. Renaming is possible but "
 "discouraged."
-msgstr ""
-"Требало би да буде јако разумљиво за човека, у духу URI-ја Семантичког веба."
-" Користити скраћенице само ако су широко прихваћене. Преименовање је могуће,"
-" али није пожељно."
+msgstr "Требало би да буде јако разумљиво за човека, у духу URI-ја Семантичког веба. Користити скраћенице само ако су широко прихваћене. Преименовање је могуће, али није пожељно."
 
 #: ckan/forms/package.py:41 ckan/templates/package/new_package_form.html:48
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
-msgstr ""
-"2 или више карактера, велика слова нису дозвољена, употребљавати само "
-"'a-z0-9' и '-_'"
+msgstr "2 или више карактера, велика слова нису дозвољена, употребљавати само 'a-z0-9' и '-_'"
 
 #: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:165
 msgid "A number representing the version (if applicable)"
@@ -707,17 +691,13 @@ msgstr "нпр: http://www.example.com/growth-figures.html"
 msgid ""
 "The name of the main contact, for enquiries about this particular dataset, "
 "using the e-mail address in the following field."
-msgstr ""
-"Име главне контакт особе, за питања о овом конкретном скупу података, "
-"користећи е-маил адресу у следећем пољу."
+msgstr "Име главне контакт особе, за питања о овом конкретном скупу података, користећи е-маил адресу у следећем пољу."
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:158
 msgid ""
 "If there is another important contact person (in addition to the person in "
 "the Author field) then provide details here."
-msgstr ""
-"Ако постоји још једна важна контакт особа (поред лица у Аутор пољу), онда "
-"детаље навести овде."
+msgstr "Ако постоји још једна важна контакт особа (поред лица у Аутор пољу), онда детаље навести овде."
 
 #: ckan/forms/package.py:63 ckan/templates/package/resource_read.html:59
 msgid "Licence"
@@ -764,27 +744,13 @@ msgid ""
 "SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the"
 " file format in which the data is supplied. <br /><b>Description</b> Any "
 "information you want to add to describe the resource.<br />"
-msgstr ""
-"<br />Ови се могу понављати по потреби. На пример, ако сy подаци доступни у "
-"више формата, или подељени по различитим областима, или временским "
-"периодима, сваки фајл је различит 'ресурс' који би требало да буде другачије"
-" описан. Сви они ће се појавити на страници скупа података на CKAN-у "
-"заједно. <br /><br /> <b>УРЛ:</b> Ово је Интернет линк директно ка подацима "
-"- кликом на овај линк у веб претраживачу, корисник ће одмах преузети "
-"целокупан скуп података. Имајте на уму да скупови података се не чувају на "
-"овом серверу, већ на серверу издавача података. Алтернативно УРЛ адреса може"
-" да укаже на АПИ сервера, као што је SPARQL приступна тачке или JSON-P "
-"сервис. <br /> <b>Формат:</b> Ово треба да да формат датотеке у којој су "
-"подаци доступни. <br /> <b>Опис</b> Било која информација коју желите да "
-"додате за опис ресурса.<br />"
+msgstr "<br />Ови се могу понављати по потреби. На пример, ако сy подаци доступни у више формата, или подељени по различитим областима, или временским периодима, сваки фајл је различит 'ресурс' који би требало да буде другачије описан. Сви они ће се појавити на страници скупа података на CKAN-у заједно. <br /><br /> <b>УРЛ:</b> Ово је Интернет линк директно ка подацима - кликом на овај линк у веб претраживачу, корисник ће одмах преузети целокупан скуп података. Имајте на уму да скупови података се не чувају на овом серверу, већ на серверу издавача података. Алтернативно УРЛ адреса може да укаже на АПИ сервера, као што је SPARQL приступна тачке или JSON-P сервис. <br /> <b>Формат:</b> Ово треба да да формат датотеке у којој су подаци доступни. <br /> <b>Опис</b> Било која информација коју желите да додате за опис ресурса.<br />"
 
 #: ckan/forms/package.py:76
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
-msgstr ""
-"Избор формата: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Други прикладни "
-"формати"
+msgstr "Избор формата: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Други прикладни формати"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 msgid "Notes"
@@ -799,10 +765,7 @@ msgid ""
 "It is often displayed with the package title. In particular, it should start"
 " with a short sentence that describes the data set succinctly, because the "
 "first few words alone may be used in some views of the data sets."
-msgstr ""
-"Често се приказује са именом пакета. Конкретно, треба да почне са кратком "
-"реченицом која сажето описује скуп података, јер првих неколико речи могу да"
-" се користе у неким приказима скупова података."
+msgstr "Често се приказује са именом пакета. Конкретно, треба да почне са кратком реченицом која сажето описује скуп података, јер првих неколико речи могу да се користе у неким приказима скупова података."
 
 #: ckan/forms/package.py:83
 #, python-format
@@ -929,10 +892,7 @@ msgid ""
 "Please click the following link to confirm this request:\n"
 "\n"
 "   %(reset_link)s\n"
-msgstr ""
-"Тражили сте да Ваша лозинка са сајта %(site_title)s буде ресетована.\n"
-"Кликните на следећи линк да бисте потврдили овај захтев:\n"
-"%(reset_link)s\n"
+msgstr "Тражили сте да Ваша лозинка са сајта %(site_title)s буде ресетована.\nКликните на следећи линк да бисте потврдили овај захтев:\n%(reset_link)s\n"
 
 #: ckan/lib/mailer.py:95 ckan/templates/user/perform_reset.html:6
 #: ckan/templates/user/perform_reset.html:14
@@ -981,9 +941,7 @@ msgstr "Име може бити дуго највише %i карактера"
 msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
-"УРЛ адреса мора бити састављена самo од малих алфанумеричких (ASCII) "
-"карактера и ових симбола: -_"
+msgstr "УРЛ адреса мора бити састављена самo од малих алфанумеричких (ASCII) карактера и ових симбола: -_"
 
 #: ckan/logic/validators.py:192
 msgid "That URL is already in use."
@@ -1012,8 +970,7 @@ msgstr "Дужина тага \"%s\" је вeћа од максималне (%i)
 #: ckan/logic/validators.py:257
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr ""
-"Таг \"%s\" мора бити састављен од алфанумеричких карактера или симбола: -_."
+msgstr "Таг \"%s\" мора бити састављен од алфанумеричких карактера или симбола: -_."
 
 #: ckan/logic/validators.py:265
 #, python-format
@@ -1044,9 +1001,7 @@ msgstr "Недостаје вредност"
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
-msgstr ""
-"Мењања није дозвољено, јер изгледа непожељно. Избегавајте линкове у Вашем "
-"опису."
+msgstr "Мењања није дозвољено, јер изгледа непожељно. Избегавајте линкове у Вашем опису."
 
 #: ckan/logic/action/create.py:65 ckan/logic/action/create.py:180
 #, python-format
@@ -1191,8 +1146,7 @@ msgstr "Корисник %s није овлашћен да чита пакет %
 
 #: ckan/logic/auth/get.py:105 ckan/logic/auth/update.py:38
 msgid "No package found for this resource, cannot check auth."
-msgstr ""
-"Нема пронађених пакетa за овај ресурс, не може да провери аут (лош превод)."
+msgstr "Нема пронађених пакетa за овај ресурс, не може да провери аут (лош превод)."
 
 #: ckan/logic/auth/get.py:111
 #, python-format
@@ -1360,9 +1314,7 @@ msgstr "Без оцене још увек"
 msgid ""
 "–\n"
 "    rate it now"
-msgstr ""
-"–\n"
-"    оцени сада"
+msgstr "–\n    оцени сада"
 
 #: ckan/templates/_util.html:274 ckan/templates/_util.html:330
 msgid "User Group"
@@ -1810,11 +1762,7 @@ msgid ""
 "Instead of specifying the privileges of specific users on a dataset or group,\n"
 "          you can also specify a set of users that will share the same rights. To do that, an    \n"
 "          [1:authorization group] can be set-up and users can be added to it."
-msgstr ""
-"Уместо навођења привилегија појединачним корисницима на скупу података или "
-"групи, можете одредити скуп корисника који ће делити иста права. Да би то "
-"постигли, [1: група ауторизација] може се подесити и корисници се могу "
-"додати у њу."
+msgstr "Уместо навођења привилегија појединачним корисницима на скупу података или групи, можете одредити скуп корисника који ће делити иста права. Да би то постигли, [1: група ауторизација] може се подесити и корисници се могу додати у њу."
 
 #: ckan/templates/authorization_group/layout.html:28
 msgid "To create a new authorization group, please first [1:login]."
@@ -1893,11 +1841,7 @@ msgid ""
 "when you want to restrict users from editing a collection. A [1:group] can "
 "be set-up to specify which users have permission to add or remove datasets "
 "from it."
-msgstr ""
-"Док су тагови одлични у одржавању скупова података заједно, постоје прилике "
-"када желите да ограничите кориснике у изменама колекције. [1: Група] може да"
-" се подеси да одређује који корисници имају дозволу да додају или уклањају "
-"скупове података из ње."
+msgstr "Док су тагови одлични у одржавању скупова података заједно, постоје прилике када желите да ограничите кориснике у изменама колекције. [1: Група] може да се подеси да одређује који корисници имају дозволу да додају или уклањају скупове података из ње."
 
 #: ckan/templates/group/layout.html:12 ckan/templates/package/layout.html:35
 msgid "History"
@@ -2124,9 +2068,7 @@ msgstr "Дељење података"
 msgid ""
 "Add your own datasets to share them with others and\n"
 "        to find other people interested in your data."
-msgstr ""
-"Додајте сопствене скупове података да бисте их делили са другима и да бисте "
-"пронашли друге људе који су заинтересовани за Ваше податке."
+msgstr "Додајте сопствене скупове података да бисте их делили са другима и да бисте пронашли друге људе који су заинтересовани за Ваше податке."
 
 #: ckan/templates/home/index.html:31
 msgid "Create a dataset »"
@@ -2222,10 +2164,7 @@ msgid ""
 "[1:Important:] By submitting content, you agree to release your "
 "contributions under the [2:Open Database License]. Please [3:refrain] from "
 "editing this page if you are [4:not] happy to do this."
-msgstr ""
-"[1:Важно:] Слањем садржаја, слажете се да доприноси буду објављени под "
-"[2:Open Database License]. Молим Вас, [3:уздржите се] од мењања ове странице"
-" ако [4: нисте] задовољни тиме."
+msgstr "[1:Важно:] Слањем садржаја, слажете се да доприноси буду објављени под [2:Open Database License]. Молим Вас, [3:уздржите се] од мењања ове странице ако [4: нисте] задовољни тиме."
 
 #: ckan/templates/package/history.html:61 ckan/templates/package/read.html:103
 msgid "Dataset History"
@@ -2303,9 +2242,7 @@ msgstr ""
 msgid ""
 "Since you have not signed in this will just be your IP address.\n"
 "    [1:Click here to sign in] before saving (opens in new window)."
-msgstr ""
-"Пошто нисте пријављени, за идентификацију ће се користити Ваша IP-адреса.\n"
-"[1: Кликните овде да бисте се пријавили] пре снимања (отвара се у новом прозору)."
+msgstr "Пошто нисте пријављени, за идентификацију ће се користити Ваша IP-адреса.\n[1: Кликните овде да бисте се пријавили] пре снимања (отвара се у новом прозору)."
 
 #: ckan/templates/package/read.html:14
 msgid "- Datasets"
@@ -2462,9 +2399,7 @@ msgstr "копију"
 msgid ""
 "[1:There was an error while searching.] \n"
 "            Please try again."
-msgstr ""
-"[1:Дошло је до грешке приликом претраге.] \n"
-"            Молимо Вас, покушајте поново."
+msgstr "[1:Дошло је до грешке приликом претраге.] \n            Молимо Вас, покушајте поново."
 
 #: ckan/templates/package/search.html:55
 #, python-format
@@ -2511,9 +2446,7 @@ msgstr "Историја верзија"
 msgid ""
 "Track the most recent changes to the system, with most recent\n"
 "    changes first."
-msgstr ""
-"Листа најновијих измена на систему, са најновијим променама\n"
-"     прво наведеним."
+msgstr "Листа најновијих измена на систему, са најновијим променама\n     прво наведеним."
 
 #: ckan/templates/revision/read.html:6
 msgid "Revision:"
@@ -2547,9 +2480,7 @@ msgstr "Скуп података -"
 msgid ""
 ",\n"
 "      Tag -"
-msgstr ""
-",\n"
-"      Таг -"
+msgstr ",\n      Таг -"
 
 #: ckan/templates/storage/index.html:6 ckan/templates/storage/index.html:15
 #: ckan/templates/storage/success.html:6
@@ -2745,12 +2676,7 @@ msgid ""
 "          about OpenID] and [2:how to get an\n"
 "          OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "          free OpenID provider such as [3:https://www.myopenid.com/]."
-msgstr ""
-"OpenID је сервис који омогућава да се пријавите, на много различитих сајтова\n"
-"          користећи један идентитет. Сазнајте [1:више\n"
-"          о OpenID] и [2:како\n"
-"          активирати OpenID налог]. Вероватно најједноставнији начин је регистровати се са\n"
-"          слободног OpenID провајдера, као што је [3:https://www.myopenid.com/]."
+msgstr "OpenID је сервис који омогућава да се пријавите, на много различитих сајтова\n          користећи један идентитет. Сазнајте [1:више\n          о OpenID] и [2:како\n          активирати OpenID налог]. Вероватно најједноставнији начин је регистровати се са\n          слободног OpenID провајдера, као што је [3:https://www.myopenid.com/]."
 
 #: ckan/templates/user/logout.html:5
 msgid "Logout - User"
@@ -2827,5 +2753,3 @@ msgstr "Захтев за ресетовање лозинке"
 #: ckan/templates/user/request_reset.html:13
 msgid "User name:"
 msgstr "Корисничко име:"
-
-

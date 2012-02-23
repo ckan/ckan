@@ -384,7 +384,7 @@
         </div>
         </py:if>
       </td>
-      <td>${h.render_datetime(revision.timestamp)}</td>
+      <td>${h.render_datetime(revision.timestamp, with_hours=True)}</td>
       <td>${h.linked_user(revision.author)}</td>
       <td>
         <py:for each="pkg in revision.packages">

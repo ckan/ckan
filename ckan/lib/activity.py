@@ -92,6 +92,12 @@ class DatasetActivitySessionExtension(SessionExtension):
             objects = object_cache[activity_type]
             for obj in objects:
                 logger.debug("Looking at %s object %s" % (activity_type, obj))
+
+                if not hasattr(obj,"id"):
+                    logger.debug("Object has no id, skipping...")
+                    continue
+
+
                 if activity_type == "new" and obj.id in activities:
                     logger.debug("This object was already logged as a new "
                             "package")
