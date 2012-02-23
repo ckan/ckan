@@ -22,9 +22,6 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    def clear_language_setting(self):
-        self.app.cookies = {}
-
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -91,7 +88,17 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         res = res.click('Deutsch')
         try:
             res = res.follow()
+            # Language of the page
             assert 'Willkommen' in res.body
+            # Flash message
+            assert 'Die Sprache ist jetzt: Deutsch' in res.body
+
+            res = res.click('English')
+            res = res.follow()
+            # Language of the page
+            assert 'Welcome' in res.body
+            # Flash message
+            assert 'Language has been set to: English' in res.body, res.body
         finally:
             self.clear_language_setting()
 

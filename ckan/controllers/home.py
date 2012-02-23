@@ -100,16 +100,18 @@ class HomeController(BaseController):
                 set_session_locale(locale)
             except ValueError:
                 abort(400, _('Invalid language specified'))
-            try:
+            if locale == 'en':
+                # set_lang('en') causes an exception. Strings are in English
+                # anyway, so no need to do it.
+                h.flash_notice('Language has been set to: English')
+            else:
                 set_lang(locale)
                 # NOTE: When translating this string, substitute the word
                 # 'English' for the language being translated into.
                 # We do it this way because some Babel locales don't contain
                 # a display_name!
                 # e.g. babel.Locale.parse('no').get_display_name() returns None
-                h.flash_notice(_("Language has been set to: English"))
-            except:
-                h.flash_notice(_("Language has been set to: English"))
+                h.flash_notice(_('Language has been set to: English'))
         else:
             abort(400, _("No language given!"))
         return_to = get_redirect()

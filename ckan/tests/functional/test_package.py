@@ -1312,9 +1312,7 @@ class TestNew(TestPackageForm):
 
 
         finally:
-            # revert back to English for the other tests
-            res = self.app.get(offset)
-            res = res.click('English')
+            self.clear_language_setting()
         
 class TestSearch(TestPackageForm):
     pkg_names = []
