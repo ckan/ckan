@@ -643,7 +643,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     this.collection.bind('remove', this.removeResource);
     this.collection.each(this.addResource);
     this.el.bind("sortstop", this.sortStop);
-    $(this.el.find('li:first-child .js-resource-edit-toggle')).click();
+    $(this.el.find('li:first-child .js-resource-edit-open')).click();
   },
 
   sortStop: function(event,ui) {
@@ -701,7 +701,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     $li.data('resource', resource);
 
     // == Inner Function: Toggle the expanded options set == //
-    var toggleOpen = function(triggerEvent) {
+    var openTable = function(triggerEvent) {
       if (triggerEvent) triggerEvent.preventDefault();
       // Close all tables
       $('.editresources-right .js-resource-edit-expanded').hide();
@@ -721,10 +721,10 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
 
     // == Inner Functions: Update the name as you type == //
     var setName = function(newName) {
-      $link = $li.find('.js-resource-edit-toggle');
+      $link = $li.find('.js-resource-edit-open');
       newName = newName || ('<em>'+CKAN.Strings.noNameBrackets+'</em>');
       // Need to structurally modify the DOM to force a re-render of text
-      $link.html('<ema>'+newName+'</span>');
+      $link.html('<span>'+newName+'</span>');
     };
     var nameBoxChanged = function(e) {
       setName($(e.target).val());
@@ -732,13 +732,13 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
 
     // Trigger animation
     if (resource.isNew()) {
-      toggleOpen();
+      openTable();
     }
 
-    var nameBox = $li.find('input.js-resource-edit-name');
+    var nameBox = $table.find('input.js-resource-edit-name');
     CKAN.Utils.bindInputChanges(nameBox,nameBoxChanged);
 
-    $li.find('.js-resource-edit-toggle').click(toggleOpen);
+    $li.find('.js-resource-edit-open').click(openTable);
     $li.find('.js-resource-edit-delete').click(deleteResource);
     // Initialise name
     setName(resource.attributes.name);

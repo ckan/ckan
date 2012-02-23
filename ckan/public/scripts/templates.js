@@ -67,7 +67,7 @@ CKAN.Templates.resourceUpload = ' \
 CKAN.Templates.resourceEntry = ' \
   <li class="ui-state-default resource-edit"> \
     <div class="drag-bars">|||</div> \
-    <a class="resource-edit-expand js-resource-edit-toggle" href="#">${resource.name}</a>\
+    <a class="resource-edit-expand js-resource-edit-open" href="#">${resource.name}</a>\
   </li> \
   <!-- \
   <td class="resource-edit-delete"> \
