@@ -249,15 +249,15 @@ img.gravatar {
 }
 .drag-drop-list li {
   margin-bottom: 3px;
+  cursor: move;
 }
 .drag-drop-list .drag-bars {
   font-size: 12px;
   color: #ccc;
-  cursor: move;
   display: inline-block;
   text-align: center;
   vertical-align: middle;
-  padding: 8px 10px;
+  padding: 6px 10px;
   margin-right: 10px;
 }
 
@@ -1045,9 +1045,6 @@ body.editresources #sidebar {
   display: none;
 }
 
-.dataset-editresources-form input#Resource--url {
-  width: 60%;
-}
 .dataset-editresources-form .resource-add {
   background: #eee;
   padding-top: 10px;
@@ -1522,10 +1519,52 @@ body.authz form button {
 
 
 /* Dev */
-
-.resource-details {
-  margin-bottom: 20px;
+fieldset#resources {
+  position: relative;
+  padding: 0;
 }
+.resource-list {
+  width: 400px;
+  min-height: 300px;
+  margin-bottom: 40px;
+}
+li.resource-edit {
+  margin-right: 10px;
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  border: 1px solid #eee;
+}
+li.resource-edit:hover {
+  border-color: #ccc;
+}
+
+li.resource-edit.active {
+  border-color: #888;
+  border-right: 0;
+  background: #eee;
+  margin-right: 0;
+}
+
+.resource-details-container {
+  background: #eee;
+  border: 1px solid #888;
+  box-shadow: 2px 2px 4px #888;
+  margin-bottom: 20px;
+  position: absolute;
+  left: 399px;
+  top: 0px;
+  padding: 10px;
+}
+.resource-details-container .resource-details-close {
+  position: absolute;
+  right: -8px;
+  top: -12px;
+  width: 20px;
+  padding: 0;
+  text-align: center;
+}
+
 .resource-details input[type="text"] {
   width: 350px;
 }
@@ -1537,13 +1576,3 @@ body.authz form button {
   vertical-align: top;
 }
 
-
-.editresources-left {
-  width: 40%;
-  float: left;
-}
-.editresources-right {
-  width: 58%;
-  float: left;
-  padding-left: 8px;
-}

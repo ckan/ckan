@@ -69,17 +69,15 @@ CKAN.Templates.resourceEntry = ' \
     <div class="drag-bars">|||</div> \
     <img class="js-resource-icon inline-icon resource-icon" src="${resource_icon}" /> \
     <a class="resource-edit-expand js-resource-edit-open" href="#">${resource.name}</a>\
-  </li> \
-  <!-- \
-  <td class="resource-edit-delete"> \
-    <a class="resource-edit-delete js-resource-edit-delete" href="#"><img src="/images/icons/delete.png" /></a> \
-  </td> \
-  --> \
-';
+    <!-- \
+    <td class="resource-edit-delete"> \
+      <a class="resource-edit-delete js-resource-edit-delete" href="#"><img src="/images/icons/delete.png" /></a> \
+    </td> \
+    --> \
+  </li>';
 
-
-CKAN.Templates.resourceTable = ' \
-  <div style="display: none;" class="resource-details js-resource-edit-expanded"> \
+CKAN.Templates.resourceDetails = ' \
+  <div style="display: none;" class="resource-details js-resource-details"> \
     <table> \
       <thead> \
         <tr> \
