@@ -620,10 +620,22 @@ CKAN.View.DatasetEditResourcesForm = Backbone.View.extend({
     resources.bind('remove', flashWarning);
 
     // Table for editing resources
-    var $el = this.el.find('.js-resource-list');
+    var $el = this.el.find('.resource-list-edit');
     this.resourceList=new CKAN.View.ResourceEditList({
       collection: resources,
       el: $el
+    });
+
+    // Trigger the Add Resource pane
+    var $a = this.el.find('.js-resource-add');
+    $a.click(function(e) {
+      e.preventDefault();
+      $('.resource-list li').removeClass('active');
+      $('.resource-list-add li').addClass('active');
+      $('.js-resource-details').hide();
+      $('.js-resource-details.resource-add').show();
+      $('.js-resource-details-container').show();
+      return false;
     });
 
     // Tabbed view for adding resources
@@ -636,7 +648,7 @@ CKAN.View.DatasetEditResourcesForm = Backbone.View.extend({
     // Close details button
     $('.resource-details-close').click(function(e) {
       e.preventDefault();
-      $('.js-resource-list li').removeClass('active');
+      $('.resource-list li').removeClass('active');
       $('.resource-details-container').hide();
       return false;
     });
@@ -715,9 +727,9 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
       var container = $('.js-resource-details-container');
       container.find('.js-resource-details').hide();
       container.show();
-      self.el.find('li.active').removeClass('active');
-
-      $li.data('table').show();
+      $('.resource-list li').removeClass('active');
+      $table.show();
+      $table.find('.js-resource-edit-name').focus();
       $li.addClass('active');
     };
 

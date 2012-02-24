@@ -1046,14 +1046,6 @@ body.editresources #sidebar {
   display: none;
 }
 
-.dataset-editresources-form .resource-add {
-  background: #eee;
-  padding-top: 10px;
-  padding-bottom: 5px;
-  border: 1px solid #e0e0e0;
-  border-left: none;
-  border-right: none;
-}
 .dataset-editresources-form .resource-add li h4 {
   display: inline;
   padding-right: 20px;
@@ -1520,6 +1512,12 @@ body.authz form button {
 
 
 /* Dev */
+fieldset#resources {
+  min-height: 380px;
+  margin-bottom: 40px;
+  position: relative;
+  padding: 0;
+}
 .resource-list {
   list-style-type: none;
   padding: 0;
@@ -1531,6 +1529,8 @@ body.authz form button {
   border-radius: 4px;
   border: 1px solid #eee;
   position: relative;
+  margin-right: 20px;
+  z-index: 1;
 }
 .resource-list li a {
   display: block;
@@ -1539,36 +1539,7 @@ body.authz form button {
 .resource-list li:hover {
   border-color: #ccc;
 }
-
-fieldset#resources {
-  position: relative;
-  padding: 0;
-}
-.dataset-editresources-form .resource-list {
-  width: 400px;
-  min-height: 300px;
-  margin-bottom: 40px;
-}
-li.resource-edit {
-  margin-right: 20px;
-  position: relative;
-  z-index: 1;
-  background: #fff;
-}
-li.resource-edit:hover {
-  margin-right: 1px;
-  border-right: 0;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-li.resource-edit a {
-  padding-left: 0;
-}
-li.resource-edit:hover .drag-bars {
-  color: #999;
-}
-
-li.resource-edit.active {
+.resource-list li.active {
   border-color: #888;
   border-right: 0;
   background: #f9f9f9;
@@ -1576,6 +1547,38 @@ li.resource-edit.active {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
+hr.resource-list-divide {
+  margin: 10px 0;
+  width: 380px;
+  background: #eee;
+}
+
+
+/* While dragging.... */
+.resource-list-edit li.ui-sortable-helper {
+  box-shadow: 2px 2px 2px rgba(0,0,0,0.1);
+}
+.resource-list-edit li.ui-sortable-helper.active {
+  margin-right: 20px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-right: 1px solid #888;
+}
+
+.dataset-editresources-form .resource-list {
+  width: 400px;
+}
+.resource-list-add li a {
+  padding-left: 43px;
+}
+.resource-list-edit li a {
+  padding-left: 0;
+}
+.resource-list-edit li:hover .drag-bars {
+  color: #999;
+}
+
+
 
 .resource-details-container {
   background: #f9f9f9;
@@ -1586,6 +1589,7 @@ li.resource-edit.active {
   left: 399px;
   top: 0px;
   padding: 10px;
+  min-height: 300px;
 }
 .resource-details-container .resource-details-close {
   position: absolute;
