@@ -606,6 +606,7 @@ CKAN.Utils = function($, my) {
   };
 
   return my;
+
 }(jQuery, CKAN.Utils || {});
 
 
@@ -732,8 +733,17 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     };
 
     // == Inner Functions: Update the name as you type == //
-    var setName = function(newName) {
-      newName = newName || ('<em>'+CKAN.Strings.noNameBrackets+'</em>');
+    var setName = function(name,description) {
+      var newName = name;
+      if (!newName) {
+        newName = description;
+        if (!newName) {
+          newName = '[no name] ' + resource.attributes.id;
+        }
+        else if (newName.length>45) {
+          newName = description.substring(0,45)+'...';
+        }
+      }
       // Need to structurally modify the DOM to force a re-render of text
       $link = $li.find('.js-resource-edit-name');
       $link.html('<span>'+newName+'</span>');
@@ -755,15 +765,17 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     }
 
     var nameBox = $table.find('input.js-resource-edit-name');
-    CKAN.Utils.bindInputChanges(nameBox,function(e) { setName($(e.target).val()); });
+    var descriptionBox = $table.find('textarea.js-resource-edit-description');
     var formatBox = $table.find('input.js-resource-edit-format');
-    CKAN.Utils.bindInputChanges(formatBox,function(e) { setFormat($(e.target).val()); });
+    CKAN.Utils.bindInputChanges(nameBox,        function() { setName(nameBox.val(),descriptionBox.val()); });
+    CKAN.Utils.bindInputChanges(descriptionBox, function() { setName(nameBox.val(),descriptionBox.val()); });
+    CKAN.Utils.bindInputChanges(formatBox,      function() { setFormat(formatBox.val()); });
 
     $li.find('.js-resource-edit-open').click(openTable);
     // TODO
     $li.find('.js-resource-edit-delete').click(deleteResource);
     // Initialise name
-    setName(resource.attributes.name);
+    setName(resource.attributes.name,resource.attributes.description);
     setFormat(resource.attributes.format);
   },
 

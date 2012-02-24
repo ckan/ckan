@@ -91,7 +91,7 @@ CKAN.Templates.resourceDetails = ' \
         <tr> \
           <td class="dataset-label" property="rdfs:label">'+CKAN.Strings.description+'</td> \
           <td class="dataset-details" property="rdf:value"> \
-            <textarea name="resources__${num}__description" type="text">${resource.description}</textarea> \
+            <textarea class="js-resource-edit-description" name="resources__${num}__description" type="text">${resource.description}</textarea> \
           </td> \
         </tr> \
         <tr> \
