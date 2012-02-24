@@ -47,7 +47,9 @@
 </head>
 
 <body class="${request.environ.get('pylons.routes_dict', {}).get('action')} 
-             ${request.environ.get('pylons.routes_dict', {}).get('controller').split(':')[-1]}">
+             ${request.environ.get('pylons.routes_dict', {}).get('controller').split(':')[-1]}
+             ${defined('body_class') and body_class()}
+  ">
    <div class="welcome-banner js-welcome-banner" style="display: none;">
      <span>First time at ${g.site_title}? Visit our <a href="${h.url_for(controller='home', action='about')}">About page</a> to find out more.</span>
      <button class="pretty-button js-kill-button">x</button>

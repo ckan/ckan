@@ -17,7 +17,7 @@
         </li>
       </py:when>
       <py:otherwise>
-        <li class="dropdown" py:attrs="{'class':'current-tab dropdown'} if c.action=='resource_read' else {'class':'dropdown'}">
+        <li class="dropdown" py:attrs="{'class':'current-tab dropdown'} if c.action=='editresources' or c.action=='resource_read' else {'class':'dropdown'}">
           <div class="dropdown-appears">
             <div class="dropdown-items">
               <py:if test="h.check_access('package_update',{'id':c.pkg.id})">

@@ -78,7 +78,7 @@
       CKAN.Utils.setupDatasetDeleteButton();
     }
     var isDatasetResourceEdit = $('body.package.editresources').length > 0;
-    if (isDatasetResourceEdit) {
+    if (isDatasetNew || isDatasetResourceEdit) {
       // Selectively enable the upload button
       var storageEnabled = $.inArray('storage',CKAN.plugins)>=0;
       if (storageEnabled) {
@@ -551,12 +551,12 @@ CKAN.Utils = function($, my) {
       var flashWarning = function() {
         if (boundToUnload) return;
         boundToUnload = true;
-        // Show a flash message
-        var parentDiv = $('<div />').addClass('flash-messages');
-        var messageDiv = $('<div />').html(CKAN.Strings.youHaveUnsavedChanges).addClass('notice').hide();
-        parentDiv.append(messageDiv);
-        $('#unsaved-warning').append(parentDiv);
-        messageDiv.show(200);
+        // Don't show a flash message
+        //var parentDiv = $('<div />').addClass('flash-messages');
+        //var messageDiv = $('<div />').html(CKAN.Strings.youHaveUnsavedChanges).addClass('notice').hide();
+        //parentDiv.append(messageDiv);
+        //$('#unsaved-warning').append(parentDiv);
+        //messageDiv.show(200);
         // Bind to the window departure event
         window.onbeforeunload = function () {
           return CKAN.Strings.youHaveUnsavedChanges;

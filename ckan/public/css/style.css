@@ -151,7 +151,6 @@ a:hover {
 
 fieldset {
   border: 0px;
-  border-bottom: 1px solid #e0e0e0;
 }
 
 
@@ -1066,7 +1065,8 @@ body.editresources #sidebar {
   /* Show only one field */
   display: none;
 }
-.dataset-create-form fieldset#basic-information {
+.dataset-create-form fieldset#basic-information,
+.dataset-create-form fieldset#resources {
   display: block;
 }
 .dataset-create-form .edit-summary {
@@ -1513,10 +1513,13 @@ body.authz form button {
 
 /* Dev */
 fieldset#resources {
-  min-height: 380px;
+  min-height: 430px;
   margin-bottom: 40px;
   position: relative;
   padding: 0;
+}
+body.editresources fieldset#resources > h3 {
+  display: none;
 }
 .resource-list {
   list-style-type: none;
@@ -1593,7 +1596,8 @@ button.resource-edit-delete {
   left: 399px;
   top: 0px;
   padding: 10px;
-  min-height: 300px;
+  min-height: 417px;
+  min-width: 530px;
 }
 .resource-panel .resource-panel-close {
   position: absolute;
