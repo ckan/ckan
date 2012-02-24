@@ -210,14 +210,16 @@ If you're using a remote host with password authentication rather than SSL authe
   Legacy installs of CKAN may have the config file in the pyenv directory, e.g. ``pyenv/ckan.net.ini``. This is fine but CKAN probably won't be able to find your ``who.ini`` file. To fix this edit ``pyenv/ckan.net.ini``, search for the line ``who.config_file = %(here)s/who.ini`` and change it to ``who.config_file = who.ini``.
 
 
-8. Setup Solr.
+8. Setup Solr
+~~~~~~~~~~~~~~
 
 Set up Solr following the instructions on :ref:`solr-single` or :ref:`solr-multi-core` depending on your needs.
 
 Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variables in your CKAN config file:
 
-   ::
+::
 
+<<<<<<< HEAD
        ckan.site_id=my_ckan_instance
        solr_url=http://127.0.0.1:8983/solr
 
@@ -244,23 +246,33 @@ You should see ``Initialising DB: SUCCESS``.
 If the command prompts for a password it is likely you haven't set up the 
 database configuration correctly in step 6.
 
-10. Create the cache directory.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+10. Create the cache and session directories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You need to create the Pylon's cache directory specified by 'cache_dir' 
-in the config file.
+You need to create two directories for CKAN to put temporary files:
+ * Pylon's cache directory, specified by `cache_dir` in the config file.
+ * Repoze.who's OpenId session directory, specified by `store_file_path` in pyenv/ckan/who.ini
 
-(from the ``pyenv/src/ckan`` directory):
+(from the ``pyenv/src/ckan`` directory or wherever your CKAN ini file you recently created is located):
 
   ::
 
-    mkdir data
+    mkdir data sstore
 
-11. Run the CKAN webserver.
-~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NB If you've started a new shell, you'll have to activate the environment
-again first - see step 3.
+11. Link to who.ini
+~~~~~~~~~~~~~~~~~~~
+
+``who.ini`` (the Repoze.who configuration) needs to be accessible in the same directory as your CKAN config file. So if your config file is not in ``pyenv/src/ckan``, then cd to the directory with your config file and create a symbolic link to ``who.ini``. e.g.::
+
+    ln -s pyenv/src/ckan/who.ini
+
+12. Test the CKAN webserver
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can use Paste to serve CKAN from the command-line. This is a simple and lightweight way to serve CKAN and is especially useful for testing. However a production deployment will probably want to be served using Apache or nginx - see :doc:`post-installation`
+
+.. note:: If you've started a new shell, you'll have to activate the environment again first - see step 3.
 
 (from the ``pyenv/src/ckan`` directory):
 
@@ -268,15 +280,20 @@ again first - see step 3.
 
     paster serve development.ini
 
-12. Point your web browser at: http://127.0.0.1:5000/
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+13. Browse CKAN
+~~~~~~~~~~~~~~~
+
+Point your web browser at: http://127.0.0.1:5000/
 
 The CKAN homepage should load.
 
-Finally, make sure that tests pass, as described in :ref:`basic-tests`.
+.. note:: if you installed CKAN on a remote machine then you will need to run the web browser on that same machine. For example run the textual web browser `w3m` in a separate ssh session to the one running `paster serve`.
 
-13. You are Done
+Finally, if doing development you should make sure that tests pass, as described in :ref:`basic-tests`.
+
+14. You are done
 ~~~~~~~~~~~~~~~~
 
-You can now proceed to :doc:`post-installation`.
+You can now proceed to :doc:`post-installation` which covers getting an administrator account created and deploying using Apache.
 

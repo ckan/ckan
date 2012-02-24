@@ -22,9 +22,6 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    def clear_language_setting(self):
-        self.app.cookies = {}
-
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -66,6 +63,61 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
 ##        finally:
 ##            self.clear_language_setting()
 
+    def test_locale_change(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        res = res.click('Deutsch')
+        try:
+            res = res.follow()
+            # Language of the page
+            assert 'Willkommen' in res.body
+            # Flash message
+            assert 'Die Sprache ist jetzt: Deutsch' in res.body
+
+            res = res.click('English')
+            res = res.follow()
+            # Language of the page
+            assert 'Welcome' in res.body
+            # Flash message
+            assert 'Language has been set to: English' in res.body, res.body
+        finally:
+            self.clear_language_setting()
+
+    def test_locale_change_invalid(self):
+        offset = url_for(controller='home', action='locale', locale='')
+        res = self.app.get(offset, status=400)
+        main_res = self.main_div(res)
+        assert 'Invalid language specified' in main_res, main_res
+
+    def test_locale_change_blank(self):
+        offset = url_for(controller='home', action='locale')
+        res = self.app.get(offset, status=400)
+        main_res = self.main_div(res)
+        assert 'No language given!' in main_res, main_res
+
+    def test_locale_change_with_false_hash(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        found_html, found_desc, found_attrs = res._find_element(
+            tag='a', href_attr='href',
+            href_extract=None,
+            content='Deutsch',
+            id=None, 
+            href_pattern=None,
+            html_pattern=None,
+            index=None, verbose=False)
+        href = found_attrs['uri']
+        assert href
+        res = res.goto(href)
+        try:
+            assert res.status == 302, res.status # redirect
+
+            href = href.replace('return_to=%2F&', 'return_to=%2Fhackedurl&')
+            res = res.goto(href)
+            assert res.status == 200, res.status # doesn't redirect
+        finally:
+            self.clear_language_setting()
+>>>>>>> release-v1.6
 
     def test_update_profile_notice(self):
         edit_url = url_for(controller='user', action='edit')

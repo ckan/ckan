@@ -17,6 +17,7 @@ import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
 import ckan.lib.search as search
+from ckan.lib.i18n import set_session_locale
 from ckan.logic.action import get, update
 from ckan.controllers.package import PackageController
 from ckan.plugins import SingletonPlugin, implements, IPackageController
@@ -1305,6 +1306,18 @@ class TestNew(TestPackageForm):
             plugins.unload('synchronous_search')
             SolrSettings.init(solr_url)
 
+    def test_change_locale(self):
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset)
+        res = res.click('Deutsch')
+        try:
+            res = res.follow()
+            assert 'Datensatz' in res.body, res.body
+
+
+        finally:
+            self.clear_language_setting()
+        
 class TestSearch(TestPackageForm):
     pkg_names = []
 

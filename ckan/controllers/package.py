@@ -30,6 +30,7 @@ import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.logic.action.get
+from home import CACHE_PARAMETER
 
 log = logging.getLogger(__name__)
 
@@ -273,7 +274,7 @@ class PackageController(BaseController):
             c.facets = query['facets']
             c.page.items = query['results']
         except SearchError, se:
-            log.error('Package search error: %r', se.args)
+            log.error('Dataset search error: %r', se.args)
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
@@ -312,7 +313,7 @@ class PackageController(BaseController):
             c.pkg = context['package']
             c.pkg_json = json.dumps(c.pkg_dict)
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
         
@@ -352,7 +353,7 @@ class PackageController(BaseController):
             c.pkg_dict = get_action('package_show')(context, {'id':id})
             c.pkg = context['package']
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
@@ -393,16 +394,16 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
 
         format = request.params.get('format', '')
         if format == 'atom':
             # Generate and return Atom 1.0 document.
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
-                title=_(u'CKAN Package Revision History'),
+                title=_(u'CKAN Dataset Revision History'),
                 link=h.url_for(controller='revision', action='read', id=c.pkg_dict['name']),
-                description=_(u'Recent changes to CKAN Package: ') + (c.pkg_dict['title'] or ''),
+                description=_(u'Recent changes to CKAN Dataset: ') + (c.pkg_dict['title'] or ''),
                 language=unicode(get_lang()),
             )
             for revision_dict in c.pkg_revisions:
@@ -455,7 +456,8 @@ class PackageController(BaseController):
         if context['save'] and not data:
             return self._save_new(context)
 
-        data = data or clean_dict(unflatten(tuplize_dict(parse_params(request.params))))
+        data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+            request.params, ignore_keys=[CACHE_PARAMETER]))))
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -494,7 +496,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
 
         c.pkg = context.get("package")
         c.pkg_json = json.dumps(data)
@@ -533,7 +535,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
 
         ## hack as db_to_form schema should have this
         data['tag_string'] = ', '.join([tag['name'] for tag in data.get('tags', [])])
@@ -553,7 +555,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
 
 
         data = []
@@ -593,7 +595,7 @@ class PackageController(BaseController):
         try:
             data = get_action('package_show')(context, {'id': id})
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
@@ -613,7 +615,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
@@ -644,7 +646,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
         except NotFound, e:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
@@ -690,7 +692,7 @@ class PackageController(BaseController):
     def authz(self, id):
         pkg = model.Package.get(id)
         if pkg is None:
-            abort(404, gettext('Package not found'))
+            abort(404, gettext('Dataset not found'))
         c.pkg = pkg # needed to add in the tab bar to the top of the auth page
         c.pkgname = pkg.name
         c.pkgtitle = pkg.title

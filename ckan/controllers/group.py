@@ -421,7 +421,7 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % '')
         except NotFound, e:
-            abort(404, _('Package not found'))
+            abort(404, _('Group not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
         except ValidationError, e:
