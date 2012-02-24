@@ -811,13 +811,20 @@ CKAN.View.Resource = Backbone.View.extend({
    */
   updateIcon: function() {
     var self = this;
-    // AJAX to server API
-    $.getJSON('/api/2/util/format_icon?format='+this.formatBox.val(), function(data) {
-      if (data.icon) {
-        self.li.find('.js-resource-icon').attr('src',data.icon);
-        self.table.find('.js-resource-icon').attr('src',data.icon);
-      }
-    });
+    if (self.updateIconTimer) {
+      clearTimeout(self.updateIconTimer);
+    }
+    self.updateIconTimer = setTimeout(function() {
+        // AJAX to server API
+        $.getJSON('/api/2/util/format_icon?format='+encodeURIComponent(self.formatBox.val()), function(data) {
+          if (data && data.icon && data.format==self.formatBox.val()) {
+            self.li.find('.js-resource-icon').attr('src',data.icon);
+            self.table.find('.js-resource-icon').attr('src',data.icon);
+          }
+        });
+        delete self.updateIconTimer;
+      }, 
+      100);
   },
   /*
    * Closes all other panels on the right and opens my editor panel.
