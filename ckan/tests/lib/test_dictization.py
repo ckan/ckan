@@ -98,11 +98,11 @@ class TestBasicDictize:
                             u'webstore_url': None}],
             'state': u'active',
             'tags': [{'name': u'Flexible \u30a1',
-                        'display name': u'Flexible \u30a1',
+                        'display_name': u'Flexible \u30a1',
                         'state': u'active'},
-                     {'name': u'russian', 'display name': u'russian',
+                     {'name': u'russian', 'display_name': u'russian',
                          'state': u'active'},
-                     {'name': u'tolstoy', 'display name': u'tolstoy',
+                     {'name': u'tolstoy', 'display_name': u'tolstoy',
                          'state': u'active'}],
             'title': u'A Novel By Tolstoy',
             'url': u'http://www.annakarenina.com',
@@ -679,7 +679,7 @@ class TestBasicDictize:
         second_dictized['name'] = u'annakarenina_changed2' 
         second_dictized['resources'][0]['url'] = u'new_url2' 
         second_dictized['tags'][0]['name'] = u'new_tag' 
-        second_dictized['tags'][0]['display name'] = u'new_tag' 
+        second_dictized['tags'][0]['display_name'] = u'new_tag' 
         second_dictized['extras'][0]['value'] = u'"new_value"' 
         second_dictized['state'] = 'pending'
 
@@ -707,7 +707,7 @@ class TestBasicDictize:
             u'webstore_last_updated': None,
             u'webstore_url': None})
 
-        third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'display name': u'newnew_tag', 'state': 'active'})
+        third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'display_name': u'newnew_tag', 'state': 'active'})
         third_dictized['extras'].insert(0, {'key': 'david', 
                                          'value': u'"new_value"',
                                          'state': u'active'})

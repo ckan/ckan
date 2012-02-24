@@ -85,7 +85,7 @@ def default_tags_schema():
         'vocabulary_id': [ignore_missing, unicode, vocabulary_id_exists],
         'revision_timestamp': [ignore],
         'state': [ignore],
-        'display name': [ignore_missing, ignore_empty, unicode],
+        'display_name': [ignore_missing, ignore_empty, unicode],
     }
     return schema
 
