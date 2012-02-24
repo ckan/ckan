@@ -882,7 +882,7 @@ def get_site_user(context, data_dict):
 def roles_show(context, data_dict):
     '''Returns the roles that users (and authorization groups) have on a
     particular domain_object.
-    
+
     If you specify a user (or authorization group) then the resulting roles
     will be filtered by those of that user (or authorization group).
 

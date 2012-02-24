@@ -176,7 +176,7 @@ class GroupController(BaseController):
     def _db_to_form_schema(self, group_type=None):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        return _lookup_plugin(group_type).form_to_db_schema()
+        return _lookup_plugin(group_type).db_to_form_schema()
 
     def _setup_template_variables(self, context, data_dict, group_type=None):
         return _lookup_plugin(group_type).setup_template_variables(context,data_dict)

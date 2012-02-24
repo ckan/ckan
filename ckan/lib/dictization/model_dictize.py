@@ -12,7 +12,7 @@ from ckan.lib.helpers import json
 
 ## package save
 
-def group_list_dictize(obj_list, context, 
+def group_list_dictize(obj_list, context,
                        sort_key=lambda x:x['display_name'], reverse=False):
 
     active = context.get('active', True)
@@ -93,10 +93,10 @@ def _execute_with_revision(q, rev_table, context):
     But you can provide revision_id, revision_date or pending in the
     context and it will filter to an earlier time or the latest unmoderated
     object revision.
-    
+
     Raises NotFound if context['revision_id'] is provided, but the revision
     ID does not exist.
-    
+
     Returns [] if there are no results.
 
     '''
@@ -113,7 +113,7 @@ def _execute_with_revision(q, rev_table, context):
         if not revision:
             raise NotFound
         revision_date = revision.timestamp
-    
+
     if revision_date:
         q = q.where(rev_table.c.revision_timestamp <= revision_date)
         q = q.where(rev_table.c.expired_timestamp > revision_date)
@@ -133,7 +133,7 @@ def package_dictize(pkg, context):
     but you can provide revision_id, revision_date or pending in the
     context and it will filter to an earlier time or the latest unmoderated
     object revision.
-    
+
     May raise NotFound. TODO: understand what the specific set of
     circumstances are that cause this.
     '''
@@ -148,7 +148,7 @@ def package_dictize(pkg, context):
     #resources
     res_rev = model.resource_revision_table
     resource_group = model.resource_group_table
-    q = select([res_rev], from_obj = res_rev.join(resource_group, 
+    q = select([res_rev], from_obj = res_rev.join(resource_group,
                resource_group.c.id == res_rev.c.resource_group_id))
     q = q.where(resource_group.c.package_id == pkg.id)
     result = _execute_with_revision(q, res_rev, context)
@@ -156,7 +156,7 @@ def package_dictize(pkg, context):
     #tags
     tag_rev = model.package_tag_revision_table
     tag = model.tag_table
-    q = select([tag, tag_rev.c.state, tag_rev.c.revision_timestamp], 
+    q = select([tag, tag_rev.c.state, tag_rev.c.revision_timestamp],
         from_obj=tag_rev.join(tag, tag.c.id == tag_rev.c.tag_id)
         ).where(tag_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, tag_rev, context)
@@ -183,7 +183,7 @@ def package_dictize(pkg, context):
     q = select([rel_rev]).where(rel_rev.c.object_package_id == pkg.id)
     result = _execute_with_revision(q, rel_rev, context)
     result_dict["relationships_as_object"] = obj_list_dictize(result, context)
-    
+
     # Extra properties from the domain object
     # We need an actual Package object for this, not a PackageRevision
     if isinstance(pkg,PackageRevision):
@@ -264,10 +264,10 @@ def tag_dictize(tag, context):
 
     result_dict["packages"] = obj_list_dictize(
         tag.packages_ordered, context)
-    
-    return result_dict 
 
-def user_list_dictize(obj_list, context, 
+    return result_dict
+
+def user_list_dictize(obj_list, context,
                       sort_key=lambda x:x['name'], reverse=False):
 
     result_list = []
@@ -288,13 +288,13 @@ def user_dictize(user, context):
         result_dict = table_dictize(user, context)
 
     del result_dict['password']
-    
+
     result_dict['display_name'] = user.display_name
     result_dict['email_hash'] = user.email_hash
     result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_administered_packages'] = user.number_administered_packages()
 
-    return result_dict 
+    return result_dict
 
 def task_status_dictize(task_status, context):
     return table_dictize(task_status, context)
@@ -302,23 +302,23 @@ def task_status_dictize(task_status, context):
 ## conversion to api
 
 def group_to_api1(group, context):
-    
+
     dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"]))
                               for extra in dictized["extras"])
     dictized["packages"] = sorted([package["name"] for package in dictized["packages"]])
     return dictized
 
 def group_to_api2(group, context):
-    
+
     dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"]))
                               for extra in dictized["extras"])
     dictized["packages"] = sorted([package["id"] for package in dictized["packages"]])
     return dictized
 
 def tag_to_api1(tag, context):
-    
+
     dictized = tag_dictize(tag, context)
     return sorted([package["name"] for package in dictized["packages"]])
 
@@ -342,18 +342,18 @@ def package_to_api1(pkg, context):
 
     dictized["groups"] = [group["name"] for group in dictized["groups"]]
     dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
-    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"]))
                               for extra in dictized["extras"])
     dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
 
-    resources = dictized["resources"] 
-   
+    resources = dictized["resources"]
+
     for resource in resources:
         resource_dict_to_api(resource, pkg.id, context)
 
     if pkg.resources:
         dictized['download_url'] = pkg.resources[0].url
-            
+
     dictized['license'] = pkg.license.title if pkg.license else None
 
     dictized['ratings_average'] = pkg.get_average_rating()
@@ -368,9 +368,9 @@ def package_to_api1(pkg, context):
     dictized['metadata_created'] = metadata_created.isoformat() \
         if metadata_created else None
 
-    subjects = dictized.pop("relationships_as_subject") 
-    objects = dictized.pop("relationships_as_object") 
-    
+    subjects = dictized.pop("relationships_as_subject")
+    objects = dictized.pop("relationships_as_object")
+
     relationships = []
     for relationship in objects:
         model = context['model']
@@ -386,9 +386,9 @@ def package_to_api1(pkg, context):
                               'type': relationship['type'],
                               'object': pkg.get(relationship['object_package_id']).name,
                               'comment': relationship["comment"]})
-        
-        
-    dictized['relationships'] = relationships 
+
+
+    dictized['relationships'] = relationships
     return dictized
 
 def package_to_api2(pkg, context):
@@ -397,16 +397,16 @@ def package_to_api2(pkg, context):
 
     dictized["groups"] = [group["id"] for group in dictized["groups"]]
     dictized.pop("revision_timestamp")
-    
+
     dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
-    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"]))
                               for extra in dictized["extras"])
 
-    resources = dictized["resources"] 
-   
+    resources = dictized["resources"]
+
     for resource in resources:
         resource_dict_to_api(resource,pkg.id, context)
-            
+
     dictized['license'] = pkg.license.title if pkg.license else None
 
     dictized['ratings_average'] = pkg.get_average_rating()
@@ -420,9 +420,9 @@ def package_to_api2(pkg, context):
         if pkg.metadata_created else None
     dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
 
-    subjects = dictized.pop("relationships_as_subject") 
-    objects = dictized.pop("relationships_as_object") 
-    
+    subjects = dictized.pop("relationships_as_subject")
+    objects = dictized.pop("relationships_as_object")
+
     relationships = []
     for relationship in objects:
         model = context['model']
@@ -438,8 +438,8 @@ def package_to_api2(pkg, context):
                               'type': relationship['type'],
                               'object': relationship['object_package_id'],
                               'comment': relationship["comment"]})
-        
-    dictized['relationships'] = relationships 
+
+    dictized['relationships'] = relationships
     return dictized
 
 def activity_dictize(activity, context):
