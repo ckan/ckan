@@ -23,7 +23,10 @@
 
       <!-- Resources -->
       <div id="dataset-resources" class="resources subsection">
-        <h3>Resources</h3>
+        <h3>Resources
+        <py:if test="h.check_access('package_update',{'id':c.pkg.id})"> &nbsp;
+          ${h.subnav_link(c, _('(edit)'), controller='package', action='editresources', id=c.pkg.name)}
+        </py:if></h3>
         <ul class="resource-list">
           <py:for each="res in c.pkg_dict.get('resources', [])">
           <li class="ui-state-default">
@@ -43,7 +46,10 @@
     </div>
 
     <!-- Dataset Information Section -->
-    <h3>Additional Information</h3>
+    <h3>Additional Information
+      <py:if test="h.check_access('package_update',{'id':c.pkg.id})"> &nbsp;
+        ${h.subnav_link(c, _('(settings)'), controller='package', action='edit', id=c.pkg.name)}
+      </py:if></h3>
     <div id="dataset-information">
     <table>
       <thead>
