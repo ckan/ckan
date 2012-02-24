@@ -236,8 +236,8 @@ class IPackageController(Interface):
             Extensions will receive a dictionary with the query parameters,
             and should return a modified (or not) version of it.
 
-            search_params will include an 'extras' dictionary with all values
-            from fields starting with 'ext_', so extensions can receive user
+            search_params will include an `extras` dictionary with all values
+            from fields starting with `ext_`, so extensions can receive user
             input from specific fields.
 
         '''
@@ -254,8 +254,8 @@ class IPackageController(Interface):
             Note that count and facets may need to be adjusted if the extension
             changed the results for some reason.
 
-            search_params will include an 'extras' dictionary with all values
-            from fields starting with 'ext_', so extensions can receive user
+            search_params will include an `extras` dictionary with all values
+            from fields starting with `ext_`, so extensions can receive user
             input from specific fields.
 
         '''

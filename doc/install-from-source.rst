@@ -241,7 +241,7 @@ or if your config file is something else, you need to specify it. e.g.::
 
   paster --plugin=ckan db init --config=test.ckan.net.ini
 
-You should see ``Initialising DB: SUCCESS``. (There will also be some ``SAWarning``s which can be ignored and probably also an error/warning about "connecting to the SOLR server", which will be addressed in a couple of steps time.)
+You should see ``Initialising DB: SUCCESS``. (There will also be some ``SAWarning`` messages which can be ignored and probably also an error/warning about "connecting to the SOLR server", which will be addressed in a couple of steps time.)
 
 If the command prompts for a password it is likely you haven't set up the 
 database configuration correctly in step 6.
@@ -269,12 +269,11 @@ You need to create two directories for CKAN to put temporary files:
 
 
 12. Test the CKAN webserver
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can use Paste to serve CKAN from the command-line. This is a simple and lightweight way to serve CKAN and is especially useful for testing. However a production deployment will probably want to be served using Apache or nginx - see :doc:`post-installation`
 
-.. note: If you've started a new shell, you'll have to activate the environment
-again first - see step 3.
+.. note:: If you've started a new shell, you'll have to activate the environment again first - see step 3.
 
 (from the ``pyenv/src/ckan`` directory):
 
