@@ -6,6 +6,7 @@ import ckan.tests.html_check
 import routes
 import paste.fixture
 import pylons.test
+import nose
 
 class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
     '''Test the translation of datasets by the multilingual_dataset plugin.
@@ -26,6 +27,22 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
         multilingual_dataset plugin.
 
         '''
+        # Add translation terms that match a couple of group names. Group names
+        # should _not_ get translated even if there are terms matching them.
+        for term in ('roger', 'david'):
+            data_dict = {
+                    'term': term,
+                    'term_translation': 'this should not be rendered',
+                    'lang_code': 'de',
+                    }
+            context = {
+                'model': ckan.model,
+                'session': ckan.model.Session,
+                'user': 'testsysadmin',
+            }
+            ckan.logic.action.update.term_translation_update(context,
+                    data_dict)
+
         # Fetch the dataset view page for a number of different languages and
         # test for the presence of translated and not translated terms.
         offset = routes.url_for(controller='package', action='read',
@@ -44,3 +61,9 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                             ckan.lib.create_test_data.english_translations[term])
                 else:
                     response.mustcontain(term)
+            for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
+                response.mustcontain('<a href="/tag/%s">' % tag_name)
+            for group_name in ('david', 'roger'):
+                response.mustcontain('<a href="/group/%s">' % group_name)
+            nose.tools.assert_raises(IndexError, response.mustcontain,
+                    'this should not be rendered')

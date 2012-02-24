@@ -78,7 +78,10 @@ class MultilingualDataset(SingletonPlugin):
         # their translations, where available.
         translated_flattened = {}
         for (key, value) in flattened.items():
-            if value in (None, True, False):
+            if key[0] in ('tags', 'groups') and key[2] == 'name':
+                # Don't translate names that are used to form URLs
+                translated_flattened[key] = value
+            elif value in (None, True, False):
                 translated_flattened[key] = value
             elif isinstance(value, basestring):
                 if desired_translations.has_key(value):
