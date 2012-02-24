@@ -1564,8 +1564,8 @@ hr.resource-list-divide {
   border-bottom-right-radius: 4px;
   border-right: 1px solid #888;
 }
-
-.dataset-editresources-form .resource-list {
+.resource-list-add,
+.resource-list-edit {
   width: 400px;
 }
 .resource-list-add li a {
@@ -1577,14 +1577,14 @@ hr.resource-list-divide {
 .resource-list-edit li:hover .drag-bars {
   color: #999;
 }
-.resource-edit-delete {
-  float: right;
 
+button.resource-edit-delete {
+  float: right;
 }
 
 
 
-.resource-details-container {
+.resource-panel {
   background: #f9f9f9;
   border: 1px solid #888;
   box-shadow: 2px 2px 4px #888;
@@ -1595,7 +1595,7 @@ hr.resource-list-divide {
   padding: 10px;
   min-height: 300px;
 }
-.resource-details-container .resource-details-close {
+.resource-panel .resource-panel-close {
   position: absolute;
   right: -8px;
   top: -12px;

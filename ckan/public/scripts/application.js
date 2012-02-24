@@ -612,98 +612,90 @@ CKAN.Utils = function($, my) {
 
 CKAN.View.ResourceEditor = Backbone.View.extend({
   initialize: function() {
-    var $form = this.el;
-
     // Init bindings
-    _.bindAll(this, 'addResource', 'removeResource', 'sortStop', 'openFirst');
-    this.collection.bind('add', this.addResource);
-    this.collection.bind('remove', this.removeResource);
-    this.collection.each(this.addResource);
-    $form.find('.resource-list-edit').bind("sortstop", this.sortStop);
+    _.bindAll(this, 'resourceAdded', 'resourceRemoved', 'sortStop', 'openFirstPanel', 'closePanel', 'openAddPanel');
+    this.collection.bind('add', this.resourceAdded);
+    this.collection.bind('remove', this.resourceRemoved);
+    this.collection.each(this.resourceAdded);
+    this.el.find('.resource-list-edit').bind("sortstop", this.sortStop);
 
     // Delete the barebones editor. We will populate our own form.
-    $('.js-resource-edit-barebones').remove();
+    this.el.find('.js-resource-edit-barebones').remove();
 
     // Warn on form changes
-    var flashWarning = CKAN.Utils.warnOnFormChanges($form);
+    var flashWarning = CKAN.Utils.warnOnFormChanges(this.el);
     this.collection.bind('add', flashWarning);
     this.collection.bind('remove', flashWarning);
 
     // Trigger the Add Resource pane
-    var $a = $form.find('.js-resource-add');
-    $a.click(function(e) {
-      e.preventDefault();
-      $('.resource-list li').removeClass('active');
-      $('.resource-list-add li').addClass('active');
-      $('.js-resource-details').hide();
-      $('.js-resource-details.resource-add').show();
-      $('.js-resource-details-container').show();
-      return false;
-    });
+    this.el.find('.js-resource-add').click(this.openAddPanel);
 
     // Tabbed view for adding resources
-    var $resourceAdd = $form.find('.resource-add');
+    var $resourceAdd = this.el.find('.resource-add');
     this.addView=new CKAN.View.ResourceAddTabs({
       collection: this.collection,
       el: $resourceAdd
     });
 
     // Close details button
-    $('.resource-details-close').click(function(e) {
-      e.preventDefault();
-      $('.resource-list li').removeClass('active');
-      $('.resource-details-container').hide();
-      return false;
-    });
+    this.el.find('.resource-panel-close').click(this.closePanel);
 
-    this.openFirst();
+    this.openFirstPanel();
   },
-
-
-  openFirst: function() {
-    var firstRow = $(this.el.find('.resource-list-edit li:first-child'));
-    if (firstRow.length) {
-       firstRow.find('.js-resource-edit-open').click();
+  /*
+   * Called when the page loads or the current resource is deleted. 
+   * Reset page state to the first available edit panel.
+   */
+  openFirstPanel: function() {
+    if (this.collection.length>0) {
+      this.collection.at(0).view.openMyPanel();
     }
     else {
-      // Open the 'add resource' box
-      $('.js-resource-add').click();
+      this.openAddPanel();
     }
   },
-
-  openTable: function(triggerEvent) {
-    triggerEvent.preventDefault();
-    var $li = $(triggerEvent.target).parents('li');
-    // Close all tables
-    var container = $('.js-resource-details-container');
-    container.find('.js-resource-details').hide();
-    $('.resource-list li').removeClass('active');
-    container.show();
-    var $table = $li.data('table');
-    $table.show();
-    $table.find('.js-resource-edit-name').focus();
-    $li.addClass('active');
-    return false;
+  /*
+   * Open the 'Add New Resource' special-case panel on the right.
+   */
+  openAddPanel: function(e) {
+    if (e) e.preventDefault();
+    this.el.find('.resource-list li').removeClass('active');
+    this.el.find('.resource-list-add li').addClass('active');
+    this.el.find('.resource-details').hide();
+    this.el.find('.resource-details.resource-add').show();
+    this.el.find('.resource-panel').show();
   },
-
-
-  /* Update the resource__N__field names to match new sort order. */
-  sortStop: function(event,ui) {
-    $.each(this.el.find('.resource-list-edit li'), function(li_idx, li) {
-      var $li = $(li);
-      $table = $li.data('table');
-      $.each($table.find('input,textarea,select'), function(input_idx, input) {
+  /*
+   * Close the panel on the right.
+   */
+  closePanel: function(e) {
+    if (e) e.preventDefault();
+    this.el.find('.resource-list li').removeClass('active');
+    this.el.find('.resource-panel').hide();
+  },
+  /* 
+   * Update the resource__N__field names to match 
+   * new sort order.
+  */
+  sortStop: function(e,ui) {
+    this.collection.each(function(resource) {
+      // Ask the DOM for the new sort order
+      var index = resource.view.li.index();
+      // Update the form element names
+      var table = resource.view.table;
+      $.each(table.find('input,textarea,select'), function(input_index, input) {
         var name = $(input).attr('name');
-        name = name.replace(/(resources__)\d+(.*)/, '$1'+li_idx+'$2')
+        name = name.replace(/(resources__)\d+(.*)/, '$1'+index+'$2')
         $(input).attr('name',name);
       });
     });
   },
-
-  /* Id of the next resource to create */
+  /* 
+   * Calculate id of the next resource to create 
+   */
   nextIndex: function() {
     var maxId=-1;
-    var root = $('.js-resource-details-container');
+    var root = this.el.find('.resource-panel');
     root.find('input').each(function(idx,input) {
       var splitName=$(input).attr('name').split('__');
       if (splitName.length>1) {
@@ -713,15 +705,44 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     });
     return maxId+1;
   },
-
-  /* Create DOM elements for new resource. */
-  addResource: function(resource) {
+  /* 
+   * Create DOM elements for new resource. 
+   */
+  resourceAdded: function(resource) {
     var self = this;
-    var position = this.nextIndex();
-    // Create a row from the template
+    resource.view = new CKAN.View.Resource({
+      position: this.nextIndex(),
+      model: resource,
+      callback_deleteMe: function() { self.collection.remove(resource); }
+    });
+    this.el.find('.resource-list-edit').append(resource.view.li);
+    this.el.find('.resource-panel').append(resource.view.table);
+    if (resource.isNew()) {
+      resource.view.openMyPanel();
+    }
+  },
+  /* 
+   * Destroy DOM elements for deleted resource.
+   */
+  resourceRemoved: function(resource) {
+    resource.view.removeFromDom();
+    delete resource.view;
+    this.openFirstPanel();
+  },
+});
+
+
+/*
+ * Backbone view of a resource.
+ * Creates two DOM elements: The draggable li (left) and the tabular editor (right).
+ */
+CKAN.View.Resource = Backbone.View.extend({
+  initialize: function() {
+    _.bindAll(this,'updateName','updateIcon','name','askToDelete','openMyPanel');
+    // Generate DOM elements
     var resource_object = { 
-        resource: resource.toTemplateJSON(),
-        num: position,
+        resource: this.model.toTemplateJSON(),
+        num: this.options.position,
         resource_icon: '/images/icons/page_white.png',
         resourceTypeOptions: [
           ['file', 'Data File']
@@ -732,96 +753,104 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
           , ['code', 'Code']
           , ['example', 'Example']
         ]
-      };
-    // Generate DOM editor
-    var $li = $($.tmpl(CKAN.Templates.resourceEntry, resource_object));
-    var $table = $($.tmpl(CKAN.Templates.resourceDetails, resource_object));
-    this.el.find('.resource-list-edit').append($li);
-    this.el.find('.js-resource-details-container').append($table);
-    $li.data('table', $table);
+    };
+    this.li = $($.tmpl(CKAN.Templates.resourceEntry, resource_object));
+    this.table = $($.tmpl(CKAN.Templates.resourceDetails, resource_object));
 
-    // Associate the resource with the DOM object
-    resource.view_row = $li;
-
-    // Hook to changes in name/format
-    var setName = self.setName($li,resource.attributes.id);
-    var setFormat = self.setFormat($li);
-    var nameBox = $table.find('input.js-resource-edit-name');
-    var descriptionBox = $table.find('textarea.js-resource-edit-description');
-    var formatBox = $table.find('input.js-resource-edit-format');
-    CKAN.Utils.bindInputChanges(nameBox,        function() { setName(nameBox.val(),descriptionBox.val()); });
-    CKAN.Utils.bindInputChanges(descriptionBox, function() { setName(nameBox.val(),descriptionBox.val()); });
-    CKAN.Utils.bindInputChanges(formatBox,      function() { setFormat(formatBox.val()); });
-
-    // Hook to open link
-    var openLink = $li.find('.js-resource-edit-open')
-    openLink.click(this.openTable);
-    if (resource.isNew()) {
-      openLink.click();
-    }
+    // Hook to changes in name
+    this.nameBox = this.table.find('input.js-resource-edit-name');
+    this.descriptionBox = this.table.find('textarea.js-resource-edit-description');
+    CKAN.Utils.bindInputChanges(this.nameBox,this.updateName);
+    CKAN.Utils.bindInputChanges(this.descriptionBox,this.updateName);
+    // Hook to changes in format
+    this.formatBox = this.table.find('input.js-resource-edit-format');
+    CKAN.Utils.bindInputChanges(this.formatBox,this.updateIcon);
     // Hook to delete button
-    $table.find('.js-resource-edit-delete').click(this.askToDeleteResource($li,resource));
-    // Initialise name
-    setName(resource.attributes.name,resource.attributes.description);
-    setFormat(resource.attributes.format);
+    this.table.find('.js-resource-edit-delete').click(this.askToDelete);
+    // Hook to open panel link
+    this.li.find('.resource-open-my-panel').click(this.openMyPanel);
+
+    // Set initial state
+    this.updateName();
+    this.updateIcon();
   },
-
-
-  setName: function($li,id) {
-    return function(name,description) {
-      var newName = name;
-      if (!newName) {
-        newName = description;
-        if (!newName) {
-          newName = '[no name] ' + id;
+  /* 
+   * Work out what I should be called. Rough-match 
+   * of helpers.py:resource_display_name. 
+   */
+  name: function() {
+    var name = this.nameBox.val();
+    if (!name) {
+      name = this.descriptionBox.val();
+      if (!name) {
+        if (this.model.isNew()) {
+          name = '<em>[new resource]</em>';
         }
-        else if (newName.length>45) {
-          newName = description.substring(0,45)+'...';
+        else {
+          name = '[no name] ' + this.model.id;
         }
       }
-      // Need to structurally modify the DOM to force a re-render of text
-      $link = $li.find('.js-resource-edit-name');
-      $link.html('<span>'+newName+'</span>');
-    };
-  },
-
-  setFormat: function($li) {
-    // Capture parent $li.
-    return function(newFormat) {
-      // Ask the server which icon to use
-      $.getJSON('/api/2/util/format_icon?format='+newFormat, function(data) {
-        if (data.icon) {
-          var $table = $li.data('table');
-          $li.find('.js-resource-icon').attr('src',data.icon);
-          $table.find('.js-resource-icon').attr('src',data.icon);
-        }
-      });
-    };
-  },
-
-  askToDeleteResource: function($li,resource) {
-    var self = this;
-    // Capture parent $li and resource object
-    return function(triggerEvent) {
-      triggerEvent.preventDefault();
-      var resourceName = $li.find('.js-resource-edit-name span').html();
-      var confirmMessage = CKAN.Strings.deleteThisResourceQuestion.replace('%name%', resourceName);
-      if (confirm(confirmMessage)) {
-        self.collection.remove(resource);
-      }
-      return false;
-    };
-  },
-
-  removeResource: function(resource) {
-    if (resource.view_row) {
-      var table = resource.view_row.data('table');
-      resource.view_row.remove();
-      table.remove();
-      delete resource.view_row;
     }
-    this.openFirst();
+    if (name.length>45) {
+      name = name.substring(0,45)+'...';
+    }
+    return name;
   },
+  /* 
+   * Called when the user types to update the name in 
+   * my <li> to match the <input> values. 
+   */
+  updateName: function() {
+    // Need to structurally modify the DOM to force a re-render of text
+    var $link = this.li.find('.js-resource-edit-name');
+    $link.html('<span>'+this.name()+'</span>');
+  },
+  /* 
+   * Called when the user types to update the icon <img> 
+   * tags. Uses server API to select icon.
+   */
+  updateIcon: function() {
+    var self = this;
+    // AJAX to server API
+    $.getJSON('/api/2/util/format_icon?format='+this.formatBox.val(), function(data) {
+      if (data.icon) {
+        self.li.find('.js-resource-icon').attr('src',data.icon);
+        self.table.find('.js-resource-icon').attr('src',data.icon);
+      }
+    });
+  },
+  /*
+   * Closes all other panels on the right and opens my editor panel.
+   */
+  openMyPanel: function(e) {
+    if (e) e.preventDefault();
+    // Close all tables
+    var panel = this.table.parents('.resource-panel');
+    panel.find('.resource-details').hide();
+    this.li.parents('fieldset#resources').find('li').removeClass('active');
+    panel.show();
+    this.table.show();
+    this.table.find('.js-resource-edit-name').focus();
+    this.li.addClass('active');
+  },
+  /* 
+   * Called when my delete button is clicked. Calls back to the parent
+   * resource editor.
+   */
+  askToDelete: function(e) {
+    e.preventDefault();
+    var confirmMessage = CKAN.Strings.deleteThisResourceQuestion.replace('%name%', this.name());
+    if (confirm(confirmMessage)) {
+      this.options.callback_deleteMe();
+    }
+  },
+  /* 
+   * Called when my model is destroyed. Remove me from the page.
+   */
+  removeFromDom: function() {
+    this.li.remove();
+    this.table.remove();
+  }
 });
 
 
