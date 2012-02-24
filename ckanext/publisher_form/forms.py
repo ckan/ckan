@@ -108,6 +108,7 @@ class PublisherForm(SingletonPlugin):
         use the available groups for the current user, but should be optional
         in case this is a top level group
         """
+        c.body_class = "group edit"
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         if 'group' in context:
             group = context['group']
