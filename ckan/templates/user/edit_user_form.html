@@ -19,8 +19,10 @@
     <dt><label for="email">E-Mail:</label></dt>
     <dd><input type="text" name="email" value="${data.get('email','')}" /></dd>
 
-    <dt><label for="openid">OpenID:</label></dt>
-    <dd><input type="text" name="openid" value="${data.get('openid','')}" /></dd>
+    <py:if test="g.openid_enabled">
+      <dt><label for="openid">OpenID:</label></dt>
+      <dd><input type="text" name="openid" value="${data.get('openid','')}" /></dd>
+    </py:if>
     
     <dt><label for="about">About:</label></dt>
     <dd class="description-field">
