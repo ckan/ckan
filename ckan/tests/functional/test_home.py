@@ -117,7 +117,6 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
             assert res.status == 200, res.status # doesn't redirect
         finally:
             self.clear_language_setting()
->>>>>>> release-v1.6
 
     def test_update_profile_notice(self):
         edit_url = url_for(controller='user', action='edit')

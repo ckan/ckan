@@ -17,7 +17,6 @@ import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
 import ckan.lib.search as search
-from ckan.lib.i18n import set_session_locale
 from ckan.logic.action import get, update
 from ckan.controllers.package import PackageController
 from ckan.plugins import SingletonPlugin, implements, IPackageController
@@ -1311,10 +1310,7 @@ class TestNew(TestPackageForm):
         res = self.app.get(offset)
         res = res.click('Deutsch')
         try:
-            res = res.follow()
             assert 'Datensatz' in res.body, res.body
-
-
         finally:
             self.clear_language_setting()
         
