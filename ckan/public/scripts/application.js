@@ -87,8 +87,8 @@
       // Backbone model/view
       var _dataset = new CKAN.Model.Dataset(preload_dataset);
       var $el=$('form#dataset-edit');
-      var view=new CKAN.View.DatasetEditResourcesForm({
-        model: _dataset,
+      var view=new CKAN.View.ResourceEditor({
+        collection: _dataset.get('resources'),
         el: $el
       });
       view.render();
@@ -610,27 +610,27 @@ CKAN.Utils = function($, my) {
 }(jQuery, CKAN.Utils || {});
 
 
-CKAN.View.DatasetEditResourcesForm = Backbone.View.extend({
+CKAN.View.ResourceEditor = Backbone.View.extend({
   initialize: function() {
+    var $form = this.el;
+
+    // Init bindings
+    _.bindAll(this, 'addResource', 'removeResource', 'sortStop', 'openFirst');
+    this.collection.bind('add', this.addResource);
+    this.collection.bind('remove', this.removeResource);
+    this.collection.each(this.addResource);
+    $form.find('.resource-list-edit').bind("sortstop", this.sortStop);
+
     // Delete the barebones editor. We will populate our own form.
     $('.js-resource-edit-barebones').remove();
 
-    var resources = this.model.get('resources');
-    var $form = this.el;
+    // Warn on form changes
     var flashWarning = CKAN.Utils.warnOnFormChanges($form);
-
-    resources.bind('add', flashWarning);
-    resources.bind('remove', flashWarning);
-
-    // Table for editing resources
-    var $el = this.el.find('.resource-list-edit');
-    this.resourceList=new CKAN.View.ResourceEditList({
-      collection: resources,
-      el: $el
-    });
+    this.collection.bind('add', flashWarning);
+    this.collection.bind('remove', flashWarning);
 
     // Trigger the Add Resource pane
-    var $a = this.el.find('.js-resource-add');
+    var $a = $form.find('.js-resource-add');
     $a.click(function(e) {
       e.preventDefault();
       $('.resource-list li').removeClass('active');
@@ -642,10 +642,10 @@ CKAN.View.DatasetEditResourcesForm = Backbone.View.extend({
     });
 
     // Tabbed view for adding resources
-    var $el = this.el.find('.resource-add');
+    var $resourceAdd = $form.find('.resource-add');
     this.addView=new CKAN.View.ResourceAddTabs({
-      collection: resources,
-      el: $el
+      collection: this.collection,
+      el: $resourceAdd
     });
 
     // Close details button
@@ -656,24 +656,12 @@ CKAN.View.DatasetEditResourcesForm = Backbone.View.extend({
       return false;
     });
 
-    this.resourceList.openFirst();
-    this.addView.render();
-    this.resourceList.render();
+    this.openFirst();
   },
-});
 
-
-CKAN.View.ResourceEditList = Backbone.View.extend({
-  initialize: function() {
-    _.bindAll(this, 'addResource', 'removeResource', 'sortStop', 'openFirst');
-    this.collection.bind('add', this.addResource);
-    this.collection.bind('remove', this.removeResource);
-    this.collection.each(this.addResource);
-    this.el.bind("sortstop", this.sortStop);
-  },
 
   openFirst: function() {
-    var firstRow = $(this.el.find('.resource-edit:first-child'));
+    var firstRow = $(this.el.find('.resource-list-edit li:first-child'));
     if (firstRow.length) {
        firstRow.find('.js-resource-edit-open').click();
     }
@@ -683,8 +671,25 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     }
   },
 
+  openTable: function(triggerEvent) {
+    triggerEvent.preventDefault();
+    var $li = $(triggerEvent.target).parents('li');
+    // Close all tables
+    var container = $('.js-resource-details-container');
+    container.find('.js-resource-details').hide();
+    $('.resource-list li').removeClass('active');
+    container.show();
+    var $table = $li.data('table');
+    $table.show();
+    $table.find('.js-resource-edit-name').focus();
+    $li.addClass('active');
+    return false;
+  },
+
+
+  /* Update the resource__N__field names to match new sort order. */
   sortStop: function(event,ui) {
-    $.each(this.el.find('li'), function(li_idx, li) {
+    $.each(this.el.find('.resource-list-edit li'), function(li_idx, li) {
       var $li = $(li);
       $table = $li.data('table');
       $.each($table.find('input,textarea,select'), function(input_idx, input) {
@@ -695,6 +700,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     });
   },
 
+  /* Id of the next resource to create */
   nextIndex: function() {
     var maxId=-1;
     var root = $('.js-resource-details-container');
@@ -708,6 +714,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
     return maxId+1;
   },
 
+  /* Create DOM elements for new resource. */
   addResource: function(resource) {
     var self = this;
     var position = this.nextIndex();
@@ -726,47 +733,47 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
           , ['example', 'Example']
         ]
       };
+    // Generate DOM editor
     var $li = $($.tmpl(CKAN.Templates.resourceEntry, resource_object));
     var $table = $($.tmpl(CKAN.Templates.resourceDetails, resource_object));
-    this.el.append($li);
-    $('.js-resource-details-container').append($table);
+    this.el.find('.resource-list-edit').append($li);
+    this.el.find('.js-resource-details-container').append($table);
     $li.data('table', $table);
 
     // Associate the resource with the DOM object
     resource.view_row = $li;
 
-    var openTable = function(triggerEvent) {
-      if (triggerEvent) triggerEvent.preventDefault();
-      // Close all tables
-      var container = $('.js-resource-details-container');
-      container.find('.js-resource-details').hide();
-      container.show();
-      $('.resource-list li').removeClass('active');
-      $table.show();
-      $table.find('.js-resource-edit-name').focus();
-      $li.addClass('active');
-    };
+    // Hook to changes in name/format
+    var setName = self.setName($li,resource.attributes.id);
+    var setFormat = self.setFormat($li);
+    var nameBox = $table.find('input.js-resource-edit-name');
+    var descriptionBox = $table.find('textarea.js-resource-edit-description');
+    var formatBox = $table.find('input.js-resource-edit-format');
+    CKAN.Utils.bindInputChanges(nameBox,        function() { setName(nameBox.val(),descriptionBox.val()); });
+    CKAN.Utils.bindInputChanges(descriptionBox, function() { setName(nameBox.val(),descriptionBox.val()); });
+    CKAN.Utils.bindInputChanges(formatBox,      function() { setFormat(formatBox.val()); });
 
-    // == Inner Function: Delete the row == //
-    var deleteResource = function(triggerEvent) {
-      console.log('it aint over til its over');
-      if (triggerEvent) triggerEvent.preventDefault();
-      confirmMessage = CKAN.Strings.deleteThisResourceQuestion;
-      resourceName = resource.attributes.name || CKAN.Strings.noNameBrackets;
-      confirmMessage = confirmMessage.replace('%name%', resourceName);
-      if (confirm(confirmMessage)) {
-        self.collection.remove(resource);
-      }
-      return false;
-    };
+    // Hook to open link
+    var openLink = $li.find('.js-resource-edit-open')
+    openLink.click(this.openTable);
+    if (resource.isNew()) {
+      openLink.click();
+    }
+    // Hook to delete button
+    $table.find('.js-resource-edit-delete').click(this.askToDeleteResource($li,resource));
+    // Initialise name
+    setName(resource.attributes.name,resource.attributes.description);
+    setFormat(resource.attributes.format);
+  },
 
-    // == Inner Functions: Update the name as you type == //
-    var setName = function(name,description) {
+
+  setName: function($li,id) {
+    return function(name,description) {
       var newName = name;
       if (!newName) {
         newName = description;
         if (!newName) {
-          newName = '[no name] ' + resource.attributes.id;
+          newName = '[no name] ' + id;
         }
         else if (newName.length>45) {
           newName = description.substring(0,45)+'...';
@@ -776,35 +783,34 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
       $link = $li.find('.js-resource-edit-name');
       $link.html('<span>'+newName+'</span>');
     };
-    // == Inner function: Updates the icon as you type == //
-    var setFormat = function(newFormat) {
+  },
+
+  setFormat: function($li) {
+    // Capture parent $li.
+    return function(newFormat) {
       // Ask the server which icon to use
       $.getJSON('/api/2/util/format_icon?format='+newFormat, function(data) {
         if (data.icon) {
+          var $table = $li.data('table');
           $li.find('.js-resource-icon').attr('src',data.icon);
           $table.find('.js-resource-icon').attr('src',data.icon);
         }
       });
-    }
+    };
+  },
 
-    // Trigger animation
-    if (resource.isNew()) {
-      openTable();
-    }
-
-    var nameBox = $table.find('input.js-resource-edit-name');
-    var descriptionBox = $table.find('textarea.js-resource-edit-description');
-    var formatBox = $table.find('input.js-resource-edit-format');
-    CKAN.Utils.bindInputChanges(nameBox,        function() { setName(nameBox.val(),descriptionBox.val()); });
-    CKAN.Utils.bindInputChanges(descriptionBox, function() { setName(nameBox.val(),descriptionBox.val()); });
-    CKAN.Utils.bindInputChanges(formatBox,      function() { setFormat(formatBox.val()); });
-
-    $li.find('.js-resource-edit-open').click(openTable);
-    // TODO
-    $table.find('.js-resource-edit-delete').click(deleteResource);
-    // Initialise name
-    setName(resource.attributes.name,resource.attributes.description);
-    setFormat(resource.attributes.format);
+  askToDeleteResource: function($li,resource) {
+    var self = this;
+    // Capture parent $li and resource object
+    return function(triggerEvent) {
+      triggerEvent.preventDefault();
+      var resourceName = $li.find('.js-resource-edit-name span').html();
+      var confirmMessage = CKAN.Strings.deleteThisResourceQuestion.replace('%name%', resourceName);
+      if (confirm(confirmMessage)) {
+        self.collection.remove(resource);
+      }
+      return false;
+    };
   },
 
   removeResource: function(resource) {
