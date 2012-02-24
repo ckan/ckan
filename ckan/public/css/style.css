@@ -1577,6 +1577,10 @@ hr.resource-list-divide {
 .resource-list-edit li:hover .drag-bars {
   color: #999;
 }
+.resource-edit-delete {
+  float: right;
+
+}
 
 
 

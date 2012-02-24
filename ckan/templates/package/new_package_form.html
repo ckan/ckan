@@ -82,6 +82,15 @@
 </fieldset>
 
 <fieldset id="resources">
+  <div class="js-resource-edit-barebones">
+    <!-- The resource editor deletes these fields and replaces them with a dynamic editor.
+         They are required for the form to render correctly when not in resource-edit mode. -->
+    <py:for each="res in c.pkg_dict.get('resources', [])">
+      <py:for each="field in ['name', 'description', 'url', 'format', 'resource_type', 'last_modified', 'size', 'mimetype', 'mimetype_inner', 'id', 'hash']">
+      <input type="hidden" name="resources__${res.get('position')}__${field}" value="${res.get(field)}" />
+      </py:for>
+    </py:for>
+  </div>
   <ul class="resource-list resource-list-edit drag-drop-list">
   </ul>
   <hr class="resource-list-divide"/>

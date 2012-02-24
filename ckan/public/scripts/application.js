@@ -612,6 +612,9 @@ CKAN.Utils = function($, my) {
 
 CKAN.View.DatasetEditResourcesForm = Backbone.View.extend({
   initialize: function() {
+    // Delete the barebones editor. We will populate our own form.
+    $('.js-resource-edit-barebones').remove();
+
     var resources = this.model.get('resources');
     var $form = this.el;
     var flashWarning = CKAN.Utils.warnOnFormChanges($form);
@@ -653,6 +656,7 @@ CKAN.View.DatasetEditResourcesForm = Backbone.View.extend({
       return false;
     });
 
+    this.resourceList.openFirst();
     this.addView.render();
     this.resourceList.render();
   },
@@ -661,12 +665,22 @@ CKAN.View.DatasetEditResourcesForm = Backbone.View.extend({
 
 CKAN.View.ResourceEditList = Backbone.View.extend({
   initialize: function() {
-    _.bindAll(this, 'addResource', 'removeResource', 'sortStop');
+    _.bindAll(this, 'addResource', 'removeResource', 'sortStop', 'openFirst');
     this.collection.bind('add', this.addResource);
     this.collection.bind('remove', this.removeResource);
     this.collection.each(this.addResource);
     this.el.bind("sortstop", this.sortStop);
-    $(this.el.find('.resource-edit:first-child .js-resource-edit-open')).click();
+  },
+
+  openFirst: function() {
+    var firstRow = $(this.el.find('.resource-edit:first-child'));
+    if (firstRow.length) {
+       firstRow.find('.js-resource-edit-open').click();
+    }
+    else {
+      // Open the 'add resource' box
+      $('.js-resource-add').click();
+    }
   },
 
   sortStop: function(event,ui) {
@@ -735,6 +749,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
 
     // == Inner Function: Delete the row == //
     var deleteResource = function(triggerEvent) {
+      console.log('it aint over til its over');
       if (triggerEvent) triggerEvent.preventDefault();
       confirmMessage = CKAN.Strings.deleteThisResourceQuestion;
       resourceName = resource.attributes.name || CKAN.Strings.noNameBrackets;
@@ -742,6 +757,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
       if (confirm(confirmMessage)) {
         self.collection.remove(resource);
       }
+      return false;
     };
 
     // == Inner Functions: Update the name as you type == //
@@ -785,7 +801,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
 
     $li.find('.js-resource-edit-open').click(openTable);
     // TODO
-    $li.find('.js-resource-edit-delete').click(deleteResource);
+    $table.find('.js-resource-edit-delete').click(deleteResource);
     // Initialise name
     setName(resource.attributes.name,resource.attributes.description);
     setFormat(resource.attributes.format);
@@ -793,9 +809,12 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
 
   removeResource: function(resource) {
     if (resource.view_row) {
+      var table = resource.view_row.data('table');
       resource.view_row.remove();
+      table.remove();
       delete resource.view_row;
     }
+    this.openFirst();
   },
 });
 

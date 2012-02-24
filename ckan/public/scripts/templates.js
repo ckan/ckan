@@ -71,11 +71,6 @@ CKAN.Templates.resourceEntry = ' \
     <img class="js-resource-icon inline-icon resource-icon" src="${resource_icon}" /> \
     <span class="js-resource-edit-name">${resource.name}</span>\
     </a>\
-    <!-- \
-    <td class="resource-edit-delete"> \
-      <a class="resource-edit-delete js-resource-edit-delete" href="#"><img src="/images/icons/delete.png" /></a> \
-    </td> \
-    --> \
   </li>';
 
 CKAN.Templates.resourceDetails = ' \
@@ -164,6 +159,8 @@ CKAN.Templates.resourceDetails = ' \
         </tr> \
       </tbody> \
     </table> \
+    <button class="pretty-button danger resource-edit-delete js-resource-edit-delete">Delete</button>\
+    </td> \
   </div> \
 ';
 
