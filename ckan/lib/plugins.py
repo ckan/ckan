@@ -54,6 +54,9 @@ def register_package_plugins(map):
     exception will be raised.
     """
     global _default_package_plugin
+    if _default_package_plugin:
+        # we've already set things up
+        return
 
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in PluginImplementations(IDatasetForm):
@@ -163,11 +166,20 @@ class DefaultDatasetForm(object):
     def form_to_db_schema(self):
         return schema.package_form_schema()
 
+    def form_to_db_schema_options(self, options):
+        if options.get('api'):
+            if options.get('type') == 'create':
+                return schema.default_create_package_schema()
+            else:
+                return schema.default_update_package_schema()
+        else:
+            return schema.package_form_schema()
+
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
-    def check_data_dict(self, data_dict):
+    def check_data_dict(self, data_dict, schema=None):
         '''Check if the return data is correct, mostly for checking out
         if spammers are submitting only part of the form'''
 
@@ -176,11 +188,12 @@ class DefaultDatasetForm(object):
                                'extras_validation', 'save', 'return_to',
                                'resources', 'type']
 
-        schema_keys = self.form_to_db_schema().keys()
+        if not schema:
+            schema = self.form_to_db_schema()
+        schema_keys = schema.keys()
         keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
 
         missing_keys = keys_in_schema - set(data_dict.keys())
-
         if missing_keys:
             log.info('incorrect form fields posted, missing %s' % missing_keys)
             raise DataError(data_dict)

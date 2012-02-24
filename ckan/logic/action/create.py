@@ -41,6 +41,7 @@ from ckan.logic.schema import default_group_schema, default_user_schema
 from ckan.lib.navl.dictization_functions import validate
 from ckan.logic.action.update import _update_package_relationship
 from ckan.logic.action import rename_keys, error_summary
+from ckan import logic
 
 log = logging.getLogger(__name__)
 
@@ -48,11 +49,21 @@ def package_create(context, data_dict):
 
     model = context['model']
     user = context['user']
-    schema = lookup_package_plugin().form_to_db_schema()
     model.Session.remove()
     model.Session()._context = context
 
+    package_type = data_dict.get('type')
+    package_plugin = lookup_package_plugin(package_type)
+    try:
+        schema = package_plugin.form_to_db_schema_options({'type':'create',
+                                               'api':'api_version' in context})
+    except AttributeError:
+        schema = package_plugin.form_to_db_schema()
+
     check_access('package_create', context, data_dict)
+
+    if 'api_version' not in context:
+        package_plugin.check_data_dict(data_dict, schema)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -309,7 +320,7 @@ def package_create_rest(context, data_dict):
     check_access('package_create_rest', context, data_dict)
 
     dictized_package = package_api_to_dict(data_dict, context)
-    dictized_after = package_create(context, dictized_package)
+    dictized_after = logic.get_action('package_create')(context, dictized_package)
 
     pkg = context['package']
 

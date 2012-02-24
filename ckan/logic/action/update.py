@@ -6,7 +6,7 @@ from ckan.logic import NotFound, ValidationError, ParameterError, NotAuthorized
 from ckan.logic import get_action, check_access
 from lib.plugins import lookup_package_plugin
 
-from ckan.lib.base import _, abort
+from ckan.lib.base import _
 from vdm.sqlalchemy.base import SQLAlchemySession
 import ckan.lib.dictization
 from ckan.lib.dictization.model_dictize import (package_dictize,
@@ -36,6 +36,7 @@ from ckan.logic.schema import (default_update_group_schema,
                                default_update_vocabulary_schema)
 from ckan.lib.navl.dictization_functions import validate
 import ckan.lib.navl.validators as validators
+from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic.action import rename_keys, get_domain_object, error_summary
 from ckan.logic.action.get import roles_show
 
@@ -119,7 +120,6 @@ def make_latest_pending_package_active(context, data_dict):
 
 def resource_update(context, data_dict):
     model = context['model']
-    session = context['session']
     user = context['user']
     id = data_dict["id"]
     schema = context.get('schema') or default_update_resource_schema()
@@ -158,19 +158,28 @@ def package_update(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = data_dict["id"]
+    name_or_id = data_dict.get("id") or data_dict['name_or_id']
     model.Session.remove()
     model.Session()._context = context
 
-    pkg = model.Package.get(id)
-    context["package"] = pkg
-
+    pkg = model.Package.get(name_or_id)
     if pkg is None:
         raise NotFound(_('Package was not found.'))
+    context["package"] = pkg
     data_dict["id"] = pkg.id
 
-    schema = lookup_package_plugin(pkg.type).form_to_db_schema()
     check_access('package_update', context, data_dict)
+
+    # get the schema
+    package_plugin = lookup_package_plugin(pkg.type)
+    try:
+        schema = package_plugin.form_to_db_schema_options({'type':'update',
+                                               'api':'api_version' in context})
+    except AttributeError:
+        schema = package_plugin.form_to_db_schema()
+
+    if 'api_version' not in context:
+        package_plugin.check_data_dict(data_dict, schema)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -198,7 +207,6 @@ def package_update_validate(context, data_dict):
     user = context['user']
 
     id = data_dict["id"]
-    schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
     model.Session()._context = context
 
@@ -208,6 +216,14 @@ def package_update_validate(context, data_dict):
     if pkg is None:
         raise NotFound(_('Package was not found.'))
     data_dict["id"] = pkg.id
+
+    # get the schema
+    package_plugin = lookup_package_plugin(pkg.type)
+    try:
+        schema = package_plugin.form_to_db_schema_options({'type':'update',
+                                               'api':'api_version' in context})
+    except AttributeError:
+        schema = package_plugin.form_to_db_schema()
 
     check_access('package_update', context, data_dict)
 
@@ -511,7 +527,6 @@ def package_update_rest(context, data_dict):
     if not pkg:
         raise NotFound
 
-
     if id and id != pkg.id:
         pkg_from_data = model.Package.get(id)
         if pkg_from_data != pkg:
@@ -525,8 +540,7 @@ def package_update_rest(context, data_dict):
 
     check_access('package_update_rest', context, dictized_package)
 
-    dictized_after = package_update(context, dictized_package)
-
+    dictized_after = get_action('package_update')(context, dictized_package)
 
     pkg = context['package']
 

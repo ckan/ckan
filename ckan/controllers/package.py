@@ -465,7 +465,6 @@ class PackageController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
             data_dict['type'] = package_type
-            self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
             pkg = get_action('package_create')(context, data_dict)
 
@@ -483,17 +482,15 @@ class PackageController(BaseController):
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
 
-    def _save_edit(self, id, context):
+    def _save_edit(self, name_or_id, context):
         from ckan.lib.search import SearchIndexError
         try:
-            package_type = self._get_package_type(id)
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
-            self._check_data_dict(data_dict, package_type=package_type)
             context['message'] = data_dict.get('log_message', '')
             if not context['moderated']:
                 context['pending'] = False
-            data_dict['id'] = id
+            data_dict['id'] = name_or_id
             pkg = get_action('package_update')(context, data_dict)
             if request.params.get('save', '') == 'Approve':
                 get_action('make_latest_pending_package_active')(context, data_dict)
@@ -512,7 +509,7 @@ class PackageController(BaseController):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
-            return self.edit(id, data_dict, errors, error_summary)
+            return self.edit(name_or_id, data_dict, errors, error_summary)
 
     def _form_save_redirect(self, pkgname, action):
         '''This redirects the user to the CKAN package/read page,

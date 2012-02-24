@@ -336,15 +336,14 @@ def package_relationships_list(context, data_dict):
 def package_show(context, data_dict):
 
     model = context['model']
-    api = context.get('api_version') or '1'
-    id = data_dict['id']
+    name_or_id = data_dict.get("id") or data_dict['name_or_id']
 
-    pkg = model.Package.get(id)
-
-    context['package'] = pkg
+    pkg = model.Package.get(name_or_id)
 
     if pkg is None:
         raise logic.NotFound
+
+    context['package'] = pkg
 
     logic.check_access('package_show', context, data_dict)
 
