@@ -1,16 +1,50 @@
 CKAN CHANGELOG
 ++++++++++++++
 
-v1.6 2012-02-XX
+v1.6 2012-02-24
 ===============
+
 Major:
+ * Resources now have their own pages, as well as showing in the Dataset (#1445, #1449)
+ * Group pages enhanced, including in-group search (#1521)
+ * User pages enhanced with lists of datasets (#1396) and recent activity (#1515)
+ * Dataset view page decluttered (#1450)
  * Tags not restricted to just letters and dashes (#1453)
+ * Stats Extension and Storage Extension moved into core CKAN (#1576, #1608)
+ * Ability to mounting CKAN at a sub-URL (#1401, #1659)
+ * 5 Stars of Openness ratings show by resources, if ckanext-qa is installed (#1583)
+ * Recline Data Explorer (for previewing and plotting data) improved and v2 moved into core CKAN (#1602, #1630)
 
 Minor:
+ * 'About' page rewritten and easily customisable in the config (#1626)
+ * Gravatar picture displayed next to My Account link (#1528)
+ * 'Delete' button for datasets (#1425)
+ * Relationships API more RESTful, validated and documented (#1695)
+ * User name displayed when logged in (#1529)
  * Database dumps now exclude deleted packages (#1623)
+ * Dataset/Tag name length now limited to 100 characters in API (#1473)
+ * 'Status' API call now includes installed extensions (#1488)
+ * Command-line interface for list/read/deleting datasets (#1499)
+ * Slug API calls tidied up and documented (#1500)
+ * Users nagged to add email address if missing from their account (#1413)
+ * Model and API for Users to become Members of a Group in a certain Capacity (#1531, #1477)
+ * Extension interface to adjust search queries, indexing and results (#1547, #1738)
+ * API for changing permissions (#1688)
 
 Bug fixes:
+ * Group deletion didn't work (#1536)
+ * metadata_created used to return an entirely wrong date (#1546)
  * Unicode characters in field-specific API search queries caused exception (since CKAN 1.5) (#1798)
+ * Sometimes task_status errors weren't being recorded (#1483)
+ * Registering or Logging in failed silently when already logged in (#1799)
+ * Deleted packages were browseable by administrators and appeared in dumps (#1283, #1623)
+ * Facicon was a broken link unless corrected in config file (#1627)
+ * Dataset search showed last result of each page out of order (#1683)
+ * 'Simple search' mode showed 0 packages on home page (#1709)
+ * Occasionally, 'My Account' shows when user is not logged in (#1513)
+ * Could not change language when on a tag page that had accented characters or dataset creation page (#1783, #1791)
+ * Editing package via API deleted its relationships (#1786)
+
 
 v1.5.1 2012-01-04
 =================
@@ -38,7 +72,7 @@ Minor:
  * New config options to ease CSS insertion into the template (#1380)
  * Removed ETag browser cache headers (#1422)
  * CKAN version number and admin contact in new 'status_show' API (#1087)
- * Upgrade SQLAlchemy to 0.7.3 (#1433)
+ * Upgrade SQLAlchemy to 0.7.3 (compatible with Postgres up to 9.1) (#1433)
  * SOLR schema is now versioned (#1498)
 
 Bug fixes:
@@ -53,6 +87,7 @@ Bug fixes:
  * OpenID registration disablement explained better (#1532)
  * Data upload (with ckanext-storage) failed if spaces in the filename (#1518)
  * Resource download count fixed (integration with ckanext-googleanalytics) (#1451)
+ * Multiple CKANs with same dataset IDs on the same SOLR core would conflict (#1462)
 
 
 v1.5 2011-11-07
@@ -94,6 +129,7 @@ Bug fixes:
  * Various minor exceptions cropped up (mostly since 1.4.3) (#1334, #1346)
  * Extra field couldn't be set to original value when key deleted (#1356)
  * JSONP callback parameter didn't work for the Action API (since 1.4.3) (#1437)
+ * The same tag could be added to a package multiple times (#1331)
 
 
 v1.4.3.1 2011-09-30
