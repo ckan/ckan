@@ -264,6 +264,11 @@ img.gravatar {
 }
 #minornavigation li {
   display: inline-block;
+  /* IE6-IE7 fix to get something like inline-block, which is not supported
+     on those browser. Ref:
+     http://blog.mozilla.com/webdev/2009/02/20/cross-browser-inline-block/ */
+  zoom: 1;
+  *display: inline;
   margin-right: 3px;
   padding: 5px 11px 5px 9px;
 
