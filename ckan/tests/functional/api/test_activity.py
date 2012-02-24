@@ -4,8 +4,8 @@ logger = logging.getLogger(__name__)
 
 import ckan
 import ckan.model as model
-from ckan.logic.action.create import package_create, user_create, group_create
-from ckan.logic.action.update import package_update, resource_update
+from ckan.logic.action.create import package_create as _package_create, user_create, group_create
+from ckan.logic.action.update import package_update as _package_update, resource_update
 from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
 from ckan.logic.action.get import package_list, package_show
@@ -13,6 +13,21 @@ from ckan.lib.dictization.model_dictize import resource_list_dictize
 from pylons.test import pylonsapp
 import paste.fixture
 from ckan.lib.helpers import json
+
+
+def package_update(context, data_dict):
+    # These tests call package_update directly which is really bad
+    # setting api_version in context make things seem like the api key
+    # is ok etc
+    context['api_version'] = 3
+    return _package_update(context, data_dict)
+
+def package_create(context, data_dict):
+    # These tests call package_update directly which is really bad
+    # setting api_version in context make things seem like the api key
+    # is ok etc
+    context['api_version'] = 3
+    return _package_create(context, data_dict)
 
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
@@ -949,7 +964,7 @@ class TestActivity:
             'id': pkg_dict['id'],
             'tags': new_tag_list
             }
-        ckan.logic.action.update.package_update(context, data_dict)
+        package_update(context, data_dict)
         after = self.record_details(user.id, pkg_dict['id'])
 
         # Find the new activity in the user's activity stream.
@@ -1020,7 +1035,7 @@ class TestActivity:
             'id': pkg_dict['id'],
             'tags': pkg_dict['tags'][0:-1],
             }
-        ckan.logic.action.update.package_update(context, data_dict)
+        package_update(context, data_dict)
         after = self.record_details(user.id, pkg_dict['id'])
 
         # Find the new activity in the user's activity stream.

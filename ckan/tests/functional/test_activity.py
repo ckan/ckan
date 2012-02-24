@@ -53,6 +53,11 @@ class TestActivity(HtmlCheckMethods):
             'title' : "Billy's Stats about Baseball Players",
         }
         context['user'] = user['name']
+        # FIXME This test use an old way to get at the schema to
+        # recreate this we need to pretend to be using the api. We
+        # should not be calling package_create like this we should be
+        # going via the api or package controllers
+        context['api_version'] = 3
         package = package_create(context, package)
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)

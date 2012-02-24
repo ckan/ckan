@@ -381,6 +381,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         data = {'id': 'annakarenina'}
         pkg = get.package_show(context, data)
         pkg['resources'][0]['cache_url'] = cache_url
+        # FIXME need to pretend to be called by the api
+        context['api_version'] = 3
         update.package_update(context, pkg)
         # check that the cache url is included on the dataset view page
         offset = url_for(controller='package', action='read', id=name)
