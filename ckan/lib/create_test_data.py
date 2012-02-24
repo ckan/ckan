@@ -6,11 +6,13 @@ class CreateTestData(cli.CkanCommand):
     '''Create test data in the database.
     Tests can also delete the created objects easily with the delete() method.
 
-    create-test-data         - annakarenina and warandpeace
-    create-test-data search  - realistic data to test search
-    create-test-data gov     - government style data
-    create-test-data family  - package relationships data
-    create-test-data user    - create a user 'tester' with api key 'tester'
+    create-test-data              - annakarenina and warandpeace
+    create-test-data search       - realistic data to test search
+    create-test-data gov          - government style data
+    create-test-data family       - package relationships data
+    create-test-data user         - create a user 'tester' with api key 'tester'
+    create-test-data translations - annakarenina, warandpeace, and some test
+                                    translations of terms
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -51,6 +53,8 @@ class CreateTestData(cli.CkanCommand):
             self.create_gov_test_data()
         elif cmd == 'family':
             self.create_family_test_data()
+        elif cmd == 'translations':
+            self.create_translations_test_data()
         else:
             print 'Command %s not recognized' % cmd
             raise NotImplementedError
@@ -86,6 +90,44 @@ class CreateTestData(cli.CkanCommand):
             model.Session.commit()
         model.Session.remove()
         cls.user_refs.append(u'tester')
+
+    @classmethod
+    def create_translations_test_data(cls):
+        import ckan.model
+        CreateTestData.create()
+        rev = ckan.model.repo.new_revision()
+        rev.author = CreateTestData.author
+        rev.message = u'Creating test translations.'
+
+        sysadmin_user = ckan.model.User.get('testsysadmin')
+        package = ckan.model.Package.get('annakarenina')
+
+        # Add some new tags to the package.
+        # These tags are codes that are meant to be always translated before
+        # display, if not into the user's current language then into the
+        # fallback language.
+        package.add_tags([ckan.model.Tag('123'), ckan.model.Tag('456'),
+                ckan.model.Tag('789')])
+
+        # Add the above translations to CKAN.
+        for (lang_code, translations) in (('de', german_translations),
+                ('fr', french_translations), ('en', english_translations)):
+            for term in terms:
+                if term in translations:
+                    data_dict = {
+                            'term': term,
+                            'term_translation': translations[term],
+                            'lang_code': lang_code,
+                            }
+                    context = {
+                        'model': ckan.model,
+                        'session': ckan.model.Session,
+                        'user': sysadmin_user.name,
+                    }
+                    ckan.logic.action.update.term_translation_update(context,
+                            data_dict)
+
+        ckan.model.Session.commit()
 
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],
@@ -729,3 +771,45 @@ gov_items = [
         }
      }
     ]
+
+# Some test terms and translations.
+terms = ('A Novel By Tolstoy',
+    'Index of the novel',
+    'russian',
+    'tolstoy',
+    "Dave's books",
+    "Roger's books",
+    'Other (Open)',
+    'romantic novel',
+    'book',
+    '123',
+    '456',
+    '789',
+)
+english_translations = {
+    '123': 'jealousy',
+    '456': 'realism',
+    '789': 'hypocrisy',
+}
+german_translations = {
+    'A Novel By Tolstoy': 'Roman von Tolstoi',
+    'Index of the novel': 'Index des Romans',
+    'russian': 'Russisch',
+    'tolstoy': 'Tolstoi',
+    "Dave's books": 'Daves Bucher',
+    "Roger's books": 'Rogers Bucher',
+    'Other (Open)': 'Andere (Open)',
+    'romantic novel': 'Liebesroman',
+    'book': 'Buch',
+    '456': 'Realismus',
+    '789': 'Heuchelei',
+}
+french_translations = {
+    'A Novel By Tolstoy': 'A Novel par Tolstoi',
+    'Index of the novel': 'Indice du roman',
+    'russian': 'russe',
+    'romantic novel': 'roman romantique',
+    'book': 'livre',
+    '123': 'jalousie',
+    '789': 'hypocrisie',
+}
