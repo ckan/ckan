@@ -12,7 +12,6 @@ from ckan.model import misc
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
-from pylons import config
 from ckan.authz import Authorizer
 from ckan.lib.dictization import table_dictize
 from ckan.lib.dictization import model_dictize
