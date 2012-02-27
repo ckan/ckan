@@ -32,7 +32,8 @@ setup(
         'migration/tests/test_dumps/*',
         'migration/versions/*',
     ]},
-    message_extractors = {'ckan': [
+    message_extractors = {
+        'ckan': [
             ('**.py', 'python', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'genshi', None),
@@ -43,7 +44,10 @@ setup(
                 'template_class': 'genshi.template:TextTemplate'
             }),
             ('public/**', 'ignore', None),
-            ]},
+        ],
+        'ckanext/stats/templates': [
+            ('**.html', 'genshi', None),
+        ]},
     entry_points="""
     [nose.plugins.0.10]
     main = ckan.ckan_nose_plugin:CkanNose

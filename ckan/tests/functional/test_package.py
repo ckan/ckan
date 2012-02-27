@@ -1305,6 +1305,15 @@ class TestNew(TestPackageForm):
             plugins.unload('synchronous_search')
             SolrSettings.init(solr_url)
 
+    def test_change_locale(self):
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset)
+        res = res.click('Deutsch')
+        try:
+            assert 'Datensatz' in res.body, res.body
+        finally:
+            self.clear_language_setting()
+        
 class TestSearch(TestPackageForm):
     pkg_names = []
 

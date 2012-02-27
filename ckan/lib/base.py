@@ -120,7 +120,7 @@ class BaseController(WSGIController):
                 # and then restart i.e. only really for testers. There is no
                 # user object, so even though repoze thinks you are logged in
                 # and your cookie has ckan_display_name, we need to force user
-                # to login again to get the User object.
+                # to logout and login again to get the User object.
                 c.user = None
         else:
             c.userobj = self._get_user_for_apikey()

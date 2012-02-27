@@ -89,7 +89,8 @@ def get_available_locales():
 
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
-    lang = request.environ.get('CKAN_LANG', config['ckan.locale_default'])
+    lang = request.environ.get('CKAN_LANG',
+                               config.get('ckan.locale_default', 'en'))
     if lang != 'en':
         i18n.set_lang(lang)
     tmpl_context.language = lang
