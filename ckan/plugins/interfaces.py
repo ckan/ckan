@@ -394,7 +394,7 @@ class IDatasetForm(Interface):
      - package_form(self)
      - form_to_db_schema(self)
      - db_to_form_schema(self)
-     - check_data_dict(self, data_dict)
+     - check_data_dict(self, data_dict, schema=None)
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
@@ -461,7 +461,7 @@ class IDatasetForm(Interface):
         format suitable for the form (optional)
         """
 
-    def check_data_dict(self, data_dict):
+    def check_data_dict(self, data_dict, schema=None):
         """
         Check if the return data is correct.
 

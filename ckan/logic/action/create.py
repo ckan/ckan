@@ -63,7 +63,12 @@ def package_create(context, data_dict):
     check_access('package_create', context, data_dict)
 
     if 'api_version' not in context:
-        package_plugin.check_data_dict(data_dict, schema)
+        # old plugins do not support passing the schema so we need
+        # to ensure they still work
+        try:
+            package_plugin.check_data_dict(data_dict, schema)
+        except TypeError:
+            package_plugin.check_data_dict(data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
