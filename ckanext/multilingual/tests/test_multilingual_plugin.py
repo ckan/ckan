@@ -27,22 +27,6 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
         multilingual_dataset plugin.
 
         '''
-        # Add translation terms that match a couple of group names. Group names
-        # should _not_ get translated even if there are terms matching them.
-        for term in ('roger', 'david'):
-            data_dict = {
-                    'term': term,
-                    'term_translation': 'this should not be rendered',
-                    'lang_code': 'de',
-                    }
-            context = {
-                'model': ckan.model,
-                'session': ckan.model.Session,
-                'user': 'testsysadmin',
-            }
-            ckan.logic.action.update.term_translation_update(context,
-                    data_dict)
-
         # Fetch the dataset view page for a number of different languages and
         # test for the presence of translated and not translated terms.
         offset = routes.url_for(controller='package', action='read',
