@@ -376,8 +376,9 @@ def group_dict_save(group_dict, context):
     # removed from the group, and trigger a re-index.
     package_ids = pkgs_edited['removed']
     package_ids.extend( pkgs_edited['added'] )
-    session.flush()
-    map( rebuild, package_ids )
+    if package_ids:
+        session.commit()
+        map( rebuild, package_ids )
 
     extras = group_extras_save(group_dict.get("extras", {}), context)
     if extras or not allow_partial_update:

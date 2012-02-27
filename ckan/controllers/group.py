@@ -389,28 +389,15 @@ class GroupController(BaseController):
 
     def _get_group_type(self, id):
         """
-        Given the id of a group it determines the plugin to load
-        based on the group's type name (type). The plugin found
-        will be returned, or None if there is no plugin associated with
-        the type.
-
-        Uses a minimal context to do so.  The main use of this method
-        is for figuring out which plugin to delegate to.
-
-        aborts if an exception is raised.
+        Given the id of a group it determines the type of a group given
+        a valid id/name for the group.
         """
-        global _controller_behaviour_for
-
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
         try:
-            data = get_action('group_show')(context, {'id': id})
+            group = model.Group.get( id )
         except NotFound:
-            abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % id)
-        return data['type']
+            return None
 
+        return group.type
 
     def _save_new(self, context, group_type=None):
         try:

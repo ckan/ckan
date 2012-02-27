@@ -381,7 +381,6 @@ def revision_show(context, data_dict):
 
 def group_show(context, data_dict):
     '''Shows group details'''
-
     model = context['model']
     id = data_dict['id']
     api = context.get('api_version') or '1'

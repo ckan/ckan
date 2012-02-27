@@ -182,6 +182,7 @@ def group_form_schema():
     #schema['extras_validation'] = [duplicate_extras_key, ignore]
     schema['packages'] = {
         "name": [not_empty, unicode],
+        "title": [ignore_missing],
         "__extras": [ignore]
     }
     schema['users'] = {
