@@ -320,13 +320,21 @@ def group_member_save(context, group_dict, member_table_name):
         group_id=group.id,
     ).all()
 
-    entity_member = dict(((member.table_id, member.capacity), member) for member in members)
+    processed = {
+        'added': [],
+        'removed': []
+    }
 
+    entity_member = dict(((member.table_id, member.capacity), member) for member in members)
     for entity_id in set(entity_member.keys()) - set(entities.keys()):
+        if entity_member[entity_id].state != 'deleted':
+            processed['removed'].append(entity_id[0])
         entity_member[entity_id].state = 'deleted'
         session.add(entity_member[entity_id])
 
     for entity_id in set(entity_member.keys()) & set(entities.keys()):
+        if entity_member[entity_id].state != 'active':
+            processed['added'].append(entity_id[0])
         entity_member[entity_id].state = 'active'
         session.add(entity_member[entity_id])
 
@@ -334,10 +342,14 @@ def group_member_save(context, group_dict, member_table_name):
         member = Member(group=group, group_id=group.id, table_id=entity_id[0],
                         table_name=member_table_name[:-1],
                         capacity=entity_id[1])
+        processed['added'].append(entity_id[0])
         session.add(member)
+
+    return processed
 
 
 def group_dict_save(group_dict, context):
+    from ckan.lib.search import rebuild
     import uuid
 
     model = context["model"]
@@ -355,10 +367,17 @@ def group_dict_save(group_dict, context):
 
     context['group'] = group
 
-    group_member_save(context, group_dict, 'packages')
+    pkgs_edited = group_member_save(context, group_dict, 'packages')
     group_member_save(context, group_dict, 'users')
     group_member_save(context, group_dict, 'groups')
     group_member_save(context, group_dict, 'tags')
+
+    # We will get a list of packages that we have either added or
+    # removed from the group, and trigger a re-index.
+    package_ids = pkgs_edited['removed']
+    package_ids.extend( pkgs_edited['added'] )
+    session.flush()
+    map( rebuild, package_ids )
 
     extras = group_extras_save(group_dict.get("extras", {}), context)
     if extras or not allow_partial_update:
@@ -368,7 +387,6 @@ def group_dict_save(group_dict, context):
             del group.extras[key]
         for key in new_extras:
             group.extras[key] = extras[key]
-
 
     return group
 
