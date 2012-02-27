@@ -257,7 +257,7 @@ def rating_create(context, data_dict):
             if rating < ratings.MIN_RATING or rating > ratings.MAX_RATING:
                 opts_err = _('Rating must be between %i and %i.') % (ratings.MIN_RATING, ratings.MAX_RATING)
             elif not package:
-                opts_err = _('Package with name %r does not exist.') % package_ref
+                opts_err = _('Not found') + ': %r' % package_ref
     if opts_err:
         raise ValidationError(opts_err)
 

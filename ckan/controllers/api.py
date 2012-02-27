@@ -636,8 +636,7 @@ class ApiController(BaseController):
         if slugtype==u'group':
             response_data = dict(valid=not bool(group_exists(slug)))
             return self._finish_ok(response_data)
-        return self._finish_bad_request(gettext('Bad slug type: %s') % slugtype)
-
+        return self._finish_bad_request('Bad slug type: %s' % slugtype)
 
     def dataset_autocomplete(self):
         q = request.params.get('incomplete', '')

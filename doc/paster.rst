@@ -203,7 +203,7 @@ The pg_dump file notes which PostgreSQL user 'owns' the data on the server. Beca
 Upgrade migration
 ~~~~~~~~~~~~~~~~~
 
-When you upgrade CKAN software by any method *other* than the package update described in :doc:`upgrade`, before you restart it, you should run 'db upgrade', which will do any necessary migrations to the database tables::
+When you upgrade CKAN software by any method *other* than the package update described in :doc:`install-from-package`, before you restart it, you should run 'db upgrade', which will do any necessary migrations to the database tables::
 
  paster --plugin=ckan db upgrade --config=/etc/ckan/std/std.ini
 

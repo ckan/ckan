@@ -81,7 +81,7 @@
 
     <div py:if="not c.resource.get('description') and c.package.get('notes')" id="dataset-description">
       <div>
-        <strong>
+        <strong i18n:msg="">
           From the <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">Dataset</a>:
         </strong>
       </div>

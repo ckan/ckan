@@ -656,8 +656,8 @@ class TestActivity:
         if not activity.has_key('revision_id'):
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
-        assert (timestamp >= before['time'] and
-            timestamp <= after['time'], str(activity['timestamp']))
+        assert timestamp >= before['time'], str(activity['timestamp'])
+        assert timestamp <= after['time'], str(activity['timestamp'])
 
         # Test for the presence of correct activity detail items.
         details = self.activity_details(activity)
@@ -1309,7 +1309,7 @@ class TestActivity:
         assert response.json['success'] == False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'user_id'] == [
-                u'That user ID does not exist.'], (
+                u'Not found: User'], (
                 response.json['error'][u'user_id'])
 
     def test_activity_create_object_id_missing(self):
@@ -1379,7 +1379,7 @@ class TestActivity:
         assert response.json['success'] == False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'object_id'] == [
-                u'Dataset was not found.'], (
+                u'Not found: Dataset'], (
                 response.json['error'][u'object_id'])
 
     def test_activity_create_activity_type_missing(self):
@@ -1449,7 +1449,7 @@ class TestActivity:
         assert response.json['success'] == False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'activity_type'] == [
-            u"That activity type does not exist."], (
+            u"Not found: Activity type"], (
                 response.json['error'][u'activity_type'])
 
     def _add_extra(self, package_dict, user):
