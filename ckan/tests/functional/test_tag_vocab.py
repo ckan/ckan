@@ -137,7 +137,7 @@ class Select(paste.fixture.Field):
 class TestWUI(WsgiAppCase):
     @classmethod
     def setup_class(cls):
-        CreateTestData.create()
+        CreateTestData.create(package_type='mock_vocab_tags_plugin')
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.dset = model.Package.get('warandpeace')
         cls.tag1_name = 'vocab-tag-1'
@@ -146,12 +146,6 @@ class TestWUI(WsgiAppCase):
         cls.plugin = MockVocabTagsPlugin()
         plugins.load(cls.plugin)
         cls.plugin.active = True
-
-        # this is a hack so that the plugin is properly registered with
-        # the package controller class.
-        from ckan.controllers import package as package_controller
-        cls.old_default_controller = package_controller._default_controller_behaviour
-        package_controller._default_controller_behaviour = cls.plugin
 
         # use our custom select class for this test suite
         cls.old_select = paste.fixture.Field.classes['select']
@@ -180,8 +174,6 @@ class TestWUI(WsgiAppCase):
     def teardown_class(cls):
         plugins.unload(cls.plugin)
         cls.plugin.active = False
-        from ckan.controllers import package as package_controller
-        package_controller._default_controller_behaviour = cls.old_default_controller
         paste.fixture.Field.classes['select'] = cls.old_select
         model.repo.rebuild_db()
 
