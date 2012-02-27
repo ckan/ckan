@@ -9,27 +9,8 @@ from ckan.logic import NotFound, ValidationError
 from ckan.logic import check_access
 from ckan.lib.base import _
 import ckan.lib.dictization
-from ckan.lib.dictization.model_dictize import (package_to_api1,
-                                                package_to_api2,
-                                                group_to_api1,
-                                                group_to_api2)
-
-from ckan.lib.dictization.model_save import (group_api_to_dict,
-                                             group_dict_save,
-                                             package_api_to_dict,
-                                             package_dict_save,
-                                             user_dict_save,
-                                             vocabulary_dict_save,
-                                             tag_dict_save,
-                                             activity_dict_save)
-
-from ckan.lib.dictization.model_dictize import (group_dictize,
-                                                package_dictize,
-                                                user_dictize,
-                                                vocabulary_dictize,
-                                                tag_dictize,
-                                                activity_dictize)
-
+from ckan.lib.dictization import model_dictize
+from ckan.lib.dictization import model_save
 from ckan.logic.schema import (
                                default_resource_schema,
                                default_create_relationship_schema,
@@ -83,7 +64,7 @@ def package_create(context, data_dict):
     else:
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
-    pkg = package_dict_save(data, context)
+    pkg = model_save.package_dict_save(data, context)
     admins = []
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
@@ -103,7 +84,7 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    return package_dictize(pkg, context)
+    return model_dictize.package_dictize(pkg, context)
 
 def package_create_validate(context, data_dict):
     model = context['model']
@@ -198,7 +179,7 @@ def group_create(context, data_dict):
     else:
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
-    group = group_dict_save(data, context)
+    group = model_save.group_dict_save(data, context)
 
     if parent:
         parent_group = model.Group.get( parent )
@@ -238,7 +219,7 @@ def group_create(context, data_dict):
     context["group"] = group
     context["id"] = group.id
     log.debug('Created object %s' % str(group.name))
-    return group_dictize(group, context)
+    return model_dictize.group_dictize(group, context)
 
 def rating_create(context, data_dict):
 
@@ -289,7 +270,7 @@ def user_create(context, data_dict):
         session.rollback()
         raise ValidationError(errors, error_summary(errors))
 
-    user = user_dict_save(data, context)
+    user = model_save.user_dict_save(data, context)
 
     # Flush the session to cause user.id to be initialised, because
     # activity_create() (below) needs it.
@@ -314,7 +295,7 @@ def user_create(context, data_dict):
     context['user'] = user
     context['id'] = user.id
     log.debug('Created user %s' % str(user.name))
-    return user_dictize(user, context)
+    return model_dictize.user_dictize(user, context)
 
 ## Modifications for rest api
 
@@ -324,15 +305,15 @@ def package_create_rest(context, data_dict):
 
     check_access('package_create_rest', context, data_dict)
 
-    dictized_package = package_api_to_dict(data_dict, context)
+    dictized_package = model_save.package_api_to_dict(data_dict, context)
     dictized_after = logic.get_action('package_create')(context, dictized_package)
 
     pkg = context['package']
 
     if api == '1':
-        package_dict = package_to_api1(pkg, context)
+        package_dict = model_dictize.package_to_api1(pkg, context)
     else:
-        package_dict = package_to_api2(pkg, context)
+        package_dict = model_dictize.package_to_api2(pkg, context)
 
     data_dict['id'] = pkg.id
 
@@ -344,15 +325,15 @@ def group_create_rest(context, data_dict):
 
     check_access('group_create_rest', context, data_dict)
 
-    dictized_group = group_api_to_dict(data_dict, context)
+    dictized_group = model_save.group_api_to_dict(data_dict, context)
     dictized_after = group_create(context, dictized_group)
 
     group = context['group']
 
     if api == '1':
-        group_dict = group_to_api1(group, context)
+        group_dict = model_dictize.group_to_api1(group, context)
     else:
-        group_dict = group_to_api2(group, context)
+        group_dict = model_dictize.group_to_api2(group, context)
 
     data_dict['id'] = group.id
 
@@ -374,14 +355,14 @@ def vocabulary_create(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors, error_summary(errors))
 
-    vocabulary = vocabulary_dict_save(data, context)
+    vocabulary = model_save.vocabulary_dict_save(data, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
 
     log.debug('Created Vocabulary %s' % str(vocabulary.name))
   
-    return vocabulary_dictize(vocabulary, context)
+    return model_dictize.vocabulary_dictize(vocabulary, context)
 
 def activity_create(context, activity_dict, ignore_auth=False):
     '''Create a new activity stream activity and return a dictionary
@@ -406,13 +387,13 @@ def activity_create(context, activity_dict, ignore_auth=False):
     if errors:
         raise ValidationError(errors)
 
-    activity = activity_dict_save(activity_dict, context)
+    activity = model_save.activity_dict_save(activity_dict, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
 
     log.debug("Created '%s' activity" % activity.activity_type)
-    return activity_dictize(activity, context)
+    return model_dictize.activity_dictize(activity, context)
 
 def package_relationship_create_rest(context, data_dict):
     # rename keys
@@ -438,10 +419,10 @@ def tag_create(context, tag_dict):
     if errors:
         raise ValidationError(errors)
 
-    tag = tag_dict_save(tag_dict, context)
+    tag = model_save.tag_dict_save(tag_dict, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
 
     log.debug("Created tag '%s' " % tag)
-    return tag_dictize(tag, context)
+    return model_dictize.tag_dictize(tag, context)

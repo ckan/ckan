@@ -330,7 +330,7 @@ def package_show(context, data_dict):
 
     logic.check_access('package_show', context, data_dict)
 
-    package_dict = package_dictize(pkg, context)
+    package_dict = model_dictize.package_dictize(pkg, context)
 
     for item in PluginImplementations(IPackageController):
         item.read(pkg)
