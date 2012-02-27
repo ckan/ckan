@@ -124,5 +124,5 @@ class TestUtil(ControllerTestCase):
         assert_equal(res['locale_default'], 'en')
 
         assert_equal(type(res['extensions']), list)
-        expected_extensions = set(('stats',))
+        expected_extensions = set(('stats', 'test_tag_vocab_plugin'))
         assert_equal(set(res['extensions']), expected_extensions)

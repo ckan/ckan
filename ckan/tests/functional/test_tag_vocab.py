@@ -1,17 +1,11 @@
 import json
-from pylons import request, tmpl_context as c
-from genshi.input import HTML
-from genshi.filters import Transformer
 import paste.fixture
 from ckan import model
-from ckan.logic import get_action
-from ckan.logic.converters import convert_to_tags, convert_from_tags, free_tags_only
-from ckan.logic.schema import package_form_schema, default_package_schema
-from ckan.lib.navl.validators import ignore_missing, keep_extras
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
-from ckan import plugins
 from ckan.tests import WsgiAppCase
+# ensure that test_tag_vocab_plugin is added as a plugin in the testing .ini file
+from ckanext.test_tag_vocab_plugin import MockVocabTagsPlugin
 
 TEST_VOCAB_NAME = 'test-vocab'
 
@@ -78,6 +72,7 @@ class Select(paste.fixture.Field):
 class TestWUI(WsgiAppCase):
     @classmethod
     def setup_class(cls):
+        MockVocabTagsPlugin().set_active(True)
         CreateTestData.create(package_type='mock_vocab_tags_plugin')
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.dset = model.Package.get('warandpeace')
@@ -109,6 +104,7 @@ class TestWUI(WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
+        MockVocabTagsPlugin().set_active(False)
         paste.fixture.Field.classes['select'] = cls.old_select
         model.repo.rebuild_db()
 

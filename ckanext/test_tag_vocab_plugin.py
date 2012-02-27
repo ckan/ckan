@@ -1,3 +1,7 @@
+''' THIS PLUGIN IS FOR TESTING PURPOSES ONLY.
+Currently this is used in tests/functional/test_tag_vocab.py'''
+
+
 from pylons import request, tmpl_context as c
 from genshi.input import HTML
 from genshi.filters import Transformer
@@ -13,7 +17,7 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IDatasetForm, inherit=True)
     plugins.implements(plugins.IGenshiStreamFilter)
 
-    active = True
+    active = False
 
     def is_fallback(self):
         return False
@@ -43,6 +47,9 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
             'vocab_tags_selected': [convert_from_tags(TEST_VOCAB_NAME), ignore_missing],
         })
         return schema
+
+    def set_active(self, state):
+        self.active = state
 
     def filter(self, stream):
         if self.active:
