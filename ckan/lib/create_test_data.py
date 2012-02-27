@@ -127,6 +127,24 @@ class CreateTestData(cli.CkanCommand):
                     ckan.logic.action.update.term_translation_update(context,
                             data_dict)
 
+        # Add translation terms that match a couple of group names and package
+        # names. Group names and package names should _not_ get translated even
+        # if there are terms matching them, because they are used to form URLs.
+        for term in ('roger', 'david', 'annakarenina', 'warandpeace'):
+            for lang_code in ('en', 'de', 'fr'):
+                data_dict = {
+                        'term': term,
+                        'term_translation': 'this should not be rendered',
+                        'lang_code': 'de',
+                        }
+                context = {
+                    'model': ckan.model,
+                    'session': ckan.model.Session,
+                    'user': 'testsysadmin',
+                }
+                ckan.logic.action.update.term_translation_update(context,
+                        data_dict)
+
         ckan.model.Session.commit()
 
     @classmethod
