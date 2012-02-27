@@ -84,7 +84,7 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    return model_dictize.package_dictize(pkg, context)
+    return logic.get_action('package_show')(context, {'id':context['id']})
 
 def package_create_validate(context, data_dict):
     model = context['model']

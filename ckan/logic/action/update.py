@@ -187,7 +187,7 @@ def package_update(context, data_dict):
         item.edit(pkg)
     if not context.get('defer_commit'):
         model.repo.commit()
-    return model_dictize.package_dictize(pkg, context)
+    return get_action('package_show')(context, data_dict)
 
 def package_update_validate(context, data_dict):
     model = context['model']
