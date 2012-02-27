@@ -1,11 +1,10 @@
 from pylons import config
-from sqlalchemy.sql import select, and_
-from ckan.plugins import PluginImplementations, IDatasetForm, IPackageController, IGroupController
+from sqlalchemy.sql import select
+from ckan.plugins import PluginImplementations, IPackageController, IGroupController
 import datetime
 
 from ckan.model import PackageRevision
 from ckan.lib.dictization import (obj_list_dictize,
-                                  obj_dict_dictize,
                                   table_dictize)
 from ckan.logic import NotFound
 import ckan.misc
