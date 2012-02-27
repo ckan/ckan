@@ -33,8 +33,6 @@ class MultilingualDataset(SingletonPlugin):
 
         return search_params
 
-    # FIXME: Look for translation in fallback language when none found in
-    # desired language.
     def before_view(self, data_dict):
         desired_lang_code = pylons.request.environ['CKAN_LANG']
         fallback_lang_code = pylons.config.get('ckan.locale_default', 'en')
