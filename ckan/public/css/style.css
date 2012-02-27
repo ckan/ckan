@@ -109,14 +109,13 @@ html, body {
 }
 
 #wrap {
-    min-height: 100%;
     height: auto !important;
     height: 100%;
-    margin: 0 auto -230px;
+    margin: 0 auto 1%;
 }
 
 footer, #push {
-    height: 205px;
+    height: auto;
 }
 
 footer {
@@ -264,6 +263,11 @@ img.gravatar {
 }
 #minornavigation li {
   display: inline-block;
+  /* IE6-IE7 fix to get something like inline-block, which is not supported
+     on those browser. Ref:
+     http://blog.mozilla.com/webdev/2009/02/20/cross-browser-inline-block/ */
+  zoom: 1;
+  *display: inline;
   margin-right: 3px;
   padding: 5px 11px 5px 9px;
 

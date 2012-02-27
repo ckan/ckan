@@ -17,8 +17,8 @@ def package_id_not_changed(value, context):
 
     package = context.get('package')
     if package and value != package.id:
-        raise Invalid(_('Cannot change value of key from %s to %s. '
-                        'This key is read-only') % (package.id, value))
+        raise Invalid('Cannot change value of key from %s to %s. '
+                      'This key is read-only' % (package.id, value))
     return value
 
 def int_validator(value, context):
@@ -58,7 +58,7 @@ def package_id_exists(value, context):
 
     result = session.query(model.Package).get(value)
     if not result:
-        raise Invalid(_('Dataset was not found.'))
+        raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
     return value
 
 def package_name_exists(value, context):
@@ -69,7 +69,7 @@ def package_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Dataset with name %r does not exist.') % str(value))
+        raise Invalid(_('Not found') + ': %r' % str(value))
     return value
 
 def package_id_or_name_exists(value, context):
@@ -84,7 +84,7 @@ def package_id_or_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Dataset was not found.'))
+        raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
 
     return result.id
 
@@ -98,7 +98,7 @@ def user_id_exists(user_id, context):
 
     result = session.query(model.User).get(user_id)
     if not result:
-        raise Invalid(_("That user ID does not exist."))
+        raise Invalid('%s: %s' % (_('Not found'), _('User')))
     return user_id
 
 def group_id_exists(group_id, context):
@@ -111,7 +111,7 @@ def group_id_exists(group_id, context):
 
     result = session.query(model.Group).get(group_id)
     if not result:
-        raise Invalid(_("That group ID does not exist."))
+        raise Invalid('%s: %s' % (_('Not found'), _('Group')))
     return group_id
 
 def activity_type_exists(activity_type):
@@ -123,7 +123,7 @@ def activity_type_exists(activity_type):
     if activity_renderers.has_key(activity_type):
         return activity_type
     else:
-        raise Invalid(_("That activity type does not exist."))
+        raise Invalid('%s: %s' % (_('Not found'), _('Activity type')))
 
 # A dictionary mapping activity_type values from activity dicts to functions
 # for validating the object_id values from those same activity dicts.
@@ -157,8 +157,8 @@ def object_id_validator(key, activity_dict, errors, context):
         object_id = activity_dict[('object_id',)]
         return object_id_validators[activity_type](object_id, context)
     else:
-        raise Invalid(_("There is no object_id validator for "
-            "activity type '%s'" % str(activity_type)))
+        raise Invalid('There is no object_id validator for '
+            'activity type "%s"' % str(activity_type))
 
 def extras_unicode_convert(extras, context):
     for extra in extras:

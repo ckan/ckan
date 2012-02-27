@@ -45,9 +45,9 @@ If it is not here, to get the definitive answer, check your CKAN Apache configur
 
 #. Install the extension package code into your pyenv using ``pip``.
 
- For example, to install the Disqus extension, which allows users to comment on datasets::
+ For example, to install the Disqus extension, which allows users to comment on datasets (replacing "INSTANCE_NAME" with the name of your CKAN instance)::
 
-       /var/lib/ckan/INSTANCE_NAME/pyenv/bin/pip install -E /var/lib/ckan/INSTANCE_NAME/pyenv -e git+https://github.com/okfn/ckanext-disqus.git#egg=ckanext-disqus
+       sudo -u ckanINSTANCE_NAME /var/lib/ckan/INSTANCE_NAME/pyenv/bin/pip install -E /var/lib/ckan/INSTANCE_NAME/pyenv -e git+https://github.com/okfn/ckanext-disqus.git#egg=ckanext-disqus --log=/tmp/pip-log.txt
 
  Prefix the source URL with the repo type (``hg+`` for Mercurial, ``git+`` for Git).
  
