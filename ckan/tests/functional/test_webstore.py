@@ -30,6 +30,13 @@ class TestWebstoreController(TestController, PylonsTestCase):
         assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-test.ckan.net/%s?'
                 % resource_id)
 
+        offset = url_for('webstore_read', id=resource_id, url='/_search')
+        res = self.app.get(offset)
+        assert_equal(res.status, 200)
+        headers = dict(res.headers)
+        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-test.ckan.net/%s/_search?'
+                % resource_id)
+
     def test_update(self):
         dataset = model.Package.by_name(CreateTestData.pkg_names[0])
         resource_id = dataset.resources[0].id
@@ -43,4 +50,15 @@ class TestWebstoreController(TestController, PylonsTestCase):
         # in fact visitor can edit!
         # assert res.status in [401,302], res.status
         assert res.status == 200
+        headers = dict(res.headers)
+        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-test.ckan.net/%s?'
+                % resource_id)
+
+
+        offset = url_for('webstore_write', id=resource_id, url='/_mapping')
+        res = self.app.post(offset)
+        assert res.status == 200
+        headers = dict(res.headers)
+        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-test.ckan.net/%s/_mapping?'
+                % resource_id)
 

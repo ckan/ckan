@@ -190,6 +190,18 @@ def make_map():
     map.connect('/api/util/tag/munge', controller='api', action='munge_tag')
     map.connect('/api/util/status', controller='api', action='status')
 
+    ## Webstore
+    if config.get('ckan.webstore.enabled', False):
+        map.connect('webstore_read', '/api/data/{id}{url:(/.*)?}',
+            controller='webstore', action='read', url='',
+            conditions={'method': ['GET']}
+            )
+        map.connect('webstore_write', '/api/data/{id}{url:(/.*)?}',
+            controller='webstore', action='write', url='',
+            conditions={'method': ['PUT','POST', 'DELETE']}
+            )
+
+
     ###########
     ## /END API
     ###########
@@ -235,20 +247,6 @@ def make_map():
     map.connect('/dataset/{id}/resource/{resource_id}',
         controller='package', action="resource_read"
     )
-
-    ## Webstore
-    if config.get('ckan.webstore.enabled', False):
-        map.redirect('/dataset/{id}/resource/{resource_id}/data{url:.*?}',
-            '/api/resource/{resource_id}/data{url}', id=None
-        )
-        map.connect('webstore_read', '/api/resource/{id}/data{url:.*?}',
-            controller='webstore', action='read', url='',
-            conditions={'method': ['GET']}
-            )
-        map.connect('webstore_write', '/api/resource/{id}/data{url:.*?}',
-            controller='webstore', action='write', url='',
-            conditions={'method': ['PUT','POST', 'DELETE']}
-            )
 
     # group
     map.redirect("/groups", "/group")
