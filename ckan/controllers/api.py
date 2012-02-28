@@ -96,35 +96,27 @@ class ApiController(BaseController):
         '''
         if resource_location:
             status_int = 201
-            self._set_response_header('Location',
-                                      resource_location)
+            self._set_response_header('Location', resource_location)
         else:
             status_int = 200
 
-        return self._finish(status_int, response_data,
-                            content_type=content_type)
+        return self._finish(status_int, response_data, content_type)
 
     def _finish_not_authz(self):
         response_data = _('Access denied')
-        return self._finish(status_int=403,
-                            response_data=response_data,
-                            content_type='json')
+        return self._finish(403, response_data, 'json')
 
     def _finish_not_found(self, extra_msg=None):
         response_data = _('Not found')
         if extra_msg:
             response_data = '%s - %s' % (response_data, extra_msg)
-        return self._finish(status_int=404,
-                            response_data=response_data,
-                            content_type='json')
+        return self._finish(404, response_data, 'json')
 
     def _finish_bad_request(self, extra_msg=None):
         response_data = _('Bad request')
         if extra_msg:
             response_data = '%s - %s' % (response_data, extra_msg)
-        return self._finish(status_int=400,
-                            response_data=response_data,
-                            content_type='json')
+        return self._finish(400, response_data, 'json')
 
     def _wrap_jsonp(self, callback, response_msg):
         return '%s(%s);' % (callback, response_msg)
