@@ -1,12 +1,11 @@
 import logging
 
-from ckan.lib.base import model, c
-from ckan.lib.navl.dictization_functions import DataError
-from ckan.authz import Authorizer
-import ckan.logic
-
-from ckan.plugins import PluginImplementations, IDatasetForm, IGroupForm
-from ckan.logic import schema
+from pylons import c
+from ckan.lib import base
+from ckan.lib.navl import dictization_functions
+from ckan import authz
+from ckan import logic
+from ckan import plugins
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +58,7 @@ def register_package_plugins(map):
         return
 
     # Create the mappings and register the fallback behaviour if one is found.
-    for plugin in PluginImplementations(IDatasetForm):
+    for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         if plugin.is_fallback():
             if _default_package_plugin is not None:
                 raise ValueError, "More than one fallback "\
@@ -102,7 +101,7 @@ def register_group_plugins(map):
     global _default_group_plugin
 
     # Create the mappings and register the fallback behaviour if one is found.
-    for plugin in PluginImplementations(IGroupForm):
+    for plugin in plugins.PluginImplementations(plugins.IGroupForm):
         if plugin.is_fallback():
             if _default_group_plugin is not None:
                 raise ValueError, "More than one fallback "\
@@ -164,16 +163,16 @@ class DefaultDatasetForm(object):
         return 'package/new_package_form.html'
 
     def form_to_db_schema(self):
-        return schema.package_form_schema()
+        return logic.schema.package_form_schema()
 
     def form_to_db_schema_options(self, options):
         if options.get('api'):
             if options.get('type') == 'create':
-                return schema.default_create_package_schema()
+                return logic.schema.default_create_package_schema()
             else:
-                return schema.default_update_package_schema()
+                return logic.schema.default_update_package_schema()
         else:
-            return schema.package_form_schema()
+            return logic.schema.package_form_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
@@ -196,15 +195,15 @@ class DefaultDatasetForm(object):
         missing_keys = keys_in_schema - set(data_dict.keys())
         if missing_keys:
             log.info('incorrect form fields posted, missing %s' % missing_keys)
-            raise DataError(data_dict)
+            raise dictization_functions.DataError(data_dict)
 
     def setup_template_variables(self, context, data_dict):
-        authz_fn = ckan.logic.get_action('group_list_authz')
+        authz_fn = logic.get_action('group_list_authz')
         c.groups_authz = authz_fn(context, data_dict)
         data_dict.update({'available_only':True})
         c.groups_available = authz_fn(context, data_dict)
-        c.licences = [('', '')] + model.Package.get_license_options()
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.licences = [('', '')] + base.model.Package.get_license_options()
+        c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
@@ -213,9 +212,9 @@ class DefaultDatasetForm(object):
             try:
                 if not context_pkg:
                     context['package'] = pkg
-                ckan.logic.check_access('package_change_state', context)
+                logic.check_access('package_change_state', context)
                 c.auth_for_change_state = True
-            except ckan.logic.NotAuthorized:
+            except logic.NotAuthorized:
                 c.auth_for_change_state = False
 
 
@@ -240,7 +239,7 @@ class DefaultGroupForm(object):
         return 'group/new_group_form.html'
 
     def form_to_db_schema(self):
-        return schema.group_form_schema()
+        return logic.schema.group_form_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
@@ -270,7 +269,7 @@ class DefaultGroupForm(object):
         pass
 
     def setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
         context_group = context.get('group', None)
@@ -279,7 +278,7 @@ class DefaultGroupForm(object):
             try:
                 if not context_group:
                     context['group'] = group
-                ckan.logic.check_access('group_change_state', context)
+                logic.check_access('group_change_state', context)
                 c.auth_for_change_state = True
-            except ckan.logic.NotAuthorized:
+            except logic.NotAuthorized:
                 c.auth_for_change_state = False
