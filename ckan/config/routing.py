@@ -164,7 +164,6 @@ def make_map():
               ]))
           )
 
-        m.connect('/dataset', action='index')
         m.connect('/dataset/{action}/{id}/{revision}', action='read_ajax',
           requirements=dict(action='|'.join([
           'read',
