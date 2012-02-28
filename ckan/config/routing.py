@@ -25,6 +25,7 @@ def make_map():
     DELETE = dict(method=['DELETE'])
     GET_POST = dict(method=['GET', 'POST'])
     PUT_POST = dict(method=['PUT','POST'])
+    OPTIONS = dict(method=['OPTIONS'])
 
     from lib.plugins import register_package_plugins
     from lib.plugins import register_group_plugins
@@ -39,7 +40,7 @@ def make_map():
     map.connect('/error/{action}', controller='error')
     map.connect('/error/{action}/{id}', controller='error')
 
-    map.connect('*url', controller='home', action='cors_options', conditions=dict(method=['OPTIONS']))
+    map.connect('*url', controller='home', action='cors_options', conditions=OPTIONS)
 
     # CUSTOM ROUTES HERE
     for plugin in routing_plugins:
@@ -84,18 +85,12 @@ def make_map():
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/1',
                    requirements=dict(register=register_list_str)) as m:
 
-        m.connect('/rest/{register}', action='list',
-            conditions=GET)
-        m.connect('/rest/{register}', action='create',
-            conditions=POST)
-        m.connect('/rest/{register}/{id}', action='show',
-            conditions=GET)
-        m.connect('/rest/{register}/{id}', action='update',
-            conditions=PUT)
-        m.connect('/rest/{register}/{id}', action='update',
-            conditions=POST)
-        m.connect('/rest/{register}/{id}', action='delete',
-            conditions=DELETE)
+        m.connect('/rest/{register}', action='list', conditions=GET)
+        m.connect('/rest/{register}', action='create', conditions=POST)
+        m.connect('/rest/{register}/{id}', action='show', conditions=GET)
+        m.connect('/rest/{register}/{id}', action='update', conditions=PUT)
+        m.connect('/rest/{register}/{id}', action='update', conditions=POST)
+        m.connect('/rest/{register}/{id}', action='delete', conditions=DELETE)
         m.connect('/rest/{register}/{id}/:subregister', action='list',
             conditions=GET)
         m.connect('/rest/{register}/{id}/:subregister', action='create',
