@@ -53,7 +53,6 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     # Routing/Session/Cache Middleware
     app = RoutesMiddleware(app, config['routes.map'])
     app = SessionMiddleware(app, config)
-    app = I18nMiddleware(app, config)
     app = CacheMiddleware(app, config)
     
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
@@ -101,6 +100,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                 who_parser.remote_user_key,
            )
     
+    app = I18nMiddleware(app, config)
     # Establish the Registry for this application
     app = RegistryManager(app)
 
