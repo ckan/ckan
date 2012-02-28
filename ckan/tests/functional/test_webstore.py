@@ -1,4 +1,5 @@
 from nose.tools import assert_equal
+from pylons import config
 
 from ckan.tests import *
 from ckan.tests.pylons_controller import PylonsTestCase
@@ -42,33 +43,4 @@ class TestWebstoreController(TestController, PylonsTestCase):
         # in fact visitor can edit!
         # assert res.status in [401,302], res.status
         assert res.status == 200
-
-import json
-import paste.fixture
-import paste.proxy
-
-app = paste.proxy.Proxy('http://localhost:8088')
-testapp = paste.fixture.TestApp(app)
-
-class TestItForReal:
-    '''This is a test using the real setup with elasticsearch.
-    
-    It requires you to run nginx with config as per
-    https://github.com/okfn/elastic-proxy/blob/master/elasticproxy plus,
-    obviously, elasticsearch on port 9200.
-    '''
-    def test_01(self):
-        offset = '/api/resource/a687ea97-c4d6-4386-b5ac-365744c59662/data'
-        res = testapp.get(offset, status=400)
-        assert res.status == 400
-        data = {
-            "user": "hamlet",
-            "post_date": "2009-11-15T13:12:00",
-            "message": "Trying out elasticsearch, so far so good?"
-            }
-        data = json.dumps(data)
-        testapp.put(offset + '/1', data)
-        out = testapp.get(offset + '/1')
-        outdata = json.loads(out.body)
-        assert outdata['_source']['user'] == 'hamlet', outdata
 
