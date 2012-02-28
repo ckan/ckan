@@ -207,7 +207,7 @@ class ApiController(BaseController):
             return self._finish(409, return_dict, content_type='json')
         return self._finish_ok(return_dict)
 
-    def _get_action_from_map(action_map, register, subregister):
+    def _get_action_from_map(self, action_map, register, subregister):
         # Helper function to get the action function specified in the action map
 
         assert (register != 'package') # these should all have been redirected!
