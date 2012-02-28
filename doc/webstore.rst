@@ -16,17 +16,24 @@ internally.
 Using the Webstore
 ==================
 
-Each resource in a CKAN instance will now have a Webstore 'table' associated
-with it. This table will be accessible via a web interface at::
+Each resource in a CKAN instance will now have a Webstore 'database' associated
+with it. This database will be accessible via a web interface at::
 
-  /api/resource/{id}/data 
-
-And also, for convenience, at (via a redirect)::
-
-  /dataset/{name}/resource/{resource-id}/data
+  /api/data/{resource-id}
 
 This interface to this data is *exactly* the same as that provided by
 ElasticSearch to documents of a specific type in one of its indices.
+
+So, for example, to see the fields in this database do::
+
+  /api/data/{resource-id}/_mapping
+
+To do simple search do::
+
+  /api/data/{resource-id}/_search?q=abc
+
+For more on searching see: http://www.elasticsearch.org/guide/reference/api/search/uri-request.html
+
 
 Installation and Configuration
 =============================
