@@ -1,35 +1,29 @@
 import logging
-import urlparse
 from urllib import urlencode
 import datetime
-import re
 
-from sqlalchemy.orm import eagerload_all
-import genshi
 from pylons import config
 from pylons.i18n import _
 from autoneg.accept import negotiate
-from babel.dates import format_date, format_datetime, format_time
 
 from ckan.logic import get_action, check_access
-from ckan.logic.schema import package_form_schema
 from ckan.lib.helpers import date_str_to_datetime
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import response, redirect, gettext
-from ckan.authz import Authorizer
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.lib.helpers import json
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
-from ckan.lib.dictization import table_dictize
 from ckan.lib.i18n import get_lang
-from ckan.plugins import PluginImplementations, IDatasetForm, IPackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.logic.action.get
+from home import CACHE_PARAMETER
+
+from lib.plugins import lookup_package_plugin as _lookup_plugin
 
 log = logging.getLogger(__name__)
 
@@ -47,133 +41,6 @@ autoneg_cfg = [
     ("text", "plain", ["nt"]),
     ("text", "x-graphviz", ["dot"]),
     ]
-
-##############  Methods and variables related to the pluggable  ##############
-##############       behaviour of the package controller        ############## 
-
-# Mapping from package-type strings to IDatasetForm instances
-_controller_behaviour_for = dict()
-
-# The fallback behaviour
-_default_controller_behaviour = None
-
-def register_pluggable_behaviour(map):
-    """
-    Register the various IDatasetForm instances.
-
-    This method will setup the mappings between package types and the registered
-    IDatasetForm instances.  If it's called more than once an
-    exception will be raised.
-    """
-    global _default_controller_behaviour
-    _default_controller_behaviour = None
-    _controller_behaviour_for.clear()
-    
-    # Create the mappings and register the fallback behaviour if one is found.
-    for plugin in PluginImplementations(IDatasetForm):
-        if plugin.is_fallback():
-            if _default_controller_behaviour is not None:
-                raise ValueError, "More than one fallback "\
-                                  "IDatasetForm has been registered"
-            _default_controller_behaviour = plugin
-
-        for package_type in plugin.package_types():
-            # Create a connection between the newly named type and the package controller
-            map.connect('/%s/new' % (package_type,), controller='package', action='new')    
-            map.connect('%s_read' % (package_type,), '/%s/{id}' %  (package_type,), controller='package', action='read')                        
-            map.connect('%s_action' % (package_type,),
-                        '/%s/{action}/{id}' % (package_type,), controller='package',
-                requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
-            )            
-                    
-            if package_type in _controller_behaviour_for:
-                raise ValueError, "An existing IDatasetForm is "\
-                                  "already associated with the package type "\
-                                  "'%s'" % package_type
-            _controller_behaviour_for[package_type] = plugin
-
-    # Setup the fallback behaviour if one hasn't been defined.
-    if _default_controller_behaviour is None:
-        _default_controller_behaviour = DefaultDatasetForm()
-
-def _lookup_plugin(package_type):
-    """
-    Returns the plugin controller associoated with the given package type.
-
-    If the package type is None or cannot be found in the mapping, then the
-    fallback behaviour is used.
-    """
-    if package_type is None:
-        return _default_controller_behaviour
-    return _controller_behaviour_for.get(package_type,
-                                         _default_controller_behaviour)
-
-class DefaultDatasetForm(object):
-    """
-    Provides a default implementation of the pluggable package controller behaviour.
-
-    This class has 2 purposes:
-
-     - it provides a base class for IDatasetForm implementations
-       to use if only a subset of the 5 method hooks need to be customised.
-
-     - it provides the fallback behaviour if no plugin is setup to provide
-       the fallback behaviour.
-
-    Note - this isn't a plugin implementation.  This is deliberate, as
-           we don't want this being registered.
-    """
-
-    def package_form(self):
-        return 'package/new_package_form.html'
-
-    def form_to_db_schema(self):
-        return package_form_schema()
-
-    def db_to_form_schema(self):
-        '''This is an interface to manipulate data from the database
-        into a format suitable for the form (optional)'''
-
-    def check_data_dict(self, data_dict):
-        '''Check if the return data is correct, mostly for checking out if
-        spammers are submitting only part of the form'''
-
-        # Resources might not exist yet (eg. Add Dataset)
-        surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                               'extras_validation', 'save', 'return_to',
-                               'resources', 'type']
-
-        schema_keys = package_form_schema().keys()
-        keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
-
-        missing_keys = keys_in_schema - set(data_dict.keys())
-
-        if missing_keys:
-            #print data_dict
-            #print missing_keys
-            log.info('incorrect form fields posted, missing %s' % missing_keys )
-            raise DataError(data_dict)
-
-    def setup_template_variables(self, context, data_dict):
-        c.groups_authz = get_action('group_list_authz')(context, data_dict)
-        data_dict.update({'available_only':True})
-        c.groups_available = get_action('group_list_authz')(context, data_dict)
-        c.licences = [('', '')] + model.Package.get_license_options()
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
-
-        ## This is messy as auths take domain object not data_dict
-        context_pkg = context.get('package',None)
-        pkg = context_pkg or c.pkg
-        if pkg:
-            try:
-                if not context_pkg:
-                    context['package'] = pkg
-                check_access('package_change_state',context)
-                c.auth_for_change_state = True
-            except NotAuthorized:
-                c.auth_for_change_state = False
-
-##############      End of pluggable package behaviour stuff    ############## 
 
 class PackageController(BaseController):
 
@@ -239,12 +106,13 @@ class PackageController(BaseController):
         try:
             c.fields = []
             search_extras = {}
+            fq = ''
             for (param, value) in request.params.items():
                 if not param in ['q', 'page'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
-                        q += ' %s: "%s"' % (param, value)
+                        fq += ' %s:"%s"' % (param, value)
                     else:
                         search_extras[param] = value
 
@@ -253,6 +121,7 @@ class PackageController(BaseController):
 
             data_dict = {
                 'q':q,
+                'fq':fq,
                 'facet.field':g.facets,
                 'rows':limit,
                 'start':(page-1)*limit,
@@ -271,7 +140,7 @@ class PackageController(BaseController):
             c.facets = query['facets']
             c.page.items = query['results']
         except SearchError, se:
-            log.error('Package search error: %r', se.args)
+            log.error('Dataset search error: %r', se.args)
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
@@ -283,7 +152,6 @@ class PackageController(BaseController):
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(package_type=package_type),
                    'for_view': True}
         data_dict = {'id': id}
 
@@ -310,7 +178,7 @@ class PackageController(BaseController):
             c.pkg = context['package']
             c.pkg_json = json.dumps(c.pkg_dict)
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
         
@@ -342,15 +210,14 @@ class PackageController(BaseController):
     def comments(self, id):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(package_type=package_type)}
+                   'user': c.user or c.author, 'extras_as_string': True,}
 
         #check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, {'id':id})
             c.pkg = context['package']
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
@@ -391,16 +258,16 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
 
         format = request.params.get('format', '')
         if format == 'atom':
             # Generate and return Atom 1.0 document.
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
-                title=_(u'CKAN Package Revision History'),
+                title=_(u'CKAN Dataset Revision History'),
                 link=h.url_for(controller='revision', action='read', id=c.pkg_dict['name']),
-                description=_(u'Recent changes to CKAN Package: ') + (c.pkg_dict['title'] or ''),
+                description=_(u'Recent changes to CKAN Dataset: ') + (c.pkg_dict['title'] or ''),
                 language=unicode(get_lang()),
             )
             for revision_dict in c.pkg_revisions:
@@ -440,8 +307,7 @@ class PackageController(BaseController):
         
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'save': 'save' in request.params,
-                   'schema': self._form_to_db_schema(package_type=package_type)}
+                   'save': 'save' in request.params,}
 
         # Package needs to have a publisher group in the call to check_access
         # and also to save it
@@ -453,7 +319,8 @@ class PackageController(BaseController):
         if context['save'] and not data:
             return self._save_new(context)
 
-        data = data or clean_dict(unflatten(tuplize_dict(parse_params(request.params))))
+        data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+            request.params, ignore_keys=[CACHE_PARAMETER]))))
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -476,8 +343,7 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
-                   'pending': True,
-                   'schema': self._form_to_db_schema(package_type=package_type)}
+                   'pending': True,}
 
         if context['save'] and not data:
             return self._save_edit(id, context)
@@ -492,7 +358,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
 
         c.pkg = context.get("package")
         c.pkg_json = json.dumps(data)
@@ -531,7 +397,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
 
         ## hack as db_to_form schema should have this
         data['tag_string'] = ', '.join([tag['name'] for tag in data.get('tags', [])])
@@ -551,7 +417,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
 
 
         data = []
@@ -591,7 +457,7 @@ class PackageController(BaseController):
         try:
             data = get_action('package_show')(context, {'id': id})
         except NotFound:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
@@ -603,7 +469,6 @@ class PackageController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
             data_dict['type'] = package_type
-            self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
             pkg = get_action('package_create')(context, data_dict)
 
@@ -611,7 +476,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
@@ -621,17 +486,15 @@ class PackageController(BaseController):
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
 
-    def _save_edit(self, id, context):
+    def _save_edit(self, name_or_id, context):
         from ckan.lib.search import SearchIndexError
         try:
-            package_type = self._get_package_type(id)
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
-            self._check_data_dict(data_dict, package_type=package_type)
             context['message'] = data_dict.get('log_message', '')
             if not context['moderated']:
                 context['pending'] = False
-            data_dict['id'] = id
+            data_dict['id'] = name_or_id
             pkg = get_action('package_update')(context, data_dict)
             if request.params.get('save', '') == 'Approve':
                 get_action('make_latest_pending_package_active')(context, data_dict)
@@ -642,7 +505,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
         except NotFound, e:
-            abort(404, _('Package not found'))
+            abort(404, _('Dataset not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
@@ -650,7 +513,7 @@ class PackageController(BaseController):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
-            return self.edit(id, data_dict, errors, error_summary)
+            return self.edit(name_or_id, data_dict, errors, error_summary)
 
     def _form_save_redirect(self, pkgname, action):
         '''This redirects the user to the CKAN package/read page,
@@ -688,7 +551,7 @@ class PackageController(BaseController):
     def authz(self, id):
         pkg = model.Package.get(id)
         if pkg is None:
-            abort(404, gettext('Package not found'))
+            abort(404, gettext('Dataset not found'))
         c.pkg = pkg # needed to add in the tab bar to the top of the auth page
         c.pkgname = pkg.name
         c.pkgtitle = pkg.title

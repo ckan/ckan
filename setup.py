@@ -32,7 +32,8 @@ setup(
         'migration/tests/test_dumps/*',
         'migration/versions/*',
     ]},
-    message_extractors = {'ckan': [
+    message_extractors = {
+        'ckan': [
             ('**.py', 'python', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'genshi', None),
@@ -43,7 +44,10 @@ setup(
                 'template_class': 'genshi.template:TextTemplate'
             }),
             ('public/**', 'ignore', None),
-            ]},
+        ],
+        'ckanext/stats/templates': [
+            ('**.html', 'genshi', None),
+        ]},
     entry_points="""
     [nose.plugins.0.10]
     main = ckan.ckan_nose_plugin:CkanNose
@@ -88,6 +92,7 @@ setup(
     stats=ckanext.stats.plugin:StatsPlugin
     publisher_form=ckanext.publisher_form.forms:PublisherForm
     publisher_dataset_form=ckanext.publisher_form.forms:PublisherDatasetForm
+    test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension

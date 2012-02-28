@@ -37,6 +37,9 @@
   <!--[if lt IE 8]>
     <link rel="stylesheet" href="${h.url_for_static('/css/blueprint/ie.css')}" type="text/css" media="screen, projection">
   <![endif]-->
+  <!--[if lt IE 9]>
+    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/html5shiv/html5.js')}"></script>
+  <![endif]-->
   <link rel="stylesheet" href="${h.url_for_static('/css/style.css?v=2')}" />
 
   <py:if test="defined('optional_head')">
@@ -120,8 +123,8 @@
       </div>
     </div>
     <br/><br/>
-    <div id="push"></div>
   </div>
+  <div class="clearfix"></div>
   <div class="footer outer">
     <footer class="container">
         <div class="xoxo span-6">

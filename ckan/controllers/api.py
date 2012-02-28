@@ -11,7 +11,6 @@ import ckan.rating
 from ckan.lib.search import (query_for, QueryOptions, SearchIndexError, SearchError,
                              SearchQueryError, DEFAULT_OPTIONS,
                              convert_legacy_parameters_to_solr)
-from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.lib.munge import munge_name, munge_title_to_name, munge_tag
 from ckan.logic import get_action, check_access
@@ -144,13 +143,16 @@ class ApiController(BaseController):
         return self._finish_ok(response_data)
 
     def action(self, logic_function):
+        # FIXME this is a hack till ver gets passed
+        api_version = 3
         function = get_action(logic_function)
         if not function:
             log.error('Can\'t find logic function: %s' % logic_function)
             return self._finish_bad_request(
                 gettext('Action name not known: %s') % str(logic_function))
 
-        context = {'model': model, 'session': model.Session, 'user': c.user}
+        context = {'model': model, 'session': model.Session, 'user': c.user,
+                   'api_version':api_version}
         model.Session()._context = context
         return_dict = {'help': function.__doc__}
         try:
@@ -276,7 +278,6 @@ class ApiController(BaseController):
             return self._finish_bad_request(
                 gettext('Cannot read entity of this type: %s') % register)
         try:
-
             return self._finish_ok(action(context, data_dict))
         except NotFound, e:
             extra_msg = e.extra_msg
@@ -643,8 +644,7 @@ class ApiController(BaseController):
         if slugtype==u'group':
             response_data = dict(valid=not bool(group_exists(slug)))
             return self._finish_ok(response_data)
-        return self._finish_bad_request(gettext('Bad slug type: %s') % slugtype)
-
+        return self._finish_bad_request('Bad slug type: %s' % slugtype)
 
     def dataset_autocomplete(self):
         q = request.params.get('incomplete', '')

@@ -10,7 +10,7 @@ To meet the need to customize CKAN efficiently, we have introduced the concepts 
 interfaces and workers. These work together to provide a simple mechanism to
 extend core CKAN functionality.
 
-.. warning:: This is an advanced topic. At the moment, you need to have prepared your system to work with extensions, as described in :doc:`prepare-extensions`. We are working to make the most popular extensions more easily available as Debian packages. 
+.. warning:: This is an advanced topic. We are working to make the most popular extensions more easily available as Debian packages. 
 
 .. note:: The terms **extension**, **plugin interface** and **worker** have very precise meanings: the use of the generic word **plugin** to describe any way in which CKAN might be extended is deprecated.
 

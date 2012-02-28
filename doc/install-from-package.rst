@@ -361,7 +361,7 @@ You can then log in like this:
 
 ::
 
-    ssh -i ~/Downloads/ckan_test.pem ubuntu@ec2-46-51-149-132.eu-west-1.compute.amazonaws.com 
+    ssh -i ~/Downloads/ckan_test.pem ubuntu@ec2-79-125-86-107.eu-west-1.compute.amazonaws.com 
 
 The first time you connect you'll see this, choose ``yes``:
 
@@ -394,7 +394,7 @@ On your Ubuntu 10.04 system, open a terminal and run these commands to prepare y
 
     sudo apt-get update
     sudo apt-get install -y wget
-    echo "deb http://apt.ckan.org/ckan-1.5.1 lucid universe" | sudo tee /etc/apt/sources.list.d/okfn.list
+    echo "deb http://apt.ckan.org/ckan-1.6 lucid universe" | sudo tee /etc/apt/sources.list.d/okfn.list
     wget -qO- "http://apt.ckan.org/packages_public.key" | sudo apt-key add -
     sudo apt-get update
 
@@ -448,8 +448,8 @@ Instance Hostname/domain name
     requests directly to CKAN.
 
     If you are using Amazon EC2, you will use the public DNS of your server as
-    this argument. These look soemthing like
-    ``ec2-46-51-149-132.eu-west-1.compute.amazonaws.com``. If you are using a VM,
+    this argument. These look something like
+    ``ec2-79-125-86-107.eu-west-1.compute.amazonaws.com``. If you are using a VM,
     this will be the hostname of the VM you have configured in your ``/etc/hosts``
     file.
 
@@ -655,16 +655,16 @@ installs, do let us know and we'll help you fix them.
 
 .. _upgrading:
 
-Upgrading from CKAN 1.5
------------------------
+Upgrading from CKAN 1.5 / 1.5.1
+-------------------------------
 
-If you already have a CKAN 1.5 install and wish to upgrade, you can try the approach documented below.
+If you already have a CKAN 1.5 or 1.5.1 package install and wish to upgrade, you can try the approach documented below.
 
 .. caution ::
 
-   Upgrading CKAN with packages is not well tested, so your milage may vary. Always make a backup first and be prepared to start again with a fresh 1.5.1 install.
+   Always make a backup first and be prepared to start again with a fresh install of the newer version of CKAN.
 
-First remove the old CKAN:
+First remove the old CKAN code (it doesn't your data):
 
 ::
 
@@ -674,7 +674,7 @@ Then update the repositories:
 
 ::
 
-    echo "deb http://apt.ckan.org/ckan-1.5.1 lucid universe" | sudo tee /etc/apt/sources.list.d/ckan.list
+    echo "deb http://apt.ckan.org/ckan-1.6 lucid universe" | sudo tee /etc/apt/sources.list.d/ckan.list
     wget -qO- "http://apt.ckan.org/packages_public.key" | sudo apt-key add -
     sudo apt-get update
 
@@ -695,7 +695,7 @@ Now you need to make some manual changes. In the following commands replace ``st
 
        ckan.site_id = releasetest.ckan.org
 
-   The site_id must be unique so the domain name of the Solr instance is a good choice.
+   The site_id must be unique so the domain name of the CKAN instance is a good choice.
 
    Install the new schema:
 
@@ -718,7 +718,7 @@ Now you need to make some manual changes. In the following commands replace ``st
 
        sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db upgrade --config=/etc/ckan/std/std.ini
 
-   If you get error ``sqlalchemy.exc.IntegrityError: (IntegrityError) could not create unique index "user_name_key`` then you need to rename users with duplicate names before it will work. For example::
+   When upgrading from CKAN 1.5 you may experience error ``sqlalchemy.exc.IntegrityError: (IntegrityError) could not create unique index "user_name_key``. In this case then you need to rename users with duplicate names, before the database upgrade will run successfully. For example::
 
         sudo -u ckanstd paster --plugin=pylons shell /etc/ckan/std/std.ini
         model.meta.engine.execute('SELECT name, count(name) AS NumOccurrences FROM "user" GROUP BY name HAVING(COUNT(name)>1);').fetchall()
@@ -726,7 +726,7 @@ Now you need to make some manual changes. In the following commands replace ``st
         users[1].name = users[1].name[:-1]
         model.repo.commit_and_remove()
 
-#. Rebuild the search index (this can take some time):
+#. Rebuild the search index (this can take some time - e.g. an hour for 5000 datasets):
 
    ::
 
