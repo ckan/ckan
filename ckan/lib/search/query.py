@@ -282,13 +282,12 @@ class PackageSearchQuery(SearchQuery):
         # return results as json encoded string
         query['wt'] = query.get('wt', 'json')
 
-        # query field weighting: disabled for now as solr 3.* is required for 
-        # the 'edismax' query parser, our current Ubuntu version only has
-        # packages for 1.4
-        #
-        # query['defType'] = 'edismax'
-        # query['tie'] = '0.5'
-        # query['qf'] = query.get('qf', QUERY_FIELDS)
+        # If the query has a colon in it then consider it a fielded search and do use dismax.
+        if ':' not in query['q']:
+            query['defType'] = 'dismax'
+            query['tie'] = '0.1'
+            query['mm'] = '1'
+            query['qf'] = query.get('qf', QUERY_FIELDS)
 
         conn = make_connection()
         log.debug('Package query: %r' % query)

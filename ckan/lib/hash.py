@@ -3,12 +3,11 @@ import hashlib
 
 from pylons import config, request
 
-global secret
 secret = None
 
 def get_message_hash(value):
+    global secret
     if not secret:
-        global secret
         # avoid getting config value at module scope since config may
         # not be read in yet
         secret = config['beaker.session.secret']

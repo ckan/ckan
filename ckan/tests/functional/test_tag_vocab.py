@@ -1,79 +1,14 @@
 import json
-from pylons import request, tmpl_context as c
-from genshi.input import HTML
-from genshi.filters import Transformer
 import paste.fixture
 from ckan import model
-from ckan.logic import get_action
-from ckan.logic.converters import convert_to_tags, convert_from_tags, free_tags_only
-from ckan.logic.schema import package_form_schema
-from ckan.lib.navl.validators import ignore_missing, keep_extras
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
-from ckan import plugins
 from ckan.tests import WsgiAppCase
+# ensure that test_tag_vocab_plugin is added as a plugin in the testing .ini file
+from ckanext.test_tag_vocab_plugin import MockVocabTagsPlugin
 
 TEST_VOCAB_NAME = 'test-vocab'
 
-class MockVocabTagsPlugin(plugins.SingletonPlugin):
-    plugins.implements(plugins.IDatasetForm, inherit=True)
-    plugins.implements(plugins.IGenshiStreamFilter)
-
-    active = False
-
-    def is_fallback(self):
-        return False
-
-    def package_types(self):
-        return ["mock_vocab_tags_plugin"]
-
-    def package_form(self):
-        return 'package/new_package_form.html'
-
-    def setup_template_variables(self, context, data_dict=None):
-        c.vocab_tags = get_action('tag_list')(context, {'vocabulary_id': TEST_VOCAB_NAME})
-
-    def form_to_db_schema(self):
-        schema = package_form_schema()
-        schema.update({
-            'vocab_tags': [ignore_missing, convert_to_tags(TEST_VOCAB_NAME)],
-        })
-        return schema
-
-    def db_to_form_schema(self):
-        schema = package_form_schema()
-        schema.update({
-            'tags': {
-                '__extras': [keep_extras, free_tags_only]
-            },
-            'vocab_tags_selected': [convert_from_tags(TEST_VOCAB_NAME), ignore_missing],
-        })
-        return schema
-
-    def filter(self, stream):
-        if self.active:
-            routes = request.environ.get('pylons.routes_dict')
-            if routes.get('controller') == 'package' \
-                and routes.get('action') == 'read':
-                    # add vocab tags to the bottom of the page
-                    tags = c.pkg_dict.get('tags', [])
-                    for tag in tags:
-                        if tag.get('vocabulary_id'):
-                            stream = stream | Transformer('body')\
-                                .append(HTML('<p>%s</p>' % tag.get('name')))
-            if routes.get('controller') == 'package' \
-                and routes.get('action') == 'edit':
-                    # add vocabs tag select box to edit page
-                    html = '<select id="vocab_tags" name="vocab_tags" size="60" multiple="multiple">'
-                    selected_tags = c.pkg_dict.get('vocab_tags_selected', [])
-                    for tag in c.vocab_tags:
-                        if tag in selected_tags:
-                            html += '<option selected="selected" value="%s">%s</option>' % (tag, tag)
-                        else:
-                            html += '<option value="%s">%s</option>' % (tag, tag)
-                    html += '</select>'
-                    stream = stream | Transformer('fieldset[@id="groups"]').append(HTML(html))
-        return stream
 
 
 # paste.fixture.Field.Select does not handle multiple selects currently,
@@ -134,25 +69,15 @@ class Select(paste.fixture.Field):
 
     value = property(value__get, value__set)
 
-
 class TestWUI(WsgiAppCase):
     @classmethod
     def setup_class(cls):
-        CreateTestData.create()
+        MockVocabTagsPlugin().set_active(True)
+        CreateTestData.create(package_type='mock_vocab_tags_plugin')
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.dset = model.Package.get('warandpeace')
         cls.tag1_name = 'vocab-tag-1'
         cls.tag2_name = 'vocab-tag-2'
-
-        cls.plugin = MockVocabTagsPlugin()
-        plugins.load(cls.plugin)
-        cls.plugin.active = True
-
-        # this is a hack so that the plugin is properly registered with
-        # the package controller class.
-        from ckan.controllers import package as package_controller
-        cls.old_default_controller = package_controller._default_controller_behaviour
-        package_controller._default_controller_behaviour = cls.plugin
 
         # use our custom select class for this test suite
         cls.old_select = paste.fixture.Field.classes['select']
@@ -179,10 +104,7 @@ class TestWUI(WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload(cls.plugin)
-        cls.plugin.active = False
-        from ckan.controllers import package as package_controller
-        package_controller._default_controller_behaviour = cls.old_default_controller
+        MockVocabTagsPlugin().set_active(False)
         paste.fixture.Field.classes['select'] = cls.old_select
         model.repo.rebuild_db()
 
@@ -215,7 +137,8 @@ class TestWUI(WsgiAppCase):
     def test_01_dataset_view(self):
         vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
         self._add_vocab_tag_to_dataset(self.dset.id, vocab_id, self.tag1_name)
-        response = self.app.get(h.url_for(controller='package', action='read', id=self.dset.id))
+        response = self.app.get(h.url_for(controller='package', action='read',
+            id=self.dset.id))
         assert self.tag1_name in response.body
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
 
@@ -231,6 +154,31 @@ class TestWUI(WsgiAppCase):
         assert not self.tag1_name in response.body
         assert self.tag2_name in response.body
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
+        self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
+
+    def test_02_dataset_edit_add_free_and_vocab_tags_then_edit_again(self):
+        vocab_id = self._get_vocab_id(TEST_VOCAB_NAME)
+        url = h.url_for(controller='package', action='edit', id=self.dset.id)
+        response = self.app.get(url)
+        fv = response.forms['dataset-edit']
+        fv = Form(fv.response, fv.text)
+
+        # Add a free tag with a space in its name.
+        fv['tag_string'] = 'water quality'
+
+        # Add a vocab tag.
+        fv['vocab_tags'] = [self.tag2_name]
+
+        # Save the dataset and visit the page again
+        response = fv.submit('save')
+        response = response.follow()
+        assert not self.tag1_name in response.body
+        assert self.tag2_name in response.body
+        url = h.url_for(controller='package', action='edit', id=self.dset.id)
+        response = self.app.get(url)
+        fv = response.forms['dataset-edit']
+        fv = Form(fv.response, fv.text)
+        assert fv['vocab_tags'].value == [self.tag2_name], fv['vocab_tags'].value
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag2_name)
 
     def test_03_dataset_edit_remove_vocab_tag(self):

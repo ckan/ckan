@@ -1,11 +1,10 @@
 from pylons import config
-from sqlalchemy.sql import select, and_
-from ckan.plugins import PluginImplementations, IDatasetForm, IPackageController, IGroupController
+from sqlalchemy.sql import select
+from ckan.plugins import PluginImplementations, IPackageController, IGroupController
 import datetime
 
 from ckan.model import PackageRevision
 from ckan.lib.dictization import (obj_list_dictize,
-                                  obj_dict_dictize,
                                   table_dictize)
 from ckan.logic import NotFound
 import ckan.misc
@@ -279,11 +278,8 @@ def tag_list_dictize(tag_list, context):
 def tag_dictize(tag, context):
 
     result_dict = table_dictize(tag, context)
-
-    result_dict["packages"] = obj_list_dictize(
-        tag.packages, context)
-    
-    return result_dict 
+    result_dict["packages"] = obj_list_dictize(tag.packages, context)
+    return result_dict
 
 def user_list_dictize(obj_list, context, 
                       sort_key=lambda x:x['name'], reverse=False):
@@ -352,116 +348,85 @@ def resource_dict_to_api(res_dict, package_id, context):
     res_dict["package_id"] = package_id
 
 
-def package_to_api1(pkg, context):
-
+def _package_to_api_base(pkg, context, api_version):
+    # shared package_to_api code
     dictized = package_dictize(pkg, context)
-
     dictized.pop("revision_timestamp")
 
-    dictized["groups"] = [group["name"] for group in dictized["groups"]]
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"] if not tag.get('vocabulary_id')]
-    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
+    dictized["tags"] = [tag["name"] for tag in dictized["tags"] \
+                        if not tag.get('vocabulary_id')]
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"]))
                               for extra in dictized["extras"])
-    dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
-
-    resources = dictized["resources"] 
-   
-    for resource in resources:
-        resource_dict_to_api(resource, pkg.id, context)
-
-    if pkg.resources:
-        dictized['download_url'] = pkg.resources[0].url
-            
     dictized['license'] = pkg.license.title if pkg.license else None
-
     dictized['ratings_average'] = pkg.get_average_rating()
     dictized['ratings_count'] = len(pkg.ratings)
+    dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
+
     site_url = config.get('ckan.site_url', None)
     if site_url:
         dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
+
     metadata_modified = pkg.metadata_modified
     dictized['metadata_modified'] = metadata_modified.isoformat() \
         if metadata_modified else None
+
     metadata_created = pkg.metadata_created
     dictized['metadata_created'] = metadata_created.isoformat() \
         if metadata_created else None
 
-    subjects = dictized.pop("relationships_as_subject") 
-    objects = dictized.pop("relationships_as_object") 
-    
+    for resource in dictized["resources"]:
+        resource_dict_to_api(resource, pkg.id, context)
+
+    def make_api_1(package_id):
+        return pkg.get(package_id).name
+
+    def make_api_2(package_id):
+        return package_id
+
+    if api_version == 1:
+        api_fn = make_api_1
+    else:
+        api_fn = make_api_2
+
+    subjects = dictized.pop("relationships_as_subject")
+    objects = dictized.pop("relationships_as_object")
+
     relationships = []
-    for relationship in objects:
+    for rel in objects:
         model = context['model']
         swap_types = model.PackageRelationship.forward_to_reverse_type
-        type = swap_types(relationship['type'])
-        relationships.append({'subject': pkg.get(relationship['object_package_id']).name,
+        type = swap_types(rel['type'])
+        relationships.append({'subject': api_fn(rel['object_package_id']),
                               'type': type,
-                              'object': pkg.get(relationship['subject_package_id']).name,
-                              'comment': relationship["comment"]})
-    for relationship in subjects:
-        model = context['model']
-        relationships.append({'subject': pkg.get(relationship['subject_package_id']).name,
-                              'type': relationship['type'],
-                              'object': pkg.get(relationship['object_package_id']).name,
-                              'comment': relationship["comment"]})
-        
-        
-    dictized['relationships'] = relationships 
+                              'object': api_fn(rel['subject_package_id']),
+                              'comment': rel["comment"]})
+    for rel in subjects:
+        relationships.append({'subject': api_fn(rel['subject_package_id']),
+                              'type': rel['type'],
+                              'object': api_fn(rel['object_package_id']),
+                              'comment': rel["comment"]})
+
+    dictized['relationships'] = relationships
+
+    return dictized
+
+def package_to_api1(pkg, context):
+    dictized = _package_to_api_base(pkg, context, 1)
+    dictized["groups"] = [group["name"] for group in dictized["groups"]]
+    if pkg.resources:
+        dictized['download_url'] = pkg.resources[0].url
     return dictized
 
 def package_to_api2(pkg, context):
-
-    dictized = package_dictize(pkg, context)
-
+    dictized = _package_to_api_base(pkg, context, 2)
     dictized["groups"] = [group["id"] for group in dictized["groups"]]
-    dictized.pop("revision_timestamp")
-    
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"] if not tag.get('vocabulary_id')]
-    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
-                              for extra in dictized["extras"])
-
-    resources = dictized["resources"] 
-   
-    for resource in resources:
-        resource_dict_to_api(resource,pkg.id, context)
-            
-    dictized['license'] = pkg.license.title if pkg.license else None
-
-    dictized['ratings_average'] = pkg.get_average_rating()
-    dictized['ratings_count'] = len(pkg.ratings)
-    site_url = config.get('ckan.site_url', None)
-    if site_url:
-        dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
-    dictized['metadata_modified'] = pkg.metadata_modified.isoformat() \
-        if pkg.metadata_modified else None
-    dictized['metadata_created'] = pkg.metadata_created.isoformat() \
-        if pkg.metadata_created else None
-    dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
-
-    subjects = dictized.pop("relationships_as_subject") 
-    objects = dictized.pop("relationships_as_object") 
-    
-    relationships = []
-    for relationship in objects:
-        model = context['model']
-        swap_types = model.PackageRelationship.forward_to_reverse_type
-        type = swap_types(relationship['type'])
-        relationships.append({'subject': relationship['object_package_id'],
-                              'type': type,
-                              'object': relationship['subject_package_id'],
-                              'comment': relationship["comment"]})
-    for relationship in subjects:
-        model = context['model']
-        relationships.append({'subject': relationship['subject_package_id'],
-                              'type': relationship['type'],
-                              'object': relationship['object_package_id'],
-                              'comment': relationship["comment"]})
-        
-    dictized['relationships'] = relationships 
     return dictized
 
 def vocabulary_dictize(vocabulary, context):
     vocabulary_dict = table_dictize(vocabulary, context)
+    assert not vocabulary_dict.has_key('tags')
+    vocabulary_dict['tags'] = [tag_dictize(tag, context) for tag
+            in vocabulary.tags]
     return vocabulary_dict
 
 def vocabulary_list_dictize(vocabulary_list, context):

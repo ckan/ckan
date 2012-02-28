@@ -7,39 +7,20 @@ import logging
 
 import ckan
 from ckan.lib.base import _
-from ckan.logic import NotFound, ParameterError, ValidationError
-from ckan.logic import check_access
+from ckan import logic
 from ckan.model import misc
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
-from pylons import config
 from ckan.authz import Authorizer
 from ckan.lib.dictization import table_dictize
-from ckan.lib.dictization.model_dictize import (package_dictize,
-                                                resource_list_dictize,
-                                                resource_dictize,
-                                                group_dictize,
-                                                group_list_dictize,
-                                                tag_dictize,
-                                                task_status_dictize,
-                                                user_dictize,
-                                                vocabulary_dictize,
-                                                vocabulary_list_dictize,
-                                                activity_list_dictize,
-                                                activity_detail_list_dictize)
-
-from ckan.lib.dictization.model_dictize import (package_to_api1,
-                                                package_to_api2,
-                                                group_to_api1,
-                                                group_to_api2,
-                                                tag_to_api1,
-                                                tag_to_api2)
-
+from ckan.lib.dictization import model_dictize
 from ckan.lib.search import query_for, SearchError
 from ckan.lib.base import render
 from webhelpers.html import literal
 from ckan.logic.action import get_domain_object
+from lib.plugins import lookup_package_plugin
+from ckan.lib.navl.dictization_functions import validate
 
 log = logging.getLogger('ckan.logic')
 
@@ -47,12 +28,12 @@ def _package_list_with_resources(context, package_revision_list):
     package_list = []
     model = context["model"]
     for package in package_revision_list:
-        result_dict = package_dictize(package,context)
+        result_dict = model_dictize.package_dictize(package,context)
         package_list.append(result_dict)
     return package_list
 
 def site_read(context,data_dict=None):
-    check_access('site_read',context,data_dict)
+    logic.check_access('site_read',context,data_dict)
     return True
 
 def package_list(context, data_dict):
@@ -63,7 +44,7 @@ def package_list(context, data_dict):
     api = context.get("api_version", '1')
     ref_package_by = 'id' if api == '2' else 'name'
 
-    check_access('package_list', context, data_dict)
+    logic.check_access('package_list', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
@@ -77,7 +58,7 @@ def current_package_list_with_resources(context, data_dict):
     user = context["user"]
     limit = data_dict.get("limit")
 
-    check_access('current_package_list_with_resources', context, data_dict)
+    logic.check_access('current_package_list_with_resources', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
@@ -93,7 +74,7 @@ def revision_list(context, data_dict):
 
     model = context['model']
 
-    check_access('revision_list', context, data_dict)
+    logic.check_access('revision_list', context, data_dict)
 
     revs = model.Session.query(model.Revision).all()
     return [rev.id for rev in revs]
@@ -103,9 +84,9 @@ def package_revision_list(context, data_dict):
     id = data_dict["id"]
     pkg = model.Package.get(id)
     if pkg is None:
-        raise NotFound
+        raise logic.NotFound
 
-    check_access('package_revision_list',context, data_dict)
+    logic.check_access('package_revision_list',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in pkg.all_related_revisions:
@@ -123,10 +104,10 @@ def group_list(context, data_dict):
     ref_group_by = 'id' if api == '2' else 'name';
     order_by = data_dict.get('order_by', 'name')
     if order_by not in set(('name', 'packages')):
-        raise ParameterError('"order_by" value %r not implemented.' % order_by)
+        raise logic.ParameterError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
 
-    check_access('group_list',context, data_dict)
+    logic.check_access('group_list',context, data_dict)
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
     query = query.filter(model.GroupRevision.state=='active')
@@ -140,7 +121,7 @@ def group_list(context, data_dict):
     if order_by == 'packages':
         sort_by, reverse = 'packages', True
 
-    group_list = group_list_dictize(groups, context,
+    group_list = model_dictize.group_list_dictize(groups, context,
                                     lambda x:x[sort_by], reverse)
 
     if not all_fields:
@@ -159,7 +140,7 @@ def group_list_authz(context, data_dict):
     user = context['user']
     available_only = data_dict.get('available_only',False)
 
-    check_access('group_list_authz',context, data_dict)
+    logic.check_access('group_list_authz',context, data_dict)
 
     query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
     groups = set(query.all())
@@ -176,9 +157,9 @@ def group_revision_list(context, data_dict):
     id = data_dict['id']
     group = model.Group.get(id)
     if group is None:
-        raise NotFound
+        raise logic.NotFound
 
-    check_access('group_revision_list',context, data_dict)
+    logic.check_access('group_revision_list',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in group.all_related_revisions:
@@ -190,7 +171,7 @@ def group_revision_list(context, data_dict):
 def licence_list(context, data_dict):
     model = context["model"]
 
-    check_access('licence_list',context, data_dict)
+    logic.check_access('licence_list',context, data_dict)
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
@@ -217,7 +198,7 @@ def tag_list(context, data_dict):
         query = query.strip()
     all_fields = data_dict.get('all_fields', None)
 
-    check_access('tag_list', context, data_dict)
+    logic.check_access('tag_list', context, data_dict)
 
     if query:
         tags = _tag_search(context, data_dict)
@@ -228,7 +209,7 @@ def tag_list(context, data_dict):
     if tags:
         if all_fields:
             for tag in tags:
-                result_dict = tag_dictize(tag, context)
+                result_dict = model_dictize.tag_dictize(tag, context)
                 tag_list.append(result_dict)
         else:
             tag_list.extend([tag.name for tag in tags])
@@ -240,7 +221,7 @@ def user_list(context, data_dict):
     model = context['model']
     user = context['user']
 
-    check_access('user_list',context, data_dict)
+    logic.check_access('user_list',context, data_dict)
 
     q = data_dict.get('q','')
     order_by = data_dict.get('order_by','name')
@@ -289,7 +270,7 @@ def user_list(context, data_dict):
     users_list = []
 
     for user in query.all():
-        result_dict = user_dictize(user[0], context)
+        result_dict = model_dictize.user_dictize(user[0], context)
         del result_dict['apikey']
         users_list.append(result_dict)
 
@@ -309,16 +290,16 @@ def package_relationships_list(context, data_dict):
     pkg1 = model.Package.get(id)
     pkg2 = None
     if not pkg1:
-        raise NotFound('First package named in request was not found.')
+        raise logic.NotFound('First package named in request was not found.')
     if id2:
         pkg2 = model.Package.get(id2)
         if not pkg2:
-            raise NotFound('Second package named in address was not found.')
+            raise logic.NotFound('Second package named in address was not found.')
 
     if rel == 'relationships':
         rel = None
 
-    check_access('package_relationships_list',context, data_dict)
+    logic.check_access('package_relationships_list',context, data_dict)
 
     # TODO: How to handle this object level authz?
     relationships = Authorizer().\
@@ -326,7 +307,7 @@ def package_relationships_list(context, data_dict):
                     user, pkg1, pkg2, rel, model.Action.READ)
 
     if rel and not relationships:
-        raise NotFound('Relationship "%s %s %s" not found.'
+        raise logic.NotFound('Relationship "%s %s %s" not found.'
                                  % (id, rel, id2))
 
     relationship_dicts = [rel.as_dict(pkg1, ref_package_by=ref_package_by)
@@ -337,19 +318,18 @@ def package_relationships_list(context, data_dict):
 def package_show(context, data_dict):
 
     model = context['model']
-    api = context.get('api_version') or '1'
-    id = data_dict['id']
+    name_or_id = data_dict.get("id") or data_dict['name_or_id']
 
-    pkg = model.Package.get(id)
+    pkg = model.Package.get(name_or_id)
+
+    if pkg is None:
+        raise logic.NotFound
 
     context['package'] = pkg
 
-    if pkg is None:
-        raise NotFound
+    logic.check_access('package_show', context, data_dict)
 
-    check_access('package_show', context, data_dict)
-
-    package_dict = package_dictize(pkg, context)
+    package_dict = model_dictize.package_dictize(pkg, context)
 
     for item in PluginImplementations(IPackageController):
         item.read(pkg)
@@ -365,11 +345,11 @@ def resource_show(context, data_dict):
     context['resource'] = resource
 
     if not resource:
-        raise NotFound
+        raise logic.NotFound
 
-    check_access('resource_show', context, data_dict)
+    logic.check_access('resource_show', context, data_dict)
 
-    return resource_dictize(resource, context)
+    return model_dictize.resource_dictize(resource, context)
 
 def revision_show(context, data_dict):
     model = context['model']
@@ -379,7 +359,7 @@ def revision_show(context, data_dict):
 
     rev = model.Session.query(model.Revision).get(id)
     if rev is None:
-        raise NotFound
+        raise logic.NotFound
     rev_dict = model.revision_as_dict(rev, include_packages=True,
                                       ref_package_by=ref_package_by)
     return rev_dict
@@ -396,11 +376,11 @@ def group_show(context, data_dict):
     context['group'] = group
 
     if group is None:
-        raise NotFound
+        raise logic.NotFound
 
-    check_access('group_show',context, data_dict)
+    logic.check_access('group_show',context, data_dict)
 
-    group_dict = group_dictize(group, context)
+    group_dict = model_dictize.group_dictize(group, context)
 
     for item in PluginImplementations(IGroupController):
         item.read(group)
@@ -419,9 +399,9 @@ def group_package_show(context, data_dict):
     group = model.Group.get(id)
     context['group'] = group
     if group is None:
-        raise NotFound
+        raise logic.NotFound
 
-    check_access('group_show', context, data_dict)
+    logic.check_access('group_show', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)\
         .filter(model.PackageRevision.state=='active')\
@@ -439,7 +419,7 @@ def group_package_show(context, data_dict):
 
     result = []
     for pkg_rev in query.all():
-        result.append(package_dictize(pkg_rev, context))
+        result.append(model_dictize.package_dictize(pkg_rev, context))
 
     return result
 
@@ -453,16 +433,16 @@ def tag_show(context, data_dict):
     context['tag'] = tag
 
     if tag is None:
-        raise NotFound
+        raise logic.NotFound
 
-    check_access('tag_show',context, data_dict)
+    logic.check_access('tag_show',context, data_dict)
 
-    tag_dict = tag_dictize(tag,context)
+    tag_dict = model_dictize.tag_dictize(tag,context)
 
     extended_packages = []
     for package in tag_dict['packages']:
         pkg = model.Package.get(package['id'])
-        extended_packages.append(package_dictize(pkg,context))
+        extended_packages.append(model_dictize.package_dictize(pkg,context))
 
     tag_dict['packages'] = extended_packages
 
@@ -479,15 +459,15 @@ def user_show(context, data_dict):
         user_obj = model.User.get(id)
         context['user_obj'] = user_obj
         if user_obj is None:
-            raise NotFound
+            raise logic.NotFound
     elif provided_user:
         context['user_obj'] = user_obj = provided_user
     else:
-        raise NotFound
+        raise logic.NotFound
 
-    check_access('user_show',context, data_dict)
+    logic.check_access('user_show',context, data_dict)
 
-    user_dict = user_dictize(user_obj,context)
+    user_dict = model_dictize.user_dictize(user_obj,context)
 
     if not (Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name):
         # If not sysadmin or the same user, strip sensible info
@@ -520,47 +500,47 @@ def user_show(context, data_dict):
 
 def package_show_rest(context, data_dict):
 
-    check_access('package_show_rest',context, data_dict)
+    logic.check_access('package_show_rest',context, data_dict)
 
-    package_show(context, data_dict)
+    logic.get_action('package_show')(context, data_dict)
 
     api = context.get('api_version') or '1'
     pkg = context['package']
 
     if api == '1':
-        package_dict = package_to_api1(pkg, context)
+        package_dict = model_dictize.package_to_api1(pkg, context)
     else:
-        package_dict = package_to_api2(pkg, context)
+        package_dict = model_dictize.package_to_api2(pkg, context)
 
     return package_dict
 
 def group_show_rest(context, data_dict):
 
-    check_access('group_show_rest',context, data_dict)
+    logic.check_access('group_show_rest',context, data_dict)
 
     group_show(context, data_dict)
     api = context.get('api_version') or '1'
     group = context['group']
 
     if api == '2':
-        group_dict = group_to_api2(group, context)
+        group_dict = model_dictize.group_to_api2(group, context)
     else:
-        group_dict = group_to_api1(group, context)
+        group_dict = model_dictize.group_to_api1(group, context)
 
     return group_dict
 
 def tag_show_rest(context, data_dict):
 
-    check_access('tag_show_rest',context, data_dict)
+    logic.check_access('tag_show_rest',context, data_dict)
 
     tag_show(context, data_dict)
     api = context.get('api_version') or '1'
     tag = context['tag']
 
     if api == '2':
-        tag_dict = tag_to_api2(tag, context)
+        tag_dict = model_dictize.tag_to_api2(tag, context)
     else:
-        tag_dict = tag_to_api1(tag, context)
+        tag_dict = model_dictize.tag_to_api1(tag, context)
 
     return tag_dict
 
@@ -575,7 +555,7 @@ def package_autocomplete(context, data_dict):
 
     like_q = u"%s%%" % q
 
-    check_access('package_autocomplete', context, data_dict)
+    logic.check_access('package_autocomplete', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
@@ -605,7 +585,7 @@ def format_autocomplete(context, data_dict):
     session = context['session']
     user = context['user']
 
-    check_access('format_autocomplete', context, data_dict)
+    logic.check_access('format_autocomplete', context, data_dict)
 
     q = data_dict.get('q', None)
     if not q:
@@ -636,7 +616,7 @@ def user_autocomplete(context, data_dict):
     if not q:
         return []
 
-    check_access('user_autocomplete', context, data_dict)
+    logic.check_access('user_autocomplete', context, data_dict)
 
     limit = data_dict.get('limit',20)
 
@@ -657,7 +637,7 @@ def package_search(context, data_dict):
     session = context['session']
     user = context['user']
 
-    check_access('package_search', context, data_dict)
+    logic.check_access('package_search', context, data_dict)
 
     # check if some extension needs to modify the search params
     for item in PluginImplementations(IPackageController):
@@ -690,7 +670,7 @@ def package_search(context, data_dict):
                 log.warning('package %s in index but not in database' % package)
                 continue
 
-            result_dict = package_dictize(pkg,context)
+            result_dict = model_dictize.package_dictize(pkg,context)
             results.append(result_dict)
 
         count = query.count
@@ -793,7 +773,7 @@ def _tag_search(context, data_dict):
         # Filter by vocabulary.
         vocab = model.Vocabulary.get(data_dict['vocabulary_id'])
         if not vocab:
-            raise NotFound
+            raise logic.NotFound
         q = q.filter(model.Tag.vocabulary_id == vocab.id)
     else:
         # If no vocabulary_name in data dict then show free tags only.
@@ -846,7 +826,7 @@ def tag_autocomplete(context, data_dict):
     belonging to the given vocabulary (id or name) will be searched instead.
 
     '''
-    check_access('tag_autocomplete', context, data_dict)
+    logic.check_access('tag_autocomplete', context, data_dict)
     matching_tags = _tag_search(context, data_dict)
     if matching_tags:
         return [tag.name for tag in matching_tags]
@@ -871,11 +851,11 @@ def task_status_show(context, data_dict):
     context['task_status'] = task_status
 
     if task_status is None:
-        raise NotFound
+        raise logic.NotFound
 
-    check_access('task_status_show', context, data_dict)
+    logic.check_access('task_status_show', context, data_dict)
 
-    task_status_dict = task_status_dictize(task_status, context)
+    task_status_dict = model_dictize.task_status_dictize(task_status, context)
     return task_status_dict
 
 
@@ -887,7 +867,7 @@ def term_translation_show(context, data_dict):
     q = select([trans_table])
 
     if 'term' not in data_dict:
-        raise ValidationError({'term': 'term not it data'})
+        raise logic.ValidationError({'term': 'term not it data'})
     
     q = q.where(trans_table.c.term == data_dict['term'])
 
@@ -905,7 +885,7 @@ def term_translation_show(context, data_dict):
     return results
 
 def get_site_user(context, data_dict):
-    check_access('get_site_user', context, data_dict)
+    logic.check_access('get_site_user', context, data_dict)
     model = context['model']
     site_id = config.get('ckan.site_id', 'ckan_site_user')
     user = model.User.get(site_id)
@@ -945,7 +925,7 @@ def roles_show(context, data_dict):
     elif isinstance(domain_object, model.AuthorizationGroup):
         query = session.query(model.AuthorizationGroupRole).join('authorization_group')
     else:
-        raise NotFound(_('Cannot list entity of this type: %s') % type(domain_object).__name__)
+        raise logic.NotFound(_('Cannot list entity of this type: %s') % type(domain_object).__name__)
     # Filter by the domain_obj
     query = query.filter_by(id=domain_object.id)
 
@@ -953,12 +933,12 @@ def roles_show(context, data_dict):
     if user_ref:
         user = model.User.get(user_ref)
         if not user:
-            raise NotFound(_('unknown user:') + repr(user_ref))
+            raise logic.NotFound(_('unknown user:') + repr(user_ref))
         query = query.join('user').filter_by(id=user.id)
     if authgroup_ref:
         authgroup = model.AuthorizationGroup.get(authgroup_ref)
         if not authgroup:
-            raise NotFound('unknown authorization group:' + repr(authgroup_ref))
+            raise logic.NotFound('unknown authorization group:' + repr(authgroup_ref))
         # we need an alias as we join to model.AuthorizationGroup table twice
         ag = aliased(model.AuthorizationGroup)
         query = query.join(ag, model.AuthorizationGroupRole.authorized_group) \
@@ -993,17 +973,17 @@ def status_show(context, data_dict):
 def vocabulary_list(context, data_dict):
     model = context['model']
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
-    return vocabulary_list_dictize(vocabulary_objects, context)
+    return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
 
 def vocabulary_show(context, data_dict):
     model = context['model']
     vocab_id = data_dict.get('id')
     if not vocab_id:
-        raise ValidationError({'id': _('id not in data')})
+        raise logic.ValidationError({'id': _('id not in data')})
     vocabulary = model.vocabulary.Vocabulary.get(vocab_id)
     if vocabulary is None:
-        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
-    vocabulary_dict = vocabulary_dictize(vocabulary, context)
+        raise logic.NotFound(_('Could not find vocabulary "%s"') % vocab_id)
+    vocabulary_dict = model_dictize.vocabulary_dictize(vocabulary, context)
     return vocabulary_dict
 
 def user_activity_list(context, data_dict):
@@ -1015,7 +995,7 @@ def user_activity_list(context, data_dict):
     query = query.order_by(desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
-    return activity_list_dictize(activity_objects, context)
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
     '''Return a package\'s public activity stream as a list of dicts.'''
@@ -1026,7 +1006,7 @@ def package_activity_list(context, data_dict):
     query = query.order_by(desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
-    return activity_list_dictize(activity_objects, context)
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
     '''Return a group\'s public activity stream as a list of dicts.'''
@@ -1037,7 +1017,7 @@ def group_activity_list(context, data_dict):
     query = query.order_by(desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
-    return activity_list_dictize(activity_objects, context)
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
     '''Return an activity\'s list of activity detail items, as a list of dicts.
@@ -1046,7 +1026,7 @@ def activity_detail_list(context, data_dict):
     activity_id = data_dict['id']
     activity_detail_objects = model.Session.query(
         model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
-    return activity_detail_list_dictize(activity_detail_objects, context)
+    return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
 def render_new_package_activity(context, activity):
     return render('activity_streams/new_package.html',

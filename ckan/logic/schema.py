@@ -187,6 +187,16 @@ def default_group_schema():
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
             "__extras": [ignore]
+        },
+        'users': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
+            "__extras": [ignore]
+        },
+        'groups': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
+            "__extras": [ignore]
         }
     }
     return schema
@@ -318,8 +328,9 @@ def default_task_status_schema():
 
 def default_vocabulary_schema():
     schema = {
-        'id': [ignore_empty, ignore_missing, unicode],
+        'id': [ignore_missing, unicode, vocabulary_id_exists],
         'name': [not_empty, unicode, vocabulary_name_validator],
+        'tags': default_tags_schema(),
     }
     return schema
 
@@ -330,7 +341,8 @@ def default_create_vocabulary_schema():
 
 def default_update_vocabulary_schema():
     schema = default_vocabulary_schema()
-    schema['id'] = schema['id'] + [vocabulary_id_not_changed]
+    schema['id'] = [ignore_missing, vocabulary_id_not_changed]
+    schema['name'] = [ignore_missing, vocabulary_name_validator]
     return schema
 
 def default_create_activity_schema():

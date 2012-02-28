@@ -610,7 +610,7 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
 
     this.addView.render();
     this.resourceList.render();
-  },
+  }
 });
 
 
@@ -728,7 +728,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
       resource.view_tr.remove();
       delete resource.view_tr;
     }
-  },
+  }
 });
 
 
@@ -820,7 +820,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   },
 
   events: {
-    'submit form': 'setResourceInfo',
+    'submit form': 'setResourceInfo'
   },
 
   setResourceInfo: function(e) {

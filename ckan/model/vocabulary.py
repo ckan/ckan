@@ -1,6 +1,7 @@
 from meta import Table, types, Session
 from core import metadata, Column, DomainObject, mapper
 from types import make_uuid
+import tag
 
 VOCABULARY_NAME_MIN_LENGTH = 2
 VOCABULARY_NAME_MAX_LENGTH = 100
@@ -29,5 +30,9 @@ class Vocabulary(DomainObject):
         if vocab is None:
             vocab = Vocabulary.by_name(id_or_name)
         return vocab
+
+    @property
+    def tags(self):
+        return Session.query(tag.Tag).filter(tag.Tag.vocabulary_id==self.id)
 
 mapper(Vocabulary, vocabulary_table)

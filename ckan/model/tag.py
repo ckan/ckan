@@ -260,7 +260,7 @@ mapper(Tag, tag_table, properties={
     'package_tags': relation(PackageTag, backref='tag',
         cascade='all, delete, delete-orphan',
         ),
-    'vocabulary': relation(vocabulary.Vocabulary, backref='tags',
+    'vocabulary': relation(vocabulary.Vocabulary,
         order_by=tag_table.c.name)
     },
     order_by=tag_table.c.name,
