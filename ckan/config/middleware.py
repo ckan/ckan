@@ -168,7 +168,8 @@ class I18nMiddleware(object):
                 cookie_lang = self.get_cookie_lang(environ)
                 if cookie_lang:
                     environ['CKAN_LANG'] = cookie_lang
-                    environ['CKAN_LANG_IS_DEFAULT'] = False
+                    default = (cookie_lang == self.default_locale)
+                    environ['CKAN_LANG_IS_DEFAULT'] = default
                 else:
                     environ['CKAN_LANG'] = self.default_locale
                     environ['CKAN_LANG_IS_DEFAULT'] = True
