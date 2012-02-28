@@ -1534,6 +1534,8 @@ body.editresources fieldset#resources > h3 {
   position: relative;
   margin-right: 20px;
   z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .resource-list li a {
   display: block;
@@ -1596,7 +1598,7 @@ button.resource-edit-delete {
   left: 399px;
   top: 0px;
   padding: 10px;
-  min-height: 417px;
+  min-height: 100px;
   min-width: 530px;
 }
 .resource-panel .resource-panel-close {
