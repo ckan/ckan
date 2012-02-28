@@ -135,7 +135,7 @@ class CreateTestData(cli.CkanCommand):
                 data_dict = {
                         'term': term,
                         'term_translation': 'this should not be rendered',
-                        'lang_code': 'de',
+                        'lang_code': lang_code,
                         }
                 context = {
                     'model': ckan.model,
