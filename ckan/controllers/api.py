@@ -207,31 +207,36 @@ class ApiController(BaseController):
             return self._finish(409, return_dict, content_type='json')
         return self._finish_ok(return_dict)
 
+    def _get_action_from_map(action_map, register, subregister):
+        # Helper function to get the action function specified in the action map
+
+        assert (register != 'package') # these should all have been redirected!
+
+        action = action_map.get((register, subregister))
+        if not action:
+            action = action_map.get(register)
+        if action:
+            return get_action(action)
+
     def list(self, ver=None, register=None, subregister=None, id=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user, 'api_version': ver}
         log.debug('listing: %s' % context)
         action_map = {
-            'revision': get_action('revision_list'),
-            'group': get_action('group_list'),
-            'dataset': get_action('package_list'),
-            'package': get_action('package_list'),
-            'tag': get_action('tag_list'),
-            'licenses': get_action('licence_list'),
-            ('dataset', 'relationships'): get_action('package_relationships_list'),
-            ('package', 'relationships'): get_action('package_relationships_list'),
-            ('dataset', 'revisions'): get_action('package_revision_list'),
-            ('package', 'revisions'): get_action('package_revision_list'),
-            ('package', 'activity'): get_action('package_activity_list'),
-            ('dataset', 'activity'): get_action('package_activity_list'),
-            ('group', 'activity'): get_action('group_activity_list'),
-            ('user', 'activity'): get_action('user_activity_list'),
-            ('activity', 'details'): get_action('activity_detail_list')
+            'revision': 'revision_list',
+            'group': 'group_list',
+            'dataset': 'package_list',
+            'tag': 'tag_list',
+            'licenses': 'licence_list',
+            ('dataset', 'relationships'): 'package_relationships_list',
+            ('dataset', 'revisions'): 'package_revision_list',
+            ('dataset', 'activity'): 'package_activity_list',
+            ('group', 'activity'): 'group_activity_list',
+            ('user', 'activity'): 'user_activity_list',
+            ('activity', 'details'): 'activity_detail_list',
         }
 
-        action = action_map.get((register, subregister))
-        if not action:
-            action = action_map.get(register)
+        action = self._get_action_from_map(action_map, register, subregister)
         if not action:
             return self._finish_bad_request(
                 gettext('Cannot list entity of this type: %s') % register)
@@ -245,27 +250,22 @@ class ApiController(BaseController):
 
     def show(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
-            'revision': get_action('revision_show'),
-            'group': get_action('group_show_rest'),
-            'tag': get_action('tag_show_rest'),
-            'dataset': get_action('package_show_rest'),
-            'package': get_action('package_show_rest'),
-            ('dataset', 'relationships'): get_action('package_relationships_list'),
-            ('package', 'relationships'): get_action('package_relationships_list'),
+            'revision': 'revision_show',
+            'group': 'group_show_rest',
+            'tag': 'tag_show_rest',
+            'dataset': 'package_show_rest',
+            ('dataset', 'relationships'): 'package_relationships_list',
         }
+        for type in model.PackageRelationship.get_all_types():
+            action_map[('dataset', type)] = 'package_relationships_list'
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver}
         data_dict = {'id': id, 'id2': id2, 'rel': subregister}
 
-        for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = get_action('package_relationships_list')
-            action_map[('package', type)] = get_action('package_relationships_list')
         log.debug('show: %s' % context)
 
-        action = action_map.get((register, subregister))
-        if not action:
-            action = action_map.get(register)
+        action = self._get_action_from_map(action_map, register, subregister)
         if not action:
             return self._finish_bad_request(
                 gettext('Cannot read entity of this type: %s') % register)
@@ -283,17 +283,13 @@ class ApiController(BaseController):
     def create(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
-            ('dataset', 'relationships'): get_action('package_relationship_create_rest'),
-            ('package', 'relationships'): get_action('package_relationship_create_rest'),
-             'group': get_action('group_create_rest'),
-             'dataset': get_action('package_create_rest'),
-             'package': get_action('package_create_rest'),
-             'rating': get_action('rating_create'),
+             'group': 'group_create_rest',
+             'dataset': 'package_create_rest',
+             'rating': 'rating_create',
+            ('dataset', 'relationships'): 'package_relationship_create_rest',
         }
-
         for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = get_action('package_relationship_create_rest')
-            action_map[('package', type)] = get_action('package_relationship_create_rest')
+            action_map[('dataset', type)] = 'package_relationship_create_rest'
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver}
@@ -306,9 +302,7 @@ class ApiController(BaseController):
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
 
-        action = action_map.get((register, subregister))
-        if not action:
-            action = action_map.get(register)
+        action = self._get_action_from_map(action_map, register, subregister)
         if not action:
             return self._finish_bad_request(
                 gettext('Cannot create new entity of this type: %s %s') % \
@@ -344,15 +338,12 @@ class ApiController(BaseController):
 
     def update(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
-            ('dataset', 'relationships'): get_action('package_relationship_update_rest'),
-            ('package', 'relationships'): get_action('package_relationship_update_rest'),
-             'dataset': get_action('package_update_rest'),
-             'package': get_action('package_update_rest'),
-             'group': get_action('group_update_rest'),
+             'dataset': 'package_update_rest',
+             'group': 'group_update_rest',
+            ('dataset', 'relationships'): 'package_relationship_update_rest',
         }
         for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = get_action('package_relationship_update_rest')
-            action_map[('package', type)] = get_action('package_relationship_update_rest')
+            action_map[('dataset', type)] = 'package_relationship_update_rest'
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver, 'id': id}
@@ -364,9 +355,8 @@ class ApiController(BaseController):
         except ValueError, inst:
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
-        action = action_map.get((register, subregister))
-        if not action:
-            action = action_map.get(register)
+
+        action = self._get_action_from_map(action_map, register, subregister)
         if not action:
             return self._finish_bad_request(
                 gettext('Cannot update entity of this type: %s') % \
@@ -393,15 +383,12 @@ class ApiController(BaseController):
 
     def delete(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
-            ('dataset', 'relationships'): get_action('package_relationship_delete_rest'),
-            ('package', 'relationships'): get_action('package_relationship_delete_rest'),
-             'group': get_action('group_delete'),
-             'dataset': get_action('package_delete'),
-             'package': get_action('package_delete'),
+             'group': 'group_delete',
+             'dataset': 'package_delete',
+            ('dataset', 'relationships'): 'package_relationship_delete_rest',
         }
         for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = get_action('package_relationship_delete_rest')
-            action_map[('package', type)] = get_action('package_relationship_delete_rest')
+            action_map[('dataset', type)] = 'package_relationship_delete_rest'
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver}
@@ -410,9 +397,7 @@ class ApiController(BaseController):
 
         log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
 
-        action = action_map.get((register, subregister))
-        if not action:
-            action = action_map.get(register)
+        action = self._get_action_from_map(action_map, register, subregister)
         if not action:
             return self._finish_bad_request(
                 gettext('Cannot delete entity of this type: %s %s') %\
