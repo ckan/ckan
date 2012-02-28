@@ -16,7 +16,6 @@ def make_map():
     """Create, configure and return the routes Mapper"""
     # import controllers here rather than at root level because
     # pylons config is initialised by this point.
-<<<<<<< HEAD
 
 
     # Helpers to reduce code clutter
@@ -27,12 +26,8 @@ def make_map():
     GET_POST = dict(method=['GET', 'POST'])
     PUT_POST = dict(method=['PUT','POST'])
 
-    from ckan.controllers.package import register_pluggable_behaviour as register_package_behaviour
-    from ckan.controllers.group   import register_pluggable_behaviour as register_group_behaviour
-=======
-    from lib.plugins import register_package_plugins as register_package_behaviour
-    from lib.plugins import register_group_plugins as register_group_behaviour
->>>>>>> master
+    from lib.plugins import register_package_plugins
+    from lib.plugins import register_group_plugins
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
@@ -206,8 +201,8 @@ def make_map():
           )
         m.connect('group_read', '/group/{id}', action='read')
 
-    register_package_behaviour(map)
-    register_group_behaviour(map)
+    register_package_plugins(map)
+    register_group_plugins(map)
 
 
     # authz group
