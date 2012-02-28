@@ -3,6 +3,7 @@ import os
 from babel import Locale, localedata
 from babel.core import LOCALE_ALIASES
 from pylons import config
+from pylons import response
 from pylons import i18n
 
 import ckan.i18n
@@ -89,11 +90,16 @@ def get_available_locales():
 
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
-    lang = request.environ.get('CKAN_LANG',
-                               config.get('ckan.locale_default', 'en'))
+    lang = request.environ.get('CKAN_LANG') or \
+                        config.get('ckan.locale_default', 'en')
     if lang != 'en':
         i18n.set_lang(lang)
     tmpl_context.language = lang
+
+    # set ckan_lang cookie if we have changed the language. We need to
+    # remember this because repoze.who does it's own redirect.
+    if request.cookies.get('ckan_lang') != lang:
+        response.set_cookie('ckan_lang', lang, max_age=3600)
     return lang
 
 def get_lang():
