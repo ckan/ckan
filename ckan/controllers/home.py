@@ -1,12 +1,8 @@
 import random
-import sys
 
-from pylons import config
 from pylons.i18n import set_lang
-from genshi.template import NewTextTemplate
 import sqlalchemy.exc
 
-from ckan.authz import Authorizer
 from ckan.logic import NotAuthorized
 from ckan.logic import check_access, get_action
 from ckan.lib.i18n import get_lang
