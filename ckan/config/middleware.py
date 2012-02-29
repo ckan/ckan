@@ -14,6 +14,7 @@ from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
+from ckan.lib.i18n import get_locales
 
 from ckan.config.environment import load_environment
 
@@ -54,7 +55,6 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     app = SessionMiddleware(app, config)
     app = CacheMiddleware(app, config)
     
-
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
     
@@ -100,6 +100,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                 who_parser.remote_user_key,
            )
     
+    app = I18nMiddleware(app, config)
     # Establish the Registry for this application
     app = RegistryManager(app)
 
@@ -123,3 +124,63 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         app = Cascade(extra_static_parsers+static_parsers)
 
     return app
+
+class I18nMiddleware(object):
+    """I18n Middleware selects the language based on the url
+    eg /fr/home is French"""
+    def __init__(self, app, config):
+        self.app = app
+        self.default_locale = config.get('ckan.locale_default', 'en')
+        self.local_list = get_locales()
+
+    def get_cookie_lang(self, environ):
+        # get the lang from cookie if present
+        cookie = environ.get('HTTP_COOKIE')
+        if cookie:
+            cookies = [c.strip() for c in cookie.split(';')]
+            lang = [c.split('=')[1] for c in cookies \
+                    if c.startswith('ckan_lang')]
+            if lang and lang[0] in self.local_list:
+                return lang[0]
+        return None
+
+    def __call__(self, environ, start_response):
+        # strip the language selector from the requested url
+        # and set environ variables for the language selected
+        # CKAN_LANG is the language code eg en, fr
+        # CKAN_LANG_IS_DEFAULT is set to True or False
+        # CKAN_CURRENT_URL is set to the current application url
+
+        # We only update once for a request so we can keep
+        # the language and original url which helps with 404 pages etc
+        if 'CKAN_LANG' not in environ:
+            path_parts = environ['PATH_INFO'].split('/')
+            if len(path_parts) > 1 and path_parts[1] in self.local_list:
+                environ['CKAN_LANG'] = path_parts[1]
+                environ['CKAN_LANG_IS_DEFAULT'] = False
+                # rewrite url
+                if len(path_parts) > 2:
+                    environ['PATH_INFO'] = '/'.join([''] + path_parts[2:])
+                else:
+                    environ['PATH_INFO'] = '/'
+            else:
+                # use cookie lang or default language from config
+                cookie_lang = self.get_cookie_lang(environ)
+                if cookie_lang:
+                    environ['CKAN_LANG'] = cookie_lang
+                    default = (cookie_lang == self.default_locale)
+                    environ['CKAN_LANG_IS_DEFAULT'] = default
+                else:
+                    environ['CKAN_LANG'] = self.default_locale
+                    environ['CKAN_LANG_IS_DEFAULT'] = True
+
+
+            # Current application url
+            path_info = environ['PATH_INFO']
+            qs = environ.get('QUERY_STRING')
+            if qs:
+                environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
+            else:
+                environ['CKAN_CURRENT_URL'] = path_info
+
+        return self.app(environ, start_response)

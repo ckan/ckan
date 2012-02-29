@@ -452,16 +452,12 @@ class TagField(ConfiguredField):
     class TagField(formalchemy.Field):
         @property
         def raw_value(self):
-            tag_objects = self.model.tags
+            tag_objects = self.model.get_tags()
             tag_names = [tag.name for tag in tag_objects]
             return tag_names
         
         def sync(self):
             if not self.is_readonly():
-                # Note: You might think that you could just assign
-                # self.model.tags with tag objects, but the model 
-                # (add_stateful_versioned_m2m) doesn't support this -
-                # you must edit each PackageTag individually.
                 self._update_tags()
 
         def _update_tags(self):
@@ -485,8 +481,8 @@ class TagField(ConfiguredField):
             kwargs['value'] = ', '.join(self.value)
             kwargs['size'] = 60
             api_url = config.get('ckan.api_url', '/').rstrip('/')
-            tagcomplete_url = api_url+h.url_for(controller='api',
-                    action='tag_autocomplete', id=None)
+            tagcomplete_url = api_url + h.url_for(controller='api',
+                    action='tag_autocomplete', id=None, ver=2)
             kwargs['data-tagcomplete-url'] = tagcomplete_url
             kwargs['data-tagcomplete-queryparam'] = 'incomplete'
             kwargs['class'] = 'long tagComplete'

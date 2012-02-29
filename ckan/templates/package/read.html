@@ -23,18 +23,17 @@
     <li py:if="c.pkg.license_id" id="dataset-license" class="sidebar-section">
       <strong>License:</strong>
         <py:choose test="">
-          <span py:when="c.pkg.license and c.pkg.license.url"><a
-              href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
-          <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
-          <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
+          <span py:when="c.pkg_dict.get('license_url')"><a
+              href="${c.pkg_dict.get('license_url')}" rel="dc:rights">${c.pkg_dict.get('license_title')}</a></span>
+          <span py:when="c.pkg.license" property="dc:rights">${c.pkg_dict.get('license_title')}</span>
         </py:choose>
 
-        <py:if test="c.pkg.isopen()">
+        <py:if test="c.pkg_dict.get('isopen')">
             <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
               <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
             </a>
         </py:if>
-        <py:if test="not c.pkg.isopen()">
+        <py:if test="not c.pkg_dict.get('isopen')">
             <span class="closed">
               ${h.icon('lock')}
             </span>
@@ -46,11 +45,11 @@
       ${tag_list(c.pkg_dict.get('tags', ''))}
     </li>
 
-    <li py:if="c.pkg.get_groups()" class="sidebar-section">
+    <li py:if="c.pkg_dict.groups" class="sidebar-section">
       <h3>Groups</h3>
       <ul class="groups">
-        <li py:for="group in sorted(c.pkg.get_groups(), key=lambda g: g.display_name)">
-            <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
+        <li py:for="group in sorted(c.pkg_dict.groups, key=lambda g: g['title'] or g['name'])">
+        <a href="${h.url_for(controller='group', action='read', id=group['name'])}">${group.get('title') or group.get('name')}</a>
         </li>
       </ul>
     </li>
@@ -84,7 +83,7 @@
   <div py:match="content">
     <py:if test="c.pkg_revision_id">
       <div id="revision" class="widget-container">
-        <p py:if="c.pkg_revision_not_latest">This is an old revision of this dataset, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}. It may differ significantly from the <a href="${url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
+        <p py:if="c.pkg_revision_not_latest">This is an old revision of this dataset, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}. It may differ significantly from the <a href="${h.url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
         <p py:if="not c.pkg_revision_not_latest">This is the current revision of this dataset, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}.</p>
       </div>
     </py:if>
@@ -101,7 +100,7 @@
 
   <py:def function="optional_feed">
   <link rel="alternate" type="application/atom+xml" title="Dataset History"
-    href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
+    href="${h.url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
   </py:def>
 
   <xi:include href="layout.html" />

@@ -5,6 +5,9 @@ from ckan.logic import NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
+# FIXME: Which is worse, 'from module import foo' or duplicating these
+# functions in this module?
+from ckan.logic.auth.create import vocabulary_create, tag_create
 
 def package_create(context, data_dict=None):
     model = context['model']

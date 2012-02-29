@@ -1,95 +1,30 @@
 import logging
-import re
 import datetime
 
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
-from ckan.logic import NotFound, ValidationError, ParameterError
-from ckan.logic import check_access
+from ckan.logic import NotFound, ValidationError, ParameterError, NotAuthorized
+from ckan.logic import get_action, check_access
+from lib.plugins import lookup_package_plugin
 
 from ckan.lib.base import _
 from vdm.sqlalchemy.base import SQLAlchemySession
 import ckan.lib.dictization
-from ckan.lib.dictization.model_dictize import (package_dictize,
-                                                package_to_api1,
-                                                package_to_api2,
-                                                resource_dictize,
-                                                task_status_dictize,
-                                                group_dictize,
-                                                group_to_api1,
-                                                group_to_api2,
-                                                user_dictize)
-from ckan.lib.dictization.model_save import (group_api_to_dict,
-                                             package_api_to_dict,
-                                             group_dict_save,
-                                             user_dict_save,
-                                             task_status_dict_save,
-                                             package_dict_save,
-                                             resource_dict_save)
+from ckan.lib.dictization import model_dictize
+from ckan.lib.dictization import model_save
 from ckan.logic.schema import (default_update_group_schema,
-                               default_update_package_schema,
                                default_update_user_schema,
                                default_update_resource_schema,
+                               default_task_status_schema,
                                default_update_relationship_schema,
-                               default_task_status_schema)
+                               default_update_vocabulary_schema)
 from ckan.lib.navl.dictization_functions import validate
-from ckan.logic.action import rename_keys, get_domain_object
+import ckan.lib.navl.validators as validators
+from ckan.logic.action import rename_keys, get_domain_object, error_summary
 from ckan.logic.action.get import roles_show
 
 log = logging.getLogger(__name__)
 
-def prettify(field_name):
-    field_name = re.sub('(?<!\w)[Uu]rl(?!\w)', 'URL', field_name.replace('_', ' ').capitalize())
-    return _(field_name.replace('_', ' '))
 
-def package_error_summary(error_dict):
-
-    error_summary = {}
-    for key, error in error_dict.iteritems():
-        if key == 'resources':
-            error_summary[_('Resources')] = _('Package resource(s) invalid')
-        elif key == 'extras':
-            error_summary[_('Extras')] = _('Missing Value')
-        elif key == 'extras_validation':
-            error_summary[_('Extras')] = error[0]
-        else:
-            error_summary[_(prettify(key))] = error[0]
-    return error_summary
-
-def resource_error_summary(error_dict):
-
-    error_summary = {}
-    for key, error in error_dict.iteritems():
-        if key == 'extras':
-            error_summary[_('Extras')] = _('Missing Value')
-        elif key == 'extras_validation':
-            error_summary[_('Extras')] = error[0]
-        else:
-            error_summary[_(prettify(key))] = error[0]
-    return error_summary
-
-def group_error_summary(error_dict):
-
-    error_summary = {}
-    for key, error in error_dict.iteritems():
-        if key == 'extras':
-            error_summary[_('Extras')] = _('Missing Value')
-        elif key == 'extras_validation':
-            error_summary[_('Extras')] = error[0]
-        else:
-            error_summary[_(prettify(key))] = error[0]
-    return error_summary
-
-def task_status_error_summary(error_dict):
-    error_summary = {}
-    for key, error in error_dict.iteritems():
-        error_summary[_(prettify(key))] = error[0]
-    return error_summary
-
-def relationship_error_summary(error_dict):
-    error_summary = {}
-    for key, error in error_dict.iteritems():
-        error_summary[_(prettify(key))] = error[0]
-    return error_summary
 
 def _make_latest_rev_active(context, q):
 
@@ -167,7 +102,6 @@ def make_latest_pending_package_active(context, data_dict):
 
 def resource_update(context, data_dict):
     model = context['model']
-    session = context['session']
     user = context['user']
     id = data_dict["id"]
     schema = context.get('schema') or default_update_resource_schema()
@@ -186,7 +120,7 @@ def resource_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, resource_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -195,36 +129,50 @@ def resource_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name", "")
 
-    resource = resource_dict_save(data, context)
+    resource = model_save.resource_dict_save(data, context)
     if not context.get('defer_commit'):
         model.repo.commit()
-    return resource_dictize(resource, context)
+    return model_dictize.resource_dictize(resource, context)
+
 
 
 def package_update(context, data_dict):
+
     model = context['model']
     user = context['user']
-
-    id = data_dict["id"]
-    schema = context.get('schema') or default_update_package_schema()
+    name_or_id = data_dict.get("id") or data_dict['name_or_id']
     model.Session.remove()
     model.Session()._context = context
 
-    pkg = model.Package.get(id)
-    context["package"] = pkg
-
+    pkg = model.Package.get(name_or_id)
     if pkg is None:
         raise NotFound(_('Package was not found.'))
+    context["package"] = pkg
     data_dict["id"] = pkg.id
 
     check_access('package_update', context, data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    # get the schema
+    package_plugin = lookup_package_plugin(pkg.type)
+    try:
+        schema = package_plugin.form_to_db_schema_options({'type':'update',
+                                               'api':'api_version' in context})
+    except AttributeError:
+        schema = package_plugin.form_to_db_schema()
 
+    if 'api_version' not in context:
+        # old plugins do not support passing the schema so we need
+        # to ensure they still work
+        try:
+            package_plugin.check_data_dict(data_dict, schema)
+        except TypeError:
+            package_plugin.check_data_dict(data_dict)
+
+    data, errors = validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, package_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -233,20 +181,19 @@ def package_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    pkg = package_dict_save(data, context)
+    pkg = model_save.package_dict_save(data, context)
 
     for item in PluginImplementations(IPackageController):
         item.edit(pkg)
     if not context.get('defer_commit'):
         model.repo.commit()
-    return package_dictize(pkg, context)
+    return get_action('package_show')(context, data_dict)
 
 def package_update_validate(context, data_dict):
     model = context['model']
     user = context['user']
 
     id = data_dict["id"]
-    schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
     model.Session()._context = context
 
@@ -257,6 +204,14 @@ def package_update_validate(context, data_dict):
         raise NotFound(_('Package was not found.'))
     data_dict["id"] = pkg.id
 
+    # get the schema
+    package_plugin = lookup_package_plugin(pkg.type)
+    try:
+        schema = package_plugin.form_to_db_schema_options({'type':'update',
+                                               'api':'api_version' in context})
+    except AttributeError:
+        schema = package_plugin.form_to_db_schema()
+
     check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
@@ -264,7 +219,7 @@ def package_update_validate(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, package_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
     return data
 
 
@@ -308,7 +263,7 @@ def package_relationship_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, relationship_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     check_access('package_relationship_update', context, data_dict)
 
@@ -338,7 +293,7 @@ def group_update(context, data_dict):
     data, errors = validate(data_dict, schema, context)
     if errors:
         session.rollback()
-        raise ValidationError(errors, group_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -348,7 +303,7 @@ def group_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    group = group_dict_save(data, context)
+    group = model_save.group_dict_save(data, context)
 
     if parent:
         parent_group = model.Group.get( parent )
@@ -404,7 +359,7 @@ def group_update(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    return group_dictize(group, context)
+    return model_dictize.group_dictize(group, context)
 
 def user_update(context, data_dict):
     '''Updates the user\'s details'''
@@ -425,9 +380,9 @@ def user_update(context, data_dict):
     data, errors = validate(data_dict, schema, context)
     if errors:
         session.rollback()
-        raise ValidationError(errors, group_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
-    user = user_dict_save(data, context)
+    user = model_save.user_dict_save(data, context)
 
     activity_dict = {
             'user_id': user.id,
@@ -447,7 +402,7 @@ def user_update(context, data_dict):
 
     if not context.get('defer_commit'):
         model.repo.commit()
-    return user_dictize(user, context)
+    return model_dictize.user_dictize(user, context)
 
 def task_status_update(context, data_dict):
     model = context['model']
@@ -471,13 +426,13 @@ def task_status_update(context, data_dict):
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, task_status_error_summary(errors))
+        raise ValidationError(errors, error_summary(errors))
 
-    task_status = task_status_dict_save(data, context)
+    task_status = model_save.task_status_dict_save(data, context)
 
     session.commit()
     session.close()
-    return task_status_dictize(task_status, context)
+    return model_dictize.task_status_dictize(task_status, context)
 
 def task_status_update_many(context, data_dict):
     results = []
@@ -492,6 +447,60 @@ def task_status_update_many(context, data_dict):
         model.Session.commit()
     return {'results': results}
 
+def term_translation_update(context, data_dict):
+    model = context['model']
+
+    check_access('term_translation_update', context, data_dict)
+
+    schema = {'term': [validators.not_empty, unicode],
+              'term_translation': [validators.not_empty, unicode],
+              'lang_code': [validators.not_empty, unicode]}
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    trans_table = model.term_translation_table 
+
+    update = trans_table.update()
+    update = update.where(trans_table.c.term == data['term'])
+    update = update.where(trans_table.c.lang_code == data['lang_code'])
+    update = update.values(term_translation = data['term_translation'])
+
+    conn = model.Session.connection()
+    result = conn.execute(update)
+
+    # insert if not updated
+    if not result.rowcount:
+        conn.execute(trans_table.insert().values(**data))
+
+    if not context.get('defer_commit'):
+        model.Session.commit()
+
+    return data
+    
+def term_translation_update_many(context, data_dict):
+    model = context['model']
+    
+
+    if not data_dict.get('data') and isinstance(data_dict, list):
+        raise ValidationError(
+            {'error': 
+             'term_translation_update_many needs to have a list of dicts in field data'}
+        )
+
+    context['defer_commit'] = True
+
+    for num, row in enumerate(data_dict['data']):
+        term_translation_update(context, row)
+
+    model.Session.commit()
+
+    return {'success': '%s rows updated' % (num + 1)}
+
+
 ## Modifications for rest api
 
 def package_update_rest(context, data_dict):
@@ -505,7 +514,6 @@ def package_update_rest(context, data_dict):
     if not pkg:
         raise NotFound
 
-
     if id and id != pkg.id:
         pkg_from_data = model.Package.get(id)
         if pkg_from_data != pkg:
@@ -515,19 +523,18 @@ def package_update_rest(context, data_dict):
 
     context["package"] = pkg
     context["allow_partial_update"] = True
-    dictized_package = package_api_to_dict(data_dict, context)
+    dictized_package = model_save.package_api_to_dict(data_dict, context)
 
     check_access('package_update_rest', context, dictized_package)
 
-    dictized_after = package_update(context, dictized_package)
-
+    dictized_after = get_action('package_update')(context, dictized_package)
 
     pkg = context['package']
 
     if api == '1':
-        package_dict = package_to_api1(pkg, context)
+        package_dict = model_dictize.package_to_api1(pkg, context)
     else:
-        package_dict = package_to_api2(pkg, context)
+        package_dict = model_dictize.package_to_api2(pkg, context)
 
     return package_dict
 
@@ -539,7 +546,7 @@ def group_update_rest(context, data_dict):
     group = model.Group.get(id)
     context["group"] = group
     context["allow_partial_update"] = True
-    dictized_group = group_api_to_dict(data_dict, context)
+    dictized_group = model_save.group_api_to_dict(data_dict, context)
 
     check_access('group_update_rest', context, dictized_group)
 
@@ -549,11 +556,43 @@ def group_update_rest(context, data_dict):
 
 
     if api == '1':
-        group_dict = group_to_api1(group, context)
+        group_dict = model_dictize.group_to_api1(group, context)
     else:
-        group_dict = group_to_api2(group, context)
+        group_dict = model_dictize.group_to_api2(group, context)
 
     return group_dict
+
+def vocabulary_update(context, data_dict):
+    model = context['model']
+
+    vocab_id = data_dict.get('id')
+    if not vocab_id:
+        raise ValidationError({'id': _('id not in data')})
+
+    vocab = model.vocabulary.Vocabulary.get(vocab_id)
+    if vocab is None:
+        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
+
+    data_dict['id'] = vocab.id
+    if data_dict.has_key('name'):
+        if data_dict['name'] == vocab.name:
+            del data_dict['name']
+
+    check_access('vocabulary_update', context, data_dict)
+
+    schema = context.get('schema') or default_update_vocabulary_schema()
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    updated_vocab = model_save.vocabulary_dict_update(data, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    return model_dictize.vocabulary_dictize(updated_vocab, context)
 
 def package_relationship_update_rest(context, data_dict):
 
@@ -656,4 +695,3 @@ def user_role_bulk_update(context, data_dict):
                              'domain_object': data_dict['domain_object']}
             user_role_update(context, uro_data_dict)
     return roles_show(context, data_dict)
-

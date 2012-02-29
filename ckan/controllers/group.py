@@ -3,158 +3,20 @@ import genshi
 import datetime
 from urllib import urlencode
 
-from sqlalchemy.orm import eagerload_all
 from ckan.lib.base import BaseController, c, model, request, render, h, g
 from ckan.lib.base import ValidationException, abort, gettext
 from pylons.i18n import get_lang, _
-import ckan.authz as authz
-from ckan.authz import Authorizer
 from ckan.lib.helpers import Page
-from ckan.plugins import PluginImplementations, IGroupController, IGroupForm
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
-from ckan.logic.schema import group_form_schema
 from ckan.logic import tuplize_dict, clean_dict, parse_params
-from ckan.lib.dictization.model_dictize import package_dictize
 import ckan.forms
 import ckan.logic.action.get
 
+from lib.plugins import lookup_group_plugin as _lookup_plugin
+
 log = logging.getLogger(__name__)
-
-# Mapping from group-type strings to IDatasetForm instances
-_controller_behaviour_for = dict()
-
-# The fallback behaviour
-_default_controller_behaviour = None
-
-def register_pluggable_behaviour(map):
-    """
-    Register the various IGroupForm instances.
-
-    This method will setup the mappings between package types and the registered
-    IGroupForm instances.  If it's called more than once an
-    exception will be raised.
-    """
-    global _default_controller_behaviour
-
-    # Create the mappings and register the fallback behaviour if one is found.
-    for plugin in PluginImplementations(IGroupForm):
-        if plugin.is_fallback():
-            if _default_controller_behaviour is not None:
-                raise ValueError, "More than one fallback "\
-                                  "IGroupForm has been registered"
-            _default_controller_behaviour = plugin
-
-        for group_type in plugin.group_types():
-            # Create the routes based on group_type here, this will allow us to have top level
-            # objects that are actually Groups, but first we need to make sure we are not
-            # clobbering an existing domain
-
-            # Our version of routes doesn't allow the environ to be passed into the match call
-            # and so we have to set it on the map instead.  This looks like a threading problem
-            # waiting to happen but it is executed sequentially from instead the routing setup
-
-            map.connect('%s_index' % (group_type,),
-                        '/%s' % (group_type,), controller='group', action='index')
-            map.connect('%s_new' % (group_type,),
-                        '/%s/new' % (group_type,), controller='group', action='new')
-            map.connect('%s_read' % (group_type,),
-                        '/%s/{id}' %  (group_type,), controller='group', action='read')
-            map.connect('%s_action' % (group_type,),
-                        '/%s/{action}/{id}' % (group_type,), controller='group',
-                requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
-            )
-
-            if group_type in _controller_behaviour_for:
-                raise ValueError, "An existing IGroupForm is "\
-                                  "already associated with the package type "\
-                                  "'%s'" % group_type
-            _controller_behaviour_for[group_type] = plugin
-
-    # Setup the fallback behaviour if one hasn't been defined.
-    if _default_controller_behaviour is None:
-        _default_controller_behaviour = DefaultGroupForm()
-
-
-def _lookup_plugin(group_type):
-    """
-    Returns the plugin controller associoated with the given group type.
-
-    If the group type is None or cannot be found in the mapping, then the
-    fallback behaviour is used.
-    """
-    if group_type is None:
-        return _default_controller_behaviour
-    return _controller_behaviour_for.get(group_type,
-                                         _default_controller_behaviour)
-
-
-class DefaultGroupForm(object):
-    """
-    Provides a default implementation of the pluggable Group controller behaviour.
-
-    This class has 2 purposes:
-
-     - it provides a base class for IGroupForm implementations
-       to use if only a subset of the method hooks need to be customised.
-
-     - it provides the fallback behaviour if no plugin is setup to provide
-       the fallback behaviour.
-
-    Note - this isn't a plugin implementation.  This is deliberate, as
-           we don't want this being registered.
-    """
-
-    def group_form(self):
-        return 'group/new_group_form.html'
-
-    def form_to_db_schema(self):
-        return group_form_schema()
-
-    def db_to_form_schema(self):
-        '''This is an interface to manipulate data from the database
-        into a format suitable for the form (optional)'''
-
-
-    def check_data_dict(self, data_dict):
-        '''Check if the return data is correct, mostly for checking out if
-        spammers are submitting only part of the form
-
-        # Resources might not exist yet (eg. Add Dataset)
-        surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                               'extras_validation', 'save', 'return_to',
-                               'resources']
-
-        schema_keys = package_form_schema().keys()
-        keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
-
-        missing_keys = keys_in_schema - set(data_dict.keys())
-
-        if missing_keys:
-            #print data_dict
-            #print missing_keys
-            log.info('incorrect form fields posted')
-            raise DataError(data_dict)
-        '''
-        pass
-
-    def setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
-
-        ## This is messy as auths take domain object not data_dict
-        context_group = context.get('group',None)
-        group = context_group or c.group
-        if group:
-            try:
-                if not context_group:
-                    context['group'] = group
-                check_access('group_change_state',context)
-                c.auth_for_change_state = True
-            except NotAuthorized:
-                c.auth_for_change_state = False
-
-##############      End of pluggable group behaviour     ##############
 
 
 class GroupController(BaseController):
@@ -205,7 +67,8 @@ class GroupController(BaseController):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(group_type=type)}
+                   'schema': self._form_to_db_schema(group_type=type),
+                   'for_view': True}
         data_dict = {'id': id}
         q = c.q = request.params.get('q', '') # unicode format (decoded from utf8)
 
@@ -420,7 +283,7 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % '')
         except NotFound, e:
-            abort(404, _('Package not found'))
+            abort(404, _('Group not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
         except ValidationError, e:

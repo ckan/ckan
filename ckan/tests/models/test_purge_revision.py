@@ -22,15 +22,16 @@ class TestRevisionPurge:
         self.pkg.url = self.old_url
         tag1 = model.Tag.by_name(u'russian')
         tag2 = model.Tag.by_name(u'tolstoy')
-        self.pkg.tags.append(tag1)
-        self.pkg.tags.append(tag2)
+        self.pkg.add_tag(tag1)
+        self.pkg.add_tag(tag2)
         model.repo.commit_and_remove()
 
         txn2 = model.repo.new_revision()
         pkg = model.Package.by_name(self.pkgname)
         newurl = u'blah.com'
         pkg.url = newurl
-        pkg.tags = []
+        for tag in pkg.get_tags():
+            pkg.remove_tag(tag)
         self.pkgname2 = u'revision-purge-test-2'
         self.pkg_new = model.Package(name=self.pkgname2)
         model.repo.commit_and_remove()
@@ -56,7 +57,7 @@ class TestRevisionPurge:
         assert pkg.url == self.old_url
         pkg2 = model.Package.by_name(self.pkgname2)
         assert pkg2 is None, 'pkgname2 should no longer exist'
-        assert len(pkg.tags) == 2
+        assert len(pkg.get_tags()) == 2
 
     def test_2(self):
         rev = model.repo.youngest_revision()

@@ -61,6 +61,10 @@ class MockPackageControllerPlugin(SingletonPlugin):
         self.calls['before_index'] += 1
         return search_params
 
+    def before_view(self, search_params):
+        self.calls['before_view'] += 1
+        return search_params
+
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
@@ -377,6 +381,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         data = {'id': 'annakarenina'}
         pkg = get.package_show(context, data)
         pkg['resources'][0]['cache_url'] = cache_url
+        # FIXME need to pretend to be called by the api
+        context['api_version'] = 3
         update.package_update(context, pkg)
         # check that the cache url is included on the dataset view page
         offset = url_for(controller='package', action='read', id=name)
@@ -702,8 +708,8 @@ class TestEdit(TestPackageForm):
         res = res.follow()
         assert '%s - Datasets' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
-        assert len(pkg.tags) == len(newtagnames)
-        outtags = [ tag.name for tag in pkg.tags ]
+        assert len(pkg.get_tags()) == len(newtagnames)
+        outtags = [ tag.name for tag in pkg.get_tags() ]
         for tag in newtags:
             assert tag in outtags
         rev = model.Revision.youngest(model.Session)
@@ -756,7 +762,7 @@ class TestEdit(TestPackageForm):
             pkg.version = u'2.2'
             t1 = model.Tag(name=u'one')
             t2 = model.Tag(name=u'two words')
-            pkg.tags = [t1, t2]
+            pkg.add_tags([t1, t2])
             pkg.state = model.State.DELETED
             pkg.license_id = u'other-open'
             extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
@@ -838,7 +844,7 @@ class TestEdit(TestPackageForm):
             #        assert getattr(pkg.resources[res_index], res_field) == resource[field_index]
             assert pkg.notes == notes
             assert pkg.license.id == license_id
-            saved_tagnames = [str(tag.name) for tag in pkg.tags]
+            saved_tagnames = [str(tag.name) for tag in pkg.get_tags()]
             saved_tagnames.sort()
             expected_tagnames = list(tags)
             expected_tagnames.sort()
@@ -1193,7 +1199,7 @@ class TestNew(TestPackageForm):
         #assert pkg.resources[0].url == download_url
         assert pkg.notes == notes
         assert pkg.license.id == license_id
-        saved_tagnames = [str(tag.name) for tag in pkg.tags]
+        saved_tagnames = [str(tag.name) for tag in pkg.get_tags()]
         saved_tagnames.sort()
         expected_tagnames = sorted(tags)
         assert saved_tagnames == expected_tagnames, '%r != %r' % (saved_tagnames, expected_tagnames)
@@ -1301,6 +1307,15 @@ class TestNew(TestPackageForm):
             plugins.unload('synchronous_search')
             SolrSettings.init(solr_url)
 
+    def test_change_locale(self):
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset)
+        res = res.click('Deutsch')
+        try:
+            assert 'Datensatz' in res.body, res.body
+        finally:
+            self.clear_language_setting()
+        
 class TestSearch(TestPackageForm):
     pkg_names = []
 

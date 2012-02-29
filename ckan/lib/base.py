@@ -51,6 +51,12 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         globs = extra_vars or {}
         globs.update(pylons_globals())
         globs['actions'] = model.Action
+
+        # Using pylons.url() or pylons.url_for() directly destroys the
+        # localisation stuff so we remove it so any bad templates crash
+        # and burn
+        del globs['url']
+
         template = globs['app_globals'].genshi_loader.load(template_name,
             cls=loader_class)
         stream = template.generate(**globs)
@@ -114,7 +120,7 @@ class BaseController(WSGIController):
                 # and then restart i.e. only really for testers. There is no
                 # user object, so even though repoze thinks you are logged in
                 # and your cookie has ckan_display_name, we need to force user
-                # to login again to get the User object.
+                # to logout and login again to get the User object.
                 c.user = None
         else:
             c.userobj = self._get_user_for_apikey()

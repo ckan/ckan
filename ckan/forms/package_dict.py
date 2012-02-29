@@ -47,7 +47,7 @@ def get_package_dict(pkg=None, blank=False, fs=None, user_editable_groups=None):
                 if field.renderer.name.endswith('-extras'):
                     indict[field.renderer.name] = dict(pkg.extras) if pkg else {}
                 if field.renderer.name.endswith('-tags'):
-                    indict[field.renderer.name] = ','.join([tag.name for tag in pkg.tags]) if pkg else ''
+                    indict[field.renderer.name] = ','.join([tag.name for tag in pkg.get_tags()]) if pkg else ''
                 if field.renderer.name.endswith('-resources'):
                     indict[field.renderer.name] = [dict([(key, getattr(res, key)) for key in model.Resource.get_columns()]) for res in pkg.resources] if pkg else []
         

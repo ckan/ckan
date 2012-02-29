@@ -32,6 +32,7 @@ Contents:
    file-upload
    configuration
    api
+   apiv3
    test
    common-error-messages
    buildbot

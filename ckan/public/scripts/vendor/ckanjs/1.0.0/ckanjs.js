@@ -728,7 +728,7 @@ CKAN.View = function($) {
     render: function() {
       var tmplData = {
         domain: this.options.domain,
-        dataset: this.model.toTemplateJSON(),
+        dataset: this.model.toTemplateJSON()
       };
       $('.page-heading').html(tmplData.dataset.displaytitle);
       $('#minornavigation').html($.tmpl(CKAN.Templates.minorNavigationDataset, tmplData));

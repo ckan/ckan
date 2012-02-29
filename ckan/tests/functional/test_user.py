@@ -195,7 +195,9 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'testlogin!userid_type:unicode' in cookie, cookie
 
         # navigate to another page and check username still displayed
+        print res.body
         res = res.click('Search')
+        print res
         assert 'testlogin' in res.body, res.body
 
     def test_login_wrong_password(self):
@@ -229,12 +231,133 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'Login failed. Bad username or password.' in res.body
         assert 'Login:' in res.body
 
+    def test_relogin(self):
+        '''Login as user A and then (try to) login as user B (without
+        logout). #1799.'''
+        # create test users A & B
+        password = u'letmein'
+        CreateTestData.create_user(name=u'user_a',
+                                   password=password)
+        CreateTestData.create_user(name=u'user_b',
+                                   password=password)
+        userA = model.User.by_name(u'user_a')
+        userB = model.User.by_name(u'user_b')
 
-    # -----------
-    # tests for top links present in every page
-     # TODO: test sign in results in:
-     # a) a username at top of page
-     # b) logout link
+        # do the login
+        offset = url_for(controller='user', action='login')
+        res = self.app.get(offset)
+        fv = res.forms['login']
+        fv['login'] = 'user_a'
+        fv['password'] = str(password)
+        res = fv.submit()
+        while res.status == 302:
+            res = res.follow()
+        assert_equal(res.status, 200)
+
+        # login as userB
+        offset = url_for(controller='user', action='login')
+        res = self.app.get(offset)
+        assert not res.forms.has_key('login') # i.e. no login box is presented
+        assert 'To register or log in as another user' in res.body, res.body
+        assert 'logout' in res.body, res.body
+
+        # Test code left commented - shows the problem if you
+        # let people try to login whilst still logged in. #1799
+##        fv['login'] = 'user_b'
+##        fv['password'] = str(password)
+##        res = fv.submit()
+##        while res.status == 302:
+##            res = res.follow()
+##        assert_equal(res.status, 200)
+
+##        offset = url_for(controller='user', action='me')
+##        res = self.app.get(offset)
+##        assert_equal(res.status, 302)
+##        res = res.follow()
+##        assert 'user_b' in res
+
+    def test_try_to_register_whilst_logged_in(self):
+        '''Login as user A and then (try to) register user B (without
+        logout). #1799.'''
+        # create user A
+        password = u'letmein'
+        CreateTestData.create_user(name=u'user_a_',
+                                   password=password)
+        userA = model.User.by_name(u'user_a_')
+
+        # do the login
+        offset = url_for(controller='user', action='login')
+        res = self.app.get(offset)
+        fv = res.forms['login']
+        fv['login'] = 'user_a_'
+        fv['password'] = str(password)
+        res = fv.submit()
+        while res.status == 302:
+            res = res.follow()
+        assert_equal(res.status, 200)
+
+        # try to register
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset)
+        assert not res.forms.has_key('Password') # i.e. no registration form
+        assert 'To register or log in as another user' in res.body, res.body
+        assert 'logout' in res.body, res.body
+
+    def test_register_whilst_logged_in(self):
+        '''Start registration form as user B then in another window login
+        as user A, and then try and then submit form for user B. #1799.'''
+        # create user A
+        password = u'letmein'
+        CreateTestData.create_user(name=u'user_a__',
+                                   password=password)
+        userA = model.User.by_name(u'user_a__')
+        # make him a sysadmin, to ensure he is allowed to create a user
+        model.add_user_to_role(userA, model.Role.ADMIN, model.System())
+        model.repo.commit_and_remove()
+        userA = model.User.by_name(u'user_a__')
+
+        # start to register user B
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset)
+        fvA = res.forms['user-edit']
+        fvA['name'] = 'user_b_'
+        fvA['fullname'] = 'User B'
+        fvA['email'] = 'user@b.com'
+        fvA['password1'] = password
+        fvA['password2'] = password
+
+        # login user A
+        offset = url_for(controller='user', action='login')
+        res = self.app.get(offset)
+        fvB = res.forms['login']
+        fvB['login'] = 'user_a__'
+        fvB['password'] = str(password)
+        res = fvB.submit()
+        while res.status == 302:
+            res = res.follow()
+        assert_equal(res.status, 200)
+
+        # finish registration of user B
+        res = fvA.submit('save')
+        assert_equal(res.status, 200)
+        assert 'user_a__</a> is currently logged in' in res.body, res.body
+        assert 'User "user_b_" is now registered but you are still logged in as "user_a__" from before'.replace('"', '&#34;') in res.body, res.body
+        assert 'logout' in res.body, res.body
+
+        # logout and login as user B
+        res = self.app.get('/user/logout')
+        res2 = res.follow()
+        assert 'You have logged out successfully.' in res2, res2
+        offset = url_for(controller='user', action='login')
+        res = self.app.get(offset)
+        fv = res.forms['login']
+        fv['login'] = 'user_b_'
+        fv['password'] = str(password)
+        res = fv.submit()
+        while res.status == 302:
+            res = res.follow()
+        assert_equal(res.status, 200)
+        assert 'User B is now logged in' in res.body, res.body
 
     @search_related
     def test_home_login(self):

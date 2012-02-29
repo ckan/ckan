@@ -161,7 +161,7 @@ class CreateTestData(cli.CkanCommand):
                                 tag = model.Tag(name=tag_name)
                                 cls.tag_names.append(tag_name)
                                 model.Session.add(tag)    
-                            pkg.tags.append(tag)
+                            pkg.add_tag(tag)
                             model.Session.flush()
                     elif attr == 'groups':
                         model.Session.flush()
@@ -308,7 +308,7 @@ class CreateTestData(cli.CkanCommand):
         model.repo.commit_and_remove()
 
     @classmethod
-    def create(cls, auth_profile=""):
+    def create(cls, auth_profile="", package_type=None):
         import ckan.model as model
         model.Session.remove()
         rev = model.repo.new_revision()
@@ -323,7 +323,7 @@ class CreateTestData(cli.CkanCommand):
             publisher_group = model.Group(name=u"publisher_group", type="publisher")
 
         cls.pkg_names = [u'annakarenina', u'warandpeace']
-        pkg1 = model.Package(name=cls.pkg_names[0])
+        pkg1 = model.Package(name=cls.pkg_names[0], type=package_type)
         if auth_profile == "publisher":        
             pkg1.group = publisher_group
         model.Session.add(pkg1)
@@ -375,7 +375,7 @@ left arrow <
 <http://ckan.net/>
 
 '''
-        pkg2 = model.Package(name=cls.pkg_names[1])
+        pkg2 = model.Package(name=cls.pkg_names[1], type=package_type)
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
 
@@ -388,8 +388,8 @@ left arrow <
 
         for obj in [pkg2, tag1, tag2, tag3]:
             model.Session.add(obj)
-        pkg1.tags = [tag1, tag2, tag3]
-        pkg2.tags = [ tag1, tag3 ]
+        pkg1.add_tags([tag1, tag2, tag3])
+        pkg2.add_tags([ tag1, tag3 ])
         cls.tag_names = [ t.name for t in (tag1, tag2, tag3) ]
         pkg1.license_id = u'other-open'
         pkg2.license_id = u'cc-nc' # closed license

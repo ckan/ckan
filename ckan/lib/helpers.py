@@ -15,14 +15,17 @@ from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
-from pylons import url
+from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
-from routes import url_for, redirect_to
+from pylons import config
+from routes import redirect_to as _redirect_to
+from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
-from i18n import get_available_locales
+import i18n
 
-
+get_available_locales = i18n.get_available_locales
+get_locales_dict = i18n.get_locales_dict
 
 try:
     from collections import OrderedDict # from python 2.7
@@ -34,6 +37,73 @@ try:
 except ImportError:
     import simplejson as json
 
+def redirect_to(*args, **kw):
+    '''A routes.redirect_to wrapper to retain the i18n settings'''
+    return _redirect_to(url_for(*args, **kw))
+
+def url(*args, **kw):
+    """Create url adding i18n information if selected
+    wrapper for pylons.url"""
+    locale = kw.pop('locale', None)
+    my_url = _pylons_default_url(*args, **kw)
+    return _add_i18n_to_url(my_url, locale=locale, **kw)
+
+def url_for(*args, **kw):
+    """Create url adding i18n information if selected
+    wrapper for routes.url_for"""
+    locale = kw.pop('locale', None)
+    # routes will get the wrong url for APIs if the ver is not provided
+    if kw.get('controller') == 'api':
+        ver = kw.get('ver')
+        if not ver:
+            raise Exception('api calls must specify the version! e.g. ver=1')
+        # fix ver to include the slash
+        kw['ver'] = '/%s' % ver
+    my_url = _routes_default_url_for(*args, **kw)
+    return _add_i18n_to_url(my_url, locale=locale, **kw)
+
+def url_for_static(*args, **kw):
+    """Create url for static content that does not get translated
+    eg css, js
+    wrapper for routes.url_for"""
+    my_url = _routes_default_url_for(*args, **kw)
+    return my_url
+
+def _add_i18n_to_url(url_to_amend, **kw):
+    # If the locale keyword param is provided then the url is rewritten
+    # using that locale .If return_to is provided this is used as the url
+    # (as part of the language changing feature).
+    # A locale of default will not add locale info to the url.
+
+    from pylons import request
+
+    default_locale = False
+    locale = kw.pop('locale', None)
+    allowed_locales = ['default'] + i18n.get_locales()
+    if locale and locale not in allowed_locales:
+        locale = None
+    if locale:
+        if locale == 'default':
+            default_locale = True
+    else:
+        try:
+            locale = request.environ.get('CKAN_LANG')
+            default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
+        except TypeError:
+            default_locale = True
+    try:
+        root = request.environ.get('SCRIPT_NAME', '')
+    except TypeError:
+        root = ''
+    if default_locale:
+        url = url_to_amend[len(root):]
+        url = '%s%s' % (root, url)
+    else:
+        # we need to strip the root from the url and the add it before
+        # the language specification.
+        url = url_to_amend[len(root):]
+        url = '%s/%s%s' % (root, locale,  url)
+    return url
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -241,7 +311,7 @@ def markdown_extract(text, extract_length=190):
     return unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True))
 
 def icon_url(name):
-    return url_for('/images/icons/%s.png' % name)
+    return url_for_static('/images/icons/%s.png' % name)
 
 def icon_html(url, alt=None):
     return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (url, alt))
@@ -263,7 +333,7 @@ def gravatar(email_hash, size=100, default="identicon"):
         )
 
 def pager_url(page, partial=None, **kwargs):
-    routes_dict = url.environ['pylons.routes_dict']
+    routes_dict = _pylons_default_url.environ['pylons.routes_dict']
     kwargs['controller'] = routes_dict['controller']
     kwargs['action'] = routes_dict['action']
     if routes_dict.get('id'):
