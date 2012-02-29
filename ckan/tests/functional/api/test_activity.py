@@ -841,7 +841,7 @@ class TestActivity:
 
         # Update the group.
         context = {'model': model, 'session': model.Session, 'user': user.name,
-                'allow_partial_update': True}
+                   'allow_partial_update': True, 'api_version':3}
         group_dict = {'id': group.id, 'title': 'edited'}
         group_updated = group_update(context, group_dict)
 
@@ -892,7 +892,7 @@ class TestActivity:
         before = self.record_details(user.id, group_id=group.id)
 
         # Deleted the group.
-        context = {'model': model, 'session': model.Session,
+        context = {'model': model, 'session': model.Session, 'api_version':3,
                 'user': user.name, 'allow_partial_update': True}
         group_dict = {'id': group.id, 'state': 'deleted'}
         group_update(context, group_dict)
