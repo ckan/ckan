@@ -19,8 +19,6 @@ from ckan.lib.search import query_for, SearchError
 from ckan.lib.base import render
 from webhelpers.html import literal
 from ckan.logic.action import get_domain_object
-from lib.plugins import lookup_package_plugin
-from ckan.lib.navl.dictization_functions import validate
 
 log = logging.getLogger('ckan.logic')
 

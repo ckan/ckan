@@ -4,7 +4,7 @@ import datetime
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
 from ckan.logic import NotFound, ValidationError, ParameterError, NotAuthorized
 from ckan.logic import get_action, check_access
-from lib.plugins import lookup_package_plugin
+from lib.plugins import lookup_package_plugin, lookup_group_plugin
 
 from ckan.lib.base import _
 from vdm.sqlalchemy.base import SQLAlchemySession
@@ -279,7 +279,6 @@ def group_update(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema') or default_update_group_schema()
     id = data_dict['id']
     parent = context.get('parent', None)
 
@@ -287,6 +286,14 @@ def group_update(context, data_dict):
     context["group"] = group
     if group is None:
         raise NotFound('Group was not found.')
+
+    # get the schema
+    group_plugin = lookup_group_plugin(group.type)
+    try:
+        schema = group_plugin.form_to_db_schema_options({'type':'update',
+                                               'api':'api_version' in context})
+    except AttributeError:
+        schema = group_plugin.form_to_db_schema()
 
     check_access('group_update', context, data_dict)
 

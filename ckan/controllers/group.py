@@ -182,7 +182,6 @@ class GroupController(BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(),
                    'save': 'save' in request.params,
                    'parent': request.params.get('parent', None)}
         try:
@@ -207,7 +206,6 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
-                   'schema': self._form_to_db_schema(group_type=group_type),
                    'parent': request.params.get('parent', None)
                    }
         data_dict = {'id': id}

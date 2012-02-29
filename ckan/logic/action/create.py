@@ -1,5 +1,5 @@
 import logging
-from lib.plugins import lookup_package_plugin
+from lib.plugins import lookup_package_plugin, lookup_group_plugin
 
 import ckan.rating as ratings
 from ckan.plugins import (PluginImplementations,
@@ -160,10 +160,17 @@ def group_create(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema') or default_group_schema()
     parent = context.get('parent', None)
 
-    check_access('group_create',context,data_dict)
+    check_access('group_create', context, data_dict)
+
+    # get the schema
+    group_plugin = lookup_group_plugin()
+    try:
+        schema = group_plugin.form_to_db_schema_options({'type':'create',
+                                               'api':'api_version' in context})
+    except AttributeError:
+        schema = group_plugin.form_to_db_schema()
 
     data, errors = validate(data_dict, schema, context)
 
