@@ -273,7 +273,7 @@ HIERARCHY_CTE =  """
     WITH RECURSIVE subtree(id) AS (
         SELECT M.* FROM public.member AS M
         WHERE M.table_name = 'group' AND M.state = 'active'
-        UNION ALL
+        UNION
         SELECT M.* FROM public.member M, subtree SG
         WHERE M.table_id = SG.group_id AND M.table_name = 'group' AND M.state = 'active')
 
