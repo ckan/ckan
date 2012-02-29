@@ -131,6 +131,7 @@ CKAN.Templates.resourceDetails = ' \
           <td class="dataset-label" property="rdfs:label">'+CKAN.Strings.lastModified+'</td> \
           <td class="dataset-details" property="rdf:value"> \
             <input name="resources__${num}__last_modified" type="text" value="${resource.last_modified}" /> \
+            <div class="hint">Dates are in <a href="http://en.wikipedia.org/wiki/ISO_8601#Calendar_dates" target="_blank">ISO Format</a> &mdash; eg. <strong>2012-12-25</strong> or <strong>2010-05-31T14:30</strong>.</div> \
           </td> \
         </tr><tr> \
           <td class="dataset-label" property="rdfs:label">'+CKAN.Strings.sizeBracketsBytes+'</td> \

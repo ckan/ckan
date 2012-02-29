@@ -1558,6 +1558,7 @@ hr.resource-list-divide {
   background: #eee;
 }
 
+
 /* HasErrors */
 .resource-list li.hasErrors {
   border-color: #c00;
@@ -1627,6 +1628,9 @@ button.resource-edit-delete {
   width: 20px;
   padding: 0;
   text-align: center;
+}
+.resource-panel .hint {
+  font-size: 11px;
 }
 
 .resource-details input[type="text"] {
