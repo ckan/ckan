@@ -385,7 +385,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
     schema = context.get('schema') or logic.schema.default_create_activity_schema()
     data, errors = validate(activity_dict, schema, context)
     if errors:
-        raise ValidationError(errors)
+        raise logic.ValidationError(errors)
 
     activity = model_save.activity_dict_save(activity_dict, context)
 
@@ -417,7 +417,7 @@ def tag_create(context, tag_dict):
     schema = context.get('schema') or logic.schema.default_create_tag_schema()
     data, errors = validate(tag_dict, schema, context)
     if errors:
-        raise ValidationError(errors)
+        raise logic.ValidationError(errors)
 
     tag = model_save.tag_dict_save(tag_dict, context)
 
