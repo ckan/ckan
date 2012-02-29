@@ -1,30 +1,23 @@
 import logging
 import datetime
 
-from ckan.plugins import PluginImplementations, IGroupController, IPackageController
-from ckan.logic import NotFound, ValidationError, ParameterError, NotAuthorized
-from ckan.logic import get_action, check_access
-from lib.plugins import lookup_package_plugin, lookup_group_plugin
-
-from ckan.lib.base import _
+from pylons.i18n import _
 from vdm.sqlalchemy.base import SQLAlchemySession
+
+import ckan.plugins as plugins
+import ckan.logic as logic
 import ckan.lib.dictization
-from ckan.lib.dictization import model_dictize
-from ckan.lib.dictization import model_save
-from ckan.logic.schema import (default_update_group_schema,
-                               default_update_user_schema,
-                               default_update_resource_schema,
-                               default_task_status_schema,
-                               default_update_relationship_schema,
-                               default_update_vocabulary_schema)
-from ckan.lib.navl.dictization_functions import validate
+import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.dictization.model_save as model_save
+import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
-from ckan.logic.action import rename_keys, get_domain_object, error_summary
-from ckan.logic.action.get import roles_show
+import lib.plugins as lib_plugins
 
 log = logging.getLogger(__name__)
 
-
+# define some shortcuts
+validate = ckan.lib.navl.dictization_functions.validate
+error_summary = logic.action.error_summary
 
 def _make_latest_rev_active(context, q):
 
@@ -65,7 +58,7 @@ def make_latest_pending_package_active(context, data_dict):
     id = data_dict["id"]
     pkg = model.Package.get(id)
 
-    check_access('make_latest_pending_package_active', context, data_dict)
+    logic.check_access('make_latest_pending_package_active', context, data_dict)
 
     #packages
     q = session.query(model.PackageRevision).filter_by(id=pkg.id)
@@ -104,7 +97,7 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = data_dict["id"]
-    schema = context.get('schema') or default_update_resource_schema()
+    schema = context.get('schema') or logic.schema.default_update_resource_schema()
     model.Session.remove()
 
     resource = model.Resource.get(id)
@@ -112,15 +105,15 @@ def resource_update(context, data_dict):
 
     if not resource:
         logging.error('Could not find resource ' + id)
-        raise NotFound(_('Resource was not found.'))
+        raise logic.NotFound(_('Resource was not found.'))
 
-    check_access('resource_update', context, data_dict)
+    logic.check_access('resource_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise logic.ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -146,14 +139,14 @@ def package_update(context, data_dict):
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:
-        raise NotFound(_('Package was not found.'))
+        raise logic.NotFound(_('Package was not found.'))
     context["package"] = pkg
     data_dict["id"] = pkg.id
 
-    check_access('package_update', context, data_dict)
+    logic.check_access('package_update', context, data_dict)
 
     # get the schema
-    package_plugin = lookup_package_plugin(pkg.type)
+    package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     try:
         schema = package_plugin.form_to_db_schema_options({'type':'update',
                                                'api':'api_version' in context})
@@ -172,7 +165,7 @@ def package_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise logic.ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -183,11 +176,11 @@ def package_update(context, data_dict):
 
     pkg = model_save.package_dict_save(data, context)
 
-    for item in PluginImplementations(IPackageController):
+    for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
     if not context.get('defer_commit'):
         model.repo.commit()
-    return get_action('package_show')(context, data_dict)
+    return logic.get_action('package_show')(context, data_dict)
 
 def package_update_validate(context, data_dict):
     model = context['model']
@@ -201,25 +194,25 @@ def package_update_validate(context, data_dict):
     context["package"] = pkg
 
     if pkg is None:
-        raise NotFound(_('Package was not found.'))
+        raise logic.NotFound(_('Package was not found.'))
     data_dict["id"] = pkg.id
 
     # get the schema
-    package_plugin = lookup_package_plugin(pkg.type)
+    package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     try:
         schema = package_plugin.form_to_db_schema_options({'type':'update',
                                                'api':'api_version' in context})
     except AttributeError:
         schema = package_plugin.form_to_db_schema()
 
-    check_access('package_update', context, data_dict)
+    logic.check_access('package_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise logic.ValidationError(errors, error_summary(errors))
     return data
 
 
@@ -244,7 +237,7 @@ def package_relationship_update(context, data_dict):
 
     model = context['model']
     user = context['user']
-    schema = context.get('schema') or default_update_relationship_schema()
+    schema = context.get('schema') or logic.schema.default_update_relationship_schema()
     api = context.get('api_version') or '1'
 
     id = data_dict['subject']
@@ -255,21 +248,21 @@ def package_relationship_update(context, data_dict):
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
     if not pkg1:
-        raise NotFound('Subject package %r was not found.' % id)
+        raise logic.NotFound('Subject package %r was not found.' % id)
     if not pkg2:
-        return NotFound('Object package %r was not found.' % id2)
+        return logic.NotFound('Object package %r was not found.' % id2)
 
     data, errors = validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise logic.ValidationError(errors, error_summary(errors))
 
-    check_access('package_relationship_update', context, data_dict)
+    logic.check_access('package_relationship_update', context, data_dict)
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
-        raise NotFound('This relationship between the packages was not found.')
+        raise logic.NotFound('This relationship between the packages was not found.')
     entity = existing_rels[0]
     comment = data_dict.get('comment', u'')
     context['relationship'] = entity
@@ -285,22 +278,22 @@ def group_update(context, data_dict):
     group = model.Group.get(id)
     context["group"] = group
     if group is None:
-        raise NotFound('Group was not found.')
+        raise logic.NotFound('Group was not found.')
 
     # get the schema
-    group_plugin = lookup_group_plugin(group.type)
+    group_plugin = lib_plugins.lookup_group_plugin(group.type)
     try:
         schema = group_plugin.form_to_db_schema_options({'type':'update',
                                                'api':'api_version' in context})
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    check_access('group_update', context, data_dict)
+    logic.check_access('group_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
     if errors:
         session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise logic.ValidationError(errors, error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -325,7 +318,7 @@ def group_update(context, data_dict):
             session.add(member)
 
 
-    for item in PluginImplementations(IGroupController):
+    for item in plugins.PluginImplementations(plugins.IGroupController):
         item.edit(group)
 
     activity_dict = {
@@ -374,20 +367,20 @@ def user_update(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema') or default_update_user_schema()
+    schema = context.get('schema') or logic.schema.default_update_user_schema()
     id = data_dict['id']
 
     user_obj = model.User.get(id)
     context['user_obj'] = user_obj
     if user_obj is None:
-        raise NotFound('User was not found.')
+        raise logic.NotFound('User was not found.')
 
-    check_access('user_update', context, data_dict)
+    logic.check_access('user_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
     if errors:
         session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise logic.ValidationError(errors, error_summary(errors))
 
     user = model_save.user_dict_save(data, context)
 
@@ -418,22 +411,22 @@ def task_status_update(context, data_dict):
 
     user = context['user']
     id = data_dict.get("id")
-    schema = context.get('schema') or default_task_status_schema()
+    schema = context.get('schema') or logic.schema.default_task_status_schema()
 
     if id:
         task_status = model.TaskStatus.get(id)
         context["task_status"] = task_status
 
         if task_status is None:
-            raise NotFound(_('TaskStatus was not found.'))
+            raise logic.NotFound(_('TaskStatus was not found.'))
 
-    check_access('task_status_update', context, data_dict)
+    logic.check_access('task_status_update', context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise logic.ValidationError(errors, error_summary(errors))
 
     task_status = model_save.task_status_dict_save(data, context)
 
@@ -457,7 +450,7 @@ def task_status_update_many(context, data_dict):
 def term_translation_update(context, data_dict):
     model = context['model']
 
-    check_access('term_translation_update', context, data_dict)
+    logic.check_access('term_translation_update', context, data_dict)
 
     schema = {'term': [validators.not_empty, unicode],
               'term_translation': [validators.not_empty, unicode],
@@ -467,7 +460,7 @@ def term_translation_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors)
+        raise logic.ValidationError(errors)
 
     trans_table = model.term_translation_table 
 
@@ -493,7 +486,7 @@ def term_translation_update_many(context, data_dict):
     
 
     if not data_dict.get('data') and isinstance(data_dict, list):
-        raise ValidationError(
+        raise logic.ValidationError(
             {'error': 
              'term_translation_update_many needs to have a list of dicts in field data'}
         )
@@ -519,22 +512,22 @@ def package_update_rest(context, data_dict):
     pkg = model.Package.get(request_id)
 
     if not pkg:
-        raise NotFound
+        raise logic.NotFound
 
     if id and id != pkg.id:
         pkg_from_data = model.Package.get(id)
         if pkg_from_data != pkg:
             error_dict = {id:('Cannot change value of key from %s to %s. '
                 'This key is read-only') % (pkg.id, id)}
-            raise ValidationError(error_dict)
+            raise logic.ValidationError(error_dict)
 
     context["package"] = pkg
     context["allow_partial_update"] = True
     dictized_package = model_save.package_api_to_dict(data_dict, context)
 
-    check_access('package_update_rest', context, dictized_package)
+    logic.check_access('package_update_rest', context, dictized_package)
 
-    dictized_after = get_action('package_update')(context, dictized_package)
+    dictized_after = logic.get_action('package_update')(context, dictized_package)
 
     pkg = context['package']
 
@@ -555,9 +548,9 @@ def group_update_rest(context, data_dict):
     context["allow_partial_update"] = True
     dictized_group = model_save.group_api_to_dict(data_dict, context)
 
-    check_access('group_update_rest', context, dictized_group)
+    logic.check_access('group_update_rest', context, dictized_group)
 
-    dictized_after = get_action('group_update')(context, dictized_group)
+    dictized_after = logic.get_action('group_update')(context, dictized_group)
 
     group = context['group']
 
@@ -574,25 +567,25 @@ def vocabulary_update(context, data_dict):
 
     vocab_id = data_dict.get('id')
     if not vocab_id:
-        raise ValidationError({'id': _('id not in data')})
+        raise logic.ValidationError({'id': _('id not in data')})
 
     vocab = model.vocabulary.Vocabulary.get(vocab_id)
     if vocab is None:
-        raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
+        raise logic.NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
     data_dict['id'] = vocab.id
     if data_dict.has_key('name'):
         if data_dict['name'] == vocab.name:
             del data_dict['name']
 
-    check_access('vocabulary_update', context, data_dict)
+    logic.check_access('vocabulary_update', context, data_dict)
 
-    schema = context.get('schema') or default_update_vocabulary_schema()
+    schema = context.get('schema') or logic.schema.default_update_vocabulary_schema()
     data, errors = validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors)
+        raise logic.ValidationError(errors)
 
     updated_vocab = model_save.vocabulary_dict_update(data, context)
 
@@ -612,7 +605,7 @@ def package_relationship_update_rest(context, data_dict):
     # object and rel in the URI overwrite any values for these
     # in params. This is because you are not allowed to change
     # these values.
-    data_dict = rename_keys(data_dict, key_map, destructive=True)
+    data_dict = logic.action.rename_keys(data_dict, key_map, destructive=True)
 
     relationship_dict = package_relationship_update(context, data_dict)
 
@@ -628,43 +621,43 @@ def user_role_update(context, data_dict):
     new_user_ref = data_dict.get('user') # the user who is being given the new role
     new_authgroup_ref = data_dict.get('authorization_group') # the authgroup who is being given the new role
     if bool(new_user_ref) == bool(new_authgroup_ref):
-        raise ParameterError('You must provide either "user" or "authorization_group" parameter.')
+        raise logic.ParameterError('You must provide either "user" or "authorization_group" parameter.')
     domain_object_ref = data_dict['domain_object']
     if not isinstance(data_dict['roles'], (list, tuple)):
-        raise ParameterError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
+        raise logic.ParameterError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
     desired_roles = set(data_dict['roles'])
 
     if new_user_ref:
         user_object = model.User.get(new_user_ref)
         if not user_object:
-            raise NotFound('Cannot find user %r' % new_user_ref)
+            raise logic.NotFound('Cannot find user %r' % new_user_ref)
         data_dict['user'] = user_object.id
         add_user_to_role_func = model.add_user_to_role
         remove_user_from_role_func = model.remove_user_from_role
     else:
         user_object = model.AuthorizationGroup.get(new_authgroup_ref)
         if not user_object:
-            raise NotFound('Cannot find authorization group %r' % new_authgroup_ref)
+            raise logic.NotFound('Cannot find authorization group %r' % new_authgroup_ref)
         data_dict['authorization_group'] = user_object.id
         add_user_to_role_func = model.add_authorization_group_to_role
         remove_user_from_role_func = model.remove_authorization_group_from_role
 
-    domain_object = get_domain_object(model, domain_object_ref)
+    domain_object = logic.action.get_domain_object(model, domain_object_ref)
     data_dict['id'] = domain_object.id
     if isinstance(domain_object, model.Package):
-        check_access('package_edit_permissions', context, data_dict)
+        logic.check_access('package_edit_permissions', context, data_dict)
     elif isinstance(domain_object, model.Group):
-        check_access('group_edit_permissions', context, data_dict)
+        logic.check_access('group_edit_permissions', context, data_dict)
     elif isinstance(domain_object, model.AuthorizationGroup):
-        check_access('authorization_group_edit_permissions', context, data_dict)
+        logic.check_access('authorization_group_edit_permissions', context, data_dict)
     # Todo: 'system' object
     else:
-        raise ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
+        raise logic.ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
 
     # current_uors: in order to avoid either creating a role twice or
     # deleting one which is non-existent, we need to get the users\'
     # current roles (if any)
-    current_role_dicts = roles_show(context, data_dict)['roles']
+    current_role_dicts = logic.get_action('roles_show')(context, data_dict)['roles']
     current_roles = set([role_dict['role'] for role_dict in current_role_dicts])
 
     # Whenever our desired state is different from our current state,
@@ -678,7 +671,7 @@ def user_role_update(context, data_dict):
     if not (current_roles == desired_roles):
         model.repo.commit_and_remove()
 
-    return roles_show(context, data_dict)
+    return logic.get_action('roles_show')(context, data_dict)
 
 def user_role_bulk_update(context, data_dict):
     '''
@@ -701,4 +694,4 @@ def user_role_bulk_update(context, data_dict):
                              'roles': roles_by_user[user],
                              'domain_object': data_dict['domain_object']}
             user_role_update(context, uro_data_dict)
-    return roles_show(context, data_dict)
+    return logic.get_action('roles_show')(context, data_dict)

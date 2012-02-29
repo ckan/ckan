@@ -210,7 +210,8 @@ class ApiController(BaseController):
     def _get_action_from_map(self, action_map, register, subregister):
         # Helper function to get the action function specified in the action map
 
-        assert (register != 'package') # these should all have been redirected!
+        # TODO enable this test but we may break existing clients :(
+        # assert (register != 'package') # these should all have been redirected!
 
         action = action_map.get((register, subregister))
         if not action:
