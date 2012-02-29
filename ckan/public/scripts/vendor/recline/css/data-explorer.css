@@ -12,17 +12,50 @@
   padding-left: 0;
 }
 
-.header .pagination {
-  float: right;
-  margin: 4px;
+.header .recline-results-info {
+  line-height: 28px;
+  margin-left: 20px;
+  display: inline;
 }
 
-.header .pagination label {
+.header .recline-query-editor {
+  float: right;
+  height: 30px;
+}
+
+.header .recline-query-editor form {
+  height: 30px;
+  margin-bottom: 0;
+}
+
+.header .recline-query-editor label {
   float: none;
 }
 
-.header .pagination input {
+.header .recline-query-editor label {
+  float: none;
+}
+
+.header .recline-query-editor input.text-query {
+  float: left;  
+  margin-top: 1px;
+  margin-right: 5px;
+  width: 200px;
+}
+
+.header .recline-query-editor .pagination input {
   width: 30px;
+  height: 18px;
+  padding: 2px 4px;
+  margin-top: -4px;
+}
+
+.header .recline-query-editor .pagination a {
+  line-height: 28px;
+}
+
+.header .recline-query-editor form .btn {
+  margin-top: -23px;
 }
 
 .data-view-container {
@@ -90,36 +123,11 @@
   * Notifications
   *********************************************************/
 
-.notification-container {
-  width: 400px;
-  left: 520px;
-  display: none;
-  position: fixed;
-  top: 0;
-  z-index: 100;
-  text-align: center;
-}
-
-.notification {
-  display: inline-block;
-  margin: 0 auto;
-  padding: 5px 8px 4px;
-  font-size: 1.3em;
-  text-align: left;
-  font-weight: bold;
-  background: #fe8;
-  -moz-border-radius: 2px;
-  -webkit-border-radius: 2px;
-  border-radius: 2px;
-}
-
-.notification-action {
-  padding-left: 10px;
-}
-
 .notification-loader {
-  padding: 0 3px 0 0;
-  opacity: 0.3;
+  width: 18px;
+  margin-left: 5px;
+  background: url(images/small-spinner.gif) no-repeat;
+  display: inline-block;
 }
 
 
@@ -135,11 +143,13 @@
 .data-table {
   border: 1px solid #ccc;
   font-size: 12px;
+  width: 100%;
 }
 
 .data-table td, .data-table th {
   border-left: 1px solid #ccc;
   padding: 3px 4px;
+  text-align: left;
 }
 
 .data-table tr td:first-child, .data-table tr th:first-child {
@@ -150,7 +160,7 @@
   * Data Table Menus
   *********************************************************/
 
-a.column-header-menu {
+a.column-header-menu, a.root-header-menu {
   float: right;
   display: block;
   margin: 0 4px 0 0;
@@ -160,7 +170,7 @@ a.column-header-menu {
   background-repeat: no-repeat;
 }
 
-a.row-header-menu:hover {
+a.row-header-menu:hover, a.root-header-menu:hover {
   background-position: -17px 0px;
   text-decoration: none;
 }
@@ -173,6 +183,10 @@ a.row-header-menu {
   height: 18px;
   background-image: url(images/menu-dropdown.png);
   background-repeat: no-repeat;
+}
+
+.read-only a.row-header-menu {
+  display: none;
 }
 
 a.column-header-menu:hover {
@@ -511,14 +525,14 @@ td.expression-preview-value {
   * Read-only mode
   *********************************************************/
 
-.read-only .data-table tr td:first-child,
-.read-only .data-table tr th:first-child
+.read-only .no-hidden .data-table tr td:first-child,
+.read-only .no-hidden .data-table tr th:first-child
 {
   display: none;
 }
 
-.read-only .column-header-menu,
-.read-only .row-header-menu,
+
+.read-only .write-op,
 .read-only a.data-table-cell-edit
 {
   display: none;
