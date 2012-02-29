@@ -139,9 +139,9 @@ class I18nMiddleware(object):
         if cookie:
             cookies = [c.strip() for c in cookie.split(';')]
             lang = [c.split('=')[1] for c in cookies \
-                    if c.startswith('ckan_lang')][0]
-            if lang in self.local_list:
-                return lang
+                    if c.startswith('ckan_lang')]
+            if lang and lang[0] in self.local_list:
+                return lang[0]
         return None
 
     def __call__(self, environ, start_response):
