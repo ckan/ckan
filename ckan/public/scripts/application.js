@@ -899,7 +899,8 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     }
 
     if (resourceData.webstore_url) {
-      var dataset = new recline.Model.Dataset(resourceData, 'webstore');
+      resourceData.elasticsearch_url = '/api/data/' + resourceData.id;
+      var dataset = new recline.Model.Dataset(resourceData, 'elasticsearch');
       initializeDataExplorer(dataset);
     }
     else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
