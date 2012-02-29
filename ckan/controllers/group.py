@@ -67,7 +67,7 @@ class GroupController(BaseController):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(group_type=type),
+                   'schema': self._form_to_db_schema(group_type=group_type),
                    'for_view': True}
         data_dict = {'id': id}
         q = c.q = request.params.get('q', '') # unicode format (decoded from utf8)
