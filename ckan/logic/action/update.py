@@ -550,7 +550,7 @@ def group_update_rest(context, data_dict):
 
     check_access('group_update_rest', context, dictized_group)
 
-    dictized_after = group_update(context, dictized_group)
+    dictized_after = get_action('group_update')(context, dictized_group)
 
     group = context['group']
 

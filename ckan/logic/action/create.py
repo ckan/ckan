@@ -326,7 +326,7 @@ def group_create_rest(context, data_dict):
     check_access('group_create_rest', context, data_dict)
 
     dictized_group = model_save.group_api_to_dict(data_dict, context)
-    dictized_after = group_create(context, dictized_group)
+    dictized_after = logic.get_action('group_create')(context, dictized_group)
 
     group = context['group']
 
