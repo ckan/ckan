@@ -14,7 +14,7 @@ from ckan.logic import tuplize_dict, clean_dict, parse_params
 import ckan.forms
 import ckan.logic.action.get
 
-from lib.plugins import lookup_group_plugin as _lookup_plugin
+from lib.plugins import lookup_group_plugin
 
 log = logging.getLogger(__name__)
 
@@ -24,18 +24,18 @@ class GroupController(BaseController):
     ## hooks for subclasses
 
     def _group_form(self, group_type=None):
-        return _lookup_plugin(group_type).group_form()
+        return lookup_group_plugin(group_type).group_form()
 
     def _form_to_db_schema(self, group_type=None):
-        return _lookup_plugin(group_type).form_to_db_schema()
+        return lookup_group_plugin(group_type).form_to_db_schema()
 
     def _db_to_form_schema(self, group_type=None):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        return _lookup_plugin(group_type).form_to_db_schema()
+        return lookup_group_plugin(group_type).form_to_db_schema()
 
     def _setup_template_variables(self, context, data_dict, group_type=None):
-        return _lookup_plugin(group_type).setup_template_variables(context,data_dict)
+        return lookup_group_plugin(group_type).setup_template_variables(context,data_dict)
 
     ## end hooks
 
