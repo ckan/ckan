@@ -404,7 +404,7 @@ def package_relationship_create_rest(context, data_dict):
     # object and type to override the URL parameters.
     data_dict = logic.action.rename_keys(data_dict, key_map, destructive=False)
 
-    relationship_dict = package_relationship_create(context, data_dict)
+    relationship_dict = logic.get_action('package_relationship_create')(context, data_dict)
     return relationship_dict
 
 def tag_create(context, tag_dict):
