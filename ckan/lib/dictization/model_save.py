@@ -36,6 +36,11 @@ def resource_dict_save(res_dict, context):
             # of in a separate extras field like packages and groups
             obj.extras[key] = value
 
+    # Resource extras not submitted should be removed from the extras dict
+    extras_to_delete = set(obj.extras.keys()) - set(res_dict.keys())
+    for delete_me in extras_to_delete:
+        del obj.extras[delete_me]
+
     if context.get('pending'):
         if session.is_modified(obj, include_collections=False):
             obj.state = u'pending'

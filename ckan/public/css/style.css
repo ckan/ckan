@@ -1609,6 +1609,8 @@ button.resource-edit-delete {
 
 
 
+/* Right-hand-side edit resource panel */
+/* ----------------------------------- */
 .resource-panel {
   background: #f9f9f9;
   border: 1px solid #888;
@@ -1632,7 +1634,6 @@ button.resource-edit-delete {
 .resource-panel .hint {
   font-size: 11px;
 }
-
 .resource-details input[type="text"] {
   width: 350px;
 }
@@ -1642,5 +1643,24 @@ button.resource-edit-delete {
 }
 .resource-details .dataset-label {
   vertical-align: top;
+}
+
+/* Resource extra fields */
+/* --------------------- */
+.dynamic-extras .add-resource-extra {
+  margin-left: 320px;
+}
+.dynamic-extras .dynamic-extra {
+  margin: 1px 15px;
+}
+.dynamic-extras .remove-resource-extra {
+  padding: 0 7px;
+  font-size: 8px;
+}
+.dynamic-extras input.strikethrough {
+  text-decoration: line-through;
+}
+.dynamic-extras input[type="text"] {
+  width: 200px;
 }
 

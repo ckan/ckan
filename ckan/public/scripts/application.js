@@ -695,12 +695,15 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     this.collection.each(function(resource) {
       // Ask the DOM for the new sort order
       var index = resource.view.li.index();
+      resource.view.options.position = index;
       // Update the form element names
       var table = resource.view.table;
       $.each(table.find('input,textarea,select'), function(input_index, input) {
         var name = $(input).attr('name');
-        name = name.replace(/(resources__)\d+(.*)/, '$1'+index+'$2')
-        $(input).attr('name',name);
+        if (name) {
+          name = name.replace(/(resources__)\d+(.*)/, '$1'+index+'$2')
+          $(input).attr('name',name);
+        }
       });
     });
   },
@@ -711,7 +714,8 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     var maxId=-1;
     var root = this.el.find('.resource-panel');
     root.find('input').each(function(idx,input) {
-      var splitName=$(input).attr('name').split('__');
+      var name = $(input).attr('name') || '';
+      var splitName=name.split('__');
       if (splitName.length>1) {
         var myId = parseInt(splitName[1])
         maxId = Math.max(myId, maxId);
@@ -752,10 +756,11 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
  */
 CKAN.View.Resource = Backbone.View.extend({
   initialize: function() {
-    _.bindAll(this,'updateName','updateIcon','name','askToDelete','openMyPanel','setErrors');
+    _.bindAll(this,'updateName','updateIcon','name','askToDelete','openMyPanel','setErrors','setupDynamicExtras','addDynamicExtra');
     // Generate DOM elements
+    this.raw_resource = this.model.toTemplateJSON();
     var resource_object = { 
-        resource: this.model.toTemplateJSON(),
+        resource: this.raw_resource,
         num: this.options.position,
         resource_icon: '/images/icons/page_white.png',
         resourceTypeOptions: [
@@ -787,6 +792,7 @@ CKAN.View.Resource = Backbone.View.extend({
     // Set initial state
     this.updateName();
     this.updateIcon();
+    this.setupDynamicExtras();
     this.hasErrors = false;
   },
   /*
@@ -889,6 +895,86 @@ CKAN.View.Resource = Backbone.View.extend({
     if (confirm(confirmMessage)) {
       this.options.callback_deleteMe();
     }
+  },
+  /*
+   * Set up the dynamic-extras section of the table.
+   */
+  setupDynamicExtras: function() {
+    var self = this;
+    $.each(this.raw_resource, function(key,value) {
+      // Skip the known keys
+      if (self.reservedWord(key)) return;
+      self.addDynamicExtra(key,value);
+    });
+    this.table.find('.add-resource-extra').click(function(e) {
+      e.preventDefault();
+      self.addDynamicExtra('','');
+    });
+  },
+  addDynamicExtra: function(key,value) {
+    // Create elements
+    var dynamicExtra = $($.tmpl(CKAN.Templates.resourceExtra, {
+      num: this.options.position,
+      key: key,
+      value: value}));
+    this.table.find('.dynamic-extras').append(dynamicExtra);
+    // Captured values
+    var inputKey = dynamicExtra.find('.extra-key');
+    var inputValue = dynamicExtra.find('.extra-value');
+    // Callback function
+    var self = this;
+    var setExtraName = function() {
+      var _key = inputKey.val();
+      var key = _key.trim().replace(/\s+/g,'');
+      // Don't allow you to create an extra called mimetype (etc)
+      if (self.reservedWord(key)) key='';
+      // Set or unset the field's name
+      if (key.length) {
+        var newName = 'resources__'+self.options.position+'__'+key;
+        inputValue.attr('name',newName);
+        inputValue.removeClass('strikethrough');
+      }
+      else {
+        inputValue.removeAttr('name');
+        inputValue.addClass('strikethrough');
+      }
+    };
+    // Callback function
+    var clickRemove = function(e) {
+      e.preventDefault();
+      dynamicExtra.remove();
+    };
+    // Init with bindings
+    CKAN.Utils.bindInputChanges(dynamicExtra.find('.extra-key'), setExtraName);
+    dynamicExtra.find('.remove-resource-extra').click(clickRemove);
+    setExtraName();
+  },
+  reservedWord: function(word) {
+    return word=='cache_last_updated'
+    ||    word=='cache_url'
+    ||    word=='dataset'
+    ||    word=='description'
+    ||    word=='displaytitle'
+    ||    word=='extras'
+    ||    word=='format'
+    ||    word=='hash'
+    ||    word=='id'
+    ||    word=='last_modified'
+    ||    word=='mimetype'
+    ||    word=='mimetype_inner'
+    ||    word=='name'
+    ||    word=='position'
+    ||    word=='resource_group_id'
+    ||    word=='resource_type'
+    ||    word=='revision_id'
+    ||    word=='revision_timestamp'
+    ||    word=='size'
+    ||    word=='size_extra'
+    ||    word=='state'
+    ||    word=='url'
+    ||    word=='webstore_last_updated'
+    ||    word=='webstore_url'
+    ;
   },
   /* 
    * Called when my model is destroyed. Remove me from the page.

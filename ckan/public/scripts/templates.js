@@ -160,11 +160,23 @@ CKAN.Templates.resourceDetails = ' \
             ${resource.hash || "Unknown"} \
             <input name="resources__${num}__hash" type="hidden" value="${resource.hash}" /> \
           </td> \
+        </tr><tr> \
+        <td class="dynamic-extras" colspan="2"> \
+          <strong>Extra Fields</strong> \
+          <button class="pretty-button add-resource-extra">Add Extra Field</button>\
+        </td> \
         </tr> \
       </tbody> \
     </table> \
-    <button class="pretty-button danger resource-edit-delete js-resource-edit-delete">Delete</button>\
+    <button class="pretty-button danger resource-edit-delete js-resource-edit-delete">Delete Resource</button>\
     </td> \
   </div> \
 ';
 
+CKAN.Templates.resourceExtra = ' \
+  <div class="dynamic-extra"> \
+  <button class="pretty-button danger remove-resource-extra">X</button>\
+  <input type="text" placeholder="Key" class="extra-key" value="${key}" /> \
+  <input type="text" placeholder="Value" class="extra-value" value="${value}" /> \
+  </div> \
+  ';
