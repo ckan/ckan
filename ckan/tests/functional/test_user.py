@@ -195,7 +195,9 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'testlogin!userid_type:unicode' in cookie, cookie
 
         # navigate to another page and check username still displayed
+        print res.body
         res = res.click('Search')
+        print res
         assert 'testlogin' in res.body, res.body
 
     def test_login_wrong_password(self):
