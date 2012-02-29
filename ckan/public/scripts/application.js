@@ -1010,7 +1010,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
 
   my.showError = function (error) {
     var _html = _.template(
-        '<div class="alert-message warning"><strong><%= title %></strong><br /><%= message %></div>'
+        '<div class="alert alert-error"><strong><%= title %></strong><br /><%= message %></div>'
         , error
         );
     my.$dialog.html(_html);
