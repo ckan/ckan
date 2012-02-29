@@ -478,6 +478,7 @@ CKAN.Utils = function($, my) {
 
   my.setupMarkdownEditor = function(markdownEditor) {
     // Markdown editor hooks
+    console.log('setting up markdown');
     markdownEditor.find('button, div.markdown-preview').live('click', function(e) {
       e.preventDefault();
       var $target = $(e.target);

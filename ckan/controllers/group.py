@@ -392,9 +392,8 @@ class GroupController(BaseController):
         Given the id of a group it determines the type of a group given
         a valid id/name for the group.
         """
-        try:
-            group = model.Group.get( id )
-        except NotFound:
+        group = model.Group.get( id )
+        if not group:
             return None
 
         return group.type
