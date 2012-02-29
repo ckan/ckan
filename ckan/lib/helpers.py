@@ -459,3 +459,7 @@ def tag_link(tag):
 def group_link(group):
     url = url_for(controller='group', action='read', id=group['name'])
     return link_to(group['name'], url)
+
+def dump_json(obj):
+    import json
+    return json.dumps(obj)

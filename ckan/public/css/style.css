@@ -1558,6 +1558,25 @@ hr.resource-list-divide {
   background: #eee;
 }
 
+/* HasErrors */
+.resource-list li.hasErrors {
+  border-color: #c00;
+}
+.resource-list li.hasErrors .drag-bars,
+.resource-list li.hasErrors a {
+  color: #c00;
+}
+.resource-errors {
+  display: none;
+}
+.resource-errors dl {
+  margin-bottom: 0;
+}
+body.editresources .error-explanation {
+  /* Let JS render the resource errors inline */
+  display: none;
+}
+
 
 /* While dragging.... */
 .resource-list-edit li.ui-sortable-helper {

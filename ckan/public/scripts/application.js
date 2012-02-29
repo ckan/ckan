@@ -109,16 +109,6 @@
 var CKAN = CKAN || {};
 
 CKAN.Utils = function($, my) {
-
-  my.flashMessage = function(msg, category) {
-    if (!category) {
-      category = 'info';
-    }
-    var messageDiv = $('<div />').html(msg).addClass(category).hide();
-    $('.flash-messages').append(messageDiv);
-    messageDiv.show(1200);
-  };
-
   // Animate the appearance of an element by expanding its height
   my.animateHeight = function(element, animTime) {
     if (!animTime) animTime = 350;
@@ -551,12 +541,6 @@ CKAN.Utils = function($, my) {
       var flashWarning = function() {
         if (boundToUnload) return;
         boundToUnload = true;
-        // Don't show a flash message
-        //var parentDiv = $('<div />').addClass('flash-messages');
-        //var messageDiv = $('<div />').html(CKAN.Strings.youHaveUnsavedChanges).addClass('notice').hide();
-        //parentDiv.append(messageDiv);
-        //$('#unsaved-warning').append(parentDiv);
-        //messageDiv.show(200);
         // Bind to the window departure event
         window.onbeforeunload = function () {
           return CKAN.Strings.youHaveUnsavedChanges;
@@ -605,6 +589,14 @@ CKAN.Utils = function($, my) {
     });
   };
 
+  my.countObject = function(obj) {
+    var count=0;
+    $.each(obj, function() {
+      count++;
+    });
+    return count;
+  };
+
   return my;
 
 }(jQuery, CKAN.Utils || {});
@@ -640,6 +632,14 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     // Close details button
     this.el.find('.resource-panel-close').click(this.closePanel);
 
+    // Did we embed some form errors?
+    if ((typeof global_form_errors == 'object') && global_form_errors.resources) {
+      for (i in global_form_errors.resources) {
+        var resource_errors = global_form_errors.resources[i];
+        this.collection.at(i).view.setErrors(resource_errors);
+      }
+    }
+    // Initial state
     this.openFirstPanel();
   },
   /*
@@ -648,7 +648,18 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
    */
   openFirstPanel: function() {
     if (this.collection.length>0) {
-      this.collection.at(0).view.openMyPanel();
+      // Open the first resource with errors
+      var done = false;
+      this.collection.each(function(resource) {
+        if (!done && resource.view.hasErrors) {
+          resource.view.openMyPanel();
+          done = true;
+        }
+      });
+      if (!done) {
+        // Fall-through: No resources have errors. Open the first one.
+        this.collection.at(0).view.openMyPanel();
+      }
     }
     else {
       this.openAddPanel();
@@ -666,10 +677,6 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     this.el.find('.resource-details.resource-add').show();
     addLi.addClass('active');
     panel.show();
-    console.log(addLi.position());
-    console.log(addLi.parent());
-    console.log(addLi.parent().position());
-    console.log(panel.height());
     panel.css('top', Math.max(0, addLi.position().top + addLi.height() - panel.height()));
   },
   /*
@@ -745,7 +752,7 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
  */
 CKAN.View.Resource = Backbone.View.extend({
   initialize: function() {
-    _.bindAll(this,'updateName','updateIcon','name','askToDelete','openMyPanel');
+    _.bindAll(this,'updateName','updateIcon','name','askToDelete','openMyPanel','setErrors');
     // Generate DOM elements
     var resource_object = { 
         resource: this.model.toTemplateJSON(),
@@ -780,6 +787,30 @@ CKAN.View.Resource = Backbone.View.extend({
     // Set initial state
     this.updateName();
     this.updateIcon();
+    this.hasErrors = false;
+  },
+  /*
+   * Process a JSON object of errors attached to this resource
+   */
+  setErrors: function(obj) {
+    if (CKAN.Utils.countObject(obj) > 0) {
+      this.hasErrors = true;
+      this.errors = obj;
+      this.li.addClass('hasErrors');
+      var errorList = $('<dl/>').addClass('errorList');
+      $.each(obj,function(k,v) {
+        var errorText = '';
+        var newLine = false;
+        $.each(v,function(index,value) {
+          if (newLine) errorText += '<br/>';
+          errorText += value;
+          newLine = true;
+        });
+        errorList.append($('<dt/>').html(k));
+        errorList.append($('<dd/>').html(errorText));
+      });
+      this.table.find('.resource-errors').append(errorList).show();
+    }
   },
   /* 
    * Work out what I should be called. Rough-match 
