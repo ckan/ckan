@@ -849,9 +849,26 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
 
     function initializeDataExplorer(dataset) {
+      var views = [
+        {
+          id: 'grid',
+          label: 'Grid',
+          view: new recline.View.DataGrid({
+            model: dataset
+          })
+        },
+        {
+          id: 'graph',
+          label: 'Graph',
+          view: new recline.View.FlotGraph({
+            model: dataset
+          })
+        }
+      ];
       var dataExplorer = new recline.View.DataExplorer({
         el: my.$dialog
         , model: dataset
+        , views: views
         , config: {
           readOnly: true
         }
@@ -882,21 +899,13 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     }
 
     if (resourceData.webstore_url) {
-      var backend = new recline.Model.BackendWebstore({
-        url: resourceData.webstore_url
-      });
-      recline.Model.setBackend(backend);
-      var dataset = backend.getDataset();
+      var dataset = new recline.Model.Dataset(resourceData, 'webstore');
       initializeDataExplorer(dataset);
     }
     else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
-      var backend = new recline.Model.BackendDataProxy({
-        url: resourceData.url
-        , type: resourceData.formatNormalized
-      });
-      recline.Model.setBackend(backend);
-      var dataset = backend.getDataset();
+      var dataset = new recline.Model.Dataset(resourceData, 'dataproxy');
       initializeDataExplorer(dataset);
+      $('.recline-query-editor .text-query').hide();
     }
     else if (resourceData.formatNormalized in {
         'rdf+xml': '',
