@@ -96,7 +96,8 @@ def _add_i18n_to_url(url_to_amend, **kw):
     except TypeError:
         root = ''
     if default_locale:
-        url = '%s%s' % (root, url_to_amend)
+        url = url_to_amend[len(root):]
+        url = '%s%s' % (root, url)
     else:
         # we need to strip the root from the url and the add it before
         # the language specification.

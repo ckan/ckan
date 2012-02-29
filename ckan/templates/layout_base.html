@@ -82,7 +82,7 @@
           </span>
           <div id="mainmenu">
             <span py:if="h.check_access('package_create')">${h.nav_link(c, _('Add a dataset'), controller='package', action='new')}</span>
-            ${h.nav_link(c, _('Search'), controller='package', action='index', highlight_actions = 'new index')}
+            ${h.nav_link(c, _('Search'), controller='package', action='search', highlight_actions = 'new index')}
             ${h.nav_link(c, _('Groups'), controller='group', action='index')}
             ${h.nav_link(c, _('About'), controller='home', action='about')}
           </div>
