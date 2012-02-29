@@ -128,6 +128,18 @@ def make_map():
         m.connect('/util/tag/munge', action='munge_tag')
         m.connect('/util/status', action='status')
 
+    ## Webstore
+    if config.get('ckan.webstore.enabled', False):
+        map.connect('webstore_read', '/api/data/{id}{url:(/.*)?}',
+            controller='webstore', action='read', url='',
+            conditions={'method': ['GET']}
+            )
+        map.connect('webstore_write', '/api/data/{id}{url:(/.*)?}',
+            controller='webstore', action='write', url='',
+            conditions={'method': ['PUT','POST', 'DELETE']}
+            )
+
+
     ###########
     ## /END API
     ###########
@@ -152,7 +164,6 @@ def make_map():
               ]))
           )
 
-        m.connect('/dataset', action='index')
         m.connect('/dataset/{action}/{id}/{revision}', action='read_ajax',
           requirements=dict(action='|'.join([
           'read',
