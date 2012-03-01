@@ -261,6 +261,11 @@ img.gravatar {
   cursor: move;
 }
 
+ul.no-break li {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 /* =============== */
 /* MinorNavigation */
 /* =============== */
@@ -1264,6 +1269,10 @@ body.package.read #sidebar li.widget-container {
 }
 #notes-extract p {
   margin-bottom: 0;
+}
+#notes-remainder {
+  overflow: hidden;
+  padding: 0 8px;
 }
 #notes-remainder p:last-child {
   margin-bottom: 0;

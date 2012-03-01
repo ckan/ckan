@@ -14,8 +14,8 @@
         <py:if test="c.group_admins">
         <li>
         <h3>Administrators</h3> 
-          <ul py:for="admin in c.group_admins">
-            <li>${h.linked_user(admin)}</li>
+          <ul class="no-break">
+            <li py:for="admin in c.group_admins">${h.linked_user(admin)}</li>
           </ul>
         </li>
         </py:if>
@@ -31,7 +31,7 @@
       <div id="notes-extract">
         ${c.description_formatted}
       </div>
-      <div id="notes-remainder" style="display: none;"></div>
+      <div id="notes-remainder"></div>
       <div id="notes-toggle" style="display: none;">
         <button class="more pretty-button"><img src="/images/chevron-down.png"/></button>
         <button class="less pretty-button" style="display: none;"><img src="/images/chevron-up.png"/></button>

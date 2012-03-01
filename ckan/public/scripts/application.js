@@ -1057,14 +1057,16 @@ CKAN.Utils = function($, my) {
       $.each(paragraphs,function(i,para) {
         if (i > 0) remainder.append($(para).remove());
       });
+      var finalHeight = remainder.height();
+      remainder.height(0);
       notes.find('#notes-toggle').show();
       notes.find('#notes-toggle button').click(
         function(event){
           notes.find('#notes-toggle button').toggle();
           if ($(event.target).hasClass('more'))
-            remainder.slideDown();
+            remainder.animate({'height':finalHeight});
           else
-            remainder.slideUp();
+            remainder.animate({'height':0});
           return false;
         }
       );
