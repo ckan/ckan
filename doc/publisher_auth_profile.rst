@@ -32,5 +32,5 @@ To configure CKAN to use the publisher profile a single entry should be added to
 Setting auth.profile to publisher will enable the publisher authorization profile.  Setting it to nothing, or if it is not present will force CKAN to use the default authorization profile.
 
 Example::
-	auth.profile = publisher
+	ckan.auth.profile = publisher
 

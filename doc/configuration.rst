@@ -603,7 +603,7 @@ auth_profile
 This allows you to specify the auth profile to use for this installation.  By default this is empty and uses the default authorisation code, if set to publisher it will use the publisher profile in ckan/logic/auth/publisher. See :doc:`publisher_auth_profile` for more information.
 
 Example::
-	auth.profile = publisher
+	ckan.auth.profile = publisher
 
 With this example setting the publisher auth profile will be used.
 
