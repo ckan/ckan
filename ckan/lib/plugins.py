@@ -5,6 +5,7 @@ from ckan.lib import base
 from ckan.lib.navl import dictization_functions
 from ckan import authz
 from ckan import logic
+import logic.schema
 from ckan import plugins
 
 log = logging.getLogger(__name__)
