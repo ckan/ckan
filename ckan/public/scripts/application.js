@@ -788,6 +788,8 @@ CKAN.View.Resource = Backbone.View.extend({
     this.table.find('.js-resource-edit-delete').click(this.askToDelete);
     // Hook to open panel link
     this.li.find('.resource-open-my-panel').click(this.openMyPanel);
+    // Hook to markdown editor
+    CKAN.Utils.setupMarkdownEditor(this.table.find('.markdown-editor'));
 
     // Set initial state
     this.updateName();

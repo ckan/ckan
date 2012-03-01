@@ -926,6 +926,7 @@ input.url-input {
 /* = Mini-Tabs = */
 /* ============= */
 ul.button-row {
+  margin-top: 5px;
   margin-bottom: 5px;
 }
 ul.button-row li {
@@ -1637,9 +1638,12 @@ button.resource-edit-delete {
 .resource-details input[type="text"] {
   width: 350px;
 }
+.resource-details .markdown-editor {
+  width: 30em;
+}
 .resource-details textarea {
-  width: 350px;
-  height: 40px;
+  width: 340px;
+  height: 90px;
 }
 .resource-details .dataset-label {
   vertical-align: top;

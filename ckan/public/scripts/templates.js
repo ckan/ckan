@@ -89,7 +89,15 @@ CKAN.Templates.resourceDetails = ' \
         <tr> \
           <td class="dataset-label" property="rdfs:label">'+CKAN.Strings.description+'</td> \
           <td class="dataset-details" property="rdf:value"> \
-            <textarea class="js-resource-edit-description" name="resources__${num}__description" type="text">${resource.description}</textarea> \
+            <div class="markdown-editor"> \
+              <ul class="button-row"> \
+                <li><button class="pretty-button js-markdown-edit depressed">Edit</button></li> \
+                <li><button class="pretty-button js-markdown-preview">Preview</button></li> \
+              </ul> \
+              <textarea class="js-resource-edit-description markdown-input" name="resources__${num}__description">${resource.description}</textarea> \
+              <div class="markdown-preview" style="display: none;"></div> \
+              <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span> \
+            </div> \
           </td> \
         </tr> \
         <tr> \
