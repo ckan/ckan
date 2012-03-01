@@ -128,108 +128,124 @@ var CKAN = CKAN || {};
 /* ============================== */
 CKAN.View.UrlEditor = Backbone.View.extend({
   initialize: function() {
-    var slugType = this.options.slugType;
-    var editMode = this.options.editMode;
-    
-    if (!editMode) var editMode = false;
-    // Page elements to hook onto
-    var titleInput = $('.js-title');
-    var urlSuffix = $('.js-url-suffix');
-    var urlInput = $('.js-url-input');
-    var validMsg = $('.js-url-is-valid');
+    _.bindAll(this,'titleToSlug','titleChanged','urlChanged','checkSlugIsValid','toEditMode','apiCallback');
 
-    if (titleInput.length==0) throw "No titleInput found.";
-    if (urlSuffix.length==0) throw "No urlSuffix found.";
-    if (urlInput.length==0) throw "No urlInput found.";
-    if (validMsg.length==0) throw "No validMsg found.";
+    // Initial state
+    this.updateTimer = null;
+    this.titleInput = $('.js-title');
+    this.urlSuffix = $('.js-url-suffix');
+    this.urlInput = $('.js-url-input');
+    this.validMsg = $('.js-url-is-valid');
+    this.lastTitle = "";
+    this.disableTitleChanged = false;
 
-    var api_url = CKAN.SITE_URL + '/api/2/util/is_slug_valid';
-    // (make length less than max, in case we need a few for '_' chars to de-clash slugs.)
-    var MAX_SLUG_LENGTH = 90;
+    // Settings
+    this.regexToHyphen = [ new RegExp('[ .:/_]', 'g'),
+                      new RegExp('[^a-zA-Z0-9-_]', 'g'),
+                      new RegExp('-+', 'g')];
+    this.regexToDelete = [ new RegExp('^-*', 'g'),
+                      new RegExp('-*$', 'g')];
 
-    var titleChanged = function() {
-      var lastTitle = "";
-      var regexToHyphen = [ new RegExp('[ .:/_]', 'g'),
-                        new RegExp('[^a-zA-Z0-9-_]', 'g'),
-                        new RegExp('-+', 'g')];
-      var regexToDelete = [ new RegExp('^-*', 'g'),
-                        new RegExp('-*$', 'g')];
+    // Default options
+    if (!this.options.apiUrl)
+      this.options.apiUrl = CKAN.SITE_URL + '/api/2/util/is_slug_valid';
+    if (!this.options.MAX_SLUG_LENGTH)
+      this.options.MAX_SLUG_LENGTH = 90;
+    if (!this.options.editMode)
+      this.options.editMode = false;
 
-      var titleToSlug = function(title) {
-        var slug = title;
-        $.each(regexToHyphen, function(idx,regex) { slug = slug.replace(regex, '-'); });
-        $.each(regexToDelete, function(idx,regex) { slug = slug.replace(regex, ''); });
-        slug = slug.toLowerCase();
+    if (this.options.editMode) {
+      this.originalUrl = this.urlInput.val();
+    }
 
-        if (slug.length<MAX_SLUG_LENGTH) {
-            slug=slug.substring(0,MAX_SLUG_LENGTH);
-        }
-        return slug;
-      };
-
-      // Called when the title changes
-      return function() {
-        var title = titleInput.val();
-        if (title == lastTitle) return;
-        lastTitle = title;
-
-        slug = titleToSlug(title);
-        urlInput.val(slug);
-        urlInput.change();
-      };
-    }();
-
-    var urlChanged = function() {
-      var timer = null;
-
-      var checkSlugValid = function(slug) {
-        $.ajax({
-          url: api_url,
-          data: 'type='+slugType+'&slug=' + slug,
-          dataType: 'jsonp',
-          type: 'get',
-          jsonpCallback: 'callback',
-          success: function (data) {
-            if (data.valid) {
-              validMsg.html('<span style="font-weight: bold; color: #0c0">'+CKAN.Strings.urlIsAvailable+'</span>');
-            } else {
-              validMsg.html('<span style="font-weight: bold; color: #c00">'+CKAN.Strings.urlIsNotAvailable+'</span>');
-            }
-          }
-        });
-      }
-
-      return function() {
-        slug = urlInput.val();
-        urlSuffix.html('<span>'+slug+'</span>');
-        if (timer) clearTimeout(timer);
-        if (slug.length<2) {
-          validMsg.html('<span style="font-weight: bold; color: #444;">'+CKAN.Strings.urlIsTooShort+'</span>');
-        }
-        else {
-          validMsg.html('<span style="color: #777;">'+CKAN.Strings.checking+'</span>');
-          timer = setTimeout(function () {
-            checkSlugValid(slug);
-          }, 200);
-        }
-      };
-    }();
-
-    var editLink = $('.js-url-editlink');
-    editLink.show();
     // Hook title changes to the input box
-    CKAN.Utils.bindInputChanges(titleInput, titleChanged);
-    CKAN.Utils.bindInputChanges(urlInput, urlChanged);
-    // Set up the form
-    urlChanged();
+    CKAN.Utils.bindInputChanges(this.titleInput, this.titleChanged);
+    CKAN.Utils.bindInputChanges(this.urlInput, this.urlChanged);
+    $('.url-edit').click(this.toEditMode);
 
-    editLink.live('click',function(e) {
-      e.preventDefault();
-      $('.js-url-viewmode').hide();
-      $('.js-url-editmode').show();
-      urlInput.select();
-      urlInput.focus();
+    // Set up the form
+    this.urlChanged();
+    if (this.options.editMode) {
+      this.toEditMode();
+      this.validMsg.html('');
+    }
+  },
+
+  toEditMode: function(event) {
+    $('.js-url-viewmode').hide();
+    $('.js-url-editmode').show();
+    if (event) {
+      // If we clicked a link, highlight the input
+      event.preventDefault();
+      this.urlInput.select();
+      this.urlInput.focus();
+    }
+    // Disable automatic slug generation
+    this.disableTitleChanged = true;
+  },
+
+  titleToSlug: function(title) {
+    var slug = title;
+    $.each(this.regexToHyphen, function(idx,regex) { slug = slug.replace(regex, '-'); });
+    $.each(this.regexToDelete, function(idx,regex) { slug = slug.replace(regex, ''); });
+    slug = slug.toLowerCase();
+
+    if (slug.length<this.options.MAX_SLUG_LENGTH) {
+        slug=slug.substring(0,this.options.MAX_SLUG_LENGTH);
+    }
+    return slug;
+  },
+
+  /* Called when the title changes */
+  titleChanged:  function() {
+    if (this.disableTitleChanged) return;
+    var title = this.titleInput.val();
+    if (title == this.lastTitle) return;
+    this.lastTitle = title;
+
+    slug = this.titleToSlug(title);
+    this.urlInput.val(slug);
+    this.urlInput.change();
+  },
+
+  /* Called when the url is changed */
+  urlChanged: function() {
+    var slug = this.urlInput.val();
+    this.urlSuffix.html('<span>'+slug+'</span>');
+    if (this.updateTimer) clearTimeout(this.updateTimer);
+    if (slug.length<2) {
+      this.validMsg.html('<span style="font-weight: bold; color: #444;">'+CKAN.Strings.urlIsTooShort+'</span>');
+    }
+    else if (this.options.editMode && slug==this.originalUrl) {
+      this.validMsg.html('<span style="font-weight: bold; color: #000;">'+CKAN.Strings.urlIsUnchanged+'</span>');
+    }
+    else {
+      this.validMsg.html('<span style="color: #777;">'+CKAN.Strings.checking+'</span>');
+      var self = this;
+      this.updateTimer = setTimeout(function () {
+        self.checkSlugIsValid(slug);
+      }, 200);
+    }
+  },
+  
+  checkSlugIsValid: function(slug) {
+    $.ajax({
+      url: this.options.apiUrl,
+      data: 'type='+this.options.slugType+'&slug=' + slug,
+      dataType: 'jsonp',
+      type: 'get',
+      jsonpCallback: 'callback',
+      success: this.apiCallback
     });
+  },
+  
+  /* Called when the slug-validator gets back to us */
+  apiCallback: function(data) {
+    if (data.valid) {
+      this.validMsg.html('<span style="font-weight: bold; color: #0c0">'+CKAN.Strings.urlIsAvailable+'</span>');
+    } else {
+      this.validMsg.html('<span style="font-weight: bold; color: #c00">'+CKAN.Strings.urlIsNotAvailable+'</span>');
+    }
   },
 });
 
