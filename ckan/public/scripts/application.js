@@ -212,8 +212,13 @@ CKAN.View.UrlEditor = Backbone.View.extend({
   /* Called when the url is changed */
   urlChanged: function() {
     var slug = this.urlInput.val();
-    this.urlSuffix.html('<span>'+slug+'</span>');
     if (this.updateTimer) clearTimeout(this.updateTimer);
+    if (slug.length==0) {
+      this.urlSuffix.html('<span>...</span>');
+    }
+    else {
+      this.urlSuffix.html('<span>'+slug+'</span>');
+    }
     if (slug.length<2) {
       this.validMsg.html('<span style="font-weight: bold; color: #444;">'+CKAN.Strings.urlIsTooShort+'</span>');
     }

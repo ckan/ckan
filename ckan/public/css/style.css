@@ -1067,9 +1067,8 @@ body.editresources #sidebar {
 .dataset-create-form fieldset#basic-information,
 .dataset-create-form fieldset#resources {
   display: block;
-}
-.dataset-create-form .edit-summary {
-  display: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 .dataset-create-form dt.homepage-label,
 .dataset-create-form dd.homepage-field,
@@ -1083,23 +1082,17 @@ body.editresources #sidebar {
 {
   display: none;
 }
-.dataset-create-form dt.description-label,
-.dataset-create-form dd.description-field,
-.dataset-create-form dd.description-instructions 
-{
-  display: none;
-}
-.dataset-create-form dt.license-label,
-.dataset-create-form dd.license-field,
-.dataset-create-form dd.license-instructions 
-{
-  display: none;
+dd.license-instructions {
+  font-size: 11px;
 }
 .dataset-create-form dd.name-field {
   padding-top: 0.2em;
 }
 .dataset-create-form dd.name-field p {
   margin-bottom: 4px;
+}
+.dataset-create-form .description-field textarea {
+  height: 70px;
 }
 
 .group-create-form dd.name-field {
@@ -1118,6 +1111,19 @@ p.url-is-long {
   display: none;
   font-size: 11px;
   font-weight: bold;
+}
+div.author-box,
+label.edit-summary {
+  font-size: 11px;
+  color: #666;
+}
+#log_message {
+  height: 40px;
+  color: #666;
+  font-size: 11px;
+}
+#log_message:focus {
+  color: #000;
 }
 
 
@@ -1527,8 +1533,12 @@ fieldset#resources {
   position: relative;
   padding: 0;
 }
-body.editresources fieldset#resources > h3 {
+body.editresources fieldset#resources > .instructions {
   display: none;
+}
+fieldset#resources > .instructions {
+  width: 300px;
+  padding: 12px 12px 2px 12px;
 }
 .resource-list {
   list-style-type: none;
@@ -1664,6 +1674,9 @@ button.resource-edit-delete {
 }
 .resource-details .dataset-label {
   vertical-align: top;
+}
+.resource-details.resource-add {
+  margin-bottom: 30px;
 }
 
 /* Resource extra fields */

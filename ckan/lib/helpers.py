@@ -463,3 +463,13 @@ def group_link(group):
 def dump_json(obj):
     import json
     return json.dumps(obj)
+
+def auto_log_message(context):
+    from pylons.i18n import _
+    if (context.action=='new') :
+        return _('Created new dataset.')
+    elif (context.action=='editresources'):
+        return _('Edited resources.')
+    elif (context.action=='edit'):
+        return _('Edited settings.')
+    return ''

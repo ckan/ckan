@@ -64,7 +64,7 @@
         </py:for>
       </select>
     </dd>
-    <dd class="license-instructions instructions basic">The licence under which the dataset is released.</dd>
+    <dd class="license-instructions instructions basic">(Don't worry if you don't know which license the data has been released under).</dd>
 
     <dt class="description-label"><label class="field_opt" for="notes">Description</label></dt>
     <dd class="description-field"><div class="markdown-editor">
@@ -124,7 +124,10 @@
 </fieldset>
 
 <fieldset id="resources">
-  <h3>Add resources:</h3>
+  <div class="instructions">
+    <h3>Add resources:</h3>
+    <p>Upload or link data files, APIs and other materials related to your dataset.</p>
+  </div>
   <div class="js-resource-edit-barebones">
     <!-- The resource editor deletes these fields and replaces them with a dynamic editor.
          They are required for the form to render correctly when not in resource-edit mode. -->
@@ -216,13 +219,13 @@
 
 <div id="unsaved-warning"></div>
 
-<label for="log_message" class="edit-summary">Edit summary (briefly describe the changes you have made)</label>
-<textarea id="log_message" name="log_message" class="edit-summary short wide">${data.get('log_message', '')}</textarea>
+<label for="log_message" class="edit-summary">Edit summary (briefly describe the changes you have made)...</label>
+<textarea id="log_message" name="log_message" class="edit-summary short wide">${data.get('log_message', h.auto_log_message(c))}</textarea>
 
-<div class="ckan-logged-in" style="display: none;">
+<div class="author-box ckan-logged-in" style="display: none;">
   <p>Author: ${c.author}</p>
 </div>
-<div class="ckan-logged-out">
+<div class="author-box ckan-logged-out">
   <label>Author: ${c.author}</label>
   <p i18n:msg="" class="hints">
     Since you have not signed in this will just be your IP address.
