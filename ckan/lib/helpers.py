@@ -39,6 +39,7 @@ except ImportError:
 
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
+    kw['__ckan_no_root'] = True
     return _redirect_to(url_for(*args, **kw))
 
 def url(*args, **kw):
@@ -79,6 +80,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
 
     default_locale = False
     locale = kw.pop('locale', None)
+    no_root = kw.pop('__ckan_no_root', False)
     allowed_locales = ['default'] + i18n.get_locales()
     if locale and locale not in allowed_locales:
         locale = None
@@ -96,13 +98,17 @@ def _add_i18n_to_url(url_to_amend, **kw):
     except TypeError:
         root = ''
     if default_locale:
-        url = url_to_amend[len(root):]
-        url = '%s%s' % (root, url)
+        url = url_to_amend
     else:
         # we need to strip the root from the url and the add it before
         # the language specification.
         url = url_to_amend[len(root):]
         url = '%s/%s%s' % (root, locale,  url)
+
+    # stop the root being added twice in redirects
+    if no_root:
+        url = url_to_amend[len(root):]
+
     return url
 
 class Message(object):
