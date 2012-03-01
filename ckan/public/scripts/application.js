@@ -136,6 +136,7 @@ CKAN.View.UrlEditor = Backbone.View.extend({
     this.urlSuffix = $('.js-url-suffix');
     this.urlInput = $('.js-url-input');
     this.validMsg = $('.js-url-is-valid');
+    this.lengthMsg = $('.url-is-long');
     this.lastTitle = "";
     this.disableTitleChanged = false;
 
@@ -225,6 +226,12 @@ CKAN.View.UrlEditor = Backbone.View.extend({
       this.updateTimer = setTimeout(function () {
         self.checkSlugIsValid(slug);
       }, 200);
+    }
+    if (slug.length>20) {
+      this.lengthMsg.show();
+    }
+    else {
+      this.lengthMsg.hide();
     }
   },
   

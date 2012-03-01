@@ -1115,6 +1115,12 @@ a.url-edit {
   font-weight: normal;
   margin-left: 10px;
 }
+p.url-is-long {
+  color: #600;
+  display: none;
+  font-size: 11px;
+  font-weight: bold;
+}
 
 
 /* ===================== */
