@@ -180,13 +180,6 @@ tbody tr:nth-child(even) td, tbody tr.even td {
 tbody tr:nth-child(odd) td, tbody tr.odd td {
   background-color: #F2F2F2;
 }
-tbody tr.table-empty td {
-  background: #f8f8f8;
-  border: 1px solid #eee;
-  font-style: italic;
-  color: #333;
-  font-size: 90%;
-}
 
 
 /* ==================== */
