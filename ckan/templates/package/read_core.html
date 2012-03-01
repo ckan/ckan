@@ -29,7 +29,7 @@
         </py:if></h3>
         <ul class="resource-list">
           <py:for each="res in c.pkg_dict.get('resources', [])">
-          <li class="ui-state-default">
+          <li>
             <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">
               ${h.resource_icon(res)}
               ${h.resource_display_name(res)}
