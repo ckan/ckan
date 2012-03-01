@@ -296,14 +296,26 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     this.el.find('.resource-panel-close').click(this.closePanel);
 
     // Did we embed some form errors?
-    if ((typeof global_form_errors == 'object') && global_form_errors.resources) {
-      for (i in global_form_errors.resources) {
-        var resource_errors = global_form_errors.resources[i];
-        this.collection.at(i).view.setErrors(resource_errors);
+    if (typeof global_form_errors == 'object') {
+      if (global_form_errors.resources) {
+        var openedOne = false;
+        for (i in global_form_errors.resources) {
+          var resource_errors = global_form_errors.resources[i];
+          if (CKAN.Utils.countObject(resource_errors) > 0) {
+            var resource = this.collection.at(i);
+            resource.view.setErrors(resource_errors);
+            if (!openedOne) {
+              resource.view.openMyPanel();
+              openedOne = true;
+            }
+          }
+        }
       }
     }
-    // Initial state
-    this.openFirstPanel();
+    else {
+      // Initial state
+      this.openFirstPanel();
+    }
   },
   /*
    * Called when the page loads or the current resource is deleted. 
@@ -311,18 +323,7 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
    */
   openFirstPanel: function() {
     if (this.collection.length>0) {
-      // Open the first resource with errors
-      var done = false;
-      this.collection.each(function(resource) {
-        if (!done && resource.view.hasErrors) {
-          resource.view.openMyPanel();
-          done = true;
-        }
-      });
-      if (!done) {
-        // Fall-through: No resources have errors. Open the first one.
-        this.collection.at(0).view.openMyPanel();
-      }
+      this.collection.at(0).view.openMyPanel();
     }
     else {
       this.openAddPanel();

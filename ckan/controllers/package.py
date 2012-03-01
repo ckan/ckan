@@ -321,6 +321,7 @@ class PackageController(BaseController):
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=[CACHE_PARAMETER]))))
+        c.pkg_json = json.dumps(data) 
 
         errors = errors or {}
         error_summary = error_summary or {}

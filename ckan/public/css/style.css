@@ -1479,6 +1479,10 @@ fieldset#resources > .instructions {
 /* HasErrors */
 .resource-list li.hasErrors {
   border-color: #c00;
+  border-right: 1px solid #c00;
+}
+.resource-list li.active.hasErrors {
+  border-right: 0;
 }
 .resource-list li.hasErrors .drag-bars,
 .resource-list li.hasErrors a {
