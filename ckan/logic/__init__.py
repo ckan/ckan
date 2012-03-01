@@ -6,6 +6,8 @@ from ckan.lib.navl.dictization_functions import flatten_dict, DataError
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IActions
 
+log = logging.getLogger(__name__)
+
 class AttributeDict(dict):
     def __getattr__(self, name):
         try:
@@ -40,12 +42,19 @@ class ValidationError(ParameterError):
 
 log = logging.getLogger(__name__)
 
-def parse_params(params):
+def parse_params(params, ignore_keys=None):
+    '''Takes a dict and returns it with some values standardised.
+    This is done on a dict before calling tuplize_dict on it.
+    '''
     parsed = {}
     for key in params:
+        if ignore_keys and key in ignore_keys:
+            continue
         value = params.getall(key)
+        # Blank values become ''
         if not value:
             value = ''
+        # A list with only one item is stripped of being a list
         if len(value) == 1:
             value = value[0]
         parsed[key] = value
@@ -87,12 +96,14 @@ def clean_dict(data_dict):
     return data_dict
 
 def tuplize_dict(data_dict):
-    ''' gets a dict with keys of the form 'table__0__key' and converts them
+    '''Takes a dict with keys of the form 'table__0__key' and converts them
     to a tuple like ('table', 0, 'key').
+
+    Dict should be put through parse_dict before this function, to have
+    values standardized.
 
     May raise a DataError if the format of the key is incorrect.
     '''
-
     tuplized_dict = {}
     for key, value in data_dict.iteritems():
         key_list = key.split('__')

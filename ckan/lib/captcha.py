@@ -13,7 +13,8 @@ def check_recaptcha(request):
     
     client_ip_address = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
     recaptcha_challenge_field = request.params.get('recaptcha_challenge_field')
-    recaptcha_response_field = request.params.get('recaptcha_response_field')
+    recaptcha_response_field = request.params.get('recaptcha_response_field',
+            '')
 
     recaptcha_server_name = 'http://api-verify.recaptcha.net/verify'
 

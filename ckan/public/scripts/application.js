@@ -54,7 +54,7 @@ var CKAN = CKAN || {};
 
     var isResourceView = $('body.package.resource_read').length > 0;
     if (isResourceView) {
-      CKANEXT.DATAPREVIEW.loadPreviewDialog(preload_resource);
+      CKAN.DataPreview.loadPreviewDialog(preload_resource);
     }
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
@@ -524,7 +524,7 @@ CKAN.View.Resource = Backbone.View.extend({
     }
     self.updateIconTimer = setTimeout(function() {
         // AJAX to server API
-        $.getJSON('/api/2/util/format_icon?format='+encodeURIComponent(self.formatBox.val()), function(data) {
+        $.getJSON('/api/2/util/resource/format_icon?format='+encodeURIComponent(self.formatBox.val()), function(data) {
           if (data && data.icon && data.format==self.formatBox.val()) {
             self.li.find('.js-resource-icon').attr('src',data.icon);
             self.table.find('.js-resource-icon').attr('src',data.icon);
@@ -627,6 +627,7 @@ CKAN.View.Resource = Backbone.View.extend({
     ||    word=='mimetype'
     ||    word=='mimetype_inner'
     ||    word=='name'
+    ||    word=='package_id'
     ||    word=='position'
     ||    word=='resource_group_id'
     ||    word=='resource_type'
@@ -1139,9 +1140,7 @@ CKAN.Utils = function($, my) {
     });
     return count;
   };
-
   return my;
-
 }(jQuery, CKAN.Utils || {});
 
 
@@ -1167,9 +1166,26 @@ CKAN.DataPreview = function ($, my) {
     my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
 
     function initializeDataExplorer(dataset) {
+      var views = [
+        {
+          id: 'grid',
+          label: 'Grid',
+          view: new recline.View.DataGrid({
+            model: dataset
+          })
+        },
+        {
+          id: 'graph',
+          label: 'Graph',
+          view: new recline.View.FlotGraph({
+            model: dataset
+          })
+        }
+      ];
       var dataExplorer = new recline.View.DataExplorer({
         el: my.$dialog
         , model: dataset
+        , views: views
         , config: {
           readOnly: true
         }
@@ -1200,21 +1216,14 @@ CKAN.DataPreview = function ($, my) {
     }
 
     if (resourceData.webstore_url) {
-      var backend = new recline.Model.BackendWebstore({
-        url: resourceData.webstore_url
-      });
-      recline.Model.setBackend(backend);
-      var dataset = backend.getDataset();
+      resourceData.elasticsearch_url = '/api/data/' + resourceData.id;
+      var dataset = new recline.Model.Dataset(resourceData, 'elasticsearch');
       initializeDataExplorer(dataset);
     }
     else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
-      var backend = new recline.Model.BackendDataProxy({
-        url: resourceData.url
-        , type: resourceData.formatNormalized
-      });
-      recline.Model.setBackend(backend);
-      var dataset = backend.getDataset();
+      var dataset = new recline.Model.Dataset(resourceData, 'dataproxy');
       initializeDataExplorer(dataset);
+      $('.recline-query-editor .text-query').hide();
     }
     else if (resourceData.formatNormalized in {
         'rdf+xml': '',
@@ -1328,7 +1337,7 @@ CKAN.DataPreview = function ($, my) {
 
   my.showError = function (error) {
     var _html = _.template(
-        '<div class="alert-message warning"><strong><%= title %></strong><br /><%= message %></div>'
+        '<div class="alert alert-error"><strong><%= title %></strong><br /><%= message %></div>'
         , error
         );
     my.$dialog.html(_html);

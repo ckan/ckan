@@ -187,6 +187,16 @@ def default_group_schema():
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
             "__extras": [ignore]
+        },
+        'users': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
+            "__extras": [ignore]
+        },
+        'groups': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
+            "__extras": [ignore]
         }
     }
     return schema

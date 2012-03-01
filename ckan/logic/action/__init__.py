@@ -1,6 +1,8 @@
 from copy import deepcopy
+import re
 
 from ckan.logic import NotFound
+from ckan.lib.base import _, abort
 
 def rename_keys(dict_, key_map, reverse=False, destructive=False):
     '''Returns a dict that has particular keys renamed,
@@ -40,3 +42,22 @@ def get_domain_object(model, domain_object_ref):
         return user
     raise NotFound('Domain object %r not found' % domain_object_ref)
 
+def error_summary(error_dict):
+    ''' Do some i18n stuff on the error_dict keys '''
+
+    def prettify(field_name):
+        field_name = re.sub('(?<!\w)[Uu]rl(?!\w)', 'URL',
+                            field_name.replace('_', ' ').capitalize())
+        return _(field_name.replace('_', ' '))
+
+    summary = {}
+    for key, error in error_dict.iteritems():
+        if key == 'resources':
+            summary[_('Resources')] = _('Package resource(s) invalid')
+        elif key == 'extras':
+            summary[_('Extras')] = _('Missing Value')
+        elif key == 'extras_validation':
+            summary[_('Extras')] = error[0]
+        else:
+            summary[_(prettify(key))] = error[0]
+    return summary

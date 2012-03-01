@@ -37,6 +37,9 @@
   <!--[if lt IE 8]>
     <link rel="stylesheet" href="${h.url_for_static('/css/blueprint/ie.css')}" type="text/css" media="screen, projection">
   <![endif]-->
+  <!--[if lt IE 9]>
+    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/html5shiv/html5.js')}"></script>
+  <![endif]-->
   <link rel="stylesheet" href="${h.url_for_static('/css/style.css?v=2')}" />
 
   <py:if test="defined('optional_head')">
@@ -81,7 +84,7 @@
           </span>
           <div id="mainmenu">
             <span py:if="h.check_access('package_create')">${h.nav_link(c, _('Add a dataset'), controller='package', action='new')}</span>
-            ${h.nav_link(c, _('Search'), controller='package', action='index', highlight_actions = 'new index')}
+            ${h.nav_link(c, _('Search'), controller='package', action='search', highlight_actions = 'new index')}
             ${h.nav_link(c, _('Groups'), controller='group', action='index')}
             ${h.nav_link(c, _('About'), controller='home', action='about')}
           </div>
@@ -122,8 +125,8 @@
       </div>
     </div>
     <br/><br/>
-    <div id="push"></div>
   </div>
+  <div class="clearfix"></div>
   <div class="footer outer">
     <footer class="container">
         <div class="xoxo span-6">
@@ -134,7 +137,7 @@
               <li>
                 <a href="http://twitter.com/ckanproject">Twitter @ckanproject</a>
               </li>
-                <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api'))}</li>
+                <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1))}</li>
                 <li>${h.link_to(_('API Docs'), 'http://wiki.ckan.net/API')}</li>
               <li>
                 <a href="http://ckan.org/contact/">Contact Us</a>

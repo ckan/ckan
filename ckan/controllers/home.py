@@ -1,12 +1,8 @@
 import random
-import sys
 
-from pylons import config
 from pylons.i18n import set_lang
-from genshi.template import NewTextTemplate
 import sqlalchemy.exc
 
-from ckan.authz import Authorizer
 from ckan.logic import NotAuthorized
 from ckan.logic import check_access, get_action
 from ckan.lib.i18n import get_lang
@@ -14,6 +10,8 @@ from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.base import *
 from ckan.lib.hash import get_redirect
 from ckan.lib.helpers import url_for
+
+CACHE_PARAMETER = '__cache'
 
 class HomeController(BaseController):
     repo = model.repo
@@ -67,14 +65,16 @@ class HomeController(BaseController):
                 c.userobj.name.startswith('https://www.google.com/accounts/o8/id')
             if not c.userobj.email and (is_google_id and not c.userobj.fullname):
                 msg = _('Please <a href="%s">update your profile</a>'
-                    ' and add your email address and your full name. %s uses'
-                    ' your email address if you need to reset your'
-                    ' password.''') % (url, g.site_title)
+                    ' and add your email address and your full name. ') % url + \
+                    _('%s uses your email address'
+                      ' if you need to reset your password.') \
+                      % g.site_title
             elif not c.userobj.email:
                 msg = _('Please <a href="%s">update your profile</a>'
-                    ' and add your email address. %s uses your email address'
-                    ' if you need to reset your password.') \
-                    % (url, g.site_title)
+                        ' and add your email address. ') % url + \
+                        _('%s uses your email address'
+                          ' if you need to reset your password.') \
+                          % g.site_title
             elif is_google_id and not c.userobj.fullname:
                 msg = _('Please <a href="%s">update your profile</a>'
                     ' and add your full name.') % (url)
