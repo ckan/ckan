@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Comprehensive Knowledge Archive Network (CKAN) documentation build configuration file, created by
+# CKAN documentation build configuration file, created by
 # sphinx-quickstart on Sun Oct 25 16:47:17 2009.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -41,9 +41,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'CKAN (Comprehensive Knowledge Archive Network)'
+project = u'CKAN Data Management System Documentation'
 project_short_name = u'CKAN'
-copyright = u'2009, Open Knowledge Foundation'
+copyright = u'&Copyright copy; 2009-2012, Open Knowledge Foundation'
 html_show_sphinx = False
 
 # The version info for the project you're documenting, acts as replacement for
@@ -94,13 +94,23 @@ pygments_style = 'sphinx'
 # Options for HTML output
 # -----------------------
 
-html_theme = 'default'
+#html_theme = 'default'
+#html_theme_options = {
+#"relbarbgcolor": "#777",
+#'sidebarbgcolor': '#F2F2F2',
+#'sidebartextcolor': 'black',
+#'sidebarlinkcolor': '#355F7C',
+#'headfont': 'Trebuchet MS'    
+#}
+sys.path.append(os.path.abspath('_themes'))
+html_theme_path = ['_themes']
+html_theme = 'sphinx-theme-okfn'
 html_theme_options = {
-"relbarbgcolor": "#777",
-'sidebarbgcolor': '#F2F2F2',
-'sidebartextcolor': 'black',
-'sidebarlinkcolor': '#355F7C',
-'headfont': 'Trebuchet MS'    
+        'logo_icon': 'http://assets.okfn.org/p/opendatahandbook/img/data-wrench-inverted.png'
+    }
+
+html_sidebars = {
+    '**':  ['globaltoc.html']
 }
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
@@ -110,14 +120,14 @@ html_theme_options = {
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = "%s v%s Administration Guide" % (project, release)
+# html_title = "%s v%s Guide" % (project, release)
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-html_short_title = "%s Admin Guide" % (project_short_name)
+# html_short_title = "%s Admin Guide" % (project_short_name)
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = 'images/ckan_logo_box.png'
+# html_logo = None
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -136,9 +146,6 @@ html_logo = 'images/ckan_logo_box.png'
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
 #html_use_smartypants = True
-
-# Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
