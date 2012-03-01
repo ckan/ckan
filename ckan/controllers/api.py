@@ -210,8 +210,9 @@ class ApiController(BaseController):
     def _get_action_from_map(self, action_map, register, subregister):
         # Helper function to get the action function specified in the action map
 
-        # TODO enable this test but we may break existing clients :(
-        # assert (register != 'package') # these should all have been redirected!
+        # translate old package calls to use dataset
+        if register == 'package':
+            register = 'dataset'
 
         action = action_map.get((register, subregister))
         if not action:
