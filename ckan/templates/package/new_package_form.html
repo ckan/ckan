@@ -153,8 +153,6 @@
   </div>
 </fieldset>
 
-<fieldset id="groups">
-</fieldset>
 <fieldset id='further-information'>
   <dl>
     <dt><label class="field_opt" for="author">Author</label></dt>
@@ -180,6 +178,7 @@
 </fieldset>
 
 <fieldset id='extras'>
+  <p>Adding custom fields to the dataset such as "location:uk" can help users find it in the search engine. This data will also appear under <strong>Additional Information</strong> when viewing the dataset.</p>
   <dl>
     <py:with vars="extras = data.get('extras', [])">
     <py:for each="num, extra in enumerate(data.get('extras', []))">
