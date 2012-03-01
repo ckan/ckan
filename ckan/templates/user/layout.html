@@ -22,7 +22,7 @@
       <py:if test="not c.id">
         <ul class="tabbed">
           <li py:attrs="{'class':'current-tab'} if c.action=='login' else {}"><a href="${h.url_for(controller='user', action='login')}">Login</a></li>
-          <li py:attrs="{'class':'current-tab'} if c.action=='register' else {}"><a href="${h.url_for('register')}">Register Account</a></li>
+          <li py:attrs="{'class':'current-tab'} if c.action=='register' else {}"><a href="${h.url_for(controller='user', action='register')}">Register Account</a></li>
         </ul>
       </py:if>
     </py:if>

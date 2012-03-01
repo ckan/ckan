@@ -8,7 +8,8 @@ class WebstoreController(BaseController):
         index_name = 'ckan-%s' % g.site_id
         query_string = request.environ['QUERY_STRING']
         redirect = "/elastic/%s/%s%s?%s" % (index_name, id, url, query_string)
-        response.headers['X-Accel-Redirect'] = redirect
+        # headers must be ascii strings
+        response.headers['X-Accel-Redirect'] = str(redirect)
 
     def read(self, id, url=''):
         context = {'model': model, 'session': model.Session,
