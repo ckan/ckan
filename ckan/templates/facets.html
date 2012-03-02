@@ -5,14 +5,16 @@
   py:strip=""
   >
 
-<py:def function="facet_sidebar(code, limit=5, label=lambda n: n, title=h.facet_title)">
-    <div py:if="len(h.facet_items(c, code, limit=limit))" class="facet-box">
-        <h2>${title(code)}</h2>
+<py:def function="facet_div(name, title, limit=5)">
+    <div py:if="c.facets[name]['items'][:limit]" class="facet-box">
+        <h2>${h.facet_title(c.facets[name]['title'])}</h2>
         <ul class="facet-options">
-            <li py:for="name, count, translated_name in h.facet_items(c,
-                    code, limit=limit)"
-                py:if="not (code, name) in c.fields">
-                <a href="${c.drill_down_url(**{code: name})}">${label(translated_name)}</a> (${count})
+            <li py:for="facet_item in c.facets[name]['items'][:limit]"
+                py:if="not (name, facet_item.name) in c.fields">
+                <a href="${c.drill_down_url(**{name: facet_item.name})}">
+                    ${facet_item.display_name}
+                </a>
+                (${facet_item['count']})
             </li>
         </ul>
     </div>

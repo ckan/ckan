@@ -46,37 +46,29 @@ class MultilingualDataset(SingletonPlugin):
         # Look up all the term translations in one db query.
         terms = sets.Set()
         for facet in facets.values():
-            for name, count in facet.items():
-                terms.add(name)
+            for item in facet['items']:
+                terms.add(item['display_name'])
         translations = ckan.logic.action.get.term_translation_show(
                 {'model': ckan.model},
                 {'terms': terms,
                     'lang_codes': (desired_lang_code, fallback_lang_code)})
 
-        # Add translations of facet items to a translations dict in the pylons
-        # template context.
-        pylons.c.translations = {}
+        # Replace facet display names with translated ones.
         for facet in facets.values():
-            for name, count in facet.items():
-                matching_translations = [translation for translation
-                        in translations
-                        if translation['term'] == name
+            for item in facet['items']:
+                matching_translations = [translation for
+                        translation in translations
+                        if translation['term'] == item['display_name']
                         and translation['lang_code'] == desired_lang_code]
                 if not matching_translations:
-                    # If no translation in desired language then look for one
-                    # in fallback language.
-                    matching_translations = [translation for translation
-                            in translations
-                            if translation['term'] == name
+                    matching_translations = [translation for
+                            translation in translations
+                            if translation['term'] == item['display_name']
                             and translation['lang_code'] == fallback_lang_code]
-                assert len(matching_translations) in (0,1)
                 if matching_translations:
-                    pylons.c.translations[name] = (
-                            matching_translations[0]['term_translation'])
-                else:
-                    # If no translation in either desired or fallback language,
-                    # just use the item name itself, untranslated.
-                    pylons.c.translations[name] = name
+                    assert len(matching_translations) == 1
+                    item['display_name'] = (
+                        matching_translations[0]['term_translation'])
 
         return search_results
 

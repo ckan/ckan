@@ -20,10 +20,10 @@
             <a href="${h.url_for(controller='package', action='new', id=None)}">Register it now</a>.
         </p>
     </li>
- 
-    ${facet_sidebar('tags')}
-    ${facet_sidebar('res_format')}
-    ${facet_sidebar('groups', label=h.group_name_to_title)}
+
+    ${facet_div('tags', 'Tags')}
+    ${facet_div('res_format', 'Resource Formats')}
+    ${facet_div('groups', 'Groups')}
 
     <li class="widget-container widget_text">
         <h4>Other access</h4>

@@ -706,12 +706,33 @@ def package_search(context, data_dict):
         'results': results
     }
 
+    # Transform facets into a more useful data structure.
+    restructured_facets = {}
+    for key, value in search_results['facets'].items():
+        restructured_facets[key] = {
+                'title': key,
+                'items': []
+                }
+        for key_, value_ in value.items():
+            new_facet_dict = {}
+            new_facet_dict['name'] = key_
+            new_facet_dict['display_name'] = key_
+            new_facet_dict['count'] = value_
+            restructured_facets[key]['items'].append(new_facet_dict)
+    search_results['facets'] = restructured_facets
+
     # check if some extension needs to modify the search results
     for item in PluginImplementations(IPackageController):
         search_results = item.after_search(search_results,data_dict)
 
-    return search_results
+    # After extensions have had a chance to modify the facets, sort them by
+    # display name.
+    for facet in search_results['facets']:
+        search_results['facets'][facet]['items'] = sorted(
+                search_results['facets'][facet]['items'],
+                key=lambda facet: facet['display_name'], reverse=True)
 
+    return search_results
 
 def resource_search(context, data_dict):
     model = context['model']

@@ -214,32 +214,6 @@ def subnav_named_route(c, text, routename,**kwargs):
         class_=('active' if c.action == kwargs['action'] else '')
     )
 
-def facet_items(c, name, limit=10):
-    from pylons import request
-    if not c.facets or not c.facets.get(name):
-        return []
-    facets = []
-    for k, v in c.facets.get(name).items():
-        if not len(k.strip()):
-            continue
-        if not (name, k) in request.params.items():
-            facets.append([k, v])
-
-    # Append a third value to each facet item: the translated name of the facet
-    # item, to be displayed to the user. Translations are looked for in a
-    # 'translations' dict in the Pylons context.
-    for facet in facets:
-        name, count = facet
-        if c.translations:
-            facet.append(c.translations.get(name, name))
-        else:
-            # If there is no translations dict in the context, just use the
-            # facet item's untranslated name.
-            facet.append(name)
-
-    return sorted(facets, key=lambda (name, count, translated_name): 
-            translated_name, reverse=True)[:limit]
-
 def facet_title(name):
     from pylons import config
     return config.get('search.facets.%s.title' % name, name.capitalize())
