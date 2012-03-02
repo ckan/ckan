@@ -1,53 +1,39 @@
+import uuid
+import logging
+
+from pylons import config
+from pylons.i18n import _
+import webhelpers.html
 from sqlalchemy.sql import select
 from sqlalchemy.orm import aliased
 from sqlalchemy import or_, and_, func, desc, case
-import uuid
-from pylons import config
-import logging
 
 import ckan
-from ckan.lib.base import _
-from ckan.logic import NotFound, ParameterError, ValidationError
-from ckan.logic import check_access
-from ckan.model import misc
-from ckan.plugins import (PluginImplementations,
-                          IGroupController,
-                          IPackageController)
-from pylons import config
-from ckan.authz import Authorizer
-from ckan.lib.dictization import table_dictize
-from ckan.lib.dictization.model_dictize import (package_dictize,
-                                                resource_list_dictize,
-                                                resource_dictize,
-                                                group_dictize,
-                                                group_list_dictize,
-                                                tag_dictize,
-                                                task_status_dictize,
-                                                user_dictize,
-                                                vocabulary_dictize,
-                                                vocabulary_list_dictize,
-                                                activity_list_dictize,
-                                                activity_detail_list_dictize)
-
-from ckan.lib.dictization.model_dictize import (package_to_api1,
-                                                package_to_api2,
-                                                group_to_api1,
-                                                group_to_api2,
-                                                tag_to_api1,
-                                                tag_to_api2)
-
-from ckan.lib.search import query_for, SearchError
-from ckan.lib.base import render
-from webhelpers.html import literal
-from ckan.logic.action import get_domain_object
+import ckan.authz
+import ckan.lib.dictization
+import ckan.lib.base
+import ckan.logic as logic
+import ckan.logic.action
+import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.model.misc as misc
+import ckan.plugins as plugins
+import ckan.lib.search as search
 
 log = logging.getLogger('ckan.logic')
+
+# define some shortcuts
+table_dictize = ckan.lib.dictization.table_dictize
+render = ckan.lib.base.render
+Authorizer = ckan.authz.Authorizer
+check_access = logic.check_access
+NotFound = logic.NotFound
+ValidationError = logic.ValidationError
 
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
     model = context["model"]
     for package in package_revision_list:
-        result_dict = package_dictize(package,context)
+        result_dict = model_dictize.package_dictize(package,context)
         package_list.append(result_dict)
     return package_list
 
@@ -123,7 +109,7 @@ def group_list(context, data_dict):
     ref_group_by = 'id' if api == '2' else 'name';
     order_by = data_dict.get('order_by', 'name')
     if order_by not in set(('name', 'packages')):
-        raise ParameterError('"order_by" value %r not implemented.' % order_by)
+        raise logic.ParameterError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
 
     check_access('group_list',context, data_dict)
@@ -140,7 +126,7 @@ def group_list(context, data_dict):
     if order_by == 'packages':
         sort_by, reverse = 'packages', True
 
-    group_list = group_list_dictize(groups, context,
+    group_list = model_dictize.group_list_dictize(groups, context,
                                     lambda x:x[sort_by], reverse)
 
     if not all_fields:
@@ -228,7 +214,7 @@ def tag_list(context, data_dict):
     if tags:
         if all_fields:
             for tag in tags:
-                result_dict = tag_dictize(tag, context)
+                result_dict = model_dictize.tag_dictize(tag, context)
                 tag_list.append(result_dict)
         else:
             tag_list.extend([tag.name for tag in tags])
@@ -289,7 +275,7 @@ def user_list(context, data_dict):
     users_list = []
 
     for user in query.all():
-        result_dict = user_dictize(user[0], context)
+        result_dict = model_dictize.user_dictize(user[0], context)
         del result_dict['apikey']
         users_list.append(result_dict)
 
@@ -337,21 +323,20 @@ def package_relationships_list(context, data_dict):
 def package_show(context, data_dict):
 
     model = context['model']
-    api = context.get('api_version') or '1'
-    id = data_dict['id']
+    name_or_id = data_dict.get("id") or data_dict['name_or_id']
 
-    pkg = model.Package.get(id)
-
-    context['package'] = pkg
+    pkg = model.Package.get(name_or_id)
 
     if pkg is None:
         raise NotFound
 
+    context['package'] = pkg
+
     check_access('package_show', context, data_dict)
 
-    package_dict = package_dictize(pkg, context)
+    package_dict = model_dictize.package_dictize(pkg, context)
 
-    for item in PluginImplementations(IPackageController):
+    for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
     return package_dict
@@ -369,7 +354,7 @@ def resource_show(context, data_dict):
 
     check_access('resource_show', context, data_dict)
 
-    return resource_dictize(resource, context)
+    return model_dictize.resource_dictize(resource, context)
 
 def revision_show(context, data_dict):
     model = context['model']
@@ -400,9 +385,9 @@ def group_show(context, data_dict):
 
     check_access('group_show',context, data_dict)
 
-    group_dict = group_dictize(group, context)
+    group_dict = model_dictize.group_dictize(group, context)
 
-    for item in PluginImplementations(IGroupController):
+    for item in plugins.PluginImplementations(plugins.IGroupController):
         item.read(group)
 
     return group_dict
@@ -439,7 +424,7 @@ def group_package_show(context, data_dict):
 
     result = []
     for pkg_rev in query.all():
-        result.append(package_dictize(pkg_rev, context))
+        result.append(model_dictize.package_dictize(pkg_rev, context))
 
     return result
 
@@ -457,12 +442,12 @@ def tag_show(context, data_dict):
 
     check_access('tag_show',context, data_dict)
 
-    tag_dict = tag_dictize(tag,context)
+    tag_dict = model_dictize.tag_dictize(tag,context)
 
     extended_packages = []
     for package in tag_dict['packages']:
         pkg = model.Package.get(package['id'])
-        extended_packages.append(package_dictize(pkg,context))
+        extended_packages.append(model_dictize.package_dictize(pkg,context))
 
     tag_dict['packages'] = extended_packages
 
@@ -487,7 +472,7 @@ def user_show(context, data_dict):
 
     check_access('user_show',context, data_dict)
 
-    user_dict = user_dictize(user_obj,context)
+    user_dict = model_dictize.user_dictize(user_obj,context)
 
     if not (Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name):
         # If not sysadmin or the same user, strip sensible info
@@ -512,7 +497,7 @@ def user_show(context, data_dict):
     for dataset in dataset_q:
         try:
             dataset_dict = package_show(context, {'id': dataset.id})
-        except ckan.logic.NotAuthorized:
+        except logic.NotAuthorized:
             continue
         user_dict['datasets'].append(dataset_dict)
 
@@ -522,15 +507,15 @@ def package_show_rest(context, data_dict):
 
     check_access('package_show_rest',context, data_dict)
 
-    package_show(context, data_dict)
+    logic.get_action('package_show')(context, data_dict)
 
     api = context.get('api_version') or '1'
     pkg = context['package']
 
     if api == '1':
-        package_dict = package_to_api1(pkg, context)
+        package_dict = model_dictize.package_to_api1(pkg, context)
     else:
-        package_dict = package_to_api2(pkg, context)
+        package_dict = model_dictize.package_to_api2(pkg, context)
 
     return package_dict
 
@@ -543,9 +528,9 @@ def group_show_rest(context, data_dict):
     group = context['group']
 
     if api == '2':
-        group_dict = group_to_api2(group, context)
+        group_dict = model_dictize.group_to_api2(group, context)
     else:
-        group_dict = group_to_api1(group, context)
+        group_dict = model_dictize.group_to_api1(group, context)
 
     return group_dict
 
@@ -558,9 +543,9 @@ def tag_show_rest(context, data_dict):
     tag = context['tag']
 
     if api == '2':
-        tag_dict = tag_to_api2(tag, context)
+        tag_dict = model_dictize.tag_to_api2(tag, context)
     else:
-        tag_dict = tag_to_api1(tag, context)
+        tag_dict = model_dictize.tag_to_api1(tag, context)
 
     return tag_dict
 
@@ -660,7 +645,7 @@ def package_search(context, data_dict):
     check_access('package_search', context, data_dict)
 
     # check if some extension needs to modify the search params
-    for item in PluginImplementations(IPackageController):
+    for item in plugins.PluginImplementations(plugins.IPackageController):
         data_dict = item.before_search(data_dict)
 
     # the extension may have decided that it's no necessary to perform the query
@@ -671,7 +656,7 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id'
 
-        query = query_for(model.Package)
+        query = search.query_for(model.Package)
         query.run(data_dict)
 
         for package in query.results:
@@ -690,7 +675,7 @@ def package_search(context, data_dict):
                 log.warning('package %s in index but not in database' % package)
                 continue
 
-            result_dict = package_dictize(pkg,context)
+            result_dict = model_dictize.package_dictize(pkg,context)
             results.append(result_dict)
 
         count = query.count
@@ -722,7 +707,7 @@ def package_search(context, data_dict):
     search_results['facets'] = restructured_facets
 
     # check if some extension needs to modify the search results
-    for item in PluginImplementations(IPackageController):
+    for item in plugins.PluginImplementations(plugins.IPackageController):
         search_results = item.after_search(search_results,data_dict)
 
     # After extensions have had a chance to modify the facets, sort them by
@@ -751,7 +736,7 @@ def resource_search(context, data_dict):
         if isinstance(terms, basestring):
             terms = terms.split()
         if field not in resource_fields:
-            raise SearchError('Field "%s" not recognised in Resource search.' % field)
+            raise search.SearchError('Field "%s" not recognised in Resource search.' % field)
         for term in terms:
             model_attr = getattr(model.Resource, field)
             if field == 'hash':
@@ -896,7 +881,7 @@ def task_status_show(context, data_dict):
 
     check_access('task_status_show', context, data_dict)
 
-    task_status_dict = task_status_dictize(task_status, context)
+    task_status_dict = model_dictize.task_status_dictize(task_status, context)
     return task_status_dict
 
 
@@ -958,7 +943,7 @@ def roles_show(context, data_dict):
     user_ref = data_dict.get('user')
     authgroup_ref = data_dict.get('authorization_group')
 
-    domain_object = get_domain_object(model, domain_object_ref)
+    domain_object = ckan.logic.action.get_domain_object(model, domain_object_ref)
     if isinstance(domain_object, model.Package):
         query = session.query(model.PackageRole).join('package')
     elif isinstance(domain_object, model.Group):
@@ -1014,7 +999,7 @@ def status_show(context, data_dict):
 def vocabulary_list(context, data_dict):
     model = context['model']
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
-    return vocabulary_list_dictize(vocabulary_objects, context)
+    return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
 
 def vocabulary_show(context, data_dict):
     model = context['model']
@@ -1024,7 +1009,7 @@ def vocabulary_show(context, data_dict):
     vocabulary = model.vocabulary.Vocabulary.get(vocab_id)
     if vocabulary is None:
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
-    vocabulary_dict = vocabulary_dictize(vocabulary, context)
+    vocabulary_dict = model_dictize.vocabulary_dictize(vocabulary, context)
     return vocabulary_dict
 
 def user_activity_list(context, data_dict):
@@ -1036,7 +1021,7 @@ def user_activity_list(context, data_dict):
     query = query.order_by(desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
-    return activity_list_dictize(activity_objects, context)
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
     '''Return a package\'s public activity stream as a list of dicts.'''
@@ -1047,7 +1032,7 @@ def package_activity_list(context, data_dict):
     query = query.order_by(desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
-    return activity_list_dictize(activity_objects, context)
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
     '''Return a group\'s public activity stream as a list of dicts.'''
@@ -1058,7 +1043,7 @@ def group_activity_list(context, data_dict):
     query = query.order_by(desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
-    return activity_list_dictize(activity_objects, context)
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
     '''Return an activity\'s list of activity detail items, as a list of dicts.
@@ -1067,7 +1052,7 @@ def activity_detail_list(context, data_dict):
     activity_id = data_dict['id']
     activity_detail_objects = model.Session.query(
         model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
-    return activity_detail_list_dictize(activity_detail_objects, context)
+    return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
 def render_new_package_activity(context, activity):
     return render('activity_streams/new_package.html',
@@ -1186,7 +1171,7 @@ def _activity_list_to_html(context, activity_stream):
                 "type '%s'" % str(activity_type))
         activity_html = activity_renderers[activity_type](context, activity)
         html.append(activity_html)
-    return literal('\n'.join(html))
+    return webhelpers.html.literal('\n'.join(html))
 
 def user_activity_list_html(context, data_dict):
     '''Return an HTML rendering of a user\'s public activity stream.

@@ -480,4 +480,23 @@
     </span>
   </div>
 
+  <!--! jsConditionalForIe(ieVersion, tagContent, matchOperator): takes a
+        IE version number, a tag or other HTML code that will be wrapped inside
+        a IE conditional comment, and the comparison operator (lt, lte, etc..
+        see http://msdn.microsoft.com/en-us/library/ms537512%28v=vs.85%29.aspx)
+        returning Genshi stream ready to be shown in a template.
+        
+        NOTE:
+        Internet Explorer Conditional Import are confused as Genshi comments 
+        and python variables and method calls are not executed if inside them.
+        This function helps to output tags with Python code inside conditional
+        comments, eg ${h.url_for_static()} -->
+  <?python
+    from genshi import HTML
+    def jsConditionalForIe(ieVersion, tagContent, matchOperator = 'lt'):
+      html = HTML('<!--[if ' + matchOperator +  ' IE ' + str(ieVersion) + ''']>
+                     ''' + tagContent + '''
+                   <![endif]-->''')
+      return html
+  ?>
 </html>

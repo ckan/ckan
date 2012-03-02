@@ -163,7 +163,7 @@ class TestBasicDictize:
         data["packages"][1].pop("name")
 
         converted_data, errors = validate(data, default_group_schema(), self.context)
-        assert errors ==  {'packages': [{'id': [u'Dataset was not found.']}, {'id': [u'Missing value']}]} , pformat(errors)
+        assert errors ==  {'packages': [{'id': [u'Not found: Dataset']}, {'id': [u'Missing value']}]} , pformat(errors)
 
     def test_3_tag_schema_allows_spaces(self):
         """Asserts that a tag name with space is valid"""

@@ -1,13 +1,13 @@
 [main]
 host = http://www.transifex.net
 
-[ckan.1-5]
+[ckan.1-6]
 file_filter = ckan/i18n/<lang>/LC_MESSAGES/ckan.po
 source_file = ckan/i18n/ckan.pot
 source_lang = en
+type = PO
 
 # Namings not quite the same in Transifex and babel:
 # Transifex vs Babel (& CKAN)
 # 'sr@Latin'  vs 'sr_Latn'
-trans.sr@Latin = ckan/i18n/sr_Latn/LC_MESSAGES/ckan.po
 trans.sr@latin = ckan/i18n/sr_Latn/LC_MESSAGES/ckan.po

@@ -1,6 +1,6 @@
-=============
-Customization
-=============
+==================================
+Theming and Customizing Appearance
+==================================
 
 After installing CKAN, the next step is probably to re-theme the site with your own logo, site name, and CSS. 
 

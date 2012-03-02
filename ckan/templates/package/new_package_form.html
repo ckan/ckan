@@ -41,7 +41,7 @@
 
     <dt class="name-label"><label class="field_req" for="name">Url</label></dt>
     <dd class="name-field">
-      <span class="js-url-text url-text">${h.url(controller='package', action='index')+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a href="#" style="display: none;" class="url-edit js-url-editlink js-url-viewmode">(edit)</a></span>
+      <span class="js-url-text url-text">${h.url(controller='package', action='search')+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a href="#" style="display: none;" class="url-edit js-url-editlink js-url-viewmode">(edit)</a></span>
       <input style="display: none;" id="name" maxlength="100" name="name" type="text" class="url-input js-url-editmode js-url-input" value="${data.get('name', '')}" />
       <p class="js-url-is-valid">&nbsp;</p>
     </dd>
@@ -139,7 +139,7 @@
       <input class="long autocomplete-tag" id="tag_string" name="tag_string" size="60" type="text" 
                value="${data.get('tag_string') or ', '.join([tag['name'] for tag in data.get('tags', []) if not tag.get('vocabulary_id')])}" />
     </dd>
-    <dd class="tags-instructions instructions basic" i18n:msg="">Comma-separated terms that may link this dataset to similar ones. For more information on conventions, see <a href="http://wiki.okfn.org/ckan/doc/faq#TagConventions">this wiki page</a>.</dd>
+    <dd class="tags-instructions instructions basic" i18n:msg="">Comma-separated terms that may link this dataset to similar ones. For more information on conventions, see <a href="http://wiki.ckan.org/Managing_Datasets#Tag_Conventions">this wiki page</a>.</dd>
     <dd class="tags-instructions hints">e.g. pollution, rivers, water quality</dd>
     <dd class="tags-instructions field_error" py:if="errors.get('tag_string', '')">${errors.get('tag_string', '')}</dd>
   </dl>
@@ -196,11 +196,13 @@
     <dt>Delete</dt>
     <dd>
       <p>Do you really want to change the state of this dataset? &nbsp;&nbsp;<button class="dataset-delete pretty-button">Yes!</button></p>
+      <span>
       This dataset is&nbsp;&nbsp; 
       <select id="state" class="dataset-delete" name="state" style="display:inline;">
         <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
         <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
       </select>
+      </span>
     </dd>
   </dl>
 </fieldset>

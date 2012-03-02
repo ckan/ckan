@@ -13,8 +13,24 @@
 
   <py:def function="optional_head">
     <!-- data preview -->
-    <link rel="stylesheet" href="${h.url_for('/scripts/vendor/recline/css/data-explorer.css')}" />
-    <link rel="stylesheet" href="${h.url_for('/scripts/vendor/recline/css/graph-flot.css')}" />
+    <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/data-explorer.css')}" />
+    <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/graph-flot.css')}" />
+    <style type="text/css">
+      .header .recline-query-editor input.text-query {
+        margin-right: 5px;
+        margin-top: 2px;
+        height: 18px;
+      }
+
+      .header .recline-query-editor .pagination input {
+        margin-top: auto;
+        margin-bottom: 2px;
+      }
+      .recline-query-editor .pagination ul {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
     <!-- /data preview -->
     <script type="text/javascript">
       var preload_resource = ${h.literal(c.resource_json)};
@@ -81,7 +97,7 @@
 
     <div py:if="not c.resource.get('description') and c.package.get('notes')" id="dataset-description">
       <div>
-        <strong>
+        <strong i18n:msg="">
           From the <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">Dataset</a>:
         </strong>
       </div>
@@ -117,9 +133,9 @@
 
   <py:def function="optional_footer">
     <!-- data preview -->
-    <script type="text/javascript" src="${h.url_for('/scripts/vendor/jquery.mustache/jquery.mustache.js')}"></script>
-    <script type="text/javascript" src="${h.url_for('/scripts/vendor/flot/0.7/jquery.flot.js')}"></script>
-    <script src="${h.url_for('/scripts/vendor/recline/recline.js')}"></script>
+    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.mustache/jquery.mustache.js')}"></script>
+    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/flot/0.7/jquery.flot.js')}"></script>
+    <script src="${h.url_for_static('/scripts/vendor/recline/recline.js')}"></script>
   </py:def>
 
   <xi:include href="layout.html" />

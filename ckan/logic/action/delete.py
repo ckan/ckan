@@ -1,10 +1,13 @@
-from ckan.logic import NotFound, ParameterError, ValidationError
-from ckan.lib.base import _
-from ckan.logic import check_access
-from ckan.logic.action import rename_keys
+from pylons.i18n import _
 
-from ckan.plugins import PluginImplementations, IGroupController, IPackageController
+import ckan.logic
+import ckan.logic.action
+import ckan.plugins as plugins
 
+# define some shortcuts
+ValidationError = ckan.logic.ValidationError
+NotFound = ckan.logic.NotFound
+check_access = ckan.logic.check_access
 
 def package_delete(context, data_dict):
 
@@ -23,7 +26,7 @@ def package_delete(context, data_dict):
     rev.author = user
     rev.message = _(u'REST API: Delete Package: %s') % entity.name
 
-    for item in PluginImplementations(IPackageController):
+    for item in plugins.PluginImplementations(plugins.IPackageController):
         item.delete(entity)
     entity.delete()
     model.repo.commit()
@@ -81,7 +84,7 @@ def group_delete(context, data_dict):
     rev.message = _(u'REST API: Delete %s') % revisioned_details
     group.delete()
 
-    for item in PluginImplementations(IGroupController):
+    for item in plugins.PluginImplementations(plugins.IGroupController):
         item.delete(group)
 
     model.repo.commit()
@@ -148,6 +151,6 @@ def package_relationship_delete_rest(context, data_dict):
     # object and rel in the URI overwrite any values for these
     # in params. This is because you are not allowed to change
     # these values.
-    data_dict = rename_keys(data_dict, key_map, destructive=True)
+    data_dict = ckan.logic.action.rename_keys(data_dict, key_map, destructive=True)
 
     package_relationship_delete(context, data_dict)

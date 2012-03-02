@@ -381,6 +381,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         data = {'id': 'annakarenina'}
         pkg = get.package_show(context, data)
         pkg['resources'][0]['cache_url'] = cache_url
+        # FIXME need to pretend to be called by the api
+        context['api_version'] = 3
         update.package_update(context, pkg)
         # check that the cache url is included on the dataset view page
         offset = url_for(controller='package', action='read', id=name)
@@ -1305,6 +1307,15 @@ class TestNew(TestPackageForm):
             plugins.unload('synchronous_search')
             SolrSettings.init(solr_url)
 
+    def test_change_locale(self):
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset)
+        res = res.click('Deutsch')
+        try:
+            assert 'Datensatz' in res.body, res.body
+        finally:
+            self.clear_language_setting()
+        
 class TestSearch(TestPackageForm):
     pkg_names = []
 

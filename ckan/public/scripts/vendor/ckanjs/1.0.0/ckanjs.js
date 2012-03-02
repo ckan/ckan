@@ -728,7 +728,7 @@ CKAN.View = function($) {
     render: function() {
       var tmplData = {
         domain: this.options.domain,
-        dataset: this.model.toTemplateJSON(),
+        dataset: this.model.toTemplateJSON()
       };
       $('.page-heading').html(tmplData.dataset.displaytitle);
       $('#minornavigation').html($.tmpl(CKAN.Templates.minorNavigationDataset, tmplData));
@@ -1614,7 +1614,7 @@ this.CKAN.View || (this.CKAN.View = {});
       }
       var tmpl = $.tmpl(CKAN.Templates.resourceUpload, tmplData);
       this.el.html(tmpl);
-      this.$messages = this.el.find('.alert-message');
+      this.$messages = this.el.find('.alert');
       this.setupFileUpload();
       return this;
     },
@@ -1743,8 +1743,8 @@ this.CKAN.View || (this.CKAN.View = {});
     },
 
     setMessage: function(msg, category) {
-      var category = category || 'info';
-      this.$messages.removeClass('info success error');
+      var category = category || 'alert-info';
+      this.$messages.removeClass('alert-info alert-success alert-error');
       this.$messages.addClass(category);
       this.$messages.show();
       this.$messages.html(msg);

@@ -4,8 +4,8 @@ logger = logging.getLogger(__name__)
 
 import ckan
 import ckan.model as model
-from ckan.logic.action.create import package_create, user_create, group_create
-from ckan.logic.action.update import package_update, resource_update
+from ckan.logic.action.create import package_create as _package_create, user_create, group_create
+from ckan.logic.action.update import package_update as _package_update, resource_update
 from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
 from ckan.logic.action.get import package_list, package_show
@@ -13,6 +13,21 @@ from ckan.lib.dictization.model_dictize import resource_list_dictize
 from pylons.test import pylonsapp
 import paste.fixture
 from ckan.lib.helpers import json
+
+
+def package_update(context, data_dict):
+    # These tests call package_update directly which is really bad
+    # setting api_version in context make things seem like the api key
+    # is ok etc
+    context['api_version'] = 3
+    return _package_update(context, data_dict)
+
+def package_create(context, data_dict):
+    # These tests call package_update directly which is really bad
+    # setting api_version in context make things seem like the api key
+    # is ok etc
+    context['api_version'] = 3
+    return _package_create(context, data_dict)
 
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
@@ -641,8 +656,8 @@ class TestActivity:
         if not activity.has_key('revision_id'):
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
-        assert (timestamp >= before['time'] and
-            timestamp <= after['time'], str(activity['timestamp']))
+        assert timestamp >= before['time'], str(activity['timestamp'])
+        assert timestamp <= after['time'], str(activity['timestamp'])
 
         # Test for the presence of correct activity detail items.
         details = self.activity_details(activity)
@@ -826,7 +841,7 @@ class TestActivity:
 
         # Update the group.
         context = {'model': model, 'session': model.Session, 'user': user.name,
-                'allow_partial_update': True}
+                   'allow_partial_update': True, 'api_version':3}
         group_dict = {'id': group.id, 'title': 'edited'}
         group_updated = group_update(context, group_dict)
 
@@ -877,7 +892,7 @@ class TestActivity:
         before = self.record_details(user.id, group_id=group.id)
 
         # Deleted the group.
-        context = {'model': model, 'session': model.Session,
+        context = {'model': model, 'session': model.Session, 'api_version':3,
                 'user': user.name, 'allow_partial_update': True}
         group_dict = {'id': group.id, 'state': 'deleted'}
         group_update(context, group_dict)
@@ -949,7 +964,7 @@ class TestActivity:
             'id': pkg_dict['id'],
             'tags': new_tag_list
             }
-        ckan.logic.action.update.package_update(context, data_dict)
+        package_update(context, data_dict)
         after = self.record_details(user.id, pkg_dict['id'])
 
         # Find the new activity in the user's activity stream.
@@ -1020,7 +1035,7 @@ class TestActivity:
             'id': pkg_dict['id'],
             'tags': pkg_dict['tags'][0:-1],
             }
-        ckan.logic.action.update.package_update(context, data_dict)
+        package_update(context, data_dict)
         after = self.record_details(user.id, pkg_dict['id'])
 
         # Find the new activity in the user's activity stream.
@@ -1294,7 +1309,7 @@ class TestActivity:
         assert response.json['success'] == False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'user_id'] == [
-                u'That user ID does not exist.'], (
+                u'Not found: User'], (
                 response.json['error'][u'user_id'])
 
     def test_activity_create_object_id_missing(self):
@@ -1364,7 +1379,7 @@ class TestActivity:
         assert response.json['success'] == False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'object_id'] == [
-                u'Dataset was not found.'], (
+                u'Not found: Dataset'], (
                 response.json['error'][u'object_id'])
 
     def test_activity_create_activity_type_missing(self):
@@ -1434,7 +1449,7 @@ class TestActivity:
         assert response.json['success'] == False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'activity_type'] == [
-            u"That activity type does not exist."], (
+            u"Not found: Activity type"], (
                 response.json['error'][u'activity_type'])
 
     def _add_extra(self, package_dict, user):
