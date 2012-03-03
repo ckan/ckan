@@ -34,13 +34,9 @@
   <link rel="stylesheet" href="${h.url_for_static('/css/chosen.css')}" type="text/css" />
   <link rel="stylesheet" href="${h.url_for_static('/css/blueprint/screen.css')}" type="text/css" media="screen, projection" />
   <link rel="stylesheet" href="${h.url_for_static('/css/blueprint/print.css')}" type="text/css" media="print" />
-  <!--[if lt IE 8]>
-    <link rel="stylesheet" href="${h.url_for_static('/css/blueprint/ie.css')}" type="text/css" media="screen, projection">
-  <![endif]-->
-  <!--[if lt IE 9]>
-    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/html5shiv/html5.js')}"></script>
-  <![endif]-->
+  ${jsConditionalForIe(8, '&lt;link rel="stylesheet" href="' + h.url_for_static('/css/blueprint/ie.css') + '" type="text/css" media="screen, projection"&gt;')}
   <link rel="stylesheet" href="${h.url_for_static('/css/style.css?v=2')}" />
+  ${jsConditionalForIe(9, '&lt;script type="text/javascript" src="' + h.url_for_static('/scripts/vendor/html5shiv/html5.js') + '"&gt;&lt;/script&gt;')}
 
   <py:if test="defined('optional_head')">
     ${optional_head()}

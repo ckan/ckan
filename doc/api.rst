@@ -29,14 +29,14 @@ used by the methods.
 Examples
 --------
 
-For a tutorial and examples of using the CKAN API, see: http://wiki.ckan.net/Using_the_API
+For a tutorial and examples of using the CKAN API, see: http://wiki.ckan.org/Using_the_API
 
 Code Modules for Client Applications
 -------------------------------------
 
 There are also some code modules (Python, PHP, Drupal, Perl etc.) that provide 
 convenient wrappers around much of the CKAN API. For full details of these, 
-please consult http://wiki.ckan.net/API
+please consult http://wiki.ckan.org/API
 
 Versions
 --------
@@ -104,9 +104,9 @@ the relative path for that resource to the API locator.
 
 The API locators for the CKAN APIs (by version) are:
 
- * ``http://ckan.net/api`` (version 1)
- * ``http://ckan.net/api/1`` (version 1)
- * ``http://ckan.net/api/2`` (version 2)
+ * ``/api`` (version 1)
+ * ``/api/1`` (version 1)
+ * ``/api/2`` (version 2)
 
 The relative paths for each resource are listed in the sections below.
 
