@@ -243,8 +243,8 @@ class IPackageController(Interface):
             Extensions will receive a dictionary with the query parameters,
             and should return a modified (or not) version of it.
 
-            search_params will include an 'extras' dictionary with all values
-            from fields starting with 'ext_', so extensions can receive user
+            search_params will include an `extras` dictionary with all values
+            from fields starting with `ext_`, so extensions can receive user
             input from specific fields.
 
         '''
@@ -261,8 +261,8 @@ class IPackageController(Interface):
             Note that count and facets may need to be adjusted if the extension
             changed the results for some reason.
 
-            search_params will include an 'extras' dictionary with all values
-            from fields starting with 'ext_', so extensions can receive user
+            search_params will include an `extras` dictionary with all values
+            from fields starting with `ext_`, so extensions can receive user
             input from specific fields.
 
         '''
@@ -394,7 +394,7 @@ class IDatasetForm(Interface):
      - package_form(self)
      - form_to_db_schema(self)
      - db_to_form_schema(self)
-     - check_data_dict(self, data_dict)
+     - check_data_dict(self, data_dict, schema=None)
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
@@ -461,7 +461,7 @@ class IDatasetForm(Interface):
         format suitable for the form (optional)
         """
 
-    def check_data_dict(self, data_dict):
+    def check_data_dict(self, data_dict, schema=None):
         """
         Check if the return data is correct.
 

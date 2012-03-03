@@ -610,7 +610,7 @@ CKAN.View.DatasetEditForm = Backbone.View.extend({
 
     this.addView.render();
     this.resourceList.render();
-  },
+  }
 });
 
 
@@ -728,7 +728,7 @@ CKAN.View.ResourceEditList = Backbone.View.extend({
       resource.view_tr.remove();
       delete resource.view_tr;
     }
-  },
+  }
 });
 
 
@@ -820,7 +820,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
   },
 
   events: {
-    'submit form': 'setResourceInfo',
+    'submit form': 'setResourceInfo'
   },
 
   setResourceInfo: function(e) {
@@ -849,9 +849,26 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
 
     function initializeDataExplorer(dataset) {
+      var views = [
+        {
+          id: 'grid',
+          label: 'Grid',
+          view: new recline.View.DataGrid({
+            model: dataset
+          })
+        },
+        {
+          id: 'graph',
+          label: 'Graph',
+          view: new recline.View.FlotGraph({
+            model: dataset
+          })
+        }
+      ];
       var dataExplorer = new recline.View.DataExplorer({
         el: my.$dialog
         , model: dataset
+        , views: views
         , config: {
           readOnly: true
         }
@@ -882,21 +899,16 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
     }
 
     if (resourceData.webstore_url) {
-      var backend = new recline.Model.BackendWebstore({
-        url: resourceData.webstore_url
-      });
-      recline.Model.setBackend(backend);
-      var dataset = backend.getDataset();
+      resourceData.elasticsearch_url = '/api/data/' + resourceData.id;
+      var dataset = new recline.Model.Dataset(resourceData, 'elasticsearch');
       initializeDataExplorer(dataset);
     }
     else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
-      var backend = new recline.Model.BackendDataProxy({
-        url: resourceData.url
-        , type: resourceData.formatNormalized
-      });
-      recline.Model.setBackend(backend);
-      var dataset = backend.getDataset();
+      // set format as this is used by Recline in setting format for DataProxy 
+      resourceData.format = resourceData.formatNormalized;
+      var dataset = new recline.Model.Dataset(resourceData, 'dataproxy');
       initializeDataExplorer(dataset);
+      $('.recline-query-editor .text-query').hide();
     }
     else if (resourceData.formatNormalized in {
         'rdf+xml': '',
@@ -1010,7 +1022,7 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
 
   my.showError = function (error) {
     var _html = _.template(
-        '<div class="alert-message warning"><strong><%= title %></strong><br /><%= message %></div>'
+        '<div class="alert alert-error"><strong><%= title %></strong><br /><%= message %></div>'
         , error
         );
     my.$dialog.html(_html);

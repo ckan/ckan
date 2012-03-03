@@ -2,7 +2,7 @@
 Welcome to CKAN's Administration Guide
 =======================================
 
-This Administration Guide covers how to set up and manage `CKAN <http://ckan.org>`_ (Comprehensive Knowledge Archive Network) software. 
+This Administration Guide covers how to set up and manage `CKAN <http://ckan.org>`_ software. 
 
 * The first two sections cover your two options for installing CKAN: package or source install.
 * The rest of the first half of the Guide, up to :doc:`authorization`, cover setup and basic admin. 
@@ -32,6 +32,7 @@ Contents:
    file-upload
    configuration
    api
+   apiv3
    test
    common-error-messages
    buildbot

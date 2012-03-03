@@ -34,7 +34,7 @@ class RevisionsTestCase(BaseModelApiTestCase):
         assert_equal(revs_result, [rev.id for rev in revs])
 
     def test_entity_get_ok(self):
-        rev = model.repo.history().all()[-2] # 2nd revision is the creation of pkgs
+        rev = model.repo.history().all()[0] # newest revision is the creation of pkgs
         assert rev.id
         assert rev.timestamp.isoformat()
         offset = self.revision_offset(rev.id)

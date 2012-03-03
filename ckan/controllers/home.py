@@ -1,18 +1,14 @@
 import random
-import sys
 
-from pylons import config
 from pylons.i18n import set_lang
-from genshi.template import NewTextTemplate
 import sqlalchemy.exc
 
-from ckan.authz import Authorizer
 import ckan.logic
-from ckan.lib.i18n import set_session_locale, get_lang
-from ckan.lib.search import query_for, QueryOptions, SearchError
+from ckan.lib.search import SearchError
 from ckan.lib.base import *
-from ckan.lib.hash import get_redirect
 from ckan.lib.helpers import url_for
+
+CACHE_PARAMETER = '__cache'
 
 class HomeController(BaseController):
     repo = model.repo
@@ -66,14 +62,16 @@ class HomeController(BaseController):
                 c.userobj.name.startswith('https://www.google.com/accounts/o8/id')
             if not c.userobj.email and (is_google_id and not c.userobj.fullname):
                 msg = _('Please <a href="%s">update your profile</a>'
-                    ' and add your email address and your full name. %s uses'
-                    ' your email address if you need to reset your'
-                    ' password.''') % (url, g.site_title)
+                    ' and add your email address and your full name. ') % url + \
+                    _('%s uses your email address'
+                      ' if you need to reset your password.') \
+                      % g.site_title
             elif not c.userobj.email:
                 msg = _('Please <a href="%s">update your profile</a>'
-                    ' and add your email address. %s uses your email address'
-                    ' if you need to reset your password.') \
-                    % (url, g.site_title)
+                        ' and add your email address. ') % url + \
+                        _('%s uses your email address'
+                          ' if you need to reset your password.') \
+                          % g.site_title
             elif is_google_id and not c.userobj.fullname:
                 msg = _('Please <a href="%s">update your profile</a>'
                     ' and add your full name.') % (url)
@@ -91,34 +89,6 @@ class HomeController(BaseController):
 
     def about(self):
         return render('home/about.html')
-        
-    def locale(self): 
-        locale = request.params.get('locale')
-        if locale is not None:
-            try:
-                set_session_locale(locale)
-            except ValueError:
-                abort(400, _('Invalid language specified'))
-            try:
-                set_lang(locale)
-                # NOTE: When translating this string, substitute the word
-                # 'English' for the language being translated into.
-                # We do it this way because some Babel locales don't contain
-                # a display_name!
-                # e.g. babel.Locale.parse('no').get_display_name() returns None
-                h.flash_notice(_("Language has been set to: English"))
-            except:
-                h.flash_notice(_("Language has been set to: English"))
-        else:
-            abort(400, _("No language given!"))
-        return_to = get_redirect()
-        if not return_to:
-            # no need for error, just don't redirect
-            return 
-        return_to += '&' if '?' in return_to else '?'
-        # hack to prevent next page being cached
-        return_to += '__cache=%s' %  int(random.random()*100000000)
-        redirect_to(return_to)
 
     def cache(self, id):
         '''Manual way to clear the caches'''

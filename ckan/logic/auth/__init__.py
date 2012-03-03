@@ -4,63 +4,31 @@ Helper functions to be used in the auth check functions
 
 from ckan.logic import NotFound
 
-def get_package_object(context, data_dict = {}):
-    if not 'package' in context:
+def _get_object(context, data_dict, name, class_name):
+    # return the named item if in the data_dict, or get it from
+    # model.class_name
+    if not name in context:
         model = context['model']
-        id = data_dict.get('id',None)
-        package = model.Package.get(id)
-        if not package:
+        id = data_dict.get('id', None)
+        obj = getattr(model, class_name).get(id)
+        if not obj:
             raise NotFound
     else:
-        package = context['package']
+        obj = context[name]
+    return obj
 
-    return package
+def get_package_object(context, data_dict = {}):
+    return _get_object(context, data_dict, 'package', 'Package')
 
 def get_resource_object(context, data_dict={}):
-    if not 'resource' in context:
-        model = context['model']
-        id = data_dict.get('id',None)
-        resource = model.Resource.get(id)
-        if not resource:
-            raise NotFound
-    else:
-        resource = context['resource']
-
-    return resource
+    return _get_object(context, data_dict, 'resource', 'Resource')
 
 def get_group_object(context, data_dict={}):
-    if not 'group' in context:
-        model = context['model']
-        id = data_dict.get('id',None)
-        group = model.Group.get(id)
-        if not group:
-            raise NotFound
-    else:
-        group = context['group']
-
-    return group
+    return _get_object(context, data_dict, 'group', 'Group')
 
 def get_user_object(context, data_dict={}):
-    if not 'user_obj' in context:
-        model = context['model']
-        id = data_dict.get('id',None)
-        user_obj = model.User.get(id)
-        if not user_obj:
-            raise NotFound
-    else:
-        user_obj = context['user_obj']
-
-    return user_obj
+    return _get_object(context, data_dict, 'user_obj', 'User')
 
 def get_authorization_group_object(context, data_dict={}):
-    if not 'authorization_group' in context:
-        model = context['model']
-        id = data_dict.get('id',None)
-        # Auth groups don't have get method
-        authorization_group = model.Session.query(model.AuthorizationGroup).filter(model.AuthorizationGroup.id==id).first()
-        if not authorization_group:
-            raise NotFound
-    else:
-        authorization_group = context['authorization_group']
-
-    return authorization_group
+    return _get_object(context, data_dict, 'authorization_group',
+                       'AuthorizationGroup')

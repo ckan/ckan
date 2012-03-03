@@ -21,6 +21,13 @@
         <dl class="vcard">
           <dt>Name</dt>
           <dd>${c.user_dict['fullname'] or 'No name provided'}</dd>
+          <dt>Member since</dt>
+          <dd>${h.render_datetime(c.user_dict['created'])}</dd>
+          <py:if test="unicode(c.about_formatted)">
+          <dt>About</dt>
+          <dd>${c.about_formatted}</dd>
+          </py:if>
+        <py:if test="c.is_myself">
           <dt>Email</dt>
           <dd>
             <py:if test="c.user_dict['email']">
@@ -30,13 +37,6 @@
             No email
             </py:if>
           </dd>
-          <dt>Member since</dt>
-          <dd>${h.render_datetime(c.user_dict['created'])}</dd>
-          <py:if test="unicode(c.about_formatted)">
-          <dt>About</dt>
-          <dd>${c.about_formatted}</dd>
-          </py:if>
-        <py:if test="c.is_myself">
           <!--checkpoint:is-myself-->
           <dt>API Key</dt>
           <dd>

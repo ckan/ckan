@@ -17,7 +17,7 @@
   <meta name="author" content="" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="${h.url_for(g.favicon)}" />
+  <link rel="shortcut icon" href="${h.url_for_static(g.favicon)}" />
 
   <py:choose>
   <py:when test="defined('optional_feed')">
@@ -29,16 +29,14 @@
   </py:choose>
   <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css' />
 
-  <link rel="stylesheet" href="${g.site_url}/scripts/vendor/jqueryui/1.8.14/css/jquery-ui.custom.css" type="text/css" media="screen, print" />
-  <link rel="stylesheet" href="${g.site_url}/css/boilerplate.css?v=2" />
-  <link rel="stylesheet" href="${g.site_url}/css/chosen.css" type="text/css" />
-  <link rel="stylesheet" href="${g.site_url}/css/blueprint/screen.css" type="text/css" media="screen, projection" />
-  <link rel="stylesheet" href="${g.site_url}/css/blueprint/print.css" type="text/css" media="print" />
-
-  <!--[if lt IE 8]>
-    <link rel="stylesheet" href="${h.url_for('/css/blueprint/ie.css')}" type="text/css" media="screen, projection">
-  <![endif]-->
-  <link rel="stylesheet" href="${h.url_for('/css/style.css?v=2')}" />
+  <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/jqueryui/1.8.14/css/jquery-ui.custom.css')}" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="${h.url_for_static('/css/boilerplate.css?v=2')}" />
+  <link rel="stylesheet" href="${h.url_for_static('/css/chosen.css')}" type="text/css" />
+  <link rel="stylesheet" href="${h.url_for_static('/css/blueprint/screen.css')}" type="text/css" media="screen, projection" />
+  <link rel="stylesheet" href="${h.url_for_static('/css/blueprint/print.css')}" type="text/css" media="print" />
+  ${jsConditionalForIe(8, '&lt;link rel="stylesheet" href="' + h.url_for_static('/css/blueprint/ie.css') + '" type="text/css" media="screen, projection"&gt;')}
+  <link rel="stylesheet" href="${h.url_for_static('/css/style.css?v=2')}" />
+  ${jsConditionalForIe(9, '&lt;script type="text/javascript" src="' + h.url_for_static('/scripts/vendor/html5shiv/html5.js') + '"&gt;&lt;/script&gt;')}
 
   <py:if test="defined('optional_head')">
     ${optional_head()}
@@ -66,21 +64,21 @@
             <a href="${h.url_for(controller='user',action='register')}">Register</a>
           </span>
         </div>
-        <a href="${url('home')}">
-          <img width="64" src="${g.site_logo}" alt="${g.site_title} Logo" title="${g.site_title} Logo" id="logo" />
+        <a href="${h.url('home')}">
+          <img width="64" src="${h.url_for_static(g.site_logo)}" alt="${g.site_title} Logo" title="${g.site_title} Logo" id="logo" />
         </a>
         <div id="site-name">
-          <a href="${url('home')}">${g.site_title} &mdash; ${g.site_description}</a>
+          <a href="${h.url('home')}">${g.site_title} &mdash; ${g.site_description}</a>
         </div>
         <div class="menu">
           <span id="menusearch">
-            <form action="${url(controller='package', action='search')}" method="GET">
+            <form action="${h.url(controller='package', action='search')}" method="GET">
               <input name="q" value="${c.q if hasattr(c, 'q') else ''}" class="search" placeholder="${_('Find datasets')}" />
             </form>
           </span>
           <div id="mainmenu">
             <span py:if="h.check_access('package_create')">${h.nav_link(c, _('Add a dataset'), controller='package', action='new')}</span>
-            ${h.nav_link(c, _('Search'), controller='package', action='index', highlight_actions = 'new index')}
+            ${h.nav_link(c, _('Search'), controller='package', action='search', highlight_actions = 'new index')}
             ${h.nav_link(c, _('Groups'), controller='group', action='index')}
             ${h.nav_link(c, _('About'), controller='home', action='about')}
           </div>
@@ -121,8 +119,8 @@
       </div>
     </div>
     <br/><br/>
-    <div id="push"></div>
   </div>
+  <div class="clearfix"></div>
   <div class="footer outer">
     <footer class="container">
         <div class="xoxo span-6">
@@ -133,7 +131,7 @@
               <li>
                 <a href="http://twitter.com/ckanproject">Twitter @ckanproject</a>
               </li>
-                <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api'))}</li>
+                <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1))}</li>
                 <li>${h.link_to(_('API Docs'), 'http://wiki.ckan.net/API')}</li>
               <li>
                 <a href="http://ckan.org/contact/">Contact Us</a>
@@ -149,27 +147,27 @@
           <div class="textwidget">
             <ul>
               <li>
-                <a href="${url(controller='user', action='index')}">
+                <a href="${h.url(controller='user', action='index')}">
                   Users
                 </a>
               </li>
               <li>
-                <a href="${url(controller='tag', action='index')}">
+                <a href="${h.url(controller='tag', action='index')}">
                   Tags
                 </a>
               </li>
               <li py:if="'stats' in config.get('ckan.plugins','').split(' ')">
-                <a href="${url('stats')}">
+                <a href="${h.url('stats')}">
                   Statistics
                 </a>
               </li>
               <li>
-                <a href="${url(controller='revision', action='index')}">
+                <a href="${h.url(controller='revision', action='index')}">
                   Revisions
                 </a>
               </li>
               <li>
-                <a href="${url(controller='authorization_group', action='index')}">
+                <a href="${h.url(controller='authorization_group', action='index')}">
                   Authorization Groups
                 </a>
               </li>
@@ -186,15 +184,10 @@
           <div class="textwidget">
             <ul>
 <?python
-  import ckan.lib.hash
-  current_url = request.path_qs.encode('utf-8')
-  current_url_hash = ckan.lib.hash.get_message_hash(current_url)
+  current_url = request.environ['CKAN_CURRENT_URL'].encode('utf-8')
 ?>
               <li py:for="locale in h.get_available_locales()">
-              <a href="${url(controller='home', action='locale', 
-                             locale=str(locale), 
-                             return_to=current_url,
-                             hash=current_url_hash)}">
+              <a href="${h.url(current_url, locale=str(locale))}">
                   ${locale.display_name or locale.english_name}
                 </a>
               </li>
@@ -220,28 +213,26 @@
 
   <!--script
   src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script-->
-
-  <script src="${g.site_url}/scripts/vendor/jquery/1.6.2/jquery.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/json2.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.tmpl/beta1/jquery.tmpl.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.cookie/jquery.cookie.min.js"></script>
- <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.chosen/0.9.7/chosen.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jquery.placeholder/jquery.placeholder.js"></script>
-  <script type="text/javascript" src="${g.site_url}/scripts/vendor/jqueryui/1.8.14/jquery-ui.min.js"></script>
-
+  <script src="${h.url_for_static('/scripts/vendor/jquery/1.6.2/jquery.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/json2.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.tmpl/beta1/jquery.tmpl.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.cookie/jquery.cookie.min.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.chosen/0.9.7/chosen.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.placeholder/jquery.placeholder.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jqueryui/1.8.14/jquery-ui.min.js')}"></script>
   <!-- for ckanjs etc -->
-  <script type="text/javascript" src="${h.url_for('/scripts/vendor/underscore/1.1.6/underscore.js')}"></script>
-  <script type="text/javascript" src="${h.url_for('/scripts/vendor/backbone/0.5.1/backbone.js')}"></script>
-  <script type="text/javascript" src="${h.url_for('/scripts/vendor/jquery.fileupload/20110801/jquery.iframe-transport.js')}"></script>
-  <script type="text/javascript" src="${h.url_for('/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js')}"></script>
-  <script type="text/javascript" src="${h.url_for('/scripts/vendor/ckanjs/1.0.0/ckanjs.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/underscore/1.1.6/underscore.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/backbone/0.5.1/backbone.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.fileupload/20110801/jquery.iframe-transport.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/ckanjs/1.0.0/ckanjs.js')}"></script>
   <!-- Translated js strings live inside an html template. -->
   <xi:include href="js_strings.html" />
   <!-- finally our application js that sets everything up-->
-  <script type="text/javascript" src="${h.url_for('/scripts/application.js?lang=${c.locale}')}"></script>
-  <script type="text/javascript" src="${h.url_for('/scripts/templates.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/application.js?lang=${c.locale}')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/templates.js')}"></script>
 
-  <script src="${h.url_for('/scripts/vendor/modernizr/1.7/modernizr.min.js')}"></script>
+  <script src="${h.url_for_static('/scripts/vendor/modernizr/1.7/modernizr.min.js')}"></script>
 
   <script type="text/javascript">
     CKAN.plugins = [ 
