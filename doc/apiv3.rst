@@ -142,28 +142,28 @@ Object dictionaries
 
 Package:
 
-======================== ====================================== =============
-key                      example value                          notes
-======================== ====================================== =============
-id                       "fd788e57-dce4-481c-832d-497235bf9f78" (Read-only) unique identifier
-name                     "uk-spending"                          Unique identifier. Should be human readable
-title                    "UK Spending"                          Human readable title of the dataset
-url                      "http://gov.uk/spend-downloads.html"   Home page for the data
-version                  "1.0"                                  Version associated with the data. String format.
-author                   "UK Treasury"                          Name of person responsible for the data
-author_email             "contact@treasury.gov.uk"              Email address for the person in the 'author' field
-maintainer               null                                   Name of another person responsible for the data
-maintainer_email         null                                   Email address for the person in the 'maintainer' field
-notes                    "### About\\r\\n\\r\\nUpdated 1997."   Other human readable info about the dataset. Markdown format.
-license_id               "cc-by"                                ID of the license this dataset is released under. You can then look up the license ID to get the title.
+======================== ====================================================== =============
+key                      example value                                          notes
+======================== ====================================================== =============
+id                       "fd788e57-dce4-481c-832d-497235bf9f78"                 (Read-only) unique identifier
+name                     "uk-spending"                                          Unique identifier. Should be human readable
+title                    "UK Spending"                                          Human readable title of the dataset
+url                      "http://gov.uk/spend-downloads.html"                   Home page for the data
+version                  "1.0"                                                  Version associated with the data. String format.
+author                   "UK Treasury"                                          Name of person responsible for the data
+author_email             "contact@treasury.gov.uk"                              Email address for the person in the 'author' field
+maintainer               null                                                   Name of another person responsible for the data
+maintainer_email         null                                                   Email address for the person in the 'maintainer' field
+notes                    "### About\\r\\n\\r\\nUpdated 1997."                   Other human readable info about the dataset. Markdown format.
+license_id               "cc-by"                                                ID of the license this dataset is released under. You can then look up the license ID to get the title.
 extras                   []                                      
-tags                     ["government-spending"]                List of tags associated with this dataset.
-groups                   ["spending", "country-uk"]             List of groups this dataset is a member of.
-relationships_as_subject []                                     List of relationships. The 'type' of the relationship is described in terms of this package being the subject and the related package being the object.
-state                    active                                 May be ``deleted`` or other custom states like ``pending``.
-revision_id              "f645243a-7334-44e2-b87c-64231700a9a6" (Read-only) ID of the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships).
-revision_timestamp       "2010-12-21T15:26:17.345502"           (Read-only) Time and date when the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships). ISO format. UTC timezone assumed.
-======================== ====================================== =============
+tags                     [{"name": "government-spending"}, {"name": "climate"}] List of tags associated with this dataset.
+groups                   ["spending", "country-uk"]                             List of groups this dataset is a member of.
+relationships_as_subject []                                                     List of relationships. The 'type' of the relationship is described in terms of this package being the subject and the related package being the object.
+state                    active                                                 May be ``deleted`` or other custom states like ``pending``.
+revision_id              "f645243a-7334-44e2-b87c-64231700a9a6"                 (Read-only) ID of the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships).
+revision_timestamp       "2010-12-21T15:26:17.345502"                           (Read-only) Time and date when the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships). ISO format. UTC timezone assumed.
+======================== ====================================================== =============
 
 Package Extra:
 
