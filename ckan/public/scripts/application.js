@@ -904,6 +904,8 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
       initializeDataExplorer(dataset);
     }
     else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
+      // set format as this is used by Recline in setting format for DataProxy 
+      resourceData.format = resourceData.formatNormalized;
       var dataset = new recline.Model.Dataset(resourceData, 'dataproxy');
       initializeDataExplorer(dataset);
       $('.recline-query-editor .text-query').hide();
