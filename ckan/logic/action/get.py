@@ -1024,6 +1024,19 @@ def group_activity_list(context, data_dict):
     activity_objects = query.all()
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+def recently_changed_packages_activity_list(context, data_dict):
+    '''Return an activity stream of all recently added or updated packages as
+    a list of dicts.
+
+    '''
+    model = context['model']
+    query = model.Session.query(model.Activity)
+    query = query.filter(model.Activity.activity_type.endswith('package'))
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+    return model_dictize.activity_list_dictize(activity_objects, context)
+
 def activity_detail_list(context, data_dict):
     '''Return an activity\'s list of activity detail items, as a list of dicts.
     '''
@@ -1180,4 +1193,16 @@ def group_activity_list_html(context, data_dict):
 
     '''
     activity_stream = group_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)
+
+def recently_changed_packages_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of the activity stream of all recently added
+    or updated packages.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = recently_changed_packages_activity_list(context,
+            data_dict)
     return _activity_list_to_html(context, activity_stream)
