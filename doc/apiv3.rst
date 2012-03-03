@@ -63,9 +63,10 @@ group_list_authz                       (none)
 group_list_available                   (none)
 group_revision_list                    id
 licence_list                           (none)
-tag_list                               q, all_fields, limit, offset, return_objects
+tag_list                               q, all_fields, limit, offset, return_objects, vocabulary_id
 user_list                              q, order_by
 package_relationships_list             id, id2, rel
+vocabulary_list                        (none)
 package_show                           id
 revision_show                          id
 group_show                             id
@@ -74,12 +75,15 @@ user_show                              id
 package_show_rest                      id
 group_show_rest                        id
 tag_show_rest                          id
+vocabulary_show                        id
 package_autocomplete                   q
-tag_autocomplete                       q, limit
+tag_autocomplete                       q, fields, offset, limit, vocabulary_id
 format_autocomplete                    q, limit
 user_autocomplete                      q, limit
 package_search                         q, fields, facet_by, limit, offset
+tag_search                             q, fields, offset, limit, vocabulary_id
 roles_show                             domain_object, (user), (authorization_group)
+
 ====================================== ===========================
 
 new.py: 
@@ -96,6 +100,8 @@ rating_create                          package, rating
 user_create                            (user keys)
 package_create_rest                    (package keys)
 group_create_rest                      (group keys)
+vocabulary_create                      (vocabulary keys)
+tag_create                             (tag keys)
 ====================================== ===========================
 
 update.py:
@@ -114,6 +120,7 @@ package_update_rest                    (package keys)
 group_update_rest                      (group keys)
 user_role_update                       user OR authorization_group, domain_object, roles
 user_role_bulk_update                  user_roles, domain_object
+vocabulary_update                      (vocabulary keys)
 ====================================== ===========================
 
 delete.py:
@@ -124,6 +131,8 @@ Logic Action                           Parameter keys
 package_delete                         id
 package_relationship_delete            id, id2, rel
 group_delete                           id
+vocabulary_delete                      id
+tag_delete                             id, vocabulary_id
 ====================================== ===========================
 
 In case of doubt, refer to the code of the logic actions, which is found in the CKAN source in the ckan/logic/action directory.
@@ -197,6 +206,7 @@ id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754" (Read-only)
 name                     "country-uk"                           (Read-only) Add/remove tags from a package or group using update_package or update_group
 state                    "active"                               (Read-only) Add/remove tags from a package or group using update_package or update_group
 revision_timestamp       "2009-08-08T12:46:40.920443"           (Read-only)
+vocabulary_id            "Genre"                                (Read-only) Vocabulary name or id. Optional.
 ======================== ====================================== =============
 
 user_roles:
@@ -208,6 +218,16 @@ user                     "5ba3985d-447d-4919-867e-2ffe22281c40" Provide exactly 
 authorization_group      "16f8f7ba-1a97-4d27-95ce-5e8827a0d75f"
 roles                    ['editor', 'admin']                    
 ======================== ====================================== =============
+
+Vocabulary:
+
+======================== ===================================================== =============
+key                      example value                                         notes
+======================== ===================================================== =============
+id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754"                (Read-only)
+name                     "Genre"
+tags                     [{"name":"government-spending"}, {"name": "climate"}] List of tags belonging to this vocabulary.
+======================== ===================================================== =============
 
 Parameters
 ==========
