@@ -43,7 +43,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'CKAN Data Management System Documentation'
 project_short_name = u'CKAN'
-copyright = u'&Copyright copy; 2009-2012, Open Knowledge Foundation'
+copyright = u'&copy; Copyright 2009-2012, Open Knowledge Foundation'
 html_show_sphinx = False
 
 # The version info for the project you're documenting, acts as replacement for
