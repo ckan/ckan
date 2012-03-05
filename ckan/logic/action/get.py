@@ -512,10 +512,7 @@ def package_show_rest(context, data_dict):
     api = context.get('api_version') or '1'
     pkg = context['package']
 
-    if api == '1':
-        package_dict = model_dictize.package_to_api1(pkg, context)
-    else:
-        package_dict = model_dictize.package_to_api2(pkg, context)
+    package_dict = model_dictize.package_to_api(pkg, context)
 
     return package_dict
 
@@ -527,10 +524,7 @@ def group_show_rest(context, data_dict):
     api = context.get('api_version') or '1'
     group = context['group']
 
-    if api == '2':
-        group_dict = model_dictize.group_to_api2(group, context)
-    else:
-        group_dict = model_dictize.group_to_api1(group, context)
+    group_dict = model_dictize.group_to_api(group, context)
 
     return group_dict
 
@@ -542,10 +536,7 @@ def tag_show_rest(context, data_dict):
     api = context.get('api_version') or '1'
     tag = context['tag']
 
-    if api == '2':
-        tag_dict = model_dictize.tag_to_api2(tag, context)
-    else:
-        tag_dict = model_dictize.tag_to_api1(tag, context)
+    tag_dict = model_dictize.tag_to_api(tag, context)
 
     return tag_dict
 

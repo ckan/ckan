@@ -316,10 +316,7 @@ def package_create_rest(context, data_dict):
 
     pkg = context['package']
 
-    if api == '1':
-        package_dict = model_dictize.package_to_api1(pkg, context)
-    else:
-        package_dict = model_dictize.package_to_api2(pkg, context)
+    package_dict = model_dictize.package_to_api(pkg, context)
 
     data_dict['id'] = pkg.id
 
@@ -336,10 +333,7 @@ def group_create_rest(context, data_dict):
 
     group = context['group']
 
-    if api == '1':
-        group_dict = model_dictize.group_to_api1(group, context)
-    else:
-        group_dict = model_dictize.group_to_api2(group, context)
+    group_dict = model_dictize.group_to_api(group, context)
 
     data_dict['id'] = group.id
 
