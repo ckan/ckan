@@ -327,16 +327,6 @@ def group_to_api(group, context):
         dictized["packages"] = sorted([pkg["id"] for pkg in dictized["packages"]])
     return dictized
 
-def group_to_api1(group, context):
-    # DEPRICIATED set api_version in context and use group_to_api()
-    context['api_version'] = 1
-    return group_to_api(group, context)
-
-def group_to_api2(group, context):
-    # DEPRICIATED set api_version in context and use group_to_api()
-    context['api_version'] = 2
-    return group_to_api(group, context)
-
 def tag_to_api(tag, context):
     api_version = context.get('api_version')
     assert api_version, 'No api_version supplied in context'
@@ -346,15 +336,6 @@ def tag_to_api(tag, context):
     else:
         return sorted([package["id"] for package in dictized["packages"]])
 
-def tag_to_api1(tag, context):
-    # DEPRICIATED set api_version in context and use tag_to_api()
-    context['api_version'] = 1
-    return tag_to_api(tag, context)
-
-def tag_to_api2(tag, context):
-    # DEPRICIATED set api_version in context and use tag_to_api()
-    context['api_version'] = 1
-    return tag_to_api(tag, context)
 
 def resource_dict_to_api(res_dict, package_id, context):
     res_dict.pop("revision_id")
@@ -366,7 +347,6 @@ def resource_dict_to_api(res_dict, package_id, context):
 def package_to_api(pkg, context):
     api_version = context.get('api_version')
     assert api_version, 'No api_version supplied in context'
-    # shared package_to_api code
     dictized = package_dictize(pkg, context)
     dictized.pop("revision_timestamp")
 
@@ -432,16 +412,6 @@ def package_to_api(pkg, context):
 
     return dictized
 
-def package_to_api1(pkg, context):
-    # DEPRICIATED set api_version in context and use package_to_api()
-    context['api_version'] = 1
-    return package_to_api(tag, context)
-
-def package_to_api2(pkg, context):
-    # DEPRICIATED set api_version in context and use package_to_api()
-    context['api_version'] = 2
-    return package_to_api(tag, context)
-
 def vocabulary_dictize(vocabulary, context):
     vocabulary_dict = table_dictize(vocabulary, context)
     assert not vocabulary_dict.has_key('tags')
@@ -466,3 +436,34 @@ def activity_detail_dictize(activity_detail, context):
 def activity_detail_list_dictize(activity_detail_list, context):
     return [activity_detail_dictize(activity_detail, context)
             for activity_detail in activity_detail_list]
+
+
+def package_to_api1(pkg, context):
+    # DEPRICIATED set api_version in context and use package_to_api()
+    context['api_version'] = 1
+    return package_to_api(pkg, context)
+
+def package_to_api2(pkg, context):
+    # DEPRICIATED set api_version in context and use package_to_api()
+    context['api_version'] = 2
+    return package_to_api(pkg, context)
+
+def group_to_api1(group, context):
+    # DEPRICIATED set api_version in context and use group_to_api()
+    context['api_version'] = 1
+    return group_to_api(group, context)
+
+def group_to_api2(group, context):
+    # DEPRICIATED set api_version in context and use group_to_api()
+    context['api_version'] = 2
+    return group_to_api(group, context)
+
+def tag_to_api1(tag, context):
+    # DEPRICIATED set api_version in context and use tag_to_api()
+    context['api_version'] = 1
+    return tag_to_api(tag, context)
+
+def tag_to_api2(tag, context):
+    # DEPRICIATED set api_version in context and use tag_to_api()
+    context['api_version'] = 1
+    return tag_to_api(tag, context)
