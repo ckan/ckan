@@ -307,8 +307,6 @@ def user_create(context, data_dict):
 
 def package_create_rest(context, data_dict):
 
-    api = context.get('api_version') or '1'
-
     check_access('package_create_rest', context, data_dict)
 
     dictized_package = model_save.package_api_to_dict(data_dict, context)
@@ -323,8 +321,6 @@ def package_create_rest(context, data_dict):
     return package_dict
 
 def group_create_rest(context, data_dict):
-
-    api = context.get('api_version') or '1'
 
     check_access('group_create_rest', context, data_dict)
 

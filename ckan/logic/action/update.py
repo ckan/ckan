@@ -511,7 +511,6 @@ def package_update_rest(context, data_dict):
     model = context['model']
     id = data_dict.get("id")
     request_id = context['id']
-    api = context.get('api_version') or '1'
     pkg = model.Package.get(request_id)
 
     if not pkg:
@@ -542,7 +541,6 @@ def group_update_rest(context, data_dict):
 
     model = context['model']
     id = data_dict["id"]
-    api = context.get('api_version') or '1'
     group = model.Group.get(id)
     context["group"] = group
     context["allow_partial_update"] = True

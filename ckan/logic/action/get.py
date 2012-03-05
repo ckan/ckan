@@ -509,7 +509,6 @@ def package_show_rest(context, data_dict):
 
     logic.get_action('package_show')(context, data_dict)
 
-    api = context.get('api_version') or '1'
     pkg = context['package']
 
     package_dict = model_dictize.package_to_api(pkg, context)
@@ -521,7 +520,6 @@ def group_show_rest(context, data_dict):
     check_access('group_show_rest',context, data_dict)
 
     group_show(context, data_dict)
-    api = context.get('api_version') or '1'
     group = context['group']
 
     group_dict = model_dictize.group_to_api(group, context)
@@ -533,7 +531,6 @@ def tag_show_rest(context, data_dict):
     check_access('tag_show_rest',context, data_dict)
 
     tag_show(context, data_dict)
-    api = context.get('api_version') or '1'
     tag = context['tag']
 
     tag_dict = model_dictize.tag_to_api(tag, context)
