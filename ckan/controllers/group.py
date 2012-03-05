@@ -14,7 +14,7 @@ from ckan.logic import tuplize_dict, clean_dict, parse_params
 import ckan.forms
 import ckan.logic.action.get
 
-from lib.plugins import lookup_group_plugin as _lookup_plugin
+from lib.plugins import lookup_group_plugin
 
 log = logging.getLogger(__name__)
 
@@ -24,18 +24,18 @@ class GroupController(BaseController):
     ## hooks for subclasses
 
     def _group_form(self, group_type=None):
-        return _lookup_plugin(group_type).group_form()
+        return lookup_group_plugin(group_type).group_form()
 
     def _form_to_db_schema(self, group_type=None):
-        return _lookup_plugin(group_type).form_to_db_schema()
+        return lookup_group_plugin(group_type).form_to_db_schema()
 
     def _db_to_form_schema(self, group_type=None):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        return _lookup_plugin(group_type).form_to_db_schema()
+        return lookup_group_plugin(group_type).form_to_db_schema()
 
     def _setup_template_variables(self, context, data_dict, group_type=None):
-        return _lookup_plugin(group_type).setup_template_variables(context,data_dict)
+        return lookup_group_plugin(group_type).setup_template_variables(context,data_dict)
 
     ## end hooks
 
@@ -67,7 +67,7 @@ class GroupController(BaseController):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(group_type=type),
+                   'schema': self._form_to_db_schema(group_type=group_type),
                    'for_view': True}
         data_dict = {'id': id}
         q = c.q = request.params.get('q', '') # unicode format (decoded from utf8)
@@ -182,7 +182,6 @@ class GroupController(BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(),
                    'save': 'save' in request.params,
                    'parent': request.params.get('parent', None)}
         try:
@@ -207,7 +206,6 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
-                   'schema': self._form_to_db_schema(group_type=group_type),
                    'parent': request.params.get('parent', None)
                    }
         data_dict = {'id': id}

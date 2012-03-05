@@ -5,6 +5,7 @@ from ckan.lib import base
 from ckan.lib.navl import dictization_functions
 from ckan import authz
 from ckan import logic
+import logic.schema
 from ckan import plugins
 
 log = logging.getLogger(__name__)
@@ -166,6 +167,10 @@ class DefaultDatasetForm(object):
         return logic.schema.package_form_schema()
 
     def form_to_db_schema_options(self, options):
+        ''' This allows us to select different schemas for different
+        purpose eg via the web interface or via the api or creation vs
+        updating. It is optional and if not available form_to_db_schema
+        should be used. '''
         if options.get('api'):
             if options.get('type') == 'create':
                 return logic.schema.default_create_package_schema()
@@ -241,10 +246,22 @@ class DefaultGroupForm(object):
     def form_to_db_schema(self):
         return logic.schema.group_form_schema()
 
+    def form_to_db_schema_options(self, options):
+        ''' This allows us to select different schemas for different
+        purpose eg via the web interface or via the api or creation vs
+        updating. It is optional and if not available form_to_db_schema
+        should be used. '''
+        if options.get('api'):
+            if options.get('type') == 'create':
+                return logic.schema.default_group_schema()
+            else:
+                return logic.schema.default_update_group_schema()
+        else:
+            return logic.schema.group_form_schema()
+
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-
 
     def check_data_dict(self, data_dict):
         '''Check if the return data is correct, mostly for checking out

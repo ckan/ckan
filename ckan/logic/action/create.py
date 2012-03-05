@@ -1,30 +1,29 @@
 import logging
-from lib.plugins import lookup_package_plugin
+from pylons.i18n import _
 
+import lib.plugins as lib_plugins
+import ckan.logic as logic
 import ckan.rating as ratings
-from ckan.plugins import (PluginImplementations,
-                          IGroupController,
-                          IPackageController)
-from ckan.logic import NotFound, ValidationError
-from ckan.logic import check_access
-from ckan.lib.base import _
+import ckan.plugins as plugins
 import ckan.lib.dictization
-from ckan.lib.dictization import model_dictize
-from ckan.lib.dictization import model_save
-from ckan.logic.schema import (
-                               default_resource_schema,
-                               default_create_relationship_schema,
-                               default_create_vocabulary_schema,
-                               default_create_activity_schema,
-                               default_create_tag_schema)
+import ckan.logic.action
+import ckan.logic.schema
+import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.dictization.model_save as model_save
+import ckan.lib.navl.dictization_functions
 
-from ckan.logic.schema import default_group_schema, default_user_schema
-from ckan.lib.navl.dictization_functions import validate
+# FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
-from ckan.logic.action import rename_keys, error_summary
-from ckan import logic
 
 log = logging.getLogger(__name__)
+
+# define some shortcuts
+error_summary = ckan.logic.action.error_summary
+validate = ckan.lib.navl.dictization_functions.validate
+check_access = logic.check_access
+get_action = logic.get_action
+ValidationError = logic.ValidationError
+NotFound = logic.NotFound
 
 def package_create(context, data_dict):
 
@@ -34,7 +33,7 @@ def package_create(context, data_dict):
     model.Session()._context = context
 
     package_type = data_dict.get('type')
-    package_plugin = lookup_package_plugin(package_type)
+    package_plugin = lib_plugins.lookup_package_plugin(package_type)
     try:
         schema = package_plugin.form_to_db_schema_options({'type':'create',
                                                'api':'api_version' in context})
@@ -73,7 +72,7 @@ def package_create(context, data_dict):
     # Needed to let extensions know the package id
     model.Session.flush()
 
-    for item in PluginImplementations(IPackageController):
+    for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
 
     if not context.get('defer_commit'):
@@ -84,11 +83,11 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    return logic.get_action('package_show')(context, {'id':context['id']})
+    return get_action('package_show')(context, {'id':context['id']})
 
 def package_create_validate(context, data_dict):
     model = context['model']
-    schema = lookup_package_plugin().form_to_db_schema()
+    schema = lib_plugins.lookup_package_plugin().form_to_db_schema()
     model.Session.remove()
     model.Session()._context = context
 
@@ -109,14 +108,14 @@ def resource_create(context, data_dict):
     user = context['user']
 
     data, errors = validate(data_dict,
-                            default_resource_schema(),
+                            ckan.logic.schema.default_resource_schema(),
                             context)
 
 def package_relationship_create(context, data_dict):
 
     model = context['model']
     user = context['user']
-    schema = context.get('schema') or default_create_relationship_schema()
+    schema = context.get('schema') or ckan.logic.schema.default_create_relationship_schema()
     api = context.get('api_version') or '1'
     ref_package_by = 'id' if api == '2' else 'name'
 
@@ -160,10 +159,17 @@ def group_create(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema') or default_group_schema()
     parent = context.get('parent', None)
 
-    check_access('group_create',context,data_dict)
+    check_access('group_create', context, data_dict)
+
+    # get the schema
+    group_plugin = lib_plugins.lookup_group_plugin()
+    try:
+        schema = group_plugin.form_to_db_schema_options({'type':'create',
+                                               'api':'api_version' in context})
+    except AttributeError:
+        schema = group_plugin.form_to_db_schema()
 
     data, errors = validate(data_dict, schema, context)
 
@@ -195,7 +201,7 @@ def group_create(context, data_dict):
     # Needed to let extensions know the group id
     session.flush()
 
-    for item in PluginImplementations(IGroupController):
+    for item in plugins.PluginImplementations(plugins.IGroupController):
         item.create(group)
 
     activity_dict = {
@@ -259,7 +265,7 @@ def user_create(context, data_dict):
     '''Creates a new user'''
 
     model = context['model']
-    schema = context.get('schema') or default_user_schema()
+    schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
 
     check_access('user_create', context, data_dict)
@@ -306,7 +312,7 @@ def package_create_rest(context, data_dict):
     check_access('package_create_rest', context, data_dict)
 
     dictized_package = model_save.package_api_to_dict(data_dict, context)
-    dictized_after = logic.get_action('package_create')(context, dictized_package)
+    dictized_after = get_action('package_create')(context, dictized_package)
 
     pkg = context['package']
 
@@ -326,7 +332,7 @@ def group_create_rest(context, data_dict):
     check_access('group_create_rest', context, data_dict)
 
     dictized_group = model_save.group_api_to_dict(data_dict, context)
-    dictized_after = group_create(context, dictized_group)
+    dictized_after = get_action('group_create')(context, dictized_group)
 
     group = context['group']
 
@@ -342,7 +348,7 @@ def group_create_rest(context, data_dict):
 def vocabulary_create(context, data_dict):
 
     model = context['model']
-    schema = context.get('schema') or default_create_vocabulary_schema()
+    schema = context.get('schema') or ckan.logic.schema.default_create_vocabulary_schema()
 
     model.Session.remove()
     model.Session()._context = context
@@ -382,7 +388,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
     if not ignore_auth:
         check_access('activity_create', context, activity_dict)
 
-    schema = context.get('schema') or default_create_activity_schema()
+    schema = context.get('schema') or ckan.logic.schema.default_create_activity_schema()
     data, errors = validate(activity_dict, schema, context)
     if errors:
         raise ValidationError(errors)
@@ -402,9 +408,9 @@ def package_relationship_create_rest(context, data_dict):
                'rel': 'type'}
     # Don't be destructive to enable parameter values for
     # object and type to override the URL parameters.
-    data_dict = rename_keys(data_dict, key_map, destructive=False)
+    data_dict = ckan.logic.action.rename_keys(data_dict, key_map, destructive=False)
 
-    relationship_dict = package_relationship_create(context, data_dict)
+    relationship_dict = get_action('package_relationship_create')(context, data_dict)
     return relationship_dict
 
 def tag_create(context, tag_dict):
@@ -414,7 +420,7 @@ def tag_create(context, tag_dict):
 
     check_access('tag_create', context, tag_dict)
 
-    schema = context.get('schema') or default_create_tag_schema()
+    schema = context.get('schema') or ckan.logic.schema.default_create_tag_schema()
     data, errors = validate(tag_dict, schema, context)
     if errors:
         raise ValidationError(errors)

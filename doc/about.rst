@@ -8,7 +8,7 @@ CKAN is an open source project and contributions are welcome!
 
 We discuss large changes and new features on the `ckan-discuss <http://lists.okfn.org/mailman/listinfo/ckan-discuss>`_ mailing list, and technical issues on the `ckan-dev <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_ mailing list. Please join us there.  
 
-You can find developer resources and links to our ticketing system on the `CKAN wiki <http://wiki.ckan.net/Main_Page>`_.
+You can find developer resources and links to our ticketing system on the `CKAN wiki <http://wiki.ckan.org/Main_Page>`_.
 
 Acknowledgements
 ----------------

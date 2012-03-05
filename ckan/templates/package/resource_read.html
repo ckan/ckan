@@ -15,6 +15,22 @@
     <!-- data preview -->
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/data-explorer.css')}" />
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/graph-flot.css')}" />
+    <style type="text/css">
+      .header .recline-query-editor input.text-query {
+        margin-right: 5px;
+        margin-top: 2px;
+        height: 18px;
+      }
+
+      .header .recline-query-editor .pagination input {
+        margin-top: auto;
+        margin-bottom: 2px;
+      }
+      .recline-query-editor .pagination ul {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
     <!-- /data preview -->
     <script type="text/javascript">
       var preload_resource = ${h.literal(c.resource_json)};

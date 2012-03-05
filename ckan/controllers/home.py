@@ -3,12 +3,9 @@ import random
 from pylons.i18n import set_lang
 import sqlalchemy.exc
 
-from ckan.logic import NotAuthorized
-from ckan.logic import check_access, get_action
-from ckan.lib.i18n import get_lang
-from ckan.lib.search import query_for, QueryOptions, SearchError
+import ckan.logic
+from ckan.lib.search import SearchError
 from ckan.lib.base import *
-from ckan.lib.hash import get_redirect
 from ckan.lib.helpers import url_for
 
 CACHE_PARAMETER = '__cache'
@@ -20,8 +17,8 @@ class HomeController(BaseController):
         BaseController.__before__(self, action, **env)
         try:
             context = {'model':model,'user': c.user or c.author}
-            check_access('site_read',context)
-        except NotAuthorized:
+            ckan.logic.check_access('site_read',context)
+        except ckan.logic.NotAuthorized:
             abort(401, _('Not authorized to see this page'))
         except (sqlalchemy.exc.ProgrammingError,
                 sqlalchemy.exc.OperationalError), e:
@@ -47,13 +44,13 @@ class HomeController(BaseController):
                 'rows':0,
                 'start':0,
             }
-            query = get_action('package_search')(context,data_dict)
+            query = ckan.logic.get_action('package_search')(context,data_dict)
             c.package_count = query['count']
             c.facets = query['facets']
 
             # group search
             data_dict = {'order_by': 'packages', 'all_fields': 1}
-            c.groups = get_action('group_list')(context, data_dict)
+            c.groups = ckan.logic.get_action('group_list')(context, data_dict)
         except SearchError, se:
             c.package_count = 0
             c.groups = []
@@ -80,6 +77,10 @@ class HomeController(BaseController):
                     ' and add your full name.') % (url)
             if msg:
                 h.flash_notice(msg, allow_html=True)
+
+        c.recently_changed_packages_activity_stream = \
+            ckan.logic.action.get.recently_changed_packages_activity_list_html(
+                    context, {})
 
         return render('home/index.html')
 
