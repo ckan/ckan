@@ -93,7 +93,7 @@ You must add to your Nginx CKAN site entry the following::
 
 In your config file set::
 
- ckan.webstore.enabled = 1
+ ckan.datastore.enabled = 1
 
 
 DataStorer: Automatically Add Data to the DataStore
