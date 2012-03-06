@@ -1,6 +1,7 @@
-from ckan.lib.dictization import table_dict_save
+import uuid
 from sqlalchemy.orm import class_mapper
-from ckan.lib.helpers import json
+import ckan.lib.dictization as d
+import ckan.lib.helpers as h
 
 ##package saving
 
@@ -95,7 +96,7 @@ def package_extras_save(extra_dicts, obj, context):
         elif extras_as_string:
             new_extras[extra_dict["key"]] = extra_dict["value"]
         else:
-            new_extras[extra_dict["key"]] = json.loads(extra_dict["value"])
+            new_extras[extra_dict["key"]] = h.json.loads(extra_dict["value"])
     #new
     for key in set(new_extras.keys()) - set(old_extras.keys()):
         state = 'pending' if context.get('pending') else 'active'
@@ -133,7 +134,7 @@ def group_extras_save(extras_dicts, context):
         if extras_as_string:
             result_dict[extra_dict["key"]] = extra_dict["value"]
         else:
-            result_dict[extra_dict["key"]] = json.loads(extra_dict["value"])
+            result_dict[extra_dict["key"]] = h.json.loads(extra_dict["value"])
 
     return result_dict
 
@@ -159,7 +160,7 @@ def package_tag_list_save(tag_dicts, package, context):
     tags = set()
     for tag_dict in tag_dicts:
         if (tag_dict.get('name'), tag_dict.get('vocabulary_id')) not in tag_name_vocab:
-            tag_obj = table_dict_save(tag_dict, model.Tag, context)
+            tag_obj = d.table_dict_save(tag_dict, model.Tag, context)
             tags.add(tag_obj)
             tag_name_vocab.add((tag_obj.name, tag_obj.vocabulary_id))
 
@@ -248,7 +249,7 @@ def relationship_list_save(relationship_dicts, package, attr, context):
 
     relationships = []
     for relationship_dict in relationship_dicts:
-        obj = table_dict_save(relationship_dict, 
+        obj = d.table_dict_save(relationship_dict, 
                               model.PackageRelationship, context)
         relationships.append(obj)
 
@@ -262,7 +263,6 @@ def relationship_list_save(relationship_dicts, package, attr, context):
         relationship_list.append(relationship)
 
 def package_dict_save(pkg_dict, context):
-    import uuid
     
     model = context["model"]
     package = context.get("package")
@@ -276,7 +276,7 @@ def package_dict_save(pkg_dict, context):
     if 'metadata_modified' in pkg_dict:
         del pkg_dict['metadata_modified']
 
-    pkg = table_dict_save(pkg_dict, Package, context)
+    pkg = d.table_dict_save(pkg_dict, Package, context)
 
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
@@ -337,7 +337,6 @@ def group_member_save(context, group_dict, member_table_name):
 
 
 def group_dict_save(group_dict, context):
-    import uuid 
     
     model = context["model"]
     session = context["session"]
@@ -348,7 +347,7 @@ def group_dict_save(group_dict, context):
     if group:
         group_dict["id"] = group.id 
 
-    group = table_dict_save(group_dict, Group, context)
+    group = d.table_dict_save(group_dict, Group, context)
     if not group.id:
         group.id = str(uuid.uuid4())
         
@@ -385,7 +384,7 @@ def user_dict_save(user_dict, context):
     if 'password' in user_dict and not len(user_dict['password']):
         del user_dict['password']
 
-    user = table_dict_save(user_dict, User, context)
+    user = d.table_dict_save(user_dict, User, context)
 
     return user
 
@@ -415,7 +414,7 @@ def package_api_to_dict(api1_dict, context):
             for extras_key, extras_value in updated_extras.iteritems():
                 if extras_value is not None:
                     new_value.append({"key": extras_key,
-                                      "value": json.dumps(extras_value)})
+                                      "value": h.json.dumps(extras_value)})
                 else:
                     new_value.append({"key": extras_key,
                                       "value": None})
@@ -457,7 +456,7 @@ def task_status_dict_save(task_status_dict, context):
     if task_status:
         task_status_dict["id"] = task_status.id 
 
-    task_status = table_dict_save(task_status_dict, model.TaskStatus, context)
+    task_status = d.table_dict_save(task_status_dict, model.TaskStatus, context)
     return task_status
 
 def activity_dict_save(activity_dict, context):
@@ -532,5 +531,5 @@ def tag_dict_save(tag_dict, context):
     tag = context.get('tag')
     if tag:
         tag_dict['id'] = tag.id
-    tag = table_dict_save(tag_dict, model.Tag, context)
+    tag = d.table_dict_save(tag_dict, model.Tag, context)
     return tag
