@@ -1,14 +1,13 @@
+import datetime
 from pylons import config
 from sqlalchemy.sql import select
-from ckan.plugins import PluginImplementations, IPackageController, IGroupController
-import datetime
 
-from ckan.model import PackageRevision
-from ckan.lib.dictization import (obj_list_dictize,
-                                  table_dictize)
-from ckan.logic import NotFound
+import ckan.model
 import ckan.misc
-from ckan.lib.helpers import json
+import ckan.logic as logic
+import ckan.plugins as plugins
+import ckan.lib.helpers as h
+import ckan.lib.dictization as d
 
 ## package save
 
@@ -22,9 +21,9 @@ def group_list_dictize(obj_list, context,
     for obj in obj_list:
         if context.get('with_capacity'):
             obj, capacity = obj
-            group_dict = table_dictize(obj, context, capacity=capacity)
+            group_dict = d.table_dictize(obj, context, capacity=capacity)
         else:
-            group_dict = table_dictize(obj, context)
+            group_dict = d.table_dictize(obj, context)
         group_dict.pop('created')
         if active and obj.state not in ('active', 'pending'):
             continue
@@ -50,14 +49,14 @@ def resource_list_dictize(res_list, context):
 def extras_dict_dictize(extras_dict, context):
     result_list = []
     for name, extra in extras_dict.iteritems():
-        dictized = table_dictize(extra, context)
+        dictized = d.table_dictize(extra, context)
         if not extra.state == 'active':
             continue
         value = dictized["value"]
         ## This is to make sure the frontend does not show a plain string
         ## as json with brackets.
         if not(context.get("extras_as_string") and isinstance(value, basestring)):
-            dictized["value"] = json.dumps(value)
+            dictized["value"] = h.json.dumps(value)
         result_list.append(dictized)
 
     return sorted(result_list, key=lambda x: x["key"])
@@ -68,16 +67,16 @@ def extras_list_dictize(extras_list, context):
     for extra in extras_list:
         if active and extra.state not in ('active', 'pending'):
             continue
-        dictized = table_dictize(extra, context)
+        dictized = d.table_dictize(extra, context)
         value = dictized["value"]
         if not(context.get("extras_as_string") and isinstance(value, basestring)):
-            dictized["value"] = json.dumps(value)
+            dictized["value"] = h.json.dumps(value)
         result_list.append(dictized)
 
     return sorted(result_list, key=lambda x: x["key"])
 
 def resource_dictize(res, context):
-    resource = table_dictize(res, context)
+    resource = d.table_dictize(res, context)
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
@@ -111,7 +110,7 @@ def _execute_with_revision(q, rev_table, context):
         revision = session.query(context['model'].Revision).filter_by(
             id=revision_id).first()
         if not revision:
-            raise NotFound
+            raise logic.NotFound
         revision_date = revision.timestamp
     
     if revision_date:
@@ -143,8 +142,8 @@ def package_dictize(pkg, context):
     q = select([package_rev]).where(package_rev.c.id == pkg.id)
     result = _execute_with_revision(q, package_rev, context).first()
     if not result:
-        raise NotFound
-    result_dict = table_dictize(result, context)
+        raise logic.NotFound
+    result_dict = d.table_dictize(result, context)
     #resources
     res_rev = model.resource_revision_table
     resource_group = model.resource_group_table
@@ -160,7 +159,7 @@ def package_dictize(pkg, context):
         from_obj=tag_rev.join(tag, tag.c.id == tag_rev.c.tag_id)
         ).where(tag_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, tag_rev, context)
-    result_dict["tags"] = obj_list_dictize(result, context, lambda x: x["name"])
+    result_dict["tags"] = d.obj_list_dictize(result, context, lambda x: x["name"])
     #extras
     extra_rev = model.extra_revision_table
     q = select([extra_rev]).where(extra_rev.c.package_id == pkg.id)
@@ -173,19 +172,19 @@ def package_dictize(pkg, context):
                from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
                ).where(member_rev.c.table_id == pkg.id)
     result = _execute_with_revision(q, member_rev, context)
-    result_dict["groups"] = obj_list_dictize(result, context)
+    result_dict["groups"] = d.obj_list_dictize(result, context)
     #relations
     rel_rev = model.package_relationship_revision_table
     q = select([rel_rev]).where(rel_rev.c.subject_package_id == pkg.id)
     result = _execute_with_revision(q, rel_rev, context)
-    result_dict["relationships_as_subject"] = obj_list_dictize(result, context)
+    result_dict["relationships_as_subject"] = d.obj_list_dictize(result, context)
     q = select([rel_rev]).where(rel_rev.c.object_package_id == pkg.id)
     result = _execute_with_revision(q, rel_rev, context)
-    result_dict["relationships_as_object"] = obj_list_dictize(result, context)
+    result_dict["relationships_as_object"] = d.obj_list_dictize(result, context)
     
     # Extra properties from the domain object
     # We need an actual Package object for this, not a PackageRevision
-    if isinstance(pkg,PackageRevision):
+    if isinstance(pkg, ckan.model.PackageRevision):
         pkg = model.Package.get(pkg.id)
 
     # isopen
@@ -210,7 +209,7 @@ def package_dictize(pkg, context):
         if pkg.metadata_created else None
 
     if context.get('for_view'):
-        for item in PluginImplementations(IPackageController):
+        for item in plugins.PluginImplementations(plugins.IPackageController):
             result_dict = item.before_view(result_dict)
 
 
@@ -229,7 +228,7 @@ def _get_members(context, group, member_type):
 
 def group_dictize(group, context):
     model = context['model']
-    result_dict = table_dictize(group, context)
+    result_dict = d.table_dictize(group, context)
 
     result_dict['display_name'] = group.display_name
 
@@ -238,7 +237,7 @@ def group_dictize(group, context):
 
     context['with_capacity'] = True
 
-    result_dict['packages'] = obj_list_dictize(
+    result_dict['packages'] = d.obj_list_dictize(
         _get_members(context, group, 'packages'),
         context)
 
@@ -257,7 +256,7 @@ def group_dictize(group, context):
     context['with_capacity'] = False
 
     if context.get('for_view'):
-        for item in PluginImplementations(IGroupController):
+        for item in plugins.PluginImplementations(plugins.IGroupController):
             result_dict = item.before_view(result_dict)
 
     return result_dict
@@ -268,17 +267,17 @@ def tag_list_dictize(tag_list, context):
     for tag in tag_list:
         if context.get('with_capacity'):
             tag, capacity = tag
-            dictized = table_dictize(tag, context, capacity=capacity)
+            dictized = d.table_dictize(tag, context, capacity=capacity)
         else:
-            dictized = table_dictize(tag, context)
+            dictized = d.table_dictize(tag, context)
         result_list.append(dictized)
 
     return result_list
 
 def tag_dictize(tag, context):
 
-    result_dict = table_dictize(tag, context)
-    result_dict["packages"] = obj_list_dictize(tag.packages, context)
+    result_dict = d.table_dictize(tag, context)
+    result_dict["packages"] = d.obj_list_dictize(tag.packages, context)
     return result_dict
 
 def user_list_dictize(obj_list, context, 
@@ -297,9 +296,9 @@ def user_dictize(user, context):
 
     if context.get('with_capacity'):
         user, capacity = user
-        result_dict = table_dictize(user, context, capacity=capacity)
+        result_dict = d.table_dictize(user, context, capacity=capacity)
     else:
-        result_dict = table_dictize(user, context)
+        result_dict = d.table_dictize(user, context)
 
     del result_dict['password']
     
@@ -311,7 +310,7 @@ def user_dictize(user, context):
     return result_dict 
 
 def task_status_dictize(task_status, context):
-    return table_dictize(task_status, context)
+    return d.table_dictize(task_status, context)
 
 ## conversion to api
 
@@ -319,7 +318,7 @@ def group_to_api(group, context):
     api_version = context.get('api_version')
     assert api_version, 'No api_version supplied in context'
     dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], json.loads(extra["value"]))
+    dictized["extras"] = dict((extra["key"], h.json.loads(extra["value"]))
                               for extra in dictized["extras"])
     if api_version == 1:
         dictized["packages"] = sorted([pkg["name"] for pkg in dictized["packages"]])
@@ -352,7 +351,7 @@ def package_to_api(pkg, context):
 
     dictized["tags"] = [tag["name"] for tag in dictized["tags"] \
                         if not tag.get('vocabulary_id')]
-    dictized["extras"] = dict((extra["key"], json.loads(extra["value"]))
+    dictized["extras"] = dict((extra["key"], h.json.loads(extra["value"]))
                               for extra in dictized["extras"])
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['ratings_average'] = pkg.get_average_rating()
@@ -413,7 +412,7 @@ def package_to_api(pkg, context):
     return dictized
 
 def vocabulary_dictize(vocabulary, context):
-    vocabulary_dict = table_dictize(vocabulary, context)
+    vocabulary_dict = d.table_dictize(vocabulary, context)
     assert not vocabulary_dict.has_key('tags')
     vocabulary_dict['tags'] = [tag_dictize(tag, context) for tag
             in vocabulary.tags]
@@ -424,14 +423,14 @@ def vocabulary_list_dictize(vocabulary_list, context):
             for vocabulary in vocabulary_list]
 
 def activity_dictize(activity, context):
-    activity_dict = table_dictize(activity, context)
+    activity_dict = d.table_dictize(activity, context)
     return activity_dict
 
 def activity_list_dictize(activity_list, context):
     return [activity_dictize(activity, context) for activity in activity_list]
 
 def activity_detail_dictize(activity_detail, context):
-    return table_dictize(activity_detail, context)
+    return d.table_dictize(activity_detail, context)
 
 def activity_detail_list_dictize(activity_detail_list, context):
     return [activity_detail_dictize(activity_detail, context)
