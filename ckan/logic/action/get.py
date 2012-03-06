@@ -46,8 +46,8 @@ def package_list(context, data_dict):
 
     model = context["model"]
     user = context["user"]
-    api = context.get("api_version", '1')
-    ref_package_by = 'id' if api == '2' else 'name'
+    api = context.get("api_version", 1)
+    ref_package_by = 'id' if api == 2 else 'name'
 
     check_access('package_list', context, data_dict)
 
@@ -105,8 +105,8 @@ def group_list(context, data_dict):
 
     model = context['model']
     user = context['user']
-    api = context.get('api_version') or '1'
-    ref_group_by = 'id' if api == '2' else 'name';
+    api = context.get('api_version')
+    ref_group_by = 'id' if api == 2 else 'name';
     order_by = data_dict.get('order_by', 'name')
     if order_by not in set(('name', 'packages')):
         raise logic.ParameterError('"order_by" value %r not implemented.' % order_by)
@@ -286,12 +286,12 @@ def package_relationships_list(context, data_dict):
     ##TODO needs to work with dictization layer
     model = context['model']
     user = context['user']
-    api = context.get('api_version') or '1'
+    api = context.get('api_version')
 
     id = data_dict["id"]
     id2 = data_dict.get("id2")
     rel = data_dict.get("rel")
-    ref_package_by = 'id' if api == '2' else 'name';
+    ref_package_by = 'id' if api == 2 else 'name';
     pkg1 = model.Package.get(id)
     pkg2 = None
     if not pkg1:
@@ -343,7 +343,6 @@ def package_show(context, data_dict):
 
 def resource_show(context, data_dict):
     model = context['model']
-    api = context.get('api_version') or '1'
     id = data_dict['id']
 
     resource = model.Resource.get(id)
@@ -358,9 +357,9 @@ def resource_show(context, data_dict):
 
 def revision_show(context, data_dict):
     model = context['model']
-    api = context.get('api_version') or '1'
+    api = context.get('api_version')
     id = data_dict['id']
-    ref_package_by = 'id' if api == '2' else 'name'
+    ref_package_by = 'id' if api == 2 else 'name'
 
     rev = model.Session.query(model.Revision).get(id)
     if rev is None:
@@ -374,8 +373,6 @@ def group_show(context, data_dict):
 
     model = context['model']
     id = data_dict['id']
-    api = context.get('api_version') or '1'
-
 
     group = model.Group.get(id)
     context['group'] = group

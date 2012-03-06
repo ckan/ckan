@@ -392,7 +392,9 @@ def user_dict_save(user_dict, context):
 def package_api_to_dict(api1_dict, context):
 
     package = context.get("package")
-    api_version = context.get('api_version') or '1'
+    api_version = context.get('api_version')
+    assert api_version, 'No api_version supplied in context'
+
     dictized = {}
 
     for key, value in api1_dict.iteritems():
@@ -418,7 +420,7 @@ def package_api_to_dict(api1_dict, context):
                     new_value.append({"key": extras_key,
                                       "value": None})
         if key == 'groups' and len(value):
-            if api_version == '1':
+            if api_version == 1:
                 new_value = [{'name': item} for item in value]
             else:
                 new_value = [{'id': item} for item in value]

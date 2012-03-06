@@ -755,6 +755,7 @@ class TestBasicDictize:
     def test_15_api_to_dictize(self):
 
         context = {"model": model,
+                   'api_version': 1,
                  "session": model.Session}
 
         api_data = {

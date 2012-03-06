@@ -223,8 +223,8 @@ def package_update_validate(context, data_dict):
 
 def _update_package_relationship(relationship, comment, context):
     model = context['model']
-    api = context.get('api_version') or '1'
-    ref_package_by = 'id' if api == '2' else 'name'
+    api = context.get('api_version')
+    ref_package_by = 'id' if api == 2 else 'name'
     is_changed = relationship.comment != comment
     if is_changed:
         rev = model.repo.new_revision()
@@ -243,12 +243,10 @@ def package_relationship_update(context, data_dict):
     model = context['model']
     user = context['user']
     schema = context.get('schema') or ckan.logic.schema.default_update_relationship_schema()
-    api = context.get('api_version') or '1'
 
     id = data_dict['subject']
     id2 = data_dict['object']
     rel = data_dict['type']
-    ref_package_by = 'id' if api == '2' else 'name'
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)

@@ -465,5 +465,5 @@ def tag_to_api1(tag, context):
 
 def tag_to_api2(tag, context):
     # DEPRICIATED set api_version in context and use tag_to_api()
-    context['api_version'] = 1
+    context['api_version'] = 2
     return tag_to_api(tag, context)

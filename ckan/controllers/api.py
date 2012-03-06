@@ -38,7 +38,7 @@ class ApiController(BaseController):
         api_version = routes_dict.get('ver')
         if api_version:
             api_version = api_version[1:]
-            routes_dict['ver'] = api_version
+            routes_dict['ver'] = int(api_version)
 
         self._identify_user()
         try:
@@ -131,12 +131,10 @@ class ApiController(BaseController):
 
     def get_api(self, ver=None):
         response_data = {}
-        response_data['version'] = ver or '1'
+        response_data['version'] = ver
         return self._finish_ok(response_data)
 
-    def action(self, logic_function):
-        # FIXME this is a hack till ver gets passed
-        api_version = 3
+    def action(self, logic_function, ver=None):
         function = get_action(logic_function)
         if not function:
             log.error('Can\'t find logic function: %s' % logic_function)
@@ -144,7 +142,7 @@ class ApiController(BaseController):
                 gettext('Action name not known: %s') % str(logic_function))
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version':api_version}
+                   'api_version':ver}
         model.Session()._context = context
         return_dict = {'help': function.__doc__}
         try:
@@ -419,7 +417,6 @@ class ApiController(BaseController):
     def search(self, ver=None, register=None):
 
         log.debug('search %s params: %r' % (register, request.params))
-        ver = ver or '1' # i.e. default to v1
         if register == 'revision':
             since_time = None
             if request.params.has_key('since_id'):
@@ -453,7 +450,7 @@ class ApiController(BaseController):
             # if using API v2, default to returning the package ID if
             # no field list is specified
             if register in ['dataset', 'package'] and not params.get('fl'):
-                params['fl'] = 'id' if ver == '2' else 'name'
+                params['fl'] = 'id' if ver == 2 else 'name'
 
             try:
                 if register == 'resource':
@@ -486,7 +483,7 @@ class ApiController(BaseController):
                 else:
                     # For package searches in API v3 and higher, we can pass
                     # parameters straight to Solr.
-                    if ver in u'12':
+                    if ver in [1, 2]:
                         # Otherwise, put all unrecognised ones into the q parameter
                         params = convert_legacy_parameters_to_solr(params)
                     query = query_for(model.Package)

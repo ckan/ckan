@@ -116,8 +116,8 @@ def package_relationship_create(context, data_dict):
     model = context['model']
     user = context['user']
     schema = context.get('schema') or ckan.logic.schema.default_create_relationship_schema()
-    api = context.get('api_version') or '1'
-    ref_package_by = 'id' if api == '2' else 'name'
+    api = context.get('api_version')
+    ref_package_by = 'id' if api == 2 else 'name'
 
     id = data_dict['subject']
     id2 = data_dict['object']
