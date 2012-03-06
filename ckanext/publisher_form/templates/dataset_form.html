@@ -54,10 +54,10 @@
 	</dt>
 
     <dd class="parent-field">
-		<select id="parent" name="parent" class="chzn-select" data-placeholder="Please choose a publisher">
+		<select id="groups__0__name" name="groups__0__name" class="chzn-select" data-placeholder="Please choose a publisher">
 			<option value=""></option>
     		<py:for each="pg in c.groups_available">
-				<option py:attrs="{'selected': 'selected' if c.parent and pg.id == c.parent.id else None}" value="${pg.id}">${pg.title}</option>
+				<option py:attrs="{'selected': 'selected' if c.parent and pg.name == c.parent.name else None}" value="${pg.name}">${pg.title}</option>
 			</py:for>
 		</select>
 	</dd>

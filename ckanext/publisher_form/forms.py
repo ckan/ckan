@@ -187,24 +187,29 @@ class PublisherDatasetForm(SingletonPlugin):
         then be used within the form
         """
         c.licences = [('', '')] + model.Package.get_license_options()
-        c.publishers = [('Example publisher', 'Example publisher 2')]
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         c.resource_columns = model.Resource.get_columns()
         c.groups_available = c.userobj.get_groups('publisher') if c.userobj else []
-
 
         ## This is messy as auths take domain object not data_dict
         pkg = context.get('package') or c.pkg
         if pkg:
             c.auth_for_change_state = Authorizer().am_authorized(
                 c, model.Action.CHANGE_STATE, pkg)
+            gps = pkg.get_groups('publisher')
+            c.parent = gps[0] if gps else None
 
     def form_to_db_schema(self):
         """
         Returns the schema for mapping package data from a form to a format
         suitable for the database.
         """
-        return package_form_schema()
+        schema =  package_form_schema()
+        schema['groups'] = {
+                'name': [not_empty, val.group_id_or_name_exists, unicode],
+                'id':   [ignore_missing, unicode],
+            }
+        return schema
 
     def db_to_form_schema(data):
         """
