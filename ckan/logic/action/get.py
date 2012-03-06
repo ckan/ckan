@@ -516,7 +516,7 @@ def group_show_rest(context, data_dict):
 
     check_access('group_show_rest',context, data_dict)
 
-    group_show(context, data_dict)
+    logic.get_action('group_show')(context, data_dict)
     group = context['group']
 
     group_dict = model_dictize.group_to_api(group, context)
@@ -527,7 +527,7 @@ def tag_show_rest(context, data_dict):
 
     check_access('tag_show_rest',context, data_dict)
 
-    tag_show(context, data_dict)
+    logic.get_action('tag_show')(context, data_dict)
     tag = context['tag']
 
     tag_dict = model_dictize.tag_to_api(tag, context)
