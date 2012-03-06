@@ -120,14 +120,8 @@ class PublisherForm(SingletonPlugin):
 
         if 'group' in context:
             group = context['group']
-            possible_parents = model.Session.query(model.Group).\
-                   filter(model.Group.state == 'active').\
-                   filter(model.Group.type == 'publisher').\
-                   filter(model.Group.id != group.id ).order_by(model.Group.title).all()
-
             # Only show possible groups where the current user is a member
-            user_groups = c.userobj.get_groups('publisher')
-            c.possible_parents =[p for p in possible_parents if p in user_groups]
+            c.possible_parents = c.userobj.get_groups('publisher', 'admin')
 
             c.parent = None
             grps = group.get_groups('publisher')
