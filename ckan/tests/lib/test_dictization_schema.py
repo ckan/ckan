@@ -102,7 +102,7 @@ class TestBasicDictize:
         data['name'] = u'annakarenina'
         data.pop("title")
         data["resources"][0]["url"] = 'fsdfafasfsaf'
-        data["resources"][1].pop("url") 
+        data["resources"][1].pop("url")
 
         converted_data, errors = validate(data, default_package_schema(), self.context)
 
@@ -142,9 +142,11 @@ class TestBasicDictize:
                                  'id': group.id,
                                  'name': u'david',
                                  'type': u'group',
-                                 'packages': sorted([{'id': group_pack[0].id},
+                                 'packages': sorted([{'id': group_pack[0].id,
+                                                    'title': group_pack[0].title},
                                               {'id': group_pack[1].id,
-                                               }], key=lambda x:x["id"]),
+                                              'title':group_pack[1].title}],
+                                              key=lambda x:x["id"]),
                                  'title': u"Dave's books",
                                  'approval_status': u'approved'}
 
@@ -167,7 +169,7 @@ class TestBasicDictize:
         ignored = ""
         data = {
             'name': u'with space',
-            'revision_timestamp': ignored, 
+            'revision_timestamp': ignored,
             'state': ignored
             }
 

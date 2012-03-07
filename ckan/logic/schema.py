@@ -170,8 +170,12 @@ def default_group_schema():
         '__extras': [ignore],
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
+            "title":[ignore_missing, unicode],
+            "__extras": [ignore]
+        },
+         'groups': {
             "name": [not_empty, unicode],
-            "title":[not_empty, unicode],
+            "capacity": [ignore_missing],
             "__extras": [ignore]
         }
     }

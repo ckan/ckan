@@ -7,7 +7,7 @@ from ckan import plugins
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic import check_access, NotAuthorized
-        
+
 from pylons import config
 
 from ckan.tests import *
@@ -17,11 +17,11 @@ from ckan.tests import search_related, is_search_supported
 
 class MockGroupControllerPlugin(SingletonPlugin):
     implements(IGroupController)
-    
+
     def __init__(self):
         from collections import defaultdict
         self.calls = defaultdict(int)
-    
+
     def read(self, entity):
         self.calls['read'] += 1
 
@@ -77,7 +77,7 @@ class TestGroup(FunctionalTestCase):
         self.check_named_element(res, 'tr', group_title, group_packages_count, group_description)
         res = res.click(group_title)
         assert groupname in res
-        
+
     def test_read_non_existent(self):
         name = u'group_does_not_exist'
         offset = url_for(controller='group', action='read', id=name)
@@ -89,7 +89,7 @@ class TestGroup(FunctionalTestCase):
         name = u'david'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert plugin.calls['read'] == 2, plugin.calls
+        assert plugin.calls['read'] == 1, plugin.calls
         plugins.unload(plugin)
 
     def test_read_and_authorized_to_edit(self):
@@ -189,7 +189,7 @@ Ho ho ho
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         # should be read page
         # assert 'Groups - %s' % self.groupname in res, res
-        
+
         model.Session.remove()
         group = model.Group.by_name(self.groupname)
         assert group.title == newtitle, group
@@ -214,11 +214,11 @@ Ho ho ho
         user = model.User.by_name(u'russianfan')
         model.setup_default_user_roles(pkg, [user])
         model.repo.commit_and_remove()
-        
+
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'annakarenina' in res, res
         assert 'newone' in res
-        
+
     def test_4_new_duplicate_package(self):
         prefix = ''
 
@@ -265,14 +265,14 @@ Ho ho ho
         CreateTestData.create_groups([{'name': group_name,
                                        'packages': [self.packagename]}],
                                      admin_user_name='russianfan')
-                                       
+
         group = model.Group.by_name(group_name)
         offset = url_for(controller='group', action='edit', id=group_name)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         main_res = self.main_div(res)
         assert 'Edit: %s' % group.title in main_res, main_res
         assert 'value="active" selected' in main_res, main_res
-        
+
         # delete
         form = res.forms['group-edit']
         form['state'] = 'deleted'
@@ -291,7 +291,7 @@ class TestNew(FunctionalTestCase):
     def setup_class(self):
         model.Session.remove()
         CreateTestData.create()
-        
+
         self.packagename = u'testpkg'
         model.repo.new_revision()
         model.Session.add(model.Package(name=self.packagename))
@@ -372,7 +372,7 @@ class TestNew(FunctionalTestCase):
         assert 'Group name already exists' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'class="field_error"' in res, res
-    
+
     def test_new_plugin_hook(self):
         plugin = MockGroupControllerPlugin()
         plugins.load(plugin)
@@ -415,7 +415,7 @@ class TestRevisions(FunctionalTestCase):
             grp.description = self.description[i]
             model.repo.commit_and_remove()
 
-        self.grp = model.Group.by_name(self.name)        
+        self.grp = model.Group.by_name(self.name)
 
     @classmethod
     def teardown_class(self):
@@ -480,7 +480,7 @@ class TestPublisherGroup(FunctionalTestCase):
         res = res.click(group_title)
         assert groupname in res
         assert 'publisher' == group.type, group.type
-        
+
     def test_read(self):
         # Relies on the search index being available
         setup_test_search_index()
@@ -488,7 +488,7 @@ class TestPublisherGroup(FunctionalTestCase):
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         group = model.Group.by_name(name)
-        assert 'publisher' == group.type        
+        assert 'publisher' == group.type
         for group_ref in (group.name, group.id):
             offset = url_for(controller='group', action='read', id=group_ref)
             res = self.app.get(offset)
@@ -508,12 +508,12 @@ class TestPublisherGroup(FunctionalTestCase):
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='edit', id=name)
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'}, status=200)
-        
-        
+
+
 class TestPublisherEdit(FunctionalTestCase):
 
     @classmethod
-    def setup_class(self):                        
+    def setup_class(self):
         from ckan.tests.mock_publisher_auth import MockPublisherAuth
         self.auth = MockPublisherAuth()
 
@@ -543,7 +543,7 @@ class TestPublisherEdit(FunctionalTestCase):
         group = model.Group.by_name(self.groupname)
         offset = url_for(controller='group', action='edit', id=self.groupname)
         user = model.User.get('russianfan')
-                
+
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Edit: %s' % group.title in res, res
 
@@ -561,11 +561,11 @@ Ho ho ho
         pkg = model.Package.by_name(self.packagename)
         form['packages__2__name'] = pkg.name
 
-        
+
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         # should be read page
         # assert 'Groups - %s' % self.groupname in res, res
-        
+
         model.Session.remove()
         group = model.Group.by_name(self.groupname)
         assert group.title == newtitle, group
@@ -590,11 +590,11 @@ Ho ho ho
         user = model.User.by_name(u'russianfan')
         model.setup_default_user_roles(pkg, [user])
         model.repo.commit_and_remove()
-        
+
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'annakarenina' in res, res
         assert 'newone' in res
-        
+
     def test_4_new_duplicate_package(self):
         prefix = ''
 
@@ -630,10 +630,10 @@ Ho ho ho
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         assert plugin.calls['edit'] == 1, plugin.calls
         plugins.unload(plugin)
-        
+
     def test_edit_non_auth(self):
         offset = url_for(controller='group', action='edit', id=self.groupname)
-        res = self.app.get(offset, status=[302,401], extra_environ={'REMOTE_USER': 'non-existent'})        
+        res = self.app.get(offset, status=[302,401], extra_environ={'REMOTE_USER': 'non-existent'})
 
     def test_edit_fail_auth(self):
         context = { 'group': model.Group.by_name(self.groupname), 'model': model, 'user': 'russianfan' }
@@ -645,32 +645,32 @@ Ho ho ho
 
     def test_edit_success_auth(self):
         userobj = model.User.get('russianfan')
-        grp = model.Group.by_name(self.groupname)        
-        
+        grp = model.Group.by_name(self.groupname)
+
         def gg(*args, **kwargs):
             return [grp]
         model.User.get_groups = gg
-    
+
         context = { 'group': grp, 'model': model, 'user': 'russianfan' }
         try:
             self.auth.check_access('group_update',context, {})
         except NotAuthorized, e:
             assert False, "The user should have access"
-            
+
 
     def test_delete(self):
         group_name = 'deletetest'
         CreateTestData.create_groups([{'name': group_name,
                                        'packages': [self.packagename]}],
                                      admin_user_name='russianfan')
-                                       
+
         group = model.Group.by_name(group_name)
         offset = url_for(controller='group', action='edit', id=group_name)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         main_res = self.main_div(res)
         assert 'Edit: %s' % group.title in main_res, main_res
         assert 'value="active" selected' in main_res, main_res
-        
+
         # delete
         form = res.forms['group-edit']
         form['state'] = 'deleted'
@@ -681,4 +681,4 @@ Ho ho ho
         res = self.app.get(offset, status=302)
         res = res.follow()
         assert res.request.url.startswith('/user/login'), res.request.url
-        
+
