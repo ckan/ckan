@@ -17,6 +17,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
     def setup(cls):
         cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
         ckan.plugins.load('multilingual_dataset')
+        ckan.plugins.load('multilingual_group')
         ckan.tests.setup_test_search_index()
         ckan.lib.create_test_data.CreateTestData.create_translations_test_data()
         # Add translation terms that match a couple of group names and package
@@ -59,7 +60,21 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
             response = self.app.get(offset, status=200,
                     extra_environ={'CKAN_LANG': lang_code,
                         'CKAN_CURRENT_URL': offset})
-            for term in ckan.lib.create_test_data.terms:
+            terms = ('A Novel By Tolstoy',
+                'Index of the novel',
+                'russian',
+                'tolstoy',
+                "Dave's books",
+                "Roger's books",
+                'Other (Open)',
+                'romantic novel',
+                'book',
+                '123',
+                '456',
+                '789',
+                'plain text',
+            )
+            for term in terms:
                 if term in translations:
                     response.mustcontain(translations[term])
                 elif term in ckan.lib.create_test_data.english_translations:
@@ -95,5 +110,41 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 response.mustcontain('/%s/dataset?tags=%s' % (lang_code, tag_name))
             for group_name in ('david', 'roger'):
                 response.mustcontain('/%s/dataset?groups=%s' % (lang_code, group_name))
+            nose.tools.assert_raises(IndexError, response.mustcontain,
+                    'this should not be rendered')
+
+    def test_group_search_results_translation(self):
+        for (lang_code, translations) in (
+                ('de', ckan.lib.create_test_data.german_translations),
+                ('fr', ckan.lib.create_test_data.french_translations),
+                ('en', ckan.lib.create_test_data.english_translations),
+                ('pl', {})):
+            offset = '/%s/group/roger' % lang_code
+            response = self.app.get(offset, status=200)
+            terms = ('A Novel By Tolstoy',
+                'Index of the novel',
+                'russian',
+                'tolstoy',
+                #"Dave's books",
+                "Roger's books",
+                #'Other (Open)',
+                #'romantic novel',
+                #'book',
+                '123',
+                '456',
+                '789',
+                'plain text',
+                'Roger likes these books.',
+            )
+            for term in terms:
+                if term in translations:
+                    response.mustcontain(translations[term])
+                elif term in ckan.lib.create_test_data.english_translations:
+                    response.mustcontain(
+                        ckan.lib.create_test_data.english_translations[term])
+                else:
+                    response.mustcontain(term)
+            for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
+                response.mustcontain('%s?tags=%s' % (offset, tag_name))
             nose.tools.assert_raises(IndexError, response.mustcontain,
                     'this should not be rendered')

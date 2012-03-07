@@ -785,7 +785,8 @@ terms = ('A Novel By Tolstoy',
     '123',
     '456',
     '789',
-    'plain text'
+    'plain text',
+    'Roger likes these books.',
 )
 english_translations = {
     '123': 'jealousy',
@@ -804,7 +805,8 @@ german_translations = {
     'book': 'Buch',
     '456': 'Realismus',
     '789': 'Heuchelei',
-    'plain text': 'Klartext'
+    'plain text': 'Klartext',
+    'Roger likes these books.': 'Roger mag diese Bucher.'
 }
 french_translations = {
     'A Novel By Tolstoy': 'A Novel par Tolstoi',
