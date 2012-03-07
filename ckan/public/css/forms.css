@@ -139,6 +139,9 @@ form.has-errors .field_error, form.has-errors .error-explanation {
   position: relative;
   background: transparent url(../images/icons/error.png) left 3px no-repeat; }
  
+td.field_warning {
+  color: #d12f19; }
+
 .fieldset_button_error {
   background: transparent url(../images/icons/error.png) left center no-repeat; }
 
