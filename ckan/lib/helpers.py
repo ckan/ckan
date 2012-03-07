@@ -5,6 +5,7 @@
 Consists of functions to typically be used within templates, but also
 available to Controllers. This module is available to templates as 'h'.
 """
+import email.utils
 import datetime
 import re
 import urllib
@@ -326,6 +327,27 @@ def date_str_to_datetime(date_str):
     # Doing this split is more accepting of input variations than doing
     # a strptime. Also avoids problem with Python 2.5 not having %f.
     return datetime.datetime(*map(int, re.split('[^\d]', date_str)))
+
+def parse_rfc_2822_date(date_str, tz_aware=True):
+    """
+    Parse a date string of the form specified in RFC 2822, and return a datetime.
+
+    RFC 2822 is the date format used in HTTP headers.
+
+    If the date string contains a timezone indication, and tz_aware is True,
+    then the associated tzinfo is attached to the returned datetime object.
+
+    Returns None if the string cannot be parse as a valid datetime.
+    """
+    time_tuple = email.utils.parsedate_tz(date_str)
+    
+    if not time_tuple:
+        return None
+
+    if not tz_aware:
+        time_tuple = time_tuple[:-1] + (None,)
+
+    return datetime.datetime.fromtimestamp(email.utils.mktime_tz(time_tuple))
 
 def time_ago_in_words_from_str(date_str, granularity='month'):
     if date_str:
