@@ -45,7 +45,7 @@
   ${h.literal(getattr(g, 'template_head_end', ''))}
 </head>
 
-<body class="${request.environ.get('pylons.routes_dict', {}).get('action')} 
+<body class="${request.environ.get('pylons.routes_dict', {}).get('action')}
              ${request.environ.get('pylons.routes_dict', {}).get('controller').split(':')[-1]}">
    <div class="welcome-banner js-welcome-banner" style="display: none;">
      <span>First time at ${g.site_title}? Visit our <a href="${h.url_for(controller='home', action='about')}">About page</a> to find out more.</span>
@@ -79,7 +79,7 @@
           <div id="mainmenu">
             <span py:if="h.check_access('package_create')">${h.nav_link(c, _('Add a dataset'), controller='package', action='new')}</span>
             ${h.nav_link(c, _('Search'), controller='package', action='search', highlight_actions = 'new index')}
-            ${h.nav_link(c, _('Groups'), controller='group', action='index')}
+            ${h.nav_named_link(c, _('Groups'), name='%s_index' % h.default_group_type() )}
             ${h.nav_link(c, _('About'), controller='home', action='about')}
           </div>
         </div>
@@ -202,7 +202,7 @@
             <a href="http://okfn.org/">Open Knowledge Foundation</a>
             Licensed under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>
             <a href="http://opendefinition.org/"><img alt="This Content and Data is Open" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" style="border: none ; margin-bottom: -4px;"/></a>
-            
+
             <br/><br/>
             Powered by <a href="http://ckan.org">CKAN</a> v${c.__version__}.<br/>
           </p>
@@ -235,7 +235,7 @@
   <script src="${h.url_for_static('/scripts/vendor/modernizr/1.7/modernizr.min.js')}"></script>
 
   <script type="text/javascript">
-    CKAN.plugins = [ 
+    CKAN.plugins = [
       // Declare js array from Python string
       ${['\'%s\', '%s  for s in config.get('ckan.plugins','').split(' ')]}
     ];
@@ -252,8 +252,8 @@
             $(".ckan-logged-in").show();
         }
         $('input[placeholder], textarea[placeholder]').placeholder();
-		
-		$(".chzn-select").chosen();		
+
+		$(".chzn-select").chosen();
     });
   </script>
 

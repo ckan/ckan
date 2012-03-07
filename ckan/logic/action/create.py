@@ -155,6 +155,18 @@ def package_relationship_create(context, data_dict):
     relationship_dicts = rel.as_dict(ref_package_by=ref_package_by)
     return relationship_dicts
 
+def member_create(context, data_dict=None):
+    model = context['model']
+    user = context['user']
+
+    group_id = data_dict['group']
+    obj_id   = data_dict['object']
+    obj_type = data_dict['object_type']
+    obj_type = data_dict['capacity']
+
+    return {}
+
+
 def group_create(context, data_dict):
     model = context['model']
     user = context['user']
@@ -367,7 +379,7 @@ def vocabulary_create(context, data_dict):
         model.repo.commit()
 
     log.debug('Created Vocabulary %s' % str(vocabulary.name))
-  
+
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
 def activity_create(context, activity_dict, ignore_auth=False):

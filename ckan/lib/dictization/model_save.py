@@ -8,7 +8,7 @@ def resource_dict_save(res_dict, context):
     model = context["model"]
     session = context["session"]
     trigger_url_change = False
-    
+
     id = res_dict.get("id")
     obj = None
     if id:
@@ -21,7 +21,7 @@ def resource_dict_save(res_dict, context):
 
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
-    
+
     for key, value in res_dict.iteritems():
         if isinstance(value, list):
             continue
@@ -68,7 +68,7 @@ def package_resource_list_save(res_dicts, package, context):
         else:
             resource.state = 'deleted'
         resource_list.append(resource)
-    tag_package_tag = dict((package_tag.tag, package_tag) 
+    tag_package_tag = dict((package_tag.tag, package_tag)
                             for package_tag in
                             package.package_tag_all)
 
@@ -89,7 +89,7 @@ def package_extras_save(extra_dicts, obj, context):
     for extra_dict in extra_dicts:
         if extra_dict.get("deleted"):
             continue
-        
+
         if extra_dict['value'] is None:
             pass
         elif extras_as_string:
@@ -146,10 +146,10 @@ def package_tag_list_save(tag_dicts, package, context):
     session = context["session"]
     pending = context.get('pending')
 
-    tag_package_tag = dict((package_tag.tag, package_tag) 
+    tag_package_tag = dict((package_tag.tag, package_tag)
                             for package_tag in
                             package.package_tag_all)
-    
+
     tag_package_tag_inactive = dict(
         [ (tag,pt) for tag,pt in tag_package_tag.items() if
             pt.state in ['deleted', 'pending-deleted'] ]
@@ -199,7 +199,7 @@ def package_membership_list_save(group_dicts, package, context):
 
     members = session.query(model.Member).filter_by(table_id = package.id)
 
-    group_member = dict((member.group, member) 
+    group_member = dict((member.group, member)
                          for member in
                          members)
     groups = set()
@@ -233,7 +233,7 @@ def package_membership_list_save(group_dicts, package, context):
         member_obj.state = 'active'
         session.add(member_obj)
 
-    
+
 def relationship_list_save(relationship_dicts, package, attr, context):
 
     allow_partial_update = context.get("allow_partial_update", False)
@@ -248,7 +248,7 @@ def relationship_list_save(relationship_dicts, package, attr, context):
 
     relationships = []
     for relationship_dict in relationship_dicts:
-        obj = table_dict_save(relationship_dict, 
+        obj = table_dict_save(relationship_dict,
                               model.PackageRelationship, context)
         relationships.append(obj)
 
@@ -263,7 +263,7 @@ def relationship_list_save(relationship_dicts, package, attr, context):
 
 def package_dict_save(pkg_dict, context):
     import uuid
-    
+
     model = context["model"]
     package = context.get("package")
     allow_partial_update = context.get("allow_partial_update", False)
@@ -337,8 +337,8 @@ def group_member_save(context, group_dict, member_table_name):
 
 
 def group_dict_save(group_dict, context):
-    import uuid 
-    
+    import uuid
+
     model = context["model"]
     session = context["session"]
     group = context.get("group")
@@ -346,12 +346,12 @@ def group_dict_save(group_dict, context):
 
     Group = model.Group
     if group:
-        group_dict["id"] = group.id 
+        group_dict["id"] = group.id
 
     group = table_dict_save(group_dict, Group, context)
     if not group.id:
         group.id = str(uuid.uuid4())
-        
+
     context['group'] = group
 
     group_member_save(context, group_dict, 'packages')
@@ -366,7 +366,7 @@ def group_dict_save(group_dict, context):
         for key in old_extras - new_extras:
             del group.extras[key]
         for key in new_extras:
-            group.extras[key] = extras[key] 
+            group.extras[key] = extras[key]
 
 
     return group
@@ -377,11 +377,11 @@ def user_dict_save(user_dict, context):
     model = context['model']
     session = context['session']
     user = context.get('user_obj')
-    
+
     User = model.User
     if user:
         user_dict['id'] = user.id
-    
+
     if 'password' in user_dict and not len(user_dict['password']):
         del user_dict['password']
 
@@ -409,7 +409,7 @@ def package_api_to_dict(api1_dict, context):
             updated_extras.update(value)
 
             new_value = []
-            
+
             for extras_key, extras_value in updated_extras.iteritems():
                 if extras_value is not None:
                     new_value.append({"key": extras_key,
@@ -430,7 +430,7 @@ def package_api_to_dict(api1_dict, context):
         dictized["resources"] = [{'url': download_url}]
 
     download_url = dictized.pop('download_url', None)
-    
+
     return dictized
 
 def group_api_to_dict(api1_dict, context):
@@ -442,7 +442,7 @@ def group_api_to_dict(api1_dict, context):
         if key == 'packages':
             new_value = [{"id": item} for item in value]
         if key == 'extras':
-            new_value = [{"key": extra_key, "value": value[extra_key]} 
+            new_value = [{"key": extra_key, "value": value[extra_key]}
                          for extra_key in value]
         dictized[key] = new_value
 
@@ -453,7 +453,7 @@ def task_status_dict_save(task_status_dict, context):
     task_status = context.get("task_status")
     allow_partial_update = context.get("allow_partial_update", False)
     if task_status:
-        task_status_dict["id"] = task_status.id 
+        task_status_dict["id"] = task_status.id
 
     task_status = table_dict_save(task_status_dict, model.TaskStatus, context)
     return task_status

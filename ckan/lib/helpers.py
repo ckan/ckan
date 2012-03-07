@@ -216,6 +216,15 @@ def nav_link(c, text, controller, **kwargs):
                 else '')
     )
 
+def nav_named_link(c, text, name, **kwargs):
+    return link_to(
+        text,
+        url_for(name, **kwargs),
+#        class_=('active' if
+#                c.action in highlight_actions
+#                else '')
+    )
+
 # FIXME: shouldn't have to pass the c object in to this.
 def subnav_link(c, text, action, **kwargs):
     return link_to(
@@ -231,6 +240,10 @@ def subnav_named_route(c, text, routename,**kwargs):
         url_for(str(routename), **kwargs),
         class_=('active' if c.action == kwargs['action'] else '')
     )
+
+def default_group_type():
+    from pylons import config
+    return config.get('ckan.default.group_type', 'group')
 
 def facet_items(c, name, limit=10):
     from pylons import request

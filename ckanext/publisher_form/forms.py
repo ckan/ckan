@@ -51,6 +51,9 @@ class PublisherForm(SingletonPlugin):
         config['extra_template_paths'] = ','.join([template_dir,
                 config.get('extra_template_paths', '')])
 
+        # Override /group/* as the default groups urls
+        config['ckan.default.group_type'] = 'publisher'
+
     def group_form(self):
         """
         Returns a string representing the location of the template to be
