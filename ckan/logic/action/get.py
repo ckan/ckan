@@ -701,7 +701,11 @@ def package_search(context, data_dict):
         for key_, value_ in value.items():
             new_facet_dict = {}
             new_facet_dict['name'] = key_
-            new_facet_dict['display_name'] = key_
+            if key == 'groups':
+                new_facet_dict['display_name'] = (
+                        model.Group.get(key_).display_name)
+            else:
+                new_facet_dict['display_name'] = key_
             new_facet_dict['count'] = value_
             restructured_facets[key]['items'].append(new_facet_dict)
     search_results['facets'] = restructured_facets
