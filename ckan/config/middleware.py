@@ -1,4 +1,5 @@
 """Pylons middleware initialization"""
+import urllib
 import logging 
 
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -177,7 +178,13 @@ class I18nMiddleware(object):
 
             # Current application url
             path_info = environ['PATH_INFO']
+            # sort out weird encodings
+            path_info = '/'.join(urllib.quote(pce,'') for pce in path_info.split('/'))
+
             qs = environ.get('QUERY_STRING')
+            # sort out weird encodings
+            qs = urllib.quote(qs, '')
+
             if qs:
                 environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
             else:

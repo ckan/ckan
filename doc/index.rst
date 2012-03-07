@@ -30,6 +30,7 @@ Contents:
    database_dumps
    i18n
    file-upload
+   datastore
    configuration
    api
    apiv3

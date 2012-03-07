@@ -161,8 +161,8 @@ ckan.locale_order = en de fr it es pl ru nl sv no cs_CZ hu pt_BR fi bg ca sq sr 
 ckan.locales_filtered_out = el ro lt sl
 
 ## Webstore
-## Uncommment to enable webstore
-# ckan.webstore.enabled = 1
+## Uncommment to enable datastore
+# ckan.datastore.enabled = 1
 
 ## ===================================
 ## Extensions
