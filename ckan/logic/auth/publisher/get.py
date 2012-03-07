@@ -76,6 +76,10 @@ def package_show(context, data_dict):
             return {'success': False, 'msg': _('User not authorized to read package %s') % (package.id)}
 
         userobj = model.User.get( user )
+
+        if Authorizer().is_sysadmin(unicode(user)):
+            return {'success': True}
+
         if not userobj:
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
 

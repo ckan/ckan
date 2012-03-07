@@ -137,6 +137,9 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                filter(model.Member.state == 'active').\
                filter(model.Member.table_name == object_type_string)
 
+        if hasattr(object_type,'state'):
+            query = query.filter(object_type.state == 'active' )
+
         if capacity:
             query = query.filter(model.Member.capacity == capacity)
 
@@ -158,7 +161,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         # any deeper than that.  If we simplify and request only specific fields then
         # if returns the full depth of the hierarchy.
         results = Session.query("id","name", "title").\
-                from_statement(HIERARCHY_CTE).params(id=self.id,type=type).all()
+                from_statement(HIERARCHY_CTE).params(id=self.id, type=type).all()
         return [ { "id":idf, "name": name, "title": title } for idf,name,title in results ]
 
     def active_packages(self, load_eager=True):
@@ -270,12 +273,11 @@ HIERARCHY_CTE =  """
     WITH RECURSIVE subtree(id) AS (
         SELECT M.* FROM public.member AS M
         WHERE M.table_name = 'group' AND M.state = 'active'
-        UNION ALL
+        UNION
         SELECT M.* FROM public.member M, subtree SG
-        WHERE M.table_id = SG.group_id AND M.table_name = 'group' AND
-              M.state = 'active' )
+        WHERE M.table_id = SG.group_id AND M.table_name = 'group' AND M.state = 'active')
 
     SELECT G.* FROM subtree AS ST
     INNER JOIN public.group G ON G.id = ST.table_id
-    WHERE group_id = :id AND G.type = :type
+    WHERE group_id = :id AND G.type = :type and table_name='group'
 """
