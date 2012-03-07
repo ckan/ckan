@@ -83,14 +83,14 @@ CKAN.Templates.resourceEntry = ' \
       </td> \
       </tr> \
       <tr> \
-      <td class="resource-edit-label">'+CKAN.Strings.url+'</td> \
+      <td title="${resource.url_error}" class="resource-edit-label{{if resource.url_error}} field_warning{{/if}}">'+CKAN.Strings.url+'</td> \
       <td class="resource-edit-value" colspan="3"> \
       {{if resource.resource_type=="file.upload"}} \
         ${resource.url} \
         <input name="resources__${num}__url" type="hidden" value="${resource.url}" /> \
       {{/if}} \
       {{if resource.resource_type!="file.upload"}} \
-        <input name="resources__${num}__url" type="text" value="${resource.url}" class="long" /> \
+        <input name="resources__${num}__url" type="text" value="${resource.url}" class="long" title="${resource.url_error}" /> \
       {{/if}} \
       </td> \
       </tr> \

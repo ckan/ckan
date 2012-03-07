@@ -833,8 +833,37 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
 
   setResourceInfo: function(e) {
     e.preventDefault();
+    this.el.find('input[name=save]').addClass("disabled");
+    this.el.find('input[name=reset]').addClass("disabled");
     var urlVal=this.el.find('input[name=url]').val();
-    this.model.set({url: urlVal, resource_type: this.mode})
+    var qaEnabled = $.inArray('qa',CKAN.plugins)>=0;
+
+    if(qaEnabled && this.mode=='file') {
+      $.ajax({
+        url: CKAN.SITE_URL + '/qa/link_checker',
+        context: this.model,
+        data: {url: urlVal},
+        dataType: 'json',
+        error: function(){
+          this.set({url: urlVal, resource_type: 'file'});
+        },
+        success: function(data){
+          data = data[0];
+          this.set({
+            url: urlVal,
+            resource_type: 'file',
+            format: data.format,
+            size: data.size,
+            mimetype: data.mimetype,
+            last_modified: data.last_modified,
+            url_error: (data.url_errors || [""])[0]
+          });
+        }
+      });
+    } else {
+      this.model.set({url: urlVal, resource_type: this.mode});
+    }
+
   }
 });
 
