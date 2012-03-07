@@ -7,7 +7,7 @@
 
 <py:def function="facet_div(name, title, limit=5)">
     <div py:if="c.facets[name]['items'][:limit]" class="facet-box">
-        <h2>${h.facet_title(c.facets[name]['title'])}</h2>
+        <h2>${h.facet_title(title)}</h2>
         <ul class="facet-options">
             <li py:for="facet_item in c.facets[name]['items'][:limit]"
                 py:if="not (name, facet_item.name) in c.fields">
