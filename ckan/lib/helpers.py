@@ -243,7 +243,7 @@ def subnav_named_route(c, text, routename,**kwargs):
 
 def default_group_type():
     from pylons import config
-    return config.get('ckan.default.group_type', 'group')
+    return str( config.get('ckan.default.group_type', 'group') )
 
 def facet_items(c, name, limit=10):
     from pylons import request

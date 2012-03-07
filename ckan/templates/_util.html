@@ -162,7 +162,7 @@
     <tr><th>Title</th><th>Number of datasets</th><th>Description</th></tr>
     <py:for each="group in groups">
     <tr>
-      <td><a href="${h.url_for( '%s_read' % group['type']  , action='read', id=group['name'])}">${group['display_name']}</a></td>
+      <td><a href="${h.url_for( '%s_read' % str(group['type'])  , action='read', id=group['name'])}">${group['display_name']}</a></td>
       <td>${group['packages']}</td>
       <td>${h.truncate(group['description'], length=80, whole_word=True)}</td>
     </tr>
