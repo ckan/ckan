@@ -74,7 +74,6 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
             nose.tools.assert_raises(IndexError, response.mustcontain,
                     'this should not be rendered')
 
-    @ckan.tests.search_related
     def test_dataset_search_results_translation(self):
         for (lang_code, translations) in (
                 ('de', ckan.lib.create_test_data.german_translations),
