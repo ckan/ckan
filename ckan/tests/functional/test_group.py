@@ -468,6 +468,11 @@ class TestPublisherGroup(FunctionalTestCase):
         model.repo.rebuild_db()
 
     def test_index(self):
+        from pylons import config
+        from nose import SkipTest
+        if config.get('ckan.auth.profile','') != 'publisher':
+            raise SkipTest("Search not supported")
+
         offset = url_for(controller='group', action='index')
         res = self.app.get(offset)
         assert '<h1 class="page_heading">Groups' in res, res
@@ -482,6 +487,11 @@ class TestPublisherGroup(FunctionalTestCase):
         assert 'publisher' == group.type, group.type
 
     def test_read(self):
+        from pylons import config
+        from nose import SkipTest
+        if config.get('ckan.auth.profile','') != 'publisher':
+            raise SkipTest("Search not supported")
+
         # Relies on the search index being available
         setup_test_search_index()
         name = u'david'
@@ -497,12 +507,17 @@ class TestPublisherGroup(FunctionalTestCase):
             assert 'Administrators' in res, res
             assert 'russianfan' in main_res, main_res
             assert name in res, res
-            assert '2 datasets found.' in self.strip_tags(main_res), main_res
+            assert '0 datasets found.' in self.strip_tags(main_res), main_res
             pkg = model.Package.by_name(pkgname)
             res = res.click(pkg.title)
             assert '%s - Datasets' % pkg.title in res
 
     def test_read_and_not_authorized_to_edit(self):
+        from pylons import config
+        from nose import SkipTest
+        if config.get('ckan.auth.profile','') != 'publisher':
+            raise SkipTest("Search not supported")
+
         name = u'david'
         title = u'Dave\'s books'
         pkgname = u'warandpeace'

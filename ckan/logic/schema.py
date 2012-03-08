@@ -171,6 +171,7 @@ def default_group_schema():
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
             "title":[ignore_missing, unicode],
+            "name":[ignore_missing, unicode],
             "__extras": [ignore]
         },
          'groups': {
