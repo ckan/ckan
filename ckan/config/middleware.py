@@ -134,17 +134,6 @@ class I18nMiddleware(object):
         self.default_locale = config.get('ckan.locale_default', 'en')
         self.local_list = get_locales()
 
-    def get_cookie_lang(self, environ):
-        # get the lang from cookie if present
-        cookie = environ.get('HTTP_COOKIE')
-        if cookie:
-            cookies = [c.strip() for c in cookie.split(';')]
-            lang = [c.split('=')[1] for c in cookies \
-                    if c.startswith('ckan_lang')]
-            if lang and lang[0] in self.local_list:
-                return lang[0]
-        return None
-
     def __call__(self, environ, start_response):
         # strip the language selector from the requested url
         # and set environ variables for the language selected
@@ -165,16 +154,8 @@ class I18nMiddleware(object):
                 else:
                     environ['PATH_INFO'] = '/'
             else:
-                # use cookie lang or default language from config
-                cookie_lang = self.get_cookie_lang(environ)
-                if cookie_lang:
-                    environ['CKAN_LANG'] = cookie_lang
-                    default = (cookie_lang == self.default_locale)
-                    environ['CKAN_LANG_IS_DEFAULT'] = default
-                else:
-                    environ['CKAN_LANG'] = self.default_locale
-                    environ['CKAN_LANG_IS_DEFAULT'] = True
-
+                environ['CKAN_LANG'] = self.default_locale
+                environ['CKAN_LANG_IS_DEFAULT'] = True
 
             # Current application url
             path_info = environ['PATH_INFO']

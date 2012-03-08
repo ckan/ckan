@@ -99,6 +99,21 @@
     if (isGroupEdit) {
       CKAN.Utils.setupUrlEditor('group',readOnly=true);
     }
+	// OpenID hack
+	// We need to remember the language we are using whilst logging in
+	// we set this in the user session so we don't forget then
+	// carry on as before.
+	if (window.openid && openid.signin){
+		openid._signin = openid.signin;
+		openid.signin = function (arg) {
+			$.get('/user/set_lang/' + CKAN.LANG, function (){openid._signin(arg);})
+		}
+	}
+	if ($('#login').length){
+		$('#login').submit( function () {
+			$.ajax('/user/set_lang/' + CKAN.LANG, {async:false});
+		});
+	}
   });
 }(jQuery));
 

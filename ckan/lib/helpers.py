@@ -23,6 +23,7 @@ from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
 import i18n
+import ckan.exceptions
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -50,7 +51,6 @@ def url(*args, **kw):
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 def url_for(*args, **kw):
-
     """Create url adding i18n information if selected
     wrapper for routes.url_for"""
     locale = kw.pop('locale', None)
@@ -112,8 +112,17 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # stop the root being added twice in redirects
     if no_root:
         url = url_to_amend[len(root):]
+        if not default_locale:
+            url = '/%s%s' % (locale,  url)
+
+    if url == '/packages':
+        raise ckan.exceptions.CkanUrlException('There is a broken url being created %s' % kw)
 
     return url
+
+def lang():
+    from pylons import request
+    return request.environ.get('CKAN_LANG')
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -183,7 +192,9 @@ class _Flash(object):
     def pop_messages(self):
         from pylons import session
         messages = session.pop(self.session_key, [])
-        session.save()
+        # only save session if it has changed
+        if messages:
+            session.save()
         return [Message(*m) for m in messages]
 
     def are_there_messages(self):

@@ -18,6 +18,7 @@ from pylons.templating import cached_template, pylons_globals
 from genshi.template import MarkupTemplate
 from webhelpers.html import literal
 
+import ckan.exceptions
 import ckan
 from ckan import authz
 from ckan.lib import i18n
@@ -74,9 +75,12 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     if cache_expire is not None:
         response.headers["Cache-Control"] = "max-age=%s, must-revalidate" % cache_expire
     
-    return cached_template(template_name, render_template, cache_key=cache_key, 
+    try:
+        return cached_template(template_name, render_template, cache_key=cache_key,
                            cache_type=cache_type, cache_expire=cache_expire)
-                           #, ns_options=('method'), method=method)
+    except ckan.exceptions.CkanUrlException, e:
+        raise ckan.exceptions.CkanUrlException('\nAn Exception has been raised for template %s\n%s'
+                        % (template_name, e.message))
 
 
 class ValidationException(Exception):
@@ -136,7 +140,13 @@ class BaseController(WSGIController):
         """Invoke the Controller"""
         # WSGIController.__call__ dispatches to the Controller method
         # the request is routed to. This routing information is
-        # available in environ['pylons.routes_dict']    
+        # available in environ['pylons.routes_dict']
+
+        # clean out any old cookies as they may contain api keys etc
+        for cookie in request.cookies:
+            if cookie.startswith('ckan') and cookie not in ['ckan', 'ckan_killtopbar']:
+                response.delete_cookie(cookie)
+
         try:
             return WSGIController.__call__(self, environ, start_response)
         finally:

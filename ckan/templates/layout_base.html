@@ -243,6 +243,7 @@
     CKAN.plugins.push('storage');
     </py:if>
     CKAN.SITE_URL = '${h.url('/')}';
+    CKAN.LANG = '${h.lang()}';
     // later use will add offsets with leading '/' so ensure no trailing slash
     CKAN.SITE_URL = CKAN.SITE_URL.replace(/\/$/, '');
     $(document).ready(function() {

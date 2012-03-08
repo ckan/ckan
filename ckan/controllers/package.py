@@ -181,10 +181,6 @@ class PackageController(BaseController):
             abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
-        
-        #set a cookie so we know whether to display the welcome message
-        c.hide_welcome_message = bool(request.cookies.get('hide_welcome_message', False))
-        response.set_cookie('hide_welcome_message', '1', max_age=3600) #(make cross-site?)
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
