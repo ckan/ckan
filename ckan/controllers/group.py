@@ -42,7 +42,7 @@ class GroupController(BaseController):
     def index(self):
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'for_view': True}
 
         data_dict = {'all_fields': True}
 

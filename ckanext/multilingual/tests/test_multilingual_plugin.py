@@ -148,3 +148,28 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 response.mustcontain('%s?tags=%s' % (offset, tag_name))
             nose.tools.assert_raises(IndexError, response.mustcontain,
                     'this should not be rendered')
+
+    def test_group_list_translation(self):
+        for (lang_code, translations) in (
+                ('de', ckan.lib.create_test_data.german_translations),
+                ('fr', ckan.lib.create_test_data.french_translations),
+                ('en', ckan.lib.create_test_data.english_translations),
+                ('pl', {})):
+            offset = '/%s/group' % lang_code
+            response = self.app.get(offset, status=200)
+            terms = (
+                "Dave's books",
+                "Roger's books",
+                'Roger likes these books.',
+                "These are books that David likes.",
+            )
+            for term in terms:
+                if term in translations:
+                    response.mustcontain(translations[term])
+                elif term in ckan.lib.create_test_data.english_translations:
+                    response.mustcontain(
+                        ckan.lib.create_test_data.english_translations[term])
+                else:
+                    response.mustcontain(term)
+            nose.tools.assert_raises(IndexError, response.mustcontain,
+                    'this should not be rendered')

@@ -33,6 +33,10 @@ def group_list_dictize(obj_list, context,
 
         group_dict['packages'] = len(obj.active_packages().all())
 
+        if context.get('for_view'):
+            for item in PluginImplementations(IGroupController):
+                group_dict = item.before_view(group_dict)
+
         result_list.append(group_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
 
