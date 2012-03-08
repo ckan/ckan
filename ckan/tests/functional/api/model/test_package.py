@@ -245,6 +245,18 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams, status=self.STATUS_400_BAD_REQUEST,
                 extra_environ=self.extra_environ)
 
+    def test_register_post_bad_request_2(self):
+        test_params = {
+            'name':u'testpackage07_400',
+            'extras':[ # should not be a list in here
+                {u'key': u'value}
+                ],
+        }
+        offset = self.offset('/rest/dataset')
+        postparams = '%s=1' % self.dumps(test_params)
+        res = self.app.post(offset, params=postparams, status=self.STATUS_400_BAD_REQUEST,
+                extra_environ=self.extra_environ)
+
     def test_register_post_denied(self):
         offset = self.offset('/rest/dataset')
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
