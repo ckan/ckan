@@ -3,7 +3,6 @@ import os
 from babel import Locale, localedata
 from babel.core import LOCALE_ALIASES
 from pylons import config
-from pylons import response
 from pylons import i18n
 
 import ckan.i18n
