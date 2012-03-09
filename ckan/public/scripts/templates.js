@@ -102,7 +102,7 @@ CKAN.Templates.resourceDetails = ' \
         </tr> \
         <tr> \
           <td title="${resource.url_error}" property="rdfs:label" class="dataset-label resource-edit-label{{if resource.url_error}} field_warning{{/if}}">'+CKAN.Strings.url+'</td> \
-          <td class="dataset-details resource-edit-value" colspan="3" property="rdf:value"> \
+          <td class="dataset-details" property="rdf:value"> \
           {{if resource.resource_type=="file.upload"}} \
             ${resource.url} \
             <input name="resources__${num}__url" type="hidden" value="${resource.url}" /> \

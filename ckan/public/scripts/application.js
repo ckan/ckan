@@ -1134,6 +1134,7 @@ CKAN.Utils = function($, my) {
 
     // Adjust form state on click
     $('.dataset-edit-nav li a').live('click', function(e) {
+      e.preventDefault();
       var $el = $(e.target);
       // Prefix="#section-"
       var showMe = $el.attr('href').slice(9);
@@ -1157,7 +1158,7 @@ CKAN.Utils = function($, my) {
 /* ==================== */
 /* == Data Previewer == */
 /* ==================== */
-CKAN.DataPreview = function ($) {
+CKAN.DataPreview = function ($, my) {
   my.jsonpdataproxyUrl = 'http://jsonpdataproxy.appspot.com/';
   my.dialogId = 'ckanext-datapreview';
   my.$dialog = $('#' + my.dialogId);
