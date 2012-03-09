@@ -135,6 +135,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
     def test_logout(self):
         res = self.app.get('/user/logout')
         res2 = res.follow()
+        res2 = res2.follow()
         assert 'You have logged out successfully.' in res2, res2
 
     def _get_cookie_headers(self, res):
@@ -188,9 +189,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
         # check cookie created
         cookie = res.request.environ['HTTP_COOKIE']
-        # I think some versions of webob do not produce quotes, hence the 'or'
-        assert 'ckan_display_name="testlogin"' in cookie or \
-               'ckan_display_name=testlogin' in cookie, cookie
         assert 'auth_tkt=' in cookie, cookie
         assert 'testlogin!userid_type:unicode' in cookie, cookie
 
@@ -347,6 +345,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # logout and login as user B
         res = self.app.get('/user/logout')
         res2 = res.follow()
+        res2 = res2.follow()
         assert 'You have logged out successfully.' in res2, res2
         offset = url_for(controller='user', action='login')
         res = self.app.get(offset)
@@ -432,9 +431,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
         # check cookies created
         cookie = res.request.environ['HTTP_COOKIE']
-        # I think some versions of webob do not produce quotes, hence the 'or'
-        assert 'ckan_display_name="Test Create"' in cookie or\
-               'ckan_display_name=Test Create' in cookie, cookie
         assert 'auth_tkt=' in cookie, cookie
         assert 'testcreate!userid_type:unicode' in cookie, cookie
 
