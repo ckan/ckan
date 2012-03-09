@@ -51,7 +51,7 @@ class TestResourceApi(ApiTestCase, ControllerTestCase):
         result_json = res_json.get('ResultSet').get('Result')
         assert len(result_json) == 1, result_json
         assert 'Format' in result_json[0], result_json
-        assert result_json[0].get('Format') == 'CSV'
+        assert result_json[0].get('Format') == 'csv'
 
     def test_missing_format(self):
         offset = self.base_url + '/format_autocomplete?incomplete=incorrectformat'
