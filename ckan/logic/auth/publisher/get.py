@@ -65,40 +65,44 @@ def package_show(context, data_dict):
     """ Package show permission checks the user group if the state is deleted """
     model = context['model']
     package = get_package_object(context, data_dict)
-        
+
     if package.state == 'deleted':
         if 'ignore_auth' in context and context['ignore_auth']:
-            return {'success': True}            
-            
+            return {'success': True}
+
         user = context.get('user')
 
         if not user:
             return {'success': False, 'msg': _('User not authorized to read package %s') % (package.id)}
 
         userobj = model.User.get( user )
+
+        if Authorizer().is_sysadmin(unicode(user)):
+            return {'success': True}
+
         if not userobj:
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
 
         if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
-    
+
     return {'success': True}
 
 def resource_show(context, data_dict):
-    """ Resource show permission checks the user group if the package state is deleted """    
+    """ Resource show permission checks the user group if the package state is deleted """
     model = context['model']
     user = context.get('user')
     resource = get_resource_object(context, data_dict)
-    package = resource.revision_group.package
+    package = resource.resource_group.package
 
     if package.state == 'deleted':
         userobj = model.User.get( user )
         if not userobj:
-            return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user),package.id)}    
+            return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user),package.id)}
         if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
-    
-    pkg_dict = {'id': pkg.id}
+
+    pkg_dict = {'id': package.id}
     return package_show(context, pkg_dict)
 
 
@@ -112,12 +116,12 @@ def group_show(context, data_dict):
     user = context.get('user')
     group = get_group_object(context, data_dict)
     userobj = model.User.get( user )
-            
+
     if group.state == 'deleted':
         if not user or \
            not _groups_intersect( userobj.get_groups('publisher'), group.get_groups('publisher') ):
-            return {'success': False, 'msg': _('User %s not authorized to show group %s') % (str(user),group.id)}    
-    
+            return {'success': False, 'msg': _('User %s not authorized to show group %s') % (str(user),group.id)}
+
     return {'success': True}
 
 def tag_show(context, data_dict):

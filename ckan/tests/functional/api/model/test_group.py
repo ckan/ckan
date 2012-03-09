@@ -3,12 +3,12 @@ import copy
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 
-from nose.tools import assert_equal 
+from nose.tools import assert_equal
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
-from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
-from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase 
-from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase 
+from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase
+from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase
+from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase
 
 class GroupsTestCase(BaseModelApiTestCase):
 
@@ -17,7 +17,7 @@ class GroupsTestCase(BaseModelApiTestCase):
         CreateTestData.create()
         cls.user_name = u'russianfan' # created in CreateTestData
         cls.init_extra_environ(cls.user_name)
-    
+
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
@@ -73,11 +73,11 @@ class GroupsTestCase(BaseModelApiTestCase):
                             status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
         self.assert_json_response(res, 'Group name already exists')
-    
+
     def test_entity_get_ok(self):
         offset = self.group_offset(self.roger.name)
         res = self.app.get(offset, status=self.STATUS_200_OK)
-        
+
         self.assert_msg_represents_roger(msg=res.body)
         assert self.package_ref_from_name('annakarenina') in res, res
         assert self.group_ref_from_name('roger') in res, res
@@ -146,7 +146,7 @@ class GroupsTestCase(BaseModelApiTestCase):
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
         assert model.Group.by_name(self.testgroupvalues['name'])
-        
+
         # create a group with name 'dupname'
         dupname = u'dupname'
         if not model.Group.by_name(dupname):
@@ -164,7 +164,7 @@ class GroupsTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams, status=[409],
                             extra_environ=self.extra_environ)
         self.assert_json_response(res, 'Group name already exists')
-        
+
     def test_11_delete_group(self):
         # Test Groups Entity Delete 200.
 

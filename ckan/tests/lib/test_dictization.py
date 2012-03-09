@@ -1,4 +1,4 @@
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_not_in, assert_in
 from pprint import pprint, pformat
 from difflib import unified_diff
 
@@ -24,6 +24,7 @@ from ckan.lib.dictization.model_save import (package_dict_save,
                                             )
 from ckan.logic.action.update import make_latest_pending_package_active
 import ckan.logic.action.get
+
 
 class TestBasicDictize:
     @classmethod
@@ -57,7 +58,7 @@ class TestBasicDictize:
             'maintainer_email': None,
             'type': None,
             'name': u'annakarenina',
-            'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+            'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
             'relationships_as_object': [],
             'relationships_as_subject': [],
             'resources': [{u'alt_url': u'alt123',
@@ -103,7 +104,7 @@ class TestBasicDictize:
             'title': u'A Novel By Tolstoy',
             'url': u'http://www.annakarenina.com',
             'version': u'0.7a'}
-        
+
 
     @classmethod
     def teardown_class(cls):
@@ -136,7 +137,7 @@ class TestBasicDictize:
         return dict
 
     def test_01_dictize_main_objects_simple(self):
-        
+
         context = {"model": model,
                    "session": model.Session}
 
@@ -145,20 +146,21 @@ class TestBasicDictize:
         result = table_dictize(pkg, context)
         self.remove_changable_columns(result)
 
-        assert result == {
+        expected = {
             'author': None,
             'author_email': None,
             'license_id': u'other-open',
             'maintainer': None,
             'maintainer_email': None,
             'name': u'annakarenina',
-            'type': None,
-            'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+            'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
             'state': u'active',
             'title': u'A Novel By Tolstoy',
+            'type': None,
             'url': u'http://www.annakarenina.com',
             'version': u'0.7a'
-        }, pprint(result)
+        }
+        assert result == expected, pprint(result)
 
         ## resource
 
@@ -204,7 +206,7 @@ class TestBasicDictize:
 
 
     def test_02_package_dictize(self):
-        
+
         context = {"model": model,
                  "session": model.Session}
 
@@ -214,10 +216,7 @@ class TestBasicDictize:
         result = package_dictize(pkg, context)
         self.remove_changable_columns(result)
 
-        pprint(result)
-        pprint(self.package_expected)
         print "\n".join(unified_diff(pformat(result).split("\n"), pformat(self.package_expected).split("\n")))
-
         assert sorted(result.values()) == sorted(self.package_expected.values())
         assert result == self.package_expected
 
@@ -307,7 +306,7 @@ class TestBasicDictize:
 
         anna_dictized = self.remove_changable_columns(table_dictize(anna1, context))
 
-        anna_dictized["name"] = 'annakarenina2' 
+        anna_dictized["name"] = 'annakarenina2'
 
         model.repo.new_revision()
         table_dict_save(anna_dictized, model.Package, context)
@@ -324,11 +323,11 @@ class TestBasicDictize:
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
 
-        
+
 
         anna_dictized = self.remove_changable_columns(package_dictize(anna1, context))
 
-        anna_dictized["name"] = u'annakarenina3' 
+        anna_dictized["name"] = u'annakarenina3'
 
         model.repo.new_revision()
         package_dict_save(anna_dictized, context)
@@ -352,8 +351,8 @@ class TestBasicDictize:
 
         anna_dictized = package_dictize(anna1, context)
 
-        anna_dictized["name"] = u'annakarenina_changed' 
-        anna_dictized["resources"][0]["url"] = u'new_url' 
+        anna_dictized["name"] = u'annakarenina_changed'
+        anna_dictized["resources"][0]["url"] = u'new_url'
 
         model.repo.new_revision()
         package_dict_save(anna_dictized, context)
@@ -390,11 +389,11 @@ class TestBasicDictize:
 
         anna_dictized = package_dictize(anna1, context)
 
-        anna_dictized['name'] = u'annakarenina_changed2' 
-        anna_dictized['resources'][0]['url'] = u'new_url2' 
-        anna_dictized['tags'][0]['name'] = u'new_tag' 
-        anna_dictized['tags'][0].pop('id') #test if 
-        anna_dictized['extras'][0]['value'] = u'"new_value"' 
+        anna_dictized['name'] = u'annakarenina_changed2'
+        anna_dictized['resources'][0]['url'] = u'new_url2'
+        anna_dictized['tags'][0]['name'] = u'new_tag'
+        anna_dictized['tags'][0].pop('id') #test if
+        anna_dictized['extras'][0]['value'] = u'"new_value"'
 
         model.repo.new_revision()
         package_dict_save(anna_dictized, context)
@@ -458,7 +457,7 @@ class TestBasicDictize:
 
         extras_revisions = model.Session.query(model.PackageExtraRevision).filter_by(package_id=anna1.id).all()
 
-        sorted_extras = sorted(extras_revisions, 
+        sorted_extras = sorted(extras_revisions,
                                key=lambda x: (x.revision_timestamp, x.key))[::-1]
 
         assert sorted_extras[0].state == 'pending'
@@ -488,7 +487,7 @@ class TestBasicDictize:
                             'url': u'newurl'}
                             )
         anna_dictized['tags'].append({'name': u'newnew_tag'})
-        anna_dictized['extras'].append({'key': 'david', 
+        anna_dictized['extras'].append({'key': 'david',
                                         'value': u'"new_value"'})
 
         model.repo.new_revision()
@@ -546,7 +545,7 @@ class TestBasicDictize:
 
         extras_revisions = model.Session.query(model.PackageExtraRevision).filter_by(package_id=anna1.id).all()
 
-        sorted_extras = sorted(extras_revisions, 
+        sorted_extras = sorted(extras_revisions,
                                key=lambda x: (x.revision_timestamp, x.key))[::-1]
 
         print [(extra.state, extra.key, extra.value) for extra in sorted_extras]
@@ -576,9 +575,9 @@ class TestBasicDictize:
 
         assert len(sorted_packages) == 4
         assert sorted_packages[0].state == 'active', sorted_packages[0].state #was pending
-        assert sorted_packages[0].current == True 
+        assert sorted_packages[0].current == True
 
-        assert sorted_packages[1].state == 'pending' 
+        assert sorted_packages[1].state == 'pending'
         assert sorted_packages[2].state == 'active'
         assert sorted_packages[3].state == 'active'
 
@@ -608,7 +607,7 @@ class TestBasicDictize:
         sorted_tags = sorted(tag_revisions, key=lambda x: (x.revision_timestamp, x.tag.name))[::-1]
 
         print [(tag.state, tag.tag.name) for tag in sorted_tags]
-        
+
         assert len(sorted_tags) == 6, len(sorted_tags)
         assert sorted_tags[0].state == 'active'     # newnew_tag
         assert sorted_tags[1].state == 'active'     # new_tag
@@ -630,7 +629,7 @@ class TestBasicDictize:
 
         extras_revisions = model.Session.query(model.PackageExtraRevision).filter_by(package_id=anna1.id).all()
 
-        sorted_extras = sorted(extras_revisions, 
+        sorted_extras = sorted(extras_revisions,
                                key=lambda x: (x.revision_timestamp, x.key))[::-1]
 
         print [(extra.state, extra.key, extra.value) for extra in sorted_extras]
@@ -664,18 +663,18 @@ class TestBasicDictize:
 
         second_dictized = self.remove_changable_columns(package_dictize(anna1, context))
 
-        first_dictized["name"] = u'annakarenina_changed' 
-        first_dictized["resources"][0]["url"] = u'new_url' 
+        first_dictized["name"] = u'annakarenina_changed'
+        first_dictized["resources"][0]["url"] = u'new_url'
 
         assert second_dictized == first_dictized
 
         context['revision_id'] = sorted_packages[2].revision_id #original state
         third_dictized = self.remove_changable_columns(package_dictize(anna1, context))
-        
-        second_dictized['name'] = u'annakarenina_changed2' 
-        second_dictized['resources'][0]['url'] = u'new_url2' 
-        second_dictized['tags'][0]['name'] = u'new_tag' 
-        second_dictized['extras'][0]['value'] = u'"new_value"' 
+
+        second_dictized['name'] = u'annakarenina_changed2'
+        second_dictized['resources'][0]['url'] = u'new_url2'
+        second_dictized['tags'][0]['name'] = u'new_tag'
+        second_dictized['extras'][0]['value'] = u'"new_value"'
         second_dictized['state'] = 'pending'
 
         assert second_dictized == third_dictized
@@ -703,7 +702,7 @@ class TestBasicDictize:
             u'webstore_url': None})
 
         third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'state': 'active'})
-        third_dictized['extras'].insert(0, {'key': 'david', 
+        third_dictized['extras'].insert(0, {'key': 'david',
                                          'value': u'"new_value"',
                                          'state': u'active'})
         third_dictized['state'] = 'active'
@@ -750,7 +749,7 @@ class TestBasicDictize:
 
         res_dictized = self.remove_changable_columns(resource_dictize(res, context))
 
-        assert res_dictized == new_resource, res_dictized 
+        assert res_dictized == new_resource, res_dictized
 
     def test_15_api_to_dictize(self):
 
@@ -852,7 +851,7 @@ class TestBasicDictize:
         group_dict_save(group_dict, context)
         model.Session.commit()
         model.Session.remove()
-        
+
         group = model.Session.query(model.Group).filter_by(name=u'help').one()
 
         context = {"model": model,
@@ -892,7 +891,7 @@ class TestBasicDictize:
                                   'maintainer_email': None,
                                   'type': None,
                                   'name': u'annakarenina3',
-                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
                                   'state': u'active',
                                   'capacity' : 'in',
                                   'title': u'A Novel By Tolstoy',
@@ -907,7 +906,7 @@ class TestBasicDictize:
                                   'maintainer_email': None,
                                   'type': None,
                                   'name': u'annakarenina2',
-                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
                                   'state': u'active',
                                   'title': u'A Novel By Tolstoy',
                                   'url': u'http://www.annakarenina.com',
@@ -1006,3 +1005,47 @@ class TestBasicDictize:
 
         # We didn't pass in any data so this should be empty.
         assert not got['data']
+
+
+    def test_21_package_dictization_with_deleted_group(self):
+        """
+        Ensure that the dictization does not return groups that the dataset has
+        been removed from.
+        """
+        # Create a new dataset and 2 new groups
+        model.repo.new_revision()
+        pkg = model.Package(name='testing-deleted-groups')
+        group_1 = model.Group(name='test-group-1')
+        group_2 = model.Group(name='test-group-2')
+        model.Session.add(pkg)
+        model.Session.add(group_1)
+        model.Session.add(group_2)
+        model.Session.flush()
+
+        # Add the dataset to group_1, and signal that the dataset used
+        # to be a member of group_2 by setting its membership state to 'deleted'
+        membership_1 = model.Member(table_id = pkg.id,
+                                    table_name = 'package',
+                                    group = group_1,
+                                    group_id = group_1.id,
+                                    state = 'active')
+
+        membership_2 = model.Member(table_id = pkg.id,
+                                    table_name = 'package',
+                                    group = group_2,
+                                    group_id = group_2.id,
+                                    state = 'deleted')
+
+        model.Session.add(membership_1)
+        model.Session.add(membership_2)
+        model.repo.commit()
+
+        # Dictize the dataset
+        context = {"model": model,
+                   "session": model.Session}
+
+        result = package_dictize(pkg, context)
+        self.remove_changable_columns(result)
+        assert_not_in('test-group-2', [ g['name'] for g in result['groups'] ])
+        assert_in('test-group-1', [ g['name'] for g in result['groups'] ])
+

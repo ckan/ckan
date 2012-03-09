@@ -325,6 +325,7 @@ class PackageController(BaseController):
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id})
 
@@ -370,6 +371,7 @@ class PackageController(BaseController):
 
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id}, package_type=package_type)
 
@@ -450,8 +452,6 @@ class PackageController(BaseController):
 
         aborts if an exception is raised.
         """
-        global _controller_behaviour_for
-
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         try:

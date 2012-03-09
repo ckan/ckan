@@ -973,6 +973,7 @@ ul.dataset-edit-nav li a {
   display: block;
   padding: 7px 0 7px 10px;
   margin-bottom: 7px;
+  margin-left: 20px;
   border: 1px transparent solid;
 }
 ul.dataset-edit-nav li a.active,  

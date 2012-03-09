@@ -5,7 +5,7 @@ from ckan.model import User, Session
 
 class OpenIDAuthenticator(object):
     implements(IAuthenticator)
-    
+
     def authenticate(self, environ, identity):
         if 'repoze.who.plugins.openid.userid' in identity:
             openid = identity.get('repoze.who.plugins.openid.userid')
@@ -15,16 +15,16 @@ class OpenIDAuthenticator(object):
             else:
                 return user.name
         return None
-    
+
 
 class UsernamePasswordAuthenticator(object):
     implements(IAuthenticator)
-    
+
     def authenticate(self, environ, identity):
         if not 'login' in identity or not 'password' in identity:
             return None
         user = User.by_name(identity.get('login'))
-        if user is None: 
+        if user is None:
             return None
         if user.validate_password(identity.get('password')):
             return user.name

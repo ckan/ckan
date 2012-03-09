@@ -70,7 +70,7 @@ setup(
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
     celeryd = ckan.lib.cli:Celery
-    
+
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
 

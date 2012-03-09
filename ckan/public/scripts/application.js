@@ -94,6 +94,15 @@
         $(e.target).attr('disabled','disabled');
         return false;
       });
+
+      // Highlight form errors in the tab buttons
+      for (field_id in form_errors) {
+        var field = $('#'+field_id);
+        if (field !== undefined) {
+          var fieldset_id = field.parents('fieldset').last().attr('id');
+          $('#section-'+fieldset_id).addClass('fieldset_button_error');
+        }
+      }
     }
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
@@ -395,10 +404,9 @@ CKAN.Utils = function($, my) {
         input_box.attr('name', new_name)
         input_box.attr('id', new_name)
 
-        var capacity = $("input:radio[name=add-user-capacity]:checked").val();
         parent_dd.before(
           '<input type="hidden" name="' + old_name + '" value="' + ui.item.value + '">' +
-          '<input type="hidden" name="' + old_name.replace('__name','__capacity') + '" value="' + capacity + '">' +
+          '<input type="hidden" name="' + old_name.replace('__name','__capacity') + '" value="editor">' +
           '<dd>' + ui.item.label + '</dd>'
         );
 
@@ -825,8 +833,37 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
 
   setResourceInfo: function(e) {
     e.preventDefault();
+    this.el.find('input[name=save]').addClass("disabled");
+    this.el.find('input[name=reset]').addClass("disabled");
     var urlVal=this.el.find('input[name=url]').val();
-    this.model.set({url: urlVal, resource_type: this.mode})
+    var qaEnabled = $.inArray('qa',CKAN.plugins)>=0;
+
+    if(qaEnabled && this.mode=='file') {
+      $.ajax({
+        url: CKAN.SITE_URL + '/qa/link_checker',
+        context: this.model,
+        data: {url: urlVal},
+        dataType: 'json',
+        error: function(){
+          this.set({url: urlVal, resource_type: 'file'});
+        },
+        success: function(data){
+          data = data[0];
+          this.set({
+            url: urlVal,
+            resource_type: 'file',
+            format: data.format,
+            size: data.size,
+            mimetype: data.mimetype,
+            last_modified: data.last_modified,
+            url_error: (data.url_errors || [""])[0]
+          });
+        }
+      });
+    } else {
+      this.model.set({url: urlVal, resource_type: this.mode});
+    }
+
   }
 });
 

@@ -23,15 +23,15 @@ user_table = Table('user', metadata,
         )
 
 class User(DomainObject):
-    
+
     VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
     DOUBLE_SLASH = re.compile(':\/([^/])')
-    
+
     @classmethod
     def by_openid(cls, openid):
         obj = Session.query(cls).autoflush(False)
         return obj.filter_by(openid=openid).first()
-    
+
     @classmethod
     def get(cls, user_reference):
         # double slashes in an openid often get turned into single slashes
@@ -57,7 +57,7 @@ class User(DomainObject):
         if self.email:
             e = self.email.strip().lower().encode('utf8')
         return hashlib.md5(e).hexdigest()
-        
+
     def get_reference_preferred_for_uri(self):
         '''Returns a reference (e.g. name, id, openid) for this user
         suitable for the user\'s URI.
@@ -73,7 +73,7 @@ class User(DomainObject):
         else:
             ref = self.id
         return ref
-            
+
     def _set_password(self, password):
         """Hash password on the fly."""
         if isinstance(password, unicode):
@@ -104,7 +104,7 @@ class User(DomainObject):
         :return: Whether the password is valid.
         :rtype: bool
         """
-        if not password or not self.password: 
+        if not password or not self.password:
             return False
         if isinstance(password, unicode):
             password_8bit = password.encode('ascii', 'ignore')
@@ -114,7 +114,7 @@ class User(DomainObject):
         return self.password[40:] == hashed_pass.hexdigest()
 
     password = property(_get_password, _set_password)
-    
+
     @classmethod
     def check_name_valid(cls, name):
         if not name \
@@ -147,10 +147,23 @@ class User(DomainObject):
 
     def is_in_group(self, group):
         return group in self.get_groups()
-        
+
+    def is_in_groups(self, groupids):
+        """ Given a list of group ids, returns True if this user is in any of
+            those groups """
+        guser = set( self.get_group_ids() )
+        gids  = set( groupids )
+
+        return len( guser.intersection( gids ) ) > 0
+
+
+    def get_group_ids(self, group_type=None):
+        """ Returns a list of group ids that the current user belongs to """
+        return [ g.id for g in self.get_groups( group_type=group_type ) ]
+
     def get_groups(self, group_type=None, capacity=None):
         import ckan.model as model
-        
+
         q = model.Session.query(model.Group)\
             .join(model.Member, model.Member.group_id == model.Group.id and \
                        model.Member.table_name == 'user' ).\
@@ -160,12 +173,12 @@ class User(DomainObject):
         if capacity:
             q = q.filter( model.Member.capacity == capacity )
             return q.all()
-            
+
         if '_groups' not in self.__dict__:
             self._groups = q.all()
-        
+
         groups = self._groups
-        if group_type:       
+        if group_type:
             groups = [g for g in groups if g.type == group_type]
         return groups
 
@@ -173,7 +186,7 @@ class User(DomainObject):
     @classmethod
     def search(cls, querystr, sqlalchemy_query=None):
         '''Search name, fullname, email and openid.
-         
+
         '''
         import ckan.model as model
         if sqlalchemy_query is None:

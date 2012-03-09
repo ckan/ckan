@@ -103,6 +103,20 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return group
     # Todo: Make sure group names can't be changed to look like group IDs?
 
+    @classmethod
+    def all(cls, group_type=None, state=('active',)):
+        """
+        Returns all groups.
+        """
+        q = Session.query(cls)
+        if state:
+            q = q.filter(cls.state.in_(state))
+
+        if group_type:
+            q = q.filter(cls.type==group_type)
+
+        return q.order_by(cls.title)
+
     def set_approval_status(self, status):
         """
             Aproval status can be set on a group, where currently it does
@@ -116,17 +130,21 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             pass
 
     def members_of_type(self, object_type, capacity=None):
+        from ckan import model
         object_type_string = object_type.__name__.lower()
         query = Session.query(object_type).\
-               filter(group_table.c.id == self.id).\
-               filter(member_table.c.state == 'active').\
-               filter(member_table.c.table_name == object_type_string)
+               filter(model.Group.id == self.id).\
+               filter(model.Member.state == 'active').\
+               filter(model.Member.table_name == object_type_string)
+
+        if hasattr(object_type,'state'):
+            query = query.filter(object_type.state == 'active' )
 
         if capacity:
-            query = query.filter(member_table.c.capacity == capacity)
+            query = query.filter(model.Member.capacity == capacity)
 
-        query = query.join(member_table, member_table.c.table_id == getattr(object_type,'id') ).\
-               join(group_table, group_table.c.id == member_table.c.group_id)
+        query = query.join(model.Member, member_table.c.table_id == getattr(object_type,'id') ).\
+               join(model.Group, group_table.c.id == member_table.c.group_id)
 
         return query
 
@@ -136,6 +154,15 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             member = Member(group=self, table_id=getattr(object_instance,'id'), table_name=object_type_string)
             Session.add(member)
 
+    def get_children_groups(self, type='group'):
+        # Returns a list of dicts where each dict contains "id", "name", and "title"
+        # When querying with a CTE specifying a model in the query parameter causes
+        # problems as it returns only the first level deep apparently not recursing
+        # any deeper than that.  If we simplify and request only specific fields then
+        # if returns the full depth of the hierarchy.
+        results = Session.query("id","name", "title").\
+                from_statement(HIERARCHY_CTE).params(id=self.id, type=type).all()
+        return [ { "id":idf, "name": name, "title": title } for idf,name,title in results ]
 
     def active_packages(self, load_eager=True):
         query = Session.query(Package).\
@@ -242,3 +269,15 @@ MemberRevision = vdm.sqlalchemy.create_object_version(mapper, Member,
 #TODO
 MemberRevision.related_packages = lambda self: [self.continuity.package]
 
+HIERARCHY_CTE =  """
+    WITH RECURSIVE subtree(id) AS (
+        SELECT M.* FROM public.member AS M
+        WHERE M.table_name = 'group' AND M.state = 'active'
+        UNION
+        SELECT M.* FROM public.member M, subtree SG
+        WHERE M.table_id = SG.group_id AND M.table_name = 'group' AND M.state = 'active')
+
+    SELECT G.* FROM subtree AS ST
+    INNER JOIN public.group G ON G.id = ST.table_id
+    WHERE group_id = :id AND G.type = :type and table_name='group'
+"""
