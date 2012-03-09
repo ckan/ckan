@@ -73,5 +73,5 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
                         else:
                             html += '<option value="%s">%s</option>' % (tag, tag)
                     html += '</select>'
-                    stream = stream | Transformer('fieldset[@id="groups"]').append(HTML(html))
+                    stream = stream | Transformer('fieldset[@id="basic-information"]').append(HTML(html))
         return stream
