@@ -24,6 +24,7 @@ from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
 import i18n
 import ckan.exceptions
+from pylons import request
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -80,7 +81,6 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # (as part of the language changing feature).
     # A locale of default will not add locale info to the url.
 
-    from pylons import request
 
     default_locale = False
     locale = kw.pop('locale', None)
@@ -121,7 +121,6 @@ def _add_i18n_to_url(url_to_amend, **kw):
     return url
 
 def lang():
-    from pylons import request
     return request.environ.get('CKAN_LANG')
 
 class Message(object):
@@ -244,7 +243,6 @@ def subnav_named_route(c, text, routename,**kwargs):
     )
 
 def facet_items(c, name, limit=10):
-    from pylons import request
     if not c.facets or not c.facets.get(name):
         return []
     facets = []
