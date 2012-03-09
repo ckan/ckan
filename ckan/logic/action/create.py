@@ -180,11 +180,14 @@ def member_create(context, data_dict=None):
     obj_type = data_dict['object_type']
     capacity = data_dict['capacity']
 
+    if 'group' not in context:
+        context['group'] = group_id
+
     # User must be able to update the group to add a member to it
     check_access('group_update', context, data_dict)
 
     # Look up existing, in case it exists
-    member = model.Session.Query(model.Member).\
+    member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
             filter(model.Member.table_id == obj_id).\
             filter(model.Member.group_id == group_id).\
@@ -197,6 +200,7 @@ def member_create(context, data_dict=None):
                               table_id = obj_id,
                               group_id = group_id,
                               capacity=capacity)
+
     model.Session.add(member)
     model.repo.commit()
 
