@@ -7,9 +7,9 @@ Reference: CKAN Configuration Options
 
 You can change many important CKAN settings in the CKAN config file. This is the file called ``std.ini`` that you first encountered in :ref:`create-admin-user`. It is usually located at ``/etc/ckan/std/std.ini``.
 
-The file is well-documented, but we recommend reading this section in full to learn about the CKAN config options available to you. 
+The file is well-documented, but we recommend reading this section in full to learn about the CKAN config options available to you.
 
-.. note:: After editing this file, you will need to restart Apache for the changes to take effect. 
+.. note:: After editing this file, you will need to restart Apache for the changes to take effect.
 
 .. note:: The CKAN config file also includes general Pylons options. All CKAN-specific settings are in the `[app:main]` section.
 
@@ -91,7 +91,7 @@ Example::
 Default value::
 
  What was the <a href="http://thedatahub.org/dataset/house-prices-uk-from-1930">average price</a> of a house in the UK in 1935? When will India's projected population <a href="http://thedatahub.org/dataset/guardian-population-unitednations">overtake</a> that of China? Where can you see <a href="http://thedatahub.org/dataset/seattle-public-art">publicly-funded art</a> in Seattle? Data to answer many, many questions like these is out there on the Internet somewhere - but it is not always easy to find.</p>
-  
+
   <p i18n:msg="">${g.site_title} is a community-run catalogue of useful sets of data on the Internet. You can collect links here to data from around the web for yourself and others to use, or search for data that others have collected. Depending on the type of data (and its conditions of use), ${g.site_title} may also be able to store a copy of the data or host it in a database, and provide some basic visualisation tools.
 
 This changes the text about the site on the 'About' page. i.e. replaces the text in the "About <site_name" section. The other sections of the About page are not affected.
@@ -115,9 +115,9 @@ Example::
 
 Default value:  (empty)
 
-This sets a space-separated list of extra field key values which will not be shown on the dataset read page. 
+This sets a space-separated list of extra field key values which will not be shown on the dataset read page.
 
-.. warning::  While this is useful to e.g. create internal notes, it is not a security measure. The keys will still be available via the API and in revision diffs. 
+.. warning::  While this is useful to e.g. create internal notes, it is not a security measure. The keys will still be available via the API and in revision diffs.
 
 .. index::
    single: rdf_packages
@@ -312,13 +312,13 @@ HTML content to be inserted just before ``</head>`` tag (e.g. extra stylesheet)
 
 Example::
 
-  ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css"> 
+  ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css">
 
 You can also have multiline strings. Just indent following lines. e.g.::
 
- ckan.template_head_end = 
-  <link rel="stylesheet" href="/css/extra1.css" type="text/css"> 
-  <link rel="stylesheet" href="/css/extra2.css" type="text/css"> 
+ ckan.template_head_end =
+  <link rel="stylesheet" href="/css/extra1.css" type="text/css">
+  <link rel="stylesheet" href="/css/extra2.css" type="text/css">
 
 template_footer_end
 ^^^^^^^^^^^^^^^^^^^
@@ -356,11 +356,11 @@ Example::
 
 Default value:  ``standard``
 
-This sets the name of the Formalchemy form to use when editing a dataset. 
+This sets the name of the Formalchemy form to use when editing a dataset.
 
 .. note:: This setting only applies to the deprecated Formalchemy forms. For enabling forms defined with a Navl schema, see :doc:`forms`.
 
-The value for this setting can be a Formalchemy form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the ``setup.py`` file has an entry point for the form defined in the ``ckan.forms`` section. 
+The value for this setting can be a Formalchemy form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the ``setup.py`` file has an entry point for the form defined in the ``ckan.forms`` section.
 
 For more information on forms, see :doc:`forms`.
 
@@ -397,11 +397,11 @@ version of the CKAN list of licences available from the
 http://licenses.opendefinition.org/licenses/groups/ckan.json.
 
 More details about the license objects - including the licence format and some
-example licence lists - can be found at the `Open Licenses Service 
+example licence lists - can be found at the `Open Licenses Service
 <http://licenses.opendefinition.org/>`_.
 
 Examples::
- 
+
  licenses_group_url = file:///path/to/my/local/json-list-of-licenses.json
  licenses_group_url = http://licenses.opendefinition.org/licenses/groups/od.json
 
@@ -497,10 +497,10 @@ Example::
  solr_url = http://solr.okfn.org:8983/solr/ckan-schema-1.3
 
 Default value:  ``http://solr.okfn.org:8983/solr``
- 
+
 This configures the Solr server used for search. The Solr schema found at that URL must be one of the ones in ``ckan/config/solr`` (generally the most recent one). A check of the schema version number occurs when CKAN starts.
 
-Optionally, ``solr_user`` and ``solr_password`` can also be configured to specify HTTP Basic authentication details for all Solr requests. 
+Optionally, ``solr_user`` and ``solr_password`` can also be configured to specify HTTP Basic authentication details for all Solr requests.
 
 Note, if you change this value, you need to rebuild the search index.
 
@@ -600,11 +600,11 @@ Defaults: see in ``ckan/model/authz.py`` for: ``default_default_user_roles``
 auth_profile
 ^^^^^^^^^^^^
 
-This allows you to specify the auth profile to use for this installation.  By default this is empty and uses the default authorisation code, if set to publisher it will use the publisher profile in ckan/logic/auth/publisher.
+This allows you to specify the auth profile to use for this installation.  By default this is empty and uses the default authorisation code, if set to publisher it will use the publisher profile in ckan/logic/auth/publisher. See :doc:`publisher_auth_profile` for more information.
 
 Example::
-	auth.profile = publisher
-	
+	ckan.auth.profile = publisher
+
 With this example setting the publisher auth profile will be used.
 
 Defaults: The default authorisation from ``ckan/logic/auth/*`` will be used
@@ -623,9 +623,9 @@ Example::
 
   ckan.plugins = disqus datapreview googleanalytics follower
 
-Specify which CKAN extensions are to be enabled. 
+Specify which CKAN extensions are to be enabled.
 
-.. warning::  If you specify an extension but have not installed the code,  CKAN will not start. 
+.. warning::  If you specify an extension but have not installed the code,  CKAN will not start.
 
 Format as a space-separated list of the extension names. The extension name is the key in the [ckan.plugins] section of the extension's ``setup.py``. For more information on extensions, see :doc:`extensions`.
 
@@ -644,7 +644,7 @@ Example::
 
   ckan.log_dir = /var/log/ckan/
 
-This is the directory to which CKAN cron scripts (if there are any installed) should write log files. 
+This is the directory to which CKAN cron scripts (if there are any installed) should write log files.
 
 .. note::  This setting is nothing to do with the main CKAN log file, whose filepath is set in the ``[handler_file]`` args.
 
@@ -658,7 +658,7 @@ Example::
 
   ckan.dump_dir = /var/lib/ckan/dump/
 
-This is the directory to which JSON or CSV dumps of the database are to be written, assuming a script has been installed to do this. 
+This is the directory to which JSON or CSV dumps of the database are to be written, assuming a script has been installed to do this.
 
 .. note::  It is usual to set up the Apache config to serve this directory.
 
