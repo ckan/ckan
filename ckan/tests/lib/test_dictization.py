@@ -1,4 +1,4 @@
-from nose.tools import assert_equal, assert_not_in, assert_in
+from ckan.tests import assert_equal, assert_not_in, assert_in
 from pprint import pprint, pformat
 from difflib import unified_diff
 
