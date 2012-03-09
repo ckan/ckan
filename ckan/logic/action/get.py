@@ -609,7 +609,7 @@ def format_autocomplete(context, data_dict):
         .order_by('total DESC')\
         .limit(limit)
 
-    return [resource.format for resource in query]
+    return [resource.format.lower() for resource in query]
 
 def user_autocomplete(context, data_dict):
     '''Returns users containing the provided string'''

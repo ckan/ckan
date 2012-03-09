@@ -325,11 +325,34 @@ def markdown_extract(text, extract_length=190):
 def icon_url(name):
     return url_for_static('/images/icons/%s.png' % name)
 
-def icon_html(url, alt=None):
-    return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (url, alt))
+def icon_html(url, alt=None, inline=True):
+    classes = ''
+    if inline: classes += 'inline-icon '
+    return literal('<img src="%s" height="16px" width="16px" alt="%s" class="%s" /> ' % (url, alt, classes))
 
-def icon(name, alt=None):
-    return icon_html(icon_url(name),alt)
+def icon(name, alt=None, inline=True):
+    return icon_html(icon_url(name),alt,inline)
+
+def resource_icon(res):
+    if False:
+        icon_name = 'page_white'
+    # if (res.is_404?): icon_name = 'page_white_error'
+    # also: 'page_white_gear'
+    # also: 'page_white_link'
+        return icon(icon_name)
+    else:
+        return icon(format_icon(res.get('format','')))
+
+def format_icon(_format):
+    _format = _format.lower()
+    if ('json' in _format): return 'page_white_cup'
+    if ('csv' in _format): return 'page_white_gear'
+    if ('xls' in _format): return 'page_white_excel'
+    if ('zip' in _format): return 'page_white_compressed'
+    if ('api' in _format): return 'page_white_database'
+    if ('plain text' in _format): return 'page_white_text'
+    if ('xml' in _format): return 'page_white_code'
+    return 'page_white'
 
 def linked_gravatar(email_hash, size=100, default=None):
     return literal('''<a href="https://gravatar.com/" target="_blank"
@@ -486,3 +509,17 @@ def tag_link(tag):
 def group_link(group):
     url = url_for(controller='group', action='read', id=group['name'])
     return link_to(group['name'], url)
+
+def dump_json(obj):
+    import json
+    return json.dumps(obj)
+
+def auto_log_message(context):
+    from pylons.i18n import _
+    if (context.action=='new') :
+        return _('Created new dataset.')
+    elif (context.action=='editresources'):
+        return _('Edited resources.')
+    elif (context.action=='edit'):
+        return _('Edited settings.')
+    return ''

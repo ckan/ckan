@@ -321,6 +321,7 @@ class PackageController(BaseController):
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=[CACHE_PARAMETER]))))
+        c.pkg_json = json.dumps(data) 
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -381,7 +382,15 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render('package/edit.html')
+
+        if (c.action == u'editresources'):
+          return render('package/editresources.html')
+        else:
+          return render('package/edit.html')
+
+    def editresources(self, id, data=None, errors=None, error_summary=None):
+        '''Hook method made available for routing purposes.'''
+        return self.edit(id,data,errors,error_summary)
 
     def read_ajax(self, id, revision=None):
         package_type=self._get_package_type(id)
@@ -523,13 +532,6 @@ class PackageController(BaseController):
         @param action - What the action of the edit was
         '''
         assert action in ('new', 'edit')
-        if action == 'new':
-            msg = _('<span class="new-dataset">Congratulations, your dataset has been created. ' \
-                    '<a href="%s">Upload or link ' \
-                    'some data now &raquo;</a></span>')
-            msg = msg % h.url_for(controller='package', action='edit',
-                    id=pkgname, anchor='section-resources')
-            h.flash_success(msg,allow_html=True)
         url = request.params.get('return_to') or \
               config.get('package_%s_return_url' % action)
         if url:

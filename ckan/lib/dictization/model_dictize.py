@@ -78,6 +78,7 @@ def extras_list_dictize(extras_list, context):
 
 def resource_dictize(res, context):
     resource = table_dictize(res, context)
+    resource['format'] = resource.get('format','').lower()
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)

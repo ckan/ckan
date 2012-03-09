@@ -150,7 +150,6 @@ a:hover {
 
 fieldset {
   border: 0px;
-  border-bottom: 1px solid #e0e0e0;
 }
 
 
@@ -179,13 +178,6 @@ tbody tr:nth-child(even) td, tbody tr.even td {
 }
 tbody tr:nth-child(odd) td, tbody tr.odd td {
   background-color: #F2F2F2;
-}
-tbody tr.table-empty td {
-  background: #f8f8f8;
-  border: 1px solid #eee;
-  font-style: italic;
-  color: #333;
-  font-size: 90%;
 }
 
 
@@ -234,6 +226,36 @@ tbody tr.table-empty td {
 img.gravatar {
   margin: 0 5px -5px 0;
   border-radius: 3px;
+}
+
+.inline-icon {
+  margin-bottom: -4px;
+  padding-right: 5px;
+}
+
+.drag-drop-list { 
+  list-style-type: none; 
+  margin: 0; 
+  padding: 0; 
+}
+.drag-drop-list .drag-bars {
+  font-size: 12px;
+  color: #ccc;
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  padding-left: 18px;
+  padding-right: 12px;
+  cursor: move;
+}
+.drag-drop-list li {
+  margin-bottom: 3px;
+  cursor: move;
+}
+
+ul.no-break li {
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 /* =============== */
@@ -290,11 +312,6 @@ img.gravatar {
   text-decoration: none;
   font-weight: bold;
 }
-#minornavigation li a img,
-#minornavigation li.disabled img:first-child {
-  margin-bottom: -4px;
-  padding-right: 5px;
-}
 #minornavigation li.current-tab a,
 #minornavigation li.current-tab a:hover,
 #minornavigation li.current-tab a:visited {
@@ -312,6 +329,9 @@ img.gravatar {
 /* ======================================== */
 /* MinorNavigation extension: Dropdown Menu */
 /* ======================================== */
+.dropdown-appears hr {
+  margin: 5px 0;
+}
 #minornavigation .dropdown {
   position: relative;
   display: inline-block;
@@ -908,6 +928,7 @@ input.url-input {
 /* = Mini-Tabs = */
 /* ============= */
 ul.button-row {
+  margin-top: 5px;
   margin-bottom: 5px;
 }
 ul.button-row li {
@@ -1001,114 +1022,44 @@ ul.dataset-edit-nav li a:hover {
 /* ===================== */
 /* = Edit Dataset Page = */
 /* ===================== */
-.dataset-edit-form .edit-summary {
-  /* Needs refactoring. Clutters the page too much. */
+.dataset-edit-form fieldset#resources {
   display: none;
 }
-.dataset-edit-form input#Resource--url {
-  width: 60%;
+.dataset-edit-form button.dataset-delete {
+  vertical-align: middle;
 }
-.dataset-edit-form .resource-add {
-  background: #eee;
-  padding-top: 10px;
-  padding-bottom: 5px;
-  border: 1px solid #e0e0e0;
-  border-left: none;
-  border-right: none;
+
+/* ======================= */
+/* = Edit Resources Page = */
+/* ======================= */
+body.editresources #content {
+  width: 100%;
+  padding-right: 0;
+  margin-right: 0;
+  border-right: 0;
 }
-.dataset-edit-form .resource-add li h4 {
+body.editresources #sidebar {
+  display: none;
+}
+.dataset-editresources-form fieldset#basic-information,
+.dataset-editresources-form fieldset#groups,
+.dataset-editresources-form fieldset#further-information,
+.dataset-editresources-form fieldset#extras,
+.dataset-editresources-form fieldset#delete {
+  display: none;
+}
+
+.dataset-editresources-form .resource-add li h4 {
   display: inline;
   padding-right: 20px;
 }
-.dataset-edit-form .resource-add .subpane {
+.dataset-editresources-form .resource-add .subpane {
   margin-top: 10px;
 }
-.dataset-edit-form .resource-add .fileinfo {
+.dataset-editresources-form .resource-add .fileinfo {
   margin: 7px 0;
 }
-.dataset-edit-form button.dataset-delete {
-  vertical-align: top;
-}
 
-
-/* ================================ */
-/* = Edit Dataset Page: Resources = */
-/* ================================ */
-.resource-table-edit tbody tr td,
-.resource-table-view tbody tr td {
-  /* Constrain structure against overflow */
-  max-width: 200px;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.resource-table-edit tr {
-  overflow: hidden;
-}
-th.resource-edit-delete,
-td.resource-edit-delete {
-  /* Override screen.css */
-  padding: 0;
-  width: 40px;
-}
-td.resource-edit-delete img {
-  padding: 8px;
-}
-a.resource-edit-expand {
-  background-image: url('/images/icons/arrow-closed.gif');
-  padding-left: 13px;
-  background-position: left center;
-  background-repeat: no-repeat;
-}
-td.resource-edit {
-  padding: 10px;
-  vertical-align: top;
-}
-.resource-edit-expanded {
-  overflow: hidden;
-  margin: 0;
-}
-.resource-edit-expanded table {
-  /* Override screen.css */
-  margin: 10px 0;
-}
-table.resource-table-edit td.resource-edit tbody td {
-  /* Override alternating background */
-  background: transparent;
-}
-td.resource-edit-delete {
-  vertical-align: top;
-  text-align: center;
-}
-td.resource-edit input {
-  /* Override forms.css */
-  width: 100%;
-}
-th.resource-edit-label {
-    width: 23%;
-    display: none;
-}
-th.resource-edit-value {
-    width: 27%;
-    display: none;
-}
-td.resource-edit-label,
-td.resource-edit-value {
-  font-size: 0.92em;
-  line-height: 1.5em;
-  padding-top: 0;
-  padding-bottom: 4px;
-  background: inherit;
-}
-td.resource-edit-label {
-  text-align: right; 
-  font-weight: bold;
-  padding-right: 4px;
-  vertical-align: middle;
-}
-td.resource-edit-value {
-  padding-left: 4px; 
-  border-left: 1px dashed #aaa;
-}
 
 
 /* ==================== */
@@ -1118,11 +1069,11 @@ td.resource-edit-value {
   /* Show only one field */
   display: none;
 }
-.dataset-create-form fieldset#basic-information {
+.dataset-create-form fieldset#basic-information,
+.dataset-create-form fieldset#resources {
   display: block;
-}
-.dataset-create-form .edit-summary {
-  display: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 .dataset-create-form dt.homepage-label,
 .dataset-create-form dd.homepage-field,
@@ -1136,23 +1087,17 @@ td.resource-edit-value {
 {
   display: none;
 }
-.dataset-create-form dt.description-label,
-.dataset-create-form dd.description-field,
-.dataset-create-form dd.description-instructions 
-{
-  display: none;
-}
-.dataset-create-form dt.license-label,
-.dataset-create-form dd.license-field,
-.dataset-create-form dd.license-instructions 
-{
-  display: none;
+dd.license-instructions {
+  font-size: 11px;
 }
 .dataset-create-form dd.name-field {
   padding-top: 0.2em;
 }
 .dataset-create-form dd.name-field p {
   margin-bottom: 4px;
+}
+.dataset-create-form .description-field textarea {
+  height: 70px;
 }
 
 .group-create-form dd.name-field {
@@ -1165,6 +1110,25 @@ td.resource-edit-value {
 a.url-edit {
   font-weight: normal;
   margin-left: 10px;
+}
+p.url-is-long {
+  color: #600;
+  display: none;
+  font-size: 11px;
+  font-weight: bold;
+}
+div.author-box,
+label.edit-summary {
+  font-size: 11px;
+  color: #666;
+}
+#log_message {
+  height: 40px;
+  color: #666;
+  font-size: 11px;
+}
+#log_message:focus {
+  color: #000;
 }
 
 
@@ -1287,31 +1251,35 @@ body.package.read #sidebar li.widget-container {
   border: 0
 }
 .notes {
-  padding: 8px; 
-  border-left: 2px solid #eee;
   background: url('../images/ldquo.png') no-repeat top left #f7f7f7;
+  border: 1px solid #eee;
+  border-radius: 5px;
 }
-.notes #notes-toggle a {
+.notes > div {
+  padding: 8px;
+}
+#notes-toggle {
+  padding: 0;
+  height: 23px;
+}
+.notes #notes-toggle button {
   cursor: pointer;
+  width: 100%;
+  height: 23px;
+  padding: 4px;
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid #eee;
 }
-.notes #notes-toggle a.more:after {
-  content: '  »';
-  font-size: 150%;
-  position: relative;
-  bottom: -1px;
-}
-.notes #notes-toggle a.less:before {
-  content: '« ';
-  font-size: 150%;
-  position: relative;
-  bottom: -1px;
-}
-
 #notes-extract p {
   margin-bottom: 0;
 }
 #notes-remainder {
-  margin-top: 1em;
+  overflow: hidden;
+  padding: 0 8px;
+}
+#notes-remainder p:last-child {
+  margin-bottom: 0;
 }
 .dataset-label {
   font-weight: bold;
@@ -1449,3 +1417,185 @@ body.authz form button {
     color:#999;
 
 }
+
+
+
+
+
+
+/* Dev */
+fieldset#resources {
+  min-height: 430px;
+  margin-bottom: 40px;
+  position: relative;
+  padding: 0;
+}
+body.editresources fieldset#resources > .instructions {
+  display: none;
+}
+fieldset#resources > .instructions {
+  width: 300px;
+  padding: 12px 12px 2px 12px;
+}
+.resource-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.resource-list li {
+  background: #fff;
+  border: 0;
+  border: 1px solid #eee;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-right: 0;
+  position: relative;
+  margin: 0 20px 0 0;
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  font-weight: bold;
+}
+.resource-list li:last-child {
+  border-bottom-color: transparent;
+}
+.resource-list li a {
+  display: block;
+  padding: 5px 10px;
+  color: #333;
+}
+.resource-list li:hover a{
+  color: #B22;
+}
+.resource-list li:hover {
+  background: #f7f7f7;
+}
+.resource-list li.active {
+  border-color: #888;
+  background: #f9f9f9;
+  margin-right: 0;
+}
+
+
+/* HasErrors */
+.resource-list li.hasErrors {
+  border-color: #c00;
+  border-right: 1px solid #c00;
+}
+.resource-list li.active.hasErrors {
+  border-right: 0;
+}
+.resource-list li.hasErrors .drag-bars,
+.resource-list li.hasErrors a {
+  color: #c00;
+}
+.resource-errors {
+  display: none;
+}
+.resource-errors dl {
+  margin-bottom: 0;
+}
+body.editresources .error-explanation {
+  /* Let JS render the resource errors inline */
+  display: none;
+}
+
+
+/* While dragging.... */
+.resource-list-edit li.ui-sortable-helper {
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+}
+.resource-list-edit li.ui-sortable-helper.active {
+  margin-right: 20px;
+  border-right: 1px solid #888;
+}
+.resource-list-add,
+.resource-list-edit {
+  width: 400px;
+}
+.resource-list-add {
+  margin-top: 20px;
+}
+.resource-list-add li {
+  border-top: 1px solid #eee;
+}
+.resource-list-add li.active {
+  border-bottom-color: #888;
+}
+.resource-list-add li a {
+  padding-left: 43px;
+}
+.resource-list-edit li a {
+  padding-left: 0;
+}
+.resource-list-edit li:hover .drag-bars {
+  color: #999;
+}
+
+button.resource-edit-delete {
+  float: right;
+}
+
+
+
+/* Right-hand-side edit resource panel */
+/* ----------------------------------- */
+.resource-panel {
+  background: #f9f9f9;
+  border: 1px solid #888;
+  box-shadow: 2px 2px 4px #888;
+  margin-bottom: 20px;
+  position: absolute;
+  left: 399px;
+  top: 0px;
+  padding: 10px;
+  min-height: 100px;
+  min-width: 530px;
+}
+.resource-panel .resource-panel-close {
+  position: absolute;
+  right: -8px;
+  top: -12px;
+  width: 20px;
+  padding: 0;
+  text-align: center;
+}
+.resource-panel .hint {
+  font-size: 11px;
+}
+.resource-details input[type="text"] {
+  width: 350px;
+}
+.resource-details .markdown-editor {
+  width: 30em;
+}
+.resource-details textarea {
+  width: 340px;
+  height: 90px;
+}
+.resource-details .dataset-label {
+  vertical-align: top;
+}
+.resource-details.resource-add {
+  margin-bottom: 30px;
+}
+
+/* Resource extra fields */
+/* --------------------- */
+.dynamic-extras .add-resource-extra {
+  margin-left: 320px;
+}
+.dynamic-extras .dynamic-extra {
+  margin: 1px 15px;
+}
+.dynamic-extras .remove-resource-extra {
+  padding: 0 7px;
+  font-size: 8px;
+}
+.dynamic-extras input.strikethrough {
+  text-decoration: line-through;
+}
+.dynamic-extras input[type="text"] {
+  width: 200px;
+}
+

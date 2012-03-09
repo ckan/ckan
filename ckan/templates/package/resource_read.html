@@ -46,7 +46,9 @@
 
   <div py:match="content">
     <div class="notes" property="rdfs:label">
-      ${c.resource.get('description') or '(No description)'}
+      <div id="notes-extract">
+        ${c.resource.get('description') or '(No description)'}
+      </div>
     </div>
 
     <div class="resource-actions span-8">
