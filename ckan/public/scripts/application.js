@@ -109,6 +109,15 @@ var CKAN = CKAN || {};
         distance: 10
       });
       $( ".drag-drop-list" ).disableSelection();
+
+      // Highlight form errors in the tab buttons
+      for (field_id in form_errors) {
+        var field = $('#'+field_id);
+        if (field !== undefined) {
+          var fieldset_id = field.parents('fieldset').last().attr('id');
+          $('#section-'+fieldset_id).addClass('fieldset_button_error');
+        }
+      }
     }
 
     var isGroupEdit = $('body.group.edit').length > 0;
@@ -945,10 +954,9 @@ CKAN.Utils = function($, my) {
         input_box.attr('name', new_name)
         input_box.attr('id', new_name)
 
-        var capacity = $("input:radio[name=add-user-capacity]:checked").val();
         parent_dd.before(
           '<input type="hidden" name="' + old_name + '" value="' + ui.item.value + '">' +
-          '<input type="hidden" name="' + old_name.replace('__name','__capacity') + '" value="' + capacity + '">' +
+          '<input type="hidden" name="' + old_name.replace('__name','__capacity') + '" value="editor">' +
           '<dd>' + ui.item.label + '</dd>'
         );
 
@@ -1149,7 +1157,7 @@ CKAN.Utils = function($, my) {
 /* ==================== */
 /* == Data Previewer == */
 /* ==================== */
-CKAN.DataPreview = function ($, my) {
+CKAN.DataPreview = function ($) {
   my.jsonpdataproxyUrl = 'http://jsonpdataproxy.appspot.com/';
   my.dialogId = 'ckanext-datapreview';
   my.$dialog = $('#' + my.dialogId);

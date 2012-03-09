@@ -371,7 +371,6 @@ def revision_show(context, data_dict):
 
 def group_show(context, data_dict):
     '''Shows group details'''
-
     model = context['model']
     id = data_dict['id']
     api = context.get('api_version') or '1'
@@ -910,7 +909,7 @@ def get_site_user(context, data_dict):
 def roles_show(context, data_dict):
     '''Returns the roles that users (and authorization groups) have on a
     particular domain_object.
-    
+
     If you specify a user (or authorization group) then the resulting roles
     will be filtered by those of that user (or authorization group).
 
@@ -1019,6 +1018,19 @@ def group_activity_list(context, data_dict):
     group_id = data_dict['id']
     query = model.Session.query(model.Activity)
     query = query.filter_by(object_id=group_id)
+    query = query.order_by(desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+    return model_dictize.activity_list_dictize(activity_objects, context)
+
+def recently_changed_packages_activity_list(context, data_dict):
+    '''Return an activity stream of all recently added or updated packages as
+    a list of dicts.
+
+    '''
+    model = context['model']
+    query = model.Session.query(model.Activity)
+    query = query.filter(model.Activity.activity_type.endswith('package'))
     query = query.order_by(desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
@@ -1180,4 +1192,16 @@ def group_activity_list_html(context, data_dict):
 
     '''
     activity_stream = group_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)
+
+def recently_changed_packages_activity_list_html(context, data_dict):
+    '''Return an HTML rendering of the activity stream of all recently added
+    or updated packages.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page.
+
+    '''
+    activity_stream = recently_changed_packages_activity_list(context,
+            data_dict)
     return _activity_list_to_html(context, activity_stream)

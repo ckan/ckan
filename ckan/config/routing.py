@@ -131,13 +131,13 @@ def make_map():
         m.connect('/util/status', action='status')
 
     ## Webstore
-    if config.get('ckan.webstore.enabled', False):
-        map.connect('webstore_read', '/api/data/{id}{url:(/.*)?}',
-            controller='webstore', action='read', url='',
+    if config.get('ckan.datastore.enabled', False):
+        map.connect('datastore_read', '/api/data/{id}{url:(/.*)?}',
+            controller='datastore', action='read', url='',
             conditions={'method': ['GET']}
             )
-        map.connect('webstore_write', '/api/data/{id}{url:(/.*)?}',
-            controller='webstore', action='write', url='',
+        map.connect('datastore_write', '/api/data/{id}{url:(/.*)?}',
+            controller='datastore', action='write', url='',
             conditions={'method': ['PUT','POST', 'DELETE']}
             )
 

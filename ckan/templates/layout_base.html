@@ -186,7 +186,7 @@
           <div class="textwidget">
             <ul>
 <?python
-  current_url = request.environ['CKAN_CURRENT_URL'].encode('utf-8')
+  current_url = request.environ['CKAN_CURRENT_URL']
 ?>
               <li py:for="locale in h.get_available_locales()">
               <a href="${h.url(current_url, locale=str(locale))}">

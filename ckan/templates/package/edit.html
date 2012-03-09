@@ -7,15 +7,21 @@
   <py:def function="page_heading">Edit: ${c.pkg.title or c.pkg.name}</py:def>
 
   <py:def function="body_class">no-sidebar</py:def>
+  <py:def function="optional_head">
+    <script>
+      var preload_dataset = ${h.literal(c.pkg_json)};
+      var form_errors = ${c.errors_json};
+    </script>
+  </py:def>
 
   <py:match path="primarysidebar">
     <li class="widget-container widget_text">
       <ul class="dataset-edit-nav">
         <!-- One button for each fieldset -->
-        <li><a href="#section-basic-information">Basic Information</a></li>
-        <li><a href="#section-further-information">Further Information</a></li>
-        <li><a href="#section-extras">Extra Fields</a></li>
-        <li py:if="c.is_sysadmin or c.auth_for_change_state"><a href="#section-delete">Delete</a></li>
+        <li id="section-basic-information"><a href="#section-basic-information">Basic Information</a></li>
+        <li id="section-further-information"><a href="#section-further-information">Further Information</a></li>
+        <li id="section-extras"><a href="#section-extras">Extras</a></li>
+        <li id="section-delete" py:if="c.is_sysadmin or c.auth_for_change_state"><a href="#section-delete">Delete</a></li>
       </ul>
     </li>
   </py:match>

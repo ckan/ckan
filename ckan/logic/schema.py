@@ -186,6 +186,13 @@ def default_group_schema():
         '__extras': [ignore],
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
+            "title":[ignore_missing, unicode],
+            "name":[ignore_missing, unicode],
+            "__extras": [ignore]
+        },
+         'groups': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
             "__extras": [ignore]
         },
         'users': {
@@ -206,13 +213,14 @@ def group_form_schema():
     #schema['extras_validation'] = [duplicate_extras_key, ignore]
     schema['packages'] = {
         "name": [not_empty, unicode],
+        "title": [ignore_missing],
         "__extras": [ignore]
     }
     schema['users'] = {
         "name": [not_empty, unicode],
-        "capacity": [ignore_missing],        
+        "capacity": [ignore_missing],
         "__extras": [ignore]
-    }    
+    }
     return schema
 
 

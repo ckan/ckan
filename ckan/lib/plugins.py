@@ -54,8 +54,11 @@ def register_package_plugins(map):
     exception will be raised.
     """
     global _default_package_plugin
-    if _default_package_plugin:
-        # we've already set things up
+
+    # This function should have not effect if called more than once.
+    # This should not occur in normal deployment, but it may happen when
+    # running unit tests.
+    if _default_package_plugin is not None:
         return
 
     # Create the mappings and register the fallback behaviour if one is found.
@@ -100,6 +103,12 @@ def register_group_plugins(map):
     exception will be raised.
     """
     global _default_group_plugin
+
+    # This function should have not effect if called more than once.
+    # This should not occur in normal deployment, but it may happen when
+    # running unit tests.
+    if _default_group_plugin is not None:
+        return
 
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IGroupForm):

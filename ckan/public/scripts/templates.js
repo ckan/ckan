@@ -101,15 +101,15 @@ CKAN.Templates.resourceDetails = ' \
           </td> \
         </tr> \
         <tr> \
-          <td class="dataset-label" property="rdfs:label">'+CKAN.Strings.url+'</td> \
-          <td class="dataset-details" property="rdf:value"> \
-            {{if resource.resource_type=="file.upload"}} \
-              ${resource.url} \
-              <input name="resources__${num}__url" type="hidden" value="${resource.url}" /> \
-            {{/if}} \
-            {{if resource.resource_type!="file.upload"}} \
-              <input name="resources__${num}__url" type="text" value="${resource.url}" class="long" /> \
-            {{/if}} \
+          <td title="${resource.url_error}" property="rdfs:label" class="dataset-label resource-edit-label{{if resource.url_error}} field_warning{{/if}}">'+CKAN.Strings.url+'</td> \
+          <td class="dataset-details resource-edit-value" colspan="3" property="rdf:value"> \
+          {{if resource.resource_type=="file.upload"}} \
+            ${resource.url} \
+            <input name="resources__${num}__url" type="hidden" value="${resource.url}" /> \
+          {{/if}} \
+          {{if resource.resource_type!="file.upload"}} \
+            <input name="resources__${num}__url" type="text" value="${resource.url}" class="long" title="${resource.url_error}" /> \
+          {{/if}} \
           </td> \
         </tr> \
         </tr><tr> \
