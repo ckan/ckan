@@ -273,12 +273,6 @@ def tag_string_convert(key, data, errors, context):
     and parses tag names. These are added to the data dict, enumerated. They
     are also validated.'''
 
-    tag_string = data[key]
-
-    tags = [tag.strip() \
-            for tag in tag_string.split(',') \
-            if tag.strip()]
-
     if isinstance(data[key], basestring):
         tags = [tag.strip() \
                 for tag in data[key].split(',') \

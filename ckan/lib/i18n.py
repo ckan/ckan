@@ -100,7 +100,7 @@ def handle_request(request, tmpl_context):
     # remember this because repoze.who does it's own redirect.
     try:
         if request.cookies.get('ckan_lang') != lang:
-            response.set_cookie('ckan_lang', lang, max_age=3600)
+            response.set_cookie('ckan_lang', lang)
     except AttributeError:
         # when testing FakeRequest does not have cookies
         pass
