@@ -135,7 +135,16 @@ CKAN.Templates.resourceDetails = ' \
               </select> \
             {{/if}} \
           </td> \
-        </tr><tr> \
+        </tr> \
+        <tr> \
+          <td class="dataset-label" property="rdfs:label">'+CKAN.Strings.datastoreEnabled+'</td> \
+          <td class="dataset-details" property="rdf:value"> \
+            <input type="checkbox" class="js-datastore-enabled-checkbox" /> \
+            <input type="hidden" name="resources__${num}__webstore_url" value="${resource.webstore_url}" class="js-datastore-enabled-text" /> \
+            <div class="hint">Whether a <a href="http://docs.ckan.org/en/latest/storage/datastore.html" target="_blank">DataStore table and Data API</a> are enabled for this resource</div> \
+          </td> \
+        </tr> \
+        <tr> \
           <td class="dataset-label" property="rdfs:label">'+CKAN.Strings.lastModified+'</td> \
           <td class="dataset-details" property="rdf:value"> \
             <input name="resources__${num}__last_modified" type="text" value="${resource.last_modified}" /> \

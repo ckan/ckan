@@ -412,17 +412,21 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     resource.view.removeFromDom();
     delete resource.view;
     this.openFirstPanel();
-  },
+  }
 });
 
 
 /* ============================== */
 /* == Backbone View: Resource == */
 /* ============================== */
+
 CKAN.View.Resource = Backbone.View.extend({
   initialize: function() {
-    _.bindAll(this,'updateName','updateIcon','name','askToDelete','openMyPanel','setErrors','setupDynamicExtras','addDynamicExtra');
-    // Generate DOM elements
+    this.el = $(this.el);
+    _.bindAll(this,'updateName','updateIcon','name','askToDelete','openMyPanel','setErrors','setupDynamicExtras','addDynamicExtra', 'onDatastoreEnabledChange');
+    this.render();
+  },
+  render: function() {
     this.raw_resource = this.model.toTemplateJSON();
     var resource_object = { 
         resource: this.raw_resource,
@@ -439,6 +443,7 @@ CKAN.View.Resource = Backbone.View.extend({
           , ['example', 'Example']
         ]
     };
+    // Generate DOM elements
     this.li = $($.tmpl(CKAN.Templates.resourceEntry, resource_object));
     this.table = $($.tmpl(CKAN.Templates.resourceDetails, resource_object));
 
@@ -450,12 +455,15 @@ CKAN.View.Resource = Backbone.View.extend({
     // Hook to changes in format
     this.formatBox = this.table.find('input.js-resource-edit-format');
     CKAN.Utils.bindInputChanges(this.formatBox,this.updateIcon);
-    // Hook to delete button
-    this.table.find('.js-resource-edit-delete').click(this.askToDelete);
     // Hook to open panel link
     this.li.find('.resource-open-my-panel').click(this.openMyPanel);
+    this.table.find('.js-resource-edit-delete').click(this.askToDelete);
+    this.table.find('.js-datastore-enabled-checkbox').change(this.onDatastoreEnabledChange);
     // Hook to markdown editor
     CKAN.Utils.setupMarkdownEditor(this.table.find('.markdown-editor'));
+    if (resource_object.resource.webstore_url) {
+      this.table.find('.js-datastore-enabled-checkbox').prop('checked', true);
+    }
 
     // Set initial state
     this.updateName();
@@ -651,6 +659,12 @@ CKAN.View.Resource = Backbone.View.extend({
   removeFromDom: function() {
     this.li.remove();
     this.table.remove();
+  },
+  onDatastoreEnabledChange: function(e) {
+    var isChecked = this.table.find('.js-datastore-enabled-checkbox').prop('checked');
+    var webstore_url = isChecked ? 'enabled' : null;
+    this.model.set({webstore_url: webstore_url});;
+    this.table.find('.js-datastore-enabled-text').val(webstore_url);
   }
 });
 
