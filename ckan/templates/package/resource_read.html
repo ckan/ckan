@@ -11,6 +11,8 @@
   about=""
   py:strip="">
 
+  <xi:include href="../_snippet/data-api-help.html" />
+
   <py:def function="optional_head">
     <!-- data preview -->
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/data-explorer.css')}" />
@@ -79,13 +81,19 @@
           </py:otherwise>
         </py:choose>
       </a>
-      <py:if test="c.resource.get('webstore_url')">
-        <a class="btn btn-success">Data API</a>
-      </py:if>
-      <py:if test="not c.resource.get('webstore_url')">
-        <a class="btn disabled" rel="tooltip" title="Data API is unavailable for this resource as DataStore is disabled">Data API</a>
+      <py:if test="config.get('ckan.datastore.enabled', False)">
+        <py:if test="c.resource.get('webstore_url')">
+          <a class="btn btn-success" data-toggle="modal" href=".modal-data-api-help">Data API</a>
+        </py:if>
+        <py:if test="not c.resource.get('webstore_url')">
+          <a class="btn disabled" rel="tooltip" title="Data API is unavailable for this resource as DataStore is disabled">Data API</a>
+        </py:if>
       </py:if>
     </div>
+
+  <py:if test="config.get('ckan.datastore.enabled', False)">
+    ${data_api_help(c.datastore_api)}
+  </py:if>
 
     <div class="quick-info">
       <dl>

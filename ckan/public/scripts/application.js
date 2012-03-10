@@ -15,6 +15,8 @@ var CKAN = CKAN || {};
       CKAN.Utils.setupFormatAutocomplete($(this));
     });
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor'));
+    // bootstrap collapse
+    $('.collapse').collapse();
     // set up ckan js
     var config = {
       endpoint: CKAN.SITE_URL + '/'
