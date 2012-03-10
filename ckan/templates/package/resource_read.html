@@ -32,6 +32,22 @@
       }
     </style>
     <!-- /data preview -->
+    <style type="text/css">
+      .resource-actions {
+        margin-right: 0;
+      }
+      .resource-actions .btn {
+        position: relative;
+        bottom: 3px;
+        padding: 8px 10px;
+      }
+      .resource-actions .download {
+        display: inline;
+      }
+      .resource-actions .download img {
+        margin: 0px 4px -4px 0;
+      }
+    </style>
     <script type="text/javascript">
       var preload_resource = ${h.literal(c.resource_json)};
     </script>
@@ -50,14 +66,25 @@
 
   <div py:match="content">
     <div class="resource-actions span-8">
-      <a py:if="c.resource.get('url')" class="pretty-button primary resource-url-analytics" href="${c.resource.get('url')}">
+      <a py:if="c.resource.get('url')" class="btn btn-primary resource-url-analytics resource-type-${c.resource.get('resource_type')}" href="${c.resource.get('url')}">
         <py:choose test="c.resource.get('resource_type')">
           <py:when test="'listing'">View</py:when>
           <py:when test="'service'">View</py:when>
           <py:when test="'api'">API Endpoint</py:when>
-          <py:otherwise><img style="margin: 4px 8px 0 0;" src="${h.icon_url('arrow-down-16')}"/><span style="position: relative; bottom: 3px;">Download</span></py:otherwise>
+          <py:otherwise>
+            <div class="download">
+              <img src="${h.icon_url('arrow-down-16')}"/>
+              Download
+            </div>
+          </py:otherwise>
         </py:choose>
-        </a>
+      </a>
+      <py:if test="c.resource.get('webstore_url')">
+        <a class="btn btn-success">Data API</a>
+      </py:if>
+      <py:if test="not c.resource.get('webstore_url')">
+        <a class="btn disabled" rel="tooltip" title="Data API is unavailable for this resource as DataStore is disabled">Data API</a>
+      </py:if>
     </div>
 
     <div class="quick-info">
