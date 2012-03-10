@@ -42,15 +42,13 @@
     ${h.resource_display_name(c.resource)} - Dataset - Resource
   </py:def>
 
-  <py:def function="page_heading">${h.dataset_display_name(c.package)} / ${h.resource_display_name(c.resource)}</py:def>
+  <py:def function="page_heading">
+    ${h.dataset_link(c.package)}
+    /
+    ${h.resource_display_name(c.resource)}
+  </py:def>
 
   <div py:match="content">
-    <div class="notes" property="rdfs:label">
-      <div id="notes-extract">
-        ${c.resource.get('description') or '(No description)'}
-      </div>
-    </div>
-
     <div class="resource-actions span-8">
       <a py:if="c.resource.get('url')" class="pretty-button primary resource-url-analytics" href="${c.resource.get('url')}">
         <py:choose test="c.resource.get('resource_type')">
@@ -64,10 +62,6 @@
 
     <div class="quick-info">
       <dl>
-        <dt>Part of dataset</dt>
-        <dd>
-          ${h.dataset_link(c.package)}
-        </dd>
         <dt>Last updated</dt>
         <dd>${h.time_ago_in_words_from_str(c.resource['last_modified'], granularity='day')}</dd>
         <dt>Format</dt>
@@ -76,13 +70,6 @@
         </dd>
         <dt>Licence</dt>
         <dd>
-          <py:choose test="">
-            <span py:when="c.pkg.license and c.pkg.license.url"><a
-                href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
-            <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
-            <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
-          </py:choose>
-
           <py:if test="c.pkg.isopen()">
               <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
                 <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
@@ -93,8 +80,22 @@
                 ${h.icon('lock')}
               </span>
           </py:if>
+
+          <py:choose test="">
+            <span py:when="c.pkg.license and c.pkg.license.url"><a
+                href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
+            <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
+            <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
+            <span py:when="not(c.pkg.license)">License unknown</span>
+          </py:choose>
         </dd>
       </dl>
+    </div>
+
+    <div class="notes" property="rdfs:label">
+      <div id="notes-extract">
+        ${c.resource.get('description') or '(No description)'}
+      </div>
     </div>
 
     <div py:if="not c.resource.get('description') and c.package.get('notes')" id="dataset-description">
