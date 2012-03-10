@@ -1,3 +1,4 @@
+import json
 from nose.tools import assert_equal
 from pylons import config
 
@@ -25,7 +26,18 @@ class TestWebstoreController(TestController, PylonsTestCase):
         offset = url_for('datastore_read', id=resource_id)
         res = self.app.get(offset)
         assert_equal(res.status, 200)
-        assert_equal(res.body, '')
+        data = json.loads(res.body)
+        assert 'error' in data
+
+        dataset.resources[0].webstore_url = 'enabled'
+        model.repo.new_revision()
+        model.Session.add(dataset.resources[0])
+        model.Session.commit()
+
+        offset = url_for('datastore_read', id=resource_id)
+        res = self.app.get(offset)
+        assert_equal(res.status, 200)
+        assert_equal(res.body, '""')
         headers = dict(res.headers)
         assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-test.ckan.net/%s?'
                 % resource_id)
@@ -44,6 +56,22 @@ class TestWebstoreController(TestController, PylonsTestCase):
         offset = url_for('datastore_write', id='does-not-exist')
         res = self.app.post(offset, status=404)
         assert res.status == 404
+
+        dataset.resources[0].webstore_url = ''
+        model.repo.new_revision()
+        model.Session.add(dataset.resources[0])
+        model.Session.commit()
+
+        offset = url_for('datastore_write', id=resource_id)
+        res = self.app.post(offset)
+        assert res.status == 200
+        print res.body
+        assert 'error' in json.loads(res.body)
+
+        dataset.resources[0].webstore_url = 'enabled'
+        model.repo.new_revision()
+        model.Session.add(dataset.resources[0])
+        model.Session.commit()
 
         offset = url_for('datastore_write', id=resource_id)
         res = self.app.post(offset)

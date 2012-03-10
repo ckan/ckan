@@ -662,6 +662,7 @@ class PackageController(BaseController):
             c.package['isopen'] = model.Package.get_license_register()[license_id].isopen()
         except KeyError:
             c.package['isopen'] = False
-
+        c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
+                qualified=True)
         return render('package/resource_read.html')
 
