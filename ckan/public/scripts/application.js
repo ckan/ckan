@@ -431,6 +431,7 @@ CKAN.View.Resource = Backbone.View.extend({
         resourceTypeOptions: [
           ['file', 'Data File']
           , ['api', 'API']
+          , ['visualization', 'Visualization']
           , ['image', 'Image']
           , ['metadata', 'Metadata']
           , ['documentation', 'Documentation']

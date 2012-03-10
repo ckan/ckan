@@ -117,7 +117,7 @@ CKAN.Templates.resourceDetails = ' \
           &nbsp;&nbsp;<img class="js-resource-icon inline-icon resource-icon" src="${resource_icon}" /> \
           </td> \
           <td class="dataset-details" property="rdf:value"> \
-            <input name="resources__${num}__format" type="text" value="${resource.format}" class="long js-resource-edit-format autocomplete-format" /> \
+            <input name="resources__${num}__format" type="text" value="${resource.format}" class="long js-resource-edit-format autocomplete-format" placeholder="e.g. csv, html, xls, rdf, ..." /> \
           </td> \
         </tr> \
         </tr><tr> \
