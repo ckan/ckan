@@ -178,6 +178,9 @@ def extras_unicode_convert(extras, context):
 name_match = re.compile('[a-z0-9_\-]*$')
 def name_validator(val, context):
     # check basic textual rules
+    if val in ['new', 'edit', 'search']:
+        raise Invalid(_('That name cannot be used'))
+
     if len(val) < 2:
         raise Invalid(_('Name must be at least %s characters long') % 2)
     if len(val) > PACKAGE_NAME_MAX_LENGTH:
