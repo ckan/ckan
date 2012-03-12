@@ -19,7 +19,7 @@ class AuthzTestBase(object):
     ENTITY_CLASS_MAP = {'dataset': model.Package,
                         'group': model.Group,
                         'package_relationship': model.PackageRelationship}
-        
+
     @classmethod
     def setup_class(self):
         setup_test_search_index()
@@ -111,10 +111,14 @@ class AuthzTestBase(object):
             str_required_in_response = '<select id="state"'
         else:
             raise NotImplementedError
+
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')}, expect_errors=True)
         tests = {}
         tests['str_required (%s)' % str_required_in_response] = bool(str_required_in_response in res)
-        tests['error string'] = bool('error' not in res)
+
+        r = res.body
+        r = r.replace('form_errors', '')
+        tests['error string'] = bool('error' not in r)
         tests['status'] = bool(res.status in (200, 201))
         tests['0 packages found'] = bool(u'<strong>0</strong> packages found' not in res)
         is_ok = False not in tests.values()
@@ -144,7 +148,7 @@ class AuthzTestBase(object):
             func = self.app.get
         elif action == 'create':
             offset = '/api/rest/%s' % (entity_type)
-            postparams = '%s=1' % json.dumps({'name': unicode(entity_name), 
+            postparams = '%s=1' % json.dumps({'name': unicode(entity_name),
                                               'title': u'newtitle'},
                                              encoding='utf8')
             func = self.app.post
@@ -189,7 +193,7 @@ class AuthzTestBase(object):
                     else:
                         offset = '/api/rest/dataset/%(entity1)s/%(type)s/%(entity2)s' % entity_properties
                     str_required_in_response = '"object": "%(entity2)s", "type": "%(type)s", "subject": "%(entity1)s"' % entity_properties
-                
+
         if user.name == 'visitor':
             environ = {}
         else:
@@ -209,7 +213,7 @@ class TestUsage(TestController, AuthzTestBase):
     '''Use case: role defaults (e.g. like ckan.net operates)
        * reader can read only
        * editor can edit most properties of a package
-       
+
     '''
     @classmethod
     def _create_test_data(cls):
@@ -307,7 +311,7 @@ class TestUsage(TestController, AuthzTestBase):
             model.add_user_to_role(visitor, model.Role.READER, entity)
             model.add_user_to_role(mrloggedin, model.Role.READER, entity)
             model.add_user_to_role(pkggroupadmin, model.Role.ADMIN, entity)
-        
+
         model.repo.commit_and_remove()
 
         assert model.Package.by_name(u'deleted').state == model.State.DELETED
@@ -327,13 +331,13 @@ class TestUsage(TestController, AuthzTestBase):
 
     def test_14_visitor_reads_stopped(self):
         self._test_cant('read', self.visitor, ['xx', 'rx', 'wx'])
-    def test_01_visitor_reads(self): 
+    def test_01_visitor_reads(self):
         self._test_can('read', self.visitor, ['rr', 'wr', 'ww'])
 
     def test_12_visitor_edits_stopped(self):
         self._test_cant('edit', self.visitor, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
         self._test_cant('edit', self.visitor, ['xx', 'rx', 'wx', 'rr', 'wr'], interfaces=['wui'])
-        
+
     def test_02_visitor_edits(self):
         self._test_can('edit', self.visitor, ['ww'], interfaces=['wui'])
         self._test_can('edit', self.visitor, [], interfaces=['rest'])
@@ -356,7 +360,7 @@ class TestUsage(TestController, AuthzTestBase):
 
     def test_user_creates(self):
         self._test_can('create', self.mrloggedin, [])
-    
+
     def test_list(self):
         # NB there is no listing of package in wui interface any more
         # NB under the new model all active packages are always visible in listings by default
@@ -380,10 +384,10 @@ class TestUsage(TestController, AuthzTestBase):
         # TODO: Discuss authorized queries for packages and resolve this issue.
         # self._test_cant('search', self.mrloggedin, ['deleted', 'xx'], entity_types=['dataset'])
         self._test_cant('search', self.mrloggedin, ['deleted'], entity_types=['dataset'])
-        
+
     def test_05_author_is_new_package_admin(self):
         user = self.mrloggedin
-        
+
         # make new package
         assert not model.Package.by_name(u'annakarenina')
         offset = url_for(controller='package', action='new')
@@ -404,16 +408,16 @@ class TestUsage(TestController, AuthzTestBase):
 
     def test_sysadmin_can_read_anything(self):
         self._test_can('read', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'])
-        
+
     def test_sysadmin_can_edit_anything(self):
         self._test_can('edit', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'])
-        
+
     def test_sysadmin_can_create_anything(self):
         self._test_can('create', self.testsysadmin, [])
 
     def test_sysadmin_can_search_anything(self):
         self._test_can('search', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entity_types=['dataset'])
-                
+
     def test_visitor_deletes(self):
         self._test_cant('delete', self.visitor, ['gets_filled'], interfaces=['wui'])
 
@@ -437,7 +441,7 @@ class TestUsage(TestController, AuthzTestBase):
 
     def test_sysadmin_purges(self):
         self._test_can('purge', self.testsysadmin, ['gets_filled'], interfaces=['rest'], entity_types=['dataset'])
-    
+
     def test_sysadmin_relationships(self):
         opts = {'interfaces': ['rest'],
                 'entity_types': ['package_relationship']}
@@ -466,7 +470,7 @@ class TestUsage(TestController, AuthzTestBase):
         self._test_can('edit', self.mrloggedin, [('ww', 'links_to', 'wr')], **opts)
         self._test_cant('edit', self.mrloggedin, [('ww', 'depends_on', 'xx')], **opts)
         #TODO self._test_cant('delete', self.mrloggedin, [('ww', 'links_to', 'wr')], **opts)
-        
+
     def test_visitor_relationships(self):
         opts = {'interfaces': ['rest'],
                 'entity_types': ['package_relationship']}
@@ -577,7 +581,7 @@ class TestSiteRead(TestController, AuthzTestBase):
         self._test_cant('search', self.outcast, self.ENTITY_NAME, entity_types=['dataset']) # cannot search groups
         self._test_cant('read', self.outcast, self.ENTITY_NAME, entity_types=['tag'])
 
-        
+
 class TestLockedDownViaRoles(TestController):
     '''Use case:
            * 'Visitor' has no edit rights
@@ -593,17 +597,17 @@ class TestLockedDownViaRoles(TestController):
             .filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
         for role in q:
             model.Session.delete(role)
-        
+
         q = model.Session.query(model.RoleAction).filter(model.RoleAction.role==model.Role.READER)
         for role_action in q:
             model.Session.delete(role_action)
-        
+
         model.repo.commit_and_remove()
         setup_test_search_index()
         TestUsage._create_test_data()
         model.Session.remove()
         self.user_name = TestUsage.mrloggedin.name.encode('utf-8')
-    
+
     def _check_logged_in_users_authorized_only(self, offset):
         '''Checks the offset is accessible to logged in users only.'''
         res = self.app.get(offset, extra_environ={})
@@ -613,7 +617,7 @@ class TestLockedDownViaRoles(TestController):
 
     def test_home(self):
         self._check_logged_in_users_authorized_only('/')
-    
+
     def test_tags_pages(self):
         self._check_logged_in_users_authorized_only('/tag')
         self._check_logged_in_users_authorized_only('/tag/test')
@@ -626,7 +630,7 @@ class TestLockedDownViaRoles(TestController):
         self._check_logged_in_users_authorized_only('/user/' + self.user_name)
         res = self.app.get('/user/login', extra_environ={})
         assert res.status in [200], res.status
-    
+
     def test_new_package(self):
         offset = url_for(controller='package', action='new')
         self._check_logged_in_users_authorized_only(offset)

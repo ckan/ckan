@@ -9,7 +9,7 @@
 <h2>Errors in form</h2>
 <p>The form contains invalid entries:</p>
 <ul>
-  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}
+  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key if not key=='Name' else 'URL', error)}
     <py:if test="key=='Resources'">
       <ul>
         <py:for each="idx, errordict in enumerate(errors.get('resources', []))">
@@ -23,6 +23,7 @@
       </ul>
     </py:if>
   </li>
+  <script>var global_form_errors = ${h.dump_json(errors)};</script>
 </ul>
 </div>
 
@@ -41,9 +42,10 @@
 
     <dt class="name-label"><label class="field_req" for="name">Url</label></dt>
     <dd class="name-field">
-      <span class="js-url-text url-text">${h.url(controller='package', action='search')+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a href="#" style="display: none;" class="url-edit js-url-editlink js-url-viewmode">(edit)</a></span>
+      <span class="url-text">${h.url(controller='package', action='search')+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a href="#" class="url-edit js-url-viewmode">(edit)</a></span>
       <input style="display: none;" id="name" maxlength="100" name="name" type="text" class="url-input js-url-editmode js-url-input" value="${data.get('name', '')}" />
       <p class="js-url-is-valid">&nbsp;</p>
+      <p class="url-is-long">Warning: URL is very long. Consider changing it to something shorter.</p>
     </dd>
     <dd style="display: none;" class="js-url-editmode name-instructions basic">2+ characters, lowercase, using only 'a-z0-9' and '-_'</dd>
     <dd class="js-url-editmode name-instructions field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
@@ -62,7 +64,7 @@
         </py:for>
       </select>
     </dd>
-    <dd class="license-instructions instructions basic">The licence under which the dataset is released.</dd>
+    <dd class="license-instructions instructions basic">(Don't worry if you don't know which license the data has been released under).</dd>
 
     <dt class="description-label"><label class="field_opt" for="notes">Description</label></dt>
     <dd class="description-field"><div class="markdown-editor">
@@ -78,63 +80,39 @@
       <dd class="instructions further">It is often displayed with the dataset title. In particular, it should start with a short sentence that describes the dataset succinctly, because the first few words alone may be used in some views of the datasets.</dd>
       -->
     </div></dd>
-  </dl>
-</fieldset>
+    <dt class="groups-label">
+      Groups
+    </dt>
+    <dd class="groups-field">
+      <dl>
+        <py:for each="num, group in enumerate(data.get('groups', []))">
+            <?python
+            authorized_group = [group_authz for group_authz in c.groups_authz if group_authz['id'] == group['id']]
+            authorized_group = authorized_group[0] if authorized_group else None
+            ?>
 
-<fieldset id="resources">
-  <div class="instructions basic"><h3>Resources: the files and APIs associated with this dataset</h3></div>
-  <table class="resource-table-edit">
-    <thead>
-      <tr>
-        <th class="field_req resource-url">Resource</th>
-        <th class="resource-delete-link"></th>
-      </tr>
-    </thead>
-    <tbody class="js-resource-editor">
-    </tbody>
-  </table>
-
-
-  <div class="resource-add">
-    <ul class="button-row">
-      <li><h4>Add a resource:</h4></li>
-      <li><button class="pretty-button js-link-file">Link to a file</button></li>
-      <li><button class="pretty-button js-link-api">Link to an API</button></li>
-      <li class="js-upload-file ckan-logged-in" style="display: none;"><button class="pretty-button js-upload-file">Upload a file</button></li>
-    </ul>
-  </div>
-</fieldset>
-
-<fieldset id="groups">
-  <h3>Groups</h3>
-  <dl>
-    <py:for each="num, group in enumerate(data.get('groups', []))">
-        <?python
-        authorized_group = [group_authz for group_authz in c.groups_authz if group_authz['id'] == group['id']]
-        authorized_group = authorized_group[0] if authorized_group else None
-        ?>
-
-      <dt py:if="'id' in group">
-      <input type="${'checkbox' if authorized_group else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}" />
-      <input type="hidden" name="groups__${num}__name" value="${group.get('name', authorized_group['name'] if authorized_group else '')}" />
-      </dt>     
-      <dd py:if="'id' in group"><label for="groups__${num}__checked">${group.get('name', authorized_group['name'] if authorized_group else '')}</label></dd>
-    </py:for>
-
-    <dt>Group</dt>
-    <dd py:if="c.groups_available"> 
-      <select id="groups__${len(data.get('groups', []))}__id" name="groups__${len(data.get('groups', []))}__id">
-        <option selected="selected" value="">(None)</option>
-        <py:for each="group in c.groups_available">
-        <option value="${group['id']}" >${group['name']}</option>
+          <dt py:if="'id' in group">
+          <input type="${'checkbox' if authorized_group else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}" />
+          <input type="hidden" name="groups__${num}__name" value="${group.get('name', authorized_group['name'] if authorized_group else '')}" />
+          </dt>     
+          <dd py:if="'id' in group"><label for="groups__${num}__checked">${group.get('name', authorized_group['name'] if authorized_group else '')}</label></dd>
         </py:for>
-      </select>
-    </dd> 
-    <dd py:if="not c.groups_available"><em>Cannot add any groups.</em></dd>
-  </dl>
-  <h3>Tags</h3>
-  <dl>
-    <dt class="tags-label"><label class="field_opt" for="tags">Tags</label></dt>
+
+        <dt>Add to:</dt>
+        <dd py:if="c.groups_available"> 
+          <select id="groups__${len(data.get('groups', []))}__id" name="groups__${len(data.get('groups', []))}__id">
+            <option selected="selected" value="">(None)</option>
+            <py:for each="group in c.groups_available">
+            <option value="${group['id']}" >${group['name']}</option>
+            </py:for>
+          </select>
+        </dd> 
+        <dd py:if="not c.groups_available"><em>Cannot add any groups.</em></dd>
+      </dl>
+    </dd>
+    <dt class="tags-label">
+      Tags
+    </dt>
     <dd class="tags-field">
       <input class="long autocomplete-tag" id="tag_string" name="tag_string" size="60" type="text" 
                value="${data.get('tag_string') or ', '.join([tag['name'] for tag in data.get('tags', []) if not tag.get('vocabulary_id')])}" />
@@ -144,6 +122,39 @@
     <dd class="tags-instructions field_error" py:if="errors.get('tag_string', '')">${errors.get('tag_string', '')}</dd>
   </dl>
 </fieldset>
+
+<fieldset id="resources">
+  <div class="instructions">
+    <h3>Add resources:</h3>
+    <p>Upload or link data files, APIs and other materials related to your dataset.</p>
+  </div>
+  <div class="js-resource-edit-barebones">
+    <!-- The resource editor deletes these fields and replaces them with a dynamic editor.
+         They are required for the form to render correctly when not in resource-edit mode. -->
+    <py:for each="num,res in enumerate(data.get('resources', []))">
+      <py:for each="field in res.keys()">
+      <input type="hidden" name="resources__${res.get('position')}__${field}" value="${res.get(field)}" />
+      </py:for>
+    </py:for>
+  </div>
+  <ul class="resource-list resource-list-edit drag-drop-list">
+  </ul>
+  <ul class="resource-list resource-list-add">
+    <li><a href="#" class="js-resource-add">${h.icon('page_white_add')}New resource...</a></li>
+  </ul>
+  <div style="display: none;" class="resource-panel">
+    <button class="pretty-button danger resource-panel-close">x</button>
+    <div class="resource-details resource-add">
+      <ul class="button-row">
+        <li><h4>Add a resource:</h4></li>
+        <li><button class="pretty-button js-link-file">Link to a file</button></li>
+        <li><button class="pretty-button js-link-api">Link to an API</button></li>
+        <li class="js-upload-file ckan-logged-in" style="display: none;"><button class="pretty-button js-upload-file">Upload a file</button></li>
+      </ul>
+    </div>
+  </div>
+</fieldset>
+
 <fieldset id='further-information'>
   <dl>
     <dt><label class="field_opt" for="author">Author</label></dt>
@@ -169,6 +180,7 @@
 </fieldset>
 
 <fieldset id='extras'>
+  <p>Adding custom fields to the dataset such as "location:uk" can help users find it in the search engine. This data will also appear under <strong>Additional Information</strong> when viewing the dataset.</p>
   <dl>
     <py:with vars="extras = data.get('extras', [])">
     <py:for each="num, extra in enumerate(data.get('extras', []))">
@@ -209,13 +221,13 @@
 
 <div id="unsaved-warning"></div>
 
-<label for="log_message" class="edit-summary">Edit summary (briefly describe the changes you have made)</label>
-<textarea id="log_message" name="log_message" class="edit-summary short wide">${data.get('log_message', '')}</textarea>
+<label for="log_message" class="edit-summary">Edit summary (briefly describe the changes you have made)...</label>
+<textarea id="log_message" name="log_message" class="edit-summary short wide">${data.get('log_message', h.auto_log_message(c))}</textarea>
 
-<div class="ckan-logged-in" style="display: none;">
+<div class="author-box ckan-logged-in" style="display: none;">
   <p>Author: ${c.author}</p>
 </div>
-<div class="ckan-logged-out">
+<div class="author-box ckan-logged-out">
   <label>Author: ${c.author}</label>
   <p i18n:msg="" class="hints">
     Since you have not signed in this will just be your IP address.

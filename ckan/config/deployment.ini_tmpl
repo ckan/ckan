@@ -111,6 +111,11 @@ ckan.site_url =
 ## Favicon (default is the CKAN software favicon)
 ckan.favicon = /images/icons/ckan.ico
 
+## The gravatar default to use.  This can be any of the pre-defined strings
+## as defined on http://en.gravatar.com/site/implement/images/ (e.g. "identicon"
+## or "mm").  Or it can be a url, e.g. "http://example.com/images/avatar.jpg"
+ckan.gravatar_default = identicon
+
 ## Solr support
 #solr_url = http://127.0.0.1:8983/solr
 

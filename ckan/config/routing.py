@@ -115,6 +115,8 @@ def make_map():
                   conditions=GET)
         m.connect('/util/resource/format_autocomplete',
                   action='format_autocomplete', conditions=GET)
+        m.connect('/util/resource/format_icon',
+                  action='format_icon', conditions=GET)
         m.connect('/util/authorizationgroup/autocomplete',
                   action='authorizationgroup_autocomplete')
         m.connect('/util/group/autocomplete', action='group_autocomplete')
@@ -175,6 +177,7 @@ def make_map():
         m.connect('/dataset/{action}/{id}',
           requirements=dict(action='|'.join([
           'edit',
+          'editresources',
           'authz',
           'history',
           'read_ajax',

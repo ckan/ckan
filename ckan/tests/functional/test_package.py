@@ -285,8 +285,6 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert name in res
         assert anna.version in res
         assert anna.url in res
-        assert cgi.escape(anna.resources[0].url) in res
-        assert anna.resources[0].description in res
         assert 'Some test notes' in res
         self.check_named_element(res, 'a',
                                  'http://ckan.net/',
@@ -374,6 +372,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         plugins.unload(plugin)
 
     def test_resource_list(self):
+        # TODO restore this test. It doesn't make much sense with the 
+        # present resource list design.
         name = 'annakarenina'
         cache_url = 'http://thedatahub.org/test_cache_url.csv'
         # add a cache_url to the first resource in the package
@@ -387,8 +387,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         # check that the cache url is included on the dataset view page
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
-        assert '[cached]'in res
-        assert cache_url in res
+        #assert '[cached]'in res
+        #assert cache_url in res
 
 
 class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
@@ -1128,7 +1128,7 @@ class TestNew(TestPackageForm):
         # don't set a name
         res = fv.submit('save')
         assert 'Error' in res, res
-        assert 'Name: Missing value' in res, res
+        assert 'URL: Missing value' in res, res
         self._assert_form_errors(res)
 
     def test_new_bad_param(self):

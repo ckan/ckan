@@ -9,8 +9,8 @@ http://ckan.org/.
  * Developer mailing list: ckan-dev@lists.okfn.org
  * Issue tracker: http://trac.ckan.org/
 
- Building Documentation
- ======================
+Building Documentation
+======================
 
 1. Install python-sphinx
 

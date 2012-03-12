@@ -371,7 +371,6 @@ def revision_show(context, data_dict):
 
 def group_show(context, data_dict):
     '''Shows group details'''
-
     model = context['model']
     id = data_dict['id']
     api = context.get('api_version') or '1'
@@ -610,7 +609,7 @@ def format_autocomplete(context, data_dict):
         .order_by('total DESC')\
         .limit(limit)
 
-    return [resource.format for resource in query]
+    return [resource.format.lower() for resource in query]
 
 def user_autocomplete(context, data_dict):
     '''Returns users containing the provided string'''
@@ -910,7 +909,7 @@ def get_site_user(context, data_dict):
 def roles_show(context, data_dict):
     '''Returns the roles that users (and authorization groups) have on a
     particular domain_object.
-    
+
     If you specify a user (or authorization group) then the resulting roles
     will be filtered by those of that user (or authorization group).
 

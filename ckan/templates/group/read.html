@@ -14,8 +14,8 @@
         <py:if test="c.group_admins">
         <li>
         <h3>Administrators</h3> 
-          <ul py:for="admin in c.group_admins">
-            <li>${h.linked_user(admin)}</li>
+          <ul class="no-break">
+            <li py:for="admin in c.group_admins">${h.linked_user(admin)}</li>
           </ul>
         </li>
         </py:if>
@@ -28,7 +28,14 @@
   <py:match path="content">
     <h3 py:if="c.group['state'] != 'active'">State: ${c.group['state']}</h3>
     <div class="notes" py:if="str(c.description_formatted).strip()">
-      ${c.description_formatted}
+      <div id="notes-extract">
+        ${c.description_formatted}
+      </div>
+      <div id="notes-remainder"></div>
+      <div id="notes-toggle" style="display: none;">
+        <button class="more pretty-button"><img src="/images/chevron-down.png"/></button>
+        <button class="less pretty-button" style="display: none;"><img src="/images/chevron-up.png"/></button>
+      </div>
     </div>
     <div class="group-dataset-list">
       <h3>Datasets</h3>
