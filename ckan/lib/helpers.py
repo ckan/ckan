@@ -42,6 +42,8 @@ except ImportError:
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
     kw['__ckan_no_root'] = True
+    if are_there_flash_messages():
+        kw['__no_cache__'] = True
     return _redirect_to(url_for(*args, **kw))
 
 def url(*args, **kw):
