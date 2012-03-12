@@ -244,9 +244,9 @@ class UserController(BaseController):
 
 
     def login(self):
-        lang = session.get('lang')
+        lang = session.pop('lang', None)
         if lang:
-            session.delete()
+            session.save()
             return h.redirect_to(locale=str(lang), controller='user', action='login')
         if 'error' in request.params:
             h.flash_error(request.params['error'])
@@ -263,7 +263,8 @@ class UserController(BaseController):
     
     def logged_in(self):
         # we need to set the language via a redirect
-        lang = session.get('lang')
+        lang = session.pop('lang', None)
+        session.save()
         if c.user:
             context = {'model': model,
                        'user': c.user}

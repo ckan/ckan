@@ -190,6 +190,12 @@ class BaseController(WSGIController):
             if cookie.startswith('ckan') and cookie not in ['ckan', 'ckan_killtopbar']:
                 response.delete_cookie(cookie)
 
+            if cookie == 'ckan' and not c.user and not h.are_there_flash_messages():
+                if session.id:
+                    if not session.get('lang'):
+                        session.delete()
+                else:
+                    response.delete_cookie(cookie)
         try:
             return WSGIController.__call__(self, environ, start_response)
         finally:
