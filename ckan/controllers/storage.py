@@ -46,6 +46,18 @@ def fix_stupid_pylons_encoding(data):
         data = m.groups()[0]
     return data
 
+def create_pairtree_marker(folder):
+    """ Creates the pairtree marker for tests if it doesn't exist """
+    directory = os.path.dirname(folder)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    target = os.path.join(directory, 'pairtree_version0_1')
+    if os.path.exists(target):
+        return
+
+    open( target, 'wb').close()
+
 
 def get_ofs():
     """Return a configured instance of the appropriate OFS driver.
@@ -56,6 +68,11 @@ def get_ofs():
         if not k.startswith('ofs.') or k == 'ofs.impl':
             continue
         kw[k[4:]] = v
+
+    # Make sure we have created the marker file to avoid pairtree issues
+    if storage_backend == 'pairtree' and 'storage_dir' in kw:
+        create_pairtree_marker( kw['storage_dir'] )
+
     ofs = get_impl(storage_backend)(**kw)
     return ofs
 
@@ -83,9 +100,13 @@ def authorize(method, bucket, key, user, ofs):
 class StorageController(BaseController):
     '''Upload to storage backend.
     '''
+    _ofs_impl = None
+
     @property
     def ofs(self):
-        return get_ofs()
+        if not StorageController._ofs_impl:
+            StorageController._ofs_impl = get_ofs()
+        return StorageController._ofs_impl
 
 
     def upload(self):
@@ -165,9 +186,14 @@ class StorageController(BaseController):
 
 
 class StorageAPIController(BaseController):
+
+    _ofs_impl = None
+
     @property
     def ofs(self):
-        return get_ofs()
+        if not StorageAPIController._ofs_impl:
+            StorageAPIController._ofs_impl = get_ofs()
+        return StorageAPIController._ofs_impl
 
     @jsonpify
     def index(self):
