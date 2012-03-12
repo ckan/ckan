@@ -42,6 +42,28 @@
       <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span>
     </div></dd>
 
+    <dt class="parent-label" py:if="c.is_superuser_or_groupadmin">
+		<label class="field_opt" for="parent">Parent publisher</label>
+	</dt>
+
+	<dd py:if="c.group and not c.is_superuser_or_groupadmin">
+		<span py:if="c.parent is not None" class="js-title">
+			${ c.parent.title }
+		</span>
+		<span py:if="c.parent is None" class="js-title">
+			No parent publisher
+		</span>
+	</dd>
+
+    <dd py:if="c.is_superuser_or_groupadmin" class="parent-field">
+		<select id="parent" name="parent" class="chzn-select" data-placeholder="Please choose a publisher">
+			<option value=""></option>
+    		<py:for each="pg in c.possible_parents">
+				<option py:attrs="{'selected': 'selected' if c.parent and pg.id == c.parent.id else None}" value="${pg.id}">${pg.title}</option>
+			</py:for>
+		</select>
+	</dd>
+
 
     <dt class="state-label" py:if="c.is_sysadmin or c.auth_for_change_state"><label class="field_opt" for="state">State</label></dt>
     <dd class="state-field" py:if="c.is_sysadmin or c.auth_for_change_state">

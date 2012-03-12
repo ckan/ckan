@@ -62,7 +62,7 @@ def get_ofs():
 
 def authorize(method, bucket, key, user, ofs):
     """
-    Check authz for the user with a given bucket/key combo within a 
+    Check authz for the user with a given bucket/key combo within a
     particular ofs implementation.
     """
     if not method in ['POST', 'GET', 'PUT', 'DELETE']:
@@ -73,7 +73,7 @@ def authorize(method, bucket, key, user, ofs):
             abort(409)
         # now check user stuff
         username = user.name if user else ''
-        is_authorized = authz.Authorizer.is_authorized(username, 'file-upload', model.System()) 
+        is_authorized = authz.Authorizer.is_authorized(username, 'file-upload', model.System())
         if not is_authorized:
             h.flash_error('Not authorized to upload files.')
             abort(401)
@@ -115,7 +115,7 @@ class StorageController(BaseController):
         params['filename-original'] = stream.filename
         #params['_owner'] = c.userobj.name if c.userobj else ""
         params['uploaded-by'] = c.userobj.name if c.userobj else ""
-        
+
         self.ofs.put_stream(bucket_id, label, stream.file, params)
         success_action_redirect = h.url_for('storage_upload_success', qualified=True,
                 bucket=BUCKET, label=label)
@@ -127,10 +127,10 @@ class StorageController(BaseController):
         label=request.params.get('label', label)
         h.flash_success('Upload successful')
         c.file_url = h.url_for('storage_file',
-                label=label, 
+                label=label,
                 qualified=True
                 )
-        c.upload_url = h.url_for('storage_upload')        
+        c.upload_url = h.url_for('storage_upload')
         return render('storage/success.html')
 
     def success_empty(self, label=None):
@@ -149,7 +149,7 @@ class StorageController(BaseController):
                 h.redirect_to(file_url)
             else:
                 abort(404)
-                
+
         file_url = self.ofs.get_url(BUCKET, label)
         if file_url.startswith("file://"):
             metadata = self.ofs.get_metadata(BUCKET, label)
@@ -168,7 +168,7 @@ class StorageAPIController(BaseController):
     @property
     def ofs(self):
         return get_ofs()
-    
+
     @jsonpify
     def index(self):
         info = {
@@ -196,12 +196,12 @@ class StorageAPIController(BaseController):
                 metadata = {}
         except:
             abort(400)
-            
+
         try:
             b = self.ofs._require_bucket(bucket)
         except:
             abort(409)
-            
+
         k = self.ofs._get_key(b, label)
         if k is None:
             k = b.new_key(label)
@@ -219,13 +219,13 @@ class StorageAPIController(BaseController):
                 self.ofs.del_metadata_keys(bucket, label, to_delete)
             self.ofs.update_metadata(bucket, label, metadata)
         else:
-            self.ofs.update_metadata(bucket, label, metadata)            
+            self.ofs.update_metadata(bucket, label, metadata)
 
         k.make_public()
         k.close()
-        
+
         return self.get_metadata(bucket, label)
-    
+
     @jsonpify
     def get_metadata(self, label):
         bucket = BUCKET
@@ -288,7 +288,7 @@ class StorageAPIController(BaseController):
             method = 'POST'
 
         authorize(method, bucket, label, c.userobj, self.ofs)
-            
+
         http_request = self.ofs.authenticate_request(method, bucket, label,
                 headers)
         return {

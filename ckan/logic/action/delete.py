@@ -64,6 +64,44 @@ def package_relationship_delete(context, data_dict):
     relationship.delete()
     model.repo.commit()
 
+
+def member_delete(context, data_dict=None):
+    """
+    Removes an object as a member of a group. If the membership already exists
+    and is active then it will be deleted.
+
+    context:
+        model - The CKAN model module
+        user  - The name of the current user
+
+    data_dict:
+        group - The ID of the group to which we want to remove object
+        object - The ID of the object being removed as a member
+        object_type - The name of the type being removed, all lowercase,
+                      e.g. package, or user
+    """
+    model = context['model']
+    user = context['user']
+
+    group_id = data_dict['group']
+    obj_id   = data_dict['object']
+    obj_type = data_dict['object_type']
+
+    if 'group' not in context:
+        context['group'] = group_id
+
+    # User must be able to update the group to remove a member from it
+    check_access('group_update', context, data_dict)
+
+    member = model.Session.query(model.Member).\
+            filter(model.Member.table_name == obj_type).\
+            filter(model.Member.table_id == obj_id).\
+            filter(model.Member.group_id == group_id).\
+            filter(model.Member.state    == "active").first()
+    if member:
+        member.delete()
+        model.repo.commit()
+
 def group_delete(context, data_dict):
 
     model = context['model']

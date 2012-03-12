@@ -11,10 +11,6 @@ log = getLogger(__name__)
 class AuthFunctions:
     _functions = {}
 
-def reset_auth_functions(type=''):
-    AuthFunctions._functions.clear()
-    _get_auth_function('resource_create', type)
-
 def is_authorized(action, context,data_dict=None):
     auth_function = _get_auth_function(action)
     if auth_function:
@@ -24,7 +20,7 @@ def is_authorized(action, context,data_dict=None):
 
 def _get_auth_function(action, profile=None):
     from pylons import config
-    
+
     if AuthFunctions._functions:
         return AuthFunctions._functions.get(action)
 
@@ -33,19 +29,19 @@ def _get_auth_function(action, profile=None):
     # Rather than writing them out in full will use __import__
     # to load anything from ckan.auth that looks like it might
     # be an authorisation function
-    
+
     # We will load the auth profile from settings
     module_root = 'ckan.logic.auth'
     if profile is not None:
         auth_profile = profile
     else:
         auth_profile = config.get('ckan.auth.profile', '')
-        
+
     if auth_profile:
         module_root = '%s.%s' % (module_root, auth_profile)
-   
+
     log.info('Using auth profile at %s' % module_root)
-    
+
     for auth_module_name in ['get', 'create', 'update','delete']:
         module_path = '%s.%s' % (module_root, auth_module_name,)
         try:

@@ -1,5 +1,6 @@
 import os, logging
 from ckan.authz import Authorizer
+from ckan.logic import check_access
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
 import ckan.logic.action.get as get
@@ -50,6 +51,9 @@ class PublisherForm(SingletonPlugin):
                                     'publisher_form', 'templates')
         config['extra_template_paths'] = ','.join([template_dir,
                 config.get('extra_template_paths', '')])
+
+        # Override /group/* as the default groups urls
+        config['ckan.default.group_type'] = 'publisher'
 
     def group_form(self):
         """
@@ -108,6 +112,7 @@ class PublisherForm(SingletonPlugin):
         use the available groups for the current user, but should be optional
         in case this is a top level group
         """
+<<<<<<< HEAD
         c.body_class = "group edit"
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         if 'group' in context:
@@ -123,16 +128,38 @@ class PublisherForm(SingletonPlugin):
                    filter(model.Group.state == 'active').\
                    filter(model.Group.type == 'publisher').\
                    filter(model.Group.name != group.id ).order_by(model.Group.title).all()
+=======
+        c.user_groups = c.userobj.get_groups('publisher')
+        local_ctx = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            check_access('group_create', local_ctx)
+            c.is_superuser_or_groupadmin = True
+        except NotAuthorized:
+            c.is_superuser_or_groupadmin = False
+
+        if 'group' in context:
+            group = context['group']
+            # Only show possible groups where the current user is a member
+            c.possible_parents = c.userobj.get_groups('publisher', 'admin')
+>>>>>>> feature-2211-publishers
 
             c.parent = None
             grps = group.get_groups('publisher')
             if grps:
                 c.parent = grps[0]
+<<<<<<< HEAD
 
             c.users = group.members_of_type(model.User)
 
 
 
+=======
+            c.users = group.members_of_type(model.User)
+
+
+>>>>>>> feature-2211-publishers
 class PublisherDatasetForm(SingletonPlugin):
     """
         This plugin implements a new publisher form for cases where we
@@ -190,24 +217,37 @@ class PublisherDatasetForm(SingletonPlugin):
         then be used within the form
         """
         c.licences = [('', '')] + model.Package.get_license_options()
-        c.publishers = [('Example publisher', 'Example publisher 2')]
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         c.resource_columns = model.Resource.get_columns()
         c.groups_available = c.userobj.get_groups('publisher') if c.userobj else []
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> feature-2211-publishers
         ## This is messy as auths take domain object not data_dict
         pkg = context.get('package') or c.pkg
         if pkg:
             c.auth_for_change_state = Authorizer().am_authorized(
                 c, model.Action.CHANGE_STATE, pkg)
+            gps = pkg.get_groups('publisher')
+            c.parent = gps[0] if gps else None
 
     def form_to_db_schema(self):
         """
         Returns the schema for mapping package data from a form to a format
         suitable for the database.
         """
+<<<<<<< HEAD
         return package_form_schema()
+=======
+        schema =  package_form_schema()
+        schema['groups'] = {
+                'name': [not_empty, val.group_id_or_name_exists, unicode],
+                'id':   [ignore_missing, unicode],
+            }
+        return schema
+>>>>>>> feature-2211-publishers
 
     def db_to_form_schema(data):
         """
