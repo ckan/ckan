@@ -45,9 +45,10 @@ def abort(status_code=None, detail='', headers=None, comment=None):
                   headers=headers, 
                   comment=comment)
 
-def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
-           cache_expire=None, method='xhtml', loader_class=MarkupTemplate):
-    
+def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
+           cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
+           cache_force = None):
+
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
@@ -61,20 +62,62 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         template = globs['app_globals'].genshi_loader.load(template_name,
             cls=loader_class)
         stream = template.generate(**globs)
-        
+
         for item in PluginImplementations(IGenshiStreamFilter):
             stream = item.filter(stream)
-        
+
         return literal(stream.render(method=method, encoding=None, strip_whitespace=False))
-    
+
     if 'Pragma' in response.headers:
         del response.headers["Pragma"]
-    if cache_key is not None or cache_type is not None:
-        response.headers["Cache-Control"] = "public"  
-    
-    if cache_expire is not None:
-        response.headers["Cache-Control"] = "max-age=%s, must-revalidate" % cache_expire
-    
+
+    if asbool(config.get('ckan.template_cache_enabled')):
+        allow_cache = True
+        # force cache or not if explicit
+        if cache_force is not None:
+            allow_cache = cache_force
+        # do not allow caching of pages for logged in users/flash messages etc
+        elif session.last_accessed:
+            allow_cache = False
+        # don't cache if based on a non-cachable template used in this
+        elif request.environ.get('__no_cache__'):
+            allow_cache = False
+        # don't cache if we have set the __no_cache__ param in the query string
+        elif request.params.get('__no_cache__'):
+            allow_cache = False
+        # don't cache if we have extra vars containing data
+        elif extra_vars:
+            for k, v in extra_vars.iteritems():
+                allow_cache = False
+                break
+    else:
+        allow_cache = False
+
+    if allow_cache:
+        request.environ['CKAN_PAGE_CACHABLE'] = True
+        response.headers["Cache-Control"] = "public"
+
+        if cache_expire is None:
+            try:
+                cache_expire = int(config.get('ckan.cache_expires'))
+                cache_type = config.get('ckan.cache_type', 'memory')
+            except ValueError:
+                pass
+        if cache_expire is not None:
+            response.headers["Cache-Control"] += ",max-age=%s, must-revalidate" % cache_expire
+        if cache_expire or cache_type or cache_key:
+            if cache_key:
+                cache_key += '_' + h.lang()
+            else:
+                cache_key = h.lang()
+            cache_key += '_?_' + request.environ.get('QUERY_STRING', '')
+    else:
+        # we do not want caching
+        response.headers["Cache-Control"] = ["private"]
+        cache_key = cache_type = cache_expire = None
+        request.environ['__no_cache__'] = True
+
+    # render time :)
     try:
         return cached_template(template_name, render_template, cache_key=cache_key,
                            cache_type=cache_type, cache_expire=cache_expire)
