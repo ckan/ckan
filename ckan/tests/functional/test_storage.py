@@ -5,18 +5,7 @@ from ckan.config.middleware import make_app
 import ckan.model as model
 from ckan.tests import conf_dir, url_for, CreateTestData
 from ckan.controllers.admin import get_sysadmins
-
-def create_marker(folder):
-    """ Creates the pairtree marker for tests if it doesn't exist """
-    directory = os.path.dirname(folder)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    target = os.path.join(folder, 'pairtree_version0_1')
-    if os.path.exists(target):
-        return
-
-    open( target, 'w').close()
+from ckan.controllers.storage import create_pairtree_marker
 
 
 class TestStorageAPIController:
@@ -29,7 +18,7 @@ class TestStorageAPIController:
         config.local_conf['ofs.impl'] = 'pairtree'
         config.local_conf['ckan.storage.bucket'] = 'ckantest'
         config.local_conf['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
-        create_marker( config.local_conf['ofs.storage_dir'] )
+        create_pairtree_marker( config.local_conf['ofs.storage_dir'] )
         wsgiapp = make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
@@ -58,7 +47,7 @@ class TestStorageAPIControllerLocal:
         config.local_conf['ckan.storage.bucket'] = 'ckantest'
         config.local_conf['ofs.impl'] = 'pairtree'
         config.local_conf['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
-        create_marker( config.local_conf['ofs.storage_dir'] )
+        create_pairtree_marker( config.local_conf['ofs.storage_dir'] )
         wsgiapp = make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)
         CreateTestData.create()
