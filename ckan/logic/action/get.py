@@ -100,6 +100,54 @@ def package_revision_list(context, data_dict):
                                                      include_groups=False))
     return revision_dicts
 
+def member_list(context, data_dict=None):
+    """
+    Returns a list of (id,type,capacity) tuples that are members of the
+    specified group if the user has permission to 'get' the group.
+
+    context:
+        model - The CKAN model module
+        user  - The name of the current user
+
+    data_dict:
+        group - The ID of the group to which we want to list members
+        object_type - The optional name of the type being added, all lowercase,
+                      e.g. package, or user
+        capacity - The optional capacity of objects that we want to retrieve
+    """
+    model = context['model']
+    user = context['user']
+
+    group_id = data_dict['group']
+    obj_type = data_dict.get('object_type', None)
+    capacity = data_dict.get('capacity', None)
+
+    # User must be able to update the group to remove a member from it
+    if 'group' not in context:
+        context['group'] = group_id
+    check_access('group_show', context, data_dict)
+
+    q = model.Session.query(model.Member).\
+            filter(model.Member.group_id == group_id).\
+            filter(model.Member.state    == "active")
+
+    if obj_type:
+        q = q.filter(model.Member.table_name == obj_type)
+    if capacity:
+        q = q.filter(model.Member.capacity == capacity)
+
+    lookup = {}
+    def type_lookup(name):
+        if name in lookup:
+            return lookup[name]
+        if hasattr(model, name.title()):
+            lookup[name] = getattr(model,name.title())
+            return lookup[name]
+        return None
+
+    return [ (m.table_id, type_lookup(m.table_name) ,m.capacity,)
+             for m in q.all() ]
+
 def group_list(context, data_dict):
     '''Returns a list of groups'''
 
@@ -866,13 +914,13 @@ def task_status_show(context, data_dict):
 def term_translation_show(context, data_dict):
     model = context['model']
 
-    trans_table = model.term_translation_table 
+    trans_table = model.term_translation_table
 
     q = select([trans_table])
 
     if 'term' not in data_dict:
         raise ValidationError({'term': 'term not it data'})
-    
+
     q = q.where(trans_table.c.term == data_dict['term'])
 
     if 'lang_code' in data_dict:

@@ -155,6 +155,57 @@ def package_relationship_create(context, data_dict):
     relationship_dicts = rel.as_dict(ref_package_by=ref_package_by)
     return relationship_dicts
 
+def member_create(context, data_dict=None):
+    """
+    Add an object as a member to a group. If the membership already exists
+    and is active then the capacity will be overwritten in case it has
+    changed.
+
+    context:
+        model - The CKAN model module
+        user  - The name of the current user
+
+    data_dict:
+        group - The ID of the group to which we want to add a new object
+        object - The ID of the object being added as a member
+        object_type - The name of the type being added, all lowercase,
+                      e.g. package, or user
+        capacity - The capacity with which to add this object
+    """
+    model = context['model']
+    user = context['user']
+
+    group_id = data_dict['group']
+    obj_id   = data_dict['object']
+    obj_type = data_dict['object_type']
+    capacity = data_dict['capacity']
+
+    if 'group' not in context:
+        context['group'] = group_id
+
+    # User must be able to update the group to add a member to it
+    check_access('group_update', context, data_dict)
+
+    # Look up existing, in case it exists
+    member = model.Session.query(model.Member).\
+            filter(model.Member.table_name == obj_type).\
+            filter(model.Member.table_id == obj_id).\
+            filter(model.Member.group_id == group_id).\
+            filter(model.Member.state    == "active").\
+            filter(model.Member.capacity == capacity).first()
+    if member:
+        member.capacity = capacity
+    else:
+        member = model.Member(table_name = obj_type,
+                              table_id = obj_id,
+                              group_id = group_id,
+                              capacity=capacity)
+
+    model.Session.add(member)
+    model.repo.commit()
+
+    return model_dictize.member_dictize(member, context)
+
 def group_create(context, data_dict):
     model = context['model']
     user = context['user']
@@ -367,7 +418,7 @@ def vocabulary_create(context, data_dict):
         model.repo.commit()
 
     log.debug('Created Vocabulary %s' % str(vocabulary.name))
-  
+
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
 def activity_create(context, activity_dict, ignore_auth=False):
