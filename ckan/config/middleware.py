@@ -3,6 +3,7 @@ import urllib
 import logging 
 
 from beaker.middleware import CacheMiddleware, SessionMiddleware
+from beaker.container import MemoryNamespaceManager
 from paste.cascade import Cascade
 from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
@@ -101,9 +102,10 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                 who_parser.remote_user_key,
            )
     
-    app = I18nMiddleware(app, config)
     # Establish the Registry for this application
     app = RegistryManager(app)
+
+    app = I18nMiddleware(app, config)
 
     if asbool(static_files):
         # Serve static files
@@ -123,6 +125,10 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                         cache_max_age=static_max_age)
                 )
         app = Cascade(extra_static_parsers+static_parsers)
+
+    # page cache
+    if asbool(config.get('ckan.page_cache_enabled')):
+        app = PageCacheMiddleware(app, config)
 
     return app
 
@@ -172,3 +178,58 @@ class I18nMiddleware(object):
                 environ['CKAN_CURRENT_URL'] = path_info
 
         return self.app(environ, start_response)
+
+
+class PageCacheMiddleware(object):
+    ''' A simple page cache that can store and serve pages. '''
+
+    def __init__(self, app, config):
+        self.app = app
+        self.cache = MemoryNamespaceManager('page-cache')
+        self.eager_caching = asbool(config.get('ckan.page_cache_eager'))
+        self.expires_time = int(config.get('ckan.page_cache_expire', 300))
+
+    def __call__(self, environ, start_response):
+
+        def _start_response(status, response_headers, exc_info=None):
+            # allows us to get the status and headers
+            environ['CKAN_PAGE_STATUS'] = status
+            environ['CKAN_PAGE_HEADERS'] = response_headers
+            return start_response(status, response_headers, exc_info)
+
+        # only use cache for GET requests
+        # If there is a cookie we avoid the cache
+        if environ['REQUEST_METHOD'] != 'GET' or environ.get('HTTP_COOKIE'):
+            return self.app(environ, start_response)
+
+        # get our cache key
+        key = '%s?%s' % (environ['PATH_INFO'], environ['QUERY_STRING'])
+
+        # if cached return cached result
+        try:
+            result = self.cache[key]
+            start_response(result['status'], result['headers'])
+            return result['content']
+        except KeyError:
+            pass
+
+        # generate the response from our application
+        page = self.app(environ, _start_response)
+
+        cachable = False
+        if environ.get('CKAN_PAGE_CACHABLE'):
+            cachable = True
+        elif self.eager_caching:
+            for header, value in environ['CKAN_PAGE_HEADERS']:
+                if header == 'Cache-Control' and 'public' in value:
+                    cachable = True
+                    break
+        # cache things if cachable
+        if cachable:
+            # make sure we consume any file handles etc
+            page = list(page)
+            data = {'headers': environ['CKAN_PAGE_HEADERS'],
+                    'status': environ['CKAN_PAGE_STATUS'],
+                    'content': page}
+            self.cache.set_value(key, data, expiretime=self.expires_time)
+        return page
