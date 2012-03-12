@@ -161,6 +161,7 @@ class _Flash(object):
             raise ValueError("unrecognized default category %r" % (self.default_category,))
 
     def __call__(self, message, category=None, ignore_duplicate=False, allow_html=False):
+        print message
         if not category:
             category = self.default_category
         elif self.categories and category not in self.categories:
