@@ -14,6 +14,7 @@ __all__ = [
     'IConfigurable', 'IConfigurer', 'IAuthorizer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
     'IGroupForm',
+    'ITagController',
 ]
 
 from inspect import isclass
@@ -180,6 +181,21 @@ class IResourceUrlChange(Interface):
 
     def notify(self, resource):
         pass
+
+class ITagController(Interface):
+    '''
+    Hook into the Tag controller. These will usually be called just before
+    committing or returning the respective object, i.e. all validation,
+    synchronization and authorization setup are complete.
+
+    '''
+    def before_view(self, tag_dict):
+        '''
+        Extensions will recieve this before the tag gets displayed. The
+        dictionary passed will be the one that gets sent to the template.
+
+        '''
+        return tag_dict
 
 class IGroupController(Interface):
     """

@@ -926,8 +926,9 @@ class TestBasicDictize:
         result = self.remove_changable_columns(group_dictized)
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
-        assert result == expected, pformat(result)
-
+        assert_equal(sorted(result.keys()), sorted(expected.keys()))
+        for key in result:
+            assert_equal(sorted(result[key]), sorted(expected[key]))
 
     def test_17_group_apis_to_dict(self):
 

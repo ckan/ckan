@@ -1,6 +1,6 @@
 from pylons import config
 from sqlalchemy.sql import select
-from ckan.plugins import PluginImplementations, IPackageController, IGroupController
+import ckan.plugins
 import datetime
 
 from ckan.model import PackageRevision
@@ -34,7 +34,8 @@ def group_list_dictize(obj_list, context,
         group_dict['packages'] = len(obj.active_packages().all())
 
         if context.get('for_view'):
-            for item in PluginImplementations(IGroupController):
+            for item in ckan.plugins.PluginImplementations(
+                    ckan.plugins.IGroupController):
                 group_dict = item.before_view(group_dict)
 
         result_list.append(group_dict)
@@ -218,7 +219,8 @@ def package_dictize(pkg, context):
         tag['display_name'] = tag['name']
 
     if context.get('for_view'):
-        for item in PluginImplementations(IPackageController):
+        for item in ckan.plugins.PluginImplementations(
+                ckan.plugins.IPackageController):
             result_dict = item.before_view(result_dict)
 
 
@@ -265,7 +267,8 @@ def group_dictize(group, context):
     context['with_capacity'] = False
 
     if context.get('for_view'):
-        for item in PluginImplementations(IGroupController):
+        for item in ckan.plugins.PluginImplementations(
+                ckan.plugins.IGroupController):
             result_dict = item.before_view(result_dict)
 
     return result_dict
@@ -279,6 +282,7 @@ def tag_list_dictize(tag_list, context):
             dictized = table_dictize(tag, context, capacity=capacity)
         else:
             dictized = table_dictize(tag, context)
+
         result_list.append(dictized)
 
     return result_list
@@ -287,6 +291,15 @@ def tag_dictize(tag, context):
 
     result_dict = table_dictize(tag, context)
     result_dict["packages"] = obj_list_dictize(tag.packages, context)
+
+    assert not result_dict.has_key('display_name')
+    result_dict['display_name'] = result_dict['name']
+
+    if context.get('for_view'):
+        for item in ckan.plugins.PluginImplementations(
+                ckan.plugins.ITagController):
+            result_dict = item.before_view(result_dict)
+
     return result_dict
 
 def user_list_dictize(obj_list, context, 

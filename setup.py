@@ -94,6 +94,7 @@ setup(
     publisher_dataset_form=ckanext.publisher_form.forms:PublisherDatasetForm
     multilingual_dataset=ckanext.multilingual.plugin:MultilingualDataset
     multilingual_group=ckanext.multilingual.plugin:MultilingualGroup
+    multilingual_tag=ckanext.multilingual.plugin:MultilingualTag
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
 
     [ckan.system_plugins]

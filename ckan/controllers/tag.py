@@ -25,9 +25,9 @@ class TagController(BaseController):
         c.q = request.params.get('q', '')
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'for_view': True}
 
-        data_dict = {}
+        data_dict = {'all_fields': True}
 
         if c.q:
             page = int(request.params.get('page', 1))
