@@ -105,6 +105,13 @@
         </dd>
         <dt>Licence</dt>
         <dd>
+          <py:choose test="">
+            <span py:when="c.pkg.license and c.pkg.license.url"><a
+                href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
+            <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
+            <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
+            <span py:when="not(c.pkg.license)">License unknown</span>
+          </py:choose>
           <py:if test="c.pkg.isopen()">
               <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
                 <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
@@ -115,14 +122,6 @@
                 ${h.icon('lock')}
               </span>
           </py:if>
-
-          <py:choose test="">
-            <span py:when="c.pkg.license and c.pkg.license.url"><a
-                href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
-            <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
-            <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
-            <span py:when="not(c.pkg.license)">License unknown</span>
-          </py:choose>
         </dd>
       </dl>
     </div>
