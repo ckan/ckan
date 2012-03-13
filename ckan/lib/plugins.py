@@ -173,7 +173,13 @@ class DefaultDatasetForm(object):
         return 'package/new_package_form.html'
 
     def form_to_db_schema(self):
-        return logic.schema.package_form_schema()
+        schema =  logic.schema.package_form_schema()
+        schema['groups'] = {
+                'name': [not_empty, val.group_id_or_name_exists, unicode],
+                'id':   [ignore_missing, unicode],
+            }
+        return schema
+
 
     def form_to_db_schema_options(self, options):
         ''' This allows us to select different schemas for different
@@ -212,12 +218,22 @@ class DefaultDatasetForm(object):
             raise dictization_functions.DataError(data_dict)
 
     def setup_template_variables(self, context, data_dict):
+        from pylons import config
+
         authz_fn = logic.get_action('group_list_authz')
         c.groups_authz = authz_fn(context, data_dict)
         data_dict.update({'available_only':True})
-        c.groups_available = authz_fn(context, data_dict)
+
+
+        c.publisher_enabled = 'publisher_form' in config['ckan.plugins']
+        if c.publisher_enabled:
+            c.groups_available = c.userobj.get_groups('publisher') if c.userobj else []
+        else:
+            c.groups_available = authz_fn(context, data_dict)
+
         c.licences = [('', '')] + base.model.Package.get_license_options()
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
+
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
