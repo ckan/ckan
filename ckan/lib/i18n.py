@@ -98,8 +98,12 @@ def handle_request(request, tmpl_context):
 
     # set ckan_lang cookie if we have changed the language. We need to
     # remember this because repoze.who does it's own redirect.
-    if request.cookies.get('ckan_lang') != lang:
-        response.set_cookie('ckan_lang', lang, max_age=3600)
+    try:
+        if request.cookies.get('ckan_lang') != lang:
+            response.set_cookie('ckan_lang', lang)
+    except AttributeError:
+        # when testing FakeRequest does not have cookies
+        pass
     return lang
 
 def get_lang():

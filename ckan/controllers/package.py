@@ -23,7 +23,7 @@ import ckan.misc
 import ckan.logic.action.get
 from home import CACHE_PARAMETER
 
-from lib.plugins import lookup_package_plugin as _lookup_plugin
+from lib.plugins import lookup_package_plugin
 
 log = logging.getLogger(__name__)
 
@@ -45,23 +45,23 @@ autoneg_cfg = [
 class PackageController(BaseController):
 
     def _package_form(self, package_type=None):    
-        return _lookup_plugin(package_type).package_form()
+        return lookup_package_plugin(package_type).package_form()
 
     def _form_to_db_schema(self, package_type=None):
-        return _lookup_plugin(package_type).form_to_db_schema()
+        return lookup_package_plugin(package_type).form_to_db_schema()
 
     def _db_to_form_schema(self, package_type=None):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        return _lookup_plugin(package_type).db_to_form_schema()
+        return lookup_package_plugin(package_type).db_to_form_schema()
 
     def _check_data_dict(self, data_dict, package_type=None):
         '''Check if the return data is correct, mostly for checking out if
         spammers are submitting only part of the form'''
-        return _lookup_plugin(package_type).check_data_dict(data_dict)
+        return lookup_package_plugin(package_type).check_data_dict(data_dict)
 
     def _setup_template_variables(self, context, data_dict, package_type=None):
-        return _lookup_plugin(package_type).setup_template_variables(context, data_dict)
+        return lookup_package_plugin(package_type).setup_template_variables(context, data_dict)
 
     authorizer = ckan.authz.Authorizer()
 
@@ -321,10 +321,12 @@ class PackageController(BaseController):
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=[CACHE_PARAMETER]))))
+        c.pkg_json = json.dumps(data) 
 
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id})
 
@@ -370,6 +372,7 @@ class PackageController(BaseController):
 
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id}, package_type=package_type)
 
@@ -379,7 +382,15 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render('package/edit.html')
+
+        if (c.action == u'editresources'):
+          return render('package/editresources.html')
+        else:
+          return render('package/edit.html')
+
+    def editresources(self, id, data=None, errors=None, error_summary=None):
+        '''Hook method made available for routing purposes.'''
+        return self.edit(id,data,errors,error_summary)
 
     def read_ajax(self, id, revision=None):
         package_type=self._get_package_type(id)
@@ -450,8 +461,6 @@ class PackageController(BaseController):
 
         aborts if an exception is raised.
         """
-        global _controller_behaviour_for
-
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         try:
@@ -523,13 +532,6 @@ class PackageController(BaseController):
         @param action - What the action of the edit was
         '''
         assert action in ('new', 'edit')
-        if action == 'new':
-            msg = _('<span class="new-dataset">Congratulations, your dataset has been created. ' \
-                    '<a href="%s">Upload or link ' \
-                    'some data now &raquo;</a></span>')
-            msg = msg % h.url_for(controller='package', action='edit',
-                    id=pkgname, anchor='section-resources')
-            h.flash_success(msg,allow_html=True)
         url = request.params.get('return_to') or \
               config.get('package_%s_return_url' % action)
         if url:
@@ -660,6 +662,7 @@ class PackageController(BaseController):
             c.package['isopen'] = model.Package.get_license_register()[license_id].isopen()
         except KeyError:
             c.package['isopen'] = False
-
+        c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
+                qualified=True)
         return render('package/resource_read.html')
 

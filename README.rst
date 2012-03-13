@@ -9,6 +9,19 @@ http://ckan.org/.
  * Developer mailing list: ckan-dev@lists.okfn.org
  * Issue tracker: http://trac.ckan.org/
 
+Building Documentation
+======================
+
+1. Install python-sphinx
+
+2. Initialize the theme submodule::
+
+   git submodule init
+   git submodule update
+
+3. Run the command to build the docs::
+
+    python setup.py build_sphinx
 
 Copying and License
 ===================

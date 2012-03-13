@@ -38,14 +38,14 @@
     </ul>
     <ul py:if="not c.group" class="tabbed">
       <li py:attrs="{'class':'current-tab'} if c.action=='index' else {}">
-        ${h.subnav_link(c, h.icon('group') + _('List Groups'), controller='group', action='index')}
+        ${h.subnav_named_route(c, h.icon('group') + _('List Groups'), "%s_index" % h.default_group_type(), action="index" )}
       </li>
       <li py:attrs="{'class':'current-tab'} if c.action=='new' else {}">
-        <span class="ckan-logged-in" style="display: none;">${ h.subnav_link(c, h.icon('group_add') + _('Add a Publisher'), controller='group', action='new')}</span>
-        <span class="ckan-logged-out">${h.subnav_link(c, h.icon('group_add') + _('Login to Add a Publisher'), controller='group', action='new')}</span>
+        <span class="ckan-logged-in" style="display: none;">${ h.subnav_named_route(c, h.icon('group_add') + _('Add a Group'), "%s_new" % h.default_group_type(), action='new')}</span>
+        <span class="ckan-logged-out">${h.subnav_link(c, h.icon('group_add') + _('Login to Add a Group'), controller='group', action='new')}</span>
       </li>
     </ul>
   </py:match>
-  
+
   <xi:include href="../layout.html" />
 </html>

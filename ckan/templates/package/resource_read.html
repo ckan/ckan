@@ -11,11 +11,45 @@
   about=""
   py:strip="">
 
+  <xi:include href="../_snippet/data-api-help.html" />
+
   <py:def function="optional_head">
     <!-- data preview -->
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/data-explorer.css')}" />
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/graph-flot.css')}" />
+    <style type="text/css">
+      .header .recline-query-editor input.text-query {
+        margin-right: 5px;
+        margin-top: 2px;
+        height: 18px;
+      }
+
+      .header .recline-query-editor .pagination input {
+        margin-top: auto;
+        margin-bottom: 2px;
+      }
+      .recline-query-editor .pagination ul {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
     <!-- /data preview -->
+    <style type="text/css">
+      .resource-actions {
+        margin-right: 0;
+      }
+      .resource-actions .btn {
+        position: relative;
+        bottom: 3px;
+        padding: 8px 10px;
+      }
+      .resource-actions .download {
+        display: inline;
+      }
+      .resource-actions .download img {
+        margin: 0px 4px -4px 0;
+      }
+    </style>
     <script type="text/javascript">
       var preload_resource = ${h.literal(c.resource_json)};
     </script>
@@ -26,30 +60,43 @@
     ${h.resource_display_name(c.resource)} - Dataset - Resource
   </py:def>
 
-  <py:def function="page_heading">${h.dataset_display_name(c.package)} / ${h.resource_display_name(c.resource)}</py:def>
+  <py:def function="page_heading">
+    ${h.dataset_link(c.package)}
+    /
+    ${h.resource_display_name(c.resource)}
+  </py:def>
 
   <div py:match="content">
-    <div class="notes" property="rdfs:label">
-      ${c.resource.get('description') or '(No description)'}
-    </div>
-
     <div class="resource-actions span-8">
-      <a py:if="c.resource.get('url')" class="pretty-button primary resource-url-analytics" href="${c.resource.get('url')}">
+      <a py:if="c.resource.get('url')" class="btn btn-primary resource-url-analytics resource-type-${c.resource.get('resource_type')}" href="${c.resource.get('url')}">
         <py:choose test="c.resource.get('resource_type')">
           <py:when test="'listing'">View</py:when>
           <py:when test="'service'">View</py:when>
           <py:when test="'api'">API Endpoint</py:when>
-          <py:otherwise><img style="margin: 4px 8px 0 0;" src="${h.icon_url('arrow-down-16')}"/><span style="position: relative; bottom: 3px;">Download</span></py:otherwise>
+          <py:otherwise>
+            <div class="download">
+              <img src="${h.icon_url('arrow-down-16')}"/>
+              Download
+            </div>
+          </py:otherwise>
         </py:choose>
-        </a>
+      </a>
+      <py:if test="config.get('ckan.datastore.enabled', False)">
+        <py:if test="c.resource.get('webstore_url')">
+          <a class="btn btn-success" data-toggle="modal" href=".modal-data-api-help">Data API</a>
+        </py:if>
+        <py:if test="not c.resource.get('webstore_url')">
+          <a class="btn disabled" rel="tooltip" title="Data API is unavailable for this resource as DataStore is disabled">Data API</a>
+        </py:if>
+      </py:if>
     </div>
+
+  <py:if test="config.get('ckan.datastore.enabled', False)">
+    ${data_api_help(c.datastore_api)}
+  </py:if>
 
     <div class="quick-info">
       <dl>
-        <dt>Part of dataset</dt>
-        <dd>
-          ${h.dataset_link(c.package)}
-        </dd>
         <dt>Last updated</dt>
         <dd>${h.time_ago_in_words_from_str(c.resource['last_modified'], granularity='day')}</dd>
         <dt>Format</dt>
@@ -63,8 +110,8 @@
                 href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
             <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
             <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
+            <span py:when="not(c.pkg.license)">License unknown</span>
           </py:choose>
-
           <py:if test="c.pkg.isopen()">
               <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
                 <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
@@ -77,6 +124,12 @@
           </py:if>
         </dd>
       </dl>
+    </div>
+
+    <div class="notes" property="rdfs:label">
+      <div id="notes-extract">
+        ${c.resource.get('description') or '(No description)'}
+      </div>
     </div>
 
     <div py:if="not c.resource.get('description') and c.package.get('notes')" id="dataset-description">

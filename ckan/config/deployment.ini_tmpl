@@ -111,6 +111,11 @@ ckan.site_url =
 ## Favicon (default is the CKAN software favicon)
 ckan.favicon = /images/icons/ckan.ico
 
+## The gravatar default to use.  This can be any of the pre-defined strings
+## as defined on http://en.gravatar.com/site/implement/images/ (e.g. "identicon"
+## or "mm").  Or it can be a url, e.g. "http://example.com/images/avatar.jpg"
+ckan.gravatar_default = identicon
+
 ## Solr support
 #solr_url = http://127.0.0.1:8983/solr
 
@@ -161,8 +166,8 @@ ckan.locale_order = en de fr it es pl ru nl sv no cs_CZ hu pt_BR fi bg ca sq sr 
 ckan.locales_filtered_out = el ro lt sl
 
 ## Webstore
-## Uncommment to enable webstore
-# ckan.webstore.enabled = 1
+## Uncommment to enable datastore
+# ckan.datastore.enabled = 1
 
 ## ===================================
 ## Extensions

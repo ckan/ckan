@@ -1,3 +1,4 @@
+import json
 from nose.tools import assert_equal
 from pylons import config
 
@@ -22,15 +23,26 @@ class TestWebstoreController(TestController, PylonsTestCase):
     def test_read(self):
         dataset = model.Package.by_name(CreateTestData.pkg_names[0])
         resource_id = dataset.resources[0].id
-        offset = url_for('webstore_read', id=resource_id)
+        offset = url_for('datastore_read', id=resource_id)
         res = self.app.get(offset)
         assert_equal(res.status, 200)
-        assert_equal(res.body, '')
+        data = json.loads(res.body)
+        assert 'error' in data
+
+        dataset.resources[0].webstore_url = 'enabled'
+        model.repo.new_revision()
+        model.Session.add(dataset.resources[0])
+        model.Session.commit()
+
+        offset = url_for('datastore_read', id=resource_id)
+        res = self.app.get(offset)
+        assert_equal(res.status, 200)
+        assert_equal(res.body, '""')
         headers = dict(res.headers)
         assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-test.ckan.net/%s?'
                 % resource_id)
 
-        offset = url_for('webstore_read', id=resource_id, url='/_search')
+        offset = url_for('datastore_read', id=resource_id, url='/_search')
         res = self.app.get(offset)
         assert_equal(res.status, 200)
         headers = dict(res.headers)
@@ -41,11 +53,27 @@ class TestWebstoreController(TestController, PylonsTestCase):
         dataset = model.Package.by_name(CreateTestData.pkg_names[0])
         resource_id = dataset.resources[0].id
 
-        offset = url_for('webstore_write', id='does-not-exist')
+        offset = url_for('datastore_write', id='does-not-exist')
         res = self.app.post(offset, status=404)
         assert res.status == 404
 
-        offset = url_for('webstore_write', id=resource_id)
+        dataset.resources[0].webstore_url = ''
+        model.repo.new_revision()
+        model.Session.add(dataset.resources[0])
+        model.Session.commit()
+
+        offset = url_for('datastore_write', id=resource_id)
+        res = self.app.post(offset)
+        assert res.status == 200
+        print res.body
+        assert 'error' in json.loads(res.body)
+
+        dataset.resources[0].webstore_url = 'enabled'
+        model.repo.new_revision()
+        model.Session.add(dataset.resources[0])
+        model.Session.commit()
+
+        offset = url_for('datastore_write', id=resource_id)
         res = self.app.post(offset)
         # in fact visitor can edit!
         # assert res.status in [401,302], res.status
@@ -55,7 +83,7 @@ class TestWebstoreController(TestController, PylonsTestCase):
                 % resource_id)
 
 
-        offset = url_for('webstore_write', id=resource_id, url='/_mapping')
+        offset = url_for('datastore_write', id=resource_id, url='/_mapping')
         res = self.app.post(offset)
         assert res.status == 200
         headers = dict(res.headers)

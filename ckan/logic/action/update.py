@@ -1,30 +1,28 @@
 import logging
 import datetime
 
-from ckan.plugins import PluginImplementations, IGroupController, IPackageController
-from ckan.logic import NotFound, ValidationError, ParameterError, NotAuthorized
-from ckan.logic import get_action, check_access
-from lib.plugins import lookup_package_plugin
-
-from ckan.lib.base import _
+from pylons.i18n import _
 from vdm.sqlalchemy.base import SQLAlchemySession
+
+import ckan.plugins as plugins
+import ckan.logic as logic
+import ckan.logic.schema
 import ckan.lib.dictization
-from ckan.lib.dictization import model_dictize
-from ckan.lib.dictization import model_save
-from ckan.logic.schema import (default_update_group_schema,
-                               default_update_user_schema,
-                               default_update_resource_schema,
-                               default_task_status_schema,
-                               default_update_relationship_schema,
-                               default_update_vocabulary_schema)
-from ckan.lib.navl.dictization_functions import validate
+import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.dictization.model_save as model_save
+import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
-from ckan.logic.action import rename_keys, get_domain_object, error_summary
-from ckan.logic.action.get import roles_show
+import lib.plugins as lib_plugins
 
 log = logging.getLogger(__name__)
 
-
+# define some shortcuts
+validate = ckan.lib.navl.dictization_functions.validate
+error_summary = logic.action.error_summary
+get_action = logic.get_action
+check_access = logic.check_access
+NotFound = logic.NotFound
+ValidationError = logic.ValidationError
 
 def _make_latest_rev_active(context, q):
 
@@ -104,7 +102,7 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = data_dict["id"]
-    schema = context.get('schema') or default_update_resource_schema()
+    schema = context.get('schema') or ckan.logic.schema.default_update_resource_schema()
     model.Session.remove()
 
     resource = model.Resource.get(id)
@@ -153,7 +151,7 @@ def package_update(context, data_dict):
     check_access('package_update', context, data_dict)
 
     # get the schema
-    package_plugin = lookup_package_plugin(pkg.type)
+    package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     try:
         schema = package_plugin.form_to_db_schema_options({'type':'update',
                                                'api':'api_version' in context})
@@ -183,7 +181,7 @@ def package_update(context, data_dict):
 
     pkg = model_save.package_dict_save(data, context)
 
-    for item in PluginImplementations(IPackageController):
+    for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -205,7 +203,7 @@ def package_update_validate(context, data_dict):
     data_dict["id"] = pkg.id
 
     # get the schema
-    package_plugin = lookup_package_plugin(pkg.type)
+    package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     try:
         schema = package_plugin.form_to_db_schema_options({'type':'update',
                                                'api':'api_version' in context})
@@ -244,7 +242,7 @@ def package_relationship_update(context, data_dict):
 
     model = context['model']
     user = context['user']
-    schema = context.get('schema') or default_update_relationship_schema()
+    schema = context.get('schema') or ckan.logic.schema.default_update_relationship_schema()
     api = context.get('api_version') or '1'
 
     id = data_dict['subject']
@@ -279,7 +277,6 @@ def group_update(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema') or default_update_group_schema()
     id = data_dict['id']
     parent = context.get('parent', None)
 
@@ -287,6 +284,14 @@ def group_update(context, data_dict):
     context["group"] = group
     if group is None:
         raise NotFound('Group was not found.')
+
+    # get the schema
+    group_plugin = lib_plugins.lookup_group_plugin(group.type)
+    try:
+        schema = group_plugin.form_to_db_schema_options({'type':'update',
+                                               'api':'api_version' in context})
+    except AttributeError:
+        schema = group_plugin.form_to_db_schema()
 
     check_access('group_update', context, data_dict)
 
@@ -318,7 +323,7 @@ def group_update(context, data_dict):
             session.add(member)
 
 
-    for item in PluginImplementations(IGroupController):
+    for item in plugins.PluginImplementations(plugins.IGroupController):
         item.edit(group)
 
     activity_dict = {
@@ -344,14 +349,13 @@ def group_update(context, data_dict):
         activity_dict['data'] = {
                 'group': ckan.lib.dictization.table_dictize(group, context)
                 }
-        from ckan.logic.action.create import activity_create
         activity_create_context = {
             'model': model,
             'user': user,
             'defer_commit':True,
             'session': session
         }
-        activity_create(activity_create_context, activity_dict,
+        get_action('activity_create')(activity_create_context, activity_dict,
                 ignore_auth=True)
         # TODO: Also create an activity detail recording what exactly changed
         # in the group.
@@ -367,7 +371,7 @@ def user_update(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema') or default_update_user_schema()
+    schema = context.get('schema') or ckan.logic.schema.default_update_user_schema()
     id = data_dict['id']
 
     user_obj = model.User.get(id)
@@ -395,8 +399,7 @@ def user_update(context, data_dict):
         'defer_commit':True,
         'session': session
     }
-    from ckan.logic.action.create import activity_create
-    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    get_action('activity_create')(activity_create_context, activity_dict, ignore_auth=True)
     # TODO: Also create an activity detail recording what exactly changed in
     # the user.
 
@@ -411,7 +414,7 @@ def task_status_update(context, data_dict):
 
     user = context['user']
     id = data_dict.get("id")
-    schema = context.get('schema') or default_task_status_schema()
+    schema = context.get('schema') or ckan.logic.schema.default_task_status_schema()
 
     if id:
         task_status = model.TaskStatus.get(id)
@@ -440,7 +443,7 @@ def task_status_update_many(context, data_dict):
     deferred = context.get('defer_commit')
     context['defer_commit'] = True
     for data in data_dict['data']:
-        results.append(task_status_update(context, data))
+        results.append(get_action('task_status_update')(context, data))
     if not deferred:
         context.pop('defer_commit')
     if not context.get('defer_commit'):
@@ -550,7 +553,7 @@ def group_update_rest(context, data_dict):
 
     check_access('group_update_rest', context, dictized_group)
 
-    dictized_after = group_update(context, dictized_group)
+    dictized_after = get_action('group_update')(context, dictized_group)
 
     group = context['group']
 
@@ -580,7 +583,7 @@ def vocabulary_update(context, data_dict):
 
     check_access('vocabulary_update', context, data_dict)
 
-    schema = context.get('schema') or default_update_vocabulary_schema()
+    schema = context.get('schema') or ckan.logic.schema.default_update_vocabulary_schema()
     data, errors = validate(data_dict, schema, context)
 
     if errors:
@@ -605,9 +608,9 @@ def package_relationship_update_rest(context, data_dict):
     # object and rel in the URI overwrite any values for these
     # in params. This is because you are not allowed to change
     # these values.
-    data_dict = rename_keys(data_dict, key_map, destructive=True)
+    data_dict = logic.action.rename_keys(data_dict, key_map, destructive=True)
 
-    relationship_dict = package_relationship_update(context, data_dict)
+    relationship_dict = get_action('package_relationship_update')(context, data_dict)
 
     return relationship_dict
 
@@ -621,10 +624,10 @@ def user_role_update(context, data_dict):
     new_user_ref = data_dict.get('user') # the user who is being given the new role
     new_authgroup_ref = data_dict.get('authorization_group') # the authgroup who is being given the new role
     if bool(new_user_ref) == bool(new_authgroup_ref):
-        raise ParameterError('You must provide either "user" or "authorization_group" parameter.')
+        raise logic.ParameterError('You must provide either "user" or "authorization_group" parameter.')
     domain_object_ref = data_dict['domain_object']
     if not isinstance(data_dict['roles'], (list, tuple)):
-        raise ParameterError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
+        raise logic.ParameterError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
     desired_roles = set(data_dict['roles'])
 
     if new_user_ref:
@@ -642,7 +645,7 @@ def user_role_update(context, data_dict):
         add_user_to_role_func = model.add_authorization_group_to_role
         remove_user_from_role_func = model.remove_authorization_group_from_role
 
-    domain_object = get_domain_object(model, domain_object_ref)
+    domain_object = logic.action.get_domain_object(model, domain_object_ref)
     data_dict['id'] = domain_object.id
     if isinstance(domain_object, model.Package):
         check_access('package_edit_permissions', context, data_dict)
@@ -652,12 +655,12 @@ def user_role_update(context, data_dict):
         check_access('authorization_group_edit_permissions', context, data_dict)
     # Todo: 'system' object
     else:
-        raise ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
+        raise logic.ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
 
     # current_uors: in order to avoid either creating a role twice or
     # deleting one which is non-existent, we need to get the users\'
     # current roles (if any)
-    current_role_dicts = roles_show(context, data_dict)['roles']
+    current_role_dicts = get_action('roles_show')(context, data_dict)['roles']
     current_roles = set([role_dict['role'] for role_dict in current_role_dicts])
 
     # Whenever our desired state is different from our current state,
@@ -671,7 +674,7 @@ def user_role_update(context, data_dict):
     if not (current_roles == desired_roles):
         model.repo.commit_and_remove()
 
-    return roles_show(context, data_dict)
+    return get_action('roles_show')(context, data_dict)
 
 def user_role_bulk_update(context, data_dict):
     '''
@@ -694,4 +697,4 @@ def user_role_bulk_update(context, data_dict):
                              'roles': roles_by_user[user],
                              'domain_object': data_dict['domain_object']}
             user_role_update(context, uro_data_dict)
-    return roles_show(context, data_dict)
+    return get_action('roles_show')(context, data_dict)

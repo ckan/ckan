@@ -5,6 +5,8 @@ from ckan.config.middleware import make_app
 import ckan.model as model
 from ckan.tests import conf_dir, url_for, CreateTestData
 from ckan.controllers.admin import get_sysadmins
+from ckan.controllers.storage import create_pairtree_marker
+
 
 class TestStorageAPIController:
     @classmethod
@@ -16,6 +18,7 @@ class TestStorageAPIController:
         config.local_conf['ofs.impl'] = 'pairtree'
         config.local_conf['ckan.storage.bucket'] = 'ckantest'
         config.local_conf['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
+        create_pairtree_marker( config.local_conf['ofs.storage_dir'] )
         wsgiapp = make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
@@ -44,6 +47,7 @@ class TestStorageAPIControllerLocal:
         config.local_conf['ckan.storage.bucket'] = 'ckantest'
         config.local_conf['ofs.impl'] = 'pairtree'
         config.local_conf['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
+        create_pairtree_marker( config.local_conf['ofs.storage_dir'] )
         wsgiapp = make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)
         CreateTestData.create()
@@ -71,7 +75,7 @@ class TestStorageAPIControllerLocal:
 
         # TODO: test get metadata on real setup ...
         label = 'abc'
-        url = url_for('storage_api_set_metadata', 
+        url = url_for('storage_api_set_metadata',
             extra_environ=self.extra_environ,
             label=label,
             data=dict(
@@ -91,7 +95,7 @@ class _TestStorageAPIControllerGoogle:
         config.local_conf['ofs.impl'] = 'google'
         if 'ofs.gs_secret_access_key' not in config.local_conf:
             raise Exception('You will need to configure access to google storage to run this test')
-        # You will need these configured in your 
+        # You will need these configured in your
         # config.local_conf['ofs.gs_access_key_id'] = 'GOOGCABCDASDASD'
         # config.local_conf['ofs.gs_secret_access_key'] = '134zsdfjkw4234addad'
         # need to ensure not configured for local as breaks google setup

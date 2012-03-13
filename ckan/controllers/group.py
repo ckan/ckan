@@ -14,28 +14,27 @@ from ckan.logic import tuplize_dict, clean_dict, parse_params
 import ckan.forms
 import ckan.logic.action.get
 
-from lib.plugins import lookup_group_plugin as _lookup_plugin
+from lib.plugins import lookup_group_plugin
 
 log = logging.getLogger(__name__)
-
 
 class GroupController(BaseController):
 
     ## hooks for subclasses
 
     def _group_form(self, group_type=None):
-        return _lookup_plugin(group_type).group_form()
+        return lookup_group_plugin(group_type).group_form()
 
     def _form_to_db_schema(self, group_type=None):
-        return _lookup_plugin(group_type).form_to_db_schema()
+        return lookup_group_plugin(group_type).form_to_db_schema()
 
     def _db_to_form_schema(self, group_type=None):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        return _lookup_plugin(group_type).form_to_db_schema()
+        return lookup_group_plugin(group_type).form_to_db_schema()
 
     def _setup_template_variables(self, context, data_dict, group_type=None):
-        return _lookup_plugin(group_type).setup_template_variables(context,data_dict)
+        return lookup_group_plugin(group_type).setup_template_variables(context,data_dict)
 
     ## end hooks
 
@@ -67,7 +66,7 @@ class GroupController(BaseController):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(group_type=type),
+                   'schema': self._form_to_db_schema(group_type=group_type),
                    'for_view': True}
         data_dict = {'id': id}
         q = c.q = request.params.get('q', '') # unicode format (decoded from utf8)
@@ -182,7 +181,6 @@ class GroupController(BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(),
                    'save': 'save' in request.params,
                    'parent': request.params.get('parent', None)}
         try:
@@ -207,7 +205,6 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
-                   'schema': self._form_to_db_schema(group_type=group_type),
                    'parent': request.params.get('parent', None)
                    }
         data_dict = {'id': id}
@@ -246,28 +243,14 @@ class GroupController(BaseController):
 
     def _get_group_type(self, id):
         """
-        Given the id of a group it determines the plugin to load
-        based on the group's type name (type). The plugin found
-        will be returned, or None if there is no plugin associated with
-        the type.
-
-        Uses a minimal context to do so.  The main use of this method
-        is for figuring out which plugin to delegate to.
-
-        aborts if an exception is raised.
+        Given the id of a group it determines the type of a group given
+        a valid id/name for the group.
         """
-        global _controller_behaviour_for
+        group = model.Group.get( id )
+        if not group:
+            return None
 
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-        try:
-            data = get_action('group_show')(context, {'id': id})
-        except NotFound:
-            abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % id)
-        return data['type']
-
+        return group.type
 
     def _save_new(self, context, group_type=None):
         try:
