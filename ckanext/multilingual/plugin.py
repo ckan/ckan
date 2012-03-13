@@ -121,6 +121,8 @@ class MultilingualDataset(SingletonPlugin):
                 continue
             if isinstance(value, list):
                 all_terms.extend(value)
+            elif value in (None, True, False):
+                continue
             else:
                 all_terms.append(value)
 
