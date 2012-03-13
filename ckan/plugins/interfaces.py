@@ -442,10 +442,16 @@ class IDatasetForm(Interface):
 
     ##### Hooks for customising the PackageController's behaviour        #####
     ##### TODO: flesh out the docstrings a little more.                  #####
-    def index_template(self):
+    def new_template(self):
         """
         Returns a string representing the location of the template to be
-        rendered for the index page
+        rendered for the new page
+        """
+
+    def comments_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the comments page
         """
 
     def search_template(self):

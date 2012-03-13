@@ -63,9 +63,11 @@ class PackageController(BaseController):
     def _setup_template_variables(self, context, data_dict, package_type=None):
         return lookup_package_plugin(package_type).setup_template_variables(context, data_dict)
 
+    def _new_template(self, package_type):
+        return lookup_package_plugin(package_type).new_template()
 
-    def _index_template(self, package_type):
-        return lookup_package_plugin(package_type).index_template()
+    def _comments_template(self, package_type):
+        return lookup_package_plugin(package_type).comments_template()
 
     def _search_template(self, package_type):
         return lookup_package_plugin(package_type).search_template()
@@ -159,7 +161,7 @@ class PackageController(BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
 
-        return render('package/search.html')
+        return render( self._search_template('') )
 
 
     def read(self, id):
@@ -219,7 +221,7 @@ class PackageController(BaseController):
                 break
 
         PackageSaver().render_package(c.pkg_dict, context)
-        return render('package/read.html')
+        return render( self._read_template( package_type ) )
 
     def comments(self, id):
         package_type = self._get_package_type(id)
@@ -311,7 +313,7 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        return render('package/history.html')
+        return render( self._history_template(c.pkg_dict['type']))
 
     def new(self, data=None, errors=None, error_summary=None):
 
@@ -350,7 +352,7 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render('package/new.html')
+        return render( self._new_template(''))
 
 
     def edit(self, id, data=None, errors=None, error_summary=None):

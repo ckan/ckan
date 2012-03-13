@@ -127,7 +127,7 @@ def register_group_plugins(map):
             # Our version of routes doesn't allow the environ to be
             # passed into the match call and so we have to set it on the
             # map instead. This looks like a threading problem waiting
-            # to happen but it is executed sequentially from instead the
+            # to happen but it is executed sequentially from inside the
             # routing setup
 
             map.connect('%s_index' % group_type, '/%s' % group_type,
@@ -168,13 +168,19 @@ class DefaultDatasetForm(object):
     Note - this isn't a plugin implementation. This is deliberate, as we
            don't want this being registered.
     """
-
-    def index_template(self):
+    def new_template(self):
         """
         Returns a string representing the location of the template to be
-        rendered for the index page
+        rendered for the new page
         """
-        return ''
+        return 'package/new.html'
+
+    def comments_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the comments page
+        """
+        return 'package/comments.html'
 
     def search_template(self):
         """
