@@ -67,7 +67,7 @@ class TestGroup(FunctionalTestCase):
         assert 'Groups' in res, res
         assert 'Groups</a>' in res, res
         res = res.click(href='/group', index=0)
-        assert 'Groups of' in res, res
+        assert "Dave's books" in res, res
 
     def test_index(self):
         offset = url_for(controller='group', action='index')
