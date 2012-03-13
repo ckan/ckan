@@ -3,6 +3,7 @@ import ckan
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan.plugins import IGroupController
 import pylons
+import ckan.logic.action.get as action_get
 from pylons import config
 
 LANGS = ['en', 'fr', 'de', 'es', 'it', 'nl', 'ro', 'pt', 'pl']
@@ -82,11 +83,58 @@ def translate_data_dict(data_dict):
             .unflatten(translated_flattened))
     return translated_data_dict
 
+KEYS_TO_IGNORE = ['state', 'revision_id', 'id', #title done seperately
+                  'metadata_created', 'metadata_modified', 'site_id']
+
 class MultilingualDataset(SingletonPlugin):
     implements(IPackageController, inherit=True)
 
-    def before_index(self, search_params):
-        return search_params
+    def before_index(self, search_data):
+
+        default_lang = search_data.get(
+            'lang_code', 
+             pylons.config.get('ckan.locale_default', 'en')
+        )
+
+        ## transloate title
+        title = search_data.get('title')
+        search_data['title_' + default_lang] = title 
+        title_translations = action_get.term_translation_show(
+                          {'model': ckan.model},
+                          {'terms': [title],
+                              'lang_codes': LANGS})
+
+        for translation in title_translations:
+            title_field = 'title_' + translation['lang_code']
+            search_data[title_field] = translation['term_translation']
+
+        ## transloate rest
+        all_terms = []
+        for key, value in search_data.iteritems():
+            if key in KEYS_TO_IGNORE or key.startswith('title'):
+                continue
+            if isinstance(value, list):
+                all_terms.extend(value)
+            else:
+                all_terms.append(value)
+
+        field_translations = action_get.term_translation_show(
+                          {'model': ckan.model},
+                          {'terms': all_terms,
+                              'lang_codes': LANGS})
+
+        text_field_items = dict(('text_' + lang, []) for lang in LANGS)
+        
+        text_field_items['text_' + default_lang].extend(all_terms)
+
+        for translation in sorted(field_translations):
+            lang_field = 'text_' + translation['lang_code']
+            text_field_items[lang_field].append(translation['term_translation'])
+
+        for key, value in text_field_items.iteritems():
+            search_data[key] = ' '.join(value)
+        
+        return search_data
 
     def before_search(self, search_params):
         lang_set = set(LANGS)
