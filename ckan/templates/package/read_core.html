@@ -11,34 +11,33 @@
 
       <!-- Description -->
       <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
-        ${c.pkg_notes_formatted}
+        <div id="notes-extract">
+          ${c.pkg_notes_formatted}
+        </div>
+        <div id="notes-remainder"></div>
+        <div id="notes-toggle" style="display: none;">
+          <button class="more pretty-button"><img src="/images/chevron-down.png"/></button>
+          <button class="less pretty-button" style="display: none;"><img src="/images/chevron-up.png"/></button>
+        </div>
       </div>
 
       <!-- Resources -->
       <div id="dataset-resources" class="resources subsection">
-        <h3>Resources</h3>
-        <py:for each="res in c.pkg_dict.get('resources', [])">
-          <div class="search-result" id="${res['id']}">
-            <p class="extra-links">
-              <a class="view-more-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">View</a>
-            </p>
-            <a class="main-link" href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_display_name(res)}</a>
-            &nbsp;&nbsp;
-            <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
-            <p class="resource-description" py:if="res.get('description')">${h.markdown_extract(res.get('description'))}</p>
-            <p class="resource-information" py:if="res.get('last_modified')">
-              Last updated: ${h.time_ago_in_words_from_str(res.get('last_modified'), granularity='day')} ago
-            </p>
-            <p class="result-url" rel="dcat:distribution" resource="_:res${res.id}" typeof="dcat:Distribution">
-              <a class="resource-url-analytics" href="${res.get('url', '')}" rel="dcat:accessURL" target="_blank">
-                ${res.get('url', '')}
-              </a>
-              <a py:if="res.get('cache_url')" class="resource-url-cached" href="${res.get('cache_url')}" target="_blank">
-                [cached]
-              </a>
-            </p>
-          </div>
-        </py:for>
+        <h3>Resources
+        <py:if test="h.check_access('package_update',{'id':c.pkg.id})"> &nbsp;
+          ${h.subnav_link(c, _('(edit)'), controller='package', action='editresources', id=c.pkg.name)}
+        </py:if></h3>
+        <ul class="resource-list">
+          <py:for each="res in c.pkg_dict.get('resources', [])">
+          <li>
+            <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">
+              ${h.resource_icon(res)}
+              ${h.resource_display_name(res)}
+              <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
+            </a>
+            </li>
+          </py:for>
+        </ul>
         <py:if test="not len(c.pkg_dict.get('resources', []))">
           (none)
         </py:if>
@@ -47,7 +46,10 @@
     </div>
 
     <!-- Dataset Information Section -->
-    <h3>Additional Information</h3>
+    <h3>Additional Information
+      <py:if test="h.check_access('package_update',{'id':c.pkg.id})"> &nbsp;
+        ${h.subnav_link(c, _('(settings)'), controller='package', action='edit', id=c.pkg.name)}
+      </py:if></h3>
     <div id="dataset-information">
     <table>
       <thead>

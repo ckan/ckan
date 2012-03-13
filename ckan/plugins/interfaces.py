@@ -424,7 +424,7 @@ class IDatasetForm(Interface):
      - package_types(self)
 
     Implementations might want to consider mixing in
-    ckan.controllers.package.DefaultPluggablePackageController which provides
+    ckan.lib.plugins.DefaultDatasetForm which provides
     default behaviours for the 5 method hooks.
 
     """
@@ -439,8 +439,7 @@ class IDatasetForm(Interface):
         There must be exactly one fallback controller defined, any attempt to
         register more than one will throw an exception at startup.  If there's
         no fallback registered at startup the
-        ckan.controllers.package.DefaultPluggablePackageController is used
-        as the fallback.
+        ckan.lib.plugins.DefaultDatasetForm is used as the fallback.
         """
 
     def package_types(self):
@@ -515,7 +514,7 @@ class IGroupForm(Interface):
      - package_types(self)
 
     Implementations might want to consider mixing in
-    ckan.controllers.package.DefaultPluggablePackageController which provides
+    ckan.lib.plugins.DefaultGroupForm which provides
     default behaviours for the 5 method hooks.
 
     """
@@ -530,8 +529,7 @@ class IGroupForm(Interface):
         There must be exactly one fallback controller defined, any attempt to
         register more than one will throw an exception at startup.  If there's
         no fallback registered at startup the
-        ckan.controllers.group.DefaultPluggableGroupController is used
-        as the fallback.
+        ckan.lib.plugins.DefaultGroupForm used as the fallback.
         """
 
     def group_types(self):

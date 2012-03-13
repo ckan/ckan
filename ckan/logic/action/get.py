@@ -100,6 +100,54 @@ def package_revision_list(context, data_dict):
                                                      include_groups=False))
     return revision_dicts
 
+def member_list(context, data_dict=None):
+    """
+    Returns a list of (id,type,capacity) tuples that are members of the
+    specified group if the user has permission to 'get' the group.
+
+    context:
+        model - The CKAN model module
+        user  - The name of the current user
+
+    data_dict:
+        group - The ID of the group to which we want to list members
+        object_type - The optional name of the type being added, all lowercase,
+                      e.g. package, or user
+        capacity - The optional capacity of objects that we want to retrieve
+    """
+    model = context['model']
+    user = context['user']
+
+    group_id = data_dict['group']
+    obj_type = data_dict.get('object_type', None)
+    capacity = data_dict.get('capacity', None)
+
+    # User must be able to update the group to remove a member from it
+    if 'group' not in context:
+        context['group'] = group_id
+    check_access('group_show', context, data_dict)
+
+    q = model.Session.query(model.Member).\
+            filter(model.Member.group_id == group_id).\
+            filter(model.Member.state    == "active")
+
+    if obj_type:
+        q = q.filter(model.Member.table_name == obj_type)
+    if capacity:
+        q = q.filter(model.Member.capacity == capacity)
+
+    lookup = {}
+    def type_lookup(name):
+        if name in lookup:
+            return lookup[name]
+        if hasattr(model, name.title()):
+            lookup[name] = getattr(model,name.title())
+            return lookup[name]
+        return None
+
+    return [ (m.table_id, type_lookup(m.table_name) ,m.capacity,)
+             for m in q.all() ]
+
 def group_list(context, data_dict):
     '''Returns a list of groups'''
 
@@ -371,7 +419,6 @@ def revision_show(context, data_dict):
 
 def group_show(context, data_dict):
     '''Shows group details'''
-
     model = context['model']
     id = data_dict['id']
     api = context.get('api_version') or '1'
@@ -610,7 +657,7 @@ def format_autocomplete(context, data_dict):
         .order_by('total DESC')\
         .limit(limit)
 
-    return [resource.format for resource in query]
+    return [resource.format.lower() for resource in query]
 
 def user_autocomplete(context, data_dict):
     '''Returns users containing the provided string'''
@@ -702,13 +749,16 @@ def package_search(context, data_dict):
             new_facet_dict = {}
             new_facet_dict['name'] = key_
             if key == 'groups':
-                new_facet_dict['display_name'] = (
-                        model.Group.get(key_).display_name)
+                group = model.Group.get(key_)
+                if group:
+                    new_facet_dict['display_name'] = group.display_name
+                else:
+                    new_facet_dict['display_name'] = key_
             else:
                 new_facet_dict['display_name'] = key_
             new_facet_dict['count'] = value_
             restructured_facets[key]['items'].append(new_facet_dict)
-    search_results['facets'] = restructured_facets
+    search_results['new_facets'] = restructured_facets
 
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -716,9 +766,9 @@ def package_search(context, data_dict):
 
     # After extensions have had a chance to modify the facets, sort them by
     # display name.
-    for facet in search_results['facets']:
-        search_results['facets'][facet]['items'] = sorted(
-                search_results['facets'][facet]['items'],
+    for facet in search_results['new_facets']:
+        search_results['new_facets'][facet]['items'] = sorted(
+                search_results['new_facets'][facet]['items'],
                 key=lambda facet: facet['display_name'], reverse=True)
 
     return search_results
@@ -897,7 +947,7 @@ def term_translation_show(context, data_dict):
     q = select([trans_table])
 
     if 'terms' not in data_dict:
-        raise ValidationError({'terms': 'terms not it data'})
+        raise ValidationError({'terms': 'terms not in data'})
 
     q = q.where(trans_table.c.term.in_(data_dict['terms']))
 
@@ -935,7 +985,7 @@ def get_site_user(context, data_dict):
 def roles_show(context, data_dict):
     '''Returns the roles that users (and authorization groups) have on a
     particular domain_object.
-    
+
     If you specify a user (or authorization group) then the resulting roles
     will be filtered by those of that user (or authorization group).
 

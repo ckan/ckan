@@ -11,7 +11,7 @@ from ckan.lib.navl.dictization_functions import DataError, unflatten
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
-from ckan.logic.schema import user_new_form_schema, user_edit_form_schema 
+from ckan.logic.schema import user_new_form_schema, user_edit_form_schema
 from ckan.logic.action.get import user_activity_list_html
 from ckan.lib.captcha import check_recaptcha, CaptchaError
 
@@ -28,7 +28,7 @@ class UserController(BaseController):
             if c.action not in ('login','request_reset','perform_reset',):
                 abort(401, _('Not authorized to see this page'))
 
-    ## hooks for subclasses 
+    ## hooks for subclasses
     new_user_form = 'user/new_user_form.html'
     edit_user_form = 'user/edit_user_form.html'
 
@@ -207,10 +207,10 @@ class UserController(BaseController):
             abort(404, _('User not found'))
 
         user_obj = context.get('user_obj')
-        
+
         if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user)) or c.user == user_obj.name):
             abort(401, _('User %s not authorized to edit %s') % (str(c.user), id))
-        
+
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
@@ -255,7 +255,7 @@ class UserController(BaseController):
             return render('user/login.html')
         else:
             return render('user/logout_first.html')
-    
+
     def logged_in(self):
         if c.user:
             context = {'model': model,
@@ -277,14 +277,14 @@ class UserController(BaseController):
             h.flash_error('Login failed. Bad username or password.' + \
                           ' (Or if using OpenID, it hasn\'t been associated with a user account.)')
             h.redirect_to(controller='user', action='login')
-          
+
     def logged_out(self):
         c.user = None
         response.delete_cookie("ckan_user")
         response.delete_cookie("ckan_display_name")
         response.delete_cookie("ckan_apikey")
         return render('user/logout.html')
-    
+
     def request_reset(self):
         if request.method == 'POST':
             id = request.params.get('user')
@@ -346,7 +346,7 @@ class UserController(BaseController):
 
         if request.method == 'POST':
             try:
-                context['reset_password'] = True 
+                context['reset_password'] = True
                 new_password = self._get_form_password()
                 user_dict['password'] = new_password
                 user_dict['reset_key'] = c.reset_key
@@ -374,7 +374,7 @@ class UserController(BaseController):
             log.error('Could not print "about" field Field: %r Error: %r', about, e)
             html = _('Error: Could not parse About text')
         return html
-    
+
     def _get_form_password(self):
         password1 = request.params.getone('password1')
         password2 = request.params.getone('password2')
@@ -384,4 +384,4 @@ class UserController(BaseController):
             elif not password1 == password2:
                 raise ValueError(_("The passwords you entered do not match."))
             return password1
-        
+

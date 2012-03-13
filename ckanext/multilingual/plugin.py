@@ -166,7 +166,7 @@ class MultilingualDataset(SingletonPlugin):
 
     def after_search(self, search_results, search_params):
 
-        facets = search_results.get('facets')
+        facets = search_results.get('new_facets')
         if not facets:
             return search_results
 

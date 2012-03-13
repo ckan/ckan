@@ -53,8 +53,6 @@ class AlphaPage(object):
                 x = getattr(c, self.alpha_attribute)[0]
             self.available[x] = self.available.get(x, 0) + 1
 
-
-
     def pager(self, q=None):
         '''Returns pager html - for navigating between the pages.
            e.g. Something like this:

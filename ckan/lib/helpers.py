@@ -5,8 +5,10 @@
 Consists of functions to typically be used within templates, but also
 available to Controllers. This module is available to templates as 'h'.
 """
+import email.utils
 import datetime
 import re
+import urllib
 
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
@@ -216,6 +218,15 @@ def nav_link(c, text, controller, **kwargs):
                 else '')
     )
 
+def nav_named_link(c, text, name, **kwargs):
+    return link_to(
+        text,
+        url_for(name, **kwargs),
+#        class_=('active' if
+#                c.action in highlight_actions
+#                else '')
+    )
+
 # FIXME: shouldn't have to pass the c object in to this.
 def subnav_link(c, text, action, **kwargs):
     return link_to(
@@ -231,6 +242,22 @@ def subnav_named_route(c, text, routename,**kwargs):
         url_for(str(routename), **kwargs),
         class_=('active' if c.action == kwargs['action'] else '')
     )
+
+def default_group_type():
+    from pylons import config
+    return str( config.get('ckan.default.group_type', 'group') )
+
+def facet_items(c, name, limit=10):
+    from pylons import request
+    if not c.facets or not c.facets.get(name):
+        return []
+    facets = []
+    for k, v in c.facets.get(name).items():
+        if not len(k.strip()):
+            continue
+        if not (name, k) in request.params.items():
+            facets.append((k, v))
+    return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
 
 def facet_title(name):
     from pylons import config
@@ -311,20 +338,52 @@ def markdown_extract(text, extract_length=190):
 def icon_url(name):
     return url_for_static('/images/icons/%s.png' % name)
 
-def icon_html(url, alt=None):
-    return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (url, alt))
+def icon_html(url, alt=None, inline=True):
+    classes = ''
+    if inline: classes += 'inline-icon '
+    return literal('<img src="%s" height="16px" width="16px" alt="%s" class="%s" /> ' % (url, alt, classes))
 
-def icon(name, alt=None):
-    return icon_html(icon_url(name),alt)
+def icon(name, alt=None, inline=True):
+    return icon_html(icon_url(name),alt,inline)
 
-def linked_gravatar(email_hash, size=100, default="identicon"):
+def resource_icon(res):
+    if False:
+        icon_name = 'page_white'
+    # if (res.is_404?): icon_name = 'page_white_error'
+    # also: 'page_white_gear'
+    # also: 'page_white_link'
+        return icon(icon_name)
+    else:
+        return icon(format_icon(res.get('format','')))
+
+def format_icon(_format):
+    _format = _format.lower()
+    if ('json' in _format): return 'page_white_cup'
+    if ('csv' in _format): return 'page_white_gear'
+    if ('xls' in _format): return 'page_white_excel'
+    if ('zip' in _format): return 'page_white_compressed'
+    if ('api' in _format): return 'page_white_database'
+    if ('plain text' in _format): return 'page_white_text'
+    if ('xml' in _format): return 'page_white_code'
+    return 'page_white'
+
+def linked_gravatar(email_hash, size=100, default=None):
     return literal('''<a href="https://gravatar.com/" target="_blank"
         title="Update your avatar at gravatar.com">
         %s</a>''' %
             gravatar(email_hash,size,default)
         )
 
-def gravatar(email_hash, size=100, default="identicon"):
+_VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro']
+def gravatar(email_hash, size=100, default=None):
+    if default is None:
+        from pylons import config 
+        default = config.get('ckan.gravatar_default', 'identicon')
+
+    if not default in _VALID_GRAVATAR_DEFAULTS:
+        # treat the default as a url
+        default = urllib.quote(default, safe='')
+
     return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
         class="gravatar" />'''
         % (email_hash, size, default)
@@ -385,6 +444,27 @@ def date_str_to_datetime(date_str):
     # a strptime. Also avoids problem with Python 2.5 not having %f.
     return datetime.datetime(*map(int, re.split('[^\d]', date_str)))
 
+def parse_rfc_2822_date(date_str, tz_aware=True):
+    """
+    Parse a date string of the form specified in RFC 2822, and return a datetime.
+
+    RFC 2822 is the date format used in HTTP headers.
+
+    If the date string contains a timezone indication, and tz_aware is True,
+    then the associated tzinfo is attached to the returned datetime object.
+
+    Returns None if the string cannot be parse as a valid datetime.
+    """
+    time_tuple = email.utils.parsedate_tz(date_str)
+    
+    if not time_tuple:
+        return None
+
+    if not tz_aware:
+        time_tuple = time_tuple[:-1] + (None,)
+
+    return datetime.datetime.fromtimestamp(email.utils.mktime_tz(time_tuple))
+
 def time_ago_in_words_from_str(date_str, granularity='month'):
     if date_str:
         return date.time_ago_in_words(date_str_to_datetime(date_str), granularity=granularity)
@@ -442,3 +522,17 @@ def tag_link(tag):
 def group_link(group):
     url = url_for(controller='group', action='read', id=group['name'])
     return link_to(group['name'], url)
+
+def dump_json(obj):
+    import json
+    return json.dumps(obj)
+
+def auto_log_message(context):
+    from pylons.i18n import _
+    if (context.action=='new') :
+        return _('Created new dataset.')
+    elif (context.action=='editresources'):
+        return _('Edited resources.')
+    elif (context.action=='edit'):
+        return _('Edited settings.')
+    return ''

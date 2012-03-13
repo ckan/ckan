@@ -74,7 +74,7 @@ class TestBasicDictize:
                                  'groups': [{'name': u'david'}, {'name': u'roger'}],
                                  'license_id': u'other-open',
                                  'name': u'anna2',
-                                 'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+                                 'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
                                  'resources': [{'alt_url': u'alt123',
                                                 'description': u'Full text. Needs escaping: " Umlaut: \xfc',
                                                 'format': u'plain text',
@@ -105,7 +105,7 @@ class TestBasicDictize:
         data['name'] = u'annakarenina'
         data.pop("title")
         data["resources"][0]["url"] = 'fsdfafasfsaf'
-        data["resources"][1].pop("url") 
+        data["resources"][1].pop("url")
 
         converted_data, errors = validate(data, default_package_schema(), self.context)
 
@@ -145,9 +145,13 @@ class TestBasicDictize:
                                  'id': group.id,
                                  'name': u'david',
                                  'type': u'group',
-                                 'packages': sorted([{'id': group_pack[0].id},
+                                 'packages': sorted([{'id': group_pack[0].id,
+                                                    'name': group_pack[0].name,
+                                                    'title': group_pack[0].title},
                                               {'id': group_pack[1].id,
-                                               }], key=lambda x:x["id"]),
+                                              'name': group_pack[1].name,
+                                              'title':group_pack[1].title}],
+                                              key=lambda x:x["id"]),
                                  'title': u"Dave's books",
                                  'approval_status': u'approved'}
 
@@ -170,7 +174,7 @@ class TestBasicDictize:
         ignored = ""
         data = {
             'name': u'with space',
-            'revision_timestamp': ignored, 
+            'revision_timestamp': ignored,
             'state': ignored
             }
 

@@ -67,7 +67,7 @@ class TestGroup(FunctionalTestCase):
         assert 'Groups' in res, res
         assert 'Groups</a>' in res, res
         res = res.click(href='/group', index=0)
-        assert 'Groups of' in res, res
+        assert "Dave's books" in res, res
 
     def test_index(self):
         offset = url_for(controller='group', action='index')
@@ -93,7 +93,7 @@ class TestGroup(FunctionalTestCase):
         name = u'david'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert plugin.calls['read'] == 2, plugin.calls
+        assert plugin.calls['read'] == 1, plugin.calls
         plugins.unload(plugin)
 
     def test_read_and_authorized_to_edit(self):
@@ -472,6 +472,11 @@ class TestPublisherGroup(FunctionalTestCase):
         model.repo.rebuild_db()
 
     def test_index(self):
+        from pylons import config
+        from nose.exc import SkipTest
+        if config.get('ckan.auth.profile', '') != 'publisher':
+            raise SkipTest('Publisher auth profile not enabled')
+
         offset = url_for(controller='group', action='index')
         res = self.app.get(offset)
         assert '<h1 class="page_heading">Groups' in res, res
@@ -486,6 +491,11 @@ class TestPublisherGroup(FunctionalTestCase):
         assert 'publisher' == group.type, group.type
 
     def test_read(self):
+        from pylons import config
+        from nose.exc import SkipTest
+        if config.get('ckan.auth.profile', '') != 'publisher':
+            raise SkipTest('Publisher auth profile not enabled')
+
         # Relies on the search index being available
         setup_test_search_index()
         name = u'david'
@@ -504,6 +514,11 @@ class TestPublisherGroup(FunctionalTestCase):
             assert '0 datasets found.' in self.strip_tags(main_res), main_res
 
     def test_read_and_not_authorized_to_edit(self):
+        from pylons import config
+        from nose.exc import SkipTest
+        if config.get('ckan.auth.profile', '') != 'publisher':
+            raise SkipTest('Publisher auth profile not enabled')
+
         name = u'david'
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
@@ -534,6 +549,11 @@ class TestPublisherEdit(FunctionalTestCase):
 
 
     def test_0_not_authz(self):
+        from pylons import config
+        from nose.exc import SkipTest
+        if config.get('ckan.auth.profile', '') != 'publisher':
+            raise SkipTest('Publisher auth profile not enabled')
+
         offset = url_for(controller='group', action='edit', id=self.groupname)
         # 401 gets caught by repoze.who and turned into redirect
         res = self.app.get(offset, status=[302, 401])
@@ -541,6 +561,11 @@ class TestPublisherEdit(FunctionalTestCase):
         assert res.request.url.startswith('/user/login')
 
     def test_2_edit(self):
+        from pylons import config
+        from nose.exc import SkipTest
+        if config.get('ckan.auth.profile', '') != 'publisher':
+            raise SkipTest('Publisher auth profile not enabled')
+
         group = model.Group.by_name(self.groupname)
         offset = url_for(controller='group', action='edit', id=self.groupname)
         user = model.User.get('russianfan')

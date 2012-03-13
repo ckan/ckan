@@ -115,6 +115,8 @@ def make_map():
                   conditions=GET)
         m.connect('/util/resource/format_autocomplete',
                   action='format_autocomplete', conditions=GET)
+        m.connect('/util/resource/format_icon',
+                  action='format_icon', conditions=GET)
         m.connect('/util/authorizationgroup/autocomplete',
                   action='authorizationgroup_autocomplete')
         m.connect('/util/group/autocomplete', action='group_autocomplete')
@@ -175,6 +177,7 @@ def make_map():
         m.connect('/dataset/{action}/{id}',
           requirements=dict(action='|'.join([
           'edit',
+          'editresources',
           'authz',
           'history',
           'read_ajax',
@@ -193,7 +196,7 @@ def make_map():
     ##map.connect('/group/edit/{id}', controller='group_formalchemy', action='edit')
 
     # These named routes are used for custom group forms which will use the
-    # names below based on the group.type (dataset_group is the default type)
+    # names below based on the group.type ('group' is the default type)
     with SubMapper(map, controller='group') as m:
         m.connect('group_index', '/group', action='index')
         m.connect('group_list', '/group/list', action='list')

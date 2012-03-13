@@ -5,7 +5,7 @@ from paste.util.multidict import MultiDict
 from webob.multidict import UnicodeMultiDict
 
 from ckan.lib.base import BaseController, response, c, _, gettext, request
-from ckan.lib.helpers import json, date_str_to_datetime
+from ckan.lib.helpers import json, date_str_to_datetime, format_icon, icon_url
 import ckan.model as model
 import ckan.rating
 from ckan.lib.search import (query_for, QueryOptions, SearchIndexError, SearchError,
@@ -617,11 +617,14 @@ class ApiController(BaseController):
     def is_slug_valid(self):
         slug = request.params.get('slug') or ''
         slugtype = request.params.get('type') or ''
+        disallowed = ['new', 'edit', 'search']
         if slugtype==u'package':
-            response_data = dict(valid=not bool(package_exists(slug)))
+            response_data = dict(valid=not bool(package_exists(slug)
+                                 or slug in disallowed ))
             return self._finish_ok(response_data)
         if slugtype==u'group':
-            response_data = dict(valid=not bool(group_exists(slug)))
+            response_data = dict(valid=not bool(group_exists(slug) or
+                                slug in disallowed ))
             return self._finish_ok(response_data)
         return self._finish_bad_request('Bad slug type: %s' % slugtype)
 
@@ -691,6 +694,14 @@ class ApiController(BaseController):
         tag = request.params.get('tag') or request.params.get('name')
         munged_tag = munge_tag(tag)
         return self._finish_ok(munged_tag)
+
+    def format_icon(self):
+        f = request.params.get('format')
+        out = {
+            'format' : f,
+            'icon'   : icon_url(format_icon(f))
+            }
+        return self._finish_ok(out)
 
     def status(self):
         context = {'model': model, 'session': model.Session}

@@ -24,7 +24,7 @@ class CreateTestData(cli.CkanCommand):
     tag_names = []
     group_names = set()
     user_refs = []
-    
+
     pkg_core_fields = ['name', 'title', 'version', 'url', 'notes',
                        'author', 'author_email',
                        'maintainer', 'maintainer_email',
@@ -131,7 +131,7 @@ class CreateTestData(cli.CkanCommand):
 
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],
-            extra_user_names=[], extra_group_names=[], 
+            extra_user_names=[], extra_group_names=[],
             admins=[]):
         '''Creates packages and a few extra objects as well at the
         same time if required.
@@ -143,7 +143,7 @@ class CreateTestData(cli.CkanCommand):
         @param extra_group_names - a list of group names to create. No
                                properties get set though.
         @param admins - a list of user names to make admins of all the
-                               packages created.                           
+                               packages created.
         '''
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
@@ -153,11 +153,11 @@ class CreateTestData(cli.CkanCommand):
         new_user_names = extra_user_names
         new_group_names = set()
         new_groups = {}
-        
-        rev = model.repo.new_revision() 
+
+        rev = model.repo.new_revision()
         rev.author = cls.author
         rev.message = u'Creating test packages.'
-        
+
         admins_list = defaultdict(list) # package_name: admin_names
         if package_dicts:
             if isinstance(package_dicts, dict):
@@ -173,7 +173,7 @@ class CreateTestData(cli.CkanCommand):
                     if isinstance(val, str):
                         val = unicode(val)
                     if attr=='name':
-                        continue                
+                        continue
                     if attr in cls.pkg_core_fields:
                         pass
                     elif attr == 'download_url':
@@ -202,7 +202,7 @@ class CreateTestData(cli.CkanCommand):
                             if not tag:
                                 tag = model.Tag(name=tag_name)
                                 cls.tag_names.append(tag_name)
-                                model.Session.add(tag)    
+                                model.Session.add(tag)
                             pkg.add_tag(tag)
                             model.Session.flush()
                     elif attr == 'groups':
@@ -250,8 +250,8 @@ class CreateTestData(cli.CkanCommand):
             model.repo.commit_and_remove()
 
         needs_commit = False
-        
-        rev = model.repo.new_revision() 
+
+        rev = model.repo.new_revision()
         for group_name in extra_group_names:
             group = model.Group(name=unicode(group_name))
             model.Session.add(group)
@@ -300,7 +300,7 @@ class CreateTestData(cli.CkanCommand):
             needs_commit = False
 
         if relationships:
-            rev = model.repo.new_revision() 
+            rev = model.repo.new_revision()
             rev.author = cls.author
             rev.message = u'Creating package relationships.'
 
@@ -312,7 +312,7 @@ class CreateTestData(cli.CkanCommand):
                 needs_commit = True
 
             model.repo.commit_and_remove()
-        
+
 
     @classmethod
     def create_groups(cls, group_dicts, admin_user_name=None, auth_profile=""):
@@ -366,7 +366,7 @@ class CreateTestData(cli.CkanCommand):
 
         cls.pkg_names = [u'annakarenina', u'warandpeace']
         pkg1 = model.Package(name=cls.pkg_names[0], type=package_type)
-        if auth_profile == "publisher":        
+        if auth_profile == "publisher":
             pkg1.group = publisher_group
         model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
@@ -410,7 +410,7 @@ Foreign characters:
 u with umlaut \xfc
 66-style quote \u201c
 foreign word: th\xfcmb
- 
+
 Needs escaping:
 left arrow <
 
@@ -421,7 +421,7 @@ left arrow <
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
 
-        if auth_profile == "publisher":        
+        if auth_profile == "publisher":
             pkg2.group = publisher_group
 
         # Flexible tag, allows spaces, upper-case,
@@ -449,12 +449,12 @@ left arrow <
                              type=auth_profile or 'group')
         for obj in [david, roger]:
             model.Session.add(obj)
-        
+
         cls.group_names.add(u'david')
         cls.group_names.add(u'roger')
 
         model.Session.flush()
-        
+
         model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=david))
         model.Session.add(model.Member(table_id=pkg2.id, table_name='package', group=david))
         model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=roger))
@@ -489,7 +489,7 @@ left arrow <
 
         # Create a couple of authorization groups
         for ag_name in [u'anauthzgroup', u'anotherauthzgroup']:
-            ag=model.AuthorizationGroup.by_name(ag_name) 
+            ag=model.AuthorizationGroup.by_name(ag_name)
             if not ag: #may already exist, if not create
                 ag=model.AuthorizationGroup(name=ag_name)
                 model.Session.add(ag)
@@ -601,7 +601,7 @@ search_items = [{'name':'gils',
               'groups':'ukgov test1 test2 penguin',
               'license':'odc-by',
               'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>
-              
+
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal
 > Because this collection is decentralized, the GPO
 
@@ -646,7 +646,7 @@ penguin
              {'name':'uk-government-expenditure',
               'title':'UK Government Expenditure',
               'tags':'workshop-20081101,uk,gov,expenditure,finance,public,funding,penguin'.split(','),
-              'groups':'ukgov penguin',              
+              'groups':'ukgov penguin',
               'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
 Overview is available in Red Book, or Financial Statement and Budget Report (FSBR), [published by the Treasury](http://www.hm-treasury.gov.uk/budget.htm).''',
@@ -655,7 +655,7 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
              {'name':'se-publications',
               'title':'Sweden - Government Offices of Sweden - Publications',
               'url':'http://www.sweden.gov.se/sb/d/574',
-              'groups':'penguin',              
+              'groups':'penguin',
               'tags':u'country-sweden,format-pdf,access-www,documents,publications,government,eutransparency,penguin,CAPITALS,surprise.,greek omega \u03a9,japanese katakana \u30a1'.split(','),
               'license':'',
               'notes':'''### About
@@ -669,7 +669,7 @@ Not clear.''',
               },
              {'name':'se-opengov',
               'title':'Opengov.se',
-              'groups':'penguin',              
+              'groups':'penguin',
               'url':'http://www.opengov.se/',
               'download_url':'http://www.opengov.se/data/open/',
               'tags':'country-sweden,government,data,penguin'.split(','),
