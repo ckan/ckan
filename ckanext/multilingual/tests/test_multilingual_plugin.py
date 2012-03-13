@@ -19,6 +19,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
         cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
         ckan.plugins.load('multilingual_dataset')
         ckan.plugins.load('multilingual_group')
+        ckan.plugins.load('multilingual_tag')
         ckan.tests.setup_test_search_index()
         ckan.lib.create_test_data.CreateTestData.create_translations_test_data()
         # Add translation terms that match a couple of group names and package
