@@ -112,23 +112,6 @@ class PublisherForm(SingletonPlugin):
         use the available groups for the current user, but should be optional
         in case this is a top level group
         """
-<<<<<<< HEAD
-        c.body_class = "group edit"
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
-        if 'group' in context:
-            group = context['group']
-
-            try:
-                check_access('group_update', context)
-                c.is_superuser_or_groupadmin = True
-            except NotAuthorized:
-                c.is_superuser_or_groupadmin = False
-
-            c.possible_parents = model.Session.query(model.Group).\
-                   filter(model.Group.state == 'active').\
-                   filter(model.Group.type == 'publisher').\
-                   filter(model.Group.name != group.id ).order_by(model.Group.title).all()
-=======
         c.user_groups = c.userobj.get_groups('publisher')
         local_ctx = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -143,23 +126,13 @@ class PublisherForm(SingletonPlugin):
             group = context['group']
             # Only show possible groups where the current user is a member
             c.possible_parents = c.userobj.get_groups('publisher', 'admin')
->>>>>>> feature-2211-publishers
 
             c.parent = None
             grps = group.get_groups('publisher')
             if grps:
                 c.parent = grps[0]
-<<<<<<< HEAD
-
             c.users = group.members_of_type(model.User)
 
-
-
-=======
-            c.users = group.members_of_type(model.User)
-
-
->>>>>>> feature-2211-publishers
 class PublisherDatasetForm(SingletonPlugin):
     """
         This plugin implements a new publisher form for cases where we
@@ -221,10 +194,6 @@ class PublisherDatasetForm(SingletonPlugin):
         c.resource_columns = model.Resource.get_columns()
         c.groups_available = c.userobj.get_groups('publisher') if c.userobj else []
 
-<<<<<<< HEAD
-
-=======
->>>>>>> feature-2211-publishers
         ## This is messy as auths take domain object not data_dict
         pkg = context.get('package') or c.pkg
         if pkg:
@@ -238,16 +207,12 @@ class PublisherDatasetForm(SingletonPlugin):
         Returns the schema for mapping package data from a form to a format
         suitable for the database.
         """
-<<<<<<< HEAD
-        return package_form_schema()
-=======
         schema =  package_form_schema()
         schema['groups'] = {
                 'name': [not_empty, val.group_id_or_name_exists, unicode],
                 'id':   [ignore_missing, unicode],
             }
         return schema
->>>>>>> feature-2211-publishers
 
     def db_to_form_schema(data):
         """
