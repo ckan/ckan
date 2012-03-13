@@ -91,7 +91,6 @@ setup(
     synchronous_search = ckan.lib.search:SynchronousSearchPlugin
     stats=ckanext.stats.plugin:StatsPlugin
     publisher_form=ckanext.publisher_form.forms:PublisherForm
-    publisher_dataset_form=ckanext.publisher_form.forms:PublisherDatasetForm
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
 
     [ckan.system_plugins]
