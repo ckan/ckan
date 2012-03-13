@@ -1,4 +1,5 @@
 import ckan.plugins
+import ckanext.multilingual.plugin as mulilingual_plugin
 import ckan.lib.helpers
 import ckan.lib.create_test_data
 import ckan.logic.action.update
@@ -199,3 +200,83 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                     response.mustcontain(term)
             nose.tools.assert_raises(IndexError, response.mustcontain,
                     'this should not be rendered')
+
+class TestDatasetSearchIndex():
+
+    @classmethod
+    def setup_class(cls):
+        ckan.plugins.load('multilingual_dataset')
+        ckan.plugins.load('multilingual_group')
+
+        data_dicts = [
+            {'term': 'moo',
+             'term_translation': 'french_moo',
+             'lang_code': 'fr',
+             }, # 
+            {'term': 'moo',
+             'term_translation': 'this should not be rendered',
+             'lang_code': 'fsdas',
+             },
+            {'term': 'an interesting note',
+             'term_translation': 'french note',
+             'lang_code': 'fr',
+             },
+            {'term': 'moon',
+             'term_translation': 'french moon',
+             'lang_code': 'fr',
+             },
+            {'term': 'boon',
+             'term_translation': 'french boon',
+             'lang_code': 'fr',
+             },
+            {'term': 'boon',
+             'term_translation': 'italian boon',
+             'lang_code': 'it',
+             },
+            {'term': 'david',
+             'term_translation': 'french david',
+             'lang_code': 'fr',
+             },
+            {'term': 'david',
+             'term_translation': 'italian david',
+             'lang_code': 'it',
+             },
+        ]
+
+        context = {
+            'model': ckan.model,
+            'session': ckan.model.Session,
+            'user': 'testsysadmin',
+            'ignore_auth': True,
+        }
+        for data_dict in data_dicts:
+            ckan.logic.action.update.term_translation_update(context,
+                    data_dict)
+
+    def test_translate_terms(self):
+
+        sample_index_data = {
+         'download_url': u'moo',
+         'notes': u'an interesting note',
+         'tags': [u'moon', 'boon'],
+         'title': u'david',
+        } 
+
+        result = mulilingual_plugin.MultilingualDataset().before_index(sample_index_data)
+
+        assert result == {'text_pl': '',
+                          'text_de': '',
+                          'text_ro': '',
+                          'title': u'david',
+                          'notes': u'an interesting note',
+                          'tags': [u'moon', 'boon'],
+                          'title_en': u'david',
+                          'download_url': u'moo',
+                          'text_it': u'italian boon',
+                          'text_es': '',
+                          'text_en': u'an interesting note moon boon moo',
+                          'text_nl': '',
+                          'title_it': u'italian david',
+                          'text_pt': '',
+                          'title_fr': u'french david',
+                          'text_fr': u'french note french boon french_moo french moon'}, result
