@@ -44,7 +44,7 @@ autoneg_cfg = [
 
 class PackageController(BaseController):
 
-    def _package_form(self, package_type=None):    
+    def _package_form(self, package_type=None):
         return lookup_package_plugin(package_type).package_form()
 
     def _form_to_db_schema(self, package_type=None):
@@ -62,6 +62,20 @@ class PackageController(BaseController):
 
     def _setup_template_variables(self, context, data_dict, package_type=None):
         return lookup_package_plugin(package_type).setup_template_variables(context, data_dict)
+
+
+    def _index_template(self, package_type):
+        return lookup_package_plugin(package_type).index_template()
+
+    def _search_template(self, package_type):
+        return lookup_package_plugin(package_type).search_template()
+
+    def _read_template(self, package_type):
+        return lookup_package_plugin(package_type).read_template()
+
+    def _history_template(self, package_type):
+        return lookup_package_plugin(package_type).history_template()
+
 
     authorizer = ckan.authz.Authorizer()
 
@@ -83,21 +97,21 @@ class PackageController(BaseController):
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
-        
+
         def drill_down_url(**by):
             params = list(params_nopage)
             params.extend(by.items())
             return search_url(set(params))
-        
-        c.drill_down_url = drill_down_url 
-        
+
+        c.drill_down_url = drill_down_url
+
         def remove_field(key, value):
             params = list(params_nopage)
             params.remove((key, value))
             return search_url(params)
 
         c.remove_field = remove_field
-        
+
         def pager_url(q=None, page=None):
             params = list(params_nopage)
             params.append(('page', page))
@@ -144,7 +158,7 @@ class PackageController(BaseController):
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
-        
+
         return render('package/search.html')
 
 
@@ -171,7 +185,7 @@ class PackageController(BaseController):
                     abort(400, _('Invalid revision format: %r') % e.args)
         elif len(split) > 2:
             abort(400, _('Invalid revision format: %r') % 'Too many "@" symbols')
-            
+
         #check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
@@ -181,7 +195,7 @@ class PackageController(BaseController):
             abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
-        
+
         #set a cookie so we know whether to display the welcome message
         c.hide_welcome_message = bool(request.cookies.get('hide_welcome_message', False))
         response.set_cookie('hide_welcome_message', '1', max_age=3600) #(make cross-site?)
@@ -199,7 +213,7 @@ class PackageController(BaseController):
         if config.get('rdf_packages'):
             accept_header = request.headers.get('Accept', '*/*')
             for content_type, exts in negotiate(autoneg_cfg, accept_header):
-                if "html" not in exts: 
+                if "html" not in exts:
                     rdf_url = '%s%s.%s' % (config['rdf_packages'], c.pkg.id, exts[0])
                     redirect(rdf_url, code=303)
                 break
@@ -300,11 +314,11 @@ class PackageController(BaseController):
         return render('package/history.html')
 
     def new(self, data=None, errors=None, error_summary=None):
-        
+
         package_type = request.path.strip('/').split('/')[0]
         if package_type == 'group':
             package_type = None
-        
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,}
@@ -321,7 +335,7 @@ class PackageController(BaseController):
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=[CACHE_PARAMETER]))))
-        c.pkg_json = json.dumps(data) 
+        c.pkg_json = json.dumps(data)
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -438,22 +452,22 @@ class PackageController(BaseController):
                 current_approved, approved = True, True
             else:
                 current_approved = False
-            
+
             data.append({'revision_id': revision['id'],
                          'message': revision['message'],
                          'timestamp': revision['timestamp'],
                          'author': revision['author'],
                          'approved': bool(revision['approved_timestamp']),
                          'current_approved': current_approved})
-                
+
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return json.dumps(data)
 
     def _get_package_type(self, id):
         """
-        Given the id of a package it determines the plugin to load 
+        Given the id of a package it determines the plugin to load
         based on the package's type name (type). The plugin found
-        will be returned, or None if there is no plugin associated with 
+        will be returned, or None if there is no plugin associated with
         the type.
 
         Uses a minimal context to do so.  The main use of this method
@@ -538,8 +552,8 @@ class PackageController(BaseController):
             url = url.replace('<NAME>', pkgname)
         else:
             url = h.url_for(controller='package', action='read', id=pkgname)
-        redirect(url)        
-        
+        redirect(url)
+
     def _adjust_license_id_options(self, pkg, fs):
         options = fs.license_id.render_opts['options']
         is_included = False
@@ -574,7 +588,7 @@ class PackageController(BaseController):
     def autocomplete(self):
         # DEPRECATED in favour of /api/2/util/dataset/autocomplete
         q = unicode(request.params.get('q', ''))
-        if not len(q): 
+        if not len(q):
             return ''
 
         context = {'model': model, 'session': model.Session,
