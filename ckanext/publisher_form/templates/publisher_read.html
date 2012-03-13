@@ -3,19 +3,28 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
 
-  <xi:include href="../facets.html" />
+  <xi:include href="facets.html" />
   <py:def function="page_title">${c.group.display_name}</py:def>
   <py:def function="page_heading">${c.group.display_name}</py:def>
 
+  <?python
+    from pylons import config
+    from ckan import model
+
+    if config.get('ckan.auth.profile', '') == 'publisher':
+        group_administrators = c.group.members_of_type(model.User, 'admin')
+    else:
+        group_administrators = c.group_admins
+  ?>
   <py:match path="primarysidebar">
 
     <li class="widget-container widget_text">
       <ul class="property-list">
-        <py:if test="c.group_admins">
+        <py:if test="group_administrators">
         <li>
         <h3>Administrators</h3>
           <ul class="no-break">
-            <li py:for="admin in c.group_admins">${h.linked_user(admin)}</li>
+            <li py:for="admin in group_administrators">${h.linked_user(admin)}</li>
           </ul>
         </li>
         </py:if>

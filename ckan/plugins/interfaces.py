@@ -571,12 +571,6 @@ class IGroupForm(Interface):
         option to determine which plugin to use the template from.
         """
 
-    def search_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the search page (if present).
-        """
-
     def read_template(self):
         """
         Returns a string representing the location of the template to be

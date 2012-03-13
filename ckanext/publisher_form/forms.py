@@ -69,12 +69,6 @@ class PublisherForm(SingletonPlugin):
         """
         return 'publisher_index.html'
 
-    def search_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the search page (if present)
-        """
-        return 'publisher_search.html'
 
     def read_template(self):
         """

@@ -307,13 +307,6 @@ class DefaultGroupForm(object):
         """
         return 'group/index.html'
 
-    def search_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the search page (if present)
-        """
-        return 'group/search.html'
-
     def read_template(self):
         """
         Returns a string representing the location of the template to be
