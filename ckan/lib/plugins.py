@@ -169,6 +169,35 @@ class DefaultDatasetForm(object):
            don't want this being registered.
     """
 
+    def index_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the index page
+        """
+        return ''
+
+    def search_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the search page (if present)
+        """
+        return 'package/search.html'
+
+    def read_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+        return 'package/read.html'
+
+    def history_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the history page
+        """
+        return 'package/history.html'
+
+
     def package_form(self):
         return 'package/new_package_form.html'
 
@@ -264,6 +293,41 @@ class DefaultGroupForm(object):
     Note - this isn't a plugin implementation. This is deliberate, as we
            don't want this being registered.
     """
+    def new_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the 'new' page
+        """
+        return 'group/new.html'
+
+    def index_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the index page
+        """
+        return 'group/index.html'
+
+    def search_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the search page (if present)
+        """
+        return 'group/search.html'
+
+    def read_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+        return 'group/read.html'
+
+    def history_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+        return 'group/history.html'
+
 
     def group_form(self):
         return 'group/new_group_form.html'
