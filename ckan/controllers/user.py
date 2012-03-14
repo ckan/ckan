@@ -82,7 +82,7 @@ class UserController(BaseController):
 
     def read(self, id=None):
         context = {'model': model,
-                   'user': c.user or c.author}
+                'user': c.user or c.author, 'for_view': True}
         data_dict = {'id':id,
                      'user_obj':c.userobj}
         try:

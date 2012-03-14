@@ -121,6 +121,36 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 nose.tools.assert_raises(IndexError, response.mustcontain,
                         'this should not be rendered')
 
+    def test_user_view_translation(self):
+        '''Test the translation of datasets on user view pages by the
+        multilingual_dataset plugin.
+
+        '''
+        for user_name in ('annafan',):
+            offset = routes.url_for(controller='user', action='read',
+                    id=user_name)
+            for (lang_code, translations) in (
+                    ('de', ckan.lib.create_test_data.german_translations),
+                    ('fr', ckan.lib.create_test_data.french_translations),
+                    ('en', ckan.lib.create_test_data.english_translations),
+                    ('pl', {})):
+                response = self.app.get(offset, status=200,
+                        extra_environ={'CKAN_LANG': lang_code,
+                            'CKAN_CURRENT_URL': offset})
+                terms = ('A Novel By Tolstoy', 'plain text', 'json')
+                for term in terms:
+                    if term in translations:
+                        response.mustcontain(translations[term])
+                    elif term in (
+                            ckan.lib.create_test_data.english_translations):
+                        response.mustcontain(
+                            ckan.lib.create_test_data.english_translations[
+                                term])
+                    else:
+                        response.mustcontain(term)
+                nose.tools.assert_raises(IndexError, response.mustcontain,
+                        'this should not be rendered')
+
     def test_dataset_search_results_translation(self):
         for (lang_code, translations) in (
                 ('de', ckan.lib.create_test_data.german_translations),
