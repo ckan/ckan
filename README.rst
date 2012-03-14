@@ -12,7 +12,7 @@ http://ckan.org/.
 Building Documentation
 ======================
 
-1. Install python-sphinx
+1. Install python-sphinx (>= 1.1)
 
 2. Initialize the theme submodule::
 
