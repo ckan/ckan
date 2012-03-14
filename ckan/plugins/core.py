@@ -63,14 +63,15 @@ def _get_service(plugin):
 
     if isinstance(plugin, basestring):
         try:
+            name = plugin
             (plugin,) = iter_entry_points(
                 group=PLUGINS_ENTRY_POINT_GROUP,
-                name=plugin
+                name=name
             )
         except ValueError:
             raise PluginNotFoundException(plugin)
 
-        return plugin.load()()
+        return plugin.load()(name=name)
 
     elif isinstance(plugin, _pca_Plugin):
         return plugin
