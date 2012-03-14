@@ -91,6 +91,36 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
             nose.tools.assert_raises(IndexError, response.mustcontain,
                     'this should not be rendered')
 
+    def test_tag_view_translation(self):
+        '''Test the translation of tag view pages by the multilingual_tag
+        plugin.
+
+        '''
+        for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
+            offset = routes.url_for(controller='tag', action='read',
+                    id=tag_name)
+            for (lang_code, translations) in (
+                    ('de', ckan.lib.create_test_data.german_translations),
+                    ('fr', ckan.lib.create_test_data.french_translations),
+                    ('en', ckan.lib.create_test_data.english_translations),
+                    ('pl', {})):
+                response = self.app.get(offset, status=200,
+                        extra_environ={'CKAN_LANG': lang_code,
+                            'CKAN_CURRENT_URL': offset})
+                terms = ('A Novel By Tolstoy', tag_name, 'plain text', 'json')
+                for term in terms:
+                    if term in translations:
+                        response.mustcontain(translations[term])
+                    elif term in (
+                            ckan.lib.create_test_data.english_translations):
+                        response.mustcontain(
+                            ckan.lib.create_test_data.english_translations[
+                                term])
+                    else:
+                        response.mustcontain(term)
+                nose.tools.assert_raises(IndexError, response.mustcontain,
+                        'this should not be rendered')
+
     def test_dataset_search_results_translation(self):
         for (lang_code, translations) in (
                 ('de', ckan.lib.create_test_data.german_translations),

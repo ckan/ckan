@@ -58,7 +58,7 @@ class TagController(BaseController):
 
     def read(self, id):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                'user': c.user or c.author, 'for_view': True}
         
         data_dict = {'id':id}
         try:
