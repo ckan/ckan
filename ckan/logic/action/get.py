@@ -124,7 +124,7 @@ def member_list(context, data_dict=None):
 
     # User must be able to update the group to remove a member from it
     if 'group' not in context:
-        context['group'] = group_id
+        context['group'] = model.Group.get( group_id )
     check_access('group_show', context, data_dict)
 
     q = model.Session.query(model.Member).\
