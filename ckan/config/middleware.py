@@ -109,7 +109,6 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         # Serve static files
         static_max_age = None if not asbool(config.get('ckan.cache_enabled')) \
             else int(config.get('ckan.static_max_age', 3600))
-        print static_max_age
 
         static_app = StaticURLParser(config['pylons.paths']['static_files'],
                 cache_max_age=static_max_age)
