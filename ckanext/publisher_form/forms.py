@@ -112,23 +112,6 @@ class PublisherForm(SingletonPlugin):
         use the available groups for the current user, but should be optional
         in case this is a top level group
         """
-<<<<<<< HEAD
-        c.body_class = "group edit"
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
-        if 'group' in context:
-            group = context['group']
-
-            try:
-                check_access('group_update', context)
-                c.is_superuser_or_groupadmin = True
-            except NotAuthorized:
-                c.is_superuser_or_groupadmin = False
-
-            c.possible_parents = model.Session.query(model.Group).\
-                   filter(model.Group.state == 'active').\
-                   filter(model.Group.type == 'publisher').\
-                   filter(model.Group.name != group.id ).order_by(model.Group.title).all()
-=======
         c.user_groups = c.userobj.get_groups('publisher')
         local_ctx = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -143,122 +126,9 @@ class PublisherForm(SingletonPlugin):
             group = context['group']
             # Only show possible groups where the current user is a member
             c.possible_parents = c.userobj.get_groups('publisher', 'admin')
->>>>>>> feature-2211-publishers
 
             c.parent = None
             grps = group.get_groups('publisher')
             if grps:
                 c.parent = grps[0]
-<<<<<<< HEAD
-
             c.users = group.members_of_type(model.User)
-
-
-
-=======
-            c.users = group.members_of_type(model.User)
-
-
->>>>>>> feature-2211-publishers
-class PublisherDatasetForm(SingletonPlugin):
-    """
-        This plugin implements a new publisher form for cases where we
-        want to enforce group (type=publisher) membership on a dataset.
-
-    """
-    implements(IDatasetForm, inherit=True)
-    implements(IConfigurer, inherit=True)
-
-    def update_config(self, config):
-        """
-        This IConfigurer implementation causes CKAN to look in the
-        ```templates``` directory when looking for the package_form()
-        """
-        here = os.path.dirname(__file__)
-        rootdir = os.path.dirname(os.path.dirname(here))
-        template_dir = os.path.join(rootdir, 'ckanext',
-                                    'publisher_form', 'templates')
-        config['extra_template_paths'] = ','.join([template_dir,
-                config.get('extra_template_paths', '')])
-
-    def package_form(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered.  e.g. "package/new_package_form.html".
-        """
-        return 'dataset_form.html'
-
-    def is_fallback(self):
-        """
-        Returns true iff this provides the fallback behaviour, when no other
-        plugin instance matches a package's type.
-
-        As this is not the fallback controller we should return False.  If
-        we were wanting to act as the fallback, we'd return True
-        """
-        return True
-
-    def package_types(self):
-        """
-        Returns an iterable of package type strings.
-
-        If a request involving a package of one of those types is made, then
-        this plugin instance will be delegated to.
-
-        There must only be one plugin registered to each package type.  Any
-        attempts to register more than one plugin instance to a given package
-        type will raise an exception at startup.
-        """
-        return ["dataset"]
-
-    def setup_template_variables(self, context, data_dict=None):
-        """
-        Adds variables to c just prior to the template being rendered that can
-        then be used within the form
-        """
-        c.licences = [('', '')] + model.Package.get_license_options()
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
-        c.resource_columns = model.Resource.get_columns()
-        c.groups_available = c.userobj.get_groups('publisher') if c.userobj else []
-
-<<<<<<< HEAD
-
-=======
->>>>>>> feature-2211-publishers
-        ## This is messy as auths take domain object not data_dict
-        pkg = context.get('package') or c.pkg
-        if pkg:
-            c.auth_for_change_state = Authorizer().am_authorized(
-                c, model.Action.CHANGE_STATE, pkg)
-            gps = pkg.get_groups('publisher')
-            c.parent = gps[0] if gps else None
-
-    def form_to_db_schema(self):
-        """
-        Returns the schema for mapping package data from a form to a format
-        suitable for the database.
-        """
-<<<<<<< HEAD
-        return package_form_schema()
-=======
-        schema =  package_form_schema()
-        schema['groups'] = {
-                'name': [not_empty, val.group_id_or_name_exists, unicode],
-                'id':   [ignore_missing, unicode],
-            }
-        return schema
->>>>>>> feature-2211-publishers
-
-    def db_to_form_schema(data):
-        """
-        Returns the schema for mapping package data from the database into a
-        format suitable for the form (optional)
-        """
-        return {}
-
-    def check_data_dict(self, data_dict):
-        """
-        Check if the return data is correct and raises a DataError if not.
-        """
-        pass
-
