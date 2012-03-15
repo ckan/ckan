@@ -9,21 +9,26 @@ class TestMemberLogic(object):
         cls.username = 'testsysadmin'
         cls.groupname = 'david'
 
-        model.Session.remove()
-        CreateTestData.create()
-        model.Session.remove()
         model.repo.new_revision()
+        CreateTestData.create()
+        cls.pkgs = [
+            model.Package.by_name('warandpeace'),
+            model.Package.by_name('annakarenina'),
+        ]
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
 
     def _build_context( self, obj, obj_type, capacity='member'):
+        grp = model.Group.by_name(self.groupname)
         ctx = { 'model': model,
                 'session': model.Session,
-                'user':self.username}
+                'user':self.username,
+                'group': grp,
+        }
         dd = {
-            'group': self.groupname,
+            'group': grp,
             'object': obj,
             'object_type': obj_type,
             'capacity': capacity }
@@ -34,17 +39,15 @@ class TestMemberLogic(object):
         return get_action('member_create')(ctx,dd)
 
     def test_member_add(self):
-        res = self._add_member( 'warandpeace', 'package', 'member')
+        res = self._add_member( self.pkgs[0].id, 'package', 'member')
         assert 'capacity' in res and res['capacity'] == u'member'
-        assert 'group_id' in res and res['group_id'] == u'david'
 
     def test_member_list(self):
-        _ = self._add_member( 'warandpeace', 'package', 'member')
-        _ = self._add_member( 'annakarenina', 'package', 'member')
+        _ = self._add_member( self.pkgs[0].id, 'package', 'member')
+        _ = self._add_member( self.pkgs[1].id, 'package', 'member')
         ctx, dd = self._build_context('','package')
         res = get_action('member_list')(ctx,dd)
-        assert res[0][0] == 'warandpeace', res
-        assert res[1][0] == 'annakarenina', res
+        assert len(res) == 2, res
 
         ctx, dd = self._build_context('','user', 'admin')
         res = get_action('member_list')(ctx,dd)

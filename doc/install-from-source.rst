@@ -219,7 +219,6 @@ Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variable
 
 ::
 
-<<<<<<< HEAD
        ckan.site_id=my_ckan_instance
        solr_url=http://127.0.0.1:8983/solr
 

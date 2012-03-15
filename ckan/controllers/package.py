@@ -44,7 +44,7 @@ autoneg_cfg = [
 
 class PackageController(BaseController):
 
-    def _package_form(self, package_type=None):    
+    def _package_form(self, package_type=None):
         return lookup_package_plugin(package_type).package_form()
 
     def _form_to_db_schema(self, package_type=None):
@@ -63,10 +63,31 @@ class PackageController(BaseController):
     def _setup_template_variables(self, context, data_dict, package_type=None):
         return lookup_package_plugin(package_type).setup_template_variables(context, data_dict)
 
+    def _new_template(self, package_type):
+        return lookup_package_plugin(package_type).new_template()
+
+    def _comments_template(self, package_type):
+        return lookup_package_plugin(package_type).comments_template()
+
+    def _search_template(self, package_type):
+        return lookup_package_plugin(package_type).search_template()
+
+    def _read_template(self, package_type):
+        return lookup_package_plugin(package_type).read_template()
+
+    def _history_template(self, package_type):
+        return lookup_package_plugin(package_type).history_template()
+
+
     authorizer = ckan.authz.Authorizer()
 
     def search(self):
         from ckan.lib.search import SearchError
+
+        package_type = request.path.strip('/').split('/')[0]
+        if package_type == 'group':
+            package_type = None
+
         try:
             context = {'model':model,'user': c.user or c.author}
             check_access('site_read',context)
@@ -83,21 +104,45 @@ class PackageController(BaseController):
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
-        
+
         def drill_down_url(**by):
             params = list(params_nopage)
             params.extend(by.items())
             return search_url(set(params))
-        
-        c.drill_down_url = drill_down_url 
-        
+
+        c.drill_down_url = drill_down_url
+
         def remove_field(key, value):
             params = list(params_nopage)
             params.remove((key, value))
             return search_url(params)
 
         c.remove_field = remove_field
-        
+
+        sort_by = request.params.get('sort', None)
+        params_nosort = [(k, v) for k,v in params_nopage if k != 'sort']
+        def _sort_by(fields):
+            """
+            Sort by the given list of fields.
+
+            Each entry in the list is a 2-tuple: (fieldname, sort_order)
+
+            eg - [('metadata_modified', 'desc'), ('name', 'asc')]
+
+            If fields is empty, then the default ordering is used.
+            """
+            params = params_nosort[:]
+
+            if fields:
+                sort_string = ', '.join( '%s %s' % f for f in fields )
+                params.append(('sort', sort_string))
+            return search_url(params)
+        c.sort_by = _sort_by
+        if sort_by is None:
+            c.sort_by_fields = []
+        else:
+            c.sort_by_fields = [ field.split()[0] for field in sort_by.split(',') ]
+
         def pager_url(q=None, page=None):
             params = list(params_nopage)
             params.append(('page', page))
@@ -108,7 +153,7 @@ class PackageController(BaseController):
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
-                if not param in ['q', 'page'] \
+                if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
@@ -125,6 +170,7 @@ class PackageController(BaseController):
                 'facet.field':g.facets,
                 'rows':limit,
                 'start':(page-1)*limit,
+                'sort': sort_by,
                 'extras':search_extras
             }
 
@@ -144,16 +190,50 @@ class PackageController(BaseController):
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
-        
-        return render('package/search.html')
+
+        return render( self._search_template(package_type) )
+
+    def _content_type_for_format(self, fmt):
+        """
+        Given a requested format this method determines the content-type
+        to set and the genshi template loader to use in order to render
+        it accurately.  TextTemplate must be used for non-xml templates
+        whilst all that are some sort of XML should use MarkupTemplate.
+        """
+        from genshi.template import MarkupTemplate, TextTemplate
+        types = {
+            "html": ("text/html; charset=utf-8", MarkupTemplate),
+            "rdf" : ("application/rdf+xml; charset=utf-8", MarkupTemplate),
+        }
+        if fmt in types:
+            return types[fmt][0], fmt, types[fmt][1]
+        return None, "html", (types["html"][1])
 
 
     def read(self, id):
+        # Check if the request was for a different format than html, we have to do
+        # it this way because if we instead rely on _content_type_for_format failing
+        # for revisions (with . in the name) then we will have lost the ID by virtue
+        # of the routing splitting it up.
+        format = 'html'
+        if '.' in id:
+            pos = id.index('.')
+            format = id[pos+1:]
+            id = id[:pos]
+
+        ctype,extension,loader = self._content_type_for_format(format)
+        if not ctype:
+            # Reconstitute the ID if we don't know what content type to use
+            ctype = "text/html; charset=utf-8"
+            id = "%s.%s" % (id, format)
+        response.headers['Content-Type'] = ctype
+
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'for_view': True}
         data_dict = {'id': id}
+
 
         # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
@@ -171,7 +251,7 @@ class PackageController(BaseController):
                     abort(400, _('Invalid revision format: %r') % e.args)
         elif len(split) > 2:
             abort(400, _('Invalid revision format: %r') % 'Too many "@" symbols')
-            
+
         #check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
@@ -181,7 +261,7 @@ class PackageController(BaseController):
             abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
-        
+
         #set a cookie so we know whether to display the welcome message
         c.hide_welcome_message = bool(request.cookies.get('hide_welcome_message', False))
         response.set_cookie('hide_welcome_message', '1', max_age=3600) #(make cross-site?)
@@ -199,13 +279,14 @@ class PackageController(BaseController):
         if config.get('rdf_packages'):
             accept_header = request.headers.get('Accept', '*/*')
             for content_type, exts in negotiate(autoneg_cfg, accept_header):
-                if "html" not in exts: 
+                if "html" not in exts:
                     rdf_url = '%s%s.%s' % (config['rdf_packages'], c.pkg.id, exts[0])
                     redirect(rdf_url, code=303)
                 break
 
         PackageSaver().render_package(c.pkg_dict, context)
-        return render('package/read.html')
+
+        return render( self._read_template( package_type ) )
 
     def comments(self, id):
         package_type = self._get_package_type(id)
@@ -297,14 +378,14 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        return render('package/history.html')
+        return render( self._history_template(c.pkg_dict['type']))
 
     def new(self, data=None, errors=None, error_summary=None):
-        
+
         package_type = request.path.strip('/').split('/')[0]
         if package_type == 'group':
             package_type = None
-        
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,}
@@ -321,7 +402,7 @@ class PackageController(BaseController):
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=[CACHE_PARAMETER]))))
-        c.pkg_json = json.dumps(data) 
+        c.pkg_json = json.dumps(data)
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -336,7 +417,7 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render('package/new.html')
+        return render( self._new_template(''))
 
 
     def edit(self, id, data=None, errors=None, error_summary=None):
@@ -438,22 +519,22 @@ class PackageController(BaseController):
                 current_approved, approved = True, True
             else:
                 current_approved = False
-            
+
             data.append({'revision_id': revision['id'],
                          'message': revision['message'],
                          'timestamp': revision['timestamp'],
                          'author': revision['author'],
                          'approved': bool(revision['approved_timestamp']),
                          'current_approved': current_approved})
-                
+
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return json.dumps(data)
 
     def _get_package_type(self, id):
         """
-        Given the id of a package it determines the plugin to load 
+        Given the id of a package it determines the plugin to load
         based on the package's type name (type). The plugin found
-        will be returned, or None if there is no plugin associated with 
+        will be returned, or None if there is no plugin associated with
         the type.
 
         Uses a minimal context to do so.  The main use of this method
@@ -538,8 +619,8 @@ class PackageController(BaseController):
             url = url.replace('<NAME>', pkgname)
         else:
             url = h.url_for(controller='package', action='read', id=pkgname)
-        redirect(url)        
-        
+        redirect(url)
+
     def _adjust_license_id_options(self, pkg, fs):
         options = fs.license_id.render_opts['options']
         is_included = False
@@ -574,7 +655,7 @@ class PackageController(BaseController):
     def autocomplete(self):
         # DEPRECATED in favour of /api/2/util/dataset/autocomplete
         q = unicode(request.params.get('q', ''))
-        if not len(q): 
+        if not len(q):
             return ''
 
         context = {'model': model, 'session': model.Session,
