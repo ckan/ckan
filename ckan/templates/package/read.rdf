@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dcat="http://www.w3.org/ns/dcat#"
+  xmlns:dct="http://purl.org/dc/terms/"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <dcat:Dataset rdf:about="${ g.site_url + h.url_for(controller='package',action='read',id=c.pkg_dict['name'])}">
+    <rdfs:label>${c.pkg_dict['name']}</rdfs:label>
+    <owl:sameAs rdf:resource="urn:uuid:${c.pkg_dict['id']}"/>
+    <dct:identifier>${c.pkg_dict['name']}</dct:identifier>
+    <dct:title>${c.pkg_dict['title']}</dct:title>
+    <dct:description>${c.pkg_dict['notes']}</dct:description>
+    <dct:rights rdf:resource="http://purl.org/okfn/licenses/"/>
+    <dcat:distribution py:if="c.pkg_dict.get('resources',None)">
+        <py:for each="rsc_dict in c.pkg_dict['resources']">
+            <dcat:Distribution rdf:nodeID="${ rsc_dict['id'] }">
+                <dcat:accessURL rdf:resource="${ rsc_dict['url'] }"/>
+            </dcat:Distribution>
+        </py:for>
+    </dcat:distribution>
+  </dcat:Dataset>
+</rdf:RDF>
