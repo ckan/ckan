@@ -126,7 +126,7 @@ WebOb has to be installed explicitly afterwards because by installing pylons wit
 Now to install the remaining dependencies in requires/lucid_present.txt and you are using Ubuntu Lucid 10.04 you can install the system versions::
 
     sudo apt-get install python-pybabel python-psycopg2 python-lxml 
-    sudo apt-get install python-sphinx python-pylons python-repoze.who 
+    sudo apt-get install python-pylons python-repoze.who 
     sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
     
 Alternatively, if you are not using Ubuntu Lucid 10.04 you'll need to install them like this:

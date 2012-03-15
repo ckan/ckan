@@ -3,13 +3,12 @@
 # you can install these dependencies via pip instead.
 #
 # sudo apt-get install python-pybabel python-psycopg2 python-lxml
-# sudo apt-get install python-sphinx python-pylons python-repoze.who
+# sudo apt-get install python-pylons python-repoze.who
 # sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
 
 babel==0.9.4
 psycopg2==2.0.13
 lxml==2.2.4
-sphinx==0.6.4
 # Specifying particular version of WebOb because later version has incompatibility
 # with pylons 0.9.7 (change to imports of Multidict)
 webob==1.0.8
