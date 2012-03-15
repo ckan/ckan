@@ -41,8 +41,8 @@ Publishing Datasets
 
    loading_data
    authorization
-   file-upload
-   datastore
+   storage/filestore
+   storage/datastore
 
 The CKAN API
 ============
@@ -72,6 +72,7 @@ For CKAN Developers
    :maxdepth: 2
 
    test
+   dev/buildbot
 
 Other material
 ==============
