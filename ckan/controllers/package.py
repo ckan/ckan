@@ -158,19 +158,36 @@ class PackageController(BaseController):
         types = {
             "html": ("text/html; charset=utf-8", MarkupTemplate),
             "rdf" : ("application/rdf+xml; charset=utf-8", MarkupTemplate),
-            "n3"  : ("text/plain; charset=utf-8", TextTemplate),
         }
         if fmt in types:
             return types[fmt][0], fmt, types[fmt][1]
-        return (types["html"][0]), "html", (types["html"][1])
+        return None, "html", (types["html"][1])
 
 
-    def read(self, id, format='html'):
+    def read(self, id):
+        # Check if the request was for a different format than html, we have to do
+        # it this way because if we instead rely on _content_type_for_format failing
+        # for revisions (with . in the name) then we will have lost the ID by virtue
+        # of the routing splitting it up.
+        format = 'html'
+        if '.' in id:
+            pos = id.index('.')
+            format = id[pos+1:]
+            id = id[:pos]
+
+        ctype,extension,loader = self._content_type_for_format(format)
+        if not ctype:
+            # Reconstitute the ID if we don't know what content type to use
+            ctype = "text/html; charset=utf-8"
+            id = "%s.%s" % (id, format)
+        response.headers['Content-Type'] = ctype
+
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'for_view': True}
         data_dict = {'id': id}
+
 
         # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
@@ -220,9 +237,6 @@ class PackageController(BaseController):
                     rdf_url = '%s%s.%s' % (config['rdf_packages'], c.pkg.id, exts[0])
                     redirect(rdf_url, code=303)
                 break
-
-        ctype,extension,loader = self._content_type_for_format(format)
-        response.headers['Content-Type'] = ctype
 
         PackageSaver().render_package(c.pkg_dict, context)
         return render('package/read.' + extension, loader_class=loader)

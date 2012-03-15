@@ -184,7 +184,6 @@ def make_map():
           'history_ajax',
           ]))
           )
-        m.connect('/dataset/{id}.{format}', action='read')
         m.connect('/dataset/{id}', action='read')
         m.connect('/dataset/{id}/resource/{resource_id}', action='resource_read')
 
