@@ -36,17 +36,13 @@ class GroupController(BaseController):
     def _setup_template_variables(self, context, data_dict, group_type=None):
         return lookup_group_plugin(group_type).setup_template_variables(context,data_dict)
 
-    def _new_template(self):
+    def _new_template(self,group_type):
         from ckan.lib.helpers import default_group_type
-        return lookup_group_plugin(default_group_type()).new_template()
+        return lookup_group_plugin(group_type).new_template()
 
-    def _index_template(self):
+    def _index_template(self,group_type):
         from ckan.lib.helpers import default_group_type
-        return lookup_group_plugin(default_group_type()).index_template()
-
-    def _search_template(self):
-        from ckan.lib.helpers import default_group_type
-        return lookup_group_plugin(default_group_type()).search_template()
+        return lookup_group_plugin(group_type).index_template()
 
     def _read_template(self, group_type):
         return lookup_group_plugin(group_type).read_template()
@@ -57,6 +53,9 @@ class GroupController(BaseController):
     ## end hooks
 
     def index(self):
+        group_type = request.path.strip('/').split('/')[0]
+        if group_type == 'group':
+            group_type = None
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -76,7 +75,7 @@ class GroupController(BaseController):
             url=h.pager_url,
             items_per_page=20
         )
-        return render( self._index_template() )
+        return render( self._index_template(group_type) )
 
 
     def read(self, id):
@@ -216,7 +215,7 @@ class GroupController(BaseController):
 
         self._setup_template_variables(context,data)
         c.form = render(self._group_form(group_type=group_type), extra_vars=vars)
-        return render(self._new_template())
+        return render(self._new_template(group_type))
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         group_type = self._get_group_type(id.split('@')[0])

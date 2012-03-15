@@ -83,6 +83,11 @@ class PackageController(BaseController):
 
     def search(self):
         from ckan.lib.search import SearchError
+
+        package_type = request.path.strip('/').split('/')[0]
+        if package_type == 'group':
+            package_type = None
+
         try:
             context = {'model':model,'user': c.user or c.author}
             check_access('site_read',context)
@@ -161,7 +166,7 @@ class PackageController(BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
 
-        return render( self._search_template('') )
+        return render( self._search_template(package_type) )
 
 
     def read(self, id):
