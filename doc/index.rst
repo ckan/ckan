@@ -39,10 +39,10 @@ Publishing Datasets
 .. toctree::
    :maxdepth: 2
 
-   loading_data
+   loading-data
    authorization
-   storage/filestore
-   storage/datastore
+   filestore
+   datastore
 
 The CKAN API
 ============
@@ -60,8 +60,7 @@ General Administration
    :maxdepth: 2
 
    paster
-   database_dumps
-   i18n
+   database-dumps
    configuration
    common-error-messages
 
@@ -71,8 +70,9 @@ For CKAN Developers
 .. toctree::
    :maxdepth: 2
 
+   i18n
    test
-   dev/buildbot
+   buildbot
 
 Other material
 ==============

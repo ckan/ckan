@@ -130,8 +130,8 @@ class UserController(BaseController):
 
         if c.user and not data:
             # #1799 Don't offer the registration form if already logged in
-            return render('user/logout_first.html')            
-        
+            return render('user/logout_first.html')
+
         data = data or {}
         errors = errors or {}
         error_summary = error_summary or {}

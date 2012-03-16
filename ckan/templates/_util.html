@@ -6,6 +6,8 @@
   py:strip=""
   >
 
+  <xi:include href="_util_activity_div.html" />
+
   <!--! Herein can be found generic helper methods for a whole bunch of common
         templating issues -->
 
@@ -449,33 +451,6 @@
       <td>${revision['message']}</td>
     </tr>
   </table>
-
-  <div py:def="activity_div(actor, verb, object=None, target=None)"
-      class="activity">
-    <span class="actor">
-      ${actor}
-    </span>
-    <span class="verb">
-      ${verb}
-    </span>
-    <py:choose>
-      <span class="object" py:when="object">
-        ${object}
-      </span>
-      <py:otherwise>
-      </py:otherwise>
-    </py:choose>
-    <py:choose>
-      <span class="target" py:when="target">
-        ${target}
-      </span>
-      <py:otherwise>
-      </py:otherwise>
-    </py:choose>
-    <span class="date">
-      ${h.render_datetime(activity.timestamp)}
-    </span>
-  </div>
 
   <!--! jsConditionalForIe(ieVersion, tagContent, matchOperator): takes a
         IE version number, a tag or other HTML code that will be wrapped inside
