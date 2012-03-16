@@ -210,22 +210,15 @@ class PackageController(BaseController):
         return None, "html", (types["html"][1])
 
 
-    def read(self, id):
-        # Check if the request was for a different format than html, we have to do
-        # it this way because if we instead rely on _content_type_for_format failing
-        # for revisions (with . in the name) then we will have lost the ID by virtue
-        # of the routing splitting it up.
-        format = 'html'
-        if '.' in id:
-            pos = id.index('.')
-            format = id[pos+1:]
-            id = id[:pos]
-
+    def read(self, id, format='html'):
+        # Check we know the content type, if not then it is likely a revision
+        # and therefore we should merge the format onto the end of id
         ctype,extension,loader = self._content_type_for_format(format)
         if not ctype:
             # Reconstitute the ID if we don't know what content type to use
             ctype = "text/html; charset=utf-8"
             id = "%s.%s" % (id, format)
+            format = 'html'
         response.headers['Content-Type'] = ctype
 
         package_type = self._get_package_type(id.split('@')[0])
@@ -233,7 +226,6 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'for_view': True}
         data_dict = {'id': id}
-
 
         # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
@@ -286,7 +278,11 @@ class PackageController(BaseController):
 
         PackageSaver().render_package(c.pkg_dict, context)
 
-        return render( self._read_template( package_type ) )
+        template = self._read_template( package_type )
+        template = template[:template.index('.')+1] + format
+
+        return render( template, loader_class=loader)
+
 
     def comments(self, id):
         package_type = self._get_package_type(id)
@@ -307,7 +303,7 @@ class PackageController(BaseController):
 
         #render the package
         PackageSaver().render_package(c.pkg_dict)
-        return render('package/comments.html')
+        return render(  self._comments_template( package_type ) )
 
 
     def history(self, id):

@@ -113,9 +113,6 @@ def load_environment(global_conf, app_conf):
     logging.getLogger("MARKDOWN").setLevel(logging.getLogger().level)
 
     # Create the Genshi TemplateLoader
-    # config['pylons.app_globals'].genshi_loader = TemplateLoader(
-    #    paths['templates'], auto_reload=True)
-    # tmpl_options["genshi.loader_callback"] = template_loaded
     config['pylons.app_globals'].genshi_loader = TemplateLoader(
         template_paths, auto_reload=True, callback=template_loaded)
 
@@ -126,6 +123,7 @@ def load_environment(global_conf, app_conf):
     # Suppress a couple of sqlalchemy warnings
     warnings.filterwarnings('ignore', '^Unicode type received non-unicode bind param value', sqlalchemy.exc.SAWarning)
     warnings.filterwarnings('ignore', "^Did not recognize type 'BIGINT' of column 'size'", sqlalchemy.exc.SAWarning)
+    warnings.filterwarnings('ignore', "^Did not recognize type 'tsvector' of column 'search_vector'", sqlalchemy.exc.SAWarning)
 
     engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
 
