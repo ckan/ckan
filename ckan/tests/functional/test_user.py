@@ -174,8 +174,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # then get redirected to user page
         res = res.follow()
         assert_equal(res.status, 302)
-        assert res.header('Location') in ('http://localhost/user/testlogin',
-                                          '/user/testlogin')
+        assert res.header('Location').startswith('http://localhost/user/testlogin') or \
+               res.header('Location').startswith('/user/testlogin')
         res = res.follow()
         assert_equal(res.status, 200)
         assert 'testlogin is now logged in' in res.body
@@ -869,7 +869,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['user'] = 'kittens'
         res = fv.submit()
         assert_equal(res.status, 302)
-        assert_equal(res.header_dict['Location'], 'http://localhost/')
+        assert_equal(res.header_dict['Location'], 'http://localhost/?__no_cache__=True')
 
         CreateTestData.create_user(name='larry2', fullname='kittens')
         res = self.app.get(offset)

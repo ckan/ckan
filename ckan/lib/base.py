@@ -113,7 +113,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             cache_key += '_?_' + request.environ.get('QUERY_STRING', '')
     else:
         # we do not want caching
-        response.headers["Cache-Control"] = ["private"]
+        response.headers["Cache-Control"] = "private"
         cache_key = cache_type = cache_expire = None
         request.environ['__no_cache__'] = True
 
