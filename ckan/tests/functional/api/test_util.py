@@ -10,11 +10,34 @@ class TestUtil(ControllerTestCase):
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
-                
+
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        
+
+    def test_package_slug_invalid(self):
+        response = self.app.get(
+            url=url_for(controller='api', action='is_slug_valid', ver=2),
+            params={
+               'type': u'package',
+               'slug': u'edit',
+            },
+            status=200,
+        )
+        assert_equal(response.body, '{"valid": false}')
+        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+
+        response = self.app.get(
+            url=url_for(controller='api', action='is_slug_valid', ver=2),
+            params={
+               'type': u'package',
+               'slug': u'new',
+            },
+            status=200,
+        )
+        assert_equal(response.body, '{"valid": false}')
+        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+
     def test_package_slug_valid(self):
         response = self.app.get(
             url=url_for(controller='api', action='is_slug_valid', ver=2),
@@ -85,7 +108,7 @@ class TestUtil(ControllerTestCase):
             status=200,
         )
         assert_equal(response.body, '"<h2>Title</h2>"')
-        
+
     def test_munge_package_name(self):
         response = self.app.get(
             url=url_for(controller='api', action='munge_package_name', ver=2),

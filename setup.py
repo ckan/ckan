@@ -70,7 +70,7 @@ setup(
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
     celeryd = ckan.lib.cli:Celery
-    
+
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
 
@@ -91,7 +91,6 @@ setup(
     synchronous_search = ckan.lib.search:SynchronousSearchPlugin
     stats=ckanext.stats.plugin:StatsPlugin
     publisher_form=ckanext.publisher_form.forms:PublisherForm
-    publisher_dataset_form=ckanext.publisher_form.forms:PublisherDatasetForm
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
 
     [ckan.system_plugins]

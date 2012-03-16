@@ -25,6 +25,11 @@ class ActionError(Exception):
     def __init__(self, extra_msg=None):
         self.extra_msg = extra_msg
 
+    def __str__(self):
+        err_msgs = (super(ActionError, self).__str__(),
+                    self.extra_msg)
+        return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
+
 class NotFound(ActionError):
     pass
 
@@ -39,6 +44,11 @@ class ValidationError(ParameterError):
         self.error_dict = error_dict
         self.error_summary = error_summary
         self.extra_msg = extra_msg
+
+    def __str__(self):
+        err_msgs = (super(ValidationError, self).__str__(),
+                    self.error_summary)
+        return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
 
 log = logging.getLogger(__name__)
 

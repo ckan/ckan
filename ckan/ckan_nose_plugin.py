@@ -5,6 +5,7 @@ import sys
 import pkg_resources
 from paste.deploy import loadapp
 from pylons import config
+import time
 
 class CkanNose(Plugin):
     settings = None
@@ -65,3 +66,26 @@ class CkanNose(Plugin):
             # display module name instead of docstring
             return False
 
+    def startTest(self, test):
+        """
+        startTest: start timing.
+        """
+        self._started = time.time()
+
+    def stopTest(self, test):
+        """
+        stopTest: stop timing, canonicalize the test name, and save
+        the run time.
+        """
+        runtime = time.time() - self._started
+
+        # CTB: HACK!
+        f = open('times.txt', 'a')
+
+        testname = str(test)
+        #if ' ' in testname:
+        #    testname = testname.split(' ')[1]
+
+        f.write('%s,%s\n' % (testname, str(runtime)))
+
+        f.close()

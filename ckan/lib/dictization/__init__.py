@@ -3,7 +3,7 @@ from sqlalchemy.orm import class_mapper
 import sqlalchemy
 from pylons import config
 
-# NOTE   
+# NOTE
 # The functions in this file contain very generic methods for dictizing objects
 # and saving dictized objects. If a specialised use is needed please do NOT extend
 # these functions.  Copy code from here as needed.
@@ -68,7 +68,7 @@ def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
     return sorted(result_list, key=sort_key)
 
 def obj_dict_dictize(obj_dict, context, sort_key=lambda x:x):
-    '''Get a dict whose values are model objects 
+    '''Get a dict whose values are model objects
     and represent it as a list of dicts'''
 
     result_list = []
@@ -93,7 +93,7 @@ def get_unique_constraints(table, context):
 
 def table_dict_save(table_dict, ModelClass, context):
     '''Given a dict and a model class, update or create a sqlalchemy object.
-    This will use an existing object if "id" is supplied OR if any unique 
+    This will use an existing object if "id" is supplied OR if any unique
     constraints are met. e.g supplying just a tag name will get out that tag obj.
     '''
 
@@ -107,7 +107,7 @@ def table_dict_save(table_dict, ModelClass, context):
     unique_constriants = get_unique_constraints(table, context)
 
     id = table_dict.get("id")
-    
+
     if id:
         obj = session.query(ModelClass).get(id)
 

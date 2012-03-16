@@ -285,8 +285,6 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert name in res
         assert anna.version in res
         assert anna.url in res
-        assert cgi.escape(anna.resources[0].url) in res
-        assert anna.resources[0].description in res
         assert 'Some test notes' in res
         self.check_named_element(res, 'a',
                                  'http://ckan.net/',
@@ -306,6 +304,13 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert 'original media' in res, res
         assert 'book' in res, res
         assert 'This dataset satisfies the Open Definition' in res, res
+
+    def test_read_war_rdf(self):
+        name = u'warandpeace'
+        offset = url_for(controller='package', action='read', id=name + ".rdf")
+        res = self.app.get(offset)
+        assert '<dct:title>A Wonderful Story</dct:title>' in res, res
+
 
     def test_read_war(self):
         name = u'warandpeace'
@@ -374,6 +379,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         plugins.unload(plugin)
 
     def test_resource_list(self):
+        # TODO restore this test. It doesn't make much sense with the
+        # present resource list design.
         name = 'annakarenina'
         cache_url = 'http://thedatahub.org/test_cache_url.csv'
         # add a cache_url to the first resource in the package
@@ -387,8 +394,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         # check that the cache url is included on the dataset view page
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
-        assert '[cached]'in res
-        assert cache_url in res
+        #assert '[cached]'in res
+        #assert cache_url in res
 
 
 class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
@@ -1031,7 +1038,7 @@ class TestEdit(TestPackageForm):
             model.repo.new_revision()
             pkg.add_relationship(u'depends_on', anna)
             model.repo.commit_and_remove()
-            
+
             # check relationship before the test
             rels = model.Package.by_name(self.editpkg_name).get_relationships()
             assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
@@ -1046,7 +1053,7 @@ class TestEdit(TestPackageForm):
             # check relationship still exists
             rels = model.Package.by_name(self.editpkg_name).get_relationships()
             assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
-            
+
         finally:
             self._reset_data()
 
@@ -1128,7 +1135,7 @@ class TestNew(TestPackageForm):
         # don't set a name
         res = fv.submit('save')
         assert 'Error' in res, res
-        assert 'Name: Missing value' in res, res
+        assert 'URL: Missing value' in res, res
         self._assert_form_errors(res)
 
     def test_new_bad_param(self):
@@ -1315,7 +1322,7 @@ class TestNew(TestPackageForm):
             assert 'Datensatz' in res.body, res.body
         finally:
             self.clear_language_setting()
-        
+
 class TestSearch(TestPackageForm):
     pkg_names = []
 

@@ -114,6 +114,16 @@ def group_id_exists(group_id, context):
         raise Invalid('%s: %s' % (_('Not found'), _('Group')))
     return group_id
 
+def group_id_or_name_exists(reference, context):
+    """
+    Raises Invalid if a group identified by the name or id cannot be found.
+    """
+    model = context['model']
+    result = model.Group.get(reference)
+    if not result:
+        raise Invalid(_('That group name or ID does not exist.'))
+    return reference
+
 def activity_type_exists(activity_type):
     """Raises Invalid if there is no registered activity renderer for the
     given activity_type. Otherwise returns the given activity_type.
@@ -168,6 +178,9 @@ def extras_unicode_convert(extras, context):
 name_match = re.compile('[a-z0-9_\-]*$')
 def name_validator(val, context):
     # check basic textual rules
+    if val in ['new', 'edit', 'search']:
+        raise Invalid(_('That name cannot be used'))
+
     if len(val) < 2:
         raise Invalid(_('Name must be at least %s characters long') % 2)
     if len(val) > PACKAGE_NAME_MAX_LENGTH:
@@ -272,12 +285,6 @@ def tag_string_convert(key, data, errors, context):
     '''Takes a list of tags that is a comma-separated string (in data[key])
     and parses tag names. These are added to the data dict, enumerated. They
     are also validated.'''
-
-    tag_string = data[key]
-
-    tags = [tag.strip() \
-            for tag in tag_string.split(',') \
-            if tag.strip()]
 
     if isinstance(data[key], basestring):
         tags = [tag.strip() \

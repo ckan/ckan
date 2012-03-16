@@ -10,7 +10,8 @@ This Administration Guide covers how to set up and manage `CKAN <http://ckan.org
 
 For high-level information on what CKAN is, see the `CKAN website <http://ckan.org>`_.
 
-Contents:
+Installation
+============
 
 .. toctree::
    :maxdepth: 2
@@ -19,25 +20,59 @@ Contents:
    install-from-source
    post-installation
    solr-setup
+
+Customizing and Extending
+=========================
+
+.. toctree::
+   :maxdepth: 2
+
    theming
-   loading_data
-   paster
-   authorization
-   extensions
    writing-extensions
    forms
    form-integration
-   database_dumps
-   i18n
-   file-upload
+   extensions
+
+Publishing Datasets
+===================
+
+.. toctree::
+   :maxdepth: 2
+
+   loading-data
+   authorization
+   filestore
    datastore
-   configuration
+
+The CKAN API
+============
+
+.. toctree::
+   :maxdepth: 2
+
    api
    apiv3
-   test
+
+General Administration
+======================
+
+.. toctree::
+   :maxdepth: 2
+
+   paster
+   database-dumps
+   configuration
    common-error-messages
+
+For CKAN Developers
+===================
+
+.. toctree::
+   :maxdepth: 2
+
+   i18n
+   test
    buildbot
-   about
 
 Other material
 ==============

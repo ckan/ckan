@@ -9,26 +9,32 @@
     <py:if test="c.pkg">
     <ul class="tabbed">
       <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}">${h.subnav_link(c, h.icon('package') + _('View'), controller='package', action='read', id=c.pkg.name)}</li>
+
       <py:choose>
-      <py:when test="len(c.pkg_dict.get('resources', []))==0">
+      <py:when test="len(c.pkg_dict.get('resources', []))==0 and not h.check_access('package_update',{'id':c.pkg.id})">
         <li class="disabled">
-          ${h.icon('package-disabled') + _('Resources')} &nbsp;&nbsp;<img class="dropdown-arrow" src="${h.url_for_static('/images/icons/arrow-open.gif')}"/>
+          ${h.icon('package-disabled') + _('Resources (0)')} &nbsp;&nbsp;<img class="dropdown-arrow" src="${h.url_for_static('/images/icons/arrow-open.gif')}"/>
         </li>
       </py:when>
       <py:otherwise>
-        <li class="dropdown" py:attrs="{'class':'current-tab dropdown'} if c.action=='resource_read' else {'class':'dropdown'}">
-        <div class="dropdown-appears">
-          <div class="dropdown-items">
-            <py:for each="res in c.pkg_dict.get('resources', [])">
-            <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_display_name(res)}</a>
-            </py:for>
+        <li class="dropdown" py:attrs="{'class':'current-tab dropdown'} if c.action=='editresources' or c.action=='resource_read' else {'class':'dropdown'}">
+          <div class="dropdown-appears">
+            <div class="dropdown-items">
+              <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
+                ${h.link_to(
+                  h.icon('page_white_add') + _('Add / Edit resources'), 
+                  h.url_for(action='editresources', id=c.pkg.name, controller='package')
+                  )}
+                <hr py:if="len(c.pkg_dict.get('resources',[]))>0"/>
+              </py:if>
+              <py:for each="res in c.pkg_dict.get('resources', [])">
+              <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_icon(res) + h.resource_display_name(res)}</a>
+              </py:for>
+            </div>
           </div>
-        </div>
-        <div class="dropdown-appears"><div class="white-box"></div></div>
-        <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=c.pkg_dict.get('resources', [])[0]['id'])}">
-          ${h.icon('package') + _('Resources')}</a>
-        &nbsp;&nbsp;<img class="dropdown-arrow" src="${h.url_for_static('/images/icons/arrow-open.gif')}"/>
-
+          <div class="dropdown-appears"><div class="white-box"></div></div>
+          <a href="${h.url_for(controller='package', action='read', id=c.pkg.name)}#dataset-resources" class="js-scroll-resources">${h.icon('page_white_stack') + _('Resources') + ' (' + str(len(c.pkg_dict.get('resources',[]))) + ')'}</a>
+          &nbsp;&nbsp;<img class="dropdown-arrow" src="${h.url_for_static('/images/icons/arrow-open.gif')}"/>
         </li>
       </py:otherwise>
       </py:choose>
@@ -36,7 +42,7 @@
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
         <span class="divider">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
         <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}">
-          ${h.subnav_link(c, h.icon('package_edit') + _('Edit'), controller='package', action='edit', id=c.pkg.name)}
+          ${h.subnav_link(c, h.icon('package_edit') + _('Settings'), controller='package', action='edit', id=c.pkg.name)}
         </li>
       </py:if>
       <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}" py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">

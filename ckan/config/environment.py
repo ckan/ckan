@@ -7,9 +7,12 @@ import warnings
 from paste.deploy.converters import asbool
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
-warnings.simplefilter('ignore', UserWarning) 
+warnings.simplefilter('ignore', UserWarning)
+
+
 import pylons
-from sqlalchemy import engine_from_config
+import sqlalchemy
+
 from pylons import config
 from pylons.i18n.translation import ugettext
 from genshi.template import TemplateLoader
@@ -27,9 +30,9 @@ def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
     object
     """
-    
+
     ######  Pylons monkey-patch
-    # this must be run at a time when the env is semi-setup, thus inlined here. 
+    # this must be run at a time when the env is semi-setup, thus inlined here.
     # Required by the deliverance plugin and iATI
     from pylons.wsgiapp import PylonsApp
     import pkg_resources
@@ -45,7 +48,7 @@ def load_environment(global_conf, app_conf):
             return mycontroller
         return find_controller_generic(self, controller)
     PylonsApp.find_controller = find_controller
-    ###### END evil monkey-patch 
+    ###### END evil monkey-patch
 
     os.environ['CKAN_CONFIG'] = global_conf['__file__']
 
@@ -57,20 +60,20 @@ def load_environment(global_conf, app_conf):
                  templates=[os.path.join(root, 'templates')])
 
     # Initialize config with the basic options
-    
+
     config.init_app(global_conf, app_conf, package='ckan', paths=paths)
-    
+
     # load all CKAN plugins
     plugins.load_all(config)
 
     from ckan.plugins import PluginImplementations
     from ckan.plugins.interfaces import IConfigurer
-    
+
     for plugin in PluginImplementations(IConfigurer):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
         plugin.update_config(config)
-    
+
     # This is set up before globals are initialized
     site_url = config.get('ckan.site_url', '')
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
@@ -91,7 +94,7 @@ def load_environment(global_conf, app_conf):
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
     config['pylons.h'] = ckan.lib.helpers
-        
+
     ## redo template setup to use genshi.search_path (so remove std template setup)
     template_paths = [paths['templates'][0]]
     extra_template_paths = config.get('extra_template_paths', '')
@@ -110,24 +113,26 @@ def load_environment(global_conf, app_conf):
     logging.getLogger("MARKDOWN").setLevel(logging.getLogger().level)
 
     # Create the Genshi TemplateLoader
-    # config['pylons.app_globals'].genshi_loader = TemplateLoader(
-    #    paths['templates'], auto_reload=True)
-    # tmpl_options["genshi.loader_callback"] = template_loaded
     config['pylons.app_globals'].genshi_loader = TemplateLoader(
         template_paths, auto_reload=True, callback=template_loaded)
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
-    # any Pylons config options)    
+    # any Pylons config options)
 
     # Setup the SQLAlchemy database engine
-    engine = engine_from_config(config, 'sqlalchemy.')
+    # Suppress a couple of sqlalchemy warnings
+    warnings.filterwarnings('ignore', '^Unicode type received non-unicode bind param value', sqlalchemy.exc.SAWarning)
+    warnings.filterwarnings('ignore', "^Did not recognize type 'BIGINT' of column 'size'", sqlalchemy.exc.SAWarning)
+    warnings.filterwarnings('ignore', "^Did not recognize type 'tsvector' of column 'search_vector'", sqlalchemy.exc.SAWarning)
+
+    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
 
     if not model.meta.engine:
         model.init_model(engine)
-    
+
     from ckan.plugins import PluginImplementations
     from ckan.plugins.interfaces import IConfigurable
-    
+
     for plugin in PluginImplementations(IConfigurable):
         plugin.configure(config)
-    
+
