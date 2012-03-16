@@ -71,6 +71,10 @@ For CKAN Developers
 .. toctree::
    :maxdepth: 2
 
+   domain-model
+   domain-model-dataset
+   domain-model-resource
+   domain-model-task-status
    i18n
    test
    buildbot
