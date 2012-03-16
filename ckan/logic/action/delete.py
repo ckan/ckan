@@ -82,13 +82,11 @@ def member_delete(context, data_dict=None):
     """
     model = context['model']
     user = context['user']
+    group = context['group']
 
     group_id = data_dict['group']
     obj_id   = data_dict['object']
     obj_type = data_dict['object_type']
-
-    if 'group' not in context:
-        context['group'] = group_id
 
     # User must be able to update the group to remove a member from it
     check_access('group_update', context, data_dict)
@@ -96,7 +94,7 @@ def member_delete(context, data_dict=None):
     member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
             filter(model.Member.table_id == obj_id).\
-            filter(model.Member.group_id == group_id).\
+            filter(model.Member.group_id == group.id).\
             filter(model.Member.state    == "active").first()
     if member:
         member.delete()

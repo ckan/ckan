@@ -1,6 +1,6 @@
-=========
-DataStore
-=========
+==========================
+DataStore and the Data API
+==========================
 
 The CKAN DataStore provides a database for structured storage of data together
 with a powerful Web API, all seamlessly integrated into the CKAN interface and
@@ -20,7 +20,7 @@ Relationship to FileStore
 =========================
 
 The DataStore is distinct but complementary to the FileStore (see
-:doc:`file-upload`). In contrast to the the FileStore which provides 'blob'
+:doc:`filestore`). In contrast to the the FileStore which provides 'blob'
 storage of whole files with no way to access or query parts of that file, the
 DataStore is like a database in which individual data elements are accessible
 and queryable. To illustrate this distinction consider storing a spreadsheet
@@ -56,7 +56,7 @@ For more on searching see: http://www.elasticsearch.org/guide/reference/api/sear
 
 
 Installation and Configuration
-=============================
+==============================
 
 The DataStore uses ElasticSearch_ as the persistence and query layer with CKAN
 wrapping this with a thin authorization and authentication layer.
@@ -89,19 +89,20 @@ You must add to your Nginx CKAN site entry the following::
           instance (if it is not localhost and default port).
 
 3. Enable datastore features in CKAN
------------------------------------
+------------------------------------
 
 In your config file set::
 
  ckan.datastore.enabled = 1
 
+.. _datastorer:
 
 DataStorer: Automatically Add Data to the DataStore
-=================================================
+===================================================
 
-Often, when you upload data you will want it to be automatically added to the
+Often, one wants data that is added to CKAN (whether it is linked to or uploaded to the :doc:`FileStore <filestore>`) to be automatically added to the
 DataStore. This requires some processing, to extract the data from your files
-and to add it to the DataStore in the format it understands.
+and to add it to the DataStore in the format the DataStore can handle.
 
 This task of automatically parsing and then adding data to the datastore is
 performed by a DataStorer, a queue process that runs asynchronously and can be

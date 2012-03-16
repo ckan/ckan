@@ -63,10 +63,31 @@ class PackageController(BaseController):
     def _setup_template_variables(self, context, data_dict, package_type=None):
         return lookup_package_plugin(package_type).setup_template_variables(context, data_dict)
 
+    def _new_template(self, package_type):
+        return lookup_package_plugin(package_type).new_template()
+
+    def _comments_template(self, package_type):
+        return lookup_package_plugin(package_type).comments_template()
+
+    def _search_template(self, package_type):
+        return lookup_package_plugin(package_type).search_template()
+
+    def _read_template(self, package_type):
+        return lookup_package_plugin(package_type).read_template()
+
+    def _history_template(self, package_type):
+        return lookup_package_plugin(package_type).history_template()
+
+
     authorizer = ckan.authz.Authorizer()
 
     def search(self):
         from ckan.lib.search import SearchError
+
+        package_type = request.path.strip('/').split('/')[0]
+        if package_type == 'group':
+            package_type = None
+
         try:
             context = {'model':model,'user': c.user or c.author}
             check_access('site_read',context)
@@ -98,6 +119,30 @@ class PackageController(BaseController):
 
         c.remove_field = remove_field
 
+        sort_by = request.params.get('sort', None)
+        params_nosort = [(k, v) for k,v in params_nopage if k != 'sort']
+        def _sort_by(fields):
+            """
+            Sort by the given list of fields.
+
+            Each entry in the list is a 2-tuple: (fieldname, sort_order)
+
+            eg - [('metadata_modified', 'desc'), ('name', 'asc')]
+
+            If fields is empty, then the default ordering is used.
+            """
+            params = params_nosort[:]
+
+            if fields:
+                sort_string = ', '.join( '%s %s' % f for f in fields )
+                params.append(('sort', sort_string))
+            return search_url(params)
+        c.sort_by = _sort_by
+        if sort_by is None:
+            c.sort_by_fields = []
+        else:
+            c.sort_by_fields = [ field.split()[0] for field in sort_by.split(',') ]
+
         def pager_url(q=None, page=None):
             params = list(params_nopage)
             params.append(('page', page))
@@ -108,7 +153,7 @@ class PackageController(BaseController):
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
-                if not param in ['q', 'page'] \
+                if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
@@ -125,6 +170,7 @@ class PackageController(BaseController):
                 'facet.field':g.facets,
                 'rows':limit,
                 'start':(page-1)*limit,
+                'sort': sort_by,
                 'extras':search_extras
             }
 
@@ -145,7 +191,7 @@ class PackageController(BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
 
-        return render('package/search.html')
+        return render( self._search_template(package_type) )
 
     def _content_type_for_format(self, fmt):
         """
@@ -239,7 +285,8 @@ class PackageController(BaseController):
                 break
 
         PackageSaver().render_package(c.pkg_dict, context)
-        return render('package/read.' + extension, loader_class=loader)
+
+        return render( self._read_template( package_type ) )
 
     def comments(self, id):
         package_type = self._get_package_type(id)
@@ -331,7 +378,7 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        return render('package/history.html')
+        return render( self._history_template(c.pkg_dict['type']))
 
     def new(self, data=None, errors=None, error_summary=None):
 
@@ -370,7 +417,7 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render('package/new.html')
+        return render( self._new_template(''))
 
 
     def edit(self, id, data=None, errors=None, error_summary=None):
