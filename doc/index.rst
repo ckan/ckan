@@ -48,10 +48,9 @@ The CKAN API
 ============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    api
-   apiv3
 
 General Administration
 ======================
