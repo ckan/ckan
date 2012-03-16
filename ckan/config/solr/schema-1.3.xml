@@ -138,6 +138,11 @@
 
     <field name="indexed_ts" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
 
+    <!-- Copy the title field into titleString, and treat as a string
+         (rather than text type).  This allows us to sort on the titleString -->
+    <field name="titleString" type="string" indexed="true" stored="false" />
+    <copyField source="title" dest="titleString"/>
+
     <dynamicField name="extras_*" type="text" indexed="true" stored="true" multiValued="false"/>
     <dynamicField name="*" type="string" indexed="true"  stored="false"/>
 </fields>

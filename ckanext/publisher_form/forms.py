@@ -55,6 +55,36 @@ class PublisherForm(SingletonPlugin):
         # Override /group/* as the default groups urls
         config['ckan.default.group_type'] = 'publisher'
 
+    def new_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the new page
+        """
+        return 'publisher_new.html'
+
+    def index_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the index page
+        """
+        return 'publisher_index.html'
+
+
+    def read_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+        return 'publisher_read.html'
+
+    def history_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+        return 'publisher_history.html'
+
+
     def group_form(self):
         """
         Returns a string representing the location of the template to be

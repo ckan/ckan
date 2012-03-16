@@ -1,6 +1,6 @@
-=================
-Common CKAN Tasks
-=================
+===============================
+Common CKAN Administrator Tasks
+===============================
 
 The majority of common CKAN administration tasks are carried out using the **paster** script. 
 
@@ -20,8 +20,8 @@ At its simplest, paster commands can be thought of like this::
 
 But there are various extra elements to the commandline that usually need adding. We shall build them up:
 
-#. Enabling CKAN commands
-=========================
+Enabling CKAN commands
+======================
 
 Paster is used for many things aside from CKAN. You usually need to tell paster that you want to enable the CKAN commands::
 
@@ -31,8 +31,8 @@ You know you need to do this if you get the error ``Command 'user' not known`` f
 
 (Alternatively, CKAN commands are enabled by default if your current directory is the CKAN source directory)
 
-#. Pointing to your CKAN config
-===============================
+Pointing to your CKAN config
+============================
 
 Paster needs to know where your CKAN config file is (so it knows which database and search index to deal with etc.)::
 
@@ -46,8 +46,8 @@ For example, to initialise a database::
 
   paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
 
-#. Virtual environments
-=======================
+Virtual environments
+====================
 
 You often need to run paster within your CKAN virtual environment (pyenv). If CKAN was installed as 'source' then you can activate it as usual before running the paster command::
 
@@ -59,8 +59,8 @@ The alternative, which also suits a CKAN 'package' install, is to simply give th
   /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
 
 
-#. Running Paster on a deployment
-=================================
+Running Paster on a deployment
+==============================
 
 If CKAN is deployed with Apache on this machine, then you should run paster as the same user, which is usually ``www-data``. This is because paster will write to the same CKAN logfile as the Apache process and file permissions need to match. 
 
@@ -198,7 +198,7 @@ To load it in again, you first have to clean the database of existing data (be c
 
 .. warning: The pg_dump file is a complete backup of the database in plain text, and includes API keys and other user data which may be regarded as private. So keep it secure, like your database server.
 
-The pg_dump file notes which PostgreSQL user 'owns' the data on the server. Because the PostgreSQL user (by default) is identified as the current Linux user, and this is setup to be ``ckanINSTANCE`` where ``INSTANCE`` is the name of the CKAN instance. This means if you want to restore the pg_dump as another CKAN instance name (often needed if you move it to another server) then you will need to change the database owner - see :doc:`editing_the_database_ownership`.
+The pg_dump file notes which PostgreSQL user 'owns' the data on the server. Because the PostgreSQL user (by default) is identified as the current Linux user, and this is setup to be ``ckanINSTANCE`` where ``INSTANCE`` is the name of the CKAN instance. This means if you want to restore the pg_dump as another CKAN instance name (often needed if you move it to another server) then you will need to change the database owner - see :doc:`howto-editing--database-ownership`.
 
 Upgrade migration
 ~~~~~~~~~~~~~~~~~

@@ -25,6 +25,21 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
     def package_types(self):
         return ["mock_vocab_tags_plugin"]
 
+    def new_template(self):
+        return 'package/new.html'
+
+    def comments_template(self):
+        return 'package/comments.html'
+
+    def search_template(self):
+        return 'package/search.html'
+
+    def read_template(self):
+        return 'package/read.html'
+
+    def history_template(self):
+        return 'package/history.html'
+
     def package_form(self):
         return 'package/new_package_form.html'
 
