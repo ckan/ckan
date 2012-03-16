@@ -409,7 +409,7 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render( self._new_template(''))
+        return render( self._new_template(package_type))
 
 
     def edit(self, id, data=None, errors=None, error_summary=None):

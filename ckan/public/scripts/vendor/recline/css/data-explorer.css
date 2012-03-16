@@ -23,39 +23,32 @@
   height: 30px;
 }
 
-.header .recline-query-editor form {
-  height: 30px;
-  margin-bottom: 0;
+.header .recline-query-editor .input-prepend {
+  margin-bottom: auto;
 }
 
-.header .recline-query-editor label {
-  float: none;
-}
-
-.header .recline-query-editor label {
-  float: none;
-}
-
-.header .recline-query-editor input.text-query {
+.header .recline-query-editor .text-query input {
   float: left;  
-  margin-top: 1px;
-  margin-right: 5px;
-  width: 200px;
 }
 
-.header .recline-query-editor .pagination input {
-  width: 30px;
-  height: 18px;
-  padding: 2px 4px;
-  margin-top: -4px;
+.recline-query-editor .text-query .btn-group {
+  display: inline;
+  float:left;
+  margin-left:-2px;
+}
+
+.recline-query-editor .text-query .btn-group .dropdown-toggle {
+  -moz-border-radius:0px 3px 3px 0px;
+  -webkit-border-radius:0px 3px 3px 0px;
+  border-radius:0px 3px 3px 0px;
+}
+
+.recline-query-editor .text-query .btn-group ul {
+  margin-left:-110px;
 }
 
 .header .recline-query-editor .pagination a {
-  line-height: 28px;
-}
-
-.header .recline-query-editor form .btn {
-  vertical-align: top;
+  line-height: 26px;
 }
 
 .data-view-container {
@@ -79,6 +72,11 @@
   * Data Table
   *********************************************************/
 
+.data-table .btn-group .dropdown-toggle {
+  padding: 1px 3px;
+  line-height: auto;
+}
+
 .data-table-container {
   overflow: auto;
   height: 550px;
@@ -86,7 +84,6 @@
 
 .data-table {
   border: 1px solid #ccc;
-  font-size: 12px;
   width: 100%;
 }
 
@@ -100,42 +97,44 @@
   width: 20px;
 }
 
+/* direct borrowing from twitter buttons */
+.data-table th,
+.transform-column-view .expression-preview-table-wrapper th
+{
+  background-color: #e6e6e6;
+  background-repeat: no-repeat;
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), color-stop(25%, #ffffff), to(#e6e6e6));
+  background-image: -webkit-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  background-image: -moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);
+  background-image: -ms-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  background-image: -o-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  background-image: linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  color: #333;
+  border: 1px solid #ccc;
+  border-bottom-color: #bbb;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -webkit-transition: 0.1s linear all;
+  -moz-transition: 0.1s linear all;
+  -ms-transition: 0.1s linear all;
+  -o-transition: 0.1s linear all;
+  transition: 0.1s linear all;
+}
+
+
 /**********************************************************
   * Data Table Menus
   *********************************************************/
 
-a.column-header-menu, a.root-header-menu {
+.column-header-menu, a.root-header-menu {
   float: right;
-  display: block;
-  margin: 0 4px 0 0;
-  width: 17px;
-  height: 19px;
-  background-image: url(images/menu-dropdown.png);
-  background-repeat: no-repeat;
-}
-
-a.row-header-menu:hover, a.root-header-menu:hover {
-  background-position: -17px 0px;
-  text-decoration: none;
-}
-
-a.row-header-menu {
-  float: left;
-  display: block;
-  margin: -2px 0 -4px 0;
-  width: 17px;
-  height: 18px;
-  background-image: url(images/menu-dropdown.png);
-  background-repeat: no-repeat;
 }
 
 .read-only a.row-header-menu {
   display: none;
-}
-
-a.column-header-menu:hover {
-  background-position: -17px 0px;
-  text-decoration: none;
 }
 
 .column-header-recon-stats-bar {
@@ -202,45 +201,6 @@ div.data-table-cell-content-numeric > a.data-table-cell-edit {
 .data-table-error {
   color: red;
 }
-
-.data-table-menu-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-ul.data-table-menu {
-  display: none;
-  outline-style: none;
-  background: white;
-  color: black;
-  font-size: 12px;
-  height: auto;
-  list-style: none;
-  overflow: hidden;
-  position: absolute;
-  text-align: left;
-  width: 120px;
-  z-index: 666;
-  border: 1px solid #CCC;
-  border-right: 1px solid #666;
-  border-bottom: 1px solid #666;
-  margin: 0; padding: 0; }
-  ul.data-table-menu * {
-    margin: 0;
-    padding: 0; }
-  ul.data-table-menu a {
-    line-height: 14px;
-    color: black;
-    display: block;
-    padding: 5px 7px;
-    text-decoration: none; }
-  ul.data-table-menu li {
-    height: 24px; }
-  ul.data-table-menu li:hover {
-    background-color: #DBE8F8 }
 
 /* TODO: not sure the rest of this is needed */
 .data-table-cell-editor, .data-table-topic-popup {

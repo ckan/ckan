@@ -70,22 +70,22 @@ class CkanNose(Plugin):
         """
         startTest: start timing.
         """
-        self._started = time.time()
+##        self._started = time.time()
 
     def stopTest(self, test):
         """
         stopTest: stop timing, canonicalize the test name, and save
         the run time.
         """
-        runtime = time.time() - self._started
-
-        # CTB: HACK!
-        f = open('times.txt', 'a')
-
-        testname = str(test)
-        #if ' ' in testname:
-        #    testname = testname.split(' ')[1]
-
-        f.write('%s,%s\n' % (testname, str(runtime)))
-
-        f.close()
+##        runtime = time.time() - self._started
+##
+##        # CTB: HACK!
+##        f = open('times.txt', 'a')
+##
+##        testname = str(test)
+##        #if ' ' in testname:
+##        #    testname = testname.split(' ')[1]
+##
+##        f.write('%s,%s\n' % (testname, str(runtime)))
+##
+##        f.close()
