@@ -309,8 +309,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         name = u'warandpeace'
         offset = url_for(controller='package', action='read', id=name + ".rdf")
         res = self.app.get(offset)
-        ##TODO Ross To Fix
-        #assert '<dct:title>A Wonderful Story</dct:title>' in res, res
+        assert '<dct:title>A Wonderful Story</dct:title>' in res, res
 
 
     def test_read_war(self):
