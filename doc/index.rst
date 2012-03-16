@@ -41,8 +41,8 @@ Publishing Datasets
 
    loading-data
    authorization
-   storage/filestore
-   storage/datastore
+   filestore
+   datastore
 
 The CKAN API
 ============
@@ -72,7 +72,7 @@ For CKAN Developers
 
    i18n
    test
-   dev/buildbot
+   buildbot
 
 Other material
 ==============
