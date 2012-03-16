@@ -23,7 +23,7 @@ import ckan.misc
 import ckan.logic.action.get
 from home import CACHE_PARAMETER
 
-from lib.plugins import lookup_package_plugin
+from ckan.lib.plugins import lookup_package_plugin
 
 log = logging.getLogger(__name__)
 
@@ -428,9 +428,6 @@ class PackageController(BaseController):
             return self._save_edit(id, context)
         try:
             old_data = get_action('package_show')(context, {'id':id})
-            schema = self._db_to_form_schema(package_type=package_type)
-            if schema and not data:
-                old_data, errors = validate(old_data, schema, context=context)
             data = data or old_data
             # Merge all elements for the complete package dictionary
             c.pkg_dict = dict(old_data.items() + data.items())

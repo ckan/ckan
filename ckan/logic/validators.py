@@ -312,6 +312,9 @@ def ignore_not_package_admin(key, data, errors, context):
     model = context['model']
     user = context.get('user')
 
+    if 'ignore_auth' in context:
+        return
+
     if user and Authorizer.is_sysadmin(user):
         return
 
