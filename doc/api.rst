@@ -46,6 +46,14 @@ Alternatively, you can access the API using one the dedicated tools or libraries
 * `net-ckan <http://github.com/lukec/net-ckan>`_: PERL client
 * `ckanjs <http://github.com/okfn/ckanjs>`_: sophisticated Javascript client built on Backbone.
 
+Quickstart Tutorial
+===================
+
+.. toctree::
+   :maxdepth: 2
+
+   api-tutorial.rst
+
 .. _api-keys:
 
 Authentication and API Keys
