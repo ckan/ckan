@@ -1,7 +1,7 @@
 import logging
 from pylons.i18n import _
 
-import lib.plugins as lib_plugins
+import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
 import ckan.plugins as plugins
