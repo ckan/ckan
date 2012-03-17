@@ -11,9 +11,9 @@ The dashboard allows you to:
 
 The dashboard is located, relative to your site root, at ``/ckan-admin/``.
 
-.. note:: To create your first sysadmin you obviously cannot use Dashboard as
-          you will not have access! Instead You can create a sysadmin using the command
-          line ``paster`` by running the following command::
+.. note:: To create your first sysadmin you cannot use Dashboard as you will
+          not yet have access! Instead create a sysadmin using the command line
+          ``paster`` by running the following command::
           
             paster sysadmin -h
 
@@ -31,10 +31,10 @@ have 'roles' on the 'System Object'. In a standard installation, there are four
   * Having an admin role on the System objects means you are a System Administrator
     and may carry out **any** operation on any object.
 
-    .. warning:: Once a person is an system administrator, they can do
-                 **ANYTHING** on the system.
+    .. warning:: Once a person is an system administrator, they can carry out
+                 **any** operatoin on the system including **destructive**
+                 ones. Grant System Administrator access with care!
 
-* editor (Update action allowed) 
 * reader (Read action allowed)
 
   * Without read access a site user or visitor will not be able to see
@@ -42,6 +42,7 @@ have 'roles' on the 'System Object'. In a standard installation, there are four
     create an account, so they're locked out forever unless they already
     have a valid account.
 
+* editor (Update action allowed) 
 * anon-editor
 
 .. note:: these roles can be applied to users on your system as well as to
