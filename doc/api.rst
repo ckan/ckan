@@ -10,15 +10,43 @@ CKAN API
 
 The CKAN platform is not only available in a web browser, but also via its
 Application Programming Interface (API). The API provides programmatic access
-to the CKAN system and, in particular, read and write access to the catalog
-metadata stored therein.
+to the CKAN system. The API is very powerful and allows you do everything (and more) you can do via the web interface.
 
-This document describes the resource locations, data formats, and status codes
-which comprise the CKAN API, so that anyone can create software applications
-that use the API service.
+Using the API you can do things like:
+
+* Access any bit of information in CKAN (if you are authorized!)
+* Edit any piece of information in CKAN
+* Create a whole new web front-end for CKAN (if you want!)
 
 The CKAN API follows the RESTful (Representational State Transfer) style and
 uses JSON by default.
+
+.. _tools-for-api:
+
+Tools for Accessing the API
+===========================
+
+In using the API you will be performing HTTP requests to urls like: ``/api/rest/dataset`` with this returning data in JSON format.
+
+There are several ways you can access this URL directly:
+
+* Put this URL into your web browser and view or save the resulting response -- there are plugins for browsers like Firefox and Chrome that allow you to see JSON nicely formatted in your browser (e.g. `JSONView for Chrome <https://chrome.google.com/webstore/detail/chklaanhfefbnpoihckbnefhakgolnmc>`_)
+* Use a command-line program such as `curl <http://curl.haxx.se/>`_
+* Write a program in your favourite language that uses an http library to access the URL
+
+Clients
+-------
+
+Alternatively, you can access the API using one the dedicated tools or libraries written specifically for CKAN. The following clients are available:
+
+* `dpm (data package manager) <http://github.com/okfn/dpm/>`_: command-line client and Python library (maintained by core CKAN team)
+* `ckanclient - CKAN Python Client <http://pypi.python.org/pypi/ckanclient>`_: Python client maintained by the core CKAN team
+* `CKAN Ruby <https://github.com/apohllo/ckan>`_: Ruby Client
+* `Ckan_client-PHP <http://github.com/jeffreybarke/Ckan_client-PHP>`_: PHP client
+* `net-ckan <http://github.com/lukec/net-ckan>`_: PERL client
+* `ckanjs <http://github.com/okfn/ckanjs>`_: sophisticated Javascript client built on Backbone.
+
+.. _api-keys:
 
 Authentication and API Keys
 ===========================
@@ -53,8 +81,8 @@ key is not authorized for the operation, or the header is somehow malformed,
 then the requested operation will not be carried out and the CKAN API will
 respond with status code 403.
 
-Obtaining your API key
-----------------------
+Obtaining an API key
+--------------------
 
 1. Log-in to the particular CKAN website: ``/user/login``
 
@@ -77,15 +105,19 @@ but now with the callback parameter::
 
 This parameter can apply to all POST requests to the Action API and GET requests to the Search API and v1/v2/v3 APIs.
 
+.. _api-reference: 
 
-API Operation and Use
-=====================
+API: Reference
+==============
 
 Model, Search and Actions APIs
 ------------------------------
 
+These sections describe the resource locations, data formats, and status codes
+which comprise the CKAN API.
+
 The CKAN API is versioned, so that backwards incompatible changes can be
-introduced without removing existing support.  A particular version of the API
+introduced without removing existing support. A particular version of the API
 can be used by including its version number after the API location and before
 the resource location.
 
