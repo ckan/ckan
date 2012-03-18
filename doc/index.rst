@@ -33,6 +33,8 @@ Customizing and Extending
    forms
    form-integration
    linked-data-and-rdf
+   filestore
+   datastore
 
 Publishing Datasets
 ===================
@@ -42,8 +44,7 @@ Publishing Datasets
 
    loading-data
    authorization
-   filestore
-   datastore
+   publisher-profile
 
 The CKAN API
 ============
