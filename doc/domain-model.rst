@@ -40,5 +40,5 @@ Entity List
 Part of the domain model but not central:
 
 * Revision - changes to the domain model
-* :doc:`task status` - key/value information stored by CKAN Tasks
+* :doc:`task-status` - key/value information stored by CKAN Tasks
 

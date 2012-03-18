@@ -211,7 +211,7 @@ If you're using a remote host with password authentication rather than SSL authe
 
 
 8. Setup Solr
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 Set up Solr following the instructions on :ref:`solr-single` or :ref:`solr-multi-core` depending on your needs.
 
@@ -222,7 +222,7 @@ Set appropriate values for the ``ckan.site_id`` and ``solr_url`` config variable
        ckan.site_id=my_ckan_instance
        solr_url=http://127.0.0.1:8983/solr
 
-9. Create database tables.
+9. Create database tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now that you have a configuration file that has the correct settings for
