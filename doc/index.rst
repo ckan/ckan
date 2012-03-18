@@ -28,10 +28,11 @@ Customizing and Extending
    :maxdepth: 2
 
    theming
+   extensions
    writing-extensions
    forms
    form-integration
-   extensions
+   linked-data-and-rdf
 
 Publishing Datasets
 ===================
