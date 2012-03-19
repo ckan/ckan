@@ -529,22 +529,11 @@ class PackageController(BaseController):
         based on the package's type name (type). The plugin found
         will be returned, or None if there is no plugin associated with
         the type.
-
-        Uses a minimal context to do so.  The main use of this method
-        is for figuring out which plugin to delegate to.
-
-        aborts if an exception is raised.
         """
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-        try:
-            data = get_action('package_show')(context, {'id': id})
-        except NotFound:
-            abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
-
-        return data.get('type', 'package')
+        pkg = model.Package.get(id)
+        if pkg:
+            return pkg.type or 'package'
+        return None
 
     def _save_new(self, context, package_type=None):
         from ckan.lib.search import SearchIndexError
