@@ -2,6 +2,7 @@ import threading
 import asyncore
 import socket
 from smtpd import SMTPServer
+import hashlib
 
 from pylons import config
 
@@ -67,6 +68,7 @@ class SmtpServerHarness(object):
             host, port = smtp_server.split(':')
         else:
             host, port = smtp_server, 25
+        cls.port = port
         cls.smtp_thread = MockSmtpServerThread(host, int(port))
         cls.smtp_thread.start()
 

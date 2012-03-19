@@ -9,7 +9,7 @@ class TestAdminController(WsgiAppCase):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     #test that only sysadmins can access the /ckan-admin page
     def test_index(self):
@@ -46,7 +46,7 @@ class TestAdminAuthzController(WsgiAppCase):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_role_table(self):
 
