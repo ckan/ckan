@@ -932,7 +932,7 @@ def term_translation_show(context, data_dict):
     q = select([trans_table])
 
     if 'term' not in data_dict:
-        raise ValidationError({'term': 'term not it data'})
+        raise ValidationError({'term': 'term not in data'})
 
     q = q.where(trans_table.c.term == data_dict['term'])
 
