@@ -33,11 +33,6 @@ var CKAN = CKAN || {};
       window.location = ($(e.target).attr('action'));
     });
 
-    var isFrontPage = $('body.index.home').length > 0;
-    if (isFrontPage) {
-      CKAN.Utils.setupWelcomeBanner($('.js-welcome-banner'));
-    }
-
     var isGroupView = $('body.group.read').length > 0;
     if (isGroupView) {
       // Show extract of notes field
@@ -836,20 +831,6 @@ CKAN.Utils = function($, my) {
     input.keydown(callback);
     input.keypress(callback);
     input.change(callback);
-  };
-
-  my.setupWelcomeBanner = function(banner) {
-
-    var cookieName = 'ckan_killtopbar';
-    var isKilled = ($.cookie(cookieName)!=null);
-    if (!isKilled) {
-      banner.show();
-      // Bind to the close button
-      banner.find('.js-kill-button').live('click', function() {
-        $.cookie(cookieName, 'true', { expires: 365 });
-        banner.hide();
-      });
-    }
   };
 
   my.setupDatasetDeleteButton = function() {
