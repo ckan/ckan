@@ -16,6 +16,7 @@ from pylons.decorators import jsonify, validate
 from pylons.i18n import _, ungettext, N_, gettext
 from pylons.templating import cached_template, pylons_globals
 from genshi.template import MarkupTemplate
+from genshi.template.text import NewTextTemplate
 from webhelpers.html import literal
 
 import ckan.exceptions
@@ -40,9 +41,9 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
     # with Lucid) causes an exception when unicode is received.
     detail = detail.encode('utf8')
-    return _abort(status_code=status_code, 
+    return _abort(status_code=status_code,
                   detail=detail,
-                  headers=headers, 
+                  headers=headers,
                   comment=comment)
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
@@ -65,7 +66,11 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         for item in PluginImplementations(IGenshiStreamFilter):
             stream = item.filter(stream)
 
+        if loader_class == NewTextTemplate:
+            return literal(stream.render(method="text", encoding=None))
+
         return literal(stream.render(method=method, encoding=None, strip_whitespace=False))
+
 
     if 'Pragma' in response.headers:
         del response.headers["Pragma"]
@@ -110,7 +115,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
     # Render Time :)
     try:
-        return cached_template(template_name, render_template)
+        return cached_template(template_name, render_template, loader_class=loader_class)
     except ckan.exceptions.CkanUrlException, e:
         raise ckan.exceptions.CkanUrlException('\nAn Exception has been raised for template %s\n%s'
                         % (template_name, e.message))
@@ -309,13 +314,13 @@ class BaseController(WSGIController):
         return path
 
     @classmethod
-    def _get_user_editable_groups(cls): 
+    def _get_user_editable_groups(cls):
         if not hasattr(c, 'user'):
             c.user = model.PSEUDO_USER__VISITOR
         import ckan.authz # Todo: Move import to top of this file?
-        groups = ckan.authz.Authorizer.authorized_query(c.user, model.Group, 
+        groups = ckan.authz.Authorizer.authorized_query(c.user, model.Group,
             action=model.Action.EDIT).all()
-        return [g for g in groups if g.state==model.State.ACTIVE] 
+        return [g for g in groups if g.state==model.State.ACTIVE]
 
     def _get_package_dict(self, *args, **kwds):
         import ckan.forms
@@ -374,7 +379,7 @@ class BaseController(WSGIController):
             update_or_add = 'add'
         else:
             user_or_authgroup = None
-            update_or_add = None            
+            update_or_add = None
 
         # Work out what role checkboxes are checked or unchecked
         checked_roles = [ box_id for (box_id, value) in request.params.items() \

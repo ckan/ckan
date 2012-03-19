@@ -12,7 +12,7 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
-import lib.plugins as lib_plugins
+import ckan.lib.plugins as lib_plugins
 
 log = logging.getLogger(__name__)
 
@@ -138,7 +138,7 @@ def package_update(context, data_dict):
 
     model = context['model']
     user = context['user']
-    name_or_id = data_dict.get("id") or data_dict['name_or_id']
+    name_or_id = data_dict.get("id") or data_dict['name']
     model.Session.remove()
     model.Session()._context = context
 

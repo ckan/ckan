@@ -118,6 +118,7 @@ class TestWUI(WsgiAppCase):
         params = json.dumps({'id': dataset_id})
         response = self.app.post('/api/action/package_show', params=params)
         dataset = json.loads(response.body)['result']
+        dataset['tags'] = []
         dataset['tags'].append({'name': tag_name, 'vocabulary_id': vocab_id})
         params = json.dumps(dataset)
         response = self.app.post('/api/action/package_update', params=params,
@@ -128,7 +129,7 @@ class TestWUI(WsgiAppCase):
         params = json.dumps({'id': dataset_id})
         response = self.app.post('/api/action/package_show', params=params)
         dataset = json.loads(response.body)['result']
-        dataset['tags'] = [t for t in dataset['tags'] if not t['name'] == tag_name]
+        dataset['vocab_tag_selected'] = []
         params = json.dumps(dataset)
         response = self.app.post('/api/action/package_update', params=params,
                                  extra_environ={'Authorization': str(self.sysadmin_user.apikey)})

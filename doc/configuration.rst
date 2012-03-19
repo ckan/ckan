@@ -150,7 +150,7 @@ Example::
 
 If there is a page which allows you to download a dump of the entire catalogue then specify the URL and the format here, so that it can be advertised in the web interface. ``dumps_format`` is just a string for display.
 
-For more information on using dumpfiles, see :doc:`database_dumps`.
+For more information on using dumpfiles, see :doc:`database-dumps`.
 
 recaptcha
 ^^^^^^^^^

@@ -15,13 +15,16 @@ import ckan.lib.base
 import ckan.logic as logic
 import ckan.logic.action
 import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.navl.dictization_functions
 import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
+import ckan.lib.plugins as lib_plugins
 
 log = logging.getLogger('ckan.logic')
 
 # define some shortcuts
+validate = ckan.lib.navl.dictization_functions.validate
 table_dictize = ckan.lib.dictization.table_dictize
 render = ckan.lib.base.render
 Authorizer = ckan.authz.Authorizer
@@ -370,6 +373,7 @@ def package_relationships_list(context, data_dict):
 def package_show(context, data_dict):
 
     model = context['model']
+    context['session'] = model.Session
     name_or_id = data_dict.get("id") or data_dict['name_or_id']
 
     pkg = model.Package.get(name_or_id)
@@ -385,6 +389,11 @@ def package_show(context, data_dict):
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
+
+    schema = lib_plugins.lookup_package_plugin(package_dict['type']).db_to_form_schema()
+
+    if schema:
+        package_dict, errors = validate(package_dict, schema, context=context)
 
     return package_dict
 
@@ -432,6 +441,11 @@ def group_show(context, data_dict):
 
     for item in plugins.PluginImplementations(plugins.IGroupController):
         item.read(group)
+
+    schema = lib_plugins.lookup_group_plugin(group_dict['type']).db_to_form_schema()
+
+    if schema:
+        package_dict, errors = validate(group_dict, schema, context=context)
 
     return group_dict
 
@@ -903,7 +917,7 @@ def term_translation_show(context, data_dict):
     q = select([trans_table])
 
     if 'term' not in data_dict:
-        raise ValidationError({'term': 'term not it data'})
+        raise ValidationError({'term': 'term not in data'})
 
     q = q.where(trans_table.c.term == data_dict['term'])
 
