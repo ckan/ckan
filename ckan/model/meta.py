@@ -1,4 +1,6 @@
 import datetime
+from paste.deploy.converters import asbool
+from pylons import config
 """SQLAlchemy Metadata and Session object"""
 from sqlalchemy import MetaData, __version__ as sqav
 from sqlalchemy.orm import class_mapper
@@ -16,6 +18,44 @@ from sqlalchemy.orm import relation, backref
 from ckan.model import extension
 
 from ckan.lib.activity import DatasetActivitySessionExtension
+
+class CkanCacheExtension(SessionExtension):
+    ''' This extension checks what tables have been affected by
+    database access and allows us to act on them. Currently this is
+    used by the page cache to flush the cache when data in the database
+    is altered. '''
+
+    def __init__(self, *args, **kw):
+        super(CkanCacheExtension, self).__init__(*args, **kw)
+        # Setup Redis support if needed.
+        self.use_redis = asbool(config.get('ckan.page_cache_enabled'))
+        if self.use_redis:
+            import redis
+            self.redis = redis
+            self.redis_connection is None
+            self.redis_exception = redis.exceptions.ConnectionError
+
+    def after_commit(self, session):
+        if hasattr(session, '_object_cache'):
+            oc = session._object_cache
+            oc_list = oc['new']
+            oc_list.update(oc['changed'])
+            oc_list.update(oc['deleted'])
+            objs = set()
+            for item in oc_list:
+                objs.add(item.__class__.__name__)
+
+        # Flush Redis
+        if self.use_redis:
+            if self.redis_connection is None:
+                try:
+                    self.redis_connection = self.redis.StrictRedis()
+                except self.redis_exception:
+                    pass
+            try:
+                self.redis_connection.flushdb()
+            except self.redis_exception:
+                pass
 
 class CkanSessionExtension(SessionExtension):
 
@@ -96,16 +136,20 @@ Session = scoped_session(sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
-    extension=[CkanSessionExtension(), extension.PluginSessionExtension(),
-        DatasetActivitySessionExtension()],
+    extension=[CkanCacheExtension(),
+               CkanSessionExtension(),
+               extension.PluginSessionExtension(),
+               DatasetActivitySessionExtension()],
 ))
 
 create_local_session = sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
-    extension=[CkanSessionExtension(), extension.PluginSessionExtension(),
-        DatasetActivitySessionExtension()],
+    extension=[CkanCacheExtension(),
+               CkanSessionExtension(),
+               extension.PluginSessionExtension(),
+               DatasetActivitySessionExtension()],
 )
 
 #mapper = Session.mapper
