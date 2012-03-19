@@ -35,6 +35,7 @@ Customizing and Extending
    linked-data-and-rdf
    filestore
    datastore
+   background-tasks
 
 Publishing Datasets
 ===================
