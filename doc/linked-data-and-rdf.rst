@@ -17,9 +17,7 @@ In CKAN >= 1.6.1, basic RDF support will be available directly in core.
 Configuration
 -------------
 
-.. todo:: fill this in (imagine that config instructions for extension will be
-          in extension but for >= 1.6.1 we have stuff in core)
-
+When using the built-in RDF support (CKAN >= 1.6.1) there is no configuration required.  By default requests for RDF data will return the RDF generated from the built-in 'packages/read.rdf' template, which can be overridden using the extra-templates directive.
 
 Accessing Linked Data
 =====================
@@ -30,6 +28,11 @@ example::
 
  curl -L -H "Accept: application/rdf+xml" http://thedatahub.org/dataset/gold-prices
  curl -L -H "Accept: text/n3" http://thedatahub.org/dataset/gold-prices
+
+An alternative method of retrieving the data is to add .rdf to the name of the dataset to download::
+
+ curl -L http://thedatahub.org/dataset/gold-prices.rdf
+ curl -L http://thedatahub.org/dataset/gold-prices.n3
 
 
 Schema Mapping

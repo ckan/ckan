@@ -59,20 +59,18 @@ class TestAutoneg(_TestPackageForm, PylonsTestCase):
         assert response.status == 200, response.status
         content_type = response.header("Content-Type")
         assert "html" in content_type, content_type
-        
+
     def test_rdfxml(self):
         url = url_for(controller='package', action='read', id='annakarenina')
         response = self.app.get(url, headers={"Accept": "application/rdf+xml"})
-        assert response.status == 303, response.status
-        location = response.header("Location")
-        assert location.endswith(".rdf"), location
-        assert location.startswith('http://test.com/package/'), location
+        assert response.status == 200, response.status
+        ctype = response.header("Content-Type")
+        assert 'application/rdf+xml' in ctype, ctype
 
-    def test_turtle(self):
+    def test_n3(self):
         url = url_for(controller='package', action='read', id='annakarenina')
-        response = self.app.get(url, headers={"Accept": "application/turtle"})
-        assert response.status == 303, response.status
-        location = response.header("Location")
-        assert location.endswith(".ttl"), location
-        assert location.startswith('http://test.com/package/'), location
+        response = self.app.get(url, headers={"Accept": "text/n3"})
+        assert response.status == 200, response.status
+        ctype = response.header("Content-Type")
+        assert 'text/n3' in ctype, ctype
 

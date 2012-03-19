@@ -200,13 +200,23 @@ class PackageController(BaseController):
         it accurately.  TextTemplate must be used for non-xml templates
         whilst all that are some sort of XML should use MarkupTemplate.
         """
-        from genshi.template import MarkupTemplate, TextTemplate
+        from genshi.template import MarkupTemplate
+        from genshi.template.text import NewTextTemplate
+
         types = {
-            "html": ("text/html; charset=utf-8", MarkupTemplate),
-            "rdf" : ("application/rdf+xml; charset=utf-8", MarkupTemplate),
+            "html": ("text/html; charset=utf-8", MarkupTemplate, 'html'),
+            "rdf" : ("application/rdf+xml; charset=utf-8", MarkupTemplate, 'rdf'),
+            "n3" : ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
+            "application/rdf+xml" : ("application/rdf+xml; charset=utf-8", MarkupTemplate,'rdf'),
+            "text/n3": ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
         }
+        # Check the accept header first
+        accept = request.headers.get('Accept', '')
+        if accept and accept in types:
+            return types[accept][0], types[accept][2], types[accept][1]
+
         if fmt in types:
-            return types[fmt][0], fmt, types[fmt][1]
+            return types[fmt][0], types[fmt][2], types[fmt][1]
         return None, "html", (types["html"][1])
 
 
@@ -219,6 +229,9 @@ class PackageController(BaseController):
             ctype = "text/html; charset=utf-8"
             id = "%s.%s" % (id, format)
             format = 'html'
+        else:
+            format = extension
+
         response.headers['Content-Type'] = ctype
 
         package_type = self._get_package_type(id.split('@')[0])
@@ -267,14 +280,6 @@ class PackageController(BaseController):
         c.package_activity_stream = \
                 ckan.logic.action.get.package_activity_list_html(context,
                     {'id': c.current_package_id})
-
-        if config.get('rdf_packages'):
-            accept_header = request.headers.get('Accept', '*/*')
-            for content_type, exts in negotiate(autoneg_cfg, accept_header):
-                if "html" not in exts:
-                    rdf_url = '%s%s.%s' % (config['rdf_packages'], c.pkg.id, exts[0])
-                    redirect(rdf_url, code=303)
-                break
 
         PackageSaver().render_package(c.pkg_dict, context)
 
@@ -529,22 +534,11 @@ class PackageController(BaseController):
         based on the package's type name (type). The plugin found
         will be returned, or None if there is no plugin associated with
         the type.
-
-        Uses a minimal context to do so.  The main use of this method
-        is for figuring out which plugin to delegate to.
-
-        aborts if an exception is raised.
         """
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-        try:
-            data = get_action('package_show')(context, {'id': id})
-        except NotFound:
-            abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
-
-        return data.get('type', 'package')
+        pkg = model.Package.get(id)
+        if pkg:
+            return pkg.type or 'package'
+        return None
 
     def _save_new(self, context, package_type=None):
         from ckan.lib.search import SearchIndexError

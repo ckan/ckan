@@ -375,7 +375,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         # existed before.  I don't know if this is a problem?  I expect it
         # can be fixed by allowing the package to be passed in to the plugin,
         # either via the function argument, or adding it to the c object.
-        assert plugin.calls['read'] == 2, plugin.calls
+        assert plugin.calls['read'] == 1, plugin.calls
         plugins.unload(plugin)
 
     def test_resource_list(self):
