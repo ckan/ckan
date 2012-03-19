@@ -51,5 +51,44 @@ At the present CKAN uses mostly DCAT and Dublin Core.
 .. _VoID: http://rdfs.org/ns/void
 .. _SCOVO: http://sw.joanneum.at/scovo/schema.html
 
-.. todo:: put in an example of converted data to illustrate the schema
+An example schema might look like::
 
+  <rdf:RDF xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:dct="http://purl.org/dc/terms/">
+  <dcat:Dataset rdf:about="http://127.0.0.1:5000/dataset/worldwide-shark-attacks">
+    <owl:sameAs rdf:resource="urn:uuid:424bdc8c-038d-4b44-8f1d-01227e920b69"></owl:sameAs>
+    <dct:description>Shark attacks worldwide</dct:description>
+    <dcat:keyword>sharks</dcat:keyword>
+    <dcat:keyword>worldwide</dcat:keyword>
+    <foaf:homepage rdf:resource="http://127.0.0.1:5000/dataset/worldwide-shark-attacks"></foaf:homepage>
+    <rdfs:label>worldwide-shark-attacks</rdfs:label>
+    <dct:identifier>worldwide-shark-attacks</dct:identifier>
+    <dct:title>Worldwide Shark Attacks</dct:title>
+    <dcat:distribution>
+        <dcat:Distribution>
+            <dcat:accessURL rdf:resource="https://api.scraperwiki.com/api/1.0/datastore/sqlite?format=csv&amp;name=worldwide_shark_attacks&amp;query=select+*+from+`Europe`&amp;apikey="></dcat:accessURL>
+        </dcat:Distribution>
+    </dcat:distribution>
+    <dcat:distribution>
+        <dcat:Distribution>
+            <dcat:accessURL rdf:resource="https://api.scraperwiki.com/api/1.0/datastore/sqlite?format=csv&amp;name=worldwide_shark_attacks&amp;query=select+*+from+`Australia`&amp;apikey="></dcat:accessURL>
+        </dcat:Distribution>
+    </dcat:distribution>
+    <dct:creator>
+      <rdf:Description>
+        <foaf:name>Ross</foaf:name>
+        <foaf:mbox rdf:resource="mailto:ross.jones@okfn.org"></foaf:mbox>
+      </rdf:Description>
+    </dct:creator>
+    <dct:contributor>
+      <rdf:Description>
+        <foaf:name>Ross</foaf:name>
+        <foaf:mbox rdf:resource="mailto:ross.jones@okfn.org"></foaf:mbox>
+      </rdf:Description>
+    </dct:contributor>
+    <dct:rights rdf:resource="http://www.opendefinition.org/licenses/odc-pddl"></dct:rights>
+    </dcat:Dataset>
+  </rdf:RDF>
