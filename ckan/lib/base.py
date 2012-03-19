@@ -69,7 +69,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         if loader_class == NewTextTemplate:
             return literal(stream.render(method="text", encoding=None))
 
-        return literal(stream.render(method=method, encoding=None, strip_whitespace=False))
+        return literal(stream.render(method=method, encoding=None, strip_whitespace=True))
 
 
     if 'Pragma' in response.headers:
