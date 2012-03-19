@@ -54,9 +54,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         globs.update(pylons_globals())
         globs['actions'] = model.Action
 
-        # Using pylons.url() directly destroys the
-        # localisation stuff so we remove it so any bad templates crash
-        # and burn
+        # Using pylons.url() directly destroys the localisation stuff so
+        # we remove it so any bad templates crash and burn
         del globs['url']
 
         template = globs['app_globals'].genshi_loader.load(template_name,
@@ -71,56 +70,47 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     if 'Pragma' in response.headers:
         del response.headers["Pragma"]
 
-    if asbool(config.get('ckan.template_cache_enabled')):
-        allow_cache = True
-        # force cache or not if explicit
-        if cache_force is not None:
-            allow_cache = cache_force
-        # do not allow caching of pages for logged in users/flash messages etc
-        elif session.last_accessed:
-            allow_cache = False
-        # don't cache if based on a non-cachable template used in this
-        elif request.environ.get('__no_cache__'):
-            allow_cache = False
-        # don't cache if we have set the __no_cache__ param in the query string
-        elif request.params.get('__no_cache__'):
-            allow_cache = False
-        # don't cache if we have extra vars containing data
-        elif extra_vars:
-            for k, v in extra_vars.iteritems():
-                allow_cache = False
-                break
-    else:
+    ## Caching Logic
+    allow_cache = True
+    # Force cache or not if explicit.
+    if cache_force is not None:
+        allow_cache = cache_force
+    # Do not allow caching of pages for logged in users/flash messages etc.
+    elif session.last_accessed:
         allow_cache = False
+    # Tests etc.
+    elif 'REMOTE_USER' in request.environ:
+        allow_cache = False
+    # Don't cache if based on a non-cachable template used in this.
+    elif request.environ.get('__no_cache__'):
+        allow_cache = False
+    # Don't cache if we have set the __no_cache__ param in the query string.
+    elif request.params.get('__no_cache__'):
+        allow_cache = False
+    # Don't cache if we have extra vars containing data.
+    elif extra_vars:
+        for k, v in extra_vars.iteritems():
+            allow_cache = False
+            break
+    # Record cachability for the page cache if enabled
+    request.environ['CKAN_PAGE_CACHABLE'] = allow_cache
 
     if allow_cache:
-        request.environ['CKAN_PAGE_CACHABLE'] = True
         response.headers["Cache-Control"] = "public"
-
-        if cache_expire is None:
-            try:
-                cache_expire = int(config.get('ckan.cache_expires'))
-                cache_type = config.get('ckan.cache_type', 'memory')
-            except ValueError:
-                pass
-        if cache_expire is not None:
-            response.headers["Cache-Control"] += ",max-age=%s, must-revalidate" % cache_expire
-        if cache_expire or cache_type or cache_key:
-            if cache_key:
-                cache_key += '_' + h.lang()
-            else:
-                cache_key = h.lang()
-            cache_key += '_?_' + request.environ.get('QUERY_STRING', '')
+        try:
+            cache_expire = int(config.get('ckan.cache_expires', 0))
+            response.headers["Cache-Control"] += ", max-age=%s, must-revalidate" % cache_expire
+        except ValueError:
+            pass
     else:
-        # we do not want caching
+        # We do not want caching.
         response.headers["Cache-Control"] = "private"
-        cache_key = cache_type = cache_expire = None
+        # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
 
-    # render time :)
+    # Render Time :)
     try:
-        return cached_template(template_name, render_template, cache_key=cache_key,
-                           cache_type=cache_type, cache_expire=cache_expire)
+        return cached_template(template_name, render_template)
     except ckan.exceptions.CkanUrlException, e:
         raise ckan.exceptions.CkanUrlException('\nAn Exception has been raised for template %s\n%s'
                         % (template_name, e.message))
