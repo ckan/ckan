@@ -1,9 +1,9 @@
 """Pylons middleware initialization"""
 import urllib
 import logging 
+import json
 
 from beaker.middleware import CacheMiddleware, SessionMiddleware
-from beaker.container import MemoryNamespaceManager
 from paste.cascade import Cascade
 from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
@@ -126,7 +126,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                 )
         app = Cascade(extra_static_parsers+static_parsers)
 
-    # page cache
+    # Page cache
     if asbool(config.get('ckan.page_cache_enabled')):
         app = PageCacheMiddleware(app, config)
 
@@ -181,55 +181,91 @@ class I18nMiddleware(object):
 
 
 class PageCacheMiddleware(object):
-    ''' A simple page cache that can store and serve pages. '''
+    ''' A simple page cache that can store and serve pages. It uses
+    Redis as storage. It caches pages that have a http status code of
+    200, use the GET method. Only non-logged in users receive cached
+    pages.
+    Cachable pages are indicated by a environ CKAN_PAGE_CACHABLE
+    variable.'''
 
     def __init__(self, app, config):
         self.app = app
-        self.cache = MemoryNamespaceManager('page-cache')
-        self.eager_caching = asbool(config.get('ckan.page_cache_eager'))
-        self.expires_time = int(config.get('ckan.page_cache_expire', 300))
+        import redis    # only import if used
+        self.redis = redis  # we need to reference this within the class
+        self.redis_exception = redis.exceptions.ConnectionError
+        self.redis_connection = None
 
     def __call__(self, environ, start_response):
 
         def _start_response(status, response_headers, exc_info=None):
-            # allows us to get the status and headers
+            # This wrapper allows us to get the status and headers.
             environ['CKAN_PAGE_STATUS'] = status
             environ['CKAN_PAGE_HEADERS'] = response_headers
             return start_response(status, response_headers, exc_info)
 
-        # only use cache for GET requests
-        # If there is a cookie we avoid the cache
-        if environ['REQUEST_METHOD'] != 'GET' or environ.get('HTTP_COOKIE'):
+        # Only use cache for GET requests
+        # If there is a cookie we avoid the cache.
+        # REMOTE_USER is used by some tests.
+        if environ['REQUEST_METHOD'] != 'GET' or environ.get('HTTP_COOKIE') or \
+           environ.get('REMOTE_USER'):
             return self.app(environ, start_response)
 
-        # get our cache key
-        key = '%s?%s' % (environ['PATH_INFO'], environ['QUERY_STRING'])
+        # Make our cache key
+        key = 'page:%s?%s' % (environ['PATH_INFO'], environ['QUERY_STRING'])
 
-        # if cached return cached result
+        # Try to connect if we don't have a connection. Doing this here
+        # allows the redis server to be unavailable at times.
+        if self.redis_connection is None:
+            try:
+                self.redis_connection = self.redis.StrictRedis()
+                self.redis_connection.flushdb()
+            except self.redis_exception:
+                return self.app(environ, start_response)
+
+        # If cached return cached result
         try:
-            result = self.cache[key]
-            start_response(result['status'], result['headers'])
-            return result['content']
-        except KeyError:
-            pass
+            result = self.redis_connection.lrange(key, 0, 2)
+        except self.redis_exception:
+            # Connection failed so clear it and return the page as normal.
+            self.redis_connection = None
+            return self.app(environ, start_response)
 
-        # generate the response from our application
+        if result:
+            headers = json.loads(result[1])
+            # Convert headers from list to tuples.
+            headers = [(str(key), str(value)) for key, value in headers]
+            start_response(str(result[0]), headers)
+            # Returning a huge string slows down the server. Therefore we
+            # cut it up into more usable chunks.
+            page = result[2]
+            out = []
+            total = len(page)
+            position = 0
+            size = 4096
+            while position < total:
+                out.append(page[position:position + size])
+                position += size
+            return out
+
+        # Generate the response from our application.
         page = self.app(environ, _start_response)
+
+        # Only cache http status 200 pages
+        if not environ['CKAN_PAGE_STATUS'].startswith('200'):
+            return page
 
         cachable = False
         if environ.get('CKAN_PAGE_CACHABLE'):
             cachable = True
-        elif self.eager_caching:
-            for header, value in environ['CKAN_PAGE_HEADERS']:
-                if header == 'Cache-Control' and 'public' in value:
-                    cachable = True
-                    break
-        # cache things if cachable
+
+        # Cache things if cachable.
         if cachable:
-            # make sure we consume any file handles etc
-            page = list(page)
-            data = {'headers': environ['CKAN_PAGE_HEADERS'],
-                    'status': environ['CKAN_PAGE_STATUS'],
-                    'content': page}
-            self.cache.set_value(key, data, expiretime=self.expires_time)
+            # Make sure we consume any file handles etc.
+            page_string = ''.join(list(page))
+            # Use a pipe to add page in a transaction.
+            pipe = self.redis_connection.pipeline()
+            pipe.rpush(key, environ['CKAN_PAGE_STATUS'])
+            pipe.rpush(key, json.dumps(environ['CKAN_PAGE_HEADERS']))
+            pipe.rpush(key, page_string)
+            pipe.execute()
         return page
