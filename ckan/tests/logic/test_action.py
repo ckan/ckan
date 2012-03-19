@@ -2,6 +2,7 @@ import re
 import json
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
+from pylons import config
 
 import ckan
 from ckan.lib.create_test_data import CreateTestData
@@ -1273,16 +1274,17 @@ class TestAction(WsgiAppCase):
         user = model.User.get('test.ckan.net')
         assert not user
 
+        site_id = config.get('ckan.site_id')
         user = get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        assert user['name'] == 'test.ckan.net'
+        assert user['name'] == site_id
 
-        user = model.User.get('test.ckan.net')
+        user = model.User.get(site_id)
         assert user
 
         user=get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        assert user['name'] == 'test.ckan.net'
+        assert user['name'] == site_id
 
-        user = model.Session.query(model.User).filter_by(name='test.ckan.net').one()
+        user = model.Session.query(model.User).filter_by(name=site_id).one()
         assert user
 
     def test_28_group_package_show(self):

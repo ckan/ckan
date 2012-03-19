@@ -27,8 +27,8 @@ def make_map():
     PUT_POST = dict(method=['PUT','POST'])
     OPTIONS = dict(method=['OPTIONS'])
 
-    from lib.plugins import register_package_plugins
-    from lib.plugins import register_group_plugins
+    from ckan.lib.plugins import register_package_plugins
+    from ckan.lib.plugins import register_group_plugins
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])

@@ -207,15 +207,6 @@ class DefaultDatasetForm(object):
     def package_form(self):
         return 'package/new_package_form.html'
 
-    def form_to_db_schema(self):
-        schema =  logic.schema.package_form_schema()
-        schema['groups'] = {
-                'name': [not_empty, val.group_id_or_name_exists, unicode],
-                'id':   [ignore_missing, unicode],
-            }
-        return schema
-
-
     def form_to_db_schema_options(self, options):
         ''' This allows us to select different schemas for different
         purpose eg via the web interface or via the api or creation vs

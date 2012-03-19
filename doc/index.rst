@@ -28,10 +28,13 @@ Customizing and Extending
    :maxdepth: 2
 
    theming
+   extensions
    writing-extensions
    forms
    form-integration
-   extensions
+   linked-data-and-rdf
+   filestore
+   datastore
 
 Publishing Datasets
 ===================
@@ -41,17 +44,15 @@ Publishing Datasets
 
    loading-data
    authorization
-   filestore
-   datastore
+   publisher-profile
 
 The CKAN API
 ============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    api
-   apiv3
 
 General Administration
 ======================
@@ -59,6 +60,7 @@ General Administration
 .. toctree::
    :maxdepth: 2
 
+   administrative-dashboard
    paster
    database-dumps
    configuration
@@ -70,6 +72,10 @@ For CKAN Developers
 .. toctree::
    :maxdepth: 2
 
+   domain-model
+   domain-model-dataset
+   domain-model-resource
+   domain-model-task-status
    i18n
    test
    buildbot

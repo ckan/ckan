@@ -1,5 +1,6 @@
-Version 3
-~~~~~~~~~
+=======================================
+Model, Search and Action API: Version 3
+=======================================
 
 API Versions
 ~~~~~~~~~~~~
@@ -239,35 +240,6 @@ Examples::
  curl http://test.ckan.net/api/action/package_list -d '{}'
  curl http://test.ckan.net/api/action/package_show -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
 
-Authorization Header
-====================
-
-CKAN can be configured to only allow authorized users to carry out certain actions. For example, in a default installation of CKAN, anyone can read packages, you have to be a logged-in user to edit them and editing permissions for a dataset can only be done by the dataset creator and a 'sysadmin' user.
-
-The authorization configuration is the same between the CKAN web interface and the API, so a user has the same permissions, whichever way he/she accesses CKAN data.
-
-Depending on the authorization settings of the CKAN instance, a user may not need to identify him/herself for simple read operations. This is the case for thedatahub.org and is assumed for the API usage examples.
-
-When using the API, a user authenticates his/her user identity by supplying a header in the request. The header key is either ``Authorization``, ``X-CKAN-API-Key`` or configured with the `apikey_header_name` option. The value of the header is the user's API key, provided on the user's page in the CKAN web interface.
-
-To obtain your API key:
-
-1. Log-in to the particular CKAN website: /user/login
-
-2. The user page shows the API Key: /user/me
-
-The key should be passed in the API request header ''Authorization'' (or an alternative may be provided such as ''X-CKAN-API-KEY''). For example::
-
-  curl http://thedatahub.org/api/rest/package -d '{"name": "test"}' -H 'Authorization: fde34a3c-b716-4c39-8dc4-881ba115c6d4'
-
-If requests that are required to be authorized are not sent with a 
-valid Authorization header, for example the user associated with the 
-key is not authorized for the operation, or the header is somehow malformed,
-then the requested operation will not be carried out and the CKAN API will
-respond with status code 403.
-
-For more information about HTTP Authorization header, please refer to section
-14.8 of `RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.8>`_.
 
 
 Responses
@@ -488,19 +460,3 @@ Code  Name
 500   Service Error - unhandled error - the system administrator has been notified
 ===== =====
 
-JSONP formatted responses
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To cater for scripts from other sites that wish to access the API, the data can be returned in JSONP format, where the JSON data is 'padded' with a function call. The function is named in the 'callback' parameter.
-
-Example normal request::
-
- curl http://test.ckan.net/api/action/package_show -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
- returns: {"help": null, "success": true, "result": {"name": "uk-quango-data", ...}}
-
-but now with the callback parameter::
-
- curl http://test.ckan.net/api/action/package_show?callback=jsoncallback -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
- returns: jsoncallback({"help": null, "success": true, "result": {"name": "uk-quango-data", ...}});
-
-This parameter can apply to all POST requests to the Action API and GET requests to the Search API and v1/v2 APIs.

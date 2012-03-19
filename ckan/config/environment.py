@@ -75,6 +75,10 @@ def load_environment(global_conf, app_conf):
         plugin.update_config(config)
 
     # This is set up before globals are initialized
+    site_id = os.environ.get('CKAN_SITE_ID')
+    if site_id:
+        config['ckan.site_id'] = site_id
+
     site_url = config.get('ckan.site_url', '')
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
     if config.get('ckan.site_id') is None:
@@ -125,7 +129,12 @@ def load_environment(global_conf, app_conf):
     warnings.filterwarnings('ignore', "^Did not recognize type 'BIGINT' of column 'size'", sqlalchemy.exc.SAWarning)
     warnings.filterwarnings('ignore', "^Did not recognize type 'tsvector' of column 'search_vector'", sqlalchemy.exc.SAWarning)
 
-    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
+    ckan_db = os.environ.get('CKAN_DB') 
+
+    if ckan_db:
+        engine = sqlalchemy.create_engine(ckan_db)
+    else:
+        engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
 
     if not model.meta.engine:
         model.init_model(engine)
