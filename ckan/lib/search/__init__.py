@@ -100,7 +100,7 @@ class SynchronousSearchPlugin(SingletonPlugin):
             dispatch_by_operation(
                 entity.__class__.__name__,
                 get_action('package_show_rest')(
-                    {'model': model, 'ignore_auth': True},
+                    {'model': model, 'ignore_auth': True, 'api_version':1},
                     {'id': entity.id}
                 ),
                 operation
@@ -119,7 +119,7 @@ def rebuild(package=None):
 
     if package:
         pkg_dict = get_action('package_show_rest')(
-            {'model': model, 'ignore_auth': True},
+            {'model': model, 'ignore_auth': True, 'api_version':1},
             {'id': package}
         )
         package_index.remove_dict(pkg_dict)
@@ -130,7 +130,7 @@ def rebuild(package=None):
         for pkg in model.Session.query(model.Package).filter(model.Package.state == 'active').all():
             package_index.insert_dict(
                 get_action('package_show_rest')(
-                    {'model': model, 'ignore_auth': True},
+                    {'model': model, 'ignore_auth': True, 'api_version':1},
                     {'id': pkg.id}
                 )
             )

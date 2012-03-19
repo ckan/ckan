@@ -25,6 +25,8 @@ from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
 import i18n
+import ckan.exceptions
+from pylons import request
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -42,6 +44,8 @@ except ImportError:
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
     kw['__ckan_no_root'] = True
+    if are_there_flash_messages():
+        kw['__no_cache__'] = True
     return _redirect_to(url_for(*args, **kw))
 
 def url(*args, **kw):
@@ -52,7 +56,6 @@ def url(*args, **kw):
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 def url_for(*args, **kw):
-
     """Create url adding i18n information if selected
     wrapper for routes.url_for"""
     locale = kw.pop('locale', None)
@@ -82,7 +85,6 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # (as part of the language changing feature).
     # A locale of default will not add locale info to the url.
 
-    from pylons import request
 
     default_locale = False
     locale = kw.pop('locale', None)
@@ -114,8 +116,16 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # stop the root being added twice in redirects
     if no_root:
         url = url_to_amend[len(root):]
+        if not default_locale:
+            url = '/%s%s' % (locale,  url)
+
+    if url == '/packages':
+        raise ckan.exceptions.CkanUrlException('There is a broken url being created %s' % kw)
 
     return url
+
+def lang():
+    return request.environ.get('CKAN_LANG')
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -185,7 +195,9 @@ class _Flash(object):
     def pop_messages(self):
         from pylons import session
         messages = session.pop(self.session_key, [])
-        session.save()
+        # only save session if it has changed
+        if messages:
+            session.save()
         return [Message(*m) for m in messages]
 
     def are_there_messages(self):
@@ -248,7 +260,6 @@ def default_group_type():
     return str( config.get('ckan.default.group_type', 'group') )
 
 def facet_items(c, name, limit=10):
-    from pylons import request
     if not c.facets or not c.facets.get(name):
         return []
     facets = []
