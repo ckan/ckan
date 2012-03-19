@@ -19,6 +19,7 @@ from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
 from webhelpers.html import literal
 
+import ckan.exceptions
 import ckan
 from ckan import authz
 from ckan.lib import i18n
@@ -46,16 +47,16 @@ def abort(status_code=None, detail='', headers=None, comment=None):
                   comment=comment)
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
-           cache_expire=None, method='xhtml', loader_class=MarkupTemplate):
+           cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
+           cache_force = None):
 
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
         globs['actions'] = model.Action
 
-        # Using pylons.url() or pylons.url_for() directly destroys the
-        # localisation stuff so we remove it so any bad templates crash
-        # and burn
+        # Using pylons.url() directly destroys the localisation stuff so
+        # we remove it so any bad templates crash and burn
         del globs['url']
 
         template = globs['app_globals'].genshi_loader.load(template_name,
@@ -67,19 +68,57 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
         if loader_class == NewTextTemplate:
             return literal(stream.render(method="text", encoding=None))
-        return literal(stream.render(method=method, encoding=None, strip_whitespace=False))
+
+        return literal(stream.render(method=method, encoding=None, strip_whitespace=True))
+
 
     if 'Pragma' in response.headers:
         del response.headers["Pragma"]
-    if cache_key is not None or cache_type is not None:
+
+    ## Caching Logic
+    allow_cache = True
+    # Force cache or not if explicit.
+    if cache_force is not None:
+        allow_cache = cache_force
+    # Do not allow caching of pages for logged in users/flash messages etc.
+    elif session.last_accessed:
+        allow_cache = False
+    # Tests etc.
+    elif 'REMOTE_USER' in request.environ:
+        allow_cache = False
+    # Don't cache if based on a non-cachable template used in this.
+    elif request.environ.get('__no_cache__'):
+        allow_cache = False
+    # Don't cache if we have set the __no_cache__ param in the query string.
+    elif request.params.get('__no_cache__'):
+        allow_cache = False
+    # Don't cache if we have extra vars containing data.
+    elif extra_vars:
+        for k, v in extra_vars.iteritems():
+            allow_cache = False
+            break
+    # Record cachability for the page cache if enabled
+    request.environ['CKAN_PAGE_CACHABLE'] = allow_cache
+
+    if allow_cache:
         response.headers["Cache-Control"] = "public"
+        try:
+            cache_expire = int(config.get('ckan.cache_expires', 0))
+            response.headers["Cache-Control"] += ", max-age=%s, must-revalidate" % cache_expire
+        except ValueError:
+            pass
+    else:
+        # We do not want caching.
+        response.headers["Cache-Control"] = "private"
+        # Prevent any further rendering from being cached.
+        request.environ['__no_cache__'] = True
 
-    if cache_expire is not None:
-        response.headers["Cache-Control"] = "max-age=%s, must-revalidate" % cache_expire
-
-    return cached_template(template_name, render_template, cache_key=cache_key,
-                           cache_type=cache_type, cache_expire=cache_expire)
-                           #, ns_options=('method'), method=method)
+    # Render Time :)
+    try:
+        return cached_template(template_name, render_template, loader_class=loader_class)
+    except ckan.exceptions.CkanUrlException, e:
+        raise ckan.exceptions.CkanUrlException('\nAn Exception has been raised for template %s\n%s'
+                        % (template_name, e.message))
 
 
 class ValidationException(Exception):
@@ -140,6 +179,18 @@ class BaseController(WSGIController):
         # WSGIController.__call__ dispatches to the Controller method
         # the request is routed to. This routing information is
         # available in environ['pylons.routes_dict']
+
+        # clean out any old cookies as they may contain api keys etc
+        for cookie in request.cookies:
+            if cookie.startswith('ckan') and cookie not in ['ckan', 'ckan_killtopbar']:
+                response.delete_cookie(cookie)
+
+            if cookie == 'ckan' and not c.user and not h.are_there_flash_messages():
+                if session.id:
+                    if not session.get('lang'):
+                        session.delete()
+                else:
+                    response.delete_cookie(cookie)
         try:
             return WSGIController.__call__(self, environ, start_response)
         finally:

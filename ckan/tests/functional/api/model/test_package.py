@@ -34,7 +34,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         groups = []
         for grp in test_groups:
             group = model.Group.get(grp)
-            if self.get_expected_api_version() == '1':
+            if self.get_expected_api_version() == 1:
                 groups.append(group.name)
             else:
                 groups.append(group.id)
@@ -144,7 +144,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         pkg_groups = model.Session.query(model.Group).\
                     join(model.Member, model.Member.group_id == model.Group.id).\
                     filter(model.Member.table_id == package.id).all()
-        if self.get_expected_api_version() == '1':
+        if self.get_expected_api_version() == 1:
             self.assert_equal([g.name for g in pkg_groups], groups)
         else:
             self.assert_equal([g.id for g in pkg_groups], groups)
@@ -197,7 +197,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         pkg_groups = model.Session.query(model.Group).\
                     join(model.Member, model.Member.group_id == model.Group.id).\
                     filter(model.Member.table_id == package.id).all()
-        if self.get_expected_api_version() == '1':
+        if self.get_expected_api_version() == 1:
             self.assert_equal([g.name for g in pkg_groups], groups)
         else:
             self.assert_equal([g.id for g in pkg_groups], groups)

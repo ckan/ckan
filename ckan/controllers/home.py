@@ -82,7 +82,7 @@ class HomeController(BaseController):
             ckan.logic.action.get.recently_changed_packages_activity_list_html(
                     context, {})
 
-        return render('home/index.html')
+        return render('home/index.html', cache_force=True)
 
     def license(self):
         return render('home/license.html')
