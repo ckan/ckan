@@ -200,13 +200,15 @@ class PackageController(BaseController):
         it accurately.  TextTemplate must be used for non-xml templates
         whilst all that are some sort of XML should use MarkupTemplate.
         """
-        from genshi.template import MarkupTemplate, TextTemplate
+        from genshi.template import MarkupTemplate
+        from genshi.template.text import NewTextTemplate
+
         types = {
             "html": ("text/html; charset=utf-8", MarkupTemplate, 'html'),
             "rdf" : ("application/rdf+xml; charset=utf-8", MarkupTemplate, 'rdf'),
-            "n3" : ("text/n3; charset=utf-8", TextTemplate, 'n3'),
+            "n3" : ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
             "application/rdf+xml" : ("application/rdf+xml; charset=utf-8", MarkupTemplate,'rdf'),
-            "text/n3": ("text/n3; charset=utf-8", TextTemplate, 'n3'),
+            "text/n3": ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
         }
         # Check the accept header first
         accept = request.headers.get('Accept', '')
