@@ -544,7 +544,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
-        return data['type']
+        return data.get('type', 'package')
 
     def _save_new(self, context, package_type=None):
         from ckan.lib.search import SearchIndexError
