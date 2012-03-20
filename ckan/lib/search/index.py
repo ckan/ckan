@@ -158,8 +158,8 @@ class PackageSearchIndex(SearchIndex):
 
     def delete_package(self, pkg_dict):
         conn = make_connection()
-        query = "+%s:%s +id:\"%s\" +site_id:\"%s\"" % (TYPE_FIELD, PACKAGE_TYPE,
-                                                       pkg_dict.get('id'),
+        query = "+%s:%s (+id:\"%s\" OR +name:\"%s\") +site_id:\"%s\"" % (TYPE_FIELD, PACKAGE_TYPE,
+                                                       pkg_dict.get('id'), pkg_dict.get('id'),
                                                        config.get('ckan.site_id'))
         try:
             conn.delete_query(query)
