@@ -204,11 +204,17 @@ class PageCacheMiddleware(object):
             return start_response(status, response_headers, exc_info)
 
         # Only use cache for GET requests
-        # If there is a cookie we avoid the cache.
         # REMOTE_USER is used by some tests.
-        if environ['REQUEST_METHOD'] != 'GET' or environ.get('HTTP_COOKIE') or \
-           environ.get('REMOTE_USER'):
+        if environ['REQUEST_METHOD'] != 'GET' or environ.get('REMOTE_USER'):
             return self.app(environ, start_response)
+
+        # If there is a ckan cookie (or auth_tkt) we avoid the cache.
+        # We want to allow other cookies like google analytics ones :(
+        cookie_string = environ.get('HTTP_COOKIE')
+        if cookie_string:
+            for cookie in cookie_string.split(';'):
+                if cookie.startswith('ckan') or cookie.startswith('auth_tkt'):
+                    return self.app(environ, start_response)
 
         # Make our cache key
         key = 'page:%s?%s' % (environ['PATH_INFO'], environ['QUERY_STRING'])
