@@ -65,7 +65,7 @@
   </py:def>
 
   <div py:match="content">
-    <div class="resource-actions span-8">
+    <div class="resource-actions">
       <a py:if="c.resource.get('url')" class="btn btn-primary resource-url-analytics resource-type-${c.resource.get('resource_type')}" href="${c.resource.get('url')}">
         <py:choose test="c.resource.get('resource_type')">
           <py:when test="'listing'">View</py:when>

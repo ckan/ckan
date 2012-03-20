@@ -536,3 +536,6 @@ def auto_log_message(context):
     elif (context.action=='edit'):
         return _('Edited settings.')
     return ''
+
+def content_span(body_class):
+    return body_class.__str__()

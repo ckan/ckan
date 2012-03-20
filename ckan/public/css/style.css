@@ -1,9 +1,8 @@
 @import url('forms.css');
 
-body.no-sidebar #sidebar { display: none; }
-body.no-sidebar #content { 
-  border-right: 0; 
-  width: 950px; 
+body.no-sidebar .sidebar-outer { display: none; }
+body.no-sidebar .content-outer { 
+  width: 940px; 
 }
 
 .header.outer {
@@ -761,7 +760,7 @@ body.user.read #content {
   color: #999;
 }
 
-.user.read .listing > div.datasets .datasets {
+.user.read .listing div.datasets .datasets {
   padding-right: 15px;
 }
 
