@@ -223,8 +223,8 @@ def package_update_validate(context, data_dict):
 
 def _update_package_relationship(relationship, comment, context):
     model = context['model']
-    api = context.get('api_version') or '1'
-    ref_package_by = 'id' if api == '2' else 'name'
+    api = context.get('api_version')
+    ref_package_by = 'id' if api == 2 else 'name'
     is_changed = relationship.comment != comment
     if is_changed:
         rev = model.repo.new_revision()
@@ -243,12 +243,10 @@ def package_relationship_update(context, data_dict):
     model = context['model']
     user = context['user']
     schema = context.get('schema') or ckan.logic.schema.default_update_relationship_schema()
-    api = context.get('api_version') or '1'
 
     id = data_dict['subject']
     id2 = data_dict['object']
     rel = data_dict['type']
-    ref_package_by = 'id' if api == '2' else 'name'
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
@@ -511,7 +509,6 @@ def package_update_rest(context, data_dict):
     model = context['model']
     id = data_dict.get("id")
     request_id = context['id']
-    api = context.get('api_version') or '1'
     pkg = model.Package.get(request_id)
 
     if not pkg:
@@ -534,10 +531,7 @@ def package_update_rest(context, data_dict):
 
     pkg = context['package']
 
-    if api == '1':
-        package_dict = model_dictize.package_to_api1(pkg, context)
-    else:
-        package_dict = model_dictize.package_to_api2(pkg, context)
+    package_dict = model_dictize.package_to_api(pkg, context)
 
     return package_dict
 
@@ -545,7 +539,6 @@ def group_update_rest(context, data_dict):
 
     model = context['model']
     id = data_dict["id"]
-    api = context.get('api_version') or '1'
     group = model.Group.get(id)
     context["group"] = group
     context["allow_partial_update"] = True
@@ -557,11 +550,7 @@ def group_update_rest(context, data_dict):
 
     group = context['group']
 
-
-    if api == '1':
-        group_dict = model_dictize.group_to_api1(group, context)
-    else:
-        group_dict = model_dictize.group_to_api2(group, context)
+    group_dict = model_dictize.group_to_api(group, context)
 
     return group_dict
 

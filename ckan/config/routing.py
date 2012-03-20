@@ -25,6 +25,7 @@ def make_map():
     DELETE = dict(method=['DELETE'])
     GET_POST = dict(method=['GET', 'POST'])
     PUT_POST = dict(method=['PUT','POST'])
+    GET_POST_DELETE = dict(method=['GET', 'POST', 'DELETE'])
     OPTIONS = dict(method=['OPTIONS'])
 
     from ckan.lib.plugins import register_package_plugins
@@ -104,8 +105,8 @@ def make_map():
         m.connect('/rest/{register}/{id}/:subregister/{id2}', action='delete',
             conditions=DELETE)
 
-    # /api/2/util
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/2}', ver='/2') as m:
+    # /api/util ver 1, 2 or none
+    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/1') as m:
         m.connect('/util/user/autocomplete', action='user_autocomplete')
         m.connect('/util/is_slug_valid', action='is_slug_valid',
                   conditions=GET)
@@ -120,9 +121,6 @@ def make_map():
         m.connect('/util/authorizationgroup/autocomplete',
                   action='authorizationgroup_autocomplete')
         m.connect('/util/group/autocomplete', action='group_autocomplete')
-
-    # /api/util
-    with SubMapper(map, controller='api', path_prefix='/api') as m:
         m.connect('/util/markdown', action='markdown')
         m.connect('/util/dataset/munge_name', action='munge_package_name')
         m.connect('/util/dataset/munge_title_to_name',
@@ -130,21 +128,19 @@ def make_map():
         m.connect('/util/tag/munge', action='munge_tag')
         m.connect('/util/status', action='status')
 
-    ## Webstore
-    if config.get('ckan.datastore.enabled', False):
-        map.connect('datastore_read', '/api/data/{id}{url:(/.*)?}',
-            controller='datastore', action='read', url='',
-            conditions={'method': ['GET']}
-            )
-        map.connect('datastore_write', '/api/data/{id}{url:(/.*)?}',
-            controller='datastore', action='write', url='',
-            conditions={'method': ['PUT','POST', 'DELETE']}
-            )
-
-
     ###########
     ## /END API
     ###########
+
+
+    ## Webstore
+    if config.get('ckan.datastore.enabled', False):
+        with SubMapper(map, controller='datastore') as m:
+            m.connect('datastore_read', '/api/data/{id}{url:(/.*)?}',
+                      action='read', url='', conditions=GET)
+            m.connect('datastore_write', '/api/data/{id}{url:(/.*)?}',
+                      action='write', url='', conditions=GET_POST_DELETE)
+
 
     map.redirect('/packages', '/dataset')
     map.redirect('/packages/{url:.*}', '/dataset/{url}')
@@ -245,8 +241,10 @@ def make_map():
         m.connect('/user/login', action='login')
         m.connect('/user/logged_in', action='logged_in')
         m.connect('/user/logged_out', action='logged_out')
+        m.connect('/user/logged_out_redirect', action='logged_out_page')
         m.connect('/user/reset', action='request_reset')
         m.connect('/user/me', action='me')
+        m.connect('/user/set_lang/{lang}', action='set_lang')
         m.connect('/user/{id:.*}', action='read')
         m.connect('/user', action='index')
 

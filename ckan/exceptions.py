@@ -4,3 +4,5 @@ class CkanException(Exception):
 class EmptyRevisionException(CkanException):
     pass
 
+class CkanUrlException(Exception):
+    pass

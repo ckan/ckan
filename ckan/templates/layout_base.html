@@ -51,10 +51,6 @@
              ${defined('body_class') and body_class()}
   ">
 
-   <div class="welcome-banner js-welcome-banner" style="display: none;">
-     <span>First time at ${g.site_title}? Visit our <a href="${h.url_for(controller='home', action='about')}">About page</a> to find out more.</span>
-     <button class="pretty-button js-kill-button">x</button>
-  </div>
   <div id="wrap">
     <div class="header outer">
       <header class="container">
@@ -245,6 +241,7 @@
     CKAN.plugins.push('storage');
     </py:if>
     CKAN.SITE_URL = '${h.url('/')}';
+    CKAN.LANG = '${h.lang()}';
     // later use will add offsets with leading '/' so ensure no trailing slash
     CKAN.SITE_URL = CKAN.SITE_URL.replace(/\/$/, '');
     $(document).ready(function() {

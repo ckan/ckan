@@ -1,5 +1,7 @@
 from routes import url_for
 from nose.tools import assert_equal
+from pylons import config
+import hashlib
 
 from pprint import pprint
 from ckan.tests import search_related, CreateTestData
@@ -12,7 +14,13 @@ from ckan.lib.mailer import get_reset_link, create_reset_key
 
 class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
+        smtp_server = config.get('test_smtp_server')
+        if smtp_server:
+            host, port = smtp_server.split(':')
+            port = int(port) + int(str(hashlib.md5(cls.__name__).hexdigest())[0], 16)
+            config['test_smtp_server'] = '%s:%s' % (host, port)
+
         PylonsTestCase.setup_class()
         SmtpServerHarness.setup_class()
         CreateTestData.create()
@@ -135,6 +143,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
     def test_logout(self):
         res = self.app.get('/user/logout')
         res2 = res.follow()
+        res2 = res2.follow()
         assert 'You have logged out successfully.' in res2, res2
 
     def _get_cookie_headers(self, res):
@@ -173,8 +182,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # then get redirected to user page
         res = res.follow()
         assert_equal(res.status, 302)
-        assert res.header('Location') in ('http://localhost/user/testlogin',
-                                          '/user/testlogin')
+        assert res.header('Location').startswith('http://localhost/user/testlogin') or \
+               res.header('Location').startswith('/user/testlogin')
         res = res.follow()
         assert_equal(res.status, 200)
         assert 'testlogin is now logged in' in res.body
@@ -188,9 +197,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
         # check cookie created
         cookie = res.request.environ['HTTP_COOKIE']
-        # I think some versions of webob do not produce quotes, hence the 'or'
-        assert 'ckan_display_name="testlogin"' in cookie or \
-               'ckan_display_name=testlogin' in cookie, cookie
         assert 'auth_tkt=' in cookie, cookie
         assert 'testlogin!userid_type:unicode' in cookie, cookie
 
@@ -347,6 +353,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # logout and login as user B
         res = self.app.get('/user/logout')
         res2 = res.follow()
+        res2 = res2.follow()
         assert 'You have logged out successfully.' in res2, res2
         offset = url_for(controller='user', action='login')
         res = self.app.get(offset)
@@ -432,9 +439,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
         # check cookies created
         cookie = res.request.environ['HTTP_COOKIE']
-        # I think some versions of webob do not produce quotes, hence the 'or'
-        assert 'ckan_display_name="Test Create"' in cookie or\
-               'ckan_display_name=Test Create' in cookie, cookie
         assert 'auth_tkt=' in cookie, cookie
         assert 'testcreate!userid_type:unicode' in cookie, cookie
 
@@ -873,7 +877,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['user'] = 'kittens'
         res = fv.submit()
         assert_equal(res.status, 302)
-        assert_equal(res.header_dict['Location'], 'http://localhost/')
+        assert_equal(res.header_dict['Location'], 'http://localhost/?__no_cache__=True')
 
         CreateTestData.create_user(name='larry2', fullname='kittens')
         res = self.app.get(offset)

@@ -479,6 +479,9 @@ class TestPackagePurge:
     @classmethod
     def setup_class(self):
         CreateTestData.create()
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
     def test_purge(self):
         pkgs = model.Session.query(model.Package).all()
         for p in pkgs:
