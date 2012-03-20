@@ -220,6 +220,8 @@ class PageCacheMiddleware(object):
                 self.redis_connection = self.redis.StrictRedis()
                 self.redis_connection.flushdb()
             except self.redis_exception:
+                # Connection may have failed at flush so clear it.
+                self.redis_connection = None
                 return self.app(environ, start_response)
 
         # If cached return cached result
