@@ -19,6 +19,7 @@ Installation
    install-from-package
    install-from-source
    post-installation
+   deployment
    solr-setup
 
 Customizing and Extending
