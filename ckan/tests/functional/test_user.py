@@ -1,5 +1,7 @@
 from routes import url_for
 from nose.tools import assert_equal
+from pylons import config
+import hashlib
 
 from pprint import pprint
 from ckan.tests import search_related, CreateTestData
@@ -12,7 +14,13 @@ from ckan.lib.mailer import get_reset_link, create_reset_key
 
 class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
+        smtp_server = config.get('test_smtp_server')
+        if smtp_server:
+            host, port = smtp_server.split(':')
+            port = int(port) + int(str(hashlib.md5(cls.__name__).hexdigest())[0], 16)
+            config['test_smtp_server'] = '%s:%s' % (host, port)
+
         PylonsTestCase.setup_class()
         SmtpServerHarness.setup_class()
         CreateTestData.create()
