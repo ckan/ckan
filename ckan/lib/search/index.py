@@ -135,6 +135,15 @@ class PackageSearchIndex(SearchIndex):
         # mark this CKAN instance as data source:
         pkg_dict['site_id'] = config.get('ckan.site_id')
 
+        # Strip a selection of the fields.
+        # These fields are possible candidates for sorting search results on,
+        # so we strip leading spaces because solr will sort " " before "a" or "A".
+        for field_name in ['title']:
+            try:
+                pkg_dict[field_name] = pkg_dict[field_name].lstrip()
+            except KeyError:
+                pass
+
         # add a unique index_id to avoid conflicts
         import hashlib
         pkg_dict['index_id'] = hashlib.md5('%s%s' % (pkg_dict['id'],config.get('ckan.site_id'))).hexdigest()
