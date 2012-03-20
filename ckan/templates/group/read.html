@@ -33,8 +33,8 @@
       </div>
       <div id="notes-remainder"></div>
       <div id="notes-toggle" style="display: none;">
-        <button class="more pretty-button"><img src="/images/chevron-down.png"/></button>
-        <button class="less pretty-button" style="display: none;"><img src="/images/chevron-up.png"/></button>
+        <button class="more btn"><img src="/images/chevron-down.png"/></button>
+        <button class="less btn" style="display: none;"><img src="/images/chevron-up.png"/></button>
       </div>
     </div>
     <div class="group-dataset-list">
@@ -45,7 +45,7 @@
         <py:for each="(k, v) in c.fields"> 
           <input type="hidden" name="${k}" value="${v}" />  
         </py:for>
-        <input type="submit" value="${_('Search')}" class="pretty-button primary button" />
+        <input type="submit" value="${_('Search')}" class="btn primary button" />
       </form>
       ${field_list()}   
 

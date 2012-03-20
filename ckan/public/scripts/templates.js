@@ -9,8 +9,8 @@ CKAN.Templates.resourceAddLinkFile = ' \
       </dt> \
       <dd> \
         <input name="url" type="text" placeholder="http://mydataset.com/file.csv" style="width: 60%"/> \
-        <input name="save" type="submit" class="pretty-button primary" value="'+CKAN.Strings.add+'" /> \
-        <input name="reset" type="reset" class="pretty-button" value="'+CKAN.Strings.cancel+'" /> \
+        <input name="save" type="submit" class="btn primary" value="'+CKAN.Strings.add+'" /> \
+        <input name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
       </dd> \
     </dl> \
      \
@@ -27,8 +27,8 @@ CKAN.Templates.resourceAddLinkApi = ' \
       </dt> \
       <dd> \
         <input name="url" type="text" placeholder="http://mydataset.com/api/" style="width: 60%" /> \
-        <input name="save" type="submit" class="pretty-button primary" value="'+CKAN.Strings.add+'" /> \
-        <input name="reset" type="reset" class="pretty-button" value="'+CKAN.Strings.cancel+'" /> \
+        <input name="save" type="submit" class="btn primary" value="'+CKAN.Strings.add+'" /> \
+        <input name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
       </dd> \
     </dl> \
      \
@@ -52,8 +52,8 @@ CKAN.Templates.resourceUpload = ' \
         <input type="file" name="file" /> \
         <br /> \
         <div class="fileinfo"></div> \
-        <input id="upload" name="upload" type="submit" class="pretty-button primary" value="'+CKAN.Strings.add+'" /> \
-        <input id="reset" name="reset" type="reset" class="pretty-button" value="'+CKAN.Strings.cancel+'" /> \
+        <input id="upload" name="upload" type="submit" class="btn primary" value="'+CKAN.Strings.add+'" /> \
+        <input id="reset" name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
       </dd> \
     </dl> \
   </form> \
@@ -91,8 +91,8 @@ CKAN.Templates.resourceDetails = ' \
           <td class="dataset-details" property="rdf:value"> \
             <div class="markdown-editor"> \
               <ul class="button-row"> \
-                <li><button class="pretty-button js-markdown-edit depressed">Edit</button></li> \
-                <li><button class="pretty-button js-markdown-preview">Preview</button></li> \
+                <li><button class="btn js-markdown-edit depressed">Edit</button></li> \
+                <li><button class="btn js-markdown-preview">Preview</button></li> \
               </ul> \
               <textarea class="js-resource-edit-description markdown-input" name="resources__${num}__description">${resource.description}</textarea> \
               <div class="markdown-preview" style="display: none;"></div> \
@@ -180,19 +180,19 @@ CKAN.Templates.resourceDetails = ' \
         </tr><tr> \
         <td class="dynamic-extras" colspan="2"> \
           <strong>Extra Fields</strong> \
-          <button class="pretty-button add-resource-extra">Add Extra Field</button>\
+          <button class="btn add-resource-extra">Add Extra Field</button>\
         </td> \
         </tr> \
       </tbody> \
     </table> \
-    <button class="pretty-button danger resource-edit-delete js-resource-edit-delete">Delete Resource</button>\
+    <button class="btn danger resource-edit-delete js-resource-edit-delete">Delete Resource</button>\
     </td> \
   </div> \
 ';
 
 CKAN.Templates.resourceExtra = ' \
   <div class="dynamic-extra"> \
-  <button class="pretty-button danger remove-resource-extra">X</button>\
+  <button class="btn danger remove-resource-extra">X</button>\
   <input type="text" placeholder="Key" class="extra-key" value="${key}" /> \
   <input type="text" placeholder="Value" class="extra-value" value="${value}" /> \
   </div> \

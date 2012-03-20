@@ -473,8 +473,8 @@ def time_ago_in_words_from_str(date_str, granularity='month'):
 
 def button_attr(enable, type='primary'):
     if enable:
-        return 'class="pretty-button %s"' % type
-    return 'disabled class="pretty-button disabled"'
+        return 'class="btn %s"' % type
+    return 'disabled class="btn disabled"'
 
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
