@@ -76,7 +76,7 @@ CKAN.Templates.resourceEntry = ' \
 CKAN.Templates.resourceDetails = ' \
   <div style="display: none;" class="resource-details"> \
     <div class="flash-messages"> \
-      <div class="error resource-errors"></div> \
+      <div class="alert alert-error resource-errors"></div> \
     </div> \
     <table> \
       <tbody> \

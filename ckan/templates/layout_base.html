@@ -87,7 +87,7 @@
     </div>
     <py:with vars="messages = list(h._flash.pop_messages())">
     <div class="flash-messages container">
-      <div class="${m.category}" py:for="m in messages">
+      <div class="alert ${m.category}" py:for="m in messages">
         ${h.literal(m)}
       </div>
     </div>

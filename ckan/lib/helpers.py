@@ -146,10 +146,10 @@ class Message(object):
 class _Flash(object):
 
     # List of allowed categories.  If None, allow any category.
-    categories = ["warning", "notice", "error", "success"]
+    categories = ["", "alert-info", "alert-error", "alert-success"]
 
     # Default category if none is specified.
-    default_category = "notice"
+    default_category = ""
 
     def __init__(self, session_key="flash", categories=None, default_category=None):
         self.session_key = session_key
@@ -195,13 +195,13 @@ class _Flash(object):
 _flash = _Flash()
 
 def flash_notice(message, allow_html=False):
-    _flash(message, category='notice', allow_html=allow_html)
+    _flash(message, category='alert-info', allow_html=allow_html)
 
 def flash_error(message, allow_html=False):
-    _flash(message, category='error', allow_html=allow_html)
+    _flash(message, category='alert-error', allow_html=allow_html)
 
 def flash_success(message, allow_html=False):
-    _flash(message, category='success', allow_html=allow_html)
+    _flash(message, category='alert-success', allow_html=allow_html)
 
 def are_there_flash_messages():
     return _flash.are_there_messages()

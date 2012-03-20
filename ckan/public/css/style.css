@@ -15,7 +15,7 @@ body.no-sidebar .content-outer {
   background-image:         linear-gradient(top, #e2e2e2, #cccccc);
             filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#e2e2e2', EndColorStr='#cccccc'); 
 
-  margin-bottom: 0px;
+  margin-bottom: 18px;
      -moz-box-shadow: 0px 2px 15px #dddddd; 
   -webkit-box-shadow: 0px 2px 15px #dddddd; 
           box-shadow: 0px 2px 15px #dddddd; 
@@ -1239,12 +1239,6 @@ body.package.read .resource-information {
     padding: 2px 8px;
     box-shadow: 1px 1px 3px #f7f7f7;
     color: #808080;
-}
-.flash-messages .success .new-dataset {
-  font-size: 150%;
-}
-.flash-messages.success .new-dataset a {
-  font-weight: bold;
 }
 body.package.read #sidebar li.widget-container {
   border: 0
