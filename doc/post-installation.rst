@@ -56,8 +56,5 @@ You may want to deploy your CKAN instance at this point, to share with others.
 
 If you have installed CKAN from packages, then Apache and WSGI deployment scripts are already configured for you in standard locations. 
 
-If you have installed CKAN from source, then the standard production deployment of CKAN is Apache and WSGI, which you will need to configure yourself. For more information, see http://wiki.ckan.net/Deployment
+If you have installed CKAN from source, then the standard production deployment of CKAN is Apache and WSGI, which you will need to configure yourself. For more information, see :doc:`deployment`.
 
-CKAN has been successfully deployed by a variety of other methods including Apache reverse proxy + paster, nginx reverse proxy + paster, and nginx + uwsgi. 
-
-You can now proceed to :doc:`theming`.

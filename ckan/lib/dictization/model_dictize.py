@@ -294,7 +294,7 @@ def user_list_dictize(obj_list, context,
     return sorted(result_list, key=sort_key, reverse=reverse)
 
 def member_dictize(member, context):
-    return table_dictize(member, context)
+    return d.table_dictize(member, context)
 
 def user_dictize(user, context):
 
