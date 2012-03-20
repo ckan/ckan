@@ -29,6 +29,7 @@ Customizing and Extending
    :maxdepth: 2
 
    theming
+   commenting
    extensions
    writing-extensions
    forms
