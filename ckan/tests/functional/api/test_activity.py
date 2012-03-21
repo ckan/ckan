@@ -46,11 +46,14 @@ def make_resource():
             'name': 'example resource',
             }
 
-def make_package():
+def make_package(name=None):
     '''Return a test package in dictionary form.'''
+    if name is None:
+        name = "test_package"
+
     # A package with no resources, tags, extras or groups.
     pkg = {
-        'name' : 'test_package',
+        'name' : name,
         'title' : 'My Test Package',
         'author' : 'test author',
         'author_email' : 'test_author@test_author.com',
@@ -88,7 +91,8 @@ def find_new_activities(before, after):
 
 class TestActivity:
 
-    def setup(self):
+    @classmethod
+    def setup_class(self):
         ckan.tests.CreateTestData.create()
         self.sysadmin_user = model.User.get('testsysadmin')
         self.normal_user = model.User.get('annafan')
@@ -96,7 +100,8 @@ class TestActivity:
         self.annakarenina = model.Package.get('annakarenina')
         self.app = paste.fixture.TestApp(pylonsapp)
 
-    def teardown(self):
+    @classmethod
+    def teardown_class(self):
         model.repo.rebuild_db()
 
     def user_activity_stream(self, user_id):
@@ -143,7 +148,7 @@ class TestActivity:
         details['time'] = datetime.datetime.now()
         return details
 
-    def _create_package(self, user):
+    def _create_package(self, user, name=None):
         if user:
             user_name = user.name
             user_id = user.id
@@ -160,7 +165,7 @@ class TestActivity:
             'user': user_name,
             'allow_partial_update': True,
             }
-        request_data = make_package()
+        request_data = make_package(name)
         package_created = package_create(context, request_data)
 
         after = self.record_details(user_id, package_created['id'])
@@ -253,7 +258,7 @@ class TestActivity:
         when a new package is created by a user who is not logged in.
 
         """
-        self._create_package(user=None)
+        self._create_package(user=None, name="not_logged_in_test_package")
 
     def _add_resource(self, package, user):
         if user:
@@ -388,7 +393,12 @@ class TestActivity:
         # Update the package.
         context = {'model': model, 'session': model.Session, 'user': user_name,
                 'allow_partial_update': True}
-        package_dict = {'id': package.id, 'title': 'edited'}
+        package_dict = {'id': package.id}
+        if package.title != 'edited':
+            package_dict['title'] = 'edited'
+        else:
+            assert package.title != 'edited again'
+            package_dict['title'] = 'edited again'
         package_update(context, package_dict)
 
         after = self.record_details(user_id, package.id)
@@ -441,7 +451,7 @@ class TestActivity:
         assert detail['activity_type'] == "changed", (
             str(detail['activity_type']))
 
-    def test_update_package(self):
+    def test_01_update_package(self):
         """
         Test updated package activity stream.
 
@@ -452,7 +462,7 @@ class TestActivity:
         for package in model.Session.query(model.Package).all():
             self._update_package(package, user=self.normal_user)
 
-    def test_update_package_not_logged_in(self):
+    def test_01_update_package_not_logged_in(self):
         """
         Test updated package activity stream when not logged in.
 
@@ -539,7 +549,7 @@ class TestActivity:
         assert detail['activity_type'] == "changed", (
             str(detail['activity_type']))
 
-    def test_update_resource(self):
+    def test_01_update_resource(self):
         """
         Test that a correct activity stream item and detail item are emitted
         when a resource is updated.
@@ -553,7 +563,7 @@ class TestActivity:
             for resource in pkg.resources:
                 self._update_resource(pkg, resource, user=self.normal_user)
 
-    def test_update_resource_not_logged_in(self):
+    def test_01_update_resource_not_logged_in(self):
         """
         Test that a correct activity stream item and detail item are emitted
         when a resource is updated by a user who is not logged in.
@@ -573,7 +583,7 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = self.record_details(self.normal_user.id, package.id)
+        before = self.record_details(self.sysadmin_user.id, package.id)
 
         # Query for the package object again, as the session that it belongs to
         # may have been closed.
@@ -581,11 +591,11 @@ class TestActivity:
 
         # Delete the package.
         context = {'model': model, 'session': model.Session,
-            'user': self.normal_user.name}
+                'user': self.sysadmin_user.name}
         package_dict = {'id':package.id}
         package_delete(context, package_dict)
 
-        after = self.record_details(self.normal_user.id, package.id)
+        after = self.record_details(self.sysadmin_user.id, package.id)
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -611,7 +621,7 @@ class TestActivity:
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
                 str(activity['object_id']))
-        assert activity['user_id'] == self.normal_user.id, (
+        assert activity['user_id'] == self.sysadmin_user.id, (
             str(activity['user_id']))
         assert activity['activity_type'] == 'deleted package', (
             str(activity['activity_type']))
@@ -727,7 +737,7 @@ class TestActivity:
             assert detail['activity_type'] == "deleted", (
                 str(detail['activity_type']))
 
-    def test_delete_resources(self):
+    def test_01_delete_resources(self):
         """
         Test deleted resource activity stream.
 
@@ -809,7 +819,9 @@ class TestActivity:
                 'allow_partial_update': True}
         user_dict = {'id': user.id}
         user_dict['about'] = 'edited'
-        if not user.email:
+        if user.email:
+            user_dict['email'] = user.email
+        else:
             user_dict['email'] = 'there has to be a value in email or validate fails'
         user_update(context, user_dict)
 
@@ -926,7 +938,7 @@ class TestActivity:
         assert timestamp >= before['time'] and timestamp <= after['time'], \
             str(activity['timestamp'])
 
-    def test_update_group(self):
+    def test_01_update_group(self):
         """
         Test updated group activity stream.
 
@@ -1005,6 +1017,7 @@ class TestActivity:
             'model': model,
             'session': model.Session,
             'user': user.name,
+            'allow_partial_update': True
         }
         pkg_dict = ckan.logic.action.get.package_show(context,
                 {'id': pkg_name})
@@ -1068,7 +1081,7 @@ class TestActivity:
         assert detail['activity_type'] == "added", (
             str(detail['activity_type']))
 
-    def test_remove_tag(self):
+    def test_01_remove_tag(self):
         """
         Test remove tag activity.
 
@@ -1520,7 +1533,9 @@ class TestActivity:
             u"Not found: Activity type"], (
                 response.json['error'][u'activity_type'])
 
-    def _add_extra(self, package_dict, user):
+    def _add_extra(self, package_dict, user, key=None):
+        if key is None:
+            key = 'quality'
         if user:
             user_name = user.name
             user_id = user.id
@@ -1538,10 +1553,10 @@ class TestActivity:
             'session': model.Session,
             'user': user_name,
             'allow_partial_update': True,
-            'extras_as_string': True
+            'extras_as_string': True,
             }
         extras = list(extras_before)
-        extras.append({'key': 'quality', 'value': '10000'})
+        extras.append({'key': key, 'value': '10000'})
         request_data = {
                 'id': package_dict['id'],
                 'extras': extras
@@ -1642,7 +1657,7 @@ class TestActivity:
             }
         for package_name in package_list(context, {}):
             package_dict = package_show(context, {'id': package_name})
-            self._add_extra(package_dict, None)
+            self._add_extra(package_dict, None, key='not_logged_in_extra_key')
 
     def _update_extra(self, package_dict, user):
         if user:
@@ -1667,7 +1682,11 @@ class TestActivity:
             'extras_as_string': True
             }
         extras = list(extras_before)
-        extras[0]['value'] = 'edited'
+        if extras[0]['value'] != 'edited':
+            extras[0]['value'] = 'edited'
+        else:
+            assert extras[0]['value'] != 'edited again'
+            extras[0]['value'] = 'edited again'
         request_data = {
                 'id': package_dict['id'],
                 'extras': extras
@@ -1734,7 +1753,7 @@ class TestActivity:
         assert detail['activity_type'] == "changed", (
             str(detail['activity_type']))
 
-    def test_update_extras(self):
+    def test_01_update_extras(self):
         """
         Test changed package extra activity stream.
 
@@ -1758,7 +1777,7 @@ class TestActivity:
         for package_dict in packages_with_extras:
             self._update_extra(package_dict, user=self.normal_user)
 
-    def test_update_extras_not_logged_in(self):
+    def test_01_update_extras_not_logged_in(self):
         """
         Test changed package extra activity stream when no user logged in.
 
@@ -1801,14 +1820,15 @@ class TestActivity:
             'model': model,
             'session': model.Session,
             'user': user_name,
-            'allow_partial_update': True,
-            'extras_as_string': True
+            'extras_as_string': True,
             }
         extras = list(extras_before)
         del extras[0]
         request_data = {
                 'id': package_dict['id'],
-                'extras': extras
+                'extras': extras,
+                'tags': package_dict['tags'],
+                'resources': package_dict['resources']
                 }
         updated_package = package_update(context, request_data)
 
