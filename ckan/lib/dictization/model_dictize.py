@@ -40,9 +40,10 @@ def resource_list_dictize(res_list, context):
     active = context.get('active', True)
     result_list = []
     for res in res_list:
+        resource_dict = resource_dictize(res, context)
         if active and res.state not in ('active', 'pending'):
             continue
-        result_list.append(resource_dictize(res, context))
+        result_list.append(resource_dict)
 
     return sorted(result_list, key=lambda x: x["position"])
 
@@ -65,9 +66,9 @@ def extras_list_dictize(extras_list, context):
     result_list = []
     active = context.get('active', True)
     for extra in extras_list:
+        dictized = d.table_dictize(extra, context)
         if active and extra.state not in ('active', 'pending'):
             continue
-        dictized = d.table_dictize(extra, context)
         value = dictized["value"]
         if not(context.get("extras_as_string") and isinstance(value, basestring)):
             dictized["value"] = h.json.dumps(value)
@@ -205,11 +206,10 @@ def package_dictize(pkg, context):
         result_dict['license_title']= pkg.license_id
 
     # creation and modification date
-    result_dict['metadata_modified'] = pkg.metadata_modified.isoformat() \
-        if pkg.metadata_modified else None
+    result_dict['metadata_modified'] = context.pop('metadata_modified')
     result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
         if pkg.metadata_created else None
-
+        
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
             result_dict = item.before_view(result_dict)
@@ -365,14 +365,6 @@ def package_to_api(pkg, context):
     site_url = config.get('ckan.site_url', None)
     if site_url:
         dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
-
-    metadata_modified = pkg.metadata_modified
-    dictized['metadata_modified'] = metadata_modified.isoformat() \
-        if metadata_modified else None
-
-    metadata_created = pkg.metadata_created
-    dictized['metadata_created'] = metadata_created.isoformat() \
-        if metadata_created else None
 
     for resource in dictized["resources"]:
         resource_dict_to_api(resource, pkg.id, context)
