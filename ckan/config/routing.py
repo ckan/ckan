@@ -25,7 +25,7 @@ def make_map():
     DELETE = dict(method=['DELETE'])
     GET_POST = dict(method=['GET', 'POST'])
     PUT_POST = dict(method=['PUT','POST'])
-    GET_POST_DELETE = dict(method=['GET', 'POST', 'DELETE'])
+    PUT_POST_DELETE = dict(method=['PUT', 'POST', 'DELETE'])
     OPTIONS = dict(method=['OPTIONS'])
 
     from ckan.lib.plugins import register_package_plugins
@@ -139,7 +139,7 @@ def make_map():
             m.connect('datastore_read', '/api/data/{id}{url:(/.*)?}',
                       action='read', url='', conditions=GET)
             m.connect('datastore_write', '/api/data/{id}{url:(/.*)?}',
-                      action='write', url='', conditions=GET_POST_DELETE)
+                      action='write', url='', conditions=PUT_POST_DELETE)
 
 
     map.redirect('/packages', '/dataset')
