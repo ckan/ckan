@@ -572,7 +572,7 @@ CKAN.View.Resource = Backbone.View.extend({
     this.table.show();
     this.table.find('.js-resource-edit-name').focus();
     this.li.addClass('active');
-    panel.css('top', Math.max(0, this.li.position().top+this.li.height() - panel.height()));
+    panel.css('top', Math.max(10, this.li.position().top+this.li.height() - panel.height()));
   },
   /* 
    * Called when my delete button is clicked. Calls back to the parent
@@ -1149,33 +1149,6 @@ CKAN.Utils = function($, my) {
       return flashWarning;
     };
   }();
-
-  // Show/hide fieldset sections from the edit dataset form.
-  my.setupDatasetEditNavigation = function() {
-
-    function showSection(sectionToShowId) {
-      $('.dataset-edit-form fieldset').hide();
-      $('.dataset-edit-form fieldset#'+sectionToShowId).show();
-      $('.dataset-edit-nav li a').removeClass('active');
-      $('.dataset-edit-nav li a[href=#section-'+sectionToShowId+']').addClass('active');
-      window.location.hash = 'section-'+sectionToShowId;
-    }
-
-    // Set up initial form state
-    // Prefix="#section-"
-    var initialSection = window.location.hash.slice(9) || 'basic-information';
-    showSection(initialSection);
-
-    // Adjust form state on click
-    $('.dataset-edit-nav li a').live('click', function(e) {
-      e.preventDefault();
-      var $el = $(e.target);
-      // Prefix="#section-"
-      var showMe = $el.attr('href').slice(9);
-      showSection(showMe);
-      return false;
-    });
-  };
 
   my.countObject = function(obj) {
     var count=0;

@@ -1,5 +1,3 @@
-@import url('forms.css');
-
 body.no-sidebar .sidebar-outer { display: none; }
 body.no-sidebar #content { border-right: none; }
 body.no-sidebar .content-outer { 
@@ -150,8 +148,8 @@ a:hover {
   color: #183661;
 }
 
-fieldset {
-  border: 0px;
+label {
+  font-weight: bold;
 }
 
 
@@ -963,92 +961,33 @@ ul.button-row li {
 }
 
 
-/* ================================= */
-/* = Edit Dataset Page: Navigation = */
-/* ================================= */
-body.package.edit div#content {
-  /* Flip the sidebar to the left-hand side */
-  margin-right: 29px;
-  margin-left: 0px;
-  float: right;
-  padding-right: 0;
-  padding-left: 20px;
-  border: none;
-  border-left: 1px solid #eee;
-}
-body.package.edit div#sidebar {
-  /* Flip the sidebar to the left-hand side */
-  padding-left: 0px;
-  float: left;
-  margin-right: 0px;
-}
-body.package.edit ul.widget-list {
-  margin-left: 1.5em;
-  margin-right: 0;
-}
-ul.dataset-edit-nav {
-  list-style-type: none;
-  padding-left: 0;
-}
-ul.dataset-edit-nav li a {
-  text-decoration: none;
-  font-weight: bold;
-  display: block;
-  padding: 7px 0 7px 10px;
-  margin-bottom: 7px;
-  margin-left: 20px;
-  border: 1px transparent solid;
-}
-ul.dataset-edit-nav li a.active,  
-ul.dataset-edit-nav li a:hover {
-  border: 1px solid #e0e0e0;
-  background-color: #e2e2e2;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
-  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
-  border-right: none;
-     -moz-border-radius-bottomleft: 5px; 
-  -webkit-border-bottom-left-radius: 5px; 
-          border-bottom-left-radius: 5px; 
-     -moz-border-radius-topleft: 5px; 
-  -webkit-border-top-left-radius: 5px; 
-          border-top-left-radius: 5px; 
-  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
-}
-
-
 /* ===================== */
 /* = Edit Dataset Page = */
 /* ===================== */
-.dataset-edit-form fieldset#resources {
-  display: none;
-}
 .dataset-edit-form button.dataset-delete {
   vertical-align: middle;
 }
+.dataset-edit-form legend {
+  display: none;
+}
+.dataset-edit-form fieldset#summary {
+  border-top: 1px solid #ccc;
+  padding-top: 15px;
+}
+.dataset-edit-tabs ul {
+  min-width: 180px;
+}
+.
 
 /* ======================= */
 /* = Edit Resources Page = */
 /* ======================= */
-body.editresources #content {
-  width: 100%;
-  padding-right: 0;
-  margin-right: 0;
-  border-right: 0;
-}
-body.editresources #sidebar {
+.dataset-editresources-form fieldset {
   display: none;
 }
-.dataset-editresources-form fieldset#basic-information,
-.dataset-editresources-form fieldset#groups,
-.dataset-editresources-form fieldset#further-information,
-.dataset-editresources-form fieldset#extras,
-.dataset-editresources-form fieldset#delete {
-  display: none;
+.dataset-editresources-form fieldset#resources,
+.dataset-editresources-form fieldset#summary {
+  display: block;
 }
 
 .dataset-editresources-form .resource-add li h4 {
@@ -1072,33 +1011,27 @@ body.editresources #sidebar {
   display: none;
 }
 .dataset-create-form fieldset#basic-information,
-.dataset-create-form fieldset#resources {
+.dataset-create-form fieldset#resources,
+.dataset-create-form fieldset#summary {
   display: block;
   padding-bottom: 0;
   margin-bottom: 0;
 }
-.dataset-create-form dt.homepage-label,
-.dataset-create-form dd.homepage-field,
-.dataset-create-form dd.homepage-instructions 
-{
+.dataset-create-form .homepage-field,
+.dataset-create-form .tags-field {
   display: none;
 }
-.dataset-create-form dt.tags-label,
-.dataset-create-form dd.tags-field,
-.dataset-create-form dd.tags-instructions 
-{
-  display: none;
-}
-dd.license-instructions {
+#license-instructions {
   font-size: 11px;
 }
-.dataset-create-form dd.name-field {
+.dataset-create-form .name-field {
   padding-top: 0.2em;
 }
-.dataset-create-form dd.name-field p {
+.dataset-create-form .name-field p {
   margin-bottom: 4px;
 }
 .dataset-create-form .description-field textarea {
+  width: 400px;
   height: 70px;
 }
 
@@ -1126,6 +1059,7 @@ label.edit-summary {
 }
 #log_message {
   height: 40px;
+  width: 400px;
   color: #666;
   font-size: 11px;
 }
@@ -1421,7 +1355,7 @@ body.authz form button {
 
 /* Dev */
 fieldset#resources {
-  min-height: 430px;
+  min-height: 230px;
   margin-bottom: 40px;
   position: relative;
   padding: 0;
@@ -1507,7 +1441,7 @@ body.editresources .error-explanation {
 }
 .resource-list-add,
 .resource-list-edit {
-  width: 400px;
+  width: 350px;
 }
 .resource-list-add {
   margin-top: 20px;
@@ -1542,9 +1476,9 @@ button.resource-edit-delete {
   box-shadow: 2px 2px 4px #888;
   margin-bottom: 20px;
   position: absolute;
-  left: 399px;
+  left: 349px;
   top: 0px;
-  padding: 10px;
+  padding: 10px 20px;
   min-height: 100px;
   min-width: 530px;
 }
