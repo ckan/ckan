@@ -1,6 +1,7 @@
 @import url('forms.css');
 
 body.no-sidebar .sidebar-outer { display: none; }
+body.no-sidebar #content { border-right: none; }
 body.no-sidebar .content-outer { 
   width: 940px; 
 }
@@ -136,6 +137,8 @@ footer h3 {
 
 h1, h2, h3, h4, h5 {
   font-family: 'Ubuntu', Georgia; 
+  font-weight: normal;
+  margin-bottom: 10px;
 }
 
 a, a:visited {

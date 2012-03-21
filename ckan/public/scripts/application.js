@@ -123,7 +123,7 @@ var CKAN = CKAN || {};
 		openid._signin = openid.signin;
 		openid.signin = function (arg) {
 			$.get('/user/set_lang/' + CKAN.LANG, function (){openid._signin(arg);})
-		}
+		};
 	}
 	if ($('#login').length){
 		$('#login').submit( function () {

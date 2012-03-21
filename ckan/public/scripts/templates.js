@@ -1,37 +1,23 @@
 
 CKAN.Templates.resourceAddLinkFile = ' \
-  <form> \
-    <dl> \
-      <dt> \
-        <label class="field_opt" for="url"> \
-          '+CKAN.Strings.fileUrl+' \
-        </label> \
-      </dt> \
-      <dd> \
-        <input name="url" type="text" placeholder="http://mydataset.com/file.csv" style="width: 60%"/> \
-        <input name="save" type="submit" class="btn primary" value="'+CKAN.Strings.add+'" /> \
-        <input name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
-      </dd> \
-    </dl> \
-     \
+  <form class="form-inline"> \
+    <label class="field_opt" for="url"> \
+      '+CKAN.Strings.fileUrl+' \
+    </label> \
+    <input name="url" type="text" class="input-small" placeholder="http://mydataset.com/file.csv"/> \
+    <input name="save" type="submit" class="btn btn-primary" value="'+CKAN.Strings.add+'" /> \
+    <input name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
   </form> \
 ';
 
 CKAN.Templates.resourceAddLinkApi = ' \
-  <form> \
-    <dl> \
-      <dt> \
-        <label class="field_opt" for="url"> \
-          '+CKAN.Strings.apiUrl+' \
-        </label> \
-      </dt> \
-      <dd> \
-        <input name="url" type="text" placeholder="http://mydataset.com/api/" style="width: 60%" /> \
-        <input name="save" type="submit" class="btn primary" value="'+CKAN.Strings.add+'" /> \
-        <input name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
-      </dd> \
-    </dl> \
-     \
+  <form class="form-inline"> \
+    <label class="field_opt" for="url"> \
+      '+CKAN.Strings.apiUrl+' \
+    </label> \
+    <input name="url" type="text" class="input-small" placeholder="http://mydataset.com/api/"/> \
+    <input name="save" type="submit" class="btn btn-primary" value="'+CKAN.Strings.add+'" /> \
+    <input name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
   </form> \
 ';
 
@@ -52,7 +38,7 @@ CKAN.Templates.resourceUpload = ' \
         <input type="file" name="file" /> \
         <br /> \
         <div class="fileinfo"></div> \
-        <input id="upload" name="upload" type="submit" class="btn primary" value="'+CKAN.Strings.add+'" /> \
+        <input id="upload" name="upload" type="submit" class="btn btn-primary" value="'+CKAN.Strings.add+'" /> \
         <input id="reset" name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
       </dd> \
     </dl> \
