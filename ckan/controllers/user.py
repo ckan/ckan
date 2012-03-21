@@ -1,4 +1,5 @@
 import logging
+from pylons import session
 
 import genshi
 from urllib import quote
@@ -102,11 +103,11 @@ class UserController(BaseController):
             {'id':c.user_dict['id']})
         return render('user/read.html')
 
-    def me(self):
+    def me(self, locale=None):
         if not c.user:
-            h.redirect_to(controller='user', action='login', id=None)
+            h.redirect_to(locale=locale, controller='user', action='login', id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
-        h.redirect_to(controller='user', action='read', id=user_ref)
+        h.redirect_to(locale=locale, controller='user', action='read', id=user_ref)
 
     def register(self, data=None, errors=None, error_summary=None):
         return self.new(data, errors, error_summary)
@@ -243,6 +244,10 @@ class UserController(BaseController):
 
 
     def login(self):
+        lang = session.pop('lang', None)
+        if lang:
+            session.save()
+            return h.redirect_to(locale=str(lang), controller='user', action='login')
         if 'error' in request.params:
             h.flash_error(request.params['error'])
 
@@ -257,6 +262,9 @@ class UserController(BaseController):
             return render('user/logout_first.html')
 
     def logged_in(self):
+        # we need to set the language via a redirect
+        lang = session.pop('lang', None)
+        session.save()
         if c.user:
             context = {'model': model,
                        'user': c.user}
@@ -265,24 +273,33 @@ class UserController(BaseController):
 
             user_dict = get_action('user_show')(context,data_dict)
 
-            # Max age of cookies: 50 years. Matches time set in templates/user/login.html
-            cookie_timeout=50*365*24*60*60
-
-            response.set_cookie("ckan_user", user_dict['name'], max_age=cookie_timeout)
-            response.set_cookie("ckan_display_name", user_dict['display_name'], max_age=cookie_timeout)
-            response.set_cookie("ckan_apikey", user_dict['apikey'], max_age=cookie_timeout)
             h.flash_success(_("%s is now logged in") % user_dict['display_name'])
-            return self.me()
+            return self.me(locale=lang)
         else:
-            h.flash_error('Login failed. Bad username or password.' + \
-                          ' (Or if using OpenID, it hasn\'t been associated with a user account.)')
-            h.redirect_to(controller='user', action='login')
+            h.flash_error(_('Login failed. Bad username or password.' + \
+                          ' (Or if using OpenID, it hasn\'t been associated with a user account.)'))
+            h.redirect_to(locale=lang, controller='user', action='login')
+
+    def logout(self):
+        # save our language in the session so we don't loose it
+        session['lang'] = request.environ.get('CKAN_LANG')
+        session.save()
+        h.redirect_to('/user/logout_generic')
+
+    def set_lang(self, lang):
+        # this allows us to set the lang in session.  Used for logging
+        # in/out to prevent being lost when repoze.who redirects things
+        session['lang'] = str(lang)
+        session.save()
 
     def logged_out(self):
+        # we need to get our language info back and the show the correct page
+        lang = session.get('lang')
         c.user = None
-        response.delete_cookie("ckan_user")
-        response.delete_cookie("ckan_display_name")
-        response.delete_cookie("ckan_apikey")
+        session.delete()
+        h.redirect_to(locale=lang, controller='user', action='logged_out_page')
+
+    def logged_out_page(self):
         return render('user/logout.html')
 
     def request_reset(self):

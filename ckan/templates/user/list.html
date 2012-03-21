@@ -7,7 +7,7 @@
   <py:def function="page_heading">Users</py:def>
   
   <py:match path="primarysidebar">
-    <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
+    <li class="widget-container widget_text">
       <form id="user-search" class="user-search" action="" method="GET">
         <input type="text" id="q" name="q" value="${c.q}" />
         <input type="submit" class="btn btn-small" name="" value="Search &raquo;" />

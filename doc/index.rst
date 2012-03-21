@@ -19,6 +19,7 @@ Installation
    install-from-package
    install-from-source
    post-installation
+   deployment
    solr-setup
 
 Customizing and Extending
@@ -28,6 +29,7 @@ Customizing and Extending
    :maxdepth: 2
 
    theming
+   commenting
    extensions
    writing-extensions
    forms
@@ -35,6 +37,7 @@ Customizing and Extending
    linked-data-and-rdf
    filestore
    datastore
+   background-tasks
 
 Publishing Datasets
 ===================

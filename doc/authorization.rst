@@ -25,7 +25,7 @@ In more detail, these concepts are as follows:
 * To simplify mapping users to actions and objects, actions are aggregated into a set of **roles**. For example, an editor role would automatically have edit and read actions.
 * Finally, CKAN has registered **users**.
 
-Recent support for authorization profiles has been implemented using a publisher/group based profile that is described in :doc:`publisher_auth_profile`
+Recent support for authorization profiles has been implemented using a publisher/group based profile that is described in :doc:`publisher-profile`.
 
 Objects
 +++++++

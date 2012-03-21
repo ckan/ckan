@@ -4,7 +4,7 @@ import socket
 import solr
 from pylons import config
 from ckan import model
-import ckan.lib.search as search 
+import ckan.lib.search as search
 from ckan.tests import TestController, CreateTestData, setup_test_search_index, is_search_supported
 
 class TestSolrConfig(TestController):
@@ -49,7 +49,7 @@ class TestSolrSearchIndex(TestController):
     def teardown(self):
         # clear the search index after every test
         search.index_for('Package').clear()
-    
+
     def _get_index_id(self,pkg_id):
         return hashlib.md5('%s%s' % (pkg_id,config['ckan.site_id'])).hexdigest()
 
@@ -68,7 +68,7 @@ class TestSolrSearchIndex(TestController):
         assert len(response) == 1, len(response)
         assert response.results[0]['index_id'] == self._get_index_id (pkg_dict['id'])
         assert response.results[0]['title'] == 'penguin'
-        
+
         # looks like solrpy messes with microseconds and time zones,
         # so ignore them for testing
         assert datetime_now.strftime('%Y-%m-%d %H:%M:%S') == response.results[0]['metadata_created'].strftime('%Y-%m-%d %H:%M:%S')
@@ -101,6 +101,22 @@ class TestSolrSearchIndex(TestController):
         response = self.solr.query('title:penguin', fq=self.fq)
         assert len(response) == 0
 
+    def test_index_illegal_xml_chars(self):
+
+        pkg_dict = {
+            'id': u'penguin-id',
+            'title': u'\u00c3a\u0001ltimo n\u00famero penguin',
+            'notes': u'\u00c3a\u0001ltimo n\u00famero penguin',
+            'state': u'active',
+            'metadata_created': datetime.now().isoformat(),
+            'metadata_modified': datetime.now().isoformat(),
+        }
+        search.dispatch_by_operation('Package', pkg_dict, 'new')
+        response = self.solr.query('title:penguin', fq=self.fq)
+        assert len(response) == 1, len(response)
+        assert response.results[0]['index_id'] == self._get_index_id (pkg_dict['id'])
+        assert response.results[0]['title'] == u'\u00c3altimo n\u00famero penguin'
+
 
 class TestSolrSearch:
     @classmethod
@@ -124,7 +140,7 @@ class TestSolrSearch:
         """
         results = self.solr.query('*:*', fq=self.fq)
         assert len(results) == 6, len(results)
-        
+
     def test_1_basic(self):
         results = self.solr.query('sweden', fq=self.fq)
         assert len(results) == 2

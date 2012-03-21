@@ -1,6 +1,7 @@
 """Pylons middleware initialization"""
 import urllib
 import logging 
+import json
 
 from beaker.middleware import CacheMiddleware, SessionMiddleware
 from paste.cascade import Cascade
@@ -101,9 +102,10 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                 who_parser.remote_user_key,
            )
     
-    app = I18nMiddleware(app, config)
     # Establish the Registry for this application
     app = RegistryManager(app)
+
+    app = I18nMiddleware(app, config)
 
     if asbool(static_files):
         # Serve static files
@@ -124,6 +126,10 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                 )
         app = Cascade(extra_static_parsers+static_parsers)
 
+    # Page cache
+    if asbool(config.get('ckan.page_cache_enabled')):
+        app = PageCacheMiddleware(app, config)
+
     return app
 
 class I18nMiddleware(object):
@@ -133,17 +139,6 @@ class I18nMiddleware(object):
         self.app = app
         self.default_locale = config.get('ckan.locale_default', 'en')
         self.local_list = get_locales()
-
-    def get_cookie_lang(self, environ):
-        # get the lang from cookie if present
-        cookie = environ.get('HTTP_COOKIE')
-        if cookie:
-            cookies = [c.strip() for c in cookie.split(';')]
-            lang = [c.split('=')[1] for c in cookies \
-                    if c.startswith('ckan_lang')]
-            if lang and lang[0] in self.local_list:
-                return lang[0]
-        return None
 
     def __call__(self, environ, start_response):
         # strip the language selector from the requested url
@@ -165,16 +160,8 @@ class I18nMiddleware(object):
                 else:
                     environ['PATH_INFO'] = '/'
             else:
-                # use cookie lang or default language from config
-                cookie_lang = self.get_cookie_lang(environ)
-                if cookie_lang:
-                    environ['CKAN_LANG'] = cookie_lang
-                    default = (cookie_lang == self.default_locale)
-                    environ['CKAN_LANG_IS_DEFAULT'] = default
-                else:
-                    environ['CKAN_LANG'] = self.default_locale
-                    environ['CKAN_LANG_IS_DEFAULT'] = True
-
+                environ['CKAN_LANG'] = self.default_locale
+                environ['CKAN_LANG_IS_DEFAULT'] = True
 
             # Current application url
             path_info = environ['PATH_INFO']
@@ -191,3 +178,102 @@ class I18nMiddleware(object):
                 environ['CKAN_CURRENT_URL'] = path_info
 
         return self.app(environ, start_response)
+
+
+class PageCacheMiddleware(object):
+    ''' A simple page cache that can store and serve pages. It uses
+    Redis as storage. It caches pages that have a http status code of
+    200, use the GET method. Only non-logged in users receive cached
+    pages.
+    Cachable pages are indicated by a environ CKAN_PAGE_CACHABLE
+    variable.'''
+
+    def __init__(self, app, config):
+        self.app = app
+        import redis    # only import if used
+        self.redis = redis  # we need to reference this within the class
+        self.redis_exception = redis.exceptions.ConnectionError
+        self.redis_connection = None
+
+    def __call__(self, environ, start_response):
+
+        def _start_response(status, response_headers, exc_info=None):
+            # This wrapper allows us to get the status and headers.
+            environ['CKAN_PAGE_STATUS'] = status
+            environ['CKAN_PAGE_HEADERS'] = response_headers
+            return start_response(status, response_headers, exc_info)
+
+        # Only use cache for GET requests
+        # REMOTE_USER is used by some tests.
+        if environ['REQUEST_METHOD'] != 'GET' or environ.get('REMOTE_USER'):
+            return self.app(environ, start_response)
+
+        # If there is a ckan cookie (or auth_tkt) we avoid the cache.
+        # We want to allow other cookies like google analytics ones :(
+        cookie_string = environ.get('HTTP_COOKIE')
+        if cookie_string:
+            for cookie in cookie_string.split(';'):
+                if cookie.startswith('ckan') or cookie.startswith('auth_tkt'):
+                    return self.app(environ, start_response)
+
+        # Make our cache key
+        key = 'page:%s?%s' % (environ['PATH_INFO'], environ['QUERY_STRING'])
+
+        # Try to connect if we don't have a connection. Doing this here
+        # allows the redis server to be unavailable at times.
+        if self.redis_connection is None:
+            try:
+                self.redis_connection = self.redis.StrictRedis()
+                self.redis_connection.flushdb()
+            except self.redis_exception:
+                # Connection may have failed at flush so clear it.
+                self.redis_connection = None
+                return self.app(environ, start_response)
+
+        # If cached return cached result
+        try:
+            result = self.redis_connection.lrange(key, 0, 2)
+        except self.redis_exception:
+            # Connection failed so clear it and return the page as normal.
+            self.redis_connection = None
+            return self.app(environ, start_response)
+
+        if result:
+            headers = json.loads(result[1])
+            # Convert headers from list to tuples.
+            headers = [(str(key), str(value)) for key, value in headers]
+            start_response(str(result[0]), headers)
+            # Returning a huge string slows down the server. Therefore we
+            # cut it up into more usable chunks.
+            page = result[2]
+            out = []
+            total = len(page)
+            position = 0
+            size = 4096
+            while position < total:
+                out.append(page[position:position + size])
+                position += size
+            return out
+
+        # Generate the response from our application.
+        page = self.app(environ, _start_response)
+
+        # Only cache http status 200 pages
+        if not environ['CKAN_PAGE_STATUS'].startswith('200'):
+            return page
+
+        cachable = False
+        if environ.get('CKAN_PAGE_CACHABLE'):
+            cachable = True
+
+        # Cache things if cachable.
+        if cachable:
+            # Make sure we consume any file handles etc.
+            page_string = ''.join(list(page))
+            # Use a pipe to add page in a transaction.
+            pipe = self.redis_connection.pipeline()
+            pipe.rpush(key, environ['CKAN_PAGE_STATUS'])
+            pipe.rpush(key, json.dumps(environ['CKAN_PAGE_HEADERS']))
+            pipe.rpush(key, page_string)
+            pipe.execute()
+        return page
