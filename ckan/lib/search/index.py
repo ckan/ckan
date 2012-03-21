@@ -3,6 +3,8 @@ import string
 import logging
 import itertools
 
+import re
+
 from pylons import config
 
 from common import SearchIndexError, make_connection
@@ -19,6 +21,18 @@ SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
 RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_description",
                                  "res_format", "res_url"]
 RELATIONSHIP_TYPES = PackageRelationship.types
+
+# Regular expression used to strip invalid XML characters
+_illegal_xml_chars_re = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+
+def escape_xml_illegal_chars(val, replacement=''):
+    '''
+        Replaces any character not supported by XML with
+        a replacement string (default is an empty string)
+        Thanks to http://goo.gl/ZziIz
+    '''
+    return _illegal_xml_chars_re.sub(replacement, val)
+
 
 def clear_index():
     import solr.core
@@ -125,6 +139,13 @@ class PackageSearchIndex(SearchIndex):
 
         pkg_dict[TYPE_FIELD] = PACKAGE_TYPE
         pkg_dict = dict([(k.encode('ascii', 'ignore'), v) for (k, v) in pkg_dict.items()])
+
+        # Escape illegal XML characters that will make SOLR return an exception
+        if 'notes_rendered' in pkg_dict:
+            del pkg_dict['notes_rendered']
+        for k in ('title','notes'):
+            if k in pkg_dict and pkg_dict[k]:
+                pkg_dict[k] = escape_xml_illegal_chars(pkg_dict[k])
 
         # modify dates (SOLR is quite picky with dates, and only accepts ISO dates
         # with UTC time (i.e trailing Z)
