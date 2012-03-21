@@ -230,19 +230,19 @@
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.placeholder/jquery.placeholder.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jqueryui/1.8.14/jquery-ui.min.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/bootstrap/2.0.0/bootstrap.js')}"></script>
+
   <!-- for ckanjs etc -->
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/underscore/1.1.6/underscore.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/backbone/0.5.1/backbone.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.fileupload/20110801/jquery.iframe-transport.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/ckanjs/1.0.0/ckanjs.js')}"></script>
+
   <!-- Translated js strings live inside an html template. -->
   <xi:include href="js_strings.html" />
   <!-- finally our application js that sets everything up-->
   <script type="text/javascript" src="${h.url_for_static('/scripts/application.js?lang=${c.locale}')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/templates.js')}"></script>
-
-  <script src="${h.url_for_static('/scripts/vendor/modernizr/1.7/modernizr.min.js')}"></script>
 
   <script type="text/javascript">
     CKAN.plugins = [
