@@ -157,3 +157,172 @@ This defines a navl schema to customize validation and conversion to the databas
   _db_to_form_schema(self)
 
 This defines a navl schema to customize conversion from the database to the form.
+
+
+Example: Geospatial Tags
+------------------------
+
+In this example we look at how create a plugin that adds a new dataset field called ``geographical_coverage``.
+This field allows the user to specify one or more country-code tags in order to indicate which
+countries are covered by the dataset. Additionally, the tags must be part of a fixed CKAN tag vocabularly
+called ``country_codes``.
+
+.. todo:: add reference to tag vocabulary documentation
+
+1. Creating the Tag Vocabulary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First we are going to create the ``country_codes`` vocabulary and add a few tags to it.
+The following code can be saved to a python script and then run from the command line.
+
+::
+
+    import json
+    import requests
+
+    ckan_url = 'http://127.0.0.1:5000'
+    api_key = 'xxxx'
+
+    geo_tags = [u'uk', u'ie', u'de', u'fr', u'es']
+    headers = {'Authorization': api_key}
+
+We are going to use the requests module (tested with version 0.10.7, available on PyPI) to make our POST requests.
+
+Replace the values of ``ckan_url`` and ``api_key`` with the URL to your CKAN instance and
+your API key respectively. You must be a system administrator in order to create tag
+vocabularies.
+
+We also define the 5 tags that we will add to the vocabulary here, and set the ``Authorization`` header
+to the value of our API key.
+
+::
+
+    # create the vocabulary
+    data = json.dumps({'name': u'country_codes'})
+    r = requests.post(ckan_url + '/api/action/vocabulary_create',
+                      data=data,
+                      headers=headers)
+    vocab_id = json.loads(r.text)['result']['id']
+
+This creates our ``country_codes`` vocabulary, and saves a reference to the vocabulary ID that
+is returned by CKAN.
+
+::
+
+    # add tags
+    for geo_tag in geo_tags:
+        data = json.dumps({'name': geo_tag, 'vocabulary_id': vocab_id})
+        r = requests.post(ckan_url + '/api/action/tag_create',
+                          data=data,
+                          headers=headers)
+
+We then add each of our tags, making sure to set their vocabulary ID.
+
+
+2. Creating the Plugin
+~~~~~~~~~~~~~~~~~~~~~~
+
+First we create a CKAN plugin that implements IDatasetForm:
+
+::
+
+    import ckan.plugins
+
+    class GeospatialTagDatasetForm(SingletonPlugin):
+        implements(IDatasetForm, inherit=True)
+
+        def package_form(self):
+            return 'package/new_package_form.html'
+
+        def new_template(self):
+            return 'package/new.html'
+
+        def comments_template(self):
+            return 'package/comments.html'
+
+        def search_template(self):
+            return 'package/search.html'
+
+        def read_template(self):
+            return 'package/read.html'
+
+        def history_template(self):
+            return 'package/history.html'
+
+        def is_fallback(self):
+            return True
+
+        def package_types(self):
+            return ['dataset']
+
+We want to pass the list of country code tags through to our dataset form, so we
+define a ``setup_template_variables`` function which stores the tags as a ``geographical_coverage``
+against the Pylons ``c`` object.
+
+::
+
+        def setup_template_variables(self, context, data_dict=None, package_type=None):
+            try:
+                data = {'vocabulary_id': u'country_codes'}
+                c.geographical_coverage = get_action('tag_list')(context, data)
+            except NotFound:
+                c.geographical_coverage = []
+
+Finally we have to update our dataset schema so that we can store the
+country code data.
+
+::
+
+    def form_to_db_schema(self, package_type=None):
+        from ckan.logic.schema import package_form_schema
+        from ckan.lib.navl.validators import ignore_missing
+        from ckan.logic.converters import convert_to_tags
+
+        schema = package_form_schema()
+        schema.update({
+            'geographical_coverage': [ignore_missing, convert_to_tags('country_codes')]
+        })
+        return schema
+
+    def db_to_form_schema(data, package_type=None):
+        from ckan.logic.converters import convert_from_tags, free_tags_only
+        from ckan.lib.navl.validators import ignore_missing, keep_extras
+
+        schema = package_form_schema()
+        schema.update({
+            'tags': {
+                '__extras': [keep_extras, free_tags_only]
+            },
+            'geographical_coverage': [convert_from_tags('country_codes'), ignore_missing],
+        })
+        return schema
+
+Here were use the ``convert_to_tags`` and ``convert_from_tags`` converters, so that our
+country codes are stored as normal CKAN tags. We also apply the ``free_tags_only`` converter
+to the ``tags`` field when displaying datasets in order to remove our geospatial tags
+from this list and display them separately.
+
+
+3. Updating the Template
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+    To edit fixed tag vocabulary fields, we recommend using a HTML multiple select tag together
+    with the JQuery *Chosen* plugin (included in CKAN core).
+
+You must add a new field to your dataset form in order to display (and edit) the new
+geographical coverage tags. The following HTML segment creates a multiple select element
+to display the tags, marking any tags that are currently saved as 'selected'.
+
+::
+
+      <select id="geographical_coverage" class="chzn-select"
+              name="geographical_coverage" multiple="multiple">
+        <py:for each="tag in c.geographical_coverage">
+          <py:choose test="">
+          <option py:when="tag in data.get('geographical_coverage', [])"
+                  selected="selected" value="${tag}">${tag}</option>
+          <option py:otherwise="" value="${tag}">${tag}</option>
+          </py:choose>
+        </py:for>
+      </select>
