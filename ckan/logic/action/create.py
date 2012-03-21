@@ -36,7 +36,8 @@ def package_create(context, data_dict):
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
     try:
         schema = package_plugin.form_to_db_schema_options({'type':'create',
-                                               'api':'api_version' in context})
+                                               'api':'api_version' in context,
+                                               'context': context})
     except AttributeError:
         schema = package_plugin.form_to_db_schema()
 
@@ -221,7 +222,8 @@ def group_create(context, data_dict):
     group_plugin = lib_plugins.lookup_group_plugin()
     try:
         schema = group_plugin.form_to_db_schema_options({'type':'create',
-                                               'api':'api_version' in context})
+                                               'api':'api_version' in context,
+                                               'context': context})
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
