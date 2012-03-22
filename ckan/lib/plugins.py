@@ -258,9 +258,9 @@ class DefaultDatasetForm(object):
         data_dict.update({'available_only':True})
 
 
-        c.publisher_enabled = 'publisher_form' in config['ckan.plugins']
-        if c.publisher_enabled:
-            c.groups_available = c.userobj.get_groups('publisher') if c.userobj else []
+        c.organizations_enabled = 'organizations' in config['ckan.plugins']
+        if c.organizations_enabled:
+            c.groups_available = c.userobj.get_groups('organization') if c.userobj else []
         else:
             c.groups_available = authz_fn(context, data_dict)
 

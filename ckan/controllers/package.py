@@ -387,7 +387,7 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,}
 
-        # Package needs to have a publisher group in the call to check_access
+        # Package needs to have a organization group in the call to check_access
         # and also to save it
         try:
             check_access('package_create',context)
