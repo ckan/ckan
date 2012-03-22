@@ -974,10 +974,18 @@ ul.button-row li {
   border-top: 1px solid #ccc;
   padding-top: 15px;
 }
-.dataset-edit-tabs ul {
+.dataset-edit-tabs ul.nav {
   min-width: 180px;
+  margin-right: -1px;
+  background: #fff;
 }
-.
+.dataset-edit-tabs form {
+  border: 1px solid #DDD;
+}
+.dataset-edit-tabs form > div,
+.dataset-edit-tabs form > fieldset {
+  padding: 10px;
+}
 
 /* ======================= */
 /* = Edit Resources Page = */
