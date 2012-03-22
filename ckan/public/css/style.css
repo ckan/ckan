@@ -148,7 +148,7 @@ a:hover {
   color: #183661;
 }
 
-label {
+label.control-label {
   font-weight: bold;
 }
 
@@ -984,8 +984,18 @@ ul.button-row li {
 }
 .dataset-edit-tabs form > div,
 .dataset-edit-tabs form > fieldset {
-  padding: 10px;
+  padding: 18px;
 }
+hr.extras-divider {
+  border: none;
+  border-bottom: 1px dashed #ddd;
+}
+span.extras-label {
+  display: inline-block;
+  min-width: 50px;
+  text-align: right;
+}
+
 
 /* ======================= */
 /* = Edit Resources Page = */
