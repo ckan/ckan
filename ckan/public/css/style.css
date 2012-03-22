@@ -900,6 +900,8 @@ ul.datasets .openness li {
   overflow: auto;
 }
 .markdown-editor textarea.markdown-input {
+  width: 360px;
+  height: 70px;
   margin-bottom: 5px;
   padding: 5px;
   display: block;
