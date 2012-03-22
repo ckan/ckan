@@ -1,11 +1,13 @@
-<form py:with="tab_mode=(c.action=='edit')"
-  class="${'tab-content' if tab_mode else ''} form-horizontal" id="dataset-edit" method="post" 
-  py:attrs="{'class':'has-errors'} if errors else {}"
+<form 
+  py:with="tab_mode=(c.action=='edit')"
+  class="${'tab-content' if tab_mode else ''} ${'has-errors' if errors else ''} form-horizontal" 
+  id="dataset-edit" 
+  method="post" 
   xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude" >
 
-<div class="error-explanation" py:if="error_summary">
+<div class="alert alert-error error-explanation" py:if="error_summary">
 <h2>Errors in form</h2>
 <p>The form contains invalid entries:</p>
 <ul>
@@ -44,12 +46,14 @@
   <div class="control-group name-field">
     <label class="control-label" for="name">Url</label>
     <div class="controls">
-      <span class="url-text">${h.url(controller='package', action='search')+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a href="#" class="url-edit js-url-viewmode">(edit)</a></span>
-      <input style="display: none;" id="name" maxlength="100" name="name" type="text" class="url-input js-url-editmode js-url-input" value="${data.get('name', '')}" />
+      <div class="input-prepend">
+        <span class="add-on">${h.url(controller='package', action='search')+'/'}</span>
+        <input maxlength="100" name="name" type="text" class="js-url-input" value="${data.get('name', '')}" />
+      </div>
       <p class="js-url-is-valid">&nbsp;</p>
       <p class="url-is-long">Warning: URL is very long. Consider changing it to something shorter.</p>
-      <p style="display: none;" class="js-url-editmode">2+ characters, lowercase, using only 'a-z0-9' and '-_'</p>
-      <p class="js-url-editmode field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</p>
+      <p>2+ characters, lowercase, using only 'a-z0-9' and '-_'</p>
+      <p class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</p>
     </div>
   </div>
 
@@ -93,34 +97,29 @@
   <div class="control-group groups-field">
     <label class="control-label">Groups</label>
     <div class="controls">
-      <dl>
-        <py:with vars="groups=data.get('groups',[])">
-        <dt py:if="len(groups)>0">Member of:</dt>
-        <py:for each="num, group in enumerate(groups)">
-            <?python
-            authorized_group = [group_authz for group_authz in c.groups_authz if group_authz['id'] == group['id']]
-            authorized_group = authorized_group[0] if authorized_group else None
-            ?>
-
-          <dt py:if="'id' in group">
-          <input type="${'checkbox' if authorized_group else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}" />
+      <py:with vars="groups=data.get('groups',[])">
+      <strong py:if="len(groups)>0">Member of:</strong>
+      <py:for each="num, group in enumerate(groups)">
+          <?python
+          authorized_group = [group_authz for group_authz in c.groups_authz if group_authz['id'] == group['id']]
+          authorized_group = authorized_group[0] if authorized_group else None
+          ?>
+        <div class="checkbox" py:if="'id' in group">
+          <input type="${'checkbox' if authorized_group else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}"/>
+          <label for="groups__${num}__checked">${group.get('name', authorized_group['name'] if authorized_group else '')}</label>
           <input type="hidden" name="groups__${num}__name" value="${group.get('name', authorized_group['name'] if authorized_group else '')}" />
-          </dt>     
-          <dd py:if="'id' in group"><label for="groups__${num}__checked">${group.get('name', authorized_group['name'] if authorized_group else '')}</label></dd>
-        </py:for>
+        </div>     
+      </py:for>
 
-        <dt>Add to:</dt>
-        <dd py:if="c.groups_available"> 
-          <select id="groups__${len(groups)}__id" name="groups__${len(groups)}__id">
-            <option selected="selected" value="">(None)</option>
-            <py:for each="group in c.groups_available">
-            <option value="${group['id']}" >${group['name']}</option>
-            </py:for>
-          </select>
-        </dd> 
-        <dd py:if="not c.groups_available"><em>Cannot add any groups.</em></dd>
-        </py:with>
-      </dl>
+      <strong>Add to:</strong>
+      <select py:if="c.groups_available" id="groups__${len(groups)}__id" name="groups__${len(groups)}__id">
+        <option selected="selected" value="">(None)</option>
+        <py:for each="group in c.groups_available">
+        <option value="${group['id']}" >${group['name']}</option>
+        </py:for>
+      </select>
+      <em py:if="not c.groups_available">Cannot add any groups.</em>
+      </py:with>
     </div>
   </div>
 
@@ -137,8 +136,8 @@
 </fieldset>
 
 <fieldset class="tab-pane" id="resources">
+  <legend>Add Resources</legend>
   <div class="instructions">
-    <legend>Add Resources</legend>
     <p>Upload or link data files, APIs and other materials related to your dataset.</p>
   </div>
   <div class="js-resource-edit-barebones">
@@ -224,7 +223,7 @@
         </div>
       </div>
     </py:for>
-    <hr class="extras-divider" />
+    <hr py:if="len(extras)" class="extras-divider" />
     <py:for each="num in range(len(extras), len(extras) + 4)">
       <div class="control-group">
         <label class="control-label" for="extras__${num}__key">Add...</label>
@@ -280,7 +279,7 @@
   </p>
 </div>
 
-<div class="form-submit">
+<div class="form-actions">
   <input id="save" class="btn btn-primary" name="save" type="submit" value="${_('Save Changes')}" />
   <py:if test="c.pkg">
     <input id="cancel" class="btn href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='package', action='read', id=c.pkg.name)}" />
@@ -288,7 +287,7 @@
   <p i18n:msg="" class="hints">
   <strong>Important:</strong> By submitting content, you agree to release your contributions under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>. Please <strong>refrain</strong> from editing this page if you are <strong>not</strong> happy to do this.
   </p>
-  <div class="clear"></div>
+  <div class="clearfix"></div>
 </div>
 
 

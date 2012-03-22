@@ -50,8 +50,8 @@ header .menu form {
 
 header .menu input {
   width: 200px;
-  margin-top: -1px;
-  height: 16px;
+  margin-top: 2px;
+  height: 10px;
 }
 
 header .menu a {
@@ -473,21 +473,10 @@ ul.no-break li {
 /* ======================= */
 /* = Generic Form Footer = */
 /* ======================= */
-div.form-submit {
-  background: #eee;
-  padding: 20px;
-  margin-bottom: 8px;
-  border: 1px solid #ccc;
-  border-left: none;
-  border-right: none;
-}
-div.form-submit p.hints {
+div.form-actions p.hints {
   width: 50%;
   float: right;
   margin: 0;
-}
-div.clear {
-  clear: both;
 }
 
 
@@ -917,13 +906,6 @@ ul.datasets .openness li {
 }
 
 
-/* =================== */
-/* = URL Slug Editor = */
-/* =================== */
-input.url-input {
-  width: 220px;
-}
-
 
 /* ============= */
 /* = Mini-Tabs = */
@@ -1242,16 +1224,13 @@ body.package.resource_read #resource-explore { margin-bottom: 2em; }
 /* ================== */
 /* = Add Group Page = */
 /* ================== */
-.group-create-form fieldset#extras,
-.group-create-form fieldset#datasets,
-.group-create-form fieldset#users {
+.group-create-form .state-field,
+.group-create-form fieldset {
   display: none;
 }
-.group-create-form .description-label,
-.group-create-form .description-field,
-.group-create-form .state-label,
-.group-create-form .state-field {
-  display: none;
+.group-create-form fieldset#basic-information,
+.group-create-form fieldset#summary {
+  display: block;
 }
 
 
@@ -1490,6 +1469,9 @@ button.resource-edit-delete {
 }
 .resource-details input[type="text"] {
   width: 397px;
+}
+.resource-add input[type="text"] {
+  width: 280px;
 }
 .resource-details .markdown-editor {
   width: 30em;

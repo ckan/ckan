@@ -76,8 +76,7 @@ var CKAN = CKAN || {};
     if (isDatasetEdit) {
       CKAN.Utils.warnOnFormChanges($('form#dataset-edit'));
       var urlEditor = new CKAN.View.UrlEditor({
-          slugType: 'package',
-          editMode: true
+          slugType: 'package'
       });
 
       // Set up dataset delete button
@@ -108,8 +107,7 @@ var CKAN = CKAN || {};
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
       var urlEditor = new CKAN.View.UrlEditor({
-          slugType: 'group',
-          editMode: true
+          slugType: 'group'
       });
     }
 	// OpenID hack
@@ -137,12 +135,12 @@ var CKAN = CKAN || {};
 /* ============================== */
 CKAN.View.UrlEditor = Backbone.View.extend({
   initialize: function() {
-    _.bindAll(this,'titleToSlug','titleChanged','urlChanged','checkSlugIsValid','toEditMode','apiCallback');
+    _.bindAll(this,'titleToSlug','titleChanged','urlChanged','checkSlugIsValid','apiCallback');
 
     // Initial state
+    var self = this;
     this.updateTimer = null;
     this.titleInput = $('.js-title');
-    this.urlSuffix = $('.js-url-suffix');
     this.urlInput = $('.js-url-input');
     this.validMsg = $('.js-url-is-valid');
     this.lengthMsg = $('.url-is-long');
@@ -163,38 +161,22 @@ CKAN.View.UrlEditor = Backbone.View.extend({
     if (!this.options.MAX_SLUG_LENGTH) {
       this.options.MAX_SLUG_LENGTH = 90;
     }
-    if (!this.options.editMode) {
-      this.options.editMode = false;
-    }
-
-    if (this.options.editMode) {
-      this.originalUrl = this.urlInput.val();
-    }
+    this.originalUrl = this.urlInput.val();
 
     // Hook title changes to the input box
     CKAN.Utils.bindInputChanges(this.titleInput, this.titleChanged);
     CKAN.Utils.bindInputChanges(this.urlInput, this.urlChanged);
-    $('.url-edit').click(this.toEditMode);
+
+    // If you've bothered typing a URL, I won't overwrite you
+    function disable() {
+      self.disableTitleChanged = true;
+    };
+    this.urlInput.keyup   (disable);
+    this.urlInput.keydown (disable);
+    this.urlInput.keypress(disable);
 
     // Set up the form
     this.urlChanged();
-    if (this.options.editMode) {
-      this.toEditMode();
-      this.validMsg.html('');
-    }
-  },
-
-  toEditMode: function(event) {
-    $('.js-url-viewmode').hide();
-    $('.js-url-editmode').show();
-    if (event) {
-      // If we clicked a link, highlight the input
-      event.preventDefault();
-      this.urlInput.select();
-      this.urlInput.focus();
-    }
-    // Disable automatic slug generation
-    this.disableTitleChanged = true;
   },
 
   titleToSlug: function(title) {
@@ -225,16 +207,10 @@ CKAN.View.UrlEditor = Backbone.View.extend({
   urlChanged: function() {
     var slug = this.urlInput.val();
     if (this.updateTimer) { clearTimeout(this.updateTimer); }
-    if (slug.length===0) {
-      this.urlSuffix.html('<span>...</span>');
-    }
-    else {
-      this.urlSuffix.html('<span>'+slug+'</span>');
-    }
     if (slug.length<2) {
       this.validMsg.html('<span style="font-weight: bold; color: #444;">'+CKAN.Strings.urlIsTooShort+'</span>');
     }
-    else if (this.options.editMode && slug==this.originalUrl) {
+    else if (slug==this.originalUrl) {
       this.validMsg.html('<span style="font-weight: bold; color: #000;">'+CKAN.Strings.urlIsUnchanged+'</span>');
     }
     else {

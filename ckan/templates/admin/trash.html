@@ -15,9 +15,9 @@
         name="purge-revisions"
         value="purge"
         py:attrs=
-          "{'disabled':'disabled','class':'btn'} 
+          "{'disabled':'disabled','class':'btn disabled'} 
           if not any(c.deleted_revisions) 
-          else {'class':'btn danger'}"
+          else {'class':'btn btn-danger'}"
         >
         Purge them all (forever and irreversibly)
       </button>
@@ -33,9 +33,9 @@
         name="purge-packages"
         value="purge"
         py:attrs=
-          "{'disabled':'disabled','class':'btn'} 
+          "{'disabled':'disabled','class':'btn disabled'} 
           if not any(c.deleted_packages) 
-          else {'class':'btn danger'}"
+          else {'class':'btn btn-danger'}"
         >
         Purge them all (forever and irreversibly)
       </button>

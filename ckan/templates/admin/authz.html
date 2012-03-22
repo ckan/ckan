@@ -11,7 +11,7 @@
 
     <form id="theform" method="POST">
       ${authz_form_table('theform', c.roles, c.users, c.user_role_dict)}
-      <button type="submit" name="save" class="btn primary">
+      <button type="submit" name="save" class="btn btn-primary">
         Save Changes
       </button>
       <div class="clear"></div>
@@ -20,7 +20,7 @@
     <h3>Add Roles for Any User</h3>
     <form id="addform" method="POST">
       ${authz_add_table(c.roles)}
-      <button type="submit" name="add" class="btn primary">Add Role</button>
+      <button type="submit" name="add" class="btn btn-primary">Add Role</button>
       <div class="clear"></div>
     </form>
 
@@ -30,7 +30,7 @@
 
     <form id="authzgroup_form" method="POST">
       ${authz_form_group_table('authzgroup_form', c.roles, c.authz_groups, c.authz_groups_role_dict)}
-      <button type="submit" name="authz_save" class="btn primary">Save Changes</button>
+      <button type="submit" name="authz_save" class="btn btn-primary">Save Changes</button>
       <div class="clear"></div>
     </form>
 
@@ -38,7 +38,7 @@
 
     <form id="authzgroup_addform" method="POST">
       ${authz_add_group_table(c.roles)}
-      <button type="submit" name="authz_add" class="btn primary">Add Role</button>
+      <button type="submit" name="authz_add" class="btn btn-primary">Add Role</button>
       <div class="clear"></div>
     </form>
 
