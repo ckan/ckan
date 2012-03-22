@@ -1,5 +1,5 @@
 body.no-sidebar .sidebar-outer { display: none; }
-body.no-sidebar #content { border-right: none; }
+body.no-sidebar #content { padding-right: 0; border-right: none; }
 body.no-sidebar .content-outer { 
   width: 940px; 
 }
@@ -156,6 +156,7 @@ label.control-label {
 /* ====== */
 /* Tables */
 /* ====== */
+/*
 table th {
   border: 1px solid #e0e0e0;
   background-color: #e2e2e2;
@@ -179,6 +180,7 @@ tbody tr:nth-child(even) td, tbody tr.even td {
 tbody tr:nth-child(odd) td, tbody tr.odd td {
   background-color: #F2F2F2;
 }
+*/
 
 
 /* ==================== */
@@ -186,6 +188,7 @@ tbody tr:nth-child(odd) td, tbody tr.odd td {
 /* ==================== */
 #content {
   border-right: 1px solid #e0e0e0;
+  padding-right: 20px;
 }
 .page_heading {
   margin-top: 0.9em;
@@ -398,8 +401,6 @@ ul.no-break li {
 /* Sidebar */
 /* ======= */
 #sidebar {
-  margin-right: -10px;
-  padding-left: 9px;
   overflow: hidden;
 }
 #sidebar h2, 
@@ -408,7 +409,7 @@ ul.no-break li {
 }
 #sidebar .widget-list {
   list-style: none;
-  padding-left: 0px;
+  margin-left: 0px;
 }
 #sidebar .widget-list li.widget-container {
   padding-bottom: 1em;
