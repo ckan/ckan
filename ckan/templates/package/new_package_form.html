@@ -1,4 +1,5 @@
-<form class="tab-content form-horizontal" id="dataset-edit" method="post" 
+<form py:with="tab_mode=(c.action=='edit')"
+  class="${'tab-content' if tab_mode else ''} form-horizontal" id="dataset-edit" method="post" 
   py:attrs="{'class':'has-errors'} if errors else {}"
   xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
@@ -26,8 +27,7 @@
 </ul>
 </div>
 
-<fieldset class="tab-pane active fade in" id="basic-information">
-  <legend>Basic Information</legend>
+<fieldset class="tab-pane fade in active" id="basic-information">
   <div class="control-group title-field">
     <label class="control-label" for="title">Title</label>
     <div class="controls">
@@ -137,8 +137,8 @@
 </fieldset>
 
 <fieldset class="tab-pane" id="resources">
-  <legend>Add/Edit Resources</legend>
   <div class="instructions">
+    <legend>Add Resources</legend>
     <p>Upload or link data files, APIs and other materials related to your dataset.</p>
   </div>
   <div class="js-resource-edit-barebones">

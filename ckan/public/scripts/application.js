@@ -569,7 +569,7 @@ CKAN.View.Resource = Backbone.View.extend({
     this.table.show();
     this.table.find('.js-resource-edit-name').focus();
     this.li.addClass('active');
-    panel.css('top', Math.max(10, this.li.position().top+this.li.height() - panel.height()));
+    panel.css('top', Math.max(0, this.li.position().top+this.li.height() - panel.height()));
   },
   /* 
    * Called when my delete button is clicked. Calls back to the parent

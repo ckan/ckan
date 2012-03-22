@@ -938,38 +938,11 @@ ul.button-row li {
 }
 
 
-/* ================== */
-/* = Welcome Banner = */
-/* ================== */
-.welcome-banner {
-  width: 100%;
-  /* Old background was a little less intrusive */
-  background: #fcba63;
-  text-align: center;
-  padding: 0;
-  border-bottom: 1px solid #faa;
-  font-weight: bold;
-  line-height: 30px;
-}
-.welcome-banner a {
-  text-decoration: underline;
-}
-.welcome-banner button {
-  float: right;
-  margin-right: 20px;
-  margin-top: 3px;
-  padding: 2px 8px;
-}
-
-
 /* ===================== */
 /* = Edit Dataset Page = */
 /* ===================== */
 .dataset-edit-form button.dataset-delete {
   vertical-align: middle;
-}
-.dataset-edit-form legend {
-  display: none;
 }
 .dataset-edit-form fieldset#summary {
   border-top: 1px solid #ccc;
@@ -1418,6 +1391,9 @@ fieldset#resources > .instructions {
 .resource-list li:hover {
   background: #f7f7f7;
 }
+.resource-list a:hover {
+  text-decoration: none;
+}
 .resource-list li.active {
   border-color: #888;
   background: #f9f9f9;
@@ -1481,6 +1457,7 @@ body.editresources .error-explanation {
 }
 
 button.resource-edit-delete {
+  margin-top: 10px;
   float: right;
 }
 
@@ -1512,17 +1489,17 @@ button.resource-edit-delete {
   font-size: 11px;
 }
 .resource-details input[type="text"] {
-  width: 350px;
+  width: 397px;
 }
 .resource-details .markdown-editor {
   width: 30em;
 }
+.resource-details .control-group {
+  margin-bottom: 3px;
+}
 .resource-details textarea {
   width: 340px;
   height: 90px;
-}
-.resource-details .dataset-label {
-  vertical-align: top;
 }
 .resource-details.resource-add {
   margin-bottom: 30px;
@@ -1530,9 +1507,6 @@ button.resource-edit-delete {
 
 /* Resource extra fields */
 /* --------------------- */
-.dynamic-extras .add-resource-extra {
-  margin-left: 320px;
-}
 .dynamic-extras .dynamic-extra {
   margin: 1px 15px;
 }
@@ -1544,6 +1518,6 @@ button.resource-edit-delete {
   text-decoration: line-through;
 }
 .dynamic-extras input[type="text"] {
-  width: 200px;
+  width: 164px;
 }
 
