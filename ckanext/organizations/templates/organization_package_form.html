@@ -97,16 +97,13 @@
           <dd py:if="'id' in group"><label for="groups__${num}__checked">${group.get('name', authorized_group['name'] if authorized_group else '')}</label></dd>
         </py:for>
 
-        <dt>Add to:</dt>
-        <dd py:if="c.groups_available">
-          <select id="groups__${len(data.get('groups', []))}__id" name="groups__${len(data.get('groups', []))}__id">
+          <select id="groups__${len(data.get('groups', []))}__id" name="groups__${len(data.get('groups', []))}__id" class="chzn-select">
             <option selected="selected" value="">(None)</option>
             <py:for each="group in c.groups_available">
             <option value="${group['id']}" >${group['name']}</option>
             </py:for>
           </select>
-        </dd>
-        <dd py:if="not c.groups_available"><em>Cannot add any groups.</em></dd>
+        <dd py:if="not c.groups_available"><em>Cannot add any organizations.</em></dd>
       </dl>
     </dd>
     <dt class="tags-label">
