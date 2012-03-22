@@ -460,7 +460,7 @@ class TestRevisions(FunctionalTestCase):
         assert '</feed>' in res, res
 
 
-class TestPublisherGroup(FunctionalTestCase):
+class TestOrganizationGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
@@ -488,7 +488,7 @@ class TestPublisherGroup(FunctionalTestCase):
         self.check_named_element(res, 'tr', group_title, group_packages_count, group_description)
         res = res.click(group_title)
         assert groupname in res
-        assert 'publisher' == group.type, group.type
+        assert 'organization' == group.type, group.type
 
     def test_read(self):
         from pylons import config
@@ -502,7 +502,7 @@ class TestPublisherGroup(FunctionalTestCase):
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         group = model.Group.by_name(name)
-        assert 'publisher' == group.type
+        assert 'organization' == group.type
         for group_ref in (group.name, group.id):
             offset = url_for(controller='group', action='read', id=group_ref)
             res = self.app.get(offset)

@@ -83,7 +83,7 @@ def package_show(context, data_dict):
         if not userobj:
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
 
-        if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
+        if not _groups_intersect( userobj.get_groups('organization'), package.get_groups('organization') ):
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
 
     return {'success': True}
@@ -99,7 +99,7 @@ def resource_show(context, data_dict):
         userobj = model.User.get( user )
         if not userobj:
             return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user),package.id)}
-        if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
+        if not _groups_intersect( userobj.get_groups('organization'), package.get_groups('organization') ):
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
 
     pkg_dict = {'id': package.id}
@@ -119,7 +119,7 @@ def group_show(context, data_dict):
 
     if group.state == 'deleted':
         if not user or \
-           not _groups_intersect( userobj.get_groups('publisher'), group.get_groups('publisher') ):
+           not _groups_intersect( userobj.get_groups('organization'), group.get_groups('organization') ):
             return {'success': False, 'msg': _('User %s not authorized to show group %s') % (str(user),group.id)}
 
     return {'success': True}

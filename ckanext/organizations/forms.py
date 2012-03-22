@@ -1,10 +1,13 @@
 import os, logging
+
+import ckan.authz as authz
 from ckan.logic import NotAuthorized
 from ckan.logic.schema import group_form_schema
+from ckan.lib import base
 from ckan.lib.base import c, model, abort, request
 from ckan.lib.base import redirect, _, config, h
 from ckan.lib.navl.dictization_functions import DataError
-from ckan.plugins import IGroupForm, IConfigurer
+from ckan.plugins import IGroupForm, IDatasetForm, IConfigurer
 from ckan.plugins import implements, SingletonPlugin
 from ckan.logic import check_access
 
@@ -148,3 +151,115 @@ class OrganizationForm(SingletonPlugin):
             if grps:
                 c.parent = grps[0]
             c.users = group.members_of_type(model.User)
+
+class OrganizationDatasetForm(SingletonPlugin):
+
+    implements(IDatasetForm, inherit=True)
+
+    def is_fallback(self):
+        return True
+
+    def package_types(self):
+        return ['dataset']
+
+    def new_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the new page
+        """
+        return 'package/new.html'
+
+    def comments_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the comments page
+        """
+        return 'package/comments.html'
+
+    def search_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the search page (if present)
+        """
+        return 'package/search.html'
+
+    def read_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+        return 'package/read.html'
+
+    def history_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the history page
+        """
+        return 'package/history.html'
+
+    def package_form(self):
+        return 'organization_package_form.html'
+
+    def form_to_db_schema_options(self, options):
+        ''' This allows us to select different schemas for different
+        purpose eg via the web interface or via the api or creation vs
+        updating. It is optional and if not available form_to_db_schema
+        should be used.
+        If a context is provided, and it contains a schema, it will be
+        returned.
+        '''
+        schema = options.get('context',{}).get('schema',None)
+        if schema:
+            return schema
+
+        if options.get('api'):
+            if options.get('type') == 'create':
+                return logic.schema.default_create_package_schema()
+            else:
+                return logic.schema.default_update_package_schema()
+        else:
+            return logic.schema.package_form_schema()
+
+    def db_to_form_schema(self):
+        '''This is an interface to manipulate data from the database
+        into a format suitable for the form (optional)'''
+
+    def check_data_dict(self, data_dict, schema=None):
+        '''Check if the return data is correct, mostly for checking out
+        if spammers are submitting only part of the form'''
+
+        # Resources might not exist yet (eg. Add Dataset)
+        surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
+                               'extras_validation', 'save', 'return_to',
+                               'resources', 'type']
+
+        if not schema:
+            schema = self.form_to_db_schema()
+        schema_keys = schema.keys()
+        keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
+
+        missing_keys = keys_in_schema - set(data_dict.keys())
+        if missing_keys:
+            log.info('incorrect form fields posted, missing %s' % missing_keys)
+            raise dictization_functions.DataError(data_dict)
+
+    def setup_template_variables(self, context, data_dict):
+        from pylons import config
+
+        data_dict.update({'available_only':True})
+
+        c.groups_available = c.userobj.get_groups('organization')
+        c.licences = [('', '')] + base.model.Package.get_license_options()
+        c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
+
+        ## This is messy as auths take domain object not data_dict
+        context_pkg = context.get('package', None)
+        pkg = context_pkg or c.pkg
+        if pkg:
+            try:
+                if not context_pkg:
+                    context['package'] = pkg
+                check_access('package_change_state', context)
+                c.auth_for_change_state = True
+            except NotAuthorized:
+                c.auth_for_change_state = False

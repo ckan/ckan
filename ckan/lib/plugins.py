@@ -257,16 +257,10 @@ class DefaultDatasetForm(object):
         c.groups_authz = authz_fn(context, data_dict)
         data_dict.update({'available_only':True})
 
-
-        c.organizations_enabled = 'organizations' in config['ckan.plugins']
-        if c.organizations_enabled:
-            c.groups_available = c.userobj.get_groups('organization') if c.userobj else []
-        else:
-            c.groups_available = authz_fn(context, data_dict)
+        c.groups_available = authz_fn(context, data_dict)
 
         c.licences = [('', '')] + base.model.Package.get_license_options()
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
-
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)

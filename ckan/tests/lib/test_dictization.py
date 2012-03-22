@@ -827,7 +827,7 @@ class TestBasicDictize:
 
         simple_group_dict = {'name': 'simple',
                              'title': 'simple',
-                             'type': 'publisher',
+                             'type': 'organization',
                             }
         model.repo.new_revision()
         group_dict_save(simple_group_dict, context)
@@ -871,7 +871,7 @@ class TestBasicDictize:
                                'packages': 0,
                                'state': u'active',
                                'title': u'simple',
-                               'type': u'publisher',
+                               'type': u'organization',
                                'approval_status': u'approved'}],
                     'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
                               'display_name': u'annafan',
