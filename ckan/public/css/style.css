@@ -1019,7 +1019,16 @@ span.extras-label {
 .dataset-editresources-form .resource-add .fileinfo {
   margin: 7px 0;
 }
-
+.name-field {
+  padding-top: 0.2em;
+}
+.name-field p {
+  margin: 2px 0;
+}
+.description-field textarea {
+  width: 400px;
+  height: 70px;
+}
 
 
 /* ==================== */
@@ -1042,16 +1051,6 @@ span.extras-label {
 }
 #license-instructions {
   font-size: 11px;
-}
-.dataset-create-form .name-field {
-  padding-top: 0.2em;
-}
-.dataset-create-form .name-field p {
-  margin-bottom: 4px;
-}
-.dataset-create-form .description-field textarea {
-  width: 400px;
-  height: 70px;
 }
 
 .group-create-form dd.name-field {

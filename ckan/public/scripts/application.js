@@ -80,9 +80,6 @@ var CKAN = CKAN || {};
           editMode: true
       });
 
-      // Set up hashtag nagivigation
-      CKAN.Utils.setupDatasetEditNavigation();
-
       // Set up dataset delete button
       CKAN.Utils.setupDatasetDeleteButton();
     }
@@ -228,7 +225,7 @@ CKAN.View.UrlEditor = Backbone.View.extend({
   urlChanged: function() {
     var slug = this.urlInput.val();
     if (this.updateTimer) { clearTimeout(this.updateTimer); }
-    if (slug.length) {
+    if (slug.length===0) {
       this.urlSuffix.html('<span>...</span>');
     }
     else {
