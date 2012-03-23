@@ -156,10 +156,10 @@ class Message(object):
 class _Flash(object):
 
     # List of allowed categories.  If None, allow any category.
-    categories = ["warning", "notice", "error", "success"]
+    categories = ["", "alert-info", "alert-error", "alert-success"]
 
     # Default category if none is specified.
-    default_category = "notice"
+    default_category = ""
 
     def __init__(self, session_key="flash", categories=None, default_category=None):
         self.session_key = session_key
@@ -207,13 +207,13 @@ class _Flash(object):
 _flash = _Flash()
 
 def flash_notice(message, allow_html=False):
-    _flash(message, category='notice', allow_html=allow_html)
+    _flash(message, category='alert-info', allow_html=allow_html)
 
 def flash_error(message, allow_html=False):
-    _flash(message, category='error', allow_html=allow_html)
+    _flash(message, category='alert-error', allow_html=allow_html)
 
 def flash_success(message, allow_html=False):
-    _flash(message, category='success', allow_html=allow_html)
+    _flash(message, category='alert-success', allow_html=allow_html)
 
 def are_there_flash_messages():
     return _flash.are_there_messages()
@@ -484,8 +484,8 @@ def time_ago_in_words_from_str(date_str, granularity='month'):
 
 def button_attr(enable, type='primary'):
     if enable:
-        return 'class="pretty-button %s"' % type
-    return 'disabled class="pretty-button disabled"'
+        return 'class="btn %s"' % type
+    return 'disabled class="btn disabled"'
 
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
@@ -547,3 +547,6 @@ def auto_log_message(context):
     elif (context.action=='edit'):
         return _('Edited settings.')
     return ''
+
+def content_span(body_class):
+    return body_class.__str__()
