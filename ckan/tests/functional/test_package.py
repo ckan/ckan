@@ -76,7 +76,7 @@ class TestPackageBase(FunctionalTestCase):
     # on form submission. (But it works in real life.)
 
     def _assert_form_errors(self, res):
-        self.check_tag(res, '<form', 'class="has-errors"')
+        self.check_tag(res, '<form', 'has-errors')
         assert 'field_error' in res, res
 
     def diff_responses(self, res1, res2):
@@ -305,6 +305,13 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert 'book' in res, res
         assert 'This dataset satisfies the Open Definition' in res, res
 
+    def test_read_war_rdf(self):
+        name = u'warandpeace'
+        offset = url_for(controller='package', action='read', id=name + ".rdf")
+        res = self.app.get(offset)
+        assert '<dct:title>A Wonderful Story</dct:title>' in res, res
+
+
     def test_read_war(self):
         name = u'warandpeace'
         c.hide_welcome_message = True
@@ -368,11 +375,11 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         # existed before.  I don't know if this is a problem?  I expect it
         # can be fixed by allowing the package to be passed in to the plugin,
         # either via the function argument, or adding it to the c object.
-        assert plugin.calls['read'] == 2, plugin.calls
+        assert plugin.calls['read'] == 1, plugin.calls
         plugins.unload(plugin)
 
     def test_resource_list(self):
-        # TODO restore this test. It doesn't make much sense with the 
+        # TODO restore this test. It doesn't make much sense with the
         # present resource list design.
         name = 'annakarenina'
         cache_url = 'http://thedatahub.org/test_cache_url.csv'
@@ -900,7 +907,7 @@ class TestEdit(TestPackageForm):
         fv['log_message'] = u'Free enlargements: http://drugs.com/' # spam
         res = fv.submit('save')
         assert 'Error' in res, res
-        self.check_tag(res, '<form', 'class="has-errors"')
+        self.check_tag(res, '<form', 'has-errors')
         assert 'No links are allowed' in res, res
 
     def test_edit_bad_name(self):
@@ -1031,7 +1038,7 @@ class TestEdit(TestPackageForm):
             model.repo.new_revision()
             pkg.add_relationship(u'depends_on', anna)
             model.repo.commit_and_remove()
-            
+
             # check relationship before the test
             rels = model.Package.by_name(self.editpkg_name).get_relationships()
             assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
@@ -1046,7 +1053,7 @@ class TestEdit(TestPackageForm):
             # check relationship still exists
             rels = model.Package.by_name(self.editpkg_name).get_relationships()
             assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
-            
+
         finally:
             self._reset_data()
 
@@ -1315,7 +1322,7 @@ class TestNew(TestPackageForm):
             assert 'Datensatz' in res.body, res.body
         finally:
             self.clear_language_setting()
-        
+
 class TestSearch(TestPackageForm):
     pkg_names = []
 

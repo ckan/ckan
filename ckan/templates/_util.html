@@ -6,6 +6,8 @@
   py:strip=""
   >
 
+  <xi:include href="_util_activity_div.html" />
+
   <!--! Herein can be found generic helper methods for a whole bunch of common
         templating issues -->
 
@@ -145,7 +147,7 @@
 
   <!--! List of dataset groups: pass in a collection of dataset groups
         and this renders the standard group listing -->
-  <table py:def="group_list(groups)" class="groups">
+  <table class="table table-bordered table-striped table-condensed groups" py:def="group_list(groups)">
     <tr><th>Title</th><th>Number of datasets</th><th>Description</th></tr>
     <py:for each="group in groups">
     <tr>
@@ -158,7 +160,7 @@
 
   <!--! List of dataset groups: pass in a collection of dataset groups
         and this renders the standard group listing. Same as the above, but using dictionaries -->
-  <table py:def="group_list_from_dict(groups)" class="groups">
+  <table class="table table-bordered table-striped table-condensed groups" py:def="group_list_from_dict(groups)">
     <tr><th>Title</th><th>Number of datasets</th><th>Description</th></tr>
     <py:for each="group in groups">
     <tr>
@@ -171,7 +173,7 @@
 
   <!--! List of authorization groups: pass in a collection of authorization groups and
         this renders the standard group listing -->
-  <table py:def="authorization_group_list(authorization_groups)" class="authorization_groups">
+  <table class="table table-bordered table-striped table-condensed authorization_groups" py:def="authorization_group_list(authorization_groups)">
       <tr><th>Title</th><th>Number of members</th></tr>
       <py:for each="authorization_group in authorization_groups">
       <tr>
@@ -236,7 +238,7 @@
     </div>
   </div><!--! /rating-group -->
 
-  <table py:def="authz_form_table(id, roles, users, user_role_dict)">
+  <table class="table table-bordered table-striped table-condensed" py:def="authz_form_table(id, roles, users, user_role_dict)">
     <tr>
       <th> User </th>
       <py:for each="role in roles">
@@ -271,7 +273,7 @@
 
 <!--! Copy and paste of above table. Only difference when created was the h.linked_user for the  -->
 <!--! table rows. How to combine the two? -->
-  <table py:def="authz_form_group_table(id, roles, users, user_role_dict)">
+  <table class="table table-bordered table-striped table-condensed" py:def="authz_form_group_table(id, roles, users, user_role_dict)">
     <tr>
       <th>User Group</th>
       <py:for each="role in roles">
@@ -306,7 +308,7 @@
 
 
 
-  <table py:def="authz_add_table(roles)">
+  <table class="table table-bordered table-striped table-condensed" py:def="authz_add_table(roles)">
     <tr>
       <th>User</th>
       <py:for each="role in roles">
@@ -327,7 +329,7 @@
   </table>
 
   <!--! again, copy-and-paste of above, this time to attach different autocompletion -->
-  <table py:def="authz_add_group_table(roles)">
+  <table class="table table-bordered table-striped table-condensed" py:def="authz_add_group_table(roles)">
     <tr>
       <th>User Group</th>
       <py:for each="role in roles">
@@ -348,7 +350,7 @@
   </table>
 
 
-  <table py:def="revision_list(revisions, allow_compare=False)">
+  <table class="table table-bordered table-striped table-condensed" py:def="revision_list(revisions, allow_compare=False)">
     <tr>
       <th>Revision</th><th>Timestamp</th><th>Author</th><th>Entity</th><th>Log Message</th>
     </tr>
@@ -376,11 +378,11 @@
             >
             <py:if test="revision.state!='deleted'">
             <input type="hidden" name="action" value="delete"/>
-            <input type="submit" name="submit" value="Delete" class="pretty-button small-button" />
+            <input type="submit" name="submit" value="Delete" class="btn btn-small" />
             </py:if>
             <py:if test="revision.state=='deleted'">
             <input type="hidden" name="action" value="undelete"/>
-            <input type="submit" name="submit" value="Undelete" class="pretty-button small-button" />
+            <input type="submit" name="submit" value="Undelete" class="btn btn-small" />
             </py:if>
           </form>
         </div>
@@ -401,7 +403,7 @@
   </table>
 
 
-  <table py:def="revision_list_from_dict(revisions, allow_compare=False)">
+  <table class="table table-bordered table-striped table-condensed" py:def="revision_list_from_dict(revisions, allow_compare=False)">
     <tr>
       <th>Revision</th><th>Timestamp</th><th>Author</th><th>Entity</th><th>Log Message</th>
     </tr>
@@ -427,10 +429,10 @@
                 id=revision['id'])}"
             >
             <py:if test="revision['state']!='deleted'">
-            <button type="submit" name="action" value="delete" class="pretty-button small-button">Delete</button>
+            <button type="submit" name="action" value="delete" class="btn btn-small">Delete</button>
             </py:if>
             <py:if test="revision['state']=='deleted'">
-            <button type="submit" name="action" value="undelete" class="pretty-button small-button">Undelete</button>
+            <button type="submit" name="action" value="undelete" class="btn btn-small">Undelete</button>
             </py:if>
           </form>
         </div>
@@ -449,33 +451,6 @@
       <td>${revision['message']}</td>
     </tr>
   </table>
-
-  <div py:def="activity_div(actor, verb, object=None, target=None)"
-      class="activity">
-    <span class="actor">
-      ${actor}
-    </span>
-    <span class="verb">
-      ${verb}
-    </span>
-    <py:choose>
-      <span class="object" py:when="object">
-        ${object}
-      </span>
-      <py:otherwise>
-      </py:otherwise>
-    </py:choose>
-    <py:choose>
-      <span class="target" py:when="target">
-        ${target}
-      </span>
-      <py:otherwise>
-      </py:otherwise>
-    </py:choose>
-    <span class="date">
-      ${h.render_datetime(activity.timestamp)}
-    </span>
-  </div>
 
   <!--! jsConditionalForIe(ieVersion, tagContent, matchOperator): takes a
         IE version number, a tag or other HTML code that will be wrapped inside

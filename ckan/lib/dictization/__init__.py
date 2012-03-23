@@ -46,6 +46,11 @@ def table_dictize(obj, context, **kw):
 
     result_dict.update(kw)
 
+    ##HACK For optimisation to get metadata_modified created faster.
+    
+    context['metadata_modified'] = max(result_dict.get('revision_timestamp', ''),
+                                       context.get('metadata_modified', ''))
+
     return result_dict
 
 

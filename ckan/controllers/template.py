@@ -1,4 +1,5 @@
 from ckan.lib.base import *
+from genshi.template.loader import TemplateNotFound
 
 class TemplateController(BaseController):
 
@@ -26,5 +27,12 @@ class TemplateController(BaseController):
         """
         try:
             return render(url)
-        except:
-            abort(404)
+        except TemplateNotFound:
+            if url.endswith('.html'):
+                abort(404)
+            url += '.html'
+            try:
+                return render(url)
+            except TemplateNotFound:
+                abort(404)
+

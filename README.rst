@@ -12,12 +12,12 @@ http://ckan.org/.
 Building Documentation
 ======================
 
-1. Install python-sphinx
+1. Install python-sphinx (>= 1.1)
 
 2. Initialize the theme submodule::
 
-   git submodule init
-   git submodule update
+    git submodule init
+    git submodule update
 
 3. Run the command to build the docs::
 

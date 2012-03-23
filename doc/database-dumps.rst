@@ -1,7 +1,7 @@
 Database Dumps
 ==============
 
-It's often useful to allow users to download a complete CKAN database in a dumpfile. For example, you can download thedatahub.org's daily dump at: http://thedatahub.org/dump/ in JSON format. The file is called ``ckan.net-daily.json.gz``.
+It's often useful to allow users to download a complete CKAN database in a dumpfile.
 
 In addition, a CKAN administrator would like to easily backup and restore a CKAN database.
 

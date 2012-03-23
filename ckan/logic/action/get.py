@@ -15,13 +15,16 @@ import ckan.lib.base
 import ckan.logic as logic
 import ckan.logic.action
 import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.navl.dictization_functions
 import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
+import ckan.lib.plugins as lib_plugins
 
 log = logging.getLogger('ckan.logic')
 
 # define some shortcuts
+validate = ckan.lib.navl.dictization_functions.validate
 table_dictize = ckan.lib.dictization.table_dictize
 render = ckan.lib.base.render
 Authorizer = ckan.authz.Authorizer
@@ -46,8 +49,8 @@ def package_list(context, data_dict):
 
     model = context["model"]
     user = context["user"]
-    api = context.get("api_version", '1')
-    ref_package_by = 'id' if api == '2' else 'name'
+    api = context.get("api_version", 1)
+    ref_package_by = 'id' if api == 2 else 'name'
 
     check_access('package_list', context, data_dict)
 
@@ -154,8 +157,8 @@ def group_list(context, data_dict):
 
     model = context['model']
     user = context['user']
-    api = context.get('api_version') or '1'
-    ref_group_by = 'id' if api == '2' else 'name';
+    api = context.get('api_version')
+    ref_group_by = 'id' if api == 2 else 'name';
     order_by = data_dict.get('order_by', 'name')
     if order_by not in set(('name', 'packages')):
         raise logic.ParameterError('"order_by" value %r not implemented.' % order_by)
@@ -335,12 +338,12 @@ def package_relationships_list(context, data_dict):
     ##TODO needs to work with dictization layer
     model = context['model']
     user = context['user']
-    api = context.get('api_version') or '1'
+    api = context.get('api_version')
 
     id = data_dict["id"]
     id2 = data_dict.get("id2")
     rel = data_dict.get("rel")
-    ref_package_by = 'id' if api == '2' else 'name';
+    ref_package_by = 'id' if api == 2 else 'name';
     pkg1 = model.Package.get(id)
     pkg2 = None
     if not pkg1:
@@ -372,6 +375,7 @@ def package_relationships_list(context, data_dict):
 def package_show(context, data_dict):
 
     model = context['model']
+    context['session'] = model.Session
     name_or_id = data_dict.get("id") or data_dict['name_or_id']
 
     pkg = model.Package.get(name_or_id)
@@ -388,11 +392,15 @@ def package_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
+    schema = lib_plugins.lookup_package_plugin(package_dict['type']).db_to_form_schema()
+
+    if schema:
+        package_dict, errors = validate(package_dict, schema, context=context)
+
     return package_dict
 
 def resource_show(context, data_dict):
     model = context['model']
-    api = context.get('api_version') or '1'
     id = data_dict['id']
 
     resource = model.Resource.get(id)
@@ -407,9 +415,9 @@ def resource_show(context, data_dict):
 
 def revision_show(context, data_dict):
     model = context['model']
-    api = context.get('api_version') or '1'
+    api = context.get('api_version')
     id = data_dict['id']
-    ref_package_by = 'id' if api == '2' else 'name'
+    ref_package_by = 'id' if api == 2 else 'name'
 
     rev = model.Session.query(model.Revision).get(id)
     if rev is None:
@@ -422,8 +430,6 @@ def group_show(context, data_dict):
     '''Shows group details'''
     model = context['model']
     id = data_dict['id']
-    api = context.get('api_version') or '1'
-
 
     group = model.Group.get(id)
     context['group'] = group
@@ -437,6 +443,11 @@ def group_show(context, data_dict):
 
     for item in plugins.PluginImplementations(plugins.IGroupController):
         item.read(group)
+
+    schema = lib_plugins.lookup_group_plugin(group_dict['type']).db_to_form_schema()
+
+    if schema:
+        package_dict, errors = validate(group_dict, schema, context=context)
 
     return group_dict
 
@@ -557,13 +568,9 @@ def package_show_rest(context, data_dict):
 
     logic.get_action('package_show')(context, data_dict)
 
-    api = context.get('api_version') or '1'
     pkg = context['package']
 
-    if api == '1':
-        package_dict = model_dictize.package_to_api1(pkg, context)
-    else:
-        package_dict = model_dictize.package_to_api2(pkg, context)
+    package_dict = model_dictize.package_to_api(pkg, context)
 
     return package_dict
 
@@ -571,14 +578,10 @@ def group_show_rest(context, data_dict):
 
     check_access('group_show_rest',context, data_dict)
 
-    group_show(context, data_dict)
-    api = context.get('api_version') or '1'
+    logic.get_action('group_show')(context, data_dict)
     group = context['group']
 
-    if api == '2':
-        group_dict = model_dictize.group_to_api2(group, context)
-    else:
-        group_dict = model_dictize.group_to_api1(group, context)
+    group_dict = model_dictize.group_to_api(group, context)
 
     return group_dict
 
@@ -586,14 +589,10 @@ def tag_show_rest(context, data_dict):
 
     check_access('tag_show_rest',context, data_dict)
 
-    tag_show(context, data_dict)
-    api = context.get('api_version') or '1'
+    logic.get_action('tag_show')(context, data_dict)
     tag = context['tag']
 
-    if api == '2':
-        tag_dict = model_dictize.tag_to_api2(tag, context)
-    else:
-        tag_dict = model_dictize.tag_to_api1(tag, context)
+    tag_dict = model_dictize.tag_to_api(tag, context)
 
     return tag_dict
 
@@ -920,7 +919,7 @@ def term_translation_show(context, data_dict):
     q = select([trans_table])
 
     if 'term' not in data_dict:
-        raise ValidationError({'term': 'term not it data'})
+        raise ValidationError({'term': 'term not in data'})
 
     q = q.where(trans_table.c.term == data_dict['term'])
 

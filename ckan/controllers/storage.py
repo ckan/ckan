@@ -48,6 +48,9 @@ def fix_stupid_pylons_encoding(data):
 
 def create_pairtree_marker(folder):
     """ Creates the pairtree marker for tests if it doesn't exist """
+    if not folder[:-1] == '/':
+        folder = folder + '/'
+
     directory = os.path.dirname(folder)
     if not os.path.exists(directory):
         os.makedirs(directory)

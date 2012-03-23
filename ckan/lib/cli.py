@@ -8,12 +8,12 @@ from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
 import re
 
-class MockTranslator(object): 
-    def gettext(self, value): 
-        return value 
+class MockTranslator(object):
+    def gettext(self, value):
+        return value
 
-    def ugettext(self, value): 
-        return value 
+    def ugettext(self, value):
+        return value
 
     def ungettext(self, singular, plural, n):
         if n > 1:
@@ -54,13 +54,13 @@ class CkanCommand(paste.script.command.Command):
         self.registry.register(pylons.translator, self.translator_obj)
 
     def _setup_app(self):
-        cmd = paste.script.appinstall.SetupCommand('setup-app') 
-        cmd.run([self.filename]) 
+        cmd = paste.script.appinstall.SetupCommand('setup-app')
+        cmd.run([self.filename])
 
 
 class ManageDb(CkanCommand):
     '''Perform various tasks on the database.
-    
+
     db create # alias of db upgrade
     db init # create and put in default data
     db clean
@@ -82,7 +82,7 @@ class ManageDb(CkanCommand):
     max_args = None
     min_args = 1
 
-    def command(self):        
+    def command(self):
         self._load_config()
         from ckan import model
         import ckan.lib.search as search
@@ -170,7 +170,7 @@ class ManageDb(CkanCommand):
         self._run_cmd(pg_cmd)
 
     def _run_cmd(self, command_line):
-        import subprocess    
+        import subprocess
         retcode = subprocess.call(command_line, shell=True)
         if retcode != 0:
             raise SystemError('Command exited with errorcode: %i' % retcode)
@@ -196,7 +196,7 @@ class ManageDb(CkanCommand):
             print 'Upgrading DB'
             from ckan import model
             model.repo.upgrade_db()
-            
+
             print 'Rebuilding search index'
             import ckan.lib.search
             ckan.lib.search.rebuild()
@@ -270,10 +270,10 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index rebuild [package-name]  - reindex package-name if given, if not then rebuild full search index (all packages)
-      search-index check                   - checks for packages not indexed
-      search-index show {package-name}     - shows index of a package
-      search-index clear                   - clears the search index for this ckan instance
+      search-index [-i] [-o] [-r] rebuild [dataset-name]     - reindex dataset-name if given, if not then rebuild full search index (all datasets)
+      search-index check                                     - checks for datasets not indexed
+      search-index show {dataset-name}                       - shows index of a dataset
+      search-index clear [dataset-name]                      - clears the search index for the provided dataset or for the whole ckan instance
     '''
 
     summary = __doc__.split('\n')[0]
@@ -281,36 +281,71 @@ class SearchIndexCommand(CkanCommand):
     max_args = 2
     min_args = 0
 
+    def __init__(self,name):
+
+        super(SearchIndexCommand,self).__init__(name)
+
+        self.parser.add_option('-i', '--force', dest='force',
+            action='store_true', default=False, help='Ignore exceptions when rebuilding the index')
+
+        self.parser.add_option('-o', '--only-missing', dest='only_missing',
+            action='store_true', default=False, help='Index non indexed datasets only')
+
+        self.parser.add_option('-r', '--refresh', dest='refresh',
+            action='store_true', default=False, help='Refresh current index (does not clear the existing one)')
+
     def command(self):
         self._load_config()
-        from ckan.lib.search import rebuild, check, show, clear
 
         if not self.args:
             # default to printing help
             print self.usage
             return
 
-        cmd = self.args[0]        
+        cmd = self.args[0]
         if cmd == 'rebuild':
-            if len(self.args) > 1:
-                rebuild(self.args[1])
-            else:
-                rebuild()
+            self.rebuild()
         elif cmd == 'check':
-            check()
+            self.check()
         elif cmd == 'show':
-            if not len(self.args) == 2:
-                import pdb; pdb.set_trace()
-                self.args
-            show(self.args[1])
+            self.show()
         elif cmd == 'clear':
-            clear()
+            self.clear()
         else:
             print 'Command %s not recognized' % cmd
 
+    def rebuild(self):
+        from ckan.lib.search import rebuild
+
+        if len(self.args) > 1:
+            rebuild(self.args[1])
+        else:
+            rebuild(only_missing=self.options.only_missing,
+                    force=self.options.force,
+                    refresh=self.options.refresh)
+    def check(self):
+        from ckan.lib.search import check
+
+        check()
+
+    def show(self):
+        from ckan.lib.search import show
+
+        if not len(self.args) == 2:
+            print 'Missing parameter: dataset-name'
+            return
+        index = show(self.args[1])
+        pprint(index)
+
+    def clear(self):
+        from ckan.lib.search import clear
+
+        package_id =self.args[1] if len(self.args) > 1 else None
+        clear(package_id)
+
 class Notification(CkanCommand):
     '''Send out modification notifications.
-    
+
     In "replay" mode, an update signal is sent for each dataset in the database.
 
     Usage:
@@ -332,7 +367,7 @@ class Notification(CkanCommand):
             cmd = 'replay'
         else:
             cmd = self.args[0]
-        
+
         if cmd == 'replay':
             dome = DomainObjectModificationExtension()
             for package in Session.query(Package):
@@ -466,12 +501,12 @@ class UserCmd(CkanCommand):
         if user.name != user.display_name:
             user_str += ' display=%s' % user.display_name
         return user_str
-        
+
     def list(self):
         from ckan import model
         print 'Users:'
         users = model.Session.query(model.User)
-        print 'count = %i' % users.count()        
+        print 'count = %i' % users.count()
         for user in users:
             print self.get_user_str(user)
 
@@ -484,7 +519,7 @@ class UserCmd(CkanCommand):
 
     def setpass(self):
         from ckan import model
-        
+
         if len(self.args) < 2:
             print 'Need name of the user.'
             return
@@ -524,7 +559,7 @@ class UserCmd(CkanCommand):
 
     def add(self):
         from ckan import model
-        
+
         if len(self.args) < 2:
             print 'Need name of the user.'
             return
@@ -561,10 +596,10 @@ class UserCmd(CkanCommand):
 
         if not password:
             password = self.password_prompt()
-        
+
         print('Creating user: %r' % username)
 
-        
+
         user_params = {'name': unicode(username),
                        'password': password}
         if apikey:
@@ -641,7 +676,7 @@ class DatasetCmd(CkanCommand):
         dataset = model.Package.get(unicode(dataset_ref))
         assert dataset, 'Could not find dataset matching reference: %r' % dataset_ref
         return dataset
-            
+
     def show(self, dataset_ref):
         from ckan import model
         import pprint
@@ -670,7 +705,7 @@ class DatasetCmd(CkanCommand):
         dataset.purge()
         model.repo.commit_and_remove()
         print '%s purged' % name
-        
+
 
 class Celery(CkanCommand):
     '''Celery daemon
@@ -769,7 +804,7 @@ class Ratings(CkanCommand):
         q = model.Session.query(model.Rating)
         print "%i ratings" % q.count()
         q = q.filter(model.Rating.user_id == None)
-        print "of which %i are anonymous ratings" % q.count()        
+        print "of which %i are anonymous ratings" % q.count()
 
     def clean(self, user_ratings=True):
         from ckan import model

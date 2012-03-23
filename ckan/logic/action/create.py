@@ -1,7 +1,7 @@
 import logging
 from pylons.i18n import _
 
-import lib.plugins as lib_plugins
+import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
 import ckan.plugins as plugins
@@ -36,7 +36,8 @@ def package_create(context, data_dict):
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
     try:
         schema = package_plugin.form_to_db_schema_options({'type':'create',
-                                               'api':'api_version' in context})
+                                               'api':'api_version' in context,
+                                               'context': context})
     except AttributeError:
         schema = package_plugin.form_to_db_schema()
 
@@ -116,8 +117,8 @@ def package_relationship_create(context, data_dict):
     model = context['model']
     user = context['user']
     schema = context.get('schema') or ckan.logic.schema.default_create_relationship_schema()
-    api = context.get('api_version') or '1'
-    ref_package_by = 'id' if api == '2' else 'name'
+    api = context.get('api_version')
+    ref_package_by = 'id' if api == 2 else 'name'
 
     id = data_dict['subject']
     id2 = data_dict['object']
@@ -221,7 +222,8 @@ def group_create(context, data_dict):
     group_plugin = lib_plugins.lookup_group_plugin()
     try:
         schema = group_plugin.form_to_db_schema_options({'type':'create',
-                                               'api':'api_version' in context})
+                                               'api':'api_version' in context,
+                                               'context': context})
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
@@ -361,8 +363,6 @@ def user_create(context, data_dict):
 
 def package_create_rest(context, data_dict):
 
-    api = context.get('api_version') or '1'
-
     check_access('package_create_rest', context, data_dict)
 
     dictized_package = model_save.package_api_to_dict(data_dict, context)
@@ -370,18 +370,13 @@ def package_create_rest(context, data_dict):
 
     pkg = context['package']
 
-    if api == '1':
-        package_dict = model_dictize.package_to_api1(pkg, context)
-    else:
-        package_dict = model_dictize.package_to_api2(pkg, context)
+    package_dict = model_dictize.package_to_api(pkg, context)
 
     data_dict['id'] = pkg.id
 
     return package_dict
 
 def group_create_rest(context, data_dict):
-
-    api = context.get('api_version') or '1'
 
     check_access('group_create_rest', context, data_dict)
 
@@ -390,10 +385,7 @@ def group_create_rest(context, data_dict):
 
     group = context['group']
 
-    if api == '1':
-        group_dict = model_dictize.group_to_api1(group, context)
-    else:
-        group_dict = model_dictize.group_to_api2(group, context)
+    group_dict = model_dictize.group_to_api(group, context)
 
     data_dict['id'] = group.id
 

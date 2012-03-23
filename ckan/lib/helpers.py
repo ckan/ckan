@@ -25,6 +25,8 @@ from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
 import i18n
+import ckan.exceptions
+from pylons import request
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -42,6 +44,8 @@ except ImportError:
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
     kw['__ckan_no_root'] = True
+    if are_there_flash_messages():
+        kw['__no_cache__'] = True
     return _redirect_to(url_for(*args, **kw))
 
 def url(*args, **kw):
@@ -52,7 +56,6 @@ def url(*args, **kw):
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 def url_for(*args, **kw):
-
     """Create url adding i18n information if selected
     wrapper for routes.url_for"""
     locale = kw.pop('locale', None)
@@ -82,7 +85,6 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # (as part of the language changing feature).
     # A locale of default will not add locale info to the url.
 
-    from pylons import request
 
     default_locale = False
     locale = kw.pop('locale', None)
@@ -114,8 +116,16 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # stop the root being added twice in redirects
     if no_root:
         url = url_to_amend[len(root):]
+        if not default_locale:
+            url = '/%s%s' % (locale,  url)
+
+    if url == '/packages':
+        raise ckan.exceptions.CkanUrlException('There is a broken url being created %s' % kw)
 
     return url
+
+def lang():
+    return request.environ.get('CKAN_LANG')
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -146,10 +156,10 @@ class Message(object):
 class _Flash(object):
 
     # List of allowed categories.  If None, allow any category.
-    categories = ["warning", "notice", "error", "success"]
+    categories = ["", "alert-info", "alert-error", "alert-success"]
 
     # Default category if none is specified.
-    default_category = "notice"
+    default_category = ""
 
     def __init__(self, session_key="flash", categories=None, default_category=None):
         self.session_key = session_key
@@ -185,7 +195,9 @@ class _Flash(object):
     def pop_messages(self):
         from pylons import session
         messages = session.pop(self.session_key, [])
-        session.save()
+        # only save session if it has changed
+        if messages:
+            session.save()
         return [Message(*m) for m in messages]
 
     def are_there_messages(self):
@@ -195,13 +207,13 @@ class _Flash(object):
 _flash = _Flash()
 
 def flash_notice(message, allow_html=False):
-    _flash(message, category='notice', allow_html=allow_html)
+    _flash(message, category='alert-info', allow_html=allow_html)
 
 def flash_error(message, allow_html=False):
-    _flash(message, category='error', allow_html=allow_html)
+    _flash(message, category='alert-error', allow_html=allow_html)
 
 def flash_success(message, allow_html=False):
-    _flash(message, category='success', allow_html=allow_html)
+    _flash(message, category='alert-success', allow_html=allow_html)
 
 def are_there_flash_messages():
     return _flash.are_there_messages()
@@ -248,7 +260,6 @@ def default_group_type():
     return str( config.get('ckan.default.group_type', 'group') )
 
 def facet_items(c, name, limit=10):
-    from pylons import request
     if not c.facets or not c.facets.get(name):
         return []
     facets = []
@@ -473,8 +484,8 @@ def time_ago_in_words_from_str(date_str, granularity='month'):
 
 def button_attr(enable, type='primary'):
     if enable:
-        return 'class="pretty-button %s"' % type
-    return 'disabled class="pretty-button disabled"'
+        return 'class="btn %s"' % type
+    return 'disabled class="btn disabled"'
 
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
@@ -536,3 +547,6 @@ def auto_log_message(context):
     elif (context.action=='edit'):
         return _('Edited settings.')
     return ''
+
+def content_span(body_class):
+    return body_class.__str__()

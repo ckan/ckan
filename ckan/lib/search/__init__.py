@@ -13,6 +13,17 @@ from query import TagSearchQuery, ResourceSearchQuery, PackageSearchQuery, Query
 
 log = logging.getLogger(__name__)
 
+import sys
+import cgitb
+import warnings
+def text_traceback():
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        res = 'the original traceback:'.join(
+            cgitb.text(sys.exc_info()).split('the original traceback:')[1:]
+        ).strip()
+    return res
+
 SIMPLE_SEARCH = config.get('ckan.simple_search', False)
 
 SUPPORTED_SCHEMA_VERSIONS = ['1.3']
@@ -100,7 +111,7 @@ class SynchronousSearchPlugin(SingletonPlugin):
             dispatch_by_operation(
                 entity.__class__.__name__,
                 get_action('package_show_rest')(
-                    {'model': model, 'ignore_auth': True},
+                    {'model': model, 'ignore_auth': True, 'api_version':1},
                     {'id': entity.id}
                 ),
                 operation
@@ -111,29 +122,61 @@ class SynchronousSearchPlugin(SingletonPlugin):
         else:
             log.warn("Discarded Sync. indexing for: %s" % entity)
 
-def rebuild(package=None):
+def rebuild(package_id=None,only_missing=False,force=False,refresh=False):
+    '''
+        Rebuilds the search index.
+
+        If a dataset id is provided, only this dataset will be reindexed.
+        When reindexing all datasets, if only_missing is True, only the
+        datasets not already indexed will be processed. If force equals
+        True, if an execption is found, the exception will be logged, but
+        the process will carry on.
+    '''
     from ckan import model
     log.debug("Rebuilding search index...")
 
     package_index = index_for(model.Package)
 
-    if package:
+    if package_id:
         pkg_dict = get_action('package_show_rest')(
-            {'model': model, 'ignore_auth': True},
-            {'id': package}
+            {'model': model, 'ignore_auth': True, 'api_version':1},
+            {'id': package_id}
         )
         package_index.remove_dict(pkg_dict)
         package_index.insert_dict(pkg_dict)
     else:
-        # rebuild index
-        package_index.clear()
-        for pkg in model.Session.query(model.Package).filter(model.Package.state == 'active').all():
-            package_index.insert_dict(
-                get_action('package_show_rest')(
-                    {'model': model, 'ignore_auth': True},
-                    {'id': pkg.id}
+        package_ids = [r[0] for r in model.Session.query(model.Package.id).filter(model.Package.state == 'active').all()]
+        if only_missing:
+            log.debug('Indexing only missing packages...')
+            package_query = query_for(model.Package)
+            indexed_pkg_ids = set(package_query.get_all_entity_ids(max_results=len(package_ids)))
+            package_ids = set(package_ids) - indexed_pkg_ids     # Packages not indexed
+
+            if len(package_ids) == 0:
+                log.debug('All datasets are already indexed')
+                return
+        else:
+            log.debug('Rebuilding the whole index...')
+            # When refreshing, the index is not previously cleared
+            if not refresh:
+                package_index.clear()
+
+        for pkg_id in package_ids:
+            try:
+                package_index.insert_dict(
+                    get_action('package_show_rest')(
+                        {'model': model, 'ignore_auth': True, 'api_version':1},
+                        {'id': pkg_id}
+                    )
                 )
-            )
+            except Exception,e:
+                log.error('Error while indexing dataset %s: %s' % (pkg_id,str(e)))
+                if force:
+                    log.error(text_traceback())
+                    continue
+                else:
+                    raise
+
     model.Session.commit()
     log.debug('Finished rebuilding search index.')
 
@@ -153,14 +196,19 @@ def check():
 
 def show(package_reference):
     from ckan import model
-    package_index = index_for(model.Package)
-    print package_index.get_index(package_reference)
+    package_query = query_for(model.Package)
 
-def clear():
+    return package_query.get_index(package_reference)
+
+def clear(package_reference=None):
     from ckan import model
-    log.debug("Clearing search index...")
     package_index = index_for(model.Package)
-    package_index.clear()
+    if package_reference:
+        log.debug("Clearing search index for dataset %s..." % package_reference)
+        package_index.delete_package({'id':package_reference})
+    else:
+        log.debug("Clearing search index...")
+        package_index.clear()
 
 
 def check_solr_schema_version(schema_file=None):

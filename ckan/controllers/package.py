@@ -23,7 +23,7 @@ import ckan.misc
 import ckan.logic.action.get
 from home import CACHE_PARAMETER
 
-from lib.plugins import lookup_package_plugin
+from ckan.lib.plugins import lookup_package_plugin
 
 log = logging.getLogger(__name__)
 
@@ -193,8 +193,47 @@ class PackageController(BaseController):
 
         return render( self._search_template(package_type) )
 
+    def _content_type_for_format(self, fmt):
+        """
+        Given a requested format this method determines the content-type
+        to set and the genshi template loader to use in order to render
+        it accurately.  TextTemplate must be used for non-xml templates
+        whilst all that are some sort of XML should use MarkupTemplate.
+        """
+        from genshi.template import MarkupTemplate
+        from genshi.template.text import NewTextTemplate
 
-    def read(self, id):
+        types = {
+            "html": ("text/html; charset=utf-8", MarkupTemplate, 'html'),
+            "rdf" : ("application/rdf+xml; charset=utf-8", MarkupTemplate, 'rdf'),
+            "n3" : ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
+            "application/rdf+xml" : ("application/rdf+xml; charset=utf-8", MarkupTemplate,'rdf'),
+            "text/n3": ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
+        }
+        # Check the accept header first
+        accept = request.headers.get('Accept', '')
+        if accept and accept in types:
+            return types[accept][0], types[accept][2], types[accept][1]
+
+        if fmt in types:
+            return types[fmt][0], types[fmt][2], types[fmt][1]
+        return None, "html", (types["html"][1])
+
+
+    def read(self, id, format='html'):
+        # Check we know the content type, if not then it is likely a revision
+        # and therefore we should merge the format onto the end of id
+        ctype,extension,loader = self._content_type_for_format(format)
+        if not ctype:
+            # Reconstitute the ID if we don't know what content type to use
+            ctype = "text/html; charset=utf-8"
+            id = "%s.%s" % (id, format)
+            format = 'html'
+        else:
+            format = extension
+
+        response.headers['Content-Type'] = ctype
+
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
@@ -228,10 +267,6 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
-        #set a cookie so we know whether to display the welcome message
-        c.hide_welcome_message = bool(request.cookies.get('hide_welcome_message', False))
-        response.set_cookie('hide_welcome_message', '1', max_age=3600) #(make cross-site?)
-
         # used by disqus plugin
         c.current_package_id = c.pkg.id
 
@@ -242,16 +277,13 @@ class PackageController(BaseController):
                 ckan.logic.action.get.package_activity_list_html(context,
                     {'id': c.current_package_id})
 
-        if config.get('rdf_packages'):
-            accept_header = request.headers.get('Accept', '*/*')
-            for content_type, exts in negotiate(autoneg_cfg, accept_header):
-                if "html" not in exts:
-                    rdf_url = '%s%s.%s' % (config['rdf_packages'], c.pkg.id, exts[0])
-                    redirect(rdf_url, code=303)
-                break
-
         PackageSaver().render_package(c.pkg_dict, context)
-        return render( self._read_template( package_type ) )
+
+        template = self._read_template( package_type )
+        template = template[:template.index('.')+1] + format
+
+        return render( template, loader_class=loader)
+
 
     def comments(self, id):
         package_type = self._get_package_type(id)
@@ -272,7 +304,7 @@ class PackageController(BaseController):
 
         #render the package
         PackageSaver().render_package(c.pkg_dict)
-        return render('package/comments.html')
+        return render(  self._comments_template( package_type ) )
 
 
     def history(self, id):
@@ -382,7 +414,7 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render( self._new_template(''))
+        return render( self._new_template(package_type))
 
 
     def edit(self, id, data=None, errors=None, error_summary=None):
@@ -397,9 +429,6 @@ class PackageController(BaseController):
             return self._save_edit(id, context)
         try:
             old_data = get_action('package_show')(context, {'id':id})
-            schema = self._db_to_form_schema(package_type=package_type)
-            if schema and not data:
-                old_data, errors = validate(old_data, schema, context=context)
             data = data or old_data
             # Merge all elements for the complete package dictionary
             c.pkg_dict = dict(old_data.items() + data.items())
@@ -501,22 +530,11 @@ class PackageController(BaseController):
         based on the package's type name (type). The plugin found
         will be returned, or None if there is no plugin associated with
         the type.
-
-        Uses a minimal context to do so.  The main use of this method
-        is for figuring out which plugin to delegate to.
-
-        aborts if an exception is raised.
         """
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-        try:
-            data = get_action('package_show')(context, {'id': id})
-        except NotFound:
-            abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
-
-        return data['type']
+        pkg = model.Package.get(id)
+        if pkg:
+            return pkg.type or 'package'
+        return None
 
     def _save_new(self, context, package_type=None):
         from ckan.lib.search import SearchIndexError
