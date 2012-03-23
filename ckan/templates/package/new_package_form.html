@@ -242,7 +242,7 @@
   </py:with>
 </fieldset>
 
-<fieldset id="delete" class="tab-pane fade">
+<fieldset id='delete' class="tab-pane fade" py:if="c.is_sysadmin or c.auth_for_change_state">
   <dl>
     <dt>Delete</dt>
     <dd>
