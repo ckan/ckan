@@ -1,60 +1,3 @@
-// importScripts('lib/underscore.js'); 
-
-onmessage = function(message) {
-  
-  function parseCSV(rawCSV) {
-    var patterns = new RegExp((
-      // Delimiters.
-      "(\\,|\\r?\\n|\\r|^)" +
-      // Quoted fields.
-      "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-      // Standard fields.
-      "([^\"\\,\\r\\n]*))"
-    ), "gi");
-
-    var rows = [[]], matches = null;
-
-    while (matches = patterns.exec(rawCSV)) {
-      var delimiter = matches[1];
-
-      if (delimiter.length && (delimiter !== ",")) rows.push([]);
-
-      if (matches[2]) {
-        var value = matches[2].replace(new RegExp("\"\"", "g"), "\"");
-      } else {
-        var value = matches[3];
-      }
-      rows[rows.length - 1].push(value);
-    }
-
-    if(_.isEqual(rows[rows.length -1], [""])) rows.pop();
-
-    var docs = [];
-    var headers = _.first(rows);
-    _.each(_.rest(rows), function(row, rowIDX) {
-      var doc = {};
-      _.each(row, function(cell, idx) {      
-        doc[headers[idx]] = cell;
-      })
-      docs.push(doc);
-    })
-
-    return docs;
-  }
-  
-  var docs = parseCSV(message.data.data);
-  
-  var req = new XMLHttpRequest();
-
-  req.onprogress = req.upload.onprogress = function(e) {
-    if(e.lengthComputable) postMessage({ percent: (e.loaded / e.total) * 100 });
-  };
-  
-  req.onreadystatechange = function() { if (req.readyState == 4) postMessage({done: true, response: req.responseText}) };
-  req.open('POST', message.data.url);
-  req.setRequestHeader('Content-Type', 'application/json');
-  req.send(JSON.stringify({docs: docs}));
-};
 // adapted from https://github.com/harthur/costco. heather rules
 
 var costco = function() {
@@ -570,10 +513,11 @@ my.FlotGraph = Backbone.View.extend({
   // needs to be function as can depend on state
   getGraphOptions: function(typeId) { 
     var self = this;
+    // special tickformatter to show labels rather than numbers
     var tickFormatter = function (val) {
       if (self.model.currentDocuments.models[val]) {
         var out = self.model.currentDocuments.models[val].get(self.chartConfig.group);
-        // if the x-axis value was in fact a number we want that not the 
+        // if the value was in fact a number we want that not the 
         if (typeof(out) == 'number') {
           return val;
         } else {
@@ -612,14 +556,17 @@ my.FlotGraph = Backbone.View.extend({
             show: true,
             barWidth: 1,
             align: "center",
-            fill: true
+            fill: true,
+            horizontal: true
           }
         },
         grid: { hoverable: true, clickable: true },
-        xaxis: {
+        yaxis: {
           tickSize: 1,
           tickLength: 1,
-          tickFormatter: tickFormatter
+          tickFormatter: tickFormatter,
+          min: -0.5,
+          max: self.model.currentDocuments.length - 0.5
         }
       }
     }
@@ -686,7 +633,12 @@ my.FlotGraph = Backbone.View.extend({
           if (typeof x === 'string') {
             x = index;
           }
-          points.push([x, y]);
+          // horizontal bar chart
+          if (self.chartConfig.graphType == 'bars') {
+            points.push([y, x]);
+          } else {
+            points.push([x, y]);
+          }
         });
         series.push({data: points, label: field});
       });
@@ -1414,7 +1366,8 @@ my.DataExplorer = Backbone.View.extend({
         // update navigation
         var qs = my.parseHashQueryString();
         qs['reclineQuery'] = JSON.stringify(self.model.queryState.toJSON());
-        my.setHashQueryString(qs);
+        var out = my.getNewHashForQueryString(qs);
+        self.router.navigate(out);
       });
     this.model.bind('query:fail', function(error) {
         my.clearNotifications();
@@ -1472,8 +1425,8 @@ my.DataExplorer = Backbone.View.extend({
   setupRouting: function() {
     var self = this;
     // Default route
-    this.router.route('', this.pageViews[0].id, function() {
-      self.updateNav(self.pageViews[0].id);
+    this.router.route(/^(\?.*)?$/, this.pageViews[0].id, function(queryString) {
+      self.updateNav(self.pageViews[0].id, queryString);
     });
     $.each(this.pageViews, function(idx, view) {
       self.router.route(/^([^?]+)(\?.*)?/, 'view', function(viewId, queryString) {
@@ -1631,8 +1584,18 @@ my.composeQueryString = function(queryParams) {
   return queryString;
 }
 
+my.getNewHashForQueryString = function(queryParams) {
+  var queryPart = my.composeQueryString(queryParams);
+  if (window.location.hash) {
+    // slice(1) to remove # at start
+    return window.location.hash.split('?')[0].slice(1) + queryPart;
+  } else {
+    return queryPart;
+  }
+}
+
 my.setHashQueryString = function(queryParams) {
-  window.location.hash = window.location.hash.split('?')[0] + my.composeQueryString(queryParams);
+  window.location.hash = my.getNewHashForQueryString(queryParams);
 }
 
 // ## notify
