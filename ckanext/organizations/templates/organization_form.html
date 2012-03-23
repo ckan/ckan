@@ -104,8 +104,8 @@
   <h3>Users</h3>
   <dl py:if="data.get('users')">
     <py:for each="num, user in enumerate(data.get('users'))">
-      <dt py:if="c.is_superuser_or_groupadmin"><input checked="checked" id="users__${num}__name" name="users__${num}__name" type="checkbox" value="${user['name']}"/>
-	</dt>
+      <dt py:if="c.is_superuser_or_groupadmin"><input checked="checked" id="users__${num}__name" name="users__${num}__name" type="checkbox" value="${user['name']}" onclick="$('input[name=users__${num}__capacity]').val('')"/>
+  	  </dt>
 	      <dd>
 	        <label for="users__${num}__name">${user['name']} ${user['capacity']}</label>
 		  </dd>

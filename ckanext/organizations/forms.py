@@ -2,7 +2,7 @@ import os, logging
 
 import ckan.authz as authz
 from ckan.logic import NotAuthorized
-from ckan.logic.schema import group_form_schema
+from ckan.logic.schema import group_form_schema, default_package_schema
 from ckan.lib import base
 from ckan.lib.base import c, model, abort, request
 from ckan.lib.base import redirect, _, config, h
@@ -116,7 +116,7 @@ class OrganizationForm(SingletonPlugin):
         Returns the schema for mapping group data from the database into a
         format suitable for the form (optional)
         """
-        return {}
+        return group_form_schema()
 
     def check_data_dict(self, data_dict):
         """
@@ -200,29 +200,14 @@ class OrganizationDatasetForm(SingletonPlugin):
     def package_form(self):
         return 'organization_package_form.html'
 
-    def form_to_db_schema_options(self, options):
-        ''' This allows us to select different schemas for different
-        purpose eg via the web interface or via the api or creation vs
-        updating. It is optional and if not available form_to_db_schema
-        should be used.
-        If a context is provided, and it contains a schema, it will be
-        returned.
-        '''
-        schema = options.get('context',{}).get('schema',None)
-        if schema:
-            return schema
-
-        if options.get('api'):
-            if options.get('type') == 'create':
-                return logic.schema.default_create_package_schema()
-            else:
-                return logic.schema.default_update_package_schema()
-        else:
-            return logic.schema.package_form_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
+        return default_package_schema()
+
+    def form_to_db_schema(self):
+        return default_package_schema()
 
     def check_data_dict(self, data_dict, schema=None):
         '''Check if the return data is correct, mostly for checking out
@@ -233,15 +218,15 @@ class OrganizationDatasetForm(SingletonPlugin):
                                'extras_validation', 'save', 'return_to',
                                'resources', 'type']
 
-        if not schema:
-            schema = self.form_to_db_schema()
-        schema_keys = schema.keys()
-        keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
+#        if not schema:
+#            schema = self.form_to_db_schema()
+#        schema_keys = schema.keys()
+#        keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
 
-        missing_keys = keys_in_schema - set(data_dict.keys())
-        if missing_keys:
-            log.info('incorrect form fields posted, missing %s' % missing_keys)
-            raise dictization_functions.DataError(data_dict)
+#        missing_keys = keys_in_schema - set(data_dict.keys())
+#        if missing_keys:
+#            log.info('incorrect form fields posted, missing %s' % missing_keys)
+#            raise DataError(data_dict)
 
     def setup_template_variables(self, context, data_dict):
         from pylons import config
@@ -249,6 +234,7 @@ class OrganizationDatasetForm(SingletonPlugin):
         data_dict.update({'available_only':True})
 
         c.groups_available = c.userobj.get_groups('organization')
+        print c.groups_available
         c.licences = [('', '')] + base.model.Package.get_license_options()
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
 
