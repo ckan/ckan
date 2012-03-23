@@ -13,8 +13,12 @@
 
     if config.get('ckan.auth.profile', '') == 'publisher':
         group_administrators = c.group.members_of_type(model.User, 'admin')
+        group_editors = c.group.members_of_type(model.User, 'editor')
+        in_group = c.userobj and c.group in c.userobj.get_groups()
     else:
         group_administrators = c.group_admins
+        group_editors = None
+        in_group = False
   ?>
   <py:match path="primarysidebar">
 
@@ -27,6 +31,14 @@
             <li py:for="admin in group_administrators">${h.linked_user(admin)}</li>
           </ul>
         </li>
+        </py:if>
+        <py:if test='group_editors and in_group'>
+            <li>
+            <h3>Members</h3>
+              <ul class="no-break">
+                <li py:for="editor in group_editors">${h.linked_user(editor)}</li>
+              </ul>
+            </li>
         </py:if>
       </ul>
     </li>
