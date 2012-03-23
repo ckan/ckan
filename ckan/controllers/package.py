@@ -85,8 +85,8 @@ class PackageController(BaseController):
         from ckan.lib.search import SearchError
 
         package_type = request.path.strip('/').split('/')[0]
-        if package_type == 'group':
-            package_type = None
+        if package_type == 'package':
+            package_type = 'dataset'
 
         try:
             context = {'model':model,'user': c.user or c.author}
@@ -308,6 +308,10 @@ class PackageController(BaseController):
 
 
     def history(self, id):
+        package_type = request.path.strip('/').split('/')[0]
+        if package_type == 'package':
+            package_type = 'dataset'
+
         if 'diff' in request.params or 'selected1' in request.params:
             try:
                 params = {'id':request.params.getone('pkg_name'),
@@ -375,7 +379,7 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        return render( self._history_template(c.pkg_dict['type']))
+        return render( self._history_template(c.pkg_dict.get('type',package_type)))
 
     def new(self, data=None, errors=None, error_summary=None):
 

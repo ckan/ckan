@@ -388,7 +388,7 @@ def linked_gravatar(email_hash, size=100, default=None):
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro']
 def gravatar(email_hash, size=100, default=None):
     if default is None:
-        from pylons import config 
+        from pylons import config
         default = config.get('ckan.gravatar_default', 'identicon')
 
     if not default in _VALID_GRAVATAR_DEFAULTS:
@@ -467,7 +467,7 @@ def parse_rfc_2822_date(date_str, tz_aware=True):
     Returns None if the string cannot be parse as a valid datetime.
     """
     time_tuple = email.utils.parsedate_tz(date_str)
-    
+
     if not time_tuple:
         return None
 
