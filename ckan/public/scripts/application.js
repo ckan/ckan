@@ -16,7 +16,7 @@ var CKAN = CKAN || {};
     });
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor'));
     // bootstrap collapse
-    $('.collapse').collapse();
+    $('.collapse').collapse({toggle: false});
     // set up ckan js
     var config = {
       endpoint: CKAN.SITE_URL + '/'
