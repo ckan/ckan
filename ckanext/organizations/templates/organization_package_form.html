@@ -112,7 +112,7 @@ if organization:
           </select>
 
           <label for='cap_public'>
-          <input id='cap_public' type='radio' name='groups__0__capacity' value='public' py:attrs="{'checked':'checked'} if organization.get('capacity','') == 'public' else {}"/>
+          <input id='cap_public' type='radio' name='groups__0__capacity' value='public' py:attrs="{'checked':'checked'} if organization.get('capacity','') in ['public', ''] else {}"/>
           Public</label>
 
           <label for='cap_private'>
