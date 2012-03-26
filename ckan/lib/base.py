@@ -35,6 +35,7 @@ APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
 ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
+
 def abort(status_code=None, detail='', headers=None, comment=None):
     if detail and status_code!=503:
         h.flash_error(detail)
@@ -58,6 +59,10 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         # Using pylons.url() directly destroys the localisation stuff so
         # we remove it so any bad templates crash and burn
         del globs['url']
+        ##import pprint
+        ##print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+        ##pprint.pprint(globs)
+        ##print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
         template = globs['app_globals'].genshi_loader.load(template_name,
             cls=loader_class)

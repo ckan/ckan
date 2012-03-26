@@ -127,6 +127,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
 def lang():
     return request.environ.get('CKAN_LANG')
 
+
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
 
@@ -204,19 +205,20 @@ class _Flash(object):
         from pylons import session
         return bool(session.get(self.session_key))
 
-_flash = _Flash()
+flash = _Flash()
+_flash = flash
 
 def flash_notice(message, allow_html=False):
-    _flash(message, category='alert-info', allow_html=allow_html)
+    flash(message, category='alert-info', allow_html=allow_html)
 
 def flash_error(message, allow_html=False):
-    _flash(message, category='alert-error', allow_html=allow_html)
+    flash(message, category='alert-error', allow_html=allow_html)
 
 def flash_success(message, allow_html=False):
-    _flash(message, category='alert-success', allow_html=allow_html)
+    flash(message, category='alert-success', allow_html=allow_html)
 
 def are_there_flash_messages():
-    return _flash.are_there_messages()
+    return flash.are_there_messages()
 
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):
@@ -548,5 +550,8 @@ def auto_log_message(context):
         return _('Edited settings.')
     return ''
 
+<<<<<<< Updated upstream
 def content_span(body_class):
     return body_class.__str__()
+=======
+>>>>>>> Stashed changes
