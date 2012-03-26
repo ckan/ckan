@@ -127,7 +127,6 @@ def default_package_schema():
             'id': [ignore_missing, unicode],
             'name': [ignore_missing, unicode],
             'title': [ignore_missing, unicode],
-            'type': [ignore_missing, unicode],
             '__extras': [ignore],
         }
     }
