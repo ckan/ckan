@@ -100,10 +100,7 @@ class AuthzTestBase(object):
                 offset = '/%s/list' % entity
         elif action == 'create':
             offset = '/%s/new' % entity
-            if entity == 'dataset':
-                str_required_in_response = 'Add'
-            else:
-                str_required_in_response = 'New'
+            str_required_in_response = 'Add'
         elif action == 'delete':
             offset = url_for(controller=controller_name, action=model.Action.EDIT, id=unicode(entity_name))
             # this is ludicrously sensitive (we have to improve html testing!)

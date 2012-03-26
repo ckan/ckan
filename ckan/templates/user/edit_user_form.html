@@ -1,10 +1,13 @@
-<form id="user-edit" action="" method="post"
-    py:attrs="{'class':'has-errors'} if errors else {}"
-    xmlns:i18n="http://genshi.edgewall.org/i18n"
-    xmlns:py="http://genshi.edgewall.org/"
-    xmlns:xi="http://www.w3.org/2001/XInclude">
+<form 
+  id="user-edit" 
+  action="" 
+  method="post"
+  class="form-horizontal ${'has-errors' if errors else ''}"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<div class="error-explanation" py:if="error_summary">
+<div class="alert alert-error error-explanation" py:if="error_summary">
 <h2>Errors in form</h2>
 <p>The form contains invalid entries:</p>
 <ul>
@@ -12,51 +15,66 @@
 </ul>
 </div>
   <fieldset>
-    <dl>
-    <dt><label for="fullname">Full name:</label></dt>
-    <dd><input type="text" name="fullname" value="${data.get('fullname','')}" /></dd>
-     
-    <dt><label for="email">E-Mail:</label></dt>
-    <dd><input type="text" name="email" value="${data.get('email','')}" /></dd>
-
-    <py:if test="g.openid_enabled">
-      <dt><label for="openid">OpenID:</label></dt>
-      <dd><input type="text" name="openid" value="${data.get('openid','')}" /></dd>
-    </py:if>
-    
-    <dt><label for="about">About:</label></dt>
-    <dd class="description-field">
-      <div class="markdown-editor">
-        <ul class="button-row">
-          <li><button class="pretty-button js-markdown-edit depressed">Edit</button></li>
-          <li><button class="pretty-button js-markdown-preview">Preview</button></li>
-        </ul>
-        <textarea class="markdown-input" tabindex="3" name="about" id="about" placeholder="${_('A little about you...')}">${data.get('about','')}</textarea>
-        <div class="markdown-preview" style="display: none;"></div>
-        <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</span>
+    <div class="control-group">
+      <label for="fullname" class="control-label">Full name</label>
+      <div class="controls">
+        <input type="text" name="fullname" value="${data.get('fullname','')}" />
       </div>
-    </dd>
-    </dl>
+    </div>
+    <div class="control-group">
+      <label for="email" class="control-label">E-mail</label>
+      <div class="controls">
+        <input type="text" name="email" value="${data.get('email','')}" />
+      </div>
+    </div>
+    <div class="control-group" py:if="g.openid_enabled">
+      <label for="openid" class="control-label">OpenId</label>
+      <div class="controls">
+        <input type="text" name="openid" value="${data.get('openid','')}" />
+      </div>
+    </div>
+    <div class="control-group">
+      <label for="about" class="control-label">About</label>
+      <div class="controls">
+        <div class="markdown-editor">
+          <ul class="button-row">
+            <li><button class="btn js-markdown-edit depressed">Edit</button></li>
+            <li><button class="btn js-markdown-preview">Preview</button></li>
+          </ul>
+          <textarea class="markdown-input" tabindex="3" name="about" id="about" placeholder="${_('A little about you...')}">${data.get('about','')}</textarea>
+          <div class="markdown-preview" style="display: none;"></div>
+          <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</span>
+        </div>
+      </div>
+    </div>
   </fieldset>
   <fieldset>
     <legend>Change your password</legend>
-    <dl>
-    <dt><label for="password1">Password:</label></dt>
-    <dd><input type="password" name="password1" value="" /></dd>
-    <dt><label for="password2">Password (repeat):</label></dt>
-    <dd><input type="password" name="password2" value="" /></dd>
-    </dl>
+    <div class="control-group">
+      <label for="password1" class="control-label">Password</label>
+      <div class="controls">
+        <input type="password" name="password1" value="" />
+      </div>
+    </div>
+    <div class="control-group">
+      <label for="password2" class="control-label">Password (repeat)</label>
+      <div class="controls">
+        <input type="password" name="password2" value="" />
+      </div>
+    </div>
   </fieldset>
   <fieldset>
     <legend>Change your username</legend>
-    <dl>
-    <dt><label for="name">Username:</label></dt>
-    <dd><input type="text" name="name" value="${data.get('name','')}" /></dd>
-    </dl>
+    <div class="control-group">
+      <label for="name" class="control-label">Username</label>
+      <div class="controls">
+        <input type="text" name="name" value="${data.get('name','')}" />
+      </div>
+    </div>
   </fieldset>
-  <div class="form-submit">
-    <input id="save" class="pretty-button primary" name="save" type="submit" value="${_('Save Changes')}" />
-    <input id="cancel" class="pretty-button href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='user', action='me')}" />
+  <div class="form-actions">
+    <input id="save" class="btn btn-primary" name="save" type="submit" value="${_('Save Changes')}" />
+    <input id="cancel" class="btn href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='user', action='me')}" />
   </div>
 </form>
 
