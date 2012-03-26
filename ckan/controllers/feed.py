@@ -17,18 +17,14 @@ of the revision history, rather than a feed of datasets.
 
 """
 
-# TODO cleanup imports
-import datetime
 import logging
 import urlparse
 
-#from webhelpers.feedgenerator import Atom1Feed, Enclosure,
 import webhelpers.feedgenerator
 from pylons import config
 from urllib import urlencode
 
 from ckan import model
-from ckan.model import Session
 from ckan.lib.base import BaseController, c, request, response, json, abort, g
 from ckan.lib.helpers import date_str_to_datetime, url_for
 from ckan.logic import get_action, NotFound
