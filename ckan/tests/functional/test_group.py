@@ -374,7 +374,7 @@ class TestNew(FunctionalTestCase):
         fv[prefix+'name'] = group_name
         res = fv.submit('save', status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Group name already exists' in res, res
-        self.check_tag(res, '<form', 'class="has-errors"')
+        self.check_tag(res, '<form', 'has-errors')
         assert 'class="field_error"' in res, res
 
     def test_new_plugin_hook(self):

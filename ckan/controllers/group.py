@@ -14,7 +14,7 @@ from ckan.logic import tuplize_dict, clean_dict, parse_params
 import ckan.forms
 import ckan.logic.action.get
 
-from lib.plugins import lookup_group_plugin
+from ckan.lib.plugins import lookup_group_plugin
 
 log = logging.getLogger(__name__)
 
@@ -36,9 +36,26 @@ class GroupController(BaseController):
     def _setup_template_variables(self, context, data_dict, group_type=None):
         return lookup_group_plugin(group_type).setup_template_variables(context,data_dict)
 
+    def _new_template(self,group_type):
+        from ckan.lib.helpers import default_group_type
+        return lookup_group_plugin(group_type).new_template()
+
+    def _index_template(self,group_type):
+        from ckan.lib.helpers import default_group_type
+        return lookup_group_plugin(group_type).index_template()
+
+    def _read_template(self, group_type):
+        return lookup_group_plugin(group_type).read_template()
+
+    def _history_template(self, group_type):
+        return lookup_group_plugin(group_type).history_template()
+
     ## end hooks
 
     def index(self):
+        group_type = request.path.strip('/').split('/')[0]
+        if group_type == 'group':
+            group_type = None
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
@@ -58,7 +75,7 @@ class GroupController(BaseController):
             url=h.pager_url,
             items_per_page=20
         )
-        return render('group/index.html')
+        return render( self._index_template(group_type) )
 
 
     def read(self, id):
@@ -171,7 +188,7 @@ class GroupController(BaseController):
                 ckan.logic.action.get.group_activity_list_html(context,
                     {'id': c.group_dict['id']})
 
-        return render('group/read.html')
+        return render( self._read_template(c.group_dict['type']) )
 
     def new(self, data=None, errors=None, error_summary=None):
         group_type = request.path.strip('/').split('/')[0]
@@ -199,7 +216,7 @@ class GroupController(BaseController):
 
         self._setup_template_variables(context,data)
         c.form = render(self._group_form(group_type=group_type), extra_vars=vars)
-        return render('group/new.html')
+        return render(self._new_template(group_type))
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         group_type = self._get_group_type(id.split('@')[0])
@@ -217,10 +234,6 @@ class GroupController(BaseController):
             old_data = get_action('group_show')(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
-            schema = self._db_to_form_schema()
-            if schema and not data:
-                old_data, errors = validate(old_data, schema, context=context)
-
             data = data or old_data
         except NotFound:
             abort(404, _('Group not found'))
@@ -384,7 +397,7 @@ class GroupController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        return render('group/history.html')
+        return render( self._history_template(c.group_dict['type']) )
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors

@@ -127,7 +127,7 @@ def register_group_plugins(map):
             # Our version of routes doesn't allow the environ to be
             # passed into the match call and so we have to set it on the
             # map instead. This looks like a threading problem waiting
-            # to happen but it is executed sequentially from instead the
+            # to happen but it is executed sequentially from inside the
             # routing setup
 
             map.connect('%s_index' % group_type, '/%s' % group_type,
@@ -168,24 +168,57 @@ class DefaultDatasetForm(object):
     Note - this isn't a plugin implementation. This is deliberate, as we
            don't want this being registered.
     """
+    def new_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the new page
+        """
+        return 'package/new.html'
+
+    def comments_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the comments page
+        """
+        return 'package/comments.html'
+
+    def search_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the search page (if present)
+        """
+        return 'package/search.html'
+
+    def read_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+        return 'package/read.html'
+
+    def history_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the history page
+        """
+        return 'package/history.html'
+
 
     def package_form(self):
         return 'package/new_package_form.html'
-
-    def form_to_db_schema(self):
-        schema =  logic.schema.package_form_schema()
-        schema['groups'] = {
-                'name': [not_empty, val.group_id_or_name_exists, unicode],
-                'id':   [ignore_missing, unicode],
-            }
-        return schema
-
 
     def form_to_db_schema_options(self, options):
         ''' This allows us to select different schemas for different
         purpose eg via the web interface or via the api or creation vs
         updating. It is optional and if not available form_to_db_schema
-        should be used. '''
+        should be used.
+        If a context is provided, and it contains a schema, it will be
+        returned.
+        '''
+        schema = options.get('context',{}).get('schema',None)
+        if schema:
+            return schema
+
         if options.get('api'):
             if options.get('type') == 'create':
                 return logic.schema.default_create_package_schema()
@@ -264,6 +297,34 @@ class DefaultGroupForm(object):
     Note - this isn't a plugin implementation. This is deliberate, as we
            don't want this being registered.
     """
+    def new_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the 'new' page
+        """
+        return 'group/new.html'
+
+    def index_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the index page
+        """
+        return 'group/index.html'
+
+    def read_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+        return 'group/read.html'
+
+    def history_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+        return 'group/history.html'
+
 
     def group_form(self):
         return 'group/new_group_form.html'
@@ -275,7 +336,14 @@ class DefaultGroupForm(object):
         ''' This allows us to select different schemas for different
         purpose eg via the web interface or via the api or creation vs
         updating. It is optional and if not available form_to_db_schema
-        should be used. '''
+        should be used.
+        If a context is provided, and it contains a schema, it will be
+        returned.
+        '''
+        schema = options.get('context',{}).get('schema',None)
+        if schema:
+            return schema
+
         if options.get('api'):
             if options.get('type') == 'create':
                 return logic.schema.default_group_schema()

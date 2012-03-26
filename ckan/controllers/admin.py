@@ -241,7 +241,7 @@ class AdminController(BaseController):
                 model.Revision).filter_by(state=model.State.DELETED)
         c.deleted_packages = model.Session.query(
                 model.Package).filter_by(state=model.State.DELETED)
-        if not request.params:
+        if not request.params or (len(request.params) == 1 and '__no_cache__' in request.params):
             return render('admin/trash.html')
         else:
             # NB: we repeat retrieval of of revisions

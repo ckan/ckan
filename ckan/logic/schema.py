@@ -116,6 +116,7 @@ def default_package_schema():
         'url': [ignore_missing, unicode],#, URL(add_http=False)],
         'version': [ignore_missing, unicode, package_version_validator],
         'state': [ignore_not_package_admin, ignore_missing],
+        'type': [ignore_missing, unicode],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
@@ -126,6 +127,7 @@ def default_package_schema():
         'groups': {
             'id': [ignore_missing, unicode],
             'name': [ignore_missing, unicode],
+            'title': [ignore_missing, unicode],
             '__extras': [ignore],
         }
     }
@@ -154,8 +156,7 @@ def package_form_schema():
     schema['log_message'] = [ignore_missing, unicode, no_http]
     schema['groups'] = {
             'id': [ignore_missing, unicode],
-            '__extras': [empty],
-            'name': [ignore, unicode],
+            '__extras': [ignore],
     }
     schema['tag_string'] = [ignore_missing, tag_string_convert]
     schema['extras_validation'] = [duplicate_extras_key, ignore]

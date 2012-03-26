@@ -2,6 +2,7 @@ import re
 import json
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
+from pylons import config
 
 import ckan
 from ckan.lib.create_test_data import CreateTestData
@@ -1273,16 +1274,17 @@ class TestAction(WsgiAppCase):
         user = model.User.get('test.ckan.net')
         assert not user
 
+        site_id = config.get('ckan.site_id')
         user = get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        assert user['name'] == 'test.ckan.net'
+        assert user['name'] == site_id
 
-        user = model.User.get('test.ckan.net')
+        user = model.User.get(site_id)
         assert user
 
         user=get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        assert user['name'] == 'test.ckan.net'
+        assert user['name'] == site_id
 
-        user = model.Session.query(model.User).filter_by(name='test.ckan.net').one()
+        user = model.Session.query(model.User).filter_by(name=site_id).one()
         assert user
 
     def test_28_group_package_show(self):
@@ -1296,7 +1298,7 @@ class TestAction(WsgiAppCase):
         assert group_names == set(['annakarenina', 'warandpeace']), group_names
 
     def test_29_group_package_show_pending(self):
-        context = {'model': model, 'session': model.Session, 'user': self.sysadmin_user.name}
+        context = {'model': model, 'session': model.Session, 'user': self.sysadmin_user.name, 'api_version': 2}
         group = {
             'name': 'test_group_pending_package',
             'packages': [{'id': model.Package.get('annakarenina').id}]
@@ -1768,22 +1770,29 @@ class MockPackageSearchPlugin(SingletonPlugin):
 
         return data_dict
 
+MockPackageSearchPlugin().disable()
+
 class TestSearchPluginInterface(WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        MockPackageSearchPlugin().activate()
+        MockPackageSearchPlugin().enable()
         setup_test_search_index()
         CreateTestData.create()
+        MockPackageSearchPlugin().disable()
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
 
+    def setup(self):
+        MockPackageSearchPlugin().enable()
+
+    def teardown(self):
+        MockPackageSearchPlugin().disable()
+
     def test_search_plugin_interface_search(self):
-        plugin = MockPackageSearchPlugin()
-        plugins.load(plugin)
-
-
         avoid = 'Tolstoy'
         search_params = '%s=1' % json.dumps({
             'q': '*:*',
@@ -1797,11 +1806,8 @@ class TestSearchPluginInterface(WsgiAppCase):
             assert not avoid.lower() in result['title'].lower()
 
         assert results_dict['count'] == 1
-        plugins.unload(plugin)
 
     def test_search_plugin_interface_abort(self):
-        plugin = MockPackageSearchPlugin()
-        plugins.load(plugin)
 
         search_params = '%s=1' % json.dumps({
             'q': '*:*',
@@ -1814,11 +1820,9 @@ class TestSearchPluginInterface(WsgiAppCase):
         res_dict = json.loads(res.body)['result']
         assert res_dict['count'] == 0
         assert len(res_dict['results']) == 0
-        plugins.unload(plugin)
 
     def test_before_index(self):
-        plugin = MockPackageSearchPlugin()
-        plugins.load(plugin)
+
         # no datasets get aaaaaaaa
         search_params = '%s=1' % json.dumps({
             'q': 'aaaaaaaa',
@@ -1829,7 +1833,6 @@ class TestSearchPluginInterface(WsgiAppCase):
         res_dict = json.loads(res.body)['result']
         assert res_dict['count'] == 0 
         assert len(res_dict['results']) == 0
-        plugins.unload(plugin)
 
         # all datasets should get abcabcabc
         search_params = '%s=1' % json.dumps({
@@ -1838,12 +1841,10 @@ class TestSearchPluginInterface(WsgiAppCase):
         res = self.app.post('/api/action/package_search', params=search_params)
 
         res_dict = json.loads(res.body)['result']
-        assert res_dict['count'] == 2
+        assert res_dict['count'] == 2, res_dict['count']
         assert len(res_dict['results']) == 2
 
     def test_before_view(self):
-        plugin = MockPackageSearchPlugin()
-        plugins.load(plugin)
         res = self.app.get('/dataset/annakarenina')
 
         assert 'string_not_found_in_rest_of_template' in res.body
@@ -1851,5 +1852,4 @@ class TestSearchPluginInterface(WsgiAppCase):
         res = self.app.get('/dataset?q=')
         assert res.body.count('string_not_found_in_rest_of_template') == 2
         
-        plugins.unload(plugin)
 

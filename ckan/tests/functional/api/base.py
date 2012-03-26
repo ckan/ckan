@@ -81,7 +81,7 @@ class ApiTestCase(object):
         assert self.api_version != None, "API version is missing."
         base = '/api'
         if self.api_version:
-            base += '/' + self.api_version
+            base += '/%s' % self.api_version
         utf8_encoded = (u'%s%s' % (base, path)).encode('utf8')
         url_encoded = urllib.quote(utf8_encoded)
         return url_encoded
@@ -281,7 +281,7 @@ class Api1and2TestCase(object):
 
 class Api1TestCase(Api1and2TestCase):
 
-    api_version = '1'
+    api_version = 1
     ref_package_by = 'name'
     ref_group_by = 'name'
     ref_tag_by = 'name'
@@ -293,7 +293,7 @@ class Api1TestCase(Api1and2TestCase):
 
 class Api2TestCase(Api1and2TestCase):
 
-    api_version = '2'
+    api_version = 2
     ref_package_by = 'id'
     ref_group_by = 'id'
     ref_tag_by = 'id'
@@ -305,7 +305,7 @@ class Api2TestCase(Api1and2TestCase):
 
 class Api3TestCase(ApiTestCase):
 
-    api_version = '3'
+    api_version = 3
     ref_package_by = 'name'
     ref_group_by = 'name'
     ref_tag_by = 'name'
@@ -317,7 +317,7 @@ class Api3TestCase(ApiTestCase):
 class ApiUnversionedTestCase(Api1TestCase):
 
     api_version = ''
-    oldest_api_version = '1'
+    oldest_api_version = 1
 
     def get_expected_api_version(self):
         return self.oldest_api_version

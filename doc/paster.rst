@@ -1,12 +1,12 @@
-=================
-Common CKAN Tasks
-=================
+===============================
+Common CKAN Administrator Tasks
+===============================
 
-The majority of common CKAN administration tasks are carried out using the **paster** script. 
+The majority of common CKAN administration tasks are carried out using the **paster** script.
 
 Paster is run on the command line on the server running CKAN. This section covers:
 
-* :ref:`paster-understanding`. Understanding paster syntax and getting help. 
+* :ref:`paster-understanding`. Understanding paster syntax and getting help.
 * :ref:`paster-tasks`. How to carry out common CKAN admin tasks using paster.
 
 .. _paster-understanding:
@@ -20,8 +20,8 @@ At its simplest, paster commands can be thought of like this::
 
 But there are various extra elements to the commandline that usually need adding. We shall build them up:
 
-#. Enabling CKAN commands
-=========================
+Enabling CKAN commands
+======================
 
 Paster is used for many things aside from CKAN. You usually need to tell paster that you want to enable the CKAN commands::
 
@@ -31,8 +31,8 @@ You know you need to do this if you get the error ``Command 'user' not known`` f
 
 (Alternatively, CKAN commands are enabled by default if your current directory is the CKAN source directory)
 
-#. Pointing to your CKAN config
-===============================
+Pointing to your CKAN config
+============================
 
 Paster needs to know where your CKAN config file is (so it knows which database and search index to deal with etc.)::
 
@@ -46,8 +46,8 @@ For example, to initialise a database::
 
   paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
 
-#. Virtual environments
-=======================
+Virtual environments
+====================
 
 You often need to run paster within your CKAN virtual environment (pyenv). If CKAN was installed as 'source' then you can activate it as usual before running the paster command::
 
@@ -59,10 +59,10 @@ The alternative, which also suits a CKAN 'package' install, is to simply give th
   /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
 
 
-#. Running Paster on a deployment
-=================================
+Running Paster on a deployment
+==============================
 
-If CKAN is deployed with Apache on this machine, then you should run paster as the same user, which is usually ``www-data``. This is because paster will write to the same CKAN logfile as the Apache process and file permissions need to match. 
+If CKAN is deployed with Apache on this machine, then you should run paster as the same user, which is usually ``www-data``. This is because paster will write to the same CKAN logfile as the Apache process and file permissions need to match.
 
  For example::
 
@@ -94,18 +94,18 @@ It is essential to run the correct paster. The program may be installed globally
     . pyenv/bin/activate
 
 2. Giving the path to paster when you run it::
-   
-    pyenv/bin/paster ... 
+
+    pyenv/bin/paster ...
 
 
 Position of Paster Parameters
 -----------------------------
 
-The position of paster parameters matters. 
+The position of paster parameters matters.
 
 ``--plugin`` is a parameter to paster, so needs to come before the CKAN command. To do this, the first parameter to paster is normally ``--plugin=ckan``.
 
-.. note:: The default value for ``--plugin`` is ``setup.py`` in the current directory. If you are running paster from the directory where CKAN's ``setup.py`` file is located, you don't need to specify the plugin parameter.. 
+.. note:: The default value for ``--plugin`` is ``setup.py`` in the current directory. If you are running paster from the directory where CKAN's ``setup.py`` file is located, you don't need to specify the plugin parameter..
 
 Meanwhile, ``--config`` is a parameter to CKAN, so needs to come after the CKAN command. This specifies the CKAN config file for the instance you want to use, e.g. ``--config=/etc/ckan/std/std.ini``
 
@@ -120,7 +120,7 @@ The position of the CKAN command itself is less important, as longs as it follow
 Running a Paster Shell
 ----------------------
 
-If you want to run a "paster shell", which can be useful for development, then the plugin is pylons. e.g. ``paster --plugin=pylons shell``. 
+If you want to run a "paster shell", which can be useful for development, then the plugin is pylons. e.g. ``paster --plugin=pylons shell``.
 
 Often you will want to run this as the same user as the web application, to ensure log files are written as the same user. And you'll also want to specify a config file (note that this is not specified using the ``--config`` parameter, but simply as the final argument). For example::
 
@@ -147,20 +147,20 @@ The following tasks are supported by paster.
 
 
 For the full list of tasks supported by paster, you can run::
-  
+
  paster --plugin=ckan --help
 
 
 create-test-data: Create test data
 ----------------------------------
 
-As the name suggests, this command lets you load test data when first setting up CKAN. See :ref:`create-test-data` for details. 
+As the name suggests, this command lets you load test data when first setting up CKAN. See :ref:`create-test-data` for details.
 
 
 db: Manage databases
 --------------------
 
-Lets you initialise, upgrade, and dump the CKAN database. 
+Lets you initialise, upgrade, and dump the CKAN database.
 
 Initialisation
 ~~~~~~~~~~~~~~
@@ -198,7 +198,7 @@ To load it in again, you first have to clean the database of existing data (be c
 
 .. warning: The pg_dump file is a complete backup of the database in plain text, and includes API keys and other user data which may be regarded as private. So keep it secure, like your database server.
 
-The pg_dump file notes which PostgreSQL user 'owns' the data on the server. Because the PostgreSQL user (by default) is identified as the current Linux user, and this is setup to be ``ckanINSTANCE`` where ``INSTANCE`` is the name of the CKAN instance. This means if you want to restore the pg_dump as another CKAN instance name (often needed if you move it to another server) then you will need to change the database owner - see :doc:`editing_the_database_ownership`.
+The pg_dump file notes which PostgreSQL user 'owns' the data on the server. Because the PostgreSQL user (by default) is identified as the current Linux user, and this is setup to be ``ckanINSTANCE`` where ``INSTANCE`` is the name of the CKAN instance. This means if you want to restore the pg_dump as another CKAN instance name (often needed if you move it to another server) then you will need to change the database owner - see :doc:`howto-editing-database-ownership`.
 
 Upgrade migration
 ~~~~~~~~~~~~~~~~~
@@ -210,13 +210,13 @@ When you upgrade CKAN software by any method *other* than the package update des
 Creating dump files
 ~~~~~~~~~~~~~~~~~~~
 
-For information on using ``db`` to create dumpfiles, see :doc:`database_dumps`.
+For information on using ``db`` to create dumpfiles, see :doc:`database-dumps`.
 
 
 ratings: Manage dataset ratings
 -------------------------------
 
-Manages the ratings stored in the database, and can be used to count ratings, remove all ratings, or remove only anonymous ratings. 
+Manages the ratings stored in the database, and can be used to count ratings, remove all ratings, or remove only anonymous ratings.
 
 For example, to remove anonymous ratings from the database::
 
@@ -234,7 +234,7 @@ For example, to give the user named 'bar' the 'admin' role on the dataset 'foo':
 
 To list all the rights currently specified::
 
- paster --plugin=ckan rights list --config=/etc/ckan/std/std.ini 
+ paster --plugin=ckan rights list --config=/etc/ckan/std/std.ini
 
 For more information and examples, see :doc:`authorization`.
 
@@ -242,7 +242,7 @@ For more information and examples, see :doc:`authorization`.
 roles: Manage system-wide permissions
 --------------------------------------
 
-This important command gives you fine-grained control over CKAN permissions, by listing and modifying the assignment of actions to roles. 
+This important command gives you fine-grained control over CKAN permissions, by listing and modifying the assignment of actions to roles.
 
 The ``roles`` command has its own section: see :doc:`authorization`.
 
@@ -254,13 +254,35 @@ Rebuilds the search index. This is useful to prevent search indexes from getting
 
 For example::
 
- paster --plugin=ckan search-index --config=/etc/ckan/std/std.ini
+ paster --plugin=ckan search-index rebuild --config=/etc/ckan/std/std.ini
+
+This default behaviour will clear the index and rebuild it with all datasets. If you want to rebuild it for only
+one dataset, you can provide a dataset name::
+
+    paster --plugin=ckan search-index rebuild test-dataset-name --config=/etc/ckan/std/std.ini
+
+Alternatively, you can use the `-o` or `--only-missing` option to only reindex datasets which are not
+already indexed::
+
+    paster --plugin=ckan search-index rebuild -o --config=/etc/ckan/std/std.ini
+
+If you don't want to rebuild the whole index, but just refresh it, use the `-r` or `--refresh` option. This
+won't clear the index before starting rebuilding it::
+
+    paster --plugin=ckan search-index rebuild -r --config=/etc/ckan/std/std.ini
+
+There are other search related commands, mostly useful for debugging purposes::
+
+    search-index check                  - checks for datasets not indexed
+    search-index show {dataset-name}    - shows index of a dataset
+    search-index clear [dataset-name]   - clears the search index for the provided dataset or for the whole ckan instance
+
 
 
 sysadmin: Give sysadmin rights
 ------------------------------
 
-Gives sysadmin rights to a named user. This means the user can perform any action on any object. 
+Gives sysadmin rights to a named user. This means the user can perform any action on any object.
 
 For example, to make a user called 'admin' into a sysadmin::
 

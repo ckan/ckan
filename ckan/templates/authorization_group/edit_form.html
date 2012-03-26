@@ -1,20 +1,25 @@
-<form id="group-edit" action="" method="post"
+<form 
+  class="form-horizontal ${'has-errors' if c.errors or c.fieldset.errors else ''}" 
+  id="group-edit" 
+  action="" 
+  method="post"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:attrs="{'class':'has-errors'} if c.errors or c.fieldset.errors else {}"
   >
 
  ${h.literal(c.fieldset.render())}
 
  <fieldset>
   <legend>Users</legend>
-  <ul py:for="user in c.fieldset.model.users">
-    <li>
+  <div class="control-group" py:for="user in c.fieldset.model.users">
+    <label class="control-label" for="AuthorizationGroup-users_${user.name}" style="display: inline;">${user.name}</label>
+    <div class="controls">
+      <label class="checkbox">
         <input checked="checked" id="AuthorizationGroup-users-current"
         name="AuthorizationGroup-users-current" type="checkbox" value="${user.name}" />
-        <label for="AuthorizationGroup-users_${user.name}" style="display: inline;">${user.name}</label>
-    </li>
-  </ul>
+      </label>
+    </div>
+  </div>
   <p py:if="not c.fieldset.model.users">There are no users currently in this group.</p>
  </fieldset>
  

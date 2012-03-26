@@ -1,5 +1,6 @@
-Version 3
-~~~~~~~~~
+=======================================
+Model, Search and Action API: Version 3
+=======================================
 
 API Versions
 ~~~~~~~~~~~~
@@ -63,9 +64,10 @@ group_list_authz                       (none)
 group_list_available                   (none)
 group_revision_list                    id
 licence_list                           (none)
-tag_list                               q, all_fields, limit, offset, return_objects
+tag_list                               q, all_fields, limit, offset, return_objects, vocabulary_id
 user_list                              q, order_by
 package_relationships_list             id, id2, rel
+vocabulary_list                        (none)
 package_show                           id
 revision_show                          id
 group_show                             id
@@ -74,12 +76,15 @@ user_show                              id
 package_show_rest                      id
 group_show_rest                        id
 tag_show_rest                          id
+vocabulary_show                        id
 package_autocomplete                   q
-tag_autocomplete                       q, limit
+tag_autocomplete                       q, fields, offset, limit, vocabulary_id
 format_autocomplete                    q, limit
 user_autocomplete                      q, limit
 package_search                         q, fields, facet_by, limit, offset
+tag_search                             q, fields, offset, limit, vocabulary_id
 roles_show                             domain_object, (user), (authorization_group)
+
 ====================================== ===========================
 
 new.py: 
@@ -96,6 +101,8 @@ rating_create                          package, rating
 user_create                            (user keys)
 package_create_rest                    (package keys)
 group_create_rest                      (group keys)
+vocabulary_create                      (vocabulary keys)
+tag_create                             (tag keys)
 ====================================== ===========================
 
 update.py:
@@ -114,6 +121,7 @@ package_update_rest                    (package keys)
 group_update_rest                      (group keys)
 user_role_update                       user OR authorization_group, domain_object, roles
 user_role_bulk_update                  user_roles, domain_object
+vocabulary_update                      (vocabulary keys)
 ====================================== ===========================
 
 delete.py:
@@ -124,6 +132,8 @@ Logic Action                           Parameter keys
 package_delete                         id
 package_relationship_delete            id, id2, rel
 group_delete                           id
+vocabulary_delete                      id
+tag_delete                             id, vocabulary_id
 ====================================== ===========================
 
 In case of doubt, refer to the code of the logic actions, which is found in the CKAN source in the ckan/logic/action directory.
@@ -133,28 +143,28 @@ Object dictionaries
 
 Package:
 
-======================== ====================================== =============
-key                      example value                          notes
-======================== ====================================== =============
-id                       "fd788e57-dce4-481c-832d-497235bf9f78" (Read-only) unique identifier
-name                     "uk-spending"                          Unique identifier. Should be human readable
-title                    "UK Spending"                          Human readable title of the dataset
-url                      "http://gov.uk/spend-downloads.html"   Home page for the data
-version                  "1.0"                                  Version associated with the data. String format.
-author                   "UK Treasury"                          Name of person responsible for the data
-author_email             "contact@treasury.gov.uk"              Email address for the person in the 'author' field
-maintainer               null                                   Name of another person responsible for the data
-maintainer_email         null                                   Email address for the person in the 'maintainer' field
-notes                    "### About\\r\\n\\r\\nUpdated 1997."   Other human readable info about the dataset. Markdown format.
-license_id               "cc-by"                                ID of the license this dataset is released under. You can then look up the license ID to get the title.
+======================== ====================================================== =============
+key                      example value                                          notes
+======================== ====================================================== =============
+id                       "fd788e57-dce4-481c-832d-497235bf9f78"                 (Read-only) unique identifier
+name                     "uk-spending"                                          Unique identifier. Should be human readable
+title                    "UK Spending"                                          Human readable title of the dataset
+url                      "http://gov.uk/spend-downloads.html"                   Home page for the data
+version                  "1.0"                                                  Version associated with the data. String format.
+author                   "UK Treasury"                                          Name of person responsible for the data
+author_email             "contact@treasury.gov.uk"                              Email address for the person in the 'author' field
+maintainer               null                                                   Name of another person responsible for the data
+maintainer_email         null                                                   Email address for the person in the 'maintainer' field
+notes                    "### About\\r\\n\\r\\nUpdated 1997."                   Other human readable info about the dataset. Markdown format.
+license_id               "cc-by"                                                ID of the license this dataset is released under. You can then look up the license ID to get the title.
 extras                   []                                      
-tags                     ["government-spending"]                List of tags associated with this dataset.
-groups                   ["spending", "country-uk"]             List of groups this dataset is a member of.
-relationships_as_subject []                                     List of relationships. The 'type' of the relationship is described in terms of this package being the subject and the related package being the object.
-state                    active                                 May be ``deleted`` or other custom states like ``pending``.
-revision_id              "f645243a-7334-44e2-b87c-64231700a9a6" (Read-only) ID of the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships).
-revision_timestamp       "2010-12-21T15:26:17.345502"           (Read-only) Time and date when the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships). ISO format. UTC timezone assumed.
-======================== ====================================== =============
+tags                     [{"name": "government-spending"}, {"name": "climate"}] List of tags associated with this dataset.
+groups                   [{"name": "spending"}, {"name": "country-uk"}]         List of groups this dataset is a member of.
+relationships_as_subject []                                                     List of relationships. The 'type' of the relationship is described in terms of this package being the subject and the related package being the object.
+state                    active                                                 May be ``deleted`` or other custom states like ``pending``.
+revision_id              "f645243a-7334-44e2-b87c-64231700a9a6"                 (Read-only) ID of the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships).
+revision_timestamp       "2010-12-21T15:26:17.345502"                           (Read-only) Time and date when the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships). ISO format. UTC timezone assumed.
+======================== ====================================================== =============
 
 Package Extra:
 
@@ -197,6 +207,7 @@ id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754" (Read-only)
 name                     "country-uk"                           (Read-only) Add/remove tags from a package or group using update_package or update_group
 state                    "active"                               (Read-only) Add/remove tags from a package or group using update_package or update_group
 revision_timestamp       "2009-08-08T12:46:40.920443"           (Read-only)
+vocabulary_id            "Genre"                                (Read-only) Vocabulary name or id. Optional.
 ======================== ====================================== =============
 
 user_roles:
@@ -209,6 +220,16 @@ authorization_group      "16f8f7ba-1a97-4d27-95ce-5e8827a0d75f"
 roles                    ['editor', 'admin']                    
 ======================== ====================================== =============
 
+Vocabulary:
+
+======================== ===================================================== =============
+key                      example value                                         notes
+======================== ===================================================== =============
+id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754"                (Read-only)
+name                     "Genre"
+tags                     [{"name":"government-spending"}, {"name": "climate"}] List of tags belonging to this vocabulary.
+======================== ===================================================== =============
+
 Parameters
 ==========
 
@@ -219,35 +240,6 @@ Examples::
  curl http://test.ckan.net/api/action/package_list -d '{}'
  curl http://test.ckan.net/api/action/package_show -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
 
-Authorization Header
-====================
-
-CKAN can be configured to only allow authorized users to carry out certain actions. For example, in a default installation of CKAN, anyone can read packages, you have to be a logged-in user to edit them and editing permissions for a dataset can only be done by the dataset creator and a 'sysadmin' user.
-
-The authorization configuration is the same between the CKAN web interface and the API, so a user has the same permissions, whichever way he/she accesses CKAN data.
-
-Depending on the authorization settings of the CKAN instance, a user may not need to identify him/herself for simple read operations. This is the case for thedatahub.org and is assumed for the API usage examples.
-
-When using the API, a user authenticates his/her user identity by supplying a header in the request. The header key is either ``Authorization``, ``X-CKAN-API-Key`` or configured with the `apikey_header_name` option. The value of the header is the user's API key, provided on the user's page in the CKAN web interface.
-
-To obtain your API key:
-
-1. Log-in to the particular CKAN website: /user/login
-
-2. The user page shows the API Key: /user/me
-
-The key should be passed in the API request header ''Authorization'' (or an alternative may be provided such as ''X-CKAN-API-KEY''). For example::
-
-  curl http://thedatahub.org/api/rest/package -d '{"name": "test"}' -H 'Authorization: fde34a3c-b716-4c39-8dc4-881ba115c6d4'
-
-If requests that are required to be authorized are not sent with a 
-valid Authorization header, for example the user associated with the 
-key is not authorized for the operation, or the header is somehow malformed,
-then the requested operation will not be carried out and the CKAN API will
-respond with status code 403.
-
-For more information about HTTP Authorization header, please refer to section
-14.8 of `RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.8>`_.
 
 
 Responses
@@ -468,19 +460,3 @@ Code  Name
 500   Service Error - unhandled error - the system administrator has been notified
 ===== =====
 
-JSONP formatted responses
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To cater for scripts from other sites that wish to access the API, the data can be returned in JSONP format, where the JSON data is 'padded' with a function call. The function is named in the 'callback' parameter.
-
-Example normal request::
-
- curl http://test.ckan.net/api/action/package_show -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
- returns: {"help": null, "success": true, "result": {"name": "uk-quango-data", ...}}
-
-but now with the callback parameter::
-
- curl http://test.ckan.net/api/action/package_show?callback=jsoncallback -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
- returns: jsoncallback({"help": null, "success": true, "result": {"name": "uk-quango-data", ...}});
-
-This parameter can apply to all POST requests to the Action API and GET requests to the Search API and v1/v2 APIs.

@@ -37,6 +37,9 @@ class TestBasicDictize:
         for key, value in dict.items():
             if key.endswith('id') and key <> 'license_id':
                 dict.pop(key)
+            if key == 'created':
+                dict.pop(key)
+
             if isinstance(value, list):
                 for new_dict in value:
                     self.remove_changable_columns(new_dict)
@@ -71,7 +74,11 @@ class TestBasicDictize:
         pprint(errors)
         assert converted_data == {'extras': [{'key': u'genre', 'value': u'"romantic novel"'},
                                             {'key': u'original media', 'value': u'"book"'}],
-                                 'groups': [{'name': u'david'}, {'name': u'roger'}],
+                                   'groups': [{u'name': u'david',
+                                               u'title': u"Dave's books"},
+                                              {u'name': u'roger',
+                                               u'title': u"Roger's books",
+                                               }],
                                  'license_id': u'other-open',
                                  'name': u'anna2',
                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',

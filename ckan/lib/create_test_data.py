@@ -13,6 +13,9 @@ class CreateTestData(cli.CkanCommand):
     create-test-data user         - create a user 'tester' with api key 'tester'
     create-test-data translations - annakarenina, warandpeace, and some test
                                     translations of terms
+    create-test-data vocabs  - annakerenina, warandpeace, and some test
+                               vocabularies
+
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -55,6 +58,8 @@ class CreateTestData(cli.CkanCommand):
             self.create_family_test_data()
         elif cmd == 'translations':
             self.create_translations_test_data()
+        elif cmd == 'vocabs':
+            self.create_vocabs_test_data()
         else:
             print 'Command %s not recognized' % cmd
             raise NotImplementedError
@@ -92,6 +97,7 @@ class CreateTestData(cli.CkanCommand):
         cls.user_refs.append(u'tester')
 
     @classmethod
+
     def create_translations_test_data(cls):
         import ckan.model
         CreateTestData.create()
@@ -128,6 +134,42 @@ class CreateTestData(cli.CkanCommand):
                             data_dict)
 
         ckan.model.Session.commit()
+
+    def create_vocabs_test_data(cls):
+        import ckan.model
+        CreateTestData.create()
+        sysadmin_user = ckan.model.User.get('testsysadmin')
+        annakarenina = ckan.model.Package.get('annakarenina')
+        warandpeace = ckan.model.Package.get('warandpeace')
+
+        # Create a couple of vocabularies.
+        context = {
+                'model': ckan.model,
+                'session': ckan.model.Session,
+                'user': sysadmin_user.name
+                }
+        data_dict = {
+                'name': 'Genre',
+                'tags': [{'name': 'Drama'}, {'name': 'Sci-Fi'},
+                    {'name': 'Mystery'}],
+                }
+        ckan.logic.action.create.vocabulary_create(context, data_dict)
+
+        data_dict = {
+                'name': 'Actors',
+                'tags': [{'name': 'keira-knightley'}, {'name': 'jude-law'},
+                    {'name': 'alessio-boni'}],
+                }
+        ckan.logic.action.create.vocabulary_create(context, data_dict)
+
+        # Add some vocab tags to some packages.
+        genre_vocab = ckan.model.Vocabulary.get('Genre')
+        actors_vocab = ckan.model.Vocabulary.get('Actors')
+        annakarenina.add_tag_by_name('Drama', vocab=genre_vocab)
+        annakarenina.add_tag_by_name('keira-knightley', vocab=actors_vocab)
+        annakarenina.add_tag_by_name('jude-law', vocab=actors_vocab)
+        warandpeace.add_tag_by_name('Drama', vocab=genre_vocab)
+        warandpeace.add_tag_by_name('alessio-boni', vocab=actors_vocab)
 
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],

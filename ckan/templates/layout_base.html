@@ -30,12 +30,8 @@
   <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css' />
 
   <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/jqueryui/1.8.14/css/jquery-ui.custom.css')}" type="text/css" media="screen, print" />
-  <link rel="stylesheet" href="${h.url_for_static('/css/boilerplate.css?v=2')}" />
-  <link rel="stylesheet" href="${h.url_for_static('/css/bootstrap.css')}" type="text/css" media="screen projection" />
+  <link rel="stylesheet" href="${h.url_for_static('/css/bootstrap.min.css')}" type="text/css" media="screen, projection" />
   <link rel="stylesheet" href="${h.url_for_static('/css/chosen.css')}" type="text/css" />
-  <link rel="stylesheet" href="${h.url_for_static('/css/blueprint/screen.css')}" type="text/css" media="screen, projection" />
-  <link rel="stylesheet" href="${h.url_for_static('/css/blueprint/print.css')}" type="text/css" media="print" />
-  ${jsConditionalForIe(8, '&lt;link rel="stylesheet" href="' + h.url_for_static('/css/blueprint/ie.css') + '" type="text/css" media="screen, projection"&gt;')}
   <link rel="stylesheet" href="${h.url_for_static('/css/style.css?v=2')}" />
   ${jsConditionalForIe(9, '&lt;script type="text/javascript" src="' + h.url_for_static('/scripts/vendor/html5shiv/html5.js') + '"&gt;&lt;/script&gt;')}
 
@@ -51,10 +47,6 @@
              ${defined('body_class') and body_class()}
   ">
 
-   <div class="welcome-banner js-welcome-banner" style="display: none;">
-     <span>First time at ${g.site_title}? Visit our <a href="${h.url_for(controller='home', action='about')}">About page</a> to find out more.</span>
-     <button class="pretty-button js-kill-button">x</button>
-  </div>
   <div id="wrap">
     <div class="header outer">
       <header class="container">
@@ -91,7 +83,7 @@
     </div>
     <py:with vars="messages = list(h._flash.pop_messages())">
     <div class="flash-messages container">
-      <div class="${m.category}" py:for="m in messages">
+      <div class="alert ${m.category}" py:for="m in messages">
         ${h.literal(m)}
       </div>
     </div>
@@ -99,27 +91,37 @@
 
     <div id="main" class="container" role="main">
       <h1 py:if="defined('page_heading')" class="page_heading">${page_heading()}</h1>
-      <div id="minornavigation" class="span-24 last">
-          <minornavigation></minornavigation>
+      <div class="row">
+        <div class="span12">
+          <div id="minornavigation">
+              <minornavigation></minornavigation>
+          </div>
+        </div>
       </div>
 
-      <div id="content" class="span-16 append-1">
-        <py:if test="defined('content')">
-          ${content()}
-        </py:if>
-        <content>
-          <p>Master content template placeholder &hellip; please replace me.</p>
-        </content>
-      </div> <!-- /content -->
-      <div id="sidebar" class="span-7 last">
-        <ul class="widget-list">
-          <py:if test="defined('primary_sidebar_extras')">
-            ${primary_sidebar_extras()}
-          </py:if>
-          <primarysidebar>
-            <!-- Primary Side Bar Goes Here -->
-          </primarysidebar>
-        </ul>
+      <div class="row">
+        <div class="span9 content-outer">
+          <div id="content">
+            <py:if test="defined('content')">
+              ${content()}
+            </py:if>
+            <content>
+              <p>Master content template placeholder &hellip; please replace me.</p>
+            </content>
+          </div> <!-- /content -->
+        </div>
+        <div class="span3 sidebar-outer">
+          <div id="sidebar">
+            <ul class="widget-list">
+              <py:if test="defined('primary_sidebar_extras')">
+                ${primary_sidebar_extras()}
+              </py:if>
+              <primarysidebar>
+                <!-- Primary Side Bar Goes Here -->
+              </primarysidebar>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
     <br/><br/>
@@ -127,7 +129,8 @@
   <div class="clearfix"></div>
   <div class="footer outer">
     <footer class="container">
-        <div class="xoxo span-6">
+      <div class="row">
+        <div class="span3">
           <h3 class="widget-title">About ${g.site_title}</h3>
           <div class="textwidget">
             <ul>
@@ -146,7 +149,7 @@
             </ul>
           </div>
         </div>
-        <div class="xoxo span-6">
+        <div class="span3">
           <h3 class="widget-title">Sections</h3>
           <div class="textwidget">
             <ul>
@@ -183,7 +186,7 @@
             </ul>
           </div>
         </div>
-        <div class="xoxo span-6">
+        <div class="span3">
           <h3 class="widget-title">Languages</h3>
           <div class="textwidget">
             <ul>
@@ -198,7 +201,7 @@
             </ul>
           </div>
         </div>
-        <div class="xoxo span-6 last">
+        <div class="span3">
           <h3 class="widget-title">Meta</h3>
           <p id="credits">
             &copy; 2012
@@ -211,6 +214,7 @@
             Powered by <a href="http://ckan.org">CKAN</a> v${c.__version__}.<br/>
           </p>
         </div>
+      </div>
     </footer>
   </div> <!-- eo #container -->
 
@@ -221,20 +225,20 @@
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.chosen/0.9.7/chosen.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.placeholder/jquery.placeholder.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jqueryui/1.8.14/jquery-ui.min.js')}"></script>
-  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/bootstrap/2.0.0/bootstrap.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/bootstrap/2.0.2/bootstrap.min.js')}"></script>
+
   <!-- for ckanjs etc -->
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/underscore/1.1.6/underscore.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/backbone/0.5.1/backbone.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.fileupload/20110801/jquery.iframe-transport.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/ckanjs/1.0.0/ckanjs.js')}"></script>
+
   <!-- Translated js strings live inside an html template. -->
   <xi:include href="js_strings.html" />
   <!-- finally our application js that sets everything up-->
   <script type="text/javascript" src="${h.url_for_static('/scripts/application.js?lang=${c.locale}')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/templates.js')}"></script>
-
-  <script src="${h.url_for_static('/scripts/vendor/modernizr/1.7/modernizr.min.js')}"></script>
 
   <script type="text/javascript">
     CKAN.plugins = [
@@ -245,6 +249,7 @@
     CKAN.plugins.push('storage');
     </py:if>
     CKAN.SITE_URL = '${h.url('/')}';
+    CKAN.LANG = '${h.lang()}';
     // later use will add offsets with leading '/' so ensure no trailing slash
     CKAN.SITE_URL = CKAN.SITE_URL.replace(/\/$/, '');
     $(document).ready(function() {

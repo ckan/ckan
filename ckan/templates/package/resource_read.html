@@ -18,16 +18,10 @@
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/data-explorer.css')}" />
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/graph-flot.css')}" />
     <style type="text/css">
-      .header .recline-query-editor input.text-query {
-        margin-right: 5px;
-        margin-top: 2px;
-        height: 18px;
+      .recline-query-editor form, .recline-query-editor .text-query {
+        height: 28px;
       }
 
-      .header .recline-query-editor .pagination input {
-        margin-top: auto;
-        margin-bottom: 2px;
-      }
       .recline-query-editor .pagination ul {
         margin: 0;
         padding: 0;
@@ -67,7 +61,7 @@
   </py:def>
 
   <div py:match="content">
-    <div class="resource-actions span-8">
+    <div class="resource-actions">
       <a py:if="c.resource.get('url')" class="btn btn-primary resource-url-analytics resource-type-${c.resource.get('resource_type')}" href="${c.resource.get('url')}">
         <py:choose test="c.resource.get('resource_type')">
           <py:when test="'listing'">View</py:when>
@@ -149,7 +143,7 @@
     <br/>
     <div class="resource-information">
       <h3>Additional Information</h3>
-      <table>
+      <table class="table table-bordered table-striped table-condensed">
         <thead>
           <tr>
             <th>Field</th>
@@ -166,6 +160,8 @@
         </tbody>
       </table>
     </div>
+
+    <span class="insert-comment-thread"></span>
   </div>
 
   <py:def function="optional_footer">

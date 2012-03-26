@@ -17,7 +17,7 @@
 <div class="modal-body">
   <p><strong>Access resource data via a web API with powerful query
     support</strong>. Further information in the <a
-    href="http://docs.ckan.org/en/latest/datastore.html" target="_blank">main
+    href="http://docs.ckan.org/en/latest/storage/datastore.html" target="_blank">main
     CKAN Data API and DataStore documentation</a>.</p>
   
   <div class="accordion-group">
@@ -26,7 +26,13 @@
     </div>
     <div class="collapse-endpoints in accordion-body collapse">
       <div class="accordion-inner">
-        <table class="table-condensed">
+        <p>The Data API builds directly on ElasticSearch, with a resource API
+        endpoint being equivalent to a single index 'type' in ElasticSearch.
+        This means you can directly re-use <a
+          href="http://www.elasticsearch.org/guide/appendix/clients.html"
+          _target="blank">ElasticSearch
+          client libraries</a> when connecting to the API endpoint.</p>
+        <table class="table-condensed table-striped table-bordered">
           <thead></thead>
           <tbody>
             <tr>
@@ -53,12 +59,6 @@
             </tr>
           </tbody>
         </table>
-        <p>The Data API builds directly on ElasticSearch, with a resource API
-        endpoint being equivalent to a single index 'type' in ElasticSearch.
-        This means you can directly re-use <a
-          href="http://www.elasticsearch.org/guide/appendix/clients.html"
-          _target="blank">ElasticSearch
-          client libraries</a> when connecting to the API endpoint.</p>
       </div>
     </div>
   </div>

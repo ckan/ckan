@@ -18,6 +18,7 @@ class TestStorageAPIController:
         config.local_conf['ofs.impl'] = 'pairtree'
         config.local_conf['ckan.storage.bucket'] = 'ckantest'
         config.local_conf['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
+
         create_pairtree_marker( config.local_conf['ofs.storage_dir'] )
         wsgiapp = make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)

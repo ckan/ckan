@@ -9,7 +9,7 @@ __all__ = [
     'IMapper', 'ISession',
     'IMiddleware',
     'IAuthFunctions',
-    'IDomainObjectModification', 'IGroupController', 
+    'IDomainObjectModification', 'IGroupController',
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer', 'IAuthorizer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
@@ -79,7 +79,7 @@ class IRoutes(Interface):
 
     def after_map(self, map):
         """
-        Called after routes map is set up. ``after_map`` can be used to add fall-back handlers. 
+        Called after routes map is set up. ``after_map`` can be used to add fall-back handlers.
 
         :param map: Routes map object
         :returns: Modified version of the map object
@@ -120,12 +120,12 @@ class IMapper(Interface):
         """
         Receive an object instance after that instance is INSERTed.
         """
-                                     
+
     def after_update(self, mapper, connection, instance):
         """
         Receive an object instance after that instance is UPDATEed.
         """
-    
+
     def after_delete(self, mapper, connection, instance):
         """
         Receive an object instance after that instance is DELETEed.
@@ -199,10 +199,10 @@ class ITagController(Interface):
 
 class IGroupController(Interface):
     """
-    Hook into the Group controller. These will 
+    Hook into the Group controller. These will
     usually be called just before committing or returning the
-    respective object, i.e. all validation, synchronization 
-    and authorization setup are complete. 
+    respective object, i.e. all validation, synchronization
+    and authorization setup are complete.
     """
 
     def read(self, entity):
@@ -216,7 +216,7 @@ class IGroupController(Interface):
 
     def authz_add_role(self, object_role):
         pass
-    
+
     def authz_remove_role(self, object_role):
         pass
 
@@ -247,7 +247,7 @@ class IPackageController(Interface):
 
     def authz_add_role(self, object_role):
         pass
-    
+
     def authz_remove_role(self, object_role):
         pass
 
@@ -300,7 +300,7 @@ class IPackageController(Interface):
              passed will be the one that gets sent to the template.
         '''
         return pkg_dict
-        
+
 
 class IPluginObserver(Interface):
     """
@@ -331,26 +331,26 @@ class IPluginObserver(Interface):
         This method is passed the instantiated service object.
         """
 
-class IConfigurable(Interface): 
+class IConfigurable(Interface):
     """
     Pass configuration to plugins and extensions
     """
-    
+
     def configure(self, config):
         """
         Called by load_environment
         """
 
-class IConfigurer(Interface): 
+class IConfigurer(Interface):
     """
     Configure CKAN (pylons) environment via the ``pylons.config`` object
     """
-    
+
     def update_config(self, config):
         """
         Called by load_environment at earliest point when config is
         available to plugins. The config should be updated in place.
-        
+
         :param config: ``pylons.config`` object
         """
 
@@ -380,14 +380,14 @@ class IAuthorizer(Interface):
         Should return True or False.  A value of False will allow
         other Authorizers to run; True will shortcircuit and return.
         """
-        
+
 class IActions(Interface):
     """
     Allow adding of actions to the logic layer.
     """
     def get_actions(self):
         """
-        Should return a dict, the keys being the name of the logic 
+        Should return a dict, the keys being the name of the logic
         function and the values being the functions themselves.
         """
 
@@ -458,6 +458,37 @@ class IDatasetForm(Interface):
 
     ##### Hooks for customising the PackageController's behaviour        #####
     ##### TODO: flesh out the docstrings a little more.                  #####
+    def new_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the new page
+        """
+
+    def comments_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the comments page
+        """
+
+    def search_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the search page (if present)
+        """
+
+    def read_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+
+    def history_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the history page
+        """
+
+
     def package_form(self):
         """
         Returns a string representing the location of the template to be
@@ -548,7 +579,34 @@ class IGroupForm(Interface):
 
     ##### Hooks for customising the PackageController's behaviour        #####
     ##### TODO: flesh out the docstrings a little more.                  #####
-    
+    def new_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the 'new' page. Uses the default_group_type configuration
+        option to determine which plugin to use the template from.
+        """
+
+    def index_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the index page. Uses the default_group_type configuration
+        option to determine which plugin to use the template from.
+        """
+
+    def read_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        """
+
+    def history_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the history page
+        """
+
+
+
     def package_form(self):
         """
         Returns a string representing the location of the template to be

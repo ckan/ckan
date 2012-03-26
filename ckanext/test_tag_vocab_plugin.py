@@ -25,6 +25,21 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
     def package_types(self):
         return ["mock_vocab_tags_plugin"]
 
+    def new_template(self):
+        return 'package/new.html'
+
+    def comments_template(self):
+        return 'package/comments.html'
+
+    def search_template(self):
+        return 'package/search.html'
+
+    def read_template(self):
+        return 'package/read.html'
+
+    def history_template(self):
+        return 'package/history.html'
+
     def package_form(self):
         return 'package/new_package_form.html'
 
@@ -39,7 +54,7 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
         return schema
 
     def db_to_form_schema(self):
-        schema = package_form_schema()
+        schema = default_package_schema()
         schema.update({
             'tags': {
                 '__extras': [keep_extras, free_tags_only]
@@ -57,11 +72,10 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
             if routes.get('controller') == 'package' \
                 and routes.get('action') == 'read':
                     # add vocab tags to the bottom of the page
-                    tags = c.pkg_dict.get('tags', [])
+                    tags = c.pkg_dict.get('vocab_tags_selected', [])
                     for tag in tags:
-                        if tag.get('vocabulary_id'):
-                            stream = stream | Transformer('body')\
-                                .append(HTML('<p>%s</p>' % tag.get('name')))
+                        stream = stream | Transformer('body')\
+                            .append(HTML('<p>%s</p>' % tag))
             if routes.get('controller') == 'package' \
                 and routes.get('action') == 'edit':
                     # add vocabs tag select box to edit page
