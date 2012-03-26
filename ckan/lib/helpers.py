@@ -550,5 +550,8 @@ def auto_log_message(context):
         return _('Edited settings.')
     return ''
 
+<<<<<<< Updated upstream
 def content_span(body_class):
     return body_class.__str__()
+=======
+>>>>>>> Stashed changes
