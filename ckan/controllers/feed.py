@@ -201,7 +201,6 @@ class FeedController(BaseController):
 
     # TODO check search params
     def custom(self):
-
         q = request.params.get('q', u'')
         search_params = {}
         for (param, value) in request.params.items():

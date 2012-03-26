@@ -260,6 +260,7 @@ def make_map():
         m.connect('/feeds/group/{id}.atom', action='group')
         m.connect('/feeds/tag/{id}.atom', action='tag')
         m.connect('/feeds/dataset.atom', action='general')
+        m.connect('/feeds/custom.atom', action='custom')
 
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
