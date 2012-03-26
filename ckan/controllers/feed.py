@@ -254,14 +254,17 @@ class FeedController(BaseController):
 # TODO paginated feed
 class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
     """
-    The Atom1Feed defined in webhelpers doesn't create <entry>s with correct
-    date related fields.
+    The Atom1Feed defined in webhelpers doesn't provide all the fields we
+    might want to publish.
 
-    Each <entry> is created with identical <updated> and <published> fields.
-    See [1] (webhelpers 1.2) for details.
+     * In Atom1Feed, each <entry> is created with identical <updated> and
+       <published> fields.  See [1] (webhelpers 1.2) for details.
 
-    So, this class fixes that by allow an item to set both an <updated> and
-    <published> field.
+       So, this class fixes that by allow an item to set both an <updated> and
+       <published> field.
+
+     * In Atom1Feed, the feed description is not used.  So this class uses the
+       <subtitle> field to publish that.
 
     [1] https://bitbucket.org/bbangert/webhelpers/src/f5867a319abf/webhelpers/feedgenerator.py#cl-373
     """
@@ -288,7 +291,7 @@ class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 
     def add_item_elements(self, handler, item):
         """
-        Add the "updated" and "published" fields to each entry that's written to the handler.
+        Add the <updated> and <published> fields to each entry that's written to the handler.
         """
         super(_FixedAtom1Feed, self).add_item_elements(handler, item)
         
@@ -300,7 +303,7 @@ class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 
     def add_root_elements(self, handler):
         """
-        Add the summary field from the feed description
+        Add the <subtitle> field from the feed description
         """
         super(_FixedAtom1Feed, self).add_root_elements(handler)
 
