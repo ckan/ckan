@@ -234,7 +234,6 @@ class OrganizationDatasetForm(SingletonPlugin):
         data_dict.update({'available_only':True})
 
         c.groups_available = c.userobj.get_groups('organization')
-        print c.groups_available
         c.licences = [('', '')] + base.model.Package.get_license_options()
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
 
