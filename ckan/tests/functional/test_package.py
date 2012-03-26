@@ -76,7 +76,7 @@ class TestPackageBase(FunctionalTestCase):
     # on form submission. (But it works in real life.)
 
     def _assert_form_errors(self, res):
-        self.check_tag(res, '<form', 'class="has-errors"')
+        self.check_tag(res, '<form', 'has-errors')
         assert 'field_error' in res, res
 
     def diff_responses(self, res1, res2):
@@ -907,7 +907,7 @@ class TestEdit(TestPackageForm):
         fv['log_message'] = u'Free enlargements: http://drugs.com/' # spam
         res = fv.submit('save')
         assert 'Error' in res, res
-        self.check_tag(res, '<form', 'class="has-errors"')
+        self.check_tag(res, '<form', 'has-errors')
         assert 'No links are allowed' in res, res
 
     def test_edit_bad_name(self):

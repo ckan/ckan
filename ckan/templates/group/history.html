@@ -27,7 +27,7 @@
 
       <input type="hidden" name="group_name" value="${c.group_dict['name']}"/>
 
-      <table>
+      <table class="table table-bordered table-striped">
         <tr>
           <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
         </tr>
@@ -46,7 +46,7 @@
           </tr> 
         </py:for>
       </table>
-      <input type="submit" name="diff" value="${_('Compare &raquo;')}" class="pretty-button primary" />
+      <input type="submit" name="diff" value="${_('Compare &raquo;')}" class="btn primary" />
     </form>
   </div> <!-- content -->
 
