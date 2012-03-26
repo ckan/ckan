@@ -81,7 +81,7 @@
         </div>
       </header>
     </div>
-    <py:with vars="messages = list(h.flash.pop_messages())">
+    <py:with vars="messages = list(h._flash.pop_messages())">
     <div class="flash-messages container">
       <div class="alert ${m.category}" py:for="m in messages">
         ${h.literal(m)}
@@ -262,19 +262,6 @@
 
 		$(".chzn-select").chosen();
     });
-  </script>
-
-  <script type="text/javascript">
-	  $(function (){
-		  // Tracking
-		  $.post('/_tracking', {url:location.pathname, type:'page'})
-		  });
-		  $('a.resource-url-analytics').click(function (e){
-			  var url = $(e.target).closest('a').attr('href');
-			  $.post('/_tracking', {url:url, type:'resource'},
-				  function () {location.href = url;})
-			  e.preventDefault();
-			  });
   </script>
 
   <py:if test="defined('optional_footer')">

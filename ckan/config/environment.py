@@ -19,7 +19,7 @@ from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
 
 import ckan.lib.app_globals as app_globals
-import ckan.lib.helpers as h
+import ckan.lib.helpers
 from ckan.config.routing import make_map
 from ckan import model
 from ckan import plugins
@@ -97,12 +97,7 @@ def load_environment(global_conf, app_conf):
 
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
-
-    if asbool(config.get('ckan.restrict_template_vars', 'false')):
-        import ckan.lib.helpers_clean
-        config['pylons.h'] = ckan.lib.helpers_clean
-    else:
-        config['pylons.h'] = h
+    config['pylons.h'] = ckan.lib.helpers
 
     ## redo template setup to use genshi.search_path (so remove std template setup)
     template_paths = [paths['templates'][0]]

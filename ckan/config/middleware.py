@@ -1,6 +1,5 @@
 """Pylons middleware initialization"""
 import urllib
-import urllib2
 import logging 
 import json
 
@@ -131,28 +130,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     if asbool(config.get('ckan.page_cache_enabled')):
         app = PageCacheMiddleware(app, config)
 
-    app = TrackingMiddleware(app, config)
     return app
-
-
-class TrackingMiddleware(object):
-
-    def __init__(self, app, config):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        path = environ['PATH_INFO']
-        if path == '/_tracking':
-            # do the tracking
-            payload = environ['wsgi.input'].read()
-            parts = payload.split('&')
-            data = {}
-            for part in parts:
-                k, v = part.split('=')
-                data[k] = urllib2.unquote(v).decode("utf8")
-            start_response('200 OK', [('Content-Type', 'text/html')])
-            return []
-        return self.app(environ, start_response)
 
 class I18nMiddleware(object):
     """I18n Middleware selects the language based on the url
