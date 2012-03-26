@@ -166,11 +166,25 @@ class FeedController(BaseController):
 
         # TODO feed_link can be generated?
         return self.output_feed(results,
-                    feed_title = u'%s - %s' % (g.site_title, group_dict['title']),
+                    feed_title = u'%s - Group: "%s"' % (g.site_title, group_dict['title']),
                     feed_description = u'Recently created or updated datasets on %s by group: "%s"' % \
                         (g.site_title,group_dict['title']),
                     feed_link = u'%s/dataset?groups=%s' % (self.base_url,id),
                     feed_guid = _create_atom_id(u'/feeds/groups/%s.atom' % id),
+                )
+
+    def tag(self,id):
+
+        data_dict = {'q': 'tags: %s' % id }
+        results= _package_search(data_dict)
+
+        # TODO feed_link can be generated?
+        return self.output_feed(results,
+                    feed_title = u'%s - Tag: "%s"' % (g.site_title, id),
+                    feed_description = u'Recently created or updated datasets on %s by tag: "%s"' % \
+                        (g.site_title, id),
+                    feed_link = u'%s/dataset?tags=%s' % (self.base_url,id),
+                    feed_guid = _create_atom_id(u'/feeds/tags/%s.atom' % id),
                 )
 
     def general(self):
