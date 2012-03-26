@@ -15,7 +15,6 @@ of the revision history, rather than a feed of datasets.
  * ``ckan/controllers/revision.py`` provides an atom feed of the repository's
    revision history.
 
-# TODO : documentation
 """
 
 # TODO cleanup imports
@@ -60,7 +59,6 @@ def _package_search(data_dict):
 
     return query['results']
 
-# TODO add 'ckan.feeds.date' to template config file
 def _create_atom_id(resource_path, authority_name=None, date_string=None):
     """
     Helper method that creates an atom id for a feed or entry.
