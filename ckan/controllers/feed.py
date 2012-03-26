@@ -165,6 +165,7 @@ class FeedController(BaseController):
                         (g.site_title,group_dict['title']),
                     feed_link = u'%s/dataset?groups=%s' % (self.base_url,id),
                     feed_guid = _create_atom_id(u'/feeds/groups/%s.atom' % id),
+                    feed_url = self.base_url + url_for(controller='feed', action='group', id=id),
                 )
 
     def tag(self,id):
@@ -179,6 +180,7 @@ class FeedController(BaseController):
                         (g.site_title, id),
                     feed_link = u'%s/dataset?tags=%s' % (self.base_url,id),
                     feed_guid = _create_atom_id(u'/feeds/tags/%s.atom' % id),
+                    feed_url = self.base_url + url_for(controller='feed', action='tag', id=id),
                 )
 
     def general(self):
@@ -191,6 +193,7 @@ class FeedController(BaseController):
                     feed_description = u'Recently created or updated datasets on %s' % g.site_title,
                     feed_link = u'%s/dataset' % self.base_url,
                     feed_guid = _create_atom_id(u'/feeds/dataset.atom'),
+                    feed_url = self.base_url + url_for(controller='feed', action='general'),
                 )
 
     # TODO check search params
@@ -209,17 +212,21 @@ class FeedController(BaseController):
         results= _package_search(data_dict)
 
         # TODO feed_link can be generated?
+        feed_url = self.base_url + url_for(controller='feed', action='custom')
+        feed_url += u'?' + urlencode(request.params)
         return self.output_feed(results,
                     feed_title = u'%s - Custom query' % g.site_title,
                     feed_description = u'Recently created or updated datasets on %s. Custom query: \'%s\'' % (g.site_title, q),
                     feed_link = u'%s/dataset?%s' % (self.base_url, search_url_params),
                     feed_guid = _create_atom_id(u'/feeds/custom.atom?%s' % search_url_params),
+                    feed_url = feed_url,
                 )
 
     def output_feed(self, results,
                           feed_title,
                           feed_description,
                           feed_link,
+                          feed_url,
                           feed_guid):
 
         author_name = config.get('ckan.feeds.author_name', '').strip() or \
@@ -235,7 +242,8 @@ class FeedController(BaseController):
             language=u'en',
             author_name=author_name,
             author_link=author_link,
-            feed_guid=feed_guid
+            feed_guid=feed_guid,
+            feed_url=feed_url,
             )
 
         for pkg in results:
