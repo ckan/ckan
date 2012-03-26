@@ -112,11 +112,11 @@ if organization:
           </select>
 
           <label for='cap_public'>
-          <input id='cap_public' type='radio' name='groups__0__capacity' value='public'/>
+          <input id='cap_public' type='radio' name='groups__0__capacity' value='public' py:attrs="{'checked':'checked'} if organization.get('capacity','') == 'public' else {}"/>
           Public</label>
 
           <label for='cap_private'>
-          <input id='cap_private' type='radio' name='groups__0__capacity' value='private'/>
+          <input id='cap_private' type='radio' name='groups__0__capacity' value='private' py:attrs="{'checked':'checked'} if organization.get('capacity','') == 'private' else {}"/>
           Private</label>
          </py:if>
         <py:if test="not (c.is_sysadmin or c.auth_for_change_state)">

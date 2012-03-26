@@ -170,7 +170,7 @@ def package_dictize(pkg, context):
     #groups
     member_rev = model.member_revision_table
     group = model.group_table
-    q = select([group],
+    q = select([group,member_rev.c.capacity],
                from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
                ).where(member_rev.c.table_id == pkg.id)\
                 .where(member_rev.c.state == 'active')
@@ -209,7 +209,7 @@ def package_dictize(pkg, context):
     result_dict['metadata_modified'] = context.pop('metadata_modified')
     result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
         if pkg.metadata_created else None
-        
+
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
             result_dict = item.before_view(result_dict)
