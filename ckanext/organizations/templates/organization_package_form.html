@@ -96,6 +96,9 @@
             <option value="${group['id']}" py:attrs="{'selected':'selected'} if organization.get('id','') == group['id'] else {}">${group['title']}</option>
             </py:for>
           </select>
+
+          <input type='radio' name='groups__0__capacity' value='public'>Public</input>
+          <input type='radio' name='groups__0__capacity' value='private'>Private</input>
          </py:if>
         <py:if test="not (c.is_sysadmin or c.auth_for_change_state)">
             <span>${organization.get('title', '')}</span>

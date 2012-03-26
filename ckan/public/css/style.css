@@ -1,9 +1,7 @@
-@import url('forms.css');
-
-body.no-sidebar #sidebar { display: none; }
-body.no-sidebar #content { 
-  border-right: 0; 
-  width: 950px; 
+body.no-sidebar .sidebar-outer { display: none; }
+body.no-sidebar #content { padding-right: 0; border-right: none; }
+body.no-sidebar .content-outer { 
+  width: 940px; 
 }
 
 .header.outer {
@@ -16,7 +14,7 @@ body.no-sidebar #content {
   background-image:         linear-gradient(top, #e2e2e2, #cccccc);
             filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#e2e2e2', EndColorStr='#cccccc'); 
 
-  margin-bottom: 0px;
+  margin-bottom: 18px;
      -moz-box-shadow: 0px 2px 15px #dddddd; 
   -webkit-box-shadow: 0px 2px 15px #dddddd; 
           box-shadow: 0px 2px 15px #dddddd; 
@@ -52,8 +50,8 @@ header .menu form {
 
 header .menu input {
   width: 200px;
-  margin-top: -1px;
-  height: 16px;
+  margin-top: 2px;
+  height: 10px;
 }
 
 header .menu a {
@@ -131,12 +129,14 @@ footer #footer-okf-logo {
   margin-bottom: -4px;
 }
 
-footer .xoxo h3 {
+footer h3 {
   font-size: 1.2em;
 }
 
 h1, h2, h3, h4, h5 {
   font-family: 'Ubuntu', Georgia; 
+  font-weight: normal;
+  margin-bottom: 10px;
 }
 
 a, a:visited {
@@ -148,14 +148,15 @@ a:hover {
   color: #183661;
 }
 
-fieldset {
-  border: 0px;
+label.control-label {
+  font-weight: bold;
 }
 
 
 /* ====== */
 /* Tables */
 /* ====== */
+/*
 table th {
   border: 1px solid #e0e0e0;
   background-color: #e2e2e2;
@@ -179,6 +180,7 @@ tbody tr:nth-child(even) td, tbody tr.even td {
 tbody tr:nth-child(odd) td, tbody tr.odd td {
   background-color: #F2F2F2;
 }
+*/
 
 
 /* ==================== */
@@ -186,6 +188,7 @@ tbody tr:nth-child(odd) td, tbody tr.odd td {
 /* ==================== */
 #content {
   border-right: 1px solid #e0e0e0;
+  padding-right: 20px;
 }
 .page_heading {
   margin-top: 0.9em;
@@ -398,8 +401,6 @@ ul.no-break li {
 /* Sidebar */
 /* ======= */
 #sidebar {
-  margin-right: -10px;
-  padding-left: 9px;
   overflow: hidden;
 }
 #sidebar h2, 
@@ -408,7 +409,7 @@ ul.no-break li {
 }
 #sidebar .widget-list {
   list-style: none;
-  padding-left: 0px;
+  margin-left: 0px;
 }
 #sidebar .widget-list li.widget-container {
   padding-bottom: 1em;
@@ -472,21 +473,10 @@ ul.no-break li {
 /* ======================= */
 /* = Generic Form Footer = */
 /* ======================= */
-div.form-submit {
-  background: #eee;
-  padding: 20px;
-  margin-bottom: 8px;
-  border: 1px solid #ccc;
-  border-left: none;
-  border-right: none;
-}
-div.form-submit p.hints {
+div.form-actions p.hints {
   width: 50%;
   float: right;
   margin: 0;
-}
-div.clear {
-  clear: both;
 }
 
 
@@ -761,7 +751,7 @@ body.user.read #content {
   color: #999;
 }
 
-.user.read .listing > div.datasets .datasets {
+.user.read .listing div.datasets .datasets {
   padding-right: 15px;
 }
 
@@ -910,18 +900,13 @@ ul.datasets .openness li {
   overflow: auto;
 }
 .markdown-editor textarea.markdown-input {
+  width: 360px;
+  height: 70px;
   margin-bottom: 5px;
   padding: 5px;
   display: block;
 }
 
-
-/* =================== */
-/* = URL Slug Editor = */
-/* =================== */
-input.url-input {
-  width: 220px;
-}
 
 
 /* ============= */
@@ -937,116 +922,48 @@ ul.button-row li {
 }
 
 
-/* ================== */
-/* = Welcome Banner = */
-/* ================== */
-.welcome-banner {
-  width: 100%;
-  /* Old background was a little less intrusive */
-  background: #fcba63;
-  text-align: center;
-  padding: 0;
-  border-bottom: 1px solid #faa;
-  font-weight: bold;
-  line-height: 30px;
-}
-.welcome-banner a {
-  text-decoration: underline;
-}
-.welcome-banner button {
-  float: right;
-  margin-right: 20px;
-  margin-top: 3px;
-  padding: 2px 8px;
-}
-
-
-/* ================================= */
-/* = Edit Dataset Page: Navigation = */
-/* ================================= */
-body.package.edit div#content {
-  /* Flip the sidebar to the left-hand side */
-  margin-right: 29px;
-  margin-left: 0px;
-  float: right;
-  padding-right: 0;
-  padding-left: 20px;
-  border: none;
-  border-left: 1px solid #eee;
-}
-body.package.edit div#sidebar {
-  /* Flip the sidebar to the left-hand side */
-  padding-left: 0px;
-  float: left;
-  margin-right: 0px;
-}
-body.package.edit ul.widget-list {
-  margin-left: 1.5em;
-  margin-right: 0;
-}
-ul.dataset-edit-nav {
-  list-style-type: none;
-  padding-left: 0;
-}
-ul.dataset-edit-nav li a {
-  text-decoration: none;
-  font-weight: bold;
-  display: block;
-  padding: 7px 0 7px 10px;
-  margin-bottom: 7px;
-  margin-left: 20px;
-  border: 1px transparent solid;
-}
-ul.dataset-edit-nav li a.active,  
-ul.dataset-edit-nav li a:hover {
-  border: 1px solid #e0e0e0;
-  background-color: #e2e2e2;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
-  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
-  border-right: none;
-     -moz-border-radius-bottomleft: 5px; 
-  -webkit-border-bottom-left-radius: 5px; 
-          border-bottom-left-radius: 5px; 
-     -moz-border-radius-topleft: 5px; 
-  -webkit-border-top-left-radius: 5px; 
-          border-top-left-radius: 5px; 
-  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
-}
-
-
 /* ===================== */
 /* = Edit Dataset Page = */
 /* ===================== */
-.dataset-edit-form fieldset#resources {
-  display: none;
-}
 .dataset-edit-form button.dataset-delete {
   vertical-align: middle;
 }
+.dataset-edit-form fieldset#summary {
+  border-top: 1px solid #ccc;
+  padding-top: 15px;
+}
+.dataset-edit-tabs ul.nav {
+  min-width: 180px;
+  margin-right: -1px;
+  background: #fff;
+}
+.dataset-edit-tabs form {
+  border: 1px solid #DDD;
+}
+.dataset-edit-tabs form > div,
+.dataset-edit-tabs form > fieldset {
+  padding: 18px;
+}
+hr.extras-divider {
+  border: none;
+  border-bottom: 1px dashed #ddd;
+}
+span.extras-label {
+  display: inline-block;
+  min-width: 50px;
+  text-align: right;
+}
+
 
 /* ======================= */
 /* = Edit Resources Page = */
 /* ======================= */
-body.editresources #content {
-  width: 100%;
-  padding-right: 0;
-  margin-right: 0;
-  border-right: 0;
-}
-body.editresources #sidebar {
+.dataset-editresources-form fieldset {
   display: none;
 }
-.dataset-editresources-form fieldset#basic-information,
-.dataset-editresources-form fieldset#groups,
-.dataset-editresources-form fieldset#further-information,
-.dataset-editresources-form fieldset#extras,
-.dataset-editresources-form fieldset#delete {
-  display: none;
+.dataset-editresources-form fieldset#resources,
+.dataset-editresources-form fieldset#summary {
+  display: block;
 }
 
 .dataset-editresources-form .resource-add li h4 {
@@ -1059,7 +976,16 @@ body.editresources #sidebar {
 .dataset-editresources-form .resource-add .fileinfo {
   margin: 7px 0;
 }
-
+.name-field {
+  padding-top: 0.2em;
+}
+.name-field p {
+  margin: 2px 0;
+}
+.description-field textarea {
+  width: 400px;
+  height: 70px;
+}
 
 
 /* ==================== */
@@ -1070,34 +996,18 @@ body.editresources #sidebar {
   display: none;
 }
 .dataset-create-form fieldset#basic-information,
-.dataset-create-form fieldset#resources {
+.dataset-create-form fieldset#resources,
+.dataset-create-form fieldset#summary {
   display: block;
   padding-bottom: 0;
   margin-bottom: 0;
 }
-.dataset-create-form dt.homepage-label,
-.dataset-create-form dd.homepage-field,
-.dataset-create-form dd.homepage-instructions 
-{
+.dataset-create-form .homepage-field,
+.dataset-create-form .tags-field {
   display: none;
 }
-.dataset-create-form dt.tags-label,
-.dataset-create-form dd.tags-field,
-.dataset-create-form dd.tags-instructions 
-{
-  display: none;
-}
-dd.license-instructions {
+#license-instructions {
   font-size: 11px;
-}
-.dataset-create-form dd.name-field {
-  padding-top: 0.2em;
-}
-.dataset-create-form dd.name-field p {
-  margin-bottom: 4px;
-}
-.dataset-create-form .description-field textarea {
-  height: 70px;
 }
 
 .group-create-form dd.name-field {
@@ -1124,6 +1034,7 @@ label.edit-summary {
 }
 #log_message {
   height: 40px;
+  width: 400px;
   color: #666;
   font-size: 11px;
 }
@@ -1241,12 +1152,6 @@ body.package.read .resource-information {
     box-shadow: 1px 1px 3px #f7f7f7;
     color: #808080;
 }
-.flash-messages .success .new-dataset {
-  font-size: 150%;
-}
-.flash-messages.success .new-dataset a {
-  font-weight: bold;
-}
 body.package.read #sidebar li.widget-container {
   border: 0
 }
@@ -1321,16 +1226,13 @@ body.package.resource_read #resource-explore { margin-bottom: 2em; }
 /* ================== */
 /* = Add Group Page = */
 /* ================== */
-.group-create-form fieldset#extras,
-.group-create-form fieldset#datasets,
-.group-create-form fieldset#users {
+.group-create-form .state-field,
+.group-create-form fieldset {
   display: none;
 }
-.group-create-form .description-label,
-.group-create-form .description-field,
-.group-create-form .state-label,
-.group-create-form .state-field {
-  display: none;
+.group-create-form fieldset#basic-information,
+.group-create-form fieldset#summary {
+  display: block;
 }
 
 
@@ -1425,7 +1327,7 @@ body.authz form button {
 
 /* Dev */
 fieldset#resources {
-  min-height: 430px;
+  min-height: 230px;
   margin-bottom: 40px;
   position: relative;
   padding: 0;
@@ -1470,6 +1372,9 @@ fieldset#resources > .instructions {
 .resource-list li:hover {
   background: #f7f7f7;
 }
+.resource-list a:hover {
+  text-decoration: none;
+}
 .resource-list li.active {
   border-color: #888;
   background: #f9f9f9;
@@ -1511,7 +1416,7 @@ body.editresources .error-explanation {
 }
 .resource-list-add,
 .resource-list-edit {
-  width: 400px;
+  width: 350px;
 }
 .resource-list-add {
   margin-top: 20px;
@@ -1533,6 +1438,7 @@ body.editresources .error-explanation {
 }
 
 button.resource-edit-delete {
+  margin-top: 10px;
   float: right;
 }
 
@@ -1546,9 +1452,9 @@ button.resource-edit-delete {
   box-shadow: 2px 2px 4px #888;
   margin-bottom: 20px;
   position: absolute;
-  left: 399px;
+  left: 349px;
   top: 0px;
-  padding: 10px;
+  padding: 10px 20px;
   min-height: 100px;
   min-width: 530px;
 }
@@ -1564,17 +1470,20 @@ button.resource-edit-delete {
   font-size: 11px;
 }
 .resource-details input[type="text"] {
-  width: 350px;
+  width: 397px;
+}
+.resource-add input[type="text"] {
+  width: 280px;
 }
 .resource-details .markdown-editor {
   width: 30em;
 }
+.resource-details .control-group {
+  margin-bottom: 3px;
+}
 .resource-details textarea {
   width: 340px;
   height: 90px;
-}
-.resource-details .dataset-label {
-  vertical-align: top;
 }
 .resource-details.resource-add {
   margin-bottom: 30px;
@@ -1582,9 +1491,6 @@ button.resource-edit-delete {
 
 /* Resource extra fields */
 /* --------------------- */
-.dynamic-extras .add-resource-extra {
-  margin-left: 320px;
-}
 .dynamic-extras .dynamic-extra {
   margin: 1px 15px;
 }
@@ -1596,6 +1502,6 @@ button.resource-edit-delete {
   text-decoration: line-through;
 }
 .dynamic-extras input[type="text"] {
-  width: 200px;
+  width: 164px;
 }
 
