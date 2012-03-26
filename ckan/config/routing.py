@@ -255,6 +255,10 @@ def make_map():
         m.connect('/revision/list', action='list')
         m.connect('/revision/{id}', action='read')
 
+    # feeds
+    with SubMapper(map, controller='feed') as m:
+        m.connect('/feeds/group/{id}.atom', action='group')
+
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
 
