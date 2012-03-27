@@ -583,7 +583,7 @@ CKAN.View.Resource = Backbone.View.extend({
     var self = this;
     var setExtraName = function() {
       var _key = inputKey.val();
-      var key = _key.trim().replace(/\s+/g,'');
+      var key = $.trim(_key).replace(/\s+/g,'');
       // Don't allow you to create an extra called mimetype (etc)
       if (self.reservedWord(key)) { key=''; }
       // Set or unset the field's name
@@ -607,6 +607,9 @@ CKAN.View.Resource = Backbone.View.extend({
     dynamicExtra.find('.remove-resource-extra').click(clickRemove);
     setExtraName();
   },
+
+
+
   reservedWord: function(word) {
     return word=='cache_last_updated'   ||
           word=='cache_url'             ||
@@ -879,7 +882,7 @@ CKAN.Utils = function($, my) {
         minLength: 1,
         source: function(request, callback) {
           // here request.term is whole list of tags so need to get last
-          var _realTerm = request.term.split(',').pop().trim();
+          var _realTerm = $.trim(request.term.split(',').pop());
           var url = CKAN.SITE_URL + '/api/2/util/tag/autocomplete?incomplete=' + _realTerm;
           $.getJSON(url, function(data) {
             // data = { ResultSet: { Result: [ {Name: tag} ] } } (Why oh why?)

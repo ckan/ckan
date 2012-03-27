@@ -302,6 +302,12 @@ ul.no-break li {
 #minornavigation .nav > li.open > a {
   border-color: #666;
 }
+#minornavigation .nav > li.disabled > a,
+#minornavigation .nav > li.disabled > a:hover {
+  color: #888;
+  border-color: transparent;
+  background: transparent;
+}
 #minornavigation .caret {
   border-top-color: #555;
   margin-left: 8px;

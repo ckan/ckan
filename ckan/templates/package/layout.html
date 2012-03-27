@@ -11,11 +11,11 @@
       <py:choose test="len(c.pkg_dict.get('resources', []))==0 and not h.check_access('package_update',{'id':c.pkg.id})">
       <py:when test="True">
         <li class="disabled">
-          ${h.icon('package-disabled') + _('Resources (0)')} &nbsp;&nbsp;<img class="dropdown-arrow" src="${h.url_for_static('/images/icons/arrow-open.gif')}"/>
+          <a href="#" onclick="return false;">${h.icon('package-disabled') + _('Resources (0)')}</a>
         </li>
       </py:when>
       <py:otherwise>
-        <li class="dropdown ${'active' if c.action=='resource_read' else ''}">
+        <li class="dropdown ${'active' if (c.action=='resource_read' or c.action=='editresources') else ''}">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">${h.icon('page_white_stack') + _('Resources') + ' (' + str(len(c.pkg_dict.get('resources',[]))) + ')'}<b class="caret"></b></a>
           <div class="dropdown-appears">
             <ul class="dropdown-menu">
