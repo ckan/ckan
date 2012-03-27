@@ -40,7 +40,7 @@
       </py:choose>
       <li py:attrs="{'class':'current-tab'} if c.action=='history' else {}">${h.subnav_link(c, h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
-        <span class="divider">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+        <div class="divider">&nbsp;&nbsp;|&nbsp;&nbsp;</div>
         <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}">
           ${h.subnav_link(c, h.icon('package_edit') + _('Settings'), controller='package', action='edit', id=c.pkg.name)}
         </li>

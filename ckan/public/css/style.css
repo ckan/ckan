@@ -232,8 +232,8 @@ img.gravatar {
 }
 
 .inline-icon {
-  margin-bottom: -4px;
   padding-right: 5px;
+  vertical-align: top;
 }
 
 .drag-drop-list { 
@@ -280,19 +280,40 @@ ul.no-break li {
   -webkit-border-radius: 5px; 
           border-radius: 5px; 
   -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+  padding: 2px 4px;
+  font-weight: bold;
 }
-#minornavigation ul {
-  list-style: none; 
-  padding: 4px;
+#minornavigation .nav {
   margin: 0;
 }
+#minornavigation li a {
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-right: none;
+  height: 14px;
+  margin-right: 5px;
+  padding-top: 7px;
+}
+#minornavigation li.active a {
+  background: #fff;
+  border-color: #666;
+  color: #000;
+}
+#minornavigation li a:hover {
+  border-color: #bbb;
+
+}
+#minornavigation .divider {
+  padding: 8px 10px;
+  font-size: 14px;
+  color: #888;
+}
+/*
 #minornavigation li {
   display: inline-block;
-  /* IE6-IE7 fix to get something like inline-block, which is not supported
-     on those browser. Ref:
-     http://blog.mozilla.com/webdev/2009/02/20/cross-browser-inline-block/ */
   zoom: 1;
   *display: inline;
+
   margin-right: 3px;
   padding: 5px 11px 5px 9px;
 
@@ -320,81 +341,11 @@ ul.no-break li {
 #minornavigation li.current-tab a:visited {
   color: #222;
 }
-#minornavigation .divider {
-  font-size: 14px;
-  color: #888;
-}
 #minornavigation li.disabled {
   font-weight: bold;
   color: #777;
 }
-
-/* ======================================== */
-/* MinorNavigation extension: Dropdown Menu */
-/* ======================================== */
-.dropdown-appears hr {
-  margin: 5px 0;
-}
-#minornavigation .dropdown {
-  position: relative;
-  display: inline-block;
-}
-#minornavigation .dropdown .dropdown-appears {
-  display: none;
-  z-index: 2;
-  position: absolute;
-  top: 24px;
-  left: -1px;
-  width: 100%;
-}
-#minornavigation .dropdown:hover {
-  background: #fff;
-  border-color: #ddd;
-}
-#minornavigation .dropdown:hover .dropdown-appears {
-  display: block;
-}
-#minornavigation .dropdown-items {
-  margin-top: 9px;
-  width: 250px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-top: none;
-  padding: 2px 0 6px 0;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  box-shadow: 1px 1px 3px #aaa;
-}
-#minornavigation .dropdown-items a {
-  display: block;
-  padding: 5px 12px;
-  margin: 2px 0;
-}
-#minornavigation .dropdown-items a:hover {
-  background: #f0f0f0;
-}
-/* White box is a hack to connect the LI to the DIV beneath it, covering up 
- * that bottom bit of the mainnavigation bar. */
-#minornavigation .dropdown .white-box {
-  border-left: 1px solid #ddd;
-  background: #fff;
-  margin-right: -1px;
-  height: 9px;
-  position: absolute: 
-  top: 0;
-  left: 0;
-}
-/* Rules are different on current tab */
-#minornavigation .dropdown.current-tab:hover,
-#minornavigation .dropdown.current-tab .dropdown-items,
-#minornavigation .dropdown.current-tab .white-box {
-  border-color: #777;
-}
-#minornavigation .dropdown.current-tab .dropdown-items a,
-#minornavigation .dropdown.current-tab .dropdown-items a:visited {
-  color: #bb2222;
-}
-
+*/
 
 
 /* ======= */
