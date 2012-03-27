@@ -243,7 +243,7 @@ def nav_link(*args, **kwargs):
     if len(args) > 2 or (len(args) > 1 and 'controller' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _nav_link(*args[1:], **kwargs)
-        raise Exception('nav_link() calling has been changed. remove c in template %s' % c.__template_name)
+        raise Exception('nav_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
     return _nav_link(*args, **kwargs)
 
 def _nav_link(text, controller, **kwargs):
@@ -267,7 +267,7 @@ def nav_named_link(*args, **kwargs):
        (len(args) > 2 and 'name' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _nav_named_link(*args[1:], **kwargs)
-        raise Exception('nav_named_link() calling has been changed. remove c in template %s' % c.__template_name)
+        raise Exception('nav_named_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
     return _nav_named_link(*args, **kwargs)
 
 def _nav_named_link(c, text, name, **kwargs):
@@ -287,7 +287,7 @@ def subnav_link(*args, **kwargs):
     if len(args) > 2 or (len(args) > 1 and 'action' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _subnav_link(*args[1:], **kwargs)
-        raise Exception('subnav_link() calling has been changed. remove c in template %s' % c.__template_name)
+        raise Exception('subnav_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
     return _subnav_link(*args, **kwargs)
 
 def _subnav_link(text, action, **kwargs):
@@ -306,7 +306,7 @@ def subnav_named_route(*args, **kwargs):
        (len(args) > 1 and 'routename' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _subnav_named_route(*args[1:], **kwargs)
-        raise Exception('subnav_named_route() calling has been changed. remove c in template %s' % c.__template_name)
+        raise Exception('subnav_named_route() calling has been changed. remove c in template %s or included one' % c.__template_name)
     return _subnav_named_route(*args, **kwargs)
 
 def _subnav_named_route(text, routename, **kwargs):
