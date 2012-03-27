@@ -302,6 +302,13 @@ ul.no-break li {
 #minornavigation .nav > li.open > a {
   border-color: #666;
 }
+#minornavigation .caret {
+  border-top-color: #555;
+  margin-left: 8px;
+}
+#minornavigation .nav > li.open .caret {
+  border-top-color: #fff;
+}
 #minornavigation .divider {
   padding: 8px 10px;
   font-size: 14px;
@@ -315,6 +322,9 @@ ul.no-break li {
   padding: 5px 15px;
   margin-bottom: 2px;
   color: #bb2222;
+}
+.dropdown-menu hr {
+  margin: 4px 0;
 }
 .dropdown-menu li:last-child a {
   margin-bottom: 0;
