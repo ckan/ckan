@@ -283,7 +283,6 @@ class SearchIndexCommand(CkanCommand):
             check()
         elif cmd == 'show':
             if not len(self.args) == 2:
-                import pdb; pdb.set_trace()
                 self.args
             show(self.args[1])
         elif cmd == 'clear':
