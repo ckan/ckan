@@ -148,6 +148,8 @@ class PackageController(BaseController):
             params.append(('page', page))
             return search_url(params)
 
+        c.search_url_params = urlencode(params_nopage)
+
         try:
             c.fields = []
             search_extras = {}
