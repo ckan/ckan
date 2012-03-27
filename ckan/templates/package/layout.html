@@ -38,15 +38,15 @@
         </li>
       </py:otherwise>
       </py:choose>
-      <li py:attrs="{'class':'current-tab'} if c.action=='history' else {}">${h.subnav_link(c, h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='history' else {}">${h.subnav_link(h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
         <span class="divider">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
         <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}">
-          ${h.subnav_link(c, h.icon('package_edit') + _('Settings'), controller='package', action='edit', id=c.pkg.name)}
+          ${h.subnav_link(h.icon('package_edit') + _('Settings'), controller='package', action='edit', id=c.pkg.name)}
         </li>
       </py:if>
       <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}" py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
-        ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
+        ${h.subnav_link(h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
       </li>
       <!--li class="action">
         ${h.subnav_link(c, h.icon('atom_feed') + _('Subscribe'),
