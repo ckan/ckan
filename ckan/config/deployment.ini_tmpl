@@ -99,7 +99,7 @@ ckan.build_search_index_synchronously = true
 ckan.site_title = CKAN
 
 ## Logo image to use on the home page
-ckan.site_logo = /img/logo.png
+ckan.site_logo = /img/logo_64px_wide.png
 
 ## Site tagline / description (used on front page)
 ckan.site_description = 
