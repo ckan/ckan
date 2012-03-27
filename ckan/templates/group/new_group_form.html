@@ -7,6 +7,8 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
+<xi:include href="../_util.html" />
+
 <div class="error-explanation" py:if="error_summary">
 <h2>Errors in form</h2>
 <p>The form contains invalid entries:</p>
@@ -38,7 +40,7 @@
   <div class="control-group">
     <label for="" class="control-label">Description</label>
     <div class="controls">
-      ${h.markdown_editor('notes',data.get('description',''),id='notes')}
+      ${markdown_editor('description', data.get('description'), 'notes', _('Start with a summary sentence ...'))}
     </div>
   </div>
   <div class="state-field control-group" py:if="c.is_sysadmin or c.auth_for_change_state">
