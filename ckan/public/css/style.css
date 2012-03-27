@@ -834,11 +834,11 @@ ul.datasets .openness li {
   overflow: auto;
 }
 .markdown-editor textarea.markdown-input {
+  display: block;
   width: 360px;
   height: 70px;
-  margin-bottom: 5px;
+  margin: 0 0 5px 0;
   padding: 5px;
-  display: block;
 }
 
 

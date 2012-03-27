@@ -58,6 +58,7 @@ CKAN.Templates.resourceEntry = ' \
     </a>\
   </li>';
 
+// TODO it would be nice to unify this with the markdown editor specified in helpers.py
 CKAN.Templates.resourceDetails = ' \
   <div style="display: none;" class="resource-details"> \
     <div class="flash-messages"> \
@@ -77,7 +78,9 @@ CKAN.Templates.resourceDetails = ' \
             <li><button class="btn js-markdown-edit depressed">Edit</button></li> \
             <li><button class="btn js-markdown-preview">Preview</button></li> \
           </ul> \
-          <textarea class="js-resource-edit-description markdown-input" name="resources__${num}__description">${resource.description}</textarea> \
+          <div> \
+            <textarea class="js-resource-edit-description markdown-input" name="resources__${num}__description">${resource.description}</textarea> \
+          </div> \
           <div class="markdown-preview" style="display: none;"></div> \
           <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span> \
         </div> \

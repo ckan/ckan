@@ -82,15 +82,7 @@
   <div class="control-group description-field">
     <label class="control-label" for="notes">Description</label>
     <div class="controls">
-      <div class="markdown-editor">
-        <ul class="button-row">
-          <li><button class="btn js-markdown-edit depressed">Edit</button></li>
-          <li><button class="btn js-markdown-preview">Preview</button></li>
-        </ul>
-        <textarea class="markdown-input" name="notes" id="notes" placeholder="${_('Start with a summary sentence ...')}">${data.get('notes','')}</textarea>
-        <div class="markdown-preview" style="display: none;"></div>
-        <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span>
-      </div>
+      ${h.markdown_editor('notes', data.get('notes'), id='notes')}
     </div>
   </div>
 

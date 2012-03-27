@@ -552,6 +552,34 @@ def dump_json(obj):
     import json
     return json.dumps(obj)
 
+def markdown_editor(fieldname, value, id='', placeholder=None):
+    from pylons.i18n import _
+    from string import Template
+    if not placeholder:
+        placeholder = _('Start with a summary sentence ...')
+    if not value: 
+        value = ''
+    template = Template('''
+    <div class="markdown-editor">
+      <ul class="button-row">
+        <li><button class="btn js-markdown-edit depressed">Edit</button></li>
+        <li><button class="btn js-markdown-preview">Preview</button></li>
+      </ul>
+      <div>
+        <textarea class="markdown-input" name="${fieldname}" id="${id}'" placeholder="${placeholder}">${value}</textarea>
+      </div>
+      <div class="markdown-preview" style="display: none;"></div>
+      <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span>
+    </div>
+    ''')
+    return literal(template.substitute({
+        'fieldname':fieldname, 
+        'placeholder':placeholder,
+        'id':id,
+        'value':value
+    }))
+
+
 def auto_log_message(context):
     from pylons.i18n import _
     if (context.action=='new') :
