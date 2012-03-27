@@ -5,6 +5,8 @@ The feed controller produces Atom feeds of datasets.
  * datasets tagged with a particular tag.
  * datasets that match an arbitrary search.
 
+TODO: document paged feeds
+
 Other feeds are available elsewhere in the code, but these provide feeds
 of the revision history, rather than a feed of datasets.
 
@@ -16,7 +18,7 @@ of the revision history, rather than a feed of datasets.
    revision history.
 
 """
-
+# TODO fix imports
 import logging
 import urlparse
 
@@ -44,16 +46,16 @@ def _package_search(data_dict):
     context = {'model': model, 'session': model.Session,
                'user': c.user or c.author}
 
-    if not 'sort' in data_dict:
+    if 'sort' not in data_dict or not data_dict['sort']:
         data_dict['sort'] = 'metadata_modified desc'
 
-    if not 'rows' in data_dict:
+    if 'rows' not in data_dict or not data_dict['rows']:
         data_dict['rows'] = ITEMS_LIMIT
 
+    # package_search action modifies the data_dict, so keep our copy intact.
+    query = get_action('package_search')(context,data_dict.copy())
 
-    query = get_action('package_search')(context,data_dict)
-
-    return query['results']
+    return query['count'], query['results']
 
 def _create_atom_id(resource_path, authority_name=None, date_string=None):
     """
@@ -146,6 +148,18 @@ class FeedController(BaseController):
 
     base_url = config.get('ckan.site_url')
 
+    def _alternate_url(self, params, **kwargs):
+        search_params = params.copy()
+        search_params.update(kwargs)
+
+        # Can't count on the page sizes being the same on the search results
+        # view.  So provide an alternate link to the first page, regardless
+        # of the page we're looking at in the feed.
+        search_params.pop('page', None)
+        return self._feed_url(search_params,
+                              controller='package',
+                              action='search')
+
     def group(self,id):
 
         try:
@@ -155,45 +169,91 @@ class FeedController(BaseController):
         except NotFound:
             abort(404,'Group not found')
 
-        data_dict = {'q': 'groups: %s' % id }
-        results= _package_search(data_dict)
+        data_dict, params = self._parse_url_params()
+        data_dict['q'] = 'groups: %s' % id
 
-        # TODO feed_link can be generated?
+        item_count, results = _package_search(data_dict)
+
+        navigation_urls = self._navigation_urls(params,
+                                                item_count=item_count,
+                                                limit=data_dict['rows'],
+                                                controller='feed',
+                                                action='group',
+                                                id=id)
+
+        feed_url = self._feed_url(params,
+                                  controller='feed',
+                                  action='group',
+                                  id=id)
+
+        alternate_url = self._alternate_url(params, groups=id)
+
         return self.output_feed(results,
                     feed_title = u'%s - Group: "%s"' % (g.site_title, group_dict['title']),
                     feed_description = u'Recently created or updated datasets on %s by group: "%s"' % \
                         (g.site_title,group_dict['title']),
-                    feed_link = u'%s/dataset?groups=%s' % (self.base_url,id),
+                    feed_link = alternate_url,
                     feed_guid = _create_atom_id(u'/feeds/groups/%s.atom' % id),
-                    feed_url = self.base_url + url_for(controller='feed', action='group', id=id),
+                    feed_url = feed_url,
+                    navigation_urls = navigation_urls,
                 )
 
     def tag(self,id):
 
-        data_dict = {'q': 'tags: %s' % id }
-        results= _package_search(data_dict)
+        data_dict, params = self._parse_url_params()
+        data_dict['q'] = 'tags: %s' % id
 
-        # TODO feed_link can be generated?
+        item_count, results = _package_search(data_dict)
+
+        navigation_urls = self._navigation_urls(params,
+                                                item_count=item_count,
+                                                limit=data_dict['rows'],
+                                                controller='feed',
+                                                action='tag',
+                                                id=id)
+
+        feed_url = self._feed_url(params,
+                                  controller='feed',
+                                  action='tag',
+                                  id=id)
+        
+        alternate_url = self._alternate_url(params, tags=id)
+
         return self.output_feed(results,
                     feed_title = u'%s - Tag: "%s"' % (g.site_title, id),
                     feed_description = u'Recently created or updated datasets on %s by tag: "%s"' % \
                         (g.site_title, id),
-                    feed_link = u'%s/dataset?tags=%s' % (self.base_url,id),
-                    feed_guid = _create_atom_id(u'/feeds/tags/%s.atom' % id),
-                    feed_url = self.base_url + url_for(controller='feed', action='tag', id=id),
+                    feed_link = alternate_url,
+                    feed_guid = _create_atom_id(u'/feeds/tag/%s.atom' % id),
+                    feed_url = feed_url,
+                    navigation_urls = navigation_urls,
                 )
 
     def general(self):
-        data_dict = {'q': '*:*' }
-        results= _package_search(data_dict)
+        data_dict, params = self._parse_url_params()
+        data_dict['q'] = '*:*'
 
-        # TODO feed_link can be generated?
+        item_count, results = _package_search(data_dict)
+
+        navigation_urls = self._navigation_urls(params,
+                                                item_count=item_count,
+                                                limit=data_dict['rows'],
+                                                controller='feed',
+                                                action='general')
+
+        feed_url = self._feed_url(params,
+                                  controller='feed',
+                                  action='general')
+
+        alternate_url = self._alternate_url(params)
+
         return self.output_feed(results,
                     feed_title = g.site_title,
                     feed_description = u'Recently created or updated datasets on %s' % g.site_title,
-                    feed_link = u'%s/dataset' % self.base_url,
+                    feed_link = alternate_url,
                     feed_guid = _create_atom_id(u'/feeds/dataset.atom'),
-                    feed_url = self.base_url + url_for(controller='feed', action='general'),
+                    feed_url = feed_url,
+                    navigation_urls = navigation_urls,
                 )
 
     # TODO check search params
@@ -201,25 +261,47 @@ class FeedController(BaseController):
         q = request.params.get('q', u'')
         search_params = {}
         for (param, value) in request.params.items():
-            if not param in ['q', 'page'] \
+            if not param in ['q', 'page', 'sort'] \
                     and len(value) and not param.startswith('_'):
                 search_params[param] = value
                 q += ' %s: "%s"' % (param, value)
 
         search_url_params = urlencode(search_params)
 
-        data_dict = { 'q':q }
-        results= _package_search(data_dict)
+        try:
+            page = int(request.params.get('page', 1))
+        except ValueError:
+            abort(400, ('"page" parameter must be an integer'))
 
-        # TODO feed_link can be generated?
-        feed_url = self.base_url + url_for(controller='feed', action='custom')
-        feed_url += u'?' + urlencode(request.params)
+        limit = ITEMS_LIMIT
+        data_dict = {
+            'q': q,
+            'start': (page-1) * limit,
+            'rows': limit,
+            'sort': request.params.get('sort', None),
+        }
+
+        item_count, results = _package_search(data_dict)
+
+        navigation_urls = self._navigation_urls(request.params,
+                                                item_count=item_count,
+                                                limit=data_dict['rows'],
+                                                controller='feed',
+                                                action='custom')
+
+        feed_url = self._feed_url(request.params,
+                                  controller='feed',
+                                  action='custom')
+
+        alternate_url = self._alternate_url(request.params)
+
         return self.output_feed(results,
                     feed_title = u'%s - Custom query' % g.site_title,
                     feed_description = u'Recently created or updated datasets on %s. Custom query: \'%s\'' % (g.site_title, q),
-                    feed_link = u'%s/dataset?%s' % (self.base_url, search_url_params),
+                    feed_link = alternate_url,
                     feed_guid = _create_atom_id(u'/feeds/custom.atom?%s' % search_url_params),
                     feed_url = feed_url,
+                    navigation_urls = navigation_urls,
                 )
 
     def output_feed(self, results,
@@ -227,6 +309,7 @@ class FeedController(BaseController):
                           feed_description,
                           feed_link,
                           feed_url,
+                          navigation_urls,
                           feed_guid):
 
         author_name = config.get('ckan.feeds.author_name', '').strip() or \
@@ -244,6 +327,10 @@ class FeedController(BaseController):
             author_link=author_link,
             feed_guid=feed_guid,
             feed_url=feed_url,
+            previous_page=navigation_urls['previous'],
+            next_page=navigation_urls['next'],
+            first_page=navigation_urls['first'],
+            last_page=navigation_urls['last'],
             )
 
         for pkg in results:
@@ -253,18 +340,91 @@ class FeedController(BaseController):
                     description = pkg.get('notes', ''),
                     updated = date_str_to_datetime(pkg.get('metadata_modified')),
                     published = date_str_to_datetime(pkg.get('metadata_created')),
-                    unique_id = _create_atom_id(u'/feeds/dataset/%s.atom' % pkg['id']),
+                    unique_id = _create_atom_id(u'/dataset/%s' % pkg['id']),
                     author_name = pkg.get('author', ''),
                     author_email = pkg.get('author_email', ''),
                     categories = [t['name'] for t in pkg.get('tags', [])],
                     enclosure=webhelpers.feedgenerator.Enclosure(
                         self.base_url + url_for(controller='api', register='package', action='show', id=pkg['name'], ver='2'),
-                        unicode(len(json.dumps(pkg))),
+                        unicode(len(json.dumps(pkg))), # TODO fix this
                         u'application/json'
                         )
                     )
         response.content_type = feed.mime_type
         return feed.writeString('utf-8')
+
+    #### CLASS PRIVATE METHODS ####
+
+    def _feed_url(self, query, controller, action, **kwargs):
+        """
+        Constructs the url for the given action.  Encoding the query parameters.
+        """
+        path = url_for(controller=controller, action=action, **kwargs)
+        query = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                    for k, v in query.items()]
+
+        return self.base_url + path + u'?' + urlencode(query) # a trailing '?' is valid.
+
+    def _navigation_urls(self, query, controller, action, item_count, limit, **kwargs):
+        """
+        Constructs and returns first, last, prev and next links for paging
+        """
+        urls = dict( (rel, None) for rel in 'previous next first last'.split() )
+
+        page = int(query.get('page', 1))
+
+        # first: remove any page parameter
+        first_query = query.copy()
+        first_query.pop('page', None)
+        urls['first'] = self._feed_url(first_query, controller, action, **kwargs)
+
+        # last: add last page parameter
+        last_page = (item_count / limit) + min(1, item_count % limit)
+        last_query = query.copy()
+        last_query['page'] = last_page
+        urls['last'] = self._feed_url(last_query, controller, action, **kwargs)
+
+        # previous
+        if page > 1:
+            previous_query = query.copy()
+            previous_query['page'] = page-1
+            urls['previous'] = self._feed_url(previous_query, controller, action, **kwargs)
+        else:
+            urls['previous'] = None
+
+        # next
+        if page < last_page:
+            next_query = query.copy()
+            next_query['page'] = page+1
+            urls['next'] = self._feed_url(next_query, controller, action, **kwargs)
+        else:
+            urls['next'] = None
+
+        return urls
+
+    def _parse_url_params(self):
+        """
+        Constructs a search-query dict from the URL query parameters.
+
+        Returns the constructed search-query dict, and the valid URL query parameters.
+        """
+
+        try:
+            page = int(request.params.get('page', 1))
+        except ValueError:
+            abort(400, ('"page" parameter must be an integer'))
+
+        limit = ITEMS_LIMIT
+        data_dict = {
+            'start': (page-1)*limit,
+            'rows': limit
+        }
+
+        # Filter ignored query parameters
+        valid_params = ['page']
+        params = dict( (p,request.params.get(p)) for p in valid_params \
+                                                 if p in request.params )
+        return data_dict, params
 
 # TODO paginated feed
 class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
@@ -309,7 +469,7 @@ class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
         Add the <updated> and <published> fields to each entry that's written to the handler.
         """
         super(_FixedAtom1Feed, self).add_item_elements(handler, item)
-        
+
         if(item['updated']):
             handler.addQuickElement(u'updated', webhelpers.feedgenerator.rfc3339_date(item['updated']).decode('utf-8'))
 
@@ -318,9 +478,17 @@ class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 
     def add_root_elements(self, handler):
         """
-        Add the <subtitle> field from the feed description
+        Add additional feed fields.
+
+         * Add the <subtitle> field from the feed description
+         * Add links other pages of the logical feed.
         """
         super(_FixedAtom1Feed, self).add_root_elements(handler)
 
         handler.addQuickElement(u'subtitle', self.feed['description'])
+
+        for page in ['previous', 'next', 'first', 'last']:
+            if self.feed.get(page+'_page', None):
+                handler.addQuickElement(u'link', u'',
+                                        {'rel': page, 'href': self.feed.get(page+'_page')})
 
