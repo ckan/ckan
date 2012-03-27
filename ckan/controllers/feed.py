@@ -130,7 +130,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
 
     if date_string is None:
         date_string = config.get('ckan.feeds.date', '')
-    
+
     if not date_string:
         log.warning('No date_string available for feed generation.  '
                     'Please set the "ckan.feeds.date" config value.')
@@ -216,7 +216,7 @@ class FeedController(BaseController):
                                   controller='feed',
                                   action='tag',
                                   id=id)
-        
+
         alternate_url = self._alternate_url(params, tags=id)
 
         return self.output_feed(results,
