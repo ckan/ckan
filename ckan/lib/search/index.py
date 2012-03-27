@@ -173,7 +173,6 @@ class PackageSearchIndex(SearchIndex):
                 pass
 
         # add a unique index_id to avoid conflicts
-        
         import hashlib
         pkg_dict['index_id'] = hashlib.md5('%s%s' % (pkg_dict['id'],config.get('ckan.site_id'))).hexdigest()
 
