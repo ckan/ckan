@@ -375,7 +375,8 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        return render( self._history_template(c.pkg_dict['type']))
+        package_type = self._get_package_type(id)
+        return render(self._history_template(package_type))
 
     def new(self, data=None, errors=None, error_summary=None):
 
