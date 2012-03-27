@@ -264,8 +264,8 @@ ul.no-break li {
 /* =============== */
 /* MinorNavigation */
 /* =============== */
-#minornavigation {
-  margin-bottom: 1em;
+#minornavigation .nav {
+  margin: 0 0 1em 0 ;
   border: 1px solid #e0e0e0;
   background-color: #e2e2e2;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
@@ -282,9 +282,6 @@ ul.no-break li {
   -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
   padding: 2px 4px;
   font-weight: bold;
-}
-#minornavigation .nav {
-  margin: 0;
 }
 #minornavigation .nav > li > a {
   border: 1px solid transparent;
@@ -414,9 +411,6 @@ div.form-actions p.hints {
 /* ============= */
 /* = Home Page = */
 /* ============= */
-body.index.home #minornavigation {
-  display: none;
-}
 body.index.home #sidebar {
   display: none;
 }
@@ -715,9 +709,6 @@ body.user.read #content {
 /* =============== */
 /* = Search Page = */
 /* =============== */
-body.package.search #minornavigation { 
-  display: none;
-}
 body.package.search #menusearch {
   display: none;
 }
@@ -1171,7 +1162,6 @@ body.package.resource_read #resource-explore { margin-bottom: 2em; }
 /* = About Page = */
 /* ============== */
 body.about #content { border-right: 0; }
-body.about #minornavigation { border: 0; }
 
 
 /* ============== */
