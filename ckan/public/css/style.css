@@ -241,19 +241,15 @@ img.gravatar {
   margin: 0; 
   padding: 0; 
 }
-.drag-drop-list .drag-bars {
-  font-size: 12px;
-  color: #ccc;
-  display: inline-block;
-  text-align: center;
-  vertical-align: middle;
-  padding-left: 18px;
-  padding-right: 12px;
-  cursor: move;
-}
 .drag-drop-list li {
   margin-bottom: 3px;
   cursor: move;
+}
+.drag-drop-list li.drag-bars {
+  padding-left: 35px;
+  background-image: url('/images/dragbars.png');
+  background-repeat: no-repeat;
+  background-position: top left;
 }
 
 ul.no-break li {
@@ -1060,7 +1056,7 @@ body.package.read h3 {
 .search-result .result-url a { 
     color: #888;
 }
-.search-result .result-url:hover,
+.search-result .result-lrl:hover,
 .search-result .result-url:hover a { 
     color: #333;
 }
@@ -1307,14 +1303,14 @@ fieldset#resources > .instructions {
   color: #B22;
 }
 .resource-list li:hover {
-  background: #f7f7f7;
+  background-color: #f7f7f7;
 }
 .resource-list a:hover {
   text-decoration: none;
 }
 .resource-list li.active {
   border-color: #888;
-  background: #f9f9f9;
+  background-color: #f9f9f9;
   margin-right: 0;
 }
 
@@ -1327,7 +1323,6 @@ fieldset#resources > .instructions {
 .resource-list li.active.hasErrors {
   border-right: 0;
 }
-.resource-list li.hasErrors .drag-bars,
 .resource-list li.hasErrors a {
   color: #c00;
 }
@@ -1369,9 +1364,6 @@ body.editresources .error-explanation {
 }
 .resource-list-edit li a {
   padding-left: 0;
-}
-.resource-list-edit li:hover .drag-bars {
-  color: #999;
 }
 
 button.resource-edit-delete {

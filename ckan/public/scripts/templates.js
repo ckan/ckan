@@ -51,9 +51,8 @@ CKAN.Templates.resourceUpload = ' \
 
 
 CKAN.Templates.resourceEntry = ' \
-  <li class="ui-state-default resource-edit"> \
+  <li class="ui-state-default resource-edit drag-bars"> \
     <a class="resource-open-my-panel" href="#">\
-      <div class="drag-bars">|||</div> \
       <img class="js-resource-icon inline-icon resource-icon" src="${resource_icon}" /> \
       <span class="js-resource-edit-name">${resource.name}</span>\
     </a>\
