@@ -196,7 +196,6 @@ class _Flash(object):
         # Don't store Message objects in the session, to avoid unpickling
         # errors in edge cases.
         new_message_tuple = (category, message, allow_html)
-        #from pylons import session
         messages = session.setdefault(self.session_key, [])
         # ``messages`` is a mutable list, so changes to the local variable are
         # reflected in the session.
@@ -211,7 +210,6 @@ class _Flash(object):
         session.save()
 
     def pop_messages(self):
-        #from pylons import session
         messages = session.pop(self.session_key, [])
         # only save session if it has changed
         if messages:
@@ -219,7 +217,6 @@ class _Flash(object):
         return [Message(*m) for m in messages]
 
     def are_there_messages(self):
-        #from pylons import session
         return bool(session.get(self.session_key))
 
 _flash = _Flash()
@@ -321,7 +318,6 @@ def _subnav_named_route(text, routename, **kwargs):
     )
 
 def default_group_type():
-    #from pylons import config
     return str( config.get('ckan.default.group_type', 'group') )
 
 def facet_items(c, name, limit=10):
@@ -336,7 +332,6 @@ def facet_items(c, name, limit=10):
     return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
 
 def facet_title(name):
-    #from pylons import config
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
 def am_authorized(c, action, domain_object=None):
