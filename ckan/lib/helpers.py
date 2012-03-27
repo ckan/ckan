@@ -594,11 +594,20 @@ def group_link(group):
 def dump_json(obj):
     return json.dumps(obj)
 
-def auto_log_message(context):
-    if (context.action=='new') :
+def auto_log_message(*args):
+    # auto_log_message() used to need c passing as the first arg
+    # this is depriciated as pointless
+    # throws error if ckan.restrict_template_vars is True
+    # When we move to strict helpers then this should be removed as a wrapper
+    if len(args) and asbool(config.get('ckan.restrict_template_vars', 'false')):
+        raise Exception('auto_log_message() calling has been changed. remove c in template %s or included one' % c.__template_name)
+    return _auto_log_message()
+
+def _auto_log_message():
+    if (c.action=='new') :
         return _('Created new dataset.')
-    elif (context.action=='editresources'):
+    elif (c.action=='editresources'):
         return _('Edited resources.')
-    elif (context.action=='edit'):
+    elif (c.action=='edit'):
         return _('Edited settings.')
     return ''
