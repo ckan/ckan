@@ -1,3 +1,37 @@
+'''Tool for a script to keep track changes performed on a large number
+of objects.
+
+StatsCount - when you are counting incidences of a small set of outcomes
+StatsList - when you also want to remember an ID associated with each incidence
+
+Examples:
+
+from running_stats import StatsCount
+package_stats = StatsCount()
+for package in packages:
+    if package.enabled:
+        package.delete()
+        package_stats.increment('deleted')
+    else:
+        package_stats.increment('not deleted')    
+print package_stats.report()
+> deleted: 30
+> not deleted: 70
+    
+from running_stats import StatsList
+package_stats = StatsList()
+for package in packages:
+    if package.enabled:
+        package.delete()
+        package_stats.add('deleted', package.name)
+    else:
+        package_stats.add('not deleted' package.name)
+print package_stats.report()
+> deleted: 30 pollution-uk, flood-regions, river-quality, ...
+> not deleted: 70 spending-bristol, ... 
+
+'''
+
 import copy
 
 class StatsCount(dict):

@@ -29,7 +29,7 @@ class PackagesTestCase(BaseModelApiTestCase):
 
     def teardown(self):
         self.purge_package_by_name(self.package_fixture_data['name'])
-        
+
     def get_groups_identifiers(self, test_groups, users=[]):
         groups = []
         for grp in test_groups:
@@ -125,7 +125,7 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_register_post_with_group(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
         offset = self.package_offset()
-        
+
         test_groups = [u'david']
         user = model.User.by_name(u'russianfan')
 
@@ -640,7 +640,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             # trying to rename package 1 to package 2's name
             self.post(package1_offset, package2_data, self.STATUS_409_CONFLICT)
         finally:
-            self.purge_package_by_name(package2_name)            
+            self.purge_package_by_name(package2_name)
 
     def test_entity_update_empty(self):
         package1_name = self.package_fixture_data['name']
