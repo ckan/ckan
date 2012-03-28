@@ -232,8 +232,8 @@ img.gravatar {
 }
 
 .inline-icon {
-  margin-bottom: -4px;
   padding-right: 5px;
+  vertical-align: top;
 }
 
 .drag-drop-list { 
@@ -241,19 +241,15 @@ img.gravatar {
   margin: 0; 
   padding: 0; 
 }
-.drag-drop-list .drag-bars {
-  font-size: 12px;
-  color: #ccc;
-  display: inline-block;
-  text-align: center;
-  vertical-align: middle;
-  padding-left: 18px;
-  padding-right: 12px;
-  cursor: move;
-}
 .drag-drop-list li {
   margin-bottom: 3px;
   cursor: move;
+}
+.drag-drop-list li.drag-bars {
+  padding-left: 35px;
+  background-image: url('/images/dragbars.png');
+  background-repeat: no-repeat;
+  background-position: top left;
 }
 
 ul.no-break li {
@@ -264,8 +260,8 @@ ul.no-break li {
 /* =============== */
 /* MinorNavigation */
 /* =============== */
-#minornavigation {
-  margin-bottom: 1em;
+#minornavigation .nav {
+  margin: 0 0 1em 0 ;
   border: 1px solid #e0e0e0;
   background-color: #e2e2e2;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
@@ -280,121 +276,65 @@ ul.no-break li {
   -webkit-border-radius: 5px; 
           border-radius: 5px; 
   -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+  padding: 2px 4px;
+  font-weight: bold;
 }
-#minornavigation ul {
-  list-style: none; 
-  padding: 4px;
-  margin: 0;
-}
-#minornavigation li {
-  display: inline-block;
-  /* IE6-IE7 fix to get something like inline-block, which is not supported
-     on those browser. Ref:
-     http://blog.mozilla.com/webdev/2009/02/20/cross-browser-inline-block/ */
-  zoom: 1;
-  *display: inline;
-  margin-right: 3px;
-  padding: 5px 11px 5px 9px;
-
+#minornavigation .nav > li > a {
   border: 1px solid transparent;
   border-bottom: none;
   border-right: none;
-     -moz-border-radius: 5px; 
-  -webkit-border-radius: 5px; 
-          border-radius: 5px; 
+  height: 14px;
+  margin-right: 5px;
+  padding-top: 7px;
 }
-#minornavigation li.action {
-  float: right;
+#minornavigation .nav > li > a:hover {
+  border-color: #bbb;
 }
-#minornavigation li.current-tab {
-  background: #000;
-  background-color: #fff;
-  border-color: #777;
+#minornavigation .nav > li.active > a {
+  background: #fff;
+  border-color: #666;
+  color: #000;
 }
-#minornavigation li a {
-  text-decoration: none;
-  font-weight: bold;
+#minornavigation .nav > li.open > a {
+  border-color: #666;
 }
-#minornavigation li.current-tab a,
-#minornavigation li.current-tab a:hover,
-#minornavigation li.current-tab a:visited {
-  color: #222;
+#minornavigation .nav > li.disabled > a,
+#minornavigation .nav > li.disabled > a:hover {
+  color: #888;
+  border-color: transparent;
+  background: transparent;
+}
+#minornavigation .caret {
+  border-top-color: #555;
+  margin-left: 8px;
+}
+#minornavigation .nav > li.open .caret {
+  border-top-color: #fff;
 }
 #minornavigation .divider {
+  padding: 8px 10px;
   font-size: 14px;
   color: #888;
 }
-#minornavigation li.disabled {
+.dropdown-menu {
+  min-width: 250px;
+}
+.dropdown-menu a {
   font-weight: bold;
-  color: #777;
-}
-
-/* ======================================== */
-/* MinorNavigation extension: Dropdown Menu */
-/* ======================================== */
-.dropdown-appears hr {
-  margin: 5px 0;
-}
-#minornavigation .dropdown {
-  position: relative;
-  display: inline-block;
-}
-#minornavigation .dropdown .dropdown-appears {
-  display: none;
-  z-index: 2;
-  position: absolute;
-  top: 24px;
-  left: -1px;
-  width: 100%;
-}
-#minornavigation .dropdown:hover {
-  background: #fff;
-  border-color: #ddd;
-}
-#minornavigation .dropdown:hover .dropdown-appears {
-  display: block;
-}
-#minornavigation .dropdown-items {
-  margin-top: 9px;
-  width: 250px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-top: none;
-  padding: 2px 0 6px 0;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  box-shadow: 1px 1px 3px #aaa;
-}
-#minornavigation .dropdown-items a {
-  display: block;
-  padding: 5px 12px;
-  margin: 2px 0;
-}
-#minornavigation .dropdown-items a:hover {
-  background: #f0f0f0;
-}
-/* White box is a hack to connect the LI to the DIV beneath it, covering up 
- * that bottom bit of the mainnavigation bar. */
-#minornavigation .dropdown .white-box {
-  border-left: 1px solid #ddd;
-  background: #fff;
-  margin-right: -1px;
-  height: 9px;
-  position: absolute: 
-  top: 0;
-  left: 0;
-}
-/* Rules are different on current tab */
-#minornavigation .dropdown.current-tab:hover,
-#minornavigation .dropdown.current-tab .dropdown-items,
-#minornavigation .dropdown.current-tab .white-box {
-  border-color: #777;
-}
-#minornavigation .dropdown.current-tab .dropdown-items a,
-#minornavigation .dropdown.current-tab .dropdown-items a:visited {
+  padding: 5px 15px;
+  margin-bottom: 2px;
   color: #bb2222;
 }
-
+.dropdown-menu hr {
+  margin: 4px 0;
+}
+.dropdown-menu li:last-child a {
+  margin-bottom: 0;
+}
+.dropdown-menu li:hover a {
+  color: #183661;
+  background: #eee;
+}
 
 
 /* ======= */
@@ -483,9 +423,6 @@ div.form-actions p.hints {
 /* ============= */
 /* = Home Page = */
 /* ============= */
-body.index.home #minornavigation {
-  display: none;
-}
 body.index.home #sidebar {
   display: none;
 }
@@ -784,9 +721,6 @@ body.user.read #content {
 /* =============== */
 /* = Search Page = */
 /* =============== */
-body.package.search #minornavigation { 
-  display: none;
-}
 body.package.search #menusearch {
   display: none;
 }
@@ -900,11 +834,11 @@ ul.datasets .openness li {
   overflow: auto;
 }
 .markdown-editor textarea.markdown-input {
+  display: block;
   width: 360px;
   height: 70px;
-  margin-bottom: 5px;
+  margin: 0 0 5px 0;
   padding: 5px;
-  display: block;
 }
 
 
@@ -1122,7 +1056,7 @@ body.package.read h3 {
 .search-result .result-url a { 
     color: #888;
 }
-.search-result .result-url:hover,
+.search-result .result-lrl:hover,
 .search-result .result-url:hover a { 
     color: #333;
 }
@@ -1240,7 +1174,6 @@ body.package.resource_read #resource-explore { margin-bottom: 2em; }
 /* = About Page = */
 /* ============== */
 body.about #content { border-right: 0; }
-body.about #minornavigation { border: 0; }
 
 
 /* ============== */
@@ -1370,14 +1303,14 @@ fieldset#resources > .instructions {
   color: #B22;
 }
 .resource-list li:hover {
-  background: #f7f7f7;
+  background-color: #f7f7f7;
 }
 .resource-list a:hover {
   text-decoration: none;
 }
 .resource-list li.active {
   border-color: #888;
-  background: #f9f9f9;
+  background-color: #f9f9f9;
   margin-right: 0;
 }
 
@@ -1390,7 +1323,6 @@ fieldset#resources > .instructions {
 .resource-list li.active.hasErrors {
   border-right: 0;
 }
-.resource-list li.hasErrors .drag-bars,
 .resource-list li.hasErrors a {
   color: #c00;
 }
@@ -1432,9 +1364,6 @@ body.editresources .error-explanation {
 }
 .resource-list-edit li a {
   padding-left: 0;
-}
-.resource-list-edit li:hover .drag-bars {
-  color: #999;
 }
 
 button.resource-edit-delete {

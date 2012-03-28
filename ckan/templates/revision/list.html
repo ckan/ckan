@@ -6,13 +6,6 @@
   <py:def function="page_heading">Revision History</py:def>
   <py:def function="body_class">no-sidebar</py:def>
 
-  <py:match path="minornavigation">
-    <ul class="tabbed">
-      <li class="current-tab">
-        ${h.subnav_link(c,_('Home'), controller='revision', action='index')}</li>
-    </ul>
-  </py:match>
-
   <div py:match="content">
     <p>Track the most recent changes to the system, with most recent
     changes first.</p>

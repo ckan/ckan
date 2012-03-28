@@ -2,12 +2,6 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
 
-<script type="text/javascript">
-  jQuery(document).ready(function($) {
-    CKAN.Utils.PackageSlugCreator.create($('#Dataset--title'), $('#Dataset--name'));
-  });
-</script>
-
   <py:def function="form_fields(field_group)">
     <?python 
       fields = []
@@ -45,18 +39,6 @@
               <dd class="hints">${field.metadata['hints']}</dd>
             </py:if>
             <dd py:for="error in field.errors" class="field_error">${_(error)}</dd>    
-
-            <py:if test="c.fieldset.focus == field or c.fieldset.focus is True">
-              <py:if test="not field.is_readonly()">
-                <script type="text/javascript">
-//<![CDATA[
-$(document).ready(function () {
-      $("#${field.renderer.name}").focus();
-});
-//]]>
-                </script>
-              </py:if>
-            </py:if>
           </py:if>
         </py:for>
       </dl>
