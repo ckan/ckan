@@ -27,10 +27,13 @@ from ckan.lib.plugins import lookup_package_plugin
 
 log = logging.getLogger(__name__)
 
+def _encode_params(params):
+    return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                                  for k, v in params]
+
 def search_url(params):
     url = h.url_for(controller='package', action='search')
-    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
-                    for k, v in params]
+    params = _encode_params(params)
     return url + u'?' + urlencode(params)
 
 autoneg_cfg = [
@@ -147,6 +150,8 @@ class PackageController(BaseController):
             params = list(params_nopage)
             params.append(('page', page))
             return search_url(params)
+
+        c.search_url_params = urlencode(_encode_params(params_nopage))
 
         try:
             c.fields = []
