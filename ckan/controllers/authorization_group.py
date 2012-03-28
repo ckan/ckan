@@ -151,6 +151,7 @@ class AuthorizationGroupController(BaseController):
             abort(404, _('Group not found'))
 
         c.authorization_group_name = authorization_group.name
+        c.authorization_group = authorization_group
 
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, 
                                                          authorization_group)

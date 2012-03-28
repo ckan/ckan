@@ -5,21 +5,15 @@
   py:strip=""
   >
   <py:match path="minornavigation">
-    <ul class="tabbed">
-      <li py:attrs="{'class':'current-tab'} if c.action=='index' else {}">
-        <a href="${h.url_for('ckanadmin', action='index')}">
-          Home
-        </a>
+    <ul class="nav nav-pills">
+      <li class="${'active' if c.action=='index' else ''}">
+        <a href="${h.url_for('ckanadmin', action='index')}">Home</a>
       </li>
-      <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}">
-        <a href="${h.url_for('ckanadmin', action='authz')}">
-          Authorization
-        </a>
+      <li class="${'active' if c.action=='authz' else ''}">
+        <a href="${h.url_for('ckanadmin', action='authz')}">Authorization</a>
       </li>
-      <li py:attrs="{'class':'current-tab'} if c.action=='trash' else {}">
-        <a href="${h.url_for('ckanadmin', action='trash')}">
-          Trash
-        </a>
+      <li class="${'active' if c.action=='trash' else ''}">
+        <a href="${h.url_for('ckanadmin', action='trash')}">Trash</a>
       </li>
     </ul>
   </py:match>
