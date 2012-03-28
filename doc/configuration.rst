@@ -660,3 +660,21 @@ Example::
 
 This is a directory where SQL database backups are to be written, assuming a script has been installed to do this.
 
+
+
+Compatability
+-------------
+
+.. index::
+   single: restrict_template_vars
+
+restrict_template_vars
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.restrict_template_vars = true
+
+Default value:  ``false``
+
+This is used to limit the functions available via h in templates.  It also forces correct usage of functions as some function signatures have changed.  It's main purpose is to allow transition to a cleaner world.
