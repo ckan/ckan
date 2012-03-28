@@ -4,38 +4,33 @@ Publisher Profile and Workflow
 
 .. versionadded:: 1.6.1
 
-The Publisher workflow in CKAN is designed to support a setup in which datasets
+The Publisher/Organization workflow in CKAN is designed to support a setup in which datasets
 are managed by a "Publisher" organization. Users can become members of one (or
-more) Publishers and their membership determines what datasets they have access
+more) Organizations and their membership determines what datasets they have access
 to.
 
 Specifically, the workflow looks like:
 
-* A User joins or creates a Publisher
+* A User is added to an Organization by an Organization administrator
 
-  * If creator of the Publisher User becomes administrator of the Publisher
-    otherwise they become a Member.
-  * Creation of new Publishers must be approved by a System Administrator
-  * New Members must be approved by the Group Administrator
-  
 * User creates a dataset. On creation User must assign this dataset to a
-  specific publisher (and can only assign to a Publisher of which User is a
+  specific organization (and can only assign to a organization of which User is a
   member)
 
-  * Other members of that Publisher can then edit and update this dataset
+  * Other members of that Organization can then edit and update this dataset
 
 This setup is a natural one for many situations. For example:
 
- * Government. Publishers correspond to Departments or Ministries (or other
+ * Government. Organizations correspond to Departments or Ministries (or other
    organizational groups)
- * Academia: Publishers again correspond to Departments or research groups
+ * Academia: Organizations again correspond to Departments or research groups
 
 
 .. _publisher-configuration:
 Enabling and Configuring the Publisher Profile
 ==============================================
 
-To switch CKAN to use the publisher profile workflow you need to set the
+To switch CKAN to use the authorization publisher profile you need to set the
 following configuration option::
 
 	ckan.auth.profile = publisher
@@ -44,11 +39,16 @@ Setting auth.profile to publisher will enable the publisher authorization
 profile. Setting it to nothing, or if it is not present will force CKAN to use
 the default profile.
 
+To enable the default organization and organization dataset forms you should include
+the following plugins in your configuration file::
+
+  ckan.plugins = organizations organizations_dataset
+
 
 Technical Overview
 ==================
 
-* Publishers are a specialization of CKAN Groups. As such they retain many of
+* Organizations are a specialization of CKAN Groups. As such they retain many of
   their features.
 * Authorization for most actions is granted based on shared membership of a
   group between the **user** and the **object** being manipulated.
