@@ -16,9 +16,12 @@
             <a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">${h.icon('add') + _('Add Dataset')}</a>
         </li>
         <li class="${'active' if c.action=='edit' else ''}" py:if="can_update">
-          <!-- TODO: We need to be able to change the URL below based on the type of the group -->
           ${h.subnav_named_route( c,h.icon('group_edit') + _('Edit'), 'organization_action', action='edit', id=c.group.name )}
         </li>
+        <li class="${'active' if c.action=='apply' else ''}">
+            <a href="${h.url_for(controller='ckanext.organizations.controllers:OrganizationController', action='apply')}?parent=${c.group.name}">${h.icon('group_edit') + _('Join')}</a>
+        </li>
+
       </py:when>
       <py:otherwise>
         <li class="${'active' if c.action=='index' else ''}">

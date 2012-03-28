@@ -169,4 +169,9 @@ class OrganizationController(BaseController):
 
         return render('organization_users.html')
 
+    def _add_publisher_list(self):
+        c.possible_parents = model.Session.query(model.Group).\
+               filter(model.Group.state == 'active').\
+               filter(model.Group.type == 'organization').\
+               order_by(model.Group.title).all()
 
