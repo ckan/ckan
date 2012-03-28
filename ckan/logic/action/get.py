@@ -394,7 +394,7 @@ def package_show(context, data_dict):
 
     schema = lib_plugins.lookup_package_plugin(package_dict['type']).db_to_form_schema()
 
-    if schema:
+    if schema and context.get('validate', True):
         package_dict, errors = validate(package_dict, schema, context=context)
 
     return package_dict
