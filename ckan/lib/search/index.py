@@ -115,12 +115,19 @@ class PackageSearchIndex(SearchIndex):
             if key not in index_fields:
                 pkg_dict[key] = value
         pkg_dict.pop('extras', None)
-        
+
         #Add tags and groups
         tags = pkg_dict.pop('tags', [])
         pkg_dict['tags'] = [tag['name'] for tag in tags]
 
         groups = pkg_dict.pop('groups', [])
+
+        # Capacity is different to the default only if using organizations
+        # where the dataset is only in one group. We will add the capacity
+        # from the single group that it is a part of if we have a group
+        if len(groups):
+            pkg_dict['capacity'] = groups[0].get('capacity', 'public')
+
         pkg_dict['groups'] = [group['name'] for group in groups]
 
         # flatten the structure for indexing:
