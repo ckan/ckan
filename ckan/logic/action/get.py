@@ -65,6 +65,7 @@ def current_package_list_with_resources(context, data_dict):
     model = context["model"]
     user = context["user"]
     limit = data_dict.get("limit")
+    page = int(data_dict.get('page', 1))
 
     check_access('current_package_list_with_resources', context, data_dict)
 
@@ -74,7 +75,8 @@ def current_package_list_with_resources(context, data_dict):
 
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit:
-        query = query.limit(limit)
+        query = query.limit(int(limit))
+        query = query.offset((page-1)*limit)
     pack_rev = query.all()
     return _package_list_with_resources(context, pack_rev)
 
@@ -392,7 +394,7 @@ def package_show(context, data_dict):
 
     schema = lib_plugins.lookup_package_plugin(package_dict['type']).db_to_form_schema()
 
-    if schema:
+    if schema and context.get('validate', True):
         package_dict, errors = validate(package_dict, schema, context=context)
 
     return package_dict

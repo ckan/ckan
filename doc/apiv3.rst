@@ -56,7 +56,7 @@ Logic Action                           Parameter keys
 ====================================== ===========================
 site_read                              (none)                      
 package_list                           (none)
-current_package_list_with_resources    limit
+current_package_list_with_resources    limit, page
 revision_list                          (none)
 package_revision_list                  id
 group_list                             all_fields

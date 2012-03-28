@@ -6,6 +6,7 @@ from datetime import datetime
 from hashlib import md5
 import logging
 import os
+import urllib
 
 from paste.deploy.converters import asbool
 from pylons import c, cache, config, g, request, response, session
@@ -54,6 +55,9 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         globs = extra_vars or {}
         globs.update(pylons_globals())
         globs['actions'] = model.Action
+        # add the template name to the context to help us know where we are
+        # used in depreciating functions etc
+        c.__template_name = template_name
 
         # Using pylons.url() directly destroys the localisation stuff so
         # we remove it so any bad templates crash and burn
@@ -240,12 +244,17 @@ class BaseController(WSGIController):
         request_data = None
         if request.POST:
             try:
-                request_data = request.POST.keys()
+                keys = request.POST.keys()
+                # Parsing breaks if there is a = in the value, so for now
+                # we will check if the data is actually all in a single key
+                if keys and request.POST[ keys[0] ] in [u'1',u'']:
+                    request_data = keys[0]
+                else:
+                    request_data = urllib.unquote_plus(request.body)
             except Exception, inst:
                 msg = "Could not find the POST data: %r : %s" % \
                       (request.POST, inst)
                 raise ValueError, msg
-            request_data = request_data[0]
         else:
             try:
                 request_data = request.body

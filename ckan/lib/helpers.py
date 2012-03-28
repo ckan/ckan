@@ -10,6 +10,7 @@ import datetime
 import re
 import urllib
 
+from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
 from webhelpers.html.tags import *
@@ -27,6 +28,9 @@ from lxml.html import fromstring
 import i18n
 import ckan.exceptions
 from pylons import request
+from pylons import session
+from pylons import c
+from pylons.i18n import _
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -105,13 +109,27 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = request.environ.get('SCRIPT_NAME', '')
     except TypeError:
         root = ''
-    if default_locale:
-        url = url_to_amend
+    # ckan.root_path is defined when we have none standard language
+    # position in the url
+    root_path = config.get('ckan.root_path')
+    if root_path:
+        # we have a special root specified so use that
+        if default_locale:
+            root = re.sub('/{{LANG}}', '', root_path)
+        else:
+            root = re.sub('{{LANG}}', locale, root_path)
+        # make sure we don't have a trailing / on the root
+        if root[-1] == '/':
+            root = root[:-1]
+        url = '%s%s' % (root, url_to_amend)
     else:
-        # we need to strip the root from the url and the add it before
-        # the language specification.
-        url = url_to_amend[len(root):]
-        url = '%s/%s%s' % (root, locale,  url)
+        if default_locale:
+            url = url_to_amend
+        else:
+            # we need to strip the root from the url and the add it before
+            # the language specification.
+            url = url_to_amend[len(root):]
+            url = '%s/%s%s' % (root, locale,  url)
 
     # stop the root being added twice in redirects
     if no_root:
@@ -125,6 +143,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
     return url
 
 def lang():
+    ''' Reurn the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
 
 class Message(object):
@@ -178,7 +197,6 @@ class _Flash(object):
         # Don't store Message objects in the session, to avoid unpickling
         # errors in edge cases.
         new_message_tuple = (category, message, allow_html)
-        from pylons import session
         messages = session.setdefault(self.session_key, [])
         # ``messages`` is a mutable list, so changes to the local variable are
         # reflected in the session.
@@ -193,7 +211,6 @@ class _Flash(object):
         session.save()
 
     def pop_messages(self):
-        from pylons import session
         messages = session.pop(self.session_key, [])
         # only save session if it has changed
         if messages:
@@ -201,25 +218,43 @@ class _Flash(object):
         return [Message(*m) for m in messages]
 
     def are_there_messages(self):
-        from pylons import session
         return bool(session.get(self.session_key))
 
-_flash = _Flash()
+flash = _Flash()
+# this is here for backwards compatability
+_flash = flash
 
 def flash_notice(message, allow_html=False):
-    _flash(message, category='alert-info', allow_html=allow_html)
+    ''' Show a flash message of type notice '''
+    flash(message, category='alert-info', allow_html=allow_html)
 
 def flash_error(message, allow_html=False):
-    _flash(message, category='alert-error', allow_html=allow_html)
+    ''' Show a flash message of type error '''
+    flash(message, category='alert-error', allow_html=allow_html)
 
 def flash_success(message, allow_html=False):
-    _flash(message, category='alert-success', allow_html=allow_html)
+    ''' Show a flash message of type success '''
+    flash(message, category='alert-success', allow_html=allow_html)
 
 def are_there_flash_messages():
-    return _flash.are_there_messages()
+    ''' Returns True if there are flash messages for the current user '''
+    return flash.are_there_messages()
 
-# FIXME: shouldn't have to pass the c object in to this.
-def nav_link(c, text, controller, **kwargs):
+
+
+def nav_link(*args, **kwargs):
+    # nav_link() used to need c passing as the first arg
+    # this is depriciated as pointless
+    # throws error if ckan.restrict_template_vars is True
+    # When we move to strict helpers then this should be removed as a wrapper
+    if len(args) > 2 or (len(args) > 1 and 'controller' in kwargs):
+        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
+            return _nav_link(*args[1:], **kwargs)
+        raise Exception('nav_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
+    return _nav_link(*args, **kwargs)
+
+def _nav_link(text, controller, **kwargs):
+
     highlight_actions = kwargs.pop("highlight_actions",
                                    kwargs["action"]).split()
     return link_to(
@@ -230,7 +265,19 @@ def nav_link(c, text, controller, **kwargs):
                 else '')
     )
 
-def nav_named_link(c, text, name, **kwargs):
+def nav_named_link(*args, **kwargs):
+    # subnav_link() used to need c passing as the first arg
+    # this is depriciated as pointless
+    # throws error if ckan.restrict_template_vars is True
+    # When we move to strict helpers then this should be removed as a wrapper
+    if len(args) > 3 or (len(args) > 0 and 'text' in kwargs) or \
+       (len(args) > 1 and 'name' in kwargs):
+        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
+            return _nav_named_link(*args[1:], **kwargs)
+        raise Exception('nav_named_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
+    return _nav_named_link(*args, **kwargs)
+
+def _nav_named_link(text, name, **kwargs):
     return link_to(
         text,
         url_for(name, **kwargs),
@@ -239,15 +286,37 @@ def nav_named_link(c, text, name, **kwargs):
 #                else '')
     )
 
-# FIXME: shouldn't have to pass the c object in to this.
-def subnav_link(c, text, action, **kwargs):
+def subnav_link(*args, **kwargs):
+    # subnav_link() used to need c passing as the first arg
+    # this is depriciated as pointless
+    # throws error if ckan.restrict_template_vars is True
+    # When we move to strict helpers then this should be removed as a wrapper
+    if len(args) > 2 or (len(args) > 1 and 'action' in kwargs):
+        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
+            return _subnav_link(*args[1:], **kwargs)
+        raise Exception('subnav_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
+    return _subnav_link(*args, **kwargs)
+
+def _subnav_link(text, action, **kwargs):
     return link_to(
         text,
         url_for(action=action, **kwargs),
         class_=('active' if c.action == action else '')
     )
 
-def subnav_named_route(c, text, routename,**kwargs):
+def subnav_named_route(*args, **kwargs):
+    # subnav_link() used to need c passing as the first arg
+    # this is depriciated as pointless
+    # throws error if ckan.restrict_template_vars is True
+    # When we move to strict helpers then this should be removed as a wrapper
+    if len(args) > 2 or (len(args) > 0 and 'text' in kwargs) or \
+       (len(args) > 1 and 'routename' in kwargs):
+        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
+            return _subnav_named_route(*args[1:], **kwargs)
+        raise Exception('subnav_named_route() calling has been changed. remove c in template %s or included one' % c.__template_name)
+    return _subnav_named_route(*args, **kwargs)
+
+def _subnav_named_route(text, routename, **kwargs):
     """ Generate a subnav element based on a named route """
     return link_to(
         text,
@@ -256,10 +325,22 @@ def subnav_named_route(c, text, routename,**kwargs):
     )
 
 def default_group_type():
-    from pylons import config
     return str( config.get('ckan.default.group_type', 'group') )
 
-def facet_items(c, name, limit=10):
+
+def facet_items(*args, **kwargs):
+    # facet_items() used to need c passing as the first arg
+    # this is depriciated as pointless
+    # throws error if ckan.restrict_template_vars is True
+    # When we move to strict helpers then this should be removed as a wrapper
+    if len(args) > 2 or (len(args) > 0 and 'name' in kwargs) or (len(args) > 1 and 'limit' in kwargs):
+        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
+            return _facet_items(*args[1:], **kwargs)
+        raise Exception('facet_items() calling has been changed. remove c in template %s or included one' % c.__template_name)
+    return _facet_items(*args, **kwargs)
+
+
+def _facet_items(name, limit=10):
     if not c.facets or not c.facets.get(name):
         return []
     facets = []
@@ -271,7 +352,6 @@ def facet_items(c, name, limit=10):
     return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
 
 def facet_title(name):
-    from pylons import config
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
 def am_authorized(c, action, domain_object=None):
@@ -282,9 +362,8 @@ def am_authorized(c, action, domain_object=None):
         domain_object = model.System()
     return Authorizer.am_authorized(c, action, domain_object)
 
-def check_access(action,data_dict=None):
+def check_access(action, data_dict=None):
     from ckan import model
-    from ckan.lib.base import c
     from ckan.logic import check_access as check_access_logic,NotAuthorized
 
     context = {'model': model,
@@ -300,7 +379,6 @@ def check_access(action,data_dict=None):
 
 def linked_user(user, maxlength=0):
     from ckan import model
-    from urllib import quote
     if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
         return user
     if not isinstance(user, model.User):
@@ -319,7 +397,6 @@ def linked_user(user, maxlength=0):
 
 def linked_authorization_group(authgroup, maxlength=0):
     from ckan import model
-    from urllib import quote
     if not isinstance(authgroup, model.AuthorizationGroup):
         authgroup_name = unicode(authgroup)
         authgroup = model.AuthorizationGroup.get(authgroup_name)
@@ -388,7 +465,6 @@ def linked_gravatar(email_hash, size=100, default=None):
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro']
 def gravatar(email_hash, size=100, default=None):
     if default is None:
-        from pylons import config 
         default = config.get('ckan.gravatar_default', 'identicon')
 
     if not default in _VALID_GRAVATAR_DEFAULTS:
@@ -467,7 +543,7 @@ def parse_rfc_2822_date(date_str, tz_aware=True):
     Returns None if the string cannot be parse as a valid datetime.
     """
     time_tuple = email.utils.parsedate_tz(date_str)
-    
+
     if not time_tuple:
         return None
 
@@ -535,18 +611,22 @@ def group_link(group):
     return link_to(group['name'], url)
 
 def dump_json(obj):
-    import json
     return json.dumps(obj)
 
-def auto_log_message(context):
-    from pylons.i18n import _
-    if (context.action=='new') :
+def auto_log_message(*args):
+    # auto_log_message() used to need c passing as the first arg
+    # this is depriciated as pointless
+    # throws error if ckan.restrict_template_vars is True
+    # When we move to strict helpers then this should be removed as a wrapper
+    if len(args) and asbool(config.get('ckan.restrict_template_vars', 'false')):
+        raise Exception('auto_log_message() calling has been changed. remove c in template %s or included one' % c.__template_name)
+    return _auto_log_message()
+
+def _auto_log_message():
+    if (c.action=='new') :
         return _('Created new dataset.')
-    elif (context.action=='editresources'):
+    elif (c.action=='editresources'):
         return _('Edited resources.')
-    elif (context.action=='edit'):
+    elif (c.action=='edit'):
         return _('Edited settings.')
     return ''
-
-def content_span(body_class):
-    return body_class.__str__()

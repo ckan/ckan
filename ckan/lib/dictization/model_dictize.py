@@ -83,7 +83,6 @@ def extras_list_dictize(extras_list, context):
 
 def resource_dictize(res, context):
     resource = d.table_dictize(res, context)
-    resource['format'] = resource.get('format').lower() if resource.get('format') else ''
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
@@ -175,7 +174,7 @@ def package_dictize(pkg, context):
     #groups
     member_rev = model.member_revision_table
     group = model.group_table
-    q = select([group],
+    q = select([group, member_rev.c.capacity],
                from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
                ).where(member_rev.c.table_id == pkg.id)\
                 .where(member_rev.c.state == 'active')

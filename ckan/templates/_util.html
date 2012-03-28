@@ -8,6 +8,18 @@
 
   <xi:include href="_util_activity_div.html" />
 
+  <div py:def="markdown_editor(fieldname,value,id,placeholder)" class="markdown-editor">
+    <ul class="button-row">
+      <li><button class="btn js-markdown-edit depressed">Edit</button></li>
+      <li><button class="btn js-markdown-preview">Preview</button></li>
+    </ul>
+    <div>
+      <textarea class="markdown-input" name="${fieldname}" id="${id}" placeholder="${placeholder}">${value}</textarea>
+    </div>
+    <div class="markdown-preview" style="display: none;"></div>
+    <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span>
+  </div>
+
   <!--! Herein can be found generic helper methods for a whole bunch of common
         templating issues -->
 

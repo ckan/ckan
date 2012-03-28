@@ -7,6 +7,8 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
+<xi:include href="../_util.html" />
+
 <div class="error-explanation" py:if="error_summary">
 <h2>Errors in form</h2>
 <p>The form contains invalid entries:</p>
@@ -38,15 +40,7 @@
   <div class="control-group">
     <label for="" class="control-label">Description</label>
     <div class="controls">
-      <div class="markdown-editor">
-        <ul class="button-row">
-          <li><button class="btn js-markdown-edit depressed">Edit</button></li>
-          <li><button class="btn js-markdown-preview">Preview</button></li>
-        </ul>
-        <textarea class="markdown-input" name="description" id="notes" placeholder="${_('Start with a summary sentence ...')}">${data.get('description','')}</textarea>
-        <div class="markdown-preview" style="display: none;"></div>
-        <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span>
-      </div>
+      ${markdown_editor('description', data.get('description'), 'notes', _('Start with a summary sentence ...'))}
     </div>
   </div>
   <div class="state-field control-group" py:if="c.is_sysadmin or c.auth_for_change_state">

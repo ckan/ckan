@@ -547,7 +547,7 @@ my.FlotGraph = Backbone.View.extend({
           points: { show: true },
           lines: { show: true }
         },
-        grid: { hoverable: true, clickable: true },
+        grid: { hoverable: true, clickable: true }
       }
       , bars: {
         series: {
@@ -872,7 +872,7 @@ my.DataGrid = Backbone.View.extend({
             <th class="column-header {{#hidden}}hidden{{/hidden}}" data-field="{{id}}"> \
               <div class="btn-group column-header-menu"> \
                 <a class="btn dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i><span class="caret"></span></a> \
-                <ul class="dropdown-menu data-table-menu"> \
+                <ul class="dropdown-menu data-table-menu pull-right"> \
                   <li class="write-op"><a data-action="bulkEdit" href="JavaScript:void(0);">Transform...</a></li> \
                   <li class="write-op"><a data-action="deleteColumn" href="JavaScript:void(0);">Delete this column</a></li> \
                   <li><a data-action="sortAsc" href="JavaScript:void(0);">Sort ascending</a></li> \
@@ -909,7 +909,7 @@ my.DataGrid = Backbone.View.extend({
       var newView = new my.DataGridRow({
           model: doc,
           el: tr,
-          fields: self.fields,
+          fields: self.fields
         },
         self.options
         );
