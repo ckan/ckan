@@ -143,6 +143,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
     return url
 
 def lang():
+    ''' Reurn the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
 
 class Message(object):
@@ -220,18 +221,23 @@ class _Flash(object):
         return bool(session.get(self.session_key))
 
 flash = _Flash()
+# this is here for backwards compatability
 _flash = flash
 
 def flash_notice(message, allow_html=False):
+    ''' Show a flash message of type notice '''
     flash(message, category='alert-info', allow_html=allow_html)
 
 def flash_error(message, allow_html=False):
+    ''' Show a flash message of type error '''
     flash(message, category='alert-error', allow_html=allow_html)
 
 def flash_success(message, allow_html=False):
+    ''' Show a flash message of type success '''
     flash(message, category='alert-success', allow_html=allow_html)
 
 def are_there_flash_messages():
+    ''' Returns True if there are flash messages for the current user '''
     return flash.are_there_messages()
 
 
@@ -356,7 +362,7 @@ def am_authorized(c, action, domain_object=None):
         domain_object = model.System()
     return Authorizer.am_authorized(c, action, domain_object)
 
-def check_access(action,data_dict=None):
+def check_access(action, data_dict=None):
     from ckan import model
     from ckan.logic import check_access as check_access_logic,NotAuthorized
 
@@ -459,7 +465,6 @@ def linked_gravatar(email_hash, size=100, default=None):
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro']
 def gravatar(email_hash, size=100, default=None):
     if default is None:
-        #from pylons import config 
         default = config.get('ckan.gravatar_default', 'identicon')
 
     if not default in _VALID_GRAVATAR_DEFAULTS:
@@ -538,7 +543,7 @@ def parse_rfc_2822_date(date_str, tz_aware=True):
     Returns None if the string cannot be parse as a valid datetime.
     """
     time_tuple = email.utils.parsedate_tz(date_str)
-    
+
     if not time_tuple:
         return None
 
