@@ -321,7 +321,20 @@ def _subnav_named_route(text, routename, **kwargs):
 def default_group_type():
     return str( config.get('ckan.default.group_type', 'group') )
 
-def facet_items(c, name, limit=10):
+
+def facet_items(*args, **kwargs):
+    # facet_items() used to need c passing as the first arg
+    # this is depriciated as pointless
+    # throws error if ckan.restrict_template_vars is True
+    # When we move to strict helpers then this should be removed as a wrapper
+    if len(args) > 2 or (len(args) > 0 and 'name' in kwargs) or (len(args) > 1 and 'limit' in kwargs):
+        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
+            return _facet_items(*args[1:], **kwargs)
+        raise Exception('facet_items() calling has been changed. remove c in template %s or included one' % c.__template_name)
+    return _facet_items(*args, **kwargs)
+
+
+def _facet_items(name, limit=10):
     if not c.facets or not c.facets.get(name):
         return []
     facets = []
