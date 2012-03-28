@@ -205,6 +205,32 @@ class MultilingualDataset(SingletonPlugin):
         return search_results
 
     def before_view(self, data_dict):
+
+        # Lookup translations of all the terms in c.fields, save them in
+        # c.translated_fields.
+        c = pylons.c
+        desired_lang_code = pylons.request.environ['CKAN_LANG']
+        fallback_lang_code = pylons.config.get('ckan.locale_default', 'en')
+        terms = [value for param, value in c.fields]
+        translations = ckan.logic.action.get.term_translation_show(
+                {'model': ckan.model},
+                {'terms': terms,
+                 'lang_codes': (desired_lang_code, fallback_lang_code)})
+        c.translated_fields = {}
+        for param, value in c.fields:
+            matching_translations = [translation for translation in
+                    translations if translation['term'] == value and
+                    translation['lang_code'] == desired_lang_code]
+            if not matching_translations:
+                matching_translations = [translation for translation in
+                        translations if translation['term'] == value and
+                        translation['lang_code'] == fallback_lang_code]
+            if matching_translations:
+                assert len(matching_translations) == 1
+                translation = matching_translations[0]['term_translation']
+                c.translated_fields[(param, value)] = translation
+
+        # Translate all the terms in data_dict.
         return translate_data_dict(data_dict)
 
 class MultilingualGroup(SingletonPlugin):
