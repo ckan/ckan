@@ -169,7 +169,6 @@ def package_dictize(pkg, context):
     #groups
     member_rev = model.member_revision_table
     group = model.group_table
-    q = select([group,member_rev.c.capacity],
     q = select([group, member_rev.c.capacity],
                from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
                ).where(member_rev.c.table_id == pkg.id)\
