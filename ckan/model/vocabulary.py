@@ -1,7 +1,8 @@
 from meta import Table, types, Session
-from core import metadata, Column, DomainObject, mapper
+from core import metadata, Column, mapper
 from types import make_uuid
 import tag
+import domain_object
 
 VOCABULARY_NAME_MIN_LENGTH = 2
 VOCABULARY_NAME_MAX_LENGTH = 100
@@ -13,7 +14,7 @@ vocabulary_table = Table(
         unique=True),
     )
 
-class Vocabulary(DomainObject):
+class Vocabulary(domain_object.DomainObject):
 
     def __init__(self, name):
         self.id = make_uuid()

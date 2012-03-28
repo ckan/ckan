@@ -10,6 +10,7 @@ from core import *
 from package import *
 from ckan.model import extension
 from ckan.model.activity import ActivityDetail
+import domain_object
 
 __all__ = ['Resource', 'resource_table', 
            'ResourceGroup', 'resource_group_table',
@@ -66,7 +67,7 @@ resource_group_revision_table = make_revisioned_table(resource_group_table)
 
 class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,
-               DomainObject):
+               domain_object.DomainObject):
     extra_columns = None
     def __init__(self, resource_group_id=None, url=u'', 
                  format=u'', description=u'', hash=u'',
@@ -158,7 +159,7 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
 
 class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,
-               DomainObject):
+               domain_object.DomainObject):
     extra_columns = None
     def __init__(self, package_id=None, sort_order=u'', label=u'',
                  extras=None, **kwargs):

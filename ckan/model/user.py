@@ -6,8 +6,8 @@ from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 
 from meta import *
-from core import DomainObject
 from types import make_uuid
+import domain_object
 
 user_table = Table('user', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),
@@ -22,7 +22,7 @@ user_table = Table('user', metadata,
         Column('about', UnicodeText),
         )
 
-class User(DomainObject):
+class User(domain_object.DomainObject):
 
     VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
     DOUBLE_SLASH = re.compile(':\/([^/])')

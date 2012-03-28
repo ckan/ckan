@@ -6,6 +6,7 @@ from core import *
 from package import *
 from group import *
 from types import JsonType
+import domain_object
 
 
 __all__ = ['GroupExtra', 'group_extra_table', 'GroupExtraRevision']
@@ -23,7 +24,7 @@ group_extra_revision_table = make_revisioned_table(group_extra_table)
 
 class GroupExtra(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
-        DomainObject):
+        domain_object.DomainObject):
     pass
 
 mapper(GroupExtra, group_extra_table, properties={

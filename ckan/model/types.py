@@ -1,16 +1,16 @@
+## IMPORTS FIXED
 import datetime
 import copy
+import uuid
 
 from sqlalchemy import types
 
-from pylons import config
-
-from ckan.model import meta
+import meta
+import ckan.lib.helpers as h
 
 def make_uuid():
     return unicode(uuid.uuid4())
 
-import uuid
 class UuidType(types.TypeDecorator):
     impl = types.Unicode
 
@@ -30,7 +30,6 @@ class UuidType(types.TypeDecorator):
         return unicode(uuid.uuid4())
 
 
-from ckan.lib.helpers import json
 class JsonType(types.TypeDecorator):
     '''Store data as JSON serializing on save and unserializing on use.
 
@@ -45,17 +44,17 @@ class JsonType(types.TypeDecorator):
             return None
         else:
             # ensure_ascii=False => allow unicode but still need to convert
-            return unicode(json.dumps(value, ensure_ascii=False))
+            return unicode(h.json.dumps(value, ensure_ascii=False))
 
     def process_result_value(self, value, engine):
         if value is None:
             return {}
         else:
-            return json.loads(value)
+            return h.json.loads(value)
 
     def copy(self):
         return JsonType(self.impl.length)
-    
+
     def is_mutable(self):
         return True
 
@@ -73,7 +72,7 @@ class JsonDictType(JsonType):
             if isinstance(value, basestring):
                 return unicode(value)
             else:
-                return unicode(json.dumps(value, ensure_ascii=False))
+                return unicode(h.json.dumps(value, ensure_ascii=False))
 
     def copy(self):
         return JsonDictType(self.impl.length)

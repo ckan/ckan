@@ -5,6 +5,7 @@ from core import *
 from package import *
 from types import make_uuid
 from user import User
+import domain_object
 
 __all__ = ['Rating']
 
@@ -17,7 +18,7 @@ rating_table = Table('rating', metadata,
                      Column('created', DateTime, default=datetime.datetime.now),
                      )
 
-class Rating(DomainObject):
+class Rating(domain_object.DomainObject):
     pass
 
 mapper(Rating, rating_table,

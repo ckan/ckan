@@ -6,6 +6,7 @@ from core import *
 from package import *
 from types import JsonType
 from ckan.model import extension
+import domain_object
 
 __all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision',
            'extra_revision_table']
@@ -23,7 +24,7 @@ extra_revision_table= make_revisioned_table(package_extra_table)
 
 class PackageExtra(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
-        DomainObject):
+        domain_object.DomainObject):
 
     def related_packages(self):
         return [self.package]

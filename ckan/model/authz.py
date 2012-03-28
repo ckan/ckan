@@ -10,6 +10,7 @@ from types import make_uuid
 from user import User
 from core import System
 from authorization_group import AuthorizationGroup, authorization_group_table
+import domain_object
 
 PSEUDO_USER__LOGGED_IN = u'logged_in'
 PSEUDO_USER__VISITOR = u'visitor'
@@ -121,7 +122,7 @@ system_role_table = Table('system_role', metadata,
            )
 
 
-class RoleAction(DomainObject):
+class RoleAction(domain_object.DomainObject):
     def __repr__(self):
         return '<%s role="%s" action="%s" context="%s">' % \
                (self.__class__.__name__, self.role, self.action, self.context)
@@ -130,7 +131,7 @@ class RoleAction(DomainObject):
 # dictionary mapping protected objects (e.g. Package) to related ObjectRole
 protected_objects = {}
 
-class UserObjectRole(DomainObject):
+class UserObjectRole(domain_object.DomainObject):
     name = None
     protected_object = None
 
@@ -439,7 +440,7 @@ def setup_default_user_roles(domain_object, admins=[]):
                      admins)
 
 def clear_user_roles(domain_object):
-    assert isinstance(domain_object, DomainObject)
+    assert isinstance(domain_object, domain_object.DomainObject)
     if isinstance(domain_object, Package):
         q = Session.query(PackageRole).filter_by(package=domain_object)
     elif isinstance(domain_object, Group):

@@ -5,6 +5,7 @@ from ckan import model
 from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from ckan.logic import get_action
+import ckan.model.domain_object
 
 from common import (SearchIndexError, SearchError, SearchQueryError,
                     make_connection, is_available, SolrSettings)
@@ -58,7 +59,7 @@ if SIMPLE_SEARCH:
     _QUERIES['package'] = sql.PackageSearchQuery
 
 def _normalize_type(_type):
-    if isinstance(_type, model.DomainObject):
+    if isinstance(_type, ckan.model.domain_object.DomainObject):
         _type = _type.__class__
     if isinstance(_type, type):
         _type = _type.__name__

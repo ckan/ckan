@@ -3,6 +3,7 @@ from meta import *
 from core import *
 from types import make_uuid
 from datetime import datetime
+import domain_object
 
 __all__ = ['TaskStatus', 'task_status_table']
 
@@ -19,7 +20,7 @@ task_status_table = Table('task_status', metadata,
     sa.UniqueConstraint('entity_id', 'task_type', 'key')
 )
 
-class TaskStatus(DomainObject):
+class TaskStatus(domain_object.DomainObject):
     @classmethod
     def get(cls, reference):
         '''Returns a task status object referenced by its id.'''

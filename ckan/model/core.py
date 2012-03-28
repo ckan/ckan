@@ -1,14 +1,15 @@
+import datetime
 from meta import metadata, mapper
 from sqlalchemy import Column, DateTime, Text, Boolean
 import vdm.sqlalchemy
 
-from domain_object import DomainObject
+import domain_object
 
 ## VDM-specific tables
 revision_table = vdm.sqlalchemy.make_revision_table(metadata)
 revision_table.append_column(Column('approved_timestamp', DateTime))
 
-class System(DomainObject):
+class System(domain_object.DomainObject):
     
     name = 'system'
     
@@ -29,7 +30,6 @@ Revision = vdm.sqlalchemy.make_Revision(mapper, revision_table)
 
 
 def make_revisioned_table(table):
-    import datetime
     revision_table = vdm.sqlalchemy.make_revisioned_table(table)
     revision_table.append_column(Column('expired_id', 
                                  Text))

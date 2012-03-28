@@ -4,6 +4,7 @@ from meta import *
 from core import *
 from package import *
 from types import make_uuid
+import domain_object
 
 # i18n only works when this is run as part of pylons,
 # which isn't the case for paster commands.
@@ -28,7 +29,7 @@ package_relationship_revision_table = make_revisioned_table(package_relationship
 
 class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
                           vdm.sqlalchemy.StatefulObjectMixin,
-                          DomainObject):
+                          domain_object.DomainObject):
     '''The rule with PackageRelationships is that they are stored in the model
     always as the "forward" relationship - i.e. "child_of" but never
     as "parent_of". However, the model functions provide the relationships

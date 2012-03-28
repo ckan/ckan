@@ -1,9 +1,9 @@
 import datetime
 
 from meta import *
-from core import DomainObject
 from user import User, user_table
 from types import make_uuid
+import domain_object
 
 authorization_group_table = Table('authorization_group', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
@@ -19,7 +19,7 @@ authorization_group_user_table = Table('authorization_group_user', metadata,
     )
 
 
-class AuthorizationGroup(DomainObject):
+class AuthorizationGroup(domain_object.DomainObject):
 
     @classmethod
     def search(cls, querystr, sqlalchemy_query=None):
@@ -42,7 +42,7 @@ class AuthorizationGroup(DomainObject):
                                  cls.id==auth_group_reference))
         return query.first()
     
-class AuthorizationGroupUser(DomainObject):
+class AuthorizationGroupUser(domain_object.DomainObject):
     pass
 
 def user_in_authorization_group(user, authorization_group):
