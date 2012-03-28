@@ -7,7 +7,7 @@ from ckan.lib import base
 from ckan.lib.base import c, model, abort, request
 from ckan.lib.base import redirect, _, config, h
 from ckan.lib.navl.dictization_functions import DataError
-from ckan.plugins import IGroupForm, IDatasetForm, IConfigurer
+from ckan.plugins import IGroupForm, IDatasetForm, IConfigurer, IRoutes
 from ckan.plugins import implements, SingletonPlugin
 from ckan.logic import check_access
 
@@ -28,6 +28,18 @@ class OrganizationForm(SingletonPlugin):
     """
     implements(IGroupForm, inherit=True)
     implements(IConfigurer, inherit=True)
+    implements(IRoutes)
+    implements(IConfigurer)
+
+    def before_map(self, map):
+        map.connect('/organization/{id}/users', controller='ckanext.organizations.controllers:OrganizationController', action='users')
+        map.connect('/organization/edit/{id}', controller='group', action='edit')
+        map.connect('/organization/{id}', controller='group', action='read')
+
+        return map
+
+    def after_map(self, map):
+        return map
 
     def update_config(self, config):
         """

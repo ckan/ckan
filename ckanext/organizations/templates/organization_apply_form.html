@@ -1,0 +1,49 @@
+
+<form id="publisher-edit" action="" method="post"
+    py:attrs="{'class':'has-errors'} if errors else {}"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<div class="error-explanation" py:if="error_summary">
+	<h2>Errors in form</h2>
+	<p>The form contains invalid entries:</p>
+	<ul>
+	  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}</li>
+	</ul>
+</div>
+
+<input type="hidden" id="type" name="type" value="publisher" />
+
+<fieldset id="application">
+  <dl>
+	<dt>
+		<label class="field_opt" for="name">Organization</label>
+	</dt>
+	<dd>
+		<select id="parent" name="parent" class="chzn-select" data-placeholder="Please choose an organization">
+			<option value=""></option>
+    		<py:for each="pg in c.possible_parents">
+				<option py:attrs="{'selected': 'selected' if c.group and pg.id == c.group.id else None}" value="${pg.id}">${pg.title}</option>
+			</py:for>
+		</select>
+	</dd>
+
+
+    <dt><label class="field_opt" for="name">Reason</label></dt>
+    <dd>
+		<textarea rows="10" cols="60" class="" id="reason" name="reason">${data.get('reason', '')}</textarea>
+		<br/>
+		<span class="hints">Please explain to the owner your reasons for wishing to become an editor of this organization</span>
+	</dd>
+  </dl>
+</fieldset>
+
+
+<div class="form-submit">
+  <input id="save" class="pretty-button primary" name="save" type="submit" value="${_('Send request')}" />
+  <py:if test="c.group">
+    <input id="cancel" class="pretty-button href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='group', action='read', id=c.group.name)}" />
+  </py:if>
+</div>
+</form>

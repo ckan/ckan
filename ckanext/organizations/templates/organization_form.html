@@ -101,30 +101,17 @@
 </fieldset>
 
 <fieldset id="users">
-  <h3>Users</h3>
-  <dl py:if="data.get('users')">
-    <py:for each="num, user in enumerate(data.get('users'))">
-      <dt py:if="c.is_superuser_or_groupadmin"><input checked="checked" id="users__${num}__name" name="users__${num}__name" type="checkbox" value="${user['name']}" onclick="$('input[name=users__${num}__capacity]').val('')"/>
-  	  </dt>
-	      <dd>
-	        <label for="users__${num}__name">${user['name']} ${user['capacity']}</label>
-		  </dd>
-		  <dd py:if="c.is_superuser_or_groupadmin">
-			  <input type="radio" name="users__${num}__capacity" value="admin"  py:attrs="{'checked': 'checked' if user['capacity'] == 'admin' else None}"> Admin</input>
-			  <input type="radio" name="users__${num}__capacity" value="editor" py:attrs="{'checked': 'checked' if user['capacity'] in ['editor','member'] else None}"> Editor</input>
-		  </dd>
+  <h3>Users <span py:if="c.users">(${len(c.users.all())})</span></h3>
+<a py:if="c.group" href="${h.url_for(controller='ckanext.organizations.controllers:OrganizationController', action='users', id=c.group.name)}">Manage users</a>
+
+  <dl py:if="c.users">
+    <py:for each="user in c.users">
+		<dd>
+			<label>${user['name']}</label>
+		</dd>
     </py:for>
   </dl>
-  <p py:if="not data.get('users')">There are no users currently in this organization.</p>
-
-  <span py:if="c.is_superuser_or_groupadmin">
-	  <h3>Add users</h3>
-	  <dl>
-	    <dt><label class="field_opt" for="users__${len(data.get('users', []))}__name">User</label></dt>
-		<input type="hidden" name="add-user-capacity" value="editor"></input>
-	    <dd><input class="autocomplete-organization-user" id="users__${len(data.get('users', [])) + 1}__name" name="users__${len(data.get('users', []))}__name" type="text" /></dd>
-	  </dl>
-	</span>
+  <p py:if="not c.users or not c.users.all()">There are no users currently in this publisher.</p>
 </fieldset>
 
 
