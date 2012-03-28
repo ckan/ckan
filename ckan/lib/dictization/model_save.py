@@ -69,7 +69,7 @@ def package_resource_list_save(res_dicts, package, context):
     resource_list[:] = obj_list
 
     for resource in set(old_list) - set(obj_list):
-        if pending and resource.state <> 'deleted':
+        if pending and resource.state != 'deleted':
             resource.state = 'pending-deleted'
         else:
             resource.state = 'deleted'
