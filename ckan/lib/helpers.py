@@ -264,14 +264,14 @@ def nav_named_link(*args, **kwargs):
     # this is depriciated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
-    if len(args) > 3 or (len(args) > 1 and 'text' in kwargs) or \
-       (len(args) > 2 and 'name' in kwargs):
+    if len(args) > 3 or (len(args) > 0 and 'text' in kwargs) or \
+       (len(args) > 1 and 'name' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _nav_named_link(*args[1:], **kwargs)
         raise Exception('nav_named_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
     return _nav_named_link(*args, **kwargs)
 
-def _nav_named_link(c, text, name, **kwargs):
+def _nav_named_link(text, name, **kwargs):
     return link_to(
         text,
         url_for(name, **kwargs),
