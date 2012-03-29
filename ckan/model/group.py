@@ -3,9 +3,9 @@ import datetime
 from meta import *
 from core import *
 from sqlalchemy.orm import eagerload_all
-from domain_object import DomainObject
 from package import *
-from types import make_uuid
+import types as _types
+import domain_object
 import vdm.sqlalchemy
 from ckan.model import extension, User
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -15,7 +15,7 @@ __all__ = ['group_table', 'Group', 'package_revision_table',
            'member_revision_table', 'member_table']
 
 member_table = Table('member', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
+    Column('id', UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('table_name', UnicodeText, nullable=False),
     Column('table_id', UnicodeText, nullable=False),
     Column('capacity', UnicodeText, nullable=False),
@@ -26,7 +26,7 @@ vdm.sqlalchemy.make_table_stateful(member_table)
 member_revision_table = make_revisioned_table(member_table)
 
 group_table = Table('group', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
+    Column('id', UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('name', UnicodeText, nullable=False, unique=True),
     Column('title', UnicodeText),
     Column('type', UnicodeText, nullable=False),
@@ -41,7 +41,7 @@ group_revision_table = make_revisioned_table(group_table)
 
 class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
-        DomainObject):
+        domain_object.DomainObject):
     def __init__(self, group=None, table_id=None, group_id=None,
                  table_name=None, capacity='member', state='active'):
         self.group = group
@@ -76,7 +76,7 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
 
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
-            DomainObject):
+            domain_object.DomainObject):
 
     def __init__(self, name=u'', title=u'', description=u'',
                  type=u'group', approval_status=u'approved' ):
@@ -183,7 +183,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return q.order_by(cls.title)
 
     def as_dict(self, ref_package_by='name'):
-        _dict = DomainObject.as_dict(self)
+        _dict = domain_object.DomainObject.as_dict(self)
         _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
         _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
         if ( self.type == 'publisher' ):

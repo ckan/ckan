@@ -12,10 +12,10 @@ from pylons import config, session, c, request
 from meta import metadata, Session
 import vdm.sqlalchemy
 
-from types import make_uuid, iso_date_to_datetime_for_sqlite
 from core import make_revisioned_table, Revision, State
 from license import License, LicenseRegister
-from domain_object import DomainObject
+import types as _types
+import domain_object
 import ckan.misc
 from activity import Activity, ActivityDetail
 
@@ -29,7 +29,7 @@ PACKAGE_VERSION_MAX_LENGTH = 100
 
 ## Our Domain Object Tables
 package_table = Table('package', metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
                nullable=False, unique=True),
         Column('title', types.UnicodeText),
@@ -53,7 +53,7 @@ package_revision_table = make_revisioned_table(package_table)
 
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
-        DomainObject):
+        domain_object.DomainObject):
 
     text_search_fields = ['name', 'title']
 
@@ -248,7 +248,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return total / len(self.ratings)
 
     def as_dict(self, ref_package_by='name', ref_group_by='name'):
-        _dict = DomainObject.as_dict(self)
+        _dict = domain_object.DomainObject.as_dict(self)
         # Set 'license' in _dict to cater for old clients.
         # Todo: Remove from Version 2?
         _dict['license'] = self.license.title if self.license else _dict.get('license_id', '')
@@ -554,7 +554,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         result = conn.execute(query).fetchone()
 
         if result:
-            result_datetime = iso_date_to_datetime_for_sqlite(result[0])
+            result_datetime = _types.iso_date_to_datetime_for_sqlite(result[0])
             timestamp_without_usecs = result_datetime.utctimetuple()
             usecs = float(result_datetime.microsecond) / 1e6
             # use timegm instead of mktime, because we don't want it localised

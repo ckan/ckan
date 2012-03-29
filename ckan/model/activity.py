@@ -6,6 +6,7 @@ from meta import *
 from core import *
 from package import *
 import types as _types
+import domain_object
 
 __all__ = ['Activity', 'activity_table', 
            'ActivityDetail', 'activity_detail_table',
@@ -32,7 +33,7 @@ activity_detail_table = Table(
     Column('data', _types.JsonDictType),
     )
 
-class Activity(DomainObject):
+class Activity(domain_object.DomainObject):
 
     def __init__(self, user_id, object_id, revision_id, activity_type,
             data=None):
@@ -49,7 +50,7 @@ class Activity(DomainObject):
 
 mapper(Activity, activity_table)
 
-class ActivityDetail(DomainObject):
+class ActivityDetail(domain_object.DomainObject):
 
     def __init__(self, activity_id, object_id, object_type, activity_type,
             data=None):

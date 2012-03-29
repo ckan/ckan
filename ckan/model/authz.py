@@ -5,12 +5,12 @@ doc/authorization.rst.
 from meta import *
 from core import *
 from package import *
-from group import Group
-from types import make_uuid
-from user import User
+import group
+import user as _user
 from core import System
 import authorization_group as auth_group
 import domain_object
+import types as _types
 
 PSEUDO_USER__LOGGED_IN = u'logged_in'
 PSEUDO_USER__VISITOR = u'visitor'
@@ -88,14 +88,14 @@ default_role_actions = [
 ## Table Definitions
 
 role_action_table = Table('role_action', metadata,
-           Column('id', UnicodeText, primary_key=True, default=make_uuid),
+           Column('id', UnicodeText, primary_key=True, default=_types.make_uuid),
            Column('role', UnicodeText),
            Column('context', UnicodeText, nullable=False),
            Column('action', UnicodeText),
            )
 
 user_object_role_table = Table('user_object_role', metadata,
-           Column('id', UnicodeText, primary_key=True, default=make_uuid),
+           Column('id', UnicodeText, primary_key=True, default=_types.make_uuid),
            Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=True),
            Column('authorized_group_id', UnicodeText, ForeignKey('authorization_group.id'), nullable=True),
            Column('context', UnicodeText, nullable=False), # stores subtype
@@ -157,7 +157,7 @@ class UserObjectRole(domain_object.DomainObject):
 
     @classmethod
     def user_has_role(cls, user, role, domain_obj):
-        assert isinstance(user, User), user
+        assert isinstance(user, _user.User), user
         q = cls._user_query(user, role, domain_obj)
         return q.count() == 1
         
@@ -252,7 +252,7 @@ class PackageRole(UserObjectRole):
 protected_objects[PackageRole.protected_object] = PackageRole
 
 class GroupRole(UserObjectRole):
-    protected_object = Group
+    protected_object = group.Group
     name = 'group'
 
     def __repr__(self):
@@ -346,18 +346,18 @@ def setup_user_roles(_domain_object, visitor_roles, logged_in_roles, admins=[]):
     '''NB: leaves caller to commit change'''
     assert type(admins) == type([])
     admin_roles = [Role.ADMIN]
-    visitor = User.by_name(PSEUDO_USER__VISITOR)
+    visitor = _user.User.by_name(PSEUDO_USER__VISITOR)
     assert visitor
     for role in visitor_roles:
         add_user_to_role(visitor, role, _domain_object)
-    logged_in = User.by_name(PSEUDO_USER__LOGGED_IN)
+    logged_in = _user.User.by_name(PSEUDO_USER__LOGGED_IN)
     assert logged_in
     for role in logged_in_roles:
         add_user_to_role(logged_in, role, _domain_object)
     for admin in admins:
         # not sure if admin would reasonably by None
         if admin is not None:
-            assert isinstance(admin, User), admin
+            assert isinstance(admin, _user.User), admin
             if admin.name in (PSEUDO_USER__LOGGED_IN, PSEUDO_USER__VISITOR):
                 raise NotRealUserException('Invalid user for domain object admin %r' % admin.name)
             for role in admin_roles:
@@ -381,7 +381,7 @@ def give_all_packages_default_user_roles():
         for rev in revs:
             if rev.revision.author:
                 # rev author is not Unicode!!
-                user = User.by_name(unicode(rev.revision.author))
+                user = _user.User.by_name(unicode(rev.revision.author))
                 if user:
                     admins.append(user)
         # remove duplicates
@@ -431,7 +431,7 @@ def setup_default_user_roles(_domain_object, admins=[]):
     @param admins - a list of User objects
     NB: leaves caller to commit change.
     '''
-    assert isinstance(_domain_object, (Package, Group, System, auth_group.AuthorizationGroup)), _domain_object
+    assert isinstance(_domain_object, (Package, group.Group, System, auth_group.AuthorizationGroup)), _domain_object
     assert isinstance(admins, list)
     user_roles_ = get_default_user_roles(_domain_object)
     setup_user_roles(_domain_object,
@@ -443,7 +443,7 @@ def clear_user_roles(_domain_object):
     assert isinstance(_domain_object, domain_object.DomainObject)
     if isinstance(_domain_object, Package):
         q = Session.query(PackageRole).filter_by(package=_domain_object)
-    elif isinstance(_domain_object, Group):
+    elif isinstance(_domain_object, group.Group):
         q = Session.query(GroupRole).filter_by(group=_domain_object)
     else:
         raise NotImplementedError()
@@ -461,7 +461,7 @@ mapper(UserObjectRole, user_object_role_table,
     polymorphic_on=user_object_role_table.c.context,
     polymorphic_identity=u'user_object',
     properties={
-        'user': orm.relation(User,
+        'user': orm.relation(_user.User,
             backref=orm.backref('roles',
                 cascade='all, delete, delete-orphan'
             )
@@ -488,9 +488,9 @@ mapper(PackageRole, package_role_table, inherits=UserObjectRole,
 )
 
 mapper(GroupRole, group_role_table, inherits=UserObjectRole,
-       polymorphic_identity=unicode(Group.__name__),
+       polymorphic_identity=unicode(group.Group.__name__),
        properties={
-            'group': orm.relation(Group,
+            'group': orm.relation(group.Group,
                  backref=orm.backref('roles',
                  cascade='all, delete, delete-orphan'
                  ),

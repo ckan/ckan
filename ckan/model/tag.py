@@ -1,11 +1,11 @@
 import sqlalchemy
 import vdm.sqlalchemy
 
-from types import make_uuid
 from meta import *
-from domain_object import DomainObject
 from package import Package
 from core import *
+import types as _types
+import domain_object
 import vocabulary
 import activity
 import ckan
@@ -18,7 +18,7 @@ MAX_TAG_LENGTH = 100
 MIN_TAG_LENGTH = 2
 
 tag_table = Table('tag', metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False),
         Column('vocabulary_id',
             types.Unicode(vocabulary.VOCABULARY_NAME_MAX_LENGTH),
@@ -27,7 +27,7 @@ tag_table = Table('tag', metadata,
 )
 
 package_tag_table = Table('package_tag', metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('package_id', types.UnicodeText, ForeignKey('package.id')),
         Column('tag_id', types.UnicodeText, ForeignKey('tag.id')),
         )
@@ -36,7 +36,7 @@ vdm.sqlalchemy.make_table_stateful(package_tag_table)
 # TODO: this has a composite primary key ...
 package_tag_revision_table = make_revisioned_table(package_tag_table)
 
-class Tag(DomainObject):
+class Tag(domain_object.DomainObject):
     def __init__(self, name='', vocabulary_id=None):
         self.name = name
         self.vocabulary_id = vocabulary_id
@@ -186,7 +186,7 @@ class Tag(DomainObject):
 
 class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
-        DomainObject):
+        domain_object.DomainObject):
     def __init__(self, package=None, tag=None, state=None, **kwargs):
         self.package = package
         self.tag = tag

@@ -1,22 +1,21 @@
 from meta import *
-from types import make_uuid
 import vdm.sqlalchemy
 
 from core import *
 from package import *
-from types import JsonType
 from ckan.model import extension
 import domain_object
+import types as _types
 
 __all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision',
            'extra_revision_table']
 
 package_extra_table = Table('package_extra', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
+    Column('id', UnicodeText, primary_key=True, default=_types.make_uuid),
     # NB: only (package, key) pair is unique
     Column('package_id', UnicodeText, ForeignKey('package.id')),
     Column('key', UnicodeText),
-    Column('value', JsonType),
+    Column('value', _types.JsonType),
 )
 
 vdm.sqlalchemy.make_table_stateful(package_extra_table)

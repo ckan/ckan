@@ -1,8 +1,5 @@
-import sqlalchemy as sa
 from meta import *
 from core import *
-from types import make_uuid
-from datetime import datetime
 
 __all__ = ['term_translation_table']
 
