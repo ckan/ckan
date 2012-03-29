@@ -1,24 +1,24 @@
-from meta import *
 import vdm.sqlalchemy
+from sqlalchemy import orm, types, Column, Table, ForeignKey
 
-from core import *
-from package import *
-from group import *
+import group
+import meta
+import core
 import types as _types
 import domain_object
 
 
 __all__ = ['GroupExtra', 'group_extra_table', 'GroupExtraRevision']
 
-group_extra_table = Table('group_extra', metadata,
-    Column('id', UnicodeText, primary_key=True, default=_types.make_uuid),
-    Column('group_id', UnicodeText, ForeignKey('group.id')),
-    Column('key', UnicodeText),
+group_extra_table = Table('group_extra', meta.metadata,
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('group_id', types.UnicodeText, ForeignKey('group.id')),
+    Column('key', types.UnicodeText),
     Column('value', _types.JsonType),
 )
 
 vdm.sqlalchemy.make_table_stateful(group_extra_table)
-group_extra_revision_table = make_revisioned_table(group_extra_table)
+group_extra_revision_table = core.make_revisioned_table(group_extra_table)
 
 
 class GroupExtra(vdm.sqlalchemy.RevisionedObjectMixin,
@@ -26,8 +26,8 @@ class GroupExtra(vdm.sqlalchemy.RevisionedObjectMixin,
         domain_object.DomainObject):
     pass
 
-mapper(GroupExtra, group_extra_table, properties={
-    'group': orm.relation(Group,
+meta.mapper(GroupExtra, group_extra_table, properties={
+    'group': orm.relation(group.Group,
         backref=orm.backref('_extras',
             collection_class=orm.collections.attribute_mapped_collection(u'key'),
             cascade='all, delete, delete-orphan',
@@ -38,8 +38,8 @@ mapper(GroupExtra, group_extra_table, properties={
     extension=[vdm.sqlalchemy.Revisioner(group_extra_revision_table),],
 )
 
-vdm.sqlalchemy.modify_base_object_mapper(GroupExtra, Revision, State)
-GroupExtraRevision = vdm.sqlalchemy.create_object_version(mapper, GroupExtra,
+vdm.sqlalchemy.modify_base_object_mapper(GroupExtra, core.Revision, core.State)
+GroupExtraRevision = vdm.sqlalchemy.create_object_version(meta.mapper, GroupExtra,
     group_extra_revision_table)
 
 def _create_extra(key, value):
@@ -48,6 +48,6 @@ def _create_extra(key, value):
 import vdm.sqlalchemy.stateful
 _extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
         vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of()) 
-setattr(Group, 'extras_active', _extras_active)
-Group.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
+setattr(group.Group, 'extras_active', _extras_active)
+group.Group.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
             creator=_create_extra)
