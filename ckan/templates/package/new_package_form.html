@@ -257,7 +257,7 @@
     <label class="control-label" for="log_message">Summary</label>
     <div class="controls">
       <p>Briefly describe the changes you have made...</p>
-      <textarea id="log_message" name="log_message">${data.get('log_message', h.auto_log_message(c))}</textarea>
+      <textarea id="log_message" name="log_message">${data.get('log_message', h.auto_log_message())}</textarea>
     </div>
   </div>
 </fieldset>
