@@ -32,6 +32,10 @@ from vdm.sqlalchemy.base import SQLAlchemySession
 
 log = logging.getLogger(__name__)
 
+## CLEANUP related stuff to stop breakages
+Session = meta.Session
+engine_is_sqlite = meta.engine_is_sqlite
+
 # set up in init_model after metadata is bound
 version_table = None
 
@@ -45,7 +49,7 @@ def init_model(engine):
     # sqlalchemy migrate version table
     import sqlalchemy.exc
     try:
-        version_table = Table('migrate_version', metadata, autoload=True)
+        version_table = Table('migrate_version', meta.metadata, autoload=True)
     except sqlalchemy.exc.NoSuchTableError:
         pass
 
@@ -81,12 +85,12 @@ class Repository(vdm.sqlalchemy.Repository):
                 self.tables_created_and_initialised = True
 
     def clean_db(self):
-        metadata = MetaData(self.metadata.bind)
+        meta.metadata = MetaData(self.metadata.bind)
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')
-            metadata.reflect()
+            meta.metadata.reflect()
 
-        metadata.drop_all()
+        meta.metadata.drop_all()
         self.tables_created_and_initialised = False
 
     def init_const_data(self):
@@ -96,8 +100,8 @@ class Repository(vdm.sqlalchemy.Repository):
                          PSEUDO_USER__VISITOR):
             if not User.by_name(username):
                 user = User(name=username)
-                Session.add(user)
-        Session.flush() # so that these objects can be used
+                meta.Session.add(user)
+        meta.Session.flush() # so that these objects can be used
                         # straight away
         init_authz_const_data()
 
@@ -105,11 +109,11 @@ class Repository(vdm.sqlalchemy.Repository):
         '''Default configuration, for when CKAN is first used out of the box.
         This state may be subsequently configured by the user.'''
         init_authz_configuration_data()
-        if Session.query(Revision).count() == 0:
+        if meta.Session.query(Revision).count() == 0:
             rev = Revision()
             rev.author = 'system'
             rev.message = u'Initialising the Repository'
-            Session.add(rev)
+            meta.Session.add(rev)
         self.commit_and_remove()   
 
     def create_db(self):
@@ -185,9 +189,9 @@ class Repository(vdm.sqlalchemy.Repository):
         ##pprint.pprint(getDiffOfModelAgainstDatabase(self.metadata, self.metadata.bind).colDiffs)
 
     def are_tables_created(self):
-        metadata = MetaData(self.metadata.bind)
-        metadata.reflect()
-        return bool(metadata.tables)
+        meta.metadata = MetaData(self.metadata.bind)
+        meta.metadata.reflect()
+        return bool(meta.metadata.tables)
 
     def purge_revision(self, revision, leave_record=False):
         '''Purge all changes associated with a revision.
@@ -249,7 +253,7 @@ class Repository(vdm.sqlalchemy.Repository):
         self.commit_and_remove()
 
 
-repo = Repository(metadata, Session,
+repo = Repository(meta.metadata, meta.Session,
         versioned_objects=[Package, PackageTag, Resource, ResourceGroup, PackageExtra, Member, Group]
         )
 
@@ -280,7 +284,7 @@ def _get_groups(self):
 # could set this up directly on the mapper?
 def _get_revision_user(self):
     username = unicode(self.author)
-    user = Session.query(User).filter_by(name=username).first()
+    user = meta.Session.query(User).filter_by(name=username).first()
     return user
 
 Revision.packages = property(_get_packages)
