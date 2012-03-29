@@ -1,19 +1,17 @@
 import datetime
 
-from sqlalchemy import orm
+from sqlalchemy import orm, types, Column, Table, ForeignKey
 
-from meta import *
-from core import *
-from package import *
+import meta
 import types as _types
 import domain_object
 
-__all__ = ['Activity', 'activity_table', 
+__all__ = ['Activity', 'activity_table',
            'ActivityDetail', 'activity_detail_table',
            ]
 
 activity_table = Table(
-    'activity', metadata,
+    'activity', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('timestamp', types.DateTime),
     Column('user_id', types.UnicodeText),
@@ -24,7 +22,7 @@ activity_table = Table(
     )
 
 activity_detail_table = Table(
-    'activity_detail', metadata,
+    'activity_detail', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('activity_id', types.UnicodeText, ForeignKey('activity.id')),
     Column('object_id', types.UnicodeText),
@@ -48,7 +46,7 @@ class Activity(domain_object.DomainObject):
         else:
             self.data = data
 
-mapper(Activity, activity_table)
+meta.mapper(Activity, activity_table)
 
 class ActivityDetail(domain_object.DomainObject):
 
@@ -63,6 +61,6 @@ class ActivityDetail(domain_object.DomainObject):
         else:
             self.data = data
 
-mapper(ActivityDetail, activity_detail_table, properties = {
+meta.mapper(ActivityDetail, activity_detail_table, properties = {
     'activity':orm.relation ( Activity, backref=orm.backref('activity_detail'))
     })
