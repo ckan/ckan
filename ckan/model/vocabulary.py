@@ -1,25 +1,24 @@
-## IMPORTS FIXED
-import sqlalchemy as sa
+from sqlalchemy import types, Column, Table
 
 import meta
-import types
+import types as _types
 import tag
 import domain_object
 
 VOCABULARY_NAME_MIN_LENGTH = 2
 VOCABULARY_NAME_MAX_LENGTH = 100
 
-vocabulary_table = meta.Table(
+vocabulary_table = Table(
     'vocabulary', meta.metadata,
-    sa.Column('id', sa.types.UnicodeText, primary_key=True, default=types.make_uuid),
-    sa.Column('name', sa.types.Unicode(VOCABULARY_NAME_MAX_LENGTH), nullable=False,
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('name', types.Unicode(VOCABULARY_NAME_MAX_LENGTH), nullable=False,
         unique=True),
     )
 
 class Vocabulary(domain_object.DomainObject):
 
     def __init__(self, name):
-        self.id = types.make_uuid()
+        self.id = _types.make_uuid()
         self.name = name
 
     @classmethod
