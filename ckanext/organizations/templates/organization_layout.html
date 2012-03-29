@@ -7,7 +7,10 @@
   >
   <?python
     import ckan.model as model
-    editors = c.group.members_of_type(model.User, 'editor')
+    if isinstance(c.group, model.Group):
+        editors = c.group.members_of_type(model.User, 'editor')
+    else:
+        editors = []
   ?>
   <py:match path="minornavigation">
     <ul class="nav nav-pills" py:choose="bool(c.group)">

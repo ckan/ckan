@@ -161,6 +161,7 @@ class PackageController(BaseController):
                     else:
                         search_extras[param] = value
 
+            fq += ' capacity:"public"'
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 

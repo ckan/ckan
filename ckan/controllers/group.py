@@ -154,8 +154,14 @@ class GroupController(BaseController):
                     else:
                         search_extras[param] = value
 
+
+            fq = 'capacity:"public"'
+            if (c.userobj and c.group and c.userobj.is_in_group(c.group)):
+                fq = ''
+
             data_dict = {
                 'q':q,
+                'fq':fq,
                 'facet.field':g.facets,
                 'rows':limit,
                 'start':(page-1)*limit,
