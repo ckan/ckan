@@ -5,6 +5,7 @@ from sqlalchemy import orm
 from sqlalchemy.util import OrderedDict
 
 import meta
+import core
 
 class Enum(set):
     '''Simple enumeration
@@ -13,7 +14,7 @@ class Enum(set):
     '''
     def __init__(self, *names):
         super(Enum, self).__init__(names)
-        
+
     def __getattr__(self, name):
         if name in self:
             return name
@@ -23,7 +24,7 @@ DomainObjectOperation = Enum('new', 'changed', 'deleted')
 
 # TODO: replace this (or at least inherit from) standard SqlalchemyMixin in vdm
 class DomainObject(object):
-    
+
     text_search_fields = []
     Session = meta.Session
 
@@ -53,8 +54,7 @@ class DomainObject(object):
 
     @classmethod
     def active(cls):
-        from core import State
-        return meta.Session.query(cls).filter_by(state=State.ACTIVE)
+        return meta.Session.query(cls).filter_by(state=core.State.ACTIVE)
 
     def save(self):
         self.add()
@@ -108,7 +108,7 @@ class DomainObject(object):
                 repr += u' %s=%s' % (col.name, getattr(self, col.name))
             except Exception, inst:
                 repr += u' %s=%s' % (col.name, inst)
-                
+
         repr += '>'
         return repr
 

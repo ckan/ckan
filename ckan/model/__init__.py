@@ -8,7 +8,7 @@ from sqlalchemy.schema import Index
 from paste.deploy.converters import asbool
 
 import meta
-from domain_object import DomainObjectOperation
+#from domain_object import DomainObjectOperation
 from core import *
 from package import *
 from tag import *
