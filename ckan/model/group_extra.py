@@ -1,21 +1,20 @@
 from meta import *
-from types import make_uuid
 import vdm.sqlalchemy
 
 from core import *
 from package import *
 from group import *
-from types import JsonType
+import types as _types
 import domain_object
 
 
 __all__ = ['GroupExtra', 'group_extra_table', 'GroupExtraRevision']
 
 group_extra_table = Table('group_extra', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
+    Column('id', UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('group_id', UnicodeText, ForeignKey('group.id')),
     Column('key', UnicodeText),
-    Column('value', JsonType),
+    Column('value', _types.JsonType),
 )
 
 vdm.sqlalchemy.make_table_stateful(group_extra_table)

@@ -1,14 +1,15 @@
 import sqlalchemy as sa
 from meta import *
 from core import *
-from types import make_uuid
-from datetime import datetime
+import types as _types
 import domain_object
+# se overwrite datetime somewhere in our importing
+from datetime import datetime
 
 __all__ = ['TaskStatus', 'task_status_table']
 
 task_status_table = Table('task_status', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
+    Column('id', UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('entity_id', UnicodeText, nullable=False),
     Column('entity_type', UnicodeText, nullable=False),
     Column('task_type', UnicodeText, nullable=False),

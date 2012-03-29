@@ -9,7 +9,7 @@ from group import Group
 from types import make_uuid
 from user import User
 from core import System
-from authorization_group import AuthorizationGroup, authorization_group_table
+import authorization_group as auth_group
 import domain_object
 
 PSEUDO_USER__LOGGED_IN = u'logged_in'
@@ -163,7 +163,7 @@ class UserObjectRole(domain_object.DomainObject):
         
     @classmethod
     def authorization_group_has_role(cls, authorized_group, role, domain_obj):
-        assert isinstance(authorized_group, AuthorizationGroup), authorized_group
+        assert isinstance(authorized_group, auth_group.AuthorizationGroup), authorized_group
         q = cls._authorized_group_query(authorized_group, role, domain_obj)
         return q.count() == 1
         
@@ -268,7 +268,7 @@ class GroupRole(UserObjectRole):
 protected_objects[GroupRole.protected_object] = GroupRole
 
 class AuthorizationGroupRole(UserObjectRole):
-    protected_object = AuthorizationGroup
+    protected_object = auth_group.AuthorizationGroup
     name = 'authorization_group'
 
     def __repr__(self):
@@ -431,7 +431,7 @@ def setup_default_user_roles(_domain_object, admins=[]):
     @param admins - a list of User objects
     NB: leaves caller to commit change.
     '''
-    assert isinstance(_domain_object, (Package, Group, System, AuthorizationGroup)), _domain_object
+    assert isinstance(_domain_object, (Package, Group, System, auth_group.AuthorizationGroup)), _domain_object
     assert isinstance(admins, list)
     user_roles_ = get_default_user_roles(_domain_object)
     setup_user_roles(_domain_object,
@@ -466,7 +466,7 @@ mapper(UserObjectRole, user_object_role_table,
                 cascade='all, delete, delete-orphan'
             )
         ),
-        'authorized_group': orm.relation(AuthorizationGroup,
+        'authorized_group': orm.relation(auth_group.AuthorizationGroup,
             backref=orm.backref('authorized_roles',
                 cascade='all, delete, delete-orphan'
             )
@@ -500,11 +500,11 @@ mapper(GroupRole, group_role_table, inherits=UserObjectRole,
 )
 
 mapper(AuthorizationGroupRole, authorization_group_role_table, inherits=UserObjectRole,
-       polymorphic_identity=unicode(AuthorizationGroup.__name__),
+       polymorphic_identity=unicode(auth_group.AuthorizationGroup.__name__),
        properties={
-            'authorization_group': orm.relation(AuthorizationGroup,
+            'authorization_group': orm.relation(auth_group.AuthorizationGroup,
                  backref=orm.backref('roles',
-                    primaryjoin=authorization_group_table.c.id==authorization_group_role_table.c.authorization_group_id,
+                    primaryjoin=auth_group.authorization_group_table.c.id==authorization_group_role_table.c.authorization_group_id,
                     cascade='all, delete, delete-orphan'
                  ),
             )

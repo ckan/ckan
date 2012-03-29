@@ -3,7 +3,7 @@ import vdm.sqlalchemy
 from meta import *
 from core import *
 from package import *
-from types import make_uuid
+import types as _types
 import domain_object
 
 # i18n only works when this is run as part of pylons,
@@ -17,7 +17,7 @@ except:
 
 
 package_relationship_table = Table('package_relationship', metadata,
-     Column('id', UnicodeText, primary_key=True, default=make_uuid),
+     Column('id', UnicodeText, primary_key=True, default=_types.make_uuid),
      Column('subject_package_id', UnicodeText, ForeignKey('package.id')),
      Column('object_package_id', UnicodeText, ForeignKey('package.id')),
      Column('type', UnicodeText),

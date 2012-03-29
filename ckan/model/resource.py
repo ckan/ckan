@@ -5,7 +5,7 @@ from pylons import config
 import vdm.sqlalchemy
 
 from meta import *
-from types import make_uuid, JsonDictType
+import types as _types
 from core import *
 from package import *
 from ckan.model import extension
@@ -28,7 +28,7 @@ CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
 ##formally package_resource
 resource_table = Table(
     'resource', metadata,
-    Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('resource_group_id', types.UnicodeText, ForeignKey('resource_group.id')),
     Column('url', types.UnicodeText, nullable=False),
     Column('format', types.UnicodeText),
@@ -47,16 +47,16 @@ resource_table = Table(
     Column('webstore_url', types.UnicodeText),
     Column('webstore_last_updated', types.DateTime),
     
-    Column('extras', JsonDictType),
+    Column('extras', _types.JsonDictType),
     )
 
 resource_group_table = Table(
     'resource_group', metadata,
-    Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('package_id', types.UnicodeText, ForeignKey('package.id')),
     Column('label', types.UnicodeText),
     Column('sort_order', types.UnicodeText),
-    Column('extras', JsonDictType),
+    Column('extras', _types.JsonDictType),
     )
 
 vdm.sqlalchemy.make_table_stateful(resource_table)
@@ -73,7 +73,7 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                  format=u'', description=u'', hash=u'',
                  extras=None,
                  **kwargs):
-        self.id = make_uuid()
+        self.id = _types.make_uuid()
         if resource_group_id:
             self.resource_group_id = resource_group_id
         self.url = url
