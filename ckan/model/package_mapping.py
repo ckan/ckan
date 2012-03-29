@@ -1,13 +1,15 @@
-from meta import *
 import vdm.sqlalchemy
+from sqlalchemy.orm import relation
+
 import tag
-from core import *
-from package import *
-from ckan.model import extension
+import meta
+import core
+import package as _package
+import extension
 
 __all__ = ['PackageRevision']
 
-mapper(Package, package_table, properties={
+meta.mapper(_package.Package, _package.package_table, properties={
     # delete-orphan on cascade does NOT work!
     # Why? Answer: because of way SQLAlchemy/our code works there are points
     # where PackageTag object is created *and* flushed but does not yet have
@@ -19,15 +21,15 @@ mapper(Package, package_table, properties={
         cascade='all, delete', #, delete-orphan',
         ),
     },
-    order_by=package_table.c.name,
-    extension=[vdm.sqlalchemy.Revisioner(package_revision_table),
+    order_by=_package.package_table.c.name,
+    extension=[vdm.sqlalchemy.Revisioner(_package.package_revision_table),
                extension.PluginMapperExtension(),
                ],
     )
 
-vdm.sqlalchemy.modify_base_object_mapper(Package, Revision, State)
-PackageRevision = vdm.sqlalchemy.create_object_version(mapper, Package,
-        package_revision_table)
+vdm.sqlalchemy.modify_base_object_mapper(_package.Package, core.Revision, core.State)
+PackageRevision = vdm.sqlalchemy.create_object_version(meta.mapper, _package.Package,
+        _package.package_revision_table)
 
 def related_packages(self):
     return [self.continuity]
