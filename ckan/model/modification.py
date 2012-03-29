@@ -3,7 +3,6 @@ import logging
 import ckan.plugins as plugins
 import extension
 import domain_object
-
 import package as _package
 import resource
 
