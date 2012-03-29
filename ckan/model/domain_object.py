@@ -1,5 +1,6 @@
 import datetime
 
+import sqlalchemy as sa
 from sqlalchemy import orm
 from sqlalchemy.util import OrderedDict
 
@@ -47,7 +48,7 @@ class DomainObject(object):
         q = None
         for field in cls.text_search_fields:
             attr = getattr(register, field)
-            q = or_(q, make_like(attr, term))
+            q = sa.or_(q, make_like(attr, term))
         return query.filter(q)
 
     @classmethod

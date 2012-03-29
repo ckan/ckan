@@ -342,18 +342,18 @@ def init_authz_const_data():
     Session.remove()
 
 ## TODO: this should be in ckan/authz.py
-def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
+def setup_user_roles(_domain_object, visitor_roles, logged_in_roles, admins=[]):
     '''NB: leaves caller to commit change'''
     assert type(admins) == type([])
     admin_roles = [Role.ADMIN]
     visitor = User.by_name(PSEUDO_USER__VISITOR)
     assert visitor
     for role in visitor_roles:
-        add_user_to_role(visitor, role, domain_object)
+        add_user_to_role(visitor, role, _domain_object)
     logged_in = User.by_name(PSEUDO_USER__LOGGED_IN)
     assert logged_in
     for role in logged_in_roles:
-        add_user_to_role(logged_in, role, domain_object)
+        add_user_to_role(logged_in, role, _domain_object)
     for admin in admins:
         # not sure if admin would reasonably by None
         if admin is not None:
@@ -361,7 +361,7 @@ def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
             if admin.name in (PSEUDO_USER__LOGGED_IN, PSEUDO_USER__VISITOR):
                 raise NotRealUserException('Invalid user for domain object admin %r' % admin.name)
             for role in admin_roles:
-                add_user_to_role(admin, role, domain_object)
+                add_user_to_role(admin, role, _domain_object)
 
 def give_all_packages_default_user_roles():
     # if this command gives an exception, you probably
@@ -401,11 +401,11 @@ default_default_user_roles = {
 global _default_user_roles_cache
 _default_user_roles_cache = {}
 
-def get_default_user_roles(domain_object):
+def get_default_user_roles(_domain_object):
     # TODO: Should this func go in lib rather than model now?
     from ckan.lib.helpers import json
     from pylons import config
-    def _get_default_user_roles(domain_object):
+    def _get_default_user_roles(_domain_object):
         config_key = 'ckan.default_roles.%s' % obj_type
         user_roles_json = config.get(config_key)
         if user_roles_json is None:
@@ -414,37 +414,37 @@ def get_default_user_roles(domain_object):
             user_roles_str = json.loads(user_roles_json) if user_roles_json else {}
         unknown_keys = set(user_roles_str.keys()) - set(('visitor', 'logged_in'))
         assert not unknown_keys, 'Auth config for %r has unknown key %r' % \
-               (domain_object, unknown_keys)
+               (_domain_object, unknown_keys)
         user_roles_ = {}
         for user in ('visitor', 'logged_in'):
             roles_str = user_roles_str.get(user, [])
             user_roles_[user] = [getattr(Role, role_str.upper()) for role_str in roles_str]
         return user_roles_
-    obj_type = domain_object.__class__.__name__
+    obj_type = _domain_object.__class__.__name__
     global _default_user_roles_cache
-    if not _default_user_roles_cache.has_key(domain_object):
-        _default_user_roles_cache[domain_object] = _get_default_user_roles(domain_object)
-    return _default_user_roles_cache[domain_object]
+    if not _default_user_roles_cache.has_key(_domain_object):
+        _default_user_roles_cache[_domain_object] = _get_default_user_roles(_domain_object)
+    return _default_user_roles_cache[_domain_object]
         
-def setup_default_user_roles(domain_object, admins=[]):
+def setup_default_user_roles(_domain_object, admins=[]):
     ''' sets up roles for visitor, logged-in user and any admins provided
     @param admins - a list of User objects
     NB: leaves caller to commit change.
     '''
-    assert isinstance(domain_object, (Package, Group, System, AuthorizationGroup)), domain_object
+    assert isinstance(_domain_object, (Package, Group, System, AuthorizationGroup)), _domain_object
     assert isinstance(admins, list)
-    user_roles_ = get_default_user_roles(domain_object)
-    setup_user_roles(domain_object,
+    user_roles_ = get_default_user_roles(_domain_object)
+    setup_user_roles(_domain_object,
                      user_roles_['visitor'],
                      user_roles_['logged_in'],
                      admins)
 
-def clear_user_roles(domain_object):
-    assert isinstance(domain_object, domain_object.DomainObject)
-    if isinstance(domain_object, Package):
-        q = Session.query(PackageRole).filter_by(package=domain_object)
-    elif isinstance(domain_object, Group):
-        q = Session.query(GroupRole).filter_by(group=domain_object)
+def clear_user_roles(_domain_object):
+    assert isinstance(_domain_object, domain_object.DomainObject)
+    if isinstance(_domain_object, Package):
+        q = Session.query(PackageRole).filter_by(package=_domain_object)
+    elif isinstance(_domain_object, Group):
+        q = Session.query(GroupRole).filter_by(group=_domain_object)
     else:
         raise NotImplementedError()
     user_roles = q.all()

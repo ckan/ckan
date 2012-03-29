@@ -2,21 +2,22 @@ import datetime
 import re
 import os
 from hashlib import sha1
+
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 
 from meta import *
-from types import make_uuid
+import types as _types
 import domain_object
 
 user_table = Table('user', metadata,
-        Column('id', UnicodeText, primary_key=True, default=make_uuid),
+        Column('id', UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('name', UnicodeText, nullable=False, unique=True),
         Column('openid', UnicodeText),
         Column('password', UnicodeText),
         Column('fullname', UnicodeText),
         Column('email', UnicodeText),
-        Column('apikey', UnicodeText, default=make_uuid),
+        Column('apikey', UnicodeText, default=_types.make_uuid),
         Column('created', DateTime, default=datetime.datetime.now),
         Column('reset_key', UnicodeText),
         Column('about', UnicodeText),
@@ -128,7 +129,7 @@ class User(domain_object.DomainObject):
         return cls.by_name(name) == None
 
     def as_dict(self):
-        _dict = DomainObject.as_dict(self)
+        _dict = domain_object.DomainObject.as_dict(self)
         del _dict['password']
         return _dict
 
