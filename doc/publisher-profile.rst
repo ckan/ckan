@@ -11,7 +11,13 @@ to.
 
 Specifically, the workflow looks like:
 
-* A User is added to an Organization by an Organization administrator
+* A User joins or creates an Organization
+
+    * If the user is the creator of the Organization then they become administrator of the Organization.
+
+    * Otherwise they become a Member.
+
+* New Members must be added by the Organization Administrator, although anyone can request to join an Organization
 
 * User creates a dataset. On creation User must assign this dataset to a
   specific organization (and can only assign to a organization of which User is a

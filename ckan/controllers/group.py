@@ -37,11 +37,9 @@ class GroupController(BaseController):
         return lookup_group_plugin(group_type).setup_template_variables(context,data_dict)
 
     def _new_template(self,group_type):
-        from ckan.lib.helpers import default_group_type
         return lookup_group_plugin(group_type).new_template()
 
     def _index_template(self,group_type):
-        from ckan.lib.helpers import default_group_type
         return lookup_group_plugin(group_type).index_template()
 
     def _read_template(self, group_type):

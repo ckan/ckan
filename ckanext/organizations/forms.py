@@ -36,8 +36,10 @@ class OrganizationForm(SingletonPlugin):
         map.connect('/organization/apply/{id}', controller='ckanext.organizations.controllers:OrganizationController', action='apply')
         map.connect('/organization/apply', controller='ckanext.organizations.controllers:OrganizationController', action='apply')
         map.connect('/organization/edit/{id}', controller='group', action='edit')
+        map.connect('/organization/new', controller='group', action='new')
         map.connect('/organization/{id}', controller='group', action='read')
-
+        map.connect('/organization',  controller='group', action='index')
+        map.redirect('/organizations', '/organization')
         return map
 
     def after_map(self, map):

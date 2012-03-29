@@ -18,7 +18,7 @@
         <li class="${'active' if c.action=='edit' else ''}" py:if="can_update">
           ${h.subnav_named_route( c,h.icon('group_edit') + _('Edit'), 'organization_action', action='edit', id=c.group.name )}
         </li>
-        <li class="${'active' if c.action=='apply' else ''}">
+        <li class="${'active' if c.action=='apply' else ''} ckan-logged-in" py:if="c.userobj and not c.userobj.is_in_group(c.group)">
             <a href="${h.url_for(controller='ckanext.organizations.controllers:OrganizationController', action='apply')}?parent=${c.group.name}">${h.icon('group_edit') + _('Join')}</a>
         </li>
 
