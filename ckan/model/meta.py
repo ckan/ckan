@@ -2,22 +2,14 @@ import datetime
 from paste.deploy.converters import asbool
 from pylons import config
 """SQLAlchemy Metadata and Session object"""
-from sqlalchemy import MetaData, __version__ as sqav
+from sqlalchemy import MetaData, and_
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm import scoped_session, sessionmaker
 import sqlalchemy.orm as orm
 from sqlalchemy.orm.session import SessionExtension
 
-# TODO: remove these imports from here and put them in client model modules
-from sqlalchemy import Column, MetaData, Table, types, ForeignKey
-from sqlalchemy import or_, and_
-from sqlalchemy.types import *
-from sqlalchemy.orm import scoped_session, sessionmaker, create_session
-from sqlalchemy.orm import relation, backref
-
-from ckan.model import extension
-
-from ckan.lib.activity import DatasetActivitySessionExtension
+import extension
+import ckan.lib.activity
 
 class CkanCacheExtension(SessionExtension):
     ''' This extension checks what tables have been affected by
@@ -139,7 +131,7 @@ Session = scoped_session(sessionmaker(
     extension=[CkanCacheExtension(),
                CkanSessionExtension(),
                extension.PluginSessionExtension(),
-               DatasetActivitySessionExtension()],
+               ckan.lib.activity.DatasetActivitySessionExtension()],
 ))
 
 create_local_session = sessionmaker(
@@ -149,7 +141,7 @@ create_local_session = sessionmaker(
     extension=[CkanCacheExtension(),
                CkanSessionExtension(),
                extension.PluginSessionExtension(),
-               DatasetActivitySessionExtension()],
+               ckan.lib.activity.DatasetActivitySessionExtension()],
 )
 
 #mapper = Session.mapper
