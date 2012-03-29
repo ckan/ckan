@@ -872,7 +872,7 @@ CKAN.Utils = function($, my) {
   // Requires: jquery-ui autocomplete
   my.setupTagAutocomplete = function(elements) {
     // don't navigate away from the field on tab when selecting an item
-    elements.bind( "keydown", 
+    elements.bind( "keydown",
       function( event ) {
         if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "autocomplete" ).menu.active ) {
           event.preventDefault();
