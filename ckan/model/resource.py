@@ -1,13 +1,15 @@
+import datetime
 from sqlalchemy.util import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from pylons import config
 import vdm.sqlalchemy
+from sqlalchemy import types, Column, Table, ForeignKey, and_
 
-from meta import *
+import meta
+import core
+import package as _package
 import types as _types
-from core import *
-from package import *
 from ckan.model import extension
 from ckan.model.activity import ActivityDetail
 import domain_object
@@ -27,7 +29,7 @@ CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
 
 ##formally package_resource
 resource_table = Table(
-    'resource', metadata,
+    'resource', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('resource_group_id', types.UnicodeText, ForeignKey('resource_group.id')),
     Column('url', types.UnicodeText, nullable=False),
@@ -51,7 +53,7 @@ resource_table = Table(
     )
 
 resource_group_table = Table(
-    'resource_group', metadata,
+    'resource_group', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('package_id', types.UnicodeText, ForeignKey('package.id')),
     Column('label', types.UnicodeText),
@@ -60,10 +62,10 @@ resource_group_table = Table(
     )
 
 vdm.sqlalchemy.make_table_stateful(resource_table)
-resource_revision_table = make_revisioned_table(resource_table)
+resource_revision_table = core.make_revisioned_table(resource_table)
 
 vdm.sqlalchemy.make_table_stateful(resource_group_table)
-resource_group_revision_table = make_revisioned_table(resource_group_table)
+resource_group_revision_table = core.make_revisioned_table(resource_group_table)
 
 class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,
@@ -113,7 +115,7 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get(cls, reference):
         '''Returns a resource object referenced by its name or id.'''
-        query = Session.query(ResourceRevision).filter(ResourceRevision.id==reference)
+        query = meta.Session.query(ResourceRevision).filter(ResourceRevision.id==reference)
         query = query.filter(and_(
             ResourceRevision.state == u'active', ResourceRevision.current == True
         ))
@@ -206,7 +208,7 @@ class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
 
 ## Mappers
 
-mapper(Resource, resource_table, properties={
+meta.mapper(Resource, resource_table, properties={
     'resource_group':orm.relation(ResourceGroup,
         # all resources including deleted
         # formally package_resources_all
@@ -224,8 +226,8 @@ mapper(Resource, resource_table, properties={
 )
 
 
-mapper(ResourceGroup, resource_group_table, properties={
-    'package':orm.relation(Package,
+meta.mapper(ResourceGroup, resource_group_table, properties={
+    'package':orm.relation(_package.Package,
         # all resources including deleted
         backref=orm.backref('resource_groups_all',
                             cascade='all, delete, delete-orphan',
@@ -241,13 +243,13 @@ mapper(ResourceGroup, resource_group_table, properties={
 
 ## VDM
 
-vdm.sqlalchemy.modify_base_object_mapper(Resource, Revision, State)
+vdm.sqlalchemy.modify_base_object_mapper(Resource, core.Revision, core.State)
 ResourceRevision = vdm.sqlalchemy.create_object_version(
-    mapper, Resource, resource_revision_table)
+    meta.mapper, Resource, resource_revision_table)
     
-vdm.sqlalchemy.modify_base_object_mapper(ResourceGroup, Revision, State)
+vdm.sqlalchemy.modify_base_object_mapper(ResourceGroup, core.Revision, core.State)
 ResourceGroupRevision = vdm.sqlalchemy.create_object_version(
-    mapper, ResourceGroup, resource_group_revision_table)
+    meta.mapper, ResourceGroup, resource_group_revision_table)
 
 ResourceGroupRevision.related_packages = lambda self: [self.continuity.package]
 ResourceRevision.related_packages = lambda self: [self.continuity.resouce_group.package]
@@ -277,7 +279,7 @@ def resource_identifier(obj):
     return obj.id
 
 
-add_stateful_m21(Package, 'resource_groups', 'resource_groups_all',
+add_stateful_m21(_package.Package, 'resource_groups', 'resource_groups_all',
                  resource_identifier)
 add_stateful_m21(ResourceGroup, 'resources', 'resources_all',
                  resource_identifier)
