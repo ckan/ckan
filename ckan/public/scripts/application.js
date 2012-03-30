@@ -763,7 +763,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
       error: function(jqXHR, textStatus, errorThrown) {
         // TODO: more graceful error handling (e.g. of 409)
         self.setMessage('Failed to get credentials for storage upload. Upload cannot proceed', 'error');
-        self.el.find('input[name="upload"]').hide();
+        self.el.find('input[name="add-resource-upload"]').hide();
       }
     });
   },
@@ -844,8 +844,8 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
      var self = this;
      var newResource = new CKAN.Model.Resource({});
 
-     this.el.find('input[name=save]').addClass("disabled");
-     var urlVal = this.el.find('input[name=url]').val();
+     this.el.find('input[name="add-resource-save"]').addClass("disabled");
+     var urlVal = this.el.find('input[name="add-resource-url"]').val();
      var qaEnabled = $.inArray('qa',CKAN.plugins)>=0;
 
      if(qaEnabled && this.options.mode=='file') {
@@ -883,8 +883,8 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
   },
 
   resetForm: function() {
-     this.el.find('input[name=save]').removeClass("disabled");
-     this.el.find('input[name=url]').val('');
+     this.el.find('input[name="add-resource-save"]').removeClass("disabled");
+     this.el.find('input[name="add-resource-url"]').val('');
   },
 
   events: {

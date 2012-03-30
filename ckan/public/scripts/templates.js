@@ -11,7 +11,7 @@ CKAN.Templates.resourceUpload = ' \
     <input type="file" name="file" /> \
     <br /> \
     <div class="fileinfo"></div> \
-    <input id="upload" name="upload" type="submit" class="btn btn-primary" value="'+CKAN.Strings.upload+'" /> \
+    <input id="upload" name="add-resource-upload" type="submit" class="btn btn-primary" value="'+CKAN.Strings.upload+'" /> \
   </form> \
   <div class="alert alert-block" style="display: none;"></div> \
 </div>';
