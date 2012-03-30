@@ -29,8 +29,10 @@ This setup is a natural one for many situations. For example:
 
  * Government. Organizations correspond to Departments or Ministries (or other
    organizational groups)
+
  * Academia: Organizations again correspond to Departments or research groups
 
+Whilst organizations can currently belong to other organizations the publisher authorization profile currently only checks membership of the current organization.  Future versions of this extension may provide a configuration option to apply authorization checks hierarchically.
 
 .. _publisher-configuration:
 Enabling and Configuring the Publisher Profile
@@ -49,7 +51,6 @@ To enable the default organization and organization dataset forms you should inc
 the following plugins in your configuration file::
 
   ckan.plugins = organizations organizations_dataset
-
 
 Technical Overview
 ==================
