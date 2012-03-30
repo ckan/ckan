@@ -151,12 +151,40 @@
   <div style="display: none;" class="resource-panel">
     <button class="btn btn-danger resource-panel-close">x</button>
     <div class="resource-details resource-add">
-      <ul class="button-row">
-        <li><h4>Add a resource:</h4></li>
-        <li><button class="btn js-link-file">Link to a file</button></li>
-        <li><button class="btn js-link-api">Link to an API</button></li>
-        <li class="js-upload-file ckan-logged-in" style="display: none;"><button class="btn js-upload-file">Upload a file</button></li>
+      <ul class="nav nav-tabs">
+        <li><a data-toggle="tab" href="#link-file">Link to a file</a></li>
+        <li><a data-toggle="tab" href="#link-api">Link to an API</a></li>
+        <li><a data-toggle="tab" href="#upload-file">Upload a file</a></li>
       </ul>
+      <div class="tab-content">
+        <div class="tab-pane" id="link-file">
+          <div class="form-inline js-add-url-form">
+            <label class="field_opt" for="url">File URL</label>
+            <input name="url" type="text" class="input-small" placeholder="http://mydataset.com/file.csv"/>
+            <input name="save" type="submit" class="btn btn-primary" value="Add" />
+          </div>
+        </div>
+        <div class="tab-pane" id="link-api">
+          <div class="form-inline js-add-api-form">
+            <label class="field_opt" for="url">API URL</label>
+            <input name="url" type="text" class="input-small" placeholder="http://mydataset.com/api/"/>
+            <input name="save" type="submit" class="btn btn-primary" value="Add" />
+          </div>
+        </div>
+        <div class="tab-pane" id="upload-file">
+          <div class="js-add-upload-form">
+            <div class="hidden-inputs"></div>
+            <!-- enctype="multipart/form-data" method="POST"-->
+            <input id="fileupload" type="file" name="file" 
+                   data-url="http://test-ckan-net-storage.commondatastorage.googleapis.com/"
+                   data-sequential-uploads="true"
+                   data-form-data='{"script": "true"}'/>
+            <div class="fileinfo"></div>
+            <button id="upload" name="upload" class="btn btn-primary">Upload</button>
+          </div>
+          <div class="alert alert-block" style="display: none;"></div>
+        </div>
+      </div>      
     </div>
   </div>
 </fieldset>
