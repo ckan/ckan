@@ -806,13 +806,12 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
             error: function(model, error) {
               var msg = 'Filed uploaded OK but error adding resource: ' + error + '.';
               msg += 'You may need to create a resource directly. Uploaded file at: ' + data._location;
-              CKAN.View.flash(msg, 'error');
+              self.setMessage(msg, 'error');
             }
           }
         );
         self.collection.add(newResource);
         self.setMessage('File uploaded OK and resource added', 'success');
-        CKAN.View.flash('File uploaded OK and resource added');
       }
     });
   },
