@@ -271,21 +271,21 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
 
     // Tabs for adding resources
     new CKAN.View.ResourceAddUrl({
-      collection: self.collection,
+      collection: this.collection,
       el: this.el.find('.js-add-url-form'),
       mode: 'file'
     });
     new CKAN.View.ResourceAddUrl({
-      collection: self.collection,
+      collection: this.collection,
       el: this.el.find('.js-add-api-form'),
       mode: 'api'
     });
     new CKAN.View.ResourceAddUpload({
-      collection: self.collection,
+      collection: this.collection,
       el: this.el.find('.js-add-upload-form'),
       client: CKAN.UI.workspace.client
     });
-    
+
 
     // Close details button
     this.el.find('.resource-panel-close').click(this.closePanel);
@@ -664,29 +664,38 @@ CKAN.View.Resource = Backbone.View.extend({
 });
 
 
-/* ================================================ */
-/* == Backbone view: Add resource by file upload == */
-/* ================================================ */
+/* ============================================= */
+/* Backbone View: Add Resource by uploading file */
+/* ============================================= */
 CKAN.View.ResourceAddUpload = Backbone.View.extend({
   tagName: 'div',
 
   // expects a client arguments in its options
   initialize: function(options) {
+    this.el = $(this.el);
     this.client = options.client;
-    _.bindAll(this, 'updateFormData', 'setMessage', 'uploadFile');
-    this.$messages = this.el.find('.alert');
-    this.$uploader = this.el.find('#fileupload');
-    this.setupFileUpload();
-    this.endpoint = "http://test-ckan-net-storage.commondatastorage.googleapis.com/";
+    _.bindAll(this, 'render', 'updateFormData', 'setMessage', 'uploadFile');
+    this.render();
   },
 
   events: {
-    'click button': 'uploadFile'
+    'click input[type="submit"]': 'uploadFile'
+  },
+
+  render: function () {
+    this.el.empty();
+    tmplData = {
+    }
+    var tmpl = $.tmpl(CKAN.Templates.resourceUpload, tmplData).appendTo(this.el);
+    //this.el.append($(tmpl[0]));
+    this.$messages = this.el.find('.alert');
+    this.setupFileUpload();
+    return this;
   },
 
   setupFileUpload: function() {
     var self = this;
-    this.$uploader.fileupload({
+    this.el.find('.fileupload').fileupload({
       // needed because we are posting to remote url 
       forceIframeTransport: true,
       replaceFileInput: false,
@@ -706,7 +715,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
       done: function(e, data) {
         self.onUploadComplete(self.key);
       }
-    });
+    })
   },
 
   ISODateString: function(d) {
@@ -744,10 +753,9 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
     self.client.getStorageAuthForm(key, {
       async: false,
       success: function(data) {
-        self.endpoint = data.action;
-        alert('updateFormData :: ' + self.endpoint);
+        self.el.find('form').attr('action', data.action);
         _tmpl = '<input type="hidden" name="${name}" value="${value}" />';
-        var $hidden = $(self.el.find('div.hidden-inputs')[0]);
+        var $hidden = $(self.el.find('form div.hidden-inputs')[0]);
         $.each(data.fields, function(idx, item) {
           $hidden.append($.tmpl(_tmpl, item));
         });
@@ -756,7 +764,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
       error: function(jqXHR, textStatus, errorThrown) {
         // TODO: more graceful error handling (e.g. of 409)
         self.setMessage('Failed to get credentials for storage upload. Upload cannot proceed', 'error');
-        self.el.find('button#upload').hide();
+        self.el.find('input[name="upload"]').hide();
       }
     });
   },
@@ -767,13 +775,11 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
       alert('No file selected');
       return;
     }
-    alert('uploading :: ' + this.endpoint);
-    var jqXHR = this.$uploader.fileupload('send', {files: this.fileData.files, url: this.endpoint});
+    var jqXHR = this.fileData.submit();
   },
 
   onUploadComplete: function(key) {
     var self = this;
-
     self.client.apiCall({
       offset: '/storage/metadata/' + self.key,
       success: function(data) {
@@ -783,7 +789,6 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
         }
         var d = new Date(data._last_modified);
         var lastmod = self.ISODateString(d);
-
         var newResource = new CKAN.Model.Resource({});
         newResource.set({
             url: data._location

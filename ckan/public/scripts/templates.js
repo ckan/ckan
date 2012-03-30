@@ -1,3 +1,20 @@
+CKAN.Templates.resourceUpload = ' \
+<div class="fileupload"> \
+  <form action="http://test-ckan-net-storage.commondatastorage.googleapis.com/" class="resource-upload" \
+    enctype="multipart/form-data" \
+    method="POST"> \
+ \
+    <div class="hidden-inputs"></div> \
+    <input type="file" name="file" /> \
+    <br /> \
+    <div class="fileinfo"></div> \
+    <input id="upload" name="upload" type="submit" class="btn btn-primary" value="'+CKAN.Strings.upload+'" /> \
+  </form> \
+  <div class="alert alert-block" style="display: none;"></div> \
+</div>';
+
+
+
 CKAN.Templates.resourceEntry = ' \
   <li class="ui-state-default resource-edit drag-bars"> \
     <a class="resource-open-my-panel" href="#">\
