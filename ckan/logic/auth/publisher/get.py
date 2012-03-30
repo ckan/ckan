@@ -65,26 +65,31 @@ def package_show(context, data_dict):
     """ Package show permission checks the user group if the state is deleted """
     model = context['model']
     package = get_package_object(context, data_dict)
+    user = context.get('user')
+    ignore_auth = context.get('ignore_auth',False)
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
+
+    userobj = model.User.get( user ) if user else None
+
+    if ignore_auth:
+        return {'success': True}
 
     if package.state == 'deleted':
-        if 'ignore_auth' in context and context['ignore_auth']:
-            return {'success': True}
-
-        user = context.get('user')
-
-        if not user:
+        if not user or not userobj:
             return {'success': False, 'msg': _('User not authorized to read package %s') % (package.id)}
 
-        userobj = model.User.get( user )
+        if not _groups_intersect( userobj.get_groups(), package.get_groups() ):
+            return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
 
-        if Authorizer().is_sysadmin(unicode(user)):
+    # If package is in a private group then we require:
+    #   1. Logged in user
+    #   2. User in the group
+    groups = package.get_groups(capacity='private')
+    if groups:
+        if userobj and _groups_intersect( userobj.get_groups(), groups ):
             return {'success': True}
-
-        if not userobj:
-            return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
-
-        if not _groups_intersect( userobj.get_groups('organization'), package.get_groups('organization') ):
-            return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+        return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
 
     return {'success': True}
 

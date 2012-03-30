@@ -479,7 +479,6 @@ class PackageController(BaseController):
                    'extras_as_string': True,
                    'schema': self._form_to_db_schema(package_type=package_type),
                    'revision_id': revision}
-
         try:
             data = get_action('package_show')(context, {'id': id})
             schema = self._db_to_form_schema(package_type=package_type)

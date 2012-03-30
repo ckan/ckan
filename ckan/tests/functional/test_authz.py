@@ -92,7 +92,7 @@ class AuthzTestBase(object):
             offset = url_for(controller=controller_name, action=action, id=unicode(entity_name))
         elif action == 'search':
             offset = '/%s/search?q=%s' % (entity, entity_name)
-            str_required_in_response = '/%s"' % entity_name
+            str_required_in_response = '%s"' % entity_name
         elif action == 'list':
             if entity == 'group':
                 offset = '/group'
