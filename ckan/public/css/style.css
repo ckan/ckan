@@ -1271,7 +1271,8 @@ fieldset#resources > .instructions {
   border-top:    1px solid transparent;
   border-bottom: 1px solid #eee;
   margin-bottom: 0;
-  border-radius: 5px;
+  position: relative;
+  z-index: 1;
 }
 .resource-list li:hover {
   background-color: #f7f7f7;
@@ -1281,8 +1282,9 @@ fieldset#resources > .instructions {
 }
 .resource-list li.active {
   border-color: #888;
-  background-color: #f0f0f0;
-  margin-right: -34px;
+  border-right-color: #f9f9f9;
+  background-color: #f9f9f9;
+  margin-right: -21px;
 }
 /**/
 .resource-list li a {
@@ -1290,7 +1292,6 @@ fieldset#resources > .instructions {
   padding: 5px 10px;
   color: #333;
   border-right: 0;
-  z-index: 1;
   font-weight: bold;
 }
 .resource-list li a:hover {
