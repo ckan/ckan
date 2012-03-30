@@ -745,6 +745,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
       async: false,
       success: function(data) {
         self.endpoint = data.action;
+        alert('updateFormData :: ' + self.endpoint);
         _tmpl = '<input type="hidden" name="${name}" value="${value}" />';
         var $hidden = $(self.el.find('div.hidden-inputs')[0]);
         $.each(data.fields, function(idx, item) {
@@ -766,6 +767,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
       alert('No file selected');
       return;
     }
+    alert('uploading :: ' + this.endpoint);
     var jqXHR = this.$uploader.fileupload('send', {files: this.fileData.files, url: this.endpoint});
   },
 
