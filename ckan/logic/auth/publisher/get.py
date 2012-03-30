@@ -5,7 +5,6 @@ from ckan.logic.auth.publisher import _groups_intersect
 from ckan.authz import Authorizer
 from ckan.logic.auth import get_package_object, get_group_object, get_resource_object
 
-
 def site_read(context, data_dict):
     """\
     This function should be deprecated. It is only here because we couldn't
@@ -62,6 +61,8 @@ def package_relationships_list(context, data_dict):
     return {'success': True}
 
 def package_show(context, data_dict):
+    from pylons.controllers.util import abort
+
     """ Package show permission checks the user group if the state is deleted """
     model = context['model']
     package = get_package_object(context, data_dict)
@@ -89,7 +90,10 @@ def package_show(context, data_dict):
     if groups:
         if userobj and _groups_intersect( userobj.get_groups(), groups ):
             return {'success': True}
-        return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+
+        # We want to abort with a 404 here instea
+        #return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+        abort(404)
 
     return {'success': True}
 

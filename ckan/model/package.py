@@ -566,19 +566,22 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def get_groups(self, group_type=None, capacity=None):
         import ckan.model as model
-        if '_groups' not in self.__dict__:
-            self._groups = model.Session.query(model.Group,model.Member.capacity).\
-               join(model.Member, model.Member.group_id == model.Group.id and \
-                    model.Member.table_name == 'package' ).\
-               join(model.Package, model.Package.id == model.Member.table_id).\
-               filter(model.Member.state == 'active').\
-               filter(model.Member.table_id == self.id).all()
 
-        groups = self._groups
+        # Gets [ (group, capacity,) ...]
+        groups = model.Session.query(model.Group,model.Member.capacity).\
+           join(model.Member, model.Member.group_id == model.Group.id and \
+                model.Member.table_name == 'package' ).\
+           join(model.Package, model.Package.id == model.Member.table_id).\
+           filter(model.Member.state == 'active').\
+           filter(model.Member.table_id == self.id).all()
+
+        caps   = [g[1] for g in groups]
+        groups = [g[0] for g in groups ]
         if group_type:
-            groups = [g[0] for g in groups if g[0].type == group_type]
+            groups = [g for g in groups if g.type == group_type]
         if capacity:
-            groups = [g[0] for g in groups if g[1] == capacity]
+            groupcaps = zip( groups,caps )
+            groups = [g[0] for g in groupcaps if g[1] == capacity]
         return groups
 
     @property
