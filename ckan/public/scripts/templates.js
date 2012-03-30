@@ -1,3 +1,6 @@
+var CKAN = CKAN || {};
+CKAN.Templates = CKAN.Templates || {};
+
 CKAN.Templates.resourceUpload = ' \
 <div class="fileupload"> \
   <form action="http://test-ckan-net-storage.commondatastorage.googleapis.com/" class="resource-upload" \

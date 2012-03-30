@@ -1,5 +1,9 @@
 var CKAN = CKAN || {};
 
+CKAN.View = CKAN.View || {};
+CKAN.Model = CKAN.Model || {};
+CKAN.Utils = CKAN.Utils || {};
+
 /* ================================= */
 /* == Initialise CKAN Application == */
 /* ================================= */
@@ -17,15 +21,6 @@ var CKAN = CKAN || {};
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor'));
     // bootstrap collapse
     $('.collapse').collapse({toggle: false});
-    // set up ckan js
-    var config = {
-      endpoint: CKAN.SITE_URL + '/'
-    };
-    var client = new CKAN.Client(config);
-    // serious hack to deal with hacky code in ckanjs
-    CKAN.UI.workspace = {
-      client: client
-    };
 
     // Buttons with href-action should navigate when clicked
     $('input.href-action').click(function(e) {
@@ -282,8 +277,7 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     });
     new CKAN.View.ResourceAddUpload({
       collection: this.collection,
-      el: this.el.find('.js-add-upload-form'),
-      client: CKAN.UI.workspace.client
+      el: this.el.find('.js-add-upload-form')
     });
 
 
@@ -670,27 +664,16 @@ CKAN.View.Resource = Backbone.View.extend({
 CKAN.View.ResourceAddUpload = Backbone.View.extend({
   tagName: 'div',
 
-  // expects a client arguments in its options
   initialize: function(options) {
     this.el = $(this.el);
-    this.client = options.client;
     _.bindAll(this, 'render', 'updateFormData', 'setMessage', 'uploadFile');
-    this.render();
+    $(CKAN.Templates.resourceUpload).appendTo(this.el);
+    this.$messages = this.el.find('.alert');
+    this.setupFileUpload();
   },
 
   events: {
     'click input[type="submit"]': 'uploadFile'
-  },
-
-  render: function () {
-    this.el.empty();
-    tmplData = {
-    }
-    var tmpl = $.tmpl(CKAN.Templates.resourceUpload, tmplData).appendTo(this.el);
-    //this.el.append($(tmpl[0]));
-    this.$messages = this.el.find('.alert');
-    this.setupFileUpload();
-    return this;
   },
 
   setupFileUpload: function() {
@@ -750,7 +733,8 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
     var self = this;
     self.setMessage('Checking upload permissions ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
     self.el.find('.fileinfo').text(key);
-    self.client.getStorageAuthForm(key, {
+    $.ajax({
+      url: CKAN.SITE_URL + '/api/storage/auth/form/' + key,
       async: false,
       success: function(data) {
         self.el.find('form').attr('action', data.action);
@@ -780,8 +764,8 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
 
   onUploadComplete: function(key) {
     var self = this;
-    self.client.apiCall({
-      offset: '/storage/metadata/' + self.key,
+    $.ajax({
+      url: CKAN.SITE_URL + '/api/storage/metadata/' + self.key,
       success: function(data) {
         var name = data._label;
         if (name && name.length > 0 && name[0] === '/') {
