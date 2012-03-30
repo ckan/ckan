@@ -73,15 +73,15 @@
             </form>
           </span>
           <div id="mainmenu">
-            <span py:if="h.check_access('package_create')">${h.nav_link(c, _('Add a dataset'), controller='package', action='new')}</span>
-            ${h.nav_link(c, _('Search'), controller='package', action='search', highlight_actions = 'new index')}
-            ${h.nav_named_link(c, _('Groups'), name='%s_index' % h.default_group_type() )}
-            ${h.nav_link(c, _('About'), controller='home', action='about')}
+            <span py:if="h.check_access('package_create')">${h.nav_link(_('Add a dataset'), controller='package', action='new')}</span>
+            ${h.nav_link(_('Search'), controller='package', action='search', highlight_actions = 'new index')}
+            ${h.nav_named_link(_('Groups'), name='%s_index' % h.default_group_type() )}
+            ${h.nav_link(_('About'), controller='home', action='about')}
           </div>
         </div>
       </header>
     </div>
-    <py:with vars="messages = list(h._flash.pop_messages())">
+    <py:with vars="messages = list(h.flash.pop_messages())">
     <div class="flash-messages container">
       <div class="alert ${m.category}" py:for="m in messages">
         ${h.literal(m)}
