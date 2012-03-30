@@ -281,9 +281,9 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
       mode: 'api'
     });
     new CKAN.View.ResourceAddUpload({
-      collection: self.collection
+      collection: self.collection,
       el: this.el.find('.js-add-upload-form'),
-      client: CKAN.UI.workspace.client,
+      client: CKAN.UI.workspace.client
     });
     
 
