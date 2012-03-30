@@ -264,6 +264,25 @@
     });
   </script>
 
+  <script type="text/javascript">
+         $(function (){
+                 // Tracking
+				 $.ajax({url : '/_tracking',
+						 type : 'POST',
+						 data : {url:location.pathname, type:'page'},
+						 timeout : 300 });
+                 $('a.resource-url-analytics').click(function (e){
+                         var url = $(e.target).closest('a').attr('href');
+						 $.ajax({url : '/_tracking',
+							     data : {url:url, type:'resource'},
+								 type : 'POST',
+								 complete : function () {location.href = url;},
+								 timeout : 30});
+                         e.preventDefault();
+                         });
+                 });
+  </script>
+
   <py:if test="defined('optional_footer')">
     ${optional_footer()}
   </py:if>

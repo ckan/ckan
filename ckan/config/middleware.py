@@ -1,7 +1,9 @@
 """Pylons middleware initialization"""
 import urllib
+import urllib2
 import logging 
 import json
+import hashlib
 
 from beaker.middleware import CacheMiddleware, SessionMiddleware
 from paste.cascade import Cascade
@@ -130,6 +132,8 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     if asbool(config.get('ckan.page_cache_enabled')):
         app = PageCacheMiddleware(app, config)
 
+    # Tracking add config option
+    app = TrackingMiddleware(app, config)
     return app
 
 class I18nMiddleware(object):
@@ -277,3 +281,34 @@ class PageCacheMiddleware(object):
             pipe.rpush(key, page_string)
             pipe.execute()
         return page
+
+
+class TrackingMiddleware(object):
+
+    def __init__(self, app, config):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        path = environ['PATH_INFO']
+        if path == '/_tracking':
+            # do the tracking
+            # get the post data
+            payload = environ['wsgi.input'].read()
+            parts = payload.split('&')
+            data = {}
+            for part in parts:
+                k, v = part.split('=')
+                data[k] = urllib2.unquote(v).decode("utf8")
+            start_response('200 OK', [('Content-Type', 'text/html')])
+            # we want a unique anonomized key for each user so that we do
+            # not count multiple clicks from the same user.
+            key = ''.join([
+                environ['HTTP_USER_AGENT'],
+                environ['REMOTE_ADDR'],
+                environ['HTTP_ACCEPT_LANGUAGE'],
+                environ['HTTP_ACCEPT_ENCODING'],
+            ])
+            key = hashlib.md5(key).hexdigest()
+            # store key/data here
+            return []
+        return self.app(environ, start_response)
