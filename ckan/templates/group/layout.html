@@ -9,8 +9,8 @@
   <py:match path="minornavigation">
     <ul class="nav nav-pills" py:choose="bool(c.group)">
       <py:when test="True" py:with="can_update=h.check_access('group_update',{'id':c.group.id})">
-        <li class="${'active' if c.action=='read' else ''}">${h.subnav_named_route(c, h.icon('group') + _('View'), c.group.type + '_read',controller='group', action='read', id=c.group.name)}</li>
-        <li class="${'active' if c.action=='history' else ''}">${h.subnav_named_route(c, h.icon('page_white_stack') + _('History'),  c.group.type + '_action', controller='group', action='history', id=c.group.name)}</li>
+        <li class="${'active' if c.action=='read' else ''}">${h.subnav_named_route(h.icon('group') + _('View'), c.group.type + '_read',controller='group', action='read', id=c.group.name)}</li>
+        <li class="${'active' if c.action=='history' else ''}">${h.subnav_named_route(h.icon('page_white_stack') + _('History'),  c.group.type + '_action', controller='group', action='history', id=c.group.name)}</li>
         <li class="divider" py:if="can_update">|</li>
         <li class="dropdown ${'active' if c.action=='resource_read' else ''}" py:if="can_update">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">${h.icon('add') + _('Add Dataset')}<b class="caret"></b></a>
@@ -21,21 +21,21 @@
         </li>
         <li class="${'active' if c.action=='edit' else ''}" py:if="can_update">
           <!-- TODO: We need to be able to change the URL below based on the type of the group -->
-          ${h.subnav_named_route( c,h.icon('group_edit') + _('Edit'), c.group.type + '_action', action='edit', id=c.group.name )}
+          ${h.subnav_named_route(h.icon('group_edit') + _('Edit'), c.group.type + '_action', action='edit', id=c.group.name )}
         </li>
         <li class="${'active' if c.action=='authz' else ''}" py:if="h.check_access('group_edit_permissions',{'id':c.group.id})">
-          ${h.subnav_named_route(c, h.icon('lock') + _('Authorization'), c.group.type + '_action', controller='group', action='authz', id=c.group.name)}
+          ${h.subnav_named_route(h.icon('lock') + _('Authorization'), c.group.type + '_action', controller='group', action='authz', id=c.group.name)}
         </li>
       </py:when>
       <py:otherwise>
         <li class="${'active' if c.action=='index' else ''}">
-          ${h.subnav_named_route(c, h.icon('group') + _('List Groups'), "%s_index" % h.default_group_type(), action="index" )}
+          ${h.subnav_named_route(h.icon('group') + _('List Groups'), "%s_index" % h.default_group_type(), action="index" )}
         </li>
         <li style="display:none;" class="ckan-logged-in ${'active' if c.action=='new' else ''}">
-          ${ h.subnav_named_route(c, h.icon('group_add') + _('Add a Group'), "%s_new" % h.default_group_type(), action='new')}
+          ${ h.subnav_named_route(h.icon('group_add') + _('Add a Group'), "%s_new" % h.default_group_type(), action='new')}
         </li>
         <li class="ckan-logged-out ${'active' if c.action=='new' else ''}">
-          ${h.subnav_link(c, h.icon('group_add') + _('Login to Add a Group'), controller='group', action='new')}
+          ${h.subnav_link(h.icon('group_add') + _('Login to Add a Group'), controller='group', action='new')}
         </li>
       </py:otherwise>
     </ul>

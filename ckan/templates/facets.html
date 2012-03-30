@@ -6,17 +6,17 @@
   >
 
 <py:def function="facet_sidebar(code, limit=5, label=lambda n: n, title=h.facet_title, if_empty=None, count_label=lambda c: ' (%d)'%c)">
-    <div py:if="if_empty is not None or len(h.facet_items(c, code, limit=limit))" class="facet-box">
+    <div py:if="if_empty is not None or len(h.facet_items(code, limit=limit))" class="facet-box">
         <h2>${title(code)}</h2>
         <ul class="facet-options">
-            <li py:for="name, count in h.facet_items(c, code, limit=limit)"
+            <li py:for="name, count in h.facet_items(code, limit=limit)"
                 py:if="not (code, name) in c.fields">
                   <a href="${c.drill_down_url(**{code: name})}">
                   <span py:if="'format' in code.lower()">${h.icon(h.format_icon(name))}</span>
                     ${label(name)}</a>${count_label(count)}
             </li>
         </ul>
-        <p py:if="not len(h.facet_items(c, code, limit=limit))">${if_empty}</p>
+        <p py:if="not len(h.facet_items(code, limit=limit))">${if_empty}</p>
     </div>
 </py:def>
 
@@ -30,8 +30,8 @@
              If if_empty is not None and there are no facets to filter on, then a single <li> element
              is generated, with the text specified by if_empty
         -->
-        <li py:if="if_empty and len(h.facet_items(c, code, limit=limit)) == 0">${if_empty}</li>
-        <li py:for="name, count in h.facet_items(c, code, limit=limit)"
+        <li py:if="if_empty and len(h.facet_items(code, limit=limit)) == 0">${if_empty}</li>
+        <li py:for="name, count in h.facet_items(code, limit=limit)"
             py:if="not (code, name) in c.fields">
             <a href="${c.drill_down_url(**{code: name})}">${label(name)}</a> (${count})
         </li>

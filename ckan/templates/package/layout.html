@@ -7,7 +7,7 @@
 
   <py:match path="minornavigation" py:if="c.pkg">
     <ul class="nav nav-pills">
-      <li class="${'active' if c.action=='read' else ''}">${h.subnav_link(c, h.icon('package') + _('View'), controller='package', action='read', id=c.pkg.name)}</li>
+      <li class="${'active' if c.action=='read' else ''}">${h.subnav_link(h.icon('package') + _('View'), controller='package', action='read', id=c.pkg.name)}</li>
       <py:choose test="len(c.pkg_dict.get('resources', []))==0 and not h.check_access('package_update',{'id':c.pkg.id})">
       <py:when test="True">
         <li class="disabled">
@@ -34,15 +34,15 @@
         </li>
       </py:otherwise>
       </py:choose>
-      <li class="${'active' if c.action=='history' else ''}">${h.subnav_link(c, h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
+      <li class="${'active' if c.action=='history' else ''}">${h.subnav_link(h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
         <li class="divider">|</li>
         <li class="${'active' if c.action=='edit' else ''}">
-          ${h.subnav_link(c, h.icon('package_edit') + _('Settings'), controller='package', action='edit', id=c.pkg.name)}
+          ${h.subnav_link(h.icon('package_edit') + _('Settings'), controller='package', action='edit', id=c.pkg.name)}
         </li>
       </py:if>
       <li class="${'active' if c.action=='authz' else ''}" py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
-        ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
+        ${h.subnav_link(h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
       </li>
     </ul>
   </py:match>
