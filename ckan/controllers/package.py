@@ -31,10 +31,13 @@ def _encode_params(params):
     return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
                                   for k, v in params]
 
-def search_url(params):
-    url = h.url_for(controller='package', action='search')
+def url_with_params(url, params):
     params = _encode_params(params)
     return url + u'?' + urlencode(params)
+
+def search_url(params):
+    url = h.url_for(controller='package', action='search')
+    return url_with_params(url, params)
 
 autoneg_cfg = [
     ("application", "xhtml+xml", ["html"]),
@@ -108,10 +111,12 @@ class PackageController(BaseController):
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
 
-        def drill_down_url(**by):
-            params = list(params_nopage)
-            params.extend(by.items())
-            return search_url(set(params))
+        def drill_down_url(alternative_url=None, **by):
+            params = set(params_nopage)
+            params |= set(by.items())
+            if alternative_url:
+                return url_with_params(alternative_url, params)
+            return search_url(params)
 
         c.drill_down_url = drill_down_url
 
