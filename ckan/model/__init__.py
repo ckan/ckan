@@ -2,39 +2,130 @@ from __future__ import with_statement # necessary for python 2.5 support
 import warnings
 import logging
 
-from pylons import config
-from sqlalchemy import MetaData, __version__ as sqav
-from sqlalchemy.schema import Index
-from paste.deploy.converters import asbool
+import vdm.sqlalchemy
+from vdm.sqlalchemy.base import SQLAlchemySession
+from sqlalchemy import MetaData, __version__ as sqav, Table
 
 import meta
 #from domain_object import DomainObjectOperation
-from core import *
-from package import *
-from tag import *
-from package_mapping import *
-from user import user_table, User
-from authorization_group import * 
-from group import *
-from group_extra import *
-from authz import *
-from package_extra import *
-from resource import *
-from rating import *
-from package_relationship import *
-from task_status import *
-from vocabulary import *
-from activity import *
-from term_translation import *
+import core
+import package
+import tag
+import package_mapping
+import user
+import authorization_group
+import group
+import group_extra
+import authz
+import package_extra
+import resource
+import rating
+import package_relationship
+import task_status
+import vocabulary
+import activity
+import term_translation
 import ckan.migration
-from ckan.lib.helpers import OrderedDict, datetime_to_date_str
-from vdm.sqlalchemy.base import SQLAlchemySession
+import ckan.lib.helpers as h
 
 log = logging.getLogger(__name__)
 
 ## CLEANUP related stuff to stop breakages
 Session = meta.Session
 engine_is_sqlite = meta.engine_is_sqlite
+
+System = core.System
+Revision = core.Revision
+State = core.State
+revision_table = core.revision_table
+
+AuthorizationGroup = authorization_group.AuthorizationGroup
+AuthorizationGroupUser = authorization_group.AuthorizationGroupUser
+add_user_to_authorization_group = authorization_group.add_user_to_authorization_group
+
+Activity = activity.Activity
+ActivityDetail = activity.ActivityDetail
+
+NotRealUserException = authz.NotRealUserException
+Enum = authz.Enum
+Action = authz.Action
+Role = authz.Role
+RoleAction = authz.RoleAction
+UserObjectRole = authz.UserObjectRole
+PackageRole = authz.PackageRole
+GroupRole = authz.GroupRole
+AuthorizationGroupRole = authz.AuthorizationGroupRole
+SystemRole = authz.SystemRole
+PSEUDO_USER__VISITOR = authz.PSEUDO_USER__VISITOR
+PSEUDO_USER__LOGGED_IN = authz.PSEUDO_USER__LOGGED_IN
+init_authz_const_data = authz.init_authz_const_data
+init_authz_configuration_data = authz.init_authz_configuration_data
+add_user_to_role = authz.add_user_to_role
+add_authorization_group_to_role = authz.add_authorization_group_to_role
+setup_user_roles = authz.setup_user_roles
+setup_default_user_roles = authz.setup_default_user_roles
+give_all_packages_default_user_roles = authz.give_all_packages_default_user_roles
+user_has_role = authz.user_has_role
+remove_user_from_role = authz.remove_user_from_role
+remove_authorization_group_from_role = authz.remove_authorization_group_from_role
+clear_user_roles = authz.clear_user_roles
+
+Member = group.Member
+Group = group.Group
+member_revision_table = group.member_revision_table
+group_table = group.group_table
+GroupRevision = group.GroupRevision
+
+GroupExtra = group_extra.GroupExtra
+
+Package = package.Package
+PACKAGE_NAME_MIN_LENGTH = package.PACKAGE_NAME_MIN_LENGTH
+PACKAGE_NAME_MAX_LENGTH = package.PACKAGE_NAME_MAX_LENGTH
+PACKAGE_VERSION_MAX_LENGTH = package.PACKAGE_VERSION_MAX_LENGTH
+package_table = package.package_table
+package_revision_table = package.package_revision_table
+
+PackageExtra = package_extra.PackageExtra
+PackageExtraRevision = package_extra.PackageExtraRevision
+package_extra_table = package_extra.package_extra_table
+extra_revision_table = package_extra.extra_revision_table
+
+PackageRelationship = package_relationship.PackageRelationship
+package_relationship_table = package_relationship.package_relationship_table
+package_relationship_revision_table = package_relationship.package_relationship_revision_table
+
+PackageRevision = package_mapping.PackageRevision
+
+Rating = rating.Rating
+
+Resource = resource.Resource
+ResourceGroup = resource.ResourceGroup
+ResourceRevision = resource.ResourceRevision
+DictProxy = resource.DictProxy
+resource_group_table = resource.resource_group_table
+resource_table = resource.resource_table
+resource_revision_table = resource.resource_revision_table
+
+Tag = tag.Tag
+PackageTag = tag.PackageTag
+PackageTagRevision = tag.PackageTagRevision
+MAX_TAG_LENGTH = tag.MAX_TAG_LENGTH
+MIN_TAG_LENGTH = tag.MIN_TAG_LENGTH
+tag_table = tag.tag_table
+package_tag_table = tag.package_tag_table
+package_tag_revision_table = tag.package_tag_revision_table
+
+TaskStatus = task_status.TaskStatus
+
+User = user.User
+user_table = user.user_table
+
+Vocabulary = vocabulary.Vocabulary
+VOCABULARY_NAME_MAX_LENGTH = vocabulary.VOCABULARY_NAME_MAX_LENGTH
+VOCABULARY_NAME_MIN_LENGTH = vocabulary.VOCABULARY_NAME_MIN_LENGTH
+
+term_translation_table = term_translation.term_translation_table
+
 
 # set up in init_model after metadata is bound
 version_table = None
@@ -292,13 +383,13 @@ Revision.groups = property(_get_groups)
 Revision.user = property(_get_revision_user)
 
 def revision_as_dict(revision, include_packages=True, include_groups=True,ref_package_by='name'):
-    revision_dict = OrderedDict((
+    revision_dict = h.OrderedDict((
         ('id', revision.id),
-        ('timestamp', datetime_to_date_str(revision.timestamp)),
+        ('timestamp', h.datetime_to_date_str(revision.timestamp)),
         ('message', revision.message),
         ('author', revision.author),
         ('approved_timestamp',
-         datetime_to_date_str(revision.approved_timestamp) \
+         h.datetime_to_date_str(revision.approved_timestamp) \
          if revision.approved_timestamp else None),
         ))
     if include_packages:
