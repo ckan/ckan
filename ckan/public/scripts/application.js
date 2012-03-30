@@ -120,6 +120,21 @@ CKAN.Utils = CKAN.Utils || {};
 }(jQuery));
 
 
+/* =============================== */
+/* Backbone Model: Resource object */
+/* =============================== */
+CKAN.Model.Resource = Backbone.Model.extend({
+  constructor: function Resource() {
+    Backbone.Model.prototype.constructor.apply(this, arguments);
+  },
+  toTemplateJSON: function() {
+    var obj = Backbone.Model.prototype.toJSON.apply(this, arguments);
+    obj.displaytitle = obj.description ? obj.description : 'No description ...';
+    return obj;
+  }
+});
+
+
 
 /* ============================== */
 /* == Backbone View: UrlEditor == */
