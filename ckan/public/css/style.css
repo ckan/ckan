@@ -415,8 +415,7 @@ ul.no-break li {
 /* ======================= */
 div.form-actions p.hints {
   width: 50%;
-  float: right;
-  margin: 0;
+  margin: 10px 0 0 0;
 }
 
 
@@ -937,8 +936,6 @@ span.extras-label {
 .dataset-create-form fieldset#resources,
 .dataset-create-form fieldset#summary {
   display: block;
-  padding-bottom: 0;
-  margin-bottom: 0;
 }
 .dataset-create-form .homepage-field,
 .dataset-create-form .tags-field {
@@ -1303,6 +1300,12 @@ fieldset#resources > .instructions {
 .resource-list-edit {
   padding-top: 10px;
 }
+/* While dragging.... */
+.resource-list-edit li.ui-sortable-helper {
+  border-color: #888;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+}
+
 /* Resource-list-add */
 .resource-list-add {
   margin-top: 20px;
