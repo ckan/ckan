@@ -80,12 +80,12 @@ CKAN.Utils = CKAN.Utils || {};
       if (storageEnabled) {
         $('li.js-upload-file').show();
       }
-      // Backbone model/view
-      var _dataset = new CKAN.Model.Dataset(preload_dataset);
-      var $el=$('form#dataset-edit');
-      var view=new CKAN.View.ResourceEditor({
-        collection: _dataset.get('resources'),
-        el: $el
+      // Backbone collection class
+      var CollectionOfResources = Backbone.Collection.extend({model: CKAN.Model.Resource});
+      // 'resources_json' was embedded into the page
+      var view = new CKAN.View.ResourceEditor({
+        collection: new CollectionOfResources(resources_json),
+        el: $('form#dataset-edit')
       });
       view.render();
 

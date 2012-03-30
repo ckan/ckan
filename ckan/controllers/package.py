@@ -261,7 +261,7 @@ class PackageController(BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            c.pkg_json = json.dumps(c.pkg_dict)
+            c.resources_json = json.dumps(c.pkg_dict.get('resources',[]))
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
@@ -400,7 +400,7 @@ class PackageController(BaseController):
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=[CACHE_PARAMETER]))))
-        c.pkg_json = json.dumps(data)
+        c.resources_json = json.dumps(data.get('resources',[]))
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -439,7 +439,7 @@ class PackageController(BaseController):
             abort(404, _('Dataset not found'))
 
         c.pkg = context.get("package")
-        c.pkg_json = json.dumps(data)
+        c.resources_json = json.dumps(data.get('resources',[]))
 
         try:
             check_access('package_update',context)
