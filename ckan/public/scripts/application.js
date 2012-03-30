@@ -677,6 +677,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
     this.$messages = this.el.find('.alert');
     this.$uploader = this.el.find('#fileupload');
     this.setupFileUpload();
+    this.endpoint = "http://test-ckan-net-storage.commondatastorage.googleapis.com/";
   },
 
   events: {
@@ -743,7 +744,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
     self.client.getStorageAuthForm(key, {
       async: false,
       success: function(data) {
-        self.$uploader.attr('data-url', data.action);
+        self.endpoint = data.action;
         _tmpl = '<input type="hidden" name="${name}" value="${value}" />';
         var $hidden = $(self.el.find('div.hidden-inputs')[0]);
         $.each(data.fields, function(idx, item) {
@@ -765,7 +766,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
       alert('No file selected');
       return;
     }
-    var jqXHR = this.$uploader.fileupload('send', {files: this.fileData.files, url: this.$uploader.attr('data-url')});
+    var jqXHR = this.$uploader.fileupload('send', {files: this.fileData.files, url: this.endpoint});
   },
 
   onUploadComplete: function(key) {
