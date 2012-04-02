@@ -1,5 +1,9 @@
 var CKAN = CKAN || {};
 
+CKAN.View = CKAN.View || {};
+CKAN.Model = CKAN.Model || {};
+CKAN.Utils = CKAN.Utils || {};
+
 /* ================================= */
 /* == Initialise CKAN Application == */
 /* ================================= */
@@ -17,15 +21,6 @@ var CKAN = CKAN || {};
     CKAN.Utils.setupMarkdownEditor($('.markdown-editor'));
     // bootstrap collapse
     $('.collapse').collapse({toggle: false});
-    // set up ckan js
-    var config = {
-      endpoint: CKAN.SITE_URL + '/'
-    };
-    var client = new CKAN.Client(config);
-    // serious hack to deal with hacky code in ckanjs
-    CKAN.UI.workspace = {
-      client: client
-    };
 
     // Buttons with href-action should navigate when clicked
     $('input.href-action').click(function(e) {
@@ -85,12 +80,12 @@ var CKAN = CKAN || {};
       if (storageEnabled) {
         $('li.js-upload-file').show();
       }
-      // Backbone model/view
-      var _dataset = new CKAN.Model.Dataset(preload_dataset);
-      var $el=$('form#dataset-edit');
-      var view=new CKAN.View.ResourceEditor({
-        collection: _dataset.get('resources'),
-        el: $el
+      // Backbone collection class
+      var CollectionOfResources = Backbone.Collection.extend({model: CKAN.Model.Resource});
+      // 'resources_json' was embedded into the page
+      var view = new CKAN.View.ResourceEditor({
+        collection: new CollectionOfResources(resources_json),
+        el: $('form#dataset-edit')
       });
       view.render();
 
@@ -123,6 +118,21 @@ var CKAN = CKAN || {};
 	}
   });
 }(jQuery));
+
+
+/* =============================== */
+/* Backbone Model: Resource object */
+/* =============================== */
+CKAN.Model.Resource = Backbone.Model.extend({
+  constructor: function Resource() {
+    Backbone.Model.prototype.constructor.apply(this, arguments);
+  },
+  toTemplateJSON: function() {
+    var obj = Backbone.Model.prototype.toJSON.apply(this, arguments);
+    obj.displaytitle = obj.description ? obj.description : 'No description ...';
+    return obj;
+  }
+});
 
 
 
@@ -269,12 +279,22 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     // Trigger the Add Resource pane
     this.el.find('.js-resource-add').click(this.openAddPanel);
 
-    // Tabbed view for adding resources
-    var $resourceAdd = this.el.find('.resource-add');
-    this.addView=new CKAN.View.ResourceAddTabs({
+    // Tabs for adding resources
+    new CKAN.View.ResourceAddUrl({
       collection: this.collection,
-      el: $resourceAdd
+      el: this.el.find('.js-add-url-form'),
+      mode: 'file'
     });
+    new CKAN.View.ResourceAddUrl({
+      collection: this.collection,
+      el: this.el.find('.js-add-api-form'),
+      mode: 'api'
+    });
+    new CKAN.View.ResourceAddUpload({
+      collection: this.collection,
+      el: this.el.find('.js-add-upload-form')
+    });
+
 
     // Close details button
     this.el.find('.resource-panel-close').click(this.closePanel);
@@ -319,20 +339,19 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
   openAddPanel: function(e) {
     if (e) { e.preventDefault(); }
     var panel = this.el.find('.resource-panel');
-    var addLi = this.el.find('.resource-list-add li');
-    this.el.find('.resource-list li').removeClass('active');
-    this.el.find('.resource-details').hide();
+    var addLi = this.el.find('.resource-list-add > li');
+    this.el.find('.resource-list > li').removeClass('active');
+    $('.resource-details').hide();
     this.el.find('.resource-details.resource-add').show();
     addLi.addClass('active');
     panel.show();
-    panel.css('top', Math.max(0, addLi.position().top + addLi.height() - panel.height()));
   },
   /*
    * Close the panel on the right.
    */
   closePanel: function(e) {
     if (e) { e.preventDefault(); }
-    this.el.find('.resource-list li').removeClass('active');
+    this.el.find('.resource-list > li').removeClass('active');
     this.el.find('.resource-panel').hide();
   },
   /* 
@@ -536,12 +555,11 @@ CKAN.View.Resource = Backbone.View.extend({
     // Close all tables
     var panel = this.table.parents('.resource-panel');
     panel.find('.resource-details').hide();
-    this.li.parents('fieldset#resources').find('li').removeClass('active');
+    this.li.parents('fieldset#resources').find('.resource-list > li').removeClass('active');
     panel.show();
     this.table.show();
     this.table.find('.js-resource-edit-name').focus();
     this.li.addClass('active');
-    panel.css('top', Math.max(0, this.li.position().top+this.li.height() - panel.height()));
   },
   /* 
    * Called when my delete button is clicked. Calls back to the parent
@@ -652,120 +670,195 @@ CKAN.View.Resource = Backbone.View.extend({
   }
 });
 
-/* ===================================== */
-/* == Backbone View: ResourceAdd Tabs == */
-/* ===================================== */
-CKAN.View.ResourceAddTabs = Backbone.View.extend({
-  initialize: function() {
-    _.bindAll(this, 'render', 'addNewResource', 'reset');
-  },
 
-  render: function() {
+/* ============================================= */
+/* Backbone View: Add Resource by uploading file */
+/* ============================================= */
+CKAN.View.ResourceAddUpload = Backbone.View.extend({
+  tagName: 'div',
+
+  initialize: function(options) {
+    this.el = $(this.el);
+    _.bindAll(this, 'render', 'updateFormData', 'setMessage', 'uploadFile');
+    $(CKAN.Templates.resourceUpload).appendTo(this.el);
+    this.$messages = this.el.find('.alert');
+    this.setupFileUpload();
   },
 
   events: {
-    'click button': 'clickButton',
-    'click input[name=reset]': 'reset'
+    'click input[type="submit"]': 'uploadFile'
   },
 
-  reset: function() {
-    this.el.find('button').removeClass('depressed');
-    if (this.subView) {
-      this.subView.remove();
-      this.subView = null;
-    }
-    return false;
+  setupFileUpload: function() {
+    var self = this;
+    this.el.find('.fileupload').fileupload({
+      // needed because we are posting to remote url 
+      forceIframeTransport: true,
+      replaceFileInput: false,
+      autoUpload: false,
+      fail: function(e, data) {
+        alert('Upload failed');
+      },
+      add: function(e,data) {
+        self.fileData = data;
+        self.fileUploadData = data;
+        self.key = self.makeUploadKey(data.files[0].name);
+        self.updateFormData(self.key);
+      },
+      send: function(e, data) {
+        self.setMessage('Uploading file ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
+      },
+      done: function(e, data) {
+        self.onUploadComplete(self.key);
+      }
+    })
   },
 
-  clickButton: function(e) {
+  ISODateString: function(d) {
+    function pad(n) {return n<10 ? '0'+n : n};
+    return d.getUTCFullYear()+'-'
+       + pad(d.getUTCMonth()+1)+'-'
+       + pad(d.getUTCDate())+'T'
+       + pad(d.getUTCHours())+':'
+       + pad(d.getUTCMinutes())+':'
+       + pad(d.getUTCSeconds());
+  },
+
+  // Create an upload key/label for this file.
+  // 
+  // Form: {current-date}/file-name. Do not just use the file name as this
+  // would lead to collisions.
+  // (Could add userid/username and/or a small random string to reduce
+  // collisions but chances seem very low already)
+  makeUploadKey: function(fileName) {
+    // google storage replaces ' ' with '+' which breaks things
+    // See http://trac.ckan.org/ticket/1518 for more.
+    var corrected = fileName.replace(/ /g, '-');
+    // note that we put hh mm ss as hhmmss rather hh:mm:ss (former is 'basic
+    // format')
+    var now = new Date();
+    // replace ':' with nothing
+    var str = this.ISODateString(now).replace(':', '').replace(':', '');
+    return str  + '/' + corrected;
+  },
+
+  updateFormData: function(key) {
+    var self = this;
+    self.setMessage('Checking upload permissions ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
+    self.el.find('.fileinfo').text(key);
+    $.ajax({
+      url: CKAN.SITE_URL + '/api/storage/auth/form/' + key,
+      async: false,
+      success: function(data) {
+        self.el.find('form').attr('action', data.action);
+        _tmpl = '<input type="hidden" name="${name}" value="${value}" />';
+        var $hidden = $(self.el.find('form div.hidden-inputs')[0]);
+        $.each(data.fields, function(idx, item) {
+          $hidden.append($.tmpl(_tmpl, item));
+        });
+        self.hideMessage();
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        // TODO: more graceful error handling (e.g. of 409)
+        self.setMessage('Failed to get credentials for storage upload. Upload cannot proceed', 'error');
+        self.el.find('input[name="add-resource-upload"]').hide();
+      }
+    });
+  },
+
+  uploadFile: function(e) {
     e.preventDefault();
-    var $target = $(e.target);
-
-    if ($target.is('.depressed')) {
-      this.reset();
+    if (!this.fileData) {
+      alert('No file selected');
+      return;
     }
-    else {
-      this.reset();
-      $target.addClass('depressed');
-
-      var $subPane = $('<div />').addClass('subpane');
-      this.el.append($subPane);
-
-      var tempResource = new CKAN.Model.Resource({});
-
-      tempResource.bind('change', this.addNewResource);
-      // Open sub-pane
-      if ($target.is('.js-upload-file')) {
-        this.subView = new CKAN.View.ResourceUpload({
-          el: $subPane,
-          model: tempResource,
-          // TODO: horrible reverse depedency ...
-          client: CKAN.UI.workspace.client
-        });
-      }
-      else if ($target.is('.js-link-file') || $target.is('.js-link-api')) {
-        this.subView = new CKAN.View.ResourceAddLink({
-          el: $subPane,
-          model: tempResource,
-          mode: ($target.is('.js-link-file'))? 'file' : 'api',
-          // TODO: horrible reverse depedency ...
-          client: CKAN.UI.workspace.client
-        });
-      }
-      this.subView.render();
-    }
+    var jqXHR = this.fileData.submit();
   },
 
-  addNewResource: function(tempResource) {
-    // Deep-copy the tempResource we had bound to
-    var resource=new CKAN.Model.Resource(tempResource.toJSON());
+  onUploadComplete: function(key) {
+    var self = this;
+    $.ajax({
+      url: CKAN.SITE_URL + '/api/storage/metadata/' + self.key,
+      success: function(data) {
+        var name = data._label;
+        if (name && name.length > 0 && name[0] === '/') {
+          name = name.slice(1);
+        }
+        var d = new Date(data._last_modified);
+        var lastmod = self.ISODateString(d);
+        var newResource = new CKAN.Model.Resource({});
+        newResource.set({
+            url: data._location
+            , name: name
+            , size: data._content_length 
+            , last_modified: lastmod
+            , format: data._format
+            , mimetype: data._format
+            , resource_type: 'file.upload'
+            , owner: data['uploaded-by']
+            , hash: data._checksum
+            , cache_url: data._location
+            , cache_url_updated: lastmod
+          }
+          , {
+            error: function(model, error) {
+              var msg = 'Filed uploaded OK but error adding resource: ' + error + '.';
+              msg += 'You may need to create a resource directly. Uploaded file at: ' + data._location;
+              self.setMessage(msg, 'error');
+            }
+          }
+        );
+        self.collection.add(newResource);
+        self.setMessage('File uploaded OK and resource added', 'success');
+      }
+    });
+  },
 
-    this.collection.add(resource);
-    this.reset();
+  setMessage: function(msg, category) {
+    var category = category || 'alert-info';
+    this.$messages.removeClass('alert-info alert-success alert-error');
+    this.$messages.addClass(category);
+    this.$messages.show();
+    this.$messages.html(msg);
+  },
+
+  hideMessage: function() {
+    this.$messages.hide('slow');
   }
 });
 
-/* ================================================= */
-/* == Backbone View: ResourceAdd Link-To-Resource == */
-/* ================================================= */
-CKAN.View.ResourceAddLink = Backbone.View.extend({
+/* ======================================== */
+/* == Backbone View: Add resource by URL == */
+/* ======================================== */
+CKAN.View.ResourceAddUrl = Backbone.View.extend({
   initialize: function(options) {
-    _.bindAll(this, 'render');
-    this.mode = options.mode;
+    _.bindAll(this, 'clickSubmit');
   },
 
-  render: function() {
-    var tmpl = null;
-    if (this.mode=='file') {
-      tmpl = $.tmpl(CKAN.Templates.resourceAddLinkFile);
-    }
-    else if (this.mode=='api') {
-      tmpl = $.tmpl(CKAN.Templates.resourceAddLinkApi);
-    }
-    $(this.el).html(tmpl);
-    return this;
-  },
+  clickSubmit: function(e) {
+     e.preventDefault();
 
-  setResourceInfo: function(e) {
-    e.preventDefault();
+     var self = this;
+     var newResource = new CKAN.Model.Resource({});
 
-     this.el.find('input[name=save]').addClass("disabled");
-     this.el.find('input[name=reset]').addClass("disabled");
-     var urlVal=this.el.find('input[name=url]').val();
+     this.el.find('input[name="add-resource-save"]').addClass("disabled");
+     var urlVal = this.el.find('input[name="add-resource-url"]').val();
      var qaEnabled = $.inArray('qa',CKAN.plugins)>=0;
 
-     if(qaEnabled && this.mode=='file') {
+     if(qaEnabled && this.options.mode=='file') {
        $.ajax({
          url: CKAN.SITE_URL + '/qa/link_checker',
-         context: this.model,
+         context: newResource,
          data: {url: urlVal},
          dataType: 'json',
          error: function(){
-           this.set({url: urlVal, resource_type: 'file'});
+           newResource.set({url: urlVal, resource_type: 'file'});
+           self.collection.add(newResource);
+           self.resetForm();
          },
          success: function(data){
            data = data[0];
-           this.set({
+           newResource.set({
              url: urlVal,
              resource_type: 'file',
              format: data.format,
@@ -774,15 +867,25 @@ CKAN.View.ResourceAddLink = Backbone.View.extend({
              last_modified: data.last_modified,
              url_error: (data.url_errors || [""])[0]
            });
+           self.collection.add(newResource);
+           self.resetForm();
          }
        });
-     } else {
-       this.model.set({url: urlVal, resource_type: this.mode});
+     } 
+     else {
+       newResource.set({url: urlVal, resource_type: this.options.mode});
+       this.collection.add(newResource);
+       this.resetForm();
      }
   },
 
+  resetForm: function() {
+     this.el.find('input[name="add-resource-save"]').removeClass("disabled");
+     this.el.find('input[name="add-resource-url"]').val('');
+  },
+
   events: {
-    'submit form': 'setResourceInfo'
+    'click .btn': 'clickSubmit'
   }
 });
 

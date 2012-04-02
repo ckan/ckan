@@ -1,25 +1,5 @@
-
-CKAN.Templates.resourceAddLinkFile = ' \
-  <form class="form-inline"> \
-    <label class="field_opt" for="url"> \
-      '+CKAN.Strings.fileUrl+' \
-    </label> \
-    <input name="url" type="text" class="input-small" placeholder="http://mydataset.com/file.csv"/> \
-    <input name="save" type="submit" class="btn btn-primary" value="'+CKAN.Strings.add+'" /> \
-    <input name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
-  </form> \
-';
-
-CKAN.Templates.resourceAddLinkApi = ' \
-  <form class="form-inline"> \
-    <label class="field_opt" for="url"> \
-      '+CKAN.Strings.apiUrl+' \
-    </label> \
-    <input name="url" type="text" class="input-small" placeholder="http://mydataset.com/api/"/> \
-    <input name="save" type="submit" class="btn btn-primary" value="'+CKAN.Strings.add+'" /> \
-    <input name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
-  </form> \
-';
+var CKAN = CKAN || {};
+CKAN.Templates = CKAN.Templates || {};
 
 CKAN.Templates.resourceUpload = ' \
 <div class="fileupload"> \
@@ -28,25 +8,13 @@ CKAN.Templates.resourceUpload = ' \
     method="POST"> \
  \
     <div class="hidden-inputs"></div> \
-    <dl> \
-      <dt> \
-        <label class="field_opt fileinput-button" for="file"> \
-          '+CKAN.Strings.file+' \
-        </label> \
-      </dt> \
-      <dd> \
-        <input type="file" name="file" /> \
-        <br /> \
-        <div class="fileinfo"></div> \
-        <input id="upload" name="upload" type="submit" class="btn btn-primary" value="'+CKAN.Strings.add+'" /> \
-        <input id="reset" name="reset" type="reset" class="btn" value="'+CKAN.Strings.cancel+'" /> \
-      </dd> \
-    </dl> \
+    <input type="file" name="file" /> \
+    <br /> \
+    <div class="fileinfo"></div> \
+    <input id="upload" name="add-resource-upload" type="submit" class="btn btn-primary" value="'+CKAN.Strings.upload+'" /> \
   </form> \
   <div class="alert alert-block" style="display: none;"></div> \
-  </div> \
-</div> \
-';
+</div>';
 
 
 
