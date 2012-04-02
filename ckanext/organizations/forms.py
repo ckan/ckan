@@ -32,9 +32,10 @@ class OrganizationForm(SingletonPlugin):
     implements(IConfigurer)
 
     def before_map(self, map):
-        map.connect('/organization/users/{id}', controller='ckanext.organizations.controllers:OrganizationController', action='users')
-        map.connect('/organization/apply/{id}', controller='ckanext.organizations.controllers:OrganizationController', action='apply')
-        map.connect('/organization/apply', controller='ckanext.organizations.controllers:OrganizationController', action='apply')
+        controller = 'ckanext.organizations.controllers:OrganizationController'
+        map.connect('/organization/users/{id}', controller=controller, action='users')
+        map.connect('/organization/apply/{id}', controller=controller, action='apply')
+        map.connect('/organization/apply', controller=controller, action='apply')
         map.connect('/organization/edit/{id}', controller='group', action='edit')
         map.connect('/organization/new', controller='group', action='new')
         map.connect('/organization/{id}', controller='group', action='read')
