@@ -621,6 +621,7 @@ class ApiController(base.BaseController):
     def is_slug_valid(self):
         slug = request.params.get('slug') or ''
         slugtype = request.params.get('type') or ''
+        # TODO: We need plugins to be able to register new disallowed names
         disallowed = ['new', 'edit', 'search']
         if slugtype==u'package':
             response_data = dict(valid=not bool(common.package_exists(slug)
