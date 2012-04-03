@@ -127,6 +127,10 @@ class PackageSearchIndex(SearchIndex):
         # from the single group that it is a part of if we have a group
         if len(groups):
             pkg_dict['capacity'] = groups[0].get('capacity', 'public')
+            if pkg_dict['capacity'] == 'member':
+                pkg_dict['capacity'] = 'public'
+        else:
+            pkg_dict['capacity'] = 'public'
 
         pkg_dict['groups'] = [group['name'] for group in groups]
 
