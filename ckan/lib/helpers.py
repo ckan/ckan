@@ -592,7 +592,7 @@ def resource_display_name(resource_dict):
         if len(description)>max_len: description = description[:max_len]+'...'
         return description
     else:
-        return '[no name] %s ' % resource_dict['id']
+        return _('[no name] %s ') % resource_dict['id']
 
 def resource_link(resource_dict, package_id):
     text = resource_display_name(resource_dict)
