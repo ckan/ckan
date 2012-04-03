@@ -33,17 +33,24 @@ class Related(DomainObject):
 
     @classmethod
     def get_for_dataset(cls, package, status=u'active'):
+        """
+        Allows the caller to get non-active state relations between
+        the dataset and related, using the RelatedDataset object
+        """
         query = meta.Session.query(RelatedDataset)
         query = query.filter(RelatedDataset.dataset_id==package.id)
         query = query.filter(RelatedDataset.status==status)
-        return query.all()
+        return [ r.related for r in query.all() ]
 
 
-# The mapping between the Related, RelatedDataset and Package tables have
-# been deliberately kept orthogonal as the join table 'related_dataset_table'
-# has an extra field, which would result in a messy association.
-# See http://bit.ly/sqlalchemy_association_object
-meta.mapper(RelatedDataset, related_dataset_table)
+# We have avoided using SQLAlchemy association objects see
+# http://bit.ly/sqlalchemy_association_object by only having the
+# relation be for 'active' related objects.  For non-active states
+# the caller will have to use get_for_dataset() in Related.
+meta.mapper(RelatedDataset, related_dataset_table, properties={
+    'related': meta.relation(Related),
+    'dataset': meta.relation(Package)
+})
 meta.mapper(Related, related_table, properties={
     'datasets': meta.relation(Package, backref='related',
                               secondary=related_dataset_table,
