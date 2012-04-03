@@ -4,15 +4,12 @@
   
   <py:def function="page_title">Revision History</py:def>
   <py:def function="page_heading">Revision History</py:def>
+  <py:def function="body_class">no-sidebar</py:def>
 
   <py:match path="minornavigation">
     <ul class="tabbed">
       <li class="current-tab">
         ${h.subnav_link(c,_('Home'), controller='revision', action='index')}</li>
-      <!--li class="action">
-      ${h.subnav_link(c, h.icon('atom_feed') + _('Subscribe'),
-      controller='revision', action='index', format='atom', days=1)}
-      </li-->
     </ul>
   </py:match>
 

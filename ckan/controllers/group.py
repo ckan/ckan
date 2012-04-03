@@ -14,7 +14,7 @@ from ckan.logic import tuplize_dict, clean_dict, parse_params
 import ckan.forms
 import ckan.logic.action.get
 
-from lib.plugins import lookup_group_plugin
+from ckan.lib.plugins import lookup_group_plugin
 
 log = logging.getLogger(__name__)
 
@@ -222,6 +222,7 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
+                   'for_edit': True,
                    'parent': request.params.get('parent', None)
                    }
         data_dict = {'id': id}
@@ -233,10 +234,6 @@ class GroupController(BaseController):
             old_data = get_action('group_show')(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
-            schema = self._db_to_form_schema()
-            if schema and not data:
-                old_data, errors = validate(old_data, schema, context=context)
-
             data = data or old_data
         except NotFound:
             abort(404, _('Group not found'))

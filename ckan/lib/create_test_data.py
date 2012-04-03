@@ -11,6 +11,8 @@ class CreateTestData(cli.CkanCommand):
     create-test-data gov     - government style data
     create-test-data family  - package relationships data
     create-test-data user    - create a user 'tester' with api key 'tester'
+    create-test-data vocabs  - annakerenina, warandpeace, and some test
+                               vocabularies
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -51,6 +53,8 @@ class CreateTestData(cli.CkanCommand):
             self.create_gov_test_data()
         elif cmd == 'family':
             self.create_family_test_data()
+        elif cmd == 'vocabs':
+            self.create_vocabs_test_data()
         else:
             print 'Command %s not recognized' % cmd
             raise NotImplementedError
@@ -86,6 +90,43 @@ class CreateTestData(cli.CkanCommand):
             model.Session.commit()
         model.Session.remove()
         cls.user_refs.append(u'tester')
+
+    @classmethod
+    def create_vocabs_test_data(cls):
+        import ckan.model
+        CreateTestData.create()
+        sysadmin_user = ckan.model.User.get('testsysadmin')
+        annakarenina = ckan.model.Package.get('annakarenina')
+        warandpeace = ckan.model.Package.get('warandpeace')
+
+        # Create a couple of vocabularies.
+        context = {
+                'model': ckan.model,
+                'session': ckan.model.Session,
+                'user': sysadmin_user.name
+                }
+        data_dict = {
+                'name': 'Genre',
+                'tags': [{'name': 'Drama'}, {'name': 'Sci-Fi'},
+                    {'name': 'Mystery'}],
+                }
+        ckan.logic.action.create.vocabulary_create(context, data_dict)
+
+        data_dict = {
+                'name': 'Actors',
+                'tags': [{'name': 'keira-knightley'}, {'name': 'jude-law'},
+                    {'name': 'alessio-boni'}],
+                }
+        ckan.logic.action.create.vocabulary_create(context, data_dict)
+
+        # Add some vocab tags to some packages.
+        genre_vocab = ckan.model.Vocabulary.get('Genre')
+        actors_vocab = ckan.model.Vocabulary.get('Actors')
+        annakarenina.add_tag_by_name('Drama', vocab=genre_vocab)
+        annakarenina.add_tag_by_name('keira-knightley', vocab=actors_vocab)
+        annakarenina.add_tag_by_name('jude-law', vocab=actors_vocab)
+        warandpeace.add_tag_by_name('Drama', vocab=genre_vocab)
+        warandpeace.add_tag_by_name('alessio-boni', vocab=actors_vocab)
 
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],
@@ -704,7 +745,7 @@ gov_items = [
     {'name':'weekly-fuel-prices',
      'title':'Weekly fuel prices',
      'notes':'Latest price as at start of week of unleaded petrol and diesel.',
-     'resources':[{'url':'http://www.decc.gov.uk/en/content/cms/statistics/prices.xls', 'format':'XLS', 'description':''}],
+     'resources':[{'url':'http://www.decc.gov.uk/assets/decc/statistics/source/prices/qep211.xls', 'format':'XLS', 'description':'Quarterly 23/2/12'}],
      'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
      'author':'DECC Energy Statistics Team',
      'author_email':'energy.stats@decc.gsi.gov.uk',

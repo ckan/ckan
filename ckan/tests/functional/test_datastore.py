@@ -39,15 +39,15 @@ class TestWebstoreController(TestController, PylonsTestCase):
         assert_equal(res.status, 200)
         assert_equal(res.body, '""')
         headers = dict(res.headers)
-        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-test.ckan.net/%s?'
-                % resource_id)
+        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-%s/%s?'
+                % (config['ckan.site_id'], resource_id))
 
         offset = url_for('datastore_read', id=resource_id, url='/_search')
         res = self.app.get(offset)
         assert_equal(res.status, 200)
         headers = dict(res.headers)
-        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-test.ckan.net/%s/_search?'
-                % resource_id)
+        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-%s/%s/_search?'
+                % (config['ckan.site_id'], resource_id))
 
     def test_update(self):
         dataset = model.Package.by_name(CreateTestData.pkg_names[0])
@@ -79,14 +79,14 @@ class TestWebstoreController(TestController, PylonsTestCase):
         # assert res.status in [401,302], res.status
         assert res.status == 200
         headers = dict(res.headers)
-        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-test.ckan.net/%s?'
-                % resource_id)
+        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-%s/%s?'
+                % (config['ckan.site_id'], resource_id))
 
 
         offset = url_for('datastore_write', id=resource_id, url='/_mapping')
         res = self.app.post(offset)
         assert res.status == 200
         headers = dict(res.headers)
-        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-test.ckan.net/%s/_mapping?'
-                % resource_id)
+        assert_equal(headers['X-Accel-Redirect'], '/elastic/ckan-%s/%s/_mapping?'
+                % (config['ckan.site_id'], resource_id))
 

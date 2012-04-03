@@ -23,15 +23,21 @@ import ckan.misc
 import ckan.logic.action.get
 from home import CACHE_PARAMETER
 
-from lib.plugins import lookup_package_plugin
+from ckan.lib.plugins import lookup_package_plugin
 
 log = logging.getLogger(__name__)
 
+def _encode_params(params):
+    return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                                  for k, v in params]
+
+def url_with_params(url, params):
+    params = _encode_params(params)
+    return url + u'?' + urlencode(params)
+
 def search_url(params):
     url = h.url_for(controller='package', action='search')
-    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
-                    for k, v in params]
-    return url + u'?' + urlencode(params)
+    return url_with_params(url, params)
 
 autoneg_cfg = [
     ("application", "xhtml+xml", ["html"]),
@@ -105,10 +111,12 @@ class PackageController(BaseController):
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
 
-        def drill_down_url(**by):
-            params = list(params_nopage)
-            params.extend(by.items())
-            return search_url(set(params))
+        def drill_down_url(alternative_url=None, **by):
+            params = set(params_nopage)
+            params |= set(by.items())
+            if alternative_url:
+                return url_with_params(alternative_url, params)
+            return search_url(params)
 
         c.drill_down_url = drill_down_url
 
@@ -119,17 +127,43 @@ class PackageController(BaseController):
 
         c.remove_field = remove_field
 
+        sort_by = request.params.get('sort', None)
+        params_nosort = [(k, v) for k,v in params_nopage if k != 'sort']
+        def _sort_by(fields):
+            """
+            Sort by the given list of fields.
+
+            Each entry in the list is a 2-tuple: (fieldname, sort_order)
+
+            eg - [('metadata_modified', 'desc'), ('name', 'asc')]
+
+            If fields is empty, then the default ordering is used.
+            """
+            params = params_nosort[:]
+
+            if fields:
+                sort_string = ', '.join( '%s %s' % f for f in fields )
+                params.append(('sort', sort_string))
+            return search_url(params)
+        c.sort_by = _sort_by
+        if sort_by is None:
+            c.sort_by_fields = []
+        else:
+            c.sort_by_fields = [ field.split()[0] for field in sort_by.split(',') ]
+
         def pager_url(q=None, page=None):
             params = list(params_nopage)
             params.append(('page', page))
             return search_url(params)
+
+        c.search_url_params = urlencode(_encode_params(params_nopage))
 
         try:
             c.fields = []
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
-                if not param in ['q', 'page'] \
+                if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
@@ -146,6 +180,7 @@ class PackageController(BaseController):
                 'facet.field':g.facets,
                 'rows':limit,
                 'start':(page-1)*limit,
+                'sort': sort_by,
                 'extras':search_extras
             }
 
@@ -168,8 +203,47 @@ class PackageController(BaseController):
 
         return render( self._search_template(package_type) )
 
+    def _content_type_for_format(self, fmt):
+        """
+        Given a requested format this method determines the content-type
+        to set and the genshi template loader to use in order to render
+        it accurately.  TextTemplate must be used for non-xml templates
+        whilst all that are some sort of XML should use MarkupTemplate.
+        """
+        from genshi.template import MarkupTemplate
+        from genshi.template.text import NewTextTemplate
 
-    def read(self, id):
+        types = {
+            "html": ("text/html; charset=utf-8", MarkupTemplate, 'html'),
+            "rdf" : ("application/rdf+xml; charset=utf-8", MarkupTemplate, 'rdf'),
+            "n3" : ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
+            "application/rdf+xml" : ("application/rdf+xml; charset=utf-8", MarkupTemplate,'rdf'),
+            "text/n3": ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
+        }
+        # Check the accept header first
+        accept = request.headers.get('Accept', '')
+        if accept and accept in types:
+            return types[accept][0], types[accept][2], types[accept][1]
+
+        if fmt in types:
+            return types[fmt][0], types[fmt][2], types[fmt][1]
+        return None, "html", (types["html"][1])
+
+
+    def read(self, id, format='html'):
+        # Check we know the content type, if not then it is likely a revision
+        # and therefore we should merge the format onto the end of id
+        ctype,extension,loader = self._content_type_for_format(format)
+        if not ctype:
+            # Reconstitute the ID if we don't know what content type to use
+            ctype = "text/html; charset=utf-8"
+            id = "%s.%s" % (id, format)
+            format = 'html'
+        else:
+            format = extension
+
+        response.headers['Content-Type'] = ctype
+
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
@@ -203,10 +277,6 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
-        #set a cookie so we know whether to display the welcome message
-        c.hide_welcome_message = bool(request.cookies.get('hide_welcome_message', False))
-        response.set_cookie('hide_welcome_message', '1', max_age=3600) #(make cross-site?)
-
         # used by disqus plugin
         c.current_package_id = c.pkg.id
 
@@ -217,16 +287,13 @@ class PackageController(BaseController):
                 ckan.logic.action.get.package_activity_list_html(context,
                     {'id': c.current_package_id})
 
-        if config.get('rdf_packages'):
-            accept_header = request.headers.get('Accept', '*/*')
-            for content_type, exts in negotiate(autoneg_cfg, accept_header):
-                if "html" not in exts:
-                    rdf_url = '%s%s.%s' % (config['rdf_packages'], c.pkg.id, exts[0])
-                    redirect(rdf_url, code=303)
-                break
-
         PackageSaver().render_package(c.pkg_dict, context)
-        return render( self._read_template( package_type ) )
+
+        template = self._read_template( package_type )
+        template = template[:template.index('.')+1] + format
+
+        return render( template, loader_class=loader)
+
 
     def comments(self, id):
         package_type = self._get_package_type(id)
@@ -247,7 +314,7 @@ class PackageController(BaseController):
 
         #render the package
         PackageSaver().render_package(c.pkg_dict)
-        return render('package/comments.html')
+        return render(  self._comments_template( package_type ) )
 
 
     def history(self, id):
@@ -357,7 +424,7 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render( self._new_template(''))
+        return render( self._new_template(package_type))
 
 
     def edit(self, id, data=None, errors=None, error_summary=None):
@@ -366,15 +433,13 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
+                   'for_edit': True,
                    'pending': True,}
 
         if context['save'] and not data:
             return self._save_edit(id, context)
         try:
             old_data = get_action('package_show')(context, {'id':id})
-            schema = self._db_to_form_schema(package_type=package_type)
-            if schema and not data:
-                old_data, errors = validate(old_data, schema, context=context)
             data = data or old_data
             # Merge all elements for the complete package dictionary
             c.pkg_dict = dict(old_data.items() + data.items())
@@ -476,22 +541,11 @@ class PackageController(BaseController):
         based on the package's type name (type). The plugin found
         will be returned, or None if there is no plugin associated with
         the type.
-
-        Uses a minimal context to do so.  The main use of this method
-        is for figuring out which plugin to delegate to.
-
-        aborts if an exception is raised.
         """
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-        try:
-            data = get_action('package_show')(context, {'id': id})
-        except NotFound:
-            abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
-
-        return data['type']
+        pkg = model.Package.get(id)
+        if pkg:
+            return pkg.type or 'package'
+        return None
 
     def _save_new(self, context, package_type=None):
         from ckan.lib.search import SearchIndexError

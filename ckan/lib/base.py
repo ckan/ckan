@@ -16,8 +16,10 @@ from pylons.decorators import jsonify, validate
 from pylons.i18n import _, ungettext, N_, gettext
 from pylons.templating import cached_template, pylons_globals
 from genshi.template import MarkupTemplate
+from genshi.template.text import NewTextTemplate
 from webhelpers.html import literal
 
+import ckan.exceptions
 import ckan
 from ckan import authz
 from ckan.lib import i18n
@@ -39,44 +41,84 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
     # with Lucid) causes an exception when unicode is received.
     detail = detail.encode('utf8')
-    return _abort(status_code=status_code, 
+    return _abort(status_code=status_code,
                   detail=detail,
-                  headers=headers, 
+                  headers=headers,
                   comment=comment)
 
-def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
-           cache_expire=None, method='xhtml', loader_class=MarkupTemplate):
-    
+def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
+           cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
+           cache_force = None):
+
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
         globs['actions'] = model.Action
 
-        # Using pylons.url() or pylons.url_for() directly destroys the
-        # localisation stuff so we remove it so any bad templates crash
-        # and burn
+        # Using pylons.url() directly destroys the localisation stuff so
+        # we remove it so any bad templates crash and burn
         del globs['url']
 
         template = globs['app_globals'].genshi_loader.load(template_name,
             cls=loader_class)
         stream = template.generate(**globs)
-        
+
         for item in PluginImplementations(IGenshiStreamFilter):
             stream = item.filter(stream)
-        
-        return literal(stream.render(method=method, encoding=None, strip_whitespace=False))
-    
+
+        if loader_class == NewTextTemplate:
+            return literal(stream.render(method="text", encoding=None))
+
+        return literal(stream.render(method=method, encoding=None, strip_whitespace=True))
+
+
     if 'Pragma' in response.headers:
         del response.headers["Pragma"]
-    if cache_key is not None or cache_type is not None:
-        response.headers["Cache-Control"] = "public"  
-    
-    if cache_expire is not None:
-        response.headers["Cache-Control"] = "max-age=%s, must-revalidate" % cache_expire
-    
-    return cached_template(template_name, render_template, cache_key=cache_key, 
-                           cache_type=cache_type, cache_expire=cache_expire)
-                           #, ns_options=('method'), method=method)
+
+    ## Caching Logic
+    allow_cache = True
+    # Force cache or not if explicit.
+    if cache_force is not None:
+        allow_cache = cache_force
+    # Do not allow caching of pages for logged in users/flash messages etc.
+    elif session.last_accessed:
+        allow_cache = False
+    # Tests etc.
+    elif 'REMOTE_USER' in request.environ:
+        allow_cache = False
+    # Don't cache if based on a non-cachable template used in this.
+    elif request.environ.get('__no_cache__'):
+        allow_cache = False
+    # Don't cache if we have set the __no_cache__ param in the query string.
+    elif request.params.get('__no_cache__'):
+        allow_cache = False
+    # Don't cache if we have extra vars containing data.
+    elif extra_vars:
+        for k, v in extra_vars.iteritems():
+            allow_cache = False
+            break
+    # Record cachability for the page cache if enabled
+    request.environ['CKAN_PAGE_CACHABLE'] = allow_cache
+
+    if allow_cache:
+        response.headers["Cache-Control"] = "public"
+        try:
+            cache_expire = int(config.get('ckan.cache_expires', 0))
+            response.headers["Cache-Control"] += ", max-age=%s, must-revalidate" % cache_expire
+        except ValueError:
+            pass
+    else:
+        # We do not want caching.
+        response.headers["Cache-Control"] = "private"
+        # Prevent any further rendering from being cached.
+        request.environ['__no_cache__'] = True
+
+    # Render Time :)
+    try:
+        return cached_template(template_name, render_template, loader_class=loader_class)
+    except ckan.exceptions.CkanUrlException, e:
+        raise ckan.exceptions.CkanUrlException('\nAn Exception has been raised for template %s\n%s'
+                        % (template_name, e.message))
 
 
 class ValidationException(Exception):
@@ -136,7 +178,26 @@ class BaseController(WSGIController):
         """Invoke the Controller"""
         # WSGIController.__call__ dispatches to the Controller method
         # the request is routed to. This routing information is
-        # available in environ['pylons.routes_dict']    
+        # available in environ['pylons.routes_dict']
+
+        # Clean out any old cookies as they may contain api keys etc
+        # This also improves the cachability of our pages as cookies
+        # prevent proxy servers from caching content unless they have
+        # been configured to ignore them.
+        for cookie in request.cookies:
+            if cookie.startswith('ckan') and cookie not in ['ckan']:
+                response.delete_cookie(cookie)
+            # Remove the ckan session cookie if not used e.g. logged out
+            elif cookie == 'ckan' and not c.user and not h.are_there_flash_messages():
+                if session.id:
+                    if not session.get('lang'):
+                        session.delete()
+                else:
+                    response.delete_cookie(cookie)
+            # Remove auth_tkt repoze.who cookie if user not logged in.
+            elif cookie == 'auth_tkt' and not session.id:
+                response.delete_cookie(cookie)
+
         try:
             return WSGIController.__call__(self, environ, start_response)
         finally:
@@ -260,13 +321,13 @@ class BaseController(WSGIController):
         return path
 
     @classmethod
-    def _get_user_editable_groups(cls): 
+    def _get_user_editable_groups(cls):
         if not hasattr(c, 'user'):
             c.user = model.PSEUDO_USER__VISITOR
         import ckan.authz # Todo: Move import to top of this file?
-        groups = ckan.authz.Authorizer.authorized_query(c.user, model.Group, 
+        groups = ckan.authz.Authorizer.authorized_query(c.user, model.Group,
             action=model.Action.EDIT).all()
-        return [g for g in groups if g.state==model.State.ACTIVE] 
+        return [g for g in groups if g.state==model.State.ACTIVE]
 
     def _get_package_dict(self, *args, **kwds):
         import ckan.forms
@@ -325,7 +386,7 @@ class BaseController(WSGIController):
             update_or_add = 'add'
         else:
             user_or_authgroup = None
-            update_or_add = None            
+            update_or_add = None
 
         # Work out what role checkboxes are checked or unchecked
         checked_roles = [ box_id for (box_id, value) in request.params.items() \

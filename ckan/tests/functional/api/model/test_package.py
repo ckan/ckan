@@ -34,7 +34,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         groups = []
         for grp in test_groups:
             group = model.Group.get(grp)
-            if self.get_expected_api_version() == '1':
+            if self.get_expected_api_version() == 1:
                 groups.append(group.name)
             else:
                 groups.append(group.id)
@@ -144,7 +144,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         pkg_groups = model.Session.query(model.Group).\
                     join(model.Member, model.Member.group_id == model.Group.id).\
                     filter(model.Member.table_id == package.id).all()
-        if self.get_expected_api_version() == '1':
+        if self.get_expected_api_version() == 1:
             self.assert_equal([g.name for g in pkg_groups], groups)
         else:
             self.assert_equal([g.id for g in pkg_groups], groups)
@@ -197,7 +197,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         pkg_groups = model.Session.query(model.Group).\
                     join(model.Member, model.Member.group_id == model.Group.id).\
                     filter(model.Member.table_id == package.id).all()
-        if self.get_expected_api_version() == '1':
+        if self.get_expected_api_version() == 1:
             self.assert_equal([g.name for g in pkg_groups], groups)
         else:
             self.assert_equal([g.id for g in pkg_groups], groups)
@@ -380,7 +380,9 @@ class PackagesTestCase(BaseModelApiTestCase):
                             status=self.STATUS_404_NOT_FOUND,
                             extra_environ=self.extra_environ)
 
-    def create_package_roles_revision(self, package_data):
+    def create_package_with_admin_user(self, package_data):
+        '''Creates a package with self.user as admin and provided package_data.
+        '''
         self.create_package(admins=[self.user], data=package_data)
 
     def assert_package_update_ok(self, package_ref_attribute,
@@ -420,7 +422,7 @@ class PackagesTestCase(BaseModelApiTestCase):
              },
             'tags': [u'tag 1.1', u'tag2', u'tag 4', u'tag5.'],
         }
-        self.create_package_roles_revision(old_fixture_data)
+        self.create_package_with_admin_user(old_fixture_data)
         pkg = self.get_package_by_name(old_fixture_data['name'])
         # This is the one occasion where we reference package explicitly
         # by name or ID, rather than use the value from self.ref_package_by
@@ -517,7 +519,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'last_modified':u'123', # INVALID
             }],
         }
-        self.create_package_roles_revision(old_fixture_data)
+        self.create_package_with_admin_user(old_fixture_data)
         pkg = self.get_package_by_name(old_fixture_data['name'])
         offset = self.offset('/rest/dataset/%s' % pkg.name)
         params = '%s=1' % self.dumps(new_fixture_data)
@@ -542,7 +544,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'key1': None,
                 },
         }
-        self.create_package_roles_revision(old_fixture_data)
+        self.create_package_with_admin_user(old_fixture_data)
         offset = self.package_offset(old_fixture_data['name'])
         params = '%s=1' % self.dumps(new_fixture_data)
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
@@ -576,7 +578,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             'extras': {}, # no extras specified, but existing
                           # ones should be left alone
         }
-        self.create_package_roles_revision(old_fixture_data)
+        self.create_package_with_admin_user(old_fixture_data)
         offset = self.package_offset(old_fixture_data['name'])
         params = '%s=1' % self.dumps(new_fixture_data)
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
@@ -607,7 +609,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             'name': name,
             'tags': ['tag 1.']
         }
-        self.create_package_roles_revision(old_fixture_data)
+        self.create_package_with_admin_user(old_fixture_data)
         offset = self.package_offset(name)
         params = '%s=1' % self.dumps(new_fixture_data)
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
@@ -631,10 +633,10 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_update_conflict(self):
         package1_name = self.package_fixture_data['name']
         package1_data = {'name': package1_name}
-        package1 = self.create_package_roles_revision(package1_data)
+        package1 = self.create_package_with_admin_user(package1_data)
         package2_name = u'somethingnew'
         package2_data = {'name': package2_name}
-        package2 = self.create_package_roles_revision(package2_data)
+        package2 = self.create_package_with_admin_user(package2_data)
         try:
             package1_offset = self.package_offset(package1_name)
             # trying to rename package 1 to package 2's name
@@ -645,7 +647,7 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_update_empty(self):
         package1_name = self.package_fixture_data['name']
         package1_data = {'name': package1_name}
-        package1 = self.create_package_roles_revision(package1_data)
+        package1 = self.create_package_with_admin_user(package1_data)
         package2_data = '' # this is the error
         package1_offset = self.package_offset(package1_name)
         self.app.put(package1_offset, package2_data,
@@ -667,6 +669,46 @@ class PackagesTestCase(BaseModelApiTestCase):
         finally:
             plugins.unload('synchronous_search')
             SolrSettings.init(original_settings)
+
+    def test_package_update_delete_resource(self):
+        old_fixture_data = {
+            'name': self.package_fixture_data['name'],
+            'resources': [{
+                u'url':u'http://blah.com/file2.xml',
+                u'format':u'xml',
+                u'description':u'Appendix 1',
+                u'hash':u'def123',
+                u'alt_url':u'alt123',
+            },{
+                u'url':u'http://blah.com/file3.xml',
+                u'format':u'xml',
+                u'description':u'Appenddic 2',
+                u'hash':u'ghi123',
+                u'alt_url':u'alt123',
+            }],
+        }
+        new_fixture_data = {
+            'name':u'somethingnew',
+            'resources': [],
+        }
+        self.create_package_with_admin_user(old_fixture_data)
+        offset = self.package_offset(old_fixture_data['name'])
+        params = '%s=1' % self.dumps(new_fixture_data)
+        res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
+                            extra_environ=self.extra_environ)
+
+        try:
+            # Check the returned package is as expected
+            pkg = self.loads(res.body)
+            assert_equal(pkg['name'], new_fixture_data['name'])
+            assert_equal(pkg['resources'], [])
+
+            # Check resources were deleted
+            model.Session.remove()
+            package = self.get_package_by_name(new_fixture_data['name'])
+            self.assert_equal(len(package.resources), 0)
+        finally:
+            self.purge_package_by_name(new_fixture_data['name'])
 
     def test_entity_delete_ok(self):
         # create a package with package_fixture_data

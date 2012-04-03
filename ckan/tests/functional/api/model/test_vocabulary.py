@@ -2,27 +2,55 @@ import ckan
 from pylons.test import pylonsapp
 import paste.fixture
 from ckan.lib.helpers import json
+import ckan.lib.dictization.model_dictize as model_dictize
 import sqlalchemy
 from nose.tools import raises, assert_raises
 
 class TestVocabulary(object):
 
-    def setup(self):
+    @classmethod
+    def setup_class(self):
         self.app = paste.fixture.TestApp(pylonsapp)
-        ckan.tests.CreateTestData.create()
-        self.sysadmin_user = ckan.model.User.get('testsysadmin')
-        self.normal_user = ckan.model.User.get('annafan')
-        # Make a couple of test vocabularies needed later.
-        self.genre_vocab = self._create_vocabulary(vocab_name="Genre",
-                user=self.sysadmin_user)
-        self.timeperiod_vocab = self._create_vocabulary(
-                vocab_name="Time Period", user=self.sysadmin_user)
-        self.composers_vocab = self._create_vocabulary(vocab_name="Composers",
-                user=self.sysadmin_user)
 
-    def teardown(self):
+    @classmethod
+    def teardown_class(self):
         ckan.model.repo.rebuild_db()
 
+    def setup(self):
+        self.clean_vocab()
+        model = ckan.model
+        context = {'model': model}
+
+        genre = model.Vocabulary("Genre")
+        time_period = ckan.model.Vocabulary("Time Period")
+        composers = ckan.model.Vocabulary("Composers")
+        model.Session.add_all([genre, time_period, composers])
+
+        self.genre_vocab = model_dictize.vocabulary_dictize(genre, context)
+        self.timeperiod_vocab = model_dictize.vocabulary_dictize(time_period, context)
+        self.composers_vocab = model_dictize.vocabulary_dictize(composers, context)
+        ckan.model.Session.commit()
+
+        self.sysadmin_user = ckan.model.User.get('admin')
+        self.normal_user = ckan.model.User.get('normal')
+        if not self.sysadmin_user:
+            normal_user = ckan.model.User(name=u'normal', password=u'annafan')
+            sysadmin_user = ckan.model.User(name=u'admin', password=u'testsysadmin')
+            ckan.model.Session.add(normal_user)
+            ckan.model.Session.add(sysadmin_user)
+            ckan.model.add_user_to_role(sysadmin_user, ckan.model.Role.ADMIN, ckan.model.System())
+            ckan.model.Session.commit()
+            self.sysadmin_user = ckan.model.User.get('admin')
+            self.normal_user = ckan.model.User.get('normal')
+
+    def clean_vocab(self):
+        ckan.model.Session.execute('delete from package_tag_revision')
+        ckan.model.Session.execute('delete from package_tag')
+        ckan.model.Session.execute('delete from tag')
+        ckan.model.Session.execute('delete from vocabulary')
+        ckan.model.Session.commit()
+
+    @classmethod
     def _post(self, url, params=None, extra_environ=None):
         if params is None:
             params = {}
@@ -32,6 +60,7 @@ class TestVocabulary(object):
         assert not response.errors
         return response.json
 
+    @classmethod
     def _create_vocabulary(self, vocab_name=None, user=None):
         # Create a new vocabulary.
         params = {'name': vocab_name}
@@ -506,6 +535,8 @@ class TestVocabulary(object):
         '''Test updating vocabularies with invalid tags.
 
         '''
+        apikey = str(self.sysadmin_user.apikey)
+        
         for tags in (
                 [{'id': 'xxx'}, {'name': 'foo'}],
                 [{'name': 'foo'}, {'name': None}],
@@ -517,8 +548,7 @@ class TestVocabulary(object):
             params = {'id': self.genre_vocab['name'], 'tags': tags}
             response = self.app.post('/api/action/vocabulary_update',
                     params=json.dumps(params),
-                    extra_environ = {'Authorization':
-                        str(self.sysadmin_user.apikey)},
+                    extra_environ = {'Authorization': apikey},
                     status=409)
             assert response.json['success'] == False
             assert response.json['error']['tags']
@@ -773,6 +803,9 @@ class TestVocabulary(object):
         '''Test that a tag belonging to a vocab can be added to a dataset,
         retrieved from the dataset, and then removed from the dataset.'''
 
+        ckan.model.repo.rebuild_db()
+        self.setup()
+        ckan.tests.CreateTestData.create()
         # First add a tag to the vocab.
         vocab = self.genre_vocab
         tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
@@ -815,6 +848,9 @@ class TestVocabulary(object):
     def test_delete_tag_from_vocab(self):
         '''Test that a tag can be deleted from a vocab.'''
 
+        ckan.model.repo.rebuild_db()
+        self.setup()
+        ckan.tests.CreateTestData.create()
         vocab = self.genre_vocab
 
         # First add some tags to the vocab.
@@ -877,6 +913,9 @@ class TestVocabulary(object):
         automatically removed from datasets.
 
         '''
+        ckan.model.repo.rebuild_db()
+        self.setup()
+        ckan.tests.CreateTestData.create()
         # Get a package from the API.
         package = (self._post('/api/action/package_show',
             {'id': self._post('/api/action/package_list')['result'][0]})

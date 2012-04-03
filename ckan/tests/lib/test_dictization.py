@@ -41,12 +41,14 @@ class TestBasicDictize:
                {'key': u'original media', 'state': u'active', 'value': u'"book"'}],
             'groups': [{'description': u'These are books that David likes.',
                         'name': u'david',
+                        'capacity': 'member',
                         'type': u'group',
                         'state': u'active',
                         'title': u"Dave's books",
                         "approval_status": u"approved"},
                        {'description': u'Roger likes these books.',
                         'name': u'roger',
+                        'capacity': 'member',
                         'type': u'group',
                         'state': u'active',
                         'title': u"Roger's books",
@@ -754,6 +756,7 @@ class TestBasicDictize:
     def test_15_api_to_dictize(self):
 
         context = {"model": model,
+                   'api_version': 1,
                  "session": model.Session}
 
         api_data = {

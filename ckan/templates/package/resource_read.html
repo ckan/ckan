@@ -18,16 +18,10 @@
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/data-explorer.css')}" />
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/graph-flot.css')}" />
     <style type="text/css">
-      .header .recline-query-editor input.text-query {
-        margin-right: 5px;
-        margin-top: 2px;
-        height: 18px;
+      .recline-query-editor form, .recline-query-editor .text-query {
+        height: 28px;
       }
 
-      .header .recline-query-editor .pagination input {
-        margin-top: auto;
-        margin-bottom: 2px;
-      }
       .recline-query-editor .pagination ul {
         margin: 0;
         padding: 0;
@@ -67,7 +61,7 @@
   </py:def>
 
   <div py:match="content">
-    <div class="resource-actions span-8">
+    <div class="resource-actions">
       <a py:if="c.resource.get('url')" class="btn btn-primary resource-url-analytics resource-type-${c.resource.get('resource_type')}" href="${c.resource.get('url')}">
         <py:choose test="c.resource.get('resource_type')">
           <py:when test="'listing'">View</py:when>
@@ -105,6 +99,13 @@
         </dd>
         <dt>Licence</dt>
         <dd>
+          <py:choose test="">
+            <span py:when="c.pkg.license and c.pkg.license.url"><a
+                href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
+            <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
+            <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
+            <span py:when="not(c.pkg.license)">License unknown</span>
+          </py:choose>
           <py:if test="c.pkg.isopen()">
               <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
                 <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
@@ -115,14 +116,6 @@
                 ${h.icon('lock')}
               </span>
           </py:if>
-
-          <py:choose test="">
-            <span py:when="c.pkg.license and c.pkg.license.url"><a
-                href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
-            <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
-            <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
-            <span py:when="not(c.pkg.license)">License unknown</span>
-          </py:choose>
         </dd>
       </dl>
     </div>
@@ -150,7 +143,7 @@
     <br/>
     <div class="resource-information">
       <h3>Additional Information</h3>
-      <table>
+      <table class="table table-bordered table-striped table-condensed">
         <thead>
           <tr>
             <th>Field</th>
@@ -167,6 +160,8 @@
         </tbody>
       </table>
     </div>
+
+    <span class="insert-comment-thread"></span>
   </div>
 
   <py:def function="optional_footer">

@@ -207,20 +207,18 @@ class DefaultDatasetForm(object):
     def package_form(self):
         return 'package/new_package_form.html'
 
-    def form_to_db_schema(self):
-        schema =  logic.schema.package_form_schema()
-        schema['groups'] = {
-                'name': [not_empty, val.group_id_or_name_exists, unicode],
-                'id':   [ignore_missing, unicode],
-            }
-        return schema
-
-
     def form_to_db_schema_options(self, options):
         ''' This allows us to select different schemas for different
         purpose eg via the web interface or via the api or creation vs
         updating. It is optional and if not available form_to_db_schema
-        should be used. '''
+        should be used.
+        If a context is provided, and it contains a schema, it will be
+        returned.
+        '''
+        schema = options.get('context',{}).get('schema',None)
+        if schema:
+            return schema
+
         if options.get('api'):
             if options.get('type') == 'create':
                 return logic.schema.default_create_package_schema()
@@ -232,6 +230,18 @@ class DefaultDatasetForm(object):
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
+
+    def db_to_form_schema_options(self, options):
+        '''This allows the selectino of different schemas for different
+        purposes.  It is optional and if not available, ``db_to_form_schema``
+        should be used.
+        If a context is provided, and it contains a schema, it will be
+        returned.
+        '''
+        schema = options.get('context',{}).get('schema',None)
+        if schema:
+            return schema
+        return self.db_to_form_schema()
 
     def check_data_dict(self, data_dict, schema=None):
         '''Check if the return data is correct, mostly for checking out
@@ -338,7 +348,14 @@ class DefaultGroupForm(object):
         ''' This allows us to select different schemas for different
         purpose eg via the web interface or via the api or creation vs
         updating. It is optional and if not available form_to_db_schema
-        should be used. '''
+        should be used.
+        If a context is provided, and it contains a schema, it will be
+        returned.
+        '''
+        schema = options.get('context',{}).get('schema',None)
+        if schema:
+            return schema
+
         if options.get('api'):
             if options.get('type') == 'create':
                 return logic.schema.default_group_schema()
@@ -350,6 +367,18 @@ class DefaultGroupForm(object):
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
+
+    def db_to_form_schema_options(self, options):
+        '''This allows the selectino of different schemas for different
+        purposes.  It is optional and if not available, ``db_to_form_schema``
+        should be used.
+        If a context is provided, and it contains a schema, it will be
+        returned.
+        '''
+        schema = options.get('context',{}).get('schema',None)
+        if schema:
+            return schema
+        return self.db_to_form_schema()
 
     def check_data_dict(self, data_dict):
         '''Check if the return data is correct, mostly for checking out

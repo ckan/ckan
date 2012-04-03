@@ -1,60 +1,3 @@
-// importScripts('lib/underscore.js'); 
-
-onmessage = function(message) {
-  
-  function parseCSV(rawCSV) {
-    var patterns = new RegExp((
-      // Delimiters.
-      "(\\,|\\r?\\n|\\r|^)" +
-      // Quoted fields.
-      "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-      // Standard fields.
-      "([^\"\\,\\r\\n]*))"
-    ), "gi");
-
-    var rows = [[]], matches = null;
-
-    while (matches = patterns.exec(rawCSV)) {
-      var delimiter = matches[1];
-
-      if (delimiter.length && (delimiter !== ",")) rows.push([]);
-
-      if (matches[2]) {
-        var value = matches[2].replace(new RegExp("\"\"", "g"), "\"");
-      } else {
-        var value = matches[3];
-      }
-      rows[rows.length - 1].push(value);
-    }
-
-    if(_.isEqual(rows[rows.length -1], [""])) rows.pop();
-
-    var docs = [];
-    var headers = _.first(rows);
-    _.each(_.rest(rows), function(row, rowIDX) {
-      var doc = {};
-      _.each(row, function(cell, idx) {      
-        doc[headers[idx]] = cell;
-      })
-      docs.push(doc);
-    })
-
-    return docs;
-  }
-  
-  var docs = parseCSV(message.data.data);
-  
-  var req = new XMLHttpRequest();
-
-  req.onprogress = req.upload.onprogress = function(e) {
-    if(e.lengthComputable) postMessage({ percent: (e.loaded / e.total) * 100 });
-  };
-  
-  req.onreadystatechange = function() { if (req.readyState == 4) postMessage({done: true, response: req.responseText}) };
-  req.open('POST', message.data.url);
-  req.setRequestHeader('Content-Type', 'application/json');
-  req.send(JSON.stringify({docs: docs}));
-};
 // adapted from https://github.com/harthur/costco. heather rules
 
 var costco = function() {
@@ -131,14 +74,13 @@ this.recline.Model = this.recline.Model || {};
 
 // ## A Dataset model
 //
-// A model must have the following (Backbone) attributes:
+// A model has the following (non-Backbone) attributes:
 //
 // * fields: (aka columns) is a FieldList listing all the fields on this
-//   Dataset (this can be set explicitly, or, on fetch() of Dataset
-//   information from the backend, or as is perhaps most common on the first
-//   query)
-// * currentDocuments: a DocumentList containing the Documents we have currently loaded for viewing (you update currentDocuments by calling getRows)
-// * docCount: total number of documents in this dataset (obtained on a fetch for this Dataset)
+//   Dataset (this can be set explicitly, or, will be set by Dataset.fetch() or Dataset.query()
+// * currentDocuments: a DocumentList containing the Documents we have
+//   currently loaded for viewing (you update currentDocuments by calling query)
+// * docCount: total number of documents in this dataset
 my.Dataset = Backbone.Model.extend({
   __type__: 'Dataset',
   initialize: function(model, backend) {
@@ -166,7 +108,7 @@ my.Dataset = Backbone.Model.extend({
   query: function(queryObj) {
     this.trigger('query:start');
     var self = this;
-    this.queryState.set(queryObj, {silent: true});
+    this.queryState.set(queryObj);
     var dfd = $.Deferred();
     this.backend.query(this, this.queryState.toJSON()).done(function(rows) {
       var docs = _.map(rows, function(row) {
@@ -255,18 +197,6 @@ my.backends = {};
 var util = function() {
   var templates = {
     transformActions: '<li><a data-action="transform" class="menuAction" href="JavaScript:void(0);">Global transform...</a></li>'
-    , columnActions: ' \
-      <li class="write-op"><a data-action="bulkEdit" class="menuAction" href="JavaScript:void(0);">Transform...</a></li> \
-      <li class="write-op"><a data-action="deleteColumn" class="menuAction" href="JavaScript:void(0);">Delete this column</a></li> \
-      <li><a data-action="sortAsc" class="menuAction" href="JavaScript:void(0);">Sort ascending</a></li> \
-      <li><a data-action="sortDesc" class="menuAction" href="JavaScript:void(0);">Sort descending</a></li> \
-      <li><a data-action="hideColumn" class="menuAction" href="JavaScript:void(0);">Hide this column</a></li> \
-    '
-    , rowActions: '<li><a data-action="deleteRow" class="menuAction write-op" href="JavaScript:void(0);">Delete this row</a></li>'
-    , rootActions: ' \
-        {{#columns}} \
-        <li><a data-action="showColumn" data-column="{{.}}" class="menuAction" href="JavaScript:void(0);">Show column: {{.}}</a></li> \
-        {{/columns}}'
     , cellEditor: ' \
       <div class="menu-container data-table-cell-editor"> \
         <textarea class="data-table-cell-editor-editor" bind="textarea">{{value}}</textarea> \
@@ -453,7 +383,10 @@ my.FlotGraph = Backbone.View.extend({
         <label>Graph Type</label> \
         <div class="input editor-type"> \
           <select> \
-          <option value="line">Line</option> \
+          <option value="lines-and-points">Lines and Points</option> \
+          <option value="lines">Lines</option> \
+          <option value="points">Points</option> \
+          <option value="bars">Bars</option> \
           </select> \
         </div> \
         <label>Group Column (x-axis)</label> \
@@ -514,7 +447,7 @@ my.FlotGraph = Backbone.View.extend({
     this.chartConfig = _.extend({
         group: null,
         series: [],
-        graphType: 'line'
+        graphType: 'lines-and-points'
       },
       configFromHash,
       config
@@ -536,11 +469,16 @@ my.FlotGraph = Backbone.View.extend({
 
   onEditorSubmit: function(e) {
     var select = this.el.find('.editor-group select');
-    this._getEditorData();
+    $editor = this;
+    var series = this.$series.map(function () {
+      return $(this).val();
+    });
+    this.chartConfig.series = $.makeArray(series)
+    this.chartConfig.group = this.el.find('.editor-group select').val();
+    this.chartConfig.graphType = this.el.find('.editor-type select').val();
     // update navigation
-    // TODO: make this less invasive (e.g. preserve other keys in query string)
     var qs = my.parseHashQueryString();
-    qs['graph'] = this.chartConfig;
+    qs['graph'] = JSON.stringify(this.chartConfig);
     my.setHashQueryString(qs);
     this.redraw();
   },
@@ -556,28 +494,131 @@ my.FlotGraph = Backbone.View.extend({
     if ((!areWeVisible || this.model.currentDocuments.length == 0)) {
       return
     }
+    var series = this.createSeries();
+    var options = this.getGraphOptions(this.chartConfig.graphType);
+    this.plot = $.plot(this.$graph, series, options);
+    this.setupTooltips();
     // create this.plot and cache it
-    if (!this.plot) {
-      // only lines for the present
-      options = {
-        id: 'line',
-        name: 'Line Chart'
-      };
-      this.plot = $.plot(this.$graph, this.createSeries(), options);
-    } 
-    this.plot.setData(this.createSeries());
-    this.plot.resize();
-    this.plot.setupGrid();
-    this.plot.draw();
+//    if (!this.plot) {
+//      this.plot = $.plot(this.$graph, series, options);
+//    } else {
+//      this.plot.parseOptions(options);
+//      this.plot.setData(this.createSeries());
+//      this.plot.resize();
+//      this.plot.setupGrid();
+//      this.plot.draw();
+//    }
   },
 
-  _getEditorData: function() {
-    $editor = this
-    var series = this.$series.map(function () {
-      return $(this).val();
+  // needs to be function as can depend on state
+  getGraphOptions: function(typeId) { 
+    var self = this;
+    // special tickformatter to show labels rather than numbers
+    var tickFormatter = function (val) {
+      if (self.model.currentDocuments.models[val]) {
+        var out = self.model.currentDocuments.models[val].get(self.chartConfig.group);
+        // if the value was in fact a number we want that not the 
+        if (typeof(out) == 'number') {
+          return val;
+        } else {
+          return out;
+        }
+      }
+      return val;
+    }
+    // TODO: we should really use tickFormatter and 1 interval ticks if (and
+    // only if) x-axis values are non-numeric
+    // However, that is non-trivial to work out from a dataset (datasets may
+    // have no field type info). Thus at present we only do this for bars.
+    var options = { 
+      lines: {
+         series: { 
+           lines: { show: true }
+         }
+      }
+      , points: {
+        series: {
+          points: { show: true }
+        },
+        grid: { hoverable: true, clickable: true }
+      }
+      , 'lines-and-points': {
+        series: {
+          points: { show: true },
+          lines: { show: true }
+        },
+        grid: { hoverable: true, clickable: true },
+      }
+      , bars: {
+        series: {
+          lines: {show: false},
+          bars: {
+            show: true,
+            barWidth: 1,
+            align: "center",
+            fill: true,
+            horizontal: true
+          }
+        },
+        grid: { hoverable: true, clickable: true },
+        yaxis: {
+          tickSize: 1,
+          tickLength: 1,
+          tickFormatter: tickFormatter,
+          min: -0.5,
+          max: self.model.currentDocuments.length - 0.5
+        }
+      }
+    }
+    return options[typeId];
+  },
+
+  setupTooltips: function() {
+    var self = this;
+    function showTooltip(x, y, contents) {
+      $('<div id="flot-tooltip">' + contents + '</div>').css( {
+        position: 'absolute',
+        display: 'none',
+        top: y + 5,
+        left: x + 5,
+        border: '1px solid #fdd',
+        padding: '2px',
+        'background-color': '#fee',
+        opacity: 0.80
+      }).appendTo("body").fadeIn(200);
+    }
+
+    var previousPoint = null;
+    this.$graph.bind("plothover", function (event, pos, item) {
+      if (item) {
+        if (previousPoint != item.datapoint) {
+          previousPoint = item.datapoint;
+          
+          $("#flot-tooltip").remove();
+          var x = item.datapoint[0];
+          var y = item.datapoint[1];
+          // convert back from 'index' value on x-axis (e.g. in cases where non-number values)
+          if (self.model.currentDocuments.models[x]) {
+            x = self.model.currentDocuments.models[x].get(self.chartConfig.group);
+          } else {
+            x = x.toFixed(2);
+          }
+          y = y.toFixed(2);
+          
+          var content = _.template('<%= group %> = <%= x %>, <%= series %> = <%= y %>', {
+            group: self.chartConfig.group,
+            x: x,
+            series: item.series.label,
+            y: y
+          });
+          showTooltip(item.pageX, item.pageY, content);
+        }
+      }
+      else {
+        $("#flot-tooltip").remove();
+        previousPoint = null;            
+      }
     });
-    this.chartConfig.series = $.makeArray(series)
-    this.chartConfig.group = this.el.find('.editor-group select').val();
   },
 
   createSeries: function () {
@@ -592,7 +633,12 @@ my.FlotGraph = Backbone.View.extend({
           if (typeof x === 'string') {
             x = index;
           }
-          points.push([x, y]);
+          // horizontal bar chart
+          if (self.chartConfig.graphType == 'bars') {
+            points.push([y, x]);
+          } else {
+            points.push([x, y]);
+          }
         });
         series.push({data: points, label: field});
       });
@@ -703,19 +749,19 @@ my.DataGrid = Backbone.View.extend({
 
   onColumnHeaderClick: function(e) {
     this.state.currentColumn = $(e.target).closest('.column-header').attr('data-field');
-    util.position('data-table-menu', e);
-    util.render('columnActions', 'data-table-menu');
   },
 
   onRowHeaderClick: function(e) {
     this.state.currentRow = $(e.target).parents('tr:first').attr('data-id');
-    util.position('data-table-menu', e);
-    util.render('rowActions', 'data-table-menu');
   },
   
   onRootHeaderClick: function(e) {
-    util.position('data-table-menu', e);
-    util.render('rootActions', 'data-table-menu', {'columns': this.hiddenFields});
+    var tmpl = ' \
+        {{#columns}} \
+        <li><a data-action="showColumn" data-column="{{.}}" href="JavaScript:void(0);">Show column: {{.}}</a></li> \
+        {{/columns}}';
+    var tmp = $.mustache(tmpl, {'columns': this.hiddenFields});
+    this.el.find('.root-header-menu .dropdown-menu').html(tmp);
   },
 
   onMenuClick: function(e) {
@@ -757,7 +803,6 @@ my.DataGrid = Backbone.View.extend({
           })
       }
     }
-    util.hide('data-table-menu');
     actions[$(e.target).attr('data-action')]();
   },
 
@@ -810,26 +855,32 @@ my.DataGrid = Backbone.View.extend({
   // ======================================================
   // #### Templating
   template: ' \
-    <div class="data-table-menu-overlay" style="display: none; z-index: 101; ">&nbsp;</div> \
-    <ul class="data-table-menu"></ul> \
-    <table class="data-table table-striped" cellspacing="0"> \
+    <table class="data-table table-striped table-condensed" cellspacing="0"> \
       <thead> \
         <tr> \
           {{#notEmpty}} \
             <th class="column-header"> \
-              <div class="column-header-title"> \
-                <a class="root-header-menu"></a> \
-                <span class="column-header-name"></span> \
+              <div class="btn-group root-header-menu"> \
+                <a class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a> \
+                <ul class="dropdown-menu data-table-menu"> \
+                </ul> \
               </div> \
+              <span class="column-header-name"></span> \
             </th> \
           {{/notEmpty}} \
           {{#fields}} \
             <th class="column-header {{#hidden}}hidden{{/hidden}}" data-field="{{id}}"> \
-              <div class="column-header-title"> \
-                <a class="column-header-menu"></a> \
-                <span class="column-header-name">{{label}}</span> \
+              <div class="btn-group column-header-menu"> \
+                <a class="btn dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i><span class="caret"></span></a> \
+                <ul class="dropdown-menu data-table-menu"> \
+                  <li class="write-op"><a data-action="bulkEdit" href="JavaScript:void(0);">Transform...</a></li> \
+                  <li class="write-op"><a data-action="deleteColumn" href="JavaScript:void(0);">Delete this column</a></li> \
+                  <li><a data-action="sortAsc" href="JavaScript:void(0);">Sort ascending</a></li> \
+                  <li><a data-action="sortDesc" href="JavaScript:void(0);">Sort descending</a></li> \
+                  <li><a data-action="hideColumn" href="JavaScript:void(0);">Hide this column</a></li> \
+                </ul> \
               </div> \
-              </div> \
+              <span class="column-header-name">{{label}}</span> \
             </th> \
           {{/fields}} \
         </tr> \
@@ -911,7 +962,14 @@ my.DataGridRow = Backbone.View.extend({
   },
 
   template: ' \
-      <td><a class="row-header-menu"></a></td> \
+      <td> \
+        <div class="btn-group row-header-menu"> \
+          <a class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a> \
+          <ul class="dropdown-menu data-table-menu"> \
+            <li class="write-op"><a data-action="deleteRow" href="JavaScript:void(0);">Delete this row</a></li> \
+          </ul> \
+        </div> \
+      </td> \
       {{#cells}} \
       <td data-field="{{field}}"> \
         <div class="data-table-cell-content"> \
@@ -986,353 +1044,6 @@ my.DataGridRow = Backbone.View.extend({
 });
 
 })(jQuery, recline.View);
-this.recline = this.recline || {};
-this.recline.View = this.recline.View || {};
-
-(function($, my) {
-// ## DataExplorer
-//
-// The primary view for the entire application. Usage:
-// 
-// <pre>
-// var myExplorer = new model.recline.DataExplorer({
-//   model: {{recline.Model.Dataset instance}}
-//   el: {{an existing dom element}}
-//   views: {{page views}}
-//   config: {{config options -- see below}}
-// });
-// </pre> 
-//
-// ### Parameters
-// 
-// **model**: (required) Dataset instance.
-//
-// **el**: (required) DOM element.
-//
-// **views**: (optional) the views (Grid, Graph etc) for DataExplorer to
-// show. This is an array of view hashes. If not provided
-// just initialize a DataGrid with id 'grid'. Example:
-//
-// <pre>
-// var views = [
-//   {
-//     id: 'grid', // used for routing
-//     label: 'Grid', // used for view switcher
-//     view: new recline.View.DataGrid({
-//       model: dataset
-//     })
-//   },
-//   {
-//     id: 'graph',
-//     label: 'Graph',
-//     view: new recline.View.FlotGraph({
-//       model: dataset
-//     })
-//   }
-// ];
-// </pre>
-//
-// **config**: Config options like:
-//
-//   * readOnly: true/false (default: false) value indicating whether to
-//     operate in read-only mode (hiding all editing options).
-//
-// NB: the element already being in the DOM is important for rendering of
-// FlotGraph subview.
-my.DataExplorer = Backbone.View.extend({
-  template: ' \
-  <div class="data-explorer"> \
-    <div class="alert-messages"></div> \
-    \
-    <div class="header"> \
-      <ul class="navigation"> \
-        {{#views}} \
-        <li><a href="#{{id}}" class="btn">{{label}}</a> \
-        {{/views}} \
-      </ul> \
-      <div class="recline-results-info"> \
-        Results found <span class="doc-count">{{docCount}}</span> \
-      </div> \
-    </div> \
-    <div class="data-view-container"></div> \
-    <div class="dialog-overlay" style="display: none; z-index: 101; ">&nbsp;</div> \
-    <div class="dialog ui-draggable" style="display: none; z-index: 102; top: 101px; "> \
-      <div class="dialog-frame" style="width: 700px; visibility: visible; "> \
-        <div class="dialog-content dialog-border"></div> \
-      </div> \
-    </div> \
-  </div> \
-  ',
-
-  initialize: function(options) {
-    var self = this;
-    this.el = $(this.el);
-    this.config = _.extend({
-        readOnly: false
-      },
-      options.config);
-    if (this.config.readOnly) {
-      this.setReadOnly();
-    }
-    // Hash of 'page' views (i.e. those for whole page) keyed by page name
-    if (options.views) {
-      this.pageViews = options.views;
-    } else {
-      this.pageViews = [{
-        id: 'grid',
-        label: 'Grid',
-        view: new my.DataGrid({
-            model: this.model
-          })
-      }];
-    }
-    // this must be called after pageViews are created
-    this.render();
-
-    this.router = new Backbone.Router();
-    this.setupRouting();
-
-    this.model.bind('query:start', function() {
-        my.notify('Loading data', {loader: true});
-      });
-    this.model.bind('query:done', function() {
-        my.clearNotifications();
-        self.el.find('.doc-count').text(self.model.docCount || 'Unknown');
-        my.notify('Data loaded', {category: 'success'});
-      });
-    this.model.bind('query:fail', function(error) {
-        my.clearNotifications();
-        var msg = '';
-        if (typeof(error) == 'string') {
-          msg = error;
-        } else if (typeof(error) == 'object') {
-          if (error.title) {
-            msg = error.title + ': ';
-          }
-          if (error.message) {
-            msg += error.message;
-          }
-        } else {
-          msg = 'There was an error querying the backend';
-        }
-        my.notify(msg, {category: 'error', persist: true});
-      });
-
-    // retrieve basic data like fields etc
-    // note this.model and dataset returned are the same
-    this.model.fetch()
-      .done(function(dataset) {
-        self.el.find('.doc-count').text(self.model.docCount || 'Unknown');
-        self.model.query();
-      })
-      .fail(function(error) {
-        my.notify(error.message, {category: 'error', persist: true});
-      });
-  },
-
-  setReadOnly: function() {
-    this.el.addClass('read-only');
-  },
-
-  render: function() {
-    var tmplData = this.model.toTemplateJSON();
-    tmplData.displayCount = this.config.displayCount;
-    tmplData.views = this.pageViews;
-    var template = $.mustache(this.template, tmplData);
-    $(this.el).html(template);
-    var $dataViewContainer = this.el.find('.data-view-container');
-    _.each(this.pageViews, function(view, pageName) {
-      $dataViewContainer.append(view.view.el)
-    });
-    var queryEditor = new my.QueryEditor({
-      model: this.model.queryState
-    });
-    this.el.find('.header').append(queryEditor.el);
-  },
-
-  setupRouting: function() {
-    var self = this;
-    // Default route
-    this.router.route('', this.pageViews[0].id, function() {
-      self.updateNav(self.pageViews[0].id);
-    });
-    $.each(this.pageViews, function(idx, view) {
-      self.router.route(/^([^?]+)(\?.*)?/, 'view', function(viewId, queryString) {
-        self.updateNav(viewId, queryString);
-      });
-    });
-  },
-
-  updateNav: function(pageName, queryString) {
-    this.el.find('.navigation li').removeClass('active');
-    this.el.find('.navigation li a').removeClass('disabled');
-    var $el = this.el.find('.navigation li a[href=#' + pageName + ']');
-    $el.parent().addClass('active');
-    $el.addClass('disabled');
-    // show the specific page
-    _.each(this.pageViews, function(view, idx) {
-      if (view.id === pageName) {
-        view.view.el.show();
-      } else {
-        view.view.el.hide();
-      }
-    });
-  }
-});
-
-
-my.QueryEditor = Backbone.View.extend({
-  className: 'recline-query-editor', 
-  template: ' \
-    <form action="" method="GET" class="form-inline"> \
-      <input type="text" name="q" value="{{q}}" class="text-query" /> \
-      <div class="pagination"> \
-        <ul> \
-          <li class="prev action-pagination-update"><a>&laquo;</a></li> \
-          <li class="active"><a><input name="from" type="text" value="{{from}}" /> &ndash; <input name="to" type="text" value="{{to}}" /> </a></li> \
-          <li class="next action-pagination-update"><a>&raquo;</a></li> \
-        </ul> \
-      </div> \
-      <button type="submit" class="btn" style="">Update &raquo;</button> \
-    </form> \
-  ',
-
-  events: {
-    'submit form': 'onFormSubmit',
-    'click .action-pagination-update': 'onPaginationUpdate'
-  },
-
-  initialize: function() {
-    _.bindAll(this, 'render');
-    this.el = $(this.el);
-    this.model.bind('change', this.render);
-    this.render();
-  },
-  onFormSubmit: function(e) {
-    e.preventDefault();
-    var newFrom = parseInt(this.el.find('input[name="from"]').val());
-    var newSize = parseInt(this.el.find('input[name="to"]').val()) - newFrom;
-    var query = this.el.find('.text-query').val();
-    this.model.set({size: newSize, from: newFrom, q: query});
-  },
-  onPaginationUpdate: function(e) {
-    e.preventDefault();
-    var $el = $(e.target);
-    if ($el.parent().hasClass('prev')) {
-      var newFrom = this.model.get('from') - Math.max(0, this.model.get('size'));
-    } else {
-      var newFrom = this.model.get('from') + this.model.get('size');
-    }
-    this.model.set({from: newFrom});
-  },
-  render: function() {
-    var tmplData = this.model.toJSON();
-    tmplData.to = this.model.get('from') + this.model.get('size');
-    var templated = $.mustache(this.template, tmplData);
-    this.el.html(templated);
-  }
-});
-
-
-/* ========================================================== */
-// ## Miscellaneous Utilities
-
-var urlPathRegex = /^([^?]+)(\?.*)?/;
-
-// Parse the Hash section of a URL into path and query string
-my.parseHashUrl = function(hashUrl) {
-  var parsed = urlPathRegex.exec(hashUrl);
-  if (parsed == null) {
-    return {};
-  } else {
-    return {
-      path: parsed[1],
-      query: parsed[2] || ''
-    }
-  }
-}
-
-// Parse a URL query string (?xyz=abc...) into a dictionary.
-my.parseQueryString = function(q) {
-  var urlParams = {},
-    e, d = function (s) {
-      return unescape(s.replace(/\+/g, " "));
-    },
-    r = /([^&=]+)=?([^&]*)/g;
-
-  if (q && q.length && q[0] === '?') {
-    q = q.slice(1);
-  }
-  while (e = r.exec(q)) {
-    // TODO: have values be array as query string allow repetition of keys
-    urlParams[d(e[1])] = d(e[2]);
-  }
-  return urlParams;
-}
-
-// Parse the query string out of the URL hash
-my.parseHashQueryString = function() {
-  q = my.parseHashUrl(window.location.hash).query;
-  return my.parseQueryString(q);
-}
-
-// Compse a Query String
-my.composeQueryString = function(queryParams) {
-  var queryString = '?';
-  var items = [];
-  $.each(queryParams, function(key, value) {
-    items.push(key + '=' + JSON.stringify(value));
-  });
-  queryString += items.join('&');
-  return queryString;
-}
-
-my.setHashQueryString = function(queryParams) {
-  window.location.hash = window.location.hash.split('?')[0] + my.composeQueryString(queryParams);
-}
-
-// ## notify
-//
-// Create a notification (a div.alert in div.alert-messsages) using provide messages and options. Options are:
-//
-// * category: warning (default), success, error
-// * persist: if true alert is persistent, o/w hidden after 3s (default = false)
-// * loader: if true show loading spinner
-my.notify = function(message, options) {
-  if (!options) var options = {};
-  var tmplData = _.extend({
-    msg: message,
-    category: 'warning'
-    },
-    options);
-  var _template = ' \
-    <div class="alert alert-{{category}} fade in" data-alert="alert"><a class="close" data-dismiss="alert" href="#">×</a> \
-      {{msg}} \
-        {{#loader}} \
-        <span class="notification-loader">&nbsp;</span> \
-        {{/loader}} \
-    </div>';
-  var _templated = $.mustache(_template, tmplData); 
-  _templated = $(_templated).appendTo($('.data-explorer .alert-messages'));
-  if (!options.persist) {
-    setTimeout(function() {
-      $(_templated).fadeOut(1000, function() {
-        $(this).remove();
-      });
-    }, 1000);
-  }
-}
-
-// ## clearNotifications
-//
-// Clear all existing notifications
-my.clearNotifications = function() {
-  var $notifications = $('.data-explorer .alert-messages .alert');
-  $notifications.remove();
-}
-
-})(jQuery, recline.View);
-
 this.recline = this.recline || {};
 this.recline.View = this.recline.View || {};
 
@@ -1539,6 +1250,396 @@ my.ColumnTransform = Backbone.View.extend({
 });
 
 })(jQuery, recline.View);
+this.recline = this.recline || {};
+this.recline.View = this.recline.View || {};
+
+(function($, my) {
+// ## DataExplorer
+//
+// The primary view for the entire application. Usage:
+// 
+// <pre>
+// var myExplorer = new model.recline.DataExplorer({
+//   model: {{recline.Model.Dataset instance}}
+//   el: {{an existing dom element}}
+//   views: {{page views}}
+//   config: {{config options -- see below}}
+// });
+// </pre> 
+//
+// ### Parameters
+// 
+// **model**: (required) Dataset instance.
+//
+// **el**: (required) DOM element.
+//
+// **views**: (optional) the views (Grid, Graph etc) for DataExplorer to
+// show. This is an array of view hashes. If not provided
+// just initialize a DataGrid with id 'grid'. Example:
+//
+// <pre>
+// var views = [
+//   {
+//     id: 'grid', // used for routing
+//     label: 'Grid', // used for view switcher
+//     view: new recline.View.DataGrid({
+//       model: dataset
+//     })
+//   },
+//   {
+//     id: 'graph',
+//     label: 'Graph',
+//     view: new recline.View.FlotGraph({
+//       model: dataset
+//     })
+//   }
+// ];
+// </pre>
+//
+// **config**: Config options like:
+//
+//   * readOnly: true/false (default: false) value indicating whether to
+//     operate in read-only mode (hiding all editing options).
+//
+// NB: the element already being in the DOM is important for rendering of
+// FlotGraph subview.
+my.DataExplorer = Backbone.View.extend({
+  template: ' \
+  <div class="data-explorer"> \
+    <div class="alert-messages"></div> \
+    \
+    <div class="header"> \
+      <ul class="navigation"> \
+        {{#views}} \
+        <li><a href="#{{id}}" class="btn">{{label}}</a> \
+        {{/views}} \
+      </ul> \
+      <div class="recline-results-info"> \
+        Results found <span class="doc-count">{{docCount}}</span> \
+      </div> \
+    </div> \
+    <div class="data-view-container"></div> \
+    <div class="dialog-overlay" style="display: none; z-index: 101; ">&nbsp;</div> \
+    <div class="dialog ui-draggable" style="display: none; z-index: 102; top: 101px; "> \
+      <div class="dialog-frame" style="width: 700px; visibility: visible; "> \
+        <div class="dialog-content dialog-border"></div> \
+      </div> \
+    </div> \
+  </div> \
+  ',
+
+  initialize: function(options) {
+    var self = this;
+    this.el = $(this.el);
+    this.config = _.extend({
+        readOnly: false
+      },
+      options.config);
+    if (this.config.readOnly) {
+      this.setReadOnly();
+    }
+    // Hash of 'page' views (i.e. those for whole page) keyed by page name
+    if (options.views) {
+      this.pageViews = options.views;
+    } else {
+      this.pageViews = [{
+        id: 'grid',
+        label: 'Grid',
+        view: new my.DataGrid({
+            model: this.model
+          })
+      }];
+    }
+    // this must be called after pageViews are created
+    this.render();
+
+    this.router = new Backbone.Router();
+    this.setupRouting();
+
+    this.model.bind('query:start', function() {
+        my.notify('Loading data', {loader: true});
+      });
+    this.model.bind('query:done', function() {
+        my.clearNotifications();
+        self.el.find('.doc-count').text(self.model.docCount || 'Unknown');
+        my.notify('Data loaded', {category: 'success'});
+        // update navigation
+        var qs = my.parseHashQueryString();
+        qs['reclineQuery'] = JSON.stringify(self.model.queryState.toJSON());
+        var out = my.getNewHashForQueryString(qs);
+        self.router.navigate(out);
+      });
+    this.model.bind('query:fail', function(error) {
+        my.clearNotifications();
+        var msg = '';
+        if (typeof(error) == 'string') {
+          msg = error;
+        } else if (typeof(error) == 'object') {
+          if (error.title) {
+            msg = error.title + ': ';
+          }
+          if (error.message) {
+            msg += error.message;
+          }
+        } else {
+          msg = 'There was an error querying the backend';
+        }
+        my.notify(msg, {category: 'error', persist: true});
+      });
+
+    // retrieve basic data like fields etc
+    // note this.model and dataset returned are the same
+    this.model.fetch()
+      .done(function(dataset) {
+        var queryState = my.parseHashQueryString().reclineQuery;
+        if (queryState) {
+          queryState = JSON.parse(queryState);
+        }
+        self.model.query(queryState);
+      })
+      .fail(function(error) {
+        my.notify(error.message, {category: 'error', persist: true});
+      });
+  },
+
+  setReadOnly: function() {
+    this.el.addClass('read-only');
+  },
+
+  render: function() {
+    var tmplData = this.model.toTemplateJSON();
+    tmplData.displayCount = this.config.displayCount;
+    tmplData.views = this.pageViews;
+    var template = $.mustache(this.template, tmplData);
+    $(this.el).html(template);
+    var $dataViewContainer = this.el.find('.data-view-container');
+    _.each(this.pageViews, function(view, pageName) {
+      $dataViewContainer.append(view.view.el)
+    });
+    var queryEditor = new my.QueryEditor({
+      model: this.model.queryState
+    });
+    this.el.find('.header').append(queryEditor.el);
+  },
+
+  setupRouting: function() {
+    var self = this;
+    // Default route
+    this.router.route(/^(\?.*)?$/, this.pageViews[0].id, function(queryString) {
+      self.updateNav(self.pageViews[0].id, queryString);
+    });
+    $.each(this.pageViews, function(idx, view) {
+      self.router.route(/^([^?]+)(\?.*)?/, 'view', function(viewId, queryString) {
+        self.updateNav(viewId, queryString);
+      });
+    });
+  },
+
+  updateNav: function(pageName, queryString) {
+    this.el.find('.navigation li').removeClass('active');
+    this.el.find('.navigation li a').removeClass('disabled');
+    var $el = this.el.find('.navigation li a[href=#' + pageName + ']');
+    $el.parent().addClass('active');
+    $el.addClass('disabled');
+    // show the specific page
+    _.each(this.pageViews, function(view, idx) {
+      if (view.id === pageName) {
+        view.view.el.show();
+      } else {
+        view.view.el.hide();
+      }
+    });
+  }
+});
+
+
+my.QueryEditor = Backbone.View.extend({
+  className: 'recline-query-editor', 
+  template: ' \
+    <form action="" method="GET" class="form-inline"> \
+      <div class="input-prepend text-query"> \
+        <span class="add-on"><i class="icon-search"></i></span> \
+        <input type="text" name="q" value="{{q}}" class="span2" placeholder="Search data ..." class="search-query" /> \
+        <div class="btn-group menu"> \
+          <a class="btn dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i><span class="caret"></span></a> \
+          <ul class="dropdown-menu"> \
+            <li><a data-action="size" href="">Number of items to show ({{size}})</a></li> \
+            <li><a data-action="from" href="">Show from ({{from}})</a></li> \
+          </ul> \
+        </div> \
+      </div> \
+      <div class="pagination"> \
+        <ul> \
+          <li class="prev action-pagination-update"><a href="">&laquo;</a></li> \
+          <li class="active"><a>{{from}} &ndash; {{to}}</a></li> \
+          <li class="next action-pagination-update"><a href="">&raquo;</a></li> \
+        </ul> \
+      </div> \
+    </form> \
+  ',
+
+  events: {
+    'submit form': 'onFormSubmit'
+    , 'click .action-pagination-update': 'onPaginationUpdate'
+    , 'click .menu li a': 'onMenuItemClick'
+  },
+
+  initialize: function() {
+    _.bindAll(this, 'render');
+    this.el = $(this.el);
+    this.model.bind('change', this.render);
+    this.render();
+  },
+  onFormSubmit: function(e) {
+    e.preventDefault();
+    var query = this.el.find('.text-query input').val();
+    this.model.set({q: query});
+  },
+  onPaginationUpdate: function(e) {
+    e.preventDefault();
+    var $el = $(e.target);
+    if ($el.parent().hasClass('prev')) {
+      var newFrom = this.model.get('from') - Math.max(0, this.model.get('size'));
+    } else {
+      var newFrom = this.model.get('from') + this.model.get('size');
+    }
+    this.model.set({from: newFrom});
+  },
+  onMenuItemClick: function(e) {
+    e.preventDefault();
+    var attrName = $(e.target).attr('data-action');
+    var msg = _.template('New value (<%= value %>)',
+        {value: this.model.get(attrName)}
+        );
+    var newValue = prompt(msg);
+    if (newValue) {
+      newValue = parseInt(newValue);
+      var update = {};
+      update[attrName] = newValue;
+      this.model.set(update);
+    }
+  },
+  render: function() {
+    var tmplData = this.model.toJSON();
+    tmplData.to = this.model.get('from') + this.model.get('size');
+    var templated = $.mustache(this.template, tmplData);
+    this.el.html(templated);
+  }
+});
+
+
+/* ========================================================== */
+// ## Miscellaneous Utilities
+
+var urlPathRegex = /^([^?]+)(\?.*)?/;
+
+// Parse the Hash section of a URL into path and query string
+my.parseHashUrl = function(hashUrl) {
+  var parsed = urlPathRegex.exec(hashUrl);
+  if (parsed == null) {
+    return {};
+  } else {
+    return {
+      path: parsed[1],
+      query: parsed[2] || ''
+    }
+  }
+}
+
+// Parse a URL query string (?xyz=abc...) into a dictionary.
+my.parseQueryString = function(q) {
+  if (!q) {
+    return {};
+  }
+  var urlParams = {},
+    e, d = function (s) {
+      return unescape(s.replace(/\+/g, " "));
+    },
+    r = /([^&=]+)=?([^&]*)/g;
+
+  if (q && q.length && q[0] === '?') {
+    q = q.slice(1);
+  }
+  while (e = r.exec(q)) {
+    // TODO: have values be array as query string allow repetition of keys
+    urlParams[d(e[1])] = d(e[2]);
+  }
+  return urlParams;
+}
+
+// Parse the query string out of the URL hash
+my.parseHashQueryString = function() {
+  q = my.parseHashUrl(window.location.hash).query;
+  return my.parseQueryString(q);
+}
+
+// Compse a Query String
+my.composeQueryString = function(queryParams) {
+  var queryString = '?';
+  var items = [];
+  $.each(queryParams, function(key, value) {
+    items.push(key + '=' + value);
+  });
+  queryString += items.join('&');
+  return queryString;
+}
+
+my.getNewHashForQueryString = function(queryParams) {
+  var queryPart = my.composeQueryString(queryParams);
+  if (window.location.hash) {
+    // slice(1) to remove # at start
+    return window.location.hash.split('?')[0].slice(1) + queryPart;
+  } else {
+    return queryPart;
+  }
+}
+
+my.setHashQueryString = function(queryParams) {
+  window.location.hash = my.getNewHashForQueryString(queryParams);
+}
+
+// ## notify
+//
+// Create a notification (a div.alert in div.alert-messsages) using provide messages and options. Options are:
+//
+// * category: warning (default), success, error
+// * persist: if true alert is persistent, o/w hidden after 3s (default = false)
+// * loader: if true show loading spinner
+my.notify = function(message, options) {
+  if (!options) var options = {};
+  var tmplData = _.extend({
+    msg: message,
+    category: 'warning'
+    },
+    options);
+  var _template = ' \
+    <div class="alert alert-{{category}} fade in" data-alert="alert"><a class="close" data-dismiss="alert" href="#">×</a> \
+      {{msg}} \
+        {{#loader}} \
+        <span class="notification-loader">&nbsp;</span> \
+        {{/loader}} \
+    </div>';
+  var _templated = $.mustache(_template, tmplData); 
+  _templated = $(_templated).appendTo($('.data-explorer .alert-messages'));
+  if (!options.persist) {
+    setTimeout(function() {
+      $(_templated).fadeOut(1000, function() {
+        $(this).remove();
+      });
+    }, 1000);
+  }
+}
+
+// ## clearNotifications
+//
+// Clear all existing notifications
+my.clearNotifications = function() {
+  var $notifications = $('.data-explorer .alert-messages .alert');
+  $notifications.remove();
+}
+
+})(jQuery, recline.View);
+
 // # Recline Backends
 //
 // Backends are connectors to backend data sources and stores
@@ -1786,13 +1887,33 @@ this.recline.Backend = this.recline.Backend || {};
   // );
   // </pre>
   my.GDoc = Backbone.Model.extend({
+    getUrl: function(dataset) {
+      var url = dataset.get('url');
+      if (url.indexOf('feeds/list') != -1) {
+        return url;
+      } else {
+        // https://docs.google.com/spreadsheet/ccc?key=XXXX#gid=0
+        var regex = /.*spreadsheet\/ccc?.*key=([^#?&+]+).*/
+        var matches = url.match(regex);
+        if (matches) {
+          var key = matches[1];
+          var worksheet = 1;
+          var out = 'https://spreadsheets.google.com/feeds/list/' + key + '/' + worksheet + '/public/values?alt=json'
+          return out;
+        } else {
+          alert('Failed to extract gdocs key from ' + url);
+        }
+      }
+    },
     sync: function(method, model, options) {
       var self = this;
       if (method === "read") { 
         var dfd = $.Deferred(); 
         var dataset = model;
 
-        $.getJSON(model.get('url'), function(d) {
+        var url = this.getUrl(model);
+
+        $.getJSON(url, function(d) {
           result = self.gdocsToJavascript(d);
           model.fields.reset(_.map(result.field, function(fieldId) {
               return {id: fieldId};
@@ -1980,66 +2101,5 @@ this.recline.Backend = this.recline.Backend || {};
     }
   });
   recline.Model.backends['memory'] = new my.Memory();
-
-}(jQuery, this.recline.Backend));
-this.recline = this.recline || {};
-this.recline.Backend = this.recline.Backend || {};
-
-(function($, my) {
-  // ## Webstore Backend
-  //
-  // Connecting to [Webstores](http://github.com/okfn/webstore)
-  //
-  // To use this backend ensure your Dataset has a webstore_url in its attributes.
-  my.Webstore = Backbone.Model.extend({
-    sync: function(method, model, options) {
-      if (method === "read") {
-        if (model.__type__ == 'Dataset') {
-          var base = model.get('webstore_url');
-          var schemaUrl = base + '/schema.json';
-          var jqxhr = $.ajax({
-            url: schemaUrl,
-              dataType: 'jsonp',
-              jsonp: '_callback'
-          });
-          var dfd = $.Deferred();
-          my.wrapInTimeout(jqxhr).done(function(schema) {
-            var fieldData = _.map(schema.data, function(item) {
-              item.id = item.name;
-              delete item.name;
-              return item;
-            });
-            model.fields.reset(fieldData);
-            model.docCount = schema.count;
-            dfd.resolve(model, jqxhr);
-          })
-          .fail(function(arguments) {
-            dfd.reject(arguments);
-          });
-          return dfd.promise();
-        }
-      }
-    },
-    query: function(model, queryObj) {
-      var base = model.get('webstore_url');
-      var data = {
-        _limit:  queryObj.size
-        , _offset: queryObj.from
-      };
-      var jqxhr = $.ajax({
-        url: base + '.json',
-        data: data,
-        dataType: 'jsonp',
-        jsonp: '_callback',
-        cache: true
-      });
-      var dfd = $.Deferred();
-      jqxhr.done(function(results) {
-        dfd.resolve(results.data);
-      });
-      return dfd.promise();
-    }
-  });
-  recline.Model.backends['webstore'] = new my.Webstore();
 
 }(jQuery, this.recline.Backend));

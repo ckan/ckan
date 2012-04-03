@@ -2,6 +2,7 @@ import time
 from nose.tools import assert_equal, assert_raises
 from pylons import config
 from email.mime.text import MIMEText
+import hashlib
 
 from ckan import model
 from ckan.tests.pylons_controller import PylonsTestCase
@@ -13,6 +14,11 @@ from ckan.lib.base import g
 class TestMailer(SmtpServerHarness, PylonsTestCase):
     @classmethod
     def setup_class(cls):
+        smtp_server = config.get('test_smtp_server')
+        if smtp_server:
+            host, port = smtp_server.split(':')
+            port = int(port) + int(str(hashlib.md5(cls.__name__).hexdigest())[0], 16)
+            config['test_smtp_server'] = '%s:%s' % (host, port)
         CreateTestData.create_user(name='bob', email='bob@bob.net')
         CreateTestData.create_user(name='mary') #NB No email addr provided
         SmtpServerHarness.setup_class()
