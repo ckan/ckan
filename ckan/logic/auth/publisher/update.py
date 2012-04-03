@@ -16,31 +16,34 @@ def package_update(context, data_dict):
     model = context['model']
     user = context.get('user')
     package = get_package_object(context, data_dict)
-    
+
     if Authorizer().is_sysadmin(unicode(user)):
         return { 'success': True }
-    
+
     userobj = model.User.get( user )
     if not userobj or \
        not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
-        return {'success': False, 
+        return {'success': False,
                 'msg': _('User %s not authorized to edit packages in these groups') % str(user)}
 
     return {'success': True}
 
 def resource_update(context, data_dict):
     """
-    Update resource permission checks the user is in a group that the resource's 
+    Update resource permission checks the user is in a group that the resource's
     package is also a member of.
     """
     model = context['model']
     user = context.get('user')
     resource = get_resource_object(context, data_dict)
     userobj = model.User.get( user )
-    
+
+    if Authorizer().is_sysadmin(unicode(user)):
+        return { 'success': True }
+
     if not userobj:
-        return {'success': False, 'msg': _('User %s not authorized to edit resources in this package') % str(user)}        
-        
+        return {'success': False, 'msg': _('User %s not authorized to edit resources in this package') % str(user)}
+
     if not _groups_intersect( userobj.get_groups('publisher'), resource.resource_group.package.get_groups('publisher') ):
         return {'success': False, 'msg': _('User %s not authorized to edit resources in this package') % str(user)}
 
@@ -53,12 +56,12 @@ def package_change_state(context, data_dict):
     return package_update( context, data_dict )
 
 def package_edit_permissions(context, data_dict):
-    return {'success': False, 
+    return {'success': False,
             'msg': _('Package edit permissions is not available')}
 
 def group_update(context, data_dict):
     """
-    Group edit permission.  Checks that a valid user is supplied and that the user is 
+    Group edit permission.  Checks that a valid user is supplied and that the user is
     a member of the group currently with any capacity.
     """
     model = context['model']
@@ -66,16 +69,16 @@ def group_update(context, data_dict):
     group = get_group_object(context, data_dict)
 
     if not user:
-        return {'success': False, 'msg': _('Only members of this group are authorized to edit this group')} 
+        return {'success': False, 'msg': _('Only members of this group are authorized to edit this group')}
 
     # Sys admins should be allowed to update groups
     if Authorizer().is_sysadmin(unicode(user)):
         return { 'success': True }
-            
+
     # Only allow package update if the user and package groups intersect
     userobj = model.User.get( user )
     if not userobj:
-        return { 'success' : False, 'msg': _('Could not find user %s') % str(user) }         
+        return { 'success' : False, 'msg': _('Could not find user %s') % str(user) }
 
     # Only admins of this group should be able to update this group
     if not _groups_intersect( userobj.get_groups( 'publisher', 'admin' ), [group] ):
@@ -151,7 +154,7 @@ def term_translation_update(context, data_dict):
 def package_update_rest(context, data_dict):
     model = context['model']
     user = context['user']
-    
+
     if user in (model.PSEUDO_USER__VISITOR, ''):
         return {'success': False, 'msg': _('Valid API key needed to edit a package')}
 
