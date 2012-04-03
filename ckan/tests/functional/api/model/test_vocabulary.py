@@ -300,9 +300,7 @@ class TestVocabulary(object):
                 extra_environ = {'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=400)
-        assert response.body == ("Integrity Error: Only lists of dicts can "
-            "be placed against subschema tags - {u'name': u'foobar', "
-            "u'tags': None}")
+        assert "Integrity Error" in response.body
 
     def test_vocabulary_create_empty_tags(self):
         '''Test creating new vocabularies with [] for 'tags'.
@@ -418,7 +416,7 @@ class TestVocabulary(object):
     def test_vocabulary_update_id_only(self):
         self._update_vocabulary({'id': self.genre_vocab['id']},
                 self.sysadmin_user)
-    
+
     def test_vocabulary_update_id_and_same_name(self):
         self._update_vocabulary({'id': self.genre_vocab['id'],
             'name': self.genre_vocab['name']}, self.sysadmin_user)
@@ -536,7 +534,7 @@ class TestVocabulary(object):
 
         '''
         apikey = str(self.sysadmin_user.apikey)
-        
+
         for tags in (
                 [{'id': 'xxx'}, {'name': 'foo'}],
                 [{'name': 'foo'}, {'name': None}],
@@ -563,8 +561,7 @@ class TestVocabulary(object):
                 extra_environ = {'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=400)
-        assert response.body.startswith("Integrity Error: Only lists of "
-            "dicts can be placed against subschema tags")
+        assert "Integrity Error" in response.body, response.body
 
     def test_vocabulary_update_empty_tags(self):
         '''Test updating vocabularies with [] for 'tags'.
@@ -652,7 +649,7 @@ class TestVocabulary(object):
         tags_before = self._list_tags(vocab)
         tag_created = self._create_tag(self.sysadmin_user, 'noise', vocab)
         tags_after = self._list_tags(vocab)
-        new_tag_names = [tag_name for tag_name in tags_after if tag_name not in 
+        new_tag_names = [tag_name for tag_name in tags_after if tag_name not in
                 tags_before]
         assert len(new_tag_names) == 1
         assert tag_created['name'] in new_tag_names
@@ -689,7 +686,7 @@ class TestVocabulary(object):
                 'Tag vocabulary was not found.']
 
     def test_add_tag_already_added(self):
-        '''Test the error response when a user tries to add a tag to a vocab 
+        '''Test the error response when a user tries to add a tag to a vocab
         that already has a tag with the same name.
 
         '''

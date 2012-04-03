@@ -43,7 +43,7 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
     def __init__(self, group=None, table_id=None, group_id=None,
-                 table_name=None, capacity='member', state='active'):
+                 table_name=None, capacity='public', state='active'):
         self.group = group
         self.group_id = group_id
         self.table_id = table_id
@@ -186,7 +186,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict = DomainObject.as_dict(self)
         _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
         _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
-        if ( self.type == 'publisher' ):
+        if ( self.type == 'organization' ):
             _dict['users'] = [getattr(user, "name") for user in self.members_of_type(User)]
         return _dict
 

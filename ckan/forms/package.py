@@ -64,20 +64,20 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
         instructions=_('The licence under which the dataset is released.'),
     )
     builder.set_field_text(
-        'tags', 
-        _('Tags'), 
+        'tags',
+        _('Tags'),
         instructions=literal(_('Comma-separated terms that may link this dataset to similar ones. For more information on conventions, see <a href="%s">this wiki page</a>.') % 'http://wiki.okfn.org/ckan/doc/faq#TagConventions'),
         hints=_('e.g. pollution, rivers, water quality')
     )
     builder.set_field_text(
         'resources',
         instructions=_('The files containing the data or address of the APIs for accessing it.'),
-        further_instructions=literal(_('<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different \'resource\' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br />')),  
+        further_instructions=literal(_('<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different \'resource\' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br />')),
         hints=_('Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate')
     )
     builder.set_field_text(
-        'notes', 
-        _('Notes'), 
+        'notes',
+        _('Notes'),
         instructions=_('The main description of the dataset'),
         further_instructions=_('It is often displayed with the package title. In particular, it should start with a short sentence that describes the data set succinctly, because the first few words alone may be used in some views of the data sets.'),
         hints=literal(_('You can use %sMarkdown formatting%s here.') % ('<a href="http://daringfireball.net/projects/markdown/syntax">', '</a>'))

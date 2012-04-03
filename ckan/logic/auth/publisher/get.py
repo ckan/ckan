@@ -5,7 +5,6 @@ from ckan.logic.auth.publisher import _groups_intersect
 from ckan.authz import Authorizer
 from ckan.logic.auth import get_package_object, get_group_object, get_resource_object
 
-
 def site_read(context, data_dict):
     """\
     This function should be deprecated. It is only here because we couldn't
@@ -62,29 +61,39 @@ def package_relationships_list(context, data_dict):
     return {'success': True}
 
 def package_show(context, data_dict):
+    from pylons.controllers.util import abort
+
     """ Package show permission checks the user group if the state is deleted """
     model = context['model']
     package = get_package_object(context, data_dict)
+    user = context.get('user')
+    ignore_auth = context.get('ignore_auth',False)
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
+
+    userobj = model.User.get( user ) if user else None
+
+    if ignore_auth:
+        return {'success': True}
 
     if package.state == 'deleted':
-        if 'ignore_auth' in context and context['ignore_auth']:
-            return {'success': True}
-
-        user = context.get('user')
-
-        if not user:
+        if not user or not userobj:
             return {'success': False, 'msg': _('User not authorized to read package %s') % (package.id)}
 
-        userobj = model.User.get( user )
+        if not _groups_intersect( userobj.get_groups(), package.get_groups() ):
+            return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
 
-        if Authorizer().is_sysadmin(unicode(user)):
+    # If package is in a private group then we require:
+    #   1. Logged in user
+    #   2. User in the group
+    groups = package.get_groups(capacity='private')
+    if groups:
+        if userobj and _groups_intersect( userobj.get_groups(), groups ):
             return {'success': True}
 
-        if not userobj:
-            return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
-
-        if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
-            return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+        # We want to abort with a 404 here instea
+        #return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+        abort(404)
 
     return {'success': True}
 
@@ -99,7 +108,7 @@ def resource_show(context, data_dict):
         userobj = model.User.get( user )
         if not userobj:
             return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user),package.id)}
-        if not _groups_intersect( userobj.get_groups('publisher'), package.get_groups('publisher') ):
+        if not _groups_intersect( userobj.get_groups('organization'), package.get_groups('organization') ):
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
 
     pkg_dict = {'id': package.id}
@@ -119,7 +128,7 @@ def group_show(context, data_dict):
 
     if group.state == 'deleted':
         if not user or \
-           not _groups_intersect( userobj.get_groups('publisher'), group.get_groups('publisher') ):
+           not _groups_intersect( userobj.get_groups('organization'), group.get_groups('organization') ):
             return {'success': False, 'msg': _('User %s not authorized to show group %s') % (str(user),group.id)}
 
     return {'success': True}
