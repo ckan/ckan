@@ -799,6 +799,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
             , hash: data._checksum
             , cache_url: data._location
             , cache_url_updated: lastmod
+            , webstore_url: data._location
           }
           , {
             error: function(model, error) {
@@ -865,6 +866,7 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
              size: data.size,
              mimetype: data.mimetype,
              last_modified: data.last_modified,
+             webstore_url: 'enabled',
              url_error: (data.url_errors || [""])[0]
            });
            self.collection.add(newResource);
@@ -874,6 +876,9 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
      } 
      else {
        newResource.set({url: urlVal, resource_type: this.options.mode});
+       if (newResource.get('resource_type')=='file') {
+         newResource.set({webstore_url: 'enabled'});
+       }
        this.collection.add(newResource);
        this.resetForm();
      }
