@@ -392,7 +392,14 @@ def package_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
-    schema = lib_plugins.lookup_package_plugin(package_dict['type']).db_to_form_schema()
+    package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
+    try:
+        schema = package_plugin.db_to_form_schema_options({
+            'type':'show',
+            'api': 'api_version' in context,
+            'context': context })
+    except AttributeError:
+        schema = package_plugin.db_to_form_schema()
 
     if schema and context.get('validate', True):
         package_dict, errors = validate(package_dict, schema, context=context)
@@ -444,7 +451,14 @@ def group_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IGroupController):
         item.read(group)
 
-    schema = lib_plugins.lookup_group_plugin(group_dict['type']).db_to_form_schema()
+    group_plugin = lib_plugins.lookup_group_plugin(group_dict['type'])
+    try:
+        schema = group_plugin.db_to_form_schema_options({
+            'type':'show',
+            'api': 'api_version' in context,
+            'context': context })
+    except AttributeError:
+        schema = group_plugin.db_to_form_schema()
 
     if schema:
         package_dict, errors = validate(group_dict, schema, context=context)

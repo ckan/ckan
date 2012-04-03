@@ -433,6 +433,7 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
+                   'for_edit': True,
                    'pending': True,}
 
         if context['save'] and not data:
