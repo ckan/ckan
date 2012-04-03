@@ -199,7 +199,7 @@ def package_membership_list_save(group_dicts, package, context):
     if not group_dicts and allow_partial_update:
         return
 
-    capacity = 'member'
+    capacity = 'public'
     model = context["model"]
     session = context["session"]
     pending = context.get('pending')
@@ -321,7 +321,7 @@ def group_member_save(context, group_dict, member_table_name):
         name_or_id = entity_dict.get('id') or entity_dict.get('name')
         obj = ModelClass.get(name_or_id)
         if obj and obj not in entities.values():
-            entities[(obj.id, entity_dict.get('capacity', 'member'))] = obj
+            entities[(obj.id, entity_dict.get('capacity', 'public'))] = obj
 
     members = session.query(Member).filter_by(
         table_name=member_table_name[:-1],

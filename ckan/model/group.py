@@ -43,7 +43,7 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
     def __init__(self, group=None, table_id=None, group_id=None,
-                 table_name=None, capacity='member', state='active'):
+                 table_name=None, capacity='public', state='active'):
         self.group = group
         self.group_id = group_id
         self.table_id = table_id

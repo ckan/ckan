@@ -20,7 +20,7 @@ class TestMemberLogic(object):
     def teardown_class(cls):
         model.repo.rebuild_db()
 
-    def _build_context( self, obj, obj_type, capacity='member'):
+    def _build_context( self, obj, obj_type, capacity='public'):
         grp = model.Group.by_name(self.groupname)
         ctx = { 'model': model,
                 'session': model.Session,
@@ -39,12 +39,12 @@ class TestMemberLogic(object):
         return get_action('member_create')(ctx,dd)
 
     def test_member_add(self):
-        res = self._add_member( self.pkgs[0].id, 'package', 'member')
-        assert 'capacity' in res and res['capacity'] == u'member'
+        res = self._add_member( self.pkgs[0].id, 'package', 'public')
+        assert 'capacity' in res and res['capacity'] == u'public'
 
     def test_member_list(self):
-        _ = self._add_member( self.pkgs[0].id, 'package', 'member')
-        _ = self._add_member( self.pkgs[1].id, 'package', 'member')
+        _ = self._add_member( self.pkgs[0].id, 'package', 'public')
+        _ = self._add_member( self.pkgs[1].id, 'package', 'public')
         ctx, dd = self._build_context('','package')
         res = get_action('member_list')(ctx,dd)
         assert len(res) == 2, res
