@@ -1,11 +1,11 @@
 import os
 import datetime
-
 import meta
 import sqlalchemy as sa
 from core import DomainObject
 from types import make_uuid
 from package import Package
+
 
 related_table = meta.Table('related',meta.metadata,
         meta.Column('id', meta.UnicodeText, primary_key=True, default=make_uuid),
@@ -37,10 +37,18 @@ class Related(DomainObject):
         Allows the caller to get non-active state relations between
         the dataset and related, using the RelatedDataset object
         """
-        query = meta.Session.query(RelatedDataset)
-        query = query.filter(RelatedDataset.dataset_id==package.id)
-        query = query.filter(RelatedDataset.status==status)
-        return [ r.related for r in query.all() ]
+        query = meta.Session.query(RelatedDataset).\
+                filter(RelatedDataset.dataset_id==package.id).\
+                filter(RelatedDataset.status==status).all()
+        return query
+
+    def deactivate(self, package):
+        related_ds = meta.Session.query(RelatedDataset).\
+                          filter(RelatedDataset.dataset_id==package.id).\
+                          filter(RelatedDataset.status=='active').first()
+        if related_ds:
+            related_ds.status = 'inactive'
+            meta.Session.commit()
 
 
 # We have avoided using SQLAlchemy association objects see
@@ -52,8 +60,9 @@ meta.mapper(RelatedDataset, related_dataset_table, properties={
     'dataset': meta.relation(Package)
 })
 meta.mapper(Related, related_table, properties={
-    'datasets': meta.relation(Package, backref='related',
-                              secondary=related_dataset_table,
-                              secondaryjoin=sa.and_(related_dataset_table.c.dataset_id==Package.id,
-                related_dataset_table.c.status=='active'))
+'datasets': meta.relation(Package,
+    backref=meta.backref('related'),
+    secondary=related_dataset_table,
+    secondaryjoin=sa.and_(related_dataset_table.c.dataset_id==Package.id,
+                          RelatedDataset.status=='active'))
 })
