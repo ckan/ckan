@@ -2,7 +2,6 @@ from ckan.logic import check_access_old, NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
-
 def package_create(context, data_dict=None):
     model = context['model']
     user = context['user']
@@ -17,6 +16,17 @@ def package_create(context, data_dict=None):
             return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
 
     return {'success': True}
+
+def related_create(context, data_dict=None):
+    model = context['model']
+    user = context['user']
+    userobj = model.User.get( user )
+
+    if userobj:
+        return {'success': True}
+
+    return {'success': False, 'msg': _('You must be logged in to add a related item')}
+
 
 def resource_create(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}

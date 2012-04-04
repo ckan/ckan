@@ -30,6 +30,8 @@ class RelatedController(base.BaseController):
         except logic.NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
+        c.related_count = len(c.pkg.related)
+
         return base.render( "package/related_list.html")
 
 

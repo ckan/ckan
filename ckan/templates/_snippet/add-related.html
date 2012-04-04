@@ -6,7 +6,7 @@
   py:strip=""
   >
 
-<div class="modal-add-related modal fade in" style="display: none;"
+<div class="modal-add-related modal fade in" style="display: none; height: 640px;"
   py:def="add_related(dataset)">
 <div class="modal-header">
   <a class="close" data-dismiss="modal">×</a>
@@ -15,10 +15,32 @@
   </h3>
 </div>
 <div class="modal-body">
-  <p><strong>Access resource data via a web API with powerful query
-    support</strong>. Further information in the <a
-    href="http://docs.ckan.org/en/latest/storage/datastore.html" target="_blank">main
-    CKAN Data API and DataStore documentation</a>.</p>
+    <form class="well">
+      <label>Title</label>
+      <input type="text" class="span6" placeholder="Please add the title for the item"/>
+
+      <label>Type of item</label>
+      <select class="span6 chzn-select">
+          <option value="app">Application</option>
+          <option value="idea">Idea</option>
+          <option value="visualization">Visualization</option>
+      </select>
+
+      <label>Description</label>
+      <textarea class="input-xlarge span6" rows="4" placeholder="Please describe the item"></textarea>
+
+      <label>URL</label>
+      <input type="text" class="span6" placeholder="Please add a url"/>
+
+      <label>Image URL</label>
+      <input type="text" class="span6" placeholder="Please add a link to the image"/>
+
+      <div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <button class="btn">Cancel</button>
+      </div>
+    </form>
+
 </div>
 </div>
 

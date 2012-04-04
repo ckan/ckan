@@ -34,7 +34,7 @@
     <div class="row-fluid">
       <div class="span12">
           <div py:if="not c.pkg.related" class="span8">
-              There are no related items here yet, why not <a href="">add one</a>?
+              There are no related items here yet, why not <a data-toggle="modal" href=".modal-add-related">add one</a>?
           </div>
 
           <py:for each="related in c.pkg.related">

@@ -36,10 +36,10 @@ def resource_update(context, data_dict):
     pkg = query.first()
     if not pkg:
         raise NotFound(_('No package found for this resource, cannot check auth.'))
-    
+
     pkg_dict = {'id': pkg.id}
     authorized = package_update(context, pkg_dict).get('success')
-    
+
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read edit %s') % (str(user), resource.id)}
     else:
@@ -74,12 +74,26 @@ def group_update(context, data_dict):
     model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
-    
+
     authorized = check_access_old(group, model.Action.EDIT, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit group %s') % (str(user),group.id)}
     else:
         return {'success': True}
+
+def related_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if not user:
+        return {'success': False, 'msg': _('Only the owner can update a related item')}
+
+    related = get_related_object(context, data_dict)
+    userobj = model.User.get( user )
+    if not userobj or userobj.id != related.owner_id:
+        return {'success': False, 'msg': _('Only the owner can update a related item')}
+
+    return {'success': True}
+
 
 def group_change_state(context, data_dict):
     model = context['model']
@@ -152,7 +166,7 @@ def task_status_update(context, data_dict):
 
     if 'ignore_auth' in context and context['ignore_auth']:
         return {'success': True}
-    
+
     authorized =  Authorizer().is_sysadmin(unicode(user))
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to update task_status table') % str(user)}

@@ -263,6 +263,9 @@ class DefaultDatasetForm(object):
         c.licences = [('', '')] + base.model.Package.get_license_options()
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
 
+        if c.pkg:
+            c.related_count = len(c.pkg.related)
+
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
         pkg = context_pkg or c.pkg

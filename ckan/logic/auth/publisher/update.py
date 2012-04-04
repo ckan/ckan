@@ -86,6 +86,19 @@ def group_update(context, data_dict):
 
     return { 'success': True }
 
+def related_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if not user:
+        return {'success': False, 'msg': _('Only the owner can update a related item')}
+
+    related = get_related_object(context, data_dict)
+    userobj = model.User.get( user )
+    if not userobj or userobj.id != related.owner_id:
+        return {'success': False, 'msg': _('Only the owner can update a related item')}
+
+    return {'success': True}
+
 def group_change_state(context, data_dict):
     return group_update(context, data_dict)
 

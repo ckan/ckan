@@ -90,6 +90,10 @@ def package_show(context, data_dict):
     else:
         return {'success': True}
 
+def related_show(context, data_dict=None):
+    return {'success': True}
+
+
 def resource_show(context, data_dict):
     model = context['model']
     user = context.get('user')
@@ -103,10 +107,10 @@ def resource_show(context, data_dict):
     pkg = query.first()
     if not pkg:
         raise NotFound(_('No package found for this resource, cannot check auth.'))
-    
+
     pkg_dict = {'id': pkg.id}
     authorized = package_show(context, pkg_dict).get('success')
-    
+
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user), resource.id)}
     else:

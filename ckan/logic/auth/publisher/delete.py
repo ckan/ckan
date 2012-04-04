@@ -29,6 +29,20 @@ def package_delete(context, data_dict):
 def package_relationship_delete(context, data_dict):
     return package_relationship_create(context, data_dict)
 
+def related_delete(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if not user:
+        return {'success': False, 'msg': _('Only the owner can delete a related item')}
+
+    related = get_related_object(context, data_dict)
+    userobj = model.User.get( user )
+    if not userobj or userobj.id != related.owner_id:
+        return {'success': False, 'msg': _('Only the owner can delete a related item')}
+
+    return {'success': True}
+
+
 def group_delete(context, data_dict):
     """
     Group delete permission.  Checks that the user specified is within the group to be deleted

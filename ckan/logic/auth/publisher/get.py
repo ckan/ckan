@@ -97,6 +97,10 @@ def package_show(context, data_dict):
 
     return {'success': True}
 
+def related_show(context, data_dict=None):
+    return {'success': True}
+
+
 def resource_show(context, data_dict):
     """ Resource show permission checks the user group if the package state is deleted """
     model = context['model']
