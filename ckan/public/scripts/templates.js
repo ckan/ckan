@@ -43,8 +43,8 @@ CKAN.Templates.resourceDetails = ' \
       <div class="controls"> \
         <div class="markdown-editor"> \
           <ul class="button-row"> \
-            <li><button class="btn js-markdown-edit depressed">Edit</button></li> \
-            <li><button class="btn js-markdown-preview">Preview</button></li> \
+            <li><button class="btn js-markdown-edit depressed">'+CKAN.Strings.edit+'</button></li> \
+            <li><button class="btn js-markdown-preview">'+CKAN.Strings.preview+'</button></li> \
           </ul> \
           <div> \
             <textarea class="js-resource-edit-description markdown-input" name="resources__${num}__description">${resource.description}</textarea> \
