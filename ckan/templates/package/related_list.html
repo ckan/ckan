@@ -11,6 +11,8 @@
   about=""
   py:strip="">
 
+  <xi:include href="../_snippet/add-related.html" />
+
   <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
   - Related</py:def>
 
@@ -22,11 +24,12 @@
     <li class="sidebar-section">
       <h3>What are related items ....</h3>
 
-      <button class="btn btn-primary">Add related item</button>
+      <a class="btn btn-primary" data-toggle="modal" href=".modal-add-related">Add related item</a>
     </li>
   </py:match>
 
   <div py:match="content">
+    ${add_related(c.pkg)}
     <h2>Related items</h2>
     <div class="row-fluid">
       <div class="span12">

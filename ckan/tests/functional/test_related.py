@@ -29,4 +29,4 @@ class TestRelated:
         # To get the RelatedDataset objects (for state change)
         assert len(model.Related.get_for_dataset(p)) == 1
         assert len(model.Related.get_for_dataset(p,status='inactive')) == 0
-
+        model.Session.add(r)
