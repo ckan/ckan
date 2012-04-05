@@ -266,13 +266,16 @@
   <script type="text/javascript">
          $(function (){
                  // Tracking
-				 $.ajax({url : '/_tracking',
+				 var url = location.pathname;
+				 // remove any site root from url
+				 url = url.substring(CKAN.SITE_URL.length, url.length - 1);
+				 $.ajax({url : CKAN.SITE_URL + '/_tracking',
 						 type : 'POST',
-						 data : {url:location.pathname, type:'page'},
+						 data : {url:url, type:'page'},
 						 timeout : 300 });
                  $('a.resource-url-analytics').click(function (e){
                          var url = $(e.target).closest('a').attr('href');
-						 $.ajax({url : '/_tracking',
+						 $.ajax({url : CKAN.SITE_URL + '/_tracking',
 							     data : {url:url, type:'resource'},
 								 type : 'POST',
 								 complete : function () {location.href = url;},
