@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import datetime
 from pprint import pprint
 
 import paste.script
@@ -817,4 +818,102 @@ class Ratings(CkanCommand):
         for rating in ratings:
             rating.purge()
         model.repo.commit_and_remove()
+
+class Tracking(CkanCommand):
+    '''Update tracking statistics
+
+    Usage:
+      tracking   - update tracking stats
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        from ckan import model
+        engine = model.meta.engine
+
+        if len(self.args) == 1:
+            # Get summeries from specified date
+            start_date = datetime.datetime.strptime(self.args[0], '%Y-%m-%d')
+        else:
+            # No date given. See when we last have data for and get data
+            # from 2 days before then in case new data is available.
+            # If no date here then use 2010-01-01 as the start date
+            sql = '''SELECT date from tracking_summary
+                     ORDER BY date DESC LIMIT 1;'''
+            result = engine.execute(sql).fetchall()
+            if result:
+                start_date = result[0]['date']
+                start_date += datetime.timedelta(-2)
+                # convert date to datetime
+                combine = datetime.datetime.combine
+                start_date = combine(start_date, datetime.time(0))
+            else:
+                start_date = datetime.datetime(2011, 1, 1)
+        end_date = datetime.datetime.now()
+
+        while start_date < end_date:
+            stop_date = start_date + datetime.timedelta(1)
+            self.update_tracking(engine, start_date)
+            print 'tracking updated for %s' % start_date
+            start_date = stop_date
+
+    def update_tracking(self, engine, summary_date):
+        PACKAGE_URL = '/dataset/'
+        # clear out existing data before adding new
+        sql = '''DELETE FROM tracking_summary
+                 WHERE date='%s'; ''' % summary_date
+        engine.execute(sql)
+
+        sql = '''SELECT DISTINCT url, user_key,
+                     CAST(access_timestamp AS Date) AS date,
+                     tracking_type INTO tracking_tmp
+                 FROM tracking_raw
+                 WHERE CAST(access_timestamp as Date)='%s';
+
+                 INSERT INTO tracking_summary
+                   (url, count, date, tracking_type)
+                 SELECT url, count(user_key), date, tracking_type
+                 FROM tracking_tmp
+                 GROUP BY url, date, tracking_type;
+
+                 DROP TABLE tracking_tmp;
+                 COMMIT;''' % summary_date
+        engine.execute(sql)
+
+        # get ids for dataset urls
+        sql = '''UPDATE tracking_summary t
+                 SET package_id = COALESCE(
+                        (SELECT id FROM package p
+                        WHERE t.url =  %s || p.name)
+                     ,'~~not~found~~')
+                 WHERE t.package_id IS NULL
+                 AND tracking_type = 'page';'''
+        engine.execute(sql, PACKAGE_URL)
+
+        # update summary totals for resources
+        sql = '''UPDATE tracking_summary t1
+                 SET running_total = (
+                    SELECT sum(count)
+                    FROM tracking_summary t2
+                    WHERE t1.url = t2.url AND t2.date <= t1.date)
+                 WHERE t1.running_total = 0
+                 AND tracking_type = 'resource';'''
+        engine.execute(sql)
+
+        # update summary totals for pages
+        sql = '''UPDATE tracking_summary t1
+                 SET running_total = (
+                    SELECT sum(count)
+                    FROM tracking_summary t2
+                    WHERE t1.package_id = t2.package_id
+                    AND t2.date <= t1.date)
+                 WHERE t1.running_total = 0 AND tracking_type = 'page'
+                 AND t1.package_id IS NOT NULL
+                 AND t1.package_id != '~~not~found~~';'''
+        engine.execute(sql)
 
