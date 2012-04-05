@@ -2,6 +2,7 @@ import json
 
 from ckan.tests import *
 import ckan.model as model
+import ckan.logic as logic
 
 class TestRelated:
 
@@ -55,3 +56,33 @@ class TestRelated:
         model.Session.refresh(p) # Would like to get rid of the need for this
         assert len(p.related) == 0, p.related # not sure inactive item ...
         model.Session.delete(r)
+
+
+    def _related_create(self, title, description, type, url, image_url):
+        u = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+
+        context = dict(model=model, user=u['name'], session=model.Session)
+        data_dict = dict(title=title,description=description,
+                         url=url,image_url=image_url,type=type)
+        return logic.get_action("related_create")( context, data_dict )
+
+    def test_related_create(self):
+        rel = self._related_create("Title", "Description",
+                        "visualization",
+                        "http://ckan.org",
+                        "http://ckan.org/files/2012/03/ckanlogored.png")
+        assert rel['title'] == "Title", rel
+        assert rel['description'] == "Description", rel
+        assert rel['type'] == "visualization", rel
+        assert rel['url'] == "http://ckan.org", rel
+        assert rel['image_url'] == "http://ckan.org/files/2012/03/ckanlogored.png", rel
+
+    def test_related_create_fail(self):
+        try:
+            rel = self._related_create("Title", "Description",
+                        None,
+                        "http://ckan.org",
+                        "http://ckan.org/files/2012/03/ckanlogored.png")
+            assert False, "Create succeeded with missing field"
+        except logic.ValidationError, e:
+            assert 'type' in e.error_dict and e.error_dict['type'] == [u'Missing value']

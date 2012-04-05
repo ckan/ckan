@@ -239,6 +239,7 @@ def default_related_schema():
         'type': [not_empty, unicode],
         'image_url': [ignore_missing, unicode],
         'url': [ignore_missing, unicode],
+        'owner_id': [not_empty, unicode],
     }
     return schema
 
