@@ -134,19 +134,19 @@ CKAN.Templates.resourceDetails = ' \
     <div class="control-group"> \
       <label for="" class="control-label" property="rdfs:label">'+CKAN.Strings.hash+'</label> \
       <div class="controls"> \
-        <input type="text" disabled="disabled" class="disabled" value="${resource.hash || "Unknown"}"/> \
+        <input type="text" disabled="disabled" class="disabled" value="${resource.hash || "'+CKAN.Strings.unknown+'"}"/> \
         <input name="resources__${num}__hash" type="hidden" value="${resource.hash}" /> \
       </div> \
     </div> \
     <div class="control-group"> \
-      <label class="control-label">Extra Fields \
-        <button class="btn btn-small add-resource-extra">Add Extra Field</button>\
+      <label class="control-label">'+CKAN.Strings.extraFields+' \
+        <button class="btn btn-small add-resource-extra">'+CKAN.Strings.addExtraField+'</button>\
       </label>\
       <div class="controls"> \
         <div class="dynamic-extras"> \
         </div> \
       </div> \
-    <button class="btn btn-danger resource-edit-delete js-resource-edit-delete">Delete Resource</button>\
+    <button class="btn btn-danger resource-edit-delete js-resource-edit-delete">'+CKAN.Strings.deleteResource+'</button>\
   </div> \
 ';
 
