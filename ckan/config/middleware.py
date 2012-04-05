@@ -1,10 +1,11 @@
 """Pylons middleware initialization"""
 import urllib
 import urllib2
-import logging 
+import logging
 import json
 import hashlib
 
+import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
 from paste.cascade import Cascade
 from paste.registry import RegistryManager
@@ -16,6 +17,7 @@ from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
+
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 from ckan.lib.i18n import get_locales
@@ -287,6 +289,8 @@ class TrackingMiddleware(object):
 
     def __init__(self, app, config):
         self.app = app
+        self.engine = sa.create_engine(config.get('sqlalchemy.url'))
+
 
     def __call__(self, environ, start_response):
         path = environ['PATH_INFO']
@@ -310,5 +314,9 @@ class TrackingMiddleware(object):
             ])
             key = hashlib.md5(key).hexdigest()
             # store key/data here
+            sql = '''INSERT INTO tracking_raw
+                     (user_key, url, tracking_type)
+                     VALUES (%s, %s, %s)'''
+            self.engine.execute(sql, key, data.get('url'), data.get('type'))
             return []
         return self.app(environ, start_response)
