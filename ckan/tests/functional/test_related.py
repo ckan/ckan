@@ -97,9 +97,8 @@ class TestRelated:
         data_dict = dict(id=rel['id'])
         logic.get_action('related_delete')(context, data_dict)
 
-        # Check it doesn't exist
         r = model.Related.get(rel['id'])
-        assert r is None, r
+        assert r is None, r # Ensure it doesn't exist
 
     def test_related_update(self):
         rel = self._related_create("Title", "Description",
@@ -114,3 +113,36 @@ class TestRelated:
         result = logic.get_action('related_update')(context,data_dict)
         assert result['title'] == 'New Title'
 
+    def test_related_show(self):
+        rel = self._related_create("Title", "Description",
+                        "visualization",
+                        "http://ckan.org",
+                        "http://ckan.org/files/2012/03/ckanlogored.png")
+
+        usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+        context = dict(model=model, user=usr['name'], session=model.Session)
+        data_dict = {'id': rel['id']}
+
+        result = logic.get_action('related_show')(context,data_dict)
+        assert rel['id'] == result['id'], result
+        assert rel['title'] == result['title'], result
+        assert rel['description'] == result['description'], result
+        assert rel['description'] == result['description'], result
+
+    def test_related_list(self):
+        p = model.Package.get('warandpeace')
+        r = model.Related(title="Title", type="idea")
+        p.related.append(r)
+        r = model.Related(title="Title 2", type="idea")
+        p.related.append(r)
+        model.Session.add(r)
+        model.Session.commit()
+
+        assert len(p.related) == 2
+
+        usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+        context = dict(model=model, user=usr['name'], session=model.Session)
+        data_dict = {'id': p.id}
+
+        result = logic.get_action('related_list')(context,data_dict)
+        assert len(result) == len(p.related)

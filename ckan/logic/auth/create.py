@@ -1,11 +1,11 @@
-from ckan.logic import check_access_old, NotFound
+import ckan.logic as logic
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
 def package_create(context, data_dict=None):
     model = context['model']
     user = context['user']
-    check1 = check_access_old(model.System(), model.Action.PACKAGE_CREATE, context)
+    check1 = logic.check_access_old(model.System(), model.Action.PACKAGE_CREATE, context)
 
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % str(user)}
@@ -53,7 +53,7 @@ def group_create(context, data_dict=None):
     model = context['model']
     user = context['user']
 
-    authorized = check_access_old(model.System(), model.Action.GROUP_CREATE, context)
+    authorized = logic.check_access_old(model.System(), model.Action.GROUP_CREATE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
     else:
@@ -63,7 +63,7 @@ def authorization_group_create(context, data_dict=None):
     model = context['model']
     user = context['user']
 
-    authorized = check_access_old(model.System(), model.Action.AUTHZ_GROUP_CREATE, context)
+    authorized = logic.check_access_old(model.System(), model.Action.AUTHZ_GROUP_CREATE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to create authorization groups') % str(user)}
     else:
@@ -77,7 +77,7 @@ def user_create(context, data_dict=None):
     model = context['model']
     user = context['user']
 
-    authorized = check_access_old(model.System(), model.Action.USER_CREATE, context)
+    authorized = logic.check_access_old(model.System(), model.Action.USER_CREATE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to create users') % str(user)}
     else:
@@ -108,7 +108,7 @@ def _check_group_auth(context, data_dict):
             id = group_blob
         grp = model.Group.get(id)
         if grp is None:
-            raise NotFound(_('Group was not found.'))
+            raise logic.NotFound(_('Group was not found.'))
         groups.add(grp)
 
     if pkg:
@@ -117,7 +117,7 @@ def _check_group_auth(context, data_dict):
         groups = groups - set(pkg_groups)
 
     for group in groups:
-        if not check_access_old(group, model.Action.EDIT, context):
+        if not logic.check_access_old(group, model.Action.EDIT, context):
             return False
 
     return True

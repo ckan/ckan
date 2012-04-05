@@ -1,4 +1,4 @@
-from ckan.logic import check_access_old, NotFound
+import ckan.logic as logic
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 from ckan.logic.auth import (get_package_object, get_group_object,
@@ -85,7 +85,7 @@ def package_show(context, data_dict):
     user = context.get('user')
     package = get_package_object(context, data_dict)
 
-    authorized = check_access_old(package, model.Action.READ, context)
+    authorized = logic.check_access_old(package, model.Action.READ, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
     else:
@@ -107,7 +107,7 @@ def resource_show(context, data_dict):
         .filter(model.ResourceGroup.id == resource.resource_group_id)
     pkg = query.first()
     if not pkg:
-        raise NotFound(_('No package found for this resource, cannot check auth.'))
+        raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
 
     pkg_dict = {'id': pkg.id}
     authorized = package_show(context, pkg_dict).get('success')
@@ -126,7 +126,7 @@ def group_show(context, data_dict):
     user = context.get('user')
     group = get_group_object(context, data_dict)
 
-    authorized =  check_access_old(group, model.Action.READ, context)
+    authorized =  logic.check_access_old(group, model.Action.READ, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read group %s') % (str(user),group.id)}
     else:

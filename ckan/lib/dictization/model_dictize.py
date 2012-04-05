@@ -47,6 +47,15 @@ def resource_list_dictize(res_list, context):
 
     return sorted(result_list, key=lambda x: x["position"])
 
+def related_list_dictize(related_list, context):
+    result_list = []
+    for res in related_list:
+        related_dict = related_dictize(res, context)
+        result_list.append(related_dict)
+
+    return sorted(result_list, key=lambda x: x["created"])
+
+
 def extras_dict_dictize(extras_dict, context):
     result_list = []
     for name, extra in extras_dict.iteritems():

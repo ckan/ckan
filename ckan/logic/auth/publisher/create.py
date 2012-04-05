@@ -1,7 +1,7 @@
 from ckan.logic.auth import (get_package_object, get_group_object,
     get_user_object, get_resource_object, get_related_object)
 from ckan.logic.auth.publisher import _groups_intersect
-from ckan.logic import NotFound
+import ckan.logic as logic
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
@@ -80,7 +80,7 @@ def group_create(context, data_dict=None):
         # If the user is doing this within another group then we need to make sure that
         # the user has permissions for this group.
         group = get_group_object( context )
-    except NotFound:
+    except logic.NotFound:
         return { 'success' : True }
 
     userobj = model.User.get( user )

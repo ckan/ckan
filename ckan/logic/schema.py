@@ -240,6 +240,7 @@ def default_related_schema():
         'image_url': [ignore_missing, unicode],
         'url': [ignore_missing, unicode],
         'owner_id': [not_empty, unicode],
+        'created': [ignore_missing, isodate],
     }
     return schema
 
