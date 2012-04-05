@@ -85,6 +85,7 @@
             </ul>
           </py:if>
           <ul class="openness">
+			${h.tracking_count_package(package.get('id'))}
             <py:if test="package.isopen()">
               <li>
                 <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
@@ -124,13 +125,14 @@
           <ul class="dataset_formats">
             <py:for each="resource in package.resources">
               <py:if test="resource.get('format')">
-                <li><a href="${resource.get('url')}"
+                <li><a class="resource-url-analytics" href="${resource.get('url')}"
                   title="${resource.get('description')}">${resource.get('format')}</a></li>
               </py:if>
             </py:for>
           </ul>
         </py:if>
         <ul class="openness">
+			${h.tracking_count_package(package.get('id'))}
           <py:if test="package.isopen">
             <li>
               <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">

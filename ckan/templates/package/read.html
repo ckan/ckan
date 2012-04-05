@@ -20,6 +20,7 @@
   
   <py:match path="primarysidebar">
   
+  <p>${h.tracking_count_package(c.pkg.id)}</p>
     <li py:if="c.pkg.license_id" id="dataset-license" class="sidebar-section">
       <strong>License:</strong>
         <py:choose test="">
