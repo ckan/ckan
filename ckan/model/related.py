@@ -32,6 +32,10 @@ class RelatedDataset(DomainObject):
 class Related(DomainObject):
 
     @classmethod
+    def get(cls, id):
+        return meta.Session.query(Related).filter(Related.id == id).first()
+
+    @classmethod
     def get_for_dataset(cls, package, status=u'active'):
         """
         Allows the caller to get non-active state relations between

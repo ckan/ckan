@@ -1,5 +1,5 @@
 from ckan.logic.auth import get_package_object, get_group_object, \
-    get_user_object, get_resource_object
+    get_user_object, get_resource_object, get_related_object
 from ckan.logic.auth.publisher import _groups_intersect
 from ckan.logic.auth.publisher.create import package_relationship_create
 from ckan.authz import Authorizer

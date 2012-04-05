@@ -1,6 +1,7 @@
 from ckan.logic import check_access_old, NotFound
-from ckan.logic.auth import get_package_object, get_resource_object,  get_group_object, get_authorization_group_object, \
-    get_user_object, get_resource_object
+from ckan.logic.auth import (get_package_object, get_resource_object,
+                            get_group_object, get_authorization_group_object,
+                            get_user_object, get_resource_object, get_related_object)
 from ckan.logic.auth.create import _check_group_auth, package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _

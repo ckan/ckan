@@ -1,7 +1,8 @@
 from ckan.logic import check_access_old, NotFound
 from ckan.authz import Authorizer
 from ckan.lib.base import _
-from ckan.logic.auth import get_package_object, get_group_object, get_resource_object
+from ckan.logic.auth import (get_package_object, get_group_object,
+                            get_resource_object, get_related_object)
 
 
 def site_read(context, data_dict):

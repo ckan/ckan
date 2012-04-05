@@ -59,9 +59,9 @@ class TestRelated:
 
 
     def _related_create(self, title, description, type, url, image_url):
-        u = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+        usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
 
-        context = dict(model=model, user=u['name'], session=model.Session)
+        context = dict(model=model, user=usr['name'], session=model.Session)
         data_dict = dict(title=title,description=description,
                          url=url,image_url=image_url,type=type)
         return logic.get_action("related_create")( context, data_dict )
@@ -86,3 +86,31 @@ class TestRelated:
             assert False, "Create succeeded with missing field"
         except logic.ValidationError, e:
             assert 'type' in e.error_dict and e.error_dict['type'] == [u'Missing value']
+
+    def test_related_delete(self):
+        rel = self._related_create("Title", "Description",
+                        "visualization",
+                        "http://ckan.org",
+                        "http://ckan.org/files/2012/03/ckanlogored.png")
+        usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+        context = dict(model=model, user=usr['name'], session=model.Session)
+        data_dict = dict(id=rel['id'])
+        logic.get_action('related_delete')(context, data_dict)
+
+        # Check it doesn't exist
+        r = model.Related.get(rel['id'])
+        assert r is None, r
+
+    def test_related_update(self):
+        rel = self._related_create("Title", "Description",
+                        "visualization",
+                        "http://ckan.org",
+                        "http://ckan.org/files/2012/03/ckanlogored.png")
+
+        usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+        context = dict(model=model, user=usr['name'], session=model.Session)
+        data_dict = rel
+        data_dict['title'] = "New Title"
+        result = logic.get_action('related_update')(context,data_dict)
+        assert result['title'] == 'New Title'
+
