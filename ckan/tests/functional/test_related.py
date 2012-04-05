@@ -1,6 +1,6 @@
 import json
 
-from ckan.tests import *
+import ckan.tests as tests
 import ckan.model as model
 import ckan.logic as logic
 
@@ -9,7 +9,7 @@ class TestRelated:
     @classmethod
     def setup_class(self):
         model.Session.remove()
-        CreateTestData.create()
+        tests.CreateTestData.create()
 
     @classmethod
     def teardown_class(self):
