@@ -83,6 +83,9 @@ def resource_dictize(res, context):
         resource.update(extras)
     return resource
 
+def related_dictize(rel, context):
+    return d.table_dictize(rel, context)
+
 def _execute_with_revision(q, rev_table, context):
     '''
     Takes an SqlAlchemy query (q) that is (at its base) a Select on an

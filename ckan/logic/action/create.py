@@ -112,6 +112,26 @@ def resource_create(context, data_dict):
                             ckan.logic.schema.default_resource_schema(),
                             context)
 
+
+def related_create(context, data_dict):
+    model = context['model']
+    user = context['user']
+    data, errors = validate(data_dict,
+                            ckan.logic.schema.default_related_schema(),
+                            context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, error_summary(errors))
+    else:
+        return data
+
+    related = model_save.related_dict_save(data, context)
+    context["related"] = related
+    context["id"] = related.id
+    log.debug('Created object %s' % str(related.title))
+    return model_dictize.related_dictize(related, context)
+
+
 def package_relationship_create(context, data_dict):
 
     model = context['model']

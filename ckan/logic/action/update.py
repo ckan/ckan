@@ -98,6 +98,12 @@ def make_latest_pending_package_active(context, data_dict):
     session.remove()
 
 
+def related_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    id = data_dict["id"]
+
+
 def resource_update(context, data_dict):
     model = context['model']
     user = context['user']

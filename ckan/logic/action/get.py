@@ -105,6 +105,34 @@ def package_revision_list(context, data_dict):
                                                      include_groups=False))
     return revision_dicts
 
+
+def related_show(context, data_dict=None):
+    """
+    Shows a single related item
+
+    context:
+        model - The CKAN model module
+        user  - The name of the current user
+
+    data_dict:
+        id - The ID of the related item we want to show
+    """
+
+
+def related_list(context, data_dict=None):
+    """
+    List the related items for a specific package which should be
+    mentioned in the data_dict
+
+    context:
+        model - The CKAN model module
+        user  - The name of the current user
+
+    data_dict:
+        dataset - The ID of the dataset to which we want to list related items
+    """
+
+
 def member_list(context, data_dict=None):
     """
     Returns a list of (id,type,capacity) tuples that are members of the

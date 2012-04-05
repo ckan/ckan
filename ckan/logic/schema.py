@@ -231,6 +231,18 @@ def default_update_group_schema():
     return schema
 
 
+def default_related_schema():
+    schema = {
+        'id': [ignore_missing, unicode],
+        'title': [not_empty, unicode],
+        'description': [ignore_missing, unicode],
+        'type': [not_empty, unicode],
+        'image_url': [ignore_missing, unicode],
+        'url': [ignore_missing, unicode],
+    }
+    return schema
+
+
 def default_extras_schema():
 
     schema = {
