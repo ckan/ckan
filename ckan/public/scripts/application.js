@@ -706,7 +706,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
         self.updateFormData(self.key);
       },
       send: function(e, data) {
-        self.setMessage('Uploading file ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
+        self.setMessage(CKAN.Strings.uploadingFile +' <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
       },
       done: function(e, data) {
         self.onUploadComplete(self.key);
@@ -744,7 +744,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
 
   updateFormData: function(key) {
     var self = this;
-    self.setMessage('Checking upload permissions ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
+    self.setMessage(CKAN.Strings.checkingUploadPermissions + ' <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
     self.el.find('.fileinfo').text(key);
     $.ajax({
       url: CKAN.SITE_URL + '/api/storage/auth/form/' + key,
@@ -760,7 +760,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
       },
       error: function(jqXHR, textStatus, errorThrown) {
         // TODO: more graceful error handling (e.g. of 409)
-        self.setMessage('Failed to get credentials for storage upload. Upload cannot proceed', 'error');
+        self.setMessage(CKAN.Strings.failedToGetCredentialsForUpload, 'error');
         self.el.find('input[name="add-resource-upload"]').hide();
       }
     });
