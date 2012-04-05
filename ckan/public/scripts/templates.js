@@ -43,8 +43,8 @@ CKAN.Templates.resourceDetails = ' \
       <div class="controls"> \
         <div class="markdown-editor"> \
           <ul class="button-row"> \
-            <li><button class="btn js-markdown-edit depressed">Edit</button></li> \
-            <li><button class="btn js-markdown-preview">Preview</button></li> \
+            <li><button class="btn js-markdown-edit depressed">'+CKAN.Strings.edit+'</button></li> \
+            <li><button class="btn js-markdown-preview">'+CKAN.Strings.preview+'</button></li> \
           </ul> \
           <div> \
             <textarea class="js-resource-edit-description markdown-input" name="resources__${num}__description">${resource.description}</textarea> \
@@ -70,7 +70,7 @@ CKAN.Templates.resourceDetails = ' \
       <label for="" class="control-label" property="rdfs:label">'+CKAN.Strings.format + '\
           &nbsp;&nbsp;<img class="js-resource-icon inline-icon resource-icon" src="${resource_icon}" /> </label>\
       <div class="controls"> \
-        <input name="resources__${num}__format" type="text" value="${resource.format}" class="long js-resource-edit-format autocomplete-format" placeholder="e.g. csv, html, xls, rdf, ..." /> \
+        <input name="resources__${num}__format" type="text" value="${resource.format}" class="long js-resource-edit-format autocomplete-format" placeholder="'+CKAN.Strings.resourceFormatPlaceholder+'" /> \
       </div> \
     </div> \
     <div class="control-group"> \
@@ -89,13 +89,13 @@ CKAN.Templates.resourceDetails = ' \
         {{/if}} \
       </div> \
     </div> \
-    <div class="control-group"> \
+    <div class="control-group datastore-enabled"> \
       <label for="" class="control-label" property="rdfs:label">'+CKAN.Strings.datastoreEnabled+'</label> \
       <div class="controls"> \
         <label class="checkbox"> \
           <input type="checkbox" class="js-datastore-enabled-checkbox" /> \
           <input type="hidden" name="resources__${num}__webstore_url" value="${resource.webstore_url}" class="js-datastore-enabled-text" /> \
-          <span class="hint">Should a <a href="http://docs.ckan.org/en/latest/storage/datastore.html" target="_blank">DataStore table and Data API</a> be enabled for this resource?</span> \
+          <span class="hint">Should a <a href="http://docs.ckan.org/en/latest/datastore.html" target="_blank">DataStore table and Data API</a> be enabled for this resource?</span> \
         </label> \
       </div> \
     </div> \
@@ -134,19 +134,19 @@ CKAN.Templates.resourceDetails = ' \
     <div class="control-group"> \
       <label for="" class="control-label" property="rdfs:label">'+CKAN.Strings.hash+'</label> \
       <div class="controls"> \
-        <input type="text" disabled="disabled" class="disabled" value="${resource.hash || "Unknown"}"/> \
+        <input type="text" disabled="disabled" class="disabled" value="${resource.hash || "'+CKAN.Strings.unknown+'"}"/> \
         <input name="resources__${num}__hash" type="hidden" value="${resource.hash}" /> \
       </div> \
     </div> \
     <div class="control-group"> \
-      <label class="control-label">Extra Fields \
-        <button class="btn btn-small add-resource-extra">Add Extra Field</button>\
+      <label class="control-label">'+CKAN.Strings.extraFields+' \
+        <button class="btn btn-small add-resource-extra">'+CKAN.Strings.addExtraField+'</button>\
       </label>\
       <div class="controls"> \
         <div class="dynamic-extras"> \
         </div> \
       </div> \
-    <button class="btn btn-danger resource-edit-delete js-resource-edit-delete">Delete Resource</button>\
+    <button class="btn btn-danger resource-edit-delete js-resource-edit-delete">'+CKAN.Strings.deleteResource+'</button>\
   </div> \
 ';
 

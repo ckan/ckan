@@ -10,7 +10,7 @@ CKAN.Utils = CKAN.Utils || {};
 (function ($) {
   $(document).ready(function () {
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
-    CKAN.Utils.setupPublisherUserAutocomplete($('input.autocomplete-publisher-user'));
+    CKAN.Utils.setupOrganizationUserAutocomplete($('input.autocomplete-organization-user'));
     CKAN.Utils.setupGroupAutocomplete($('input.autocomplete-group'));
     CKAN.Utils.setupAuthzGroupAutocomplete($('input.autocomplete-authzgroup'));
     CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-dataset'));
@@ -233,7 +233,7 @@ CKAN.View.UrlEditor = Backbone.View.extend({
       this.lengthMsg.hide();
     }
   },
-  
+
   checkSlugIsValid: function(slug) {
     $.ajax({
       url: this.options.apiUrl,
@@ -244,7 +244,7 @@ CKAN.View.UrlEditor = Backbone.View.extend({
       success: this.apiCallback
     });
   },
-  
+
   /* Called when the slug-validator gets back to us */
   apiCallback: function(data) {
     if (data.valid) {
@@ -322,7 +322,7 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     }
   },
   /*
-   * Called when the page loads or the current resource is deleted. 
+   * Called when the page loads or the current resource is deleted.
    * Reset page state to the first available edit panel.
    */
   openFirstPanel: function() {
@@ -354,8 +354,8 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     this.el.find('.resource-list > li').removeClass('active');
     this.el.find('.resource-panel').hide();
   },
-  /* 
-   * Update the resource__N__field names to match 
+  /*
+   * Update the resource__N__field names to match
    * new sort order.
   */
   sortStop: function(e,ui) {
@@ -374,8 +374,8 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
       });
     });
   },
-  /* 
-   * Calculate id of the next resource to create 
+  /*
+   * Calculate id of the next resource to create
    */
   nextIndex: function() {
     var maxId=-1;
@@ -390,8 +390,8 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
     });
     return maxId+1;
   },
-  /* 
-   * Create DOM elements for new resource. 
+  /*
+   * Create DOM elements for new resource.
    */
   resourceAdded: function(resource) {
     var self = this;
@@ -406,7 +406,7 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
       resource.view.openMyPanel();
     }
   },
-  /* 
+  /*
    * Destroy DOM elements for deleted resource.
    */
   resourceRemoved: function(resource) {
@@ -429,7 +429,7 @@ CKAN.View.Resource = Backbone.View.extend({
   },
   render: function() {
     this.raw_resource = this.model.toTemplateJSON();
-    var resource_object = { 
+    var resource_object = {
         resource: this.raw_resource,
         num: this.options.position,
         resource_icon: '/images/icons/page_white.png',
@@ -495,9 +495,9 @@ CKAN.View.Resource = Backbone.View.extend({
       this.table.find('.resource-errors').append(errorList).show();
     }
   },
-  /* 
-   * Work out what I should be called. Rough-match 
-   * of helpers.py:resource_display_name. 
+  /*
+   * Work out what I should be called. Rough-match
+   * of helpers.py:resource_display_name.
    */
   name: function() {
     var name = this.nameBox.val();
@@ -517,17 +517,17 @@ CKAN.View.Resource = Backbone.View.extend({
     }
     return name;
   },
-  /* 
-   * Called when the user types to update the name in 
-   * my <li> to match the <input> values. 
+  /*
+   * Called when the user types to update the name in
+   * my <li> to match the <input> values.
    */
   updateName: function() {
     // Need to structurally modify the DOM to force a re-render of text
     var $link = this.li.find('.js-resource-edit-name');
     $link.html('<span>'+this.name()+'</span>');
   },
-  /* 
-   * Called when the user types to update the icon <img> 
+  /*
+   * Called when the user types to update the icon <img>
    * tags. Uses server API to select icon.
    */
   updateIcon: function() {
@@ -544,7 +544,7 @@ CKAN.View.Resource = Backbone.View.extend({
           }
         });
         delete self.updateIconTimer;
-      }, 
+      },
       100);
   },
   /*
@@ -561,7 +561,7 @@ CKAN.View.Resource = Backbone.View.extend({
     this.table.find('.js-resource-edit-name').focus();
     this.li.addClass('active');
   },
-  /* 
+  /*
    * Called when my delete button is clicked. Calls back to the parent
    * resource editor.
    */
@@ -655,7 +655,7 @@ CKAN.View.Resource = Backbone.View.extend({
           word=='webstore_last_updated' ||
           word=='webstore_url';
   },
-  /* 
+  /*
    * Called when my model is destroyed. Remove me from the page.
    */
   removeFromDom: function() {
@@ -706,7 +706,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
         self.updateFormData(self.key);
       },
       send: function(e, data) {
-        self.setMessage('Uploading file ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
+        self.setMessage(CKAN.Strings.uploadingFile +' <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
       },
       done: function(e, data) {
         self.onUploadComplete(self.key);
@@ -744,7 +744,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
 
   updateFormData: function(key) {
     var self = this;
-    self.setMessage('Checking upload permissions ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
+    self.setMessage(CKAN.Strings.checkingUploadPermissions + ' <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="spinner" />');
     self.el.find('.fileinfo').text(key);
     $.ajax({
       url: CKAN.SITE_URL + '/api/storage/auth/form/' + key,
@@ -760,7 +760,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
       },
       error: function(jqXHR, textStatus, errorThrown) {
         // TODO: more graceful error handling (e.g. of 409)
-        self.setMessage('Failed to get credentials for storage upload. Upload cannot proceed', 'error');
+        self.setMessage(CKAN.Strings.failedToGetCredentialsForUpload, 'error');
         self.el.find('input[name="add-resource-upload"]').hide();
       }
     });
@@ -799,6 +799,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
             , hash: data._checksum
             , cache_url: data._location
             , cache_url_updated: lastmod
+            , webstore_url: data._location
           }
           , {
             error: function(model, error) {
@@ -865,6 +866,7 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
              size: data.size,
              mimetype: data.mimetype,
              last_modified: data.last_modified,
+             webstore_url: 'enabled',
              url_error: (data.url_errors || [""])[0]
            });
            self.collection.add(newResource);
@@ -874,6 +876,9 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
      } 
      else {
        newResource.set({url: urlVal, resource_type: this.options.mode});
+       if (newResource.get('resource_type')=='file') {
+         newResource.set({webstore_url: 'enabled'});
+       }
        this.collection.add(newResource);
        this.resetForm();
      }
@@ -975,7 +980,7 @@ CKAN.Utils = function($, my) {
   // Requires: jquery-ui autocomplete
   my.setupTagAutocomplete = function(elements) {
     // don't navigate away from the field on tab when selecting an item
-    elements.bind( "keydown", 
+    elements.bind( "keydown",
       function( event ) {
         if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "autocomplete" ).menu.active ) {
           event.preventDefault();
@@ -1032,7 +1037,7 @@ CKAN.Utils = function($, my) {
     });
   };
 
-  my.setupPublisherUserAutocomplete = function(elements) {
+  my.setupOrganizationUserAutocomplete = function(elements) {
     elements.autocomplete({
       minLength: 2,
       source: function(request, callback) {
@@ -1313,7 +1318,7 @@ CKAN.DataPreview = function ($, my) {
       initializeDataExplorer(dataset);
     }
     else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
-      // set format as this is used by Recline in setting format for DataProxy 
+      // set format as this is used by Recline in setting format for DataProxy
       resourceData.format = resourceData.formatNormalized;
       var dataset = new recline.Model.Dataset(resourceData, 'dataproxy');
       initializeDataExplorer(dataset);
@@ -1364,7 +1369,7 @@ CKAN.DataPreview = function ($, my) {
       // Cannot reliably preview this item - with no mimetype/format information,
       // can't guarantee it's not a remote binary file such as an executable.
       my.showError({
-        title: 'Preview not available for data type: ' + resourceData.formatNormalized,
+        title: CKAN.Strings.previewNotAvailableForDataType + resourceData.formatNormalized,
         message: ''
       });
     }

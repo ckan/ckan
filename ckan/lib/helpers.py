@@ -556,7 +556,7 @@ def time_ago_in_words_from_str(date_str, granularity='month'):
     if date_str:
         return date.time_ago_in_words(date_str_to_datetime(date_str), granularity=granularity)
     else:
-        return 'Unknown'
+        return _('Unknown')
 
 def button_attr(enable, type='primary'):
     if enable:
@@ -592,7 +592,8 @@ def resource_display_name(resource_dict):
         if len(description)>max_len: description = description[:max_len]+'...'
         return description
     else:
-        return '[no name] %s ' % resource_dict['id']
+        noname_string = _('no name')
+        return '[%s] %s' % (noname_string, resource_dict['id'])
 
 def resource_link(resource_dict, package_id):
     text = resource_display_name(resource_dict)

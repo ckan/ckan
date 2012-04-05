@@ -466,7 +466,7 @@ def term_translation_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    trans_table = model.term_translation_table 
+    trans_table = model.term_translation_table
 
     update = trans_table.update()
     update = update.where(trans_table.c.term == data['term'])
@@ -484,14 +484,14 @@ def term_translation_update(context, data_dict):
         model.Session.commit()
 
     return data
-    
+
 def term_translation_update_many(context, data_dict):
     model = context['model']
-    
+
 
     if not data_dict.get('data') and isinstance(data_dict, list):
         raise ValidationError(
-            {'error': 
+            {'error':
              'term_translation_update_many needs to have a list of dicts in field data'}
         )
 

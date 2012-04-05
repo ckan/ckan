@@ -85,8 +85,8 @@ class PackageController(BaseController):
         from ckan.lib.search import SearchError
 
         package_type = request.path.strip('/').split('/')[0]
-        if package_type == 'group':
-            package_type = None
+        if package_type == 'package':
+            package_type = 'dataset'
 
         try:
             context = {'model':model,'user': c.user or c.author}
@@ -161,6 +161,7 @@ class PackageController(BaseController):
                     else:
                         search_extras[param] = value
 
+            fq += ' capacity:"public"'
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
@@ -308,6 +309,10 @@ class PackageController(BaseController):
 
 
     def history(self, id):
+        package_type = request.path.strip('/').split('/')[0]
+        if package_type == 'package':
+            package_type = 'dataset'
+
         if 'diff' in request.params or 'selected1' in request.params:
             try:
                 params = {'id':request.params.getone('pkg_name'),
@@ -375,8 +380,7 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        package_type = self._get_package_type(id)
-        return render(self._history_template(package_type))
+        return render( self._history_template(c.pkg_dict.get('type',package_type)))
 
     def new(self, data=None, errors=None, error_summary=None):
 
@@ -388,7 +392,7 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,}
 
-        # Package needs to have a publisher group in the call to check_access
+        # Package needs to have a organization group in the call to check_access
         # and also to save it
         try:
             check_access('package_create',context)
@@ -475,7 +479,6 @@ class PackageController(BaseController):
                    'extras_as_string': True,
                    'schema': self._form_to_db_schema(package_type=package_type),
                    'revision_id': revision}
-
         try:
             data = get_action('package_show')(context, {'id': id})
             schema = self._db_to_form_schema(package_type=package_type)
@@ -694,17 +697,6 @@ class PackageController(BaseController):
             raise
         else:
             model.Session.commit()
-
-    def _person_email_link(self, name, email, reference):
-        if email:
-            if not name:
-                name = email
-            return h.mail_to(email_address=email, name=name, encode='javascript')
-        else:
-            if name:
-                return name
-            else:
-                return reference + " unknown"
 
     def resource_read(self, id, resource_id):
         context = {'model': model, 'session': model.Session,
