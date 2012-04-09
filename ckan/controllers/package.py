@@ -106,7 +106,7 @@ class PackageController(BaseController):
             page = int(request.params.get('page', 1))
         except ValueError, e:
             abort(400, ('"page" parameter must be an integer'))
-        limit = 20
+        limit = g.datasets_per_page
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
