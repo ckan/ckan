@@ -186,7 +186,9 @@ class Repository(vdm.sqlalchemy.Repository):
 
     def are_tables_created(self):
         metadata = MetaData(self.metadata.bind)
-        metadata.reflect()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')
+            metadata.reflect()
         return bool(metadata.tables)
 
     def purge_revision(self, revision, leave_record=False):
