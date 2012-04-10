@@ -286,7 +286,7 @@ class UserController(BaseController):
         # save our language in the session so we don't loose it
         session['lang'] = request.environ.get('CKAN_LANG')
         session.save()
-        h.redirect_to('/user/logout_generic')
+        h.redirect_to('/user/logout')
 
     def set_lang(self, lang):
         # this allows us to set the lang in session.  Used for logging

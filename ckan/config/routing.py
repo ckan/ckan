@@ -239,6 +239,7 @@ def make_map():
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('/user/register', action='register')
         m.connect('/user/login', action='login')
+        m.connect('/user/_logout', action='logout')
         m.connect('/user/logged_in', action='logged_in')
         m.connect('/user/logged_out', action='logged_out')
         m.connect('/user/logged_out_redirect', action='logged_out_page')
