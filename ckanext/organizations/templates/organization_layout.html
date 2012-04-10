@@ -1,0 +1,47 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+  <?python
+    import ckan.model as model
+    if isinstance(c.group, model.Group):
+        editors = c.group.members_of_type(model.User, 'editor')
+    else:
+        editors = []
+  ?>
+  <py:match path="minornavigation">
+    <ul class="nav nav-pills" py:choose="bool(c.group)">
+      <py:when test="True" py:with="can_update=h.check_access('group_update',{'id':c.group.id})">
+        <li class="${'active' if c.action=='read' else ''}">${h.subnav_named_route(c, h.icon('group') + _('View'), 'organization_read',controller='group', action='read', id=c.group.name)}</li>
+        <li class="${'active' if c.action=='history' else ''}">${h.subnav_named_route(c, h.icon('page_white_stack') + _('History'),  'organization_action', controller='group', action='history', id=c.group.name)}</li>
+        <li class="divider" py:if="can_update  or (c.userobj and c.userobj in editors)">|</li>
+        <li class="dropdown ${'active' if c.action=='resource_read' else ''}" py:if="can_update  or (c.userobj and c.userobj in editors)">
+            <a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">${h.icon('add') + _('Add Dataset')}</a>
+        </li>
+        <li class="${'active' if c.action=='edit' else ''}" py:if="can_update">
+          ${h.subnav_named_route( c,h.icon('group_edit') + _('Edit'), 'organization_action', action='edit', id=c.group.name )}
+        </li>
+        <li class="${'active' if c.action=='apply' else ''} ckan-logged-in" py:if="c.userobj and not c.userobj.is_in_group(c.group)">
+            <a href="${h.url_for(controller='ckanext.organizations.controllers:OrganizationController', action='apply')}?parent=${c.group.name}">${h.icon('group_edit') + _('Join')}</a>
+        </li>
+
+      </py:when>
+      <py:otherwise>
+        <li class="${'active' if c.action=='index' else ''}">
+          ${h.subnav_named_route(c, h.icon('group') + _('List Organizations'), "organization_index", action="index" )}
+        </li>
+        <li style="display:none;" class="ckan-logged-in ${'active' if c.action=='new' else ''}">
+          ${ h.subnav_named_route(c, h.icon('group_add') + _('Add an Organization'), "organization_new", action='new')}
+        </li>
+        <li class="ckan-logged-out ${'active' if c.action=='new' else ''}">
+          ${h.subnav_link(c, h.icon('group_add') + _('Login to Add an Organization'), controller='group', action='new')}
+        </li>
+      </py:otherwise>
+    </ul>
+  </py:match>
+
+  <xi:include href="layout.html" />
+</html>

@@ -404,12 +404,12 @@ class CreateTestData(cli.CkanCommand):
  * Associated tags, etc etc
 '''
         if auth_profile == "publisher":
-            publisher_group = model.Group(name=u"publisher_group", type="publisher")
+            organization_group = model.Group(name=u"organization_group", type="organization")
 
         cls.pkg_names = [u'annakarenina', u'warandpeace']
         pkg1 = model.Package(name=cls.pkg_names[0], type=package_type)
         if auth_profile == "publisher":
-            pkg1.group = publisher_group
+            pkg1.group = organization_group
         model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
@@ -464,7 +464,7 @@ left arrow <
         tag2 = model.Tag(name=u'tolstoy')
 
         if auth_profile == "publisher":
-            pkg2.group = publisher_group
+            pkg2.group = organization_group
 
         # Flexible tag, allows spaces, upper-case,
         # and all punctuation except commas

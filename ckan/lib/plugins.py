@@ -231,6 +231,7 @@ class DefaultDatasetForm(object):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
+
     def check_data_dict(self, data_dict, schema=None):
         '''Check if the return data is correct, mostly for checking out
         if spammers are submitting only part of the form'''
@@ -257,16 +258,10 @@ class DefaultDatasetForm(object):
         c.groups_authz = authz_fn(context, data_dict)
         data_dict.update({'available_only':True})
 
-
-        c.publisher_enabled = 'publisher_form' in config['ckan.plugins']
-        if c.publisher_enabled:
-            c.groups_available = c.userobj.get_groups('publisher') if c.userobj else []
-        else:
-            c.groups_available = authz_fn(context, data_dict)
+        c.groups_available = authz_fn(context, data_dict)
 
         c.licences = [('', '')] + base.model.Package.get_license_options()
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
-
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
