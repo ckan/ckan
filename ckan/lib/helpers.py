@@ -113,6 +113,8 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # position in the url
     root_path = config.get('ckan.root_path')
     if root_path:
+        # FIXME this can be written better once the merge
+        # into the ecportal core is done - Toby
         # we have a special root specified so use that
         if default_locale:
             root = re.sub('/{{LANG}}', '', root_path)
@@ -121,7 +123,9 @@ def _add_i18n_to_url(url_to_amend, **kw):
         # make sure we don't have a trailing / on the root
         if root[-1] == '/':
             root = root[:-1]
-        url = '%s%s' % (root, url_to_amend)
+        url = url_to_amend[len(re.sub('/{{LANG}}', '', root_path)):]
+        url = '%s%s' % (root, url)
+        root = re.sub('/{{LANG}}', '', root_path)
     else:
         if default_locale:
             url = url_to_amend
