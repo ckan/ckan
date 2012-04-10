@@ -631,3 +631,14 @@ def _auto_log_message():
     elif (c.action=='edit'):
         return _('Edited settings.')
     return ''
+
+def activity_div(template, activity, actor, object=None, target=None):
+    actor = '<span class="actor">%s</span>' % actor
+    if object:
+        object = '<span class="object">%s</span>' % object
+    if target:
+        target = '<span class="target">%s</span>' % target
+    date = '<span class="date">%s</span>' % render_datetime(activity['timestamp'])
+    template = template.format(actor=actor, date=date, object=object, target=target)
+    template = '<div class="activity">%s %s</div>' % (template, date)
+    return literal(template)
