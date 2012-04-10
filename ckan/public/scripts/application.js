@@ -108,12 +108,12 @@ CKAN.Utils = CKAN.Utils || {};
 	if (window.openid && openid.signin){
 		openid._signin = openid.signin;
 		openid.signin = function (arg) {
-			$.get('/user/set_lang/' + CKAN.LANG, function (){openid._signin(arg);})
+			$.get(CKAN.SITE_URL + '/user/set_lang/' + CKAN.LANG, function (){openid._signin(arg);})
 		};
 	}
 	if ($('#login').length){
 		$('#login').submit( function () {
-			$.ajax('/user/set_lang/' + CKAN.LANG, {async:false});
+			$.ajax('CKAN.SITE_URL + /user/set_lang/' + CKAN.LANG, {async:false});
 		});
 	}
   });
