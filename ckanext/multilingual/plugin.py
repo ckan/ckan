@@ -9,6 +9,10 @@ from pylons import config
 LANGS = ['en', 'fr', 'de', 'es', 'it', 'nl', 'ro', 'pt', 'pl']
 
 def translate_data_dict(data_dict):
+    '''Return the given dict (e.g. a dataset dict) with as many of its fields
+    as possible translated into the desired or the fallback language.
+
+    '''
     desired_lang_code = pylons.request.environ['CKAN_LANG']
     fallback_lang_code = pylons.config.get('ckan.locale_default', 'en')
 
@@ -102,7 +106,7 @@ class MultilingualDataset(SingletonPlugin):
              pylons.config.get('ckan.locale_default', 'en')
         )
 
-        ## transloate title
+        ## translate title
         title = search_data.get('title')
         search_data['title_' + default_lang] = title 
         title_translations = action_get.term_translation_show(
@@ -114,7 +118,7 @@ class MultilingualDataset(SingletonPlugin):
             title_field = 'title_' + translation['lang_code']
             search_data[title_field] = translation['term_translation']
 
-        ## transloate rest
+        ## translate rest
         all_terms = []
         for key, value in search_data.iteritems():
             if key in KEYS_TO_IGNORE or key.startswith('title'):
@@ -168,6 +172,7 @@ class MultilingualDataset(SingletonPlugin):
 
     def after_search(self, search_results, search_params):
 
+        # Translate the unselected search facets.
         facets = search_results.get('new_facets')
         if not facets:
             return search_results
@@ -175,7 +180,7 @@ class MultilingualDataset(SingletonPlugin):
         desired_lang_code = pylons.request.environ['CKAN_LANG']
         fallback_lang_code = pylons.config.get('ckan.locale_default', 'en')
 
-        # Look up all the term translations in one db query.
+        # Look up translations for all of the facets in one db query.
         terms = sets.Set()
         for facet in facets.values():
             for item in facet['items']:
@@ -204,10 +209,13 @@ class MultilingualDataset(SingletonPlugin):
 
         return search_results
 
-    def before_view(self, data_dict):
+    def before_view(self, dataset_dict):
 
-        # Lookup translations of all the terms in c.fields, save them in
-        # c.translated_fields.
+        # Translate any selected search facets (e.g. if we are rendering a
+        # group read page or the dataset index page): lookup translations of
+        # all the terms in c.fields (c.fields contains the selected facets)
+        # and save them in c.translated_fields where the templates can
+        # retrieve them later.
         c = pylons.c
         desired_lang_code = pylons.request.environ['CKAN_LANG']
         fallback_lang_code = pylons.config.get('ckan.locale_default', 'en')
@@ -230,16 +238,36 @@ class MultilingualDataset(SingletonPlugin):
                 translation = matching_translations[0]['term_translation']
                 c.translated_fields[(param, value)] = translation
 
-        # Translate all the terms in data_dict.
-        return translate_data_dict(data_dict)
+        # Now translate the fields of the dataset itself.
+        return translate_data_dict(dataset_dict)
 
 class MultilingualGroup(SingletonPlugin):
+    '''The MultilingualGroup plugin translates group names and other group
+    fields on group read pages and on the group index page.
+
+    For example on the page /de/group/david the title "Dave's Books" at the
+    top of the page might be translated to "Dave's Bucher".
+
+    Datasets are also shown on group pages, but these are translated by the
+    MultilingualDataset plugin.
+
+    '''
     implements(IGroupController, inherit=True)
 
     def before_view(self, data_dict):
         return translate_data_dict(data_dict)
 
 class MultilingualTag(SingletonPlugin):
+    '''The MultilingualTag plugin translates tag names on tag read pages and
+    on the tag index page.
+
+    For example on the page /de/tag/tolstoy the title "Tag: tolstoy" at the
+    top of the page might be translated to "Tag: Tolstoi".
+
+    Datasets are also shown on tag pages, but these are translated by the
+    MultilingualDataset plugin.
+
+    '''
     implements(ITagController, inherit=True)
 
     def before_view(self, data_dict):
