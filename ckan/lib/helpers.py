@@ -107,7 +107,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = ''
     # ckan.root_path is defined when we have none standard language
     # position in the url
-    root_path = config.get('ckan.root_path')
+    root_path = config.get('ckan.root_path', None)
     if root_path:
         # FIXME this can be written better once the merge
         # into the ecportal core is done - Toby
@@ -125,8 +125,11 @@ def _add_i18n_to_url(url_to_amend, **kw):
     else:
         # we need to strip the root from the url and the add it before
         # the language specification.
-        url = url_to_amend[len(root):]
-        url = '%s/%s%s' % (root, locale,  url)
+        if default_locale:
+            url = url_to_amend
+        else:
+            url = url_to_amend[len(root):]
+            url = '%s/%s%s' % (root, locale,  url)
 
     # stop the root being added twice in redirects
     if no_root:
