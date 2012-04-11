@@ -43,6 +43,13 @@
       ${markdown_editor('description', data.get('description'), 'notes', _('Start with a summary sentence ...'))}
     </div>
   </div>
+  <div class="control-group">
+    <label for="name" class="control-label">Logo URL:</label>
+    <div class="controls">
+      <input id="logo" name="logo" type="text" value="${data.get('logo', '')}"/>
+      <p>The URL for the logo that is associated with this group.</p>
+    </div>
+  </div>
   <div class="state-field control-group" py:if="c.is_sysadmin or c.auth_for_change_state">
     <label for="" class="control-label">State</label>
     <div class="controls">
