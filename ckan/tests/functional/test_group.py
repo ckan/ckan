@@ -72,7 +72,7 @@ class TestGroup(FunctionalTestCase):
     def test_index(self):
         offset = url_for(controller='group', action='index')
         res = self.app.get(offset)
-        assert '<h1 class="page_heading">Groups' in res, res
+        assert re.search('<h1(.*)>\s*Groups', res.body)
         groupname = 'david'
         group = model.Group.by_name(unicode(groupname))
         group_title = group.title
