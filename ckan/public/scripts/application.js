@@ -113,7 +113,7 @@ CKAN.Utils = CKAN.Utils || {};
 	}
 	if ($('#login').length){
 		$('#login').submit( function () {
-			$.ajax('CKAN.SITE_URL + /user/set_lang/' + CKAN.LANG, {async:false});
+			$.ajax(CKAN.SITE_URL + '/user/set_lang/' + CKAN.LANG, {async:false});
 		});
 	}
   });
