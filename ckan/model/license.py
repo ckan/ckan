@@ -1,4 +1,5 @@
-from pylons import config 
+from pylons import config
+from pylons.i18n import lazy_ugettext
 import datetime
 import urllib2
 from ckan.lib.helpers import json
@@ -109,7 +110,7 @@ class LicenseRegister(object):
             "is_osi_compliant": False, 
             "maintainer": "", 
             "status": "active", 
-            "title": "License Not Specified", 
+            "title": lazy_ugettext("License Not Specified"), 
             "url": ""
           }, 
           {
@@ -214,7 +215,7 @@ class LicenseRegister(object):
             "is_osi_compliant": False, 
             "maintainer": "", 
             "status": "active", 
-            "title": "Other (Open)", 
+            "title": lazy_ugettext("Other (Open)"), 
             "url": ""
           }, 
           {
@@ -228,7 +229,7 @@ class LicenseRegister(object):
             "is_osi_compliant": False, 
             "maintainer": "", 
             "status": "active", 
-            "title": "Other (Public Domain)", 
+            "title": lazy_ugettext("Other (Public Domain)"), 
             "url": ""
           }, 
           {
@@ -242,7 +243,7 @@ class LicenseRegister(object):
             "is_osi_compliant": False, 
             "maintainer": "", 
             "status": "active", 
-            "title": "Other (Attribution)", 
+            "title": lazy_ugettext("Other (Attribution)"), 
             "url": ""
           }, 
           {
@@ -282,7 +283,7 @@ class LicenseRegister(object):
             "is_osi_compliant": False, 
             "maintainer": "", 
             "status": "active", 
-            "title": "Other (Non-Commercial)", 
+            "title": lazy_ugettext("Other (Non-Commercial)"), 
             "url": ""
           }, 
           {
@@ -296,7 +297,7 @@ class LicenseRegister(object):
             "is_osi_compliant": False, 
             "maintainer": "", 
             "status": "active", 
-            "title": "Other (Not Open)", 
+            "title": lazy_ugettext("Other (Not Open)"), 
             "url": ""
           }
         ]
