@@ -170,7 +170,7 @@ class FeedController(BaseController):
             abort(404,'Group not found')
 
         data_dict, params = self._parse_url_params()
-        data_dict['q'] = 'groups: %s' % id
+        data_dict['fq'] = 'groups:"%s"' % id
 
         item_count, results = _package_search(data_dict)
 
@@ -201,7 +201,7 @@ class FeedController(BaseController):
     def tag(self,id):
 
         data_dict, params = self._parse_url_params()
-        data_dict['q'] = 'tags: %s' % id
+        data_dict['fq'] = 'tags:"%s"' % id
 
         item_count, results = _package_search(data_dict)
 
@@ -259,12 +259,13 @@ class FeedController(BaseController):
     # TODO check search params
     def custom(self):
         q = request.params.get('q', u'')
+        fq = ''
         search_params = {}
         for (param, value) in request.params.items():
-            if not param in ['q', 'page', 'sort'] \
+            if param not in ['q', 'page', 'sort'] \
                     and len(value) and not param.startswith('_'):
                 search_params[param] = value
-                q += ' %s: "%s"' % (param, value)
+                fq += ' %s:"%s"' % (param, value)
 
         search_url_params = urlencode(search_params)
 
@@ -276,6 +277,7 @@ class FeedController(BaseController):
         limit = ITEMS_LIMIT
         data_dict = {
             'q': q,
+            'fq': fq,
             'start': (page-1) * limit,
             'rows': limit,
             'sort': request.params.get('sort', None),
