@@ -646,3 +646,50 @@ def activity_div(template, activity, actor, object=None, target=None):
     template = template.format(actor=actor, date=date, object=object, target=target)
     template = '<div class="activity">%s %s</div>' % (template, date)
     return literal(template)
+
+from pylons.templating import pylons_globals
+from genshi.template import MarkupTemplate
+from ckan.plugins import PluginImplementations, IGenshiStreamFilter
+
+def snippet(template_name, **kw):
+    pylons_globs = pylons_globals()
+    genshi_loader = pylons_globs['app_globals'].genshi_loader
+    template_name = 'snippets/%s.html' % template_name
+    template = genshi_loader.load(template_name, cls=MarkupTemplate)
+    globs = kw
+    globs['h'] = pylons_globs['h']
+    globs['c'] = pylons_globs['c']
+    stream = template.generate(**globs)
+    for item in PluginImplementations(IGenshiStreamFilter):
+        stream = item.filter(stream)
+    return literal(stream.render(method='xhtml', encoding=None, strip_whitespace=True))
+
+
+def convert_to_dict(object_type, objs):
+    import lib.dictization.model_dictize as md
+    import ckan.model as model
+    converters = {'package' : md.package_dictize,
+                  'revisions' : dictize_revision_list}
+    converter = converters[object_type]
+    items = []
+    context = {'model' : model}
+    for obj in objs:
+        item = converter(obj, context)
+        items.append(item)
+    return items
+
+def dictize_revision_list(revision, context):
+    def process_names(items):
+        array = []
+        for item in items:
+            array.append(item.name)
+        return array
+
+    rev = {'id' : revision.id,
+           'state' : revision.state,
+           'timestamp' : revision.timestamp,
+           'author' : revision.author,
+           'packages' : process_names(revision.packages),
+           'groups' : process_names(revision.groups),
+           'message' : revision.message,}
+    return rev
