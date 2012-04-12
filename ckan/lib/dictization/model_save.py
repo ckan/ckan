@@ -213,7 +213,7 @@ def package_membership_list_save(group_dicts, package, context):
     for group_dict in group_dicts:
         id = group_dict.get("id")
         name = group_dict.get("name")
-        capacity = group_dict.get("capacity", "member")
+        capacity = group_dict.get("capacity", "public")
         if id:
             group = session.query(model.Group).get(id)
         else:

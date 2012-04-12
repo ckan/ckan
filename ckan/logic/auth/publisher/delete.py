@@ -35,6 +35,9 @@ def related_delete(context, data_dict):
     if not user:
         return {'success': False, 'msg': _('Only the owner can delete a related item')}
 
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
+
     related = get_related_object(context, data_dict)
     userobj = model.User.get( user )
     if not userobj or userobj.id != related.owner_id:

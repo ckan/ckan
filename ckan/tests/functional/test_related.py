@@ -152,9 +152,14 @@ class TestRelatedAPI(base.BaseModelApiTestCase):
 
     @classmethod
     def setup_class(cls):
+        model.Session.remove()
         tests.CreateTestData.create()
         cls.user_name = u'russianfan' # created in CreateTestData
         cls.init_extra_environ(cls.user_name)
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
 
     def test_api_create_invalid(self):
         res = self.app.post("/api/3/action/related_create", params="{}=1",
@@ -163,14 +168,93 @@ class TestRelatedAPI(base.BaseModelApiTestCase):
         r = json.loads(res.body)
         assert r['success'] == False, r
 
-    def test_api_create_valid(self):
+
+    def _create(self, rtype="visualization", title="Test related item"):
         r = {
-            "type": "visualization",
-            "title": "Test related item"
+            "type": rtype,
+            "title": title
         }
         postparams = '%s=1' % json.dumps(r)
         res = self.app.post("/api/3/action/related_create", params=postparams,
                             status=self.STATUS_200_OK,
                             extra_environ=self.extra_environ)
         r = json.loads(res.body)
+        return r
+
+    def test_api_create_valid(self):
+        r = self._create()
         assert r['success'] == True, r
+        assert r['result']['type'] == "visualization"
+        assert r['result']['title'] == "Test related item"
+
+    def test_api_show(self):
+        existing = self._create()
+
+        r = {
+            "id": existing["result"]["id"]
+        }
+        postparams = '%s=1' % json.dumps(r)
+        res = self.app.post("/api/3/action/related_show", params=postparams,
+                            status=self.STATUS_200_OK,
+                            extra_environ=self.extra_environ)
+        r = json.loads(res.body)
+        assert r['success'] == True, r
+        assert r['result']['type'] == "visualization"
+        assert r['result']['title'] == "Test related item"
+
+
+    def test_api_list(self):
+        p = model.Package.get('warandpeace')
+        one = model.Related(type="idea", title="one")
+        two = model.Related(type="idea", title="two")
+        p.related.append(one)
+        p.related.append(two)
+        model.Session.commit()
+
+        r = {
+            "id": p.id
+        }
+        postparams = '%s=1' % json.dumps(r)
+        res = self.app.post("/api/3/action/related_list", params=postparams,
+                            status=self.STATUS_200_OK,
+                            extra_environ=self.extra_environ)
+        r = json.loads(res.body)
+        assert r['success'] == True, r
+        assert r['result'][0]['type'] == "idea"
+        assert r['result'][0]['title'] == "one"
+
+        p.related.remove(one)
+        p.related.remove(two)
+        model.Session.delete(one)
+        model.Session.delete(two)
+
+    def test_api_delete(self):
+        existing = self._create()
+
+        r = {
+            "id": existing["result"]["id"]
+        }
+        postparams = '%s=1' % json.dumps(r)
+        res = self.app.post("/api/3/action/related_delete", params=postparams,
+                            status=self.STATUS_200_OK,
+                            extra_environ=self.extra_environ)
+        r = json.loads(res.body)
+        assert r['success'] == True, r
+        assert r['result'] is None, r
+
+    def test_api_delete_fail(self):
+        existing = self._create()
+        r = {
+            "id": existing["result"]["id"]
+        }
+
+        usr = model.User.by_name("annafan")
+        extra={'Authorization' : str(usr.apikey)}
+
+        postparams = '%s=1' % json.dumps(r)
+        res = self.app.post("/api/3/action/related_delete", params=postparams,
+                            status=self.STATUS_403_ACCESS_DENIED,
+                            extra_environ=extra)
+        r = json.loads(res.body)
+        assert r['success'] == False, r
+        assert r[u'error'][u'message'] == u'Access denied' , r
