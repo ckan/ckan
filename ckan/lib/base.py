@@ -187,19 +187,21 @@ class BaseController(WSGIController):
         # This also improves the cachability of our pages as cookies
         # prevent proxy servers from caching content unless they have
         # been configured to ignore them.
-        for cookie in request.cookies:
-            if cookie.startswith('ckan') and cookie not in ['ckan']:
-                response.delete_cookie(cookie)
-            # Remove the ckan session cookie if not used e.g. logged out
-            elif cookie == 'ckan' and not c.user and not h.are_there_flash_messages():
-                if session.id:
-                    if not session.get('lang'):
-                        session.delete()
-                else:
+        # we do not want to clear cookies when setting the user lang
+        if not environ.get('PATH_INFO').startswith('/user/set_lang'):
+            for cookie in request.cookies:
+                if cookie.startswith('ckan') and cookie not in ['ckan']:
                     response.delete_cookie(cookie)
-            # Remove auth_tkt repoze.who cookie if user not logged in.
-            elif cookie == 'auth_tkt' and not session.id:
-                response.delete_cookie(cookie)
+                # Remove the ckan session cookie if not used e.g. logged out
+                elif cookie == 'ckan' and not c.user and not h.are_there_flash_messages():
+                    if session.id:
+                        if not session.get('lang'):
+                            session.delete()
+                    else:
+                        response.delete_cookie(cookie)
+                # Remove auth_tkt repoze.who cookie if user not logged in.
+                elif cookie == 'auth_tkt' and not session.id:
+                    response.delete_cookie(cookie)
 
         try:
             return WSGIController.__call__(self, environ, start_response)
