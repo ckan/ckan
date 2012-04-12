@@ -3,6 +3,7 @@ import json
 import ckan.tests as tests
 import ckan.model as model
 import ckan.logic as logic
+import ckan.tests.functional.api.base as base
 
 class TestRelated:
 
@@ -146,3 +147,30 @@ class TestRelated:
 
         result = logic.get_action('related_list')(context,data_dict)
         assert len(result) == len(p.related)
+
+class TestRelatedAPI(base.BaseModelApiTestCase):
+
+    @classmethod
+    def setup_class(cls):
+        tests.CreateTestData.create()
+        cls.user_name = u'russianfan' # created in CreateTestData
+        cls.init_extra_environ(cls.user_name)
+
+    def test_api_create_invalid(self):
+        res = self.app.post("/api/3/action/related_create", params="{}=1",
+                            status=self.STATUS_409_CONFLICT,
+                            extra_environ=self.extra_environ)
+        r = json.loads(res.body)
+        assert r['success'] == False, r
+
+    def test_api_create_valid(self):
+        r = {
+            "type": "visualization",
+            "title": "Test related item"
+        }
+        postparams = '%s=1' % json.dumps(r)
+        res = self.app.post("/api/3/action/related_create", params=postparams,
+                            status=self.STATUS_200_OK,
+                            extra_environ=self.extra_environ)
+        r = json.loads(res.body)
+        assert r['success'] == True, r
