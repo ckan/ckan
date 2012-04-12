@@ -53,7 +53,7 @@
         <div class="menu account">
           <span class="ckan-logged-in" style="display: none;">
             <a href="${h.url_for(controller='user',action='me')}">${h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=20)}${c.user}</a>
-            <a href="${h.url_for('/user/logout')}">Logout</a>
+            <a href="${h.url_for('/user/_logout')}">Logout</a>
           </span>
           <span class="ckan-logged-out">
             <a href="${h.url_for(controller='user',action='login')}">Login</a>
@@ -139,7 +139,7 @@
                 <a href="http://twitter.com/ckanproject">Twitter @ckanproject</a>
               </li>
                 <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1))}</li>
-                <li>${h.link_to(_('API Docs'), 'http://wiki.ckan.net/API')}</li>
+                <li>${h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html')}</li>
               <li>
                 <a href="http://ckan.org/contact/">Contact Us</a>
               </li>
