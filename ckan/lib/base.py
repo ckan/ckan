@@ -152,7 +152,9 @@ class BaseController(WSGIController):
         if not c.remote_addr:
             c.remote_addr = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
 
-        # what is different between session['user'] and environ['REMOTE_USER']
+        # environ['REMOTE_USER'] is set by repoze.who if it authenticates a user's
+        # cookie or OpenID. (But it doesn't check the user (still) exists in our
+        # database - we need to do that here.
         c.user = request.environ.get('REMOTE_USER', '')
         if c.user:
             c.user = c.user.decode('utf8')
@@ -164,6 +166,7 @@ class BaseController(WSGIController):
                 # and your cookie has ckan_display_name, we need to force user
                 # to logout and login again to get the User object.
                 c.user = None
+                self.log.warn('Logout to login')
         else:
             c.userobj = self._get_user_for_apikey()
             if c.userobj is not None:
