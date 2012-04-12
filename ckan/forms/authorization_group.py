@@ -8,6 +8,7 @@ import ckan.model as model
 import common
 from common import ExtrasField, UserNameField
 from ckan.lib.helpers import literal
+from pylons.i18n import _
 
 # for group_fs_combined (REST)
 class UsersField(common.ConfiguredField):
@@ -41,14 +42,16 @@ class UsersRenderer(formalchemy.fields.FieldRenderer):
 
 def build_authorization_group_form(is_admin=False, with_users=False):
     builder = FormBuilder(model.AuthorizationGroup)
-    builder.set_field_text('name', 'Name', literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
+    builder.set_field_text('name', _('Name'), 
+            literal(_("%sUnique identifier%s for group. %s2+ chars, lowercase, using only 'a-z0-9' and '-_'"
+                % ('<br/><strong>', '</strong>', '<br/>'))))
     builder.set_field_option('name', 'validate', common.group_name_validator)
     builder.set_field_option('name', 'required')
     displayed_fields = ['name']
     if with_users:
         builder.add_field(UsersField('users'))
         displayed_fields.append('users')
-    builder.set_displayed_fields(OrderedDict([('Details', displayed_fields)]))
+    builder.set_displayed_fields(OrderedDict([(_('Details'), displayed_fields)]))
     builder.set_label_prettifier(common.prettify)
     return builder  
 
@@ -73,7 +76,7 @@ def get_authorization_group_user_fieldset():
         builder = FormBuilder(model.AuthorizationGroupUser)
         builder.add_field(UserNameField('user_name'))
         builder.set_field_option('user_name', 'with_renderer', UsersRenderer)
-        builder.set_displayed_fields({'Add users':['user_name']}, focus_field=False)
+        builder.set_displayed_fields({_('Add users'):['user_name']}, focus_field=False)
         fieldsets['new_user_authz_group_fs'] = builder.get_fieldset()
     return fieldsets['new_user_authz_group_fs']
    

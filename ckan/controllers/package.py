@@ -704,17 +704,6 @@ class PackageController(BaseController):
         else:
             model.Session.commit()
 
-    def _person_email_link(self, name, email, reference):
-        if email:
-            if not name:
-                name = email
-            return h.mail_to(email_address=email, name=name, encode='javascript')
-        else:
-            if name:
-                return name
-            else:
-                return reference + " unknown"
-
     def resource_read(self, id, resource_id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
