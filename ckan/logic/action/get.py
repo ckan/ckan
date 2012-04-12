@@ -709,7 +709,8 @@ def package_search(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         data_dict = item.before_search(data_dict)
 
-    # the extension may have decided that it's no necessary to perform the query
+    # the extension may have decided that it is not necessary to perform
+    # the query
     abort = data_dict.get('abort_search',False)
 
     results = []
