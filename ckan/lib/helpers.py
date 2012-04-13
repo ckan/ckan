@@ -31,6 +31,9 @@ from pylons import request
 from pylons import session
 from pylons import c
 from pylons.i18n import _
+from pylons.templating import pylons_globals
+from genshi.template import MarkupTemplate
+from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -646,3 +649,54 @@ def activity_div(template, activity, actor, object=None, target=None):
     template = template.format(actor=actor, date=date, object=object, target=target)
     template = '<div class="activity">%s %s</div>' % (template, date)
     return literal(template)
+
+def snippet(template_name, **kw):
+    ''' This function is used to load html snippets into pages. keywords
+    can be used to pass parameters into the snippet rendering '''
+    pylons_globs = pylons_globals()
+    genshi_loader = pylons_globs['app_globals'].genshi_loader
+    template_name = 'snippets/%s.html' % template_name
+    template = genshi_loader.load(template_name, cls=MarkupTemplate)
+    globs = kw
+    globs['h'] = pylons_globs['h']
+    globs['c'] = pylons_globs['c']
+    stream = template.generate(**globs)
+    for item in PluginImplementations(IGenshiStreamFilter):
+        stream = item.filter(stream)
+    output = stream.render(method='xhtml', encoding=None, strip_whitespace=True)
+    output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
+                    template_name, output, template_name)
+    return literal(output)
+
+
+def convert_to_dict(object_type, objs):
+    ''' This is a helper function for converting lists of objects into
+    lists of dicts. It is for backwards compatability only. '''
+
+    def dictize_revision_list(revision, context):
+        # conversionof revision lists
+        def process_names(items):
+            array = []
+            for item in items:
+                array.append(item.name)
+            return array
+
+        rev = {'id' : revision.id,
+               'state' : revision.state,
+               'timestamp' : revision.timestamp,
+               'author' : revision.author,
+               'packages' : process_names(revision.packages),
+               'groups' : process_names(revision.groups),
+               'message' : revision.message,}
+        return rev
+    import lib.dictization.model_dictize as md
+    import ckan.model as model
+    converters = {'package' : md.package_dictize,
+                  'revisions' : dictize_revision_list}
+    converter = converters[object_type]
+    items = []
+    context = {'model' : model}
+    for obj in objs:
+        item = converter(obj, context)
+        items.append(item)
+    return items
