@@ -60,6 +60,9 @@ from ckan.lib.helpers import (
            auto_log_message,
            tracking_count_package,
            tracking_count_resource,
+           snippet,
+           convert_to_dict,
+           activity_div,
     # imported into ckan.lib.helpers
            literal,
            link_to,

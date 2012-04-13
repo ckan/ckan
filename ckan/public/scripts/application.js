@@ -113,7 +113,7 @@ CKAN.Utils = CKAN.Utils || {};
 	}
 	if ($('#login').length){
 		$('#login').submit( function () {
-			$.ajax('CKAN.SITE_URL + /user/set_lang/' + CKAN.LANG, {async:false});
+			$.ajax(CKAN.SITE_URL + '/user/set_lang/' + CKAN.LANG, {async:false});
 		});
 	}
   });
@@ -1275,6 +1275,13 @@ CKAN.DataPreview = function ($, my) {
           id: 'graph',
           label: 'Graph',
           view: new recline.View.FlotGraph({
+            model: dataset
+          })
+        },
+        {
+          id: 'map',
+          label: 'Map',
+          view: new recline.View.Map({
             model: dataset
           })
         }

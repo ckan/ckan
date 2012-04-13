@@ -1,0 +1,23 @@
+.data-map-container .map {
+  height: 500px;
+}
+
+/**********************************************************
+  * Editor
+  *********************************************************/
+
+.data-map-container .editor {
+  float: right;
+  width: 200px;
+  padding-left: 0px;
+  margin-left: 10px;
+}
+
+.data-map-container .editor form {
+  padding-left: 4px;
+}
+
+.data-map-container .editor select {
+	width: 100%;
+}
+
