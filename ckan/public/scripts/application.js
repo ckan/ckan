@@ -1277,6 +1277,13 @@ CKAN.DataPreview = function ($, my) {
           view: new recline.View.FlotGraph({
             model: dataset
           })
+        },
+        {
+          id: 'map',
+          label: 'Map',
+          view: new recline.View.Map({
+            model: dataset
+          })
         }
       ];
       var dataExplorer = new recline.View.DataExplorer({
