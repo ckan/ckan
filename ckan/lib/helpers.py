@@ -31,6 +31,9 @@ from pylons import request
 from pylons import session
 from pylons import c
 from pylons.i18n import _
+from pylons.templating import pylons_globals
+from genshi.template import MarkupTemplate
+from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -647,11 +650,9 @@ def activity_div(template, activity, actor, object=None, target=None):
     template = '<div class="activity">%s %s</div>' % (template, date)
     return literal(template)
 
-from pylons.templating import pylons_globals
-from genshi.template import MarkupTemplate
-from ckan.plugins import PluginImplementations, IGenshiStreamFilter
-
 def snippet(template_name, **kw):
+    ''' This function is used to load html snippets into pages. keywords
+    can be used to pass parameters into the snippet rendering '''
     pylons_globs = pylons_globals()
     genshi_loader = pylons_globs['app_globals'].genshi_loader
     template_name = 'snippets/%s.html' % template_name
@@ -666,6 +667,25 @@ def snippet(template_name, **kw):
 
 
 def convert_to_dict(object_type, objs):
+    ''' This is a helper function for converting lists of objects into
+    lists of dicts. It is for backwards compatability only. '''
+
+    def dictize_revision_list(revision, context):
+        # conversionof revision lists
+        def process_names(items):
+            array = []
+            for item in items:
+                array.append(item.name)
+            return array
+
+        rev = {'id' : revision.id,
+               'state' : revision.state,
+               'timestamp' : revision.timestamp,
+               'author' : revision.author,
+               'packages' : process_names(revision.packages),
+               'groups' : process_names(revision.groups),
+               'message' : revision.message,}
+        return rev
     import lib.dictization.model_dictize as md
     import ckan.model as model
     converters = {'package' : md.package_dictize,
@@ -677,19 +697,3 @@ def convert_to_dict(object_type, objs):
         item = converter(obj, context)
         items.append(item)
     return items
-
-def dictize_revision_list(revision, context):
-    def process_names(items):
-        array = []
-        for item in items:
-            array.append(item.name)
-        return array
-
-    rev = {'id' : revision.id,
-           'state' : revision.state,
-           'timestamp' : revision.timestamp,
-           'author' : revision.author,
-           'packages' : process_names(revision.packages),
-           'groups' : process_names(revision.groups),
-           'message' : revision.message,}
-    return rev
