@@ -148,7 +148,7 @@ class TestRelated:
         result = logic.get_action('related_list')(context,data_dict)
         assert len(result) == len(p.related)
 
-class TestRelatedAPI(base.BaseModelApiTestCase):
+class TestRelatedActionAPI(base.BaseModelApiTestCase):
 
     @classmethod
     def setup_class(cls):
