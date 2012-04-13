@@ -132,6 +132,7 @@
     <field name="linked_from" type="text" indexed="true" stored="false" multiValued="true"/>
     <field name="child_of" type="text" indexed="true" stored="false" multiValued="true"/>
     <field name="parent_of" type="text" indexed="true" stored="false" multiValued="true"/>
+    <field name="views" type="int" indexed="true" stored="false"/>
 
     <field name="metadata_created" type="date" indexed="true" stored="true" multiValued="false"/>
     <field name="metadata_modified" type="date" indexed="true" stored="true" multiValued="false"/>

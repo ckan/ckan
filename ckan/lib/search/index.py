@@ -132,6 +132,18 @@ class PackageSearchIndex(SearchIndex):
 
         pkg_dict['groups'] = [group['name'] for group in groups]
 
+        # views
+        import ckan.model as model
+        sql = '''SELECT running_total
+                 FROM tracking_summary
+                 WHERE package_id='%s'
+                 ORDER BY date DESC LIMIT 1''' % pkg_dict['id']
+        result = model.Session.execute(sql).fetchall()
+        if result:
+            pkg_dict['views'] = result[0]['running_total']
+        else:
+            pkg_dict['views'] = 0
+
         # flatten the structure for indexing:
         for resource in pkg_dict.get('resources', []):
             for (okey, nkey) in [('description', 'res_description'),

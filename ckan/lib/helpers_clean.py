@@ -58,6 +58,8 @@ from ckan.lib.helpers import (
            group_link,
            dump_json,
            auto_log_message,
+           tracking_count_package,
+           tracking_count_resource,
     # imported into ckan.lib.helpers
            literal,
            link_to,
