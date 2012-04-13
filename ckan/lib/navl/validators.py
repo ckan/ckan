@@ -1,6 +1,5 @@
 from dictization_functions import missing, StopOnError, Invalid
-from formencode import validators
-import formencode
+from pylons.i18n import _
 
 def identity_converter(key, data, errors, context):
     return
@@ -15,14 +14,14 @@ def not_missing(key, data, errors, context):
 
     value = data.get(key)
     if value is missing:
-        errors[key].append(formencode.api._stdtrans('Missing value'))
+        errors[key].append(_('Missing value'))
         raise StopOnError
 
 def not_empty(key, data, errors, context):
 
     value = data.get(key)
     if not value or value is missing:
-        errors[key].append(formencode.api._stdtrans('Missing value'))
+        errors[key].append(_('Missing value'))
         raise StopOnError
 
 def if_empty_same_as(other_key):
@@ -42,7 +41,7 @@ def both_not_empty(other_key):
         other_value = data.get(key[:-1] + (other_key,))
         if (not value or value is missing and
             not other_value or other_value is missing):
-            errors[key].append(formencode.api._stdtrans('Missing value'))
+            errors[key].append(_('Missing value'))
             raise StopOnError
 
     return callable
@@ -52,7 +51,7 @@ def empty(key, data, errors, context):
     value = data.pop(key, None)
     
     if value and value is not missing:
-        errors[key].append(formencode.api._stdtrans(
+        errors[key].append(_(
             'The input field %(name)s was not expected.') % {"name": key[-1]})
 
 def ignore(key, data, errors, context):
@@ -91,5 +90,5 @@ def convert_int(value, context):
     try:
         return int(value)
     except ValueError:
-        raise Invalid(formencode.api._stdtrans('Please enter an integer value'))
+        raise Invalid(_('Please enter an integer value'))
 
