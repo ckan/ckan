@@ -60,6 +60,7 @@ from ckan.lib.helpers import (
            auto_log_message,
            snippet,
            convert_to_dict,
+           activity_div,
     # imported into ckan.lib.helpers
            literal,
            link_to,
