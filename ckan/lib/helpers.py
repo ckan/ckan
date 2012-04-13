@@ -663,7 +663,10 @@ def snippet(template_name, **kw):
     stream = template.generate(**globs)
     for item in PluginImplementations(IGenshiStreamFilter):
         stream = item.filter(stream)
-    return literal(stream.render(method='xhtml', encoding=None, strip_whitespace=True))
+    output = stream.render(method='xhtml', encoding=None, strip_whitespace=True)
+    output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
+                    template_name, output, template_name)
+    return literal(output)
 
 
 def convert_to_dict(object_type, objs):
