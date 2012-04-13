@@ -81,7 +81,7 @@ CKAN.Templates.resourceDetails = ' \
       <label for="" class="control-label" property="rdfs:label">'+CKAN.Strings.resourceType+'</label> \
       <div class="controls"> \
         {{if resource.resource_type=="file.upload"}} \
-          Data File (Uploaded) \
+          '+CKAN.Strings.dataFileUploaded+' \
           <input name="resources__${num}__resource_type" type="hidden" value="${resource.resource_type}" /> \
         {{/if}} \
         {{if resource.resource_type!="file.upload"}} \
