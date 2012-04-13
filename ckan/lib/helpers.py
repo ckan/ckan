@@ -655,7 +655,6 @@ def snippet(template_name, **kw):
     can be used to pass parameters into the snippet rendering '''
     pylons_globs = pylons_globals()
     genshi_loader = pylons_globs['app_globals'].genshi_loader
-    template_name = 'snippets/%s.html' % template_name
     template = genshi_loader.load(template_name, cls=MarkupTemplate)
     globs = kw
     globs['h'] = pylons_globs['h']
