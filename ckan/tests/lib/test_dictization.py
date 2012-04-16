@@ -42,19 +42,19 @@ class TestBasicDictize:
             'groups': [{'description': u'These are books that David likes.',
                         'name': u'david',
                         'capacity': 'public',
+                        'image_url': u'',
                         'type': u'group',
                         'state': u'active',
                         'title': u"Dave's books",
-                        "approval_status": u"approved",
-                        'capacity': u'public'},
+                        "approval_status": u"approved"},
                        {'description': u'Roger likes these books.',
                         'name': u'roger',
                         'capacity': 'public',
+                        'image_url': u'',
                         'type': u'group',
                         'state': u'active',
                         'title': u"Roger's books",
-                        "approval_status": u"approved",
-                        'capacity': u'public'}],
+                        "approval_status": u"approved"}],
             'isopen': True,
             'license_id': u'other-open',
             'license_title': u'Other (Open)',
@@ -212,7 +212,7 @@ class TestBasicDictize:
     def test_02_package_dictize(self):
 
         context = {"model": model,
-                 "session": model.Session}
+                   "session": model.Session}
 
         model.Session.remove()
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
@@ -864,13 +864,14 @@ class TestBasicDictize:
 
         group_dictized = group_dictize(group, context)
 
-        expected =  {'description': u'',
+        expected = {'description': u'',
                     'extras': [{'key': u'genre', 'state': u'active', 'value': u'"horror"'},
                                {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
                     'tags': [{'capacity': 'public', 'name': u'russian'}],
                     'groups': [{'description': u'',
                                'capacity' : 'public',
                                'display_name': u'simple',
+                               'image_url': u'',
                                'name': u'simple',
                                'packages': 0,
                                'state': u'active',
@@ -889,6 +890,7 @@ class TestBasicDictize:
                               'reset_key': None}],
                     'name': u'help',
                     'display_name': u'help',
+                    'image_url': u'',
                     'packages': [{'author': None,
                                   'author_email': None,
                                   'license_id': u'other-open',
