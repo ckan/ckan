@@ -36,7 +36,7 @@
       </fieldset>
       <input name="s" id="s" type="submit" class="btn primary" value="${_('Sign In')}"/>
       &mdash; 
-      <a href="${h.url_for('reset')}">Forgot your password?</a>
+      <a href="${h.url_for(controller='user', action='request_reset')}">Forgot your password?</a>
     </form>
     <br/> 
     <!-- Simple OpenID Selector -->

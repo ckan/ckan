@@ -26,6 +26,10 @@ CKAN.Templates.resourceEntry = ' \
     </a>\
   </li>';
 
+var youCanUseMarkdownString = CKAN.Strings.youCanUseMarkdown.replace('%a', '<a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">').replace('%b', '</a>');
+var shouldADataStoreBeEnabledString = CKAN.Strings.shouldADataStoreBeEnabled.replace('%a', '<a href="http://docs.ckan.org/en/latest/datastore.html" target="_blank">').replace('%b', '</a>');
+var datesAreInISOString = CKAN.Strings.datesAreInISO.replace('%a', '<a href="http://en.wikipedia.org/wiki/ISO_8601#Calendar_dates" target="_blank">').replace('%b', '</a>').replace('%c', '<strong>').replace('%d', '</strong>');
+
 // TODO it would be nice to unify this with the markdown editor specified in helpers.py
 CKAN.Templates.resourceDetails = ' \
   <div style="display: none;" class="resource-details"> \
@@ -50,7 +54,7 @@ CKAN.Templates.resourceDetails = ' \
             <textarea class="js-resource-edit-description markdown-input" name="resources__${num}__description">${resource.description}</textarea> \
           </div> \
           <div class="markdown-preview" style="display: none;"></div> \
-          <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span> \
+          <span class="hints">'+youCanUseMarkdownString+'</span> \
         </div> \
       </div> \
     </div> \
@@ -77,7 +81,7 @@ CKAN.Templates.resourceDetails = ' \
       <label for="" class="control-label" property="rdfs:label">'+CKAN.Strings.resourceType+'</label> \
       <div class="controls"> \
         {{if resource.resource_type=="file.upload"}} \
-          Data File (Uploaded) \
+          '+CKAN.Strings.dataFileUploaded+' \
           <input name="resources__${num}__resource_type" type="hidden" value="${resource.resource_type}" /> \
         {{/if}} \
         {{if resource.resource_type!="file.upload"}} \
@@ -95,7 +99,7 @@ CKAN.Templates.resourceDetails = ' \
         <label class="checkbox"> \
           <input type="checkbox" class="js-datastore-enabled-checkbox" /> \
           <input type="hidden" name="resources__${num}__webstore_url" value="${resource.webstore_url}" class="js-datastore-enabled-text" /> \
-          <span class="hint">Should a <a href="http://docs.ckan.org/en/latest/datastore.html" target="_blank">DataStore table and Data API</a> be enabled for this resource?</span> \
+          <span class="hint">'+shouldADataStoreBeEnabledString+'</span> \
         </label> \
       </div> \
     </div> \
@@ -103,7 +107,7 @@ CKAN.Templates.resourceDetails = ' \
       <label for="" class="control-label" property="rdfs:label">'+CKAN.Strings.lastModified+'</label> \
       <div class="controls"> \
         <input class="input-small" name="resources__${num}__last_modified" type="text" value="${resource.last_modified}" /> \
-        <div class="hint">Dates are in <a href="http://en.wikipedia.org/wiki/ISO_8601#Calendar_dates" target="_blank">ISO Format</a> &mdash; eg. <strong>2012-12-25</strong> or <strong>2010-05-31T14:30</strong>.</div> \
+        <div class="hint">'+datesAreInISOString+'</div> \
       </div> \
     </div> \
     <div class="control-group"> \
