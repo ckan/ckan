@@ -38,6 +38,7 @@ Customizing and Extending
    filestore
    datastore
    background-tasks
+   geospatial
 
 Publishing Datasets
 ===================
@@ -45,9 +46,11 @@ Publishing Datasets
 .. toctree::
    :maxdepth: 2
 
+   publishing-datasets
    loading-data
    authorization
    publisher-profile
+   geospatial
 
 The CKAN API
 ============

@@ -262,7 +262,7 @@ class PackageController(BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            c.pkg_json = json.dumps(c.pkg_dict)
+            c.resources_json = json.dumps(c.pkg_dict.get('resources',[]))
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
@@ -404,7 +404,7 @@ class PackageController(BaseController):
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=[CACHE_PARAMETER]))))
-        c.pkg_json = json.dumps(data)
+        c.resources_json = json.dumps(data.get('resources',[]))
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -443,7 +443,7 @@ class PackageController(BaseController):
             abort(404, _('Dataset not found'))
 
         c.pkg = context.get("package")
-        c.pkg_json = json.dumps(data)
+        c.resources_json = json.dumps(data.get('resources',[]))
 
         try:
             check_access('package_update',context)
@@ -697,17 +697,6 @@ class PackageController(BaseController):
             raise
         else:
             model.Session.commit()
-
-    def _person_email_link(self, name, email, reference):
-        if email:
-            if not name:
-                name = email
-            return h.mail_to(email_address=email, name=name, encode='javascript')
-        else:
-            if name:
-                return name
-            else:
-                return reference + " unknown"
 
     def resource_read(self, id, resource_id):
         context = {'model': model, 'session': model.Session,

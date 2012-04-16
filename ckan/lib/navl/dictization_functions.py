@@ -1,24 +1,25 @@
 import copy
 import formencode as fe
 import inspect
+from pylons.i18n import _
 
 class Missing(object):
     def __unicode__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __str__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __int__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __complex__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __long__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __float__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __oct__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __hex__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __nonzero__(self):
         return False
 

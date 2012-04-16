@@ -5,11 +5,10 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
   >
-  <xi:include href="../_util_activity_div.html" />
-${activity_div(
+${h.activity_div(
+  template=_("{actor} created the group {object}"),
+  activity=activity,
   actor=h.linked_user(activity.user_id),
-  verb='created',
-  object="the group "+h.group_link(activity.data.group),
-  activity=activity
+  object=h.group_link(activity.data.group),
   )}
 </html>
