@@ -44,10 +44,10 @@
     </div>
   </div>
   <div class="control-group">
-    <label for="name" class="control-label">Logo URL:</label>
+    <label for="name" class="control-label">Image URL:</label>
     <div class="controls">
-      <input id="logo" name="logo" type="text" value="${data.get('logo', '')}"/>
-      <p>The URL for the logo that is associated with this group.</p>
+      <input id="image_url" name="image_url" type="text" value="${data.get('image_url', '')}"/>
+      <p>The URL for the image that is associated with this group.</p>
     </div>
   </div>
   <div class="state-field control-group" py:if="c.is_sysadmin or c.auth_for_change_state">

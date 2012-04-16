@@ -259,19 +259,19 @@ Ho ho ho
         assert plugin.calls['edit'] == 1, plugin.calls
         plugins.unload(plugin)
 
-    def test_edit_logo(self):
+    def test_edit_image_url(self):
         group = model.Group.by_name(self.groupname)
         offset = url_for(controller='group', action='edit', id=self.groupname)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
 
         form = res.forms['group-edit']
-        logo_url = u'http://url.to/logo'
-        form['logo'] = logo_url
+        image_url = u'http://url.to/image_url'
+        form['image_url'] = image_url
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
 
         model.Session.remove()
         group = model.Group.by_name(self.groupname)
-        assert group.logo == logo_url, group
+        assert group.image_url == image_url, group
 
     def test_edit_non_existent(self):
         name = u'group_does_not_exist'

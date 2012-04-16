@@ -149,7 +149,7 @@ class TestBasicDictize:
                                  'id': group.id,
                                  'name': u'david',
                                  'type': u'group',
-                                 'logo': u'',
+                                 'image_url': u'',
                                  'packages': sorted([{'id': group_pack[0].id,
                                                     'name': group_pack[0].name,
                                                     'title': group_pack[0].title},
