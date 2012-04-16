@@ -6,6 +6,9 @@
   <xi:include href="../facets.html" />
   <py:def function="page_title">${c.group.display_name}</py:def>
   <py:def function="page_heading">${c.group.display_name}</py:def>
+  <py:if test="c.group.image_url">
+    <py:def function="page_logo">${c.group.image_url}</py:def>
+  </py:if>
 
   <py:match path="primarysidebar">
   
