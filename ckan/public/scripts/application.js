@@ -113,7 +113,7 @@ CKAN.Utils = CKAN.Utils || {};
 	}
 	if ($('#login').length){
 		$('#login').submit( function () {
-			$.ajax('CKAN.SITE_URL + /user/set_lang/' + CKAN.LANG, {async:false});
+			$.ajax(CKAN.SITE_URL + '/user/set_lang/' + CKAN.LANG, {async:false});
 		});
 	}
   });
@@ -434,14 +434,14 @@ CKAN.View.Resource = Backbone.View.extend({
         num: this.options.position,
         resource_icon: '/images/icons/page_white.png',
         resourceTypeOptions: [
-          ['file', 'Data File'],
-          ['api', 'API'],
-          ['visualization', 'Visualization'],
-          ['image', 'Image'],
-          ['metadata', 'Metadata'],
-          ['documentation', 'Documentation'],
-          ['code', 'Code'],
-          ['example', 'Example']
+          ['file', CKAN.Strings.dataFile],
+          ['api', CKAN.Strings.api],
+          ['visualization', CKAN.Strings.visualization],
+          ['image', CKAN.Strings.image],
+          ['metadata', CKAN.Strings.metadata],
+          ['documentation', CKAN.Strings.documentation],
+          ['code', CKAN.Strings.code],
+          ['example', CKAN.Strings.example]
         ]
     };
     // Generate DOM elements
@@ -1275,6 +1275,13 @@ CKAN.DataPreview = function ($, my) {
           id: 'graph',
           label: 'Graph',
           view: new recline.View.FlotGraph({
+            model: dataset
+          })
+        },
+        {
+          id: 'map',
+          label: 'Map',
+          view: new recline.View.Map({
             model: dataset
           })
         }

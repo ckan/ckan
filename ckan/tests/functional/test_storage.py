@@ -63,7 +63,7 @@ class TestStorageAPIControllerLocal:
     def test_auth_form(self):
         url = url_for('storage_api_auth_form', label='abc')
         res = self.app.get(url, extra_environ=self.extra_environ, status=200)
-        assert res.json['action'] == u'http://localhost/storage/upload_handle', res.json
+        assert res.json['action'] == u'/storage/upload_handle', res.json
         assert res.json['fields'][-1]['value'] == 'abc', res
 
         url = url_for('storage_api_auth_form', label='abc/xxx')

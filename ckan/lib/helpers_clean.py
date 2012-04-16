@@ -58,6 +58,9 @@ from ckan.lib.helpers import (
            group_link,
            dump_json,
            auto_log_message,
+           snippet,
+           convert_to_dict,
+           activity_div,
     # imported into ckan.lib.helpers
            literal,
            link_to,

@@ -334,7 +334,7 @@ class TestAdminTrashController(WsgiAppCase):
         url = url_for('ckanadmin', action='trash')
         res = self.app.get(url, extra_environ=as_testsysadmin)
         form = res.forms['undelete-'+rev.id]
-        res = form.submit('submit', status=[302], extra_environ=as_testsysadmin)
+        res = form.submit('action', status=[302], extra_environ=as_testsysadmin)
         res = res.follow(extra_environ=as_testsysadmin)
 
         assert 'Revision updated' in res
