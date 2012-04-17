@@ -196,6 +196,11 @@ tbody tr:nth-child(odd) td, tbody tr.odd td {
   font-size: 2.2em;
   font-weight: normal;
 }
+#page-logo {
+  max-width: 36px;
+  max-height: 36px;
+  margin-right: 5px;
+}
 .hover-for-help {
   position: relative;
 }

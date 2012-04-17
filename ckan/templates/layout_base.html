@@ -90,7 +90,10 @@
     </py:with>
 
     <div id="main" class="container" role="main">
-      <h1 py:if="defined('page_heading')" class="page_heading">${page_heading()}</h1>
+      <h1 py:if="defined('page_heading')" class="page_heading">
+        <img py:if="defined('page_logo')" id="page-logo" src="${page_logo()}" alt="Page Logo" />
+        ${page_heading()}
+      </h1>
       <div class="row">
         <div class="span12">
           <div id="minornavigation">
