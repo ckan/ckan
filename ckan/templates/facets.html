@@ -5,18 +5,44 @@
   py:strip=""
   >
 
-<py:def function="facet_div(name, title, limit=5)">
-    <div py:if="c.new_facets[name]['items'][:limit]" class="facet-box">
+<!--
+Construct a facet <div> populated with links to filtered results.
+
+name
+  The field name identifying the facet field, eg. "tags"
+
+title
+  The title of the facet, eg. "Tags", or "Tag Cloud"
+
+label_function
+  Renders the human-readable label for each facet value.
+  If defined, this should be a callable that accepts a `facet_item`.
+  eg. lambda facet_item: facet_item.display_name.upper()
+  By default it displays the facet item's display name, which should
+  usually be good enough
+
+if_empty
+  A string, which if defined, and the list of possible facet items is empty,
+  is displayed in lieu of an empty list.
+
+count_label
+  A callable which accepts an integer, and returns a string.  This controls
+  how a facet-item's count is displayed.
+  
+-->
+<py:def function="facet_div(name, title, limit=5, label_function=lambda item: item.display_name, if_empty=None, count_label=lambda c: ' (%d)'%c)">
+    <div py:if="if_empty is not None or c.new_facets[name]['items'][:limit]" class="facet-box">
         <h2>${h.facet_title(title)}</h2>
         <ul class="facet-options">
             <li py:for="facet_item in c.new_facets[name]['items'][:limit]"
                 py:if="not (name, facet_item.name) in c.fields">
                 <a href="${c.drill_down_url(**{name: facet_item.name})}">
-                    ${facet_item.display_name}
+                    ${label_function(facet_item)}
                 </a>
-                (${facet_item['count']})
+                ${count_label(facet_item['count'])}
             </li>
         </ul>
+        <p py:if="not c.new_facets[name]['items'][:limit]">${if_empty}</p>
     </div>
 </py:def>
 
