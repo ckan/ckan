@@ -334,6 +334,18 @@ def _subnav_named_route(text, routename, **kwargs):
 def default_group_type():
     return str( config.get('ckan.default.group_type', 'group') )
 
+def new_facet_items(name, limit=10):
+    if not c.new_facets or \
+       not c.new_facets.get(name) or \
+       not c.new_facets.get(name).get('items'):
+        return []
+    facets = []
+    for facet_item in c.new_facets.get(name)['items']:
+        if not len(facet_item['name'].strip()):
+            continue
+        if not (name, facet_item['name']) in request.params.items():
+            facets.append(facet_item)
+    return sorted(facets, key=lambda item: item['count'], reverse=True)[:limit]
 
 def facet_items(*args, **kwargs):
     # facet_items() used to need c passing as the first arg

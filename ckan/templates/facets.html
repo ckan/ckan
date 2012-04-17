@@ -31,10 +31,10 @@ count_label
   
 -->
 <py:def function="facet_div(name, title, limit=5, label_function=lambda item: item.display_name, if_empty=None, count_label=lambda c: ' (%d)'%c)">
-    <div py:if="if_empty is not None or c.new_facets[name]['items'][:limit]" class="facet-box">
+    <div py:if="if_empty is not None or h.new_facet_items(name, limit)" class="facet-box">
         <h2>${h.facet_title(title)}</h2>
         <ul class="facet-options">
-            <li py:for="facet_item in c.new_facets[name]['items'][:limit]"
+            <li py:for="facet_item in h.new_facet_items(name, limit)"
                 py:if="not (name, facet_item.name) in c.fields">
                 <a href="${c.drill_down_url(**{name: facet_item.name})}">
                     ${label_function(facet_item)}
@@ -42,7 +42,7 @@ count_label
                 ${count_label(facet_item['count'])}
             </li>
         </ul>
-        <p py:if="not c.new_facets[name]['items'][:limit]">${if_empty}</p>
+        <p py:if="not h.new_facet_items(name, limit)">${if_empty}</p>
     </div>
 </py:def>
 
@@ -86,17 +86,17 @@ count_label
       log = logging.getLogger('ckan.templates.facets')
       log.warning("Deprecated function: ckan/templates/facets.html:facet_sidebar()")
     ?>
-    <div py:if="if_empty is not None or c.new_facets[code]['items'][:limit]" class="facet-box">
+    <div py:if="if_empty is not None or h.new_facet_items(code, limit)" class="facet-box">
         <h2>${title(code)}</h2>
         <ul class="facet-options">
-            <li py:for="facet_item in c.new_facets[code]['items'][:limit]"
+            <li py:for="facet_item in h.new_facet_items(code, limit)"
                 py:if="not (code, facet_item.name) in c.fields">
                   <a href="${c.drill_down_url(**{code: facet_item.name})}">
                   <span py:if="'format' in code.lower()">${h.icon(h.format_icon(facet_item.name))}</span>
                     ${label(facet_item.name)}</a>${count_label(facet_item['count'])}
             </li>
         </ul>
-        <p py:if="not c.new_facets[code]['items'][:limit]">${if_empty}</p>
+        <p py:if="not h.new_facet_items(code, limit)">${if_empty}</p>
     </div>
 </py:def>
 
@@ -121,8 +121,8 @@ if_empty
 -->
 <py:def function="facet_list_items(code, limit=5, label=lambda n: n, if_empty=None)">
         
-        <li py:if="if_empty and not c.new_facets[code]['items']">${if_empty}</li>
-        <li py:for="facet_item in c.new_facets[code]['items'][:limit]"
+        <li py:if="if_empty and not h.new_facet_items(code, limit)">${if_empty}</li>
+        <li py:for="facet_item in h.new_facet_items(code, limit)"
             py:if="not (code, facet_item.name) in c.fields">
             <a href="${c.drill_down_url(**{code: facet_item.name})}">${label(facet_item.name)}</a> (facet_item['count'])
         </li>
