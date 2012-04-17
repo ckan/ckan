@@ -7,6 +7,7 @@ available to Controllers. This module is available to templates as 'h'.
 """
 import email.utils
 import datetime
+import logging
 import re
 import urllib
 
@@ -47,6 +48,8 @@ try:
     import json
 except ImportError:
     import simplejson as json
+
+_log = logging.getLogger(__name__)
 
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
@@ -334,8 +337,24 @@ def _subnav_named_route(text, routename, **kwargs):
 def default_group_type():
     return str( config.get('ckan.default.group_type', 'group') )
 
+def new_facet_items(name, limit=10):
+    if not c.new_facets or \
+       not c.new_facets.get(name) or \
+       not c.new_facets.get(name).get('items'):
+        return []
+    facets = []
+    for facet_item in c.new_facets.get(name)['items']:
+        if not len(facet_item['name'].strip()):
+            continue
+        if not (name, facet_item['name']) in request.params.items():
+            facets.append(facet_item)
+    return sorted(facets, key=lambda item: item['count'], reverse=True)[:limit]
 
 def facet_items(*args, **kwargs):
+    """
+    DEPRECATED: Use the new facet data structure, and `new_facet_items()`
+    """
+    _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
     # facet_items() used to need c passing as the first arg
     # this is depriciated as pointless
     # throws error if ckan.restrict_template_vars is True
