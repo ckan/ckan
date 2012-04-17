@@ -100,17 +100,27 @@ count_label
     </div>
 </py:def>
 
+<!--
+Construct a possibly empty list of <li> elements containing links to further
+search results
+
+This is different from `facet_sidebar` and `facet_div` (above) in that it
+requires the caller to wrap up the resulting <li> elements in whatever dom
+element they need.  But it *does* allow for filters to displayed in a
+hierarchy.
+
+label
+  Renders the human-readable label for each facet value.
+  If defined, this should be a callable that accepts a facet_item's name as a
+  string.
+
+if_empty
+  If if_empty is not None and there are no facets to filter on, then a single
+  <li> element is generated, with the text specified by if_empty
+
+-->
 <py:def function="facet_list_items(code, limit=5, label=lambda n: n, if_empty=None)">
-        <!-- Creates a possibly empty list of <li> elements containing links to
-        further search results
-
-        This is different from facet_sidebar() (above) in that it requires the
-        caller to wrap up the resulting <li> elements in whatever dom element
-        they need.  But it does allow for filters to displayed in a hierarchy.
-
-        If if_empty is not None and there are no facets to filter on, then a
-        single <li> element is generated, with the text specified by if_empty
-        -->
+        
         <li py:if="if_empty and not c.new_facets[code]['items']">${if_empty}</li>
         <li py:for="facet_item in c.new_facets[code]['items'][:limit]"
             py:if="not (code, facet_item.name) in c.fields">
