@@ -659,6 +659,7 @@ def snippet(template_name, **kw):
     globs = kw
     globs['h'] = pylons_globs['h']
     globs['c'] = pylons_globs['c']
+    globs['config'] = pylons_globs['config']
     stream = template.generate(**globs)
     for item in PluginImplementations(IGenshiStreamFilter):
         stream = item.filter(stream)

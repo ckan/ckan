@@ -15,6 +15,7 @@ __all__ = [
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
     'IGroupForm',
     'ITagController',
+    'ITemplateHelpers',
 ]
 
 from inspect import isclass
@@ -399,6 +400,16 @@ class IAuthFunctions(Interface):
         """
         Returns a dict of all the authorization functions which the
         implementation overrides
+        """
+
+class ITemplateHelpers(Interface):
+    """
+    Allow adding extra template functions available via h variable
+    """
+    def get_helpers(self):
+        """
+        Should return a dict, the keys being the name of the helper
+        function and the values being the functions themselves.
         """
 
 class IDatasetForm(Interface):
