@@ -50,7 +50,6 @@
     </div>
   </div>
 
-
     <dt class="parent-label" py:if="c.is_superuser_or_groupadmin">
 		<label class="field_opt" for="parent">Parent Organization</label>
 	</dt>
@@ -109,14 +108,27 @@
   </dl>
 </fieldset>
 
+<?python
+    import ckan.model as model
+    users = []
+    users.extend( { "name": user.name,
+                        "capacity": "admin" }
+                        for user in c.group.members_of_type( model.User, "admin"  ).all() )
+    users.extend( { "name": user.name,
+                        "capacity": "editor" }
+                        for user in c.group.members_of_type( model.User, 'editor' ).all() )
+?>
 <fieldset id="users">
   <h3>Users <span py:if="c.users">(${len(c.users.all())})</span></h3>
 <a py:if="c.group" href="${h.url_for(controller='ckanext.organizations.controllers:OrganizationController', action='users', id=c.group.name)}">Manage users</a>
 
-  <dl py:if="c.users">
-    <py:for each="user in c.users">
+  <dl py:if="users">
+    <py:for each="num, user in enumerate(users)">
 		<dd>
 			<label>${user['name']}</label>
+			<input type="hidden" name="users__${num}__name" value="${user['name']}"/>
+			<input type="hidden" name="users__${num}__capacity" value="${user['capacity']}"/>
+
 		</dd>
     </py:for>
   </dl>
