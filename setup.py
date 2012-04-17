@@ -70,6 +70,7 @@ setup(
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
     celeryd = ckan.lib.cli:Celery
+    rdf-export = ckan.lib.cli:RDFExport
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
