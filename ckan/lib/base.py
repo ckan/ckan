@@ -193,12 +193,20 @@ class BaseController(WSGIController):
                 if cookie.startswith('ckan') and cookie not in ['ckan']:
                     response.delete_cookie(cookie)
                 # Remove the ckan session cookie if not used e.g. logged out
-                elif cookie == 'ckan' and not c.user and not h.are_there_flash_messages():
-                    if session.id:
-                        if not session.get('lang'):
-                            session.delete()
-                    else:
-                        response.delete_cookie(cookie)
+                elif cookie == 'ckan' and not c.user:
+                    # Check session for valid data (including flash messages)
+                    # (DGU also uses session for a shopping basket-type behaviour)
+                    is_valid_cookie_data = False
+                    for key, value in session.items():
+                        if not key.startswith('_') and value:
+                            is_valid_cookie_data = True
+                            break
+                    if not is_valid_cookie_data:
+                        if session.id:
+                            if not session.get('lang'):
+                                session.delete()
+                        else:
+                            response.delete_cookie(cookie)
                 # Remove auth_tkt repoze.who cookie if user not logged in.
                 elif cookie == 'auth_tkt' and not session.id:
                     response.delete_cookie(cookie)
