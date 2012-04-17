@@ -48,6 +48,7 @@ count_label
 
 <!--
 DEPRECATED.  Provided only for backward compatibility with existing plugins.
+             Use `facet_div` instead.
 
 Similar to the above, `facet_div` function; this helper creates a <div>
 populated with links to filtered search results.
@@ -83,8 +84,7 @@ count_label
 <py:def function="facet_sidebar(code, limit=5, label=lambda n: n, title=h.facet_title, if_empty=None, count_label=lambda c: ' (%d)'%c)">
     <?python
       import logging
-      log = logging.getLogger('ckan.templates.facets')
-      log.warning("Deprecated function: ckan/templates/facets.html:facet_sidebar()")
+      logging.getLogger('ckan.templates.facets').warning("Deprecated function: ckan/templates/facets.html:facet_sidebar()")
     ?>
     <div py:if="if_empty is not None or h.new_facet_items(code, limit)" class="facet-box">
         <h2>${title(code)}</h2>
