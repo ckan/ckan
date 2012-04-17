@@ -27,15 +27,21 @@ missing = Missing()
 class State(object):
     pass
 
-class Invalid(Exception):
+class DictizationError(Exception):
+    def __str__(self):
+        if hasattr(self, 'error') and self.error:
+            return repr(self.error)
+        return ''
+
+class Invalid(DictizationError):
     def __init__(self, error, key=None):
         self.error = error
 
-class DataError(Exception):
+class DataError(DictizationError):
     def __init__(self, error):
         self.error = error
 
-class StopOnError(Exception):
+class StopOnError(DictizationError):
     '''error to stop validations for a particualar key'''
     pass
 
