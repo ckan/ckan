@@ -104,6 +104,20 @@ def load_environment(global_conf, app_conf):
     else:
         config['pylons.h'] = h
 
+    # extend helper functions with ones supplied by plugins
+    from ckan.plugins import PluginImplementations
+    from ckan.plugins.interfaces import ITemplateHelpers
+
+    extra_helpers = []
+    for plugin in PluginImplementations(ITemplateHelpers):
+        helpers = plugin.get_helpers()
+        for helper in helpers:
+            if helper in extra_helpers:
+                raise Exception('overwritting extra helper %s' % helper)
+            extra_helpers.append(helper)
+            setattr(config['pylons.h'], helper, helpers[helper])
+
+
     ## redo template setup to use genshi.search_path (so remove std template setup)
     template_paths = [paths['templates'][0]]
     extra_template_paths = config.get('extra_template_paths', '')
