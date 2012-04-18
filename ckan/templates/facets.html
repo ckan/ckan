@@ -67,8 +67,7 @@ count_label
 
     <li py:if="if_empty and not h.new_facet_items(name, limit)">${if_empty}</li>
 
-    <li py:for="facet_item in h.new_facet_items(name, limit)"
-        py:if="not (name, facet_item.name) in c.fields">
+    <li py:for="facet_item in h.new_facet_items(name, limit)">
         <a href="${c.drill_down_url(**{name: facet_item.name})}">
             ${label_function(facet_item)}
         </a>
