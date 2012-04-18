@@ -347,7 +347,7 @@ def unselected_facet_items(facet, limit=10):
     match each facet item).
 
     Reads the complete list of facet items for the given facet from
-    c.new_facets, and filters out the facet items that the user has already
+    c.search_facets, and filters out the facet items that the user has already
     selected.
 
     Arguments:
@@ -355,12 +355,12 @@ def unselected_facet_items(facet, limit=10):
     limit -- the max. number of facet items to return.
 
     '''
-    if not c.new_facets or \
-       not c.new_facets.get(facet) or \
-       not c.new_facets.get(facet).get('items'):
+    if not c.search_facets or \
+       not c.search_facets.get(facet) or \
+       not c.search_facets.get(facet).get('items'):
         return []
     facets = []
-    for facet_item in c.new_facets.get(facet)['items']:
+    for facet_item in c.search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
         if not (facet, facet_item['name']) in request.params.items():
@@ -369,7 +369,7 @@ def unselected_facet_items(facet, limit=10):
 
 def facet_items(*args, **kwargs):
     """
-    DEPRECATED: Use the new facet data structure, and `new_facet_items()`
+    DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
     """
     _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
     # facet_items() used to need c passing as the first arg
