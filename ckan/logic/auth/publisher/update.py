@@ -38,6 +38,9 @@ def resource_update(context, data_dict):
     resource = get_resource_object(context, data_dict)
     userobj = model.User.get( user )
 
+    if Authorizer().is_sysadmin(unicode(user)):
+        return { 'success': True }
+
     if not userobj:
         return {'success': False, 'msg': _('User %s not authorized to edit resources in this package') % str(user)}
 

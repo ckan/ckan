@@ -27,11 +27,17 @@ from ckan.lib.plugins import lookup_package_plugin
 
 log = logging.getLogger(__name__)
 
+def _encode_params(params):
+    return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                                  for k, v in params]
+
+def url_with_params(url, params):
+    params = _encode_params(params)
+    return url + u'?' + urlencode(params)
+
 def search_url(params):
     url = h.url_for(controller='package', action='search')
-    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
-                    for k, v in params]
-    return url + u'?' + urlencode(params)
+    return url_with_params(url, params)
 
 autoneg_cfg = [
     ("application", "xhtml+xml", ["html"]),
@@ -100,15 +106,17 @@ class PackageController(BaseController):
             page = int(request.params.get('page', 1))
         except ValueError, e:
             abort(400, ('"page" parameter must be an integer'))
-        limit = 20
+        limit = g.datasets_per_page
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
 
-        def drill_down_url(**by):
-            params = list(params_nopage)
-            params.extend(by.items())
-            return search_url(set(params))
+        def drill_down_url(alternative_url=None, **by):
+            params = set(params_nopage)
+            params |= set(by.items())
+            if alternative_url:
+                return url_with_params(alternative_url, params)
+            return search_url(params)
 
         c.drill_down_url = drill_down_url
 
@@ -147,6 +155,8 @@ class PackageController(BaseController):
             params = list(params_nopage)
             params.append(('page', page))
             return search_url(params)
+
+        c.search_url_params = urlencode(_encode_params(params_nopage))
 
         try:
             c.fields = []
@@ -428,6 +438,7 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
+                   'for_edit': True,
                    'pending': True,}
 
         if context['save'] and not data:

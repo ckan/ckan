@@ -1,8 +1,11 @@
 import re
 import time
 import datetime
+import warnings
 
-import formalchemy
+with warnings.catch_warnings():
+    warnings.filterwarnings('ignore', '.*compile_mappers.*')
+    import formalchemy
 from ckan.lib.helpers import OrderedDict
 
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
