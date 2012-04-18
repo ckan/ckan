@@ -173,7 +173,7 @@ class MultilingualDataset(SingletonPlugin):
     def after_search(self, search_results, search_params):
 
         # Translate the unselected search facets.
-        facets = search_results.get('new_facets')
+        facets = search_results.get('search_facets')
         if not facets:
             return search_results
 
@@ -255,7 +255,8 @@ class MultilingualGroup(SingletonPlugin):
     implements(IGroupController, inherit=True)
 
     def before_view(self, data_dict):
-        return translate_data_dict(data_dict)
+        translated_data_dict = translate_data_dict(data_dict)
+        return translated_data_dict
 
 class MultilingualTag(SingletonPlugin):
     '''The MultilingualTag plugin translates tag names on tag read pages and

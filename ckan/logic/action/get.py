@@ -758,7 +758,7 @@ def package_search(context, data_dict):
                 new_facet_dict['display_name'] = key_
             new_facet_dict['count'] = value_
             restructured_facets[key]['items'].append(new_facet_dict)
-    search_results['new_facets'] = restructured_facets
+    search_results['search_facets'] = restructured_facets
 
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -766,9 +766,9 @@ def package_search(context, data_dict):
 
     # After extensions have had a chance to modify the facets, sort them by
     # display name.
-    for facet in search_results['new_facets']:
-        search_results['new_facets'][facet]['items'] = sorted(
-                search_results['new_facets'][facet]['items'],
+    for facet in search_results['search_facets']:
+        search_results['search_facets'][facet]['items'] = sorted(
+                search_results['search_facets'][facet]['items'],
                 key=lambda facet: facet['display_name'], reverse=True)
 
     return search_results

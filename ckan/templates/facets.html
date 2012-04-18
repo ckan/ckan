@@ -30,13 +30,13 @@ count_label
   how a facet-item's count is displayed.
   
 -->
-<py:def function="facet_div(name, title, limit=5, label_function=lambda item: item.display_name, if_empty=None, count_label=lambda c: ' (%d)'%c)">
-    <div py:if="if_empty is not None or h.new_facet_items(name, limit)" class="facet-box">
+<py:def function="facet_div(name, title, limit=10, label_function=lambda item: item.display_name, if_empty=None, count_label=lambda c: ' (%d)'%c)">
+    <div py:if="if_empty is not None or h.unselected_facet_items(name, limit)" class="facet-box">
         <h2>${h.facet_title(title)}</h2>
         <ul class="facet-options">
             ${facet_li(name, limit=limit, label_function=label_function, if_empty=None, count_label=count_label)}
         </ul>
-        <p py:if="not h.new_facet_items(name, limit)">${if_empty}</p>
+        <p py:if="not h.unselected_facet_items(name, limit)">${if_empty}</p>
     </div>
 </py:def>
 
@@ -65,9 +65,9 @@ count_label
 -->
 <py:def function="facet_li(name, limit=5, label_function=lambda item: item.display_name, if_empty=None, count_label=lambda c: ' (%d)'%c)">
 
-    <li py:if="if_empty and not h.new_facet_items(name, limit)">${if_empty}</li>
+    <li py:if="if_empty and not h.unselected_facet_items(name, limit)">${if_empty}</li>
 
-    <li py:for="facet_item in h.new_facet_items(name, limit)">
+    <li py:for="facet_item in h.unselected_facet_items(name, limit)">
         <a href="${c.drill_down_url(**{name: facet_item.name})}">
             ${label_function(facet_item)}
         </a>
@@ -115,17 +115,17 @@ count_label
       import logging
       logging.getLogger('ckan.templates.facets').warning("Deprecated function: ckan/templates/facets.html:facet_sidebar()")
     ?>
-    <div py:if="if_empty is not None or h.new_facet_items(code, limit)" class="facet-box">
+    <div py:if="if_empty is not None or h.unselected_facet_items(code, limit)" class="facet-box">
         <h2>${title(code)}</h2>
         <ul class="facet-options">
-            <li py:for="facet_item in h.new_facet_items(code, limit)"
+            <li py:for="facet_item in h.unselected_facet_items(code, limit)"
                 py:if="not (code, facet_item.name) in c.fields">
                   <a href="${c.drill_down_url(**{code: facet_item.name})}">
                   <span py:if="'format' in code.lower()">${h.icon(h.format_icon(facet_item.name))}</span>
                     ${label(facet_item.name)}</a>${count_label(facet_item['count'])}
             </li>
         </ul>
-        <p py:if="not h.new_facet_items(code, limit)">${if_empty}</p>
+        <p py:if="not h.unselected_facet_items(code, limit)">${if_empty}</p>
     </div>
 </py:def>
 
@@ -157,9 +157,8 @@ if_empty
       import logging
       logging.getLogger('ckan.templates.facets').warning("Deprecated function:ckan/templates/facets.html:facet_list_items()")
     ?>
-    <li py:if="if_empty and not h.new_facet_items(code, limit)">${if_empty}</li>
-    <li py:for="facet_item in h.new_facet_items(code, limit)"
-        py:if="not (code, facet_item.name) in c.fields">
+    <li py:if="if_empty and not h.unselected_facet_items(code, limit)">${if_empty}</li>
+    <li py:for="facet_item in h.unselected_facet_items(code, limit)">
         <a href="${c.drill_down_url(**{code: facet_item.name})}">${label(facet_item.name)}</a> (facet_item['count'])
     </li>
 </py:def>

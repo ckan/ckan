@@ -178,7 +178,7 @@ class GroupController(BaseController):
                 items_per_page=limit
             )
             c.facets = query['facets']
-            c.new_facets = query['new_facets']
+            c.search_facets = query['search_facets']
             c.page.items = query['results']
         except SearchError, se:
             log.error('Group search error: %r', se.args)

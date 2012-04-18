@@ -45,7 +45,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
         ckan.model.repo.rebuild_db()
         ckan.lib.search.clear()
 
-    def test_dataset_view_translation(self):
+    def test_dataset_read_translation(self):
         '''Test the translation of dataset view pages by the
         multilingual_dataset plugin.
 
@@ -91,7 +91,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
             nose.tools.assert_raises(IndexError, response.mustcontain,
                     'this should not be rendered')
 
-    def test_tag_view_translation(self):
+    def test_tag_read_translation(self):
         '''Test the translation of tag view pages by the multilingual_tag
         plugin.
 
@@ -121,7 +121,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 nose.tools.assert_raises(IndexError, response.mustcontain,
                         'this should not be rendered')
 
-    def test_user_view_translation(self):
+    def test_user_read_translation(self):
         '''Test the translation of datasets on user view pages by the
         multilingual_dataset plugin.
 
@@ -151,31 +151,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 nose.tools.assert_raises(IndexError, response.mustcontain,
                         'this should not be rendered')
 
-    def test_dataset_search_results_translation(self):
-        for (lang_code, translations) in (
-                ('de', ckan.lib.create_test_data.german_translations),
-                ('fr', ckan.lib.create_test_data.french_translations),
-                ('en', ckan.lib.create_test_data.english_translations),
-                ('pl', {})):
-            offset = '/%s/dataset' % lang_code
-            response = self.app.get(offset, status=200)
-            for term in ('Index of the novel', 'russian', 'tolstoy',
-                    "Dave's books", "Roger's books", 'plain text'):
-                if term in translations:
-                    response.mustcontain(translations[term])
-                elif term in ckan.lib.create_test_data.english_translations:
-                    response.mustcontain(
-                        ckan.lib.create_test_data.english_translations[term])
-                else:
-                    response.mustcontain(term)
-            for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
-                response.mustcontain('/%s/dataset?tags=%s' % (lang_code, tag_name))
-            for group_name in ('david', 'roger'):
-                response.mustcontain('/%s/dataset?groups=%s' % (lang_code, group_name))
-            nose.tools.assert_raises(IndexError, response.mustcontain,
-                    'this should not be rendered')
-
-    def test_group_search_results_translation(self):
+    def test_group_read_translation(self):
         for (lang_code, translations) in (
                 ('de', ckan.lib.create_test_data.german_translations),
                 ('fr', ckan.lib.create_test_data.french_translations),
@@ -211,7 +187,31 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
             nose.tools.assert_raises(IndexError, response.mustcontain,
                     'this should not be rendered')
 
-    def test_group_list_translation(self):
+    def test_dataset_index_translation(self):
+        for (lang_code, translations) in (
+                ('de', ckan.lib.create_test_data.german_translations),
+                ('fr', ckan.lib.create_test_data.french_translations),
+                ('en', ckan.lib.create_test_data.english_translations),
+                ('pl', {})):
+            offset = '/%s/dataset' % lang_code
+            response = self.app.get(offset, status=200)
+            for term in ('Index of the novel', 'russian', 'tolstoy',
+                    "Dave's books", "Roger's books", 'plain text'):
+                if term in translations:
+                    response.mustcontain(translations[term])
+                elif term in ckan.lib.create_test_data.english_translations:
+                    response.mustcontain(
+                        ckan.lib.create_test_data.english_translations[term])
+                else:
+                    response.mustcontain(term)
+            for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
+                response.mustcontain('/%s/dataset?tags=%s' % (lang_code, tag_name))
+            for group_name in ('david', 'roger'):
+                response.mustcontain('/%s/dataset?groups=%s' % (lang_code, group_name))
+            nose.tools.assert_raises(IndexError, response.mustcontain,
+                    'this should not be rendered')
+
+    def test_group_index_translation(self):
         for (lang_code, translations) in (
                 ('de', ckan.lib.create_test_data.german_translations),
                 ('fr', ckan.lib.create_test_data.french_translations),
@@ -233,10 +233,12 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                         ckan.lib.create_test_data.english_translations[term])
                 else:
                     response.mustcontain(term)
+            for group_name in ('david', 'roger'):
+                response.mustcontain('/%s/group/%s' % (lang_code, group_name))
             nose.tools.assert_raises(IndexError, response.mustcontain,
                     'this should not be rendered')
 
-    def test_tag_list_translation(self):
+    def test_tag_index_translation(self):
         for (lang_code, translations) in (
                 ('de', ckan.lib.create_test_data.german_translations),
                 ('fr', ckan.lib.create_test_data.french_translations),
@@ -259,6 +261,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                         ckan.lib.create_test_data.english_translations[term])
                 else:
                     response.mustcontain(term)
+                response.mustcontain('/%s/tag/%s' % (lang_code, term))
             nose.tools.assert_raises(IndexError, response.mustcontain,
                     'this should not be rendered')
 
