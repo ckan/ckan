@@ -121,8 +121,7 @@ if_empty
 <py:def function="facet_list_items(code, limit=5, label=lambda n: n, if_empty=None)">
         
         <li py:if="if_empty and not h.new_facet_items(code, limit)">${if_empty}</li>
-        <li py:for="facet_item in h.new_facet_items(code, limit)"
-            py:if="not (code, facet_item.name) in c.fields">
+        <li py:for="facet_item in h.new_facet_items(code, limit)">
             <a href="${c.drill_down_url(**{code: facet_item.name})}">${label(facet_item.name)}</a> (facet_item['count'])
         </li>
 </py:def>
