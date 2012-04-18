@@ -28,7 +28,7 @@ from ckan.lib.helpers import (
            subnav_link,
            subnav_named_route,
            default_group_type,
-           new_facet_items,
+           unselected_facet_items,
            facet_items,
            facet_title,
          #  am_authorized, # depreciated
