@@ -34,8 +34,7 @@ count_label
     <div py:if="if_empty is not None or h.new_facet_items(name, limit)" class="facet-box">
         <h2>${h.facet_title(title)}</h2>
         <ul class="facet-options">
-            <li py:for="facet_item in h.new_facet_items(name, limit)"
-                py:if="not (name, facet_item.name) in c.fields">
+            <li py:for="facet_item in h.new_facet_items(name, limit)">
                 <a href="${c.drill_down_url(**{name: facet_item.name})}">
                     ${label_function(facet_item)}
                 </a>
