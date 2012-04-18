@@ -30,7 +30,7 @@ count_label
   how a facet-item's count is displayed.
   
 -->
-<py:def function="facet_div(name, title, limit=5, label_function=lambda item: item.display_name, if_empty=None, count_label=lambda c: ' (%d)'%c)">
+<py:def function="facet_div(name, title, limit=10, label_function=lambda item: item.display_name, if_empty=None, count_label=lambda c: ' (%d)'%c)">
     <div py:if="if_empty is not None or h.unselected_facet_items(name, limit)" class="facet-box">
         <h2>${h.facet_title(title)}</h2>
         <ul class="facet-options">
