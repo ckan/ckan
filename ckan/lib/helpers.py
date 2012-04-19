@@ -31,9 +31,6 @@ from pylons import request
 from pylons import session
 from pylons import c
 from pylons.i18n import _
-from pylons.templating import pylons_globals
-from genshi.template import MarkupTemplate
-from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -675,20 +672,8 @@ def activity_div(template, activity, actor, object=None, target=None):
 def snippet(template_name, **kw):
     ''' This function is used to load html snippets into pages. keywords
     can be used to pass parameters into the snippet rendering '''
-    pylons_globs = pylons_globals()
-    genshi_loader = pylons_globs['app_globals'].genshi_loader
-    template = genshi_loader.load(template_name, cls=MarkupTemplate)
-    globs = kw
-    globs['h'] = pylons_globs['h']
-    globs['c'] = pylons_globs['c']
-    globs['config'] = pylons_globs['config']
-    stream = template.generate(**globs)
-    for item in PluginImplementations(IGenshiStreamFilter):
-        stream = item.filter(stream)
-    output = stream.render(method='xhtml', encoding=None, strip_whitespace=True)
-    output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
-                    template_name, output, template_name)
-    return literal(output)
+    import ckan.lib.base as base
+    return base.render_snippet(template_name, **kw)
 
 
 def convert_to_dict(object_type, objs):
