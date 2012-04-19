@@ -69,6 +69,7 @@ def render_text(template_name, extra_vars=None):
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
            cache_force = None):
+    ''' Main genshi template rendering function. '''
 
     def render_template():
         globs = extra_vars or {}
