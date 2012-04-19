@@ -35,7 +35,7 @@ __all__ = [
     'get_action',           # get logic action function
     'check_access',         # check logic function authorisation
     'NotFound',             # action not found exception
-    'NotAuthorized',        # action not authourized exception
+    'NotAuthorized',        # action not authorized exception
     'ValidationError',      # model update validation error
     'CkanCommand',          # class for providing cli interfaces
 
