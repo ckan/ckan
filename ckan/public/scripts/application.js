@@ -9,6 +9,7 @@ CKAN.Utils = CKAN.Utils || {};
 /* ================================= */
 (function ($) {
   $(document).ready(function () {
+    CKAN.Utils.relatedSetup($("#add-related-submit"));
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
     CKAN.Utils.setupOrganizationUserAutocomplete($('input.autocomplete-organization-user'));
     CKAN.Utils.setupGroupAutocomplete($('input.autocomplete-group'));
@@ -692,7 +693,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
   setupFileUpload: function() {
     var self = this;
     this.el.find('.fileupload').fileupload({
-      // needed because we are posting to remote url 
+      // needed because we are posting to remote url
       forceIframeTransport: true,
       replaceFileInput: false,
       autoUpload: false,
@@ -725,7 +726,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
   },
 
   // Create an upload key/label for this file.
-  // 
+  //
   // Form: {current-date}/file-name. Do not just use the file name as this
   // would lead to collisions.
   // (Could add userid/username and/or a small random string to reduce
@@ -790,7 +791,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
         newResource.set({
             url: data._location
             , name: name
-            , size: data._content_length 
+            , size: data._content_length
             , last_modified: lastmod
             , format: data._format
             , mimetype: data._format
@@ -873,7 +874,7 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
            self.resetForm();
          }
        });
-     } 
+     }
      else {
        newResource.set({url: urlVal, resource_type: this.options.mode});
        if (newResource.get('resource_type')=='file') {
@@ -1099,6 +1100,40 @@ CKAN.Utils = function($, my) {
         });
       }
     });
+  };
+
+
+  my.relatedSetup = function(okBtn) {
+      $(okBtn).click(function(){
+          // Validate the form
+          var data = {
+              title: $("#related-title").val(),
+              type:  $("#related-type").val(),
+              description: $("#related-description").val(),
+              url: $("#related-url").val(),
+              image_url: $("#related-image-url").val(),
+              dataset_id: $("#related-dataset").val(),
+          };
+
+          if ( ! data.title ) {
+              // TODO: Fix this
+              alert( "You must specify the title");
+              return true;
+          }
+
+          $.ajax({
+              type: 'POST',
+              url: CKAN.SITE_URL + '/api/3/action/related_create',
+              data: JSON.stringify(data),
+              success: function(data){
+                  window.location.href=window.location.href;
+              },
+              error: function(err, txt,w) {
+                  console.log(w);
+              }
+          });
+      });
+      return false;
   };
 
   // Attach authz group autocompletion to provided elements

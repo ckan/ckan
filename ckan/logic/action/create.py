@@ -130,6 +130,11 @@ def related_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit_and_remove()
 
+    if 'dataset_id' in data_dict:
+        dataset = model.Package.get(data_dict['dataset_id'])
+        dataset.related.append( related )
+        model.repo.commit_and_remove()
+
     context["related"] = related
     context["id"] = related.id
     log.debug('Created object %s' % str(related.title))

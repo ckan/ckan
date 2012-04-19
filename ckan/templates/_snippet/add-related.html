@@ -16,32 +16,33 @@
 </div>
 <div class="modal-body">
     <form class="well">
+      <input id="related-dataset" type="hidden" value="${c.pkg.id}"/>
+
       <label>Title</label>
-      <input type="text" class="span6" placeholder="Please add the title for the item"/>
+      <input id="related-title" type="text" class="span6" placeholder="Please add the title for the item"/>
 
       <label>Type of item</label>
-      <select class="span6 chzn-select">
+      <select id="related-type" class="span6 chzn-select">
           <option value="app">Application</option>
           <option value="idea">Idea</option>
           <option value="visualization">Visualization</option>
       </select>
 
       <label>Description</label>
-      <textarea class="input-xlarge span6" rows="4" placeholder="Please describe the item"></textarea>
+      <textarea id="related-description" class="input-xlarge span6" rows="4" placeholder="Please describe the item"></textarea>
 
       <label>URL</label>
-      <input type="text" class="span6" placeholder="Please add a url"/>
+      <input id="related-url" type="text" class="span6" placeholder="Please add a url"/>
 
       <label>Image URL</label>
-      <input type="text" class="span6" placeholder="Please add a link to the image"/>
+      <input id="related-image-url" type="text" class="span6" placeholder="Please add a link to the image"/>
 
       <div>
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <button id='add-related-submit' type="submit" class="btn btn-primary">Submit</button>
           <button class="btn">Cancel</button>
       </div>
     </form>
 
 </div>
 </div>
-
 </html>
