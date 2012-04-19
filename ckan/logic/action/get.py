@@ -1268,3 +1268,36 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     activity_stream = recently_changed_packages_activity_list(context,
             data_dict)
     return _activity_list_to_html(context, activity_stream)
+
+def follower_list(context, data_dict):
+    '''Return a list of all of the followers of an object (such as a user or a
+    dataset.
+
+    '''
+    model = context['model']
+    followee_id = data_dict['id']
+    followee_type = data_dict['type']
+    follower_table = model.follower_table
+    q = select((follower_table,))
+    q = q.where(follower_table.c.followee_id == followee_id)
+    q = q.where(follower_table.c.followee_type == followee_type)
+    conn = model.Session.connection()
+    cursor = conn.execute(q)
+    results = []
+    for row in cursor:
+        results.append(table_dictize(row, context))
+    return results
+
+def user_follower_list(context, data_dict):
+    '''Return a list a of all of a user's followers.'''
+    return follower_list(context, {
+        'id': data_dict['id'],
+        'type': 'user',
+        })
+
+def dataset_follower_list(context, data_dict):
+    '''Return a list a of all of a dataset's followers.'''
+    return follower_list(context, {
+        'id': data_dict['id'],
+        'type': 'dataset',
+        })

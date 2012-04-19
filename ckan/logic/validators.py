@@ -476,3 +476,32 @@ def tag_not_in_vocabulary(key, tag_dict, errors, context):
                 (tag_name, vocabulary_id))
     else:
         return
+
+def follower_id_exists(key, follower_dict, errors, context):
+    follower_id_validators = {
+            'user': user_id_exists,
+            }
+    follower_id = follower_dict[('follower_id',)]
+    follower_type = follower_dict.get(('follower_type',))
+    if not follower_type:
+        raise Invalid(_('Not found: {0}').format('follower_type'))
+    validator = follower_id_validators.get(follower_type)
+    if not validator:
+        raise Invalid(_('follower_type {type} not recognised').format(
+            type=follower_type))
+    return validator(follower_id, context)
+
+def followee_id_exists(key, followee_dict, errors, context):
+    followee_id_validators = {
+            'user': user_id_exists,
+            'dataset': package_id_exists,
+            }
+    followee_id = followee_dict[('followee_id',)]
+    followee_type = followee_dict.get(('followee_type',))
+    if not followee_type:
+        raise Invalid(_('Not found: {0}').format('followee_type'))
+    validator = followee_id_validators.get(followee_type)
+    if not validator:
+        raise Invalid(_('followee_type {type} not recognised').format(
+            type=followee_type))
+    return validator(followee_id, context)

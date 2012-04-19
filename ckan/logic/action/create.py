@@ -1,4 +1,5 @@
 import logging
+import datetime
 from pylons.i18n import _
 
 import ckan.lib.plugins as lib_plugins
@@ -478,3 +479,34 @@ def tag_create(context, tag_dict):
 
     log.debug("Created tag '%s' " % tag)
     return model_dictize.tag_dictize(tag, context)
+
+def follower_create(context, follower_dict):
+
+    model = context['model']
+    schema = (context.get('schema')
+            or ckan.logic.schema.default_create_follower_schema())
+
+    check_access('follower_create', context, follower_dict)
+
+    data, errors = validate(follower_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, error_summary(errors))
+
+    # FIXME: Maybe the schema should be doing this.
+    data['datetime'] = datetime.datetime.now()
+
+    follower_table = model.follower_table
+    insert = follower_table.insert().values(**data)
+    conn = model.Session.connection()
+    result = conn.execute(insert)
+
+    if not context.get('defer_commit'):
+        model.Session.commit()
+
+    log.debug('Created follower {follower} -> {followee}'.format(
+        follower=data['follower_id'], followee=data['followee_id']))
+
+    data['datetime'] = data['datetime'].isoformat()
+    return data

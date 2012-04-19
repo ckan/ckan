@@ -37,7 +37,9 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_id_exists,
                                    object_id_validator,
                                    activity_type_exists,
-                                   tag_not_in_vocabulary)
+                                   tag_not_in_vocabulary,
+                                   follower_id_exists,
+                                   followee_id_exists)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -368,4 +370,16 @@ def default_create_activity_schema():
             activity_type_exists],
         'data': [ignore_empty, ignore_missing, unicode],
     }
+    return schema
+
+def default_create_follower_schema():
+    schema = {
+            'follower_id': [not_missing, not_empty, unicode,
+                follower_id_exists],
+            'follower_type': [not_missing, not_empty, unicode],
+            'followee_id': [not_missing, not_empty, unicode,
+                followee_id_exists],
+            'followee_type': [not_missing, not_empty, unicode],
+            'datetime': [ignore]
+            }
     return schema
