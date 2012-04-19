@@ -47,6 +47,17 @@ def abort(status_code=None, detail='', headers=None, comment=None):
                   headers=headers,
                   comment=comment)
 
+
+def render_snippet(template_name, **kw):
+    ''' Helper function for rendering snippets. Rendered html has
+    comment tags added to show the template used. NOTE: unlike other
+    render functions this takes a list of keywords instead of a dict for
+    the extra template variables. '''
+    output = render(template_name, extra_vars=kw)
+    output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
+                    template_name, output, template_name)
+    return literal(output)
+
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
            cache_force = None):
