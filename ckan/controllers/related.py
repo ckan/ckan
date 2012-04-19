@@ -34,13 +34,3 @@ class RelatedController(base.BaseController):
 
         return base.render( "package/related_list.html")
 
-
-
-    def edit(self, id):
-        print 'edit'
-        pass
-
-    def read(self,id,related_id):
-        print 'read'
-        pass
-

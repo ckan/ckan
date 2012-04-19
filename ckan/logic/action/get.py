@@ -163,10 +163,9 @@ def related_list(context, data_dict=None):
     check_access('related_show',context, data_dict)
 
     relateds = model.Related.get_for_dataset(dataset, status='active')
-    related_list = model_dictize.related_list_dictize((r.related for r in relateds), context)
+    related_items = (r.related for r in relateds)
+    related_list = model_dictize.related_list_dictize( related_items, context)
     return related_list
-
-
 
 
 def member_list(context, data_dict=None):

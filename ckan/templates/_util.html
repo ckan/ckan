@@ -221,8 +221,11 @@
     <table width="100%" border="0" cellpadding="4">
         <tr>
             <td rowspan="2" width="200px">
-                <a href="${related.url}">
+                <a href="${related.url}" py:if="related.image_url">
                     <img src="${related.image_url}" width="200px" border="0"/>
+                </a>
+                <a href="${related.url}" py:if="not related.image_url">
+                    DEFAULT IMAGE
                 </a>
             </td>
             <td><strong>${related.title}</strong></td>
