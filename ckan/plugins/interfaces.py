@@ -271,7 +271,7 @@ class IPackageController(Interface):
 
     def before_index(self, pkg_dict):
         '''
-             Extensions will recieve what will be given to the solr for indexing.
+             Extensions will receive what will be given to the solr for indexing.
              This is essentially a flattened dict (except for multlivlaued fields such as tags
              of all the terms sent to the indexer.  The extension can modify this by returning
              an altered version.

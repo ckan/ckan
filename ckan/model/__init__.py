@@ -2,7 +2,9 @@ from __future__ import with_statement # necessary for python 2.5 support
 import warnings
 import logging
 
-from pylons import config
+with warnings.catch_warnings():
+    warnings.filterwarnings('ignore', '.*Unbuilt egg.*')
+    from pylons import config
 from sqlalchemy import MetaData, __version__ as sqav
 from sqlalchemy.schema import Index
 from paste.deploy.converters import asbool
@@ -186,7 +188,9 @@ class Repository(vdm.sqlalchemy.Repository):
 
     def are_tables_created(self):
         metadata = MetaData(self.metadata.bind)
-        metadata.reflect()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', '.*(reflection|geometry).*')
+            metadata.reflect()
         return bool(metadata.tables)
 
     def purge_revision(self, revision, leave_record=False):
