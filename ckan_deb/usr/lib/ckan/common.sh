@@ -220,11 +220,11 @@ ckan_overwrite_apache_config () {
         #rm /etc/apache2/sites-available/${INSTANCE}.common
         cat <<EOF > /etc/apache2/sites-available/${INSTANCE}.common
 
-    # WARNING: Do not manually edit this file, it is desgined to be 
+    # WARNING: Do not manually edit this file, it is designed to be 
     #          overwritten at any time by the postinst script of 
     #          dependent packages
 
-    # These are common settings used for both the normal and maintence modes
+    # These are common settings used for both the normal and maintenance modes
 
     DocumentRoot /var/lib/ckan/${INSTANCE}/static
     ServerName ${ServerName}
@@ -266,7 +266,7 @@ EOF
         #rm /etc/apache2/sites-available/${INSTANCE}
         cat <<EOF > /etc/apache2/sites-available/${INSTANCE} 
 <VirtualHost *:80>
-    # WARNING: Do not manually edit this file, it is desgined to be 
+    # WARNING: Do not manually edit this file, it is designed to be 
     #          overwritten at any time by the postinst script of 
     #          dependent packages
     Include /etc/apache2/sites-available/${INSTANCE}.common
@@ -275,7 +275,7 @@ EOF
         #rm /etc/apache2/sites-available/${INSTANCE}.maint
         cat <<EOF > /etc/apache2/sites-available/${INSTANCE}.maint
 <VirtualHost *:80>
-    # WARNING: Do not manually edit this file, it is desgined to be 
+    # WARNING: Do not manually edit this file, it is designed to be 
     #          overwritten at any time by the postinst script of 
     #          dependent packages
     Include /etc/apache2/sites-available/${INSTANCE}.common

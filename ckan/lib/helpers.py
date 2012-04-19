@@ -114,7 +114,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = ''
     # ckan.root_path is defined when we have none standard language
     # position in the url
-    root_path = config.get('ckan.root_path')
+    root_path = config.get('ckan.root_path', None)
     if root_path:
         # FIXME this can be written better once the merge
         # into the ecportal core is done - Toby
@@ -497,10 +497,32 @@ class Page(paginate.Page):
     # our custom layout set as default.
     def pager(self, *args, **kwargs):
         kwargs.update(
-            format=u"<div class='pager'>$link_previous ~2~ $link_next</div>",
-            symbol_previous=u'« Prev', symbol_next=u'Next »'
+            format=u"<div class='pagination'><ul>$link_previous ~2~ $link_next</ul></div>",
+            symbol_previous=u'« Prev', symbol_next=u'Next »',
+            curpage_attr={'class':'active'}, link_attr={}
         )
         return super(Page, self).pager(*args, **kwargs)
+
+    # Put each page link into a <li> (for Bootstrap to style it)
+    def _pagerlink(self, page, text, extra_attributes=None):
+        anchor = super(Page, self)._pagerlink(page, text)
+        extra_attributes = extra_attributes or {}
+        return HTML.li(anchor, **extra_attributes)
+
+    # Change 'current page' link from <span> to <li><a>
+    # and '..' into '<li><a>..'
+    # (for Bootstrap to style them properly)
+    def _range(self, regexp_match):
+        html = super(Page, self)._range(regexp_match)
+        # Convert ..
+        dotdot = '\.\.'
+        dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
+        html = re.sub(dotdot, dotdot_link, html)
+        # Convert current page
+        text = '%s' % self.page
+        current_page_span = str(HTML.span(c=text, **self.curpage_attr))
+        current_page_link = self._pagerlink(self.page, text, extra_attributes=self.curpage_attr)
+        return re.sub(current_page_span, current_page_link, html)
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
     '''Render a datetime object or timestamp string as a pretty string
@@ -659,6 +681,7 @@ def snippet(template_name, **kw):
     globs = kw
     globs['h'] = pylons_globs['h']
     globs['c'] = pylons_globs['c']
+    globs['config'] = pylons_globs['config']
     stream = template.generate(**globs)
     for item in PluginImplementations(IGenshiStreamFilter):
         stream = item.filter(stream)

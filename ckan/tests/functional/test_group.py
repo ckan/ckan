@@ -72,7 +72,7 @@ class TestGroup(FunctionalTestCase):
     def test_index(self):
         offset = url_for(controller='group', action='index')
         res = self.app.get(offset)
-        assert '<h1 class="page_heading">Groups' in res, res
+        assert re.search('<h1(.*)>\s*Groups', res.body)
         groupname = 'david'
         group = model.Group.by_name(unicode(groupname))
         group_title = group.title
@@ -258,6 +258,20 @@ Ho ho ho
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         assert plugin.calls['edit'] == 1, plugin.calls
         plugins.unload(plugin)
+
+    def test_edit_image_url(self):
+        group = model.Group.by_name(self.groupname)
+        offset = url_for(controller='group', action='edit', id=self.groupname)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+
+        form = res.forms['group-edit']
+        image_url = u'http://url.to/image_url'
+        form['image_url'] = image_url
+        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+
+        model.Session.remove()
+        group = model.Group.by_name(self.groupname)
+        assert group.image_url == image_url, group
 
     def test_edit_non_existent(self):
         name = u'group_does_not_exist'

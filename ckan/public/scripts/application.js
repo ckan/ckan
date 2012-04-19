@@ -537,7 +537,7 @@ CKAN.View.Resource = Backbone.View.extend({
     }
     self.updateIconTimer = setTimeout(function() {
         // AJAX to server API
-        $.getJSON('/api/2/util/resource/format_icon?format='+encodeURIComponent(self.formatBox.val()), function(data) {
+        $.getJSON(CKAN.SITE_URL + '/api/2/util/resource/format_icon?format='+encodeURIComponent(self.formatBox.val()), function(data) {
           if (data && data.icon && data.format==self.formatBox.val()) {
             self.li.find('.js-resource-icon').attr('src',data.icon);
             self.table.find('.js-resource-icon').attr('src',data.icon);
