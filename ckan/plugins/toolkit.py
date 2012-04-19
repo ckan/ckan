@@ -34,7 +34,7 @@ __all__ = [
     'literal',              # stop tags in a string being escaped
     'get_action',           # get logic action function
     'check_access',         # check logic function authorisation
-    'NotFound',             # action not found exception
+    'ActionNotFound',       # action not found exception (ckan.logic.NotFound)
     'NotAuthorized',        # action not authorized exception
     'ValidationError',      # model update validation error
     'CkanCommand',          # class for providing cli interfaces
@@ -59,7 +59,7 @@ literal = webhelpers.html.tags.literal
 
 get_action = logic.get_action
 check_access = logic.check_access
-NotFound = logic.NotFound
+ActionNotFound = logic.NotFound  ## Name change intentional
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
 
