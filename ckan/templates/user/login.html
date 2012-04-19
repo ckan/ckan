@@ -18,25 +18,33 @@
   
   <py:def function="page_title">Login - User</py:def>
   <py:def function="page_heading">Login to ${g.site_title}</py:def>
+  <py:def function="body_class">no-sidebar</py:def>
 
   <div py:match="content">
     
-    <form action="${h.url_for('/login_generic')}" method="post" class="simple-form" id="login">  
+    <form action="${h.url_for('/login_generic')}" method="post" class="form-horizontal" id="login">  
       <fieldset>
         <!--legend i18n:msg="site_title">Login</legend-->
-
-        <label for="login">Login:</label>
-        <input type="text" name="login" value="" />
-        <br/>
-        <label for="password">Password:</label>
-        <input type="password" name="password" value="" />
+        <div class="control-group">
+          <label class="control-label" for="login">Login:</label>
+          <div class="controls">
+            <input type="text" name="login" value="" />
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="password">Password:</label>
+          <div class="controls">
+            <input type="password" name="password" value="" />
+          </div>
+        </div>
         <!-- 50 year timeout -->
         <input type="hidden" name="remember" value="1576800000" />
-        <br/>
       </fieldset>
-      <input name="s" id="s" type="submit" class="btn primary" value="Sign In"/>
-      &mdash; 
-      <a href="${h.url_for('reset')}">Forgot your password?</a>
+      <div class="form-actions">
+        <input name="s" id="s" type="submit" class="btn btn-primary" value="Sign In"/>
+        &mdash; 
+        <a href="${h.url_for('reset')}">Forgot your password?</a>
+      </div>
     </form>
     <br/> 
     <!-- Simple OpenID Selector -->
