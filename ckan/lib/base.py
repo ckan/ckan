@@ -58,6 +58,14 @@ def render_snippet(template_name, **kw):
                     template_name, output, template_name)
     return literal(output)
 
+def render_text(template_name, extra_vars=None):
+    ''' Helper function to render a genshi NewTextTemplate without
+    having to pass the loader_class or method. '''
+    return render(template_name,
+                  extra_vars=extra_vars,
+                  method='text',
+                  loader_class=NewTextTemplate)
+
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
            cache_force = None):
