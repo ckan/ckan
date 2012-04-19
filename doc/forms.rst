@@ -158,6 +158,13 @@ This defines a navl schema to customize validation and conversion to the databas
 
 This defines a navl schema to customize conversion from the database to the form.
 
+::
+
+  _db_to_form_schema_options(self, options)
+
+Like ``_form_to_db_schema_options()``, this allows different schemas to be
+used for different purposes.
+It is optional, and if it is not available then ``form_to_db_schema`` is used.
 
 Example: Geospatial Tags
 ------------------------

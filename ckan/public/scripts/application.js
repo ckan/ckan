@@ -434,14 +434,14 @@ CKAN.View.Resource = Backbone.View.extend({
         num: this.options.position,
         resource_icon: '/images/icons/page_white.png',
         resourceTypeOptions: [
-          ['file', 'Data File'],
-          ['api', 'API'],
-          ['visualization', 'Visualization'],
-          ['image', 'Image'],
-          ['metadata', 'Metadata'],
-          ['documentation', 'Documentation'],
-          ['code', 'Code'],
-          ['example', 'Example']
+          ['file', CKAN.Strings.dataFile],
+          ['api', CKAN.Strings.api],
+          ['visualization', CKAN.Strings.visualization],
+          ['image', CKAN.Strings.image],
+          ['metadata', CKAN.Strings.metadata],
+          ['documentation', CKAN.Strings.documentation],
+          ['code', CKAN.Strings.code],
+          ['example', CKAN.Strings.example]
         ]
     };
     // Generate DOM elements
@@ -537,7 +537,7 @@ CKAN.View.Resource = Backbone.View.extend({
     }
     self.updateIconTimer = setTimeout(function() {
         // AJAX to server API
-        $.getJSON('/api/2/util/resource/format_icon?format='+encodeURIComponent(self.formatBox.val()), function(data) {
+        $.getJSON(CKAN.SITE_URL + '/api/2/util/resource/format_icon?format='+encodeURIComponent(self.formatBox.val()), function(data) {
           if (data && data.icon && data.format==self.formatBox.val()) {
             self.li.find('.js-resource-icon').attr('src',data.icon);
             self.table.find('.js-resource-icon').attr('src',data.icon);

@@ -27,11 +27,17 @@ from ckan.lib.plugins import lookup_package_plugin
 
 log = logging.getLogger(__name__)
 
+def _encode_params(params):
+    return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                                  for k, v in params]
+
+def url_with_params(url, params):
+    params = _encode_params(params)
+    return url + u'?' + urlencode(params)
+
 def search_url(params):
     url = h.url_for(controller='package', action='search')
-    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
-                    for k, v in params]
-    return url + u'?' + urlencode(params)
+    return url_with_params(url, params)
 
 autoneg_cfg = [
     ("application", "xhtml+xml", ["html"]),
@@ -78,15 +84,30 @@ class PackageController(BaseController):
     def _history_template(self, package_type):
         return lookup_package_plugin(package_type).history_template()
 
+    def _guess_package_type(self, expecting_name=False):
+        """
+            Guess the type of package from the URL handling the case
+            where there is a prefix on the URL (such as /data/package)
+        """
+        parts = [x for x in request.path.split('/') if x]
+
+        idx = -1
+        if expecting_name:
+            idx = -2
+
+        pt = parts[idx]
+        if pt == 'package':
+            pt = 'dataset'
+
+        return pt
+
 
     authorizer = ckan.authz.Authorizer()
 
     def search(self):
         from ckan.lib.search import SearchError
 
-        package_type = request.path.strip('/').split('/')[0]
-        if package_type == 'package':
-            package_type = 'dataset'
+        package_type = self._guess_package_type()
 
         try:
             context = {'model':model,'user': c.user or c.author}
@@ -100,15 +121,17 @@ class PackageController(BaseController):
             page = int(request.params.get('page', 1))
         except ValueError, e:
             abort(400, ('"page" parameter must be an integer'))
-        limit = 20
+        limit = g.datasets_per_page
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
 
-        def drill_down_url(**by):
-            params = list(params_nopage)
-            params.extend(by.items())
-            return search_url(set(params))
+        def drill_down_url(alternative_url=None, **by):
+            params = set(params_nopage)
+            params |= set(by.items())
+            if alternative_url:
+                return url_with_params(alternative_url, params)
+            return search_url(params)
 
         c.drill_down_url = drill_down_url
 
@@ -147,6 +170,8 @@ class PackageController(BaseController):
             params = list(params_nopage)
             params.append(('page', page))
             return search_url(params)
+
+        c.search_url_params = urlencode(_encode_params(params_nopage))
 
         try:
             c.fields = []
@@ -309,9 +334,7 @@ class PackageController(BaseController):
 
 
     def history(self, id):
-        package_type = request.path.strip('/').split('/')[0]
-        if package_type == 'package':
-            package_type = 'dataset'
+        package_type = self._get_package_type(id.split('@')[0])
 
         if 'diff' in request.params or 'selected1' in request.params:
             try:
@@ -383,10 +406,7 @@ class PackageController(BaseController):
         return render( self._history_template(c.pkg_dict.get('type',package_type)))
 
     def new(self, data=None, errors=None, error_summary=None):
-
-        package_type = request.path.strip('/').split('/')[0]
-        if package_type == 'group':
-            package_type = None
+        package_type = self._guess_package_type(True)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
@@ -428,6 +448,7 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
+                   'for_edit': True,
                    'pending': True,}
 
         if context['save'] and not data:

@@ -115,7 +115,7 @@ class StorageController(BaseController):
     def upload(self):
         label = key_prefix + request.params.get('filepath', str(uuid.uuid4()))
         c.data = {
-            'action': h.url_for('storage_upload_handle'),
+            'action': h.url_for('storage_upload_handle', qualified=False),
             'fields': [
                 {
                     'name': 'key',
@@ -266,7 +266,7 @@ class StorageAPIController(BaseController):
         else:
             url = h.url_for('storage_file',
                     label=label,
-                    qualified=True
+                    qualified=False
                     )
         if not self.ofs.exists(bucket, label):
             abort(404)
@@ -372,7 +372,7 @@ class StorageAPIController(BaseController):
             return self._get_remote_form_data(label)
         else:
             data = {
-                'action': h.url_for('storage_upload_handle', qualified=True),
+                'action': h.url_for('storage_upload_handle', qualified=False),
                 'fields': [
                     {
                         'name': 'key',

@@ -60,6 +60,14 @@
       ${c.page.pager(q=c.q)}
 
   </div>
+
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Datasets found with custom search: '${c.search_url_params}'"
+    href="${h.url(controller='feed', action='custom')}?${c.search_url_params}" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History"
+    href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
+  </py:def>
+
   <xi:include href="layout.html" />
 </html>
 

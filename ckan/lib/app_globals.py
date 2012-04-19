@@ -41,3 +41,4 @@ class Globals(object):
         self.recaptcha_publickey = config.get('ckan.recaptcha.publickey', '')
         self.recaptcha_privatekey = config.get('ckan.recaptcha.privatekey', '')
         
+        self.datasets_per_page = int(config.get('ckan.datasets_per_page', '20'))

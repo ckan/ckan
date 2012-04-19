@@ -179,6 +179,7 @@ def default_group_schema():
         'name': [not_empty, unicode, name_validator, group_name_validator],
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
+        'image_url': [ignore_missing, unicode],
         'type': [ignore_missing, unicode],
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
