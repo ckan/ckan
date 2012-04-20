@@ -183,7 +183,7 @@ def make_map():
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('/dataset/{id}', action='read')
         m.connect('/dataset/{id}/resource/{resource_id}', action='resource_read')
-        m.connect('/dataset/{id}/resource/{resource_id}/embed', action='resource_embeded_dataviewer')
+        m.connect('/dataset/{id}/resource/{resource_id}/embed', action='resource_embedded_dataviewer')
 
     # group
     map.redirect('/groups', '/group')

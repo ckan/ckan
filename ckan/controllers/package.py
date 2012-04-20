@@ -734,7 +734,7 @@ class PackageController(BaseController):
                 qualified=True)
         return render('package/resource_read.html')
 
-    def resource_embeded_dataviewer(self, id, resource_id):
+    def resource_embedded_dataviewer(self, id, resource_id):
         """
         Embeded page for a read-only resource dataview.
         """
@@ -772,7 +772,7 @@ class PackageController(BaseController):
         
         c.recline_state = json.dumps(recline_state)
 
-        return render('package/resource_embeded_dataviewer.html')
+        return render('package/resource_embedded_dataviewer.html')
 
     def _parse_recline_state(self, state_version, raw_state):
         if state_version != 1:  # Only support one version at the moment
