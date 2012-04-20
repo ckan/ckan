@@ -1262,10 +1262,44 @@ CKAN.DataPreview = function ($, my) {
     my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
 
     var dataset = recline.Model.Dataset.restore(reclineState);
+
+    // Only load a single view
+    // TODO: tidy this up.
+    var views = null;
+    if (reclineState.currentView === 'grid') {
+      views = [ {
+        id: 'grid',
+        label: 'Grid',
+        view: new recline.View.Grid({
+          model: dataset,
+          state: reclineState['view-grid']
+        })
+      }];
+    } else if (reclineState.currentView === 'graph') {
+      views = [ {
+        id: 'graph',
+        label: 'Graph',
+        view: new recline.View.Graph({
+          model: dataset,
+          state: reclineState['view-graph']
+        })
+      }];
+    } else if (reclineState.currentView === 'map') {
+      views = [ {
+        id: 'map',
+        label: 'Map',
+        view: new recline.View.Map({
+          model: dataset,
+          state: reclineState['view-map']
+        })
+      }];
+    }
+
     var dataExplorer = new recline.View.DataExplorer({
       el: my.$dialog,
       model: dataset,
-      state: reclineState
+      state: reclineState,
+      views: views
     });
 
     Backbone.history.start();

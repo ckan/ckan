@@ -779,6 +779,18 @@ class PackageController(BaseController):
             return None
 
         try:
-            return json.loads(raw_state)
+            state = json.loads(raw_state)
         except ValueError:
             return None
+
+        # Ensure the state is readOnly
+        state['readOnly'] = True
+
+        # Ensure only the currentView is available
+        if not state.get('currentView', None):
+            state['currentView'] = 'grid'   # default to grid view if none specified
+        for k in state.keys():
+            if k.startswith('view-') and not k.endswith(state['currentView']):
+                state.pop(k)
+
+        return state
