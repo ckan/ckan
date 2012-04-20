@@ -136,6 +136,7 @@ class PackageSearchIndex(SearchIndex):
         tracking_summary = pkg_dict.pop('tracking_summary', None)
         if tracking_summary:
             pkg_dict['views'] = tracking_summary['total']
+            pkg_dict['recent_views'] = tracking_summary['recent']
 
         # flatten the structure for indexing:
         for resource in pkg_dict.get('resources', []):
