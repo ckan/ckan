@@ -89,6 +89,13 @@
     </div>
   </py:match>
 
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Datasets in group '${c.group['title']}'"
+    href="${h.url(controller='feed', action='group', id=c.group['name'])}" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History"
+    href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
+  </py:def>
+
   <xi:include href="layout.html" />
 </html>
 

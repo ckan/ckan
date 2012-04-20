@@ -50,10 +50,26 @@ class GroupController(BaseController):
 
     ## end hooks
 
+    def _guess_group_type(self, expecting_name=False):
+        """
+            Guess the type of group from the URL handling the case
+            where there is a prefix on the URL (such as /data/organization)
+        """
+        parts = [x for x in request.path.split('/') if x]
+
+        idx = -1
+        if expecting_name:
+            idx = -2
+
+        gt = parts[idx]
+        if gt == 'group':
+            gt = None
+
+        return gt
+
+
     def index(self):
-        group_type = request.path.strip('/').split('/')[0]
-        if group_type == 'group':
-            group_type = None
+        group_type = self._guess_group_type()
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
@@ -195,11 +211,9 @@ class GroupController(BaseController):
         return render( self._read_template(c.group_dict['type']) )
 
     def new(self, data=None, errors=None, error_summary=None):
-        group_type = request.path.strip('/').split('/')[0]
-        if group_type == 'group':
-            group_type = None
-            if data:
-                data['type'] = group_type
+        group_type = self._guess_group_type(True)
+        if data:
+            data['type'] = group_type
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
@@ -227,6 +241,7 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
+                   'for_edit': True,
                    'parent': request.params.get('parent', None)
                    }
         data_dict = {'id': id}
