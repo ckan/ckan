@@ -43,6 +43,11 @@ def resource_list_dictize(res_list, context):
         resource_dict = resource_dictize(res, context)
         if active and res.state not in ('active', 'pending'):
             continue
+        #tracking
+        model = context['model']
+        tracking = model.TrackingSummary.get_for_resource(res.url)
+        resource_dict['tracking_summary'] = tracking
+
         result_list.append(resource_dict)
 
     return sorted(result_list, key=lambda x: x["position"])
@@ -166,6 +171,9 @@ def package_dictize(pkg, context):
     q = select([extra_rev]).where(extra_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, extra_rev, context)
     result_dict["extras"] = extras_list_dictize(result, context)
+    #tracking
+    tracking = model.TrackingSummary.get_for_package(pkg.id)
+    result_dict['tracking_summary'] = tracking
     #groups
     member_rev = model.member_revision_table
     group = model.group_table
