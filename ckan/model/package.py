@@ -170,6 +170,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             package_tag = model.PackageTag(self, tag)
             model.Session.add(package_tag)
 
+
     def add_tags(self, tags):
         for tag in tags:
             self.add_tag(tag)

@@ -1,4 +1,5 @@
 import os
+import datetime
 import sys
 import logging
 import datetime
@@ -894,7 +895,7 @@ class Tracking(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
         engine = model.meta.engine
 
         if len(self.args) == 1:
@@ -977,4 +978,3 @@ class Tracking(CkanCommand):
                  AND t1.package_id IS NOT NULL
                  AND t1.package_id != '~~not~found~~';'''
         engine.execute(sql)
-
