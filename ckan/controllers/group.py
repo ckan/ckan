@@ -72,7 +72,7 @@ class GroupController(BaseController):
         group_type = self._guess_group_type()
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'for_view': True}
 
         data_dict = {'all_fields': True}
 
@@ -194,6 +194,7 @@ class GroupController(BaseController):
                 items_per_page=limit
             )
             c.facets = query['facets']
+            c.search_facets = query['search_facets']
             c.page.items = query['results']
         except SearchError, se:
             log.error('Group search error: %r', se.args)

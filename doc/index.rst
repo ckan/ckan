@@ -39,6 +39,7 @@ Customizing and Extending
    datastore
    background-tasks
    geospatial
+   multilingual
 
 Publishing Datasets
 ===================

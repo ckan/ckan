@@ -7,6 +7,7 @@ available to Controllers. This module is available to templates as 'h'.
 """
 import email.utils
 import datetime
+import logging
 import re
 import urllib
 
@@ -44,6 +45,8 @@ try:
     import json
 except ImportError:
     import simplejson as json
+
+_log = logging.getLogger(__name__)
 
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
@@ -331,8 +334,41 @@ def _subnav_named_route(text, routename, **kwargs):
 def default_group_type():
     return str( config.get('ckan.default.group_type', 'group') )
 
+def unselected_facet_items(facet, limit=10):
+    '''Return the list of unselected facet items for the given facet, sorted
+    by count.
+
+    Returns the list of unselected facet contraints or facet items (e.g. tag
+    names like "russian" or "tolstoy") for the given search facet (e.g.
+    "tags"), sorted by facet item count (i.e. the number of search results that
+    match each facet item).
+
+    Reads the complete list of facet items for the given facet from
+    c.search_facets, and filters out the facet items that the user has already
+    selected.
+
+    Arguments:
+    facet -- the name of the facet to filter.
+    limit -- the max. number of facet items to return.
+
+    '''
+    if not c.search_facets or \
+       not c.search_facets.get(facet) or \
+       not c.search_facets.get(facet).get('items'):
+        return []
+    facets = []
+    for facet_item in c.search_facets.get(facet)['items']:
+        if not len(facet_item['name'].strip()):
+            continue
+        if not (facet, facet_item['name']) in request.params.items():
+            facets.append(facet_item)
+    return sorted(facets, key=lambda item: item['count'], reverse=True)[:limit]
 
 def facet_items(*args, **kwargs):
+    """
+    DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
+    """
+    _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
     # facet_items() used to need c passing as the first arg
     # this is depriciated as pointless
     # throws error if ckan.restrict_template_vars is True

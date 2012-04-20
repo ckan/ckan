@@ -753,12 +753,40 @@ def package_search(context, data_dict):
         'results': results
     }
 
+    # Transform facets into a more useful data structure.
+    restructured_facets = {}
+    for key, value in search_results['facets'].items():
+        restructured_facets[key] = {
+                'title': key,
+                'items': []
+                }
+        for key_, value_ in value.items():
+            new_facet_dict = {}
+            new_facet_dict['name'] = key_
+            if key == 'groups':
+                group = model.Group.get(key_)
+                if group:
+                    new_facet_dict['display_name'] = group.display_name
+                else:
+                    new_facet_dict['display_name'] = key_
+            else:
+                new_facet_dict['display_name'] = key_
+            new_facet_dict['count'] = value_
+            restructured_facets[key]['items'].append(new_facet_dict)
+    search_results['search_facets'] = restructured_facets
+
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
         search_results = item.after_search(search_results,data_dict)
 
-    return search_results
+    # After extensions have had a chance to modify the facets, sort them by
+    # display name.
+    for facet in search_results['search_facets']:
+        search_results['search_facets'][facet]['items'] = sorted(
+                search_results['search_facets'][facet]['items'],
+                key=lambda facet: facet['display_name'], reverse=True)
 
+    return search_results
 
 def resource_search(context, data_dict):
     model = context['model']
@@ -933,13 +961,13 @@ def term_translation_show(context, data_dict):
 
     q = select([trans_table])
 
-    if 'term' not in data_dict:
-        raise ValidationError({'term': 'term not in data'})
+    if 'terms' not in data_dict:
+        raise ValidationError({'terms': 'terms not in data'})
 
-    q = q.where(trans_table.c.term == data_dict['term'])
+    q = q.where(trans_table.c.term.in_(data_dict['terms']))
 
-    if 'lang_code' in data_dict:
-        q = q.where(trans_table.c.lang_code == data_dict['lang_code'])
+    if 'lang_codes' in data_dict:
+        q = q.where(trans_table.c.lang_code.in_(data_dict['lang_codes']))
 
     conn = model.Session.connection()
     cursor = conn.execute(q)

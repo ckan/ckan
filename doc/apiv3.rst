@@ -73,6 +73,7 @@ revision_show                          id
 group_show                             id
 tag_show                               id
 user_show                              id
+term_translation_show                  "**terms**" A list of strings, the terms that you want to search for translations of, e.g. "russian", "romantic novel". "**lang_codes**" A list of strings, language codes for the languages that you want to search for translations to, e.g. "en", "de". Optional, if no lang_codes are given translations to all languages will be returned.
 package_show_rest                      id
 group_show_rest                        id
 tag_show_rest                          id
@@ -122,6 +123,8 @@ group_update_rest                      (group keys)
 user_role_update                       user OR authorization_group, domain_object, roles
 user_role_bulk_update                  user_roles, domain_object
 vocabulary_update                      (vocabulary keys)
+term_translation_update                "**term**" The term that you want to create (or update) a translation for, e.g. "russian", "romantic novel". "**term_translation**" the translation of the term, e.g. "Russisch", "Liebesroman". "**lang_code**" the language code for the translation, e.g. "fr", "de".
+term_translation_update_many           "**data**" A list of dictionaries with keys matching the parameter keys for term_translation_update
 ====================================== ===========================
 
 delete.py:
@@ -205,6 +208,7 @@ key                      example value                          notes
 ======================== ====================================== =============
 id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754" (Read-only)
 name                     "country-uk"                           (Read-only) Add/remove tags from a package or group using update_package or update_group
+display_name             "country-uk"                           (Read-only) display_name is the name of the tag that is displayed to user (as opposed to name which is used to identify the tag, e.g. in URLs). display_name is is usually the same as name but may be different, for example display_names may be translated by the ckanext-multilingual extension.
 state                    "active"                               (Read-only) Add/remove tags from a package or group using update_package or update_group
 revision_timestamp       "2009-08-08T12:46:40.920443"           (Read-only)
 vocabulary_id            "Genre"                                (Read-only) Vocabulary name or id. Optional.
@@ -229,6 +233,16 @@ id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754"                (
 name                     "Genre"
 tags                     [{"name":"government-spending"}, {"name": "climate"}] List of tags belonging to this vocabulary.
 ======================== ===================================================== =============
+
+Term Translation:
+
+================ ========================= ==================================
+key              example value             notes
+================ ========================= ==================================
+term             "russian"                 The term that is being translated.
+term_translation "Russisch"                The translation of the term.
+lang_code        "de"                      The language of the translation, a language code string.
+================ ========================= ==================================
 
 Parameters
 ==========

@@ -1,4 +1,5 @@
 .. index:: API
+.. _api:
 
 ========
 CKAN API
