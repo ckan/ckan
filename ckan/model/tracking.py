@@ -7,7 +7,7 @@ tracking_summary_table = Table('tracking_summary', metadata,
         Column('tracking_type', Unicode(10), nullable=False),
         Column('count', Integer, nullable=False),
         Column('running_total', Integer, nullable=False),
-        Column('recent_views ', Integer, nullable=False),
+        Column('recent_views', Integer, nullable=False),
         Column('tracking_date', DateTime),
     )
 
