@@ -33,7 +33,6 @@
             <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">
               ${h.resource_icon(res)}
               ${h.resource_display_name(res)}
-			  ${h.tracking_count_resource(res.url)}
               <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
             </a>
             </li>
