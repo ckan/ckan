@@ -22,7 +22,7 @@ from webhelpers.html import literal
 
 import ckan.exceptions
 import ckan
-from ckan import authz
+import ckan.authz as authz
 from ckan.lib import i18n
 import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
