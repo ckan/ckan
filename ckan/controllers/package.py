@@ -734,3 +734,51 @@ class PackageController(BaseController):
                 qualified=True)
         return render('package/resource_read.html')
 
+    def resource_embeded_dataviewer(self, id, resource_id):
+        """
+        Embeded page for a read-only resource dataview.
+        """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            resource = get_action('resource_show')(context, {'id': resource_id})
+            package = get_action('package_show')(context, {'id': id})
+
+            # These are just required whilst still basing this off the resource_read
+            c.resource = get_action('resource_show')(context, {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+            c.pkg = context['package']
+            c.resource_json = json.dumps(c.resource)
+            c.pkg_dict = c.package
+
+            # double check that the resource belongs to the specified package
+            if not resource['id'] in [ r['id'] for r in package['resources'] ]:
+                raise NotFound
+            
+            c.resource_json = json.dumps(resource)
+
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        # Construct the recline state
+        state_version = int(request.params.get('state_version', '1'))
+        raw_state = request.params.get('state', '')
+        recline_state = self._parse_recline_state(state_version, raw_state)
+        if recline_state is None:
+            abort(400, ('"state" parameter must be a valid recline state (version %d)' % state_version))
+        
+        c.recline_state = json.dumps(recline_state)
+
+        return render('package/resource_embeded_dataviewer.html')
+
+    def _parse_recline_state(self, state_version, raw_state):
+        if state_version != 1:  # Only support one version at the moment
+            return None
+
+        try:
+            return json.loads(raw_state)
+        except ValueError:
+            return None

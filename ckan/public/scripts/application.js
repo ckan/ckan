@@ -44,6 +44,12 @@ CKAN.Utils = CKAN.Utils || {};
     if (isResourceView) {
       CKAN.DataPreview.loadPreviewDialog(preload_resource);
     }
+
+    var isEmbededDataviewer = $('body.package.resource_embeded_dataviewer').length > 0;
+    if (isEmbededDataviewer) {
+      CKAN.DataPreview.loadPreviewDialogWithState(preload_resource, reclineState);
+    }
+
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       // Set up magic URL slug editor
@@ -1250,6 +1256,29 @@ CKAN.DataPreview = function ($, my) {
   my.dialogId = 'ckanext-datapreview';
   my.$dialog = $('#' + my.dialogId);
 
+  // **Public: Loads a data preview, taking into account an initial state**
+  //
+  my.loadPreviewDialogWithState = function(resourceData, reclineState) {
+    my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
+
+    var dataset = recline.Model.Dataset.restore(reclineState);
+    var dataExplorer = new recline.View.DataExplorer({
+      el: my.$dialog,
+      model: dataset,
+      state: reclineState
+    });
+
+    Backbone.history.start();
+  };
+
+  my.makePermalink = function(explorerState) {
+    var qs = recline.View.composeQueryString({
+			state:         explorerState.toJSON(),
+			state_version: 1
+		});
+    return window.location.origin + window.location.pathname + '/embed' + qs;
+  };
+
   // **Public: Loads a data preview**
   //
   // Fetches the preview data object from the link provided and loads the
@@ -1267,14 +1296,14 @@ CKAN.DataPreview = function ($, my) {
         {
           id: 'grid',
           label: 'Grid',
-          view: new recline.View.DataGrid({
+          view: new recline.View.Grid({
             model: dataset
           })
         },
         {
           id: 'graph',
           label: 'Graph',
-          view: new recline.View.FlotGraph({
+          view: new recline.View.Graph({
             model: dataset
           })
         },
@@ -1294,6 +1323,13 @@ CKAN.DataPreview = function ($, my) {
           readOnly: true
         }
       });
+
+      var permalink = $('.permalink');
+      dataExplorer.state.bind('change', function() {
+        permalink.attr('href', my.makePermalink(dataExplorer.state));
+      });
+      permalink.attr('href', my.makePermalink(dataExplorer.state));
+
       // will have to refactor if this can get called multiple times
       Backbone.history.start();
     }
