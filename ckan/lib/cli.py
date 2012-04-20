@@ -85,7 +85,7 @@ class ManageDb(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
         import ckan.lib.search as search
 
         cmd = self.args[0]
@@ -165,7 +165,7 @@ class ManageDb(CkanCommand):
         self._run_cmd(pg_dump_cmd)
 
     def _postgres_load(self, filepath):
-        from ckan import model
+        import ckan.model as model
         assert not model.repo.are_tables_created(), "Tables already found. You need to 'db clean' before a load."
         pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
         self._run_cmd(pg_cmd)
@@ -195,7 +195,7 @@ class ManageDb(CkanCommand):
         pg_cmd = self._postgres_load(dump_path)
         if not only_load:
             print 'Upgrading DB'
-            from ckan import model
+            import ckan.model as model
             model.repo.upgrade_db()
 
             print 'Rebuilding search index'
@@ -206,7 +206,7 @@ class ManageDb(CkanCommand):
         print 'Done'
 
     def simple_dump_csv(self):
-        from ckan import model
+        import ckan.model as model
         if len(self.args) < 2:
             print 'Need csv file path'
             return
@@ -216,7 +216,7 @@ class ManageDb(CkanCommand):
         dumper.SimpleDumper().dump(dump_file, format='csv')
 
     def simple_dump_json(self):
-        from ckan import model
+        import ckan.model as model
         if len(self.args) < 2:
             print 'Need json file path'
             return
@@ -453,7 +453,7 @@ class Sysadmin(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
 
         cmd = self.args[0] if self.args else None
         if cmd == None or cmd == 'list':
@@ -466,7 +466,7 @@ class Sysadmin(CkanCommand):
             print 'Command %s not recognized' % cmd
 
     def list(self):
-        from ckan import model
+        import ckan.model as model
         print 'Sysadmins:'
         sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
         print 'count = %i' % sysadmins.count()
@@ -478,7 +478,7 @@ class Sysadmin(CkanCommand):
                                         user_or_authgroup.id)
 
     def add(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need name of the user to be made sysadmin.'
@@ -502,7 +502,7 @@ class Sysadmin(CkanCommand):
         print 'Added %s as sysadmin' % username
 
     def remove(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need name of the user to be made sysadmin.'
@@ -538,7 +538,7 @@ class UserCmd(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
 
         if not self.args:
             self.list()
@@ -564,7 +564,7 @@ class UserCmd(CkanCommand):
         return user_str
 
     def list(self):
-        from ckan import model
+        import ckan.model as model
         print 'Users:'
         users = model.Session.query(model.User)
         print 'count = %i' % users.count()
@@ -572,14 +572,14 @@ class UserCmd(CkanCommand):
             print self.get_user_str(user)
 
     def show(self):
-        from ckan import model
+        import ckan.model as model
 
         username = self.args[0]
         user = model.User.get(unicode(username))
         print 'User: \n', user
 
     def setpass(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need name of the user.'
@@ -594,7 +594,7 @@ class UserCmd(CkanCommand):
         print 'Done'
 
     def search(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need user name query string.'
@@ -619,7 +619,7 @@ class UserCmd(CkanCommand):
         return password1
 
     def add(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need name of the user.'
@@ -672,7 +672,7 @@ class UserCmd(CkanCommand):
         print user
 
     def remove(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need name of the user.'
@@ -705,7 +705,7 @@ class DatasetCmd(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
 
         if not self.args:
             print self.usage
@@ -723,7 +723,7 @@ class DatasetCmd(CkanCommand):
                 self.show(self.args[0])
 
     def list(self):
-        from ckan import model
+        import ckan.model as model
         print 'Datasets:'
         datasets = model.Session.query(model.Package)
         print 'count = %i' % datasets.count()
@@ -733,19 +733,19 @@ class DatasetCmd(CkanCommand):
             print '%s %s %s' % (dataset.id, dataset.name, state)
 
     def _get_dataset(self, dataset_ref):
-        from ckan import model
+        import ckan.model as model
         dataset = model.Package.get(unicode(dataset_ref))
         assert dataset, 'Could not find dataset matching reference: %r' % dataset_ref
         return dataset
 
     def show(self, dataset_ref):
-        from ckan import model
         import pprint
         dataset = self._get_dataset(dataset_ref)
         pprint.pprint(dataset.as_dict())
 
     def delete(self, dataset_ref):
-        from ckan import model, plugins
+        from ckan import plugins
+        import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         old_state = dataset.state
 
@@ -757,7 +757,8 @@ class DatasetCmd(CkanCommand):
         print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
 
     def purge(self, dataset_ref):
-        from ckan import model, plugins
+        from ckan import plugins
+        import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name
 
@@ -803,7 +804,7 @@ class Celery(CkanCommand):
 
     def view(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
         from kombu.transport.sqlalchemy.models import Message
         q = model.Session.query(Message)
         q_visible = q.filter_by(visible=True)
@@ -817,7 +818,7 @@ class Celery(CkanCommand):
 
     def clean(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
         import pprint
         tasks_initially = model.Session.execute("select * from kombu_message").rowcount
         if not tasks_initially:
@@ -848,7 +849,7 @@ class Ratings(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
 
         cmd = self.args[0]
         if cmd == 'count':
@@ -861,14 +862,14 @@ class Ratings(CkanCommand):
             print 'Command %s not recognized' % cmd
 
     def count(self):
-        from ckan import model
+        import ckan.model as model
         q = model.Session.query(model.Rating)
         print "%i ratings" % q.count()
         q = q.filter(model.Rating.user_id == None)
         print "of which %i are anonymous ratings" % q.count()
 
     def clean(self, user_ratings=True):
-        from ckan import model
+        import ckan.model as model
         q = model.Session.query(model.Rating)
         print "%i ratings" % q.count()
         if not user_ratings:
