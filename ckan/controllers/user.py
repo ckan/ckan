@@ -14,6 +14,7 @@ from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.logic.schema import user_new_form_schema, user_edit_form_schema
 from ckan.logic.action.get import user_activity_list_html
+from ckan.logic.action.get import user_follower_count
 from ckan.lib.captcha import check_recaptcha, CaptchaError
 
 log = logging.getLogger(__name__)
@@ -101,6 +102,8 @@ class UserController(BaseController):
         c.about_formatted = self._format_about(user_dict['about'])
         c.user_activity_stream = user_activity_list_html(context,
             {'id':c.user_dict['id']})
+        c.num_followers = user_follower_count(context,
+                {'id':c.user_dict['id']})
         return render('user/read.html')
 
     def me(self, locale=None):

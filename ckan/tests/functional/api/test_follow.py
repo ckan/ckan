@@ -33,6 +33,13 @@ class TestFollow(object):
 
         # TODO: Test following and retrieving followers by name as well as by ID.
 
+        # Record the users number of followers before.
+        params = json.dumps({'id': self.russianfan.id})
+        response = self.app.post('/api/action/user_follower_count',
+                params=params).json
+        assert response['success'] is True
+        count_before = response['result']
+
         # Make one user a follower of another user.
         before = datetime.datetime.now()
         params = json.dumps({
@@ -45,10 +52,8 @@ class TestFollow(object):
                 'Authorization': str(self.annafan.apikey)
                 }
         response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ)
+            params=params, extra_environ=extra_environ).json
         after = datetime.datetime.now()
-        assert not response.errors
-        response = response.json
         assert response['success'] is True
         assert response['result']
         follower = response['result']
@@ -62,9 +67,7 @@ class TestFollow(object):
         # Check that the follower appears in the followee's list of followers.
         params = json.dumps({'id': self.russianfan.id})
         response = self.app.post('/api/action/user_follower_list',
-                params=params)
-        assert not response.errors
-        response = response.json
+                params=params).json
         assert response['success'] is True
         assert response['result']
         followers = response['result']
@@ -76,6 +79,13 @@ class TestFollow(object):
         assert follower['followee_type'] == 'user'
         timestamp = datetime_from_string(follower['datetime'])
         assert (timestamp >= before and timestamp <= after), str(timestamp)
+
+        # Check that the user's follower count has increased by 1.
+        params = json.dumps({'id': self.russianfan.id})
+        response = self.app.post('/api/action/user_follower_count',
+                params=params).json
+        assert response['success'] is True
+        assert response['result'] == count_before + 1
 
     def test_user_follow_dataset(self):
         '''Test a user following a dataset via the API.'''

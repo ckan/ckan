@@ -1297,6 +1297,35 @@ def recently_changed_packages_activity_list_html(context, data_dict):
             data_dict)
     return _activity_list_to_html(context, activity_stream)
 
+def follower_count(context, data_dict):
+    model = context['model']
+    followee_id = data_dict['id']
+    followee_type = data_dict['type']
+    follower_table = model.follower_table
+    q = select([func.count(follower_table.c.followee_id)])
+    q = q.where(follower_table.c.followee_id == followee_id)
+    q = q.where(follower_table.c.followee_type == followee_type)
+    conn = model.Session.connection()
+    cursor = conn.execute(q)
+    result_rows = cursor.fetchall()
+    assert len(result_rows) == 1
+    result_row = result_rows[0]
+    assert len(result_row) == 1
+    count = result_row[0]
+    return count
+
+def user_follower_count(context, data_dict):
+    return follower_count(context, {
+        'id': data_dict['id'],
+        'type': 'user',
+        })
+
+def dataset_follower_count(context, data_dict):
+    return follower_count(context, {
+        'id': data_dict['id'],
+        'type': 'dataset',
+        })
+
 def follower_list(context, data_dict):
     '''Return a list of all of the followers of an object (such as a user or a
     dataset.

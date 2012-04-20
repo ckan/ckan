@@ -304,6 +304,10 @@ class PackageController(BaseController):
                 ckan.logic.action.get.package_activity_list_html(context,
                     {'id': c.current_package_id})
 
+        # Add the package's number of followers to the context for templates.
+        c.num_followers = ckan.logic.action.get.dataset_follower_count(
+                context, {'id':c.pkg.id})
+
         PackageSaver().render_package(c.pkg_dict, context)
 
         template = self._read_template( package_type )
