@@ -15,9 +15,9 @@ class TrackingSummary(DomainObject):
 
     @classmethod
     def get_for_package(cls, package_id):
-        # FIXME should be ordered by date desc but didn't like order_by(date)
         obj = Session.query(cls).autoflush(False)
-        data = obj.filter_by(package_id=package_id).first()
+        obj = obj.filter_by(package_id=package_id)
+        data = obj.order_by('tracking_date desc').first()
         if data:
             return {'total' : data.running_total,
                     'recent': data.recent_views}
@@ -27,9 +27,8 @@ class TrackingSummary(DomainObject):
 
     @classmethod
     def get_for_resource(cls, url):
-        # FIXME should be ordered by date desc but didn't like order_by(date)
         obj = Session.query(cls).autoflush(False)
-        data = obj.filter_by(url=url).first()
+        data = obj.filter_by(url=url).order_by('tracking_date desc').first()
         if data:
             return {'total' : data.running_total,
                     'recent': data.recent_views}
