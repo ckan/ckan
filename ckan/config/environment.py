@@ -1,29 +1,26 @@
 """Pylons environment configuration"""
 import os
-from urlparse import urlparse
 import logging
 import warnings
-
-from paste.deploy.converters import asbool
-
-# Suppress benign warning 'Unbuilt egg for setuptools'
-warnings.simplefilter('ignore', UserWarning)
+from urlparse import urlparse
 
 import pylons
+from paste.deploy.converters import asbool
 import sqlalchemy
-
 from pylons import config
-from pylons.i18n.translation import ugettext
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
 
-import ckan.lib.app_globals as app_globals
+import ckan.config.routing as routing
+import ckan.model as model
+import ckan.plugins as p
 import ckan.lib.helpers as h
-from ckan.config.routing import make_map
-from ckan import model
-from ckan import plugins
+import ckan.lib.search as search
+import ckan.lib.app_globals as app_globals
 
 
+# Suppress benign warning 'Unbuilt egg for setuptools'
+warnings.simplefilter('ignore', UserWarning)
 
 class _Helpers(object):
     ''' Helper object giving access to template helpers stopping
@@ -41,11 +38,8 @@ class _Helpers(object):
         self.functions = functions
 
         # extend helper functions with ones supplied by plugins
-        from ckan.plugins import PluginImplementations
-        from ckan.plugins.interfaces import ITemplateHelpers
-
         extra_helpers = []
-        for plugin in PluginImplementations(ITemplateHelpers):
+        for plugin in p.PluginImplementations(p.ITemplateHelpers):
             helpers = plugin.get_helpers()
             for helper in helpers:
                 if helper in extra_helpers:
@@ -108,12 +102,9 @@ def load_environment(global_conf, app_conf):
     config.init_app(global_conf, app_conf, package='ckan', paths=paths)
 
     # load all CKAN plugins
-    plugins.load_all(config)
+    p.load_all(config)
 
-    from ckan.plugins import PluginImplementations
-    from ckan.plugins.interfaces import IConfigurer
-
-    for plugin in PluginImplementations(IConfigurer):
+    for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
         plugin.update_config(config)
@@ -133,13 +124,13 @@ def load_environment(global_conf, app_conf):
         config['ckan.site_id'] = ckan_host
 
     # Init SOLR settings and check if the schema is compatible
-    from ckan.lib.search import SolrSettings, check_solr_schema_version
-    SolrSettings.init(config.get('solr_url'),
-                      config.get('solr_user'),
-                      config.get('solr_password'))
-    check_solr_schema_version()
+    #from ckan.lib.search import SolrSettings, check_solr_schema_version
+    search.SolrSettings.init(config.get('solr_url'),
+                             config.get('solr_user'),
+                             config.get('solr_password'))
+    search.check_solr_schema_version()
 
-    config['routes.map'] = make_map()
+    config['routes.map'] = routing.make_map()
     config['pylons.app_globals'] = app_globals.Globals()
 
     # add helper functions
@@ -187,9 +178,6 @@ def load_environment(global_conf, app_conf):
     if not model.meta.engine:
         model.init_model(engine)
 
-    from ckan.plugins import PluginImplementations
-    from ckan.plugins.interfaces import IConfigurable
-
-    for plugin in PluginImplementations(IConfigurable):
+    for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
 
