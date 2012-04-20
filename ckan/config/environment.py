@@ -9,7 +9,6 @@ from paste.deploy.converters import asbool
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
 
-
 import pylons
 import sqlalchemy
 
@@ -17,7 +16,6 @@ from pylons import config
 from pylons.i18n.translation import ugettext
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
-from paste.deploy.converters import asbool
 
 import ckan.lib.app_globals as app_globals
 import ckan.lib.helpers as h
@@ -25,6 +23,51 @@ from ckan.config.routing import make_map
 from ckan import model
 from ckan import plugins
 
+
+
+class _Helpers(object):
+    ''' Helper object giving access to template helpers stopping
+    missing functions from causing template exceptions. Useful if
+    templates have helper functions provided by extensions that have
+    not been enabled. '''
+    def __init__(self, helpers, restrict=True):
+        functions = {}
+        allowed = helpers.__allowed_functions__
+
+        for helper in dir(helpers):
+            if restrict and (helper not in allowed):
+                continue
+            functions[helper] = getattr(helpers, helper)
+        self.functions = functions
+
+        # extend helper functions with ones supplied by plugins
+        from ckan.plugins import PluginImplementations
+        from ckan.plugins.interfaces import ITemplateHelpers
+
+        extra_helpers = []
+        for plugin in PluginImplementations(ITemplateHelpers):
+            helpers = plugin.get_helpers()
+            for helper in helpers:
+                if helper in extra_helpers:
+                    raise Exception('overwritting extra helper %s' % helper)
+                extra_helpers.append(helper)
+                functions[helper] = helpers[helper]
+
+    @classmethod
+    def null_function(cls, *args, **kw):
+        ''' This function is returned if no helper is found. The idea is
+        to try to allow templates to be rendered even if helpers are
+        missing.  Returning the empty string seems to work well.'''
+        return ''
+
+    def __getattr__(self, name):
+        ''' return the function/object requested '''
+        if name in self.functions:
+            return self.functions[name]
+        else:
+            log = logging.getLogger('ckan.helpers')
+            log.critical('Helper function `%s` could not be found (missing extension?)' % name)
+            return self.null_function
 
 
 def load_environment(global_conf, app_conf):
@@ -98,25 +141,11 @@ def load_environment(global_conf, app_conf):
 
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
-    if asbool(config.get('ckan.restrict_template_vars', 'false')):
-        import ckan.lib.helpers_clean
-        config['pylons.h'] = ckan.lib.helpers_clean
-    else:
-        config['pylons.h'] = h
 
-    # extend helper functions with ones supplied by plugins
-    from ckan.plugins import PluginImplementations
-    from ckan.plugins.interfaces import ITemplateHelpers
-
-    extra_helpers = []
-    for plugin in PluginImplementations(ITemplateHelpers):
-        helpers = plugin.get_helpers()
-        for helper in helpers:
-            if helper in extra_helpers:
-                raise Exception('overwritting extra helper %s' % helper)
-            extra_helpers.append(helper)
-            setattr(config['pylons.h'], helper, helpers[helper])
-
+    # add helper functions
+    restrict_helpers = asbool(config.get('ckan.restrict_template_vars', 'false'))
+    helpers = _Helpers(h, restrict_helpers)
+    config['pylons.h'] = helpers
 
     ## redo template setup to use genshi.search_path (so remove std template setup)
     template_paths = [paths['templates'][0]]
