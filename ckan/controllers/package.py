@@ -84,15 +84,30 @@ class PackageController(BaseController):
     def _history_template(self, package_type):
         return lookup_package_plugin(package_type).history_template()
 
+    def _guess_package_type(self, expecting_name=False):
+        """
+            Guess the type of package from the URL handling the case
+            where there is a prefix on the URL (such as /data/package)
+        """
+        parts = [x for x in request.path.split('/') if x]
+
+        idx = -1
+        if expecting_name:
+            idx = -2
+
+        pt = parts[idx]
+        if pt == 'package':
+            pt = 'dataset'
+
+        return pt
+
 
     authorizer = ckan.authz.Authorizer()
 
     def search(self):
         from ckan.lib.search import SearchError
 
-        package_type = request.path.strip('/').split('/')[0]
-        if package_type == 'package':
-            package_type = 'dataset'
+        package_type = self._guess_package_type()
 
         try:
             context = {'model':model,'user': c.user or c.author}
@@ -195,6 +210,7 @@ class PackageController(BaseController):
                 items_per_page=limit
             )
             c.facets = query['facets']
+            c.search_facets = query['search_facets']
             c.page.items = query['results']
         except SearchError, se:
             log.error('Dataset search error: %r', se.args)
@@ -319,9 +335,7 @@ class PackageController(BaseController):
 
 
     def history(self, id):
-        package_type = request.path.strip('/').split('/')[0]
-        if package_type == 'package':
-            package_type = 'dataset'
+        package_type = self._get_package_type(id.split('@')[0])
 
         if 'diff' in request.params or 'selected1' in request.params:
             try:
@@ -393,10 +407,7 @@ class PackageController(BaseController):
         return render( self._history_template(c.pkg_dict.get('type',package_type)))
 
     def new(self, data=None, errors=None, error_summary=None):
-
-        package_type = request.path.strip('/').split('/')[0]
-        if package_type == 'group':
-            package_type = None
+        package_type = self._guess_package_type(True)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,

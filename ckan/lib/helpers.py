@@ -7,6 +7,7 @@ available to Controllers. This module is available to templates as 'h'.
 """
 import email.utils
 import datetime
+import logging
 import re
 import urllib
 
@@ -31,9 +32,6 @@ from pylons import request
 from pylons import session
 from pylons import c
 from pylons.i18n import _
-from pylons.templating import pylons_globals
-from genshi.template import MarkupTemplate
-from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -47,6 +45,8 @@ try:
     import json
 except ImportError:
     import simplejson as json
+
+_log = logging.getLogger(__name__)
 
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
@@ -334,8 +334,41 @@ def _subnav_named_route(text, routename, **kwargs):
 def default_group_type():
     return str( config.get('ckan.default.group_type', 'group') )
 
+def unselected_facet_items(facet, limit=10):
+    '''Return the list of unselected facet items for the given facet, sorted
+    by count.
+
+    Returns the list of unselected facet contraints or facet items (e.g. tag
+    names like "russian" or "tolstoy") for the given search facet (e.g.
+    "tags"), sorted by facet item count (i.e. the number of search results that
+    match each facet item).
+
+    Reads the complete list of facet items for the given facet from
+    c.search_facets, and filters out the facet items that the user has already
+    selected.
+
+    Arguments:
+    facet -- the name of the facet to filter.
+    limit -- the max. number of facet items to return.
+
+    '''
+    if not c.search_facets or \
+       not c.search_facets.get(facet) or \
+       not c.search_facets.get(facet).get('items'):
+        return []
+    facets = []
+    for facet_item in c.search_facets.get(facet)['items']:
+        if not len(facet_item['name'].strip()):
+            continue
+        if not (facet, facet_item['name']) in request.params.items():
+            facets.append(facet_item)
+    return sorted(facets, key=lambda item: item['count'], reverse=True)[:limit]
 
 def facet_items(*args, **kwargs):
+    """
+    DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
+    """
+    _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
     # facet_items() used to need c passing as the first arg
     # this is depriciated as pointless
     # throws error if ckan.restrict_template_vars is True
@@ -675,20 +708,8 @@ def activity_div(template, activity, actor, object=None, target=None):
 def snippet(template_name, **kw):
     ''' This function is used to load html snippets into pages. keywords
     can be used to pass parameters into the snippet rendering '''
-    pylons_globs = pylons_globals()
-    genshi_loader = pylons_globs['app_globals'].genshi_loader
-    template = genshi_loader.load(template_name, cls=MarkupTemplate)
-    globs = kw
-    globs['h'] = pylons_globs['h']
-    globs['c'] = pylons_globs['c']
-    globs['config'] = pylons_globs['config']
-    stream = template.generate(**globs)
-    for item in PluginImplementations(IGenshiStreamFilter):
-        stream = item.filter(stream)
-    output = stream.render(method='xhtml', encoding=None, strip_whitespace=True)
-    output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
-                    template_name, output, template_name)
-    return literal(output)
+    import ckan.lib.base as base
+    return base.render_snippet(template_name, **kw)
 
 
 def convert_to_dict(object_type, objs):
