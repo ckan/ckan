@@ -33,6 +33,7 @@ group_table = Table('group', meta.metadata,
     Column('title', types.UnicodeText),
     Column('type', types.UnicodeText, nullable=False),
     Column('description', types.UnicodeText),
+    Column('image_url', types.UnicodeText),
     Column('created', types.DateTime, default=datetime.datetime.now),
     Column('approval_status', types.UnicodeText, default=u"approved"),
     )
@@ -45,7 +46,7 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         domain_object.DomainObject):
     def __init__(self, group=None, table_id=None, group_id=None,
-                 table_name=None, capacity='member', state='active'):
+                 table_name=None, capacity='public', state='active'):
         self.group = group
         self.group_id = group_id
         self.table_id = table_id
@@ -80,11 +81,12 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
             domain_object.DomainObject):
 
-    def __init__(self, name=u'', title=u'', description=u'',
-                 type=u'group', approval_status=u'approved' ):
+    def __init__(self, name=u'', title=u'', description=u'', image_url=u'',
+                 type=u'group', approval_status=u'approved'):
         self.name = name
         self.title = title
         self.description = description
+        self.image_url = image_url
         self.type = type
         self.approval_status= approval_status
 
@@ -188,7 +190,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict = domain_object.DomainObject.as_dict(self)
         _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
         _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
-        if ( self.type == 'publisher' ):
+        if ( self.type == 'organization' ):
             _dict['users'] = [getattr(user, "name") for user in self.members_of_type(_user.User)]
         return _dict
 

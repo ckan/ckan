@@ -13,7 +13,7 @@ __all__ = [
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer', 'IAuthorizer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
-    'IGroupForm',
+    'IGroupForm', 'ITemplateHelpers',
 ]
 
 from inspect import isclass
@@ -271,7 +271,7 @@ class IPackageController(Interface):
 
     def before_index(self, pkg_dict):
         '''
-             Extensions will recieve what will be given to the solr for indexing.
+             Extensions will receive what will be given to the solr for indexing.
              This is essentially a flattened dict (except for multlivlaued fields such as tags
              of all the terms sent to the indexer.  The extension can modify this by returning
              an altered version.
@@ -383,6 +383,16 @@ class IAuthFunctions(Interface):
         """
         Returns a dict of all the authorization functions which the
         implementation overrides
+        """
+
+class ITemplateHelpers(Interface):
+    """
+    Allow adding extra template functions available via h variable
+    """
+    def get_helpers(self):
+        """
+        Should return a dict, the keys being the name of the helper
+        function and the values being the functions themselves.
         """
 
 class IDatasetForm(Interface):

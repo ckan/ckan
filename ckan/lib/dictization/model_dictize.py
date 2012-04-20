@@ -208,7 +208,7 @@ def package_dictize(pkg, context):
     result_dict['metadata_modified'] = context.pop('metadata_modified')
     result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
         if pkg.metadata_created else None
-        
+
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
             result_dict = item.before_view(result_dict)

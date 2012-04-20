@@ -5,12 +5,11 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
   >
-  <xi:include href="../_util_activity_div.html" />
-${activity_div(
+${h.activity_div(
+  template=_("{actor} added the tag {object} to the dataset {target}"),
+  activity=activity,
   actor=h.linked_user(activity.user_id),
-  verb='added',
-  object="the tag "+h.tag_link(detail.data.tag),
-  target="to the dataset "+h.dataset_link(detail.data.package),
-  activity=activity
+  object=h.tag_link(detail.data.tag),
+  target=h.dataset_link(detail.data.package),
   )}
 </html>

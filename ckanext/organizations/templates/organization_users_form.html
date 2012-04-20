@@ -1,0 +1,72 @@
+<form id="publisher-edit" action="" method="post"
+    py:attrs="{'class':'has-errors'} if errors else {}"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<div class="error-explanation" py:if="error_summary">
+	<h2>Errors in form</h2>
+	<p>The form contains invalid entries:</p>
+	<ul>
+	  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}</li>
+	</ul>
+</div>
+
+<input type="hidden" id="type" name="type" value="organization" />
+
+<fieldset id="users">
+  <h3>Users</h3>
+  <dl py:if="data.get('users')">
+    <py:for each="num, user in enumerate(data.get('users'))">
+	      <dd>
+	<input checked="checked" id="users__${num}__name" name="users__${num}__name" type="checkbox" value="${user['name']}" style="display:none;"/>
+
+	        <label for="users__${num}__name">${user['name']}</label>
+		     <div style="float:right;margin-right: 20px;">
+			  <input type="radio" name="users__${num}__capacity" value="admin"  py:attrs="{'checked': 'checked' if user['capacity'] == 'admin' else None}"> Admin</input>
+			  <input type="radio" name="users__${num}__capacity" value="editor" py:attrs="{'checked': 'checked' if user['capacity'] in ['editor','member'] else None}"> Editor</input>
+
+				<button onclick="return delete_user(this);">Delete</button>
+				</div>
+		  </dd>
+    </py:for>
+  </dl>
+  <p py:if="not data.get('users')">There are no users currently in this organization.</p>
+
+	  <h3>Add users</h3>
+	  <dl>
+	    <dt><label class="field_opt" for="users__${len(data.get('users', []))}__name">User</label></dt>
+
+	    <dd><input class="autocomplete-organization-user" id="users__${len(data.get('users', []))}__name" name="users__${len(data.get('users', []))}__name" type="text" /></dd>
+	  </dl>
+</fieldset>
+
+
+<div class="form-submit">
+  <input id="save" class="pretty-button primary" name="save" type="submit" value="${_('Save')}" />
+  <py:if test="c.group">
+    <input id="cancel" class="pretty-button href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='group', action='edit', id=c.group.name)}#users" />
+  </py:if>
+</div>
+
+<script type="text/javascript">
+	function delete_user(btn) {
+		var btn = $(btn)[0];
+		var dd = $(btn).parents('dd');
+		var chk = $(dd).find(":checkbox");
+        chk.prop('checked', !chk.prop('checked'));
+		chk.trigger('change');
+
+		if ( chk.prop('checked') ) {
+			$(dd).css({ opacity: 1 });
+			$(btn).html('Delete');
+		} else {
+			$(dd).css({ opacity: 0.5 });
+			$(btn).html('Cancel');
+		}
+		return false;
+	}
+</script>
+
+</form>
+

@@ -45,7 +45,7 @@ class TestActivity(HtmlCheckMethods):
         offset = url_for(controller='user', action='read', id=user['id'])
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
-        assert '%s signed up.' % user['fullname'] in stripped, stripped
+        assert '%s signed up' % user['fullname'] in stripped, stripped
 
         # Create a new package.
         package = {
@@ -200,7 +200,7 @@ class TestActivity(HtmlCheckMethods):
         user_update(context, user)
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
-        assert '%s updated their profile.' % user['fullname'] \
+        assert '%s updated their profile' % user['fullname'] \
                 in stripped, stripped
 
         # By now we've created >15 activities, but only the latest 15 should

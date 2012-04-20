@@ -5,11 +5,10 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
   >
-  <xi:include href="../_util_activity_div.html" />
-${activity_div(
+${h.activity_div(
+  template=_("{actor} deleted the group {object}"),
+  activity=activity,
   actor=h.linked_user(activity.user_id),
-  verb='deleted',
-  object="the group "+activity.data.group.name,
-  activity=activity
+  object=activity.data.group.name,
   )}
 </html>

@@ -35,7 +35,7 @@
         <p>
             You can also access this registry using the 
             ${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None, ver=1))}
-            (see ${h.link_to(_('API Docs'), 'http://wiki.ckan.net/API')})<py:if test="dumps_url">
+            (see ${h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html')})<py:if test="dumps_url">
                 or download a <a href="${dumps_url}">full ${dumps_format} 
                 dump</a></py:if>.
         </p>
@@ -61,6 +61,14 @@
       ${c.page.pager(q=c.q)}
 
   </div>
+
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Datasets found with custom search: '${c.search_url_params}'"
+    href="${h.url(controller='feed', action='custom')}?${c.search_url_params}" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History"
+    href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
+  </py:def>
+
   <xi:include href="layout.html" />
 </html>
 

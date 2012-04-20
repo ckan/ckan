@@ -276,15 +276,17 @@ class UserController(BaseController):
             h.flash_success(_("%s is now logged in") % user_dict['display_name'])
             return self.me(locale=lang)
         else:
-            h.flash_error(_('Login failed. Bad username or password.' + \
-                          ' (Or if using OpenID, it hasn\'t been associated with a user account.)'))
+            err = _('Login failed. Bad username or password.')
+            if g.openid_enabled:
+                err += _(' (Or if using OpenID, it hasn\'t been associated with a user account.)')
+            h.flash_error(err)
             h.redirect_to(locale=lang, controller='user', action='login')
 
     def logout(self):
         # save our language in the session so we don't loose it
         session['lang'] = request.environ.get('CKAN_LANG')
         session.save()
-        h.redirect_to('/user/logout_generic')
+        h.redirect_to('/user/logout')
 
     def set_lang(self, lang):
         # this allows us to set the lang in session.  Used for logging

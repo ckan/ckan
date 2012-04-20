@@ -1,24 +1,25 @@
 import copy
 import formencode as fe
 import inspect
+from pylons.i18n import _
 
 class Missing(object):
     def __unicode__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __str__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __int__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __complex__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __long__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __float__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __oct__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __hex__(self):
-        raise Invalid(fe.api._stdtrans('Missing value'))
+        raise Invalid(_('Missing value'))
     def __nonzero__(self):
         return False
 
@@ -27,15 +28,21 @@ missing = Missing()
 class State(object):
     pass
 
-class Invalid(Exception):
+class DictizationError(Exception):
+    def __str__(self):
+        if hasattr(self, 'error') and self.error:
+            return repr(self.error)
+        return ''
+
+class Invalid(DictizationError):
     def __init__(self, error, key=None):
         self.error = error
 
-class DataError(Exception):
+class DataError(DictizationError):
     def __init__(self, error):
         self.error = error
 
-class StopOnError(Exception):
+class StopOnError(DictizationError):
     '''error to stop validations for a particualar key'''
     pass
 
@@ -103,7 +110,6 @@ def make_full_schema(data, schema):
 
 def augment_data(data, schema):
     '''add missing, extras and junk data'''
-
     flattented_schema = flatten_schema(schema)
     key_combinations = get_all_key_combinations(data, flattented_schema)
 
@@ -119,12 +125,12 @@ def augment_data(data, schema):
 
         ## check if any thing naugthy is placed against subschemas
         initial_tuple = key[::2]
-        if initial_tuple in [initial_key[:len(initial_tuple)] 
+        if initial_tuple in [initial_key[:len(initial_tuple)]
                              for initial_key in flattented_schema]:
             if data[key] <> []:
                 raise DataError('Only lists of dicts can be placed against '
-                                'subschema %s' % key)
-                
+                                'subschema %s, not %s' % (key,type(data[key])))
+
         if key[:-1] in key_combinations:
             extras_key = key[:-1] + ('__extras',)
             extras = new_data.get(extras_key, {})
@@ -208,7 +214,6 @@ def _remove_blank_keys(schema):
 
 def validate(data, schema, context=None):
     '''Validate an unflattened nested dict against a schema.'''
-
     context = context or {}
 
     assert isinstance(data, dict)
@@ -248,7 +253,6 @@ def validate_flattened(data, schema, context=None):
 
 def _validate(data, schema, context):
     '''validate a flattened dict against a schema'''
-    
     converted_data = augment_data(data, schema)
     full_schema = make_full_schema(data, schema)
 

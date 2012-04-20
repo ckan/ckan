@@ -239,6 +239,7 @@ def make_map():
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('/user/register', action='register')
         m.connect('/user/login', action='login')
+        m.connect('/user/_logout', action='logout')
         m.connect('/user/logged_in', action='logged_in')
         m.connect('/user/logged_out', action='logged_out')
         m.connect('/user/logged_out_redirect', action='logged_out_page')
@@ -254,6 +255,13 @@ def make_map():
         m.connect('/revision/diff/{id}', action='diff')
         m.connect('/revision/list', action='list')
         m.connect('/revision/{id}', action='read')
+
+    # feeds
+    with SubMapper(map, controller='feed') as m:
+        m.connect('/feeds/group/{id}.atom', action='group')
+        m.connect('/feeds/tag/{id}.atom', action='tag')
+        m.connect('/feeds/dataset.atom', action='general')
+        m.connect('/feeds/custom.atom', action='custom')
 
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')

@@ -1,15 +1,22 @@
-.data-explorer .header .navigation,
-.data-explorer .header .navigation li,
-.data-explorer .header .pagination,
-.data-explorer .header .pagination form
+.recline-data-explorer .header .navigation,
+.recline-data-explorer .header .navigation li,
+.recline-data-explorer .header .pagination,
+.recline-data-explorer .header .pagination form
 {
   display: inline;
 }
 
-.data-explorer .header .navigation {
+.recline-data-explorer .header .navigation {
   float: left;
   margin-left: 0;
   padding-left: 0;
+}
+
+.recline-data-explorer .header .menu-right {
+  float: right;
+  margin-left: 5px;
+  padding-left: 5px;
+  border-left: solid 2px #ddd;
 }
 
 .header .recline-results-info {
@@ -27,40 +34,44 @@
   margin-bottom: auto;
 }
 
-.header .recline-query-editor .text-query input {
-  float: left;  
+.recline-query-editor .add-on {
+  float: left;
 }
 
-.recline-query-editor .text-query .btn-group {
-  display: inline;
-  float:left;
-  margin-left:-2px;
-}
-
-.recline-query-editor .text-query .btn-group .dropdown-toggle {
-  -moz-border-radius:0px 3px 3px 0px;
-  -webkit-border-radius:0px 3px 3px 0px;
-  border-radius:0px 3px 3px 0px;
-}
-
-.recline-query-editor .text-query .btn-group ul {
-  margin-left:-110px;
+.header .recline-query-editor .pagination input {
+  width: 30px;
+  height: 18px;
+  padding: 2px 4px;
+  margin-top: -4px;
 }
 
 .header .recline-query-editor .pagination a {
   line-height: 26px;
+  padding: 0 6px;
 }
 
-.data-view-container {
+.header .recline-query-editor form button {
+  vertical-align: top;
+}
+
+.recline-data-explorer .data-view-container {
   display: block;
   clear: both;
+}
+
+.recline-filter-editor .filter-term .input-append a {
+  margin-left: -5px;
+}
+
+.recline-facet-viewer .facet-summary label {
+  display: inline;
 }
 
 /**********************************************************
   * Notifications
   *********************************************************/
 
-.notification-loader {
+.recline-data-explorer .notification-loader {
   width: 18px;
   margin-left: 5px;
   background: url(images/small-spinner.gif) no-repeat;
@@ -72,33 +83,33 @@
   * Data Table
   *********************************************************/
 
-.data-table .btn-group .dropdown-toggle {
+.recline-grid .btn-group .dropdown-toggle {
   padding: 1px 3px;
   line-height: auto;
 }
 
-.data-table-container {
+.recline-grid-container {
   overflow: auto;
   height: 550px;
 }
 
-.data-table {
+.recline-grid {
   border: 1px solid #ccc;
   width: 100%;
 }
 
-.data-table td, .data-table th {
+.recline-grid td, .recline-grid th {
   border-left: 1px solid #ccc;
   padding: 3px 4px;
   text-align: left;
 }
 
-.data-table tr td:first-child, .data-table tr th:first-child {
+.recline-grid tr td:first-child, .recline-grid tr th:first-child {
   width: 20px;
 }
 
 /* direct borrowing from twitter buttons */
-.data-table th,
+.recline-grid th,
 .transform-column-view .expression-preview-table-wrapper th
 {
   background-color: #e6e6e6;
@@ -137,27 +148,6 @@
   display: none;
 }
 
-.column-header-recon-stats-bar {
-  margin-top: 10px;
-  height: 4px;
-  background: #ddd;
-  border: 1px solid #ccc;
-  position: relative;
-  width: 100%;
-}
-
-.column-header-recon-stats-matched {
-  position: absolute;
-  height: 100%;
-  background: #282;
-}
-
-.column-header-recon-stats-blanks {
-  position: absolute;
-  height: 100%;
-  background: #3d3;
-}
-
 div.data-table-cell-content {
   line-height: 1.2;
   color: #222;
@@ -185,7 +175,7 @@ a.data-table-cell-edit:hover {
   background-position: -25px 0px;
 }
 
-.data-table td:hover .data-table-cell-edit {
+.recline-grid td:hover .data-table-cell-edit {
   visibility: visible;
 }
 
@@ -200,21 +190,6 @@ div.data-table-cell-content-numeric > a.data-table-cell-edit {
 
 .data-table-error {
   color: red;
-}
-
-/* TODO: not sure the rest of this is needed */
-.data-table-cell-editor, .data-table-topic-popup {
-  overflow: auto;
-  border: 1px solid #bcf;
-  background: #e3e9ff;
-  padding: 5px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-}
-
-.data-table-topic-popup-header {
-  padding: 0 0 5px;
 }
 
 .data-table-cell-editor-editor {
@@ -244,28 +219,6 @@ div.data-table-cell-content-numeric > a.data-table-cell-edit {
 .data-table-cell-editor-key {
   font-size: 0.8em;
   color: #999;
-}
-
-ul.sorting-dialog-blank-error-positions {
-  margin: 0;
-  padding: 5px;
-  height: 10em;
-  border: 1px solid #ccc;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
-}
-
-ul.sorting-dialog-blank-error-positions > li {
-  display: block;
-  border: 1px solid #ccc;
-  background: #eee;
-  padding: 5px;
-  margin: 2px;
-  cursor: move;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
 }
 
 
@@ -429,8 +382,8 @@ td.expression-preview-value {
   * Read-only mode
   *********************************************************/
 
-.read-only .no-hidden .data-table tr td:first-child,
-.read-only .no-hidden .data-table tr th:first-child
+.read-only .no-hidden .recline-grid tr td:first-child,
+.read-only .no-hidden .recline-grid tr th:first-child
 {
   display: none;
 }

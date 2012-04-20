@@ -466,7 +466,7 @@ def term_translation_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    trans_table = model.term_translation_table 
+    trans_table = model.term_translation_table
 
     update = trans_table.update()
     update = update.where(trans_table.c.term == data['term'])
@@ -484,14 +484,14 @@ def term_translation_update(context, data_dict):
         model.Session.commit()
 
     return data
-    
+
 def term_translation_update_many(context, data_dict):
     model = context['model']
-    
+
 
     if not data_dict.get('data') and isinstance(data_dict, list):
         raise ValidationError(
-            {'error': 
+            {'error':
              'term_translation_update_many needs to have a list of dicts in field data'}
         )
 
@@ -525,7 +525,7 @@ def package_update_rest(context, data_dict):
             raise ValidationError(error_dict)
 
     context["package"] = pkg
-    context["allow_partial_update"] = True
+    context["allow_partial_update"] = False
     dictized_package = model_save.package_api_to_dict(data_dict, context)
 
     check_access('package_update_rest', context, dictized_package)

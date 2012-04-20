@@ -111,8 +111,10 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = ''
     # ckan.root_path is defined when we have none standard language
     # position in the url
-    root_path = config.get('ckan.root_path')
+    root_path = config.get('ckan.root_path', None)
     if root_path:
+        # FIXME this can be written better once the merge
+        # into the ecportal core is done - Toby
         # we have a special root specified so use that
         if default_locale:
             root = re.sub('/{{LANG}}', '', root_path)
@@ -121,7 +123,9 @@ def _add_i18n_to_url(url_to_amend, **kw):
         # make sure we don't have a trailing / on the root
         if root[-1] == '/':
             root = root[:-1]
-        url = '%s%s' % (root, url_to_amend)
+        url = url_to_amend[len(re.sub('/{{LANG}}', '', root_path)):]
+        url = '%s%s' % (root, url)
+        root = re.sub('/{{LANG}}', '', root_path)
     else:
         if default_locale:
             url = url_to_amend
@@ -456,10 +460,10 @@ def format_icon(_format):
     return 'page_white'
 
 def linked_gravatar(email_hash, size=100, default=None):
-    return literal('''<a href="https://gravatar.com/" target="_blank"
-        title="Update your avatar at gravatar.com">
-        %s</a>''' %
-            gravatar(email_hash,size,default)
+    return literal(
+        '<a href="https://gravatar.com/" target="_blank"' +
+        'title="%s">' % _('Update your avatar at gravatar.com') +
+        '%s</a>' % gravatar(email_hash,size,default)
         )
 
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro']
@@ -490,10 +494,32 @@ class Page(paginate.Page):
     # our custom layout set as default.
     def pager(self, *args, **kwargs):
         kwargs.update(
-            format=u"<div class='pager'>$link_previous ~2~ $link_next</div>",
-            symbol_previous=u'« Prev', symbol_next=u'Next »'
+            format=u"<div class='pagination'><ul>$link_previous ~2~ $link_next</ul></div>",
+            symbol_previous=u'« Prev', symbol_next=u'Next »',
+            curpage_attr={'class':'active'}, link_attr={}
         )
         return super(Page, self).pager(*args, **kwargs)
+
+    # Put each page link into a <li> (for Bootstrap to style it)
+    def _pagerlink(self, page, text, extra_attributes=None):
+        anchor = super(Page, self)._pagerlink(page, text)
+        extra_attributes = extra_attributes or {}
+        return HTML.li(anchor, **extra_attributes)
+
+    # Change 'current page' link from <span> to <li><a>
+    # and '..' into '<li><a>..'
+    # (for Bootstrap to style them properly)
+    def _range(self, regexp_match):
+        html = super(Page, self)._range(regexp_match)
+        # Convert ..
+        dotdot = '\.\.'
+        dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
+        html = re.sub(dotdot, dotdot_link, html)
+        # Convert current page
+        text = '%s' % self.page
+        current_page_span = str(HTML.span(c=text, **self.curpage_attr))
+        current_page_link = self._pagerlink(self.page, text, extra_attributes=self.curpage_attr)
+        return re.sub(current_page_span, current_page_link, html)
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
     '''Render a datetime object or timestamp string as a pretty string
@@ -556,7 +582,7 @@ def time_ago_in_words_from_str(date_str, granularity='month'):
     if date_str:
         return date.time_ago_in_words(date_str_to_datetime(date_str), granularity=granularity)
     else:
-        return 'Unknown'
+        return _('Unknown')
 
 def button_attr(enable, type='primary'):
     if enable:
@@ -592,7 +618,8 @@ def resource_display_name(resource_dict):
         if len(description)>max_len: description = description[:max_len]+'...'
         return description
     else:
-        return '[no name] %s ' % resource_dict['id']
+        noname_string = _('no name')
+        return '[%s] %s' % (noname_string, resource_dict['id'])
 
 def resource_link(resource_dict, package_id):
     text = resource_display_name(resource_dict)
@@ -630,3 +657,117 @@ def _auto_log_message():
     elif (c.action=='edit'):
         return _('Edited settings.')
     return ''
+
+def activity_div(template, activity, actor, object=None, target=None):
+    actor = '<span class="actor">%s</span>' % actor
+    if object:
+        object = '<span class="object">%s</span>' % object
+    if target:
+        target = '<span class="target">%s</span>' % target
+    date = '<span class="date">%s</span>' % render_datetime(activity['timestamp'])
+    template = template.format(actor=actor, date=date, object=object, target=target)
+    template = '<div class="activity">%s %s</div>' % (template, date)
+    return literal(template)
+
+def snippet(template_name, **kw):
+    ''' This function is used to load html snippets into pages. keywords
+    can be used to pass parameters into the snippet rendering '''
+    import ckan.lib.base as base
+    return base.render_snippet(template_name, **kw)
+
+
+def convert_to_dict(object_type, objs):
+    ''' This is a helper function for converting lists of objects into
+    lists of dicts. It is for backwards compatability only. '''
+
+    def dictize_revision_list(revision, context):
+        # conversionof revision lists
+        def process_names(items):
+            array = []
+            for item in items:
+                array.append(item.name)
+            return array
+
+        rev = {'id' : revision.id,
+               'state' : revision.state,
+               'timestamp' : revision.timestamp,
+               'author' : revision.author,
+               'packages' : process_names(revision.packages),
+               'groups' : process_names(revision.groups),
+               'message' : revision.message,}
+        return rev
+    import lib.dictization.model_dictize as md
+    import ckan.model as model
+    converters = {'package' : md.package_dictize,
+                  'revisions' : dictize_revision_list}
+    converter = converters[object_type]
+    items = []
+    context = {'model' : model}
+    for obj in objs:
+        item = converter(obj, context)
+        items.append(item)
+    return items
+
+
+# these are the functions that will end up in `h` template helpers
+# if config option restrict_template_vars is true
+__allowed_functions__ = [
+    # functions defined in ckan.lib.helpers
+           'redirect_to',
+           'url',
+           'url_for',
+           'url_for_static',
+           'lang',
+           'flash',
+           'flash_error',
+           'flash_notice',
+           'flash_success',
+           'nav_link',
+           'nav_named_link',
+           'subnav_link',
+           'subnav_named_route',
+           'default_group_type',
+           'facet_items',
+           'facet_title',
+         #  am_authorized, # depreciated
+           'check_access',
+           'linked_user',
+           'linked_authorization_group',
+           'group_name_to_title',
+           'markdown_extract',
+           'icon',
+           'icon_html',
+           'icon_url',
+           'resource_icon',
+           'format_icon',
+           'linked_gravatar',
+           'gravatar',
+           'pager_url',
+           'render_datetime',
+           'date_str_to_datetime',
+           'datetime_to_date_str',
+           'parse_rfc_2822_date',
+           'time_ago_in_words_from_str',
+           'button_attr',
+           'dataset_display_name',
+           'dataset_link',
+           'resource_display_name',
+           'resource_link',
+           'tag_link',
+           'group_link',
+           'dump_json',
+           'auto_log_message',
+           'snippet',
+           'convert_to_dict',
+           'activity_div',
+    # imported into ckan.lib.helpers
+           'literal',
+           'link_to',
+           'get_available_locales',
+           'get_locales_dict',
+           'truncate',
+           'file',
+           'mail_to',
+           'radio',
+           'submit',
+]

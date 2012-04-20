@@ -37,7 +37,7 @@ package_table = Table('package', meta.metadata,
         Column('author', types.UnicodeText),
         Column('author_email', types.UnicodeText),
         Column('maintainer', types.UnicodeText),
-        Column('maintainer_email', types.UnicodeText),                      
+        Column('maintainer_email', types.UnicodeText),
         Column('notes', types.UnicodeText),
         Column('license_id', types.UnicodeText),
         Column('type', types.UnicodeText),
@@ -75,7 +75,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         query = query.options(eagerload_all('resource_groups_all.resources_all'))
         pkg = query.first()
         if pkg == None:
-            pkg = cls.by_name(reference)            
+            pkg = cls.by_name(reference)
         return pkg
     # Todo: Make sure package names can't be changed to look like package IDs?
 
@@ -130,7 +130,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 except ValueError:
                     continue
                 index_to_res[i] = self.resources[matching_res_index]
-                
+
         # Edit resources and create the new ones
         new_res_list = []
 
@@ -377,15 +377,15 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                     continue
                 # and check children
                 child_pkg = parent_rel_as_object.subject
-                if (child_pkg != self and 
+                if (child_pkg != self and
                     parent_rel_as_object.type == rel_as_subject.type and
                     child_pkg.state == core.State.ACTIVE):
                     type_printable = PackageRelationship.inferred_types_printable['sibling']
                     rel_list.append((child_pkg, type_printable, None))
         return sorted(list(set(rel_list)))
     #
-    ## Licenses are currently integrated into the domain model here.   
- 
+    ## Licenses are currently integrated into the domain model here.
+
     @classmethod
     def get_license_register(cls):
         if not hasattr(cls, '_license_register'):
@@ -459,7 +459,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Returns the latest revision for the package and its related
         objects.'''
         return self.all_related_revisions[0][0]
-        
+
     def diff(self, to_revision=None, from_revision=None):
         '''Overrides the diff in vdm, so that related obj revisions are
         diffed as well as PackageRevisions'''
@@ -472,7 +472,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # Iterate over PackageTag, PackageExtra, Resources etc.
         for obj_class in [ResourceGroup, Resource, PackageExtra, PackageTag]:
             obj_rev_class = obj_class.__revision_class__
-            # Query for object revisions related to this package            
+            # Query for object revisions related to this package
             if obj_class == Resource:
                 obj_rev_query = meta.Session.query(obj_rev_class).\
                                 join('continuity', 'resource_group').\
@@ -548,7 +548,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # Use current connection because we might be in a 'before_commit' of
         # a SessionExtension - only by using the current connection can we get
         # at the newly created revision etc. objects.
-        conn = meta.Session.connection() 
+        conn = model.Session.connection()
         result = conn.execute(query).fetchone()
 
         if result:
@@ -564,19 +564,22 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def get_groups(self, group_type=None, capacity=None):
         import ckan.model as model
-        if '_groups' not in self.__dict__:
-            self._groups = meta.Session.query(model.Group).\
-               join(model.Member, model.Member.group_id == model.Group.id and \
-                    model.Member.table_name == 'package' ).\
-               join(model.Package, model.Package.id == model.Member.table_id).\
-               filter(model.Member.state == 'active').\
-               filter(model.Member.table_id == self.id).all()
-               
-        groups = self._groups
-        if group_type:       
+
+        # Gets [ (group, capacity,) ...]
+        groups = model.Session.query(model.Group,model.Member.capacity).\
+           join(model.Member, model.Member.group_id == model.Group.id and \
+                model.Member.table_name == 'package' ).\
+           join(model.Package, model.Package.id == model.Member.table_id).\
+           filter(model.Member.state == 'active').\
+           filter(model.Member.table_id == self.id).all()
+
+        caps   = [g[1] for g in groups]
+        groups = [g[0] for g in groups ]
+        if group_type:
             groups = [g for g in groups if g.type == group_type]
-        if capacity:       
-            groups = [g for g in groups if g.capacity == capacity]
+        if capacity:
+            groupcaps = zip( groups,caps )
+            groups = [g[0] for g in groupcaps if g[1] == capacity]
         return groups
 
     @property

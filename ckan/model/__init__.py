@@ -281,7 +281,9 @@ class Repository(vdm.sqlalchemy.Repository):
 
     def are_tables_created(self):
         meta.metadata = MetaData(self.metadata.bind)
-        meta.metadata.reflect()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', '.*(reflection|geometry).*')
+            meta.metadata.reflect()
         return bool(meta.metadata.tables)
 
     def purge_revision(self, revision, leave_record=False):

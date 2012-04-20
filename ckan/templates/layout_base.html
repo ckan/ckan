@@ -53,7 +53,7 @@
         <div class="menu account">
           <span class="ckan-logged-in" style="display: none;">
             <a href="${h.url_for(controller='user',action='me')}">${h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=20)}${c.user}</a>
-            <a href="${h.url_for('/user/logout')}">Logout</a>
+            <a href="${h.url_for('/user/_logout')}">Logout</a>
           </span>
           <span class="ckan-logged-out">
             <a href="${h.url_for(controller='user',action='login')}">Login</a>
@@ -90,7 +90,10 @@
     </py:with>
 
     <div id="main" class="container" role="main">
-      <h1 py:if="defined('page_heading')" class="page_heading">${page_heading()}</h1>
+      <h1 py:if="defined('page_heading')" class="page_heading">
+        <img py:if="defined('page_logo')" id="page-logo" src="${page_logo()}" alt="Page Logo" />
+        ${page_heading()}
+      </h1>
       <div class="row">
         <div class="span12">
           <div id="minornavigation">
@@ -139,7 +142,7 @@
                 <a href="http://twitter.com/ckanproject">Twitter @ckanproject</a>
               </li>
                 <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1))}</li>
-                <li>${h.link_to(_('API Docs'), 'http://wiki.ckan.net/API')}</li>
+                <li>${h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html')}</li>
               <li>
                 <a href="http://ckan.org/contact/">Contact Us</a>
               </li>
@@ -227,12 +230,11 @@
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jqueryui/1.8.14/jquery-ui.min.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/bootstrap/2.0.2/bootstrap.min.js')}"></script>
 
-  <!-- for ckanjs etc -->
+  <!-- for application.js -->
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/underscore/1.1.6/underscore.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/backbone/0.5.1/backbone.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.fileupload/20110801/jquery.iframe-transport.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.fileupload/20110801/jquery.fileupload.js')}"></script>
-  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/ckanjs/1.0.0/ckanjs.js')}"></script>
 
   <!-- Translated js strings live inside an html template. -->
   <xi:include href="js_strings.html" />
