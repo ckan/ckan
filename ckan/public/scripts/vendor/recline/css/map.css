@@ -1,4 +1,4 @@
-.data-map-container .map {
+.recline-map .map {
   height: 500px;
 }
 
@@ -6,18 +6,18 @@
   * Editor
   *********************************************************/
 
-.data-map-container .editor {
+.recline-map .editor {
   float: right;
   width: 200px;
   padding-left: 0px;
   margin-left: 10px;
 }
 
-.data-map-container .editor form {
+.recline-map .editor form {
   padding-left: 4px;
 }
 
-.data-map-container .editor select {
+.recline-map .editor select {
 	width: 100%;
 }
 
