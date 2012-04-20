@@ -658,32 +658,6 @@ def _auto_log_message():
         return _('Edited settings.')
     return ''
 
-def tracking_count_package(package_id):
-    import ckan.model as model
-    sql = '''SELECT running_total
-             FROM tracking_summary
-             WHERE package_id='%s'
-             ORDER BY date DESC LIMIT 1''' % package_id
-    result = model.Session.execute(sql).fetchall()
-    if result:
-        count = result[0]['running_total']
-        return literal('<span title="') + 'Viewed %s times' % count + literal('"><i class="icon-eye-open"></i> %s</span>' % count)
-    else:
-        return literal('<span>&nbsp;</span>')
-
-def tracking_count_resource(url):
-    import ckan.model as model
-    sql = '''SELECT running_total
-             FROM tracking_summary
-             WHERE url='%s'
-             ORDER BY date DESC LIMIT 1''' % url
-    result = model.Session.execute(sql).fetchall()
-    if result:
-        count = result[0]['running_total']
-        return literal('<span title="') + 'Downloaded %s times' % count + literal('"><i class="icon-eye-open"></i> %s</span>' % count)
-    else:
-        return literal('<span>&nbsp;</span>')
-
 def activity_div(template, activity, actor, object=None, target=None):
     actor = '<span class="actor">%s</span>' % actor
     if object:
