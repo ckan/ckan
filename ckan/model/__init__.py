@@ -41,7 +41,9 @@ revision_table = core.revision_table
 
 AuthorizationGroup = authorization_group.AuthorizationGroup
 AuthorizationGroupUser = authorization_group.AuthorizationGroupUser
+user_in_authorization_group = authorization_group.user_in_authorization_group
 add_user_to_authorization_group = authorization_group.add_user_to_authorization_group
+remove_user_from_authorization_group =authorization_group.remove_user_from_authorization_group
 
 Activity = activity.Activity
 ActivityDetail = activity.ActivityDetail
