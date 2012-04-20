@@ -21,7 +21,7 @@ class _Toolkit(object):
 
     It should not be used internally within ckan only by extensions.
 
-    Functions should only be removed from this file after reasonable
+    Functions/objects should only be removed after reasonable
     depreciation notice has been given.'''
 
     # contents should describe the available functions/objects. We check
@@ -66,7 +66,7 @@ class _Toolkit(object):
         import ckan.logic as logic
         import ckan.lib.cli as cli
 
-        # Allow class
+        # Allow class access to these modules
         self.__class__.ckan = ckan
         self.__class__.base = base
 
