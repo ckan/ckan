@@ -10,8 +10,7 @@ being equivalent to a single index 'type' in ElasticSearch (we tend to refer to
 it as a 'table').  This means you can often directly re-use `ElasticSearch
 client libraries`_ when connecting to the API endpoint.
 
-Furthermore, it means that almost all of what is presented below is generally
-applicable to ElasticSearch.
+Furthermore, it means that what is presented below is essentially a tutorial in the ElasticSearch API.
 
 .. _ElasticSearch client libraries: http://www.elasticsearch.org/guide/appendix/clients.html
 
