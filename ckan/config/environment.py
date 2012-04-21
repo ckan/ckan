@@ -151,9 +151,8 @@ def load_environment(global_conf, app_conf):
     ckan_db = os.environ.get('CKAN_DB') 
 
     if ckan_db:
-        engine = sqlalchemy.create_engine(ckan_db)
-    else:
-        engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
+        config['sqlalchemy.url'] = ckan_db
+    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
 
     if not model.meta.engine:
         model.init_model(engine)

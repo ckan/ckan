@@ -6,7 +6,7 @@ from pylons.i18n import _
 import webhelpers.html
 from sqlalchemy.sql import select
 from sqlalchemy.orm import aliased
-from sqlalchemy import or_, and_, func, desc, case
+from sqlalchemy import or_, and_, func, desc, case, text
 
 import ckan
 import ckan.authz
@@ -31,6 +31,7 @@ Authorizer = ckan.authz.Authorizer
 check_access = logic.check_access
 NotFound = logic.NotFound
 ValidationError = logic.ValidationError
+get_or_bust = logic.get_or_bust
 
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
@@ -417,8 +418,26 @@ def resource_show(context, data_dict):
         raise NotFound
 
     check_access('resource_show', context, data_dict)
-
     return model_dictize.resource_dictize(resource, context)
+
+def resource_status_show(context, data_dict):
+
+    model = context['model']
+    id = get_or_bust(data_dict, 'id')
+
+    check_access('resource_status_show', context, data_dict)
+
+    # needs to be text query as celery tables are not in our model
+    q = text("""select status, date_done, traceback, task_status.* 
+                from task_status left join celery_taskmeta 
+                on task_status.value = celery_taskmeta.task_id and key = 'celery_task_id' 
+                where entity_id = :entity_id """)
+
+    result = model.Session.connection().execute(q, entity_id=id)
+    result_list = [table_dictize(row, context) for row in result]
+
+    return result_list
+
 
 def revision_show(context, data_dict):
     model = context['model']

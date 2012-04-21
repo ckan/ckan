@@ -79,6 +79,16 @@ class Repository(vdm.sqlalchemy.Repository):
         else:
             if not self.tables_created_and_initialised:
                 self.upgrade_db()
+                ## make sure celery tables are made as celery only makes them after
+                ## adding a task
+                try:
+                    import ckan.lib.celery_app as celery_app
+                    backend = celery_app.celery.backend
+                    ##This creates the database tables as a side effect, can not see another way
+                    ##to make tables unless you actually create a task.
+                    celery_result_session = backend.ResultSession()
+                except ImportError:
+                    pass
                 self.init_configuration_data()
                 self.tables_created_and_initialised = True
 

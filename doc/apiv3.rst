@@ -78,6 +78,9 @@ package_show_rest                      id
 group_show_rest                        id
 tag_show_rest                          id
 vocabulary_show                        id
+task_status_show                       id
+task_status_show                       entity_id, task_type, key 
+resource_status_show                   id
 package_autocomplete                   q
 tag_autocomplete                       q, fields, offset, limit, vocabulary_id
 format_autocomplete                    q, limit
