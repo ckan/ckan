@@ -1615,7 +1615,7 @@ class TestActionTermTranslation(WsgiAppCase):
 
         assert json.loads(res.body)['success']
 
-        postparams = '%s=1' % json.dumps({"term" : "moo"})
+        postparams = '%s=1' % json.dumps({"terms" : ["moo"]})
 
         res = self.app.post('/api/action/term_translation_show', params=postparams,
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
@@ -1649,7 +1649,7 @@ class TestActionTermTranslation(WsgiAppCase):
 
         assert json.loads(res.body)['result']['success'] == '3 rows updated', json.loads(res.body)
 
-        postparams = '%s=1' % json.dumps({"term" : "many"})
+        postparams = '%s=1' % json.dumps({"terms" : ["many"]})
         res = self.app.post('/api/action/term_translation_show', params=postparams,
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
                             status=200)
