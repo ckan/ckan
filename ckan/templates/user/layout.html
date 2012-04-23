@@ -20,6 +20,12 @@
           <li class="${'active' if c.action=='login' else ''}"><a href="${h.url_for(controller='user', action='login')}">Login</a></li>
           <li class="${'active' if c.action=='register' else ''}"><a href="${h.url_for(controller='user', action='register')}">Register Account</a></li>
         </py:if>
+
+        <li>
+          <button userid="${c.user_dict.id}" class="btn user-follow">
+            Follow
+          </button>
+        </li>
       </py:otherwise>
     </ul>
   </py:match>

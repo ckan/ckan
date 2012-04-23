@@ -40,6 +40,11 @@ CKAN.Utils = CKAN.Utils || {};
       CKAN.Utils.setupNotesExtract();
     }
 
+    var isUserView = $('body.user.read').length > 0;
+    if (isUserView) {
+      CKAN.Utils.setupUserFollowButton();
+    }
+
     var isResourceView = $('body.package.resource_read').length > 0;
     if (isResourceView) {
       CKAN.DataPreview.loadPreviewDialog(preload_resource);
@@ -1237,6 +1242,25 @@ CKAN.Utils = function($, my) {
     });
     return count;
   };
+
+  my.setupUserFollowButton = function() {
+    var select = $('button.user-follow');
+    $('button.user-follow').click(function(e) {
+      $.ajax({
+        contentType: 'application/json',
+        url: '/api/action/follower_create',
+        data: JSON.stringify({
+               followee_id: this.attributes.userid.nodeValue,
+               followee_type: 'user',
+        }),
+        dataType: 'json',
+        processData: false,
+        type: 'POST',
+      });
+      return false;
+    });
+  };
+
   return my;
 }(jQuery, CKAN.Utils || {});
 

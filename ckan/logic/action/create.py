@@ -486,6 +486,16 @@ def follower_create(context, follower_dict):
     schema = (context.get('schema')
             or ckan.logic.schema.default_create_follower_schema())
 
+    # If no follower_id is given in follower_dict, we use the logged-in user.
+    if not follower_dict.has_key('follower_id'):
+        if not context.has_key('user'):
+            raise logic.NotAuthorized
+        userobj = model.User.get(context['user'])
+        if not userobj:
+            raise logic.NotAuthorized
+        follower_dict['follower_id'] = userobj.id
+        follower_dict['follower_type'] = 'user'
+
     check_access('follower_create', context, follower_dict)
 
     data, errors = validate(follower_dict, schema, context)
