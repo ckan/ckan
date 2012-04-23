@@ -14,41 +14,33 @@
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/graph-flot.css')}" />
     <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/map.css')}" />
     <style type="text/css">
-      .recline-query-editor form, .recline-query-editor .text-query {
-        height: 28px;
+
+      /* Hide the query controls */
+      .header {
+        display: none;
       }
 
-      .recline-query-editor .pagination ul {
-        margin: 0;
-        padding: 0;
+      /* Hide CKAN footer */
+      .footer.outer {
+        display: none;
       }
 
-      /* needed for Chrome but not FF */
-      .header .recline-query-editor .add-on {
-        margin-left: -27px;
+      /* Don't center the main container. And provide a little space to the
+         left and above the viewer.  This is for the graph-view, which, if a
+         small amount of room is not given, the y-axis' labels are uncomfortably
+         close to the edge of the viewport.
+      */
+      #main.container {
+        width: auto;
+        margin-left: 2px;
+        margin-top: 2px;
       }
 
-      /* needed for FF but not chrome */
-      .header .recline-query-editor .input-prepend {
-        vertical-align: top;
+      /* Remove the border from the right-hand-side */
+      #content {
+        border: 0px;
       }
-    </style>
-    <!-- /data preview -->
-    <style type="text/css">
-      .resource-actions {
-        margin-right: 0;
-      }
-      .resource-actions .btn {
-        position: relative;
-        bottom: 3px;
-        padding: 8px 10px;
-      }
-      .resource-actions .download {
-        display: inline;
-      }
-      .resource-actions .download img {
-        margin: 0px 4px -4px 0;
-      }
+
     </style>
     <script type="text/javascript">
       var preload_resource = ${h.literal(c.resource_json)};
@@ -63,8 +55,6 @@
 
   <div py:match="content">
     <div class="resource-preview">
-      <h3>Preview</h3>
-      <a class="permalink" href="">Permalink</a>
       <div id="ckanext-datapreview"></div>
     </div>
   </div>
