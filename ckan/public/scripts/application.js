@@ -958,7 +958,6 @@ CKAN.Utils = function($, my) {
       , select: function(event, ui) {
         var input_box = $(this);
         input_box.val('');
-        var parent_dd = input_box.parent('dd');
         var old_name = input_box.attr('name');
         var field_name_regex = /^(\S+)__(\d+)__(\S+)$/;
         var split = old_name.match(field_name_regex);
@@ -967,10 +966,15 @@ CKAN.Utils = function($, my) {
 
         input_box.attr('name', new_name);
         input_box.attr('id', new_name);
+        
+        var $new = $('<div class="ckan-dataset-to-add"><p></p></div>');
+        $new.append($('<input type="hidden" />').attr('name', old_name).val(ui.item.value));
+        $new.append('<i class="icon-plus-sign"></i> ');
+        $new.append(ui.item.label);
+        input_box.after($new);
 
-        parent_dd.before(
-          '<input type="hidden" name="' + old_name + '" value="' + ui.item.value + '">' + '<dd>' + ui.item.label + '</dd>'
-        );
+        // prevent setting value in autocomplete box
+        return false;
       }
     });
   };

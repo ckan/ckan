@@ -6,7 +6,7 @@ from pylons.i18n import _
 import webhelpers.html
 from sqlalchemy.sql import select
 from sqlalchemy.orm import aliased
-from sqlalchemy import or_, and_, func, desc, case
+from sqlalchemy import or_, and_, func, desc, case, text
 
 import ckan
 import ckan.authz
@@ -31,6 +31,7 @@ Authorizer = ckan.authz.Authorizer
 check_access = logic.check_access
 NotFound = logic.NotFound
 ValidationError = logic.ValidationError
+get_or_bust = logic.get_or_bust
 
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
@@ -417,8 +418,26 @@ def resource_show(context, data_dict):
         raise NotFound
 
     check_access('resource_show', context, data_dict)
-
     return model_dictize.resource_dictize(resource, context)
+
+def resource_status_show(context, data_dict):
+
+    model = context['model']
+    id = get_or_bust(data_dict, 'id')
+
+    check_access('resource_status_show', context, data_dict)
+
+    # needs to be text query as celery tables are not in our model
+    q = text("""select status, date_done, traceback, task_status.* 
+                from task_status left join celery_taskmeta 
+                on task_status.value = celery_taskmeta.task_id and key = 'celery_task_id' 
+                where entity_id = :entity_id """)
+
+    result = model.Session.connection().execute(q, entity_id=id)
+    result_list = [table_dictize(row, context) for row in result]
+
+    return result_list
+
 
 def revision_show(context, data_dict):
     model = context['model']
@@ -753,12 +772,40 @@ def package_search(context, data_dict):
         'results': results
     }
 
+    # Transform facets into a more useful data structure.
+    restructured_facets = {}
+    for key, value in search_results['facets'].items():
+        restructured_facets[key] = {
+                'title': key,
+                'items': []
+                }
+        for key_, value_ in value.items():
+            new_facet_dict = {}
+            new_facet_dict['name'] = key_
+            if key == 'groups':
+                group = model.Group.get(key_)
+                if group:
+                    new_facet_dict['display_name'] = group.display_name
+                else:
+                    new_facet_dict['display_name'] = key_
+            else:
+                new_facet_dict['display_name'] = key_
+            new_facet_dict['count'] = value_
+            restructured_facets[key]['items'].append(new_facet_dict)
+    search_results['search_facets'] = restructured_facets
+
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
         search_results = item.after_search(search_results,data_dict)
 
-    return search_results
+    # After extensions have had a chance to modify the facets, sort them by
+    # display name.
+    for facet in search_results['search_facets']:
+        search_results['search_facets'][facet]['items'] = sorted(
+                search_results['search_facets'][facet]['items'],
+                key=lambda facet: facet['display_name'], reverse=True)
 
+    return search_results
 
 def resource_search(context, data_dict):
     model = context['model']
@@ -933,13 +980,13 @@ def term_translation_show(context, data_dict):
 
     q = select([trans_table])
 
-    if 'term' not in data_dict:
-        raise ValidationError({'term': 'term not in data'})
+    if 'terms' not in data_dict:
+        raise ValidationError({'terms': 'terms not in data'})
 
-    q = q.where(trans_table.c.term == data_dict['term'])
+    q = q.where(trans_table.c.term.in_(data_dict['terms']))
 
-    if 'lang_code' in data_dict:
-        q = q.where(trans_table.c.lang_code == data_dict['lang_code'])
+    if 'lang_codes' in data_dict:
+        q = q.where(trans_table.c.lang_code.in_(data_dict['lang_codes']))
 
     conn = model.Session.connection()
     cursor = conn.execute(q)

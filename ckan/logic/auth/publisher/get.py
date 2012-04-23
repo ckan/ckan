@@ -160,6 +160,9 @@ def format_autocomplete(context, data_dict):
 def task_status_show(context, data_dict):
     return {'success': True}
 
+def resource_status_show(context, data_dict):
+    return {'success': True}
+
 ## Modifications for rest api
 
 def package_show_rest(context, data_dict):
