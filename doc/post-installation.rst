@@ -45,7 +45,13 @@ It can be handy to have some test data to start with. You can get test data like
     paster --plugin=ckan create-test-data --config=/etc/ckan/std/std.ini
 
 You now have a CKAN instance that you can log in to, with some test data to check everything
-works. 
+works.
+
+You can also create various specialised test data collections for testing specific features of CKAN. For example, ``paster --plugin=ckan create-test-data translations`` creates some test data with some translations for testing the ckanext-multilingual extension. For more information, see:
+
+::
+
+    paster --plugin=ckan create-test-data --help
 
 .. _deployment-notes:
 

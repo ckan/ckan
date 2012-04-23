@@ -39,6 +39,7 @@ class NotAuthorized(ActionError):
 class ParameterError(ActionError):
     pass
 
+
 class ValidationError(ParameterError):
     def __init__(self, error_dict, error_summary=None, extra_msg=None):
         self.error_dict = error_dict
@@ -224,3 +225,29 @@ def get_action(action):
     _actions.update(fetched_actions)
     return _actions.get(action)
 
+def get_or_bust(data_dict, keys):
+    '''Try and get values from dictionary and if they are not there
+    raise a validataion error.
+
+    data_dict: a dictionary
+    keys: either a single string key in which case will return a single value,
+    or a iterable which will return a tuple for unpacking purposes.
+
+    e.g single_value = get_or_bust(data_dict, 'a_key')
+        value_1, value_2 = get_or_bust(data_dict, ['key1', 'key2'])
+    '''
+    values = []
+    errors = {}
+
+    if isinstance(keys, basestring):
+        keys = [keys]
+    for key in keys:
+        value = data_dict.get(key)
+        if not value:
+            errors[key] = _('Missing value')
+        values.append(value)
+    if errors:
+        raise ValidationError(errors)
+    if len(values) == 1:
+        return values[0]
+    return tuple(values)
