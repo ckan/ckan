@@ -1398,3 +1398,24 @@ body.editresources .error-explanation {
   /* Let JS render the resource errors inline */
   display: none;
 }
+
+/* Modal Dialog Styles */
+
+.modal-header .heading {
+  margin-bottom: 0;
+}
+
+.modal-body form {
+  margin-bottom: 0;
+}
+
+/* Chosen Form Styles */
+
+.chzn-container-single {
+  margin-bottom: 9px; /* Keep Chosen inline with Bootstrap */
+}
+
+.form-inline .chzn-container-single,
+.form-horizontal .chzn-select {
+  margin-bottom: 0;
+}
