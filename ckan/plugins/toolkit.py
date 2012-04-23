@@ -40,7 +40,7 @@ class _Toolkit(object):
         'literal',              # stop tags in a string being escaped
         'get_action',           # get logic action function
         'check_access',         # check logic function authorisation
-        'ActionNotFound',       # action not found exception (ckan.logic.NotFound)
+        'ObjectNotFound',       # action not found exception (ckan.logic.NotFound)
         'NotAuthorized',        # action not authorized exception
         'ValidationError',      # model update validation error
         'CkanCommand',          # class for providing cli interfaces
@@ -85,7 +85,7 @@ class _Toolkit(object):
 
         t['get_action'] = logic.get_action
         t['check_access'] = logic.check_access
-        t['ActionNotFound'] = logic.NotFound  ## Name change intentional
+        t['ObjectNotFound'] = logic.NotFound  ## Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError
 
@@ -183,6 +183,8 @@ class _Toolkit(object):
         if name in self._toolkit:
             return self._toolkit[name]
         else:
+            if name == '__bases__':
+                return self.__class__.__bases__
             raise Exception('`%s` not found in plugins toolkit' % name)
 
 toolkit = _Toolkit()

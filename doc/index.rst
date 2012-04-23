@@ -60,6 +60,8 @@ The CKAN API
    :maxdepth: 3
 
    api
+   api-tutorial
+   using-data-api
 
 General Administration
 ======================

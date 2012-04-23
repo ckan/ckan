@@ -18,6 +18,6 @@ class TestCORS(TestController):
         headers = dict(out.headers)
         print headers
         assert headers['Access-Control-Allow-Origin'] == '*'
-        assert headers['Access-Control-Allow-Methods'] == "POST, PUT, GET, DELETE"
-        assert headers['Access-Control-Allow-Headers'] == "X-CKAN-API-KEY, Content-Type"
+        assert headers['Access-Control-Allow-Methods'] == "POST, PUT, GET, DELETE, OPTIONS"
+        assert headers['Access-Control-Allow-Headers'] == "X-CKAN-API-KEY, Authorization, Content-Type"
 
