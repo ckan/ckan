@@ -245,8 +245,8 @@ class BaseController(WSGIController):
 
     def _set_cors(self):
         response.headers['Access-Control-Allow-Origin'] = "*"
-        response.headers['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE"
-        response.headers['Access-Control-Allow-Headers'] = "X-CKAN-API-KEY, Content-Type"
+        response.headers['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE, OPTIONS"
+        response.headers['Access-Control-Allow-Headers'] = "X-CKAN-API-KEY, Authorization, Content-Type"
 
     def _get_user(self, reference):
         return model.User.by_name(reference)
