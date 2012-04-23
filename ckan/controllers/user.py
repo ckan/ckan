@@ -14,7 +14,7 @@ from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.logic.schema import user_new_form_schema, user_edit_form_schema
 from ckan.logic.action.get import user_activity_list_html
-from ckan.logic.action.get import user_follower_count
+from ckan.logic.action.get import user_follower_count, user_follower_list
 from ckan.lib.captcha import check_recaptcha, CaptchaError
 
 log = logging.getLogger(__name__)
@@ -407,3 +407,18 @@ class UserController(BaseController):
                 raise ValueError(_("The passwords you entered do not match."))
             return password1
 
+    def followers(self, id=None):
+        context = {'model': model, 'user': c.user or c.author,
+                'for_view': True}
+        data_dict = {'id':id, 'user_obj':c.userobj}
+
+        try:
+            user_dict = get_action('user_show')(context,data_dict)
+        except NotFound:
+            h.redirect_to(controller='user', action='login', id=None)
+        except NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
+
+        c.user_dict = user_dict
+        c.followers = user_follower_list(context, {'id':c.user_dict['id']})
+        return render('user/followers.html')

@@ -59,8 +59,11 @@
               <span>Edits</span>
             </li>
             <li>
-              <strong>${c.num_followers}</strong>
-              <span>Followers</span>
+              <a href="${h.url_for(controller='user', action='followers',
+                  id=c.user_dict.name)}">
+                <strong>${c.num_followers}</strong>
+                <span>Followers</span>
+              </a>
             </li>
           </ul>
         </div>
