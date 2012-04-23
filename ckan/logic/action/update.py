@@ -226,7 +226,7 @@ def package_update_validate(context, data_dict):
 def _update_package_relationship(relationship, comment, context):
     model = context['model']
     api = context.get('api_version')
-    ref_package_by = 'id' if api == 2 else 'name'
+    ref_package_by = 'id' if api >= 2 else 'name'
     is_changed = relationship.comment != comment
     if is_changed:
         rev = model.repo.new_revision()
