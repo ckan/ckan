@@ -85,7 +85,7 @@ class _Toolkit(object):
 
         t['get_action'] = logic.get_action
         t['check_access'] = logic.check_access
-        t['ActionNotFound'] = logic.NotFound  ## Name change intentional
+        t['ObjectNotFound'] = logic.NotFound  ## Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError
 
