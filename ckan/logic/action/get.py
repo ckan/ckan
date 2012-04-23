@@ -1342,7 +1342,12 @@ def follower_list(context, data_dict):
     cursor = conn.execute(q)
     results = []
     for row in cursor:
-        results.append(table_dictize(row, context))
+        follower_id = row['follower_id']
+        assert row['follower_type'] == 'user', (
+                "Currently only users (and not other domain objects) are "
+                "supported as followers.")
+        user = model.User.get(follower_id)
+        results.append(model_dictize.user_dictize(user, context))
     return results
 
 def user_follower_list(context, data_dict):

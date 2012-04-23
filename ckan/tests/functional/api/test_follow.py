@@ -73,12 +73,7 @@ class TestFollow(object):
         followers = response['result']
         assert len(followers) == 1
         follower = followers[0]
-        assert follower['follower_id'] == self.annafan.id
-        assert follower['follower_type'] == 'user'
-        assert follower['followee_id'] == self.russianfan.id
-        assert follower['followee_type'] == 'user'
-        timestamp = datetime_from_string(follower['datetime'])
-        assert (timestamp >= before and timestamp <= after), str(timestamp)
+        assert follower['id'] == self.annafan.id
 
         # Check that the user's follower count has increased by 1.
         params = json.dumps({'id': self.russianfan.id})
