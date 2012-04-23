@@ -40,7 +40,7 @@ class _Toolkit(object):
         'literal',              # stop tags in a string being escaped
         'get_action',           # get logic action function
         'check_access',         # check logic function authorisation
-        'ActionNotFound',       # action not found exception (ckan.logic.NotFound)
+        'ObjectNotFound',       # action not found exception (ckan.logic.NotFound)
         'NotAuthorized',        # action not authorized exception
         'ValidationError',      # model update validation error
         'CkanCommand',          # class for providing cli interfaces
