@@ -17,16 +17,16 @@ Furthermore, it means that what is presented below is essentially a tutorial in 
 Quickstart
 ==========
 
-``endpoint`` refers to the data API endpoint (or ElasticSearch index / table).
+``{{endpoint}}`` refers to the data API endpoint (or ElasticSearch index / table).
 
 Key urls:
 
-* Query: ``{endpoint}/_search`` (in ElasticSearch < 0.19 this will return an
+* Query: ``{{endpoint}}/_search`` (in ElasticSearch < 0.19 this will return an
   error if visited without a query parameter)
 
-  * Query example: ``{endpoint}/_search?size=5&pretty=true``
+  * Query example: ``{{endpoint}}/_search?size=5&pretty=true``
 
-* Schema (Mapping): ``{endpoint}/_mapping``
+* Schema (Mapping): ``{{endpoint}}/_mapping``
 
 Examples
 --------
@@ -34,15 +34,26 @@ Examples
 cURL (or Browser)
 ~~~~~~~~~~~~~~~~~
 
-The following examples utilize the <a href="http://curl.haxx.se/">cURL</a>
-command line utility. If you prefer, you you can just open the relevant urls in
-your browser::
+The following examples utilize the cURL_ command line utility. If you prefer,
+you you can just open the relevant urls in your browser::
 
+  // query for documents / rows with title field containing 'jones'
   // added pretty=true to get the json results pretty printed
-  curl {endpoint}/_search?q=title:jones&size=5&pretty=true</pre>
+  curl {{endpoint}}/_search?q=title:jones&size=5&pretty=true
+
+Adding some data (requires an :ref:`API Key <get-api-key>`)::
+
+  // requires an API key
+  // Data (argument to -d) should be a JSON document
+  curl -X POST -H "Authorization: {{YOUR-API-KEY}}" {{endpoint}} -d '{
+    "title": "jones",
+    "amount": 5.7
+  }'
+
+.. _cURL: http://curl.haxx.se/
 
 Javascript
-~~~~~~~~~~~
+~~~~~~~~~~
 
 A simple ajax (JSONP) request to the data API using jQuery::
 
@@ -51,13 +62,71 @@ A simple ajax (JSONP) request to the data API using jQuery::
     q: 'title:jones' // query on the title field for 'jones'
   };
   $.ajax({
-    url: {endpoint}/_search,
+    url: {{endpoint}}/_search,
     dataType: 'jsonp',
     success: function(data) {
       alert('Total results found: ' + data.hits.total)
     }
   });
 
+The Data API supports CORs so you can also write to it (this requires the json2_ library for ``JSON.stringify``)::
+
+  var data = {
+    title: 'jones',
+    amount: 5.7
+  };
+  $.ajax({
+    url: {{endpoint}},
+    type: 'POST',
+    data: JSON.stringify(data),
+    success: function(data) {
+      alert('Uploaded ok')
+    }
+  });
+
+.. _json2: https://github.com/douglascrockford/JSON-js/blob/master/json2.js
+
+Python
+~~~~~~
+
+.. note:: You can also use the `DataStore Python client library`_.
+
+.. _DataStore Python client library: http://github.com/okfn/datastore-client
+
+::
+
+  import urllib2
+  import json
+
+  # =================================
+  # Store data in the DataStore table
+
+  url = '{{endpoint}}'
+  data = {
+      'title': 'jones',
+      'amount': 5.7
+      }
+  # have to send the data as JSON
+  data = json.dumps(data)
+  # need to add your API key (and have authorization to write to this endpoint)
+  headers = {'Authorization': 'YOUR-API-KEY'}
+
+  req = urllib2.Request(url, data, headers)
+  out = urllib2.urlopen(req)
+  print out.read()
+
+  # =========================
+  # Query the DataStore table
+
+  url = '{{endpoint}}/_search?q=title:jones&size=5'
+  req = urllib2.Request(url)
+  out = urllib2.urlopen(req)
+  data = out.read()
+  print data
+  # returned data is JSON
+  data = json.loads(data)
+  # total number of results
+  print data['hits']['total']
 
 Querying
 ========
@@ -69,7 +138,7 @@ Basic queries can be done using only query string parameters in the URL. For
 example, the following searches for text 'hello' in any field in any document
 and returns at most 5 results::
 
-  {endpoint}/_search?q=hello&size=5
+  {{endpoint}}/_search?q=hello&size=5
 
 Basic queries like this have the advantage that they only involve accessing a
 URL and thus, for example, can be performed just using any web browser.
@@ -99,15 +168,15 @@ options for how a query is sent to the search endpoint:
 
 1. Either as the value of a source query parameter e.g.::
 
-    {endpoint}/_search?source={Query-as-JSON}
+    {{endpoint}}/_search?source={Query-as-JSON}
 
 2. Or in the request body, e.g.::
 
-    curl -XGET {endpoint}/_search -d 'Query-as-JSON'
+    curl -XGET {{endpoint}}/_search -d 'Query-as-JSON'
 
    For example::
 
-    curl -XGET {endpoint}/_search -d '{
+    curl -XGET {{endpoint}}/_search -d '{
         "query" : {
             "term" : { "user": "kimchy" }
         }
