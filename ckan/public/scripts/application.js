@@ -1361,13 +1361,26 @@ CKAN.DataPreview = function ($, my) {
       var embedLink = $('.embedLink');
       var embedIframeText = $('.embedIframeText');
 
+      var iframeWidth = $('.iframe-width');
+      var iframeHeight = $('.iframe-height');
+
       function updateLink() {
         var link = my.makeEmbedLink(dataExplorer.state);
-        embedIframeText.val($.mustache('<iframe src="{{link}}"></iframe>', {link: link.replace(/"/g, '&quot;')}));
+        var width = iframeWidth.val();
+        var height = iframeHeight.val();
+        link += '&width='+width+'&height='+height;
+        embedIframeText.val($.mustache('<iframe width="{{width}}" height="{{height}}" src="{{link}}"></iframe>',
+                                       {
+                                         link: link.replace(/"/g, '&quot;'),
+                                         width: width,
+                                         height: height
+                                       }));
         embedLink.attr('href', link);
       }
 
       dataExplorer.state.bind('change', updateLink);
+      iframeWidth.change(updateLink);
+      iframeHeight.change(updateLink);
       updateLink();
 
       // will have to refactor if this can get called multiple times

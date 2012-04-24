@@ -772,6 +772,10 @@ class PackageController(BaseController):
         
         c.recline_state = json.dumps(recline_state)
 
+        c.width = max(int(request.params.get('width', 500)), 100)
+        c.height = max(int(request.params.get('height', 500)), 100)
+        c.embedded = True
+
         return render('package/resource_embedded_dataviewer.html')
 
     def _parse_recline_state(self, state_version, raw_state):
