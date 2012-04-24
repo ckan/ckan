@@ -1,23 +1,23 @@
 body.no-sidebar .sidebar-outer { display: none; }
 body.no-sidebar #content { padding-right: 0; border-right: none; }
-body.no-sidebar .content-outer { 
-  width: 940px; 
+body.no-sidebar .content-outer {
+  width: 940px;
 }
 
 .header.outer {
   background-color: #e2e2e2;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#e2e2e2), to(#cccccc)); 
-  background-image: -webkit-linear-gradient(top, #e2e2e2, #cccccc); 
-  background-image:    -moz-linear-gradient(top, #e2e2e2, #cccccc); 
-  background-image:     -ms-linear-gradient(top, #e2e2e2, #cccccc); 
-  background-image:      -o-linear-gradient(top, #e2e2e2, #cccccc); 
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#e2e2e2), to(#cccccc));
+  background-image: -webkit-linear-gradient(top, #e2e2e2, #cccccc);
+  background-image:    -moz-linear-gradient(top, #e2e2e2, #cccccc);
+  background-image:     -ms-linear-gradient(top, #e2e2e2, #cccccc);
+  background-image:      -o-linear-gradient(top, #e2e2e2, #cccccc);
   background-image:         linear-gradient(top, #e2e2e2, #cccccc);
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#e2e2e2', EndColorStr='#cccccc'); 
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#e2e2e2', EndColorStr='#cccccc');
 
   margin-bottom: 18px;
-     -moz-box-shadow: 0px 2px 15px #dddddd; 
-  -webkit-box-shadow: 0px 2px 15px #dddddd; 
-          box-shadow: 0px 2px 15px #dddddd; 
+     -moz-box-shadow: 0px 2px 15px #dddddd;
+  -webkit-box-shadow: 0px 2px 15px #dddddd;
+          box-shadow: 0px 2px 15px #dddddd;
   border-bottom: 1px solid #ccc;
 }
 
@@ -84,22 +84,22 @@ header .search {
   padding: 0.4em;
   font-weight: bold;
 
-     -moz-border-radius: 5px; 
-  -webkit-border-radius: 5px; 
-          border-radius: 5px; 
-  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+     -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+          border-radius: 5px;
+  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
 }
 
 .footer.outer {
   border-top: 2px solid #ccc;
   background-color: #dbdbdb;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#dbdbdb), to(#ffffff)); 
-  background-image: -webkit-linear-gradient(top, #dbdbdb, #ffffff); 
-  background-image:    -moz-linear-gradient(top, #dbdbdb, #ffffff); 
-  background-image:     -ms-linear-gradient(top, #dbdbdb, #ffffff); 
-  background-image:      -o-linear-gradient(top, #dbdbdb, #ffffff); 
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#dbdbdb), to(#ffffff));
+  background-image: -webkit-linear-gradient(top, #dbdbdb, #ffffff);
+  background-image:    -moz-linear-gradient(top, #dbdbdb, #ffffff);
+  background-image:     -ms-linear-gradient(top, #dbdbdb, #ffffff);
+  background-image:      -o-linear-gradient(top, #dbdbdb, #ffffff);
   background-image:         linear-gradient(top, #dbdbdb, #ffffff);
-            fromilter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#dbdbdb', EndColorStr='#ffffff'); 
+            fromilter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#dbdbdb', EndColorStr='#ffffff');
 }
 
 html, body {
@@ -134,7 +134,7 @@ footer h3 {
 }
 
 h1, h2, h3, h4, h5 {
-  font-family: 'Ubuntu', Georgia; 
+  font-family: 'Ubuntu', Georgia;
   font-weight: normal;
   margin-bottom: 10px;
 }
@@ -164,16 +164,16 @@ label.control-label {
 table th {
   border: 1px solid #e0e0e0;
   background-color: #e2e2e2;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
-  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2));
+  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2);
+  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2);
+  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2);
+  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2);
   background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
             filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
 }
 table caption {
-  caption-side: bottom; 
+  caption-side: bottom;
   color: #888;
   font-size: 0.9em;
   background-color: white;
@@ -245,10 +245,10 @@ img.gravatar {
   vertical-align: top;
 }
 
-.drag-drop-list { 
-  list-style-type: none; 
-  margin: 0; 
-  padding: 0; 
+.drag-drop-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 }
 .drag-drop-list li {
   margin-bottom: 3px;
@@ -273,18 +273,18 @@ ul.no-break li {
   margin: 0 0 1em 0 ;
   border: 1px solid #e0e0e0;
   background-color: #e2e2e2;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2)); 
-  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2); 
-  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2); 
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e2e2e2));
+  background-image: -webkit-linear-gradient(top, #f0f0f0, #e2e2e2);
+  background-image:    -moz-linear-gradient(top, #f0f0f0, #e2e2e2);
+  background-image:     -ms-linear-gradient(top, #f0f0f0, #e2e2e2);
+  background-image:      -o-linear-gradient(top, #f0f0f0, #e2e2e2);
   background-image:         linear-gradient(top, #f0f0f0, #e2e2e2);
             filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f0f0f0', EndColorStr='#e2e2e2');
 
-     -moz-border-radius: 5px; 
-  -webkit-border-radius: 5px; 
-          border-radius: 5px; 
-  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+     -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+          border-radius: 5px;
+  -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
   padding: 2px 4px;
   font-weight: bold;
 }
@@ -352,7 +352,7 @@ ul.no-break li {
 #sidebar {
   overflow: hidden;
 }
-#sidebar h2, 
+#sidebar h2,
 #sidebar h3 {
   font-size: 1.3em;
 }
@@ -370,9 +370,9 @@ ul.no-break li {
   background-color: #FFF7C0;
   padding: 15px;
   padding-top: 10px;
-     -moz-border-radius: 15px; 
-  -webkit-border-radius: 15px; 
-          border-radius: 15px; 
+     -moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+          border-radius: 15px;
 }
 
 
@@ -415,7 +415,7 @@ ul.no-break li {
 }
 .facet-box .facet-options li {
     padding-top: 0.2em;
-    color: #000; 
+    color: #000;
 }
 
 
@@ -543,7 +543,7 @@ body.index.home .front-page .group strong {
 /* = Login Form = */
 /* ============== */
 form.simple-form label {
-    display: inline-block; 
+    display: inline-block;
     float: left;
     min-width: 40%;
     padding-top: 0.5em;
@@ -552,7 +552,7 @@ form.simple-form label {
 form.simple-form input[type=text],
 form.simple-form input[type=password] {
     border: 1px solid #E7E7E7;
-    padding: 0.5em; 
+    padding: 0.5em;
     width: 40%;
     margin-bottom: 1em
 }
@@ -597,7 +597,7 @@ form.simple-form input[type=password] {
 /* = User Index = */
 /* ============== */
 
-ul.userlist, 
+ul.userlist,
 ul.userlist ul {
   list-style-type: none;
   margin: 0;
@@ -635,9 +635,9 @@ ul.userlist .badge {
 /* ================== */
 
 body.user.read #sidebar { display: none; }
-body.user.read #content { 
-  border-right: 0; 
-  width: 950px; 
+body.user.read #content {
+  border-right: 0;
+  width: 950px;
 }
 
 .user.read .page_heading {
@@ -742,10 +742,10 @@ input.search {
   border: 1px solid #ccc;
   padding: 0.5em;
   font-weight: bold;
-     -moz-border-radius: 5px; 
-  -webkit-border-radius: 5px; 
-          border-radius: 5px; 
- -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+     -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+          border-radius: 5px;
+ -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
 }
 .dataset-search input.button {
     display: inline-block;
@@ -789,7 +789,7 @@ ul.datasets .search_meta {
 }
 ul.datasets ul.dataset_formats {
     float: right;
-    padding: 0 0 3px 0; 
+    padding: 0 0 3px 0;
     margin: 0;
     font-family: monospace;
 }
@@ -814,7 +814,7 @@ ul.datasets .openness img {
 ul.datasets .openness li {
     margin:0;
     padding:0;
-    border:none;    
+    border:none;
 }
 
 
@@ -1022,14 +1022,14 @@ body.package.read .related-datasets li {
 }
 
 img.open-data { margin: 1px 0 0 8px; vertical-align: top; }
-#dataset-resources { 
-    margin-top: 2em; 
-    margin-bottom: 2em; 
+#dataset-resources {
+    margin-top: 2em;
+    margin-bottom: 2em;
 }
 body.package.read h3 {
   margin-bottom: 8px;
 }
-.search-result { 
+.search-result {
   border-left: 2px solid #eee;
   margin: 0;
   padding: 8px;
@@ -1063,14 +1063,14 @@ body.package.read h3 {
 }
 
 .search-result .result-url,
-.search-result .result-url a { 
+.search-result .result-url a {
     color: #888;
 }
 .search-result .result-lrl:hover,
-.search-result .result-url:hover a { 
+.search-result .result-url:hover a {
     color: #333;
 }
-.search-result .result-url:hover a { 
+.search-result .result-url:hover a {
     text-decoration: underline;
 }
 .search-result .result-url img {
@@ -1141,9 +1141,9 @@ body.package.read #sidebar li.widget-container {
 /* ====================== */
 
 body.package.resource_read #sidebar { display: none; }
-body.package.resource_read #content { 
-    border-right: 0; 
-    width: 950px; 
+body.package.resource_read #content {
+    border-right: 0;
+    width: 950px;
 }
 
 .resource_read .notes {
@@ -1189,7 +1189,7 @@ body.about #content { border-right: 0; }
 /* ============== */
 /* = Admin Page = */
 /* ============== */
-body.admin form#form-purge-packages, 
+body.admin form#form-purge-packages,
 body.admin form#form-purge-revisions {
   margin-bottom: 30px;
   text-align: right;
@@ -1462,3 +1462,14 @@ body.editresources .error-explanation {
   margin-bottom: 0;
 }
 
+.no-related-items {
+  font-size: 16px;
+  color: #666;
+  background: #EBEBEB;
+  border: 1px solid #DBDBDB;
+  padding: 20px;
+  border-radius: 5px;
+  margin: 40px auto;
+  float: none;
+  text-align: center;
+}

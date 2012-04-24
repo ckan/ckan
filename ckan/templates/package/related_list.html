@@ -25,7 +25,7 @@
     ${add_related(c.pkg)}
     <h3>Related items <a class="btn btn-small btn-primary pull-right" data-toggle="modal" href=".modal-add-related"><i class="icon-plus-sign icon-white"></i> Add related item</a></h3>
     <div>
-      <div py:if="not c.pkg.related" class="span8">
+      <div py:if="not c.pkg.related" class="span8 no-related-items">
           There are no related items here yet, why not <a data-toggle="modal" href=".modal-add-related">add one</a>?
       </div>
 
