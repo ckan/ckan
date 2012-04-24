@@ -1104,18 +1104,22 @@ CKAN.Utils = function($, my) {
 
 
   my.relatedSetup = function(form) {
+    function addAlert(msg) {
+      $('<div class="alert alert-error" />').html(msg).prependTo(form);
+    }
+
     $(form).submit(function (event) {
       event.preventDefault();
 
       // Validate the form
-      var data = {};
-      jQuery.each(jQuery(this).serializeArray(), function (name, value) {
+      var form = $(this), data = {};
+      jQuery.each(form.serializeArray(), function (name, value) {
         data[name] = value;
       });
 
       if (!data.title) {
-        // TODO: Fix this
-        alert( "You must specify the title");
+        addAlert('<strong>Missing field:</strong> A title is required');
+        $('[name=title]').parent().addClass('error');
         return;
       }
 
@@ -1124,10 +1128,11 @@ CKAN.Utils = function($, my) {
         url: CKAN.SITE_URL + '/api/3/action/related_create',
         data: JSON.stringify(data),
         success: function (data) {
-          window.location.href = window.location.href;
+          window.location.reload();
         },
         error: function(err, txt, w) {
-          console.log(w);
+          // This needs to be far more informative.
+          addAlert('<strong>Error:</strong> Unable to add related item');
         }
       }); 
     });
