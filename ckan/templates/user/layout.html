@@ -14,10 +14,9 @@
       </py:when>
       <py:otherwise>
         <py:if test="c.id">
-          <li class="${'active' if c.action=='read' else ''}"><a href="${h.url_for(controller='user', action='me')}">View Profile</a></li>
+          <li class="${'active' if c.action=='read' else ''}"><a href="${h.url_for(controller='user', action='read', id=c.user_dict.name)}">View Profile</a></li>
           <li class="${'active' if c.action=='followers' else ''}">${h.subnav_link(h.icon('authorization_group') + _('Followers'), controller='user', action='followers', id=c.user_dict.name)}</li>
-          <li><button userid="${c.user_dict.id}" class="btn user-follow">Follow</button>
-        </li>
+          <li><button userid="${c.user_dict.id}" class="btn user-follow">Follow</button></li>
         </py:if>
         <py:if test="not c.id">
           <li class="${'active' if c.action=='login' else ''}"><a href="${h.url_for(controller='user', action='login')}">Login</a></li>
