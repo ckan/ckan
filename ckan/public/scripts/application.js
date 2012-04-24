@@ -1168,9 +1168,15 @@ CKAN.Utils = function($, my) {
       });
 
       form.find('.alert').remove();
+      form.find('.error').removeClass('error');
       if (!data.title) {
         addAlert('<strong>Missing field:</strong> A title is required');
         $('[name=title]').parent().addClass('error');
+        return;
+      }
+      if (!data.url) {
+        addAlert('<strong>Missing field:</strong> A url is required');
+        $('[name=url]').parent().addClass('error');
         return;
       }
 

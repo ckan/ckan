@@ -1429,6 +1429,10 @@ body.editresources .error-explanation {
   margin-bottom: 0;
 }
 
+.required {
+  color: #808080;
+}
+
 .thumbnails li:nth-of-type(5n) {
   clear: left;
 }
