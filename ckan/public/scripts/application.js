@@ -47,7 +47,7 @@ CKAN.Utils = CKAN.Utils || {};
 
     var isEmbededDataviewer = $('body.package.resource_embedded_dataviewer').length > 0;
     if (isEmbededDataviewer) {
-      CKAN.DataPreview.loadPreviewDialogWithState(preload_resource, reclineState);
+      CKAN.DataPreview.loadEmbeddedPreview(preload_resource, reclineState);
     }
 
     var isDatasetNew = $('body.package.new').length > 0;
@@ -1256,14 +1256,19 @@ CKAN.DataPreview = function ($, my) {
   my.dialogId = 'ckanext-datapreview';
   my.$dialog = $('#' + my.dialogId);
 
-  // **Public: Loads a data preview, taking into account an initial state**
+  // **Public: Loads a data previewer for an embedded page**
   //
-  my.loadPreviewDialogWithState = function(resourceData, reclineState) {
+  // Uses the provided reclineState to restore the Dataset.  Creates a single
+  // view for the Dataset (the one defined by reclineState.currentView).  And
+  // then passes the constructed Dataset, the constructed View, and the
+  // reclineState into the DataExplorer constructor.
+  my.loadEmbeddedPreview = function(resourceData, reclineState) {
     my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
 
+    // Restore the Dataset from the given reclineState.
     var dataset = recline.Model.Dataset.restore(reclineState);
 
-    // Only load a single view
+    // Only create the view defined in reclineState.currentView.
     // TODO: tidy this up.
     var views = null;
     if (reclineState.currentView === 'grid') {
@@ -1295,6 +1300,7 @@ CKAN.DataPreview = function ($, my) {
       }];
     }
 
+    // Finally, construct the DataExplorer.  Again, passing in the reclineState.
     var dataExplorer = new recline.View.DataExplorer({
       el: my.$dialog,
       model: dataset,
@@ -1305,6 +1311,10 @@ CKAN.DataPreview = function ($, my) {
     Backbone.history.start();
   };
 
+  // **Public: Creates a link to the embeddable page.
+  //
+  // For a given DataExplorer state, this function constructs and returns the
+  // url to the embeddable view of the current dataexplorer state.
   my.makeEmbedLink = function(explorerState) {
     var qs = recline.View.composeQueryString({
       state:         explorerState.toJSON(),
@@ -1358,17 +1368,32 @@ CKAN.DataPreview = function ($, my) {
         }
       });
 
+      // -----------------------------
+      // Setup the Embed modal dialog.
+      // -----------------------------
+
+      // embedLink holds the url to the embeddable view of the current DataExplorer state.
       var embedLink = $('.embedLink');
+
+      // embedIframeText contains the '<iframe>' construction, which sources
+      // the above link.
       var embedIframeText = $('.embedIframeText');
 
+      // iframeWidth and iframeHeight control the width and height parameters
+      // used to construct the iframe, and are also used in the link.
       var iframeWidth = $('.iframe-width');
       var iframeHeight = $('.iframe-height');
 
+      // Update the embedLink and embedIframeText to contain the updated link
+      // and update width and height parameters.
       function updateLink() {
         var link = my.makeEmbedLink(dataExplorer.state);
         var width = iframeWidth.val();
         var height = iframeHeight.val();
         link += '&width='+width+'&height='+height;
+
+        // Escape '"' characters in {{link}} in order not to prematurely close
+        // the src attribute value.
         embedIframeText.val($.mustache('<iframe width="{{width}}" height="{{height}}" src="{{link}}"></iframe>',
                                        {
                                          link: link.replace(/"/g, '&quot;'),
@@ -1378,11 +1403,16 @@ CKAN.DataPreview = function ($, my) {
         embedLink.attr('href', link);
       }
 
+      // Bind changes to the DataExplorer, or the two width and height inputs
+      // to re-calculate the url.
       dataExplorer.state.bind('change', updateLink);
       iframeWidth.change(updateLink);
       iframeHeight.change(updateLink);
+
+      // Initial population of embedLink and embedIframeText
       updateLink();
 
+      // Finally, since we have a DataExplorer, we can show the embed button.
       $('.preview-header .btn').show();
 
       // will have to refactor if this can get called multiple times

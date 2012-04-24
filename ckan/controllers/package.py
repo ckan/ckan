@@ -742,21 +742,13 @@ class PackageController(BaseController):
                    'user': c.user or c.author}
 
         try:
-            resource = get_action('resource_show')(context, {'id': resource_id})
-            package = get_action('package_show')(context, {'id': id})
-
-            # These are just required whilst still basing this off the resource_read
             c.resource = get_action('resource_show')(context, {'id': resource_id})
             c.package = get_action('package_show')(context, {'id': id})
-            c.pkg = context['package']
             c.resource_json = json.dumps(c.resource)
-            c.pkg_dict = c.package
 
             # double check that the resource belongs to the specified package
-            if not resource['id'] in [ r['id'] for r in package['resources'] ]:
+            if not c.resource['id'] in [ r['id'] for r in c.package['resources'] ]:
                 raise NotFound
-            
-            c.resource_json = json.dumps(resource)
 
         except NotFound:
             abort(404, _('Resource not found'))
@@ -769,7 +761,7 @@ class PackageController(BaseController):
         recline_state = self._parse_recline_state(state_version, raw_state)
         if recline_state is None:
             abort(400, ('"state" parameter must be a valid recline state (version %d)' % state_version))
-        
+
         c.recline_state = json.dumps(recline_state)
 
         c.width = max(int(request.params.get('width', 500)), 100)
