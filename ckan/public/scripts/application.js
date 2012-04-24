@@ -1108,14 +1108,10 @@ CKAN.Utils = function($, my) {
       event.preventDefault();
 
       // Validate the form
-      var data = {
-        title: $("#related-title").val(),
-        type:  $("#related-type").val(),
-        description: $("#related-description").val(),
-        url: $("#related-url").val(),
-        image_url: $("#related-image-url").val(),
-        dataset_id: $("#related-dataset").val()
-      };
+      var data = {};
+      jQuery.each(jQuery(this).serializeArray(), function (name, value) {
+        data[name] = value;
+      });
 
       if (!data.title) {
         // TODO: Fix this
