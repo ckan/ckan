@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from sqlalchemy.orm import class_mapper
 import ckan.lib.dictization as d
@@ -8,7 +9,6 @@ import ckan.lib.helpers as h
 def resource_dict_save(res_dict, context):
     model = context["model"]
     session = context["session"]
-    trigger_url_change = False
 
     id = res_dict.get("id")
     obj = None
@@ -29,6 +29,9 @@ def resource_dict_save(res_dict, context):
         if key in ('extras', 'revision_timestamp'):
             continue
         if key in fields:
+            if isinstance(getattr(obj, key), datetime.datetime):
+                if getattr(obj, key).isoformat() == value:
+                    continue
             if key == 'url' and not new and obj.url <> value:
                 obj.url_changed = True
             setattr(obj, key, value)

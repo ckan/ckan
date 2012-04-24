@@ -638,6 +638,7 @@ CKAN.View.Resource = Backbone.View.extend({
           word=='format'                ||
           word=='hash'                  ||
           word=='id'                    ||
+          word=='created'               ||
           word=='last_modified'         ||
           word=='mimetype'              ||
           word=='mimetype_inner'        ||
