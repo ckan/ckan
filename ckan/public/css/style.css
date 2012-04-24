@@ -148,6 +148,10 @@ a:hover {
   color: #183661;
 }
 
+a.btn-primary:visited {
+  color: #fff;
+}
+
 label.control-label {
   font-weight: bold;
 }
