@@ -40,11 +40,6 @@ CKAN.Utils = CKAN.Utils || {};
       CKAN.Utils.setupNotesExtract();
     }
 
-    var isUserView = $('body.user.read').length > 0;
-    if (isUserView) {
-      CKAN.Utils.setupUserFollowButton();
-    }
-
     var isResourceView = $('body.package.resource_read').length > 0;
     if (isResourceView) {
       CKAN.DataPreview.loadPreviewDialog(preload_resource);
@@ -103,6 +98,9 @@ CKAN.Utils = CKAN.Utils || {};
     // This only needs to happen on dataset pages, but it doesn't seem to do
     // any harm to call it anyway.
     CKAN.Utils.setupDatasetFollowButton();
+    CKAN.Utils.setupDatasetUnfollowButton();
+    CKAN.Utils.setupUserFollowButton();
+    CKAN.Utils.setupUserUnfollowButton();
 
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
@@ -1257,8 +1255,24 @@ CKAN.Utils = function($, my) {
         contentType: 'application/json',
         url: '/api/action/follower_create',
         data: JSON.stringify({
-               followee_id: this.attributes.userid.nodeValue,
-               followee_type: 'user',
+               object_id: this.attributes.userid.nodeValue,
+               object_type: 'user',
+        }),
+        dataType: 'json',
+        processData: false,
+        type: 'POST',
+      });
+      return false;
+    });
+  };
+
+  my.setupUserUnfollowButton = function() {
+    $('button.user-unfollow').click(function(e) {
+      $.ajax({
+        contentType: 'application/json',
+        url: '/api/action/follower_delete',
+        data: JSON.stringify({
+               id: this.attributes.userid.nodeValue,
         }),
         dataType: 'json',
         processData: false,
@@ -1274,8 +1288,24 @@ CKAN.Utils = function($, my) {
         contentType: 'application/json',
         url: '/api/action/follower_create',
         data: JSON.stringify({
-               followee_id: this.attributes.package_id.nodeValue,
-               followee_type: 'dataset',
+               object_id: this.attributes.package_id.nodeValue,
+               object_type: 'dataset',
+        }),
+        dataType: 'json',
+        processData: false,
+        type: 'POST',
+      });
+      return false;
+    });
+  };
+
+  my.setupDatasetUnfollowButton = function() {
+    $('button.dataset-unfollow').click(function(e) {
+      $.ajax({
+        contentType: 'application/json',
+        url: '/api/action/follower_delete',
+        data: JSON.stringify({
+               id: this.attributes.package_id.nodeValue,
         }),
         dataType: 'json',
         processData: false,

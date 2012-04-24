@@ -22,7 +22,10 @@
                 action='followers',
                 id=c.user_dict.name)}
           </li>
-          <li><button userid="${c.user_dict.id}" class="btn user-follow">Follow</button></li>
+          <py:choose test="c.am_following">
+            <li py:when="True"><button userid="${c.user_dict.id}" class="btn user-unfollow">Unfollow</button></li>
+            <li py:otherwise=""><button userid="${c.user_dict.id}" class="btn user-follow">Follow</button></li>
+          </py:choose>
         </py:if>
         <py:if test="not c.id">
           <li class="${'active' if c.action=='login' else ''}"><a href="${h.url_for(controller='user', action='login')}">Login</a></li>

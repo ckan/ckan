@@ -485,3 +485,6 @@ def tag_to_api2(tag, context):
     # DEPRICIATED set api_version in context and use tag_to_api()
     context['api_version'] = 2
     return tag_to_api(tag, context)
+
+def follower_dictize(follower, context):
+    return d.table_dictize(follower, context)

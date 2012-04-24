@@ -491,17 +491,17 @@ def follower_id_exists(key, follower_dict, errors, context):
             type=follower_type))
     return validator(follower_id, context)
 
-def followee_id_exists(key, followee_dict, errors, context):
-    followee_id_validators = {
+def follower_object_id_exists(key, object_dict, errors, context):
+    object_id_validators = {
             'user': user_id_exists,
             'dataset': package_id_exists,
             }
-    followee_id = followee_dict[('followee_id',)]
-    followee_type = followee_dict.get(('followee_type',))
-    if not followee_type:
-        raise Invalid(_('Not found: {0}').format('followee_type'))
-    validator = followee_id_validators.get(followee_type)
+    object_id = object_dict[('object_id',)]
+    object_type = object_dict.get(('object_type',))
+    if not object_type:
+        raise Invalid(_('Not found: {0}').format('object_type'))
+    validator = object_id_validators.get(object_type)
     if not validator:
-        raise Invalid(_('followee_type {type} not recognised').format(
-            type=followee_type))
-    return validator(followee_id, context)
+        raise Invalid(_('object_type {type} not recognised').format(
+            type=object_type))
+    return validator(object_id, context)

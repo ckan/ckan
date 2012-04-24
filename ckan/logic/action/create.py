@@ -1,5 +1,4 @@
 import logging
-import datetime
 from pylons.i18n import _
 
 import ckan.lib.plugins as lib_plugins
@@ -486,15 +485,14 @@ def follower_create(context, follower_dict):
     schema = (context.get('schema')
             or ckan.logic.schema.default_create_follower_schema())
 
-    # If no follower_id is given in follower_dict, we use the logged-in user.
-    if not follower_dict.has_key('follower_id'):
-        if not context.has_key('user'):
-            raise logic.NotAuthorized
-        userobj = model.User.get(context['user'])
-        if not userobj:
-            raise logic.NotAuthorized
-        follower_dict['follower_id'] = userobj.id
-        follower_dict['follower_type'] = 'user'
+    # FIXME: Should the schema do this?
+    if not context.has_key('user'):
+        raise logic.NotAuthorized
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise logic.NotAuthorized
+    follower_dict['follower_id'] = userobj.id
+    follower_dict['follower_type'] = 'user'
 
     check_access('follower_create', context, follower_dict)
 
@@ -504,19 +502,12 @@ def follower_create(context, follower_dict):
         model.Session.rollback()
         raise ValidationError(errors, error_summary(errors))
 
-    # FIXME: Maybe the schema should be doing this.
-    data['datetime'] = datetime.datetime.now()
-
-    follower_table = model.follower_table
-    insert = follower_table.insert().values(**data)
-    conn = model.Session.connection()
-    result = conn.execute(insert)
+    follower = model_save.follower_dict_save(follower_dict, context)
 
     if not context.get('defer_commit'):
-        model.Session.commit()
+        model.repo.commit()
 
-    log.debug('Created follower {follower} -> {followee}'.format(
-        follower=data['follower_id'], followee=data['followee_id']))
+    log.debug('Created follower {follower} -> {object}'.format(
+        follower=data['follower_id'], object=data['object_id']))
 
-    data['datetime'] = data['datetime'].isoformat()
-    return data
+    return model_dictize.follower_dictize(follower, context)

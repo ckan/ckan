@@ -20,7 +20,6 @@ import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
-import ckan.logic.action.get
 from home import CACHE_PARAMETER
 
 from ckan.lib.plugins import lookup_package_plugin
@@ -301,12 +300,15 @@ class PackageController(BaseController):
         # template context for the package/read.html template to retrieve
         # later.
         c.package_activity_stream = \
-                ckan.logic.action.get.package_activity_list_html(context,
+                get_action('package_activity_list_html')(context,
                     {'id': c.current_package_id})
 
         # Add the package's number of followers to the context for templates.
-        c.num_followers = ckan.logic.action.get.dataset_follower_count(
-                context, {'id':c.pkg.id})
+        c.num_followers = get_action('follower_count')(context,
+                {'id':c.pkg.id})
+
+        c.am_following = get_action('am_following')(context,
+                {'id': c.pkg.id})
 
         PackageSaver().render_package(c.pkg_dict, context)
 
@@ -372,7 +374,7 @@ class PackageController(BaseController):
             abort(404, _('Dataset not found'))
 
         # Add the package's number of followers to the context for templates.
-        c.num_followers = ckan.logic.action.get.dataset_follower_count(
+        c.num_followers = get_action('follower_count')(
                 context, {'id':c.pkg.id})
 
         format = request.params.get('format', '')
@@ -494,8 +496,8 @@ class PackageController(BaseController):
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
 
         # Add the package's number of followers to the context for templates.
-        c.num_followers = ckan.logic.action.get.dataset_follower_count(
-                context, {'id':c.pkg.id})
+        c.num_followers = get_action('follower_count')(context,
+                {'id':c.pkg.id})
 
         if (c.action == u'editresources'):
           return render('package/editresources.html')
@@ -673,8 +675,8 @@ class PackageController(BaseController):
         self._prepare_authz_info_for_render(roles)
 
         # Add the package's number of followers to the context for templates.
-        c.num_followers = ckan.logic.action.get.dataset_follower_count(
-                context, {'id':c.pkg.id})
+        c.num_followers = get_action('follower_count')(context,
+                {'id':c.pkg.id})
 
         return render('package/authz.html')
 
@@ -769,7 +771,7 @@ class PackageController(BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            c.followers = get_action('dataset_follower_list')(context,
+            c.followers = get_action('follower_list')(context,
                     {'id': c.pkg_dict['id']})
             c.num_followers = len(c.followers)
         except NotFound:

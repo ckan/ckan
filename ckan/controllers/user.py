@@ -13,8 +13,6 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.logic.schema import user_new_form_schema, user_edit_form_schema
-from ckan.logic.action.get import user_activity_list_html
-from ckan.logic.action.get import user_follower_count, user_follower_list
 from ckan.lib.captcha import check_recaptcha, CaptchaError
 
 log = logging.getLogger(__name__)
@@ -100,10 +98,12 @@ class UserController(BaseController):
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
         c.about_formatted = self._format_about(user_dict['about'])
-        c.user_activity_stream = user_activity_list_html(context,
-            {'id':c.user_dict['id']})
-        c.num_followers = user_follower_count(context,
+        c.user_activity_stream = get_action('user_activity_list_html')(
+                context, {'id':c.user_dict['id']})
+        c.num_followers = get_action('follower_count')(context,
                 {'id':c.user_dict['id']})
+        c.am_following = get_action('am_following')(context,
+                {'id': c.user_dict['id']})
         return render('user/read.html')
 
     def me(self, locale=None):
@@ -420,6 +420,7 @@ class UserController(BaseController):
             abort(401, _('Not authorized to see this page'))
 
         c.user_dict = user_dict
-        c.followers = user_follower_list(context, {'id':c.user_dict['id']})
+        c.followers = get_action('follower_list')(context,
+                {'id':c.user_dict['id']})
         c.num_followers = len(c.followers)
         return render('user/followers.html')

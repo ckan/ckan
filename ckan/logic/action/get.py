@@ -1317,68 +1317,41 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     return _activity_list_to_html(context, activity_stream)
 
 def follower_count(context, data_dict):
+    '''Return the number of followers of an object.'''
     model = context['model']
-    followee_id = data_dict['id']
-    followee_type = data_dict['type']
-    follower_table = model.follower_table
-    q = select([func.count(follower_table.c.followee_id)])
-    q = q.where(follower_table.c.followee_id == followee_id)
-    q = q.where(follower_table.c.followee_type == followee_type)
-    conn = model.Session.connection()
-    cursor = conn.execute(q)
-    result_rows = cursor.fetchall()
-    assert len(result_rows) == 1
-    result_row = result_rows[0]
-    assert len(result_row) == 1
-    count = result_row[0]
-    return count
-
-def user_follower_count(context, data_dict):
-    return follower_count(context, {
-        'id': data_dict['id'],
-        'type': 'user',
-        })
-
-def dataset_follower_count(context, data_dict):
-    return follower_count(context, {
-        'id': data_dict['id'],
-        'type': 'dataset',
-        })
+    object_id = data_dict.get('id')
+    if not object_id:
+        raise ValidationError({'id': 'id not in data'})
+    return model.Follower.follower_count(object_id)
 
 def follower_list(context, data_dict):
-    '''Return a list of all of the followers of an object (such as a user or a
-    dataset.
+    '''Return a list of all of the followers of an object.'''
 
-    '''
+    # Get the list of Follower objects.
     model = context['model']
-    followee_id = data_dict['id']
-    followee_type = data_dict['type']
-    follower_table = model.follower_table
-    q = select((follower_table,))
-    q = q.where(follower_table.c.followee_id == followee_id)
-    q = q.where(follower_table.c.followee_type == followee_type)
-    conn = model.Session.connection()
-    cursor = conn.execute(q)
-    results = []
-    for row in cursor:
-        follower_id = row['follower_id']
-        assert row['follower_type'] == 'user', (
-                "Currently only users (and not other domain objects) are "
-                "supported as followers.")
-        user = model.User.get(follower_id)
-        results.append(model_dictize.user_dictize(user, context))
-    return results
+    object_id = data_dict.get('id')
+    if not object_id:
+        raise ValidationError({'id': 'id not in data'})
+    followers = model.Follower.follower_list(object_id)
 
-def user_follower_list(context, data_dict):
-    '''Return a list a of all of a user's followers.'''
-    return follower_list(context, {
-        'id': data_dict['id'],
-        'type': 'user',
-        })
+    # Convert the list of Follower objects to a list of User objects.
+    users = [model.User.get(follower.follower_id) for follower in followers]
 
-def dataset_follower_list(context, data_dict):
-    '''Return a list a of all of a dataset's followers.'''
-    return follower_list(context, {
-        'id': data_dict['id'],
-        'type': 'dataset',
-        })
+    # Dictize the list of user objects.
+    return [model_dictize.user_dictize(user,context) for user in users]
+
+def am_following(context, data_dict):
+    model = context['model']
+
+    object_id = data_dict.get('id')
+    if not object_id:
+        raise ValidationError({'id': 'id not in data'})
+
+    if not context.has_key('user'):
+        raise logic.NotAuthorized
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise logic.NotAuthorized
+    follower_id = userobj.id
+
+    return model.Follower.is_following(follower_id, object_id)

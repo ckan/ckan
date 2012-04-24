@@ -562,3 +562,10 @@ def tag_dict_save(tag_dict, context):
         tag_dict['id'] = tag.id
     tag = d.table_dict_save(tag_dict, model.Tag, context)
     return tag
+
+def follower_dict_save(follower_dict, context):
+    model = context['model']
+    session = context['session']
+    follower_obj = model.Follower(**follower_dict)
+    session.add(follower_obj)
+    return follower_obj

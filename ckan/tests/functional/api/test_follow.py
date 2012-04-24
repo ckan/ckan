@@ -35,7 +35,7 @@ class TestFollow(object):
 
         # Record the users number of followers before.
         params = json.dumps({'id': self.russianfan.id})
-        response = self.app.post('/api/action/user_follower_count',
+        response = self.app.post('/api/action/follower_count',
                 params=params).json
         assert response['success'] is True
         count_before = response['result']
@@ -43,10 +43,8 @@ class TestFollow(object):
         # Make one user a follower of another user.
         before = datetime.datetime.now()
         params = json.dumps({
-            'follower_id': self.annafan.id,
-            'follower_type': 'user',
-            'followee_id': self.russianfan.id,
-            'followee_type': 'user',
+            'object_id': self.russianfan.id,
+            'object_type': 'user',
             })
         extra_environ = {
                 'Authorization': str(self.annafan.apikey)
@@ -59,14 +57,14 @@ class TestFollow(object):
         follower = response['result']
         assert follower['follower_id'] == self.annafan.id
         assert follower['follower_type'] == 'user'
-        assert follower['followee_id'] == self.russianfan.id
-        assert follower['followee_type'] == 'user'
+        assert follower['object_id'] == self.russianfan.id
+        assert follower['object_type'] == 'user'
         timestamp = datetime_from_string(follower['datetime'])
         assert (timestamp >= before and timestamp <= after), str(timestamp)
 
-        # Check that the follower appears in the followee's list of followers.
+        # Check that the follower appears in the object's list of followers.
         params = json.dumps({'id': self.russianfan.id})
-        response = self.app.post('/api/action/user_follower_list',
+        response = self.app.post('/api/action/follower_list',
                 params=params).json
         assert response['success'] is True
         assert response['result']
@@ -77,7 +75,7 @@ class TestFollow(object):
 
         # Check that the user's follower count has increased by 1.
         params = json.dumps({'id': self.russianfan.id})
-        response = self.app.post('/api/action/user_follower_count',
+        response = self.app.post('/api/action/follower_count',
                 params=params).json
         assert response['success'] is True
         assert response['result'] == count_before + 1
@@ -98,16 +96,16 @@ class TestFollow(object):
     def test_follower_type_missing(self):
         raise NotImplementedError
 
-    def test_followee_id_bad(self):
+    def test_object_id_bad(self):
         raise NotImplementedError
 
-    def test_followee_id_missing(self):
+    def test_object_id_missing(self):
         raise NotImplementedError
 
-    def test_followee_type_bad(self):
+    def test_object_type_bad(self):
         raise NotImplementedError
 
-    def test_followee_type_missing(self):
+    def test_object_type_missing(self):
         raise NotImplementedError
 
     def test_follow_with_datetime(self):

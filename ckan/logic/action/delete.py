@@ -190,3 +190,29 @@ def package_relationship_delete_rest(context, data_dict):
     data_dict = ckan.logic.action.rename_keys(data_dict, key_map, destructive=True)
 
     package_relationship_delete(context, data_dict)
+
+def follower_delete(context, data_dict):
+    model = context['model']
+
+    if not context.has_key('user'):
+        raise ckan.logic.NotAuthorized
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise ckan.logic.NotAuthorized
+    follower_id = userobj.id
+
+    object_id = data_dict.get('id')
+    if not object_id:
+        raise ValidationError({'id': _('id not in data')})
+
+    follower_obj = model.Follower.get(follower_id, object_id)
+    if follower_obj is None:
+        raise NotFound(
+                _('Could not find follower {follower} -> {object}').format(
+                    follower=follower_id, object=object_id))
+
+    check_access('follower_delete', context,
+            {'follower_id': follower_id, 'object_id':object_id})
+
+    follower_obj.delete()
+    model.repo.commit()
