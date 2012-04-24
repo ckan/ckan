@@ -433,13 +433,54 @@ result here using a `bool query`_.
         }
     }
 
+
 Facets
 ------
 
 Facets provide a way to get summary information about then data in an
 elasticsearch table, for example counts of distinct values.
 
-TODO: complete
+ElasticSearch (and hence the Data API) provides rich faceting capabilities:
+http://www.elasticsearch.org/guide/reference/api/search/facets/
+
+There are various kinds of facets available, for example (full list on the facets page):
+
+* Terms_ - counts by distinct terms (values) in a field
+* Range_ - counts for a given set of ranges in a field
+* Histogram_ and `Date Histogram`_ - counts by constant interval ranges
+* Statistical_ - statistical summary of a field (mean, sum etc)
+* `Terms Stats`_ - statistical summary on one field (stats field) for distinct
+  terms in another field. For example, spending stats per department or per
+  region.
+* `Geo Distance`_: counts by distance ranges from a given point
+
+Note that you can apply multiple facets per query.
+
+.. _Terms: http://www.elasticsearch.org/guide/reference/api/search/facets/terms-facet.html
+.. _Range: http://www.elasticsearch.org/guide/reference/api/search/facets/range-facet.html
+.. _Histogram: http://www.elasticsearch.org/guide/reference/api/search/facets/histogram-facet.html
+.. _Date Histogram: http://www.elasticsearch.org/guide/reference/api/search/facets/date-histogram-facet.html
+.. _Statistical: http://www.elasticsearch.org/guide/reference/api/search/facets/statistical-facet.html
+.. _Terms Stats: http://www.elasticsearch.org/guide/reference/api/search/facets/terms-stats-facet.html
+.. _Geo Distance: http://www.elasticsearch.org/guide/reference/api/search/facets/geo-distance-facet.html
+
+
+Adding, Updating and Deleting Data
+==================================
+
+ElasticSeach, and hence the Data API, have a standard RESTful API. Thus::
+
+  POST      {{endpoint}}         : INSERT
+  PUT/POST  {{endpoint}}/{{id}}  : UPDATE (or INSERT)
+  DELETE    {{endpoint}}/{{id}}  : DELETE
+
+For more on INSERT and UPDATE see the `Index API`_ documentation.
+
+.. _Index API: http://elasticsearch.org/guide/reference/api/index_.html
+
+There is also support bulk insert and updates via the `Bulk API`_.
+
+.. _Bulk API: http://elasticsearch.org/guide/reference/api/bulk.html
 
 
 Schema Mapping
