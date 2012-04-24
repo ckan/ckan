@@ -561,6 +561,13 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             timestamp_float = timegm(timestamp_without_usecs) + usecs
             return datetime.datetime.utcfromtimestamp(timestamp_float)
 
+    @property
+    def is_private(self):
+        """
+        A package is private if belongs to any private groups
+        """
+        return bool(self.get_groups(capacity='private'))
+
     def is_in_group(self, group):
         return group in self.get_groups()
 
