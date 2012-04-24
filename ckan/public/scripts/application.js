@@ -1105,6 +1105,8 @@ CKAN.Utils = function($, my) {
 
   my.relatedSetup = function(form) {
       $(form).submit(function(event){
+          event.preventDefault();
+
           // Validate the form
           var data = {
               title: $("#related-title").val(),
@@ -1118,7 +1120,7 @@ CKAN.Utils = function($, my) {
           if ( ! data.title ) {
               // TODO: Fix this
               alert( "You must specify the title");
-              return true;
+              return;
           }
 
           $.ajax({
@@ -1131,9 +1133,7 @@ CKAN.Utils = function($, my) {
               error: function(err, txt,w) {
                   console.log(w);
               }
-          });
-
-          event.preventDefault();
+          }); 
       });
       return false;
   };
