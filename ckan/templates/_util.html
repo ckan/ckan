@@ -218,23 +218,20 @@
 
 
   <py:def function="related_summary(related)">
-    <table width="100%" border="0" cellpadding="4">
-        <tr>
-            <td rowspan="2" width="200px">
-                <a href="${related.url}" py:if="related.image_url">
-                    <img src="${related.image_url}" width="200px" border="0"/>
-                </a>
-                <a href="${related.url}" py:if="not related.image_url">
-                    DEFAULT IMAGE
-                </a>
-            </td>
-            <td><strong>${related.title}</strong></td>
-        </tr>
-        <tr>
-            <td valign="top">${related.description}</td>
-        </tr>
-    </table>
-    <hr/>
+    <li class="span3">
+      <div class="thumbnail">
+        <a href="${related.url}" class="image">
+          <img src="${related.image_url}" width="210" py:if="related.image_url" />
+          <img src="/images/photo-placeholder.png" width="210" py:if="not related.image_url" />
+        </a>
+        <div class="caption">
+          <h5 class="heading" title="${related.title}">${h.markdown_extract(related.title, extract_length=30)}</h5>
+          <div class="description" py:if="related.description">${h.markdown_extract(related.description, extract_length=60)}</div>
+          <i class="empty" py:if="not related.description">No description for this item</i>
+          <p class="read-more"><a href="${related.url}">View this related item</a></p>
+        </div>
+      </div>
+    </li>
   </py:def>
 
 

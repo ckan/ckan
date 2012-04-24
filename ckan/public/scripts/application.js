@@ -1105,18 +1105,34 @@ CKAN.Utils = function($, my) {
 
   my.relatedSetup = function(form) {
     function addAlert(msg) {
-      $('<div class="alert alert-error" />').html(msg).prependTo(form);
+      $('<div class="alert alert-error" />').html(msg).hide().prependTo(form).fadeIn();
     }
+
+    // Center thumbnails vertically.
+    $('.related-items img').each(function () {
+      function vertiallyAlign() {
+        var img = $(this),
+            height = img.height(),
+            parent = img.parent().height(),
+            top = (height - parent) / 2;
+
+        if (parent < height) {
+          img.css('margin-top', -top);
+        }
+      }
+      $(this).load(vertiallyAlign);
+    });
 
     $(form).submit(function (event) {
       event.preventDefault();
 
       // Validate the form
       var form = $(this), data = {};
-      jQuery.each(form.serializeArray(), function (name, value) {
-        data[name] = value;
+      jQuery.each(form.serializeArray(), function () {
+        data[this.name] = this.value;
       });
 
+      form.find('.alert').remove();
       if (!data.title) {
         addAlert('<strong>Missing field:</strong> A title is required');
         $('[name=title]').parent().addClass('error');

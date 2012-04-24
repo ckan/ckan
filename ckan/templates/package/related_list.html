@@ -11,6 +11,7 @@
   about=""
   py:strip="">
 
+  <py:def function="body_class">no-sidebar</py:def>
   <xi:include href="../_snippet/add-related.html" />
 
   <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
@@ -20,29 +21,19 @@
     ${c.pkg_dict['title']} - Related
   </py:def>
 
-  <py:match path="primarysidebar">
-    <li class="sidebar-section">
-      <h3>What are related items ....</h3>
-
-      <a class="btn btn-primary" data-toggle="modal" href=".modal-add-related">Add related item</a>
-    </li>
-  </py:match>
-
   <div py:match="content">
     ${add_related(c.pkg)}
-    <h3>Related items</h3>
-    <div class="row-fluid">
-      <div class="span12">
-          <div py:if="not c.pkg.related" class="span8">
-              There are no related items here yet, why not <a data-toggle="modal" href=".modal-add-related">add one</a>?
-          </div>
-
-          <py:for each="related in c.pkg.related">
-              <div class="span8 related_${related.type}">
-                  ${related_summary(related)}
-              </div>
-          </py:for>
+    <h3>Related items <a class="btn btn-small btn-primary pull-right" data-toggle="modal" href=".modal-add-related"><i class="icon-plus-sign icon-white"></i> Add related item</a></h3>
+    <div>
+      <div py:if="not c.pkg.related" class="span8">
+          There are no related items here yet, why not <a data-toggle="modal" href=".modal-add-related">add one</a>?
       </div>
+
+      <ul class="related-items thumbnails">
+        <py:for each="related in c.pkg.related">
+          ${related_summary(related)}
+        </py:for>
+      </ul>
     </div>
 
     <span class="insert-comment-thread"></span>

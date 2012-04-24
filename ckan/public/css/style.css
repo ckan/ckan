@@ -1423,3 +1423,37 @@ body.editresources .error-explanation {
 .form-horizontal .chzn-select {
   margin-bottom: 0;
 }
+
+.thumbnails li:nth-of-type(5n) {
+  clear: left;
+}
+
+.thumbnail .heading {
+  font-weight: bold;
+}
+
+.thumbnail .image {
+  display: block;
+  width: 210px;
+  height: 180px;
+  overflow: hidden;
+  background: #ececec;
+  border: 1px solid #dedede;
+  margin: -1px;
+}
+
+.thumbnail .image img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+.thumbnail .empty {
+  color: #ccc;
+}
+
+.thumbnail .read-more {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
