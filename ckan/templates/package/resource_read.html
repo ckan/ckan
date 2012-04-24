@@ -12,6 +12,7 @@
   py:strip="">
 
   <xi:include href="../_snippet/data-api-help.html" />
+  <xi:include href="../_snippet/data-viewer-embed-dialog.html" />
 
   <py:def function="optional_head">
     <!-- data preview -->
@@ -59,6 +60,19 @@
       .resource-actions .download img {
         margin: 0px 4px -4px 0;
       }
+      .preview-header {
+        padding-bottom: 13px;
+        padding-top: 0px;
+      }
+      .preview-header h3 {
+        display: inline;
+      }
+      .preview-header .btn {
+        float: right;
+        position: relative;
+        bottom: 6px;
+        padding: 8px 15px;
+      }
     </style>
     <script type="text/javascript">
       var preload_resource = ${h.literal(c.resource_json)};
@@ -104,6 +118,8 @@
   <py:if test="config.get('ckan.datastore.enabled', False)">
     ${data_api_help(c.datastore_api)}
   </py:if>
+
+  ${data_viewer_embed_dialog()}
 
     <div class="quick-info">
       <dl>
@@ -152,8 +168,10 @@
     </div>
 
     <div class="resource-preview">
-      <h3>Preview</h3>
-      <a class="permalink" href="">Permalink</a>
+      <div class="preview-header">
+        <h3>Preview</h3>
+        <a class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
+      </div>
       <div id="ckanext-datapreview"></div>
     </div>
 

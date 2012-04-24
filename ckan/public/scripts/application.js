@@ -1305,11 +1305,11 @@ CKAN.DataPreview = function ($, my) {
     Backbone.history.start();
   };
 
-  my.makePermalink = function(explorerState) {
+  my.makeEmbedLink = function(explorerState) {
     var qs = recline.View.composeQueryString({
-			state:         explorerState.toJSON(),
-			state_version: 1
-		});
+      state:         explorerState.toJSON(),
+      state_version: 1
+    });
     return window.location.origin + window.location.pathname + '/embed' + qs;
   };
 
@@ -1358,11 +1358,17 @@ CKAN.DataPreview = function ($, my) {
         }
       });
 
-      var permalink = $('.permalink');
-      dataExplorer.state.bind('change', function() {
-        permalink.attr('href', my.makePermalink(dataExplorer.state));
-      });
-      permalink.attr('href', my.makePermalink(dataExplorer.state));
+      var embedLink = $('.embedLink');
+      var embedIframeText = $('.embedIframeText');
+
+      function updateLink() {
+        var link = my.makeEmbedLink(dataExplorer.state);
+        embedIframeText.val($.mustache('<iframe src="{{link}}"></iframe>', {link: link.replace(/"/g, '&quot;')}));
+        embedLink.attr('href', link);
+      }
+
+      dataExplorer.state.bind('change', updateLink);
+      updateLink();
 
       // will have to refactor if this can get called multiple times
       Backbone.history.start();
