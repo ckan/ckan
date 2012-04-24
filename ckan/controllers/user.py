@@ -421,4 +421,5 @@ class UserController(BaseController):
 
         c.user_dict = user_dict
         c.followers = user_follower_list(context, {'id':c.user_dict['id']})
+        c.num_followers = len(c.followers)
         return render('user/followers.html')
