@@ -1104,38 +1104,37 @@ CKAN.Utils = function($, my) {
 
 
   my.relatedSetup = function(form) {
-      $(form).submit(function(event){
-          event.preventDefault();
+    $(form).submit(function (event) {
+      event.preventDefault();
 
-          // Validate the form
-          var data = {
-              title: $("#related-title").val(),
-              type:  $("#related-type").val(),
-              description: $("#related-description").val(),
-              url: $("#related-url").val(),
-              image_url: $("#related-image-url").val(),
-              dataset_id: $("#related-dataset").val(),
-          };
+      // Validate the form
+      var data = {
+        title: $("#related-title").val(),
+        type:  $("#related-type").val(),
+        description: $("#related-description").val(),
+        url: $("#related-url").val(),
+        image_url: $("#related-image-url").val(),
+        dataset_id: $("#related-dataset").val()
+      };
 
-          if ( ! data.title ) {
-              // TODO: Fix this
-              alert( "You must specify the title");
-              return;
-          }
+      if (!data.title) {
+        // TODO: Fix this
+        alert( "You must specify the title");
+        return;
+      }
 
-          $.ajax({
-              type: 'POST',
-              url: CKAN.SITE_URL + '/api/3/action/related_create',
-              data: JSON.stringify(data),
-              success: function(data){
-                  window.location.href=window.location.href;
-              },
-              error: function(err, txt,w) {
-                  console.log(w);
-              }
-          }); 
-      });
-      return false;
+      $.ajax({
+        type: this.method,
+        url: CKAN.SITE_URL + '/api/3/action/related_create',
+        data: JSON.stringify(data),
+        success: function (data) {
+          window.location.href = window.location.href;
+        },
+        error: function(err, txt, w) {
+          console.log(w);
+        }
+      }); 
+    });
   };
 
   // Attach authz group autocompletion to provided elements
