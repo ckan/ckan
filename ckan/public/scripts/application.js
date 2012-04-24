@@ -1383,6 +1383,8 @@ CKAN.DataPreview = function ($, my) {
       iframeHeight.change(updateLink);
       updateLink();
 
+      $('.preview-header .btn').show();
+
       // will have to refactor if this can get called multiple times
       Backbone.history.start();
     }
