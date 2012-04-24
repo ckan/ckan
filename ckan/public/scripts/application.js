@@ -9,7 +9,7 @@ CKAN.Utils = CKAN.Utils || {};
 /* ================================= */
 (function ($) {
   $(document).ready(function () {
-    CKAN.Utils.relatedSetup($("#add-related-submit"));
+    CKAN.Utils.relatedSetup($("#form-add-related"));
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
     CKAN.Utils.setupOrganizationUserAutocomplete($('input.autocomplete-organization-user'));
     CKAN.Utils.setupGroupAutocomplete($('input.autocomplete-group'));
@@ -1103,37 +1103,55 @@ CKAN.Utils = function($, my) {
   };
 
 
-  my.relatedSetup = function(okBtn) {
-      $(okBtn).click(function(){
-          // Validate the form
-          var data = {
-              title: $("#related-title").val(),
-              type:  $("#related-type").val(),
-              description: $("#related-description").val(),
-              url: $("#related-url").val(),
-              image_url: $("#related-image-url").val(),
-              dataset_id: $("#related-dataset").val(),
-          };
+  my.relatedSetup = function(form) {
+    function addAlert(msg) {
+      $('<div class="alert alert-error" />').html(msg).hide().prependTo(form).fadeIn();
+    }
 
-          if ( ! data.title ) {
-              // TODO: Fix this
-              alert( "You must specify the title");
-              return true;
-          }
+    // Center thumbnails vertically.
+    $('.related-items img').each(function () {
+      function vertiallyAlign() {
+        var img = $(this),
+            height = img.height(),
+            parent = img.parent().height(),
+            top = (height - parent) / 2;
 
-          $.ajax({
-              type: 'POST',
-              url: CKAN.SITE_URL + '/api/3/action/related_create',
-              data: JSON.stringify(data),
-              success: function(data){
-                  window.location.href=window.location.href;
-              },
-              error: function(err, txt,w) {
-                  console.log(w);
-              }
-          });
+        if (parent < height) {
+          img.css('margin-top', -top);
+        }
+      }
+      $(this).load(vertiallyAlign);
+    });
+
+    $(form).submit(function (event) {
+      event.preventDefault();
+
+      // Validate the form
+      var form = $(this), data = {};
+      jQuery.each(form.serializeArray(), function () {
+        data[this.name] = this.value;
       });
-      return false;
+
+      form.find('.alert').remove();
+      if (!data.title) {
+        addAlert('<strong>Missing field:</strong> A title is required');
+        $('[name=title]').parent().addClass('error');
+        return;
+      }
+
+      $.ajax({
+        type: this.method,
+        url: CKAN.SITE_URL + '/api/3/action/related_create',
+        data: JSON.stringify(data),
+        success: function (data) {
+          window.location.reload();
+        },
+        error: function(err, txt, w) {
+          // This needs to be far more informative.
+          addAlert('<strong>Error:</strong> Unable to add related item');
+        }
+      }); 
+    });
   };
 
   // Attach authz group autocompletion to provided elements
