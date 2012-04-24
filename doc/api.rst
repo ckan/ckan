@@ -91,6 +91,8 @@ key is not authorized for the operation, or the header is somehow malformed,
 then the requested operation will not be carried out and the CKAN API will
 respond with status code 403.
 
+.. _get-api-key:
+
 Obtaining an API key
 --------------------
 

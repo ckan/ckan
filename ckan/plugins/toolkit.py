@@ -183,6 +183,8 @@ class _Toolkit(object):
         if name in self._toolkit:
             return self._toolkit[name]
         else:
+            if name == '__bases__':
+                return self.__class__.__bases__
             raise Exception('`%s` not found in plugins toolkit' % name)
 
 toolkit = _Toolkit()
