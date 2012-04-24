@@ -6,12 +6,14 @@
   py:strip=""
   >
 
-<p>Powered by <a href="${h.url_for(controller='package', action='resource_read', id=c.package.id, resource_id=c.resource.id)}">
-
-${g.site_title}
-<img width="64" src="${h.url_for_static(g.site_logo)}" alt="${g.site_title} Logo" title="${g.site_title} Logo" id="logo" />
-</a>
-</p>
+<div class="branded-link">
+  <p>Powered by <a href="${h.url_for(controller='package', action='resource_read', id=c.package.id, resource_id=c.resource.id)}">
+  
+  ${g.site_title}
+  <img width="64" src="${h.url_for_static(g.site_logo)}" alt="${g.site_title} Logo" title="${g.site_title} Logo" id="logo" />
+  </a>
+  </p>
+</div>
 
 </html>
 
