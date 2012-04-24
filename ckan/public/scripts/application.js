@@ -9,7 +9,7 @@ CKAN.Utils = CKAN.Utils || {};
 /* ================================= */
 (function ($) {
   $(document).ready(function () {
-    CKAN.Utils.relatedSetup($("#add-related-submit"));
+    CKAN.Utils.relatedSetup($("#form-add-related"));
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
     CKAN.Utils.setupOrganizationUserAutocomplete($('input.autocomplete-organization-user'));
     CKAN.Utils.setupGroupAutocomplete($('input.autocomplete-group'));
@@ -1103,8 +1103,8 @@ CKAN.Utils = function($, my) {
   };
 
 
-  my.relatedSetup = function(okBtn) {
-      $(okBtn).click(function(){
+  my.relatedSetup = function(form) {
+      $(form).submit(function(event){
           // Validate the form
           var data = {
               title: $("#related-title").val(),
@@ -1132,6 +1132,8 @@ CKAN.Utils = function($, my) {
                   console.log(w);
               }
           });
+
+          event.preventDefault();
       });
       return false;
   };
