@@ -114,6 +114,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             else:
                 resource = resource_obj_or_dict
             res_dict = resource.as_dict(core_columns_only=True)
+            del res_dict['created']
             return res_dict
         existing_res_identites = [get_resource_identity(res) \
                                   for res in self.resources]
