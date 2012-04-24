@@ -93,8 +93,9 @@ Other material
 ==============
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
+   contrib.rst
    CHANGELOG.rst
 
 Indices and tables
