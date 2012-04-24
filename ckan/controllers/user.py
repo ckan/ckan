@@ -83,7 +83,7 @@ class UserController(BaseController):
 
     def read(self, id=None):
         context = {'model': model,
-                   'user': c.user or c.author}
+                'user': c.user or c.author, 'for_view': True}
         data_dict = {'id':id,
                      'user_obj':c.userobj}
         try:
@@ -276,8 +276,10 @@ class UserController(BaseController):
             h.flash_success(_("%s is now logged in") % user_dict['display_name'])
             return self.me(locale=lang)
         else:
-            h.flash_error(_('Login failed. Bad username or password.' + \
-                          ' (Or if using OpenID, it hasn\'t been associated with a user account.)'))
+            err = _('Login failed. Bad username or password.')
+            if g.openid_enabled:
+                err += _(' (Or if using OpenID, it hasn\'t been associated with a user account.)')
+            h.flash_error(err)
             h.redirect_to(locale=lang, controller='user', action='login')
 
     def logout(self):
@@ -381,6 +383,8 @@ class UserController(BaseController):
                 h.flash_error(u'%r'% e.error_dict)
             except ValueError, ve:
                 h.flash_error(unicode(ve))
+
+        c.user_dict = user_dict
         return render('user/perform_reset.html')
 
     def _format_about(self, about):

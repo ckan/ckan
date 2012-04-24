@@ -7,6 +7,7 @@ available to Controllers. This module is available to templates as 'h'.
 """
 import email.utils
 import datetime
+import logging
 import re
 import urllib
 
@@ -44,6 +45,8 @@ try:
     import json
 except ImportError:
     import simplejson as json
+
+_log = logging.getLogger(__name__)
 
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
@@ -109,9 +112,12 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = request.environ.get('SCRIPT_NAME', '')
     except TypeError:
         root = ''
+    if kw.get('qualified', False):
+        # if qualified is given we want the full url ie http://...
+        root = _routes_default_url_for('/', qualified=True)[:-1] + root
     # ckan.root_path is defined when we have none standard language
     # position in the url
-    root_path = config.get('ckan.root_path')
+    root_path = config.get('ckan.root_path', None)
     if root_path:
         # FIXME this can be written better once the merge
         # into the ecportal core is done - Toby
@@ -331,8 +337,41 @@ def _subnav_named_route(text, routename, **kwargs):
 def default_group_type():
     return str( config.get('ckan.default.group_type', 'group') )
 
+def unselected_facet_items(facet, limit=10):
+    '''Return the list of unselected facet items for the given facet, sorted
+    by count.
+
+    Returns the list of unselected facet contraints or facet items (e.g. tag
+    names like "russian" or "tolstoy") for the given search facet (e.g.
+    "tags"), sorted by facet item count (i.e. the number of search results that
+    match each facet item).
+
+    Reads the complete list of facet items for the given facet from
+    c.search_facets, and filters out the facet items that the user has already
+    selected.
+
+    Arguments:
+    facet -- the name of the facet to filter.
+    limit -- the max. number of facet items to return.
+
+    '''
+    if not c.search_facets or \
+       not c.search_facets.get(facet) or \
+       not c.search_facets.get(facet).get('items'):
+        return []
+    facets = []
+    for facet_item in c.search_facets.get(facet)['items']:
+        if not len(facet_item['name'].strip()):
+            continue
+        if not (facet, facet_item['name']) in request.params.items():
+            facets.append(facet_item)
+    return sorted(facets, key=lambda item: item['count'], reverse=True)[:limit]
 
 def facet_items(*args, **kwargs):
+    """
+    DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
+    """
+    _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
     # facet_items() used to need c passing as the first arg
     # this is depriciated as pointless
     # throws error if ckan.restrict_template_vars is True
@@ -460,10 +499,10 @@ def format_icon(_format):
     return 'page_white'
 
 def linked_gravatar(email_hash, size=100, default=None):
-    return literal('''<a href="https://gravatar.com/" target="_blank"
-        title="Update your avatar at gravatar.com">
-        %s</a>''' %
-            gravatar(email_hash,size,default)
+    return literal(
+        '<a href="https://gravatar.com/" target="_blank"' +
+        'title="%s">' % _('Update your avatar at gravatar.com') +
+        '%s</a>' % gravatar(email_hash,size,default)
         )
 
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro']
@@ -494,10 +533,32 @@ class Page(paginate.Page):
     # our custom layout set as default.
     def pager(self, *args, **kwargs):
         kwargs.update(
-            format=u"<div class='pager'>$link_previous ~2~ $link_next</div>",
-            symbol_previous=u'« Prev', symbol_next=u'Next »'
+            format=u"<div class='pagination'><ul>$link_previous ~2~ $link_next</ul></div>",
+            symbol_previous=u'« Prev', symbol_next=u'Next »',
+            curpage_attr={'class':'active'}, link_attr={}
         )
         return super(Page, self).pager(*args, **kwargs)
+
+    # Put each page link into a <li> (for Bootstrap to style it)
+    def _pagerlink(self, page, text, extra_attributes=None):
+        anchor = super(Page, self)._pagerlink(page, text)
+        extra_attributes = extra_attributes or {}
+        return HTML.li(anchor, **extra_attributes)
+
+    # Change 'current page' link from <span> to <li><a>
+    # and '..' into '<li><a>..'
+    # (for Bootstrap to style them properly)
+    def _range(self, regexp_match):
+        html = super(Page, self)._range(regexp_match)
+        # Convert ..
+        dotdot = '\.\.'
+        dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
+        html = re.sub(dotdot, dotdot_link, html)
+        # Convert current page
+        text = '%s' % self.page
+        current_page_span = str(HTML.span(c=text, **self.curpage_attr))
+        current_page_link = self._pagerlink(self.page, text, extra_attributes=self.curpage_attr)
+        return re.sub(current_page_span, current_page_link, html)
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
     '''Render a datetime object or timestamp string as a pretty string
@@ -646,3 +707,106 @@ def activity_div(template, activity, actor, object=None, target=None):
     template = template.format(actor=actor, date=date, object=object, target=target)
     template = '<div class="activity">%s %s</div>' % (template, date)
     return literal(template)
+
+def snippet(template_name, **kw):
+    ''' This function is used to load html snippets into pages. keywords
+    can be used to pass parameters into the snippet rendering '''
+    import ckan.lib.base as base
+    return base.render_snippet(template_name, **kw)
+
+
+def convert_to_dict(object_type, objs):
+    ''' This is a helper function for converting lists of objects into
+    lists of dicts. It is for backwards compatability only. '''
+
+    def dictize_revision_list(revision, context):
+        # conversionof revision lists
+        def process_names(items):
+            array = []
+            for item in items:
+                array.append(item.name)
+            return array
+
+        rev = {'id' : revision.id,
+               'state' : revision.state,
+               'timestamp' : revision.timestamp,
+               'author' : revision.author,
+               'packages' : process_names(revision.packages),
+               'groups' : process_names(revision.groups),
+               'message' : revision.message,}
+        return rev
+    import lib.dictization.model_dictize as md
+    import ckan.model as model
+    converters = {'package' : md.package_dictize,
+                  'revisions' : dictize_revision_list}
+    converter = converters[object_type]
+    items = []
+    context = {'model' : model}
+    for obj in objs:
+        item = converter(obj, context)
+        items.append(item)
+    return items
+
+
+# these are the functions that will end up in `h` template helpers
+# if config option restrict_template_vars is true
+__allowed_functions__ = [
+    # functions defined in ckan.lib.helpers
+           'redirect_to',
+           'url',
+           'url_for',
+           'url_for_static',
+           'lang',
+           'flash',
+           'flash_error',
+           'flash_notice',
+           'flash_success',
+           'nav_link',
+           'nav_named_link',
+           'subnav_link',
+           'subnav_named_route',
+           'default_group_type',
+           'facet_items',
+           'facet_title',
+         #  am_authorized, # depreciated
+           'check_access',
+           'linked_user',
+           'linked_authorization_group',
+           'group_name_to_title',
+           'markdown_extract',
+           'icon',
+           'icon_html',
+           'icon_url',
+           'resource_icon',
+           'format_icon',
+           'linked_gravatar',
+           'gravatar',
+           'pager_url',
+           'render_datetime',
+           'date_str_to_datetime',
+           'datetime_to_date_str',
+           'parse_rfc_2822_date',
+           'time_ago_in_words_from_str',
+           'button_attr',
+           'dataset_display_name',
+           'dataset_link',
+           'resource_display_name',
+           'resource_link',
+           'tag_link',
+           'group_link',
+           'dump_json',
+           'auto_log_message',
+           'snippet',
+           'convert_to_dict',
+           'activity_div',
+    # imported into ckan.lib.helpers
+           'literal',
+           'link_to',
+           'get_available_locales',
+           'get_locales_dict',
+           'truncate',
+           'file',
+           'mail_to',
+           'radio',
+           'submit',
+]

@@ -435,14 +435,14 @@ CKAN.View.Resource = Backbone.View.extend({
         num: this.options.position,
         resource_icon: '/images/icons/page_white.png',
         resourceTypeOptions: [
-          ['file', 'Data File'],
-          ['api', 'API'],
-          ['visualization', 'Visualization'],
-          ['image', 'Image'],
-          ['metadata', 'Metadata'],
-          ['documentation', 'Documentation'],
-          ['code', 'Code'],
-          ['example', 'Example']
+          ['file', CKAN.Strings.dataFile],
+          ['api', CKAN.Strings.api],
+          ['visualization', CKAN.Strings.visualization],
+          ['image', CKAN.Strings.image],
+          ['metadata', CKAN.Strings.metadata],
+          ['documentation', CKAN.Strings.documentation],
+          ['code', CKAN.Strings.code],
+          ['example', CKAN.Strings.example]
         ]
     };
     // Generate DOM elements
@@ -538,7 +538,7 @@ CKAN.View.Resource = Backbone.View.extend({
     }
     self.updateIconTimer = setTimeout(function() {
         // AJAX to server API
-        $.getJSON('/api/2/util/resource/format_icon?format='+encodeURIComponent(self.formatBox.val()), function(data) {
+        $.getJSON(CKAN.SITE_URL + '/api/2/util/resource/format_icon?format='+encodeURIComponent(self.formatBox.val()), function(data) {
           if (data && data.icon && data.format==self.formatBox.val()) {
             self.li.find('.js-resource-icon').attr('src',data.icon);
             self.table.find('.js-resource-icon').attr('src',data.icon);
@@ -639,6 +639,7 @@ CKAN.View.Resource = Backbone.View.extend({
           word=='format'                ||
           word=='hash'                  ||
           word=='id'                    ||
+          word=='created'               ||
           word=='last_modified'         ||
           word=='mimetype'              ||
           word=='mimetype_inner'        ||
@@ -959,7 +960,6 @@ CKAN.Utils = function($, my) {
       , select: function(event, ui) {
         var input_box = $(this);
         input_box.val('');
-        var parent_dd = input_box.parent('dd');
         var old_name = input_box.attr('name');
         var field_name_regex = /^(\S+)__(\d+)__(\S+)$/;
         var split = old_name.match(field_name_regex);
@@ -968,10 +968,15 @@ CKAN.Utils = function($, my) {
 
         input_box.attr('name', new_name);
         input_box.attr('id', new_name);
+        
+        var $new = $('<div class="ckan-dataset-to-add"><p></p></div>');
+        $new.append($('<input type="hidden" />').attr('name', old_name).val(ui.item.value));
+        $new.append('<i class="icon-plus-sign"></i> ');
+        $new.append(ui.item.label);
+        input_box.after($new);
 
-        parent_dd.before(
-          '<input type="hidden" name="' + old_name + '" value="' + ui.item.value + '">' + '<dd>' + ui.item.label + '</dd>'
-        );
+        // prevent setting value in autocomplete box
+        return false;
       }
     });
   };
@@ -1328,6 +1333,13 @@ CKAN.DataPreview = function ($, my) {
           id: 'graph',
           label: 'Graph',
           view: new recline.View.FlotGraph({
+            model: dataset
+          })
+        },
+        {
+          id: 'map',
+          label: 'Map',
+          view: new recline.View.Map({
             model: dataset
           })
         }

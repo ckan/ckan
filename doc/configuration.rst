@@ -168,6 +168,17 @@ And there is an option for the default expiry time if not specified::
  ckan.cache.default_expires = 600
 
 
+datasets_per_page
+^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datasets_per_page = 10
+
+Default value:  ``20``
+
+This controls the pagination of the dataset search results page. This is the maximum number of datasets viewed per page of results.
+
 
 Authentication Settings
 -----------------------

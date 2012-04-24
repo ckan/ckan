@@ -31,6 +31,7 @@ group_table = Table('group', metadata,
     Column('title', UnicodeText),
     Column('type', UnicodeText, nullable=False),
     Column('description', UnicodeText),
+    Column('image_url', UnicodeText),
     Column('created', DateTime, default=datetime.datetime.now),
     Column('approval_status', UnicodeText, default=u"approved"),
     )
@@ -78,11 +79,12 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
             DomainObject):
 
-    def __init__(self, name=u'', title=u'', description=u'',
-                 type=u'group', approval_status=u'approved' ):
+    def __init__(self, name=u'', title=u'', description=u'', image_url=u'',
+                 type=u'group', approval_status=u'approved'):
         self.name = name
         self.title = title
         self.description = description
+        self.image_url = image_url
         self.type = type
         self.approval_status= approval_status
 

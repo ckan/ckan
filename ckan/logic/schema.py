@@ -62,6 +62,7 @@ def default_resource_schema():
         'webstore_url': [ignore_missing, unicode],
         'cache_url': [ignore_missing, unicode],
         'size': [ignore_missing, int_validator],
+        'created': [ignore_missing, isodate],
         'last_modified': [ignore_missing, isodate],
         'cache_last_updated': [ignore_missing, isodate],
         'webstore_last_updated': [ignore_missing, isodate],
@@ -85,6 +86,7 @@ def default_tags_schema():
         'vocabulary_id': [ignore_missing, unicode, vocabulary_id_exists],
         'revision_timestamp': [ignore],
         'state': [ignore],
+        'display_name': [ignore],
     }
     return schema
 
@@ -179,6 +181,7 @@ def default_group_schema():
         'name': [not_empty, unicode, name_validator, group_name_validator],
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
+        'image_url': [ignore_missing, unicode],
         'type': [ignore_missing, unicode],
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],

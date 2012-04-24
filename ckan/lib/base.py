@@ -22,7 +22,7 @@ from webhelpers.html import literal
 
 import ckan.exceptions
 import ckan
-from ckan import authz
+import ckan.authz as authz
 from ckan.lib import i18n
 import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
@@ -47,9 +47,32 @@ def abort(status_code=None, detail='', headers=None, comment=None):
                   headers=headers,
                   comment=comment)
 
+
+def render_snippet(template_name, **kw):
+    ''' Helper function for rendering snippets. Rendered html has
+    comment tags added to show the template used. NOTE: unlike other
+    render functions this takes a list of keywords instead of a dict for
+    the extra template variables. '''
+    # allow cache_force to be set in render function
+    cache_force = kw.pop('cache_force', None)
+    output = render(template_name, extra_vars=kw, cache_force=cache_force)
+    output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
+                    template_name, output, template_name)
+    return literal(output)
+
+def render_text(template_name, extra_vars=None, cache_force=None):
+    ''' Helper function to render a genshi NewTextTemplate without
+    having to pass the loader_class or method. '''
+    return render(template_name,
+                  extra_vars=extra_vars,
+                  cache_force=cache_force,
+                  method='text',
+                  loader_class=NewTextTemplate)
+
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
            cache_force = None):
+    ''' Main genshi template rendering function. '''
 
     def render_template():
         globs = extra_vars or {}
@@ -156,7 +179,9 @@ class BaseController(WSGIController):
         if not c.remote_addr:
             c.remote_addr = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
 
-        # what is different between session['user'] and environ['REMOTE_USER']
+        # environ['REMOTE_USER'] is set by repoze.who if it authenticates a user's
+        # cookie or OpenID. (But it doesn't check the user (still) exists in our
+        # database - we need to do that here.
         c.user = request.environ.get('REMOTE_USER', '')
         if c.user:
             c.user = c.user.decode('utf8')
@@ -168,6 +193,7 @@ class BaseController(WSGIController):
                 # and your cookie has ckan_display_name, we need to force user
                 # to logout and login again to get the User object.
                 c.user = None
+                self.log.warn('Logout to login')
         else:
             c.userobj = self._get_user_for_apikey()
             if c.userobj is not None:
@@ -188,23 +214,30 @@ class BaseController(WSGIController):
         # This also improves the cachability of our pages as cookies
         # prevent proxy servers from caching content unless they have
         # been configured to ignore them.
-
-        # we need to be careful with the /user/set_lang/ URL as this
-        # creates a cookie.
-        if not environ.get('HTTP_PATH', '').startswith('/user/set_lang/'):
+        # we do not want to clear cookies when setting the user lang
+        if not environ.get('PATH_INFO').startswith('/user/set_lang'):
             for cookie in request.cookies:
                 if cookie.startswith('ckan') and cookie not in ['ckan']:
                     response.delete_cookie(cookie)
                 # Remove the ckan session cookie if not used e.g. logged out
-                elif cookie == 'ckan' and not c.user and not h.are_there_flash_messages():
-                    if session.id:
-                        if not session.get('lang'):
-                            session.delete()
-                    else:
-                        response.delete_cookie(cookie)
+                elif cookie == 'ckan' and not c.user:
+                    # Check session for valid data (including flash messages)
+                    # (DGU also uses session for a shopping basket-type behaviour)
+                    is_valid_cookie_data = False
+                    for key, value in session.items():
+                        if not key.startswith('_') and value:
+                            is_valid_cookie_data = True
+                            break
+                    if not is_valid_cookie_data:
+                        if session.id:
+                            if not session.get('lang'):
+                                session.delete()
+                        else:
+                            response.delete_cookie(cookie)
                 # Remove auth_tkt repoze.who cookie if user not logged in.
                 elif cookie == 'auth_tkt' and not session.id:
                     response.delete_cookie(cookie)
+
         try:
             return WSGIController.__call__(self, environ, start_response)
         finally:
@@ -215,8 +248,8 @@ class BaseController(WSGIController):
 
     def _set_cors(self):
         response.headers['Access-Control-Allow-Origin'] = "*"
-        response.headers['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE"
-        response.headers['Access-Control-Allow-Headers'] = "X-CKAN-API-KEY, Content-Type"
+        response.headers['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE, OPTIONS"
+        response.headers['Access-Control-Allow-Headers'] = "X-CKAN-API-KEY, Authorization, Content-Type"
 
     def _get_user(self, reference):
         return model.User.by_name(reference)

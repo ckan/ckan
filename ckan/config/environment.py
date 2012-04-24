@@ -1,30 +1,84 @@
 """Pylons environment configuration"""
 import os
-from urlparse import urlparse
 import logging
 import warnings
+from urlparse import urlparse
 
+import pylons
 from paste.deploy.converters import asbool
+import sqlalchemy
+from pylons import config
+from genshi.template import TemplateLoader
+from genshi.filters.i18n import Translator
+
+import ckan.config.routing as routing
+import ckan.model as model
+import ckan.plugins as p
+import ckan.lib.helpers as h
+import ckan.lib.search as search
+import ckan.lib.app_globals as app_globals
+
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
 
+class _Helpers(object):
+    ''' Helper object giving access to template helpers stopping
+    missing functions from causing template exceptions. Useful if
+    templates have helper functions provided by extensions that have
+    not been enabled. '''
+    def __init__(self, helpers, restrict=True):
+        functions = {}
+        allowed = helpers.__allowed_functions__
+        # list of functions due to be depreciated
+        self.depreciated = []
 
-import pylons
-import sqlalchemy
+        for helper in dir(helpers):
+            if helper not in allowed:
+                self.depreciated.append(helper)
+                if restrict:
+                    continue
+            functions[helper] = getattr(helpers, helper)
+        self.functions = functions
 
-from pylons import config
-from pylons.i18n.translation import ugettext
-from genshi.template import TemplateLoader
-from genshi.filters.i18n import Translator
-from paste.deploy.converters import asbool
+        # extend helper functions with ones supplied by plugins
+        extra_helpers = []
+        for plugin in p.PluginImplementations(p.ITemplateHelpers):
+            helpers = plugin.get_helpers()
+            for helper in helpers:
+                if helper in extra_helpers:
+                    raise Exception('overwritting extra helper %s' % helper)
+                extra_helpers.append(helper)
+                functions[helper] = helpers[helper]
+        # logging
+        self.log = logging.getLogger('ckan.helpers')
 
-import ckan.lib.app_globals as app_globals
-import ckan.lib.helpers as h
-from ckan.config.routing import make_map
-from ckan import model
-from ckan import plugins
+    @classmethod
+    def null_function(cls, *args, **kw):
+        ''' This function is returned if no helper is found. The idea is
+        to try to allow templates to be rendered even if helpers are
+        missing.  Returning the empty string seems to work well.'''
+        return ''
 
+    def __getattr__(self, name):
+        ''' return the function/object requested '''
+        if name in self.functions:
+            if name in self.depreciated:
+                msg = 'Template helper function `%s` is depriciated' % name
+                self.log.warn(msg)
+            return self.functions[name]
+        else:
+            if name in self.depreciated:
+                msg = 'Template helper function `%s` is not available ' \
+                      'as it has been depriciated.\nYou can enable it ' \
+                      'by setting ckan.restrict_template_vars = true ' \
+                      'in your .ini file.' % name
+                self.log.critical(msg)
+            else:
+                msg = 'Helper function `%s` could not be found\n ' \
+                      '(are you missing an extension?)' % name
+                self.log.critical(msg)
+            return self.null_function
 
 
 def load_environment(global_conf, app_conf):
@@ -65,12 +119,9 @@ def load_environment(global_conf, app_conf):
     config.init_app(global_conf, app_conf, package='ckan', paths=paths)
 
     # load all CKAN plugins
-    plugins.load_all(config)
+    p.load_all(config)
 
-    from ckan.plugins import PluginImplementations
-    from ckan.plugins.interfaces import IConfigurer
-
-    for plugin in PluginImplementations(IConfigurer):
+    for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
         plugin.update_config(config)
@@ -90,19 +141,19 @@ def load_environment(global_conf, app_conf):
         config['ckan.site_id'] = ckan_host
 
     # Init SOLR settings and check if the schema is compatible
-    from ckan.lib.search import SolrSettings, check_solr_schema_version
-    SolrSettings.init(config.get('solr_url'),
-                      config.get('solr_user'),
-                      config.get('solr_password'))
-    check_solr_schema_version()
+    #from ckan.lib.search import SolrSettings, check_solr_schema_version
+    search.SolrSettings.init(config.get('solr_url'),
+                             config.get('solr_user'),
+                             config.get('solr_password'))
+    search.check_solr_schema_version()
 
-    config['routes.map'] = make_map()
+    config['routes.map'] = routing.make_map()
     config['pylons.app_globals'] = app_globals.Globals()
-    if asbool(config.get('ckan.restrict_template_vars', 'false')):
-        import ckan.lib.helpers_clean
-        config['pylons.h'] = ckan.lib.helpers_clean
-    else:
-        config['pylons.h'] = h
+
+    # add helper functions
+    restrict_helpers = asbool(config.get('ckan.restrict_template_vars', 'false'))
+    helpers = _Helpers(h, restrict_helpers)
+    config['pylons.h'] = helpers
 
     ## redo template setup to use genshi.search_path (so remove std template setup)
     template_paths = [paths['templates'][0]]
@@ -137,16 +188,12 @@ def load_environment(global_conf, app_conf):
     ckan_db = os.environ.get('CKAN_DB') 
 
     if ckan_db:
-        engine = sqlalchemy.create_engine(ckan_db)
-    else:
-        engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
+        config['sqlalchemy.url'] = ckan_db
+    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
 
     if not model.meta.engine:
         model.init_model(engine)
 
-    from ckan.plugins import PluginImplementations
-    from ckan.plugins.interfaces import IConfigurable
-
-    for plugin in PluginImplementations(IConfigurable):
+    for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
 

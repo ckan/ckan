@@ -14,6 +14,8 @@ __all__ = [
     'IConfigurable', 'IConfigurer', 'IAuthorizer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
     'IGroupForm',
+    'ITagController',
+    'ITemplateHelpers',
 ]
 
 from inspect import isclass
@@ -181,6 +183,21 @@ class IResourceUrlChange(Interface):
     def notify(self, resource):
         pass
 
+class ITagController(Interface):
+    '''
+    Hook into the Tag controller. These will usually be called just before
+    committing or returning the respective object, i.e. all validation,
+    synchronization and authorization setup are complete.
+
+    '''
+    def before_view(self, tag_dict):
+        '''
+        Extensions will recieve this before the tag gets displayed. The
+        dictionary passed will be the one that gets sent to the template.
+
+        '''
+        return tag_dict
+
 class IGroupController(Interface):
     """
     Hook into the Group controller. These will
@@ -271,7 +288,7 @@ class IPackageController(Interface):
 
     def before_index(self, pkg_dict):
         '''
-             Extensions will recieve what will be given to the solr for indexing.
+             Extensions will receive what will be given to the solr for indexing.
              This is essentially a flattened dict (except for multlivlaued fields such as tags
              of all the terms sent to the indexer.  The extension can modify this by returning
              an altered version.
@@ -383,6 +400,16 @@ class IAuthFunctions(Interface):
         """
         Returns a dict of all the authorization functions which the
         implementation overrides
+        """
+
+class ITemplateHelpers(Interface):
+    """
+    Allow adding extra template functions available via h variable
+    """
+    def get_helpers(self):
+        """
+        Should return a dict, the keys being the name of the helper
+        function and the values being the functions themselves.
         """
 
 class IDatasetForm(Interface):

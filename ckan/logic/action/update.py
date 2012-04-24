@@ -554,7 +554,7 @@ def package_update_rest(context, data_dict):
             raise ValidationError(error_dict)
 
     context["package"] = pkg
-    context["allow_partial_update"] = True
+    context["allow_partial_update"] = False
     dictized_package = model_save.package_api_to_dict(data_dict, context)
 
     check_access('package_update_rest', context, dictized_package)

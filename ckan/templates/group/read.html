@@ -4,8 +4,12 @@
   py:strip="">
   
   <xi:include href="../facets.html" />
-  <py:def function="page_title">${c.group.display_name}</py:def>
-  <py:def function="page_heading">${c.group.display_name}</py:def>
+
+  <py:def function="page_title">${c.group_dict.display_name}</py:def>
+  <py:def function="page_heading">${c.group_dict.display_name}</py:def>
+  <py:if test="c.group.image_url">
+    <py:def function="page_logo">${c.group.image_url}</py:def>
+  </py:if>
 
   <py:match path="primarysidebar">
   
@@ -21,8 +25,8 @@
         </py:if>
       </ul>
     </li>
-    ${facet_sidebar('tags')}
-    ${facet_sidebar('res_format')}
+    ${facet_div('tags', 'Tags')}
+    ${facet_div('res_format', 'Resource Formats')}
   </py:match>
 
   <py:match path="content">
@@ -84,6 +88,13 @@
       ${c.page.pager()}
     </div>
   </py:match>
+
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Datasets in group '${c.group['title']}'"
+    href="${h.url(controller='feed', action='group', id=c.group['name'])}" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History"
+    href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
+  </py:def>
 
   <xi:include href="layout.html" />
 </html>

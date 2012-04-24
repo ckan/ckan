@@ -42,19 +42,19 @@ class TestBasicDictize:
             'groups': [{'description': u'These are books that David likes.',
                         'name': u'david',
                         'capacity': 'public',
+                        'image_url': u'',
                         'type': u'group',
                         'state': u'active',
                         'title': u"Dave's books",
-                        "approval_status": u"approved",
-                        'capacity': u'public'},
+                        "approval_status": u"approved"},
                        {'description': u'Roger likes these books.',
                         'name': u'roger',
                         'capacity': 'public',
+                        'image_url': u'',
                         'type': u'group',
                         'state': u'active',
                         'title': u"Roger's books",
-                        "approval_status": u"approved",
-                        'capacity': u'public'}],
+                        "approval_status": u"approved"}],
             'isopen': True,
             'license_id': u'other-open',
             'license_title': u'Other (Open)',
@@ -102,9 +102,13 @@ class TestBasicDictize:
                             u'webstore_last_updated': None,
                             u'webstore_url': None}],
             'state': u'active',
-            'tags': [{'name': u'Flexible \u30a1', 'state': u'active'},
-                     {'name': u'russian', 'state': u'active'},
-                     {'name': u'tolstoy', 'state': u'active'}],
+            'tags': [{'name': u'Flexible \u30a1',
+                        'display_name': u'Flexible \u30a1',
+                        'state': u'active'},
+                     {'name': u'russian', 'display_name': u'russian',
+                         'state': u'active'},
+                     {'name': u'tolstoy', 'display_name': u'tolstoy',
+                         'state': u'active'}],
             'title': u'A Novel By Tolstoy',
             'url': u'http://www.annakarenina.com',
             'version': u'0.7a'}
@@ -212,7 +216,7 @@ class TestBasicDictize:
     def test_02_package_dictize(self):
 
         context = {"model": model,
-                 "session": model.Session}
+                   "session": model.Session}
 
         model.Session.remove()
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
@@ -349,7 +353,7 @@ class TestBasicDictize:
     def test_09_package_alter(self):
 
         context = {"model": model,
-                 "session": model.Session}
+                   "session": model.Session}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
 
@@ -678,6 +682,7 @@ class TestBasicDictize:
         second_dictized['name'] = u'annakarenina_changed2'
         second_dictized['resources'][0]['url'] = u'new_url2'
         second_dictized['tags'][0]['name'] = u'new_tag'
+        second_dictized['tags'][0]['display_name'] = u'new_tag'
         second_dictized['extras'][0]['value'] = u'"new_value"'
         second_dictized['state'] = 'pending'
 
@@ -705,7 +710,7 @@ class TestBasicDictize:
             u'webstore_last_updated': None,
             u'webstore_url': None})
 
-        third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'state': 'active'})
+        third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'display_name': u'newnew_tag', 'state': 'active'})
         third_dictized['extras'].insert(0, {'key': 'david',
                                          'value': u'"new_value"',
                                          'state': u'active'})
@@ -864,13 +869,14 @@ class TestBasicDictize:
 
         group_dictized = group_dictize(group, context)
 
-        expected =  {'description': u'',
+        expected = {'description': u'',
                     'extras': [{'key': u'genre', 'state': u'active', 'value': u'"horror"'},
                                {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
                     'tags': [{'capacity': 'public', 'name': u'russian'}],
                     'groups': [{'description': u'',
                                'capacity' : 'public',
                                'display_name': u'simple',
+                               'image_url': u'',
                                'name': u'simple',
                                'packages': 0,
                                'state': u'active',
@@ -889,6 +895,7 @@ class TestBasicDictize:
                               'reset_key': None}],
                     'name': u'help',
                     'display_name': u'help',
+                    'image_url': u'',
                     'packages': [{'author': None,
                                   'author_email': None,
                                   'license_id': u'other-open',
@@ -925,8 +932,9 @@ class TestBasicDictize:
         result = self.remove_changable_columns(group_dictized)
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
-        assert result == expected, pformat(result)
-
+        assert_equal(sorted(result.keys()), sorted(expected.keys()))
+        for key in result:
+            assert_equal(sorted(result[key]), sorted(expected[key]))
 
     def test_17_group_apis_to_dict(self):
 

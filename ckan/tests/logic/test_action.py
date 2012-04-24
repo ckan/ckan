@@ -1542,6 +1542,27 @@ class TestAction(WsgiAppCase):
                        {'domain_object': anna.id})
         assert_equal(results['roles'], roles_after['roles'])
 
+    def test_40_task_resource_status(self):
+
+        import ckan.lib.celery_app as celery_app
+        backend = celery_app.celery.backend
+        ##This creates the database tables as a side effect, can not see another way
+        ##to make tables unless you actually create a task.
+        celery_result_session = backend.ResultSession()
+
+        ## need to do inserts as setting up an embedded celery is too much for these tests
+        model.Session.connection().execute(
+            '''INSERT INTO task_status (id, entity_id, entity_type, task_type, key, value, state, error, last_updated) VALUES ('5753adae-cd0d-4327-915d-edd832d1c9a3', '749cdcf2-3fc8-44ae-aed0-5eff8cc5032c', 'resource', 'qa', 'celery_task_id', '51f2105d-85b1-4393-b821-ac11475919d9', NULL, '', '2012-04-20 21:32:45.553986');
+               INSERT INTO celery_taskmeta (id, task_id, status, result, date_done, traceback) VALUES (2, '51f2105d-85b1-4393-b821-ac11475919d9', 'FAILURE', '52e', '2012-04-20 21:33:01.622557', 'Traceback')'''
+        )
+        model.Session.commit()
+        res = self.app.post('/api/action/resource_status_show', 
+                            params=json.dumps({'id': '749cdcf2-3fc8-44ae-aed0-5eff8cc5032c'}),
+                            status=200)
+
+        assert json.loads(res.body) == {"help": None, "success": True, "result": [{"status": "FAILURE", "entity_id": "749cdcf2-3fc8-44ae-aed0-5eff8cc5032c", "task_type": "qa", "last_updated": "2012-04-20T21:32:45.553986", "date_done": "2012-04-20T21:33:01.622557", "entity_type": "resource", "traceback": "Traceback", "value": "51f2105d-85b1-4393-b821-ac11475919d9", "state": None, "key": "celery_task_id", "error": "", "id": "5753adae-cd0d-4327-915d-edd832d1c9a3"}]}
+
+
 class TestActionTermTranslation(WsgiAppCase):
 
     @classmethod
@@ -1594,7 +1615,7 @@ class TestActionTermTranslation(WsgiAppCase):
 
         assert json.loads(res.body)['success']
 
-        postparams = '%s=1' % json.dumps({"term" : "moo"})
+        postparams = '%s=1' % json.dumps({"terms" : ["moo"]})
 
         res = self.app.post('/api/action/term_translation_show', params=postparams,
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
@@ -1628,7 +1649,7 @@ class TestActionTermTranslation(WsgiAppCase):
 
         assert json.loads(res.body)['result']['success'] == '3 rows updated', json.loads(res.body)
 
-        postparams = '%s=1' % json.dumps({"term" : "many"})
+        postparams = '%s=1' % json.dumps({"terms" : ["many"]})
         res = self.app.post('/api/action/term_translation_show', params=postparams,
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
                             status=200)
