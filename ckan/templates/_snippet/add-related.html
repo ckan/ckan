@@ -4,45 +4,41 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
-  >
-
-<div class="modal-add-related modal fade in" style="display: none; height: 640px;"
+>
+<div class="modal-add-related modal fade in" style="display: none"
   py:def="add_related(dataset)">
-<div class="modal-header">
-  <a class="close" data-dismiss="modal">×</a>
-  <h3>
-    Add related item
-  </h3>
-</div>
-<div class="modal-body">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3 class="heading">Add related item</h3>
+  </div>
+  <div class="modal-body">
     <form class="well">
       <input id="related-dataset" type="hidden" value="${c.pkg.id}"/>
 
-      <label>Title</label>
+      <label for="related-title">Title</label>
       <input id="related-title" type="text" class="span6" placeholder="Please add the title for the item"/>
 
-      <label>Type of item</label>
+      <label for="related-type">Type of item</label>
       <select id="related-type" class="span6 chzn-select">
-          <option value="app">Application</option>
-          <option value="idea">Idea</option>
-          <option value="visualization">Visualization</option>
+        <option value="app">Application</option>
+        <option value="idea">Idea</option>
+        <option value="visualization">Visualization</option>
       </select>
 
-      <label>Description</label>
+      <label for="related-description">Description</label>
       <textarea id="related-description" class="input-xlarge span6" rows="4" placeholder="Please describe the item"></textarea>
 
-      <label>URL</label>
+      <label for="related-url">URL</label>
       <input id="related-url" type="text" class="span6" placeholder="Please add a url"/>
 
-      <label>Image URL</label>
+      <label for="related-image-url">Image URL</label>
       <input id="related-image-url" type="text" class="span6" placeholder="Please add a link to the image"/>
 
       <div>
-          <button id='add-related-submit' type="submit" class="btn btn-primary">Submit</button>
-          <button class="btn">Cancel</button>
+        <button id='add-related-submit' type="submit" class="btn btn-primary">Submit</button>
+        <button class="btn">Cancel</button>
       </div>
     </form>
-
-</div>
+  </div>
 </div>
 </html>
