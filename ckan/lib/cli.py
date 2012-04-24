@@ -2,7 +2,6 @@ import os
 import datetime
 import sys
 import logging
-import datetime
 from pprint import pprint
 
 import paste.script
