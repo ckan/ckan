@@ -771,8 +771,7 @@ class PackageController(BaseController):
             c.pkg = context['package']
             c.followers = get_action('dataset_follower_list')(context,
                     {'id': c.pkg_dict['id']})
-            c.num_followers = ckan.logic.action.get.dataset_follower_count(
-                    context, {'id':c.pkg.id})
+            c.num_followers = len(c.followers)
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
