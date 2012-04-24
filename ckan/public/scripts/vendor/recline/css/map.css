@@ -18,6 +18,11 @@
 }
 
 .recline-map .editor select {
-	width: 100%;
+  width: 100%;
 }
 
+.recline-map .editor .editor-options {
+  margin-top: 10px;
+  border-top: 1px solid gray;
+  padding: 5px 0;
+}
