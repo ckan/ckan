@@ -749,3 +749,18 @@ class PackageController(BaseController):
                 qualified=True)
         return render('package/resource_read.html')
 
+    def followers(self, id=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id}
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg = context['package']
+            c.followers = get_action('dataset_follower_list')(context,
+                    {'id': c.pkg_dict['id']})
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        return render('package/followers.html')
