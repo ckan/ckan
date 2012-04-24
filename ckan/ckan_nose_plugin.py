@@ -30,7 +30,6 @@ class CkanNose(Plugin):
             # init_db is run at the start of every class because
             # when you use an in-memory sqlite db, it appears that
             # the db is destroyed after every test when you Session.Remove().
-            model.repo.init_db()
 
             ## This is to make sure the configuration is run again.
             ## Plugins use configure to make their own tables and they
@@ -40,6 +39,7 @@ class CkanNose(Plugin):
             for plugin in PluginImplementations(IConfigurable):
                 plugin.configure(config)
             
+            model.repo.init_db()
 
     def options(self, parser, env):
         parser.add_option(

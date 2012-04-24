@@ -1,7 +1,7 @@
 import datetime
 from pylons import config
 from sqlalchemy.sql import select
-
+import datetime
 import ckan.model
 import ckan.misc
 import ckan.logic as logic
@@ -31,6 +31,11 @@ def group_list_dictize(obj_list, context,
         group_dict['display_name'] = obj.display_name
 
         group_dict['packages'] = len(obj.active_packages().all())
+
+        if context.get('for_view'):
+            for item in plugins.PluginImplementations(
+                    plugins.IGroupController):
+                group_dict = item.before_view(group_dict)
 
         result_list.append(group_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
@@ -158,6 +163,7 @@ def package_dictize(pkg, context):
     q = q.where(resource_group.c.package_id == pkg.id)
     result = _execute_with_revision(q, res_rev, context)
     result_dict["resources"] = resource_list_dictize(result, context)
+
     #tags
     tag_rev = model.package_tag_revision_table
     tag = model.tag_table
@@ -166,6 +172,14 @@ def package_dictize(pkg, context):
         ).where(tag_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, tag_rev, context)
     result_dict["tags"] = d.obj_list_dictize(result, context, lambda x: x["name"])
+
+    # Add display_names to tags. At first a tag's display_name is just the
+    # same as its name, but the display_name might get changed later (e.g.
+    # translated into another language by the multilingual extension).
+    for tag in result_dict['tags']:
+        assert not tag.has_key('display_name')
+        tag['display_name'] = tag['name']
+
     #extras
     extra_rev = model.extra_revision_table
     q = select([extra_rev]).where(extra_rev.c.package_id == pkg.id)
@@ -218,9 +232,8 @@ def package_dictize(pkg, context):
         if pkg.metadata_created else None
 
     if context.get('for_view'):
-        for item in plugins.PluginImplementations(plugins.IPackageController):
+        for item in plugins.PluginImplementations( plugins.IPackageController):
             result_dict = item.before_view(result_dict)
-
 
     return result_dict
 
@@ -233,7 +246,6 @@ def _get_members(context, group, member_type):
                filter(model.Member.group_id == group.id).\
                filter(model.Member.state == 'active').\
                filter(model.Member.table_name == member_type[:-1]).all()
-
 
 def group_dictize(group, context):
     model = context['model']
@@ -287,6 +299,18 @@ def tag_dictize(tag, context):
 
     result_dict = d.table_dictize(tag, context)
     result_dict["packages"] = d.obj_list_dictize(tag.packages, context)
+
+    # Add display_names to tags. At first a tag's display_name is just the
+    # same as its name, but the display_name might get changed later (e.g.
+    # translated into another language by the multilingual extension).
+    assert not result_dict.has_key('display_name')
+    result_dict['display_name'] = result_dict['name']
+
+    if context.get('for_view'):
+        for item in plugins.PluginImplementations(
+                plugins.ITagController):
+            result_dict = item.before_view(result_dict)
+
     return result_dict
 
 def user_list_dictize(obj_list, context,

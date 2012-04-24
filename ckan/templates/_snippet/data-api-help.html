@@ -15,102 +15,51 @@
   </h3>
 </div>
 <div class="modal-body">
-  <p><strong>Access resource data via a web API with powerful query
-    support</strong>. Further information in the <a
-    href="http://docs.ckan.org/en/latest/storage/datastore.html" target="_blank">main
-    CKAN Data API and DataStore documentation</a>.</p>
+  <p><strong>Access (and update) resource data via a web API with powerful query
+    support</strong>.</p>
+  
+  <ul>
+    <li>Quickstart info below</li>
+    <li><a
+    href="http://docs.ckan.org/en/latest/using-data-api.html" target="_blank">
+    Tutorial, examples and full details in main CKAN documentation</a></li>
+  </ul>
   
   <div class="accordion-group">
     <div class="accordion-heading">
-      <a class="accordion-toggle" data-toggle="collapse" href=".collapse-endpoints">Endpoints &raquo;</a>
+      <a class="accordion-toggle" data-toggle="collapse" href=".collapse-endpoints">Example URLs and Endpoints&raquo;</a>
     </div>
-    <div class="collapse-endpoints in accordion-body collapse">
+    <div class="collapse-endpoints in accordion-body">
       <div class="accordion-inner">
-        <p>The Data API builds directly on ElasticSearch, with a resource API
-        endpoint being equivalent to a single index 'type' in ElasticSearch.
-        This means you can directly re-use <a
-          href="http://www.elasticsearch.org/guide/appendix/clients.html"
-          _target="blank">ElasticSearch
-          client libraries</a> when connecting to the API endpoint.</p>
-        <table class="table-condensed table-striped table-bordered">
-          <thead></thead>
-          <tbody>
-            <tr>
-              <th>Query example</th>
-              <td>
-                <code><a href="${datastore_api}/_search?size=5&amp;pretty=true" target="_blank">${datastore_api}/_search?size=5&amp;pretty=true</a></code>
-              </td>
-            </tr>
-            <tr>
-              <th>Schema (Mapping)</th>
-              <td>
-                <code><a href="${datastore_api}/_mapping" target="_blank">${datastore_api}/_mapping?pretty=true</a></code>
-              </td>
-            </tr>
-            <tr>
-              <th>Base</th>
-              <td><code>${datastore_api}</code></td>
-            </tr>
-          </tbody>
-        </table>
+        <strong>Query example (first 5 results)</strong>
+        <p>
+        <code><a href="${datastore_api}/_search?size=5&amp;pretty=true" target="_blank">${datastore_api}/_search?size=5&amp;pretty=true</a></code>
+        </p>
+        
+        <strong>Query example (results with 'jones' in <code>title</code> field)</strong>
+        <p>
+        <code><a href="${datastore_api}/_search?q=title:jones&amp;size=5&amp;pretty=true"
+            target="_blank">${datastore_api}/_search?q=title:jones&amp;size=5&amp;pretty=true</a></code>
+        </p>
+
+        <strong>Schema (Mapping)</strong>
+        <p>
+        <code><a href="${datastore_api}/_mapping" target="_blank">${datastore_api}/_mapping?pretty=true</a></code>
+        </p>
+
+        <strong>Endpoint (for clients)</strong>
+        <p>
+        <code>${datastore_api}</code>
+        </p>
       </div>
     </div>
   </div>
 
-  <div class="accordion-group">
-    <div class="accordion-heading">
-      <a class="accordion-toggle" href=".collapse-querying" data-toggle="collapse">Querying
-        &raquo;</a>
-    </div>
-    <div class="collapse collapse-querying accordion-body in">
-      <div class="accordion-inner">
-        <p><strong>Basic queries</strong> can be done using the <code>q</code>
-        parameter in the query string which supports the <a
-          href="http://lucene.apache.org/core/old_versioned_docs/versions/3_0_0/queryparsersyntax.html"
-          target="_blank">Lucene
-          query parser syntax</a> and hence filters on specific fields
-        (<code>e.g. fieldname:value</code>), wildcards (e.g. <code>abc*</code>)
-        and more. Full query parameters and options in the <a
-          href="http://www.elasticsearch.org/guide/reference/api/search/uri-request.html"
-          target="_blank">ElasticSearch
-          URI request docs</a>.</p>
-
-        <p><strong>More complex queries</strong>, including those that involve
-        faceting and statistical operations, should use the full ElasticSearch
-        query language in which the query is a JSON structure sent in the
-        <code>?source=</code> parameter. See <a
-          href="http://www.elasticsearch.org/guide/reference/api/search/"
-          target="_blank">ElasticSearch
-          query documentation</a>.</p>
-
-        <p>JSONP support is available via a simple callback query parameter:
-        <code>?callback=my_callback_name</code>.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="accordion-group">
-    <div class="accordion-heading">
-      <a class="accordion-toggle" href=".collapse-curl"
-        data-toggle="collapse">Example: cURL (or Browser) &raquo;</a>
-    </div>
-    <div class="accordion-body collapse-curl collapse in">
-      <div class="accordion-inner">
-        <p>The following examples utilize the <a href="http://curl.haxx.se/">cURL</a>
-        command line utility. If you prefer, you you can just open the relevant urls in
-        your browser.</p>
-
-        <pre>
-// added pretty=true to get the json results pretty printed
-curl ${datastore_api}/_search?q=title:jones&amp;size=5&amp;pretty=true</pre>
-      </div>
-    </div>
-  </div>
   <div class="accordion-group">
     <div class="accordion-heading">
       <a class="accordion-toggle" href=".collapse-javascript" data-toggle="collapse">Example: Javascript</a>
     </div>
-    <div class="accordion-body collapse-javascript collapse in">
+    <div class="accordion-body collapse-javascript in">
       <div class="accordion-inner">
         <p>A simple ajax (JSONP) request to the data API using jQuery.</p>
         <pre>
@@ -119,12 +68,29 @@ var data = {
   q: 'title:jones' // query on the title field for 'jones'
 };
 $.ajax({
-  url: ${datastore_api}/_search,
+  url: '${datastore_api}/_search',
+  data: data,
   dataType: 'jsonp',
   success: function(data) {
     alert('Total results found: ' + data.hits.total)
   }
 });</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" href=".collapse-javascript" data-toggle="collapse">Example: Python</a>
+    </div>
+    <div class="accordion-body collapse-javascript in">
+      <div class="accordion-inner">
+        <pre>
+import urllib
+url = '${datastore_api}/_search?size=5&amp;q=title:jones'
+fileobj = urllib.urlopen(url)
+print fileobj.read()
+</pre>
       </div>
     </div>
   </div>

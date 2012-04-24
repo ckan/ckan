@@ -1,5 +1,6 @@
 import ConfigParser
 import os
+from pylons import config as pylons_config
 from pkg_resources import iter_entry_points
 #from celery.loaders.base import BaseLoader
 
@@ -12,16 +13,22 @@ celery = Celery()
 config = ConfigParser.ConfigParser()
 
 config_file = os.environ.get('CKAN_CONFIG')
+
 if not config_file:
     config_file =  os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '../../development.ini')
 config.read(config_file)
 
 
+sqlalchemy_url = pylons_config.get('sqlalchemy.url')
+if not sqlalchemy_url:
+    sqlalchemy_url = config.get('app:main', 'sqlalchemy.url')
+
+
 default_config = dict( 
     BROKER_BACKEND = 'sqlalchemy',
-    BROKER_HOST = config.get('app:main', 'sqlalchemy.url'),
-    CELERY_RESULT_DBURI = config.get('app:main', 'sqlalchemy.url'),
+    BROKER_HOST = sqlalchemy_url,
+    CELERY_RESULT_DBURI = sqlalchemy_url,
     CELERY_RESULT_BACKEND = 'database',
     CELERY_RESULT_SERIALIZER = 'json',
     CELERY_TASK_SERIALIZER = 'json',

@@ -30,30 +30,21 @@ the spreadsheet data is stored in the DataStore one would be able to access
 individual spreadsheet rows via a simple web-api as well as being able to make
 queries over the spreadsheet contents.
 
-Using the DataStore Data API
-============================
+The DataStore Data API
+======================
 
 The DataStore's Data API, which derives from the underlying ElasticSearch
 data-table, is RESTful and JSON-based with extensive query capabilities.
 
-Each resource in a CKAN instance has an associated DataStore 'database'.  This
-database will be accessible via a web interface at::
+Each resource in a CKAN instance has an associated DataStore 'table'. This
+table will be accessible via a web interface at::
 
   /api/data/{resource-id}
 
 This interface to this data is *exactly* the same as that provided by
 ElasticSearch to documents of a specific type in one of its indices.
 
-So, for example, to see the fields in this database do::
-
-  /api/data/{resource-id}/_mapping
-
-To do simple search do::
-
-  /api/data/{resource-id}/_search?q=abc
-
-For more on searching see: http://www.elasticsearch.org/guide/reference/api/search/uri-request.html
-
+For a detailed tutorial on using this API see :doc:`using-data-api`.
 
 Installation and Configuration
 ==============================

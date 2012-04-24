@@ -72,6 +72,7 @@ setup(
     celeryd = ckan.lib.cli:Celery
     rdf-export = ckan.lib.cli:RDFExport
     tracking = ckan.lib.cli:Tracking
+    plugin-info = ckan.lib.cli:PluginInfo
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
@@ -92,6 +93,11 @@ setup(
     [ckan.plugins]
     synchronous_search = ckan.lib.search:SynchronousSearchPlugin
     stats=ckanext.stats.plugin:StatsPlugin
+    publisher_form=ckanext.publisher_form.forms:PublisherForm
+    publisher_dataset_form=ckanext.publisher_form.forms:PublisherDatasetForm
+    multilingual_dataset=ckanext.multilingual.plugin:MultilingualDataset
+    multilingual_group=ckanext.multilingual.plugin:MultilingualGroup
+    multilingual_tag=ckanext.multilingual.plugin:MultilingualTag
     organizations=ckanext.organizations.forms:OrganizationForm
     organizations_dataset=ckanext.organizations.forms:OrganizationDatasetForm
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
