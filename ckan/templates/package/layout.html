@@ -51,6 +51,7 @@
       <li class="${'active' if c.action=='authz' else ''}" py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
         ${h.subnav_link(h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
       </li>
+      <li><button package_id="${c.pkg.id}" class="btn dataset-follow">Follow</button></li>
     </ul>
   </py:match>
   

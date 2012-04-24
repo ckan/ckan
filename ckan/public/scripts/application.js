@@ -100,6 +100,10 @@ CKAN.Utils = CKAN.Utils || {};
       $( ".drag-drop-list" ).disableSelection();
     }
 
+    // This only needs to happen on dataset pages, but it doesn't seem to do
+    // any harm to call it anyway.
+    CKAN.Utils.setupDatasetFollowButton();
+
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
       var urlEditor = new CKAN.View.UrlEditor({
@@ -1248,7 +1252,6 @@ CKAN.Utils = function($, my) {
   };
 
   my.setupUserFollowButton = function() {
-    var select = $('button.user-follow');
     $('button.user-follow').click(function(e) {
       $.ajax({
         contentType: 'application/json',
@@ -1256,6 +1259,23 @@ CKAN.Utils = function($, my) {
         data: JSON.stringify({
                followee_id: this.attributes.userid.nodeValue,
                followee_type: 'user',
+        }),
+        dataType: 'json',
+        processData: false,
+        type: 'POST',
+      });
+      return false;
+    });
+  };
+
+  my.setupDatasetFollowButton = function() {
+    $('button.dataset-follow').click(function(e) {
+      $.ajax({
+        contentType: 'application/json',
+        url: '/api/action/follower_create',
+        data: JSON.stringify({
+               followee_id: this.attributes.package_id.nodeValue,
+               followee_type: 'dataset',
         }),
         dataType: 'json',
         processData: false,
