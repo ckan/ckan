@@ -371,6 +371,10 @@ class PackageController(BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
 
+        # Add the package's number of followers to the context for templates.
+        c.num_followers = ckan.logic.action.get.dataset_follower_count(
+                context, {'id':c.pkg.id})
+
         format = request.params.get('format', '')
         if format == 'atom':
             # Generate and return Atom 1.0 document.
@@ -488,6 +492,10 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
+
+        # Add the package's number of followers to the context for templates.
+        c.num_followers = ckan.logic.action.get.dataset_follower_count(
+                context, {'id':c.pkg.id})
 
         if (c.action == u'editresources'):
           return render('package/editresources.html')
@@ -663,6 +671,11 @@ class PackageController(BaseController):
 
         roles = self._handle_update_of_authz(pkg)
         self._prepare_authz_info_for_render(roles)
+
+        # Add the package's number of followers to the context for templates.
+        c.num_followers = ckan.logic.action.get.dataset_follower_count(
+                context, {'id':c.pkg.id})
+
         return render('package/authz.html')
 
     def autocomplete(self):
@@ -758,6 +771,8 @@ class PackageController(BaseController):
             c.pkg = context['package']
             c.followers = get_action('dataset_follower_list')(context,
                     {'id': c.pkg_dict['id']})
+            c.num_followers = ckan.logic.action.get.dataset_follower_count(
+                    context, {'id':c.pkg.id})
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:

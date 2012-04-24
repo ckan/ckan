@@ -35,7 +35,13 @@
       </py:otherwise>
       </py:choose>
       <li class="${'active' if c.action=='history' else ''}">${h.subnav_link(h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
-      <li class="${'active' if c.action=='followers' else ''}">${h.subnav_link(h.icon('authorization_group') + _('Followers'), controller='package', action='followers', id=c.pkg.name)}</li>
+      <li class="${'active' if c.action=='followers' else ''}">
+        ${h.subnav_link(
+            h.icon('authorization_group') + _('Followers ({num_followers})').format(num_followers=c.num_followers),
+            controller='package', 
+            action='followers',
+            id=c.pkg.name)}
+      </li>
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
         <li class="divider">|</li>
         <li class="${'active' if c.action=='edit' else ''}">
