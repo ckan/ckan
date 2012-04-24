@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="ckan" version="1.3">
+<schema name="ckan" version="1.4">
 
 <types>
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
