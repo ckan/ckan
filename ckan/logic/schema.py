@@ -62,6 +62,7 @@ def default_resource_schema():
         'webstore_url': [ignore_missing, unicode],
         'cache_url': [ignore_missing, unicode],
         'size': [ignore_missing, int_validator],
+        'created': [ignore_missing, isodate],
         'last_modified': [ignore_missing, isodate],
         'cache_last_updated': [ignore_missing, isodate],
         'webstore_last_updated': [ignore_missing, isodate],
