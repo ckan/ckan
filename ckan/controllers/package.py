@@ -751,3 +751,59 @@ class PackageController(BaseController):
                 qualified=True)
         return render('package/resource_read.html')
 
+    def resource_embedded_dataviewer(self, id, resource_id):
+        """
+        Embeded page for a read-only resource dataview.
+        """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.resource = get_action('resource_show')(context, {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+            c.resource_json = json.dumps(c.resource)
+
+            # double check that the resource belongs to the specified package
+            if not c.resource['id'] in [ r['id'] for r in c.package['resources'] ]:
+                raise NotFound
+
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        # Construct the recline state
+        state_version = int(request.params.get('state_version', '1'))
+        raw_state = request.params.get('state', '')
+        recline_state = self._parse_recline_state(state_version, raw_state)
+        if recline_state is None:
+            abort(400, ('"state" parameter must be a valid recline state (version %d)' % state_version))
+
+        c.recline_state = json.dumps(recline_state)
+
+        c.width = max(int(request.params.get('width', 500)), 100)
+        c.height = max(int(request.params.get('height', 500)), 100)
+        c.embedded = True
+
+        return render('package/resource_embedded_dataviewer.html')
+
+    def _parse_recline_state(self, state_version, raw_state):
+        if state_version != 1:  # Only support one version at the moment
+            return None
+
+        try:
+            state = json.loads(raw_state)
+        except ValueError:
+            return None
+
+        # Ensure the state is readOnly
+        state['readOnly'] = True
+
+        # Ensure only the currentView is available
+        if not state.get('currentView', None):
+            state['currentView'] = 'grid'   # default to grid view if none specified
+        for k in state.keys():
+            if k.startswith('view-') and not k.endswith(state['currentView']):
+                state.pop(k)
+
+        return state
