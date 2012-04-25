@@ -1408,6 +1408,10 @@ CKAN.DataPreview = function ($, my) {
       // Bind changes to the DataExplorer, or the two width and height inputs
       // to re-calculate the url.
       dataExplorer.state.bind('change', updateLink);
+      for (var i=0; i<dataExplorer.pageViews.length; i++) {
+        dataExplorer.pageViews[i].view.state.bind('change', updateLink);
+      }
+
       iframeWidth.change(updateLink);
       iframeHeight.change(updateLink);
 
