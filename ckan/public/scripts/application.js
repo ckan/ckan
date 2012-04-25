@@ -1411,12 +1411,18 @@ CKAN.DataPreview = function ($, my) {
   // url to the embeddable view of the current dataexplorer state.
   my.makeEmbedLink = function(explorerState) {
     var state = explorerState.toJSON();
-    state.dataset.url = escape(state.dataset.url);
-    var qs = recline.View.composeQueryString({
-      state:         explorerState.toJSON(),
-      state_version: 1
+    state.state_version = 1;
+
+    var queryString = '?';
+    var items = [];
+    $.each(state, function(key, value) {
+      if (typeof(value) === 'object') {
+        value = JSON.stringify(value);
+      }
+      items.push(key + '=' + escape(value));
     });
-    return embedPath + qs;
+    queryString += items.join('&');
+    return embedPath + queryString;
   };
 
   // **Public: Loads a data preview**
@@ -1490,7 +1496,7 @@ CKAN.DataPreview = function ($, my) {
 
         // Escape '"' characters in {{link}} in order not to prematurely close
         // the src attribute value.
-        embedIframeText.val($.mustache('<iframe width="{{width}}" height="{{height}}" src="{{link}}"></iframe>',
+        embedIframeText.val($.mustache('<iframe frameBorder="0" width="{{width}}" height="{{height}}" src="{{link}}"></iframe>',
                                        {
                                          link: link.replace(/"/g, '&quot;'),
                                          width: width,

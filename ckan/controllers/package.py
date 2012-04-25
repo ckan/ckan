@@ -774,8 +774,7 @@ class PackageController(BaseController):
 
         # Construct the recline state
         state_version = int(request.params.get('state_version', '1'))
-        raw_state = request.params.get('state', '')
-        recline_state = self._parse_recline_state(state_version, raw_state)
+        recline_state = self._parse_recline_state(request.params)
         if recline_state is None:
             abort(400, ('"state" parameter must be a valid recline state (version %d)' % state_version))
 
@@ -787,23 +786,28 @@ class PackageController(BaseController):
 
         return render('package/resource_embedded_dataviewer.html')
 
-    def _parse_recline_state(self, state_version, raw_state):
-        if state_version != 1:  # Only support one version at the moment
+    def _parse_recline_state(self, params):
+        state_version = int(request.params.get('state_version', '1'))
+        if state_version != 1:
             return None
 
-        try:
-            state = json.loads(raw_state)
-        except ValueError:
-            return None
+        recline_state = {}
+        for k,v in request.params.items():
+            try:
+                v = json.loads(v)
+            except ValueError:
+                pass
+            recline_state[k] = v
 
-        # Ensure the state is readOnly
-        state['readOnly'] = True
+        recline_state.pop('width', None)
+        recline_state.pop('height', None)
+        recline_state['readOnly'] = True
 
         # Ensure only the currentView is available
-        if not state.get('currentView', None):
-            state['currentView'] = 'grid'   # default to grid view if none specified
-        for k in state.keys():
-            if k.startswith('view-') and not k.endswith(state['currentView']):
-                state.pop(k)
+        if not recline_state.get('currentView', None):
+            recline_state['currentView'] = 'grid'   # default to grid view if none specified
+        for k in recline_state.keys():
+            if k.startswith('view-') and not k.endswith(recline_state['currentView']):
+                recline_state.pop(k)
+        return recline_state
 
-        return state

@@ -1199,6 +1199,8 @@ my.Grid = Backbone.View.extend({
     var hiddenFields = this.state.get('hiddenFields');
     hiddenFields.push(this.tempState.currentColumn);
     this.state.set({hiddenFields: hiddenFields});
+    // change event not being triggered (because it is an array?) so trigger manually
+    this.state.trigger('change');
     this.render();
   },
   
@@ -2476,7 +2478,9 @@ my.DataExplorer = Backbone.View.extend({
         pageView.view.state.bind('change', function() {
           var update = {};
           update['view-' + pageView.id] = pageView.view.state.toJSON();
-          self.state.set(update);
+          // had problems where change not being triggered for e.g. grid view so let's do it explicitly
+          self.state.set(update, {silent: true});
+          self.state.trigger('change');
         });
       }
     });
