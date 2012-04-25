@@ -120,6 +120,32 @@ CKAN.Utils = CKAN.Utils || {};
   });
 }(jQuery));
 
+/* =============================== */
+/* jQuery Plugins                  */
+/* =============================== */
+
+jQuery.fn.truncate = function (max, suffix) {
+  return this.each(function () {
+    var element = jQuery(this),
+        cached  = element.text(),
+        length  = max || element.data('truncate') || 30,
+        text    = cached.slice(0, length),
+        expand  = jQuery('<a href="#" />').text(suffix || '»');
+
+    // Try to truncate to nearest full word.
+    while ((/\S/).test(text[text.length - 1])) {
+      text = text.slice(0, text.length - 1);
+    }
+
+    element.html(jQuery.trim(text));
+
+    expand.appendTo(element.append(' '));
+    expand.click(function (event) {
+      event.preventDefault();
+      element.text(cached);
+    });
+  });
+};
 
 /* =============================== */
 /* Backbone Model: Resource object */
@@ -1114,7 +1140,9 @@ CKAN.Utils = function($, my) {
     }
 
     // Center thumbnails vertically.
-    $('.related-items img').each(function () {
+    $('.related-items').each(function () {
+      var item = $(this);
+
       function vertiallyAlign() {
         var img = $(this),
             height = img.height(),
@@ -1125,7 +1153,9 @@ CKAN.Utils = function($, my) {
           img.css('margin-top', -top);
         }
       }
-      $(this).load(vertiallyAlign);
+
+      item.find('img').load(vertiallyAlign);
+      item.find('.description').truncate();
     });
 
     $(form).submit(function (event) {
@@ -1138,9 +1168,15 @@ CKAN.Utils = function($, my) {
       });
 
       form.find('.alert').remove();
+      form.find('.error').removeClass('error');
       if (!data.title) {
         addAlert('<strong>Missing field:</strong> A title is required');
         $('[name=title]').parent().addClass('error');
+        return;
+      }
+      if (!data.url) {
+        addAlert('<strong>Missing field:</strong> A url is required');
+        $('[name=url]').parent().addClass('error');
         return;
       }
 
