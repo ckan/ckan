@@ -76,6 +76,7 @@
     </style>
     <script type="text/javascript">
       var preload_resource = ${h.literal(c.resource_json)};
+      var embedPath = "${g.site_url+h.url_for(controller='package', action='resource_embedded_dataviewer', id=c.package.id, resource_id=c.resource.id)}";
     </script>
   </py:def>
 

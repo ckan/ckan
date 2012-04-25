@@ -1322,7 +1322,7 @@ CKAN.DataPreview = function ($, my) {
       state:         explorerState.toJSON(),
       state_version: 1
     });
-    return window.location.origin + window.location.pathname + '/embed' + qs;
+    return embedPath + qs;
   };
 
   // **Public: Loads a data preview**
