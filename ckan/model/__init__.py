@@ -221,13 +221,8 @@ class Repository(vdm.sqlalchemy.Repository):
             rev = Revision()
             rev.author = 'system'
             rev.message = u'Initialising the Repository'
-<<<<<<< HEAD
-            meta.Session.add(rev)
-        self.commit_and_remove()   
-=======
             Session.add(rev)
         self.commit_and_remove()
->>>>>>> master
 
     def create_db(self):
         '''Ensures tables, const data and some default config is created.
