@@ -48,10 +48,6 @@ def resource_list_dictize(res_list, context):
         resource_dict = resource_dictize(res, context)
         if active and res.state not in ('active', 'pending'):
             continue
-        #tracking
-        model = context['model']
-        tracking = model.TrackingSummary.get_for_resource(res.url)
-        resource_dict['tracking_summary'] = tracking
 
         result_list.append(resource_dict)
 
@@ -100,6 +96,10 @@ def resource_dictize(res, context):
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
+    #tracking
+    model = context['model']
+    tracking = model.TrackingSummary.get_for_resource(res.url)
+    resource['tracking_summary'] = tracking
     return resource
 
 def related_dictize(rel, context):
