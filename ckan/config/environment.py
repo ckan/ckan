@@ -30,10 +30,14 @@ class _Helpers(object):
     def __init__(self, helpers, restrict=True):
         functions = {}
         allowed = helpers.__allowed_functions__
+        # list of functions due to be depreciated
+        self.depreciated = []
 
         for helper in dir(helpers):
-            if restrict and (helper not in allowed):
-                continue
+            if helper not in allowed:
+                self.depreciated.append(helper)
+                if restrict:
+                    continue
             functions[helper] = getattr(helpers, helper)
         self.functions = functions
 
@@ -46,6 +50,8 @@ class _Helpers(object):
                     raise Exception('overwritting extra helper %s' % helper)
                 extra_helpers.append(helper)
                 functions[helper] = helpers[helper]
+        # logging
+        self.log = logging.getLogger('ckan.helpers')
 
     @classmethod
     def null_function(cls, *args, **kw):
@@ -57,10 +63,21 @@ class _Helpers(object):
     def __getattr__(self, name):
         ''' return the function/object requested '''
         if name in self.functions:
+            if name in self.depreciated:
+                msg = 'Template helper function `%s` is depriciated' % name
+                self.log.warn(msg)
             return self.functions[name]
         else:
-            log = logging.getLogger('ckan.helpers')
-            log.critical('Helper function `%s` could not be found (missing extension?)' % name)
+            if name in self.depreciated:
+                msg = 'Template helper function `%s` is not available ' \
+                      'as it has been depriciated.\nYou can enable it ' \
+                      'by setting ckan.restrict_template_vars = true ' \
+                      'in your .ini file.' % name
+                self.log.critical(msg)
+            else:
+                msg = 'Helper function `%s` could not be found\n ' \
+                      '(are you missing an extension?)' % name
+                self.log.critical(msg)
             return self.null_function
 
 
@@ -171,9 +188,8 @@ def load_environment(global_conf, app_conf):
     ckan_db = os.environ.get('CKAN_DB') 
 
     if ckan_db:
-        engine = sqlalchemy.create_engine(ckan_db)
-    else:
-        engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
+        config['sqlalchemy.url'] = ckan_db
+    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
 
     if not model.meta.engine:
         model.init_model(engine)

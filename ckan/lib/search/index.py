@@ -132,6 +132,12 @@ class PackageSearchIndex(SearchIndex):
 
         pkg_dict['groups'] = [group['name'] for group in groups]
 
+        # tracking
+        tracking_summary = pkg_dict.pop('tracking_summary', None)
+        if tracking_summary:
+            pkg_dict['views_total'] = tracking_summary['total']
+            pkg_dict['views_recent'] = tracking_summary['recent']
+
         # flatten the structure for indexing:
         for resource in pkg_dict.get('resources', []):
             for (okey, nkey) in [('description', 'res_description'),

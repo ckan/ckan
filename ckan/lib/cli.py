@@ -1,4 +1,5 @@
 import os
+import datetime
 import sys
 import logging
 from pprint import pprint
@@ -879,3 +880,207 @@ class Ratings(CkanCommand):
             rating.purge()
         model.repo.commit_and_remove()
 
+class Tracking(CkanCommand):
+    '''Update tracking statistics
+
+    Usage:
+      tracking   - update tracking stats
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        import ckan.model as model
+        engine = model.meta.engine
+
+        if len(self.args) == 1:
+            # Get summeries from specified date
+            start_date = datetime.datetime.strptime(self.args[0], '%Y-%m-%d')
+        else:
+            # No date given. See when we last have data for and get data
+            # from 2 days before then in case new data is available.
+            # If no date here then use 2010-01-01 as the start date
+            sql = '''SELECT tracking_date from tracking_summary
+                     ORDER BY tracking_date DESC LIMIT 1;'''
+            result = engine.execute(sql).fetchall()
+            if result:
+                start_date = result[0]['tracking_date']
+                start_date += datetime.timedelta(-2)
+                # convert date to datetime
+                combine = datetime.datetime.combine
+                start_date = combine(start_date, datetime.time(0))
+            else:
+                start_date = datetime.datetime(2011, 1, 1)
+        end_date = datetime.datetime.now()
+
+        while start_date < end_date:
+            stop_date = start_date + datetime.timedelta(1)
+            self.update_tracking(engine, start_date)
+            print 'tracking updated for %s' % start_date
+            start_date = stop_date
+
+    def update_tracking(self, engine, summary_date):
+        PACKAGE_URL = '/dataset/'
+        # clear out existing data before adding new
+        sql = '''DELETE FROM tracking_summary
+                 WHERE tracking_date='%s'; ''' % summary_date
+        engine.execute(sql)
+
+        sql = '''SELECT DISTINCT url, user_key,
+                     CAST(access_timestamp AS Date) AS tracking_date,
+                     tracking_type INTO tracking_tmp
+                 FROM tracking_raw
+                 WHERE CAST(access_timestamp as Date)='%s';
+
+                 INSERT INTO tracking_summary
+                   (url, count, tracking_date, tracking_type)
+                 SELECT url, count(user_key), tracking_date, tracking_type
+                 FROM tracking_tmp
+                 GROUP BY url, tracking_date, tracking_type;
+
+                 DROP TABLE tracking_tmp;
+                 COMMIT;''' % summary_date
+        engine.execute(sql)
+
+        # get ids for dataset urls
+        sql = '''UPDATE tracking_summary t
+                 SET package_id = COALESCE(
+                        (SELECT id FROM package p
+                        WHERE t.url =  %s || p.name)
+                     ,'~~not~found~~')
+                 WHERE t.package_id IS NULL
+                 AND tracking_type = 'page';'''
+        engine.execute(sql, PACKAGE_URL)
+
+        # update summary totals for resources
+        sql = '''UPDATE tracking_summary t1
+                 SET running_total = (
+                    SELECT sum(count)
+                    FROM tracking_summary t2
+                    WHERE t1.url = t2.url
+                    AND t2.tracking_date <= t1.tracking_date
+                 ) + t1.count
+                 ,recent_views = (
+                    SELECT sum(count)
+                    FROM tracking_summary t2
+                    WHERE t1.url = t2.url
+                    AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
+                 ) + t1.count
+                 WHERE t1.running_total = 0 AND tracking_type = 'resource';'''
+        engine.execute(sql)
+
+        # update summary totals for pages
+        sql = '''UPDATE tracking_summary t1
+                 SET running_total = (
+                    SELECT sum(count)
+                    FROM tracking_summary t2
+                    WHERE t1.package_id = t2.package_id
+                    AND t2.tracking_date <= t1.tracking_date
+                 ) + t1.count
+                 ,recent_views = (
+                    SELECT sum(count)
+                    FROM tracking_summary t2
+                    WHERE t1.package_id = t2.package_id
+                    AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
+                 ) + t1.count
+                 WHERE t1.running_total = 0 AND tracking_type = 'page'
+                 AND t1.package_id IS NOT NULL
+                 AND t1.package_id != '~~not~found~~';'''
+        engine.execute(sql)
+
+class PluginInfo(CkanCommand):
+    ''' Provide info on installed plugins.
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 0
+    min_args = 0
+
+    def command(self):
+        self.get_info()
+
+    def get_info(self):
+        ''' print info about current plugins from the .ini file'''
+        import ckan.plugins as p
+        self._load_config()
+        interfaces = {}
+        plugins = {}
+        for name in dir(p):
+            item = getattr(p, name)
+            try:
+                if issubclass(item, p.Interface):
+                    interfaces[item] = {'class' : item}
+            except TypeError:
+                pass
+
+        for interface in interfaces:
+            for plugin in p.PluginImplementations(interface):
+                name = plugin.name
+                if name not in plugins:
+                    plugins[name] = {'doc' : plugin.__doc__,
+                                     'class' : plugin,
+                                     'implements' : []}
+                plugins[name]['implements'].append(interface.__name__)
+
+        for plugin in plugins:
+            p = plugins[plugin]
+            print plugin + ':'
+            print '-' * (len(plugin) + 1)
+            if p['doc']:
+                print p['doc']
+            print 'Implements:'
+            for i in p['implements']:
+                extra = None
+                if i == 'ITemplateHelpers':
+                    extra = self.template_helpers(p['class'])
+                if i == 'IActions':
+                    extra = self.actions(p['class'])
+                print '    %s' % i
+                if extra:
+                    print extra
+            print
+
+
+    def actions(self, cls):
+        ''' Return readable action function info. '''
+        actions = cls.get_actions()
+        return self.function_info(actions)
+
+    def template_helpers(self, cls):
+        ''' Return readable helper function info. '''
+        helpers = cls.get_helpers()
+        return self.function_info(helpers)
+
+    def function_info(self, functions):
+        ''' Take a dict of functions and output readable info '''
+        import inspect
+        output = []
+        for function_name in functions:
+            fn = functions[function_name]
+            args_info = inspect.getargspec(fn)
+            params = args_info.args
+            num_params = len(params)
+            if args_info.varargs:
+                params.append('*' + args_info.varargs)
+            if args_info.keywords:
+                params.append('**' + args_info.keywords)
+            if args_info.defaults:
+                offset = num_params - len(args_info.defaults)
+                for i, v in enumerate(args_info.defaults):
+                    params[i + offset] = params[i + offset] + '=' + repr(v)
+            # is this a classmethod if so remove the first parameter
+            if inspect.ismethod(fn) and inspect.isclass(fn.__self__):
+                params = params[1:]
+            params = ', '.join(params)
+            output.append('        %s(%s)' % (function_name, params))
+            # doc string
+            if fn.__doc__:
+                bits = fn.__doc__.split('\n')
+                for bit in bits:
+                    output.append('            %s' % bit)
+        return ('\n').join(output)

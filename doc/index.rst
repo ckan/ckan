@@ -39,6 +39,7 @@ Customizing and Extending
    datastore
    background-tasks
    geospatial
+   multilingual
 
 Publishing Datasets
 ===================
@@ -59,6 +60,8 @@ The CKAN API
    :maxdepth: 3
 
    api
+   api-tutorial
+   using-data-api
 
 General Administration
 ======================
@@ -90,8 +93,9 @@ Other material
 ==============
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
+   contrib.rst
    CHANGELOG.rst
 
 Indices and tables

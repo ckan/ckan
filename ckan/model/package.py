@@ -113,6 +113,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             else:
                 resource = resource_obj_or_dict
             res_dict = resource.as_dict(core_columns_only=True)
+            del res_dict['created']
             return res_dict
         existing_res_identites = [get_resource_identity(res) \
                                   for res in self.resources]
@@ -168,6 +169,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         else:
             package_tag = model.PackageTag(self, tag)
             meta.Session.add(package_tag)
+
 
     def add_tags(self, tags):
         for tag in tags:
@@ -272,6 +274,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict['metadata_created'] = self.metadata_created.isoformat() \
             if self.metadata_created else None
         _dict['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(self.notes)
+        #tracking
+        import ckan.model as model
+        tracking = model.TrackingSummary.get_for_package(self.id)
+        _dict['tracking_summary'] = tracking
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):
@@ -558,6 +564,13 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             # use timegm instead of mktime, because we don't want it localised
             timestamp_float = timegm(timestamp_without_usecs) + usecs
             return datetime.datetime.utcfromtimestamp(timestamp_float)
+
+    @property
+    def is_private(self):
+        """
+        A package is private if belongs to any private groups
+        """
+        return bool(self.get_groups(capacity='private'))
 
     def is_in_group(self, group):
         return group in self.get_groups()

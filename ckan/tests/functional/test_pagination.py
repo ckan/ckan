@@ -13,7 +13,7 @@ def scrape_search_results(response, object_type):
                              str(response))
     else:
         object_type = 'dataset'
-        results = re.findall('class="main-link" href="/%s/%s_(\d\d)"' % (object_type, object_type),
+        results = re.findall('href="/%s/%s_(\d\d)"' % (object_type, object_type),
                              str(response))
     return results
 
@@ -31,23 +31,6 @@ def test_scrape_user():
     res = scrape_search_results(html, 'user')
     assert_equal(res, ['00', '01'])
 
-def test_scrape_group_dataset():
-    html = '''
-        <div class="search-result ">
-          <a class="view-more-link" href="/dataset/dataset_13">View</a>
-          <a class="main-link" href="/dataset/dataset_13">dataset_13</a>
-
-          <p class="result-description"></p>
-
-          <span class="result-url">
-
-              <img src="/images/icons/lock.png" height="16px" width="16px" alt="None" />  Not Openly Licensed
-
-          </span>
-        </div>
-      '''
-    res = scrape_search_results(html, 'group_dataset')
-    assert_equal(res, ['13'])
 
 class TestPaginationPackage(TestController):
     @classmethod

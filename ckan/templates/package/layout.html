@@ -21,13 +21,13 @@
             <ul class="dropdown-menu">
               <li py:if="h.check_access('package_update',{'id':c.pkg.id})">
                 ${h.link_to(
-                  h.icon('page_white_add') + _('Add / Edit resources'), 
+                  h.icon('page_white_add') + _('Add / Edit resources'),
                   h.url_for(action='editresources', id=c.pkg.name, controller='package')
                   )}
                 <hr py:if="len(c.pkg_dict.get('resources',[]))>0"/>
               </li>
               <li py:for="res in c.pkg_dict.get('resources', [])">
-                <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_icon(res) + h.resource_display_name(res)}</a>
+			  <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_icon(res) + h.resource_display_name(res)}</a>
               </li>
             </ul>
           </div>
@@ -35,18 +35,23 @@
       </py:otherwise>
       </py:choose>
       <li class="${'active' if c.action=='history' else ''}">${h.subnav_link(h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
+
+      <li class="${'active' if c.action=='related' else ''}">${h.subnav_link(h.icon('package') + _('Related') + ' (%s)' % c.related_count, controller='related', action='list', id=c.pkg.name)}</li>
+
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
         <li class="divider">|</li>
         <li class="${'active' if c.action=='edit' else ''}">
           ${h.subnav_link(h.icon('package_edit') + _('Settings'), controller='package', action='edit', id=c.pkg.name)}
         </li>
       </py:if>
+
+
       <li class="${'active' if c.action=='authz' else ''}" py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
         ${h.subnav_link(h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
       </li>
     </ul>
   </py:match>
-  
+
   <xi:include href="../layout.html" />
 
 </html>

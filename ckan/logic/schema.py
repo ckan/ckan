@@ -62,9 +62,11 @@ def default_resource_schema():
         'webstore_url': [ignore_missing, unicode],
         'cache_url': [ignore_missing, unicode],
         'size': [ignore_missing, int_validator],
+        'created': [ignore_missing, isodate],
         'last_modified': [ignore_missing, isodate],
         'cache_last_updated': [ignore_missing, isodate],
         'webstore_last_updated': [ignore_missing, isodate],
+        'tracking_summary': [ignore],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
@@ -85,6 +87,7 @@ def default_tags_schema():
         'vocabulary_id': [ignore_missing, unicode, vocabulary_id_exists],
         'revision_timestamp': [ignore],
         'state': [ignore],
+        'display_name': [ignore],
     }
     return schema
 
@@ -229,6 +232,20 @@ def group_form_schema():
 def default_update_group_schema():
     schema = default_group_schema()
     schema["name"] = [ignore_missing, group_name_validator, unicode]
+    return schema
+
+
+def default_related_schema():
+    schema = {
+        'id': [ignore_missing, unicode],
+        'title': [not_empty, unicode],
+        'description': [ignore_missing, unicode],
+        'type': [not_empty, unicode],
+        'image_url': [ignore_missing, unicode],
+        'url': [ignore_missing, unicode],
+        'owner_id': [not_empty, unicode],
+        'created': [ignore],
+    }
     return schema
 
 

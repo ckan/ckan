@@ -14,7 +14,7 @@ from ckan.model import extension
 from ckan.model.activity import ActivityDetail
 import domain_object
 
-__all__ = ['Resource', 'resource_table', 
+__all__ = ['Resource', 'resource_table',
            'ResourceGroup', 'resource_group_table',
            'ResourceRevision', 'resource_revision_table',
            'ResourceGroupRevision', 'resource_group_revision_table',
@@ -22,9 +22,9 @@ __all__ = ['Resource', 'resource_table',
 
 CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
-                         'size', 'last_modified', 'cache_url', 'cache_last_updated',
-                         'webstore_url', 'webstore_last_updated']
-
+                         'size', 'created', 'last_modified', 'cache_url',
+                         'cache_last_updated', 'webstore_url',
+                         'webstore_last_updated']
 
 
 ##formally package_resource
@@ -43,6 +43,7 @@ resource_table = Table(
     Column('mimetype', types.UnicodeText),
     Column('mimetype_inner', types.UnicodeText),
     Column('size', types.BigInteger),
+    Column('created', types.DateTime, default=datetime.datetime.now),
     Column('last_modified', types.DateTime),
     Column('cache_url', types.UnicodeText),
     Column('cache_last_updated', types.DateTime),
@@ -110,6 +111,9 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict[k] = v
         if self.resource_group and not core_columns_only:
             _dict["package_id"] = self.resource_group.package_id
+        import ckan.model as model
+        tracking = model.TrackingSummary.get_for_resource(self.url)
+        _dict['tracking_summary'] = tracking
         return _dict
 
     @classmethod

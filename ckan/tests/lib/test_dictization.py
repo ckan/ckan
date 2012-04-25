@@ -80,6 +80,7 @@ class TestBasicDictize:
                             u'size': None,
                             u'size_extra': u'123',
                             u'state': u'active',
+                            u'tracking_summary': {'total': 0, 'recent': 0},
                             u'url': u'http://www.annakarenina.com/download/x=1&y=2',
                             u'webstore_last_updated': None,
                             u'webstore_url': None},
@@ -98,14 +99,20 @@ class TestBasicDictize:
                             u'size': None,
                             u'size_extra': u'345',
                             u'state': u'active',
+                            u'tracking_summary': {'total': 0, 'recent': 0},
                             u'url': u'http://www.annakarenina.com/index.json',
                             u'webstore_last_updated': None,
                             u'webstore_url': None}],
             'state': u'active',
-            'tags': [{'name': u'Flexible \u30a1', 'state': u'active'},
-                     {'name': u'russian', 'state': u'active'},
-                     {'name': u'tolstoy', 'state': u'active'}],
+            'tags': [{'name': u'Flexible \u30a1',
+                        'display_name': u'Flexible \u30a1',
+                        'state': u'active'},
+                     {'name': u'russian', 'display_name': u'russian',
+                         'state': u'active'},
+                     {'name': u'tolstoy', 'display_name': u'tolstoy',
+                         'state': u'active'}],
             'title': u'A Novel By Tolstoy',
+            'tracking_summary': {'total': 0, 'recent': 0},
             'url': u'http://www.annakarenina.com',
             'version': u'0.7a'}
 
@@ -190,6 +197,7 @@ class TestBasicDictize:
              'size': None,
              u'size_extra': u'123',
              'state': u'active',
+            u'tracking_summary': {'total': 0, 'recent': 0},
              'url': u'http://www.annakarenina.com/download/x=1&y=2',
              'webstore_last_updated': None,
              'webstore_url': None
@@ -349,7 +357,7 @@ class TestBasicDictize:
     def test_09_package_alter(self):
 
         context = {"model": model,
-                 "session": model.Session}
+                   "session": model.Session}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
 
@@ -678,6 +686,7 @@ class TestBasicDictize:
         second_dictized['name'] = u'annakarenina_changed2'
         second_dictized['resources'][0]['url'] = u'new_url2'
         second_dictized['tags'][0]['name'] = u'new_tag'
+        second_dictized['tags'][0]['display_name'] = u'new_tag'
         second_dictized['extras'][0]['value'] = u'"new_value"'
         second_dictized['state'] = 'pending'
 
@@ -701,11 +710,12 @@ class TestBasicDictize:
             u'resource_type': None,
             u'size': None,
             u'state': u'active',
+            u'tracking_summary': {'total': 0, 'recent': 0},
             u'url': u'newurl',
             u'webstore_last_updated': None,
             u'webstore_url': None})
 
-        third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'state': 'active'})
+        third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'display_name': u'newnew_tag', 'state': 'active'})
         third_dictized['extras'].insert(0, {'key': 'david',
                                          'value': u'"new_value"',
                                          'state': u'active'})
@@ -730,6 +740,7 @@ class TestBasicDictize:
             'hash': u'abc123',
             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
             'format': u'plain text',
+            'tracking_summary': {'recent': 0, 'total': 0},
             'url': u'test_new',
             'cache_url': None,
             'webstore_url': None,
@@ -927,8 +938,9 @@ class TestBasicDictize:
         result = self.remove_changable_columns(group_dictized)
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
-        assert result == expected, pformat(result)
-
+        assert_equal(sorted(result.keys()), sorted(expected.keys()))
+        for key in result:
+            assert_equal(sorted(result[key]), sorted(expected[key]))
 
     def test_17_group_apis_to_dict(self):
 

@@ -83,7 +83,7 @@ class UserController(BaseController):
 
     def read(self, id=None):
         context = {'model': model,
-                   'user': c.user or c.author}
+                'user': c.user or c.author, 'for_view': True}
         data_dict = {'id':id,
                      'user_obj':c.userobj}
         try:
@@ -383,6 +383,8 @@ class UserController(BaseController):
                 h.flash_error(u'%r'% e.error_dict)
             except ValueError, ve:
                 h.flash_error(unicode(ve))
+
+        c.user_dict = user_dict
         return render('user/perform_reset.html')
 
     def _format_about(self, about):

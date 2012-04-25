@@ -143,6 +143,12 @@ CKAN.Templates.resourceDetails = ' \
       </div> \
     </div> \
     <div class="control-group"> \
+      <label for="" class="control-label" property="rdfs:label">'+CKAN.Strings.created+'</label> \
+      <div class="controls"> \
+        <input type="text" disabled="disabled" value="${resource.created}" class="disabled" /> \
+      </div> \
+    </div> \
+    <div class="control-group"> \
       <label class="control-label">'+CKAN.Strings.extraFields+' \
         <button class="btn btn-small add-resource-extra">'+CKAN.Strings.addExtraField+'</button>\
       </label>\

@@ -41,7 +41,7 @@ The basic URL for the Action API is::
  /api/action/{logic_action}
 
 Examples::
- 
+
  /api/action/package_list
  /api/action/package_show
  /api/action/user_create
@@ -54,7 +54,7 @@ get.py:
 ====================================== ===========================
 Logic Action                           Parameter keys
 ====================================== ===========================
-site_read                              (none)                      
+site_read                              (none)
 package_list                           (none)
 current_package_list_with_resources    limit, page
 revision_list                          (none)
@@ -71,12 +71,18 @@ vocabulary_list                        (none)
 package_show                           id
 revision_show                          id
 group_show                             id
+related_show                           id
+related_list                           id
 tag_show                               id
 user_show                              id
+term_translation_show                  "**terms**" A list of strings, the terms that you want to search for translations of, e.g. "russian", "romantic novel". "**lang_codes**" A list of strings, language codes for the languages that you want to search for translations to, e.g. "en", "de". Optional, if no lang_codes are given translations to all languages will be returned.
 package_show_rest                      id
 group_show_rest                        id
 tag_show_rest                          id
 vocabulary_show                        id
+task_status_show                       id
+task_status_show                       entity_id, task_type, key 
+resource_status_show                   id
 package_autocomplete                   q
 tag_autocomplete                       q, fields, offset, limit, vocabulary_id
 format_autocomplete                    q, limit
@@ -87,7 +93,7 @@ roles_show                             domain_object, (user), (authorization_gro
 
 ====================================== ===========================
 
-new.py: 
+create.py:
 
 ====================================== ===========================
 Logic Action                           Parameter keys
@@ -98,6 +104,7 @@ resource_create                        (resource keys)
 package_relationship_create            id, id2, rel, comment
 group_create                           (group keys)
 rating_create                          package, rating
+related_create                         (related keys)
 user_create                            (user keys)
 package_create_rest                    (package keys)
 group_create_rest                      (group keys)
@@ -118,10 +125,13 @@ package_relationship_update            id, id2, rel, comment
 group_update                           (group keys)
 user_update                            (user keys), reset_key
 package_update_rest                    (package keys)
+related_update                         (related keys)
 group_update_rest                      (group keys)
 user_role_update                       user OR authorization_group, domain_object, roles
 user_role_bulk_update                  user_roles, domain_object
 vocabulary_update                      (vocabulary keys)
+term_translation_update                "**term**" The term that you want to create (or update) a translation for, e.g. "russian", "romantic novel". "**term_translation**" the translation of the term, e.g. "Russisch", "Liebesroman". "**lang_code**" the language code for the translation, e.g. "fr", "de".
+term_translation_update_many           "**data**" A list of dictionaries with keys matching the parameter keys for term_translation_update
 ====================================== ===========================
 
 delete.py:
@@ -132,6 +142,7 @@ Logic Action                           Parameter keys
 package_delete                         id
 package_relationship_delete            id, id2, rel
 group_delete                           id
+related_delete                         id
 vocabulary_delete                      id
 tag_delete                             id, vocabulary_id
 ====================================== ===========================
@@ -157,7 +168,7 @@ maintainer               null                                                   
 maintainer_email         null                                                   Email address for the person in the 'maintainer' field
 notes                    "### About\\r\\n\\r\\nUpdated 1997."                   Other human readable info about the dataset. Markdown format.
 license_id               "cc-by"                                                ID of the license this dataset is released under. You can then look up the license ID to get the title.
-extras                   []                                      
+extras                   []
 tags                     [{"name": "government-spending"}, {"name": "climate"}] List of tags associated with this dataset.
 groups                   [{"name": "spending"}, {"name": "country-uk"}]         List of groups this dataset is a member of.
 relationships_as_subject []                                                     List of relationships. The 'type' of the relationship is described in terms of this package being the subject and the related package being the object.
@@ -205,6 +216,7 @@ key                      example value                          notes
 ======================== ====================================== =============
 id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754" (Read-only)
 name                     "country-uk"                           (Read-only) Add/remove tags from a package or group using update_package or update_group
+display_name             "country-uk"                           (Read-only) display_name is the name of the tag that is displayed to user (as opposed to name which is used to identify the tag, e.g. in URLs). display_name is is usually the same as name but may be different, for example display_names may be translated by the ckanext-multilingual extension.
 state                    "active"                               (Read-only) Add/remove tags from a package or group using update_package or update_group
 revision_timestamp       "2009-08-08T12:46:40.920443"           (Read-only)
 vocabulary_id            "Genre"                                (Read-only) Vocabulary name or id. Optional.
@@ -217,8 +229,22 @@ key                      example value                          notes
 ======================== ====================================== =============
 user                     "5ba3985d-447d-4919-867e-2ffe22281c40" Provide exactly one out of "user" and "authorization_group" parameters.
 authorization_group      "16f8f7ba-1a97-4d27-95ce-5e8827a0d75f"
-roles                    ['editor', 'admin']                    
+roles                    ['editor', 'admin']
 ======================== ====================================== =============
+
+Related:
+
+======================== ====================================== =============
+key                      example value                          notes
+======================== ====================================== =============
+id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754" (Read-only)
+title                     "A new visualization"                 (Read-only)
+type                      "Visualization"                       (Read-only)
+description               "Describing the visualization"        (Read-only)
+url                       "http://invent.ge/HKjuyc"             (Read-only) Where the item can be found
+image_url                 "http://invent.ge/IR5r7W"             (Read-only) An optional image showing the item
+======================== ====================================== =============
+
 
 Vocabulary:
 
@@ -229,6 +255,16 @@ id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754"                (
 name                     "Genre"
 tags                     [{"name":"government-spending"}, {"name": "climate"}] List of tags belonging to this vocabulary.
 ======================== ===================================================== =============
+
+Term Translation:
+
+================ ========================= ==================================
+key              example value             notes
+================ ========================= ==================================
+term             "russian"                 The term that is being translated.
+term_translation "Russisch"                The translation of the term.
+lang_code        "de"                      The language of the translation, a language code string.
+================ ========================= ==================================
 
 Parameters
 ==========
@@ -310,17 +346,17 @@ Here are the methods of the Search API.
 
 +-------------------------------+--------+------------------------+--------------------------+
 | Resource                      | Method | Request                | Response                 |
-+===============================+========+========================+==========================+ 
-| Dataset Search                | POST   | Dataset-Search-Params  | Dataset-Search-Response  | 
++===============================+========+========================+==========================+
+| Dataset Search                | POST   | Dataset-Search-Params  | Dataset-Search-Response  |
 +-------------------------------+--------+------------------------+--------------------------+
-| Resource Search               | POST   | Resource-Search-Params | Resource-Search-Response | 
+| Resource Search               | POST   | Resource-Search-Params | Resource-Search-Response |
 +-------------------------------+--------+------------------------+--------------------------+
-| Revision Search               | POST   | Revision-Search-Params | Revision-List            | 
+| Revision Search               | POST   | Revision-Search-Params | Revision-List            |
 +-------------------------------+--------+------------------------+--------------------------+
-| Tag Counts                    | GET    |                        | Tag-Count-List           | 
+| Tag Counts                    | GET    |                        | Tag-Count-List           |
 +-------------------------------+--------+------------------------+--------------------------+
 
-It is also possible to supply the search parameters in the URL of a GET request, 
+It is also possible to supply the search parameters in the URL of a GET request,
 for example ``/api/search/dataset?q=geodata&amp;allfields=1``.
 
 Search Formats
@@ -332,7 +368,7 @@ Here are the data formats for the Search API.
 | Name                    | Format                                                     |
 +=========================+============================================================+
 | Dataset-Search-Params   | { Param-Key: Param-Value, Param-Key: Param-Value, ... }    |
-| Resource-Search-Params  | See below for full details of search parameters across the | 
+| Resource-Search-Params  | See below for full details of search parameters across the |
 | Revision-Search-Params  | various domain objects.                                    |
 +-------------------------+------------------------------------------------------------+
 | Dataset-Search-Response | { count: Count-int, results: [Dataset, Dataset, ... ] }    |
@@ -423,7 +459,7 @@ These parameters are all the standard SOLR syntax (in contrast to the syntax use
 
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 | Param-Key             | Param-Value   | Example                                             |  Notes                           |
-+=======================+===============+=====================================================+==================================+ 
++=======================+===============+=====================================================+==================================+
 | since_time            | Date-Time     | since_time=2010-05-05T19:42:45.854533               | The time can be less precisely   |
 |                       |               |                                                     | stated (e.g 2010-05-05).         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
@@ -450,7 +486,7 @@ The Search API returns standard HTTP status codes to signal method outcomes:
 ===== =====
 Code  Name
 ===== =====
-200   OK                 
+200   OK
 201   OK and new object created (referred to in the Location header)
 301   Moved Permanently (redirect)
 400   Bad Request

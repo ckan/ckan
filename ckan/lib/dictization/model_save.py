@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from sqlalchemy.orm import class_mapper
 import ckan.lib.dictization as d
@@ -8,7 +9,6 @@ import ckan.lib.helpers as h
 def resource_dict_save(res_dict, context):
     model = context["model"]
     session = context["session"]
-    trigger_url_change = False
 
     id = res_dict.get("id")
     obj = None
@@ -26,9 +26,12 @@ def resource_dict_save(res_dict, context):
     for key, value in res_dict.iteritems():
         if isinstance(value, list):
             continue
-        if key in ('extras', 'revision_timestamp'):
+        if key in ('extras', 'revision_timestamp', 'tracking_summary'):
             continue
         if key in fields:
+            if isinstance(getattr(obj, key), datetime.datetime):
+                if getattr(obj, key).isoformat() == value:
+                    continue
             if key == 'url' and not new and obj.url <> value:
                 obj.url_changed = True
             setattr(obj, key, value)
@@ -416,6 +419,14 @@ def user_dict_save(user_dict, context):
     user = d.table_dict_save(user_dict, User, context)
 
     return user
+
+
+def related_dict_save(related_dict, context):
+    model = context['model']
+    session = context['session']
+
+    return d.table_dict_save(related_dict,model.Related, context)
+
 
 def package_api_to_dict(api1_dict, context):
 

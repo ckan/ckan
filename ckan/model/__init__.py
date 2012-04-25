@@ -19,12 +19,14 @@ import group_extra
 import authz
 import package_extra
 import resource
+import tracking
 import rating
 import package_relationship
 import task_status
 import vocabulary
 import activity
 import term_translation
+
 import ckan.migration
 import ckan.lib.helpers as h
 
@@ -128,6 +130,8 @@ VOCABULARY_NAME_MIN_LENGTH = vocabulary.VOCABULARY_NAME_MIN_LENGTH
 
 term_translation_table = term_translation.term_translation_table
 
+tracking_summary_table = tracking.tracking_summary_table
+TrackingSummary = tracking.TrackingSummary
 
 # set up in init_model after metadata is bound
 version_table = None
@@ -146,14 +150,14 @@ def init_model(engine):
     except sqlalchemy.exc.NoSuchTableError:
         pass
 
-    
+
 
 class Repository(vdm.sqlalchemy.Repository):
     migrate_repository = ckan.migration.__path__[0]
 
     # note: tables_created value is not sustained between instantiations so
     #       only useful for tests. The alternative is to use are_tables_created().
-    tables_created_and_initialised = False 
+    tables_created_and_initialised = False
 
     def init_db(self):
         '''Ensures tables, const data and some default config is created.
@@ -174,6 +178,17 @@ class Repository(vdm.sqlalchemy.Repository):
         else:
             if not self.tables_created_and_initialised:
                 self.upgrade_db()
+                ## make sure celery tables are made as celery only makes them after
+                ## adding a task
+                import ckan.lib.celery_app as celery_app
+                import celery.db.session as celery_session
+
+                ##This creates the database tables it is a slight hack to celery.
+                backend = celery_app.celery.backend
+                celery_result_session = backend.ResultSession()
+                engine = celery_result_session.bind
+                celery_session.ResultModelBase.metadata.create_all(engine)
+
                 self.init_configuration_data()
                 self.tables_created_and_initialised = True
 
@@ -206,15 +221,20 @@ class Repository(vdm.sqlalchemy.Repository):
             rev = Revision()
             rev.author = 'system'
             rev.message = u'Initialising the Repository'
+<<<<<<< HEAD
             meta.Session.add(rev)
         self.commit_and_remove()   
+=======
+            Session.add(rev)
+        self.commit_and_remove()
+>>>>>>> master
 
     def create_db(self):
         '''Ensures tables, const data and some default config is created.
         i.e. the same as init_db APART from when running tests, when init_db
         has shortcuts.
         '''
-        self.metadata.create_all(bind=self.metadata.bind)    
+        self.metadata.create_all(bind=self.metadata.bind)
         self.init_const_data()
         self.init_configuration_data()
 
@@ -238,7 +258,7 @@ class Repository(vdm.sqlalchemy.Repository):
         self.session.remove()
         self.init_db()
         self.session.flush()
-        
+
     def delete_all(self):
         '''Delete all data from all tables.'''
         self.session.remove()
@@ -275,7 +295,7 @@ class Repository(vdm.sqlalchemy.Repository):
         self.setup_migration_version_control()
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
         self.init_const_data()
-        
+
         ##this prints the diffs in a readable format
         ##import pprint
         ##from migrate.versioning.schemadiff import getDiffOfModelAgainstDatabase
@@ -402,7 +422,7 @@ def revision_as_dict(revision, include_packages=True, include_groups=True,ref_pa
     if include_groups:
         revision_dict['groups'] = [getattr(grp, ref_package_by) \
                                      for grp in revision.groups if grp]
-       
+
     return revision_dict
 
 def is_id(id_string):
