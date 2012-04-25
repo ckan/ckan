@@ -9,6 +9,7 @@ CKAN.Utils = CKAN.Utils || {};
 /* ================================= */
 (function ($) {
   $(document).ready(function () {
+    CKAN.Utils.relatedSetup($("#form-add-related"));
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
     CKAN.Utils.setupOrganizationUserAutocomplete($('input.autocomplete-organization-user'));
     CKAN.Utils.setupGroupAutocomplete($('input.autocomplete-group'));
@@ -119,6 +120,32 @@ CKAN.Utils = CKAN.Utils || {};
   });
 }(jQuery));
 
+/* =============================== */
+/* jQuery Plugins                  */
+/* =============================== */
+
+jQuery.fn.truncate = function (max, suffix) {
+  return this.each(function () {
+    var element = jQuery(this),
+        cached  = element.text(),
+        length  = max || element.data('truncate') || 30,
+        text    = cached.slice(0, length),
+        expand  = jQuery('<a href="#" />').text(suffix || '»');
+
+    // Try to truncate to nearest full word.
+    while ((/\S/).test(text[text.length - 1])) {
+      text = text.slice(0, text.length - 1);
+    }
+
+    element.html(jQuery.trim(text));
+
+    expand.appendTo(element.append(' '));
+    expand.click(function (event) {
+      event.preventDefault();
+      element.text(cached);
+    });
+  });
+};
 
 /* =============================== */
 /* Backbone Model: Resource object */
@@ -693,7 +720,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
   setupFileUpload: function() {
     var self = this;
     this.el.find('.fileupload').fileupload({
-      // needed because we are posting to remote url 
+      // needed because we are posting to remote url
       forceIframeTransport: true,
       replaceFileInput: false,
       autoUpload: false,
@@ -726,7 +753,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
   },
 
   // Create an upload key/label for this file.
-  // 
+  //
   // Form: {current-date}/file-name. Do not just use the file name as this
   // would lead to collisions.
   // (Could add userid/username and/or a small random string to reduce
@@ -791,7 +818,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
         newResource.set({
             url: data._location
             , name: name
-            , size: data._content_length 
+            , size: data._content_length
             , last_modified: lastmod
             , format: data._format
             , mimetype: data._format
@@ -874,7 +901,7 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
            self.resetForm();
          }
        });
-     } 
+     }
      else {
        newResource.set({url: urlVal, resource_type: this.options.mode});
        if (newResource.get('resource_type')=='file') {
@@ -1103,6 +1130,68 @@ CKAN.Utils = function($, my) {
           callback(data);
         });
       }
+    });
+  };
+
+
+  my.relatedSetup = function(form) {
+    function addAlert(msg) {
+      $('<div class="alert alert-error" />').html(msg).hide().prependTo(form).fadeIn();
+    }
+
+    // Center thumbnails vertically.
+    $('.related-items').each(function () {
+      var item = $(this);
+
+      function vertiallyAlign() {
+        var img = $(this),
+            height = img.height(),
+            parent = img.parent().height(),
+            top = (height - parent) / 2;
+
+        if (parent < height) {
+          img.css('margin-top', -top);
+        }
+      }
+
+      item.find('img').load(vertiallyAlign);
+      item.find('.description').truncate();
+    });
+
+    $(form).submit(function (event) {
+      event.preventDefault();
+
+      // Validate the form
+      var form = $(this), data = {};
+      jQuery.each(form.serializeArray(), function () {
+        data[this.name] = this.value;
+      });
+
+      form.find('.alert').remove();
+      form.find('.error').removeClass('error');
+      if (!data.title) {
+        addAlert('<strong>Missing field:</strong> A title is required');
+        $('[name=title]').parent().addClass('error');
+        return;
+      }
+      if (!data.url) {
+        addAlert('<strong>Missing field:</strong> A url is required');
+        $('[name=url]').parent().addClass('error');
+        return;
+      }
+
+      $.ajax({
+        type: this.method,
+        url: CKAN.SITE_URL + '/api/3/action/related_create',
+        data: JSON.stringify(data),
+        success: function (data) {
+          window.location.reload();
+        },
+        error: function(err, txt, w) {
+          // This needs to be far more informative.
+          addAlert('<strong>Error:</strong> Unable to add related item');
+        }
+      }); 
     });
   };
 

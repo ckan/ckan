@@ -296,6 +296,7 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
+        c.related_count = len(c.pkg.related)
 
         # Add the package's activity stream (already rendered to HTML) to the
         # template context for the package/read.html template to retrieve
@@ -404,6 +405,8 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
+
+        c.related_count = len(c.pkg.related)
         return render( self._history_template(c.pkg_dict.get('type',package_type)))
 
     def new(self, data=None, errors=None, error_summary=None):
@@ -659,6 +662,9 @@ class PackageController(BaseController):
 
         roles = self._handle_update_of_authz(pkg)
         self._prepare_authz_info_for_render(roles)
+
+        # c.related_count = len(pkg.related)
+
         return render('package/authz.html')
 
     def autocomplete(self):

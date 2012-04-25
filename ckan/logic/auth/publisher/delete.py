@@ -1,6 +1,6 @@
+import ckan.logic as logic
 from ckan.logic.auth import get_package_object, get_group_object, \
-    get_user_object, get_resource_object
-from ckan.logic.auth import get_package_object, get_group_object
+    get_user_object, get_resource_object, get_related_object
 from ckan.logic.auth.publisher import _groups_intersect
 from ckan.logic.auth.publisher.create import package_relationship_create
 from ckan.authz import Authorizer
@@ -28,6 +28,23 @@ def package_delete(context, data_dict):
 
 def package_relationship_delete(context, data_dict):
     return package_relationship_create(context, data_dict)
+
+def related_delete(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if not user:
+        return {'success': False, 'msg': _('Only the owner can delete a related item')}
+
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
+
+    related = get_related_object(context, data_dict)
+    userobj = model.User.get( user )
+    if not userobj or userobj.id != related.owner_id:
+        return {'success': False, 'msg': _('Only the owner can delete a related item')}
+
+    return {'success': True}
+
 
 def group_delete(context, data_dict):
     """
