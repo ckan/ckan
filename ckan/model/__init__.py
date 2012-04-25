@@ -21,6 +21,7 @@ import package_extra
 import resource
 import tracking
 import rating
+import related
 import package_relationship
 import task_status
 import vocabulary
@@ -132,6 +133,11 @@ term_translation_table = term_translation.term_translation_table
 
 tracking_summary_table = tracking.tracking_summary_table
 TrackingSummary = tracking.TrackingSummary
+
+Related = related.Related
+RelatedDataset= related.RelatedDataset
+related_dataset_table = related.related_dataset_table
+related_table = related.related_table
 
 # set up in init_model after metadata is bound
 version_table = None
