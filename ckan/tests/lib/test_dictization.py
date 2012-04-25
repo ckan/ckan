@@ -80,6 +80,7 @@ class TestBasicDictize:
                             u'size': None,
                             u'size_extra': u'123',
                             u'state': u'active',
+                            u'tracking_summary': {'total': 0, 'recent': 0},
                             u'url': u'http://www.annakarenina.com/download/x=1&y=2',
                             u'webstore_last_updated': None,
                             u'webstore_url': None},
@@ -98,6 +99,7 @@ class TestBasicDictize:
                             u'size': None,
                             u'size_extra': u'345',
                             u'state': u'active',
+                            u'tracking_summary': {'total': 0, 'recent': 0},
                             u'url': u'http://www.annakarenina.com/index.json',
                             u'webstore_last_updated': None,
                             u'webstore_url': None}],
@@ -110,6 +112,7 @@ class TestBasicDictize:
                      {'name': u'tolstoy', 'display_name': u'tolstoy',
                          'state': u'active'}],
             'title': u'A Novel By Tolstoy',
+            'tracking_summary': {'total': 0, 'recent': 0},
             'url': u'http://www.annakarenina.com',
             'version': u'0.7a'}
 
@@ -706,6 +709,7 @@ class TestBasicDictize:
             u'resource_type': None,
             u'size': None,
             u'state': u'active',
+            u'tracking_summary': {'total': 0, 'recent': 0},
             u'url': u'newurl',
             u'webstore_last_updated': None,
             u'webstore_url': None})
