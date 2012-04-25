@@ -1,5 +1,7 @@
 import re
 
+from nose.tools import assert_equal
+
 from ckan.tests import *
 from ckan.tests import regex_related
 from ckan.lib.create_test_data import CreateTestData
@@ -28,6 +30,16 @@ class TestPages:
     def teardown_class(cls):
         model.repo.rebuild_db()
 
+    def test_00_model(self):
+        query = model.Session.query(model.Package)
+        page = h.AlphaPage(
+            collection=query,
+            alpha_attribute='title',
+            page='A',
+            other_text=other,
+        )
+        assert_equal(page.available, {'Other': 20, 'A': 10, 'C': 10, 'B': 10, 'E': 0, 'D': 10, 'G': 0, 'F': 0, 'I': 0, 'H': 0, 'K': 0, 'J': 0, 'M': 0, 'L': 0, 'O': 0, 'N': 0, 'Q': 0, 'P': 0, 'S': 0, 'R': 0, 'U': 0, 'T': 0, 'W': 0, 'V': 0, 'Y': 0, 'X': 0, 'Z': 0})
+
     def test_01_package_page(self):
         query = model.Session.query(model.Package)
         page = h.AlphaPage(
@@ -37,11 +49,12 @@ class TestPages:
             other_text=other,
         )
         pager = page.pager()
-        assert pager.startswith('<div class="pager">'), pager
-        assert '<span class="pager_curpage">A</span>' in pager, pager
+        assert pager.startswith('<div class="pagination pagination-alphabet">'), pager
+        assert '<li class="active"><a href="/tag?page=A">A</a></li>' in pager, pager
         url_base = '/packages'
-        assert re.search('\<span class="pager_empty"\>B\<\/span\>', pager), pager
-        assert re.search('\<span class="pager_empty"\>Other\<\/span\>', pager), pager
+        assert re.search(r'\<li\>\<a href="\/tag\?page=B"\>B\<\/a\>\<\/li\>', pager), pager
+        assert re.search(r'\<li class="disabled"\>\<a href="\/tag\?page=E"\>E\<\/a\>\<\/li\>', pager), pager
+        assert re.search(r'\<li\>\<a href="\/tag\?page=Other"\>Other\<\/a\>\<\/li\>', pager), pager
 
 
     def test_02_package_items(self):
