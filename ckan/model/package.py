@@ -275,6 +275,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict['metadata_created'] = self.metadata_created.isoformat() \
             if self.metadata_created else None
         _dict['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(self.notes)
+        #tracking
+        import ckan.model as model
+        tracking = model.TrackingSummary.get_for_package(self.id)
+        _dict['tracking_summary'] = tracking
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):

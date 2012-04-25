@@ -26,7 +26,7 @@ def resource_dict_save(res_dict, context):
     for key, value in res_dict.iteritems():
         if isinstance(value, list):
             continue
-        if key in ('extras', 'revision_timestamp'):
+        if key in ('extras', 'revision_timestamp', 'tracking_summary'):
             continue
         if key in fields:
             if isinstance(getattr(obj, key), datetime.datetime):
