@@ -173,8 +173,8 @@ class CreateTestData(cli.CkanCommand):
 
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],
-            extra_user_names=[], extra_group_names=[],
-            admins=[]):
+                         extra_user_names=[], extra_group_names=[],
+                         admins=[], extra_core_fields=[]):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
@@ -195,6 +195,8 @@ class CreateTestData(cli.CkanCommand):
         new_user_names = extra_user_names
         new_group_names = set()
         new_groups = {}
+
+        cls.pkg_core_fields.extend(extra_core_fields)
 
         rev = model.repo.new_revision()
         rev.author = cls.author
