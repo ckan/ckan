@@ -1404,7 +1404,7 @@ this.recline.View = this.recline.View || {};
 //
 // <pre>
 //   {
-//     // geomField if specified will be used in preference to lat/lon 
+//     // geomField if specified will be used in preference to lat/lon
 //     geomField: {id of field containing geometry in the dataset}
 //     lonField: {id of field containing longitude in the dataset}
 //     latField: {id of field containing latitude in the dataset}
@@ -1462,6 +1462,11 @@ my.Map = Backbone.View.extend({
       <div class="editor-buttons"> \
         <button class="btn editor-update-map">Update</button> \
       </div> \
+      <div class="editor-options" > \
+        <label class="checkbox"> \
+          <input type="checkbox" id="editor-auto-zoom" checked="checked" /> \
+          Auto zoom to features</label> \
+      </div> \
       <input type="hidden" class="editor-id" value="map-1" /> \
       </div> \
     </form> \
@@ -1479,7 +1484,8 @@ my.Map = Backbone.View.extend({
   // Define here events for UI elements
   events: {
     'click .editor-update-map': 'onEditorSubmit',
-    'change .editor-field-type': 'onFieldTypeChange'
+    'change .editor-field-type': 'onFieldTypeChange',
+    'change #editor-auto-zoom': 'onAutoZoomChange'
   },
 
   initialize: function(options) {
@@ -1498,15 +1504,27 @@ my.Map = Backbone.View.extend({
 
     // Listen to changes in the documents
     this.model.currentDocuments.bind('add', function(doc){self.redraw('add',doc)});
+    this.model.currentDocuments.bind('change', function(doc){
+        self.redraw('remove',doc);
+        self.redraw('add',doc);
+    });
     this.model.currentDocuments.bind('remove', function(doc){self.redraw('remove',doc)});
     this.model.currentDocuments.bind('reset', function(){self.redraw('reset')});
 
-    // If the div was hidden, Leaflet needs to recalculate some sizes
-    // to display properly
     this.bind('view:show',function(){
-        if (self.map) {
-          self.map.invalidateSize();
+      // If the div was hidden, Leaflet needs to recalculate some sizes
+      // to display properly
+      if (self.map){
+        self.map.invalidateSize();
+        if (self._zoomPending && self.autoZoom) {
+          self._zoomToFeatures();
+          self._zoomPending = false;
         }
+      }
+      self.visible = true;
+    });
+    this.bind('view:hide',function(){
+      self.visible = false;
     });
 
     var stateData = _.extend({
@@ -1518,6 +1536,7 @@ my.Map = Backbone.View.extend({
     );
     this.state = new recline.Model.ObjectState(stateData);
 
+    this.autoZoom = true;
     this.mapReady = false;
     this.render();
   },
@@ -1583,6 +1602,13 @@ my.Map = Backbone.View.extend({
         this.features.clearLayers();
         this._add(this.model.currentDocuments.models);
       }
+      if (action != 'reset' && this.autoZoom){
+        if (this.visible){
+          this._zoomToFeatures();
+        } else {
+          this._zoomPending = true;
+        }
+      }
     }
   },
 
@@ -1629,6 +1655,10 @@ my.Map = Backbone.View.extend({
     }
   },
 
+  onAutoZoomChange: function(e){
+    this.autoZoom = !this.autoZoom;
+  },
+
   // Private: Add one or n features to the map
   //
   // For each document passed, a GeoJSON geometry will be extracted and added
@@ -1656,7 +1686,9 @@ my.Map = Backbone.View.extend({
         // TODO: mustache?
         html = ''
         for (key in doc.attributes){
-          html += '<div><strong>' + key + '</strong>: '+ doc.attributes[key] + '</div>'
+          if (!(self.state.get('geomField') && key == self.state.get('geomField'))){
+            html += '<div><strong>' + key + '</strong>: '+ doc.attributes[key] + '</div>';
+          }
         }
         feature.properties = {popupContent: html};
 
@@ -1707,19 +1739,22 @@ my.Map = Backbone.View.extend({
   _getGeometryFromDocument: function(doc){
     if (this.geomReady){
       if (this.state.get('geomField')){
-        // We assume that the contents of the field are a valid GeoJSON object
-        return doc.attributes[this.state.get('geomField')];
+        var value = doc.get(this.state.get('geomField'));
+        if (typeof(value) === 'string'){
+          // We have a GeoJSON string representation
+          return $.parseJSON(value);
+        } else {
+          // We assume that the contents of the field are a valid GeoJSON object
+          return value;
+        }
       } else if (this.state.get('lonField') && this.state.get('latField')){
         // We'll create a GeoJSON like point object from the two lat/lon fields
         var lon = doc.get(this.state.get('lonField'));
         var lat = doc.get(this.state.get('latField'));
-        if (lon && lat) {
+        if (!isNaN(parseFloat(lon)) && !isNaN(parseFloat(lat))) {
           return {
             type: 'Point',
-            coordinates: [
-              doc.attributes[this.state.get('lonField')],
-              doc.attributes[this.state.get('latField')]
-              ]
+            coordinates: [lon,lat]
           };
         }
       }
@@ -1761,6 +1796,18 @@ my.Map = Backbone.View.extend({
     return null;
   },
 
+  // Private: Zoom to map to current features extent if any, or to the full
+  // extent if none.
+  //
+  _zoomToFeatures: function(){
+    var bounds = this.features.getBounds();
+    if (bounds){
+      this.map.fitBounds(bounds);
+    } else {
+      this.map.setView(new L.LatLng(0, 0), 2);
+    }
+  },
+
   // Private: Sets up the Leaflet map control and the features layer.
   //
   // The map uses a base layer from [MapQuest](http://www.mapquest.com) based
@@ -1785,6 +1832,24 @@ my.Map = Backbone.View.extend({
        }
 
     });
+
+    // This will be available in the next Leaflet stable release.
+    // In the meantime we add it manually to our layer.
+    this.features.getBounds = function(){
+      var bounds = new L.LatLngBounds();
+      this._iterateLayers(function (layer) {
+        if (layer instanceof L.Marker){
+          bounds.extend(layer.getLatLng());
+        } else {
+          if (layer.getBounds){
+            bounds.extend(layer.getBounds().getNorthEast());
+            bounds.extend(layer.getBounds().getSouthWest());
+          }
+        }
+      }, this);
+      return (typeof bounds.getNorthEast() !== 'undefined') ? bounds : null;
+    }
+
     this.map.addLayer(this.features);
 
     this.map.setView(new L.LatLng(0, 0), 2);
@@ -3404,7 +3469,9 @@ this.recline.Backend = this.recline.Backend || {};
     var options = options || {};
     var trm = options.trim;
     var separator = options.separator || ',';
-    
+    var delimiter = options.delimiter || '"';
+
+
     var cur = '', // The character we are currently processing.
       inQuote = false,
       fieldQuoted = false,
@@ -3451,8 +3518,8 @@ this.recline.Backend = this.recline.Backend || {};
         field = '';
         fieldQuoted = false;
       } else {
-        // If it's not a ", add it to the field buffer
-        if (cur !== '"') {
+        // If it's not a delimiter, add it to the field buffer
+        if (cur !== delimiter) {
           field += cur;
         } else {
           if (!inQuote) {
@@ -3460,9 +3527,9 @@ this.recline.Backend = this.recline.Backend || {};
             inQuote = true;
             fieldQuoted = true;
           } else {
-            // Next char is ", this is an escaped "
-            if (s.charAt(i + 1) === '"') {
-              field += '"';
+            // Next char is delimiter, this is an escaped delimiter
+            if (s.charAt(i + 1) === delimiter) {
+              field += delimiter;
               // Skip the next char
               i += 1;
             } else {
