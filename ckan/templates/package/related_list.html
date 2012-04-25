@@ -23,10 +23,10 @@
 
   <div py:match="content">
     ${add_related(c.pkg)}
-    <h3>Related items <a class="btn btn-small btn-primary pull-right" data-toggle="modal" href=".modal-add-related"><i class="icon-plus-sign icon-white"></i> Add related item</a></h3>
+    <h3>Related items <a class="btn btn-small btn-primary pull-right" data-toggle="modal" href=".modal-add-related" py:if="c.user"><i class="icon-plus-sign icon-white"></i> Add related item</a></h3>
     <div>
       <div py:if="not c.pkg.related" class="span8 no-related-items">
-          There are no related items here yet, why not <a data-toggle="modal" href=".modal-add-related">add one</a>?
+          There are no related items here yet<span py:if="c.user">, why not <a data-toggle="modal" href=".modal-add-related">add one</a>?</span>
       </div>
 
       <ul class="related-items thumbnails">
