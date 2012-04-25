@@ -24,8 +24,8 @@
           </li>
           <li py:if="c.authorized_to_follow">
             <py:choose test="c.user_dict.am_following">
-              <button py:when="True" userid="${c.user_dict.id}" class="btn user-unfollow">Unfollow</button>
-              <button py:otherwise="" userid="${c.user_dict.id}" class="btn user-follow">Follow</button>
+              <button py:when="True" userid="${c.user_dict.id}" id="user_follow_button" state="unfollow" class="btn">Unfollow</button>
+              <button py:otherwise="" userid="${c.user_dict.id}" id="user_follow_button" state="follow" class="btn">Follow</button>
             </py:choose>
           </li>
         </py:if>

@@ -98,9 +98,7 @@ CKAN.Utils = CKAN.Utils || {};
     // This only needs to happen on dataset pages, but it doesn't seem to do
     // any harm to call it anyway.
     CKAN.Utils.setupDatasetFollowButton();
-    CKAN.Utils.setupDatasetUnfollowButton();
     CKAN.Utils.setupUserFollowButton();
-    CKAN.Utils.setupUserUnfollowButton();
 
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
@@ -1250,69 +1248,97 @@ CKAN.Utils = function($, my) {
   };
 
   my.setupUserFollowButton = function() {
-    $('button.user-follow').click(function(e) {
-      $.ajax({
-        contentType: 'application/json',
-        url: '/api/action/follower_create',
-        data: JSON.stringify({
-               object_id: this.attributes.userid.nodeValue,
-               object_type: 'user',
-        }),
-        dataType: 'json',
-        processData: false,
-        type: 'POST',
-      });
-      return false;
-    });
-  };
-
-  my.setupUserUnfollowButton = function() {
-    $('button.user-unfollow').click(function(e) {
-      $.ajax({
-        contentType: 'application/json',
-        url: '/api/action/follower_delete',
-        data: JSON.stringify({
-               id: this.attributes.userid.nodeValue,
-        }),
-        dataType: 'json',
-        processData: false,
-        type: 'POST',
-      });
-      return false;
-    });
+    $('#user_follow_button').unbind();
+    if ($('#user_follow_button').attr('state') == 'follow')
+    {
+        $('#user_follow_button').html('Follow');
+        $('#user_follow_button').click(function(e) {
+            $.ajax({
+                contentType: 'application/json',
+                url: '/api/action/follower_create',
+                data: JSON.stringify({
+                    object_id: this.attributes.userid.nodeValue,
+                    object_type: 'user',
+                }),
+                dataType: 'json',
+                processData: false,
+                type: 'POST',
+                success: function(data) {
+                    $('#user_follow_button').attr('state', 'unfollow');
+                    my.setupUserFollowButton();
+                },
+            });
+            return false;
+        });
+    }
+    else
+    {
+        $('#user_follow_button').html('Unfollow');
+        $('#user_follow_button').click(function(e) {
+            $.ajax({
+                contentType: 'application/json',
+                url: '/api/action/follower_delete',
+                data: JSON.stringify({
+                    id: this.attributes.userid.nodeValue,
+                }),
+                dataType: 'json',
+                processData: false,
+                type: 'POST',
+                success: function(data) {
+                    $('#user_follow_button').attr('state', 'follow');
+                    my.setupUserFollowButton();
+                },
+            });
+            return false;
+        });
+    }
   };
 
   my.setupDatasetFollowButton = function() {
-    $('button.dataset-follow').click(function(e) {
-      $.ajax({
-        contentType: 'application/json',
-        url: '/api/action/follower_create',
-        data: JSON.stringify({
-               object_id: this.attributes.package_id.nodeValue,
-               object_type: 'dataset',
-        }),
-        dataType: 'json',
-        processData: false,
-        type: 'POST',
-      });
-      return false;
-    });
-  };
-
-  my.setupDatasetUnfollowButton = function() {
-    $('button.dataset-unfollow').click(function(e) {
-      $.ajax({
-        contentType: 'application/json',
-        url: '/api/action/follower_delete',
-        data: JSON.stringify({
-               id: this.attributes.package_id.nodeValue,
-        }),
-        dataType: 'json',
-        processData: false,
-        type: 'POST',
-      });
-      return false;
-    });
+    $('#dataset_follow_button').unbind();
+    if ($('#dataset_follow_button').attr('state') == 'follow')
+    {
+        $('#dataset_follow_button').html('Follow');
+        $('#dataset_follow_button').click(function(e) {
+            $.ajax({
+                contentType: 'application/json',
+                url: '/api/action/follower_create',
+                data: JSON.stringify({
+                    object_id: this.attributes.package_id.nodeValue,
+                    object_type: 'dataset',
+                }),
+                dataType: 'json',
+                processData: false,
+                type: 'POST',
+                success: function(data) {
+                    $('#dataset_follow_button').attr('state', 'unfollow');
+                    my.setupDatasetFollowButton();
+                },
+            });
+            return false;
+        });
+    }
+    else
+    {
+        $('#dataset_follow_button').html('Unfollow');
+        $('#dataset_follow_button').click(function(e) {
+            $.ajax({
+                contentType: 'application/json',
+                url: '/api/action/follower_delete',
+                data: JSON.stringify({
+                    id: this.attributes.package_id.nodeValue,
+                }),
+                dataType: 'json',
+                processData: false,
+                type: 'POST',
+                success: function(data) {
+                    $('#dataset_follow_button').attr('state', 'follow');
+                    my.setupDatasetFollowButton();
+                },
+            });
+            return false;
+        });
+    }
   };
 
   return my;

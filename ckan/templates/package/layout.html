@@ -53,8 +53,8 @@
       </li>
       <li py:if="c.authorized_to_follow">
         <py:choose test="c.pkg_dict.am_following">
-          <button py:when="True" package_id="${c.pkg.id}" class="btn dataset-unfollow">Unfollow</button>
-          <button py:otherwise="" package_id="${c.pkg.id}" class="btn dataset-follow">Follow</button>
+          <button py:when="True" package_id="${c.pkg.id}" state="unfollow" id="dataset_follow_button" class="btn">Unfollow</button>
+          <button py:otherwise="" package_id="${c.pkg.id}" state="follow" id="dataset_follow_button" class="btn">Follow</button>
         </py:choose>
       </li>
     </ul>
