@@ -1317,10 +1317,18 @@ CKAN.DataPreview = function ($, my) {
   // url to the embeddable view of the current dataexplorer state.
   my.makeEmbedLink = function(explorerState) {
     var state = explorerState.toJSON();
-    state.dataset.url = escape(state.dataset.url);
     state.state_version = 1;
-    var qs = recline.View.composeQueryString(state);
-    return embedPath + qs;
+
+    var queryString = '?';
+    var items = [];
+    $.each(state, function(key, value) {
+      if (typeof(value) === 'object') {
+        value = JSON.stringify(value);
+      }
+      items.push(key + '=' + escape(value));
+    });
+    queryString += items.join('&');
+    return embedPath + queryString;
   };
 
   // **Public: Loads a data preview**
