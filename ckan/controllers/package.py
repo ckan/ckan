@@ -100,6 +100,31 @@ class PackageController(BaseController):
 
         return pt
 
+    def _setup_follow_button(self, context):
+        '''Setup some template context variables used for the Follow button.'''
+
+        # If the user is logged in set the am_following variable.
+        userid = context.get('user')
+        if not userid:
+            return
+        userobj = model.User.get(userid)
+        if not userobj:
+            return
+        c.pkg_dict['am_following'] = get_action('am_following')(context,
+                {'id': c.pkg.id})
+
+        # If the user is authorized set the authorized_to_follow variable.
+        try:
+            data_dict = {
+                    'follower_id': userobj.id,
+                    'follower_type': 'user',
+                    'object_id': c.pkg.id,
+                    'object_type': 'dataset',
+                    }
+            check_access('follower_create', context, data_dict)
+            c.authorized_to_follow = True
+        except NotAuthorized:
+            pass
 
     authorizer = ckan.authz.Authorizer()
 
@@ -303,12 +328,9 @@ class PackageController(BaseController):
                 get_action('package_activity_list_html')(context,
                     {'id': c.current_package_id})
 
-        # Add the package's number of followers to the context for templates.
         c.num_followers = get_action('follower_count')(context,
                 {'id':c.pkg.id})
-
-        c.am_following = get_action('am_following')(context,
-                {'id': c.pkg.id})
+        self._setup_follow_button(context)
 
         PackageSaver().render_package(c.pkg_dict, context)
 
@@ -373,9 +395,9 @@ class PackageController(BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
 
-        # Add the package's number of followers to the context for templates.
         c.num_followers = get_action('follower_count')(
                 context, {'id':c.pkg.id})
+        self._setup_follow_button(context)
 
         format = request.params.get('format', '')
         if format == 'atom':
@@ -495,9 +517,9 @@ class PackageController(BaseController):
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
 
-        # Add the package's number of followers to the context for templates.
         c.num_followers = get_action('follower_count')(context,
                 {'id':c.pkg.id})
+        self._setup_follow_button(context)
 
         if (c.action == u'editresources'):
           return render('package/editresources.html')
@@ -674,9 +696,9 @@ class PackageController(BaseController):
         roles = self._handle_update_of_authz(pkg)
         self._prepare_authz_info_for_render(roles)
 
-        # Add the package's number of followers to the context for templates.
         c.num_followers = get_action('follower_count')(context,
                 {'id':c.pkg.id})
+        self._setup_follow_button(context)
 
         return render('package/authz.html')
 
@@ -774,6 +796,7 @@ class PackageController(BaseController):
             c.followers = get_action('follower_list')(context,
                     {'id': c.pkg_dict['id']})
             c.num_followers = len(c.followers)
+            self._setup_follow_button(context)
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
