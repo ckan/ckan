@@ -197,6 +197,7 @@ class TestBasicDictize:
              'size': None,
              u'size_extra': u'123',
              'state': u'active',
+            u'tracking_summary': {'total': 0, 'recent': 0},
              'url': u'http://www.annakarenina.com/download/x=1&y=2',
              'webstore_last_updated': None,
              'webstore_url': None
@@ -739,6 +740,7 @@ class TestBasicDictize:
             'hash': u'abc123',
             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
             'format': u'plain text',
+            'tracking_summary': {'recent': 0, 'total': 0},
             'url': u'test_new',
             'cache_url': None,
             'webstore_url': None,
