@@ -144,6 +144,11 @@ def tag_create(context, data_dict):
 
 def follower_create(context, follower_dict):
     model = context['model']
-    user = model.User.get(context['user'])
-    success = (user == model.User.get(follower_dict['follower_id']))
+    userid = context.get('user')
+    if not userid:
+        return {'success': False}
+    userobj = model.User.get(userid)
+    if not userobj:
+        return {'success': False}
+    success = (userobj == model.User.get(follower_dict['follower_id']))
     return {'success': success}

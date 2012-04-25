@@ -49,6 +49,35 @@ class UserController(BaseController):
     def _setup_template_variables(self, context):
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
 
+    def _setup_follow_button(self, context):
+        '''Setup some template context variables needed for the Follow/Unfollow
+        button.
+
+        '''
+
+        # If the user is logged in set the am_following variable.
+        userid = context.get('user')
+        if not userid:
+            return
+        userobj = model.User.get(userid)
+        if not userobj:
+            return
+        c.user_dict['am_following'] = get_action('am_following')(context,
+                {'id': c.user_dict['id']})
+
+        # If the user is authorized set the authorized_to_follow variable.
+        try:
+            data_dict = {
+                    'follower_id': userobj.id,
+                    'follower_type': 'user',
+                    'object_id': c.user_dict['id'],
+                    'object_type': 'user',
+                    }
+            check_access('follower_create', context, data_dict)
+            c.authorized_to_follow = True
+        except NotAuthorized:
+            pass
+
     ## end hooks
 
     def index(self):
@@ -102,8 +131,7 @@ class UserController(BaseController):
                 context, {'id':c.user_dict['id']})
         c.num_followers = get_action('follower_count')(context,
                 {'id':c.user_dict['id']})
-        c.am_following = get_action('am_following')(context,
-                {'id': c.user_dict['id']})
+        self._setup_follow_button(context)
         return render('user/read.html')
 
     def me(self, locale=None):
@@ -423,4 +451,5 @@ class UserController(BaseController):
         c.followers = get_action('follower_list')(context,
                 {'id':c.user_dict['id']})
         c.num_followers = len(c.followers)
+        self._setup_follow_button(context)
         return render('user/followers.html')
