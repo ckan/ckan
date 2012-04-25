@@ -1396,7 +1396,7 @@ CKAN.DataPreview = function ($, my) {
 
         // Escape '"' characters in {{link}} in order not to prematurely close
         // the src attribute value.
-        embedIframeText.val($.mustache('<iframe width="{{width}}" height="{{height}}" src="{{link}}"></iframe>',
+        embedIframeText.val($.mustache('<iframe frameBorder="0" width="{{width}}" height="{{height}}" src="{{link}}"></iframe>',
                                        {
                                          link: link.replace(/"/g, '&quot;'),
                                          width: width,
