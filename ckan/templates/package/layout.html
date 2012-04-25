@@ -35,7 +35,7 @@
       </py:otherwise>
       </py:choose>
       <li class="${'active' if c.action=='history' else ''}">${h.subnav_link(h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
-      <li class="${'active' if c.action=='followers' else ''}">
+      <li class="${'active' if c.action=='followers' else ''}" style="float:right;">
         ${h.subnav_link(
             h.icon('authorization_group') + _('Followers ({num_followers})').format(num_followers=c.num_followers),
             controller='package', 
@@ -51,10 +51,10 @@
       <li class="${'active' if c.action=='authz' else ''}" py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
         ${h.subnav_link(h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
       </li>
-      <li py:if="c.authorized_to_follow">
+      <li py:if="c.authorized_to_follow" style="float:right;">
         <py:choose test="c.pkg_dict.am_following">
-          <button py:when="True" package_id="${c.pkg.id}" state="unfollow" id="dataset_follow_button" class="btn">Unfollow</button>
-          <button py:otherwise="" package_id="${c.pkg.id}" state="follow" id="dataset_follow_button" class="btn">Follow</button>
+          <a py:when="True" package_id="${c.pkg.id}" state="unfollow" id="dataset_follow_button" class="btn btn-mini">Unfollow</a>
+          <a py:otherwise="" package_id="${c.pkg.id}" state="follow" id="dataset_follow_button" class="btn btn-mini">Follow</a>
         </py:choose>
       </li>
     </ul>
