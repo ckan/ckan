@@ -1318,10 +1318,8 @@ CKAN.DataPreview = function ($, my) {
   my.makeEmbedLink = function(explorerState) {
     var state = explorerState.toJSON();
     state.dataset.url = escape(state.dataset.url);
-    var qs = recline.View.composeQueryString({
-      state:         explorerState.toJSON(),
-      state_version: 1
-    });
+    state.state_version = 1;
+    var qs = recline.View.composeQueryString(state);
     return embedPath + qs;
   };
 
