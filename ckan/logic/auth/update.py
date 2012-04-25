@@ -1,6 +1,7 @@
-from ckan.logic import check_access_old, NotFound
-from ckan.logic.auth import get_package_object, get_resource_object,  get_group_object, get_authorization_group_object, \
-    get_user_object, get_resource_object
+import ckan.logic as logic
+from ckan.logic.auth import (get_package_object, get_resource_object,
+                            get_group_object, get_authorization_group_object,
+                            get_user_object, get_resource_object, get_related_object)
 from ckan.logic.auth.create import _check_group_auth, package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
@@ -13,7 +14,7 @@ def package_update(context, data_dict):
     user = context.get('user')
     package = get_package_object(context, data_dict)
 
-    check1 = check_access_old(package, model.Action.EDIT, context)
+    check1 = logic.check_access_old(package, model.Action.EDIT, context)
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), package.id)}
     else:
@@ -35,11 +36,11 @@ def resource_update(context, data_dict):
         .filter(model.ResourceGroup.id == resource.resource_group_id)
     pkg = query.first()
     if not pkg:
-        raise NotFound(_('No package found for this resource, cannot check auth.'))
-    
+        raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
+
     pkg_dict = {'id': pkg.id}
     authorized = package_update(context, pkg_dict).get('success')
-    
+
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read edit %s') % (str(user), resource.id)}
     else:
@@ -53,7 +54,7 @@ def package_change_state(context, data_dict):
     user = context['user']
     package = get_package_object(context, data_dict)
 
-    authorized = check_access_old(package, model.Action.CHANGE_STATE, context)
+    authorized = logic.check_access_old(package, model.Action.CHANGE_STATE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to change state of package %s') % (str(user),package.id)}
     else:
@@ -64,7 +65,7 @@ def package_edit_permissions(context, data_dict):
     user = context['user']
     package = get_package_object(context, data_dict)
 
-    authorized = check_access_old(package, model.Action.EDIT_PERMISSIONS, context)
+    authorized = logic.check_access_old(package, model.Action.EDIT_PERMISSIONS, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit permissions of package %s') % (str(user),package.id)}
     else:
@@ -74,19 +75,33 @@ def group_update(context, data_dict):
     model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
-    
-    authorized = check_access_old(group, model.Action.EDIT, context)
+
+    authorized = logic.check_access_old(group, model.Action.EDIT, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit group %s') % (str(user),group.id)}
     else:
         return {'success': True}
+
+def related_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if not user:
+        return {'success': False, 'msg': _('Only the owner can update a related item')}
+
+    related = get_related_object(context, data_dict)
+    userobj = model.User.get( user )
+    if not userobj or userobj.id != related.owner_id:
+        return {'success': False, 'msg': _('Only the owner can update a related item')}
+
+    return {'success': True}
+
 
 def group_change_state(context, data_dict):
     model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
 
-    authorized = check_access_old(group, model.Action.CHANGE_STATE, context)
+    authorized = logic.check_access_old(group, model.Action.CHANGE_STATE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to change state of group %s') % (str(user),group.id)}
     else:
@@ -97,7 +112,7 @@ def group_edit_permissions(context, data_dict):
     user = context['user']
     group = get_group_object(context, data_dict)
 
-    authorized = check_access_old(group, model.Action.EDIT_PERMISSIONS, context)
+    authorized = logic.check_access_old(group, model.Action.EDIT_PERMISSIONS, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit permissions of group %s') % (str(user),group.id)}
     else:
@@ -108,7 +123,7 @@ def authorization_group_update(context, data_dict):
     user = context['user']
     authorization_group = get_authorization_group_object(context, data_dict)
 
-    authorized = check_access_old(authorization_group, model.Action.EDIT, context)
+    authorized = logic.check_access_old(authorization_group, model.Action.EDIT, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit permissions of authorization group %s') % (str(user),authorization_group.id)}
     else:
@@ -119,7 +134,7 @@ def authorization_group_edit_permissions(context, data_dict):
     user = context['user']
     authorization_group = get_authorization_group_object(context, data_dict)
 
-    authorized = check_access_old(authorization_group, model.Action.EDIT_PERMISSIONS, context)
+    authorized = logic.check_access_old(authorization_group, model.Action.EDIT_PERMISSIONS, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit permissions of authorization group %s') % (str(user),authorization_group.id)}
     else:
@@ -152,7 +167,7 @@ def task_status_update(context, data_dict):
 
     if 'ignore_auth' in context and context['ignore_auth']:
         return {'success': True}
-    
+
     authorized =  Authorizer().is_sysadmin(unicode(user))
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to update task_status table') % str(user)}

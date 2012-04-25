@@ -1,5 +1,7 @@
+import ckan.logic as logic
 from ckan.logic.auth import get_package_object, get_group_object, \
-    get_user_object, get_resource_object
+    get_user_object, get_resource_object, get_related_object, \
+    get_authorization_group_object
 from ckan.logic.auth.publisher import _groups_intersect
 from ckan.logic.auth.publisher.create import package_relationship_create
 from ckan.authz import Authorizer
@@ -85,6 +87,19 @@ def group_update(context, data_dict):
         return { 'success': False, 'msg': _('User %s not authorized to edit this group') % str(user) }
 
     return { 'success': True }
+
+def related_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if not user:
+        return {'success': False, 'msg': _('Only the owner can update a related item')}
+
+    related = get_related_object(context, data_dict)
+    userobj = model.User.get( user )
+    if not userobj or userobj.id != related.owner_id:
+        return {'success': False, 'msg': _('Only the owner can update a related item')}
+
+    return {'success': True}
 
 def group_change_state(context, data_dict):
     return group_update(context, data_dict)

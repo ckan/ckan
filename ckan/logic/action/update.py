@@ -98,6 +98,35 @@ def make_latest_pending_package_active(context, data_dict):
     session.remove()
 
 
+def related_update(context, data_dict):
+    model = context['model']
+    user = context['user']
+    id = data_dict["id"]
+
+    schema = context.get('schema') or ckan.logic.schema.default_related_schema()
+    model.Session.remove()
+
+    related = model.Related.get(id)
+    context["related"] = related
+
+    if not related:
+        logging.error('Could not find related ' + id)
+        raise NotFound(_('Related was not found.'))
+
+    check_access('related_update', context, data_dict)
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, error_summary(errors))
+
+    related = model_save.related_dict_save(data, context)
+    if not context.get('defer_commit'):
+        model.repo.commit()
+    return model_dictize.related_dictize(related, context)
+
+
+
 def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
