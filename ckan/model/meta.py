@@ -1,10 +1,9 @@
 import datetime
+
 from paste.deploy.converters import asbool
 from pylons import config
 """SQLAlchemy Metadata and Session object"""
 from sqlalchemy import MetaData, and_
-from sqlalchemy.orm import class_mapper
-from sqlalchemy.orm import scoped_session, sessionmaker
 import sqlalchemy.orm as orm
 from sqlalchemy.orm.session import SessionExtension
 
@@ -81,7 +80,7 @@ class CkanSessionExtension(SessionExtension):
             if not hasattr(obj, '__revision_class__'):
                 continue
             revision_cls = obj.__revision_class__
-            revision_table = class_mapper(revision_cls).mapped_table
+            revision_table = orm.class_mapper(revision_cls).mapped_table
             ## when a normal active transaction happens
             if 'pending' not in obj.state:
                 ### this is asql statement as we do not want it in object cache
@@ -124,7 +123,7 @@ class CkanSessionExtension(SessionExtension):
 # SQLAlchemy database engine. Updated by model.init_model()
 engine = None
 
-Session = scoped_session(sessionmaker(
+Session = orm.scoped_session(orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
@@ -134,7 +133,7 @@ Session = scoped_session(sessionmaker(
                ckan.lib.activity.DatasetActivitySessionExtension()],
 ))
 
-create_local_session = sessionmaker(
+create_local_session = orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
