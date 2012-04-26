@@ -1,6 +1,8 @@
-from __future__ import with_statement # necessary for python 2.5 support
+from __future__ import with_statement   # necessary for python 2.5 support
 import warnings
 import logging
+import re
+from datetime import datetime
 
 import vdm.sqlalchemy
 from vdm.sqlalchemy.base import SQLAlchemySession
@@ -45,7 +47,7 @@ AuthorizationGroup = authorization_group.AuthorizationGroup
 AuthorizationGroupUser = authorization_group.AuthorizationGroupUser
 user_in_authorization_group = authorization_group.user_in_authorization_group
 add_user_to_authorization_group = authorization_group.add_user_to_authorization_group
-remove_user_from_authorization_group =authorization_group.remove_user_from_authorization_group
+remove_user_from_authorization_group = authorization_group.remove_user_from_authorization_group
 
 Activity = activity.Activity
 ActivityDetail = activity.ActivityDetail
@@ -143,12 +145,13 @@ tracking_summary_table = tracking.tracking_summary_table
 TrackingSummary = tracking.TrackingSummary
 
 Related = related.Related
-RelatedDataset= related.RelatedDataset
+RelatedDataset = related.RelatedDataset
 related_dataset_table = related.related_dataset_table
 related_table = related.related_table
 
 # set up in init_model after metadata is bound
 version_table = None
+
 
 def init_model(engine):
     '''Call me before using any of the tables or classes in the model'''
@@ -166,12 +169,12 @@ def init_model(engine):
         pass
 
 
-
 class Repository(vdm.sqlalchemy.Repository):
     migrate_repository = ckan.migration.__path__[0]
 
-    # note: tables_created value is not sustained between instantiations so
-    #       only useful for tests. The alternative is to use are_tables_created().
+    # note: tables_created value is not sustained between instantiations
+    #       so only useful for tests. The alternative is to use
+    #       are_tables_created().
     tables_created_and_initialised = False
 
     def init_db(self):
@@ -193,12 +196,13 @@ class Repository(vdm.sqlalchemy.Repository):
         else:
             if not self.tables_created_and_initialised:
                 self.upgrade_db()
-                ## make sure celery tables are made as celery only makes them after
-                ## adding a task
+                ## make sure celery tables are made as celery only makes
+                ## them after adding a task
                 import ckan.lib.celery_app as celery_app
                 import celery.db.session as celery_session
 
-                ##This creates the database tables it is a slight hack to celery.
+                ## This creates the database tables it is a slight hack
+                ## to celery.
                 backend = celery_app.celery.backend
                 celery_result_session = backend.ResultSession()
                 engine = celery_result_session.bind
@@ -224,8 +228,8 @@ class Repository(vdm.sqlalchemy.Repository):
             if not User.by_name(username):
                 user = User(name=username)
                 meta.Session.add(user)
-        meta.Session.flush() # so that these objects can be used
-                        # straight away
+        meta.Session.flush()    # so that these objects can be used
+                                # straight away
         init_authz_const_data()
 
     def init_configuration_data(self):
@@ -282,7 +286,6 @@ class Repository(vdm.sqlalchemy.Repository):
             connection.execute('delete from "%s"' % table.name)
         self.session.commit()
 
-
     def setup_migration_version_control(self, version=None):
         import migrate.exceptions
         import migrate.versioning.api as mig
@@ -299,11 +302,12 @@ class Repository(vdm.sqlalchemy.Repository):
         @param version: version to upgrade to (if None upgrade to latest)
         '''
         assert meta.engine.name in ('postgres', 'postgresql'), \
-            'Database migration - only Postgresql engine supported (not %s).' %\
-            meta.engine.name
+            'Database migration - only Postgresql engine supported (not %s).' \
+                % meta.engine.name
         import migrate.versioning.api as mig
         self.setup_migration_version_control()
-        mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
+        mig.upgrade(self.metadata.bind, self.migrate_repository,
+                    version=version)
         self.init_const_data()
 
         ##this prints the diffs in a readable format
@@ -321,36 +325,37 @@ class Repository(vdm.sqlalchemy.Repository):
     def purge_revision(self, revision, leave_record=False):
         '''Purge all changes associated with a revision.
 
-        @param leave_record: if True leave revision in existence but change message
-            to "PURGED: {date-time-of-purge}". If false delete revision object as
-            well.
+        @param leave_record: if True leave revision in existence but
+        change message to "PURGED: {date-time-of-purge}". If false
+        delete revision object as well.
 
         Summary of the Algorithm
         ------------------------
 
         1. list all RevisionObjects affected by this revision
         2. check continuity objects and cascade on everything else ?
-            1. crudely get all object revisions associated with this
-            2. then check whether this is the only revision and delete the
-            continuity object
+        3. crudely get all object revisions associated with this
+        4. then check whether this is the only revision and delete
+           the continuity object
 
-            3. ALTERNATIVELY delete all associated object revisions then do a
-            select on continutity to check which have zero associated revisions
-            (should only be these ...)
-        '''
+        5. ALTERNATIVELY delete all associated object revisions then
+           do a select on continutity to check which have zero
+           associated revisions (should only be these ...) '''
+
         to_purge = []
         SQLAlchemySession.setattr(self.session, 'revisioning_disabled', True)
         self.session.autoflush = False
         for o in self.versioned_objects:
             revobj = o.__revision_class__
-            items = self.session.query(revobj).filter_by(revision=revision).all()
+            items = self.session.query(revobj). \
+                    filter_by(revision=revision).all()
             for item in items:
                 continuity = item.continuity
 
-                if continuity.revision == revision: # need to change continuity
-                    trevobjs = self.session.query(revobj).join('revision').  filter(
-                            revobj.continuity==continuity
-                            ).order_by(Revision.timestamp.desc()).all()
+                if continuity.revision == revision:  # must change continuity
+                    trevobjs = self.session.query(revobj).join('revision'). \
+                            filter(revobj.continuity == continuity). \
+                            order_by(Revision.timestamp.desc()).all()
                     if len(trevobjs) == 0:
                         raise Exception('Should have at least one revision.')
                     if len(trevobjs) == 1:
@@ -362,8 +367,7 @@ class Repository(vdm.sqlalchemy.Repository):
                                 continue
                             if 'pending' not in obj.state:
                                 obj.current = True
-                                import datetime
-                                obj.expired_timestamp = datetime.datetime(9999, 12, 31)
+                                obj.expired_timestamp = datetime(9999, 12, 31)
                                 self.session.add(obj)
                                 break
                 # now delete revision object
@@ -371,15 +375,16 @@ class Repository(vdm.sqlalchemy.Repository):
             for cont in to_purge:
                 self.session.delete(cont)
         if leave_record:
-            import datetime
-            revision.message = u'PURGED: %s' % datetime.datetime.now()
+            revision.message = u'PURGED: %s' % datetime.now()
         else:
             self.session.delete(revision)
         self.commit_and_remove()
 
 
 repo = Repository(meta.metadata, meta.Session,
-        versioned_objects=[Package, PackageTag, Resource, ResourceGroup, PackageExtra, Member, Group]
+                  versioned_objects=[Package, PackageTag, Resource,
+                                     ResourceGroup, PackageExtra, Member,
+                                     Group]
         )
 
 
@@ -395,6 +400,7 @@ def _get_packages(self):
 
     return list(pkgs)
 
+
 def _get_groups(self):
     changes = repo.list_changes(self)
     groups = set()
@@ -406,6 +412,7 @@ def _get_groups(self):
                 groups.add(non_group_rev.continuity.group)
     return list(groups)
 
+
 # could set this up directly on the mapper?
 def _get_revision_user(self):
     username = unicode(self.author)
@@ -416,7 +423,9 @@ Revision.packages = property(_get_packages)
 Revision.groups = property(_get_groups)
 Revision.user = property(_get_revision_user)
 
-def revision_as_dict(revision, include_packages=True, include_groups=True,ref_package_by='name'):
+
+def revision_as_dict(revision, include_packages=True, include_groups=True,
+                     ref_package_by='name'):
     revision_dict = h.OrderedDict((
         ('id', revision.id),
         ('timestamp', h.datetime_to_date_str(revision.timestamp)),
@@ -435,7 +444,8 @@ def revision_as_dict(revision, include_packages=True, include_groups=True,ref_pa
 
     return revision_dict
 
+
 def is_id(id_string):
     '''Tells the client if the string looks like a revision id or not'''
-    import re
-    return bool(re.match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', id_string))
+    reg_ex = '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    return bool(re.match(reg_ex, id_string))
