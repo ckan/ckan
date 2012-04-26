@@ -168,11 +168,14 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv = res.forms['login']
         fv['login'] = str(username)
         fv['password'] = str(password)
+        fv['remember'] = False
         res = fv.submit()
 
         # check cookies set
         cookies = self._get_cookie_headers(res)
         assert cookies
+        for cookie in cookies:
+            assert not 'max-age' in cookie.lower(), cookie
 
         # first get redirected to user/logged_in
         assert_equal(res.status, 302)
@@ -205,6 +208,32 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = res.click('Search')
         print res
         assert 'testlogin' in res.body, res.body
+
+    def test_login_remembered(self):
+        # create test user
+        username = u'testlogin2'
+        password = u'letmein'
+        CreateTestData.create_user(name=username,
+                                   password=password)
+        user = model.User.by_name(username)
+
+        # do the login
+        offset = url_for(controller='user', action='login')
+        res = self.app.get(offset)
+        fv = res.forms['login']
+        fv['login'] = str(username)
+        fv['password'] = str(password)
+        fv['remember'] = True
+        res = fv.submit()
+
+        # check cookies set
+        cookies = self._get_cookie_headers(res)
+        assert cookies
+        # check cookie is remembered via Max-Age and Expires
+        # (both needed for cross-browser compatibility)
+        for cookie in cookies:
+            assert 'Max-Age=63072000;' in cookie, cookie
+            assert 'Expires=' in cookie, cookie
 
     def test_login_wrong_password(self):
         # create test user
