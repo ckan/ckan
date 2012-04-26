@@ -160,6 +160,7 @@ def init_model(engine):
     # sqlalchemy migrate version table
     import sqlalchemy.exc
     try:
+        global version_table
         version_table = Table('migrate_version', meta.metadata, autoload=True)
     except sqlalchemy.exc.NoSuchTableError:
         pass
