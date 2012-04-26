@@ -40,6 +40,12 @@ def related_delete(context, data_dict):
 
     related = get_related_object(context, data_dict)
     userobj = model.User.get( user )
+
+    if related.datasets:
+        package = related.datasets[0]
+        if _groups_intersect( userobj.get_groups('organization'), package.get_groups('organization') ):
+            return {'success': True}
+
     if not userobj or userobj.id != related.owner_id:
         return {'success': False, 'msg': _('Only the owner can delete a related item')}
 
