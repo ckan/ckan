@@ -213,12 +213,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         """
         import ckan.model as model
         query = meta.Session.query(model.Tag)
-        query = query.join(model.PackageTagRevision)
-        query = query.filter(model.PackageTagRevision.tag_id == model.Tag.id)
-        query = query.filter(model.PackageTagRevision.package_id == self.id)
+        query = query.join(PackageTagRevision)
+        query = query.filter(PackageTagRevision.tag_id == model.Tag.id)
+        query = query.filter(PackageTagRevision.package_id == self.id)
         query = query.filter(and_(
-            model.PackageTagRevision.state == 'active',
-            model.PackageTagRevision.current == True))
+            PackageTagRevision.state == 'active',
+            PackageTagRevision.current == True))
         if vocab:
             query = query.filter(model.Tag.vocabulary_id == vocab.id)
         else:

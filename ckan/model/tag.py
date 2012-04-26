@@ -14,7 +14,7 @@ import ckan  # this import is needed
 import ckan.lib.dictization
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
-           'PackageTagRevision', 'package_tag_revision_table',
+           'package_tag_revision_table',
            'MAX_TAG_LENGTH', 'MIN_TAG_LENGTH']
 
 MAX_TAG_LENGTH = 100
@@ -161,10 +161,10 @@ class Tag(domain_object.DomainObject):
             query = meta.Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
         else:
             query = meta.Session.query(Tag).filter(Tag.vocabulary_id == None)
-            query = query.distinct().join(PackageTagRevision)
+            query = query.distinct().join(_package.PackageTagRevision)
             query = query.filter(and_(
-                PackageTagRevision.state == 'active',
-                PackageTagRevision.current == True))
+                _package.PackageTagRevision.state == 'active',
+                _package.PackageTagRevision.current == True))
         return query
 
     @property
@@ -175,11 +175,11 @@ class Tag(domain_object.DomainObject):
 
         """
         q = meta.Session.query(_package.Package)
-        q = q.join(PackageTagRevision)
-        q = q.filter(PackageTagRevision.tag_id == self.id)
+        q = q.join(_package.PackageTagRevision)
+        q = q.filter(_package.PackageTagRevision.tag_id == self.id)
         q = q.filter(and_(
-            PackageTagRevision.state == 'active',
-            PackageTagRevision.current == True))
+            _package.PackageTagRevision.state == 'active',
+            _package.PackageTagRevision.current == True))
         q = q.order_by(_package.Package.name)
         packages = q.all()
         return packages
