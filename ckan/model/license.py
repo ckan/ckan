@@ -267,7 +267,7 @@ class LicenseRegister(object):
             raise Exception, inst
         self._create_license_list(license_data, license_url)
 
-    def _create_license_list(self, license_data, license_url):
+    def _create_license_list(self, license_data, license_url=''):
         if isinstance(license_data, dict):
             self.licenses = [License(entity) for entity in license_data.values()]
         elif isinstance(license_data, list):
