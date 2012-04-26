@@ -66,6 +66,7 @@ def default_resource_schema():
         'last_modified': [ignore_missing, isodate],
         'cache_last_updated': [ignore_missing, isodate],
         'webstore_last_updated': [ignore_missing, isodate],
+        'tracking_summary': [ignore],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 

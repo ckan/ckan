@@ -2,22 +2,44 @@
 Using the Data API
 ==================
 
+The following provides an introduction to using the CKAN :doc:`DataStore
+<datastore>` Data API.
+
 Introduction
 ============
 
-The Data API builds directly on ElasticSearch, with a resource API endpoint
-being equivalent to a single index 'type' in ElasticSearch (we tend to refer to
-it as a 'table').  This means you can often directly re-use `ElasticSearch
-client libraries`_ when connecting to the API endpoint.
+Each 'table' in the DataStore is an ElasticSearch_ index type ('table'). As
+such the Data API for each CKAN resource is directly equivalent to a single
+index 'type' in ElasticSearch (we tend to refer to it as a 'table').
 
-Furthermore, it means that what is presented below is essentially a tutorial in the ElasticSearch API.
+This means you can (usually) directly re-use `ElasticSearch client libraries`_
+when connecting to a Data API endpoint. It also means that what follows is, in
+essence, a tutorial in using the ElasticSearch_ API.
 
+The following short set of slides provide a brief overview and introduction to
+the DataStore and the Data API.
+
+.. raw:: html
+
+   <iframe src="https://docs.google.com/presentation/embed?id=1UhEqvEPoL_VWO5okYiEPfZTLcLYWqtvRRmB1NBsWXY8&#038;start=false&#038;loop=false&#038;delayms=3000" frameborder="0" width="480" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
+.. _ElasticSearch: http://elasticsearch.org/
 .. _ElasticSearch client libraries: http://www.elasticsearch.org/guide/appendix/clients.html
 
 Quickstart
 ==========
 
-``{{endpoint}}`` refers to the data API endpoint (or ElasticSearch index / table).
+``{{endpoint}}`` refers to the data API endpoint (or ElasticSearch index /
+table). For example, on the DataHub_ this gold prices data resource
+http://datahub.io/dataset/gold-prices/resource/b9aae52b-b082-4159-b46f-7bb9c158d013
+would have its Data API endpoint at:
+http://datahub.io/api/data/b9aae52b-b082-4159-b46f-7bb9c158d013. If you were
+just using ElasticSearch standalone an example of an endpoint would be:
+http://localhost:9200/gold-prices/monthly-price-table.
+
+.. note::  every resource on a CKAN instance for which a DataStore table is
+           enabled provides links to its Data API endpoint via the Data API
+           button at the top right of the resource page.
 
 Key urls:
 
@@ -27,6 +49,8 @@ Key urls:
   * Query example: ``{{endpoint}}/_search?size=5&pretty=true``
 
 * Schema (Mapping): ``{{endpoint}}/_mapping``
+
+.. _DataHub: http://datahub.io/
 
 Examples
 --------

@@ -45,6 +45,12 @@ CKAN.Utils = CKAN.Utils || {};
     if (isResourceView) {
       CKAN.DataPreview.loadPreviewDialog(preload_resource);
     }
+
+    var isEmbededDataviewer = $('body.package.resource_embedded_dataviewer').length > 0;
+    if (isEmbededDataviewer) {
+      CKAN.DataPreview.loadEmbeddedPreview(preload_resource, reclineState);
+    }
+
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       // Set up magic URL slug editor
@@ -1344,6 +1350,81 @@ CKAN.DataPreview = function ($, my) {
   my.dialogId = 'ckanext-datapreview';
   my.$dialog = $('#' + my.dialogId);
 
+  // **Public: Loads a data previewer for an embedded page**
+  //
+  // Uses the provided reclineState to restore the Dataset.  Creates a single
+  // view for the Dataset (the one defined by reclineState.currentView).  And
+  // then passes the constructed Dataset, the constructed View, and the
+  // reclineState into the DataExplorer constructor.
+  my.loadEmbeddedPreview = function(resourceData, reclineState) {
+    my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
+
+    // Restore the Dataset from the given reclineState.
+    var dataset = recline.Model.Dataset.restore(reclineState);
+
+    // Only create the view defined in reclineState.currentView.
+    // TODO: tidy this up.
+    var views = null;
+    if (reclineState.currentView === 'grid') {
+      views = [ {
+        id: 'grid',
+        label: 'Grid',
+        view: new recline.View.Grid({
+          model: dataset,
+          state: reclineState['view-grid']
+        })
+      }];
+    } else if (reclineState.currentView === 'graph') {
+      views = [ {
+        id: 'graph',
+        label: 'Graph',
+        view: new recline.View.Graph({
+          model: dataset,
+          state: reclineState['view-graph']
+        })
+      }];
+    } else if (reclineState.currentView === 'map') {
+      views = [ {
+        id: 'map',
+        label: 'Map',
+        view: new recline.View.Map({
+          model: dataset,
+          state: reclineState['view-map']
+        })
+      }];
+    }
+
+    // Finally, construct the DataExplorer.  Again, passing in the reclineState.
+    var dataExplorer = new recline.View.DataExplorer({
+      el: my.$dialog,
+      model: dataset,
+      state: reclineState,
+      views: views
+    });
+
+    Backbone.history.start();
+  };
+
+  // **Public: Creates a link to the embeddable page.
+  //
+  // For a given DataExplorer state, this function constructs and returns the
+  // url to the embeddable view of the current dataexplorer state.
+  my.makeEmbedLink = function(explorerState) {
+    var state = explorerState.toJSON();
+    state.state_version = 1;
+
+    var queryString = '?';
+    var items = [];
+    $.each(state, function(key, value) {
+      if (typeof(value) === 'object') {
+        value = JSON.stringify(value);
+      }
+      items.push(key + '=' + escape(value));
+    });
+    queryString += items.join('&');
+    return embedPath + queryString;
+  };
+
   // **Public: Loads a data preview**
   //
   // Fetches the preview data object from the link provided and loads the
@@ -1361,14 +1442,14 @@ CKAN.DataPreview = function ($, my) {
         {
           id: 'grid',
           label: 'Grid',
-          view: new recline.View.DataGrid({
+          view: new recline.View.Grid({
             model: dataset
           })
         },
         {
           id: 'graph',
           label: 'Graph',
-          view: new recline.View.FlotGraph({
+          view: new recline.View.Graph({
             model: dataset
           })
         },
@@ -1388,6 +1469,58 @@ CKAN.DataPreview = function ($, my) {
           readOnly: true
         }
       });
+
+      // -----------------------------
+      // Setup the Embed modal dialog.
+      // -----------------------------
+
+      // embedLink holds the url to the embeddable view of the current DataExplorer state.
+      var embedLink = $('.embedLink');
+
+      // embedIframeText contains the '<iframe>' construction, which sources
+      // the above link.
+      var embedIframeText = $('.embedIframeText');
+
+      // iframeWidth and iframeHeight control the width and height parameters
+      // used to construct the iframe, and are also used in the link.
+      var iframeWidth = $('.iframe-width');
+      var iframeHeight = $('.iframe-height');
+
+      // Update the embedLink and embedIframeText to contain the updated link
+      // and update width and height parameters.
+      function updateLink() {
+        var link = my.makeEmbedLink(dataExplorer.state);
+        var width = iframeWidth.val();
+        var height = iframeHeight.val();
+        link += '&width='+width+'&height='+height;
+
+        // Escape '"' characters in {{link}} in order not to prematurely close
+        // the src attribute value.
+        embedIframeText.val($.mustache('<iframe frameBorder="0" width="{{width}}" height="{{height}}" src="{{link}}"></iframe>',
+                                       {
+                                         link: link.replace(/"/g, '&quot;'),
+                                         width: width,
+                                         height: height
+                                       }));
+        embedLink.attr('href', link);
+      }
+
+      // Bind changes to the DataExplorer, or the two width and height inputs
+      // to re-calculate the url.
+      dataExplorer.state.bind('change', updateLink);
+      for (var i=0; i<dataExplorer.pageViews.length; i++) {
+        dataExplorer.pageViews[i].view.state.bind('change', updateLink);
+      }
+
+      iframeWidth.change(updateLink);
+      iframeHeight.change(updateLink);
+
+      // Initial population of embedLink and embedIframeText
+      updateLink();
+
+      // Finally, since we have a DataExplorer, we can show the embed button.
+      $('.preview-header .btn').show();
+
       // will have to refactor if this can get called multiple times
       Backbone.history.start();
     }

@@ -22,6 +22,7 @@ from group_extra import *
 from authz import *
 from package_extra import *
 from resource import *
+from tracking import *
 from rating import *
 from package_relationship import *
 from task_status import *

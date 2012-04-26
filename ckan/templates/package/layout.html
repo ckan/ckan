@@ -27,7 +27,7 @@
                 <hr py:if="len(c.pkg_dict.get('resources',[]))>0"/>
               </li>
               <li py:for="res in c.pkg_dict.get('resources', [])">
-                <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_icon(res) + h.resource_display_name(res)}</a>
+			  <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">${h.resource_icon(res) + h.resource_display_name(res)}</a>
               </li>
             </ul>
           </div>

@@ -109,6 +109,9 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict[k] = v
         if self.resource_group and not core_columns_only:
             _dict["package_id"] = self.resource_group.package_id
+        import ckan.model as model
+        tracking = model.TrackingSummary.get_for_resource(self.url)
+        _dict['tracking_summary'] = tracking
         return _dict
 
     @classmethod

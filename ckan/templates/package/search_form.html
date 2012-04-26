@@ -5,7 +5,7 @@
   py:strip=""
   >
 
-<form id="dataset-search" class="dataset-search" action="${h.url_for(controller='package', action='search')}" method="GET">
+<form id="dataset-search" class="dataset-search" method="GET">
   <input type="search" class="search" name="q" value="${c.q}" autocomplete="off" results="0" placeholder="${_('Search...')}" />
   <span py:if="c.fields">
   <py:for each="(k, v) in c.fields"> 
