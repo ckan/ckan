@@ -1,10 +1,9 @@
+from datetime import datetime
 from sqlalchemy import types, Column, Table, UniqueConstraint
 
 import meta
 import types as _types
 import domain_object
-# se overwrite datetime somewhere in our importing
-from datetime import datetime
 
 __all__ = ['TaskStatus', 'task_status_table']
 

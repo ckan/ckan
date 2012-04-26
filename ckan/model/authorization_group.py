@@ -7,6 +7,10 @@ import user
 import types as _types
 import domain_object
 
+__all__ = ['AuthorizationGroup', 'AuthorizationGroupUser',
+           'user_in_authorization_group', 'add_user_to_authorization_group',
+           'remove_user_from_authorization_group']
+
 authorization_group_table = Table('authorization_group', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('name', types.UnicodeText),

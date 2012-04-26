@@ -1,18 +1,16 @@
 import datetime
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey
+import vdm.sqlalchemy
+
 import meta
 import core
 import package as _package
 import types as _types
 import domain_object
-import vdm.sqlalchemy
 import user as _user
 
-# FIXME why are we passing this around here?
-package_revision_table = _package.package_revision_table
-
-__all__ = ['group_table', 'Group', 'package_revision_table',
+__all__ = ['group_table', 'Group',
            'Member', 'GroupRevision', 'MemberRevision',
            'member_revision_table', 'member_table']
 

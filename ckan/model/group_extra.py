@@ -1,4 +1,5 @@
 import vdm.sqlalchemy
+import vdm.sqlalchemy.stateful
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 
 import group
@@ -45,7 +46,6 @@ GroupExtraRevision = vdm.sqlalchemy.create_object_version(meta.mapper, GroupExtr
 def _create_extra(key, value):
     return GroupExtra(key=unicode(key), value=value)
 
-import vdm.sqlalchemy.stateful
 _extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
         vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of()) 
 setattr(group.Group, 'extras_active', _extras_active)

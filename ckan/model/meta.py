@@ -10,6 +10,9 @@ from sqlalchemy.orm.session import SessionExtension
 import extension
 import ckan.lib.activity
 
+__all__ = ['Session', 'engine_is_sqlite']
+
+
 class CkanCacheExtension(SessionExtension):
     ''' This extension checks what tables have been affected by
     database access and allows us to act on them. Currently this is

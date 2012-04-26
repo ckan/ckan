@@ -10,7 +10,7 @@ import types as _types
 import domain_object
 import vocabulary
 import activity
-import ckan
+import ckan  # this import is needed
 import ckan.lib.dictization
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
@@ -216,8 +216,8 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
             return None
 
         # Return an 'added tag' or 'removed tag' activity.
-        import ckan.model
-        c = {'model': ckan.model}
+        import ckan.model as model
+        c = {'model': model}
         d = {'tag': ckan.lib.dictization.table_dictize(self.tag, c),
             'package': ckan.lib.dictization.table_dictize(self.package, c)}
         return activity.ActivityDetail(

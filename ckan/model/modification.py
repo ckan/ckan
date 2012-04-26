@@ -8,6 +8,8 @@ import resource
 
 log = logging.getLogger(__name__)
 
+__all__ = ['DomainObjectModificationExtension']
+
 class DomainObjectModificationExtension(plugins.SingletonPlugin, extension.ObserverNotifier):
     """
     A domain object level interface to change notifications

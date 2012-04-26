@@ -1,18 +1,22 @@
 import datetime
+
 from sqlalchemy.util import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from pylons import config
 import vdm.sqlalchemy
+import vdm.sqlalchemy.stateful
 from sqlalchemy import types, Column, Table, ForeignKey, and_
 
 import meta
 import core
 import package as _package
 import types as _types
-from ckan.model import extension
-from ckan.model.activity import ActivityDetail
+import extension
+import activity
 import domain_object
+import tracking as _tracking
+import ckan.lib.dictization
 
 __all__ = ['Resource', 'resource_table',
            'ResourceGroup', 'resource_group_table',
@@ -111,8 +115,7 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict[k] = v
         if self.resource_group and not core_columns_only:
             _dict["package_id"] = self.resource_group.package_id
-        import ckan.model as model
-        tracking = model.TrackingSummary.get_for_resource(self.url)
+        tracking = _tracking.TrackingSummary.get_for_resource(self.url)
         _dict['tracking_summary'] = tracking
         return _dict
 
@@ -149,7 +152,6 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def activity_stream_detail(self, activity_id, activity_type):
         import ckan.model as model
-        import ckan.lib.dictization
 
         # Handle 'deleted' resources.
         # When the user marks a resource as deleted this comes through here as
@@ -160,7 +162,7 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
 
         res_dict = ckan.lib.dictization.table_dictize(self,
                 context={'model':model})
-        return ActivityDetail(activity_id, self.id, u"Resource", activity_type,
+        return activity.ActivityDetail(activity_id, self.id, u"Resource", activity_type,
                 {'resource': res_dict})
 
 class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
@@ -258,13 +260,11 @@ ResourceGroupRevision = vdm.sqlalchemy.create_object_version(
 ResourceGroupRevision.related_packages = lambda self: [self.continuity.package]
 ResourceRevision.related_packages = lambda self: [self.continuity.resouce_group.package]
 
-import vdm.sqlalchemy.stateful
 # TODO: move this into vdm
 def add_stateful_m21(object_to_alter, m21_property_name,
         underlying_m21_attrname, identifier, **kwargs):
-    from sqlalchemy.orm import object_session
     def _f(obj_to_delete):
-        sess = object_session(obj_to_delete)
+        sess = orm.object_session(obj_to_delete)
         if sess: # for tests at least must support obj not being sqlalchemy
             sess.expunge(obj_to_delete)
 

@@ -7,6 +7,8 @@ from sqlalchemy.util import OrderedDict
 import meta
 import core
 
+__all__ = ['DomainObject']
+
 class Enum(set):
     '''Simple enumeration
     e.g. Animal = Enum("dog", "cat", "horse")

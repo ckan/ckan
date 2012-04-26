@@ -1,11 +1,11 @@
 import datetime
 import urllib2
 import re
+import simplejson as json
 
 from pylons import config
 from pylons.i18n import _
 
-import ckan.lib.helpers as h
 
 class License(object):
     """Domain object for a license."""
@@ -261,7 +261,7 @@ class LicenseRegister(object):
             msg = "Couldn't connect to licenses service %r: %s" % (license_url, inst)
             raise Exception, msg
         try:
-            license_data = h.json.loads(response_body)
+            license_data = json.loads(response_body)
         except Exception, inst:
             msg = "Couldn't read response from licenses service %r: %s" % (response_body, inst)
             raise Exception, inst

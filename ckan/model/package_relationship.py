@@ -16,6 +16,9 @@ except:
     def _(txt):
         return txt
 
+__all__ = ['PackageRelationship', 'package_relationship_table',
+           'package_relationship_revision_table']
+
 package_relationship_table = Table('package_relationship', meta.metadata,
      Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
      Column('subject_package_id', types.UnicodeText, ForeignKey('package.id')),

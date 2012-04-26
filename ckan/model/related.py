@@ -1,11 +1,15 @@
 import datetime
-import meta
+
 from sqlalchemy import orm
 from sqlalchemy import types, Column, Table, ForeignKey, and_
+
+import meta
 import domain_object
 import types as _types
-from package import Package
+import package as _package
 
+__all__ = ['Related', 'RelatedDataset', 'related_dataset_table',
+           'related_table']
 
 related_table = Table('related',meta.metadata,
         Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
@@ -61,12 +65,12 @@ class Related(domain_object.DomainObject):
 # the caller will have to use get_for_dataset() in Related.
 meta.mapper(RelatedDataset, related_dataset_table, properties={
     'related': orm.relation(Related),
-    'dataset': orm.relation(Package)
+    'dataset': orm.relation(_package.Package)
 })
 meta.mapper(Related, related_table, properties={
-'datasets': orm.relation(Package,
+'datasets': orm.relation(_package.Package,
     backref=orm.backref('related'),
     secondary=related_dataset_table,
-    secondaryjoin=and_(related_dataset_table.c.dataset_id==Package.id,
+    secondaryjoin=and_(related_dataset_table.c.dataset_id==_package.Package.id,
                           RelatedDataset.status=='active'))
 })

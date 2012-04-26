@@ -2,6 +2,8 @@
 doc/authorization.rst.
 
 '''
+import simplejson as json
+
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from pylons import config
 
@@ -13,7 +15,16 @@ import core
 import authorization_group as auth_group
 import domain_object
 import types as _types
-import ckan.lib.helpers as h
+
+__all__ = ['NotRealUserException', 'Enum', 'Action', 'Role', 'RoleAction',
+           'UserObjectRole', 'PackageRole', 'GroupRole',
+           'AuthorizationGroupRole', 'SystemRole', 'PSEUDO_USER__VISITOR',
+           'PSEUDO_USER__LOGGED_IN', 'init_authz_const_data',
+           'init_authz_configuration_data', 'add_user_to_role',
+           'add_authorization_group_to_role', 'setup_user_roles',
+           'setup_default_user_roles', 'give_all_packages_default_user_roles',
+           'user_has_role', 'remove_user_from_role',
+           'remove_authorization_group_from_role', 'clear_user_roles']
 
 PSEUDO_USER__LOGGED_IN = u'logged_in'
 PSEUDO_USER__VISITOR = u'visitor'
@@ -412,7 +423,7 @@ def get_default_user_roles(_domain_object):
         if user_roles_json is None:
             user_roles_str = default_default_user_roles[obj_type]
         else:
-            user_roles_str = h.json.loads(user_roles_json) if user_roles_json else {}
+            user_roles_str = json.loads(user_roles_json) if user_roles_json else {}
         unknown_keys = set(user_roles_str.keys()) - set(('visitor', 'logged_in'))
         assert not unknown_keys, 'Auth config for %r has unknown key %r' % \
                (_domain_object, unknown_keys)

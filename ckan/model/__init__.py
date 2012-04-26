@@ -50,6 +50,8 @@ remove_user_from_authorization_group =authorization_group.remove_user_from_autho
 
 Activity = activity.Activity
 ActivityDetail = activity.ActivityDetail
+#activity_table
+#activity_detail_table
 
 NotRealUserException = authz.NotRealUserException
 Enum = authz.Enum
@@ -80,8 +82,12 @@ Group = group.Group
 member_revision_table = group.member_revision_table
 group_table = group.group_table
 GroupRevision = group.GroupRevision
+#MemberRevision
+#member_table
 
 GroupExtra = group_extra.GroupExtra
+#group_extra_table
+#GroupExtraRevision
 
 Package = package.Package
 PACKAGE_NAME_MIN_LENGTH = package.PACKAGE_NAME_MIN_LENGTH
@@ -106,10 +112,12 @@ Rating = rating.Rating
 Resource = resource.Resource
 ResourceGroup = resource.ResourceGroup
 ResourceRevision = resource.ResourceRevision
-DictProxy = resource.DictProxy
+#DictProxy = resource.DictProxy
 resource_group_table = resource.resource_group_table
 resource_table = resource.resource_table
 resource_revision_table = resource.resource_revision_table
+#ResourceGroupRevision
+#resource_group_revision_table
 
 Tag = tag.Tag
 PackageTag = tag.PackageTag
@@ -121,6 +129,7 @@ package_tag_table = tag.package_tag_table
 package_tag_revision_table = tag.package_tag_revision_table
 
 TaskStatus = task_status.TaskStatus
+#task_status_table
 
 User = user.User
 user_table = user.user_table

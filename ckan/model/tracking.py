@@ -3,6 +3,8 @@ from sqlalchemy import types, Column, Table
 import meta
 import domain_object
 
+__all__ = ['tracking_summary_table', 'TrackingSummary']
+
 tracking_summary_table = Table('tracking_summary', meta.metadata,
         Column('url', types.UnicodeText, primary_key=True, nullable=False),
         Column('package_id', types.UnicodeText),

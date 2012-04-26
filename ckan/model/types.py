@@ -2,11 +2,14 @@
 import datetime
 import copy
 import uuid
+import simplejson as json
 
 from sqlalchemy import types
 
 import meta
-import ckan.lib.helpers as h
+
+__all__ = ['iso_date_to_datetime_for_sqlite', 'make_uuid', 'UuidType',
+           'JsonType', 'JsonDictType']
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -44,13 +47,13 @@ class JsonType(types.TypeDecorator):
             return None
         else:
             # ensure_ascii=False => allow unicode but still need to convert
-            return unicode(h.json.dumps(value, ensure_ascii=False))
+            return unicode(json.dumps(value, ensure_ascii=False))
 
     def process_result_value(self, value, engine):
         if value is None:
             return {}
         else:
-            return h.json.loads(value)
+            return json.loads(value)
 
     def copy(self):
         return JsonType(self.impl.length)
@@ -72,7 +75,7 @@ class JsonDictType(JsonType):
             if isinstance(value, basestring):
                 return unicode(value)
             else:
-                return unicode(h.json.dumps(value, ensure_ascii=False))
+                return unicode(json.dumps(value, ensure_ascii=False))
 
     def copy(self):
         return JsonDictType(self.impl.length)
