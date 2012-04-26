@@ -265,9 +265,9 @@ class LicenseRegister(object):
         except Exception, inst:
             msg = "Couldn't read response from licenses service %r: %s" % (response_body, inst)
             raise Exception, inst
-        self._create_license_list(license_data)
+        self._create_license_list(license_data, license_url)
 
-    def _create_license_list(self, license_data):
+    def _create_license_list(self, license_data, license_url):
         if isinstance(license_data, dict):
             self.licenses = [License(entity) for entity in license_data.values()]
         elif isinstance(license_data, list):
