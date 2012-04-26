@@ -480,6 +480,7 @@ class PackageController(BaseController):
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id}, package_type=package_type)
+        c.related_count = len(c.pkg.related)
 
         # TODO: This check is to maintain backwards compatibility with the old way of creating
         # custom forms. This behaviour is now deprecated.
@@ -749,6 +750,8 @@ class PackageController(BaseController):
             c.package['isopen'] = False
         c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
                 qualified=True)
+
+        c.related_count = len(c.pkg.related)
         return render('package/resource_read.html')
 
     def resource_embedded_dataviewer(self, id, resource_id):
