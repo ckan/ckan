@@ -278,13 +278,3 @@ meta.mapper(PackageTag, package_tag_table, properties={
                _extension.PluginMapperExtension(),
                ],
     )
-
-# FIXME This is very wrong
-# It is part of the circular import crazy
-import package_mapping
-
-vdm.sqlalchemy.modify_base_object_mapper(PackageTag, core.Revision, core.State)
-PackageTagRevision = vdm.sqlalchemy.create_object_version(meta.mapper, PackageTag,
-        package_tag_revision_table)
-
-PackageTagRevision.related_packages = lambda self: [self.continuity.package]

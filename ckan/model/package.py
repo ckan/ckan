@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from sqlalchemy.sql import select, and_, union, or_
-from sqlalchemy.orm import eagerload_all
+from sqlalchemy import orm
 from sqlalchemy import types, Column, Table
 from pylons import config
 import vdm.sqlalchemy
@@ -14,13 +14,15 @@ import core
 import license as _license
 import types as _types
 import domain_object
-import ckan.misc
 import activity
+import extension
+
+import ckan.misc
 import ckan.lib.dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH']
+           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision', 'PackageRevision']
 
 PACKAGE_NAME_MAX_LENGTH = 100
 PACKAGE_NAME_MIN_LENGTH = 2
@@ -71,8 +73,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def get(cls, reference):
         '''Returns a package object referenced by its id or name.'''
         query = meta.Session.query(cls).filter(cls.id==reference)
-        query = query.options(eagerload_all('package_tags.tag'))
-        query = query.options(eagerload_all('resource_groups_all.resources_all'))
+        query = query.options(orm.eagerload_all('package_tags.tag'))
+        query = query.options(orm.eagerload_all('resource_groups_all.resources_all'))
         pkg = query.first()
         if pkg == None:
             pkg = cls.by_name(reference)
@@ -671,3 +673,40 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 context={'model':ckan.model})
         return activity.ActivityDetail(activity_id, self.id, u"Package", activity_type,
             {'package': package_dict })
+
+# import here to prevent circular import
+import tag
+
+meta.mapper(Package, package_table, properties={
+    # delete-orphan on cascade does NOT work!
+    # Why? Answer: because of way SQLAlchemy/our code works there are points
+    # where PackageTag object is created *and* flushed but does not yet have
+    # the package_id set (this cause us other problems ...). Some time later a
+    # second commit happens in which the package_id is correctly set.
+    # However after first commit PackageTag does not have Package and
+    # delete-orphan kicks in to remove it!
+    'package_tags':orm.relation(tag.PackageTag, backref='package',
+        cascade='all, delete', #, delete-orphan',
+        ),
+    },
+    order_by=package_table.c.name,
+    extension=[vdm.sqlalchemy.Revisioner(package_revision_table),
+               extension.PluginMapperExtension(),
+               ],
+    )
+
+vdm.sqlalchemy.modify_base_object_mapper(Package, core.Revision, core.State)
+PackageRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Package,
+        package_revision_table)
+
+def related_packages(self):
+    return [self.continuity]
+
+PackageRevision.related_packages = related_packages
+
+
+vdm.sqlalchemy.modify_base_object_mapper(tag.PackageTag, core.Revision, core.State)
+PackageTagRevision = vdm.sqlalchemy.create_object_version(meta.mapper, tag.PackageTag,
+        tag.package_tag_revision_table)
+
+PackageTagRevision.related_packages = lambda self: [self.continuity.package]

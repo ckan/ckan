@@ -11,12 +11,11 @@ import meta
 import core
 import package
 import tag
-import package_mapping
 import user
+import authz
 import authorization_group
 import group
 import group_extra
-import authz
 import package_extra
 import resource
 import tracking
@@ -95,6 +94,8 @@ PACKAGE_NAME_MAX_LENGTH = package.PACKAGE_NAME_MAX_LENGTH
 PACKAGE_VERSION_MAX_LENGTH = package.PACKAGE_VERSION_MAX_LENGTH
 package_table = package.package_table
 package_revision_table = package.package_revision_table
+PackageTagRevision = package.PackageTagRevision
+PackageRevision = package.PackageRevision
 
 PackageExtra = package_extra.PackageExtra
 PackageExtraRevision = package_extra.PackageExtraRevision
@@ -105,7 +106,6 @@ PackageRelationship = package_relationship.PackageRelationship
 package_relationship_table = package_relationship.package_relationship_table
 package_relationship_revision_table = package_relationship.package_relationship_revision_table
 
-PackageRevision = package_mapping.PackageRevision
 
 Rating = rating.Rating
 
@@ -121,7 +121,6 @@ resource_revision_table = resource.resource_revision_table
 
 Tag = tag.Tag
 PackageTag = tag.PackageTag
-PackageTagRevision = tag.PackageTagRevision
 MAX_TAG_LENGTH = tag.MAX_TAG_LENGTH
 MIN_TAG_LENGTH = tag.MIN_TAG_LENGTH
 tag_table = tag.tag_table

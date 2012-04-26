@@ -7,13 +7,13 @@ import simplejson as json
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from pylons import config
 
-import package as _package
 import meta
+import core
+import domain_object
+import package as _package
 import group
 import user as _user
-import core
 import authorization_group as auth_group
-import domain_object
 import types as _types
 
 __all__ = ['NotRealUserException', 'Enum', 'Action', 'Role', 'RoleAction',
