@@ -757,22 +757,13 @@ my.Graph = Backbone.View.extend({
         <label>Group Column (x-axis)</label> \
         <div class="input editor-group"> \
           <select> \
+          <option value="">Please choose ...</option> \
           {{#fields}} \
           <option value="{{id}}">{{label}}</option> \
           {{/fields}} \
           </select> \
         </div> \
         <div class="editor-series-group"> \
-          <div class="editor-series"> \
-            <label>Series <span>A (y-axis)</span></label> \
-            <div class="input"> \
-              <select> \
-              {{#fields}} \
-              <option value="{{id}}">{{label}}</option> \
-              {{/fields}} \
-              </select> \
-            </div> \
-          </div> \
         </div> \
       </div> \
       <div class="editor-buttons"> \
@@ -784,13 +775,34 @@ my.Graph = Backbone.View.extend({
       </div> \
     </form> \
   </div> \
-  <div class="panel graph"></div> \
+  <div class="panel graph"> \
+    <div class="js-temp-notice alert alert-block"> \
+      <h3 class="alert-heading">Hey there!</h3> \
+      <p>There\'s no graph here yet because we don\'t know what fields you\'d like to see plotted.</p> \
+      <p>Please tell us by <strong>using the menu on the right</strong> and a graph will automatically appear.</p> \
+    </div> \
+  </div> \
 </div> \
 ',
+  templateSeriesEditor: ' \
+    <div class="editor-series js-series-{{seriesIndex}}"> \
+      <label>Series <span>{{seriesName}} (y-axis)</span> \
+        [<a href="#remove" class="action-remove-series">Remove</a>] \
+      </label> \
+      <div class="input"> \
+        <select> \
+        <option value="">Please choose ...</option> \
+        {{#fields}} \
+        <option value="{{id}}">{{label}}</option> \
+        {{/fields}} \
+        </select> \
+      </div> \
+    </div> \
+  ',
 
   events: {
     'change form select': 'onEditorSubmit',
-    'click .editor-add': 'addSeries',
+    'click .editor-add': '_onAddSeries',
     'click .action-remove-series': 'removeSeries',
     'click .action-toggle-help': 'toggleHelp'
   },
@@ -807,7 +819,8 @@ my.Graph = Backbone.View.extend({
     this.model.currentDocuments.bind('reset', this.redraw);
     var stateData = _.extend({
         group: null,
-        series: [],
+        // so that at least one series chooser box shows up
+        series: [""],
         graphType: 'lines-and-points'
       },
       options.state
@@ -817,21 +830,45 @@ my.Graph = Backbone.View.extend({
   },
 
   render: function() {
-    htmls = $.mustache(this.template, this.model.toTemplateJSON());
+    var self = this;
+    var tmplData = this.model.toTemplateJSON();
+    var htmls = $.mustache(this.template, tmplData);
     $(this.el).html(htmls);
-    // now set a load of stuff up
     this.$graph = this.el.find('.panel.graph');
-    // for use later when adding additional series
-    // could be simpler just to have a common template!
-    this.$seriesClone = this.el.find('.editor-series').clone();
-    this._updateSeries();
+
+    // set up editor from state
+    if (this.state.get('graphType')) {
+      this._selectOption('.editor-type', this.state.get('graphType'));
+    }
+    if (this.state.get('group')) {
+      this._selectOption('.editor-group', this.state.get('group'));
+    }
+    _.each(this.state.get('series'), function(series, idx) {
+      self.addSeries(idx);
+      self._selectOption('.editor-series.js-series-' + idx, series);
+    });
     return this;
+  },
+
+  // Private: Helper function to select an option from a select list
+  //
+  _selectOption: function(id,value){
+    var options = this.el.find(id + ' select > option');
+    if (options) {
+      options.each(function(opt){
+        if (this.value == value) {
+          $(this).attr('selected','selected');
+          return false;
+        }
+      });
+    }
   },
 
   onEditorSubmit: function(e) {
     var select = this.el.find('.editor-group select');
-    $editor = this;
-    var series = this.$series.map(function () {
+    var $editor = this;
+    var $series  = this.el.find('.editor-series select');
+    var series = $series.map(function () {
       return $(this).val();
     });
     var updatedState = {
@@ -870,10 +907,20 @@ my.Graph = Backbone.View.extend({
 //    }
   },
 
+  // ### getGraphOptions
+  //
+  // Get options for Flot Graph
+  //
   // needs to be function as can depend on state
+  //
+  // @param typeId graphType id (lines, lines-and-points etc)
   getGraphOptions: function(typeId) { 
     var self = this;
     // special tickformatter to show labels rather than numbers
+    // TODO: we should really use tickFormatter and 1 interval ticks if (and
+    // only if) x-axis values are non-numeric
+    // However, that is non-trivial to work out from a dataset (datasets may
+    // have no field type info). Thus at present we only do this for bars.
     var tickFormatter = function (val) {
       if (self.model.currentDocuments.models[val]) {
         var out = self.model.currentDocuments.models[val].get(self.state.attributes.group);
@@ -886,20 +933,25 @@ my.Graph = Backbone.View.extend({
       }
       return val;
     };
-    // TODO: we should really use tickFormatter and 1 interval ticks if (and
-    // only if) x-axis values are non-numeric
-    // However, that is non-trivial to work out from a dataset (datasets may
-    // have no field type info). Thus at present we only do this for bars.
-    var options = { 
+
+    var xaxis = {};
+    // check for time series on x-axis
+    if (this.model.fields.get(this.state.get('group')).get('type') === 'date') {
+      xaxis.mode = 'time';
+      xaxis.timeformat = '%y-%b';
+    }
+    var optionsPerGraphType = { 
       lines: {
-         series: { 
-           lines: { show: true }
-         }
+        series: { 
+          lines: { show: true }
+        },
+        xaxis: xaxis
       },
       points: {
         series: {
           points: { show: true }
         },
+        xaxis: xaxis,
         grid: { hoverable: true, clickable: true }
       },
       'lines-and-points': {
@@ -907,6 +959,7 @@ my.Graph = Backbone.View.extend({
           points: { show: true },
           lines: { show: true }
         },
+        xaxis: xaxis,
         grid: { hoverable: true, clickable: true }
       },
       bars: {
@@ -930,7 +983,7 @@ my.Graph = Backbone.View.extend({
         }
       }
     };
-    return options[typeId];
+    return optionsPerGraphType[typeId];
   },
 
   setupTooltips: function() {
@@ -987,8 +1040,15 @@ my.Graph = Backbone.View.extend({
     _.each(this.state.attributes.series, function(field) {
       var points = [];
       _.each(self.model.currentDocuments.models, function(doc, index) {
-        var x = doc.get(self.state.attributes.group);
-        var y = doc.get(field);
+        var xfield = self.model.fields.get(self.state.attributes.group);
+        var x = doc.getFieldValue(xfield);
+        // time series
+        var isDateTime = xfield.get('type') === 'date';
+        if (isDateTime) {
+          x = new Date(x);
+        }
+        var yfield = self.model.fields.get(field);
+        var y = doc.getFieldValue(yfield);
         if (typeof x === 'string') {
           x = index;
         }
@@ -1006,21 +1066,23 @@ my.Graph = Backbone.View.extend({
 
   // Public: Adds a new empty series select box to the editor.
   //
-  // All but the first select box will have a remove button that allows them
-  // to be removed.
+  // @param [int] idx index of this series in the list of series
   //
   // Returns itself.
-  addSeries: function (e) {
-    e.preventDefault();
-    var element = this.$seriesClone.clone(),
-        label   = element.find('label'),
-        index   = this.$series.length;
+  addSeries: function (idx) {
+    var data = _.extend({
+      seriesIndex: idx,
+      seriesName: String.fromCharCode(idx + 64 + 1),
+    }, this.model.toTemplateJSON());
 
-    this.el.find('.editor-series-group').append(element);
-    this._updateSeries();
-    label.append(' [<a href="#remove" class="action-remove-series">Remove</a>]');
-    label.find('span').text(String.fromCharCode(this.$series.length + 64));
+    var htmls = $.mustache(this.templateSeriesEditor, data);
+    this.el.find('.editor-series-group').append(htmls);
     return this;
+  },
+
+  _onAddSeries: function(e) {
+    e.preventDefault();
+    this.addSeries(this.state.get('series').length);
   },
 
   // Public: Removes a series list item from the editor.
@@ -1030,26 +1092,12 @@ my.Graph = Backbone.View.extend({
     e.preventDefault();
     var $el = $(e.target);
     $el.parent().parent().remove();
-    this._updateSeries();
-    this.$series.each(function (index) {
-      if (index > 0) {
-        var labelSpan = $(this).prev().find('span');
-        labelSpan.text(String.fromCharCode(index + 65));
-      }
-    });
     this.onEditorSubmit();
   },
 
   toggleHelp: function() {
     this.el.find('.editor-info').toggleClass('editor-hide-info');
   },
-
-  // Private: Resets the series property to reference the select elements.
-  //
-  // Returns itself.
-  _updateSeries: function () {
-    this.$series  = this.el.find('.editor-series select');
-  }
 });
 
 })(jQuery, recline.View);

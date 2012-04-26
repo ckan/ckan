@@ -8,9 +8,11 @@ import webhelpers.html.tags
 
 __all__ = ['toolkit']
 
+
 class CkanVersionException(Exception):
     ''' Exception raised if required ckan version is not available. '''
     pass
+
 
 class _Toolkit(object):
     '''This class is intended to make functions/objects consistently
@@ -40,7 +42,8 @@ class _Toolkit(object):
         'literal',              # stop tags in a string being escaped
         'get_action',           # get logic action function
         'check_access',         # check logic function authorisation
-        'ObjectNotFound',       # action not found exception (ckan.logic.NotFound)
+        'ObjectNotFound',       # action not found exception
+                                # (ckan.logic.NotFound)
         'NotAuthorized',        # action not authorized exception
         'ValidationError',      # model update validation error
         'CkanCommand',          # class for providing cli interfaces
@@ -52,7 +55,6 @@ class _Toolkit(object):
         'check_ckan_version',
         'CkanVersionException',
     ]
-
 
     def __init__(self):
         self._toolkit = {}
@@ -85,7 +87,7 @@ class _Toolkit(object):
 
         t['get_action'] = logic.get_action
         t['check_access'] = logic.check_access
-        t['ObjectNotFound'] = logic.NotFound  ## Name change intentional
+        t['ObjectNotFound'] = logic.NotFound  # Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError
 
@@ -117,7 +119,8 @@ class _Toolkit(object):
     def _add_template_directory(cls, config, relative_path):
         ''' Function to aid adding extra template paths to the config.
         The path is relative to the file calling this function. '''
-        cls._add_served_directory(config, relative_path, 'extra_template_paths')
+        cls._add_served_directory(config, relative_path,
+                                  'extra_template_paths')
 
     @classmethod
     def _add_public_directory(cls, config, relative_path):
