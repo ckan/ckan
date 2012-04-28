@@ -39,7 +39,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    activity_type_exists,
                                    tag_not_in_vocabulary,
                                    follower_id_exists,
-                                   follower_object_id_exists)
+                                   follower_object_id_exists,
+                                   follower_subject_not_same_as_object)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -395,7 +396,8 @@ def default_create_follower_schema():
                 follower_id_exists],
             'follower_type': [not_missing, not_empty, unicode],
             'object_id': [not_missing, not_empty, unicode,
-                follower_object_id_exists],
+                follower_object_id_exists,
+                follower_subject_not_same_as_object],
             'object_type': [not_missing, not_empty, unicode],
             'datetime': [ignore]
             }

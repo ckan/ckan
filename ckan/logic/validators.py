@@ -516,3 +516,7 @@ def follower_object_id_exists(key, object_dict, errors, context):
         raise Invalid(_('object_type {type} not recognised').format(
             type=object_type))
     object_dict[(u'object_id',)] = validator(object_id, context)
+
+def follower_subject_not_same_as_object(key, follower_dict, errors, context):
+    if follower_dict[('follower_id',)] == follower_dict[('object_id',)]:
+        raise Invalid(_('An object cannot follow itself'))
