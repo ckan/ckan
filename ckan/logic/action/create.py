@@ -531,6 +531,15 @@ def follower_create(context, follower_dict):
         model.Session.rollback()
         raise ValidationError(errors, error_summary(errors))
 
+    # Don't let the same follower be created twice.
+    if model.Follower.get(follower_dict['follower_id'],
+            follower_dict['object_id']) is not None:
+        message = _(
+                'Follower {follower_id} -> {object_id} already exists').format(
+                    follower_id=follower_dict['follower_id'],
+                    object_id=follower_dict['object_id'])
+        raise ValidationError({'message': message})
+
     follower = model_save.follower_dict_save(follower_dict, context)
 
     if not context.get('defer_commit'):
