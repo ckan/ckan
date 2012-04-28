@@ -28,26 +28,24 @@ class TestFollow(object):
     def teardown_class(self):
         ckan.model.repo.rebuild_db()
 
-    def test_user_follow_user(self):
-        '''Test a user following another user via the API.'''
+    def _user_follow_user(self, follower_id, follower_api_key, object_id):
+        '''Test a user starting to follow another user via the API.'''
 
-        # TODO: Test following and retrieving followers by name as well as by ID.
-
-        # Record the users number of followers before.
-        params = json.dumps({'id': self.russianfan.id})
+        # Record the user's number of followers before.
+        params = json.dumps({'id': object_id})
         response = self.app.post('/api/action/follower_count',
                 params=params).json
         assert response['success'] is True
         count_before = response['result']
 
-        # Make one user a follower of another user.
+        # Make one user start following another user.
         before = datetime.datetime.now()
         params = json.dumps({
-            'object_id': self.russianfan.id,
+            'object_id': object_id,
             'object_type': 'user',
             })
         extra_environ = {
-                'Authorization': str(self.annafan.apikey)
+                'Authorization': str(follower_api_key)
                 }
         response = self.app.post('/api/action/follower_create',
             params=params, extra_environ=extra_environ).json
@@ -55,15 +53,15 @@ class TestFollow(object):
         assert response['success'] is True
         assert response['result']
         follower = response['result']
-        assert follower['follower_id'] == self.annafan.id
+        assert follower['follower_id'] == follower_id
         assert follower['follower_type'] == 'user'
-        assert follower['object_id'] == self.russianfan.id
+        assert follower['object_id'] == object_id
         assert follower['object_type'] == 'user'
         timestamp = datetime_from_string(follower['datetime'])
         assert (timestamp >= before and timestamp <= after), str(timestamp)
 
-        # Check that the follower appears in the object's list of followers.
-        params = json.dumps({'id': self.russianfan.id})
+        # Check that the follower appears in the user's list of followers.
+        params = json.dumps({'id': object_id})
         response = self.app.post('/api/action/follower_list',
                 params=params).json
         assert response['success'] is True
@@ -71,14 +69,22 @@ class TestFollow(object):
         followers = response['result']
         assert len(followers) == 1
         follower = followers[0]
-        assert follower['id'] == self.annafan.id
+        assert follower['id'] == follower_id
 
         # Check that the user's follower count has increased by 1.
-        params = json.dumps({'id': self.russianfan.id})
+        params = json.dumps({'id': object_id})
         response = self.app.post('/api/action/follower_count',
                 params=params).json
         assert response['success'] is True
         assert response['result'] == count_before + 1
+
+    def test_user_follow_user(self):
+        self._user_follow_user(self.annafan.id, self.annafan.apikey,
+                self.russianfan.id)
+
+    def test_user_follow_user_by_name(self):
+        self._user_follow_user(self.annafan.id, self.annafan.apikey,
+                self.russianfan.name)
 
     def test_user_follow_dataset(self):
         '''Test a user following a dataset via the API.'''
