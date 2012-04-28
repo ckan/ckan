@@ -22,7 +22,7 @@ class TestFollow(object):
         self.annafan = ckan.model.User.get('annafan')
         self.russianfan = ckan.model.User.get('russianfan')
         self.tester = ckan.model.User.get('tester')
-        self.tester = ckan.model.User.get('joeadmin')
+        self.joeadmin = ckan.model.User.get('joeadmin')
         self.warandpeace = ckan.model.Package.get('warandpeace')
         self.annakarenina = ckan.model.Package.get('annakarenina')
         self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
@@ -32,7 +32,7 @@ class TestFollow(object):
         ckan.model.repo.rebuild_db()
 
     def _start_following(self, follower_id, api_key, object_id, object_type,
-            object_arg):
+            object_arg, datetime_param=None):
         '''Test a user starting to follow an object via the API.
 
         :param follower_id: id of the user that will be following something.
@@ -42,6 +42,8 @@ class TestFollow(object):
             user, e.g. 'user' or 'dataset'.
         :param object_arg: the argument to pass to follower_create as the id of
             the object that will be followed, could be the object's id or name.
+        :param datetime_param Will be passed as 'datetime' arg to
+            follower_create
 
         '''
 
@@ -62,13 +64,15 @@ class TestFollow(object):
 
         # Make the  user start following the object.
         before = datetime.datetime.now()
-        params = json.dumps({
+        params = {
             'object_id': object_arg,
             'object_type': object_type,
-            })
+            }
+        if datetime_param:
+            params['datetime'] = datetime_param
         extra_environ = {'Authorization': str(api_key)}
         response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ).json
+            params=json.dumps(params), extra_environ=extra_environ).json
         after = datetime.datetime.now()
         assert response['success'] is True
         assert response['result']
@@ -274,6 +278,12 @@ class TestFollow(object):
         self._start_following(self.annafan.id, self.annafan.apikey,
                 self.annakarenina.id, 'dataset', self.annakarenina.name)
 
+    def test_02_user_follow_user_with_datetime(self):
+        'Test that a datetime passed to follower_create is ignored.'
+        self._start_following(self.annafan.id, self.annafan.apikey,
+                self.joeadmin.id, 'user', self.joeadmin.name,
+                datetime_param = str(datetime.datetime.min))
+
     def test_03_user_follow_user_already_following(self):
         for object_id in (self.russianfan.id, self.russianfan.name,
                 self.testsysadmin.id, self.testsysadmin.name):
@@ -323,5 +333,3 @@ class TestFollow(object):
         assert response['success'] == False
         assert response['error']['object_id'] == [
                 'An object cannot follow itself']
-
-# Test follow with datetime, should be ignored.
