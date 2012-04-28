@@ -13,6 +13,7 @@ def datetime_from_string(s):
     return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f')
 
 class TestFollow(object):
+    '''Tests for the follow API.'''
 
     @classmethod
     def setup_class(self):
@@ -51,15 +52,21 @@ class TestFollow(object):
         assert response['success'] is True
         count_before = response['result']
 
+        # Check that the user is not already following the object.
+        params = json.dumps({'id': object_id})
+        extra_environ = {'Authorization': str(api_key)}
+        response = self.app.post('/api/action/am_following',
+                params=params, extra_environ=extra_environ).json
+        assert response['success'] is True
+        assert response['result'] is False
+
         # Make the  user start following the object.
         before = datetime.datetime.now()
         params = json.dumps({
             'object_id': object_arg,
             'object_type': object_type,
             })
-        extra_environ = {
-                'Authorization': str(api_key)
-                }
+        extra_environ = {'Authorization': str(api_key)}
         response = self.app.post('/api/action/follower_create',
             params=params, extra_environ=extra_environ).json
         after = datetime.datetime.now()
@@ -72,6 +79,14 @@ class TestFollow(object):
         assert follower['object_type'] == object_type
         timestamp = datetime_from_string(follower['datetime'])
         assert (timestamp >= before and timestamp <= after), str(timestamp)
+
+        # Check that am_following now returns True.
+        params = json.dumps({'id': object_id})
+        extra_environ = {'Authorization': str(api_key)}
+        response = self.app.post('/api/action/am_following',
+                params=params, extra_environ=extra_environ).json
+        assert response['success'] is True
+        assert response['result'] is True
 
         # Check that the user appears in the object's list of followers.
         params = json.dumps({'id': object_id})
@@ -91,48 +106,35 @@ class TestFollow(object):
         assert response['success'] is True
         assert response['result'] == count_before + 1
 
-    def test_user_follow_user(self):
+    def test_01_user_follow_user_bad_api_key(self):
+        for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
+            params = json.dumps({
+                'object_id': self.russianfan.id,
+                'object_type': 'user',
+                })
+            extra_environ = {
+                    'Authorization': apikey,
+                    }
+            response = self.app.post('/api/action/follower_create',
+                params=params, extra_environ=extra_environ, status=403).json
+            assert response['success'] == False
+            assert response['error']['message'] == 'Access denied'
 
-        # Test with a bad API key.
-        params = json.dumps({
-            'object_id': self.russianfan.id,
-            'object_type': 'user',
-            })
-        extra_environ = {
-                'Authorization': 'bad api key'
-                }
-        response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ, status=403).json
-        assert response['success'] == False
-        assert response['error']['message'] == 'Access denied'
+    def test_01_user_follow_dataset_bad_api_key(self):
+        for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
+            params = json.dumps({
+                'object_id': self.warandpeace.id,
+                'object_type': 'dataset',
+                })
+            extra_environ = {
+                    'Authorization': 'bad api key'
+                    }
+            response = self.app.post('/api/action/follower_create',
+                params=params, extra_environ=extra_environ, status=403).json
+            assert response['success'] == False
+            assert response['error']['message'] == 'Access denied'
 
-        # Test with a bad object ID.
-        params = json.dumps({
-            'object_id': 'bad id',
-            'object_type': 'user',
-            })
-        extra_environ = {
-                'Authorization': str(self.annafan.apikey),
-                }
-        response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] == False
-        assert response['error']['object_id'] == ['Not found: User']
-
-        # Test with a bad object type.
-        params = json.dumps({
-            'object_id': self.russianfan.id,
-            'object_type': 'foobar',
-            })
-        extra_environ = {
-                'Authorization': str(self.annafan.apikey),
-                }
-        response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] == False
-        assert response['error']['object_id'] == ['object_type foobar not recognised']
-
-        # Test with missing API key.
+    def test_01_user_follow_user_missing_api_key(self):
         params = json.dumps({
             'object_id': self.russianfan.id,
             'object_type': 'user',
@@ -142,7 +144,45 @@ class TestFollow(object):
         assert response['success'] == False
         assert response['error']['message'] == 'Access denied'
 
-        # Test with missing object_id.
+    def test_01_user_follow_dataset_missing_api_key(self):
+        params = json.dumps({
+            'object_id': self.warandpeace.id,
+            'object_type': 'dataset',
+            })
+        response = self.app.post('/api/action/follower_create',
+            params=params, status=403).json
+        assert response['success'] == False
+        assert response['error']['message'] == 'Access denied'
+
+    def test_01_user_follow_user_bad_object_id(self):
+        for object_id in ('bad id', '', '     ', None, 3, 35.7, 'xxx'):
+            params = json.dumps({
+                'object_id': 'bad id',
+                'object_type': 'user',
+                })
+            extra_environ = {
+                    'Authorization': str(self.annafan.apikey),
+                    }
+            response = self.app.post('/api/action/follower_create',
+                params=params, extra_environ=extra_environ, status=409).json
+            assert response['success'] == False
+            assert response['error']['object_id'] == ['Not found: User']
+
+    def test_01_user_follow_dataset_bad_object_id(self):
+        for object_id in ('bad id', '', '     ', None, 3, 35.7, 'xxx'):
+            params = json.dumps({
+                'object_id': 'bad id',
+                'object_type': 'dataset',
+                })
+            extra_environ = {
+                    'Authorization': str(self.annafan.apikey),
+                    }
+            response = self.app.post('/api/action/follower_create',
+                params=params, extra_environ=extra_environ, status=409).json
+            assert response['success'] == False
+            assert response['error']['object_id'] == ['Not found: Dataset']
+
+    def test_01_user_follow_user_missing_object_id(self):
         params = json.dumps({
             'object_type': 'user',
             })
@@ -154,7 +194,47 @@ class TestFollow(object):
         assert response['success'] == False
         assert response['error']['object_id'] == ['Missing value']
 
-        # Test with missing object_type.
+    def test_01_user_follow_dataset_missing_object_id(self):
+        params = json.dumps({
+            'object_type': 'dataset',
+            })
+        extra_environ = {
+                'Authorization': str(self.annafan.apikey),
+                }
+        response = self.app.post('/api/action/follower_create',
+            params=params, extra_environ=extra_environ, status=409).json
+        assert response['success'] == False
+        assert response['error']['object_id'] == ['Missing value']
+
+    def test_01_user_follow_user_bad_object_type(self):
+        for object_type in ('foobar', 'dataset', '', '     ', None, 3, 35.7):
+            params = json.dumps({
+                'object_id': self.russianfan.id,
+                'object_type': 'foobar',
+                })
+            extra_environ = {
+                    'Authorization': str(self.annafan.apikey),
+                    }
+            response = self.app.post('/api/action/follower_create',
+                params=params, extra_environ=extra_environ, status=409).json
+            assert response['success'] == False
+            assert response['error']['object_id'] == ['object_type foobar not recognised']
+
+    def test_01_user_follow_dataset_bad_object_type(self):
+        for object_type in ('foobar', 'user', '', '     ', None, 3, 35.7):
+            params = json.dumps({
+                'object_id': self.warandpeace.id,
+                'object_type': 'foobar',
+                })
+            extra_environ = {
+                    'Authorization': str(self.annafan.apikey),
+                    }
+            response = self.app.post('/api/action/follower_create',
+                params=params, extra_environ=extra_environ, status=409).json
+            assert response['success'] == False
+            assert response['error']['object_id'] == ['object_type foobar not recognised']
+
+    def test_01_user_follow_user_missing_object_type(self):
         params = json.dumps({
             'object_id': self.russianfan.id,
             })
@@ -166,15 +246,35 @@ class TestFollow(object):
         assert response['success'] == False
         assert response['error']['object_type'] == ['Missing value']
 
-        # Test with good arguments.
+    def test_01_user_follow_dataset_missing_object_type(self):
+        params = json.dumps({
+            'object_id': self.warandpeace.id,
+            })
+        extra_environ = {
+                'Authorization': str(self.annafan.apikey),
+                }
+        response = self.app.post('/api/action/follower_create',
+            params=params, extra_environ=extra_environ, status=409).json
+        assert response['success'] == False
+        assert response['error']['object_type'] == ['Missing value']
+
+    def test_02_user_follow_user_by_id(self):
         self._start_following(self.annafan.id, self.annafan.apikey,
                 self.russianfan.id, 'user', self.russianfan.id)
 
-        # Test with good arguments, by name.
+    def test_02_user_follow_dataset_by_id(self):
+        self._start_following(self.annafan.id, self.annafan.apikey,
+                self.warandpeace.id, 'dataset', self.warandpeace.id)
+
+    def test_02_user_follow_user_by_name(self):
         self._start_following(self.annafan.id, self.annafan.apikey,
                 self.testsysadmin.id, 'user', self.testsysadmin.name)
 
-        # Test trying to follow a user that the user is already following.
+    def test_02_user_follow_dataset_by_name(self):
+        self._start_following(self.annafan.id, self.annafan.apikey,
+                self.annakarenina.id, 'dataset', self.annakarenina.name)
+
+    def test_03_user_follow_user_already_following(self):
         for object_id in (self.russianfan.id, self.russianfan.name,
                 self.testsysadmin.id, self.testsysadmin.name):
             params = json.dumps({
@@ -192,104 +292,7 @@ class TestFollow(object):
                         follower_id = self.annafan.id))
             assert response['error']['message'].endswith(' already exists')
 
-        # Test that a user cannot follow herself.
-        params = json.dumps({
-            'object_id': self.annafan.id,
-            'object_type': 'user',
-            })
-        extra_environ = {
-                'Authorization': str(self.annafan.apikey),
-                }
-        response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] == False
-        assert response['error']['object_id'] == [
-                'An object cannot follow itself']
-
-    def test_user_follow_dataset(self):
-
-        # Test with a bad API key.
-        params = json.dumps({
-            'object_id': self.warandpeace.id,
-            'object_type': 'dataset',
-            })
-        extra_environ = {
-                'Authorization': 'bad api key'
-                }
-        response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ, status=403).json
-        assert response['success'] == False
-        assert response['error']['message'] == 'Access denied'
-
-        # Test with a bad object ID.
-        params = json.dumps({
-            'object_id': 'bad id',
-            'object_type': 'dataset',
-            })
-        extra_environ = {
-                'Authorization': str(self.annafan.apikey),
-                }
-        response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] == False
-        assert response['error']['object_id'] == ['Not found: Dataset']
-
-        # Test with a bad object type.
-        params = json.dumps({
-            'object_id': self.warandpeace.id,
-            'object_type': 'foobar',
-            })
-        extra_environ = {
-                'Authorization': str(self.annafan.apikey),
-                }
-        response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] == False
-        assert response['error']['object_id'] == ['object_type foobar not recognised']
-
-        # Test with missing API key.
-        params = json.dumps({
-            'object_id': self.warandpeace.id,
-            'object_type': 'dataset',
-            })
-        response = self.app.post('/api/action/follower_create',
-            params=params, status=403).json
-        assert response['success'] == False
-        assert response['error']['message'] == 'Access denied'
-
-        # Test with missing object_id.
-        params = json.dumps({
-            'object_type': 'dataset',
-            })
-        extra_environ = {
-                'Authorization': str(self.annafan.apikey),
-                }
-        response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] == False
-        assert response['error']['object_id'] == ['Missing value']
-
-        # Test with missing object_type.
-        params = json.dumps({
-            'object_id': self.warandpeace.id,
-            })
-        extra_environ = {
-                'Authorization': str(self.annafan.apikey),
-                }
-        response = self.app.post('/api/action/follower_create',
-            params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] == False
-        assert response['error']['object_type'] == ['Missing value']
-
-        # Test with good arguments.
-        self._start_following(self.annafan.id, self.annafan.apikey,
-                self.warandpeace.id, 'dataset', self.warandpeace.id)
-
-        # Test with good arguments, by name.
-        self._start_following(self.annafan.id, self.annafan.apikey,
-                self.annakarenina.id, 'dataset', self.annakarenina.name)
-
-        # Test trying to follow a dataset that the user is already following.
+    def test_03_user_follow_dataset_already_following(self):
         for object_id in (self.warandpeace.id, self.warandpeace.name,
                 self.annakarenina.id, self.annakarenina.name):
             params = json.dumps({
@@ -306,5 +309,19 @@ class TestFollow(object):
                     'Follower {follower_id} -> '.format(
                         follower_id = self.annafan.id))
             assert response['error']['message'].endswith(' already exists')
+
+    def test_03_user_cannot_follow_herself(self):
+        params = json.dumps({
+            'object_id': self.annafan.id,
+            'object_type': 'user',
+            })
+        extra_environ = {
+                'Authorization': str(self.annafan.apikey),
+                }
+        response = self.app.post('/api/action/follower_create',
+            params=params, extra_environ=extra_environ, status=409).json
+        assert response['success'] == False
+        assert response['error']['object_id'] == [
+                'An object cannot follow itself']
 
 # Test follow with datetime, should be ignored.
