@@ -12,8 +12,87 @@ def datetime_from_string(s):
     '''
     return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f')
 
+def start_following(app, follower_id, api_key, object_id, object_type,
+        object_arg, datetime_param=None):
+    '''Test a user starting to follow an object via the API.
+
+    :param follower_id: id of the user that will be following something.
+    :param api_key: API key of the user that will be following something.
+    :param object_id: id of the object that will be followed by the user.
+    :param object_type: type of the object that will be followed by the
+        user, e.g. 'user' or 'dataset'.
+    :param object_arg: the argument to pass to follower_create as the id of
+        the object that will be followed, could be the object's id or name.
+    :param datetime_param Will be passed as 'datetime' arg to
+        follower_create
+
+    '''
+
+    # Record the object's number of followers before.
+    params = json.dumps({'id': object_id})
+    response = app.post('/api/action/follower_count',
+            params=params).json
+    assert response['success'] is True
+    count_before = response['result']
+
+    # Check that the user is not already following the object.
+    params = json.dumps({'id': object_id})
+    extra_environ = {'Authorization': str(api_key)}
+    response = app.post('/api/action/am_following',
+            params=params, extra_environ=extra_environ).json
+    assert response['success'] is True
+    assert response['result'] is False
+
+    # Make the  user start following the object.
+    before = datetime.datetime.now()
+    params = {
+        'object_id': object_arg,
+        'object_type': object_type,
+        }
+    if datetime_param:
+        params['datetime'] = datetime_param
+    extra_environ = {'Authorization': str(api_key)}
+    response = app.post('/api/action/follower_create',
+        params=json.dumps(params), extra_environ=extra_environ).json
+    after = datetime.datetime.now()
+    assert response['success'] is True
+    assert response['result']
+    follower = response['result']
+    assert follower['follower_id'] == follower_id
+    assert follower['follower_type'] == 'user'
+    assert follower['object_id'] == object_id
+    assert follower['object_type'] == object_type
+    timestamp = datetime_from_string(follower['datetime'])
+    assert (timestamp >= before and timestamp <= after), str(timestamp)
+
+    # Check that am_following now returns True.
+    params = json.dumps({'id': object_id})
+    extra_environ = {'Authorization': str(api_key)}
+    response = app.post('/api/action/am_following',
+            params=params, extra_environ=extra_environ).json
+    assert response['success'] is True
+    assert response['result'] is True
+
+    # Check that the user appears in the object's list of followers.
+    params = json.dumps({'id': object_id})
+    response = app.post('/api/action/follower_list',
+            params=params).json
+    assert response['success'] is True
+    assert response['result']
+    followers = response['result']
+    assert len(followers) == count_before + 1
+    assert len([follower for follower in followers if follower['id'] ==
+            follower_id]) == 1
+
+    # Check that the object's follower count has increased by 1.
+    params = json.dumps({'id': object_id})
+    response = app.post('/api/action/follower_count',
+            params=params).json
+    assert response['success'] is True
+    assert response['result'] == count_before + 1
+
 class TestFollow(object):
-    '''Tests for the follow API.'''
+    '''Tests for the follower API.'''
 
     @classmethod
     def setup_class(self):
@@ -30,85 +109,6 @@ class TestFollow(object):
     @classmethod
     def teardown_class(self):
         ckan.model.repo.rebuild_db()
-
-    def _start_following(self, follower_id, api_key, object_id, object_type,
-            object_arg, datetime_param=None):
-        '''Test a user starting to follow an object via the API.
-
-        :param follower_id: id of the user that will be following something.
-        :param api_key: API key of the user that will be following something.
-        :param object_id: id of the object that will be followed by the user.
-        :param object_type: type of the object that will be followed by the
-            user, e.g. 'user' or 'dataset'.
-        :param object_arg: the argument to pass to follower_create as the id of
-            the object that will be followed, could be the object's id or name.
-        :param datetime_param Will be passed as 'datetime' arg to
-            follower_create
-
-        '''
-
-        # Record the object's number of followers before.
-        params = json.dumps({'id': object_id})
-        response = self.app.post('/api/action/follower_count',
-                params=params).json
-        assert response['success'] is True
-        count_before = response['result']
-
-        # Check that the user is not already following the object.
-        params = json.dumps({'id': object_id})
-        extra_environ = {'Authorization': str(api_key)}
-        response = self.app.post('/api/action/am_following',
-                params=params, extra_environ=extra_environ).json
-        assert response['success'] is True
-        assert response['result'] is False
-
-        # Make the  user start following the object.
-        before = datetime.datetime.now()
-        params = {
-            'object_id': object_arg,
-            'object_type': object_type,
-            }
-        if datetime_param:
-            params['datetime'] = datetime_param
-        extra_environ = {'Authorization': str(api_key)}
-        response = self.app.post('/api/action/follower_create',
-            params=json.dumps(params), extra_environ=extra_environ).json
-        after = datetime.datetime.now()
-        assert response['success'] is True
-        assert response['result']
-        follower = response['result']
-        assert follower['follower_id'] == follower_id
-        assert follower['follower_type'] == 'user'
-        assert follower['object_id'] == object_id
-        assert follower['object_type'] == object_type
-        timestamp = datetime_from_string(follower['datetime'])
-        assert (timestamp >= before and timestamp <= after), str(timestamp)
-
-        # Check that am_following now returns True.
-        params = json.dumps({'id': object_id})
-        extra_environ = {'Authorization': str(api_key)}
-        response = self.app.post('/api/action/am_following',
-                params=params, extra_environ=extra_environ).json
-        assert response['success'] is True
-        assert response['result'] is True
-
-        # Check that the user appears in the object's list of followers.
-        params = json.dumps({'id': object_id})
-        response = self.app.post('/api/action/follower_list',
-                params=params).json
-        assert response['success'] is True
-        assert response['result']
-        followers = response['result']
-        assert len(followers) == 1
-        follower = followers[0]
-        assert follower['id'] == follower_id
-
-        # Check that the object's follower count has increased by 1.
-        params = json.dumps({'id': object_id})
-        response = self.app.post('/api/action/follower_count',
-                params=params).json
-        assert response['success'] is True
-        assert response['result'] == count_before + 1
 
     def test_01_user_follow_user_bad_api_key(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
@@ -263,24 +263,24 @@ class TestFollow(object):
         assert response['error']['object_type'] == ['Missing value']
 
     def test_02_user_follow_user_by_id(self):
-        self._start_following(self.annafan.id, self.annafan.apikey,
+        start_following(self.app, self.annafan.id, self.annafan.apikey,
                 self.russianfan.id, 'user', self.russianfan.id)
 
     def test_02_user_follow_dataset_by_id(self):
-        self._start_following(self.annafan.id, self.annafan.apikey,
+        start_following(self.app, self.annafan.id, self.annafan.apikey,
                 self.warandpeace.id, 'dataset', self.warandpeace.id)
 
     def test_02_user_follow_user_by_name(self):
-        self._start_following(self.annafan.id, self.annafan.apikey,
+        start_following(self.app, self.annafan.id, self.annafan.apikey,
                 self.testsysadmin.id, 'user', self.testsysadmin.name)
 
     def test_02_user_follow_dataset_by_name(self):
-        self._start_following(self.annafan.id, self.annafan.apikey,
+        start_following(self.app, self.annafan.id, self.annafan.apikey,
                 self.annakarenina.id, 'dataset', self.annakarenina.name)
 
     def test_02_user_follow_user_with_datetime(self):
         'Test that a datetime passed to follower_create is ignored.'
-        self._start_following(self.annafan.id, self.annafan.apikey,
+        start_following(self.app, self.annafan.id, self.annafan.apikey,
                 self.joeadmin.id, 'user', self.joeadmin.name,
                 datetime_param = str(datetime.datetime.min))
 
@@ -333,3 +333,166 @@ class TestFollow(object):
         assert response['success'] == False
         assert response['error']['object_id'] == [
                 'An object cannot follow itself']
+
+class TestFollowerDelete(object):
+    '''Tests for the follower_delete API.'''
+
+    @classmethod
+    def setup_class(self):
+        ckan.tests.CreateTestData.create()
+        self.testsysadmin = ckan.model.User.get('testsysadmin')
+        self.annafan = ckan.model.User.get('annafan')
+        self.russianfan = ckan.model.User.get('russianfan')
+        self.tester = ckan.model.User.get('tester')
+        self.joeadmin = ckan.model.User.get('joeadmin')
+        self.warandpeace = ckan.model.Package.get('warandpeace')
+        self.annakarenina = ckan.model.Package.get('annakarenina')
+        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        start_following(self.app, self.testsysadmin.id, self.testsysadmin.apikey,
+                self.joeadmin.id, 'user', self.joeadmin.id)
+        start_following(self.app, self.tester.id, self.tester.apikey,
+                self.joeadmin.id, 'user', self.joeadmin.id)
+        start_following(self.app, self.russianfan.id, self.russianfan.apikey,
+                self.joeadmin.id, 'user', self.joeadmin.id)
+        start_following(self.app, self.annafan.id, self.annafan.apikey,
+                self.joeadmin.id, 'user', self.joeadmin.id)
+        start_following(self.app, self.annafan.id, self.annafan.apikey,
+                self.tester.id, 'user', self.tester.id)
+
+    @classmethod
+    def teardown_class(self):
+        ckan.model.repo.rebuild_db()
+
+    def test_01_follower_delete_not_exists(self):
+        '''Test the error response when a user tries to unfollow something
+        that she is not following.
+
+        '''
+        params = json.dumps({
+            'id': self.russianfan.id,
+            })
+        extra_environ = {
+                'Authorization': str(self.annafan.apikey),
+                }
+        response = self.app.post('/api/action/follower_delete',
+            params=params, extra_environ=extra_environ, status=404).json
+        assert response['success'] == False
+        assert response['error']['message'].startswith(
+                'Not found: Could not find follower ')
+
+    def test_01_follower_delete_bad_api_key(self):
+        '''Test the error response when a user tries to unfollow something
+        but provides a bad API key.
+
+        '''
+        for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
+            params = json.dumps({
+                'id': self.joeadmin.id,
+                })
+            extra_environ = {
+                    'Authorization': apikey,
+                    }
+            response = self.app.post('/api/action/follower_delete',
+                params=params, extra_environ=extra_environ, status=403).json
+            assert response['success'] == False
+            assert response['error']['message'] == 'Access denied'
+
+    def test_01_follower_delete_missing_api_key(self):
+        params = json.dumps({
+            'id': self.joeadmin.id,
+            })
+        response = self.app.post('/api/action/follower_delete',
+            params=params, status=403).json
+        assert response['success'] == False
+        assert response['error']['message'] == 'Access denied'
+
+    def test_01_follower_delete_bad_object_id(self):
+        '''Test error response when calling follower_delete with a bad object
+        id.
+
+        '''
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+            params = json.dumps({
+                'id': object_id,
+                })
+            extra_environ = {
+                    'Authorization': str(self.annafan.apikey),
+                    }
+            response = self.app.post('/api/action/follower_delete',
+                params=params, extra_environ=extra_environ, status=404).json
+            assert response['success'] == False
+            assert response['error']['message'].startswith(
+                'Not found: Could not find follower ')
+
+    def test_01_follower_delete_missing_object_id(self):
+        params = json.dumps({})
+        extra_environ = {'Authorization': str(self.annafan.apikey),}
+        response = self.app.post('/api/action/follower_delete',
+            params=params, extra_environ=extra_environ, status=409).json
+        assert response['success'] == False
+        assert response['error']['id'] == 'id not in data'
+
+    def _stop_following(self, follower_id, api_key, object_id, object_arg):
+        '''Test a user unfollowing an object via the API.
+
+        :param follower_id: id of the user.
+        :param api_key: API key of the user.
+        :param object_id: id of the object to unfollow.
+        :param object_arg: the argument to pass to follower_delete as the id of
+            the object to unfollow, could be the object's id or name.
+
+        '''
+
+        # Record the object's number of followers before.
+        params = json.dumps({'id': object_id})
+        response = self.app.post('/api/action/follower_count',
+                params=params).json
+        assert response['success'] is True
+        count_before = response['result']
+
+        # Check that the user is following the object.
+        params = json.dumps({'id': object_id})
+        extra_environ = {'Authorization': str(api_key)}
+        response = self.app.post('/api/action/am_following',
+                params=params, extra_environ=extra_environ).json
+        assert response['success'] is True
+        assert response['result'] is True
+
+        # Make the user unfollow the object.
+        params = {
+            'id': object_arg,
+            }
+        extra_environ = {'Authorization': str(api_key)}
+        response = self.app.post('/api/action/follower_delete',
+            params=json.dumps(params), extra_environ=extra_environ).json
+        after = datetime.datetime.now()
+        assert response['success'] is True
+
+        # Check that am_following now returns False.
+        params = json.dumps({'id': object_id})
+        extra_environ = {'Authorization': str(api_key)}
+        response = self.app.post('/api/action/am_following',
+                params=params, extra_environ=extra_environ).json
+        assert response['success'] is True
+        assert response['result'] is False
+
+        # Check that the user doesn't appear in the object's list of followers.
+        params = json.dumps({'id': object_id})
+        response = self.app.post('/api/action/follower_list',
+                params=params).json
+        assert response['success'] is True
+        assert response['result']
+        followers = response['result']
+        assert len([follower for follower in followers if follower['id'] ==
+                follower_id]) == 0
+
+        # Check that the object's follower count has decreased by 1.
+        params = json.dumps({'id': object_id})
+        response = self.app.post('/api/action/follower_count',
+                params=params).json
+        assert response['success'] is True
+        assert response['result'] == count_before - 1
+
+    def test_02_follower_delete_by_id(self):
+        self._stop_following(self.annafan.id, self.annafan.apikey,
+                self.joeadmin.id, self.joeadmin.id)

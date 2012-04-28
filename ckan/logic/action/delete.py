@@ -217,17 +217,17 @@ def follower_delete(context, data_dict):
     follower_id = userobj.id
 
     object_id = data_dict.get('id')
-    if not object_id:
+    if object_id is None:
         raise ValidationError({'id': _('id not in data')})
+
+    check_access('follower_delete', context,
+            {'follower_id': follower_id, 'object_id':object_id})
 
     follower_obj = model.Follower.get(follower_id, object_id)
     if follower_obj is None:
         raise NotFound(
                 _('Could not find follower {follower} -> {object}').format(
                     follower=follower_id, object=object_id))
-
-    check_access('follower_delete', context,
-            {'follower_id': follower_id, 'object_id':object_id})
 
     follower_obj.delete()
     model.repo.commit()
