@@ -64,6 +64,21 @@ def package_relationship_delete(context, data_dict):
     relationship.delete()
     model.repo.commit()
 
+def related_delete(context, data_dict):
+    model = context['model']
+    user = context['user']
+    id = data_dict['id']
+
+    entity = model.Related.get(id)
+
+    if entity is None:
+        raise NotFound
+
+    check_access('related_delete',context, data_dict)
+
+    entity.delete()
+    model.repo.commit()
+
 
 def member_delete(context, data_dict=None):
     """

@@ -106,6 +106,69 @@ def package_revision_list(context, data_dict):
                                                      include_groups=False))
     return revision_dicts
 
+
+def related_show(context, data_dict=None):
+    """
+    Shows a single related item
+
+    context:
+        model - The CKAN model module
+        user  - The name of the current user
+
+    data_dict:
+        id - The ID of the related item we want to show
+    """
+    model = context['model']
+    id = data_dict['id']
+
+    related = model.Related.get(id)
+    context['related'] = related
+
+    if related is None:
+        raise NotFound
+
+    check_access('related_show',context, data_dict)
+
+    schema = context.get('schema') or ckan.logic.schema.default_related_schema()
+    related_dict = model_dictize.related_dictize(related, context)
+    related_dict, errors = validate(related_dict, schema, context=context)
+
+    return related_dict
+
+
+def related_list(context, data_dict=None):
+    """
+    List the related items for a specific package which should be
+    mentioned in the data_dict
+
+    context:
+        model - The CKAN model module
+        user  - The name of the current user
+        session - The current DB session
+
+    data_dict:
+        id - The ID of the dataset to which we want to list related items
+        or
+        dataset - The dataset (package) model
+    """
+    model = context['model']
+    session = context['session']
+    dataset = data_dict.get('dataset', None)
+
+    if not dataset:
+        dataset = model.Package.get(data_dict.get('id'))
+
+    if not dataset:
+        raise NotFound
+
+    check_access('related_show',context, data_dict)
+
+    relateds = model.Related.get_for_dataset(dataset, status='active')
+    related_items = (r.related for r in relateds)
+    related_list = model_dictize.related_list_dictize( related_items, context)
+    return related_list
+
+
 def member_list(context, data_dict=None):
     """
     Returns a list of (id,type,capacity) tuples that are members of the

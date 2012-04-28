@@ -9,6 +9,7 @@ CKAN.Utils = CKAN.Utils || {};
 /* ================================= */
 (function ($) {
   $(document).ready(function () {
+    CKAN.Utils.relatedSetup($("#form-add-related"));
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
     CKAN.Utils.setupOrganizationUserAutocomplete($('input.autocomplete-organization-user'));
     CKAN.Utils.setupGroupAutocomplete($('input.autocomplete-group'));
@@ -44,6 +45,12 @@ CKAN.Utils = CKAN.Utils || {};
     if (isResourceView) {
       CKAN.DataPreview.loadPreviewDialog(preload_resource);
     }
+
+    var isEmbededDataviewer = $('body.package.resource_embedded_dataviewer').length > 0;
+    if (isEmbededDataviewer) {
+      CKAN.DataPreview.loadEmbeddedPreview(preload_resource, reclineState);
+    }
+
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       // Set up magic URL slug editor
@@ -124,6 +131,32 @@ CKAN.Utils = CKAN.Utils || {};
   });
 }(jQuery));
 
+/* =============================== */
+/* jQuery Plugins                  */
+/* =============================== */
+
+jQuery.fn.truncate = function (max, suffix) {
+  return this.each(function () {
+    var element = jQuery(this),
+        cached  = element.text(),
+        length  = max || element.data('truncate') || 30,
+        text    = cached.slice(0, length),
+        expand  = jQuery('<a href="#" />').text(suffix || '»');
+
+    // Try to truncate to nearest full word.
+    while ((/\S/).test(text[text.length - 1])) {
+      text = text.slice(0, text.length - 1);
+    }
+
+    element.html(jQuery.trim(text));
+
+    expand.appendTo(element.append(' '));
+    expand.click(function (event) {
+      event.preventDefault();
+      element.text(cached);
+    });
+  });
+};
 
 /* =============================== */
 /* Backbone Model: Resource object */
@@ -643,6 +676,7 @@ CKAN.View.Resource = Backbone.View.extend({
           word=='format'                ||
           word=='hash'                  ||
           word=='id'                    ||
+          word=='created'               ||
           word=='last_modified'         ||
           word=='mimetype'              ||
           word=='mimetype_inner'        ||
@@ -697,7 +731,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
   setupFileUpload: function() {
     var self = this;
     this.el.find('.fileupload').fileupload({
-      // needed because we are posting to remote url 
+      // needed because we are posting to remote url
       forceIframeTransport: true,
       replaceFileInput: false,
       autoUpload: false,
@@ -730,7 +764,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
   },
 
   // Create an upload key/label for this file.
-  // 
+  //
   // Form: {current-date}/file-name. Do not just use the file name as this
   // would lead to collisions.
   // (Could add userid/username and/or a small random string to reduce
@@ -795,7 +829,7 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
         newResource.set({
             url: data._location
             , name: name
-            , size: data._content_length 
+            , size: data._content_length
             , last_modified: lastmod
             , format: data._format
             , mimetype: data._format
@@ -878,7 +912,7 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
            self.resetForm();
          }
        });
-     } 
+     }
      else {
        newResource.set({url: urlVal, resource_type: this.options.mode});
        if (newResource.get('resource_type')=='file') {
@@ -1107,6 +1141,68 @@ CKAN.Utils = function($, my) {
           callback(data);
         });
       }
+    });
+  };
+
+
+  my.relatedSetup = function(form) {
+    function addAlert(msg) {
+      $('<div class="alert alert-error" />').html(msg).hide().prependTo(form).fadeIn();
+    }
+
+    // Center thumbnails vertically.
+    $('.related-items').each(function () {
+      var item = $(this);
+
+      function vertiallyAlign() {
+        var img = $(this),
+            height = img.height(),
+            parent = img.parent().height(),
+            top = (height - parent) / 2;
+
+        if (parent < height) {
+          img.css('margin-top', -top);
+        }
+      }
+
+      item.find('img').load(vertiallyAlign);
+      item.find('.description').truncate();
+    });
+
+    $(form).submit(function (event) {
+      event.preventDefault();
+
+      // Validate the form
+      var form = $(this), data = {};
+      jQuery.each(form.serializeArray(), function () {
+        data[this.name] = this.value;
+      });
+
+      form.find('.alert').remove();
+      form.find('.error').removeClass('error');
+      if (!data.title) {
+        addAlert('<strong>Missing field:</strong> A title is required');
+        $('[name=title]').parent().addClass('error');
+        return;
+      }
+      if (!data.url) {
+        addAlert('<strong>Missing field:</strong> A url is required');
+        $('[name=url]').parent().addClass('error');
+        return;
+      }
+
+      $.ajax({
+        type: this.method,
+        url: CKAN.SITE_URL + '/api/3/action/related_create',
+        data: JSON.stringify(data),
+        success: function (data) {
+          window.location.reload();
+        },
+        error: function(err, txt, w) {
+          // This needs to be far more informative.
+          addAlert('<strong>Error:</strong> Unable to add related item');
+        }
+      }); 
     });
   };
 
@@ -1354,6 +1450,81 @@ CKAN.DataPreview = function ($, my) {
   my.dialogId = 'ckanext-datapreview';
   my.$dialog = $('#' + my.dialogId);
 
+  // **Public: Loads a data previewer for an embedded page**
+  //
+  // Uses the provided reclineState to restore the Dataset.  Creates a single
+  // view for the Dataset (the one defined by reclineState.currentView).  And
+  // then passes the constructed Dataset, the constructed View, and the
+  // reclineState into the DataExplorer constructor.
+  my.loadEmbeddedPreview = function(resourceData, reclineState) {
+    my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
+
+    // Restore the Dataset from the given reclineState.
+    var dataset = recline.Model.Dataset.restore(reclineState);
+
+    // Only create the view defined in reclineState.currentView.
+    // TODO: tidy this up.
+    var views = null;
+    if (reclineState.currentView === 'grid') {
+      views = [ {
+        id: 'grid',
+        label: 'Grid',
+        view: new recline.View.Grid({
+          model: dataset,
+          state: reclineState['view-grid']
+        })
+      }];
+    } else if (reclineState.currentView === 'graph') {
+      views = [ {
+        id: 'graph',
+        label: 'Graph',
+        view: new recline.View.Graph({
+          model: dataset,
+          state: reclineState['view-graph']
+        })
+      }];
+    } else if (reclineState.currentView === 'map') {
+      views = [ {
+        id: 'map',
+        label: 'Map',
+        view: new recline.View.Map({
+          model: dataset,
+          state: reclineState['view-map']
+        })
+      }];
+    }
+
+    // Finally, construct the DataExplorer.  Again, passing in the reclineState.
+    var dataExplorer = new recline.View.DataExplorer({
+      el: my.$dialog,
+      model: dataset,
+      state: reclineState,
+      views: views
+    });
+
+    Backbone.history.start();
+  };
+
+  // **Public: Creates a link to the embeddable page.
+  //
+  // For a given DataExplorer state, this function constructs and returns the
+  // url to the embeddable view of the current dataexplorer state.
+  my.makeEmbedLink = function(explorerState) {
+    var state = explorerState.toJSON();
+    state.state_version = 1;
+
+    var queryString = '?';
+    var items = [];
+    $.each(state, function(key, value) {
+      if (typeof(value) === 'object') {
+        value = JSON.stringify(value);
+      }
+      items.push(key + '=' + escape(value));
+    });
+    queryString += items.join('&');
+    return embedPath + queryString;
+  };
+
   // **Public: Loads a data preview**
   //
   // Fetches the preview data object from the link provided and loads the
@@ -1371,14 +1542,14 @@ CKAN.DataPreview = function ($, my) {
         {
           id: 'grid',
           label: 'Grid',
-          view: new recline.View.DataGrid({
+          view: new recline.View.Grid({
             model: dataset
           })
         },
         {
           id: 'graph',
           label: 'Graph',
-          view: new recline.View.FlotGraph({
+          view: new recline.View.Graph({
             model: dataset
           })
         },
@@ -1398,6 +1569,58 @@ CKAN.DataPreview = function ($, my) {
           readOnly: true
         }
       });
+
+      // -----------------------------
+      // Setup the Embed modal dialog.
+      // -----------------------------
+
+      // embedLink holds the url to the embeddable view of the current DataExplorer state.
+      var embedLink = $('.embedLink');
+
+      // embedIframeText contains the '<iframe>' construction, which sources
+      // the above link.
+      var embedIframeText = $('.embedIframeText');
+
+      // iframeWidth and iframeHeight control the width and height parameters
+      // used to construct the iframe, and are also used in the link.
+      var iframeWidth = $('.iframe-width');
+      var iframeHeight = $('.iframe-height');
+
+      // Update the embedLink and embedIframeText to contain the updated link
+      // and update width and height parameters.
+      function updateLink() {
+        var link = my.makeEmbedLink(dataExplorer.state);
+        var width = iframeWidth.val();
+        var height = iframeHeight.val();
+        link += '&width='+width+'&height='+height;
+
+        // Escape '"' characters in {{link}} in order not to prematurely close
+        // the src attribute value.
+        embedIframeText.val($.mustache('<iframe frameBorder="0" width="{{width}}" height="{{height}}" src="{{link}}"></iframe>',
+                                       {
+                                         link: link.replace(/"/g, '&quot;'),
+                                         width: width,
+                                         height: height
+                                       }));
+        embedLink.attr('href', link);
+      }
+
+      // Bind changes to the DataExplorer, or the two width and height inputs
+      // to re-calculate the url.
+      dataExplorer.state.bind('change', updateLink);
+      for (var i=0; i<dataExplorer.pageViews.length; i++) {
+        dataExplorer.pageViews[i].view.state.bind('change', updateLink);
+      }
+
+      iframeWidth.change(updateLink);
+      iframeHeight.change(updateLink);
+
+      // Initial population of embedLink and embedIframeText
+      updateLink();
+
+      // Finally, since we have a DataExplorer, we can show the embed button.
+      $('.preview-header .btn').show();
+
       // will have to refactor if this can get called multiple times
       Backbone.history.start();
     }

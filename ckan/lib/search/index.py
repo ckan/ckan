@@ -99,6 +99,11 @@ class PackageSearchIndex(SearchIndex):
         if pkg_dict is None:
             return
 
+        # add to string field for sorting
+        title = pkg_dict.get('title')
+        if title:
+            pkg_dict['title_string'] = title
+
         if (not pkg_dict.get('state')) or ('active' not in pkg_dict.get('state')):
             return self.delete_package(pkg_dict)
 
@@ -132,6 +137,12 @@ class PackageSearchIndex(SearchIndex):
 
         pkg_dict['groups'] = [group['name'] for group in groups]
 
+        # tracking
+        tracking_summary = pkg_dict.pop('tracking_summary', None)
+        if tracking_summary:
+            pkg_dict['views_total'] = tracking_summary['total']
+            pkg_dict['views_recent'] = tracking_summary['recent']
+
         # flatten the structure for indexing:
         for resource in pkg_dict.get('resources', []):
             for (okey, nkey) in [('description', 'res_description'),
@@ -157,7 +168,7 @@ class PackageSearchIndex(SearchIndex):
 
         pkg_dict = dict([(k.encode('ascii', 'ignore'), v) for (k, v) in pkg_dict.items()])
 
-        for k in ('title','notes'):
+        for k in ('title', 'notes', 'title_string'):
             if k in pkg_dict and pkg_dict[k]:
                 pkg_dict[k] = escape_xml_illegal_chars(pkg_dict[k])
 

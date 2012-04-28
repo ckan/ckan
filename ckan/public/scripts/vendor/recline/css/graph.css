@@ -1,50 +1,55 @@
-.data-graph-container .graph {
+.recline-graph .graph {
   height: 500px;
   margin-right: 200px;
 }
 
-.data-graph-container .legend table {
+.recline-graph .legend table {
   width: auto;
   margin-bottom: 0;
 }
 
-.data-graph-container .legend td {
+.recline-graph .legend td {
   padding: 5px;
   line-height: 13px;
+}
+
+.recline-graph .graph .alert {
+  width: 450px;
+  margin: auto;
 }
 
 /**********************************************************
   * Editor
   *********************************************************/
 
-.data-graph-container .editor {
+.recline-graph .editor {
   float: right;
   width: 200px;
   padding-left: 0px;
 }
 
-.data-graph-container .editor-info {
+.recline-graph .editor-info {
   padding-left: 4px;
 }
 
-.data-graph-container .editor-info {
+.recline-graph .editor-info {
 	cursor: pointer;
 }
 
-.data-graph-container .editor form {
+.recline-graph .editor form {
   padding-left: 4px;
 }
 
-.data-graph-container .editor select {
+.recline-graph .editor select {
 	width: 100%;
 }
 
-.data-graph-container .editor-info {
+.recline-graph .editor-info {
 	border-bottom: 1px solid #ddd;
 	margin-bottom: 10px;
 }
 
-.data-graph-container .editor-hide-info p {
+.recline-graph .editor-hide-info p {
 	display: none;
 }
 

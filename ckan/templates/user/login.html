@@ -18,25 +18,39 @@
   
   <py:def function="page_title">Login - User</py:def>
   <py:def function="page_heading">Login to ${g.site_title}</py:def>
+  <py:def function="body_class">no-sidebar</py:def>
 
   <div py:match="content">
-    
-    <form action="${h.url_for('/login_generic')}" method="post" class="simple-form" id="login">  
+
+    <form action="${h.url_for('/login_generic')}" method="post" class="form-horizontal" id="login">  
       <fieldset>
         <!--legend i18n:msg="site_title">Login</legend-->
+        <div class="control-group">
+          <label class="control-label" for="login">Login:</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" name="login" id="login" value="" />
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="password">Password:</label>
+          <div class="controls">
+            <input type="password" name="password" id="password" value="" />
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="remember">Remember me:</label>
+          <!-- optional 2 year cookie expiry -->
+          <div class="controls">
+            <input type="checkbox" name="remember" id="remember" value="63072000" checked="checked"/>
+          </div>
+        </div>        
 
-        <label for="login">Login:</label>
-        <input type="text" name="login" value="" />
-        <br/>
-        <label for="password">Password:</label>
-        <input type="password" name="password" value="" />
-        <!-- 50 year timeout -->
-        <input type="hidden" name="remember" value="1576800000" />
-        <br/>
+        <div class="form-actions">
+          <button name="s" id="s" type="submit" class="btn btn-primary">${_('Sign In')}</button>
+          &mdash; 
+          <a href="${h.url_for('reset')}">Forgot your password?</a>
+        </div>
       </fieldset>
-      <input name="s" id="s" type="submit" class="btn primary" value="${_('Sign In')}"/>
-      &mdash; 
-      <a href="${h.url_for(controller='user', action='request_reset')}">Forgot your password?</a>
     </form>
     <br/> 
     <!-- Simple OpenID Selector -->

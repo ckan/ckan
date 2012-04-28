@@ -320,6 +320,7 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
+        c.related_count = len(c.pkg.related)
 
         # Add the package's activity stream (already rendered to HTML) to the
         # template context for the package/read.html template to retrieve
@@ -436,6 +437,8 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
+
+        c.related_count = len(c.pkg.related)
         return render( self._history_template(c.pkg_dict.get('type',package_type)))
 
     def new(self, data=None, errors=None, error_summary=None):
@@ -509,6 +512,7 @@ class PackageController(BaseController):
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id}, package_type=package_type)
+        c.related_count = len(c.pkg.related)
 
         # TODO: This check is to maintain backwards compatibility with the old way of creating
         # custom forms. This behaviour is now deprecated.
@@ -700,6 +704,8 @@ class PackageController(BaseController):
                 {'id':c.pkg.id})
         self._setup_follow_button(context)
 
+        # c.related_count = len(pkg.related)
+
         return render('package/authz.html')
 
     def autocomplete(self):
@@ -784,6 +790,8 @@ class PackageController(BaseController):
             c.package['isopen'] = False
         c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
                 qualified=True)
+
+        c.related_count = len(c.pkg.related)
         return render('package/resource_read.html')
 
     def followers(self, id=None):
@@ -803,3 +811,63 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % id)
 
         return render('package/followers.html')
+
+    def resource_embedded_dataviewer(self, id, resource_id):
+        """
+        Embeded page for a read-only resource dataview.
+        """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.resource = get_action('resource_show')(context, {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+            c.resource_json = json.dumps(c.resource)
+
+            # double check that the resource belongs to the specified package
+            if not c.resource['id'] in [ r['id'] for r in c.package['resources'] ]:
+                raise NotFound
+
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        # Construct the recline state
+        state_version = int(request.params.get('state_version', '1'))
+        recline_state = self._parse_recline_state(request.params)
+        if recline_state is None:
+            abort(400, ('"state" parameter must be a valid recline state (version %d)' % state_version))
+
+        c.recline_state = json.dumps(recline_state)
+
+        c.width = max(int(request.params.get('width', 500)), 100)
+        c.height = max(int(request.params.get('height', 500)), 100)
+        c.embedded = True
+
+        return render('package/resource_embedded_dataviewer.html')
+
+    def _parse_recline_state(self, params):
+        state_version = int(request.params.get('state_version', '1'))
+        if state_version != 1:
+            return None
+
+        recline_state = {}
+        for k,v in request.params.items():
+            try:
+                v = json.loads(v)
+            except ValueError:
+                pass
+            recline_state[k] = v
+
+        recline_state.pop('width', None)
+        recline_state.pop('height', None)
+        recline_state['readOnly'] = True
+
+        # Ensure only the currentView is available
+        if not recline_state.get('currentView', None):
+            recline_state['currentView'] = 'grid'   # default to grid view if none specified
+        for k in recline_state.keys():
+            if k.startswith('view-') and not k.endswith(recline_state['currentView']):
+                recline_state.pop(k)
+        return recline_state

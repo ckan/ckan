@@ -414,6 +414,8 @@ class UserController(BaseController):
                 h.flash_error(u'%r'% e.error_dict)
             except ValueError, ve:
                 h.flash_error(unicode(ve))
+
+        c.user_dict = user_dict
         return render('user/perform_reset.html')
 
     def _format_about(self, about):

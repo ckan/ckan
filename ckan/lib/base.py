@@ -53,16 +53,19 @@ def render_snippet(template_name, **kw):
     comment tags added to show the template used. NOTE: unlike other
     render functions this takes a list of keywords instead of a dict for
     the extra template variables. '''
-    output = render(template_name, extra_vars=kw)
+    # allow cache_force to be set in render function
+    cache_force = kw.pop('cache_force', None)
+    output = render(template_name, extra_vars=kw, cache_force=cache_force)
     output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
                     template_name, output, template_name)
     return literal(output)
 
-def render_text(template_name, extra_vars=None):
+def render_text(template_name, extra_vars=None, cache_force=None):
     ''' Helper function to render a genshi NewTextTemplate without
     having to pass the loader_class or method. '''
     return render(template_name,
                   extra_vars=extra_vars,
+                  cache_force=cache_force,
                   method='text',
                   loader_class=NewTextTemplate)
 
