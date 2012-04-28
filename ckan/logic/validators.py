@@ -505,7 +505,7 @@ def follower_id_exists(key, follower_dict, errors, context):
 def follower_object_id_exists(key, object_dict, errors, context):
     object_id_validators = {
             'user': user_id_or_name_exists,
-            'dataset': package_id_exists,
+            'dataset': package_id_or_name_exists,
             }
     object_id = object_dict[('object_id',)]
     object_type = object_dict.get(('object_type',))
