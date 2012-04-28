@@ -334,6 +334,52 @@ class TestFollow(object):
         assert response['error']['object_id'] == [
                 'An object cannot follow itself']
 
+    def test_04_follower_count_bad_id(self):
+        # follower_count always succeeds, but just returns 0 for bad IDs.
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+            params = json.dumps({'id': object_id})
+            response = self.app.post('/api/action/follower_count',
+                    params=params).json
+            assert response['success'] is True
+            assert response['result'] == 0
+
+    def test_04_follower_count_missing_id(self):
+        params = json.dumps({})
+        response = self.app.post('/api/action/follower_count',
+                params=params, status=409).json
+        assert response['success'] is False
+        assert response['error']['id'] == 'id not in data'
+
+    def test_04_follower_count_no_followers(self):
+        params = json.dumps({'id': self.annafan.id})
+        response = self.app.post('/api/action/follower_count',
+                params=params).json
+        assert response['success'] is True
+        assert response['result'] == 0
+
+    def test_04_follower_list_bad_id(self):
+        # follower_list always succeeds, but just returns [] for bad IDs.
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+            params = json.dumps({'id': object_id})
+            response = self.app.post('/api/action/follower_list',
+                    params=params).json
+            assert response['success'] is True
+            assert response['result'] == []
+
+    def test_04_follower_list_missing_id(self):
+        params = json.dumps({})
+        response = self.app.post('/api/action/follower_list',
+                params=params, status=409).json
+        assert response['success'] is False
+        assert response['error']['id'] == 'id not in data'
+
+    def test_04_follower_list_no_followers(self):
+        params = json.dumps({'id': self.annafan.id})
+        response = self.app.post('/api/action/follower_list',
+                params=params).json
+        assert response['success'] is True
+        assert response['result'] == []
+
 class TestFollowerDelete(object):
     '''Tests for the follower_delete API.'''
 
@@ -358,6 +404,14 @@ class TestFollowerDelete(object):
                 self.joeadmin.id, 'user', self.joeadmin.id)
         start_following(self.app, self.annafan.id, self.annafan.apikey,
                 self.tester.id, 'user', self.tester.id)
+        start_following(self.app, self.testsysadmin.id, self.testsysadmin.apikey,
+                self.warandpeace.id, 'dataset', self.warandpeace.id)
+        start_following(self.app, self.tester.id, self.tester.apikey,
+                self.warandpeace.id, 'dataset', self.warandpeace.id)
+        start_following(self.app, self.russianfan.id, self.russianfan.apikey,
+                self.warandpeace.id, 'dataset', self.warandpeace.id)
+        start_following(self.app, self.annafan.id, self.annafan.apikey,
+                self.warandpeace.id, 'dataset', self.warandpeace.id)
 
     @classmethod
     def teardown_class(self):
@@ -496,3 +550,5 @@ class TestFollowerDelete(object):
     def test_02_follower_delete_by_id(self):
         self._stop_following(self.annafan.id, self.annafan.apikey,
                 self.joeadmin.id, self.joeadmin.id)
+        self._stop_following(self.annafan.id, self.annafan.apikey,
+                self.warandpeace.id, self.warandpeace.id)

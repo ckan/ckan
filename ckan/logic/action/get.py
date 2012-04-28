@@ -1383,8 +1383,8 @@ def follower_count(context, data_dict):
     '''Return the number of followers of an object.'''
     model = context['model']
     object_id = data_dict.get('id')
-    if not object_id:
-        raise ValidationError({'id': 'id not in data'})
+    if object_id is None:
+        raise ValidationError({'id': _('id not in data')})
     return model.Follower.follower_count(object_id)
 
 def follower_list(context, data_dict):
@@ -1393,8 +1393,8 @@ def follower_list(context, data_dict):
     # Get the list of Follower objects.
     model = context['model']
     object_id = data_dict.get('id')
-    if not object_id:
-        raise ValidationError({'id': 'id not in data'})
+    if object_id is None:
+        raise ValidationError({'id': _('id not in data')})
     followers = model.Follower.follower_list(object_id)
 
     # Convert the list of Follower objects to a list of User objects.
