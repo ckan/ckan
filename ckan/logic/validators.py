@@ -101,6 +101,17 @@ def user_id_exists(user_id, context):
         raise Invalid('%s: %s' % (_('Not found'), _('User')))
     return user_id
 
+def user_id_or_name_exists(user_id_or_name, context):
+    model = context['model']
+    session = context['session']
+    result = session.query(model.User).get(user_id_or_name)
+    if result:
+        return user_id_or_name
+    result = session.query(model.User).filter_by(name=user_id_or_name).first()
+    if not result:
+        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+    return result.id
+
 def group_id_exists(group_id, context):
     """Raises Invalid if the given group_id does not exist in the model given
     in the context, otherwise returns the given group_id.
@@ -479,7 +490,7 @@ def tag_not_in_vocabulary(key, tag_dict, errors, context):
 
 def follower_id_exists(key, follower_dict, errors, context):
     follower_id_validators = {
-            'user': user_id_exists,
+            'user': user_id_or_name_exists,
             }
     follower_id = follower_dict[('follower_id',)]
     follower_type = follower_dict.get(('follower_type',))
@@ -493,7 +504,7 @@ def follower_id_exists(key, follower_dict, errors, context):
 
 def follower_object_id_exists(key, object_dict, errors, context):
     object_id_validators = {
-            'user': user_id_exists,
+            'user': user_id_or_name_exists,
             'dataset': package_id_exists,
             }
     object_id = object_dict[('object_id',)]
