@@ -500,7 +500,7 @@ def follower_id_exists(key, follower_dict, errors, context):
     if not validator:
         raise Invalid(_('follower_type {type} not recognised').format(
             type=follower_type))
-    return validator(follower_id, context)
+    follower_dict[(u'follower_id',)] = validator(follower_id, context)
 
 def follower_object_id_exists(key, object_dict, errors, context):
     object_id_validators = {
@@ -515,4 +515,4 @@ def follower_object_id_exists(key, object_dict, errors, context):
     if not validator:
         raise Invalid(_('object_type {type} not recognised').format(
             type=object_type))
-    return validator(object_id, context)
+    object_dict[(u'object_id',)] = validator(object_id, context)

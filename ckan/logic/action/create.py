@@ -525,7 +525,7 @@ def follower_create(context, follower_dict):
 
     check_access('follower_create', context, follower_dict)
 
-    data, errors = validate(follower_dict, schema, context)
+    follower_dict, errors = validate(follower_dict, schema, context)
 
     if errors:
         model.Session.rollback()
@@ -537,6 +537,6 @@ def follower_create(context, follower_dict):
         model.repo.commit()
 
     log.debug('Created follower {follower} -> {object}'.format(
-        follower=data['follower_id'], object=data['object_id']))
+        follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.follower_dictize(follower, context)
