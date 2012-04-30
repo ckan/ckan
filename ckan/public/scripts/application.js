@@ -1343,97 +1343,107 @@ CKAN.Utils = function($, my) {
     return count;
   };
 
+  function userFollowClicked() {
+    $.ajax({
+      contentType: 'application/json',
+      url: '/api/action/follower_create',
+      data: JSON.stringify({
+        object_id: this.attributes.userid.nodeValue,
+        object_type: 'user',
+      }),
+      dataType: 'json',
+      processData: false,
+      type: 'POST',
+      success: function(data) {
+        $('#user_follow_button').attr('state', 'unfollow');
+        my.setupUserFollowButton();
+      },
+    });
+    return false;
+  };
+
+  function userUnfollowClicked() {
+    $.ajax({
+      contentType: 'application/json',
+      url: '/api/action/follower_delete',
+      data: JSON.stringify({
+        id: this.attributes.userid.nodeValue,
+      }),
+      dataType: 'json',
+      processData: false,
+      type: 'POST',
+      success: function(data) {
+        $('#user_follow_button').attr('state', 'follow');
+        my.setupUserFollowButton();
+      },
+    });
+    return false;
+  };
+
+  function datasetFollowClicked() {
+    $.ajax({
+      contentType: 'application/json',
+      url: '/api/action/follower_create',
+      data: JSON.stringify({
+        object_id: this.attributes.package_id.nodeValue,
+        object_type: 'dataset',
+      }),
+      dataType: 'json',
+      processData: false,
+      type: 'POST',
+      success: function(data) {
+        $('#dataset_follow_button').attr('state', 'unfollow');
+        my.setupDatasetFollowButton();
+      },
+    });
+    return false;
+  };
+
+  function datasetUnfollowClicked() {
+    $.ajax({
+      contentType: 'application/json',
+      url: '/api/action/follower_delete',
+      data: JSON.stringify({
+        id: this.attributes.package_id.nodeValue,
+      }),
+      dataType: 'json',
+      processData: false,
+      type: 'POST',
+      success: function(data) {
+        $('#dataset_follow_button').attr('state', 'follow');
+        my.setupDatasetFollowButton();
+      },
+    });
+    return false;
+  };
+
   my.setupUserFollowButton = function() {
-    $('#user_follow_button').unbind();
     if ($('#user_follow_button').attr('state') == 'follow')
     {
+        $('#user_follow_button').off("click", userUnfollowClicked);
         $('#user_follow_button').html('Follow');
-        $('#user_follow_button').click(function(e) {
-            $.ajax({
-                contentType: 'application/json',
-                url: '/api/action/follower_create',
-                data: JSON.stringify({
-                    object_id: this.attributes.userid.nodeValue,
-                    object_type: 'user',
-                }),
-                dataType: 'json',
-                processData: false,
-                type: 'POST',
-                success: function(data) {
-                    $('#user_follow_button').attr('state', 'unfollow');
-                    my.setupUserFollowButton();
-                },
-            });
-            return false;
-        });
+        $('#user_follow_button').on("click", userFollowClicked);
     }
     else
     {
+        $('#user_follow_button').off("click", userFollowClicked);
         $('#user_follow_button').html('Unfollow');
-        $('#user_follow_button').click(function(e) {
-            $.ajax({
-                contentType: 'application/json',
-                url: '/api/action/follower_delete',
-                data: JSON.stringify({
-                    id: this.attributes.userid.nodeValue,
-                }),
-                dataType: 'json',
-                processData: false,
-                type: 'POST',
-                success: function(data) {
-                    $('#user_follow_button').attr('state', 'follow');
-                    my.setupUserFollowButton();
-                },
-            });
-            return false;
-        });
+        $('#user_follow_button').on("click", userUnfollowClicked);
     }
   };
 
   my.setupDatasetFollowButton = function() {
-    $('#dataset_follow_button').unbind();
     if ($('#dataset_follow_button').attr('state') == 'follow')
     {
+        $('#dataset_follow_button').off("click", datasetUnfollowClicked);
         $('#dataset_follow_button').html('Follow');
-        $('#dataset_follow_button').click(function(e) {
-            $.ajax({
-                contentType: 'application/json',
-                url: '/api/action/follower_create',
-                data: JSON.stringify({
-                    object_id: this.attributes.package_id.nodeValue,
-                    object_type: 'dataset',
-                }),
-                dataType: 'json',
-                processData: false,
-                type: 'POST',
-                success: function(data) {
-                    $('#dataset_follow_button').attr('state', 'unfollow');
-                    my.setupDatasetFollowButton();
-                },
-            });
-            return false;
-        });
+        $('#dataset_follow_button').on("click", datasetFollowClicked);
     }
     else
     {
+        $('#dataset_follow_button').off("click", datasetFollowClicked);
         $('#dataset_follow_button').html('Unfollow');
-        $('#dataset_follow_button').click(function(e) {
-            $.ajax({
-                contentType: 'application/json',
-                url: '/api/action/follower_delete',
-                data: JSON.stringify({
-                    id: this.attributes.package_id.nodeValue,
-                }),
-                dataType: 'json',
-                processData: false,
-                type: 'POST',
-                success: function(data) {
-                    $('#dataset_follow_button').attr('state', 'follow');
-                    my.setupDatasetFollowButton();
-                },
-            });
-            return false;
-        });
+        $('#dataset_follow_button').on("click", datasetUnfollowClicked);
     }
   };
 
