@@ -425,8 +425,7 @@ body.index.home .front-page .action-box {
   background:  #FFF7C0;
 }
 body.index.home .front-page .action-box-inner {
-  margin: 20px;
-  margin-bottom: 5px;
+  margin: 0 20px 5px;
   min-height: 15em;
 }
 body.index.home .front-page .action-box-inner.collaborate {
