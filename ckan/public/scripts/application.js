@@ -1419,7 +1419,7 @@ CKAN.Utils = function($, my) {
 
   my.setupUserFollowButton = function() {
     var userFollowButton = $('#user_follow_button');
-    if (userFollowButton.attr('state') == 'follow') {
+    if (userFollowButton.attr('state') === 'follow') {
         userFollowButton.off("click", userUnfollowClicked);
         userFollowButton.html('Follow');
         userFollowButton.on("click", userFollowClicked);
@@ -1432,7 +1432,7 @@ CKAN.Utils = function($, my) {
 
   my.setupDatasetFollowButton = function() {
     var datasetFollowButton = $('#dataset_follow_button');
-    if (datasetFollowButton.attr('state') == 'follow') {
+    if (datasetFollowButton.attr('state') === 'follow') {
         datasetFollowButton.off("click", datasetUnfollowClicked);
         datasetFollowButton.html('Follow');
         datasetFollowButton.on("click", datasetFollowClicked);
