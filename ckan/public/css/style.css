@@ -1413,8 +1413,18 @@ body.editresources .error-explanation {
   color: #808080;
 }
 
+.thumbnails li {
+  z-index: 0;
+  position: relative;
+  background-color: #fff;
+}
+
 .thumbnails li:nth-of-type(5n) {
   clear: left;
+}
+
+.thumbnails li.expanded-description {
+  z-index: 1;
 }
 
 .thumbnail .heading {

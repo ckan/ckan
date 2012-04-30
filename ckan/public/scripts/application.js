@@ -133,10 +133,18 @@ CKAN.Utils = CKAN.Utils || {};
 jQuery.fn.truncate = function (max, suffix) {
   return this.each(function () {
     var element = jQuery(this),
-        cached  = element.text(),
-        length  = max || element.data('truncate') || 30,
-        text    = cached.slice(0, length),
-        expand  = jQuery('<a href="#" />').text(suffix || '»');
+        isTruncated = element.hasClass('truncated'),
+        cached, length, text, expand;
+
+    if (isTruncated) {
+      element.html(element.data('truncate:' + (max === 'expand' ? 'original' : 'truncated')));
+      return;
+    }
+
+    cached  = element.text();
+    length  = max || element.data('truncate') || 30;
+    text    = cached.slice(0, length);
+    expand  = jQuery('<a href="#" />').text(suffix || '»');
 
     // Try to truncate to nearest full word.
     while ((/\S/).test(text[text.length - 1])) {
@@ -144,12 +152,15 @@ jQuery.fn.truncate = function (max, suffix) {
     }
 
     element.html(jQuery.trim(text));
-
     expand.appendTo(element.append(' '));
     expand.click(function (event) {
       event.preventDefault();
-      element.text(cached);
+      element.html(cached);
     });
+
+    element.addClass('truncated');
+    element.data('truncate:original',  cached);
+    element.data('truncate:truncated', element.html());
   });
 };
 
@@ -1160,8 +1171,9 @@ CKAN.Utils = function($, my) {
     }
 
     // Center thumbnails vertically.
-    var relatedItems = $('.related-items').each(function () {
-      var item = $(this);
+    var relatedItems = $('.related-items');
+    relatedItems.find('li').each(function () {
+      var item = $(this), description = item.find('.description');
 
       function vertiallyAlign() {
         var img = $(this),
@@ -1175,7 +1187,21 @@ CKAN.Utils = function($, my) {
       }
 
       item.find('img').load(vertiallyAlign);
-      item.find('.description').truncate();
+      description.data('height', description.height()).truncate();
+    });
+
+    relatedItems.on('mouseenter mouseleave', '.description.truncated', function (event) {
+      var isEnter = event.type === 'mouseenter',
+          description = $(this),
+          parent = description.parents('li:first'),
+          difference = description.data('height') - description.height();
+
+      description.truncate(isEnter ? 'expand' : 'collapse');
+      parent.toggleClass('expanded-description', isEnter);
+
+      // Adjust the bottom margin of the item relative to it's current value
+      // to allow the description to expand without breaking the grid.
+      parent.css('margin-bottom', isEnter ? '-=' + difference + 'px' : '');
     });
 
     // Add a handler for the delete buttons.
