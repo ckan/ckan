@@ -153,8 +153,13 @@ def _add_i18n_to_url(url_to_amend, **kw):
     return url
 
 def lang():
-    ''' Reurn the language code for the current locale eg `en` '''
+    ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
+
+def lang_native_name():
+    ''' Return the langage name currently used in it's localised form '''
+    locale = get_locales_dict().get(lang())
+    return locale.display_name or locale.english_name
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -799,6 +804,7 @@ __allowed_functions__ = [
            'snippet',
            'convert_to_dict',
            'activity_div',
+           'lang_native_name',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
@@ -809,4 +815,5 @@ __allowed_functions__ = [
            'mail_to',
            'radio',
            'submit',
+           'asbool',
 ]
