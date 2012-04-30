@@ -1196,17 +1196,34 @@ CKAN.Utils = function($, my) {
     });
 
     relatedItems.on('mouseenter mouseleave', '.description.truncated', function (event) {
-      var isEnter = event.type === 'mouseenter',
-          description = $(this),
-          parent = description.parents('li:first'),
-          difference = description.data('height') - description.height();
+      var isEnter = event.type === 'mouseenter'
+          description = $(this)
+          timer = description.data('hover-intent');
 
-      description.truncate(isEnter ? 'expand' : 'collapse');
-      parent.toggleClass('expanded-description', isEnter);
+      function update() {
+        var parent = description.parents('li:first'),
+            difference = description.data('height') - description.height();
 
-      // Adjust the bottom margin of the item relative to it's current value
-      // to allow the description to expand without breaking the grid.
-      parent.css('margin-bottom', isEnter ? '-=' + difference + 'px' : '');
+        description.truncate(isEnter ? 'expand' : 'collapse');
+        parent.toggleClass('expanded-description', isEnter);
+
+        // Adjust the bottom margin of the item relative to it's current value
+        // to allow the description to expand without breaking the grid.
+        parent.css('margin-bottom', isEnter ? '-=' + difference + 'px' : '');
+        description.removeData('hover-intent');
+      }
+
+      if (!isEnter && timer) {
+        // User has moused out in the time set so cancel the action.
+        description.removeData('hover-intent');
+        return clearTimeout(timer);
+      } else if (!isEnter && !timer) {
+        update();
+      } else {
+        // Delay the hover action slightly to wait to see if the user mouses
+        // out again. This prevents unwanted actions.
+        description.data('hover-intent', setTimeout(update, 200));
+      }
     });
 
     // Add a handler for the delete buttons.
