@@ -238,6 +238,7 @@ tbody tr:nth-child(odd) td, tbody tr.odd td {
 img.gravatar {
   margin: 0 5px -5px 0;
   border-radius: 3px;
+  vertical-align: baseline;
 }
 
 .inline-icon {
