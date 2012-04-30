@@ -577,8 +577,14 @@ form.simple-form input[type=password] {
   margin-bottom: 0.5em;
   margin-left: -2em;
 }
-.group.read .property-list li ul li {
-  margin-left: -2.5em;
+/* Fix the indented headings on the groups page */
+.group.read .property-list {
+  margin-left: 0;
+  padding-left: 0;
+}
+.group.read .property-list li h3,
+.group.read .property-list li ul {
+  margin-left: 0;
 }
 .group-dataset-list {
   margin: 2em 0;
