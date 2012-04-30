@@ -1447,6 +1447,19 @@ body.editresources .error-explanation {
   height: auto;
 }
 
+.thumbnail .close {
+  padding-bottom: 7px;
+  padding-top: 2px;
+  position: relative;
+  top: -1px;
+  right: -1px;
+  display: none;
+}
+
+.thumbnail:hover .close {
+  display: block;
+}
+
 .thumbnail .empty {
   color: #ccc;
 }
