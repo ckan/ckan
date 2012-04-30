@@ -264,6 +264,7 @@ class UserController(BaseController):
             g.openid_enabled = False
 
         if not c.user:
+            c.login_handler = h.url_for(self._get_repoze_handler('login_handler_path'))
             return render('user/login.html')
         else:
             return render('user/logout_first.html')
