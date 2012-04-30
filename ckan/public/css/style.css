@@ -1149,7 +1149,7 @@ body.package.read #sidebar li.widget-container {
 body.package.resource_read #sidebar { display: none; }
 body.package.resource_read #content {
     border-right: 0;
-    width: 950px;
+    width: 940px;
 }
 
 .resource_read .notes {
