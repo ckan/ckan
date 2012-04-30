@@ -75,7 +75,7 @@ def translate_data_dict(data_dict):
                 translated_flattened[key] = fallback_translations.get(
                         value, value)
 
-        elif isinstance(value, int):
+        elif isinstance(value, (int, dict)):
             translated_flattened[key] = value
 
         else:
