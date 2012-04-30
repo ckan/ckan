@@ -21,6 +21,7 @@ __all__ = [
 from inspect import isclass
 from pyutilib.component.core import Interface as _pca_Interface
 
+
 class Interface(_pca_Interface):
 
     @classmethod
@@ -80,12 +81,14 @@ class IRoutes(Interface):
 
     def after_map(self, map):
         """
-        Called after routes map is set up. ``after_map`` can be used to add fall-back handlers.
+        Called after routes map is set up. ``after_map`` can be used to
+        add fall-back handlers.
 
         :param map: Routes map object
         :returns: Modified version of the map object
         """
         return map
+
 
 class IMapper(Interface):
     """
@@ -104,7 +107,8 @@ class IMapper(Interface):
 
     def before_insert(self, mapper, connection, instance):
         """
-        Receive an object instance before that instance is INSERTed into its table.
+        Receive an object instance before that instance is INSERTed into
+        its table.
         """
 
     def before_update(self, mapper, connection, instance):
@@ -131,6 +135,7 @@ class IMapper(Interface):
         """
         Receive an object instance after that instance is DELETEed.
         """
+
 
 class ISession(Interface):
     """
@@ -167,6 +172,7 @@ class ISession(Interface):
         Execute after a rollback has occured.
         """
 
+
 class IDomainObjectModification(Interface):
     """
     Receives notification of new, changed and deleted datesets.
@@ -175,6 +181,7 @@ class IDomainObjectModification(Interface):
     def notify(self, entity, operation):
         pass
 
+
 class IResourceUrlChange(Interface):
     """
     Receives notification of changed urls.
@@ -182,6 +189,7 @@ class IResourceUrlChange(Interface):
 
     def notify(self, resource):
         pass
+
 
 class ITagController(Interface):
     '''
@@ -197,6 +205,7 @@ class ITagController(Interface):
 
         '''
         return tag_dict
+
 
 class IGroupController(Interface):
     """
@@ -226,10 +235,12 @@ class IGroupController(Interface):
 
     def before_view(self, pkg_dict):
         '''
-             Extensions will recieve this before the group gets displayed. The dictionary
-             passed will be the one that gets sent to the template.
+             Extensions will recieve this before the group gets
+             displayed. The dictionary passed will be the one that gets
+             sent to the template.
         '''
         return pkg_dict
+
 
 class IPackageController(Interface):
     """
@@ -288,17 +299,19 @@ class IPackageController(Interface):
 
     def before_index(self, pkg_dict):
         '''
-             Extensions will receive what will be given to the solr for indexing.
-             This is essentially a flattened dict (except for multlivlaued fields such as tags
-             of all the terms sent to the indexer.  The extension can modify this by returning
-             an altered version.
+             Extensions will receive what will be given to the solr for
+             indexing. This is essentially a flattened dict (except for
+             multli-valued fields such as tags) of all the terms sent to
+             the indexer. The extension can modify this by returning an
+             altered version.
         '''
         return pkg_dict
 
     def before_view(self, pkg_dict):
         '''
-             Extensions will recieve this before the dataset gets displayed. The dictionary
-             passed will be the one that gets sent to the template.
+             Extensions will recieve this before the dataset gets
+             displayed. The dictionary passed will be the one that gets
+             sent to the template.
         '''
         return pkg_dict
 
@@ -332,6 +345,7 @@ class IPluginObserver(Interface):
         This method is passed the instantiated service object.
         """
 
+
 class IConfigurable(Interface):
     """
     Pass configuration to plugins and extensions
@@ -341,6 +355,7 @@ class IConfigurable(Interface):
         """
         Called by load_environment
         """
+
 
 class IConfigurer(Interface):
     """
@@ -382,6 +397,7 @@ class IAuthorizer(Interface):
         other Authorizers to run; True will shortcircuit and return.
         """
 
+
 class IActions(Interface):
     """
     Allow adding of actions to the logic layer.
@@ -391,6 +407,7 @@ class IActions(Interface):
         Should return a dict, the keys being the name of the logic
         function and the values being the functions themselves.
         """
+
 
 class IAuthFunctions(Interface):
     """
@@ -402,6 +419,7 @@ class IAuthFunctions(Interface):
         implementation overrides
         """
 
+
 class ITemplateHelpers(Interface):
     """
     Allow adding extra template functions available via h variable
@@ -411,6 +429,7 @@ class ITemplateHelpers(Interface):
         Should return a dict, the keys being the name of the helper
         function and the values being the functions themselves.
         """
+
 
 class IDatasetForm(Interface):
     """
@@ -498,7 +517,6 @@ class IDatasetForm(Interface):
         Returns a string representing the location of the template to be
         rendered for the history page
         """
-
 
     def package_form(self):
         """
@@ -616,8 +634,6 @@ class IGroupForm(Interface):
         rendered for the history page
         """
 
-
-
     def package_form(self):
         """
         Returns a string representing the location of the template to be
@@ -649,4 +665,3 @@ class IGroupForm(Interface):
         """
 
     ##### End of hooks                                                   #####
-
