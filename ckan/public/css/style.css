@@ -203,7 +203,7 @@ tbody tr:nth-child(odd) td, tbody tr.odd td {
 #page-logo {
   max-width: 36px;
   max-height: 36px;
-  margin-right: 5px;
+  vertical-align: text-top;
 }
 .hover-for-help {
   position: relative;
