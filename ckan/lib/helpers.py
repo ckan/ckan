@@ -809,4 +809,5 @@ __allowed_functions__ = [
            'mail_to',
            'radio',
            'submit',
+           'asbool',
 ]
