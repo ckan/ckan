@@ -1418,26 +1418,28 @@ CKAN.Utils = function($, my) {
   };
 
   my.setupUserFollowButton = function() {
-    if ($('#user_follow_button').attr('state') == 'follow') {
-        $('#user_follow_button').off("click", userUnfollowClicked);
-        $('#user_follow_button').html('Follow');
-        $('#user_follow_button').on("click", userFollowClicked);
+    var userFollowButton = $('#user_follow_button');
+    if (userFollowButton.attr('state') == 'follow') {
+        userFollowButton.off("click", userUnfollowClicked);
+        userFollowButton.html('Follow');
+        userFollowButton.on("click", userFollowClicked);
     } else {
-        $('#user_follow_button').off("click", userFollowClicked);
-        $('#user_follow_button').html('Unfollow');
-        $('#user_follow_button').on("click", userUnfollowClicked);
+        userFollowButton.off("click", userFollowClicked);
+        userFollowButton.html('Unfollow');
+        userFollowButton.on("click", userUnfollowClicked);
     }
   };
 
   my.setupDatasetFollowButton = function() {
-    if ($('#dataset_follow_button').attr('state') == 'follow') {
-        $('#dataset_follow_button').off("click", datasetUnfollowClicked);
-        $('#dataset_follow_button').html('Follow');
-        $('#dataset_follow_button').on("click", datasetFollowClicked);
+    var datasetFollowButton = $('#dataset_follow_button');
+    if (datasetFollowButton.attr('state') == 'follow') {
+        datasetFollowButton.off("click", datasetUnfollowClicked);
+        datasetFollowButton.html('Follow');
+        datasetFollowButton.on("click", datasetFollowClicked);
     } else {
-        $('#dataset_follow_button').off("click", datasetFollowClicked);
-        $('#dataset_follow_button').html('Unfollow');
-        $('#dataset_follow_button').on("click", datasetUnfollowClicked);
+        datasetFollowButton.off("click", datasetFollowClicked);
+        datasetFollowButton.html('Unfollow');
+        datasetFollowButton.on("click", datasetUnfollowClicked);
     }
   };
 
