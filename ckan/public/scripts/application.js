@@ -1145,8 +1145,22 @@ CKAN.Utils = function($, my) {
       $('<div class="alert alert-error" />').html(msg).hide().prependTo(form).fadeIn();
     }
 
+    function relatedRequest(action, method, data) {
+      return $.ajax({
+        type: method,
+        dataType: 'json',
+        contentType: 'application/json',
+        url: CKAN.SITE_URL + '/api/3/action/related_' + action,
+        data: data ? JSON.stringify(data) : undefined,
+        error: function(err, txt, w) {
+          // This needs to be far more informative.
+          addAlert('<strong>Error:</strong> Unable to ' + action + ' related item');
+        }
+      });
+    }
+
     // Center thumbnails vertically.
-    $('.related-items').each(function () {
+    var relatedItems = $('.related-items').each(function () {
       var item = $(this);
 
       function vertiallyAlign() {
@@ -1162,6 +1176,15 @@ CKAN.Utils = function($, my) {
 
       item.find('img').load(vertiallyAlign);
       item.find('.description').truncate();
+    });
+
+    // Add a handler for the delete buttons.
+    relatedItems.on('click', '[data-action=delete]', function (event) {
+      var id = $(this).data('relatedId');
+      relatedRequest('delete', 'POST', {id: id}).done(function () {
+        $('#related-item-' + id).remove();
+      });
+      event.preventDefault();
     });
 
     $(form).submit(function (event) {
@@ -1186,18 +1209,10 @@ CKAN.Utils = function($, my) {
         return;
       }
 
-      $.ajax({
-        type: this.method,
-        url: CKAN.SITE_URL + '/api/3/action/related_create',
-        data: JSON.stringify(data),
-        success: function (data) {
-          window.location.reload();
-        },
-        error: function(err, txt, w) {
-          // This needs to be far more informative.
-          addAlert('<strong>Error:</strong> Unable to add related item');
-        }
-      }); 
+      relatedRequest('create', this.method, data).done(function () {
+        // TODO: Insert item dynamically.
+        window.location.reload();
+      });
     });
   };
 
