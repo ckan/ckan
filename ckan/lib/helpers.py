@@ -153,7 +153,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
     return url
 
 def lang():
-    ''' Reurn the language code for the current locale eg `en` '''
+    ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
 
 class Message(object):
