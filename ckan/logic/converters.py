@@ -77,7 +77,8 @@ def convert_from_tags(vocab):
         for k in data.keys():
             if k[0] == 'tags':
                 if data[k].get('vocabulary_id') == v.id:
-                    tags.append(data[k]['name'])
+                    name = data[k].get('display_name', data[k]['name'])
+                    tags.append(name)
         data[key] = tags
     return callable
 
