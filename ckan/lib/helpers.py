@@ -156,10 +156,14 @@ def lang():
     ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
 
-def lang_native_name():
-    ''' Return the langage name currently used in it's localised form '''
-    locale = get_locales_dict().get(lang())
-    return locale.display_name or locale.english_name
+def lang_native_name(lang=None):
+    ''' Return the langage name currently used in it's localised form
+        either from parameter or current environ setting'''
+    lang = lang or lang()
+    locale = get_locales_dict().get(lang)
+    if locale:
+        return locale.display_name or locale.english_name
+    return lang
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
