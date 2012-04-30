@@ -146,6 +146,11 @@ jQuery.fn.truncate = function (max, suffix) {
     text    = cached.slice(0, length);
     expand  = jQuery('<a href="#" />').text(suffix || '»');
 
+    // Bail early if there is nothing to truncate.
+    if (cached.length < length) {
+      return;
+    }
+
     // Try to truncate to nearest full word.
     while ((/\S/).test(text[text.length - 1])) {
       text = text.slice(0, text.length - 1);
