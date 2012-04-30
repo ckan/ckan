@@ -221,9 +221,9 @@ class OrganizationDatasetForm(SingletonPlugin):
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        schema = default_package_schema()
-        schema['groups']['capacity'] = [ ignore_missing, unicode ]
-        return schema
+        #schema = default_package_schema()
+        #schema['groups']['capacity'] = [ ignore_missing, unicode ]
+        #return schema
 
     def form_to_db_schema(self):
         schema = default_package_schema()
