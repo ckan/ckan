@@ -228,7 +228,7 @@
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.chosen/0.9.7/chosen.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.placeholder/jquery.placeholder.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jqueryui/1.8.14/jquery-ui.min.js')}"></script>
-  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/bootstrap/2.0.2/bootstrap.min.js')}"></script>
+  <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/bootstrap/2.0.3/bootstrap.min.js')}"></script>
 
   <!-- for application.js -->
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/underscore/1.1.6/underscore.js')}"></script>
@@ -251,9 +251,11 @@
     CKAN.plugins.push('storage');
     </py:if>
     CKAN.SITE_URL = '${h.url('/')}';
+    CKAN.SITE_URL_NO_LOCALE = '${h.url('/', locale='default')}';
     CKAN.LANG = '${h.lang()}';
     // later use will add offsets with leading '/' so ensure no trailing slash
     CKAN.SITE_URL = CKAN.SITE_URL.replace(/\/$/, '');
+    CKAN.SITE_URL_NO_LOCALE = CKAN.SITE_URL_NO_LOCALE.replace(/\/$/, '');
     $(document).ready(function() {
         var ckan_user = '${c.user}';
         if (ckan_user) {
@@ -266,19 +268,20 @@
     });
   </script>
 
+  <py:if test="h.asbool(config.get('ckan.tracking_enabled', 'false'))">
   <script type="text/javascript">
          $(function (){
                  // Tracking
 				 var url = location.pathname;
 				 // remove any site root from url
 				 url = url.substring(CKAN.SITE_URL.length, url.length - 1);
-				 $.ajax({url : CKAN.SITE_URL + '/_tracking',
+				 $.ajax({url : CKAN.SITE_URL_NO_LOCALE + '/_tracking',
 						 type : 'POST',
 						 data : {url:url, type:'page'},
 						 timeout : 300 });
                  $('a.resource-url-analytics').click(function (e){
                          var url = $(e.target).closest('a').attr('href');
-						 $.ajax({url : CKAN.SITE_URL + '/_tracking',
+						 $.ajax({url : CKAN.SITE_URL_NO_LOCALE + '/_tracking',
 							     data : {url:url, type:'resource'},
 								 type : 'POST',
 								 complete : function () {location.href = url;},
@@ -287,6 +290,7 @@
                          });
                  });
   </script>
+  </py:if>
 
   <py:if test="defined('optional_footer')">
     ${optional_footer()}

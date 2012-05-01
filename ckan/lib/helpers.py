@@ -153,8 +153,17 @@ def _add_i18n_to_url(url_to_amend, **kw):
     return url
 
 def lang():
-    ''' Reurn the language code for the current locale eg `en` '''
+    ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
+
+def lang_native_name(lang=None):
+    ''' Return the langage name currently used in it's localised form
+        either from parameter or current environ setting'''
+    lang = lang or lang()
+    locale = get_locales_dict().get(lang)
+    if locale:
+        return locale.display_name or locale.english_name
+    return lang
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -676,8 +685,8 @@ def group_link(group):
     url = url_for(controller='group', action='read', id=group['name'])
     return link_to(group['name'], url)
 
-def dump_json(obj):
-    return json.dumps(obj)
+def dump_json(obj, **kw):
+    return json.dumps(obj, **kw)
 
 def auto_log_message(*args):
     # auto_log_message() used to need c passing as the first arg
@@ -799,6 +808,7 @@ __allowed_functions__ = [
            'snippet',
            'convert_to_dict',
            'activity_div',
+           'lang_native_name',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
@@ -809,4 +819,5 @@ __allowed_functions__ = [
            'mail_to',
            'radio',
            'submit',
+           'asbool',
 ]
