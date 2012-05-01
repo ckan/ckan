@@ -491,9 +491,9 @@ def resource_status_show(context, data_dict):
     check_access('resource_status_show', context, data_dict)
 
     # needs to be text query as celery tables are not in our model
-    q = text("""select status, date_done, traceback, task_status.* 
-                from task_status left join celery_taskmeta 
-                on task_status.value = celery_taskmeta.task_id and key = 'celery_task_id' 
+    q = text("""select status, date_done, traceback, task_status.*
+                from task_status left join celery_taskmeta
+                on task_status.value = celery_taskmeta.task_id and key = 'celery_task_id'
                 where entity_id = :entity_id """)
 
     result = model.Session.connection().execute(q, entity_id=id)
