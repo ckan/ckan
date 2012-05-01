@@ -14,8 +14,8 @@ class HomeController(BaseController):
     repo = model.repo
 
     def __before__(self, action, **env):
-        BaseController.__before__(self, action, **env)
         try:
+            BaseController.__before__(self, action, **env)
             context = {'model':model,'user': c.user or c.author}
             ckan.logic.check_access('site_read',context)
         except ckan.logic.NotAuthorized:

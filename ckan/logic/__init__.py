@@ -227,7 +227,7 @@ def get_action(action):
 
 def get_or_bust(data_dict, keys):
     '''Try and get values from dictionary and if they are not there
-    raise a validataion error.
+    raise a validation error.
 
     data_dict: a dictionary
     keys: either a single string key in which case will return a single value,
