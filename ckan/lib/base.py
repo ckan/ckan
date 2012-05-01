@@ -169,9 +169,11 @@ class BaseController(WSGIController):
         b) For API calls he may set a header with his API key.
         If the user is identified then:
           c.user = user name (unicode)
+          c.userobj = user object
           c.author = user name
         otherwise:
           c.user = None
+          c.userobj = None
           c.author = user\'s IP address (unicode)
         '''
         # see if it was proxied first
@@ -180,8 +182,10 @@ class BaseController(WSGIController):
             c.remote_addr = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
 
         # environ['REMOTE_USER'] is set by repoze.who if it authenticates a user's
-        # cookie or OpenID. (But it doesn't check the user (still) exists in our
-        # database - we need to do that here.
+        # cookie or OpenID. But repoze.who doesn't check the user (still)
+        # exists in our database - we need to do that here. (Another way would
+        # be with an userid_checker, but that would mean another db access.
+        # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who.plugins.sql )
         c.user = request.environ.get('REMOTE_USER', '')
         if c.user:
             c.user = c.user.decode('utf8')
@@ -210,38 +214,41 @@ class BaseController(WSGIController):
         # the request is routed to. This routing information is
         # available in environ['pylons.routes_dict']
 
+        try:
+            res = WSGIController.__call__(self, environ, start_response)
+        finally:
+            model.Session.remove()
+
         # Clean out any old cookies as they may contain api keys etc
         # This also improves the cachability of our pages as cookies
         # prevent proxy servers from caching content unless they have
         # been configured to ignore them.
-        # we do not want to clear cookies when setting the user lang
-        if not environ.get('PATH_INFO').startswith('/user/set_lang'):
-            for cookie in request.cookies:
-                if cookie.startswith('ckan') and cookie not in ['ckan']:
-                    response.delete_cookie(cookie)
-                # Remove the ckan session cookie if not used e.g. logged out
-                elif cookie == 'ckan' and not c.user:
-                    # Check session for valid data (including flash messages)
-                    # (DGU also uses session for a shopping basket-type behaviour)
-                    is_valid_cookie_data = False
-                    for key, value in session.items():
-                        if not key.startswith('_') and value:
-                            is_valid_cookie_data = True
-                            break
-                    if not is_valid_cookie_data:
-                        if session.id:
-                            if not session.get('lang'):
-                                session.delete()
-                        else:
-                            response.delete_cookie(cookie)
-                # Remove auth_tkt repoze.who cookie if user not logged in.
-                elif cookie == 'auth_tkt' and not session.id:
-                    response.delete_cookie(cookie)
+        for cookie in request.cookies:
+            if cookie.startswith('ckan') and cookie not in ['ckan']:
+                response.delete_cookie(cookie)
+            # Remove the ckan session cookie if not used e.g. logged out
+            elif cookie == 'ckan' and not c.user:
+                # Check session for valid data (including flash messages)
+                # (DGU also uses session for a shopping basket-type behaviour)
+                is_valid_cookie_data = False
+                for key, value in session.items():
+                    if not key.startswith('_') and value:
+                        is_valid_cookie_data = True
+                        break
+                if not is_valid_cookie_data:
+                    if session.id:
+                        if not session.get('lang'):
+                            self.log.debug('No session data any more - deleting session')
+                            self.log.debug('Session: %r', session.items())
+                            session.delete()
+                    else:
+                        response.delete_cookie(cookie)
+                        self.log.debug('No session data any more - deleting session cookie')
+            # Remove auth_tkt repoze.who cookie if user not logged in.
+            elif cookie == 'auth_tkt' and not session.id:
+                response.delete_cookie(cookie)
 
-        try:
-            return WSGIController.__call__(self, environ, start_response)
-        finally:
-            model.Session.remove()
+        return res
 
     def __after__(self, action, **params):
         self._set_cors()
