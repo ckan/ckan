@@ -1405,6 +1405,18 @@ body.editresources .error-explanation {
   margin-bottom: 0;
 }
 
+.popover-title {
+  margin-bottom: 0;
+}
+
+.popover-inner {
+  background: #aaa;
+}
+
+.popover.right .arrow {
+  border-right-color: #aaa;
+}
+
 /* Chosen Form Styles */
 
 .chzn-container-single {
@@ -1418,6 +1430,13 @@ body.editresources .error-explanation {
 
 .required {
   color: #808080;
+}
+
+.related-help {
+  opacity: 0.3;
+  position: relative;
+  top: 2px;
+  cursor: pointer;
 }
 
 .thumbnails li {

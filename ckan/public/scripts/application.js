@@ -1157,6 +1157,8 @@ CKAN.Utils = function($, my) {
 
 
   my.relatedSetup = function(form) {
+    $('[rel=popover]').popover();
+
     function addAlert(msg) {
       $('<div class="alert alert-error" />').html(msg).hide().prependTo(form).fadeIn();
     }
