@@ -254,7 +254,7 @@ def are_there_flash_messages():
 
 def nav_link(*args, **kwargs):
     # nav_link() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) > 2 or (len(args) > 1 and 'controller' in kwargs):
@@ -277,7 +277,7 @@ def _nav_link(text, controller, **kwargs):
 
 def nav_named_link(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) > 3 or (len(args) > 0 and 'text' in kwargs) or \
@@ -298,7 +298,7 @@ def _nav_named_link(text, name, **kwargs):
 
 def subnav_link(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) > 2 or (len(args) > 1 and 'action' in kwargs):
@@ -316,7 +316,7 @@ def _subnav_link(text, action, **kwargs):
 
 def subnav_named_route(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) > 2 or (len(args) > 0 and 'text' in kwargs) or \
@@ -373,7 +373,7 @@ def facet_items(*args, **kwargs):
     """
     _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
     # facet_items() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) > 2 or (len(args) > 0 and 'name' in kwargs) or (len(args) > 1 and 'limit' in kwargs):
@@ -724,7 +724,7 @@ def dump_json(obj, **kw):
 
 def auto_log_message(*args):
     # auto_log_message() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) and asbool(config.get('ckan.restrict_template_vars', 'false')):
@@ -811,7 +811,7 @@ __allowed_functions__ = [
            'default_group_type',
            'facet_items',
            'facet_title',
-         #  am_authorized, # depreciated
+         #  am_authorized, # deprecated
            'check_access',
            'linked_user',
            'linked_authorization_group',
