@@ -676,8 +676,8 @@ def group_link(group):
     url = url_for(controller='group', action='read', id=group['name'])
     return link_to(group['name'], url)
 
-def dump_json(obj):
-    return json.dumps(obj)
+def dump_json(obj, **kw):
+    return json.dumps(obj, **kw)
 
 def auto_log_message(*args):
     # auto_log_message() used to need c passing as the first arg
@@ -809,4 +809,5 @@ __allowed_functions__ = [
            'mail_to',
            'radio',
            'submit',
+           'asbool',
 ]
