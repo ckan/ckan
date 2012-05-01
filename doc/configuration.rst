@@ -673,7 +673,7 @@ This is a directory where SQL database backups are to be written, assuming a scr
 
 
 
-Compatability
+Compatibility
 -------------
 
 .. index::
