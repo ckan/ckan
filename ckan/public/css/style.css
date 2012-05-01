@@ -22,7 +22,7 @@ body.no-sidebar .content-outer {
 }
 
 header {
-  padding: 5px 0px 2px 0px;
+  padding: 5px 0px 5px 0px;
 }
 
 header #logo {
@@ -38,6 +38,7 @@ header #site-name {
   /*font-weight: bold;*/
   color: #333;
   text-shadow: 1px 1px 3px #ccc;
+  line-height: 1.3;
 }
 
 header #site-name a {
@@ -203,7 +204,7 @@ tbody tr:nth-child(odd) td, tbody tr.odd td {
 #page-logo {
   max-width: 36px;
   max-height: 36px;
-  margin-right: 5px;
+  vertical-align: text-top;
 }
 .hover-for-help {
   position: relative;
@@ -238,6 +239,7 @@ tbody tr:nth-child(odd) td, tbody tr.odd td {
 img.gravatar {
   margin: 0 5px -5px 0;
   border-radius: 3px;
+  vertical-align: baseline;
 }
 
 .inline-icon {
@@ -424,8 +426,7 @@ body.index.home .front-page .action-box {
   background:  #FFF7C0;
 }
 body.index.home .front-page .action-box-inner {
-  margin: 20px;
-  margin-bottom: 5px;
+  margin: 0 20px 5px;
   min-height: 15em;
 }
 body.index.home .front-page .action-box-inner.collaborate {
@@ -557,8 +558,14 @@ form.simple-form input[type=password] {
   margin-bottom: 0.5em;
   margin-left: -2em;
 }
-.group.read .property-list li ul li {
-  margin-left: -2.5em;
+/* Fix the indented headings on the groups page */
+.group.read .property-list {
+  margin-left: 0;
+  padding-left: 0;
+}
+.group.read .property-list li h3,
+.group.read .property-list li ul {
+  margin-left: 0;
 }
 .group-dataset-list {
   margin: 2em 0;
@@ -1123,7 +1130,7 @@ body.package.read #sidebar li.widget-container {
 body.package.resource_read #sidebar { display: none; }
 body.package.resource_read #content {
     border-right: 0;
-    width: 950px;
+    width: 940px;
 }
 
 .resource_read .notes {
