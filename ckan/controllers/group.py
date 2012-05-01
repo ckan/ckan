@@ -72,7 +72,8 @@ class GroupController(BaseController):
         group_type = self._guess_group_type()
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'for_view': True,
+                   'with_private': False}
 
         data_dict = {'all_fields': True}
 

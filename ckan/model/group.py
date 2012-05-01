@@ -166,13 +166,18 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                 from_statement(HIERARCHY_CTE).params(id=self.id, type=type).all()
         return [ { "id":idf, "name": name, "title": title } for idf,name,title in results ]
 
-    def active_packages(self, load_eager=True):
+    def active_packages(self, load_eager=True, with_private=False):
         query = Session.query(Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
                filter(group_table.c.id == self.id).\
-               filter(member_table.c.state == 'active').\
-               join(member_table, member_table.c.table_id == Package.id).\
+               filter(member_table.c.state == 'active')
+
+        if not with_private:
+               query = query.filter(member_table.c.capacity == 'public')
+
+        query = query.join(member_table, member_table.c.table_id == Package.id).\
                join(group_table, group_table.c.id == member_table.c.group_id)
+
         return query
 
     @classmethod
