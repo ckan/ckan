@@ -1405,6 +1405,18 @@ body.editresources .error-explanation {
   margin-bottom: 0;
 }
 
+.popover-title {
+  margin-bottom: 0;
+}
+
+.popover-inner {
+  background: #aaa;
+}
+
+.popover.right .arrow {
+  border-right-color: #aaa;
+}
+
 /* Chosen Form Styles */
 
 .chzn-container-single {
@@ -1420,8 +1432,25 @@ body.editresources .error-explanation {
   color: #808080;
 }
 
+.related-help {
+  opacity: 0.3;
+  position: relative;
+  top: 2px;
+  cursor: pointer;
+}
+
+.thumbnails li {
+  z-index: 0;
+  position: relative;
+  background-color: #fff;
+}
+
 .thumbnails li:nth-of-type(5n) {
   clear: left;
+}
+
+.thumbnails li.expanded-description {
+  z-index: 1;
 }
 
 .thumbnail .heading {
@@ -1442,6 +1471,19 @@ body.editresources .error-explanation {
   max-width: 100%;
   width: auto;
   height: auto;
+}
+
+.thumbnail .close {
+  padding-bottom: 7px;
+  padding-top: 2px;
+  position: relative;
+  top: -1px;
+  right: -1px;
+  display: none;
+}
+
+.thumbnail:hover .close {
+  display: block;
 }
 
 .thumbnail .empty {
