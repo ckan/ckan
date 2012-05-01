@@ -41,12 +41,16 @@ class TestBasicDictize:
                {'key': u'original media', 'state': u'active', 'value': u'"book"'}],
             'groups': [{'description': u'These are books that David likes.',
                         'name': u'david',
+                        'capacity': 'public',
+                        'image_url': u'',
                         'type': u'group',
                         'state': u'active',
                         'title': u"Dave's books",
                         "approval_status": u"approved"},
                        {'description': u'Roger likes these books.',
                         'name': u'roger',
+                        'capacity': 'public',
+                        'image_url': u'',
                         'type': u'group',
                         'state': u'active',
                         'title': u"Roger's books",
@@ -76,6 +80,7 @@ class TestBasicDictize:
                             u'size': None,
                             u'size_extra': u'123',
                             u'state': u'active',
+                            u'tracking_summary': {'total': 0, 'recent': 0},
                             u'url': u'http://www.annakarenina.com/download/x=1&y=2',
                             u'webstore_last_updated': None,
                             u'webstore_url': None},
@@ -94,14 +99,20 @@ class TestBasicDictize:
                             u'size': None,
                             u'size_extra': u'345',
                             u'state': u'active',
+                            u'tracking_summary': {'total': 0, 'recent': 0},
                             u'url': u'http://www.annakarenina.com/index.json',
                             u'webstore_last_updated': None,
                             u'webstore_url': None}],
             'state': u'active',
-            'tags': [{'name': u'Flexible \u30a1', 'state': u'active'},
-                     {'name': u'russian', 'state': u'active'},
-                     {'name': u'tolstoy', 'state': u'active'}],
+            'tags': [{'name': u'Flexible \u30a1',
+                        'display_name': u'Flexible \u30a1',
+                        'state': u'active'},
+                     {'name': u'russian', 'display_name': u'russian',
+                         'state': u'active'},
+                     {'name': u'tolstoy', 'display_name': u'tolstoy',
+                         'state': u'active'}],
             'title': u'A Novel By Tolstoy',
+            'tracking_summary': {'total': 0, 'recent': 0},
             'url': u'http://www.annakarenina.com',
             'version': u'0.7a'}
 
@@ -186,6 +197,7 @@ class TestBasicDictize:
              'size': None,
              u'size_extra': u'123',
              'state': u'active',
+            u'tracking_summary': {'total': 0, 'recent': 0},
              'url': u'http://www.annakarenina.com/download/x=1&y=2',
              'webstore_last_updated': None,
              'webstore_url': None
@@ -208,7 +220,7 @@ class TestBasicDictize:
     def test_02_package_dictize(self):
 
         context = {"model": model,
-                 "session": model.Session}
+                   "session": model.Session}
 
         model.Session.remove()
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
@@ -345,7 +357,7 @@ class TestBasicDictize:
     def test_09_package_alter(self):
 
         context = {"model": model,
-                 "session": model.Session}
+                   "session": model.Session}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
 
@@ -674,6 +686,7 @@ class TestBasicDictize:
         second_dictized['name'] = u'annakarenina_changed2'
         second_dictized['resources'][0]['url'] = u'new_url2'
         second_dictized['tags'][0]['name'] = u'new_tag'
+        second_dictized['tags'][0]['display_name'] = u'new_tag'
         second_dictized['extras'][0]['value'] = u'"new_value"'
         second_dictized['state'] = 'pending'
 
@@ -697,11 +710,12 @@ class TestBasicDictize:
             u'resource_type': None,
             u'size': None,
             u'state': u'active',
+            u'tracking_summary': {'total': 0, 'recent': 0},
             u'url': u'newurl',
             u'webstore_last_updated': None,
             u'webstore_url': None})
 
-        third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'state': 'active'})
+        third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'display_name': u'newnew_tag', 'state': 'active'})
         third_dictized['extras'].insert(0, {'key': 'david',
                                          'value': u'"new_value"',
                                          'state': u'active'})
@@ -726,6 +740,7 @@ class TestBasicDictize:
             'hash': u'abc123',
             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
             'format': u'plain text',
+            'tracking_summary': {'recent': 0, 'total': 0},
             'url': u'test_new',
             'cache_url': None,
             'webstore_url': None,
@@ -827,7 +842,7 @@ class TestBasicDictize:
 
         simple_group_dict = {'name': 'simple',
                              'title': 'simple',
-                             'type': 'publisher',
+                             'type': 'organization',
                             }
         model.repo.new_revision()
         group_dict_save(simple_group_dict, context)
@@ -860,22 +875,23 @@ class TestBasicDictize:
 
         group_dictized = group_dictize(group, context)
 
-        expected =  {'description': u'',
+        expected = {'description': u'',
                     'extras': [{'key': u'genre', 'state': u'active', 'value': u'"horror"'},
                                {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
-                    'tags': [{'capacity': 'member', 'name': u'russian'}],
+                    'tags': [{'capacity': 'public', 'name': u'russian'}],
                     'groups': [{'description': u'',
-                               'capacity' : 'member',
+                               'capacity' : 'public',
                                'display_name': u'simple',
+                               'image_url': u'',
                                'name': u'simple',
                                'packages': 0,
                                'state': u'active',
                                'title': u'simple',
-                               'type': u'publisher',
+                               'type': u'organization',
                                'approval_status': u'approved'}],
                     'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
                               'display_name': u'annafan',
-                              'capacity' : 'member',
+                              'capacity' : 'public',
                               'email': None,
                               'email_hash': 'd41d8cd98f00b204e9800998ecf8427e',
                               'fullname': None,
@@ -885,6 +901,7 @@ class TestBasicDictize:
                               'reset_key': None}],
                     'name': u'help',
                     'display_name': u'help',
+                    'image_url': u'',
                     'packages': [{'author': None,
                                   'author_email': None,
                                   'license_id': u'other-open',
@@ -900,7 +917,7 @@ class TestBasicDictize:
                                   'version': u'0.7a'},
                                  {'author': None,
                                   'author_email': None,
-                                  'capacity' : 'member',
+                                  'capacity' : 'public',
                                   'title': u'A Novel By Tolstoy',
                                   'license_id': u'other-open',
                                   'maintainer': None,
@@ -921,8 +938,9 @@ class TestBasicDictize:
         result = self.remove_changable_columns(group_dictized)
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
-        assert result == expected, pformat(result)
-
+        assert_equal(sorted(result.keys()), sorted(expected.keys()))
+        for key in result:
+            assert_equal(sorted(result[key]), sorted(expected[key]))
 
     def test_17_group_apis_to_dict(self):
 

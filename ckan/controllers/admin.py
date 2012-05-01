@@ -16,7 +16,7 @@ class AdminController(BaseController):
     def __before__(self, action, **params):
         super(AdminController, self).__before__(action, **params)
         if not ckan.authz.Authorizer().is_sysadmin(unicode(c.user)):
-            abort(401, _('Need to be system administrator to administer'))        
+            abort(401, _('Need to be system administrator to administer'))
         c.revision_change_state_allowed = (
             c.user and
             self.authorizer.is_authorized(c.user, model.Action.CHANGE_STATE,
@@ -24,9 +24,9 @@ class AdminController(BaseController):
             )
 
     def index(self):
-        #now pass the list of sysadmins 
+        #now pass the list of sysadmins
         c.sysadmins = [a.name for a in get_sysadmins()]
-   
+
         return render('admin/index.html')
 
 
@@ -49,21 +49,21 @@ class AdminController(BaseController):
             for a in checked:
                 table_dict[a]=True
 
-            # now we'll split up the user$role strings to make a dictionary from 
+            # now we'll split up the user$role strings to make a dictionary from
             # (user,role) to True/False, which tells us what we need to do.
             new_user_role_dict={}
             for (ur,val) in table_dict.items():
                 u,r = ur.split('$')
                 new_user_role_dict[(u,r)] = val
-               
-            # we get the current user/role assignments 
+
+            # we get the current user/role assignments
             # and make a dictionary of them
             current_uors = model.Session.query(model.SystemRole).all()
 
             if users_or_authz_groups=='users':
                 current_users_roles = [( uor.user.name, uor.role) for uor in current_uors if uor.user]
             elif users_or_authz_groups=='authz_groups':
-                current_users_roles = [( uor.authorized_group.name, uor.role) for uor in current_uors if uor.authorized_group]        
+                current_users_roles = [( uor.authorized_group.name, uor.role) for uor in current_uors if uor.authorized_group]
             else:
                 assert False, "shouldn't be here"
 
@@ -76,8 +76,8 @@ class AdminController(BaseController):
 
             # WORRY: Here it seems that we have to check whether someone is already assigned
             # a role, in order to avoid assigning it twice, or attempting to delete it when
-            # it doesn't exist. Otherwise problems occur. However this doesn't affect the 
-            # index page, which would seem to be prone to suffer the same effect. 
+            # it doesn't exist. Otherwise problems occur. However this doesn't affect the
+            # index page, which would seem to be prone to suffer the same effect.
             # Why the difference?
 
             if users_or_authz_groups=='users':
@@ -131,7 +131,7 @@ class AdminController(BaseController):
 
             # again, in order to avoid either creating a role twice or deleting one which is
             # non-existent, we need to get the users' current roles (if any)
-            
+
             current_uors = model.Session.query(model.SystemRole).all()
 
             if users_or_authz_groups=='users':
@@ -223,7 +223,7 @@ class AdminController(BaseController):
                 else:
                     authz_groups_role_dict[(u,r)]=False
 
-        
+
 
         # pass these variables to the template for rendering
         c.roles = possible_roles
@@ -233,7 +233,7 @@ class AdminController(BaseController):
 
         c.authz_groups = authz_groups
         c.authz_groups_role_dict = authz_groups_role_dict
-    
+
         return render('admin/authz.html')
 
     def trash(self):

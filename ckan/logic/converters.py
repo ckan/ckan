@@ -60,13 +60,11 @@ def convert_to_tags(vocab):
         context['vocabulary'] = v
 
         for tag in new_tags:
-            tag_length_validator(tag, context)
-            tag_name_validator(tag, context)
             tag_in_vocabulary_validator(tag, context)
 
         for num, tag in enumerate(new_tags):
-            data[('tags', num+n, 'name')] = tag
-            data[('tags', num+n, 'vocabulary_id')] = v.id
+            data[('tags', num + n, 'name')] = tag
+            data[('tags', num + n, 'vocabulary_id')] = v.id
     return callable
 
 def convert_from_tags(vocab):
@@ -79,7 +77,8 @@ def convert_from_tags(vocab):
         for k in data.keys():
             if k[0] == 'tags':
                 if data[k].get('vocabulary_id') == v.id:
-                    tags.append(data[k]['name'])
+                    name = data[k].get('display_name', data[k]['name'])
+                    tags.append(name)
         data[key] = tags
     return callable
 

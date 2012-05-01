@@ -6,13 +6,16 @@ class CreateTestData(cli.CkanCommand):
     '''Create test data in the database.
     Tests can also delete the created objects easily with the delete() method.
 
-    create-test-data         - annakarenina and warandpeace
-    create-test-data search  - realistic data to test search
-    create-test-data gov     - government style data
-    create-test-data family  - package relationships data
-    create-test-data user    - create a user 'tester' with api key 'tester'
+    create-test-data              - annakarenina and warandpeace
+    create-test-data search       - realistic data to test search
+    create-test-data gov          - government style data
+    create-test-data family       - package relationships data
+    create-test-data user         - create a user 'tester' with api key 'tester'
+    create-test-data translations - annakarenina, warandpeace, and some test
+                                    translations of terms
     create-test-data vocabs  - annakerenina, warandpeace, and some test
                                vocabularies
+
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -53,6 +56,8 @@ class CreateTestData(cli.CkanCommand):
             self.create_gov_test_data()
         elif cmd == 'family':
             self.create_family_test_data()
+        elif cmd == 'translations':
+            self.create_translations_test_data()
         elif cmd == 'vocabs':
             self.create_vocabs_test_data()
         else:
@@ -92,6 +97,44 @@ class CreateTestData(cli.CkanCommand):
         cls.user_refs.append(u'tester')
 
     @classmethod
+
+    def create_translations_test_data(cls):
+        import ckan.model
+        CreateTestData.create()
+        rev = ckan.model.repo.new_revision()
+        rev.author = CreateTestData.author
+        rev.message = u'Creating test translations.'
+
+        sysadmin_user = ckan.model.User.get('testsysadmin')
+        package = ckan.model.Package.get('annakarenina')
+
+        # Add some new tags to the package.
+        # These tags are codes that are meant to be always translated before
+        # display, if not into the user's current language then into the
+        # fallback language.
+        package.add_tags([ckan.model.Tag('123'), ckan.model.Tag('456'),
+                ckan.model.Tag('789')])
+
+        # Add the above translations to CKAN.
+        for (lang_code, translations) in (('de', german_translations),
+                ('fr', french_translations), ('en', english_translations)):
+            for term in terms:
+                if term in translations:
+                    data_dict = {
+                            'term': term,
+                            'term_translation': translations[term],
+                            'lang_code': lang_code,
+                            }
+                    context = {
+                        'model': ckan.model,
+                        'session': ckan.model.Session,
+                        'user': sysadmin_user.name,
+                    }
+                    ckan.logic.action.update.term_translation_update(context,
+                            data_dict)
+
+        ckan.model.Session.commit()
+
     def create_vocabs_test_data(cls):
         import ckan.model
         CreateTestData.create()
@@ -361,12 +404,12 @@ class CreateTestData(cli.CkanCommand):
  * Associated tags, etc etc
 '''
         if auth_profile == "publisher":
-            publisher_group = model.Group(name=u"publisher_group", type="publisher")
+            organization_group = model.Group(name=u"organization_group", type="organization")
 
         cls.pkg_names = [u'annakarenina', u'warandpeace']
         pkg1 = model.Package(name=cls.pkg_names[0], type=package_type)
         if auth_profile == "publisher":
-            pkg1.group = publisher_group
+            pkg1.group = organization_group
         model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
@@ -421,7 +464,7 @@ left arrow <
         tag2 = model.Tag(name=u'tolstoy')
 
         if auth_profile == "publisher":
-            pkg2.group = publisher_group
+            pkg2.group = organization_group
 
         # Flexible tag, allows spaces, upper-case,
         # and all punctuation except commas
@@ -745,7 +788,7 @@ gov_items = [
     {'name':'weekly-fuel-prices',
      'title':'Weekly fuel prices',
      'notes':'Latest price as at start of week of unleaded petrol and diesel.',
-     'resources':[{'url':'http://www.decc.gov.uk/en/content/cms/statistics/prices.xls', 'format':'XLS', 'description':''}],
+     'resources':[{'url':'http://www.decc.gov.uk/assets/decc/statistics/source/prices/qep211.xls', 'format':'XLS', 'description':'Quarterly 23/2/12'}],
      'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
      'author':'DECC Energy Statistics Team',
      'author_email':'energy.stats@decc.gsi.gov.uk',
@@ -770,3 +813,49 @@ gov_items = [
         }
      }
     ]
+
+# Some test terms and translations.
+terms = ('A Novel By Tolstoy',
+    'Index of the novel',
+    'russian',
+    'tolstoy',
+    "Dave's books",
+    "Roger's books",
+    'Other (Open)',
+    'romantic novel',
+    'book',
+    '123',
+    '456',
+    '789',
+    'plain text',
+    'Roger likes these books.',
+)
+english_translations = {
+    '123': 'jealousy',
+    '456': 'realism',
+    '789': 'hypocrisy',
+}
+german_translations = {
+    'A Novel By Tolstoy': 'Roman von Tolstoi',
+    'Index of the novel': 'Index des Romans',
+    'russian': 'Russisch',
+    'tolstoy': 'Tolstoi',
+    "Dave's books": 'Daves Bucher',
+    "Roger's books": 'Rogers Bucher',
+    'Other (Open)': 'Andere (Open)',
+    'romantic novel': 'Liebesroman',
+    'book': 'Buch',
+    '456': 'Realismus',
+    '789': 'Heuchelei',
+    'plain text': 'Klartext',
+    'Roger likes these books.': 'Roger mag diese Bucher.'
+}
+french_translations = {
+    'A Novel By Tolstoy': 'A Novel par Tolstoi',
+    'Index of the novel': 'Indice du roman',
+    'russian': 'russe',
+    'romantic novel': 'roman romantique',
+    'book': 'livre',
+    '123': 'jalousie',
+    '789': 'hypocrisie',
+}

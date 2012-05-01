@@ -1,7 +1,7 @@
-from ckan.logic.auth import get_package_object, get_group_object, \
-    get_user_object, get_resource_object
+from ckan.logic.auth import (get_package_object, get_group_object,
+    get_user_object, get_resource_object, get_related_object)
 from ckan.logic.auth.publisher import _groups_intersect
-from ckan.logic import NotFound
+import ckan.logic as logic
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
@@ -18,6 +18,18 @@ def package_create(context, data_dict=None):
         return {'success': True}
 
     return {'success': False, 'msg': 'You must be logged in to create a package'}
+
+
+def related_create(context, data_dict=None):
+    model = context['model']
+    user = context['user']
+    userobj = model.User.get( user )
+
+    if userobj:
+        return {'success': True}
+
+    return {'success': False, 'msg': _('You must be logged in to add a related item')}
+
 
 def resource_create(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
@@ -39,10 +51,10 @@ def package_relationship_create(context, data_dict):
     if not pkg1 or not pkg2:
         return {'success': False, 'msg': _('Two package IDs are required')}
 
-    pkg1grps = pkg1.get_groups('publisher')
-    pkg2grps = pkg2.get_groups('publisher')
+    pkg1grps = pkg1.get_groups('organization')
+    pkg2grps = pkg2.get_groups('organization')
 
-    usergrps = model.User.get( user ).get_groups('publisher')
+    usergrps = model.User.get( user ).get_groups('organization')
     authorized = _groups_intersect( usergrps, pkg1grps ) and _groups_intersect( usergrps, pkg2grps )
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit these packages') % str(user)}
@@ -68,14 +80,14 @@ def group_create(context, data_dict=None):
         # If the user is doing this within another group then we need to make sure that
         # the user has permissions for this group.
         group = get_group_object( context )
-    except NotFound:
+    except logic.NotFound:
         return { 'success' : True }
 
     userobj = model.User.get( user )
     if not userobj:
         return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
 
-    authorized = _groups_intersect( userobj.get_groups('publisher'), [group] )
+    authorized = _groups_intersect( userobj.get_groups('organization'), [group] )
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
     else:

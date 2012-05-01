@@ -26,7 +26,7 @@ def text_traceback():
 
 SIMPLE_SEARCH = config.get('ckan.simple_search', False)
 
-SUPPORTED_SCHEMA_VERSIONS = ['1.3']
+SUPPORTED_SCHEMA_VERSIONS = ['1.4']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -110,10 +110,9 @@ class SynchronousSearchPlugin(SingletonPlugin):
         if operation != DomainObjectOperation.deleted:
             dispatch_by_operation(
                 entity.__class__.__name__,
-                get_action('package_show_rest')(
-                    {'model': model, 'ignore_auth': True, 'api_version':1},
-                    {'id': entity.id}
-                ),
+                get_action('package_show')(
+                    {'model': model, 'ignore_auth': True, 'validate': False},
+                    {'id': entity.id}),
                 operation
             )
         elif operation == DomainObjectOperation.deleted:
@@ -138,10 +137,9 @@ def rebuild(package_id=None,only_missing=False,force=False,refresh=False):
     package_index = index_for(model.Package)
 
     if package_id:
-        pkg_dict = get_action('package_show_rest')(
-            {'model': model, 'ignore_auth': True, 'api_version':1},
-            {'id': package_id}
-        )
+        pkg_dict = get_action('package_show')(
+                    {'model': model, 'ignore_auth': True, 'validate': False},
+                    {'id': package_id})
         package_index.remove_dict(pkg_dict)
         package_index.insert_dict(pkg_dict)
     else:
@@ -164,8 +162,8 @@ def rebuild(package_id=None,only_missing=False,force=False,refresh=False):
         for pkg_id in package_ids:
             try:
                 package_index.insert_dict(
-                    get_action('package_show_rest')(
-                        {'model': model, 'ignore_auth': True, 'api_version':1},
+                    get_action('package_show')(
+                        {'model': model, 'ignore_auth': True, 'validate': False},
                         {'id': pkg_id}
                     )
                 )

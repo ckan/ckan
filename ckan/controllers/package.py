@@ -27,11 +27,17 @@ from ckan.lib.plugins import lookup_package_plugin
 
 log = logging.getLogger(__name__)
 
+def _encode_params(params):
+    return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                                  for k, v in params]
+
+def url_with_params(url, params):
+    params = _encode_params(params)
+    return url + u'?' + urlencode(params)
+
 def search_url(params):
     url = h.url_for(controller='package', action='search')
-    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
-                    for k, v in params]
-    return url + u'?' + urlencode(params)
+    return url_with_params(url, params)
 
 autoneg_cfg = [
     ("application", "xhtml+xml", ["html"]),
@@ -78,15 +84,30 @@ class PackageController(BaseController):
     def _history_template(self, package_type):
         return lookup_package_plugin(package_type).history_template()
 
+    def _guess_package_type(self, expecting_name=False):
+        """
+            Guess the type of package from the URL handling the case
+            where there is a prefix on the URL (such as /data/package)
+        """
+        parts = [x for x in request.path.split('/') if x]
+
+        idx = -1
+        if expecting_name:
+            idx = -2
+
+        pt = parts[idx]
+        if pt == 'package':
+            pt = 'dataset'
+
+        return pt
+
 
     authorizer = ckan.authz.Authorizer()
 
     def search(self):
         from ckan.lib.search import SearchError
 
-        package_type = request.path.strip('/').split('/')[0]
-        if package_type == 'group':
-            package_type = None
+        package_type = self._guess_package_type()
 
         try:
             context = {'model':model,'user': c.user or c.author}
@@ -100,15 +121,17 @@ class PackageController(BaseController):
             page = int(request.params.get('page', 1))
         except ValueError, e:
             abort(400, ('"page" parameter must be an integer'))
-        limit = 20
+        limit = g.datasets_per_page
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
 
-        def drill_down_url(**by):
-            params = list(params_nopage)
-            params.extend(by.items())
-            return search_url(set(params))
+        def drill_down_url(alternative_url=None, **by):
+            params = set(params_nopage)
+            params |= set(by.items())
+            if alternative_url:
+                return url_with_params(alternative_url, params)
+            return search_url(params)
 
         c.drill_down_url = drill_down_url
 
@@ -148,6 +171,8 @@ class PackageController(BaseController):
             params.append(('page', page))
             return search_url(params)
 
+        c.search_url_params = urlencode(_encode_params(params_nopage))
+
         try:
             c.fields = []
             search_extras = {}
@@ -161,6 +186,7 @@ class PackageController(BaseController):
                     else:
                         search_extras[param] = value
 
+            fq += ' capacity:"public"'
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
@@ -184,6 +210,7 @@ class PackageController(BaseController):
                 items_per_page=limit
             )
             c.facets = query['facets']
+            c.search_facets = query['search_facets']
             c.page.items = query['results']
         except SearchError, se:
             log.error('Dataset search error: %r', se.args)
@@ -261,7 +288,7 @@ class PackageController(BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            c.pkg_json = json.dumps(c.pkg_dict)
+            c.resources_json = json.dumps(c.pkg_dict.get('resources',[]))
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
@@ -269,6 +296,7 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
+        c.related_count = len(c.pkg.related)
 
         # Add the package's activity stream (already rendered to HTML) to the
         # template context for the package/read.html template to retrieve
@@ -308,6 +336,8 @@ class PackageController(BaseController):
 
 
     def history(self, id):
+        package_type = self._get_package_type(id.split('@')[0])
+
         if 'diff' in request.params or 'selected1' in request.params:
             try:
                 params = {'id':request.params.getone('pkg_name'),
@@ -375,20 +405,18 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        package_type = self._get_package_type(id)
-        return render(self._history_template(package_type))
+
+        c.related_count = len(c.pkg.related)
+        return render( self._history_template(c.pkg_dict.get('type',package_type)))
 
     def new(self, data=None, errors=None, error_summary=None):
-
-        package_type = request.path.strip('/').split('/')[0]
-        if package_type == 'group':
-            package_type = None
+        package_type = self._guess_package_type(True)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,}
 
-        # Package needs to have a publisher group in the call to check_access
+        # Package needs to have a organization group in the call to check_access
         # and also to save it
         try:
             check_access('package_create',context)
@@ -400,7 +428,7 @@ class PackageController(BaseController):
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=[CACHE_PARAMETER]))))
-        c.pkg_json = json.dumps(data)
+        c.resources_json = json.dumps(data.get('resources',[]))
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -424,6 +452,7 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
+                   'for_edit': True,
                    'pending': True,}
 
         if context['save'] and not data:
@@ -439,7 +468,7 @@ class PackageController(BaseController):
             abort(404, _('Dataset not found'))
 
         c.pkg = context.get("package")
-        c.pkg_json = json.dumps(data)
+        c.resources_json = json.dumps(data.get('resources',[]))
 
         try:
             check_access('package_update',context)
@@ -451,6 +480,7 @@ class PackageController(BaseController):
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id}, package_type=package_type)
+        c.related_count = len(c.pkg.related)
 
         # TODO: This check is to maintain backwards compatibility with the old way of creating
         # custom forms. This behaviour is now deprecated.
@@ -475,7 +505,6 @@ class PackageController(BaseController):
                    'extras_as_string': True,
                    'schema': self._form_to_db_schema(package_type=package_type),
                    'revision_id': revision}
-
         try:
             data = get_action('package_show')(context, {'id': id})
             schema = self._db_to_form_schema(package_type=package_type)
@@ -634,6 +663,9 @@ class PackageController(BaseController):
 
         roles = self._handle_update_of_authz(pkg)
         self._prepare_authz_info_for_render(roles)
+
+        # c.related_count = len(pkg.related)
+
         return render('package/authz.html')
 
     def autocomplete(self):
@@ -695,17 +727,6 @@ class PackageController(BaseController):
         else:
             model.Session.commit()
 
-    def _person_email_link(self, name, email, reference):
-        if email:
-            if not name:
-                name = email
-            return h.mail_to(email_address=email, name=name, encode='javascript')
-        else:
-            if name:
-                return name
-            else:
-                return reference + " unknown"
-
     def resource_read(self, id, resource_id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -729,5 +750,67 @@ class PackageController(BaseController):
             c.package['isopen'] = False
         c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
                 qualified=True)
+
+        c.related_count = len(c.pkg.related)
         return render('package/resource_read.html')
+
+    def resource_embedded_dataviewer(self, id, resource_id):
+        """
+        Embeded page for a read-only resource dataview.
+        """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.resource = get_action('resource_show')(context, {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+            c.resource_json = json.dumps(c.resource)
+
+            # double check that the resource belongs to the specified package
+            if not c.resource['id'] in [ r['id'] for r in c.package['resources'] ]:
+                raise NotFound
+
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        # Construct the recline state
+        state_version = int(request.params.get('state_version', '1'))
+        recline_state = self._parse_recline_state(request.params)
+        if recline_state is None:
+            abort(400, ('"state" parameter must be a valid recline state (version %d)' % state_version))
+
+        c.recline_state = json.dumps(recline_state)
+
+        c.width = max(int(request.params.get('width', 500)), 100)
+        c.height = max(int(request.params.get('height', 500)), 100)
+        c.embedded = True
+
+        return render('package/resource_embedded_dataviewer.html')
+
+    def _parse_recline_state(self, params):
+        state_version = int(request.params.get('state_version', '1'))
+        if state_version != 1:
+            return None
+
+        recline_state = {}
+        for k,v in request.params.items():
+            try:
+                v = json.loads(v)
+            except ValueError:
+                pass
+            recline_state[k] = v
+
+        recline_state.pop('width', None)
+        recline_state.pop('height', None)
+        recline_state['readOnly'] = True
+
+        # Ensure only the currentView is available
+        if not recline_state.get('currentView', None):
+            recline_state['currentView'] = 'grid'   # default to grid view if none specified
+        for k in recline_state.keys():
+            if k.startswith('view-') and not k.endswith(recline_state['currentView']):
+                recline_state.pop(k)
+        return recline_state
 

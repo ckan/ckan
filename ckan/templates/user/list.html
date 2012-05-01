@@ -8,9 +8,10 @@
   
   <py:match path="primarysidebar">
     <li class="widget-container widget_text">
-      <form id="user-search" class="user-search" action="" method="GET">
-        <input type="text" id="q" name="q" value="${c.q}" />
-        <input type="submit" class="btn btn-small" name="" value="Search &raquo;" />
+      <h3>Search Users</h3>
+      <form id="user-search" class="form-inline user-search" action="" method="GET">
+        <input type="text" class="input-medium" id="q" name="q" value="${c.q}" />
+        <input type="submit" class="btn btn-small btn-primary" name="" value="${_('Search')} &raquo;" />
       </form>
       <p py:if="c.q" i18n:msg="item_count">
         <strong>${c.page.item_count}</strong> users found.
@@ -19,11 +20,11 @@
   </py:match>
   
   <py:match path="minornavigation">
-    <ul class="tabbed">
-      <li py:attrs="{'class':'current-tab'} if c.order_by=='name' else {}">
+    <ul class="nav nav-pills">
+      <li class="${'active' if c.order_by=='name' else ''}">
         <a href="?q=${c.q}&amp;order_by=name" rel="nofollow">Sort by name</a>
       </li>
-      <li py:attrs="{'class':'current-tab'} if c.order_by=='edits' else {}">
+      <li class="${'active' if c.order_by=='edits' else ''}">
         <a href="?q=${c.q}&amp;order_by=edits" rel="nofollow">Sort by edits</a>
       </li>
     </ul>

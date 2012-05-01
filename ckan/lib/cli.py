@@ -1,4 +1,5 @@
 import os
+import datetime
 import sys
 import logging
 from pprint import pprint
@@ -84,7 +85,7 @@ class ManageDb(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
         import ckan.lib.search as search
 
         cmd = self.args[0]
@@ -164,7 +165,7 @@ class ManageDb(CkanCommand):
         self._run_cmd(pg_dump_cmd)
 
     def _postgres_load(self, filepath):
-        from ckan import model
+        import ckan.model as model
         assert not model.repo.are_tables_created(), "Tables already found. You need to 'db clean' before a load."
         pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
         self._run_cmd(pg_cmd)
@@ -194,7 +195,7 @@ class ManageDb(CkanCommand):
         pg_cmd = self._postgres_load(dump_path)
         if not only_load:
             print 'Upgrading DB'
-            from ckan import model
+            import ckan.model as model
             model.repo.upgrade_db()
 
             print 'Rebuilding search index'
@@ -205,7 +206,7 @@ class ManageDb(CkanCommand):
         print 'Done'
 
     def simple_dump_csv(self):
-        from ckan import model
+        import ckan.model as model
         if len(self.args) < 2:
             print 'Need csv file path'
             return
@@ -215,7 +216,7 @@ class ManageDb(CkanCommand):
         dumper.SimpleDumper().dump(dump_file, format='csv')
 
     def simple_dump_json(self):
-        from ckan import model
+        import ckan.model as model
         if len(self.args) < 2:
             print 'Need json file path'
             return
@@ -375,6 +376,66 @@ class Notification(CkanCommand):
         else:
             print 'Command %s not recognized' % cmd
 
+
+class RDFExport(CkanCommand):
+    '''
+    This command dumps out all currently active datasets as RDF into the
+    specified folder.
+
+    Usage:
+      paster rdf-export /path/to/store/output
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+
+    def command(self):
+        self._load_config()
+
+        if not self.args:
+            # default to run
+            print RDFExport.__doc__
+        else:
+            self.export_datasets( self.args[0] )
+
+    def export_datasets(self, out_folder):
+        '''
+        Export datasets as RDF to an output folder.
+        '''
+        import urlparse
+        import urllib2
+        import pylons.config as config
+        import ckan.model as model
+        import ckan.logic as logic
+        import ckan.lib.helpers as h
+
+        # Create output folder if not exists
+        if not os.path.isdir( out_folder ):
+            os.makedirs( out_folder )
+
+        fetch_url = config['ckan.site_url']
+        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        context = {'model': model, 'session': model.Session, 'user': user['name']}
+        dataset_names = logic.get_action('package_list')(context, {})
+        for dataset_name in dataset_names:
+            dd = logic.get_action('package_show')(context, {'id':dataset_name })
+            if not dd['state'] == 'active':
+                continue
+
+            url = h.url_for( controller='package',action='read',
+                                                  id=dd['name'])
+
+            url = urlparse.urljoin(fetch_url, url[1:]) + '.rdf'
+            try:
+                fname = os.path.join( out_folder, dd['name'] ) + ".rdf"
+                r = urllib2.urlopen(url).read()
+                with open(fname, 'wb') as f:
+                    f.write(r)
+            except IOError, ioe:
+                sys.stderr.write( str(ioe) + "\n" )
+
+
+
+
 class Sysadmin(CkanCommand):
     '''Gives sysadmin rights to a named user
 
@@ -392,7 +453,7 @@ class Sysadmin(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
 
         cmd = self.args[0] if self.args else None
         if cmd == None or cmd == 'list':
@@ -405,7 +466,7 @@ class Sysadmin(CkanCommand):
             print 'Command %s not recognized' % cmd
 
     def list(self):
-        from ckan import model
+        import ckan.model as model
         print 'Sysadmins:'
         sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
         print 'count = %i' % sysadmins.count()
@@ -417,7 +478,7 @@ class Sysadmin(CkanCommand):
                                         user_or_authgroup.id)
 
     def add(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need name of the user to be made sysadmin.'
@@ -441,7 +502,7 @@ class Sysadmin(CkanCommand):
         print 'Added %s as sysadmin' % username
 
     def remove(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need name of the user to be made sysadmin.'
@@ -477,7 +538,7 @@ class UserCmd(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
 
         if not self.args:
             self.list()
@@ -503,7 +564,7 @@ class UserCmd(CkanCommand):
         return user_str
 
     def list(self):
-        from ckan import model
+        import ckan.model as model
         print 'Users:'
         users = model.Session.query(model.User)
         print 'count = %i' % users.count()
@@ -511,14 +572,14 @@ class UserCmd(CkanCommand):
             print self.get_user_str(user)
 
     def show(self):
-        from ckan import model
+        import ckan.model as model
 
         username = self.args[0]
         user = model.User.get(unicode(username))
         print 'User: \n', user
 
     def setpass(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need name of the user.'
@@ -533,7 +594,7 @@ class UserCmd(CkanCommand):
         print 'Done'
 
     def search(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need user name query string.'
@@ -558,7 +619,7 @@ class UserCmd(CkanCommand):
         return password1
 
     def add(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need name of the user.'
@@ -611,7 +672,7 @@ class UserCmd(CkanCommand):
         print user
 
     def remove(self):
-        from ckan import model
+        import ckan.model as model
 
         if len(self.args) < 2:
             print 'Need name of the user.'
@@ -644,7 +705,7 @@ class DatasetCmd(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
 
         if not self.args:
             print self.usage
@@ -662,7 +723,7 @@ class DatasetCmd(CkanCommand):
                 self.show(self.args[0])
 
     def list(self):
-        from ckan import model
+        import ckan.model as model
         print 'Datasets:'
         datasets = model.Session.query(model.Package)
         print 'count = %i' % datasets.count()
@@ -672,19 +733,19 @@ class DatasetCmd(CkanCommand):
             print '%s %s %s' % (dataset.id, dataset.name, state)
 
     def _get_dataset(self, dataset_ref):
-        from ckan import model
+        import ckan.model as model
         dataset = model.Package.get(unicode(dataset_ref))
         assert dataset, 'Could not find dataset matching reference: %r' % dataset_ref
         return dataset
 
     def show(self, dataset_ref):
-        from ckan import model
         import pprint
         dataset = self._get_dataset(dataset_ref)
         pprint.pprint(dataset.as_dict())
 
     def delete(self, dataset_ref):
-        from ckan import model, plugins
+        from ckan import plugins
+        import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         old_state = dataset.state
 
@@ -696,7 +757,8 @@ class DatasetCmd(CkanCommand):
         print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
 
     def purge(self, dataset_ref):
-        from ckan import model, plugins
+        from ckan import plugins
+        import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name
 
@@ -708,20 +770,68 @@ class DatasetCmd(CkanCommand):
 
 
 class Celery(CkanCommand):
-    '''Run celery daemon
+    '''Celery daemon
 
     Usage:
-        celeryd
+        celeryd       - run the celery daemon
+        celeryd run   - run the celery daemon
+        celeryd view  - view all tasks in the queue
+        celeryd clean - delete all tasks in the queue
     '''
     min_args = 0
     summary = __doc__.split('\n')[0]
     usage = __doc__
 
     def command(self):
+        if not self.args:
+            self.run_()
+        else:
+            cmd = self.args[0]
+            if cmd == 'run':
+                self.run_()
+            elif cmd == 'view':
+                self.view()
+            elif cmd == 'clean':
+                self.clean()
+            else:
+                print 'Command %s not recognized' % cmd
+                sys.exit(1)
+
+    def run_(self):
         os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
         from ckan.lib.celery_app import celery
         celery.worker_main(argv=['celeryd', '--loglevel=INFO'])
 
+    def view(self):
+        self._load_config()
+        import ckan.model as model
+        from kombu.transport.sqlalchemy.models import Message
+        q = model.Session.query(Message)
+        q_visible = q.filter_by(visible=True)
+        print '%i messages (total)' % q.count()
+        print '%i visible messages' % q_visible.count()
+        for message in q:
+            if message.visible:
+                print '%i: Visible' % (message.id)
+            else:
+                print '%i: Invisible Sent:%s' % (message.id, message.sent_at)
+
+    def clean(self):
+        self._load_config()
+        import ckan.model as model
+        import pprint
+        tasks_initially = model.Session.execute("select * from kombu_message").rowcount
+        if not tasks_initially:
+            print 'No tasks to delete'
+            sys.exit(0)
+        query = model.Session.execute("delete from kombu_message")
+        tasks_afterwards = model.Session.execute("select * from kombu_message").rowcount
+        print '%i of %i tasks deleted' % (tasks_initially - tasks_afterwards,
+                                          tasks_initially)
+        if tasks_afterwards:
+            print 'ERROR: Failed to delete all tasks'
+            sys.exit(1)
+        model.repo.commit_and_remove()
 
 class Ratings(CkanCommand):
     '''Manage the ratings stored in the db
@@ -739,7 +849,7 @@ class Ratings(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import model
+        import ckan.model as model
 
         cmd = self.args[0]
         if cmd == 'count':
@@ -752,14 +862,14 @@ class Ratings(CkanCommand):
             print 'Command %s not recognized' % cmd
 
     def count(self):
-        from ckan import model
+        import ckan.model as model
         q = model.Session.query(model.Rating)
         print "%i ratings" % q.count()
         q = q.filter(model.Rating.user_id == None)
         print "of which %i are anonymous ratings" % q.count()
 
     def clean(self, user_ratings=True):
-        from ckan import model
+        import ckan.model as model
         q = model.Session.query(model.Rating)
         print "%i ratings" % q.count()
         if not user_ratings:
@@ -770,3 +880,207 @@ class Ratings(CkanCommand):
             rating.purge()
         model.repo.commit_and_remove()
 
+class Tracking(CkanCommand):
+    '''Update tracking statistics
+
+    Usage:
+      tracking   - update tracking stats
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        import ckan.model as model
+        engine = model.meta.engine
+
+        if len(self.args) == 1:
+            # Get summeries from specified date
+            start_date = datetime.datetime.strptime(self.args[0], '%Y-%m-%d')
+        else:
+            # No date given. See when we last have data for and get data
+            # from 2 days before then in case new data is available.
+            # If no date here then use 2010-01-01 as the start date
+            sql = '''SELECT tracking_date from tracking_summary
+                     ORDER BY tracking_date DESC LIMIT 1;'''
+            result = engine.execute(sql).fetchall()
+            if result:
+                start_date = result[0]['tracking_date']
+                start_date += datetime.timedelta(-2)
+                # convert date to datetime
+                combine = datetime.datetime.combine
+                start_date = combine(start_date, datetime.time(0))
+            else:
+                start_date = datetime.datetime(2011, 1, 1)
+        end_date = datetime.datetime.now()
+
+        while start_date < end_date:
+            stop_date = start_date + datetime.timedelta(1)
+            self.update_tracking(engine, start_date)
+            print 'tracking updated for %s' % start_date
+            start_date = stop_date
+
+    def update_tracking(self, engine, summary_date):
+        PACKAGE_URL = '/dataset/'
+        # clear out existing data before adding new
+        sql = '''DELETE FROM tracking_summary
+                 WHERE tracking_date='%s'; ''' % summary_date
+        engine.execute(sql)
+
+        sql = '''SELECT DISTINCT url, user_key,
+                     CAST(access_timestamp AS Date) AS tracking_date,
+                     tracking_type INTO tracking_tmp
+                 FROM tracking_raw
+                 WHERE CAST(access_timestamp as Date)='%s';
+
+                 INSERT INTO tracking_summary
+                   (url, count, tracking_date, tracking_type)
+                 SELECT url, count(user_key), tracking_date, tracking_type
+                 FROM tracking_tmp
+                 GROUP BY url, tracking_date, tracking_type;
+
+                 DROP TABLE tracking_tmp;
+                 COMMIT;''' % summary_date
+        engine.execute(sql)
+
+        # get ids for dataset urls
+        sql = '''UPDATE tracking_summary t
+                 SET package_id = COALESCE(
+                        (SELECT id FROM package p
+                        WHERE t.url =  %s || p.name)
+                     ,'~~not~found~~')
+                 WHERE t.package_id IS NULL
+                 AND tracking_type = 'page';'''
+        engine.execute(sql, PACKAGE_URL)
+
+        # update summary totals for resources
+        sql = '''UPDATE tracking_summary t1
+                 SET running_total = (
+                    SELECT sum(count)
+                    FROM tracking_summary t2
+                    WHERE t1.url = t2.url
+                    AND t2.tracking_date <= t1.tracking_date
+                 ) + t1.count
+                 ,recent_views = (
+                    SELECT sum(count)
+                    FROM tracking_summary t2
+                    WHERE t1.url = t2.url
+                    AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
+                 ) + t1.count
+                 WHERE t1.running_total = 0 AND tracking_type = 'resource';'''
+        engine.execute(sql)
+
+        # update summary totals for pages
+        sql = '''UPDATE tracking_summary t1
+                 SET running_total = (
+                    SELECT sum(count)
+                    FROM tracking_summary t2
+                    WHERE t1.package_id = t2.package_id
+                    AND t2.tracking_date <= t1.tracking_date
+                 ) + t1.count
+                 ,recent_views = (
+                    SELECT sum(count)
+                    FROM tracking_summary t2
+                    WHERE t1.package_id = t2.package_id
+                    AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
+                 ) + t1.count
+                 WHERE t1.running_total = 0 AND tracking_type = 'page'
+                 AND t1.package_id IS NOT NULL
+                 AND t1.package_id != '~~not~found~~';'''
+        engine.execute(sql)
+
+class PluginInfo(CkanCommand):
+    ''' Provide info on installed plugins.
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 0
+    min_args = 0
+
+    def command(self):
+        self.get_info()
+
+    def get_info(self):
+        ''' print info about current plugins from the .ini file'''
+        import ckan.plugins as p
+        self._load_config()
+        interfaces = {}
+        plugins = {}
+        for name in dir(p):
+            item = getattr(p, name)
+            try:
+                if issubclass(item, p.Interface):
+                    interfaces[item] = {'class' : item}
+            except TypeError:
+                pass
+
+        for interface in interfaces:
+            for plugin in p.PluginImplementations(interface):
+                name = plugin.name
+                if name not in plugins:
+                    plugins[name] = {'doc' : plugin.__doc__,
+                                     'class' : plugin,
+                                     'implements' : []}
+                plugins[name]['implements'].append(interface.__name__)
+
+        for plugin in plugins:
+            p = plugins[plugin]
+            print plugin + ':'
+            print '-' * (len(plugin) + 1)
+            if p['doc']:
+                print p['doc']
+            print 'Implements:'
+            for i in p['implements']:
+                extra = None
+                if i == 'ITemplateHelpers':
+                    extra = self.template_helpers(p['class'])
+                if i == 'IActions':
+                    extra = self.actions(p['class'])
+                print '    %s' % i
+                if extra:
+                    print extra
+            print
+
+
+    def actions(self, cls):
+        ''' Return readable action function info. '''
+        actions = cls.get_actions()
+        return self.function_info(actions)
+
+    def template_helpers(self, cls):
+        ''' Return readable helper function info. '''
+        helpers = cls.get_helpers()
+        return self.function_info(helpers)
+
+    def function_info(self, functions):
+        ''' Take a dict of functions and output readable info '''
+        import inspect
+        output = []
+        for function_name in functions:
+            fn = functions[function_name]
+            args_info = inspect.getargspec(fn)
+            params = args_info.args
+            num_params = len(params)
+            if args_info.varargs:
+                params.append('*' + args_info.varargs)
+            if args_info.keywords:
+                params.append('**' + args_info.keywords)
+            if args_info.defaults:
+                offset = num_params - len(args_info.defaults)
+                for i, v in enumerate(args_info.defaults):
+                    params[i + offset] = params[i + offset] + '=' + repr(v)
+            # is this a classmethod if so remove the first parameter
+            if inspect.ismethod(fn) and inspect.isclass(fn.__self__):
+                params = params[1:]
+            params = ', '.join(params)
+            output.append('        %s(%s)' % (function_name, params))
+            # doc string
+            if fn.__doc__:
+                bits = fn.__doc__.split('\n')
+                for bit in bits:
+                    output.append('            %s' % bit)
+        return ('\n').join(output)

@@ -13,8 +13,8 @@ def scrape_search_results(response, object_type):
                              str(response))
     else:
         object_type = 'dataset'
-        results = re.findall('class="main-link" href="/%s/%s_(\d\d)"' % (object_type, object_type),
-                             str(response))        
+        results = re.findall('href="/%s/%s_(\d\d)"' % (object_type, object_type),
+                             str(response))
     return results
 
 def test_scrape_user():
@@ -26,29 +26,12 @@ def test_scrape_user():
           <li class="username">
           <img src="http://gravatar.com/avatar/d41d8cd98f00b204e9800998ecf8427e?s=16&amp;d=http://test.ckan.net/images/icons/user.png" /> <a href="/user/user_01">user_01</a>
           </li>
-          
+
       '''
     res = scrape_search_results(html, 'user')
     assert_equal(res, ['00', '01'])
 
-def test_scrape_group_dataset():
-    html = '''
-        <div class="search-result ">
-          <a class="view-more-link" href="/dataset/dataset_13">View</a>
-          <a class="main-link" href="/dataset/dataset_13">dataset_13</a>
-          
-          <p class="result-description"></p>
 
-          <span class="result-url">
-
-              <img src="/images/icons/lock.png" height="16px" width="16px" alt="None" />  Not Openly Licensed
-            
-          </span>
-        </div>
-      '''
-    res = scrape_search_results(html, 'group_dataset')
-    assert_equal(res, ['13'])
-    
 class TestPaginationPackage(TestController):
     @classmethod
     def setup_class(cls):
@@ -67,11 +50,11 @@ class TestPaginationPackage(TestController):
             })
 
         CreateTestData.create_arbitrary(packages)
-        
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-        
+
     def test_package_search_p1(self):
         res = self.app.get(url_for(controller='package', action='search', q='groups:group_00'))
         assert 'href="/dataset?q=groups%3Agroup_00&amp;page=2"' in res
@@ -86,13 +69,13 @@ class TestPaginationPackage(TestController):
 
     def test_group_datasets_read_p1(self):
         res = self.app.get(url_for(controller='group', action='read', id='group_00'))
-        assert 'href="/group/group_00?page=2' in res
+        assert 'href="/group/group_00?page=2' in res, res
         pkg_numbers = scrape_search_results(res, 'group_dataset')
         assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'], pkg_numbers)
 
     def test_group_datasets_read_p2(self):
         res = self.app.get(url_for(controller='group', action='read', id='group_00', page=2))
-        assert 'href="/group/group_00?page=1' in res
+        assert 'href="/group/group_00?page=1' in res, res
         pkg_numbers = scrape_search_results(res, 'group_dataset')
         assert_equal(['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39'], pkg_numbers)
 
@@ -108,7 +91,7 @@ class TestPaginationGroup(TestController):
         CreateTestData.create_arbitrary(
             [], extra_group_names=groups
         )
-        
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
@@ -123,7 +106,7 @@ class TestPaginationGroup(TestController):
         assert 'href="/group?page=1"' in res
         grp_numbers = scrape_search_results(res, 'group')
         assert_equal(['20'], grp_numbers)
-        
+
 class TestPaginationUsers(TestController):
     @classmethod
     def setup_class(cls):
@@ -140,7 +123,7 @@ class TestPaginationUsers(TestController):
         CreateTestData.create_arbitrary(
             [], extra_user_names = users,
         )
-        
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()

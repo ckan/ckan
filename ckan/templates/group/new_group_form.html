@@ -1,11 +1,13 @@
-<form 
-  class="form-horizontal ${'has-errors' if errors else ''}" 
-  id="group-edit" 
-  action="" 
-  method="post" 
+<form
+  class="form-horizontal ${'has-errors' if errors else ''}"
+  id="group-edit"
+  action=""
+  method="post"
   xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="../_util.html" />
 
 <div class="error-explanation" py:if="error_summary">
 <h2>Errors in form</h2>
@@ -38,15 +40,14 @@
   <div class="control-group">
     <label for="" class="control-label">Description</label>
     <div class="controls">
-      <div class="markdown-editor">
-        <ul class="button-row">
-          <li><button class="btn js-markdown-edit depressed">Edit</button></li>
-          <li><button class="btn js-markdown-preview">Preview</button></li>
-        </ul>
-        <textarea class="markdown-input" name="description" id="notes" placeholder="${_('Start with a summary sentence ...')}">${data.get('description','')}</textarea>
-        <div class="markdown-preview" style="display: none;"></div>
-        <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span>
-      </div>
+      ${markdown_editor('description', data.get('description'), 'notes', _('Start with a summary sentence ...'))}
+    </div>
+  </div>
+  <div class="control-group">
+    <label for="name" class="control-label">Image URL:</label>
+    <div class="controls">
+      <input id="image_url" name="image_url" type="text" value="${data.get('image_url', '')}"/>
+      <p>The URL for the image that is associated with this group.</p>
     </div>
   </div>
   <div class="state-field control-group" py:if="c.is_sysadmin or c.auth_for_change_state">
@@ -59,7 +60,7 @@
     </div>
   </div>
 </fieldset>
-  
+
 <fieldset id="extras">
   <h3>Extras</h3>
   <dl>

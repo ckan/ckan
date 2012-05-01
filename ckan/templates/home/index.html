@@ -10,7 +10,7 @@
 
   <div py:match="//div[@id='content']" class="front-page">
     <div>
-      <h1>Welcome to ${g.site_title}!</h1>
+      <h1 class="page_heading">Welcome to ${g.site_title}!</h1>
     </div>
     <div class="row">
       <div class="span4">
@@ -34,7 +34,7 @@
           Add your own datasets to share them with others and
           to find other people interested in your data.
           
-          <py:choose test="h.am_authorized(c, actions.PACKAGE_CREATE)">
+          <py:choose test="h.check_access('package_create')">
             <a py:when="" href="${h.url_for(controller='package', action='new')}" class="create-button">Create a dataset &raquo;</a>
             <py:otherwise>
               <a href="${h.url_for(controller='user', action='login')}" class="create-button">Sign up &raquo;</a>

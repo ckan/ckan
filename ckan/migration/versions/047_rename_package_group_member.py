@@ -75,8 +75,8 @@ ALTER TABLE "group"
 ALTER TABLE "group_revision"
 	ADD COLUMN "type" text;
 
-update member set table_name = 'package', capacity = 'member';
-update member_revision set table_name = 'package', capacity = 'member';
+update member set table_name = 'package', capacity = 'public';
+update member_revision set table_name = 'package', capacity = 'public';
 
 update "group" set type = 'group';
 update group_revision set type = 'group';
@@ -101,7 +101,7 @@ ALTER TABLE "package"
 	ADD COLUMN "type" text;
 ALTER TABLE "package_revision"
 	ADD COLUMN "type" text;
-	
+
 
 COMMIT;
     '''

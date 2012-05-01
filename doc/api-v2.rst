@@ -176,7 +176,7 @@ Here are the data formats for the Model API:
 | Group-List         | [ Group-Ref, Group-Ref, Group-Ref, ... ]                   |
 +--------------------+------------------------------------------------------------+
 | Group              | { name: Group-Name-String, title: String,                  |
-|                    | description: String, datasets: Dataset-List }              |
+|                    | description: String, packages: Dataset-List }              |
 +--------------------+------------------------------------------------------------+
 | Tag-List           | [ Name-String, Name-String, Name-String, ... ]             |
 +--------------------+------------------------------------------------------------+

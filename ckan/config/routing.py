@@ -57,6 +57,7 @@ def make_map():
             'resource',
             'tag',
             'group',
+            'related',
             'authorizationgroup',
             'revision',
             'licenses',
@@ -151,6 +152,10 @@ def make_map():
     ##map.connect('/package/new', controller='package_formalchemy', action='new')
     ##map.connect('/package/edit/{id}', controller='package_formalchemy', action='edit')
 
+    with SubMapper(map, controller='related') as m:
+        m.connect('related_list', '/dataset/{id}/related', action='list')
+        m.connect('related_read', '/dataset/{id}/related/{related_id}', action='read')
+
     with SubMapper(map, controller='package') as m:
         m.connect('/dataset', action='search')
         m.connect('/dataset/{action}',
@@ -183,6 +188,7 @@ def make_map():
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('/dataset/{id}', action='read')
         m.connect('/dataset/{id}/resource/{resource_id}', action='resource_read')
+        m.connect('/dataset/{id}/resource/{resource_id}/embed', action='resource_embedded_dataviewer')
 
     # group
     map.redirect('/groups', '/group')
@@ -209,7 +215,6 @@ def make_map():
 
     register_package_plugins(map)
     register_group_plugins(map)
-
 
     # authz group
     map.redirect('/authorizationgroups', '/authorizationgroup')
@@ -239,6 +244,7 @@ def make_map():
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('/user/register', action='register')
         m.connect('/user/login', action='login')
+        m.connect('/user/_logout', action='logout')
         m.connect('/user/logged_in', action='logged_in')
         m.connect('/user/logged_out', action='logged_out')
         m.connect('/user/logged_out_redirect', action='logged_out_page')
@@ -254,6 +260,13 @@ def make_map():
         m.connect('/revision/diff/{id}', action='diff')
         m.connect('/revision/list', action='list')
         m.connect('/revision/{id}', action='read')
+
+    # feeds
+    with SubMapper(map, controller='feed') as m:
+        m.connect('/feeds/group/{id}.atom', action='group')
+        m.connect('/feeds/tag/{id}.atom', action='tag')
+        m.connect('/feeds/dataset.atom', action='general')
+        m.connect('/feeds/custom.atom', action='custom')
 
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')

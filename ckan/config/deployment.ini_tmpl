@@ -99,7 +99,7 @@ ckan.build_search_index_synchronously = true
 ckan.site_title = CKAN
 
 ## Logo image to use on the home page
-ckan.site_logo = /img/logo.png
+ckan.site_logo = /img/logo_64px_wide.png
 
 ## Site tagline / description (used on front page)
 ckan.site_description = 
@@ -164,6 +164,39 @@ ckan.locale_default = en
 # http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
 ckan.locale_order = en de fr it es pl ru nl sv no cs_CZ hu pt_BR fi bg ca sq sr sr_Latn
 ckan.locales_filtered_out = el ro lt sl
+
+## Atom Feeds
+#
+# Settings for customising the metadata provided in
+# atom feeds.
+#
+# These settings are used to generate the <id> tags for both feeds
+# and entries. The unique <id>s are created following the method
+# outlined in http://www.taguri.org/  ie - they generate tagURIs, as specified
+# in http://tools.ietf.org/html/rfc4151#section-2.1 :
+#
+# <id>tag:thedatahub.org,2012:/feeds/group/933f3857-79fd-4beb-a835-c0349e31ce76</id>
+#
+# Each component has the corresponding settings:
+#
+#   "thedatahub.org" is ckan.feeds.authority_name
+#   "2012"           is ckan.feeds.date
+#
+
+# Leave blank to use the ckan.site_url config value, otherwise set to a
+# domain or email address that you own.  e.g. thedatahub.org or
+# admin@thedatahub.org
+ckan.feeds.authority_name =
+
+# Pick a date of the form "yyyy[-mm[-dd]]" during which the above domain was
+# owned by you.
+ckan.feeds.date = 2012
+
+# If not set, then the value in `ckan.site_id` is used.
+ckan.feeds.author_name =
+
+# If not set, then the value in `ckan.site_url` is used.
+ckan.feeds.author_link =
 
 ## Webstore
 ## Uncommment to enable datastore

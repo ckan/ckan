@@ -1,0 +1,75 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:dc="http://purl.org/dc/terms/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dcat="http://www.w3.org/ns/dcat#"
+  typeof="dcat:Dataset"
+  about=""
+  py:strip="">
+
+  <py:def function="body_class">no-sidebar</py:def>
+  <xi:include href="../_snippet/add-related.html" />
+
+  <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
+  - Related</py:def>
+
+  <py:def function="page_heading" property="dc:title">
+    ${c.pkg_dict['title']} - Related
+  </py:def>
+
+  <div py:match="content">
+    ${add_related(c.pkg)}
+    <h3>Related items <a class="btn btn-small btn-primary pull-right" data-toggle="modal" href=".modal-add-related" py:if="c.user"><i class="icon-plus-sign icon-white"></i> Add related item</a></h3>
+    <div>
+      <div py:if="not c.pkg.related" class="span8 no-related-items">
+          There are no related items here yet<span py:if="c.user">, why not <a data-toggle="modal" href=".modal-add-related">add one</a>?</span>
+      </div>
+
+      <ul class="related-items thumbnails">
+        <py:for each="related in c.pkg.related">
+          ${related_summary(related)}
+        </py:for>
+      </ul>
+    </div>
+
+    <span class="insert-comment-thread"></span>
+  </div>
+
+  <py:def function="optional_head">
+    <script type="text/javascript" py:if="c.user">
+        function related_delete(related_id) {
+          var data = { 'id' : related_id }
+          $.ajax({
+            type: "post",
+            url: CKAN.SITE_URL + '/api/3/action/related_delete',
+            data: JSON.stringify(data),
+            success: function (data) {
+              window.location.reload();
+            },
+            error: function(err, txt, w) {
+              // This needs to be far more informative.
+              var msg = '<strong>Error:</strong> Unable to delete related item';
+              $('<div class="alert alert-error" />').html(msg).hide().prependTo($('div#main')).fadeIn();
+            }
+          });
+
+        }
+    </script>
+    <py:if test="config.get('rdf_packages')">
+      <link rel="alternate" type="application/rdf+xml" title="RDF/XML" href="${config['rdf_packages'] + '/' + c.pkg.id + '.rdf' }" />
+      <link rel="alternate" type="application/turtle" title="RDF/Turtle" href="${config['rdf_packages'] + '/' + c.pkg.id + '.ttl' }" />
+    </py:if>
+  </py:def>
+
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="Dataset History"
+    href="${h.url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
+  </py:def>
+
+  <xi:include href="layout.html" />
+</html>
+

@@ -6,11 +6,10 @@ import logging
 from inspect import isclass
 from itertools import chain
 from pkg_resources import iter_entry_points
-from pyutilib.component.core import PluginGlobals, ExtensionPoint as PluginImplementations, implements
+from pyutilib.component.core import PluginGlobals, implements
+from pyutilib.component.core import ExtensionPoint as PluginImplementations
 from pyutilib.component.core import SingletonPlugin as _pca_SingletonPlugin
 from pyutilib.component.core import Plugin as _pca_Plugin
-from pyutilib.component.core import PluginEnvironment
-from sqlalchemy.orm.interfaces import MapperExtension
 
 from ckan.plugins.interfaces import IPluginObserver
 
@@ -23,17 +22,19 @@ __all__ = [
 
 log = logging.getLogger(__name__)
 
-# Entry point group. 
+# Entry point group.
 PLUGINS_ENTRY_POINT_GROUP = "ckan.plugins"
 
 # Entry point group for system plugins (those that are part of core ckan and do
 # not need to be explicitly enabled by the user)
 SYSTEM_PLUGINS_ENTRY_POINT_GROUP = "ckan.system_plugins"
 
+
 class PluginNotFoundException(Exception):
     """
     Raised when a requested plugin cannot be found.
     """
+
 
 class Plugin(_pca_Plugin):
     """
@@ -43,6 +44,7 @@ class Plugin(_pca_Plugin):
     probably use SingletonPlugin.
     """
 
+
 class SingletonPlugin(_pca_SingletonPlugin):
     """
     Base class for plugins which are singletons (ie most of them)
@@ -51,6 +53,7 @@ class SingletonPlugin(_pca_SingletonPlugin):
     loaded. Subsequent calls to the class constructor will always return the
     same singleton instance.
     """
+
 
 def _get_service(plugin):
     """
@@ -100,12 +103,14 @@ def load_all(config):
     for plugin in plugins:
         load(plugin)
 
+
 def reset():
     """
     Clear and reload all configured plugins
     """
     from pylons import config
     load_all(config)
+
 
 def load(plugin):
     """
@@ -120,6 +125,7 @@ def load(plugin):
         observer_plugin.after_load(service)
     return service
 
+
 def unload_all():
     """
     Unload (deactivate) all loaded plugins
@@ -127,6 +133,7 @@ def unload_all():
     for env in PluginGlobals.env_registry.values():
         for service in env.services.copy():
             unload(service)
+
 
 def unload(plugin):
     """
@@ -144,6 +151,7 @@ def unload(plugin):
 
     return service
 
+
 def find_user_plugins(config):
     """
     Return all plugins specified by the user in the 'ckan.plugins' config
@@ -159,10 +167,11 @@ def find_user_plugins(config):
         plugins.extend(ep.load() for ep in entry_points)
     return plugins
 
+
 def find_system_plugins():
     """
     Return all plugins in the ckan.system_plugins entry point group.
-    
+
     These are essential for operation and therefore cannot be enabled/disabled
     through the configuration file.
     """
@@ -170,4 +179,3 @@ def find_system_plugins():
         ep.load()
         for ep in iter_entry_points(group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP)
     )
-

@@ -423,4 +423,4 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
             environ.update(extra_environ)
         self.app._set_headers({}, environ)
         req = TestRequest(offset, environ, expect_errors=False)
-        return self.app.do_request(req, status=status)        
+        return self.app.do_request(req, status=status)

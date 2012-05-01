@@ -72,7 +72,7 @@ class TestGroup(FunctionalTestCase):
     def test_index(self):
         offset = url_for(controller='group', action='index')
         res = self.app.get(offset)
-        assert '<h1 class="page_heading">Groups' in res, res
+        assert re.search('<h1(.*)>\s*Groups', res.body)
         groupname = 'david'
         group = model.Group.by_name(unicode(groupname))
         group_title = group.title
@@ -258,6 +258,20 @@ Ho ho ho
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         assert plugin.calls['edit'] == 1, plugin.calls
         plugins.unload(plugin)
+
+    def test_edit_image_url(self):
+        group = model.Group.by_name(self.groupname)
+        offset = url_for(controller='group', action='edit', id=self.groupname)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+
+        form = res.forms['group-edit']
+        image_url = u'http://url.to/image_url'
+        form['image_url'] = image_url
+        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+
+        model.Session.remove()
+        group = model.Group.by_name(self.groupname)
+        assert group.image_url == image_url, group
 
     def test_edit_non_existent(self):
         name = u'group_does_not_exist'
@@ -460,7 +474,7 @@ class TestRevisions(FunctionalTestCase):
         assert '</feed>' in res, res
 
 
-class TestPublisherGroup(FunctionalTestCase):
+class TestOrganizationGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
@@ -488,7 +502,7 @@ class TestPublisherGroup(FunctionalTestCase):
         self.check_named_element(res, 'tr', group_title, group_packages_count, group_description)
         res = res.click(group_title)
         assert groupname in res
-        assert 'publisher' == group.type, group.type
+        assert 'organization' == group.type, group.type
 
     def test_read(self):
         from pylons import config
@@ -502,7 +516,7 @@ class TestPublisherGroup(FunctionalTestCase):
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         group = model.Group.by_name(name)
-        assert 'publisher' == group.type
+        assert 'organization' == group.type
         for group_ref in (group.name, group.id):
             offset = url_for(controller='group', action='read', id=group_ref)
             res = self.app.get(offset)

@@ -31,7 +31,7 @@ class HomeController(BaseController):
                 # TODO: send an email to the admin person (#1285)
             else:
                 raise
-            
+
 
     def index(self):
         try:
@@ -43,6 +43,7 @@ class HomeController(BaseController):
                 'facet.field':g.facets,
                 'rows':0,
                 'start':0,
+                'fq': 'capacity:"public"'
             }
             query = ckan.logic.get_action('package_search')(context,data_dict)
             c.package_count = query['count']
