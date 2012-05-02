@@ -799,6 +799,7 @@ __allowed_functions__ = [
            'snippet',
            'convert_to_dict',
            'activity_div',
+           'unselected_facet_items',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
