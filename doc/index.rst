@@ -2,6 +2,10 @@
 Welcome to CKAN's Administration Guide
 =======================================
 
+.. note ::
+
+   This is the documentation for CKAN version '|version|'. If you are using a different version, use the links on the bottom right corner of the page to select the appropriate documentation.
+
 This Administration Guide covers how to set up and manage `CKAN <http://ckan.org>`_ software. 
 
 * The first two sections cover your two options for installing CKAN: package or source install.
@@ -93,8 +97,9 @@ Other material
 ==============
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
+   contrib.rst
    CHANGELOG.rst
 
 Indices and tables

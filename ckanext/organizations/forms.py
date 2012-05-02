@@ -221,9 +221,9 @@ class OrganizationDatasetForm(SingletonPlugin):
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        schema = default_package_schema()
-        schema['groups']['capacity'] = [ ignore_missing, unicode ]
-        return schema
+        #schema = default_package_schema()
+        #schema['groups']['capacity'] = [ ignore_missing, unicode ]
+        #return schema
 
     def form_to_db_schema(self):
         schema = default_package_schema()
@@ -254,7 +254,7 @@ class OrganizationDatasetForm(SingletonPlugin):
 
         data_dict.update({'available_only':True})
 
-        c.groups_available = c.userobj.get_groups('organization')
+        c.groups_available = c.userobj and c.userobj.get_groups('organization') or []
         c.licences = [('', '')] + base.model.Package.get_license_options()
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
 

@@ -15,7 +15,7 @@ def group_list_dictize(obj_list, context,
                        sort_key=lambda x:x['display_name'], reverse=False):
 
     active = context.get('active', True)
-
+    with_private = context.get('include_private_packages', False)
     result_list = []
 
     for obj in obj_list:
@@ -30,7 +30,8 @@ def group_list_dictize(obj_list, context,
 
         group_dict['display_name'] = obj.display_name
 
-        group_dict['packages'] = len(obj.active_packages().all())
+        group_dict['packages'] = \
+                len(obj.active_packages(with_private=with_private).all())
 
         if context.get('for_view'):
             for item in plugins.PluginImplementations(
@@ -48,9 +49,19 @@ def resource_list_dictize(res_list, context):
         resource_dict = resource_dictize(res, context)
         if active and res.state not in ('active', 'pending'):
             continue
+
         result_list.append(resource_dict)
 
     return sorted(result_list, key=lambda x: x["position"])
+
+def related_list_dictize(related_list, context):
+    result_list = []
+    for res in related_list:
+        related_dict = related_dictize(res, context)
+        result_list.append(related_dict)
+
+    return sorted(result_list, key=lambda x: x["created"], reverse=True)
+
 
 def extras_dict_dictize(extras_dict, context):
     result_list = []
@@ -86,7 +97,14 @@ def resource_dictize(res, context):
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
+    #tracking
+    model = context['model']
+    tracking = model.TrackingSummary.get_for_resource(res.url)
+    resource['tracking_summary'] = tracking
     return resource
+
+def related_dictize(rel, context):
+    return d.table_dictize(rel, context)
 
 def _execute_with_revision(q, rev_table, context):
     '''
@@ -180,6 +198,9 @@ def package_dictize(pkg, context):
     q = select([extra_rev]).where(extra_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, extra_rev, context)
     result_dict["extras"] = extras_list_dictize(result, context)
+    #tracking
+    tracking = model.TrackingSummary.get_for_package(pkg.id)
+    result_dict['tracking_summary'] = tracking
     #groups
     member_rev = model.member_revision_table
     group = model.group_table

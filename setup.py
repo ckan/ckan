@@ -71,6 +71,7 @@ setup(
     roles = ckan.lib.authztool:RolesCommand
     celeryd = ckan.lib.cli:Celery
     rdf-export = ckan.lib.cli:RDFExport
+    tracking = ckan.lib.cli:Tracking
     plugin-info = ckan.lib.cli:PluginInfo
 
     [console_scripts]

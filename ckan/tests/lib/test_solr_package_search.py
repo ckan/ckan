@@ -292,7 +292,7 @@ class TestSearch(TestController):
         result = search.query_for(model.Package).run({'q': 'umlaut'})
         assert result['results'] == ['gils'], result['results']
         result = search.query_for(model.Package).run({'q': u'thumb'})
-        assert result['count'] == 0, result['results']
+        assert result['results'] == ['gils'], result['results']
         result = search.query_for(model.Package).run({'q': u'th\xfcmb'})
         assert result['results'] == ['gils'], result['results']
 

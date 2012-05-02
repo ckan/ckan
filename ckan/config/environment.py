@@ -30,12 +30,12 @@ class _Helpers(object):
     def __init__(self, helpers, restrict=True):
         functions = {}
         allowed = helpers.__allowed_functions__
-        # list of functions due to be depreciated
-        self.depreciated = []
+        # list of functions due to be deprecated
+        self.deprecated = []
 
         for helper in dir(helpers):
             if helper not in allowed:
-                self.depreciated.append(helper)
+                self.deprecated.append(helper)
                 if restrict:
                     continue
             functions[helper] = getattr(helpers, helper)
@@ -63,14 +63,14 @@ class _Helpers(object):
     def __getattr__(self, name):
         ''' return the function/object requested '''
         if name in self.functions:
-            if name in self.depreciated:
-                msg = 'Template helper function `%s` is depriciated' % name
+            if name in self.deprecated:
+                msg = 'Template helper function `%s` is deprecated' % name
                 self.log.warn(msg)
             return self.functions[name]
         else:
-            if name in self.depreciated:
+            if name in self.deprecated:
                 msg = 'Template helper function `%s` is not available ' \
-                      'as it has been depriciated.\nYou can enable it ' \
+                      'as it has been deprecated.\nYou can enable it ' \
                       'by setting ckan.restrict_template_vars = true ' \
                       'in your .ini file.' % name
                 self.log.critical(msg)

@@ -1,0 +1,31 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+<div class="modal-data-viewer-embed-dialog modal fade in" style="display: none;"
+  py:def="data_viewer_embed_dialog()">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>
+      Embed Data Viewer
+    </h3>
+  </div>
+  <div class="modal-body">
+    <div>
+      <p><strong>Embed this view</strong> by copying this into your webpage:</p>
+      <textarea class="embedIframeText" style="width: 100%; height: 200px;"></textarea>
+      <p>Choose width and height in pixels:</p>
+      <label for="iframe-width">Width:</label>
+      <input class="iframe-width" name="iframe-width" value="800"/>
+      <label for="iframe-height">Height:</label>
+      <input class="iframe-height" name="iframe-height" value="500"/>
+    </div>
+    <a class="embedLink" href="">Preview</a>
+  </div>
+</div>
+
+</html>
