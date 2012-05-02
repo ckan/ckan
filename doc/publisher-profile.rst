@@ -2,7 +2,7 @@
 Publisher Profile and Workflow
 ==============================
 
-.. versionadded:: 1.6.1
+.. versionadded:: 1.7
 
 The Publisher/Organization workflow in CKAN is designed to support a setup in which datasets
 are managed by a "Publisher" organization. Users can become members of one (or

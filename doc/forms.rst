@@ -130,7 +130,7 @@ Custom Schemas
 --------------
 
 .. note::
-    As of CKAN 1.6.1 custom schema functions apply to both the web user interface
+    As of CKAN 1.7 custom schema functions apply to both the web user interface
     and the API.
 
     An example of the use of these methods can be found in the ``ckanext-example`` extension.
