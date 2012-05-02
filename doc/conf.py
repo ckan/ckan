@@ -16,28 +16,6 @@
 
 import sys, os
 
-# Importing pyutilib doesn't seem to work on readthedocs.org and this breaks
-# autodoc, so mock pyutilib here.
-class Mock(object):
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def __call__(self, *args, **kwargs):
-        return Mock()
-
-    @classmethod
-    def __getattr__(self, name):
-        if name in ('__file__', '__path__'):
-            return '/dev/null'
-        elif name[0] == name[0].upper():
-            return type(name, (), {})
-        else:
-            return Mock()
-
-MOCK_MODULES = ['pyutilib', 'pyutilib.component', 'pyutilib.component.core',]
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = Mock()
-
 # If your extensions (or modules documented by autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
