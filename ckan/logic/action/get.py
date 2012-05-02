@@ -166,9 +166,22 @@ def related_list(context, data_dict=None):
     related_list = []
     if not dataset:
         related_list = model.Session.query(model.Related)
-        tfilter = data_dict.get('type_filter', None)
-        if tfilter:
-            related_list = related_list.filter(model.Related.type == tfilter)
+
+        filter_on_type = data_dict.get('type_filter', None)
+        if filter_on_type:
+            related_list = related_list.filter(model.Related.type == filter_on_type)
+
+        sort = data_dict.get('sort', None)
+        if sort:
+            sortables = {
+                'view_count_asc' : model.Related.view_count.asc,
+                'view_count_desc': model.Related.view_count.desc,
+                'created_asc' : model.Related.created.asc,
+                'created_desc': model.Related.created.desc,
+            }
+            s = sortables.get(sort, None)
+            if s:
+                related_list = related_list.order_by( s() )
     else:
         relateds = model.Related.get_for_dataset(dataset, status='active')
         related_items = (r.related for r in relateds)

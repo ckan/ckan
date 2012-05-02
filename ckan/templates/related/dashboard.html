@@ -25,7 +25,7 @@
     <h4 py:if="not c.page.item_count"><strong>${c.page.item_count}</strong> related items found</h4>
 
     <div class="well">
-        <form action="" method="get" class="form-horizontal">
+        <form action="" method="get" class="form-inline">
             <input type='hidden' name='page' value='1'/>
 
             <label for="type">Filter by type</label>
@@ -35,6 +35,19 @@
                 <option value="idea"  py:attrs="{'selected': 'selected' if c.filters.get('type') == 'idea' else None}">Idea</option>
                 <option value="visualization"  py:attrs="{'selected': 'selected' if c.filters.get('type') == 'visualization' else None}">Visualization</option>
             </select>
+
+            <label for="sort">Sort by</label>
+            <select name="sort">
+                <option value="">Default</option>
+                <option value="view_count_desc" py:attrs="{'selected': 'selected' if c.filters.get('sort') == 'view_count_desc' else None}">Most viewed</option>
+                <option value="view_count_asc" py:attrs="{'selected': 'selected' if c.filters.get('sort') == 'view_count_asc' else None}">Least viewed</option>
+
+                <option value="created_desc" py:attrs="{'selected': 'selected' if c.filters.get('sort') == 'created_desc' else None}">Newest</option>
+                <option value="created_asc" py:attrs="{'selected': 'selected' if c.filters.get('sort') == 'created_asc' else None}">Oldest</option>
+
+            </select>
+
+
 
             <button class="btn btn-primary pull-right">Apply</button>
         </form>

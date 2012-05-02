@@ -16,7 +16,8 @@ class RelatedController(base.BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'for_view': True}
         data_dict = {
-            'type_filter': base.request.params.get('type', '')
+            'type_filter': base.request.params.get('type', ''),
+            'sort': base.request.params.get('sort', '')
         }
 
         params_nopage = [(k, v) for k,v in base.request.params.items()
@@ -53,6 +54,28 @@ class RelatedController(base.BaseController):
         c.filters = dict(params_nopage)
 
         return base.render( "related/dashboard.html")
+
+    def read(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'for_view': True}
+        data_dict = {'id': id}
+
+        try:
+            logic.check_access('related_show', context, data_dict)
+        except logic.NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
+
+        related = model.Session.query(model.Related).\
+                    filter(model.Related.id == id).first()
+        if not related:
+            abort(404, _('The requested related item was not found'))
+
+        related.view_count += 1
+        model.Session.add(related)
+        model.Session.commit()
+
+        base.redirect(related.url)
 
 
     def list(self, id):
