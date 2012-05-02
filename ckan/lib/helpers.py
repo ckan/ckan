@@ -805,6 +805,7 @@ __allowed_functions__ = [
            'convert_to_dict',
            'activity_div',
            'lang_native_name',
+           'unselected_facet_items',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
