@@ -3,11 +3,15 @@ import datetime
 import sys
 import logging
 from pprint import pprint
+import re
 
 import paste.script
 from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
-import re
+
+#NB No CKAN imports are allowed until after the config file is loaded.
+#   i.e. do the imports in methods, after _load_config is called.
+#   Otherwise loggers get disabled.
 
 class MockTranslator(object):
     def gettext(self, value):
@@ -33,11 +37,7 @@ class CkanCommand(paste.script.command.Command):
     group_name = 'ckan'
 
     def _load_config(self):
-        # Avoids vdm logging warning
-        logging.basicConfig(level=logging.ERROR)
-
         from paste.deploy import appconfig
-        from ckan.config.environment import load_environment
         if not self.options.config:
             msg = 'No config file supplied'
             raise self.BadCommand(msg)
@@ -46,6 +46,10 @@ class CkanCommand(paste.script.command.Command):
             raise AssertionError('Config filename %r does not exist.' % self.filename)
         fileConfig(self.filename)
         conf = appconfig('config:' + self.filename)
+        assert 'ckan' not in dir() # otherwise loggers would be disabled
+        # We have now loaded the config. Now we can import ckan for the
+        # first time.
+        from ckan.config.environment import load_environment
         load_environment(conf.global_conf, conf.local_conf)
 
         self.registry=Registry()
