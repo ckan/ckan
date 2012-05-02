@@ -1175,7 +1175,7 @@ def user_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
-    '''Return a package\'s public activity stream as a list of dicts.'''
+    '''Return a package\'s activity stream as a list of dicts.'''
     model = context['model']
     package_id = data_dict['id']
     query = model.Session.query(model.Activity)
@@ -1186,7 +1186,7 @@ def package_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
-    '''Return a group\'s public activity stream as a list of dicts.'''
+    '''Return a group\'s activity stream as a list of dicts.'''
     model = context['model']
     group_id = data_dict['id']
     query = model.Session.query(model.Activity)
@@ -1338,30 +1338,45 @@ def _activity_list_to_html(context, activity_stream):
     return webhelpers.html.literal('\n'.join(html))
 
 def user_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a user\'s public activity stream.
+    '''Return an HTML rendering of a user's public activity stream.
 
     The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: The id or name of the user.
+    :type id: string
+    :returns: The activity stream as HTML.
+    :rtype: string
 
     '''
     activity_stream = user_activity_list(context, data_dict)
     return _activity_list_to_html(context, activity_stream)
 
 def package_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a package\'s public activity stream.
+    '''Return an HTML rendering of a package's activity stream.
 
     The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: The id or name of the package.
+    :type id: string
+    :returns: The activity stream as HTML.
+    :rtype: string
 
     '''
     activity_stream = package_activity_list(context, data_dict)
     return _activity_list_to_html(context, activity_stream)
 
 def group_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a group\'s public activity stream.
+    '''Return an HTML rendering of a group's activity stream.
 
     The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: The id or name of the group.
+    :type id: string
+    :returns: The activity stream as HTML.
+    :rtype: string
 
     '''
     activity_stream = group_activity_list(context, data_dict)
@@ -1372,13 +1387,9 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     or updated packages.
 
     The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
 
-    :param context: The current Pylons context.
-    :type context: dictionary
-    :param data_dict: The data dict.
-    :type data_dict: dicttionary
-    :returns: The recently changed activity list in HTML format.
+    :returns: The activity stream as HTML.
     :rtype: string
 
     '''
