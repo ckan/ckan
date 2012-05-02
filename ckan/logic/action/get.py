@@ -1374,6 +1374,13 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page.
 
+    :param context: The current Pylons context.
+    :type context: dictionary
+    :param data_dict: The data dict.
+    :type data_dict: dicttionary
+    :returns: The recently changed activity list in HTML format.
+    :rtype: string
+
     '''
     activity_stream = recently_changed_packages_activity_list(context,
             data_dict)
