@@ -138,8 +138,8 @@ def related_show(context, data_dict=None):
 
 def related_list(context, data_dict=None):
     """
-    List the related items for a specific package which should be
-    mentioned in the data_dict
+    List the related items which may be for a specific package which
+    should be mentioned in the data_dict
 
     context:
         model - The CKAN model module
@@ -150,6 +150,9 @@ def related_list(context, data_dict=None):
         id - The ID of the dataset to which we want to list related items
         or
         dataset - The dataset (package) model
+
+    If neither value is in the data_dict then all related items will
+    be returned, and the ordering requested will be applied.
     """
     model = context['model']
     session = context['session']
@@ -158,14 +161,18 @@ def related_list(context, data_dict=None):
     if not dataset:
         dataset = model.Package.get(data_dict.get('id'))
 
-    if not dataset:
-        raise NotFound
-
     check_access('related_show',context, data_dict)
 
-    relateds = model.Related.get_for_dataset(dataset, status='active')
-    related_items = (r.related for r in relateds)
-    related_list = model_dictize.related_list_dictize( related_items, context)
+    related_list = []
+    if not dataset:
+        related_list = model.Session.query(model.Related)
+        tfilter = data_dict.get('type_filter', None)
+        if tfilter:
+            related_list = related_list.filter(model.Related.type == tfilter)
+    else:
+        relateds = model.Related.get_for_dataset(dataset, status='active')
+        related_items = (r.related for r in relateds)
+        related_list = model_dictize.related_list_dictize( related_items, context)
     return related_list
 
 

@@ -1,0 +1,56 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:dc="http://purl.org/dc/terms/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dcat="http://www.w3.org/ns/dcat#"
+  typeof="dcat:Dataset"
+  about=""
+  py:strip="">
+
+  <py:def function="body_class">no-sidebar</py:def>
+  <xi:include href="add-related.html" />
+
+  <py:def function="page_title">Apps</py:def>
+
+  <py:def function="page_heading" property="dc:title">
+    Applications
+  </py:def>
+
+  <div py:match="content">
+    <h4 py:if="c.page.item_count">Showing items <strong>${c.page.first_item} - ${c.page.last_item}</strong> of <strong>${c.page.item_count}</strong> related items found</h4>
+    <h4 py:if="not c.page.item_count"><strong>${c.page.item_count}</strong> related items found</h4>
+
+    <div class="well">
+        <form action="" method="get" class="form-horizontal">
+            <input type='hidden' name='page' value='1'/>
+
+            <label for="type">Filter by type</label>
+            <select name="type">
+                <option value="">All</option>
+                <option value="app" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'app' else None}">Application</option>
+                <option value="idea"  py:attrs="{'selected': 'selected' if c.filters.get('type') == 'idea' else None}">Idea</option>
+                <option value="visualization"  py:attrs="{'selected': 'selected' if c.filters.get('type') == 'visualization' else None}">Visualization</option>
+            </select>
+
+            <button class="btn btn-primary pull-right">Apply</button>
+        </form>
+    </div>
+
+      <ul class="related-items thumbnails">
+        <py:for each="related in c.page.items">
+          ${related_summary(related,False)}
+        </py:for>
+      </ul>
+
+    ${c.page.pager()}
+
+    <span class="insert-comment-thread"></span>
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>
+

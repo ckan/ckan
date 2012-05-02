@@ -4,13 +4,59 @@ import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+import urllib
 
 c = base.c
 
 class RelatedController(base.BaseController):
 
-    def list(self, id):
+    def dashboard(self):
+        """ List all related items regardless of dataset """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'for_view': True}
+        data_dict = {
+            'type_filter': base.request.params.get('type', '')
+        }
 
+        params_nopage = [(k, v) for k,v in base.request.params.items()
+                         if k != 'page']
+        try:
+            page = int(base.request.params.get('page', 1))
+        except ValueError, e:
+            abort(400, ('"page" parameter must be an integer'))
+
+        # Update ordering in the context
+        query = logic.get_action('related_list')(context,data_dict)
+
+        def search_url(params):
+            url = h.url_for(controller='related', action='dashboard')
+            params = [(k, v.encode('utf-8')
+                      if isinstance(v, basestring) else str(v))
+                      for k, v in params]
+            return url + u'?' + urllib.urlencode(params)
+
+        def pager_url(q=None, page=None):
+            params = list(params_nopage)
+            params.append(('page', page))
+            return search_url(params)
+
+
+        c.page = h.Page(
+            collection=query.all(),
+            page=page,
+            url=pager_url,
+            item_count=query.count(),
+            items_per_page=8
+        )
+
+        c.filters = dict(params_nopage)
+
+        return base.render( "related/dashboard.html")
+
+
+    def list(self, id):
+        """ List all related items for a specific dataset """
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'for_view': True}
@@ -32,5 +78,5 @@ class RelatedController(base.BaseController):
 
         c.related_count = len(c.pkg.related)
 
-        return base.render( "package/related_list.html")
+        return base.render( "related/related_list.html")
 

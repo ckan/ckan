@@ -12,7 +12,7 @@
   py:strip="">
 
   <py:def function="body_class">no-sidebar</py:def>
-  <xi:include href="../_snippet/add-related.html" />
+  <xi:include href="add-related.html" />
 
   <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
   - Related</py:def>
@@ -31,7 +31,7 @@
 
       <ul class="related-items thumbnails">
         <py:for each="related in c.pkg.related">
-          ${related_summary(related)}
+          ${related_summary(related, True)}
         </py:for>
       </ul>
     </div>
@@ -70,6 +70,6 @@
     href="${h.url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
   </py:def>
 
-  <xi:include href="layout.html" />
+  <xi:include href="../package/layout.html" />
 </html>
 
