@@ -274,7 +274,9 @@
                  // Tracking
 				 var url = location.pathname;
 				 // remove any site root from url
-				 url = url.substring(CKAN.SITE_URL.length, url.length - 1);
+				 url = url.substring(CKAN.SITE_URL.length, url.length);
+				 // trim any trailing /
+				 url = url.replace(/\/*$/, '');
 				 $.ajax({url : CKAN.SITE_URL_NO_LOCALE + '/_tracking',
 						 type : 'POST',
 						 data : {url:url, type:'page'},
