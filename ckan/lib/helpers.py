@@ -605,26 +605,69 @@ def date_str_to_datetime(date_str):
     # a strptime. Also avoids problem with Python 2.5 not having %f.
     return datetime.datetime(*map(int, re.split('[^\d]', date_str)))
 
-def parse_rfc_2822_date(date_str, tz_aware=True):
+def parse_rfc_2822_date(date_str, assume_utc=True):
     """
     Parse a date string of the form specified in RFC 2822, and return a datetime.
 
-    RFC 2822 is the date format used in HTTP headers.
+    RFC 2822 is the date format used in HTTP headers.  It should contain timezone
+    information, but that cannot be relied upon.
+    
+    If date_str doesn't contain timezone information, then the 'assume_utc' flag
+    determines whether we assume this string is local (with respect to the
+    server running this code), or UTC.  In practice, what this means is that if
+    assume_utc is True, then the returned datetime is 'aware', with an associated
+    tzinfo of offset zero.  Otherwise, the returned datetime is 'naive'.
 
-    If the date string contains a timezone indication, and tz_aware is True,
-    then the associated tzinfo is attached to the returned datetime object.
-
-    Returns None if the string cannot be parse as a valid datetime.
+    If timezone information is available in date_str, then the returned datetime
+    is 'aware', ie - it has an associated tz_info object.
+    
+    Returns None if the string cannot be parsed as a valid datetime.
     """
     time_tuple = email.utils.parsedate_tz(date_str)
 
+    # Not parsable
     if not time_tuple:
         return None
 
-    if not tz_aware:
-        time_tuple = time_tuple[:-1] + (None,)
+    # No timezone information available in the string
+    if time_tuple[-1] is None and not assume_utc:
+        return datetime.datetime.fromtimestamp(email.utils.mktime_tz(time_tuple))
+    else:
+        offset = 0 if time_tuple[-1] is None else time_tuple[-1]
+        tz_info = _RFC2282TzInfo(offset)
+    return datetime.datetime(*time_tuple[:6], microsecond=0, tzinfo=tz_info)
 
-    return datetime.datetime.fromtimestamp(email.utils.mktime_tz(time_tuple))
+class _RFC2282TzInfo(datetime.tzinfo):
+    """
+    A datetime.tzinfo implementation used by parse_rfc_2822_date() function.
+
+    In order to return timezone information, a concrete implementation of
+    datetime.tzinfo is required.  This class represents tzinfo that knows
+    about it's offset from UTC, has no knowledge of daylight savings time, and
+    no knowledge of the timezone name.
+
+    """
+
+    def __init__(self, offset):
+        """
+        offset from UTC in seconds.
+        """
+        self.offset = datetime.timedelta(seconds=offset)
+
+    def utcoffset(self, dt):
+        return self.offset
+
+    def dst(self, dt):
+        """
+        Dates parsed from an RFC 2822 string conflate timezone and dst, and so
+        it's not possible to determine whether we're in DST or not, hence
+        returning None.
+        """
+        return None
+
+    def tzname(self, dt):
+        return None
+
 
 def time_ago_in_words_from_str(date_str, granularity='month'):
     if date_str:
