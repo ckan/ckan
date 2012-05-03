@@ -737,25 +737,28 @@ body.package.search #menusearch {
 }
 .dataset-search {
   margin-bottom: 35px;
+  padding-right: 100px;
 }
 input.search {
   width: 100%;
+  float: left;
   font-size: 1.2em;
   margin: 0px;
   border: 1px solid #ccc;
-  padding: 0.5em;
+  padding: 0.6em 0.5em 0.6em 5px;
   font-weight: bold;
-     -moz-border-radius: 5px;
+  -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
-          border-radius: 5px;
- -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
+  border-radius: 5px;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
 }
 .dataset-search input.button {
     display: inline-block;
-    float: right;
-    margin-top: 5px;
-    margin-right: 10px !important;
-    margin-bottom: 1px !important;
+    float: left;
+    margin-left: 9px;
+    margin-right: -100px;
 }
 
 
