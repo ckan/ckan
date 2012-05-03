@@ -42,12 +42,22 @@ def _package_list_with_resources(context, package_revision_list):
     return package_list
 
 def site_read(context,data_dict=None):
+    '''Return True.
+
+    :returns: True
+    :rtype: boolean
+
+    '''
     check_access('site_read',context,data_dict)
     return True
 
 def package_list(context, data_dict):
-    '''Lists packages by name or id'''
+    '''Return a list of the names of the site's packages (datasets).
 
+    :returns: the names of the site's packages (datasets)
+    :rtype: list of strings
+
+    '''
     model = context["model"]
     user = context["user"]
     api = context.get("api_version", 1)
@@ -63,6 +73,16 @@ def package_list(context, data_dict):
     return [getattr(p, ref_package_by) for p in packages]
 
 def current_package_list_with_resources(context, data_dict):
+    '''Return a list of the site's datasets (packages) and their resources.
+
+    The returned list of datasets is sorted most-recently-modified first.
+
+    :param limit: limit the number of datasets returned (optional)
+    :type limit: int
+    :returns: the site's datasets
+    :rtype: list of dictionaries
+
+    '''
     model = context["model"]
     user = context["user"]
     if data_dict.has_key('limit'):
@@ -90,7 +110,12 @@ def current_package_list_with_resources(context, data_dict):
     return _package_list_with_resources(context, pack_rev)
 
 def revision_list(context, data_dict):
+    '''Return a list of the IDs of the site's revisions.
 
+    :returns: the IDs of the site's revisions
+    :rtype: list of revision ID strings
+
+    '''
     model = context['model']
 
     check_access('revision_list', context, data_dict)
@@ -99,6 +124,14 @@ def revision_list(context, data_dict):
     return [rev.id for rev in revs]
 
 def package_revision_list(context, data_dict):
+    '''Return a list of a dataset (package)'s revisions.
+
+    :param id: the id or name of the dataset
+    :type id: string
+    :returns: the dataset's revisions
+    :rtype: list of dictionaries
+
+    '''
     model = context["model"]
     id = data_dict["id"]
     pkg = model.Package.get(id)
@@ -116,16 +149,14 @@ def package_revision_list(context, data_dict):
 
 
 def related_show(context, data_dict=None):
-    """
-    Shows a single related item
+    '''Return a single related item.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
+    :param id: the id of the related item to show
+    :type id: string
+    :returns: the related item
+    :rtype: dictionary
 
-    data_dict:
-        id - The ID of the related item we want to show
-    """
+    '''
     model = context['model']
     id = data_dict['id']
 
@@ -145,20 +176,16 @@ def related_show(context, data_dict=None):
 
 
 def related_list(context, data_dict=None):
-    """
-    List the related items for a specific package which should be
-    mentioned in the data_dict
+    '''Return the related items for a dataset.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
-        session - The current DB session
+    Either the id or the dataset parameter must be given.
 
-    data_dict:
-        id - The ID of the dataset to which we want to list related items
-        or
-        dataset - The dataset (package) model
-    """
+    :param id: id or name of the dataset (optional)
+    :param dataset: dataset dictionary of the dataset (optional)
+    :returns: the dataset's related items
+    :rtype: list of related item dictionaries
+
+    '''
     model = context['model']
     session = context['session']
     dataset = data_dict.get('dataset', None)
@@ -224,8 +251,16 @@ def member_list(context, data_dict=None):
              for m in q.all() ]
 
 def group_list(context, data_dict):
-    '''Returns a list of groups'''
+    '''Return a list of the names of the site's groups.
 
+    :param order_by: what field to sort the list by, must be 'name' or
+      'packages' (optional, default: 'name')
+    :type order_by: string
+
+    :returns: the names of the site's groups
+    :rtype: list of strings
+
+    '''
     model = context['model']
     user = context['user']
     api = context.get('api_version')
@@ -258,11 +293,14 @@ def group_list(context, data_dict):
     return group_list
 
 def group_list_authz(context, data_dict):
-    '''
-    Returns a list of groups which the user is allowed to edit
+    '''Return the list of groups that the user is authorized to edit.
 
-    If 'available_only' is specified, the existing groups in the package are
-    removed.
+    :param available_only: remove the existing groups in the package
+      (optional, default: False)
+    :type available_only: boolean
+    :returns: the names of groups that the user is authorized to edit
+    :rtype: list of strings
+
     '''
     model = context['model']
     user = context['user']
