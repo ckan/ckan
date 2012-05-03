@@ -1262,6 +1262,10 @@ def render_changed_resource_activity(context, activity, detail):
     return render('activity_streams/changed_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
+def render_deleted_related_activity(context, activity):
+    return render('activity_streams/deleted_related_item.html',
+        extra_vars = {'activity': activity})
+
 def render_deleted_resource_activity(context, activity, detail):
     return render('activity_streams/deleted_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
@@ -1352,7 +1356,8 @@ activity_renderers = {
   'new group' : render_new_group_activity,
   'changed group' : render_changed_group_activity,
   'deleted group' : render_deleted_group_activity,
-  'new related item': render_new_related_activity
+  'new related item': render_new_related_activity,
+  'deleted related item': render_deleted_related_activity
   }
 
 def _activity_list_to_html(context, activity_stream):

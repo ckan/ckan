@@ -3,11 +3,13 @@ from pylons.i18n import _
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
+import ckan.lib.dictization.model_dictize as model_dictize
 
 # define some shortcuts
 ValidationError = ckan.logic.ValidationError
 NotFound = ckan.logic.NotFound
 check_access = ckan.logic.check_access
+get_action = ckan.logic.get_action
 
 def package_delete(context, data_dict):
 
@@ -65,8 +67,12 @@ def package_relationship_delete(context, data_dict):
     model.repo.commit()
 
 def related_delete(context, data_dict):
+    import ckan.logic.action as action
+
     model = context['model']
+    session = context['session']
     user = context['user']
+    userobj = model.User.get(user)
     id = data_dict['id']
 
     entity = model.Related.get(id)
@@ -75,6 +81,25 @@ def related_delete(context, data_dict):
         raise NotFound
 
     check_access('related_delete',context, data_dict)
+
+    related_dict = model_dictize.related_dictize(entity, context)
+    activity_dict = {
+        'user_id': userobj.id,
+        'object_id': entity.id,
+        'activity_type': 'deleted related item',
+    }
+    activity_dict['data'] = {
+        'related': related_dict
+    }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit':True,
+        'session': session
+    }
+
+    get_action('activity_create')(activity_create_context, activity_dict, ignore_auth=True)
+    session.commit()
 
     entity.delete()
     model.repo.commit()
