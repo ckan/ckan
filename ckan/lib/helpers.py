@@ -263,7 +263,7 @@ def are_there_flash_messages():
 
 def nav_link(*args, **kwargs):
     # nav_link() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) > 2 or (len(args) > 1 and 'controller' in kwargs):
@@ -286,7 +286,7 @@ def _nav_link(text, controller, **kwargs):
 
 def nav_named_link(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) > 3 or (len(args) > 0 and 'text' in kwargs) or \
@@ -307,7 +307,7 @@ def _nav_named_link(text, name, **kwargs):
 
 def subnav_link(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) > 2 or (len(args) > 1 and 'action' in kwargs):
@@ -325,7 +325,7 @@ def _subnav_link(text, action, **kwargs):
 
 def subnav_named_route(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) > 2 or (len(args) > 0 and 'text' in kwargs) or \
@@ -382,7 +382,7 @@ def facet_items(*args, **kwargs):
     """
     _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
     # facet_items() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) > 2 or (len(args) > 0 and 'name' in kwargs) or (len(args) > 1 and 'limit' in kwargs):
@@ -605,26 +605,69 @@ def date_str_to_datetime(date_str):
     # a strptime. Also avoids problem with Python 2.5 not having %f.
     return datetime.datetime(*map(int, re.split('[^\d]', date_str)))
 
-def parse_rfc_2822_date(date_str, tz_aware=True):
+def parse_rfc_2822_date(date_str, assume_utc=True):
     """
     Parse a date string of the form specified in RFC 2822, and return a datetime.
 
-    RFC 2822 is the date format used in HTTP headers.
+    RFC 2822 is the date format used in HTTP headers.  It should contain timezone
+    information, but that cannot be relied upon.
+    
+    If date_str doesn't contain timezone information, then the 'assume_utc' flag
+    determines whether we assume this string is local (with respect to the
+    server running this code), or UTC.  In practice, what this means is that if
+    assume_utc is True, then the returned datetime is 'aware', with an associated
+    tzinfo of offset zero.  Otherwise, the returned datetime is 'naive'.
 
-    If the date string contains a timezone indication, and tz_aware is True,
-    then the associated tzinfo is attached to the returned datetime object.
-
-    Returns None if the string cannot be parse as a valid datetime.
+    If timezone information is available in date_str, then the returned datetime
+    is 'aware', ie - it has an associated tz_info object.
+    
+    Returns None if the string cannot be parsed as a valid datetime.
     """
     time_tuple = email.utils.parsedate_tz(date_str)
 
+    # Not parsable
     if not time_tuple:
         return None
 
-    if not tz_aware:
-        time_tuple = time_tuple[:-1] + (None,)
+    # No timezone information available in the string
+    if time_tuple[-1] is None and not assume_utc:
+        return datetime.datetime.fromtimestamp(email.utils.mktime_tz(time_tuple))
+    else:
+        offset = 0 if time_tuple[-1] is None else time_tuple[-1]
+        tz_info = _RFC2282TzInfo(offset)
+    return datetime.datetime(*time_tuple[:6], microsecond=0, tzinfo=tz_info)
 
-    return datetime.datetime.fromtimestamp(email.utils.mktime_tz(time_tuple))
+class _RFC2282TzInfo(datetime.tzinfo):
+    """
+    A datetime.tzinfo implementation used by parse_rfc_2822_date() function.
+
+    In order to return timezone information, a concrete implementation of
+    datetime.tzinfo is required.  This class represents tzinfo that knows
+    about it's offset from UTC, has no knowledge of daylight savings time, and
+    no knowledge of the timezone name.
+
+    """
+
+    def __init__(self, offset):
+        """
+        offset from UTC in seconds.
+        """
+        self.offset = datetime.timedelta(seconds=offset)
+
+    def utcoffset(self, dt):
+        return self.offset
+
+    def dst(self, dt):
+        """
+        Dates parsed from an RFC 2822 string conflate timezone and dst, and so
+        it's not possible to determine whether we're in DST or not, hence
+        returning None.
+        """
+        return None
+
+    def tzname(self, dt):
+        return None
+
 
 def time_ago_in_words_from_str(date_str, granularity='month'):
     if date_str:
@@ -690,7 +733,7 @@ def dump_json(obj, **kw):
 
 def auto_log_message(*args):
     # auto_log_message() used to need c passing as the first arg
-    # this is depriciated as pointless
+    # this is deprecated as pointless
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) and asbool(config.get('ckan.restrict_template_vars', 'false')):
@@ -777,7 +820,7 @@ __allowed_functions__ = [
            'default_group_type',
            'facet_items',
            'facet_title',
-         #  am_authorized, # depreciated
+         #  am_authorized, # deprecated
            'check_access',
            'linked_user',
            'linked_authorization_group',
@@ -809,6 +852,7 @@ __allowed_functions__ = [
            'convert_to_dict',
            'activity_div',
            'lang_native_name',
+           'unselected_facet_items',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',

@@ -182,6 +182,9 @@ def related_list(context, data_dict=None):
             s = sortables.get(sort, None)
             if s:
                 related_list = related_list.order_by( s() )
+
+        if data_dict.get('featured', False):
+            related_list = related_list.filter(model.Related.featured == 1)
     else:
         relateds = model.Related.get_for_dataset(dataset, status='active')
         related_items = (r.related for r in relateds)

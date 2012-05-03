@@ -16,7 +16,8 @@ related_table = meta.Table('related',meta.metadata,
         meta.Column('url', meta.UnicodeText),
         meta.Column('created', meta.DateTime, default=datetime.datetime.now),
         meta.Column('owner_id', meta.UnicodeText),
-        meta.Column('view_count', meta.Integer, default=0)
+        meta.Column('view_count', meta.Integer, default=0),
+        meta.Column('featured', meta.Integer, default=0)
         )
 
 related_dataset_table = meta.Table('related_dataset', meta.metadata,

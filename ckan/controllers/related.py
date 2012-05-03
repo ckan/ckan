@@ -17,8 +17,10 @@ class RelatedController(base.BaseController):
                    'for_view': True}
         data_dict = {
             'type_filter': base.request.params.get('type', ''),
-            'sort': base.request.params.get('sort', '')
+            'sort': base.request.params.get('sort', ''),
+            'featured': base.request.params.get('featured', '')
         }
+        print data_dict
 
         params_nopage = [(k, v) for k,v in base.request.params.items()
                          if k != 'page']
