@@ -4,6 +4,7 @@ import datetime
 from pylons.i18n import _
 from vdm.sqlalchemy.base import SQLAlchemySession
 
+import ckan.authz as authz
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema
@@ -119,6 +120,10 @@ def related_update(context, data_dict):
     if errors:
         model.Session.rollback()
         raise ValidationError(errors, error_summary(errors))
+
+    # Only sys admins can update a related item to make it 1
+    if not authz.Authorizer().is_sysadmin(unicode(user)):
+        data['featured'] = 0
 
     related = model_save.related_dict_save(data, context)
     if not context.get('defer_commit'):

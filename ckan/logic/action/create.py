@@ -1,6 +1,7 @@
 import logging
 from pylons.i18n import _
 
+import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -125,6 +126,11 @@ def related_create(context, data_dict):
     if errors:
         model.Session.rollback()
         raise ValidationError(errors, error_summary(errors))
+
+    # Only sys admins can update a related item to make it 1
+    if not authz.Authorizer().is_sysadmin(unicode(user)):
+        data['featured'] = 0
+
 
     related = model_save.related_dict_save(data, context)
     if not context.get('defer_commit'):

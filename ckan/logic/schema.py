@@ -245,6 +245,7 @@ def default_related_schema():
         'url': [ignore_missing, unicode],
         'owner_id': [not_empty, unicode],
         'created': [ignore],
+        'featured': [ignore_missing, unicode],
     }
     return schema
 
