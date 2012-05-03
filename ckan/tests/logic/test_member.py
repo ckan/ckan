@@ -21,14 +21,12 @@ class TestMemberLogic(object):
         model.repo.rebuild_db()
 
     def _build_context( self, obj, obj_type, capacity='public'):
-        grp = model.Group.by_name(self.groupname)
         ctx = { 'model': model,
                 'session': model.Session,
-                'user':self.username,
-                'group': grp,
+                'user':self.username
         }
         dd = {
-            'group': grp,
+            'id': self.groupname,
             'object': obj,
             'object_type': obj_type,
             'capacity': capacity }
