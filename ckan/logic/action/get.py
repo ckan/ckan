@@ -187,16 +187,15 @@ def member_list(context, data_dict=None):
         user  - The name of the current user
 
     data_dict:
-        group - The ID of the group to which we want to list members
+        id - The ID of the group to which we want to list members
         object_type - The optional name of the type being added, all lowercase,
                       e.g. package, or user
         capacity - The optional capacity of objects that we want to retrieve
     """
     model = context['model']
     user = context['user']
-    group = context['group']
 
-    group_id = data_dict['group']
+    group = model.Group.get(data_dict.get('id',''))
     obj_type = data_dict.get('object_type', None)
     capacity = data_dict.get('capacity', None)
 
