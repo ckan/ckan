@@ -65,7 +65,15 @@ def package_list(context, data_dict):
 def current_package_list_with_resources(context, data_dict):
     model = context["model"]
     user = context["user"]
-    limit = data_dict.get("limit")
+    if data_dict.has_key('limit'):
+        try:
+            limit = int(data_dict['limit'])
+            if limit < 0:
+                limit = 0
+        except ValueError, e:
+            raise logic.ParameterError("'limit' should be an int")
+    else:
+        limit = None
     page = int(data_dict.get('page', 1))
 
     check_access('current_package_list_with_resources', context, data_dict)
@@ -75,8 +83,8 @@ def current_package_list_with_resources(context, data_dict):
     query = query.filter(model.PackageRevision.current==True)
 
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
-    if limit:
-        query = query.limit(int(limit))
+    if limit is not None:
+        query = query.limit(limit)
         query = query.offset((page-1)*limit)
     pack_rev = query.all()
     return _package_list_with_resources(context, pack_rev)
