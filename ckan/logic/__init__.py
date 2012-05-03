@@ -208,14 +208,14 @@ def get_action(action):
             module = getattr(module, part)
         for k, v in module.__dict__.items():
             if not k.startswith('_'):
-                _actions[k] = v
-
-                # Whitelist all actions defined in logic/action/get.py as
-                # being side-effect free.
+                # Only load functions from the action module.
                 if isinstance(v, types.FunctionType):
-                    v.side_effect_free = action_module_name == 'get'
-                else:
-                    log.warning("Non-function type action: %s", k)
+                    _actions[k] = v
+
+                    # Whitelist all actions defined in logic/action/get.py as
+                    # being side-effect free.
+                    v.side_effect_free = getattr(v, 'side_effect_free', True) and \
+                                         action_module_name == 'get'
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
