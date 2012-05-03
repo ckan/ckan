@@ -300,15 +300,22 @@ def licence_list(context, data_dict):
     return licences
 
 def tag_list(context, data_dict):
-    '''Return a list of tag dictionaries.
+    '''Return a list of the site's tags.
 
-    If a query is provided in the data_dict with key 'query' or 'q', then only
-    tags whose names match the given query will be returned. Otherwise, all
-    tags will be returned.
+    If the ``query`` argument is given then only tags whose names match the
+    query will be returned. Otherwise all the site's tags will be returned.
 
     By default only free tags (tags that don't belong to a vocabulary) are
-    returned. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be returned instead.
+    returned. If the ``vocabulary_id`` argument is given then only tags
+    belonging to that vocabulary will be returned instead.
+
+    :param query: the string to search for (optional)
+    :type query: string
+    :param vocabulary_id: the id or name of the tag vocabulary to search in
+      (optional)
+    :type vocabulary_id: string
+    :returns: the list of tags
+    :rtype: list of tag dictionaries
 
     '''
     model = context['model']
@@ -693,7 +700,7 @@ def tag_show_rest(context, data_dict):
     return tag_dict
 
 def package_autocomplete(context, data_dict):
-    '''Returns packages containing the provided string in either the name
+    '''Returns packages containing the given string in either the name
     or the title'''
 
     model = context['model']
@@ -728,7 +735,7 @@ def package_autocomplete(context, data_dict):
     return pkg_list
 
 def format_autocomplete(context, data_dict):
-    '''Returns formats containing the provided string'''
+    '''Returns formats containing the given string'''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -756,7 +763,7 @@ def format_autocomplete(context, data_dict):
     return [resource.format.lower() for resource in query]
 
 def user_autocomplete(context, data_dict):
-    '''Returns users containing the provided string'''
+    '''Returns users containing the given string'''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -922,14 +929,19 @@ def resource_search(context, data_dict):
     return {'count': count, 'results': results}
 
 def _tag_search(context, data_dict):
-    '''Return a list of tag objects that contain the given string.
+    '''Return a list of tags whose names contain a given string.
 
-    The query string should be provided in the data_dict with key 'query' or
-    'q'.
+    By default only free tags (tags that don't belong to any vocabulary) are
+    searched. If the ``vocabulary_id`` argument is given then only tags
+    belonging to that vocabulary will be searched instead.
 
-    By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be searched instead.
+    :param query: the string to search for
+    :type query: string
+    :param vocabulary_id: the id or name of the tag vocabulary to search in
+      (optional)
+    :type vocabulary_id: string
+    :returns: the tags whose names contain the given string
+    :rtype: list of dictionaries
 
     '''
     model = context['model']
@@ -975,17 +987,27 @@ def _tag_search(context, data_dict):
     return q.all()
 
 def tag_search(context, data_dict):
-    '''Return a list of tag dictionaries that contain the given string.
+    '''Return a list of tags whose names contain a given string.
 
-    The query string should be provided in the data_dict with key 'query' or
-    'q'.
+    By default only free tags (tags that don't belong to any vocabulary) are
+    searched. If the ``vocabulary_id`` argument is given then only tags
+    belonging to that vocabulary will be searched instead.
 
-    By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be searched instead.
+    :param query: the string to search for
+    :type query: string
+    :param vocabulary_id: the id or name of the tag vocabulary to search in
+      (optional)
+    :type vocabulary_id: string
+    :returns: A dictionary with the following keys:
 
-    Returns a dictionary with keys 'count' (the number of tags in the result)
-    and 'results' (the list of tag dicts).
+      ``'count'``
+        The number of tags in the result.
+
+      ``'results'``
+        The list of tags whose names contain the given string, a list of
+        dictionaries.
+
+    :rtype: dictionary
 
     '''
     tags = _tag_search(context, data_dict)
@@ -993,14 +1015,19 @@ def tag_search(context, data_dict):
             'results': [table_dictize(tag, context) for tag in tags]}
 
 def tag_autocomplete(context, data_dict):
-    '''Return a list of tag names that contain the given string.
+    '''Return a list of tag names that contain a given string.
 
-    The query string should be provided in the data_dict with key 'query' or
-    'q'.
+    By default only free tags (tags that don't belong to any vocabulary) are
+    searched. If the ``vocabulary_id`` argument is given then only tags
+    belonging to that vocabulary will be searched instead.
 
-    By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be searched instead.
+    :param query: the string to search for
+    :type query: string
+    :param vocabulary_id: the id or name of the tag vocabulary to search in
+      (optional)
+    :type vocabulary_id: string
+    :returns: a list of tag names that contain the given string
+    :rtype: list of strings
 
     '''
     check_access('tag_autocomplete', context, data_dict)
@@ -1034,7 +1061,6 @@ def task_status_show(context, data_dict):
 
     task_status_dict = model_dictize.task_status_dictize(task_status, context)
     return task_status_dict
-
 
 def term_translation_show(context, data_dict):
     model = context['model']
@@ -1080,13 +1106,13 @@ def get_site_user(context, data_dict):
             'apikey': user.apikey}
 
 def roles_show(context, data_dict):
-    '''Returns the roles that users (and authorization groups) have on a
-    particular domain_object.
+    '''Return the roles of a user (or authorization groups) for an object.
 
     If you specify a user (or authorization group) then the resulting roles
     will be filtered by those of that user (or authorization group).
 
     domain_object can be a package/group/authorization_group name or id.
+
     '''
     model = context['model']
     session = context['session']
@@ -1136,7 +1162,7 @@ def roles_show(context, data_dict):
     return result
 
 def status_show(context, data_dict):
-    '''Provides information about the operation of this CKAN instance.'''
+    '''Return information about the configuration of the site.'''
     return {
         'site_title': config.get('ckan.site_title'),
         'site_description': config.get('ckan.site_description'),
@@ -1148,11 +1174,24 @@ def status_show(context, data_dict):
         }
 
 def vocabulary_list(context, data_dict):
+    '''Return a list of all the site's tag vocabularies.
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
     return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
 
 def vocabulary_show(context, data_dict):
+    '''Return a single tag vocabulary.
+
+    :param id: the id or name of the vocabulary.
+    :type id: string
+    :return: the vocabulary.
+    :rtype: dictionary
+
+    '''
     model = context['model']
     vocab_id = data_dict.get('id')
     if not vocab_id:
@@ -1164,7 +1203,14 @@ def vocabulary_show(context, data_dict):
     return vocabulary_dict
 
 def user_activity_list(context, data_dict):
-    '''Return a user\'s public activity stream as a list of dicts.'''
+    '''Return a user's public activity stream.
+
+    :param id: The id or name of the user.
+    :type id: string
+    :returns: The user's activity stream.
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     user_id = data_dict['id']
     query = model.Session.query(model.Activity)
@@ -1175,7 +1221,14 @@ def user_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
-    '''Return a package\'s activity stream as a list of dicts.'''
+    '''Return a package's activity stream.
+
+    :param id: The id or name of the package.
+    :type id: string
+    :returns: The package's activity stream.
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     package_id = data_dict['id']
     query = model.Session.query(model.Activity)
@@ -1186,7 +1239,14 @@ def package_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
-    '''Return a group\'s activity stream as a list of dicts.'''
+    '''Return a group's activity stream.
+
+    :param id: The id or name of the group.
+    :type id: string
+    :returns: The group's activity stream.
+    :rtype: list of dictionaries.
+
+    '''
     model = context['model']
     group_id = data_dict['id']
     query = model.Session.query(model.Activity)
@@ -1197,8 +1257,10 @@ def group_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
-    '''Return an activity stream of all recently added or updated packages as
-    a list of dicts.
+    '''Return the activity stream of recently added or changed packages.
+
+    :returns: The activity stream of recently added or changed packages.
+    :rtype: A list of dictionaries.
 
     '''
     model = context['model']
@@ -1210,7 +1272,13 @@ def recently_changed_packages_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
-    '''Return an activity\'s list of activity detail items, as a list of dicts.
+    '''Return an activity's list of activity detail items.
+
+    :param id: The id of the activity.
+    :type id: string
+    :returns: The activity's list of activity detail items.
+    :rtype: A list of dictionaries.
+
     '''
     model = context['model']
     activity_id = data_dict['id']
