@@ -1338,7 +1338,7 @@ def _activity_list_to_html(context, activity_stream):
     return webhelpers.html.literal('\n'.join(html))
 
 def user_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a user's public activity stream.
+    '''Return a user's public activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
@@ -1353,7 +1353,7 @@ def user_activity_list_html(context, data_dict):
     return _activity_list_to_html(context, activity_stream)
 
 def package_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a package's activity stream.
+    '''Return a package's activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
@@ -1368,7 +1368,7 @@ def package_activity_list_html(context, data_dict):
     return _activity_list_to_html(context, activity_stream)
 
 def group_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a group's activity stream.
+    '''Return a group's activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
@@ -1383,11 +1383,12 @@ def group_activity_list_html(context, data_dict):
     return _activity_list_to_html(context, activity_stream)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of the activity stream of all recently added
-    or updated packages.
+    '''
+    Return the activity stream of recently changed packages as HTML.
 
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
+    The activity stream includes all recently added or changed packages. It is
+    rendered as a snippet of HTML meant to be included in an HTML page, i.e. it
+    doesn't have any HTML header or footer.
 
     :returns: The activity stream as HTML.
     :rtype: string
