@@ -421,7 +421,15 @@ def group_create_rest(context, data_dict):
     return group_dict
 
 def vocabulary_create(context, data_dict):
+    '''
+    Create a new vocabulary and return a dictionary representation of it.
 
+    :param name: The name for the new vocabulary, e.g. "Genre".
+    :type name: string
+    :returns: The newly-created vocabulary.
+    :rtype: dictionary.
+
+    '''
     model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_create_vocabulary_schema()
 
@@ -489,8 +497,22 @@ def package_relationship_create_rest(context, data_dict):
     return relationship_dict
 
 def tag_create(context, tag_dict):
-    '''Create a new tag and return a dictionary representation of it.'''
+    '''
+    Create a new vocabulary tag and return a dictionary representation of it.
 
+    You can only use this function to create tags that belong to a vocabulary,
+    not to create free tags. (To create a new free tag simply add the tag to
+    a package, e.g. using the package_update API method.)
+
+    :param name: The name for the new tag, e.g. "Jazz".
+    :type name: string
+    :param vocabulary_id: The name or id of the vocabulary that the new tag
+      should be added to, e.g. "Genre".
+    :type vocabulary_id: string
+    :returns: The newly-created tag.
+    :rtype: dictionary.
+
+    '''
     model = context['model']
 
     check_access('tag_create', context, tag_dict)

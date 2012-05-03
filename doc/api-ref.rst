@@ -11,3 +11,6 @@ Also explain how the returns values of the functions end up in the json dict tha
 
 .. automodule:: ckan.logic.action.get
    :members:
+
+.. automodule:: ckan.logic.action.create
+   :members:
