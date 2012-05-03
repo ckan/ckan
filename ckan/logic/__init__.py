@@ -1,3 +1,4 @@
+import functools
 import logging
 import types
 
@@ -199,7 +200,7 @@ def get_action(action):
     # First get the default ones in the ckan/logic/action directory
     # Rather than writing them out in full will use __import__
     # to load anything from ckan.logic.action that looks like it might
-    # be an action 
+    # be an action
     for action_module_name in ['get', 'create', 'update','delete']:
         module_path = 'ckan.logic.action.'+action_module_name
         module = __import__(module_path)
@@ -261,3 +262,21 @@ def get_or_bust(data_dict, keys):
     if len(values) == 1:
         return values[0]
     return tuple(values)
+
+def side_effect_free(action):
+    '''A decorator that marks the given action as side-effect-free.
+
+    The consequence of which is that the action becomes available through a
+    GET request in the action API.
+
+    This decorator is for users defining their own actions through the IAction
+    interface, and they want to expose their action with a GET request as well
+    as the usual POST request.
+    '''
+
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.side_effect_free = True
+
+    return wrapper
