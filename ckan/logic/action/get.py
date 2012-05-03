@@ -1245,6 +1245,11 @@ def render_new_package_activity(context, activity):
     return render('activity_streams/new_package.html',
         extra_vars = {'activity': activity})
 
+def render_new_related_activity(context, activity):
+    return render('activity_streams/new_related_item.html',
+        extra_vars = {'activity': activity,
+                      'type': activity['data']['related']['type']})
+
 def render_deleted_package_activity(context, activity):
     return render('activity_streams/deleted_package.html',
         extra_vars = {'activity': activity})
@@ -1347,6 +1352,7 @@ activity_renderers = {
   'new group' : render_new_group_activity,
   'changed group' : render_changed_group_activity,
   'deleted group' : render_deleted_group_activity,
+  'new related item': render_new_related_activity
   }
 
 def _activity_list_to_html(context, activity_stream):

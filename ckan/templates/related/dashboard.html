@@ -31,7 +31,7 @@
             <label for="type">Filter by type</label>
             <select name="type">
                 <option value="">All</option>
-                <option value="app" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'app' else None}">Application</option>
+                <option value="application" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'application' else None}">Application</option>
                 <option value="idea"  py:attrs="{'selected': 'selected' if c.filters.get('type') == 'idea' else None}">Idea</option>
                 <option value="visualization"  py:attrs="{'selected': 'selected' if c.filters.get('type') == 'visualization' else None}">Visualization</option>
             </select>
