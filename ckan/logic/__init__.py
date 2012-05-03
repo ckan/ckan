@@ -1,4 +1,6 @@
 import logging
+import types
+
 from ckan.lib.base import _
 import ckan.authz
 from ckan.new_authz import is_authorized
@@ -206,6 +208,14 @@ def get_action(action):
         for k, v in module.__dict__.items():
             if not k.startswith('_'):
                 _actions[k] = v
+
+                # Whitelist all actions defined in logic/action/get.py as
+                # being side-effect free.
+                if isinstance(v, types.FunctionType):
+                    v.side_effect_free = action_module_name == 'get'
+                else:
+                    log.warning("Non-function type action: %s", k)
+
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
     fetched_actions = {}

@@ -154,7 +154,8 @@ class ApiController(base.BaseController):
         model.Session()._context = context
         return_dict = {'help': function.__doc__}
         try:
-            request_data = self._get_request_data()
+            side_effect_free = getattr(function, 'side_effect_free', False)
+            request_data = self._get_request_data(try_url_params=side_effect_free)
         except ValueError, inst:
             log.error('Bad request data: %s' % str(inst))
             return self._finish_bad_request(
