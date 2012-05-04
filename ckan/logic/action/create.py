@@ -11,6 +11,7 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
+import ckan.logic.auth as auth
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -196,7 +197,7 @@ def member_create(context, data_dict=None):
         user  - The name of the current user
 
     data_dict:
-        group - The ID of the group to which we want to add a new object
+        id - The ID of the group to which we want to add a new object
         object - The ID of the object being added as a member
         object_type - The name of the type being added, all lowercase,
                       e.g. package, or user
@@ -204,7 +205,6 @@ def member_create(context, data_dict=None):
     """
     model = context['model']
     user = context['user']
-    group = context['group']
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -213,6 +213,7 @@ def member_create(context, data_dict=None):
     else:
         rev.message = _(u'REST API: Create member object %s') % data_dict.get("name", "")
 
+    group = model.Group.get(data_dict.get('id', ''))
     obj_id   = data_dict['object']
     obj_type = data_dict['object_type']
     capacity = data_dict['capacity']
