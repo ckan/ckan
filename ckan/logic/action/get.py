@@ -205,20 +205,24 @@ def related_list(context, data_dict=None):
 
 
 def member_list(context, data_dict=None):
-    """
-    Returns a list of (id,type,capacity) tuples that are members of the
-    specified group if the user has permission to 'get' the group.
+    '''
+    Return the members of a group.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
+    The user must have permission to 'get' the group.
 
-    data_dict:
-        id - The ID of the group to which we want to list members
-        object_type - The optional name of the type being added, all lowercase,
-                      e.g. package, or user
-        capacity - The optional capacity of objects that we want to retrieve
-    """
+    :param id: the id or name of the group
+    :type id: string
+    :param object_type: restrict the members returned to those of a given type,
+      e.g. 'user' or 'package' (optional, default: None)
+    :type object_type: string
+    :param capacity: restrict the members returned to those with a given
+      capacity, e.g. 'member', 'editor', 'admin', 'public', 'private'
+      (optional, default: None)
+    :type capacity: string
+    :returns: the members of the group
+    :rtype: list of (id, type, capacity) tuples
+
+    '''
     model = context['model']
     user = context['user']
 
