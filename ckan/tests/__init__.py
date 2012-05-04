@@ -349,3 +349,12 @@ except ImportError:
         assert a in b, '%r was not in %r' % (a, b)
     def assert_not_in(a, b):
         assert a not in b, '%r was in %r' % (a, b)        
+
+class StatusCodes:
+    STATUS_200_OK = 200
+    STATUS_201_CREATED = 201
+    STATUS_400_BAD_REQUEST = 400
+    STATUS_403_ACCESS_DENIED = 403
+    STATUS_404_NOT_FOUND = 404
+    STATUS_409_CONFLICT = 409
+    
