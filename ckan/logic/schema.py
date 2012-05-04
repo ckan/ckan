@@ -37,7 +37,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_id_exists,
                                    object_id_validator,
                                    activity_type_exists,
-                                   tag_not_in_vocabulary)
+                                   tag_not_in_vocabulary,
+                                   url_validator)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -241,8 +242,8 @@ def default_related_schema():
         'title': [not_empty, unicode],
         'description': [ignore_missing, unicode],
         'type': [not_empty, unicode],
-        'image_url': [ignore_missing, unicode],
-        'url': [ignore_missing, unicode],
+        'image_url': [ignore_missing, unicode, url_validator],
+        'url': [ignore_missing, unicode, url_validator],
         'owner_id': [not_empty, unicode],
         'created': [ignore],
         'featured': [ignore_missing, unicode],

@@ -492,3 +492,23 @@ def tag_not_in_vocabulary(key, tag_dict, errors, context):
                 (tag_name, vocabulary_id))
     else:
         return
+
+def url_validator(key, data, errors, context):
+    """ Checks that the provided value (if it is present) is a valid URL """
+    import urlparse
+    import string
+
+    model = context['model']
+    session = context['session']
+
+    url = data.get(key, None)
+    if not url:
+        return
+
+    pieces = urlparse.urlparse(url)
+    if all([pieces.scheme, pieces.netloc]) and \
+       set(pieces.netloc) <= set(string.letters + string.digits + '-.') and \
+       pieces.scheme in ['http', 'https']:
+       return
+
+    errors[key].append(_('Please provide a valid URL'))
