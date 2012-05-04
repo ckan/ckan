@@ -325,7 +325,7 @@ def tag_list(context, data_dict):
     check_access('tag_list', context, data_dict)
 
     if query:
-        tags = _tag_search(context, data_dict)
+        tags, count = _tag_search(context, data_dict)
     else:
         tags = model.Tag.all(vocab_id_or_name)
 
@@ -948,7 +948,8 @@ def resource_search(context, data_dict):
     return {'count': count, 'results': results}
 
 def _tag_search(context, data_dict):
-    '''Return a list of tag objects that contain the given string.
+    '''Return a list of tag objects that contain the given string and
+    the full count (for paging).
 
     The query string should be provided in the data_dict with key 'query' or
     'q'.
@@ -957,6 +958,7 @@ def _tag_search(context, data_dict):
     searched. If a 'vocabulary_id' is provided in the data_dict then tags
     belonging to the given vocabulary (id or name) will be searched instead.
 
+    Use 'offset' and 'limit' parameters to page through results.
     '''
     model = context['model']
 
@@ -990,15 +992,16 @@ def _tag_search(context, data_dict):
             terms.append(value)
 
     if not len(terms):
-        return []
+        return [], 0
 
     for term in terms:
         escaped_term = misc.escape_sql_like_special_characters(term, escape='\\')
         q = q.filter(model.Tag.name.ilike('%' + escaped_term + '%'))
 
+    count = q.count()
     q = q.offset(offset)
     q = q.limit(limit)
-    return q.all()
+    return q.all(), count
 
 def tag_search(context, data_dict):
     '''Return a list of tag dictionaries that contain the given string.
@@ -1014,8 +1017,8 @@ def tag_search(context, data_dict):
     and 'results' (the list of tag dicts).
 
     '''
-    tags = _tag_search(context, data_dict)
-    return {'count': len(tags),
+    tags, count = _tag_search(context, data_dict)
+    return {'count': count,
             'results': [table_dictize(tag, context) for tag in tags]}
 
 def tag_autocomplete(context, data_dict):
@@ -1030,7 +1033,7 @@ def tag_autocomplete(context, data_dict):
 
     '''
     check_access('tag_autocomplete', context, data_dict)
-    matching_tags = _tag_search(context, data_dict)
+    matching_tags, count = _tag_search(context, data_dict)
     if matching_tags:
         return [tag.name for tag in matching_tags]
     else:
