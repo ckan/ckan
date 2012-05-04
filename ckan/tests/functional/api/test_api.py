@@ -24,7 +24,8 @@ class TestApi3(Api3TestCase, ApiTestCase):
         '''Test that a read-only action is GET-able
 
         Picks an action within `get.py` and checks that it works if it's
-        invoked with a http GET request.
+        invoked with a http GET request.  The action's data_dict is
+        populated from the url parameters.
         '''
         offset = self.offset('/action/package_search')
         params = {'q': 'russian'}
@@ -34,7 +35,8 @@ class TestApi3(Api3TestCase, ApiTestCase):
         '''Test that a read-only action is GET-able
 
         Picks an action within `get.py` and checks that it works if it's
-        invoked with a http GET request.
+        invoked with a http GET request.  The action's data_dict is constructed
+        from a json-encoded string in the 'data_dict' url parameter.
         '''
         offset = self.offset('/action/package_search')
         data_dict = {'q': 'russian'}
