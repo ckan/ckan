@@ -127,11 +127,11 @@ package_show_related
 
 package_show_related::
 
- package_show_related = 0
+ package_show_related = false
 
-Default value:  1
+Default value:  true
 
-When set to 0 this setting will hide the related item tab on the package read page. If the value is not set, or is set to 1, then the related item tab will shown.
+When set to false, or no, this setting will hide the related item tab on the package read page. If the value is not set, or is set to true or yes, then the related item tab will shown.
 
 rdf_packages
 ^^^^^^^^^^^^
