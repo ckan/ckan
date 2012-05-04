@@ -253,10 +253,11 @@ def get_or_bust(data_dict, keys):
     if isinstance(keys, basestring):
         keys = [keys]
     for key in keys:
-        value = data_dict.get(key)
-        if not value:
+        try:
+            value = data_dict[key]
+            values.append(value)
+        except KeyError:
             errors[key] = _('Missing value')
-        values.append(value)
     if errors:
         raise ValidationError(errors)
     if len(values) == 1:
