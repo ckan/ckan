@@ -17,11 +17,13 @@ from ckan.logic.action.update import _update_package_relationship
 
 log = logging.getLogger(__name__)
 
-# define some shortcuts
-error_summary = ckan.logic.action.error_summary
-validate = ckan.lib.navl.dictization_functions.validate
-check_access = logic.check_access
-get_action = logic.get_action
+# Define some shortcuts
+# Ensure they are module-private so that they don't get loaded as available
+# actions in the action API.
+_error_summary = ckan.logic.action.error_summary
+_validate = ckan.lib.navl.dictization_functions.validate
+_check_access = logic.check_access
+_get_action = logic.get_action
 ValidationError = logic.ValidationError
 NotFound = logic.NotFound
 _get_or_bust = logic.get_or_bust
@@ -42,7 +44,7 @@ def package_create(context, data_dict):
     except AttributeError:
         schema = package_plugin.form_to_db_schema()
 
-    check_access('package_create', context, data_dict)
+    _check_access('package_create', context, data_dict)
 
     if 'api_version' not in context:
         # old plugins do not support passing the schema so we need
@@ -52,11 +54,11 @@ def package_create(context, data_dict):
         except TypeError:
             package_plugin.check_data_dict(data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -85,7 +87,7 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    return get_action('package_show')(context, {'id':context['id']})
+    return _get_action('package_show')(context, {'id':context['id']})
 
 def package_create_validate(context, data_dict):
     model = context['model']
@@ -93,13 +95,13 @@ def package_create_validate(context, data_dict):
     model.Session.remove()
     model.Session()._context = context
 
-    check_access('package_create',context,data_dict)
+    _check_access('package_create',context,data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
     else:
         return data
 
@@ -109,7 +111,7 @@ def resource_create(context, data_dict):
     model = context['model']
     user = context['user']
 
-    data, errors = validate(data_dict,
+    data, errors = _validate(data_dict,
                             ckan.logic.schema.default_resource_schema(),
                             context)
 
@@ -120,12 +122,12 @@ def related_create(context, data_dict):
     userobj = model.User.get(user)
 
     data_dict["owner_id"] = userobj.id
-    data, errors = validate(data_dict,
+    data, errors = _validate(data_dict,
                             ckan.logic.schema.default_related_schema(),
                             context)
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     related = model_save.related_dict_save(data, context)
     if not context.get('defer_commit'):
@@ -160,13 +162,13 @@ def package_relationship_create(context, data_dict):
     if not pkg2:
         return NotFound('Object package %r was not found.' % id2)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
-    check_access('package_relationship_create', context, data_dict)
+    _check_access('package_relationship_create', context, data_dict)
 
     # Create a Package Relationship.
     existing_rels = pkg1.get_relationships_with(pkg2, rel_type)
@@ -215,7 +217,7 @@ def member_create(context, data_dict=None):
     obj_id, obj_type, capacity = _get_or_bust(data_dict, ['object', 'object_type', 'capacity'])
 
     # User must be able to update the group to add a member to it
-    check_access('group_update', context, data_dict)
+    _check_access('group_update', context, data_dict)
 
     # Look up existing, in case it exists
     member = model.Session.query(model.Member).\
@@ -242,7 +244,7 @@ def group_create(context, data_dict):
     session = context['session']
     parent = context.get('parent', None)
 
-    check_access('group_create', context, data_dict)
+    _check_access('group_create', context, data_dict)
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin()
@@ -253,11 +255,11 @@ def group_create(context, data_dict):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -350,13 +352,13 @@ def user_create(context, data_dict):
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
 
-    check_access('user_create', context, data_dict)
+    _check_access('user_create', context, data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     user = model_save.user_dict_save(data, context)
 
@@ -389,10 +391,10 @@ def user_create(context, data_dict):
 
 def package_create_rest(context, data_dict):
 
-    check_access('package_create_rest', context, data_dict)
+    _check_access('package_create_rest', context, data_dict)
 
     dictized_package = model_save.package_api_to_dict(data_dict, context)
-    dictized_after = get_action('package_create')(context, dictized_package)
+    dictized_after = _get_action('package_create')(context, dictized_package)
 
     pkg = context['package']
 
@@ -404,10 +406,10 @@ def package_create_rest(context, data_dict):
 
 def group_create_rest(context, data_dict):
 
-    check_access('group_create_rest', context, data_dict)
+    _check_access('group_create_rest', context, data_dict)
 
     dictized_group = model_save.group_api_to_dict(data_dict, context)
-    dictized_after = get_action('group_create')(context, dictized_group)
+    dictized_after = _get_action('group_create')(context, dictized_group)
 
     group = context['group']
 
@@ -425,13 +427,13 @@ def vocabulary_create(context, data_dict):
     model.Session.remove()
     model.Session()._context = context
 
-    check_access('vocabulary_create', context, data_dict)
+    _check_access('vocabulary_create', context, data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     vocabulary = model_save.vocabulary_dict_save(data, context)
 
@@ -458,10 +460,10 @@ def activity_create(context, activity_dict, ignore_auth=False):
         activity_dict['revision_id'] = None
 
     if not ignore_auth:
-        check_access('activity_create', context, activity_dict)
+        _check_access('activity_create', context, activity_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_activity_schema()
-    data, errors = validate(activity_dict, schema, context)
+    data, errors = _validate(activity_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
@@ -482,7 +484,7 @@ def package_relationship_create_rest(context, data_dict):
     # object and type to override the URL parameters.
     data_dict = ckan.logic.action.rename_keys(data_dict, key_map, destructive=False)
 
-    relationship_dict = get_action('package_relationship_create')(context, data_dict)
+    relationship_dict = _get_action('package_relationship_create')(context, data_dict)
     return relationship_dict
 
 def tag_create(context, tag_dict):
@@ -490,10 +492,10 @@ def tag_create(context, tag_dict):
 
     model = context['model']
 
-    check_access('tag_create', context, tag_dict)
+    _check_access('tag_create', context, tag_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_tag_schema()
-    data, errors = validate(tag_dict, schema, context)
+    data, errors = _validate(tag_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
