@@ -24,6 +24,7 @@ check_access = logic.check_access
 get_action = logic.get_action
 ValidationError = logic.ValidationError
 NotFound = logic.NotFound
+_get_or_bust = logic.get_or_bust
 
 def package_create(context, data_dict):
 
@@ -149,9 +150,7 @@ def package_relationship_create(context, data_dict):
     api = context.get('api_version')
     ref_package_by = 'id' if api == 2 else 'name'
 
-    id = data_dict['subject']
-    id2 = data_dict['object']
-    rel_type = data_dict['type']
+    id, id2, rel_type = _get_or_bust(data_dict, ['subject', 'object', 'type'])
     comment = data_dict.get('comment', u'')
 
     pkg1 = model.Package.get(id)
@@ -213,9 +212,7 @@ def member_create(context, data_dict=None):
     else:
         rev.message = _(u'REST API: Create member object %s') % data_dict.get("name", "")
 
-    obj_id   = data_dict['object']
-    obj_type = data_dict['object_type']
-    capacity = data_dict['capacity']
+    obj_id, obj_type, capacity = _get_or_bust(data_dict, ['object', 'object_type', 'capacity'])
 
     # User must be able to update the group to add a member to it
     check_access('group_update', context, data_dict)

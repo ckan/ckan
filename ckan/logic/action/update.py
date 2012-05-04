@@ -23,6 +23,7 @@ get_action = logic.get_action
 check_access = logic.check_access
 NotFound = logic.NotFound
 ValidationError = logic.ValidationError
+_get_or_bust = logic.get_or_bust
 
 def _make_latest_rev_active(context, q):
 
@@ -60,7 +61,7 @@ def make_latest_pending_package_active(context, data_dict):
     model = context['model']
     session = model.Session
     SQLAlchemySession.setattr(session, 'revisioning_disabled', True)
-    id = data_dict["id"]
+    id = _get_or_bust(data_dict, "id")
     pkg = model.Package.get(id)
 
     check_access('make_latest_pending_package_active', context, data_dict)
@@ -101,7 +102,7 @@ def make_latest_pending_package_active(context, data_dict):
 def related_update(context, data_dict):
     model = context['model']
     user = context['user']
-    id = data_dict["id"]
+    id = _get_or_bust(data_dict, "id")
 
     schema = context.get('schema') or ckan.logic.schema.default_related_schema()
     model.Session.remove()
@@ -130,7 +131,7 @@ def related_update(context, data_dict):
 def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
-    id = data_dict["id"]
+    id = _get_or_bust(data_dict, "id")
     schema = context.get('schema') or ckan.logic.schema.default_update_resource_schema()
     model.Session.remove()
 
@@ -221,7 +222,7 @@ def package_update_validate(context, data_dict):
     model = context['model']
     user = context['user']
 
-    id = data_dict["id"]
+    id = _get_or_bust(data_dict, "id")
     model.Session.remove()
     model.Session()._context = context
 
@@ -275,9 +276,7 @@ def package_relationship_update(context, data_dict):
     user = context['user']
     schema = context.get('schema') or ckan.logic.schema.default_update_relationship_schema()
 
-    id = data_dict['subject']
-    id2 = data_dict['object']
-    rel = data_dict['type']
+    id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
@@ -306,7 +305,7 @@ def group_update(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
     parent = context.get('parent', None)
 
     group = model.Group.get(id)
@@ -402,7 +401,7 @@ def user_update(context, data_dict):
     user = context['user']
     session = context['session']
     schema = context.get('schema') or ckan.logic.schema.default_update_user_schema()
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     user_obj = model.User.get(id)
     context['user_obj'] = user_obj
@@ -570,7 +569,7 @@ def package_update_rest(context, data_dict):
 def group_update_rest(context, data_dict):
 
     model = context['model']
-    id = data_dict["id"]
+    id = _get_or_bust(data_dict, "id")
     group = model.Group.get(id)
     context["group"] = group
     context["allow_partial_update"] = True
@@ -646,7 +645,7 @@ def user_role_update(context, data_dict):
     new_authgroup_ref = data_dict.get('authorization_group') # the authgroup who is being given the new role
     if bool(new_user_ref) == bool(new_authgroup_ref):
         raise logic.ParameterError('You must provide either "user" or "authorization_group" parameter.')
-    domain_object_ref = data_dict['domain_object']
+    domain_object_ref = _get_or_bust(data_dict, 'domain_object')
     if not isinstance(data_dict['roles'], (list, tuple)):
         raise logic.ParameterError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
     desired_roles = set(data_dict['roles'])

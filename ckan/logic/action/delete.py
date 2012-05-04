@@ -8,12 +8,13 @@ import ckan.plugins as plugins
 ValidationError = ckan.logic.ValidationError
 NotFound = ckan.logic.NotFound
 check_access = ckan.logic.check_access
+_get_or_bust = ckan.logic.get_or_bust
 
 def package_delete(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     entity = model.Package.get(id)
 
@@ -36,9 +37,7 @@ def package_relationship_delete(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = data_dict['subject']
-    id2 = data_dict['object']
-    rel = data_dict['type']
+    id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
@@ -67,7 +66,7 @@ def package_relationship_delete(context, data_dict):
 def related_delete(context, data_dict):
     model = context['model']
     user = context['user']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     entity = model.Related.get(id)
 
@@ -99,9 +98,8 @@ def member_delete(context, data_dict=None):
     user = context['user']
     group = context['group']
 
-    group_id = data_dict['group']
-    obj_id   = data_dict['object']
-    obj_type = data_dict['object_type']
+    group_id, obj_id, obj_type = _get_or_bust(data_dict,
+                                              ['group', 'object', 'object_type'])
 
     # User must be able to update the group to remove a member from it
     check_access('group_update', context, data_dict)
@@ -119,7 +117,7 @@ def group_delete(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     group = model.Group.get(id)
     context['group'] = group
@@ -143,7 +141,7 @@ def group_delete(context, data_dict):
 def task_status_delete(context, data_dict):
     model = context['model']
     user = context['user']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
     model.Session.remove()
     model.Session()._context = context
 
@@ -178,7 +176,7 @@ def tag_delete(context, data_dict):
 
     if not data_dict.has_key('id') or not data_dict['id']:
         raise ValidationError({'id': _('id not in data')})
-    tag_id_or_name = data_dict['id']
+    tag_id_or_name = _get_or_bust(data_dict, 'id')
 
     vocab_id_or_name = data_dict.get('vocabulary_id')
 

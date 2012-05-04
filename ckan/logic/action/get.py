@@ -101,7 +101,7 @@ def revision_list(context, data_dict):
 
 def package_revision_list(context, data_dict):
     model = context["model"]
-    id = data_dict["id"]
+    id = _get_or_bust(data_dict, "id")
     pkg = model.Package.get(id)
     if pkg is None:
         raise NotFound
@@ -128,7 +128,7 @@ def related_show(context, data_dict=None):
         id - The ID of the related item we want to show
     """
     model = context['model']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     related = model.Related.get(id)
     context['related'] = related
@@ -197,7 +197,7 @@ def member_list(context, data_dict=None):
     user = context['user']
     group = context['group']
 
-    group_id = data_dict['group']
+    group_id = _get_or_bust(data_dict, 'group')
     obj_type = data_dict.get('object_type', None)
     capacity = data_dict.get('capacity', None)
 
@@ -284,7 +284,7 @@ def group_list_authz(context, data_dict):
 
 def group_revision_list(context, data_dict):
     model = context['model']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
     group = model.Group.get(id)
     if group is None:
         raise NotFound
@@ -413,7 +413,7 @@ def package_relationships_list(context, data_dict):
     user = context['user']
     api = context.get('api_version')
 
-    id = data_dict["id"]
+    id = _get_or_bust(data_dict, "id")
     id2 = data_dict.get("id2")
     rel = data_dict.get("rel")
     ref_package_by = 'id' if api == 2 else 'name';
@@ -449,7 +449,7 @@ def package_show(context, data_dict):
 
     model = context['model']
     context['session'] = model.Session
-    name_or_id = data_dict.get("id") or data_dict['name_or_id']
+    name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
 
     pkg = model.Package.get(name_or_id)
 
@@ -481,7 +481,7 @@ def package_show(context, data_dict):
 
 def resource_show(context, data_dict):
     model = context['model']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     resource = model.Resource.get(id)
     context['resource'] = resource
@@ -514,7 +514,7 @@ def resource_status_show(context, data_dict):
 def revision_show(context, data_dict):
     model = context['model']
     api = context.get('api_version')
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
     ref_package_by = 'id' if api == 2 else 'name'
 
     rev = model.Session.query(model.Revision).get(id)
@@ -527,7 +527,7 @@ def revision_show(context, data_dict):
 def group_show(context, data_dict):
     '''Shows group details'''
     model = context['model']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     group = model.Group.get(id)
     context['group'] = group
@@ -562,7 +562,7 @@ def group_package_show(context, data_dict):
     """
     model = context["model"]
     user = context["user"]
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
     limit = data_dict.get("limit")
 
     group = model.Group.get(id)
@@ -596,7 +596,7 @@ def tag_show(context, data_dict):
     '''Shows tag details'''
 
     model = context['model']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     tag = model.Tag.get(id)
     context['tag'] = tag
@@ -708,7 +708,7 @@ def package_autocomplete(context, data_dict):
     model = context['model']
     session = context['session']
     user = context['user']
-    q = data_dict['q']
+    q = _get_or_bust(data_dict, 'q')
 
     like_q = u"%s%%" % q
 
@@ -883,7 +883,7 @@ def resource_search(context, data_dict):
     model = context['model']
     session = context['session']
 
-    fields = data_dict['fields']
+    fields = _get_or_bust(data_dict, 'fields')
     order_by = data_dict.get('order_by')
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
@@ -957,7 +957,7 @@ def _tag_search(context, data_dict):
 
     if data_dict.has_key('vocabulary_id'):
         # Filter by vocabulary.
-        vocab = model.Vocabulary.get(data_dict['vocabulary_id'])
+        vocab = model.Vocabulary.get(_get_or_bust(data_dict, 'vocabulary_id'))
         if not vocab:
             raise NotFound
         q = q.filter(model.Tag.vocabulary_id == vocab.id)
@@ -1028,9 +1028,9 @@ def task_status_show(context, data_dict):
     else:
         query = model.Session.query(model.TaskStatus)\
             .filter(_and_(
-                model.TaskStatus.entity_id == data_dict['entity_id'],
-                model.TaskStatus.task_type == data_dict['task_type'],
-                model.TaskStatus.key == data_dict['key']
+                model.TaskStatus.entity_id == _get_or_bust(data_dict, 'entity_id'),
+                model.TaskStatus.task_type == _get_or_bust(data_dict, 'task_type'),
+                model.TaskStatus.key == _get_or_bust(data_dict, 'key')
             ))
         task_status = query.first()
 
@@ -1055,10 +1055,10 @@ def term_translation_show(context, data_dict):
     if 'terms' not in data_dict:
         raise ValidationError({'terms': 'terms not in data'})
 
-    q = q.where(trans_table.c.term.in_(data_dict['terms']))
+    q = q.where(trans_table.c.term.in_(_get_or_bust(data_dict, 'terms')))
 
     if 'lang_codes' in data_dict:
-        q = q.where(trans_table.c.lang_code.in_(data_dict['lang_codes']))
+        q = q.where(trans_table.c.lang_code.in_(_get_or_bust(data_dict, 'lang_codes')))
 
     conn = model.Session.connection()
     cursor = conn.execute(q)
@@ -1099,7 +1099,7 @@ def roles_show(context, data_dict):
     '''
     model = context['model']
     session = context['session']
-    domain_object_ref = data_dict['domain_object']
+    domain_object_ref = _get_or_bust(data_dict, 'domain_object')
     user_ref = data_dict.get('user')
     authgroup_ref = data_dict.get('authorization_group')
 
@@ -1175,7 +1175,7 @@ def vocabulary_show(context, data_dict):
 def user_activity_list(context, data_dict):
     '''Return a user\'s public activity stream as a list of dicts.'''
     model = context['model']
-    user_id = data_dict['id']
+    user_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
     query = query.filter_by(user_id=user_id)
     query = query.order_by(_desc(model.Activity.timestamp))
@@ -1186,7 +1186,7 @@ def user_activity_list(context, data_dict):
 def package_activity_list(context, data_dict):
     '''Return a package\'s public activity stream as a list of dicts.'''
     model = context['model']
-    package_id = data_dict['id']
+    package_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
     query = query.filter_by(object_id=package_id)
     query = query.order_by(_desc(model.Activity.timestamp))
@@ -1197,7 +1197,7 @@ def package_activity_list(context, data_dict):
 def group_activity_list(context, data_dict):
     '''Return a group\'s public activity stream as a list of dicts.'''
     model = context['model']
-    group_id = data_dict['id']
+    group_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
     query = query.filter_by(object_id=group_id)
     query = query.order_by(_desc(model.Activity.timestamp))
@@ -1222,7 +1222,7 @@ def activity_detail_list(context, data_dict):
     '''Return an activity\'s list of activity detail items, as a list of dicts.
     '''
     model = context['model']
-    activity_id = data_dict['id']
+    activity_id = _get_or_bust(data_dict, 'id')
     activity_detail_objects = model.Session.query(
         model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
