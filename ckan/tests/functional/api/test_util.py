@@ -100,6 +100,22 @@ class TestUtil(ControllerTestCase):
         assert_equal(response.body, '{"ResultSet": {"Result": [{"Name": "russian"}]}}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
+    def test_group_autocomplete(self):
+        url = url_for(controller='api', action='group_autocomplete', ver=2)
+        assert_equal(url, '/api/2/util/group/autocomplete')
+        response = self.app.get(
+            url=url,
+            params={
+               'q': u'dave',
+            },
+            status=200,
+        )
+        results = json.loads(response.body)
+        assert_equal(len(results), 1)
+        assert_equal(results[0]['name'], 'david')
+        assert_equal(results[0]['title'], 'Dave\'s books')
+        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+
     def test_markdown(self):
         markdown = '''##Title'''
         response = self.app.get(

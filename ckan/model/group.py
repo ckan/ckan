@@ -9,6 +9,7 @@ from types import make_uuid
 import vdm.sqlalchemy
 from ckan.model import extension, User
 from sqlalchemy.ext.associationproxy import association_proxy
+import sqlalchemy as sa
 
 __all__ = ['group_table', 'Group', 'package_revision_table',
            'Member', 'GroupRevision', 'MemberRevision',
@@ -181,12 +182,13 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return query
 
     @classmethod
-    def search_by_name(cls, text_query, group_type=None):
+    def search_by_name_or_title(cls, text_query, group_type=None):
         text_query = text_query.strip().lower()
-        if not group_type:
-            q = Session.query(cls).filter(cls.name.contains(text_query))
-        else:
-            q = Session.query(cls).filter(cls.name.contains(text_query)).filter(cls.type==group_type)
+        q = Session.query(cls) \
+            .filter(sa.or_(cls.name.contains(text_query),
+                           cls.title.ilike('%' + text_query + '%')))
+        if group_type:
+            q = q.filter(cls.type==group_type)
         return q.order_by(cls.title)
 
     def as_dict(self, ref_package_by='name'):
