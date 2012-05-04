@@ -34,8 +34,7 @@
         </li>
       </py:otherwise>
       </py:choose>
-      <li class="${'active' if c.action=='related' else ''}">${h.subnav_link(h.icon('package') + _('Related') + ' (%s)' % c.related_count, controller='related', action='list', id=c.pkg.name)}</li>
-
+      <li py:if="config.get('package_show_related', '1') == '1'" class="${'active' if c.action=='related' else ''}">${h.subnav_link(h.icon('package') + _('Related') + ' (%s)' % c.related_count, controller='related', action='list', id=c.pkg.name)}</li>
 
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
         <li class="divider">|</li>

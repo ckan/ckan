@@ -122,6 +122,17 @@ This sets a space-separated list of extra field key values which will not be sho
 .. index::
    single: rdf_packages
 
+package_show_related
+^^^^^^^^^^^^^^^^^^^^
+
+package_show_related::
+
+ package_show_related = 0
+
+Default value:  1
+
+When set to 0 this setting will hide the related item tab on the package read page. If the value is not set, or is set to 1, then the related item tab will shown.
+
 rdf_packages
 ^^^^^^^^^^^^
 
