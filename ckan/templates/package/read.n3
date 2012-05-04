@@ -5,7 +5,8 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-<${ g.site_url + h.url_for(controller='package',action='read',id=c.pkg_dict['name'])}>     a dcat:Dataset;
+<${ h.url_for(controller='package',action='read',id=c.pkg_dict['name'], qualified=True)}>
+a dcat:Dataset;
      dct:description "${c.pkg_dict['notes']}";
      dct:identifier "${c.pkg_dict['name']}";
      dct:relation  [
