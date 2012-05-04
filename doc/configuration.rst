@@ -122,12 +122,12 @@ This sets a space-separated list of extra field key values which will not be sho
 .. index::
    single: rdf_packages
 
-package_show_related
-^^^^^^^^^^^^^^^^^^^^
+ckan.dataset.show_related
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-package_show_related::
+ckan.dataset.show_related::
 
- package_show_related = false
+ ckan.dataset.show_related = false
 
 Default value:  true
 
