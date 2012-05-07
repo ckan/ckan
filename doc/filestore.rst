@@ -10,9 +10,8 @@ Setup and Configuration
 =======================
 
 By default storage is disabled. To enable it, all you need to do is configure
-where files will be stored.
-
-Common configuration options::
+where files will be stored. Add the following lines afer the ``[app:main]``
+line in your CKAN config file::
 
    ## Required
    ## 'Bucket' (subdirectory for file based storage) to use for file storage
@@ -29,7 +28,8 @@ Important: you must install pairtree library for local storage to function::
           
     pip install pairtree
 
-For local file storage add to your config::
+To enable local file storage add the following lines to your CKAN config file,
+after the ``[app:main]`` line::
 
    ## OFS configuration
    ofs.impl = pairtree
