@@ -334,7 +334,14 @@ class BaseController(WSGIController):
 
         else:
             try:
-                request_data = request.body
+                # pylons only puts the request body in `request.body` if it's
+                # a POST or PUT request.  Otherwise, it's only accessible
+                # through the underlying wsgi input stream.
+                if request.method in ['POST', 'PUT']:
+                    request_data = request.body
+                elif try_url_params:
+                    request_data = request.environ.get('wsgi.input').read()
+
             except Exception, inst:
                 msg = "Could not extract request body data: %s" % \
                       (inst)
