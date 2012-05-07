@@ -323,6 +323,14 @@ def group_list_authz(context, data_dict):
     return [{'id':group.id,'name':group.name} for group in groups]
 
 def group_revision_list(context, data_dict):
+    '''Return a group's revisions.
+
+    :param id: the name or id of the group
+    :type id: string
+    :returns: the group's revisions
+    :rtype: list of revision dictionaries
+
+    '''
     model = context['model']
     id = data_dict['id']
     group = model.Group.get(id)
@@ -339,6 +347,12 @@ def group_revision_list(context, data_dict):
     return revision_dicts
 
 def licence_list(context, data_dict):
+    '''Return the list of license's available for datasets on the site.
+
+    :returns: the site's licenses
+    :rtype: list of licence dictionaries
+
+    '''
     model = context["model"]
 
     check_access('licence_list',context, data_dict)
@@ -394,7 +408,18 @@ def tag_list(context, data_dict):
     return tag_list
 
 def user_list(context, data_dict):
-    '''Lists the current users'''
+    '''Return a list of the site's user accounts.
+
+    :param q: restrict the users returned to those whose names contain a string
+      (optional)
+    :type q: string
+    :param order_by: which field to sort the list by (optional, default:
+      'name')
+    :type order_by: string
+    :returns: the site's user accounts
+    :rtype: list of user dictionaries
+
+    '''
     model = context['model']
     user = context['user']
 
@@ -454,7 +479,18 @@ def user_list(context, data_dict):
     return users_list
 
 def package_relationships_list(context, data_dict):
+    '''Return a dataset (package)'s relationships.
 
+    :param id: the id or name of the package
+    :type id: string
+    :param id2:
+    :type id2:
+    :param rel:
+    :type rel:
+    :returns: the packages relationships
+    :rtype: list of relationship dictionaries
+
+    '''
     ##TODO needs to work with dictization layer
     model = context['model']
     user = context['user']
@@ -493,7 +529,14 @@ def package_relationships_list(context, data_dict):
     return relationship_dicts
 
 def package_show(context, data_dict):
+    '''Return the metadata of a dataset (package) and its resources.
 
+    :param id: the id or name of the dataset
+    :type id: string
+    :returns: the dataset's metadata
+    :rtype: dataset dictionary
+
+    '''
     model = context['model']
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or data_dict['name_or_id']
@@ -527,6 +570,14 @@ def package_show(context, data_dict):
     return package_dict
 
 def resource_show(context, data_dict):
+    '''Return the metadata of a resource.
+
+    :param id: the id of the resource
+    :type id: string
+    :returns: the metadata of a resource
+    :rtype: resource dictionary
+
+    '''
     model = context['model']
     id = data_dict['id']
 
@@ -540,7 +591,14 @@ def resource_show(context, data_dict):
     return model_dictize.resource_dictize(resource, context)
 
 def resource_status_show(context, data_dict):
+    '''Return the status of a resource.
 
+    :param id: the id of the resource
+    :type id: string
+    :returns: ?
+    :rtype: list
+
+    '''
     model = context['model']
     id = get_or_bust(data_dict, 'id')
 
@@ -557,8 +615,15 @@ def resource_status_show(context, data_dict):
 
     return result_list
 
-
 def revision_show(context, data_dict):
+    '''Return the details of a revision.
+
+    :param id: the id of the revision
+    :type id: string
+    :returns: the details of the revision
+    :rtype: revision dictionary
+
+    '''
     model = context['model']
     api = context.get('api_version')
     id = data_dict['id']
@@ -572,7 +637,14 @@ def revision_show(context, data_dict):
     return rev_dict
 
 def group_show(context, data_dict):
-    '''Shows group details'''
+    '''Return a group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :returns: the details of the group
+    :rtype: group dictionary
+
+    '''
     model = context['model']
     id = data_dict['id']
 
@@ -604,13 +676,17 @@ def group_show(context, data_dict):
     return group_dict
 
 def group_package_show(context, data_dict):
-    """
-    Shows all packages belonging to a group.
-    """
+    '''Return the datasets (packages) of a group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :returns: the datasets of the group
+    :rtype: list of dataset dictionaries
+
+    '''
     model = context["model"]
     user = context["user"]
     id = data_dict['id']
-    limit = data_dict.get("limit")
 
     group = model.Group.get(id)
     context['group'] = group
@@ -640,8 +716,15 @@ def group_package_show(context, data_dict):
     return result
 
 def tag_show(context, data_dict):
-    '''Shows tag details'''
+    '''Return the details of a tag and all its datasets.
 
+    :param id: the name or id of the tag
+    :type id: string
+    :returns: the details of the tag, including a list of all of the tag's
+        datasets and their details
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = data_dict['id']
 
@@ -665,7 +748,18 @@ def tag_show(context, data_dict):
     return tag_dict
 
 def user_show(context, data_dict):
-    '''Shows user details'''
+    '''Return a user account.
+
+    Either the ``id`` or the ``user_obj`` parameter must be given.
+
+    :param id: the id or name of the user (optional)
+    :type id: string
+    :param user_obj: the user dictionary of the user (optional)
+    :type user_obj: user dictionary
+    :returns: the details of the user
+    :rtype: user dictionary
+
+    '''
     model = context['model']
     user = context['user']
 
@@ -749,9 +843,17 @@ def tag_show_rest(context, data_dict):
     return tag_dict
 
 def package_autocomplete(context, data_dict):
-    '''Returns packages containing the given string in either the name
-    or the title'''
+    '''Return a list of datasets (packages) whose that match a string.
 
+    Datasets with names or titles that contain the query string will be
+    returned.
+
+    :param q: the string to search for
+    :type q: string
+    :returns: the datasets that match the string
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -784,7 +886,17 @@ def package_autocomplete(context, data_dict):
     return pkg_list
 
 def format_autocomplete(context, data_dict):
-    '''Returns formats containing the given string'''
+    '''Return a list of resource formats whose names contain a string.
+
+    :param q: the string to search for
+    :type q: string
+    :param limit: the maximum number of results to return (optional,
+        default: 5)
+    :type limit: int
+    :returns: the matching resource formats
+    :rtype: list of strings
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -812,7 +924,18 @@ def format_autocomplete(context, data_dict):
     return [resource.format.lower() for resource in query]
 
 def user_autocomplete(context, data_dict):
-    '''Returns users containing the given string'''
+    '''Return a list of user names that contain a string.
+
+    :param q: the string to search for
+    :type q: string
+    :param limit: the maximum number of results to return (optional,
+        default: 20)
+    :type limit: int
+    :returns: the matching users
+    :rtype: a list of dictionaries each containing a user's name, fullname,
+        and id
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -837,6 +960,22 @@ def user_autocomplete(context, data_dict):
     return user_list
 
 def package_search(context, data_dict):
+    '''
+
+    :param q:
+    :type q:
+    :param fields:
+    :type fields:
+    :param facet_by:
+    :type facet_by:
+    :param limit:
+    :type limit:
+    :param offset:
+    :type offset:
+    :returns:
+    :rtype:
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -927,6 +1066,20 @@ def package_search(context, data_dict):
     return search_results
 
 def resource_search(context, data_dict):
+    '''
+
+    :param fields:
+    :type fields:
+    :param order_by:
+    :type order_by:
+    :param offset:
+    :type offset:
+    :param limit:
+    :type limit:
+    :returns:
+    :rtype:
+
+    '''
     model = context['model']
     session = context['session']
 
@@ -1087,6 +1240,23 @@ def tag_autocomplete(context, data_dict):
         return []
 
 def task_status_show(context, data_dict):
+    '''Return a task status.
+
+    Either the ``id`` parameter *or* ``entity_id``, ``task_type`` *and* ``key``
+    parameters must be given.
+
+    :param id: the id of the task status (optional)
+    :type id: string
+    :param entity_id: the entity_id of the task status (optional)
+    :type entity_id: string
+    :param task_type: the task_type of the task status (optional)
+    :type tast_type: string
+    :param key: the key of the task status (optional)
+    :type key: string
+    :returns: the task status
+    :rtype: task status dictionary
+
+    '''
     model = context['model']
     id = data_dict.get('id')
 
@@ -1112,6 +1282,22 @@ def task_status_show(context, data_dict):
     return task_status_dict
 
 def term_translation_show(context, data_dict):
+    '''Return the term translations for the given term(s) and language(s).
+
+    :param terms: the terms to search for translations of, e.g. "Russian",
+        "romantic novel"
+    :type terms: list of strings
+    :param lang_codes: the language codes of the languages to search for
+        translations into, e.g. "en", "de" (optional, default is to search for
+        translations into any language)
+    :type lang_codes: list of language code strings
+    :returns: the matching term translations
+    :rtype: a list of term translation dictionaries each with keys "term" (the
+        term searched for, in the source language), "term_translation" (the
+        translation of the term into the target language) and "lang_code" (the
+        language code of the target language)
+
+    '''
     model = context['model']
 
     trans_table = model.term_translation_table
