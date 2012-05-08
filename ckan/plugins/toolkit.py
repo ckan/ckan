@@ -16,15 +16,15 @@ class CkanVersionException(Exception):
 
 class _Toolkit(object):
     '''This class is intended to make functions/objects consistently
-    available to plugins, whilst giving developers the ability move
+    available to plugins, whilst giving core CKAN developers the ability move
     code around or change underlying frameworks etc. This object allows
     us to avoid circular imports while making functions/objects
     available to plugins.
 
-    It should not be used internally within ckan only by extensions.
+    It should not be used internally within ckan - only by extensions.
 
     Functions/objects should only be removed after reasonable
-    depreciation notice has been given.'''
+    deprecation notice has been given.'''
 
     # contents should describe the available functions/objects. We check
     # that this list matches the actual availables in the initialisation
@@ -175,7 +175,7 @@ class _Toolkit(object):
             if not max_version:
                 error = 'Requires ckan version %s or higher' % min_version
             else:
-                error = 'Requires ckan version  between %s and %s' % \
+                error = 'Requires ckan version between %s and %s' % \
                             (min_version, max_version)
             raise cls.CkanVersionException(error)
 

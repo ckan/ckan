@@ -541,7 +541,7 @@ class BaseController(WSGIController):
         c.user_role_dict = user_role_dict
         c.authz_groups = authz_groups
         c.authz_groups_role_dict = authz_groups_role_dict
-
+        c.are_any_authz_groups = bool(model.Session.query(model.AuthorizationGroup).count())
 
 # Include the '_' function in the public names
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_') \
