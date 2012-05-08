@@ -154,13 +154,23 @@ class Authorizer(object):
         return [pr.role for pr in q]
     
     @classmethod
-    def is_sysadmin(cls, username):
-        user = model.User.by_name(username, autoflush=False)
-        if user:
-            q = model.Session.query(model.SystemRole)
-            q = q.autoflush(False)
-            q = q.filter_by(role=model.Role.ADMIN, user=user)
-            return q.count() > 0
+    def is_sysadmin(cls, user):
+        '''Returns whether the given user a sys-admin?
+        (sysadmin = system administrator with full authorization)
+        Ideally provide a user object. Next best is a user name.
+        '''
+        if not user:
+            return False
+        if isinstance(user, basestring):
+            user = model.User.by_name(user, autoflush=False)
+            if not user:
+                return False
+        elif not isinstance(user, model.User):
+            raise NotImplementedError
+        q = model.Session.query(model.SystemRole)
+        q = q.autoflush(False)
+        q = q.filter_by(role=model.Role.ADMIN, user=user)
+        return q.count() > 0
 
     @classmethod
     def get_admins(cls, domain_obj):
@@ -188,7 +198,7 @@ class Authorizer(object):
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR, autoflush=False)
         logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN,
                                        autoflush=False)
-        if not cls.is_sysadmin(username):
+        if not cls.is_sysadmin(user):
             # This gets the role table the entity is joined to. we
             # need to use this in the queries below as if we use
             # model.UserObjectRole a cross join happens always
