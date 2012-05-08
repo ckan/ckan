@@ -92,15 +92,25 @@ class TestHelpers(TestController):
         for e in expected:
             assert e in res, (e,res)
 
-    def test_parse_rfc_2822_simple_case(self):
+    def test_parse_rfc_2822_no_timezone_specified(self):
         """
         Parse "Tue, 15 Nov 1994 12:45:26" successfully.
 
-        No zone info.
+        Assuming it's UTC.
         """
         dt = h.parse_rfc_2822_date('Tue, 15 Nov 1994 12:45:26')
-        assert_equal(dt.isoformat(), '1994-11-15T12:45:26')
+        assert_equal(dt.isoformat(), '1994-11-15T12:45:26+00:00')
     
+    def test_parse_rfc_2822_no_timezone_specified_assuming_local(self):
+        """
+        Parse "Tue, 15 Nov 1994 12:45:26" successfully.
+
+        Assuming it's local.
+        """
+        dt = h.parse_rfc_2822_date('Tue, 15 Nov 1994 12:45:26', assume_utc=False)
+        assert_equal(dt.isoformat(), '1994-11-15T12:45:26')
+        assert_equal(dt.tzinfo, None)
+
     def test_parse_rfc_2822_gmt_case(self):
         """
         Parse "Tue, 15 Nov 1994 12:45:26 GMT" successfully.
@@ -108,20 +118,12 @@ class TestHelpers(TestController):
         GMT obs-zone specified
         """
         dt = h.parse_rfc_2822_date('Tue, 15 Nov 1994 12:45:26 GMT')
-        assert_equal(dt.isoformat(), '1994-11-15T12:45:26')
+        assert_equal(dt.isoformat(), '1994-11-15T12:45:26+00:00')
 
     def test_parse_rfc_2822_with_offset(self):
         """
         Parse "Tue, 15 Nov 1994 12:45:26 +0700" successfully.
         """
         dt = h.parse_rfc_2822_date('Tue, 15 Nov 1994 12:45:26 +0700')
-        assert_equal(dt.isoformat(), '1994-11-15T05:45:26')
-
-    def test_parse_rfc_2822_ignoring_offset(self):
-        """
-        Parse "Tue, 15 Nov 1994 12:45:26 +0700" successfully.
-        """
-        dt = h.parse_rfc_2822_date('Tue, 15 Nov 1994 12:45:26 +0700', tz_aware=False)
-        assert_equal(dt.isoformat(), '1994-11-15T12:45:26')
-
+        assert_equal(dt.isoformat(), '1994-11-15T12:45:26+07:00')
 

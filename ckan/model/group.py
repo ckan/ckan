@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy import orm, types, Column, Table, ForeignKey, or_
 import vdm.sqlalchemy
 
 import meta
@@ -166,22 +166,28 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                 from_statement(HIERARCHY_CTE).params(id=self.id, type=type).all()
         return [ { "id":idf, "name": name, "title": title } for idf,name,title in results ]
 
-    def active_packages(self, load_eager=True):
-        query = meta.Session.query(_package.Package).\
+    def active_packages(self, load_eager=True, with_private=False):
+        query = Session.query(_package.Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
                filter(group_table.c.id == self.id).\
-               filter(member_table.c.state == 'active').\
-               join(member_table, member_table.c.table_id == _package.Package.id).\
+               filter(member_table.c.state == 'active')
+
+        if not with_private:
+               query = query.filter(member_table.c.capacity == 'public')
+
+        query = query.join(member_table, member_table.c.table_id == _package.Package.id).\
                join(group_table, group_table.c.id == member_table.c.group_id)
+
         return query
 
     @classmethod
-    def search_by_name(cls, text_query, group_type=None):
+    def search_by_name_or_title(cls, text_query, group_type=None):
         text_query = text_query.strip().lower()
-        if not group_type:
-            q = meta.Session.query(cls).filter(cls.name.contains(text_query))
-        else:
-            q = meta.Session.query(cls).filter(cls.name.contains(text_query)).filter(cls.type==group_type)
+        q = meta.Session.query(cls) \
+            .filter(or_(cls.name.contains(text_query),
+                           cls.title.ilike('%' + text_query + '%')))
+        if group_type:
+            q = q.filter(cls.type==group_type)
         return q.order_by(cls.title)
 
     def as_dict(self, ref_package_by='name'):

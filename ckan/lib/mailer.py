@@ -48,7 +48,7 @@ def _mail_recipient(recipient_name, recipient_email,
         log.exception(msg)
         raise MailerException(msg)
 
-def mail_recipient(recipient_name, recipient_email, subject, 
+def mail_recipient(recipient_name, recipient_email, subject,
         body, headers={}):
     return _mail_recipient(recipient_name, recipient_email,
             g.site_title, g.site_url, subject, body, headers=headers)
@@ -56,7 +56,7 @@ def mail_recipient(recipient_name, recipient_email, subject,
 def mail_user(recipient, subject, body, headers={}):
     if (recipient.email is None) or not len(recipient.email):
         raise MailerException(_("No recipient email address available!"))
-    mail_recipient(recipient.display_name, recipient.email, subject, 
+    mail_recipient(recipient.display_name, recipient.email, subject,
             body, headers=headers)
 
 

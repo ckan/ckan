@@ -628,6 +628,68 @@ left arrow <
     def get_all_data(cls):
         return cls.pkg_names + list(cls.group_names) + cls.tag_names + cls.user_refs
 
+    @classmethod
+    def make_some_vocab_tags(cls):
+        import ckan.model as model
+        model.repo.new_revision()
+
+        # Create a couple of vocabularies.
+        genre_vocab = model.Vocabulary(u'genre')
+        model.Session.add(genre_vocab)
+        composers_vocab = model.Vocabulary(u'composers')
+        model.Session.add(composers_vocab)
+
+        # Create some additional free tags for tag search tests.
+        tolkien_tag = model.Tag(name="tolkien")
+        model.Session.add(tolkien_tag)
+        toledo_tag = model.Tag(name="toledo")
+        model.Session.add(toledo_tag)
+        tolerance_tag = model.Tag(name="tolerance")
+        model.Session.add(tolerance_tag)
+        tollbooth_tag = model.Tag(name="tollbooth")
+        model.Session.add(tollbooth_tag)
+        # We have to add free tags to a package or they won't show up in tag results.
+        model.Package.get('warandpeace').add_tags((tolkien_tag, toledo_tag,
+            tolerance_tag, tollbooth_tag))
+
+        # Create some tags that belong to vocabularies.
+        sonata_tag = model.Tag(name=u'sonata', vocabulary_id=genre_vocab.id)
+        model.Session.add(sonata_tag)
+
+        bach_tag = model.Tag(name=u'Bach', vocabulary_id=composers_vocab.id)
+        model.Session.add(bach_tag)
+
+        neoclassical_tag = model.Tag(name='neoclassical',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neoclassical_tag)
+
+        neofolk_tag = model.Tag(name='neofolk', vocabulary_id=genre_vocab.id)
+        model.Session.add(neofolk_tag)
+
+        neomedieval_tag = model.Tag(name='neomedieval',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neomedieval_tag)
+
+        neoprog_tag = model.Tag(name='neoprog',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neoprog_tag)
+
+        neopsychedelia_tag = model.Tag(name='neopsychedelia',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neopsychedelia_tag)
+
+        neosoul_tag = model.Tag(name='neosoul', vocabulary_id=genre_vocab.id)
+        model.Session.add(neosoul_tag)
+
+        nerdcore_tag = model.Tag(name='nerdcore', vocabulary_id=genre_vocab.id)
+        model.Session.add(nerdcore_tag)
+
+        model.Package.get('warandpeace').add_tag(bach_tag)
+        model.Package.get('annakarenina').add_tag(sonata_tag)
+
+        model.Session.commit()
+    
+
 
 search_items = [{'name':'gils',
               'title':'Government Information Locator Service',

@@ -25,6 +25,7 @@
 
     <hr/>
 
+   <py:if test="c.are_any_authz_groups">
     <h3>Update Existing Roles for Authorization Groups</h3>
 
     <form id="authzgroup_form" method="POST">
@@ -40,6 +41,7 @@
       <button type="submit" name="authz_add" class="btn btn-primary">Add Role</button>
       <div class="clear"></div>
     </form>
+   </py:if>
 
   </div>
 

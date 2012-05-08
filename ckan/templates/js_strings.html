@@ -13,61 +13,62 @@
   /*
    * Used in application.js.
    */
-  CKAN.Strings.checking = "${_('Checking...')}";
-  CKAN.Strings.urlIsTooShort = "${_('Type at least two characters...')}";
-  CKAN.Strings.urlIsUnchanged = "${_('This is the current URL.')}";
-  CKAN.Strings.urlIsAvailable = "${_('This URL is available!')}";
-  CKAN.Strings.urlIsNotAvailable = "${_('This URL is already used, please use a different one.')}";
-  CKAN.Strings.failedToSave = "${_('Failed to save, possibly due to invalid data ')}";
-  CKAN.Strings.addDataset = "${_('Add Dataset')}";
-  CKAN.Strings.addGroup = "${_('Add Group')}";
-  CKAN.Strings.youHaveUnsavedChanges = "${_("You have unsaved changes. Make sure to click 'Save Changes' below before leaving this page.")}";
-  CKAN.Strings.loading = "${_('Loading...')}";
-  CKAN.Strings.noNameBrackets = "${_('(no name)')}";
-  CKAN.Strings.deleteThisResourceQuestion = "${_('Delete the resource \'%name%\'?')}";
-  CKAN.Strings.previewNotAvailableForDataType = "${_('Preview not available for data type: ')}";
-  CKAN.Strings.failedToGetCredentialsForUpload = "${_('Failed to get credentials for storage upload. Upload cannot proceed')}";
-  CKAN.Strings.checkingUploadPermissions = "${_('Checking upload permissions ...')}";
-  CKAN.Strings.uploadingFile = "${_('Uploading file ...')}";
-  CKAN.Strings.dataFile = "${_('Data File')}";
-  CKAN.Strings.api = "${_('API')}";
-  CKAN.Strings.visualization = "${_('Visualization')}";
-  CKAN.Strings.image = "${_('Image')}";
-  CKAN.Strings.metadata = "${_('Metadata')}";
-  CKAN.Strings.documentation = "${_('Documentation')}";
-  CKAN.Strings.code = "${_('Code')}";
-  CKAN.Strings.example = "${_('Example')}";
+  CKAN.Strings = ${
+    h.dump_json(dict(
+      checking = _('Checking...'),
+      urlIsTooShort = _('Type at least two characters...'),
+      urlIsUnchanged = _('This is the current URL.'),
+      urlIsAvailable = _('This URL is available!'),
+      urlIsNotAvailable = _('This URL is already used, please use a different one.'),
+      failedToSave = _('Failed to save, possibly due to invalid data '),
+      addDataset = _('Add Dataset'),
+      addGroup = _('Add Group'),
+      youHaveUnsavedChanges = _("You have unsaved changes. Make sure to click 'Save Changes' below before leaving this page."),
+      loading = _('Loading...'),
+      noNameBrackets = _('(no name)'),
+      deleteThisResourceQuestion = _('Delete the resource \'%name%\'?'),
+      previewNotAvailableForDataType = _('Preview not available for data type: '),
+      failedToGetCredentialsForUpload = _('Failed to get credentials for storage upload. Upload cannot proceed'),
+      checkingUploadPermissions = _('Checking upload permissions ...'),
+      uploadingFile = _('Uploading file ...'),
+      dataFile = _('Data File'),
+      api = _('API'),
+      visualization = _('Visualization'),
+      image = _('Image'),
+      metadata = _('Metadata'),
+      documentation = _('Documentation'),
+      code = _('Code'),
+      example = _('Example'),
 
-  /*
-   * Used in templates.js.
-   */
-  CKAN.Strings.upload = "${_('Upload')}";
-  CKAN.Strings.cancel = "${_('Cancel')}";
-  CKAN.Strings.name = "${_('Name')}";
-  CKAN.Strings.description = "${_('Description')}";
-  CKAN.Strings.url = "${_('Url')}";
-  CKAN.Strings.format = "${_('Format')}";
-  CKAN.Strings.resourceType = "${_('Resource Type')}";
-  CKAN.Strings.datastoreEnabled = "${_('DataStore enabled')}";
-  CKAN.Strings.sizeBracketsBytes = "${_('Size (Bytes)')}";
-  CKAN.Strings.mimetype = "${_('Mimetype')}";
-  CKAN.Strings.created = "${_('Created')}";
-  CKAN.Strings.lastModified = "${_('Last Modified')}";
-  CKAN.Strings.mimetypeInner = "${_('Mimetype (Inner)')}";
-  CKAN.Strings.hash = "${_('Hash')}";
-  CKAN.Strings.id = "${_('ID')}";
-  CKAN.Strings.doneEditing = "${_('Done')}";
-  CKAN.Strings.resourceHasUnsavedChanges = "${_('This resource has unsaved changes.')}";
-  CKAN.Strings.edit = "${_('Edit')}";
-  CKAN.Strings.preview = "${_('Preview')}";
-  CKAN.Strings.resourceFormatPlaceholder = "${_('e.g. csv, html, xls, rdf, ...')}";
-  CKAN.Strings.unknown = "${_('Unknown')}";
-  CKAN.Strings.extraFields = "${_('Extra Fields')}";
-  CKAN.Strings.addExtraField = "${_('Add Extra Field')}";
-  CKAN.Strings.deleteResource = "${_('Delete Resource')}";
-  CKAN.Strings.youCanUseMarkdown = "${_('You can use %aMarkdown formatting%b here.')}";
-  CKAN.Strings.shouldADataStoreBeEnabled = "${_('Should a %aDataStore table and Data API%b be enabled for this resource?')}";
-  CKAN.Strings.datesAreInISO = "${_('Dates are in %aISO Format%b &mdash; eg. %c2012-12-25%d or %c2010-05-31T14:30%d.')}";
-  CKAN.Strings.dataFileUploaded = "${_('Data File (Uploaded)')}";
+      upload = _('Upload'),
+      cancel = _('Cancel'),
+      name = _('Name'),
+      description = _('Description'),
+      url = _('Url'),
+      format = _('Format'),
+      resourceType = _('Resource Type'),
+      datastoreEnabled = _('DataStore enabled'),
+      sizeBracketsBytes = _('Size (Bytes)'),
+      mimetype = _('Mimetype'),
+      created = _('Created'),
+      lastModified = _('Last Modified'),
+      mimetypeInner = _('Mimetype (Inner)'),
+      hash = _('Hash'),
+      id = _('ID'),
+      doneEditing = _('Done'),
+      resourceHasUnsavedChanges = _('This resource has unsaved changes.'),
+      edit = _('Edit'),
+      preview = _('Preview'),
+      resourceFormatPlaceholder = _('e.g. csv, html, xls, rdf, ...'),
+      unknown = _('Unknown'),
+      extraFields = _('Extra Fields'),
+      addExtraField = _('Add Extra Field'),
+      deleteResource = _('Delete Resource'),
+      youCanUseMarkdown = _('You can use %aMarkdown formatting%b here.'),
+      shouldADataStoreBeEnabled = _('Should a %aDataStore table and Data API%b be enabled for this resource?'),
+      datesAreInISO = _('Dates are in %aISO Format%b &mdash; eg. %c2012-12-25%d or %c2010-05-31T14:30%d.'),
+      dataFileUploaded = _('Data File (Uploaded)')
+    ), indent=4)}
+
 </script>
 

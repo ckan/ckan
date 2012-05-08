@@ -13,13 +13,13 @@
 
   <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
   - Datasets</py:def>
-  
+
   <py:def function="page_heading" property="dc:title">
     ${c.pkg_dict['title']}
   </py:def>
-  
+
   <py:match path="primarysidebar">
-  
+
     <li py:if="c.pkg.license_id" id="dataset-license" class="sidebar-section">
       <strong>License:</strong>
         <py:choose test="">
@@ -94,15 +94,12 @@
   </div>
 
   <py:def function="optional_head">
-    <py:if test="config.get('rdf_packages')">
-      <link rel="alternate" type="application/rdf+xml" title="RDF/XML" href="${config['rdf_packages'] + '/' + c.pkg.id + '.rdf' }" />
-      <link rel="alternate" type="application/turtle" title="RDF/Turtle" href="${config['rdf_packages'] + '/' + c.pkg.id + '.ttl' }" />
-    </py:if>
+      <link rel="alternate" type="application/rdf+xml" title="RDF/XML" href="${ h.url_for(controller='package', action='read', id=c.pkg.id, qualified=True)}.rdf" />
   </py:def>
 
   <py:def function="optional_feed">
   <link rel="alternate" type="application/atom+xml" title="Dataset History"
-    href="${h.url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
+    href="${h.url(controller='package', action='history', id=c.pkg.name, format='atom', days=7, qualified=True)}" />
   </py:def>
 
   <xi:include href="layout.html" />
