@@ -14,8 +14,8 @@ class HomeController(BaseController):
     repo = model.repo
 
     def __before__(self, action, **env):
-        BaseController.__before__(self, action, **env)
         try:
+            BaseController.__before__(self, action, **env)
             context = {'model':model,'user': c.user or c.author}
             ckan.logic.check_access('site_read',context)
         except ckan.logic.NotAuthorized:
@@ -31,7 +31,7 @@ class HomeController(BaseController):
                 # TODO: send an email to the admin person (#1285)
             else:
                 raise
-            
+
 
     def index(self):
         try:
@@ -43,6 +43,7 @@ class HomeController(BaseController):
                 'facet.field':g.facets,
                 'rows':0,
                 'start':0,
+                'fq': 'capacity:"public"'
             }
             query = ckan.logic.get_action('package_search')(context,data_dict)
             c.package_count = query['count']

@@ -95,6 +95,7 @@ class Repository(vdm.sqlalchemy.Repository):
 
                 self.init_configuration_data()
                 self.tables_created_and_initialised = True
+        log.info('Database initialised')
 
     def clean_db(self):
         metadata = MetaData(self.metadata.bind)
@@ -104,6 +105,7 @@ class Repository(vdm.sqlalchemy.Repository):
 
         metadata.drop_all()
         self.tables_created_and_initialised = False
+        log.info('Database tables dropped')
 
     def init_const_data(self):
         '''Creates 'constant' objects that should always be there in
@@ -136,6 +138,7 @@ class Repository(vdm.sqlalchemy.Repository):
         self.metadata.create_all(bind=self.metadata.bind)
         self.init_const_data()
         self.init_configuration_data()
+        log.info('Database tables created')
 
     def latest_migration_version(self):
         import migrate.versioning.api as mig
@@ -157,6 +160,7 @@ class Repository(vdm.sqlalchemy.Repository):
         self.session.remove()
         self.init_db()
         self.session.flush()
+        log.info('Database rebuilt')
 
     def delete_all(self):
         '''Delete all data from all tables.'''
@@ -170,7 +174,7 @@ class Repository(vdm.sqlalchemy.Repository):
         for table in tables:
             connection.execute('delete from "%s"' % table.name)
         self.session.commit()
-
+        log.info('Database table data deleted')
 
     def setup_migration_version_control(self, version=None):
         import migrate.exceptions
@@ -192,9 +196,16 @@ class Repository(vdm.sqlalchemy.Repository):
             meta.engine.name
         import migrate.versioning.api as mig
         self.setup_migration_version_control()
+        version_before = mig.db_version(self.metadata.bind, self.migrate_repository)
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
-        self.init_const_data()
+        version_after = mig.db_version(self.metadata.bind, self.migrate_repository)
+        if version_after != version_before:
+            log.info('CKAN database version upgraded: %s -> %s', version_before, version_after)
+        else:
+            log.info('CKAN database version remains as: %s', version_after)
 
+        self.init_const_data()
+        
         ##this prints the diffs in a readable format
         ##import pprint
         ##from migrate.versioning.schemadiff import getDiffOfModelAgainstDatabase

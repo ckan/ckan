@@ -15,7 +15,7 @@ def group_list_dictize(obj_list, context,
                        sort_key=lambda x:x['display_name'], reverse=False):
 
     active = context.get('active', True)
-
+    with_private = context.get('include_private_packages', False)
     result_list = []
 
     for obj in obj_list:
@@ -30,7 +30,8 @@ def group_list_dictize(obj_list, context,
 
         group_dict['display_name'] = obj.display_name
 
-        group_dict['packages'] = len(obj.active_packages().all())
+        group_dict['packages'] = \
+                len(obj.active_packages(with_private=with_private).all())
 
         if context.get('for_view'):
             for item in plugins.PluginImplementations(
