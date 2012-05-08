@@ -56,6 +56,7 @@ Publishing Datasets
    authorization
    publisher-profile
    geospatial
+   data-viewer
 
 The CKAN API
 ============
