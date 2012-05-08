@@ -33,6 +33,8 @@ from pylons import session
 from pylons import c
 from pylons.i18n import _
 
+import html_resources
+
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
 
@@ -800,6 +802,10 @@ def convert_to_dict(object_type, objs):
     return items
 
 
+def include_resource(resource):
+    r = getattr(html_resources, resource)
+    r.need()
+
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
 __allowed_functions__ = [
@@ -853,6 +859,7 @@ __allowed_functions__ = [
            'activity_div',
            'lang_native_name',
            'unselected_facet_items',
+           'include_resource',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
