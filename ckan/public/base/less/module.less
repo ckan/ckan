@@ -1,0 +1,32 @@
+// Local Variables
+@module-margin-x: 25px;
+@module-margin-y: 20px;
+
+.module {
+  .border-radius(3px);
+  .box-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+
+  background-color: @module-background-color;
+  margin-bottom: 10px;
+}
+
+.module .heading {
+  font-size: 14px;
+  padding: 0 @module-margin-x;
+  border-bottom: 1px solid @module-heading-border-color;
+  #gradient > .vertical(@module-heading-background-color-start, @module-heading-background-color-end);
+}
+
+.module .content {
+  padding: @module-margin-y @module-margin-x;
+}
+
+.module .content :last-child {
+  margin-bottom: 0;
+}
+
+.module .content .heading {
+  .module .heading;
+  margin: 20px -@module-margin-x 20px;
+  border-top: 1px solid lighten(@module-heading-border-color, 5%);
+}
