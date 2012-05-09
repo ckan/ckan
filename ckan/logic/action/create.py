@@ -121,6 +121,8 @@ def related_create(context, data_dict):
     user = context['user']
     userobj = model.User.get(user)
 
+    check_access('related_create', context, data_dict)
+
     data_dict["owner_id"] = userobj.id
     data, errors = validate(data_dict,
                             ckan.logic.schema.default_related_schema(),
@@ -132,7 +134,6 @@ def related_create(context, data_dict):
     # Only sys admins can update a related item to make it 1
     if not authz.Authorizer().is_sysadmin(unicode(user)):
         data['featured'] = 0
-
 
     related = model_save.related_dict_save(data, context)
     if not context.get('defer_commit'):
