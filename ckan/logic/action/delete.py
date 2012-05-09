@@ -115,16 +115,15 @@ def member_delete(context, data_dict=None):
         user  - The name of the current user
 
     data_dict:
-        group - The ID of the group to which we want to remove object
+        id - The ID of the group from which we want to remove object
         object - The ID of the object being removed as a member
         object_type - The name of the type being removed, all lowercase,
                       e.g. package, or user
     """
     model = context['model']
     user = context['user']
-    group = context['group']
 
-    group_id = data_dict['group']
+    group = model.Group.get(data_dict.get('id'))
     obj_id   = data_dict['object']
     obj_type = data_dict['object_type']
 

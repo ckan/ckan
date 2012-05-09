@@ -8,13 +8,13 @@
   xmlns:dcat="http://www.w3.org/ns/dcat#"
   xmlns:dct="http://purl.org/dc/terms/"
 >
-  <dcat:Dataset rdf:about="${ g.site_url + h.url_for(controller='package',action='read',id=c.pkg_dict['name'])}">
+  <dcat:Dataset rdf:about="${ h.url_for(controller='package',action='read',id=c.pkg_dict['name'], qualified=True)}">
     <owl:sameAs rdf:resource="urn:uuid:${c.pkg_dict['id']}"/>
     <dct:description>${c.pkg_dict['notes']}</dct:description>
     <py:for each="tag_dict in c.pkg_dict['tags']">
         <dcat:keyword>${ tag_dict["name"] }</dcat:keyword>
     </py:for>
-    <foaf:homepage rdf:resource="${ g.site_url + h.url_for(controller='package',action='read',id=c.pkg_dict['name'])}"/>
+    <foaf:homepage rdf:resource="${ h.url_for(controller='package',action='read',id=c.pkg_dict['name'], qualified=True)}"/>
     <rdfs:label>${c.pkg_dict['name']}</rdfs:label>
 
     <dct:identifier>${c.pkg_dict['name']}</dct:identifier>

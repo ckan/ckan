@@ -15,24 +15,24 @@
     <div class="row">
       <div class="span4">
         <div class="action-box">
-          <div class="action-box-inner find">
+          <div class="action-box-inner find clearfix">
             <h1>Find data</h1>
 
             <form action="${h.url_for(controller='package', action='search')}" method="GET"> 
               <input name="q" value="" class="search-field" placeholder="${_('Find datasets')}" /> 
             </form> 
-            ${g.site_title} contains <a href="${h.url_for(controller='package', action='search')}">${c.package_count} datasets</a> that you can 
-            browse, learn about and download. 
+            <p>${g.site_title} contains <a href="${h.url_for(controller='package', action='search')}">${c.package_count} datasets</a> that you can 
+            browse, learn about and download.</p>
           </div>
         </div>
       </div>
       <div class="span4">
         <div class="action-box">
-          <div class="action-box-inner share">
+          <div class="action-box-inner share clearfix">
           <h1>Share data</h1>
 
-          Add your own datasets to share them with others and
-          to find other people interested in your data.
+          <p>Add your own datasets to share them with others and
+          to find other people interested in your data.</p>
           
           <py:choose test="h.check_access('package_create')">
             <a py:when="" href="${h.url_for(controller='package', action='new')}" class="create-button">Create a dataset &raquo;</a>
@@ -45,15 +45,15 @@
       </div>
       <div class="span4">
         <div class="action-box">
-          <div class="action-box-inner collaborate">
+          <div class="action-box-inner collaborate clearfix">
           <h1>Collaborate</h1>
 
-          Find out more about working with open data by exploring 
-          these resources: 
+          <p>Find out more about working with open data by exploring 
+          these resources:</p>
           <ul>
             <li><a href="http://getthedata.org">GetTheData.org</a></li>
             <li><a href="http://datapatterns.org">DataPatterns.org</a></li>
-            <li><a href="http://opendatamanual.org">Open Data Manual</a></li>
+            <li><a href="http://opendatahandbook.org">Open Data Handbook</a></li>
           </ul>
           </div>
         </div>
