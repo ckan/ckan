@@ -1,9 +1,36 @@
+''' This file creates fanstatic resources from the sub directories. The
+directory can contain a config.ini to specify how the resources should
+be treated. minified copies of the resources are created if the resource
+has a later modification time than existing minified versions.
+
+NOTE :currently each library requires its entry point adding to the main
+ckan setup.py file.
+
+
+config.ini (example)
+==========
+# all resources are named without their file extension
+[main]
+# dont_bundle prevents the resources from being bundled
+dont_bundle = test1
+# order can be used to prevent dependency errors to ensure that the
+# needed resources are created first
+order = test1 test2
+[depends]
+# resource dependencies can be specified here by listing dependent
+# resources
+test2 = test1
+[groups]
+# a group containing several resources can be specified here
+test3 = test2 test1
+
+
+'''
 import os.path
 import sys
 import ConfigParser
 
-from fanstatic import Library, Resource
-
+from fanstatic import Library, Resource, Group
 from ckan.include.rjsmin import jsmin
 from ckan.include.rcssmin import cssmin
 
@@ -11,7 +38,10 @@ from ckan.include.rcssmin import cssmin
 # loop through dirs to setup
 # warn on no entry point provided for fanstatic
 
-def setup(name, path):
+def create_library(name, path):
+    ''' Creates a fanstatic library `name` with the contents of a
+    directory `path` using config.ini if found. Files are minified
+    if needed. '''
 
     def min_path(path):
         ''' return the .min filename eg moo.js -> moo.min.js '''
@@ -60,6 +90,7 @@ def setup(name, path):
     order = []
     dont_bundle = []
     depends = {}
+    groups = {}
 
     # parse the config.ini file if it exists
     resource_path = os.path.dirname(__file__)
@@ -75,6 +106,9 @@ def setup(name, path):
         if config.has_section('depends'):
             items = config.items('depends')
             depends = dict((n, v.split()) for (n, v) in items)
+        if config.has_section('groups'):
+            items = config.items('groups')
+            groups = dict((n, v.split()) for (n, v) in items)
 
     library = Library(name, path)
     module = sys.modules[__name__]
@@ -92,8 +126,17 @@ def setup(name, path):
             if f.endswith('.css') and not f.endswith('.min.css'):
                 minify(f, cssmin)
                 create_resource(f)
+
+    # add groups
+    for group_name in groups:
+        members = []
+        for member in groups[group_name]:
+            members.append(getattr(module, member))
+        group = Group(members)
+        setattr(module, group_name, group)
     # finally add the library to this module
     setattr(module, name, library)
 
 
-setup('resources', 'resources')
+# create our library here
+create_library('resources', 'resources')
