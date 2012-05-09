@@ -46,9 +46,6 @@ class UserController(BaseController):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
-    def _setup_template_variables(self, context):
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
-
     def _setup_follow_button(self, context):
         '''Setup some template context variables needed for the Follow/Unfollow
         button.
@@ -77,6 +74,20 @@ class UserController(BaseController):
             c.authorized_to_follow = True
         except NotAuthorized:
             pass
+
+    def _setup_template_variables(self, context, data_dict):
+        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        try:
+            user_dict = get_action('user_show')(context, data_dict)
+        except NotFound:
+            h.redirect_to(controller='user', action='login', id=None)
+        except NotAuthorised:
+            abort(401, _('Not authorized to see this page'))
+        c.user_dict = user_dict
+        c.is_myself = user_dict['name'] == c.user
+        c.num_followers = get_action('follower_count')(context,
+                {'id':c.user_dict['id']})
+        self._setup_follow_button(context)
 
     ## end hooks
 
@@ -124,19 +135,11 @@ class UserController(BaseController):
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
-        try:
-            user_dict = get_action('user_show')(context,data_dict)
-        except NotFound:
-            h.redirect_to(controller='user', action='login', id=None)
+        self._setup_template_variables(context, data_dict)
 
-        c.user_dict = user_dict
-        c.is_myself = user_dict['name'] == c.user
-        c.about_formatted = self._format_about(user_dict['about'])
+        c.about_formatted = self._format_about(c.user_dict['about'])
         c.user_activity_stream = get_action('user_activity_list_html')(
                 context, {'id':c.user_dict['id']})
-        c.num_followers = get_action('follower_count')(context,
-                {'id':c.user_dict['id']})
-        self._setup_follow_button(context)
         return render('user/read.html')
 
     def me(self, locale=None):
@@ -174,7 +177,7 @@ class UserController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context)
+        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         c.form = render(self.new_user_form, extra_vars=vars)
         return render('user/new.html')
 
@@ -253,7 +256,7 @@ class UserController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context)
+        self._setup_template_variables(context, data_dict)
 
         c.is_myself = True
         c.form = render(self.edit_user_form, extra_vars=vars)
@@ -449,17 +452,7 @@ class UserController(BaseController):
         context = {'model': model, 'user': c.user or c.author,
                 'for_view': True}
         data_dict = {'id':id, 'user_obj':c.userobj}
-
-        try:
-            user_dict = get_action('user_show')(context,data_dict)
-        except NotFound:
-            h.redirect_to(controller='user', action='login', id=None)
-        except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
-
-        c.user_dict = user_dict
+        self._setup_template_variables(context, data_dict)
         c.followers = get_action('follower_list')(context,
                 {'id':c.user_dict['id']})
-        c.num_followers = len(c.followers)
-        self._setup_follow_button(context)
         return render('user/followers.html')

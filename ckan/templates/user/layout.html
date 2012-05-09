@@ -11,22 +11,29 @@
         <li class="${'active' if c.action=='read' else ''}"><a href="${h.url_for(controller='user', action='me')}">My Profile</a></li>
         <li class="${'active' if c.action=='edit' else ''}"><a href="${h.url_for(controller='user', action='edit')}">Edit Profile</a></li>
         <li><a href="${h.url_for('/user/logout')}">Log out</a></li>
+        <li style="float:right;" class="${'active' if c.action=='followers' else ''}">
+          ${h.subnav_link(
+            h.icon('authorization_group') + _('My Followers ({num_followers})').format(num_followers=c.num_followers),
+            controller='user',
+            action='followers',
+            id=c.user_dict.name)}
+        </li>
       </py:when>
       <py:otherwise>
         <py:if test="c.id">
           <li class="${'active' if c.action=='read' else ''}"><a href="${h.url_for(controller='user', action='read', id=c.user_dict.name)}">View Profile</a></li>
-          <li style="float:right;" class="${'active' if c.action=='followers' else ''}">
-            ${h.subnav_link(
-                h.icon('authorization_group') + _('Followers ({num_followers})').format(num_followers=c.num_followers),
-                controller='user',
-                action='followers',
-                id=c.user_dict.name)}
-          </li>
           <li style="float:right;" py:if="c.authorized_to_follow">
             <py:choose test="c.user_dict.am_following">
               <a py:when="True" userid="${c.user_dict.id}" id="user_follow_button" state="unfollow" class="btn btn-mini">Unfollow</a>
               <a py:otherwise="" userid="${c.user_dict.id}" id="user_follow_button" state="follow" class="btn btn-mini">Follow</a>
             </py:choose>
+          </li>
+          <li style="float:right;" class="${'active' if c.action=='followers' else ''}">
+            ${h.subnav_link(
+              h.icon('authorization_group') + _('Followers ({num_followers})').format(num_followers=c.num_followers),
+              controller='user',
+              action='followers',
+              id=c.user_dict.name)}
           </li>
         </py:if>
         <py:if test="not c.id">
