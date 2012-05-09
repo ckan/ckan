@@ -1,8 +1,10 @@
 // Base variables
-@font-family: Arial, sans-serif;
 @image-path: "../images";
 
 // Layout Variables
+@layout-font-family: Arial, sans-serif;
+@layout-text-color: #4d4d4d;
+@layout-link-color: #005772;
 @layout-background-color: #f2f1ee;
 
 // Module Variables
@@ -14,7 +16,10 @@
 @nav-link-color: #333;
 
 // Twitter Bootstrap Overrides
-@baseFontFamily: @font-family;
+@bodyBackground: @layout-background-color;
+@baseFontFamily: @layout-font-family;
+@textColor: @layout-text-color;
+@linkColor: @layout-link-color;
 @iconSpritePath: "@{image-path}/bootstrap-glyphicons-halflings.png";
 @iconWhiteSpritePath: "@{image-path}/bootstrap-glyphicons-halflings-white.png";
 

@@ -10,23 +10,50 @@
   margin-bottom: 10px;
 }
 
-.module .heading {
+.module > .heading {
   font-size: 14px;
   padding: 0 @module-margin-x;
   border-bottom: 1px solid @module-heading-border-color;
   #gradient > .vertical(@module-heading-background-color-start, @module-heading-background-color-end);
 }
 
-.module .content {
+.module > .content {
   padding: @module-margin-y @module-margin-x;
 }
 
-.module .content :last-child {
+.module > .content :last-child {
   margin-bottom: 0;
 }
 
-.module .content .heading {
-  .module .heading;
-  margin: 20px -@module-margin-x 20px;
-  border-top: 1px solid lighten(@module-heading-border-color, 5%);
+.module > .pagination {
+  height: 34px;
+  border-top: 1px solid @module-heading-border-color;
 }
+
+.module > .pagination > ul {
+  .border-radius(0);
+  border: 0;
+}
+
+.pagination li a {
+  border-top: none;
+  border-bottom: none;
+}
+
+.pagination li:first-child a,
+.pagination li:last-child a {
+  .border-radius(0);
+}
+
+.pagination li:first-child a {
+  border-left: 0;
+}
+
+.pagination li:last-child a {
+  border-right: 0;
+}
+//.module > .content .heading {
+//  .module .heading;
+//  margin: 20px -@module-margin-x 20px;
+//  border-top: 1px solid lighten(@module-heading-border-color, 5%);
+//}
