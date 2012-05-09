@@ -28,7 +28,7 @@ def translate_data_dict(data_dict):
             continue
         elif isinstance(value, basestring):
             terms.add(value)
-        elif isinstance(value, int):
+        elif isinstance(value, (int, long)):
             continue
         else:
             for item in value:
@@ -75,7 +75,7 @@ def translate_data_dict(data_dict):
                 translated_flattened[key] = fallback_translations.get(
                         value, value)
 
-        elif isinstance(value, (int, dict)):
+        elif isinstance(value, (int, long, dict)):
             translated_flattened[key] = value
 
         else:

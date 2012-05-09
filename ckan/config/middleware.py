@@ -134,7 +134,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     if asbool(config.get('ckan.page_cache_enabled')):
         app = PageCacheMiddleware(app, config)
 
-    # Tracking
+    # Tracking add config option
     if asbool(config.get('ckan.tracking_enabled', 'false')):
         app = TrackingMiddleware(app, config)
     return app
