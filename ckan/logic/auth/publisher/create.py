@@ -8,6 +8,7 @@ from ckan.lib.base import _
 # FIXME: Which is worse, 'from module import foo' or duplicating these
 # functions in this module?
 from ckan.logic.auth.create import vocabulary_create, tag_create
+from ckan.logic.auth.create import follower_create
 
 def package_create(context, data_dict=None):
     model = context['model']
