@@ -98,9 +98,10 @@ def resource_dictize(res, context):
     if extras:
         resource.update(extras)
     #tracking
-    model = context['model']
-    tracking = model.TrackingSummary.get_for_resource(res.url)
-    resource['tracking_summary'] = tracking
+    if not context.get('for_edit'):
+        model = context['model']
+        tracking = model.TrackingSummary.get_for_resource(res.url)
+        resource['tracking_summary'] = tracking
     return resource
 
 def related_dictize(rel, context):

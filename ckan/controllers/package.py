@@ -484,16 +484,17 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
-                   'for_edit': True,
                    'pending': True,}
 
         if context['save'] and not data:
             return self._save_edit(id, context)
         try:
+            c.pkg_dict = get_action('package_show')(context, {'id':id})
+            context['for_edit'] = True
             old_data = get_action('package_show')(context, {'id':id})
+            # old data is from the database and data is passed from the
+            # user if there is a validation error. Use users data if there.
             data = data or old_data
-            # Merge all elements for the complete package dictionary
-            c.pkg_dict = dict(old_data.items() + data.items())
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
