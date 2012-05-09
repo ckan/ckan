@@ -1406,17 +1406,17 @@ CKAN.Utils = function($, my) {
   function followButtonClicked(event) {
     var button = event.currentTarget;
     if (button.id === 'user_follow_button') {
-        var object_id = button.attributes.user_id.nodeValue;
+        var object_id = button.getAttribute('data-user-id');
         var object_type = 'user';
     } else if (button.id === 'dataset_follow_button') {
-        var object_id = button.attributes.dataset_id.nodeValue;
+        var object_id = button.getAttribute('data-dataset-id');
         var object_type = 'dataset';
     }
     else {
         // This shouldn't happen.
         return;
     }
-    if (button.attributes.state.nodeValue === "follow") {
+    if (button.getAttribute('data-state') === "follow") {
         var url = '/api/action/follower_create';
         var data = JSON.stringify({
           object_id: object_id,
@@ -1424,7 +1424,7 @@ CKAN.Utils = function($, my) {
         });
         var nextState = 'unfollow';
         var nextString = 'Unfollow';
-    } else if (button.attributes.state.nodeValue === "unfollow") {
+    } else if (button.getAttribute('data-state') === "unfollow") {
         var url = '/api/action/follower_delete';
         var data = JSON.stringify({
           id: object_id,
@@ -1444,7 +1444,7 @@ CKAN.Utils = function($, my) {
       processData: false,
       type: 'POST',
       success: function(data) {
-        button.attributes.state.nodeValue = nextState;
+        button.setAttribute('data-state', nextState);
         button.innerHTML = nextString;
       },
     });
