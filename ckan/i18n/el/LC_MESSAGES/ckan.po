@@ -4,13 +4,14 @@
 # 
 # Translators:
 # <dimi.span@gmail.com>, 2012.
+# Sean Hammond <sean.hammond@okfn.org>, 2012.
 # Spiros Alexiou <spiros.alexiou@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-04-26 14:49+0200\n"
-"PO-Revision-Date: 2012-04-26 12:14+0000\n"
+"PO-Revision-Date: 2012-05-09 11:10+0000\n"
 "Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"
 "Language-Team: Greek (http://www.transifex.net/projects/p/ckan/language/el/)\n"
 "MIME-Version: 1.0\n"
@@ -2143,7 +2144,7 @@ msgstr ""
 #: ckan/templates/package/related_list.html:14
 #: ckan/templates/revision/diff.html:6 ckan/templates/revision/list.html:7
 msgid "no-sidebar"
-msgstr ""
+msgstr "no-sidebar"
 
 #: ckan/templates/group/edit_form.html:10
 #: ckan/templates/group/new_group_form.html:101
