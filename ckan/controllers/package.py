@@ -792,6 +792,9 @@ class PackageController(BaseController):
                 qualified=True)
 
         c.related_count = len(c.pkg.related)
+        c.num_followers = get_action('follower_count')(context,
+                {'id':c.pkg.id})
+        self._setup_follow_button(context)
         return render('package/resource_read.html')
 
     def followers(self, id=None):
