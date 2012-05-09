@@ -2,6 +2,7 @@ import re
 import json
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
+from nose.plugins.skip import SkipTest
 from pylons import config
 
 import ckan
@@ -1544,7 +1545,11 @@ class TestAction(WsgiAppCase):
 
     def test_40_task_resource_status(self):
 
-        import ckan.lib.celery_app as celery_app
+        try:
+            import ckan.lib.celery_app as celery_app
+        except ImportError:
+            raise SkipTest('celery not installed')
+
         backend = celery_app.celery.backend
         ##This creates the database tables as a side effect, can not see another way
         ##to make tables unless you actually create a task.
