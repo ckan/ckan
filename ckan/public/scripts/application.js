@@ -102,11 +102,6 @@ CKAN.Utils = CKAN.Utils || {};
       $( ".drag-drop-list" ).disableSelection();
     }
 
-    // This only needs to happen on dataset pages, but it doesn't seem to do
-    // any harm to call it anyway.
-    CKAN.Utils.setupDatasetFollowButton();
-    CKAN.Utils.setupUserFollowButton();
-
     var isGroupEdit = $('body.group.edit').length > 0;
     if (isGroupEdit) {
       var urlEditor = new CKAN.View.UrlEditor({
@@ -1408,105 +1403,57 @@ CKAN.Utils = function($, my) {
     return count;
   };
 
-  function userFollowClicked() {
-    $.ajax({
-      contentType: 'application/json',
-      url: '/api/action/follower_create',
-      data: JSON.stringify({
-        object_id: this.attributes.userid.nodeValue,
-        object_type: 'user',
-      }),
-      dataType: 'json',
-      processData: false,
-      type: 'POST',
-      success: function(data) {
-        $('#user_follow_button').attr('state', 'unfollow');
-        my.setupUserFollowButton();
-      },
-    });
-    return false;
-  };
-
-  function userUnfollowClicked() {
-    $.ajax({
-      contentType: 'application/json',
-      url: '/api/action/follower_delete',
-      data: JSON.stringify({
-        id: this.attributes.userid.nodeValue,
-      }),
-      dataType: 'json',
-      processData: false,
-      type: 'POST',
-      success: function(data) {
-        $('#user_follow_button').attr('state', 'follow');
-        my.setupUserFollowButton();
-      },
-    });
-    return false;
-  };
-
-  function datasetFollowClicked() {
-    $.ajax({
-      contentType: 'application/json',
-      url: '/api/action/follower_create',
-      data: JSON.stringify({
-        object_id: this.attributes.package_id.nodeValue,
-        object_type: 'dataset',
-      }),
-      dataType: 'json',
-      processData: false,
-      type: 'POST',
-      success: function(data) {
-        $('#dataset_follow_button').attr('state', 'unfollow');
-        my.setupDatasetFollowButton();
-      },
-    });
-    return false;
-  };
-
-  function datasetUnfollowClicked() {
-    $.ajax({
-      contentType: 'application/json',
-      url: '/api/action/follower_delete',
-      data: JSON.stringify({
-        id: this.attributes.package_id.nodeValue,
-      }),
-      dataType: 'json',
-      processData: false,
-      type: 'POST',
-      success: function(data) {
-        $('#dataset_follow_button').attr('state', 'follow');
-        my.setupDatasetFollowButton();
-      },
-    });
-    return false;
-  };
-
-  my.setupUserFollowButton = function() {
-    var userFollowButton = $('#user_follow_button');
-    if (userFollowButton.attr('state') === 'follow') {
-        userFollowButton.off("click", userUnfollowClicked);
-        userFollowButton.html('Follow');
-        userFollowButton.on("click", userFollowClicked);
-    } else {
-        userFollowButton.off("click", userFollowClicked);
-        userFollowButton.html('Unfollow');
-        userFollowButton.on("click", userUnfollowClicked);
+  function followButtonClicked(event) {
+    var button = event.currentTarget;
+    if (button.id === 'user_follow_button') {
+        var object_id = button.attributes.user_id.nodeValue;
+        var object_type = 'user';
+    } else if (button.id === 'dataset_follow_button') {
+        var object_id = button.attributes.dataset_id.nodeValue;
+        var object_type = 'dataset';
     }
-  };
-
-  my.setupDatasetFollowButton = function() {
-    var datasetFollowButton = $('#dataset_follow_button');
-    if (datasetFollowButton.attr('state') === 'follow') {
-        datasetFollowButton.off("click", datasetUnfollowClicked);
-        datasetFollowButton.html('Follow');
-        datasetFollowButton.on("click", datasetFollowClicked);
-    } else {
-        datasetFollowButton.off("click", datasetFollowClicked);
-        datasetFollowButton.html('Unfollow');
-        datasetFollowButton.on("click", datasetUnfollowClicked);
+    else {
+        // This shouldn't happen.
+        return;
     }
+    if (button.attributes.state.nodeValue === "follow") {
+        var url = '/api/action/follower_create';
+        var data = JSON.stringify({
+          object_id: object_id,
+          object_type: object_type,
+        });
+        var nextState = 'unfollow';
+        var nextString = 'Unfollow';
+    } else if (button.attributes.state.nodeValue === "unfollow") {
+        var url = '/api/action/follower_delete';
+        var data = JSON.stringify({
+          id: object_id,
+        });
+        var nextState = 'follow';
+        var nextString = 'Follow';
+    }
+    else {
+        // This shouldn't happen.
+        return;
+    }
+    $.ajax({
+      contentType: 'application/json',
+      url: url,
+      data: data,
+      dataType: 'json',
+      processData: false,
+      type: 'POST',
+      success: function(data) {
+        button.attributes.state.nodeValue = nextState;
+        button.innerHTML = nextString;
+      },
+    });
   };
+  
+  // This only needs to happen on dataset pages, but it doesn't seem to do
+  // any harm to call it anyway.
+  $('#user_follow_button').on('click', followButtonClicked);
+  $('#dataset_follow_button').on('click', followButtonClicked);
 
   return my;
 }(jQuery, CKAN.Utils || {});

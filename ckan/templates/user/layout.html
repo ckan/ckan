@@ -24,8 +24,8 @@
           <li class="${'active' if c.action=='read' else ''}"><a href="${h.url_for(controller='user', action='read', id=c.user_dict.name)}">View Profile</a></li>
           <li style="float:right;" py:if="c.authorized_to_follow">
             <py:choose test="c.user_dict.am_following">
-              <a py:when="True" userid="${c.user_dict.id}" id="user_follow_button" state="unfollow" class="btn btn-mini">Unfollow</a>
-              <a py:otherwise="" userid="${c.user_dict.id}" id="user_follow_button" state="follow" class="btn btn-mini">Follow</a>
+              <a py:when="True" user_id="${c.user_dict.id}" id="user_follow_button" state="unfollow" class="btn btn-mini">Unfollow</a>
+              <a py:otherwise="" user_id="${c.user_dict.id}" id="user_follow_button" state="follow" class="btn btn-mini">Follow</a>
             </py:choose>
           </li>
           <li style="float:right;" class="${'active' if c.action=='followers' else ''}">
