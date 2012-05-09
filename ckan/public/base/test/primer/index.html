@@ -70,7 +70,7 @@
             <hr/>
             <p>The Carlton AllLander drove Dudley home just after dawn. Like the astronomer, the vehicle was old and worn, but perfectly capable of doing its job. It had a cheap diesel engine, common enough on a semi-frontier world like Gralmond, although its drive array was a thoroughly modern photoneural processor. With its high suspension and deep-tread tyres it could plough along the dirt track to the observatory in all weather and seasons, including the metre-deep snow of Gralmond&#8217;s winters.</p>
         </div>
-        
+
         <h3>Pre-formatted text</h3>
         <p>The <code>pre</code> element represents a block of pre-formatted text, in which structure is represented by typographic conventions rather than by elements. Such examples are an e-mail (with paragraphs indicated by blank lines, lists indicated by lines prefixed with a bullet), fragments of computer code (with structure indicated according to the conventions of that language) or displaying <abbr title="American Standard Code for Information Interchange">ASCII</abbr> art. Here&#8217;s an example showing the printable characters of <abbr>ASCII</abbr>:</p>
         <div class="example">
@@ -200,7 +200,7 @@
         </div>
 
         <h3>Strong importance</h3>
-        <p>The <code>strong</code> element is used to denote text with strong importance. Where bolding is used for stylistic differentiation, the <code>b</code> element may be preferable. Example:</p> 
+        <p>The <code>strong</code> element is used to denote text with strong importance. Where bolding is used for stylistic differentiation, the <code>b</code> element may be preferable. Example:</p>
         <div class="example">
             <p><strong>Don&#8217;t</strong> stick nails in the electrical outlet.</p>
         </div>
@@ -397,36 +397,36 @@
             <form action="#">
                 <fieldset>
                     <legend>Legend</legend>
-                    <div>
+                    <div class="control-group">
                         <label for="text">Text Input <abbr title="Required">*</abbr></label>
                         <input id="text" class="text" type="text"/>
-                        <em>Note about this field</em>
-                    </div>
+                        <span class="help-inline">Note about this field</span>
+                    </div class="control-group">
                     <div>
                         <label for="password">Password</label>
                         <input id="password" class="text" type="password"/>
-                        <em>Note about this field</em>
-                    </div>
+                        <span class="help-inline">Note about this field</span>
+                    </div class="control-group">
                     <div>
                         <label for="password">Web Address</label>
                         <input id="password" class="text" type="url"/>
-                        <em>Note about this field</em>
-                    </div>
-                    <div>
+                        <span class="help-inline">Note about this field</span>
+                    </div class="control-group">
+                    <div class="control-group">
                         <label for="password">Email Address</label>
                         <input id="password" class="text" type="email"/>
-                        <em>Note about this field</em>
+                        <span class="help-inline">Note about this field</span>
                     </div>
-                    <div>
+                    <div class="control-group">
                         <label for="textarea">Textarea</label>
                         <textarea id="textarea" class="text" rows="8" cols="48"></textarea>
-                        <em class="clear">Note about this field</em>
+                        <span class="help-inline">Note about this field</span>
                     </div>
-                    <div>
+                    <div class="control-group">
                         <label for="checkbox">Single Checkbox</label>
-                        <label for="checkbox" class="check"><input id="checkbox" type="checkbox" class="checkbox"/> Label</label>
+                        <label for="checkbox" class="checkbox"><input id="checkbox" type="checkbox" class="checkbox"/> Label</label>
                     </div>
-                    <div>
+                    <div class="control-group">
                         <label for="select">Select</label>
                         <select id="select">
                             <optgroup label="Option Group">
@@ -435,27 +435,25 @@
                                 <option>Option Three</option>
                             </optgroup>
                         </select>
-                        <em>Note about this selection</em>
+                        <span class="help-inline">Note about this selection</span>
                     </div>
-                    <fieldset class="options">
+                    <fieldset class="control-group">
                         <legend>Checkbox <abbr title="Required">*</abbr></legend>
-                        <ul>
-                            <li><label for="checkbox1"><input id="checkbox1" name="checkbox" type="checkbox" checked="checked" /> Choice A</label></li>
-                            <li><label for="checkbox2"><input id="checkbox2" name="checkbox" type="checkbox" /> Choice B</label></li>
-                            <li><label for="checkbox3"><input id="checkbox3" name="checkbox" type="checkbox" /> Choice C</label></li>
-                        </ul>
+                        <div class="control-group">
+                          <label for="checkbox1" class="checkbox"><input id="checkbox1" name="checkbox" type="checkbox" checked="checked" /> Choice A</label>
+                          <label for="checkbox2" class="checkbox"><input id="checkbox2" name="checkbox" type="checkbox" /> Choice B</label>
+                          <label for="checkbox3" class="checkbox"><input id="checkbox3" name="checkbox" type="checkbox" /> Choice C</label>
+                        </div>
                     </fieldset>
-                    <fieldset class="options">
+                    <fieldset class="control-group">
+                      <div class="control-group">
                         <legend>Radio</legend>
-                        <ul>
-                            <li><label for="radio1"><input id="radio1" name="radio" type="radio" class="radio" checked="checked" /> Option 1</label></li>
-                            <li><label for="radio2"><input id="radio2" name="radio" type="radio" class="radio" /> Option 2</label></li>
-                        </ul>
+                        <label for="radio1" class="radio"><input id="radio1" name="radio" type="radio" class="radio" checked="checked" /> Option 1</label>
+                      </div>
                     </fieldset>
-                    <div class="submit">
-                        <input type="submit" value="Post Comment" />
-                        <input type="button" value="Preview" />
-                        <a href="#">Cancel</a>
+                    <div class="form-actions">
+                      <input type="submit" class="btn btn-primary" value="Post Comment" />
+                      <input type="button" class="btn" value="Preview" />
                     </div>
                 </fieldset>
             </form>
