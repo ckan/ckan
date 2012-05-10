@@ -25,6 +25,11 @@
   margin-bottom: 0;
 }
 
+.module > .footer {
+  padding: 0 @module-margin-x 7px;
+  margin: -17px 0 0;
+}
+
 .module > .pagination {
   height: 34px;
   border-top: 1px solid @module-heading-border-color;
@@ -35,23 +40,24 @@
   border: 0;
 }
 
-.pagination li a {
+.module .pagination li a {
   border-top: none;
   border-bottom: none;
 }
 
-.pagination li:first-child a,
-.pagination li:last-child a {
+.module .pagination li:first-child a,
+.module .pagination li:last-child a {
   .border-radius(0);
 }
 
-.pagination li:first-child a {
+.module .pagination li:first-child a {
   border-left: 0;
 }
 
-.pagination li:last-child a {
+.module .pagination li:last-child a {
   border-right: 0;
 }
+
 //.module > .content .heading {
 //  .module .heading;
 //  margin: 20px -@module-margin-x 20px;
