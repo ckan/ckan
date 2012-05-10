@@ -345,10 +345,10 @@ def clear_flash(res=None):
 try:
     from nose.tools import assert_in, assert_not_in
 except ImportError:
-    def assert_in(a, b):
-        assert a in b, '%r was not in %r' % (a, b)
-    def assert_not_in(a, b):
-        assert a not in b, '%r was in %r' % (a, b)        
+    def assert_in(a, b, msg=None):
+        assert a in b, msg or '%r was not in %r' % (a, b)
+    def assert_not_in(a, b, msg=None):
+        assert a not in b, msg or '%r was in %r' % (a, b)        
 
 class StatusCodes:
     STATUS_200_OK = 200
