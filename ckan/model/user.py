@@ -12,7 +12,8 @@ import types as _types
 import domain_object
 
 user_table = Table('user', meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+        Column('id', types.UnicodeText, primary_key=True,
+               default=_types.make_uuid),
         Column('name', types.UnicodeText, nullable=False, unique=True),
         Column('openid', types.UnicodeText),
         Column('password', types.UnicodeText),
@@ -23,6 +24,7 @@ user_table = Table('user', meta.metadata,
         Column('reset_key', types.UnicodeText),
         Column('about', types.UnicodeText),
         )
+
 
 class User(domain_object.DomainObject):
 
@@ -41,9 +43,9 @@ class User(domain_object.DomainObject):
         corrected_openid_user_ref = cls.DOUBLE_SLASH.sub('://\\1',
                                                          user_reference)
         query = meta.Session.query(cls).autoflush(False)
-        query = query.filter(or_(cls.name==user_reference,
-                                 cls.openid==corrected_openid_user_ref,
-                                 cls.id==user_reference))
+        query = query.filter(or_(cls.name == user_reference,
+                                 cls.openid == corrected_openid_user_ref,
+                                 cls.id == user_reference))
         return query.first()
 
     @property
@@ -76,7 +78,7 @@ class User(domain_object.DomainObject):
         return ref
 
     def _set_password(self, password):
-        """Hash password on the fly."""
+        '''Hash password on the fly.'''
         if isinstance(password, unicode):
             password_8bit = password.encode('ascii', 'ignore')
         else:
@@ -91,11 +93,11 @@ class User(domain_object.DomainObject):
         self._password = hashed_password
 
     def _get_password(self):
-        """Return the password hashed"""
+        '''Return the password hashed'''
         return self._password
 
     def validate_password(self, password):
-        """
+        '''
         Check the password against existing credentials.
 
         :param password: the password that was provided by the user to
@@ -104,7 +106,7 @@ class User(domain_object.DomainObject):
         :type password: unicode object.
         :return: Whether the password is valid.
         :rtype: bool
-        """
+        '''
         if not password or not self.password:
             return False
         if isinstance(password, unicode):
@@ -136,7 +138,8 @@ class User(domain_object.DomainObject):
     def number_of_edits(self):
         # have to import here to avoid circular imports
         import ckan.model as model
-        revisions_q = meta.Session.query(model.Revision).filter_by(author=self.name)
+        revisions_q = meta.Session.query(model.Revision)
+        revisions_q = revisions_q.filter_by(author=self.name)
         return revisions_q.count()
 
     def number_administered_packages(self):
@@ -150,29 +153,28 @@ class User(domain_object.DomainObject):
         return group in self.get_groups()
 
     def is_in_groups(self, groupids):
-        """ Given a list of group ids, returns True if this user is in any of
-            those groups """
-        guser = set( self.get_group_ids() )
-        gids  = set( groupids )
+        ''' Given a list of group ids, returns True if this user is in
+        any of those groups '''
+        guser = set(self.get_group_ids())
+        gids = set(groupids)
 
-        return len( guser.intersection( gids ) ) > 0
-
+        return len(guser.intersection(gids)) > 0
 
     def get_group_ids(self, group_type=None):
-        """ Returns a list of group ids that the current user belongs to """
-        return [ g.id for g in self.get_groups( group_type=group_type ) ]
+        ''' Returns a list of group ids that the current user belongs to '''
+        return [g.id for g in self.get_groups(group_type=group_type)]
 
     def get_groups(self, group_type=None, capacity=None):
         import ckan.model as model
 
         q = meta.Session.query(model.Group)\
             .join(model.Member, model.Member.group_id == model.Group.id and \
-                       model.Member.table_name == 'user' ).\
+                       model.Member.table_name == 'user').\
                join(model.User, model.User.id == model.Member.table_id).\
                filter(model.Member.state == 'active').\
                filter(model.Member.table_id == self.id)
         if capacity:
-            q = q.filter( model.Member.capacity == capacity )
+            q = q.filter(model.Member.capacity == capacity)
             return q.all()
 
         if '_groups' not in self.__dict__:
@@ -183,12 +185,9 @@ class User(domain_object.DomainObject):
             groups = [g for g in groups if g.type == group_type]
         return groups
 
-
     @classmethod
     def search(cls, querystr, sqlalchemy_query=None):
-        '''Search name, fullname, email and openid.
-
-        '''
+        '''Search name, fullname, email and openid. '''
         if sqlalchemy_query is None:
             query = meta.Session.query(cls)
         else:
@@ -202,8 +201,5 @@ class User(domain_object.DomainObject):
         return query
 
 meta.mapper(User, user_table,
-    properties = {
-        'password': synonym('_password', map_column=True)
-    },
+    properties={'password': synonym('_password', map_column=True)},
     order_by=user_table.c.name)
-
