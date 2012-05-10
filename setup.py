@@ -106,7 +106,8 @@ setup(
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
 
     [fanstatic.libraries]
-    resource = html_resources:resources
+    css = html_resources:css
+    javascript = html_resources:javascript
 
     """,
     # setup.py test command needs a TestSuite so does not work with py.test

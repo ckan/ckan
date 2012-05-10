@@ -139,4 +139,5 @@ def create_library(name, path):
 
 
 # create our library here
-create_library('resources', 'resources')
+create_library('javascript', 'javascript')
+create_library('css', 'css')
