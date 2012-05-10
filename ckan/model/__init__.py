@@ -7,6 +7,7 @@ from datetime import datetime
 import vdm.sqlalchemy
 from vdm.sqlalchemy.base import SQLAlchemySession
 from sqlalchemy import MetaData, __version__ as sqav, Table
+from sqlalchemy.util import OrderedDict
 
 import meta
 #from domain_object import DomainObjectOperation
@@ -30,7 +31,6 @@ import activity
 import term_translation
 
 import ckan.migration
-import ckan.lib.helpers as h
 
 log = logging.getLogger(__name__)
 
@@ -437,13 +437,13 @@ Revision.user = property(_get_revision_user)
 
 def revision_as_dict(revision, include_packages=True, include_groups=True,
                      ref_package_by='name'):
-    revision_dict = h.OrderedDict((
+    revision_dict = OrderedDict((
         ('id', revision.id),
-        ('timestamp', h.datetime_to_date_str(revision.timestamp)),
+        ('timestamp', revision.timestamp.isoformat()),
         ('message', revision.message),
         ('author', revision.author),
         ('approved_timestamp',
-         h.datetime_to_date_str(revision.approved_timestamp) \
+         revision.approved_timestamp.isoformat() \
          if revision.approved_timestamp else None),
         ))
     if include_packages:
