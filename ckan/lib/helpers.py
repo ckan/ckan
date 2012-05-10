@@ -34,6 +34,7 @@ from pylons import c
 from pylons.i18n import _
 
 import html_resources
+import ckan.model as model
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -412,12 +413,10 @@ def am_authorized(c, action, domain_object=None):
     ''' Deprecated. Please use check_access instead'''
     from ckan.authz import Authorizer
     if domain_object is None:
-        from ckan import model
         domain_object = model.System()
     return Authorizer.am_authorized(c, action, domain_object)
 
 def check_access(action, data_dict=None):
-    from ckan import model
     from ckan.logic import check_access as check_access_logic,NotAuthorized
 
     context = {'model': model,
@@ -432,7 +431,6 @@ def check_access(action, data_dict=None):
     return authorized
 
 def linked_user(user, maxlength=0):
-    from ckan import model
     if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
         return user
     if not isinstance(user, model.User):
@@ -450,7 +448,6 @@ def linked_user(user, maxlength=0):
                        url_for(controller='user', action='read', id=_name))
 
 def linked_authorization_group(authgroup, maxlength=0):
-    from ckan import model
     if not isinstance(authgroup, model.AuthorizationGroup):
         authgroup_name = unicode(authgroup)
         authgroup = model.AuthorizationGroup.get(authgroup_name)
@@ -464,7 +461,6 @@ def linked_authorization_group(authgroup, maxlength=0):
                        url_for(controller='authorization_group', action='read', id=displayname))
 
 def group_name_to_title(name):
-    from ckan import model
     group = model.Group.by_name(name)
     if group is not None:
         return group.display_name
@@ -790,7 +786,6 @@ def convert_to_dict(object_type, objs):
                'message' : revision.message,}
         return rev
     import lib.dictization.model_dictize as md
-    import ckan.model as model
     converters = {'package' : md.package_dictize,
                   'revisions' : dictize_revision_list}
     converter = converters[object_type]

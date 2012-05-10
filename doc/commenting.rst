@@ -17,7 +17,7 @@ Once installed and enabled, the presence of comments on a given page is
 configured by your theme (see the documentation in the disqus extension for
 details).
 
-In the default CKAN theme (as of v1.6.1), comments will be shown only on dataset
+In the default CKAN theme (as of v1.7), comments will be shown only on dataset
 and resource pages (and recent comments only on the
 :doc:`administrative-dashboard`).
 

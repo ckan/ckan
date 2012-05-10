@@ -12,12 +12,12 @@ Enabling and Configuring Linked Data Support
 
 In CKAN <= 1.6 please install the RDF extension: https://github.com/okfn/ckanext-rdf
 
-In CKAN >= 1.6.1, basic RDF support will be available directly in core.
+In CKAN >= 1.7, basic RDF support will be available directly in core.
 
 Configuration
 -------------
 
-When using the built-in RDF support (CKAN >= 1.6.1) there is no configuration required.  By default requests for RDF data will return the RDF generated from the built-in 'packages/read.rdf' template, which can be overridden using the extra-templates directive.
+When using the built-in RDF support (CKAN >= 1.7) there is no configuration required.  By default requests for RDF data will return the RDF generated from the built-in 'packages/read.rdf' template, which can be overridden using the extra-templates directive.
 
 Accessing Linked Data
 =====================

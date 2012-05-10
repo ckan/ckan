@@ -37,6 +37,7 @@ Customizing and Extending
    extensions
    writing-extensions
    forms
+   tag-vocabularies
    form-integration
    linked-data-and-rdf
    filestore
