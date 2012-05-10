@@ -1,48 +1,48 @@
 import datetime
 
-from meta import *
-from core import *
-from sqlalchemy.orm import eagerload_all
-from domain_object import DomainObject
-from package import *
-from types import make_uuid
+from sqlalchemy import orm, types, Column, Table, ForeignKey, or_
 import vdm.sqlalchemy
-from ckan.model import extension, User
-from sqlalchemy.ext.associationproxy import association_proxy
 
-__all__ = ['group_table', 'Group', 'package_revision_table',
+import meta
+import core
+import package as _package
+import types as _types
+import domain_object
+import user as _user
+
+__all__ = ['group_table', 'Group',
            'Member', 'GroupRevision', 'MemberRevision',
            'member_revision_table', 'member_table']
 
-member_table = Table('member', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('table_name', UnicodeText, nullable=False),
-    Column('table_id', UnicodeText, nullable=False),
-    Column('capacity', UnicodeText, nullable=False),
-    Column('group_id', UnicodeText, ForeignKey('group.id')),
+member_table = Table('member', meta.metadata,
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('table_name', types.UnicodeText, nullable=False),
+    Column('table_id', types.UnicodeText, nullable=False),
+    Column('capacity', types.UnicodeText, nullable=False),
+    Column('group_id', types.UnicodeText, ForeignKey('group.id')),
     )
 
 vdm.sqlalchemy.make_table_stateful(member_table)
-member_revision_table = make_revisioned_table(member_table)
+member_revision_table = core.make_revisioned_table(member_table)
 
-group_table = Table('group', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('name', UnicodeText, nullable=False, unique=True),
-    Column('title', UnicodeText),
-    Column('type', UnicodeText, nullable=False),
-    Column('description', UnicodeText),
-    Column('image_url', UnicodeText),
-    Column('created', DateTime, default=datetime.datetime.now),
-    Column('approval_status', UnicodeText, default=u"approved"),
+group_table = Table('group', meta.metadata,
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('name', types.UnicodeText, nullable=False, unique=True),
+    Column('title', types.UnicodeText),
+    Column('type', types.UnicodeText, nullable=False),
+    Column('description', types.UnicodeText),
+    Column('image_url', types.UnicodeText),
+    Column('created', types.DateTime, default=datetime.datetime.now),
+    Column('approval_status', types.UnicodeText, default=u"approved"),
     )
 
 vdm.sqlalchemy.make_table_stateful(group_table)
-group_revision_table = make_revisioned_table(group_table)
+group_revision_table = core.make_revisioned_table(group_table)
 
 
 class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
-        DomainObject):
+        domain_object.DomainObject):
     def __init__(self, group=None, table_id=None, group_id=None,
                  table_name=None, capacity='public', state='active'):
         self.group = group
@@ -55,7 +55,7 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get(cls, reference):
         '''Returns a group object referenced by its id or name.'''
-        query = Session.query(cls).filter(cls.id==reference)
+        query = meta.Session.query(cls).filter(cls.id==reference)
         member = query.first()
         if member == None:
             member = cls.by_name(reference)
@@ -73,11 +73,11 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def related_packages(self):
         # TODO do we want to return all related packages or certain ones?
-        return Session.query(Package).filter_by(id=self.table_id).all()
+        return meta.Session.query(_package.Package).filter_by(id=self.table_id).all()
 
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
-            DomainObject):
+            domain_object.DomainObject):
 
     def __init__(self, name=u'', title=u'', description=u'', image_url=u'',
                  type=u'group', approval_status=u'approved'):
@@ -98,7 +98,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get(cls, reference):
         '''Returns a group object referenced by its id or name.'''
-        query = Session.query(cls).filter(cls.id==reference)
+        query = meta.Session.query(cls).filter(cls.id==reference)
         group = query.first()
         if group == None:
             group = cls.by_name(reference)
@@ -110,7 +110,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         """
         Returns all groups.
         """
-        q = Session.query(cls)
+        q = meta.Session.query(cls)
         if state:
             q = q.filter(cls.state.in_(state))
 
@@ -134,7 +134,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     def members_of_type(self, object_type, capacity=None):
         from ckan import model
         object_type_string = object_type.__name__.lower()
-        query = Session.query(object_type).\
+        query = meta.Session.query(object_type).\
                filter(model.Group.id == self.id).\
                filter(model.Member.state == 'active').\
                filter(model.Member.table_name == object_type_string)
@@ -154,7 +154,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         object_type_string = object_instance.__class__.__name__.lower()
         if not object_instance in self.members_of_type(object_instance.__class__).all():
             member = Member(group=self, table_id=getattr(object_instance,'id'), table_name=object_type_string)
-            Session.add(member)
+            meta.Session.add(member)
 
     def get_children_groups(self, type='group'):
         # Returns a list of dicts where each dict contains "id", "name", and "title"
@@ -162,12 +162,12 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         # problems as it returns only the first level deep apparently not recursing
         # any deeper than that.  If we simplify and request only specific fields then
         # if returns the full depth of the hierarchy.
-        results = Session.query("id","name", "title").\
+        results = meta.Session.query("id","name", "title").\
                 from_statement(HIERARCHY_CTE).params(id=self.id, type=type).all()
         return [ { "id":idf, "name": name, "title": title } for idf,name,title in results ]
 
     def active_packages(self, load_eager=True, with_private=False):
-        query = Session.query(Package).\
+        query = meta.Session.query(_package.Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
                filter(group_table.c.id == self.id).\
                filter(member_table.c.state == 'active')
@@ -175,42 +175,43 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         if not with_private:
                query = query.filter(member_table.c.capacity == 'public')
 
-        query = query.join(member_table, member_table.c.table_id == Package.id).\
+        query = query.join(member_table, member_table.c.table_id == _package.Package.id).\
                join(group_table, group_table.c.id == member_table.c.group_id)
 
         return query
 
     @classmethod
-    def search_by_name(cls, text_query, group_type=None):
+    def search_by_name_or_title(cls, text_query, group_type=None):
         text_query = text_query.strip().lower()
-        if not group_type:
-            q = Session.query(cls).filter(cls.name.contains(text_query))
-        else:
-            q = Session.query(cls).filter(cls.name.contains(text_query)).filter(cls.type==group_type)
+        q = meta.Session.query(cls) \
+            .filter(or_(cls.name.contains(text_query),
+                           cls.title.ilike('%' + text_query + '%')))
+        if group_type:
+            q = q.filter(cls.type==group_type)
         return q.order_by(cls.title)
 
     def as_dict(self, ref_package_by='name'):
-        _dict = DomainObject.as_dict(self)
+        _dict = domain_object.DomainObject.as_dict(self)
         _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
         _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
         if ( self.type == 'organization' ):
-            _dict['users'] = [getattr(user, "name") for user in self.members_of_type(User)]
+            _dict['users'] = [getattr(user, "name") for user in self.members_of_type(_user.User)]
         return _dict
 
     def add_package_by_name(self, package_name):
         if not package_name:
             return
-        package = Package.by_name(package_name)
+        package = _package.Package.by_name(package_name)
         assert package
         if not package in self.members_of_type( package.__class__ ).all():
             member = Member(group=self, table_id=package.id, table_name='package')
-            Session.add(member)
+            meta.Session.add(member)
 
     def get_groups(self, group_type=None, capacity=None):
         """ Get all groups that this group is within """
         import ckan.model as model
         if '_groups' not in self.__dict__:
-            self._groups = model.Session.query(model.Group).\
+            self._groups = meta.Session.query(model.Group).\
                join(model.Member, model.Member.group_id == model.Group.id and \
                     model.Member.table_name == 'group').\
                filter(model.Member.state == 'active').\
@@ -238,7 +239,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             results[grp_rev.revision].append(grp_rev)
         for class_ in [Member, GroupExtra]:
             rev_class = class_.__revision_class__
-            obj_revisions = Session.query(rev_class).filter_by(group_id=self.id).all()
+            obj_revisions = meta.Session.query(rev_class).filter_by(group_id=self.id).all()
             for obj_rev in obj_revisions:
                 if not results.has_key(obj_rev.revision):
                     results[obj_rev.revision] = []
@@ -252,25 +253,25 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return '<Group %s>' % self.name
 
 
-mapper(Group, group_table,
+meta.mapper(Group, group_table,
        extension=[vdm.sqlalchemy.Revisioner(group_revision_table),],
 )
 
-vdm.sqlalchemy.modify_base_object_mapper(Group, Revision, State)
-GroupRevision = vdm.sqlalchemy.create_object_version(mapper, Group,
+vdm.sqlalchemy.modify_base_object_mapper(Group, core.Revision, core.State)
+GroupRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Group,
         group_revision_table)
 
-mapper(Member, member_table, properties={
-    'group': relation(Group,
-        backref=backref('member_all', cascade='all, delete-orphan')
+meta.mapper(Member, member_table, properties={
+    'group': orm.relation(Group,
+        backref=orm.backref('member_all', cascade='all, delete-orphan')
     ),
 },
     extension=[vdm.sqlalchemy.Revisioner(member_revision_table),],
 )
 
 
-vdm.sqlalchemy.modify_base_object_mapper(Member, Revision, State)
-MemberRevision = vdm.sqlalchemy.create_object_version(mapper, Member,
+vdm.sqlalchemy.modify_base_object_mapper(Member, core.Revision, core.State)
+MemberRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Member,
         member_revision_table)
 
 #TODO

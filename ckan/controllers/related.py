@@ -18,17 +18,19 @@ class RelatedController(base.BaseController):
 
         try:
             logic.check_access('package_show', context, data_dict)
+        except logic.NotFound:
+            base.abort(404, base._('Dataset not found'))
         except logic.NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            base.abort(401, base._('Not authorized to see this page'))
 
         try:
             c.pkg_dict = logic.get_action('package_show')(context, data_dict)
             c.pkg = context['package']
             c.resources_json = h.json.dumps(c.pkg_dict.get('resources',[]))
         except logic.NotFound:
-            abort(404, _('Dataset not found'))
+            base.abort(404, base._('Dataset not found'))
         except logic.NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
+            base.abort(401, base._('Unauthorized to read package %s') % id)
 
         c.related_count = len(c.pkg.related)
 

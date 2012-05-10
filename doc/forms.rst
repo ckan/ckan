@@ -130,7 +130,7 @@ Custom Schemas
 --------------
 
 .. note::
-    As of CKAN 1.6.1 custom schema functions apply to both the web user interface
+    As of CKAN 1.7 custom schema functions apply to both the web user interface
     and the API.
 
     An example of the use of these methods can be found in the ``ckanext-example`` extension.
@@ -166,6 +166,9 @@ Like ``_form_to_db_schema_options()``, this allows different schemas to be
 used for different purposes.
 It is optional, and if it is not available then ``form_to_db_schema`` is used.
 
+
+.. _example-geospatial-tags:
+
 Example: Geospatial Tags
 ------------------------
 
@@ -174,7 +177,8 @@ This field allows the user to specify one or more country-code tags in order to 
 countries are covered by the dataset. Additionally, the tags must be part of a fixed CKAN tag vocabularly
 called ``country_codes``.
 
-.. todo:: add reference to tag vocabulary documentation
+More information about tag vocabularies can be found in :doc:`tag-vocabularies`.
+
 
 1. Creating the Tag Vocabulary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
