@@ -1,0 +1,13 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  <py:match path="body">
+    <xi:include href="header.html" />
+    <div role="main"></div>
+    <xi:include href="footer.html" />
+  </py:match>
+  <xi:include href="base.html" />
+</html>
