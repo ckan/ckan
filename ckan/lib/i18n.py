@@ -104,3 +104,8 @@ def get_lang():
         return langs[0]
     else:
         return 'en'
+
+def set_lang(language_code):
+    ''' Wrapper to pylons call '''
+    if language_code != 'en':
+        i18n.set_lang(language_code)
