@@ -484,6 +484,11 @@ def resource_show(context, data_dict):
 
 def resource_status_show(context, data_dict):
 
+    try:
+        import ckan.lib.celery_app as celery_app
+    except ImportError:
+        return {'message': 'queue is not installed on this instance'}
+
     model = context['model']
     id = get_or_bust(data_dict, 'id')
 

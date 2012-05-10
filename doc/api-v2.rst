@@ -6,7 +6,6 @@ The CKAN API version 1 & 2 is separated into three parts.
 
 * `Model API`_
 * `Search API`_
-* `Util API`_
 
 The resources, methods, and data formats of each are described below.
 

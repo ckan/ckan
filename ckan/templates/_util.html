@@ -128,7 +128,7 @@
   <py:def function="related_summary(related)">
   <li id="related-item-${related.id}" class="span3">
       <div class="thumbnail">
-        <button py:if="c.user and (c.userobj.id == related.owner_id or h.check_access('package_update',{'id':c.pkg.id}))" class="close" data-action="delete" data-related-id="${related.id}">×</button>
+        <button py:if="c.user and (c.userobj.id == related.owner_id or h.check_access('package_update',{'id':c.pkg.id}))" class="close" onclick="related_delete('${related.id}');">×</button>
         <a href="${related.url}" class="image">
           <img src="${related.image_url}" width="210" py:if="related.image_url" />
           <img src="/images/photo-placeholder.png" width="210" py:if="not related.image_url" />
