@@ -156,7 +156,13 @@ def load_environment(global_conf, app_conf):
     config['pylons.h'] = helpers
 
     ## redo template setup to use genshi.search_path (so remove std template setup)
-    template_paths = [paths['templates'][0]]
+    legacy_templates_path = os.path.join(root, 'templates_legacy')
+    if asbool(config.get('ckan.legacy_templates', 'no')):
+        template_paths = [legacy_templates_path]
+    else:
+        template_paths = [paths['templates'][0]]
+        template_paths.append(legacy_templates_path)
+
     extra_template_paths = config.get('extra_template_paths', '')
     if extra_template_paths:
         # must be first for them to override defaults
