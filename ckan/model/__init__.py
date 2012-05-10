@@ -80,13 +80,13 @@ from group import (
     member_revision_table,
     group_table,
     GroupRevision,
-    #MemberRevision
-    #member_table
+    #MemberRevision,
+    #member_table,
 )
 from group_extra import (
     GroupExtra,
-    #group_extra_table
-    #GroupExtraRevision
+    #group_extra_table,
+    #GroupExtraRevision,
 )
 from package_extra import (
     PackageExtra,
@@ -102,8 +102,8 @@ from resource import (
     resource_group_table,
     resource_table,
     resource_revision_table,
-    #ResourceGroupRevision
-    #resource_group_revision_table
+    #ResourceGroupRevision,
+    #resource_group_revision_table,
 )
 from tracking import (
     tracking_summary_table,
@@ -125,7 +125,7 @@ from package_relationship import (
 )
 from task_status import (
     TaskStatus,
-    #task_status_table
+    #task_status_table,
 )
 from vocabulary import (
     Vocabulary,
@@ -135,8 +135,8 @@ from vocabulary import (
 from activity import (
     Activity,
     ActivityDetail,
-    #activity_table
-    #activity_detail_table
+    #activity_table,
+    #activity_detail_table,
 )
 from term_translation import (
     term_translation_table,
