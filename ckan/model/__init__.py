@@ -9,6 +9,7 @@ from vdm.sqlalchemy.base import SQLAlchemySession
 from sqlalchemy import MetaData, __version__ as sqav, Table
 from sqlalchemy.util import OrderedDict
 
+import meta
 from meta import (
     Session,
     engine_is_sqlite,
