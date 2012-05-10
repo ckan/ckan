@@ -37,6 +37,7 @@ Customizing and Extending
    extensions
    writing-extensions
    forms
+   tag-vocabularies
    form-integration
    linked-data-and-rdf
    filestore
@@ -101,6 +102,7 @@ Other material
    :maxdepth: 2
 
    contrib.rst
+   user-stories
    CHANGELOG.rst
 
 Indices and tables

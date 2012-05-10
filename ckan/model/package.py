@@ -1,35 +1,36 @@
 import datetime
-from time import gmtime
 from calendar import timegm
-from operator import attrgetter
 import logging
 logger = logging.getLogger(__name__)
 
-from sqlalchemy.sql import select, and_, union, expression, or_, desc
-from sqlalchemy.orm import eagerload_all
+from sqlalchemy.sql import select, and_, union, or_
+from sqlalchemy import orm
 from sqlalchemy import types, Column, Table
-from pylons import config, session, c, request
-from meta import metadata, Session
+from pylons import config
 import vdm.sqlalchemy
 
-from types import make_uuid, iso_date_to_datetime_for_sqlite
-from core import make_revisioned_table, Revision, State
-from license import License, LicenseRegister
-from domain_object import DomainObject
+import meta
+import core
+import license as _license
+import types as _types
+import domain_object
+import activity
+import extension
+
 import ckan.misc
-from activity import Activity, ActivityDetail
+import ckan.lib.dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH']
+           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision', 'PackageRevision']
 
 PACKAGE_NAME_MAX_LENGTH = 100
 PACKAGE_NAME_MIN_LENGTH = 2
 PACKAGE_VERSION_MAX_LENGTH = 100
 
 ## Our Domain Object Tables
-package_table = Table('package', metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+package_table = Table('package', meta.metadata,
+        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
                nullable=False, unique=True),
         Column('title', types.UnicodeText),
@@ -46,14 +47,14 @@ package_table = Table('package', metadata,
 
 
 vdm.sqlalchemy.make_table_stateful(package_table)
-package_revision_table = make_revisioned_table(package_table)
+package_revision_table = core.make_revisioned_table(package_table)
 
 ## -------------------
 ## Mapped classes
 
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
-        DomainObject):
+        domain_object.DomainObject):
 
     text_search_fields = ['name', 'title']
 
@@ -66,14 +67,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def search_by_name(cls, text_query):
         text_query = text_query
-        return Session.query(cls).filter(cls.name.contains(text_query.lower()))
+        return meta.Session.query(cls).filter(cls.name.contains(text_query.lower()))
 
     @classmethod
     def get(cls, reference):
         '''Returns a package object referenced by its id or name.'''
-        query = Session.query(cls).filter(cls.id==reference)
-        query = query.options(eagerload_all('package_tags.tag'))
-        query = query.options(eagerload_all('resource_groups_all.resources_all'))
+        query = meta.Session.query(cls).filter(cls.id==reference)
+        query = query.options(orm.eagerload_all('package_tags.tag'))
+        query = query.options(orm.eagerload_all('resource_groups_all.resources_all'))
         pkg = query.first()
         if pkg == None:
             pkg = cls.by_name(reference)
@@ -122,7 +123,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             assert isinstance(res_dict, dict)
             id = res_dict.get('id')
             if id:
-                res = Session.query(model.Resource).autoflush(autoflush).get(id)
+                res = meta.Session.query(model.Resource).autoflush(autoflush).get(id)
                 if res:
                     index_to_res[i] = res
             else:
@@ -146,7 +147,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 for key in set(res_dict.keys()) & set(('id', 'position')):
                     del res_dict[key]
                 res = model.Resource(**res_dict)
-                model.Session.add(res)
+                meta.Session.add(res)
             new_res_list.append(res)
         self.resource_groups[0].resources = new_res_list
 
@@ -169,7 +170,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return
         else:
             package_tag = model.PackageTag(self, tag)
-            model.Session.add(package_tag)
+            meta.Session.add(package_tag)
 
 
     def add_tags(self, tags):
@@ -211,13 +212,13 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         """
         import ckan.model as model
-        query = model.Session.query(model.Tag)
-        query = query.join(model.PackageTagRevision)
-        query = query.filter(model.PackageTagRevision.tag_id == model.Tag.id)
-        query = query.filter(model.PackageTagRevision.package_id == self.id)
+        query = meta.Session.query(model.Tag)
+        query = query.join(PackageTagRevision)
+        query = query.filter(PackageTagRevision.tag_id == model.Tag.id)
+        query = query.filter(PackageTagRevision.package_id == self.id)
         query = query.filter(and_(
-            model.PackageTagRevision.state == 'active',
-            model.PackageTagRevision.current == True))
+            PackageTagRevision.state == 'active',
+            PackageTagRevision.current == True))
         if vocab:
             query = query.filter(model.Tag.vocabulary_id == vocab.id)
         else:
@@ -228,12 +229,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def remove_tag(self, tag):
         import ckan.model as model
-        query = model.Session.query(model.PackageTag)
+        query = meta.Session.query(model.PackageTag)
         query = query.filter(model.PackageTag.package_id == self.id)
         query = query.filter(model.PackageTag.tag_id == tag.id)
         package_tag = query.one()
         package_tag.delete()
-        model.Session.commit()
+        meta.Session.commit()
 
     def isopen(self):
         if self.license and self.license.isopen():
@@ -250,7 +251,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return total / len(self.ratings)
 
     def as_dict(self, ref_package_by='name', ref_group_by='name'):
-        _dict = DomainObject.as_dict(self)
+        _dict = domain_object.DomainObject.as_dict(self)
         # Set 'license' in _dict to cater for old clients.
         # Todo: Remove from Version 2?
         _dict['license'] = self.license.title if self.license else _dict.get('license_id', '')
@@ -288,7 +289,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         Raises KeyError if the type_ is invalid.
         '''
         import package_relationship
-        from ckan import model
         if type_ in package_relationship.PackageRelationship.get_forward_types():
             subject = self
             object_ = related_package
@@ -306,7 +306,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             rel = rels[0]
             if comment:
                 rel.comment=comment
-            if rel.state == model.State.DELETED:
+            if rel.state == core.State.DELETED:
                 rel.undelete()
         else:
             rel = package_relationship.PackageRelationship(
@@ -314,7 +314,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 object=object_,
                 type=type_,
                 comment=comment)
-        Session.add(rel)
+        meta.Session.add(rel)
         return rel
 
     def get_relationships(self, with_package=None, type=None, active=True,
@@ -331,13 +331,13 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             forward_filters.append(PackageRelationship.object==with_package)
             reverse_filters.append(PackageRelationship.subject==with_package)
         if active:
-            forward_filters.append(PackageRelationship.state==State.ACTIVE)
-            reverse_filters.append(PackageRelationship.state==State.ACTIVE)
+            forward_filters.append(PackageRelationship.state==core.State.ACTIVE)
+            reverse_filters.append(PackageRelationship.state==core.State.ACTIVE)
         if type:
             forward_filters.append(PackageRelationship.type==type)
             reverse_type = PackageRelationship.reverse_type(type)
             reverse_filters.append(PackageRelationship.type==reverse_type)
-        q = Session.query(PackageRelationship)
+        q = meta.Session.query(PackageRelationship)
         if direction == 'both':
             q = q.filter(or_(
             and_(*forward_filters),
@@ -375,19 +375,19 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # e.g. 'gary' is a child of 'mum', looking for 'bert' is a child of 'mum'
         # i.e. for each 'child_of' type relationship ...
         for rel_as_subject in self.get_relationships(direction='forward'):
-            if rel_as_subject.state != State.ACTIVE:
+            if rel_as_subject.state != core.State.ACTIVE:
                 continue
             # ... parent is the object
             parent_pkg = rel_as_subject.object
             # Now look for the parent's other relationships as object ...
             for parent_rel_as_object in parent_pkg.get_relationships(direction='reverse'):
-                if parent_rel_as_object.state != State.ACTIVE:
+                if parent_rel_as_object.state != core.State.ACTIVE:
                     continue
                 # and check children
                 child_pkg = parent_rel_as_object.subject
                 if (child_pkg != self and
                     parent_rel_as_object.type == rel_as_subject.type and
-                    child_pkg.state == State.ACTIVE):
+                    child_pkg.state == core.State.ACTIVE):
                     type_printable = PackageRelationship.inferred_types_printable['sibling']
                     rel_list.append((child_pkg, type_printable, None))
         return sorted(list(set(rel_list)))
@@ -397,7 +397,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get_license_register(cls):
         if not hasattr(cls, '_license_register'):
-            cls._license_register = LicenseRegister()
+            cls._license_register = _license.LicenseRegister()
         return cls._license_register
 
     @classmethod
@@ -416,7 +416,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return license
 
     def set_license(self, license):
-        if type(license) == License:
+        if type(license) == _license.License:
             self.license_id = license.id
         elif type(license) == dict:
             self.license_id = license['id']
@@ -447,11 +447,11 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         for class_ in [ResourceGroup, Resource, PackageExtra, PackageTag]:
             rev_class = class_.__revision_class__
             if class_ == Resource:
-                q = Session.query(rev_class).join('continuity',
+                q = meta.Session.query(rev_class).join('continuity',
                                                   'resource_group')
                 obj_revisions = q.filter(ResourceGroup.package_id == self.id).all()
             else:
-                obj_revisions = Session.query(rev_class).filter_by(package_id=self.id).all()
+                obj_revisions = meta.Session.query(rev_class).filter_by(package_id=self.id).all()
             for obj_rev in obj_revisions:
                 if not results.has_key(obj_rev.revision):
                     results[obj_rev.revision] = []
@@ -482,16 +482,16 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             obj_rev_class = obj_class.__revision_class__
             # Query for object revisions related to this package
             if obj_class == Resource:
-                obj_rev_query = Session.query(obj_rev_class).\
+                obj_rev_query = meta.Session.query(obj_rev_class).\
                                 join('continuity', 'resource_group').\
                                 join('revision').\
                                 filter(ResourceGroup.package_id == self.id).\
-                                order_by(Revision.timestamp.desc())
+                                order_by(core.Revision.timestamp.desc())
             else:
-                obj_rev_query = Session.query(obj_rev_class).\
+                obj_rev_query = meta.Session.query(obj_rev_class).\
                                 filter_by(package_id=self.id).\
                                 join('revision').\
-                                order_by(Revision.timestamp.desc())
+                                order_by(core.Revision.timestamp.desc())
             # Columns to include in the diff
             cols_to_diff = obj_class.revisioned_fields()
             cols_to_diff.remove('id')
@@ -560,7 +560,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         result = conn.execute(query).fetchone()
 
         if result:
-            result_datetime = iso_date_to_datetime_for_sqlite(result[0])
+            result_datetime = _types.iso_date_to_datetime_for_sqlite(result[0])
             timestamp_without_usecs = result_datetime.utctimetuple()
             usecs = float(result_datetime.microsecond) / 1e6
             # use timegm instead of mktime, because we don't want it localised
@@ -600,7 +600,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @property
     def metadata_created(self):
         import ckan.model as model
-        q = model.Session.query(model.PackageRevision.revision_timestamp)\
+        q = meta.Session.query(model.PackageRevision.revision_timestamp)\
             .filter(model.PackageRevision.id == self.id)\
             .order_by(model.PackageRevision.revision_timestamp.asc())
         ts = q.first()
@@ -628,7 +628,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def activity_stream_item(self, activity_type, revision, user_id):
         import ckan.model
-        import ckan.lib.dictization
         import ckan.logic
         assert activity_type in ("new", "changed"), (
             str(activity_type))
@@ -638,7 +637,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # a 'changed' package activity. We detect this and change it to a
         # 'deleted' activity.
         if activity_type == 'changed' and self.state == u'deleted':
-            if ckan.model.Session.query(ckan.model.Activity).filter_by(
+            if meta.Session.query(activity.Activity).filter_by(
                     object_id=self.id, activity_type='deleted').all():
                 # A 'deleted' activity for this object has already been emitted
                 # FIXME: What if the object was deleted and then activated
@@ -651,7 +650,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         try:
             d = {'package': ckan.lib.dictization.table_dictize(self,
                 context={'model': ckan.model})}
-            return Activity(user_id, self.id, revision.id,
+            return activity.Activity(user_id, self.id, revision.id,
                     "%s package" % activity_type, d)
         except ckan.logic.NotFound:
             # This happens if this package is being purged and therefore has no
@@ -662,7 +661,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def activity_stream_detail(self, activity_id, activity_type):
         import ckan.model
-        import ckan.lib.dictization
 
         # Handle 'deleted' objects.
         # When the user marks a package as deleted this comes through here as
@@ -673,5 +671,42 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         package_dict = ckan.lib.dictization.table_dictize(self,
                 context={'model':ckan.model})
-        return ActivityDetail(activity_id, self.id, u"Package", activity_type,
+        return activity.ActivityDetail(activity_id, self.id, u"Package", activity_type,
             {'package': package_dict })
+
+# import here to prevent circular import
+import tag
+
+meta.mapper(Package, package_table, properties={
+    # delete-orphan on cascade does NOT work!
+    # Why? Answer: because of way SQLAlchemy/our code works there are points
+    # where PackageTag object is created *and* flushed but does not yet have
+    # the package_id set (this cause us other problems ...). Some time later a
+    # second commit happens in which the package_id is correctly set.
+    # However after first commit PackageTag does not have Package and
+    # delete-orphan kicks in to remove it!
+    'package_tags':orm.relation(tag.PackageTag, backref='package',
+        cascade='all, delete', #, delete-orphan',
+        ),
+    },
+    order_by=package_table.c.name,
+    extension=[vdm.sqlalchemy.Revisioner(package_revision_table),
+               extension.PluginMapperExtension(),
+               ],
+    )
+
+vdm.sqlalchemy.modify_base_object_mapper(Package, core.Revision, core.State)
+PackageRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Package,
+        package_revision_table)
+
+def related_packages(self):
+    return [self.continuity]
+
+PackageRevision.related_packages = related_packages
+
+
+vdm.sqlalchemy.modify_base_object_mapper(tag.PackageTag, core.Revision, core.State)
+PackageTagRevision = vdm.sqlalchemy.create_object_version(meta.mapper, tag.PackageTag,
+        tag.package_tag_revision_table)
+
+PackageTagRevision.related_packages = lambda self: [self.continuity.package]

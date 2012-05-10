@@ -104,6 +104,11 @@ setup(
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
+
+    [fanstatic.libraries]
+    css = html_resources:css
+    javascript = html_resources:javascript
+
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

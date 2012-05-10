@@ -297,6 +297,7 @@ def make_map():
         m.connect('storage_file', '/storage/f/{label:.*}',
                   action='file')
 
+    map.connect('/i18n/strings_{lang}.js', controller='i18n', action='strings')
 
     for plugin in routing_plugins:
         map = plugin.after_map(map)

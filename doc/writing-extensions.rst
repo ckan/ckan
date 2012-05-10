@@ -167,6 +167,8 @@ Alternatively see the `Plugin API documentation`_ below.
 ..    should be renamed in the code to not have the word 'Extension' in their names.
 
 
+.. _PyUtilib: https://software.sandia.gov/trac/pyutilib
+
 Example CKAN Extension
 ----------------------
 

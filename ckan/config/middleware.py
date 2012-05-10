@@ -17,6 +17,7 @@ from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
+from fanstatic import Fanstatic
 
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
@@ -134,9 +135,29 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     if asbool(config.get('ckan.page_cache_enabled')):
         app = PageCacheMiddleware(app, config)
 
+    # Fanstatic
+    if config.get('ckan.include_support', '').lower()[:3] == 'dev':
+        fanstatic_config = {
+            'versioning' : True,
+            'recompute_hashes' : True,
+            'minified' : False,
+            'bottom' : True,
+            'bundle' : False,
+        }
+    else:
+        fanstatic_config = {
+            'versioning' : True,
+            'recompute_hashes' : False,
+            'minified' : True,
+            'bottom' : True,
+            'bundle' : True,
+        }
+    app = Fanstatic(app, **fanstatic_config)
+
     # Tracking
     if asbool(config.get('ckan.tracking_enabled', 'false')):
         app = TrackingMiddleware(app, config)
+
     return app
 
 class I18nMiddleware(object):

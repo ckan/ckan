@@ -422,8 +422,11 @@ body.index.home .front-page .action-box {
   background:  #FFF7C0;
 }
 body.index.home .front-page .action-box-inner {
-  margin: 0 20px 5px;
-  min-height: 15em;
+  padding: 0 20px 20px;
+  min-height: 13.4em;
+}
+body.index.home .front-page .action-box-inner :last-child {
+  margin-bottom: 0;
 }
 body.index.home .front-page .action-box-inner.collaborate {
   background:url(../img/collaborate.png) no-repeat right top;
@@ -456,7 +459,6 @@ body.index.home .front-page .action-box-inner .create-button {
   float: right;
   font-weight: normal;
   font-family: 'Ubuntu';
-  margin-top: 1.5em;
   border-radius: 10px;
   background-color: #B22;
   border: 0px;

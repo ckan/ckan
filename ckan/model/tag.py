@@ -1,42 +1,45 @@
-import sqlalchemy
 import vdm.sqlalchemy
+from sqlalchemy.orm import relation
+from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint
 
-from types import make_uuid
-from meta import *
-from domain_object import DomainObject
-from package import Package
-from core import *
+import package as _package
+import extension as _extension
+import core
+import meta
+import types as _types
+import domain_object
 import vocabulary
 import activity
-import ckan
+import ckan  # this import is needed
+import ckan.lib.dictization
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
-           'PackageTagRevision', 'package_tag_revision_table',
+           'package_tag_revision_table',
            'MAX_TAG_LENGTH', 'MIN_TAG_LENGTH']
 
 MAX_TAG_LENGTH = 100
 MIN_TAG_LENGTH = 2
 
-tag_table = Table('tag', metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+tag_table = Table('tag', meta.metadata,
+        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False),
         Column('vocabulary_id',
             types.Unicode(vocabulary.VOCABULARY_NAME_MAX_LENGTH),
             ForeignKey('vocabulary.id')),
-        sqlalchemy.UniqueConstraint('name', 'vocabulary_id')
+        UniqueConstraint('name', 'vocabulary_id')
 )
 
-package_tag_table = Table('package_tag', metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+package_tag_table = Table('package_tag', meta.metadata,
+        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('package_id', types.UnicodeText, ForeignKey('package.id')),
         Column('tag_id', types.UnicodeText, ForeignKey('tag.id')),
         )
 
 vdm.sqlalchemy.make_table_stateful(package_tag_table)
 # TODO: this has a composite primary key ...
-package_tag_revision_table = make_revisioned_table(package_tag_table)
+package_tag_revision_table = core.make_revisioned_table(package_tag_table)
 
-class Tag(DomainObject):
+class Tag(domain_object.DomainObject):
     def __init__(self, name='', vocabulary_id=None):
         self.name = name
         self.vocabulary_id = vocabulary_id
@@ -54,7 +57,7 @@ class Tag(DomainObject):
         tag_id -- The id of the tag to return.
 
         """
-        query = Session.query(Tag).filter(Tag.id==tag_id)
+        query = meta.Session.query(Tag).filter(Tag.id==tag_id)
         query = query.autoflush(autoflush)
         tag = query.first()
         return tag
@@ -75,10 +78,10 @@ class Tag(DomainObject):
 
         """
         if vocab:
-            query = Session.query(Tag).filter(Tag.name==name).filter(
+            query = meta.Session.query(Tag).filter(Tag.name==name).filter(
                 Tag.vocabulary_id==vocab.id)
         else:
-            query = Session.query(Tag).filter(Tag.name==name).filter(
+            query = meta.Session.query(Tag).filter(Tag.name==name).filter(
                 Tag.vocabulary_id==None)
         query = query.autoflush(autoflush)
         tag = query.first()
@@ -132,9 +135,9 @@ class Tag(DomainObject):
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
-            query = Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
+            query = meta.Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
         else:
-            query = Session.query(Tag)
+            query = meta.Session.query(Tag)
         search_term = search_term.strip().lower()
         query = query.filter(Tag.name.contains(search_term))
         query = query.distinct().join(Tag.package_tags)
@@ -155,13 +158,13 @@ class Tag(DomainObject):
                 # The user specified an invalid vocab.
                 raise ckan.logic.NotFound("could not find vocabulary '%s'"
                         % vocab_id_or_name)
-            query = Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
+            query = meta.Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
         else:
-            query = Session.query(Tag).filter(Tag.vocabulary_id == None)
-            query = query.distinct().join(PackageTagRevision)
-            query = query.filter(sqlalchemy.and_(
-                PackageTagRevision.state == 'active',
-                PackageTagRevision.current == True))
+            query = meta.Session.query(Tag).filter(Tag.vocabulary_id == None)
+            query = query.distinct().join(_package.PackageTagRevision)
+            query = query.filter(and_(
+                _package.PackageTagRevision.state == 'active',
+                _package.PackageTagRevision.current == True))
         return query
 
     @property
@@ -171,13 +174,13 @@ class Tag(DomainObject):
         The list is sorted by package name.
 
         """
-        q = Session.query(Package)
-        q = q.join(PackageTagRevision)
-        q = q.filter(PackageTagRevision.tag_id == self.id)
-        q = q.filter(sqlalchemy.and_(
-            PackageTagRevision.state == 'active',
-            PackageTagRevision.current == True))
-        q = q.order_by(Package.name)
+        q = meta.Session.query(_package.Package)
+        q = q.join(_package.PackageTagRevision)
+        q = q.filter(_package.PackageTagRevision.tag_id == self.id)
+        q = q.filter(and_(
+            _package.PackageTagRevision.state == 'active',
+            _package.PackageTagRevision.current == True))
+        q = q.order_by(_package.Package.name)
         packages = q.all()
         return packages
 
@@ -186,7 +189,7 @@ class Tag(DomainObject):
 
 class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
-        DomainObject):
+        domain_object.DomainObject):
     def __init__(self, package=None, tag=None, state=None, **kwargs):
         self.package = package
         self.tag = tag
@@ -213,9 +216,8 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
             return None
 
         # Return an 'added tag' or 'removed tag' activity.
-        import ckan.lib.dictization
-        import ckan.model
-        c = {'model': ckan.model}
+        import ckan.model as model
+        c = {'model': model}
         d = {'tag': ckan.lib.dictization.table_dictize(self.tag, c),
             'package': ckan.lib.dictization.table_dictize(self.package, c)}
         return activity.ActivityDetail(
@@ -242,13 +244,13 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
-            query = (Session.query(PackageTag, Tag, Package)
+            query = (meta.Session.query(PackageTag, Tag, _package.Package)
                     .filter(Tag.vocabulary_id == vocab.id)
-                    .filter(Package.name==package_name)
+                    .filter(_package.Package.name==package_name)
                     .filter(Tag.name==tag_name))
         else:
-            query = (Session.query(PackageTag)
-                    .filter(Package.name==package_name)
+            query = (meta.Session.query(PackageTag)
+                    .filter(_package.Package.name==package_name)
                     .filter(Tag.name==tag_name))
         query = query.autoflush(autoflush)
         return query.one()[0]
@@ -256,7 +258,7 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
     def related_packages(self):
         return [self.package]
 
-mapper(Tag, tag_table, properties={
+meta.mapper(Tag, tag_table, properties={
     'package_tags': relation(PackageTag, backref='tag',
         cascade='all, delete, delete-orphan',
         ),
@@ -266,21 +268,13 @@ mapper(Tag, tag_table, properties={
     order_by=tag_table.c.name,
     )
 
-mapper(PackageTag, package_tag_table, properties={
-    'pkg':relation(Package, backref='package_tag_all',
+meta.mapper(PackageTag, package_tag_table, properties={
+    'pkg':relation(_package.Package, backref='package_tag_all',
         cascade='none',
         )
     },
     order_by=package_tag_table.c.id,
     extension=[vdm.sqlalchemy.Revisioner(package_tag_revision_table),
-               extension.PluginMapperExtension(),
+               _extension.PluginMapperExtension(),
                ],
     )
-
-from package_mapping import *
-
-vdm.sqlalchemy.modify_base_object_mapper(PackageTag, Revision, State)
-PackageTagRevision = vdm.sqlalchemy.create_object_version(mapper, PackageTag,
-        package_tag_revision_table)
-
-PackageTagRevision.related_packages = lambda self: [self.continuity.package]

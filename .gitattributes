@@ -1,3 +1,2 @@
 *.po -diff
 *.mo -diff
-*.pot -diff
