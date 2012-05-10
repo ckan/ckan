@@ -167,7 +167,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return [ { "id":idf, "name": name, "title": title } for idf,name,title in results ]
 
     def active_packages(self, load_eager=True, with_private=False):
-        query = Session.query(_package.Package).\
+        query = meta.Session.query(_package.Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
                filter(group_table.c.id == self.id).\
                filter(member_table.c.state == 'active')
