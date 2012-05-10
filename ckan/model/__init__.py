@@ -9,145 +9,144 @@ from vdm.sqlalchemy.base import SQLAlchemySession
 from sqlalchemy import MetaData, __version__ as sqav, Table
 from sqlalchemy.util import OrderedDict
 
-import meta
-#from domain_object import DomainObjectOperation
-import core
-import package
-import tag
-import user
-import authz
-import authorization_group
-import group
-import group_extra
-import package_extra
-import resource
-import tracking
-import rating
-import related
-import package_relationship
-import task_status
-import vocabulary
-import activity
-import term_translation
+from meta import (
+    Session,
+    engine_is_sqlite,
+)
+from core import (
+    System,
+    Revision,
+    State,
+    revision_table,
+)
+from package import (
+    Package,
+    PACKAGE_NAME_MIN_LENGTH,
+    PACKAGE_NAME_MAX_LENGTH,
+    PACKAGE_VERSION_MAX_LENGTH,
+    package_table,
+    package_revision_table,
+    PackageTagRevision,
+    PackageRevision,
+)
+from tag import (
+    Tag,
+    PackageTag,
+    MAX_TAG_LENGTH,
+    MIN_TAG_LENGTH,
+    tag_table,
+    package_tag_table,
+    package_tag_revision_table,
+)
+from user import (
+    User,
+    user_table,
+)
+from authz import (
+    NotRealUserException,
+    Enum,
+    Action,
+    Role,
+    RoleAction,
+    UserObjectRole,
+    PackageRole,
+    GroupRole,
+    AuthorizationGroupRole,
+    SystemRole,
+    PSEUDO_USER__VISITOR,
+    PSEUDO_USER__LOGGED_IN,
+    init_authz_const_data,
+    init_authz_configuration_data,
+    add_user_to_role,
+    add_authorization_group_to_role,
+    setup_user_roles,
+    setup_default_user_roles,
+    give_all_packages_default_user_roles,
+    user_has_role,
+    remove_user_from_role,
+    remove_authorization_group_from_role,
+    clear_user_roles,
+)
+from authorization_group import (
+    AuthorizationGroup,
+    AuthorizationGroupUser,
+    user_in_authorization_group,
+    add_user_to_authorization_group,
+    remove_user_from_authorization_group,
+)
+from group import (
+    Member,
+    Group,
+    member_revision_table,
+    group_table,
+    GroupRevision,
+    #MemberRevision
+    #member_table
+)
+from group_extra import (
+    GroupExtra,
+    #group_extra_table
+    #GroupExtraRevision
+)
+from package_extra import (
+    PackageExtra,
+    PackageExtraRevision,
+    package_extra_table,
+    extra_revision_table,
+)
+from resource import (
+    Resource,
+    ResourceGroup,
+    ResourceRevision,
+    #DictProxy,
+    resource_group_table,
+    resource_table,
+    resource_revision_table,
+    #ResourceGroupRevision
+    #resource_group_revision_table
+)
+from tracking import (
+    tracking_summary_table,
+    TrackingSummary,
+)
+from rating import (
+    Rating,
+)
+from related import (
+    Related,
+    RelatedDataset,
+    related_dataset_table,
+    related_table,
+)
+from package_relationship import (
+    PackageRelationship,
+    package_relationship_table,
+    package_relationship_revision_table,
+)
+from task_status import (
+    TaskStatus,
+    #task_status_table
+)
+from vocabulary import (
+    Vocabulary,
+    VOCABULARY_NAME_MAX_LENGTH,
+    VOCABULARY_NAME_MIN_LENGTH,
+)
+from activity import (
+    Activity,
+    ActivityDetail,
+    #activity_table
+    #activity_detail_table
+)
+from term_translation import (
+    term_translation_table,
+)
 
 import ckan.migration
 
 log = logging.getLogger(__name__)
 
-## CLEANUP related stuff to stop breakages
-Session = meta.Session
-engine_is_sqlite = meta.engine_is_sqlite
 
-System = core.System
-Revision = core.Revision
-State = core.State
-revision_table = core.revision_table
-
-AuthorizationGroup = authorization_group.AuthorizationGroup
-AuthorizationGroupUser = authorization_group.AuthorizationGroupUser
-user_in_authorization_group = authorization_group.user_in_authorization_group
-add_user_to_authorization_group = authorization_group.add_user_to_authorization_group
-remove_user_from_authorization_group = authorization_group.remove_user_from_authorization_group
-
-Activity = activity.Activity
-ActivityDetail = activity.ActivityDetail
-#activity_table
-#activity_detail_table
-
-NotRealUserException = authz.NotRealUserException
-Enum = authz.Enum
-Action = authz.Action
-Role = authz.Role
-RoleAction = authz.RoleAction
-UserObjectRole = authz.UserObjectRole
-PackageRole = authz.PackageRole
-GroupRole = authz.GroupRole
-AuthorizationGroupRole = authz.AuthorizationGroupRole
-SystemRole = authz.SystemRole
-PSEUDO_USER__VISITOR = authz.PSEUDO_USER__VISITOR
-PSEUDO_USER__LOGGED_IN = authz.PSEUDO_USER__LOGGED_IN
-init_authz_const_data = authz.init_authz_const_data
-init_authz_configuration_data = authz.init_authz_configuration_data
-add_user_to_role = authz.add_user_to_role
-add_authorization_group_to_role = authz.add_authorization_group_to_role
-setup_user_roles = authz.setup_user_roles
-setup_default_user_roles = authz.setup_default_user_roles
-give_all_packages_default_user_roles = authz.give_all_packages_default_user_roles
-user_has_role = authz.user_has_role
-remove_user_from_role = authz.remove_user_from_role
-remove_authorization_group_from_role = authz.remove_authorization_group_from_role
-clear_user_roles = authz.clear_user_roles
-
-Member = group.Member
-Group = group.Group
-member_revision_table = group.member_revision_table
-group_table = group.group_table
-GroupRevision = group.GroupRevision
-#MemberRevision
-#member_table
-
-GroupExtra = group_extra.GroupExtra
-#group_extra_table
-#GroupExtraRevision
-
-Package = package.Package
-PACKAGE_NAME_MIN_LENGTH = package.PACKAGE_NAME_MIN_LENGTH
-PACKAGE_NAME_MAX_LENGTH = package.PACKAGE_NAME_MAX_LENGTH
-PACKAGE_VERSION_MAX_LENGTH = package.PACKAGE_VERSION_MAX_LENGTH
-package_table = package.package_table
-package_revision_table = package.package_revision_table
-PackageTagRevision = package.PackageTagRevision
-PackageRevision = package.PackageRevision
-
-PackageExtra = package_extra.PackageExtra
-PackageExtraRevision = package_extra.PackageExtraRevision
-package_extra_table = package_extra.package_extra_table
-extra_revision_table = package_extra.extra_revision_table
-
-PackageRelationship = package_relationship.PackageRelationship
-package_relationship_table = package_relationship.package_relationship_table
-package_relationship_revision_table = package_relationship.package_relationship_revision_table
-
-
-Rating = rating.Rating
-
-Resource = resource.Resource
-ResourceGroup = resource.ResourceGroup
-ResourceRevision = resource.ResourceRevision
-#DictProxy = resource.DictProxy
-resource_group_table = resource.resource_group_table
-resource_table = resource.resource_table
-resource_revision_table = resource.resource_revision_table
-#ResourceGroupRevision
-#resource_group_revision_table
-
-Tag = tag.Tag
-PackageTag = tag.PackageTag
-MAX_TAG_LENGTH = tag.MAX_TAG_LENGTH
-MIN_TAG_LENGTH = tag.MIN_TAG_LENGTH
-tag_table = tag.tag_table
-package_tag_table = tag.package_tag_table
-package_tag_revision_table = tag.package_tag_revision_table
-
-TaskStatus = task_status.TaskStatus
-#task_status_table
-
-User = user.User
-user_table = user.user_table
-
-Vocabulary = vocabulary.Vocabulary
-VOCABULARY_NAME_MAX_LENGTH = vocabulary.VOCABULARY_NAME_MAX_LENGTH
-VOCABULARY_NAME_MIN_LENGTH = vocabulary.VOCABULARY_NAME_MIN_LENGTH
-
-term_translation_table = term_translation.term_translation_table
-
-tracking_summary_table = tracking.tracking_summary_table
-TrackingSummary = tracking.TrackingSummary
-
-Related = related.Related
-RelatedDataset = related.RelatedDataset
-related_dataset_table = related.related_dataset_table
-related_table = related.related_table
 
 # set up in init_model after metadata is bound
 version_table = None
