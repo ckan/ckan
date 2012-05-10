@@ -1,7 +1,7 @@
 import datetime
 import re
 import os
-from hashlib import sha1
+from hashlib import sha1, md5
 
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
@@ -54,11 +54,10 @@ class User(domain_object.DomainObject):
 
     @property
     def email_hash(self):
-        import hashlib
         e = ''
         if self.email:
             e = self.email.strip().lower().encode('utf8')
-        return hashlib.md5(e).hexdigest()
+        return md5(e).hexdigest()
 
     def get_reference_preferred_for_uri(self):
         '''Returns a reference (e.g. name, id, openid) for this user
