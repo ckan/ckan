@@ -137,7 +137,6 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
     # Fanstatic
     if config.get('ckan.include_support', '').lower()[:3] == 'dev':
-        print 'dev'
         fanstatic_config = {
             'versioning' : True,
             'recompute_hashes' : True,
@@ -146,7 +145,6 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
             'bundle' : False,
         }
     else:
-        print 'prod'
         fanstatic_config = {
             'versioning' : True,
             'recompute_hashes' : False,
