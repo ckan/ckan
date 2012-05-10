@@ -1,0 +1,56 @@
+.masthead {
+  .clearfix();
+  #gradient > .vertical(@masthead-background-color-start, @masthead-background-color-end);
+  color: @masthead-text-color;
+  padding: 20px;
+}
+
+.masthead a {
+  color: @masthead-link-color;
+}
+
+.masthead hgroup,
+.masthead nav {
+  float: left;
+}
+
+.masthead hgroup h1,
+.masthead hgroup p {
+  font-size: 34px;
+  line-height: 1.2;
+  display: inline;
+}
+
+.masthead hgroup p {
+  margin-left: 0.3em;
+  font-style: italic;
+}
+
+.masthead nav {
+  display: inline-block;
+  float: right;
+  line-height: 40px;
+}
+
+.masthead nav ul {
+  margin: 0;
+}
+
+.masthead nav > ul > li {
+  display: inline-block;
+}
+
+.masthead nav > ul > li > a {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 4px 10px;
+}
+
+.masthead nav > ul > li > a.active {
+  @inset-box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
+  .border-radius(15px);
+  .box-shadow(@inset-box-shadow);
+  box-shadow: @inset-box-shadow, 0 1px 0 rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.15);
+}
