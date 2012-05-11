@@ -20,4 +20,3 @@ ofs==0.4.1
 apachemiddleware==0.1.1
 # markupsafe is required by webhelpers==1.2 required by formalchemy with SQLAlchemy 0.6
 markupsafe==0.9.2
-celery==2.5.3

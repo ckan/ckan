@@ -1,24 +1,16 @@
 import logging
 
-from vdm.sqlalchemy import State
-
-from sqlalchemy.orm import object_session
-from sqlalchemy.orm.interfaces import EXT_CONTINUE
-
-from ckan.plugins import SingletonPlugin, PluginImplementations, implements
-from ckan.plugins import ISession, IDomainObjectModification, IResourceUrlChange
-
-from ckan.model.extension import ObserverNotifier
-from ckan.model.domain_object import DomainObjectOperation
-
-from ckan.model.package import Package
-from ckan.model.resource import ResourceGroup, Resource
-from ckan.model.package_extra import PackageExtra
-from ckan.model.tag import PackageTag
+import ckan.plugins as plugins
+import extension
+import domain_object
+import package as _package
+import resource
 
 log = logging.getLogger(__name__)
 
-class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
+__all__ = ['DomainObjectModificationExtension']
+
+class DomainObjectModificationExtension(plugins.SingletonPlugin, extension.ObserverNotifier):
     """
     A domain object level interface to change notifications
 
@@ -26,8 +18,8 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
     out with check_real_change.
     """
 
-    implements(ISession, inherit=True)
-    observers = PluginImplementations(IDomainObjectModification)
+    plugins.implements(plugins.ISession, inherit=True)
+    observers = plugins.PluginImplementations(plugins.IDomainObjectModification)
 
     def before_commit(self, session):
 
@@ -41,22 +33,22 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
         deleted = obj_cache['deleted']
 
         for obj in set(new):
-            if isinstance(obj, (Package, Resource)):
-                self.notify(obj, DomainObjectOperation.new)
+            if isinstance(obj, (_package.Package, resource.Resource)):
+                self.notify(obj, domain_object.DomainObjectOperation.new)
         for obj in set(deleted):
-            if isinstance(obj, (Package, Resource)):
-                self.notify(obj, DomainObjectOperation.deleted)
+            if isinstance(obj, (_package.Package, resource.Resource)):
+                self.notify(obj, domain_object.DomainObjectOperation.deleted)
         for obj in set(changed):
-            if isinstance(obj, Resource):
-                self.notify(obj, DomainObjectOperation.changed)
+            if isinstance(obj, resource.Resource):
+                self.notify(obj, domain_object.DomainObjectOperation.changed)
             if getattr(obj, 'url_changed', False):
-                for item in PluginImplementations(IResourceUrlChange):
+                for item in plugins.PluginImplementations(plugins.IResourceUrlChange):
                     item.notify(obj)
 
-        changed_pkgs = set(obj for obj in changed if isinstance(obj, Package))
+        changed_pkgs = set(obj for obj in changed if isinstance(obj, _package.Package))
 
         for obj in new | changed | deleted:
-            if not isinstance(obj, Package):
+            if not isinstance(obj, _package.Package):
                 try:
                     related_packages = obj.related_packages()
                 except AttributeError:
@@ -67,7 +59,7 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
                     if package and package not in deleted | new:
                         changed_pkgs.add(package)
         for obj in changed_pkgs:
-            self.notify(obj, DomainObjectOperation.changed)
+            self.notify(obj, domain_object.DomainObjectOperation.changed)
 
 
     def notify(self, entity, operation):

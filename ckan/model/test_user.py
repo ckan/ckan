@@ -1,8 +1,5 @@
 import ckan.model as model
-from ckan.tests import *
 from ckan.lib.create_test_data import CreateTestData
-
-import ckan.model.user
 
 
 class TestUser(object):

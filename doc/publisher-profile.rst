@@ -2,7 +2,7 @@
 Publisher Profile and Workflow
 ==============================
 
-.. versionadded:: 1.6.1
+.. versionadded:: 1.7
 
 The Publisher/Organization workflow in CKAN is designed to support a setup in which datasets
 are managed by a "Publisher" organization. Users can become members of one (or
@@ -35,6 +35,7 @@ This setup is a natural one for many situations. For example:
 Whilst organizations can currently belong to other organizations the publisher authorization profile currently only checks membership of the current organization.  Future versions of this extension may provide a configuration option to apply authorization checks hierarchically.
 
 .. _publisher-configuration:
+
 Enabling and Configuring the Publisher Profile
 ==============================================
 

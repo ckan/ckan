@@ -1,9 +1,9 @@
 import sqlalchemy
-import core
 import meta
 import datetime
+import domain_object
 
-class UserFollowingUser(core.DomainObject):
+class UserFollowingUser(domain_object.DomainObject):
     '''A many-many relationship between users.
 
     A relationship between one user (the follower) and another (the object),
@@ -59,9 +59,9 @@ user_following_user_table = sqlalchemy.Table('user_following_user',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-core.mapper(UserFollowingUser, user_following_user_table)
+meta.mapper(UserFollowingUser, user_following_user_table)
 
-class UserFollowingDataset(core.DomainObject):
+class UserFollowingDataset(domain_object.DomainObject):
     '''A many-many relationship between users and datasets (packages).
 
     A relationship between a user (the follower) and a dataset (the object),
@@ -117,4 +117,4 @@ user_following_dataset_table = sqlalchemy.Table('user_following_dataset',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-core.mapper(UserFollowingDataset, user_following_dataset_table)
+meta.mapper(UserFollowingDataset, user_following_dataset_table)

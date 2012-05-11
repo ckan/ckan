@@ -1,9 +1,13 @@
 import datetime
 
+import sqlalchemy as sa
 from sqlalchemy import orm
 from sqlalchemy.util import OrderedDict
 
-from meta import Session 
+import meta
+import core
+
+__all__ = ['DomainObject']
 
 class Enum(set):
     '''Simple enumeration
@@ -12,7 +16,7 @@ class Enum(set):
     '''
     def __init__(self, *names):
         super(Enum, self).__init__(names)
-        
+
     def __getattr__(self, name):
         if name in self:
             return name
@@ -22,9 +26,9 @@ DomainObjectOperation = Enum('new', 'changed', 'deleted')
 
 # TODO: replace this (or at least inherit from) standard SqlalchemyMixin in vdm
 class DomainObject(object):
-    
+
     text_search_fields = []
-    Session = Session
+    Session = meta.Session
 
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
@@ -36,7 +40,7 @@ class DomainObject(object):
 
     @classmethod
     def by_name(cls, name, autoflush=True):
-        obj = Session.query(cls).autoflush(autoflush)\
+        obj = meta.Session.query(cls).autoflush(autoflush)\
               .filter_by(name=name).first()
         return obj
 
@@ -47,13 +51,12 @@ class DomainObject(object):
         q = None
         for field in cls.text_search_fields:
             attr = getattr(register, field)
-            q = or_(q, make_like(attr, term))
+            q = sa.or_(q, make_like(attr, term))
         return query.filter(q)
 
     @classmethod
     def active(cls):
-        from core import State
-        return Session.query(cls).filter_by(state=State.ACTIVE)
+        return meta.Session.query(cls).filter_by(state=core.State.ACTIVE)
 
     def save(self):
         self.add()
@@ -107,7 +110,7 @@ class DomainObject(object):
                 repr += u' %s=%s' % (col.name, getattr(self, col.name))
             except Exception, inst:
                 repr += u' %s=%s' % (col.name, inst)
-                
+
         repr += '>'
         return repr
 
