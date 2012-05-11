@@ -91,9 +91,3 @@ def vocabulary_delete(context, data_dict):
 def tag_delete(context, data_dict):
     user = context['user']
     return {'success': Authorizer.is_sysadmin(user)}
-
-def follower_delete(context, data_dict):
-    model = context['model']
-    user = model.User.get(context['user'])
-    success = (user == model.User.get(data_dict['follower_id']))
-    return {'success': success}

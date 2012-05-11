@@ -57,7 +57,7 @@
       <li class="${'active' if c.action=='authz' else ''}" py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
         ${h.subnav_link(h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
       </li>
-      <li py:if="c.authorized_to_follow" style="float:right;">
+      <li py:if="c.user" style="float:right;">
         <py:choose test="c.pkg_dict.am_following">
           <a py:when="True" id="dataset_follow_button" class="btn btn-mini" data-dataset-id="${c.pkg.id}" data-state="unfollow">Unfollow</a>
           <a py:otherwise="" id="dataset_follow_button" class="btn btn-mini" data-dataset-id="${c.pkg.id}" data-state="follow">Follow</a>

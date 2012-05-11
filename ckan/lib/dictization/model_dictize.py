@@ -508,5 +508,8 @@ def tag_to_api2(tag, context):
     context['api_version'] = 2
     return tag_to_api(tag, context)
 
-def follower_dictize(follower, context):
+def user_following_user_dictize(follower, context):
+    return d.table_dictize(follower, context)
+
+def user_following_dataset_dictize(follower, context):
     return d.table_dictize(follower, context)

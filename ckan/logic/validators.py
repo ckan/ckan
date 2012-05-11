@@ -487,36 +487,3 @@ def tag_not_in_vocabulary(key, tag_dict, errors, context):
                 (tag_name, vocabulary_id))
     else:
         return
-
-def follower_id_exists(key, follower_dict, errors, context):
-    follower_id_validators = {
-            'user': user_id_or_name_exists,
-            }
-    follower_id = follower_dict[('follower_id',)]
-    follower_type = follower_dict.get(('follower_type',))
-    if not follower_type:
-        raise Invalid(_('Not found: {0}').format('follower_type'))
-    validator = follower_id_validators.get(follower_type)
-    if not validator:
-        raise Invalid(_('follower_type {type} not recognised').format(
-            type=follower_type))
-    follower_dict[(u'follower_id',)] = validator(follower_id, context)
-
-def follower_object_id_exists(key, object_dict, errors, context):
-    object_id_validators = {
-            'user': user_id_or_name_exists,
-            'dataset': package_id_or_name_exists,
-            }
-    object_id = object_dict[('object_id',)]
-    object_type = object_dict.get(('object_type',))
-    if not object_type:
-        raise Invalid(_('Not found: {0}').format('object_type'))
-    validator = object_id_validators.get(object_type)
-    if not validator:
-        raise Invalid(_('object_type {type} not recognised').format(
-            type=object_type))
-    object_dict[(u'object_id',)] = validator(object_id, context)
-
-def follower_subject_not_same_as_object(key, follower_dict, errors, context):
-    if follower_dict[('follower_id',)] == follower_dict[('object_id',)]:
-        raise Invalid(_('An object cannot follow itself'))

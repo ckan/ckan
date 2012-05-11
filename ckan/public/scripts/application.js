@@ -1417,15 +1417,28 @@ CKAN.Utils = function($, my) {
         return;
     }
     if (button.getAttribute('data-state') === "follow") {
-        var url = '/api/action/follower_create';
+        if (object_type == 'user') {
+            var url = '/api/action/follow_user';
+        } else if (object_type == 'dataset') {
+            var url = '/api/action/follow_dataset';
+        } else {
+            // This shouldn't happen.
+            return;
+        }
         var data = JSON.stringify({
-          object_id: object_id,
-          object_type: object_type,
+          id: object_id,
         });
         var nextState = 'unfollow';
         var nextString = 'Unfollow';
     } else if (button.getAttribute('data-state') === "unfollow") {
-        var url = '/api/action/follower_delete';
+        if (object_type == 'user') {
+            var url = '/api/action/unfollow_user';
+        } else if (object_type == 'dataset') {
+            var url = '/api/action/unfollow_dataset';
+        } else {
+            // This shouldn't happen.
+            return;
+        }
         var data = JSON.stringify({
           id: object_id,
         });

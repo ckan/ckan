@@ -110,21 +110,8 @@ class PackageController(BaseController):
         userobj = model.User.get(userid)
         if not userobj:
             return
-        c.pkg_dict['am_following'] = get_action('am_following')(context,
-                {'id': c.pkg.id})
-
-        # If the user is authorized set the authorized_to_follow variable.
-        try:
-            data_dict = {
-                    'follower_id': userobj.id,
-                    'follower_type': 'user',
-                    'object_id': c.pkg.id,
-                    'object_type': 'dataset',
-                    }
-            check_access('follower_create', context, data_dict)
-            c.authorized_to_follow = True
-        except NotAuthorized:
-            pass
+        c.pkg_dict['am_following'] = get_action('am_following_dataset')(
+                context, {'id': c.pkg.id})
 
     authorizer = ckan.authz.Authorizer()
 
@@ -329,7 +316,7 @@ class PackageController(BaseController):
                 get_action('package_activity_list_html')(context,
                     {'id': c.current_package_id})
 
-        c.num_followers = get_action('follower_count')(context,
+        c.num_followers = get_action('dataset_follower_count')(context,
                 {'id':c.pkg.id})
         self._setup_follow_button(context)
 
@@ -396,7 +383,7 @@ class PackageController(BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
 
-        c.num_followers = get_action('follower_count')(
+        c.num_followers = get_action('dataset_follower_count')(
                 context, {'id':c.pkg.id})
         self._setup_follow_button(context)
 
@@ -522,7 +509,7 @@ class PackageController(BaseController):
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
 
-        c.num_followers = get_action('follower_count')(context,
+        c.num_followers = get_action('dataset_follower_count')(context,
                 {'id':c.pkg.id})
         self._setup_follow_button(context)
 
@@ -701,7 +688,7 @@ class PackageController(BaseController):
         roles = self._handle_update_of_authz(pkg)
         self._prepare_authz_info_for_render(roles)
 
-        c.num_followers = get_action('follower_count')(context,
+        c.num_followers = get_action('dataset_follower_count')(context,
                 {'id':c.pkg.id})
         self._setup_follow_button(context)
 
@@ -793,7 +780,7 @@ class PackageController(BaseController):
                 qualified=True)
 
         c.related_count = len(c.pkg.related)
-        c.num_followers = get_action('follower_count')(context,
+        c.num_followers = get_action('dataset_follower_count')(context,
                 {'id':c.pkg.id})
         self._setup_follow_button(context)
         return render('package/resource_read.html')
@@ -805,7 +792,7 @@ class PackageController(BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            c.followers = get_action('follower_list')(context,
+            c.followers = get_action('dataset_follower_list')(context,
                     {'id': c.pkg_dict['id']})
             c.num_followers = len(c.followers)
             self._setup_follow_button(context)

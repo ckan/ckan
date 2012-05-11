@@ -205,7 +205,7 @@ def package_relationship_delete_rest(context, data_dict):
 
     package_relationship_delete(context, data_dict)
 
-def follower_delete(context, data_dict):
+def _unfollow(context, data_dict, FollowerClass):
     model = context['model']
 
     if not context.has_key('user'):
@@ -219,10 +219,7 @@ def follower_delete(context, data_dict):
     if object_id is None:
         raise ValidationError({'id': _('id not in data')})
 
-    check_access('follower_delete', context,
-            {'follower_id': follower_id, 'object_id':object_id})
-
-    follower_obj = model.Follower.get(follower_id, object_id)
+    follower_obj = FollowerClass.get(follower_id, object_id)
     if follower_obj is None:
         raise NotFound(
                 _('Could not find follower {follower} -> {object}').format(
@@ -230,3 +227,9 @@ def follower_delete(context, data_dict):
 
     follower_obj.delete()
     model.repo.commit()
+
+def unfollow_user(context, data_dict):
+    _unfollow(context, data_dict, context['model'].UserFollowingUser)
+
+def unfollow_dataset(context, data_dict):
+    _unfollow(context, data_dict, context['model'].UserFollowingDataset)

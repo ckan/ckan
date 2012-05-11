@@ -509,44 +509,80 @@ def tag_create(context, tag_dict):
     log.debug("Created tag '%s' " % tag)
     return model_dictize.tag_dictize(tag, context)
 
-def follower_create(context, follower_dict):
+def follow_user(context, data_dict):
 
-    model = context['model']
-    schema = (context.get('schema')
-            or ckan.logic.schema.default_create_follower_schema())
-
-    # FIXME: Should the schema do this?
     if not context.has_key('user'):
         raise logic.NotAuthorized
+
+    model = context['model']
+
     userobj = model.User.get(context['user'])
     if not userobj:
         raise logic.NotAuthorized
-    follower_dict['follower_id'] = userobj.id
-    follower_dict['follower_type'] = 'user'
 
-    check_access('follower_create', context, follower_dict)
+    schema = (context.get('schema')
+            or ckan.logic.schema.default_follow_user_schema())
 
-    follower_dict, errors = validate(follower_dict, schema, context)
+    data_dict, errors = validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
         raise ValidationError(errors, error_summary(errors))
 
-    # Don't let the same follower be created twice.
-    if model.Follower.get(follower_dict['follower_id'],
-            follower_dict['object_id']) is not None:
-        message = _(
-                'Follower {follower_id} -> {object_id} already exists').format(
-                    follower_id=follower_dict['follower_id'],
-                    object_id=follower_dict['object_id'])
+    # Don't let a user follow herself.
+    if userobj.id == data_dict['id']:
+        message = _('You cannot follow yourself')
         raise ValidationError({'message': message})
 
-    follower = model_save.follower_dict_save(follower_dict, context)
+    # Don't let a user follow someone she is already following.
+    if model.UserFollowingUser.get(userobj.id, data_dict['id']) is not None:
+        message = _(
+                'You are already following {id}').format(id=data_dict['id'])
+        raise ValidationError({'message': message})
+
+    follower = model_save.user_following_user_dict_save(data_dict, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Created follower {follower} -> {object}'.format(
+    log.debug('User {follower} started following user {object}'.format(
         follower=follower.follower_id, object=follower.object_id))
 
-    return model_dictize.follower_dictize(follower, context)
+    return model_dictize.user_following_user_dictize(follower, context)
+
+def follow_dataset(context, data_dict):
+
+    if not context.has_key('user'):
+        raise logic.NotAuthorized
+
+    model = context['model']
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise logic.NotAuthorized
+
+    schema = (context.get('schema')
+            or ckan.logic.schema.default_follow_dataset_schema())
+
+    data_dict, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, error_summary(errors))
+
+    # Don't let a user follow a dataset she is already following.
+    if model.UserFollowingDataset.get(userobj.id, data_dict['id']) is not None:
+        message = _(
+                'You are already following {id}').format(id=data_dict['id'])
+        raise ValidationError({'message': message})
+
+
+    follower = model_save.user_following_dataset_dict_save(data_dict, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    log.debug('User {follower} started following dataset {object}'.format(
+        follower=follower.follower_id, object=follower.object_id))
+
+    return model_dictize.user_following_dataset_dictize(follower, context)

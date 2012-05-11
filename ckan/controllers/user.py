@@ -59,21 +59,8 @@ class UserController(BaseController):
         userobj = model.User.get(userid)
         if not userobj:
             return
-        c.user_dict['am_following'] = get_action('am_following')(context,
+        c.user_dict['am_following'] = get_action('am_following_user')(context,
                 {'id': c.user_dict['id']})
-
-        # If the user is authorized set the authorized_to_follow variable.
-        try:
-            data_dict = {
-                    'follower_id': userobj.id,
-                    'follower_type': 'user',
-                    'object_id': c.user_dict['id'],
-                    'object_type': 'user',
-                    }
-            check_access('follower_create', context, data_dict)
-            c.authorized_to_follow = True
-        except NotAuthorized:
-            pass
 
     def _setup_template_variables(self, context, data_dict):
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
@@ -85,7 +72,7 @@ class UserController(BaseController):
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
-        c.num_followers = get_action('follower_count')(context,
+        c.num_followers = get_action('user_follower_count')(context,
                 {'id':c.user_dict['id']})
         self._setup_follow_button(context)
 
@@ -453,6 +440,6 @@ class UserController(BaseController):
                 'for_view': True}
         data_dict = {'id':id, 'user_obj':c.userobj}
         self._setup_template_variables(context, data_dict)
-        c.followers = get_action('follower_list')(context,
+        c.followers = get_action('user_follower_list')(context,
                 {'id':c.user_dict['id']})
         return render('user/followers.html')

@@ -9,7 +9,6 @@ from ckan.lib.base import _
 # FIXME: Which is worse, 'from module import foo' or duplicating these
 # functions in this module?
 from ckan.logic.auth.delete import vocabulary_delete, tag_delete
-from ckan.logic.auth.delete import follower_delete
 
 def package_delete(context, data_dict):
     """

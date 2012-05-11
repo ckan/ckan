@@ -30,7 +30,7 @@ from vocabulary import *
 from activity import *
 from related import *
 from term_translation import *
-from follower import Follower
+from follower import UserFollowingUser, UserFollowingDataset
 import ckan.migration
 from ckan.lib.helpers import OrderedDict, datetime_to_date_str
 from vdm.sqlalchemy.base import SQLAlchemySession
