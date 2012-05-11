@@ -17,9 +17,12 @@ from ckan.config.routing import make_map
 from ckan.tests import *
 from ckan.lib.cli import MockTranslator
 
-class TestSession(dict):
+class TestPylonsSession(dict):
+    last_accessed = None
+
     def save(self):
         pass
+
 
 class PylonsTestCase(object):
     """A basic test case which allows access to pylons.c and pylons.request. 
@@ -35,7 +38,7 @@ class PylonsTestCase(object):
         cls.app_globals_obj = app_globals.Globals()
         cls.registry.register(pylons.g, cls.app_globals_obj)
 
-        cls.request_obj=Request(dict(HTTP_HOST="nohost")) 
+        cls.request_obj=Request(dict(HTTP_HOST="nohost", REQUEST_METHOD="GET")) 
         cls.registry.register(pylons.request, cls.request_obj) 
 
         cls.translator_obj=MockTranslator() 
@@ -47,7 +50,7 @@ class PylonsTestCase(object):
         cls.registry.register(pylons.response, Response())
         mapper = make_map()
         cls.registry.register(pylons.url, URLGenerator(mapper, {}))
-        cls.registry.register(pylons.session, TestSession())
+        cls.registry.register(pylons.session, TestPylonsSession())
 
         # Templates often want to find out the request's routes info, so put
         # some dummy values into the routes_dict, so the templates that do
@@ -56,6 +59,7 @@ class PylonsTestCase(object):
             'action': 'test-action',
             'controller': 'test-package::',
         }})
+        pylons.c.environ = pylons.request.environ
 
     @classmethod
     def teardown_class(cls):

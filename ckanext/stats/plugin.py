@@ -1,16 +1,14 @@
-import os
 from logging import getLogger
 
-from ckan.plugins import implements, SingletonPlugin
-from ckan.plugins import IRoutes, IConfigurer
+import ckan.plugins as p
 
 log = getLogger(__name__)
 
-class StatsPlugin(SingletonPlugin):
+class StatsPlugin(p.SingletonPlugin):
     '''Stats plugin.'''
 
-    implements(IRoutes, inherit=True)
-    implements(IConfigurer, inherit=True)
+    p.implements(p.IRoutes, inherit=True)
+    p.implements(p.IConfigurer, inherit=True)
 
     def after_map(self, map):
         map.connect('stats', '/stats',
@@ -21,10 +19,5 @@ class StatsPlugin(SingletonPlugin):
         return map
 
     def update_config(self, config):
-        here = os.path.dirname(__file__)
-        our_public_dir = os.path.join(here, 'public')
-        template_dir = os.path.join(here, 'templates')
-        config['extra_public_paths'] = ','.join([our_public_dir,
-                config.get('extra_public_paths', '')])
-        config['extra_template_paths'] = ','.join([template_dir,
-                config.get('extra_template_paths', '')])
+        p.toolkit.add_template_directory(config, 'templates')
+        p.toolkit.add_public_directory(config, 'public')

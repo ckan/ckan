@@ -2,11 +2,12 @@ import datetime
 
 from pylons import config
 from sqlalchemy import *
-from paste.deploy.converters import asbool
 
+import ckan.plugins as p
 from ckan import model
 
-cache_enabled = asbool(config.get('ckanext.stats.cache_enabled', 'True'))
+cache_enabled = p.toolkit.asbool(config.get('ckanext.stats.cache_enabled', 'True'))
+
 if cache_enabled:
     from pylons import cache
     our_cache = cache.get_cache('stats', type='dbm')
@@ -14,7 +15,7 @@ if cache_enabled:
 DATE_FORMAT = '%Y-%m-%d'
 
 def table(name):
-    return Table(name, model.metadata, autoload=True)
+    return Table(name, model.meta.metadata, autoload=True)
 
 def datetime2date(datetime_):
     return datetime.date(datetime_.year, datetime_.month, datetime_.day)
@@ -34,7 +35,7 @@ class Stats(object):
         res_ids = model.Session.execute(sql).fetchall()
         res_pkgs = [(model.Session.query(model.Package).get(unicode(pkg_id)), avg, num) for pkg_id, avg, num in res_ids]
         return res_pkgs
-            
+
     @classmethod
     def most_edited_packages(cls, limit=10):
         package_revision = table('package_revision')
@@ -42,10 +43,10 @@ class Stats(object):
             group_by(package_revision.c.id).\
             order_by(func.count(package_revision.c.revision_id).desc()).\
             limit(limit)
-        res_ids = model.Session.execute(s).fetchall()        
+        res_ids = model.Session.execute(s).fetchall()
         res_pkgs = [(model.Session.query(model.Package).get(unicode(pkg_id)), val) for pkg_id, val in res_ids]
         return res_pkgs
-        
+
     @classmethod
     def largest_groups(cls, limit=10):
         member = table('member')
@@ -54,8 +55,8 @@ class Stats(object):
             where(and_(member.c.group_id!=None, member.c.table_name=='package')).\
             order_by(func.count(member.c.table_id).desc()).\
             limit(limit)
-        
-        res_ids = model.Session.execute(s).fetchall()        
+
+        res_ids = model.Session.execute(s).fetchall()
         res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), val) for group_id, val in res_ids]
         return res_groups
 
@@ -82,7 +83,7 @@ class Stats(object):
         elif returned_tag_info == 'object':
             res_tags = [(model.Session.query(model.Tag).get(unicode(tag_id)), val) for tag_id, val in res_col]
             return res_tags
-        
+
     @classmethod
     def top_package_owners(cls, limit=10):
         package_role = table('package_role')
@@ -93,7 +94,7 @@ class Stats(object):
             group_by(user_object_role.c.user_id).\
             order_by(func.count(user_object_role.c.role).desc()).\
             limit(limit)
-        res_ids = model.Session.execute(s).fetchall()        
+        res_ids = model.Session.execute(s).fetchall()
         res_users = [(model.Session.query(model.User).get(unicode(user_id)), val) for user_id, val in res_ids]
         return res_users
 
@@ -153,7 +154,7 @@ class RevisionStats(object):
         s = select([package_revision.c.id, revision.c.timestamp], from_obj=[package_revision.join(revision)]).order_by(revision.c.timestamp)
         res = model.Session.execute(s).fetchall() # [(id, datetime), ...]
         return res
-    
+
     @classmethod
     def get_new_packages(cls):
         '''
@@ -256,7 +257,7 @@ class RevisionStats(object):
                                                createfunc=num_packages)
         else:
             num_packages = num_packages()
-        return num_packages        
+        return num_packages
 
     @classmethod
     def get_by_week(cls, object_type):
@@ -311,7 +312,7 @@ class RevisionStats(object):
         else:
             objects_by_week_ = objects_by_week()
         return objects_by_week_
-        
+
     @classmethod
     def get_objects_in_a_week(cls, date_week_commences,
                                  type_='new-package-rate'):

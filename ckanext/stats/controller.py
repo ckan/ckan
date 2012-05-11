@@ -1,10 +1,11 @@
-from ckan.lib.base import BaseController, render, config
+import ckan.plugins as p
+from ckan.lib.base import BaseController, config
 import stats as stats_lib
 
 class StatsController(BaseController):
 
     def index(self):
-        from pylons import tmpl_context as c 
+        c = p.toolkit.c
         stats = stats_lib.Stats()
         rev_stats = stats_lib.RevisionStats()
         c.top_rated_packages = stats.top_rated_packages()
@@ -16,11 +17,11 @@ class StatsController(BaseController):
         c.deleted_packages_by_week = rev_stats.get_by_week('deleted_packages')
         c.num_packages_by_week = rev_stats.get_num_packages_by_week()
         c.package_revisions_by_week = rev_stats.get_by_week('package_revisions')
-        return render('ckanext/stats/index.html')
-            
+        return p.toolkit.render('ckanext/stats/index.html')
+
     def leaderboard(self, id=None):
-        from pylons import tmpl_context as c 
+        c = p.toolkit.c
         c.solr_core_url = config.get('ckanext.stats.solr_core_url',
                 'http://solr.okfn.org/solr/ckan')
-        return render('ckanext/stats/leaderboard.html')
+        return p.toolkit.render('ckanext/stats/leaderboard.html')
 

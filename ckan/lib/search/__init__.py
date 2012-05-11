@@ -2,9 +2,9 @@ import logging
 from pylons import config, c
 
 from ckan import model
-from ckan.model import DomainObjectOperation
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from ckan.logic import get_action
+import ckan.model.domain_object as domain_object
 
 from common import (SearchIndexError, SearchError, SearchQueryError,
                     make_connection, is_available, SolrSettings)
@@ -58,7 +58,7 @@ if SIMPLE_SEARCH:
     _QUERIES['package'] = sql.PackageSearchQuery
 
 def _normalize_type(_type):
-    if isinstance(_type, model.DomainObject):
+    if isinstance(_type, domain_object.DomainObject):
         _type = _type.__class__
     if isinstance(_type, type):
         _type = _type.__name__
@@ -85,11 +85,11 @@ def dispatch_by_operation(entity_type, entity, operation):
     """Call the appropriate index method for a given notification."""
     try:
         index = index_for(entity_type)
-        if operation == DomainObjectOperation.new:
+        if operation == domain_object.DomainObjectOperation.new:
             index.insert_dict(entity)
-        elif operation == DomainObjectOperation.changed:
+        elif operation == domain_object.DomainObjectOperation.changed:
             index.update_dict(entity)
-        elif operation == DomainObjectOperation.deleted:
+        elif operation == domain_object.DomainObjectOperation.deleted:
             index.remove_dict(entity)
         else:
             log.warn("Unknown operation: %s" % operation)
@@ -107,7 +107,7 @@ class SynchronousSearchPlugin(SingletonPlugin):
     def notify(self, entity, operation):
         if not isinstance(entity, model.Package):
             return
-        if operation != DomainObjectOperation.deleted:
+        if operation != domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(
                 entity.__class__.__name__,
                 get_action('package_show')(
@@ -115,7 +115,7 @@ class SynchronousSearchPlugin(SingletonPlugin):
                     {'id': entity.id}),
                 operation
             )
-        elif operation == DomainObjectOperation.deleted:
+        elif operation == domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(entity.__class__.__name__,
                                   {'id': entity.id}, operation)
         else:
