@@ -1,14 +1,25 @@
+<!DOCTYPE html>
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-<div py:match="content">
-    content
-</div>
-<div py:match="sidebar">
-    sidebar
-</div>
-<xi:include href="../page_sidebar.html" />
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+    <!--! Include matchers nearest first -->
+    <xi:include href="../page.html" />
+    <xi:include href="sidebar.html" />
+    
+    <!--! Now include the current page -->
+    <head>
+      <title>Search for a Dataset</title>
+    </head>
+    <body>
+      <main>
+        <content id="content" data-wah="">
+          <p>This is search content</p>
+          <p>Hmm</p>
+        </content>
+
+      </main>
+    </body>
 </html>
+

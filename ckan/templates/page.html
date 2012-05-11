@@ -4,10 +4,24 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
-  <body class="test">
-<xi:include href="header.html" />
-<main>
-</main>
-<xi:include href="footer.html" />
-  </body>
+  <xi:include href="base.html" />
+  <div py:match="main">
+    <!--! Import the header -->
+    <xi:include href="header.html" />
+    
+    <!--! Wrap <content> and <sidebar> tags -->
+    <div class="content" py:attrs="select('content/@*')">
+      ${select('content')}
+    </div>
+    <!--! Need an py:if here to exclude if empty. -->
+    <div class="sidebar" py:attrs="select('sidebar/@*')">
+      ${select('sidebar')}
+    </div>
+    
+    <!--! Import the footer -->
+    <xi:include href="footer.html" />
+  </div>
+
+  <div py:match="content" py:strip="" py:content="select('*|text()')" />
+  <div py:match="sidebar" py:strip="" py:content="select('*|text()')" />
 </html>
