@@ -1,10 +1,24 @@
 <!DOCTYPE html>
-<html lang="en-gb">
-  <head>
-    <meta charset="utf-8" />
-    <title></title>
-    <link rel="stylesheet/less" href="/base/less/main.less" />
-    <script src="/base/test/vendor/less.js"></script>
-  </head>
-  <body></body>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  <py:match path="head" once="true">
+    <head py:attrs="select('@*')">
+      <meta charset="utf-8" />
+      <title py:with="title = list(select('title/text()'))">
+        <py:if test="title">: ${title}</py:if>
+      </title>
+      <link rel="stylesheet/less" href="/base/less/main.less" />
+      <script src="/base/test/vendor/less.js"></script>
+      ${select('*[local-name()!="title"]')}
+    </head>
+  </py:match>
+  <py:match path="body">
+  <body py:attrs="select('@*')">
+    ${select("*|text()")}
+  </body>
+  </py:match>
 </html>
