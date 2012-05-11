@@ -4,11 +4,11 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
-  <xi:include href="../page_sidebar.html" />
-  <content>
+<div py:match="content">
     content
-  </content>
-  <sidebar>
+</div>
+<div py:match="sidebar">
     sidebar
-  </sidebar>
+</div>
+<xi:include href="../page_sidebar.html" />
 </html>

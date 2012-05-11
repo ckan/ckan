@@ -4,17 +4,13 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
-  <xi:include href="page.html" />
-  <container>
-    <py:match path="content" once="true">
-      <div class="content">
-        ${select("*|text()")}
-      </div>
-    </py:match>
-    <py:match path="sidebar" once="true">
-      <div class="sidebar">
-        ${select("*|text()")}
-      </div>
-    </py:match>
-  </container>
+<div py:match="main">
+	  <content>
+	   content
+	  </content>
+	  <sidebar>
+	   sidebar
+	  </sidebar>
+</div>
+<xi:include href="page.html" />
 </html>
