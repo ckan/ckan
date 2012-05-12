@@ -500,16 +500,18 @@ We also need a mapping to specify that Location field is of type geo_point as th
 Now the actual query::
 
     {
-        "filtered" : {
-            "query" : {
-                "match_all" : {}
-            },
-            "filter" : {
-                "geo_distance" : {
-                    "distance" : "20km",
-                    "Location" : {
-                        "lat" : 37.776,
-                        "lon" : -122.41
+        "query": {
+            "filtered" : {
+                "query" : {
+                    "match_all" : {}
+                },
+                "filter" : {
+                    "geo_distance" : {
+                        "distance" : "20km",
+                        "Location" : {
+                            "lat" : 37.776,
+                            "lon" : -122.41
+                        }
                     }
                 }
             }
