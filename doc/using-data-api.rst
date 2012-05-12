@@ -457,6 +457,70 @@ result here using a `bool query`_.
         }
     }
 
+Geospatial Query to find results near a given point
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This uses the `Geo Distance filter`_. It requires that indexed documents have a field of `geo point type`_.
+
+.. _Geo Distance filter: http://www.elasticsearch.org/guide/reference/query-dsl/geo-distance-filter.html
+.. _geo point type: http://www.elasticsearch.org/guide/reference/mapping/geo-point-type.html
+
+Source data (a point in San Francisco!)::
+
+  # This should be in lat,lon order
+  {
+    ...
+    "Location": "37.7809035011582, -122.412119695795"
+  }
+  
+There are alternative formats to provide lon/lat locations e.g. (see ElasticSearch documentation for more)::
+
+  # Note this must have lon,lat order (opposite of previous example!)
+  {
+    "Location":[-122.414753390488, 37.7762147914147]
+  }
+
+  # or ...
+  {
+    "Location": {
+      "lon": -122.414753390488,
+      "lat": 37.7762147914147
+    }
+  }
+
+We also need a mapping to specify that Location field is of type geo_point as this will not usually get guessed from the data (see below for more on mappings)::
+
+  "properties": {
+      "Location": {
+          "type": "geo_point"
+       }
+       ...
+  }
+
+Now the actual query::
+
+    {
+        "filtered" : {
+            "query" : {
+                "match_all" : {}
+            },
+            "filter" : {
+                "geo_distance" : {
+                    "distance" : "20km",
+                    "Location" : {
+                        "lat" : 37.776,
+                        "lon" : -122.41
+                    }
+                }
+            }
+        }
+    }    
+
+Note that you can specify the query using specific lat, lon attributes even
+though original data did not have this structure (you can also use a query
+similar to the original structure if you wish - see `Geo distance filter`_ for
+more information).
+
 
 Facets
 ------
@@ -505,6 +569,10 @@ For more on INSERT and UPDATE see the `Index API`_ documentation.
 There is also support bulk insert and updates via the `Bulk API`_.
 
 .. _Bulk API: http://elasticsearch.org/guide/reference/api/bulk.html
+
+.. note:: The `DataStore Python client library`_ has support for inserting,
+          updating (in bulk) and deleting. There is also support for these
+          operations in the ReclineJS javascript library.
 
 
 Schema Mapping
