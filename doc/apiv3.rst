@@ -284,29 +284,39 @@ GET-able Actions
 ----------------
 
 Actions defined in get.py can also be accessed with a GET request **in
-addition** to the POST method described just above.  There are two ways of
-passing the required arguments to the GET-able action.
+addition** to the POST method described just above.
 
-Firstly, each parameter can be specified as a url parameter, for example: ::
+Each parameter is specified as a url parameter, for example: ::
 
  curl http://test.ckan.net/api/3/action/package_search?q=police
 
-Alternatively, the action's parameters can be JSON-encoded in a dictionary, and
-passed in with a single ``data_dict`` url parameter.  For example: ::
+Or if the action expects a list of string for a given paramter, then that
+parameter may be specified more than once, for example: ::
 
- curl http://ian-laptop:5000/api/3/action/package_search?data_dict=%7B%22q%22%3A+%22police%22%7D
+ curl http://test.ckan.net/api/3/action/term_translation_show?terms=russian&terms=romantic%20novel
 
-or, perhaps more clearly, in python: ::
+will result in the following parameters being sent to the
+`term_translation_show` action: ::
 
- import requests
- import json
+  {
+    'terms': ['russian', 'romantic novel']
+  }
 
- url = 'http://test.ckan.net/api/3/action/package_search'
- search_params = {'q': 'police'}
- requests.get(url, params={'data_dict': json.dumps(search_params)})
+This interface is *slightly* more limited than the POST interface because it
+doesn't allow passing nested dicts into the action be accessed.  As a
+consequence of this, currently the *resource_search*, *tag_search* and
+*tag_autocomplete* actions are **limited** in their functionality.
 
-The second, slightly less convenient, method of passing the action's parameters
-is to allow a more complex data_dict to be passed, eg. a nested dict.
+`resource_search`:
+    This action is not currently usable via a GET request as it relies upon
+    a nested dict of fields.
+
+`tag_search` and `tag_autocomplete`:
+    The `fields` argument is not available when accessing this action with a
+    GET request.
+
+Also, it is worth bearing this limitation in mind when creating your own
+actions via the `IActions` interface.
 
 Responses
 =========

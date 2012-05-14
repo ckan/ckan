@@ -278,21 +278,19 @@ class BaseController(WSGIController):
         ValueError will be raised if the data is not a JSON-formatted dict.
 
         The data is retrieved as a JSON-encoded dictionary from the request
-        body.  If the `try_url_params` argument is True, then an attempt is
-        made to read the data from the url parameters of the request (if the
-        request is a GET request).
+        body.  Or, if the `try_url_params` argument is True and the request is
+        a GET request, then an attempt is made to read the data from the url
+        parameters of the request.
 
         try_url_params
             If try_url_params is False, then the data_dict is read from the
             request body.
 
-            If the try_url_params is True and the request is a GET request,
-            then the data is read from the url parameters.  The data can either
-            be read directly from the url parameters, with each url parameter
-            describing the dict's key and value pair.  For the situation where
-            a nested dict is required, it's possible to pass a single url
-            parameter named 'data_dict', where the value is the JSON-encoded
-            data_dict.
+            If try_url_params is True and the request is a GET request then the
+            data is read from the url parameters.  The resulting dict will only
+            be 1 level deep, with the url-param fields being the keys.  If a
+            single key has more than one value specified, then the value will
+            be a list of strings, otherwise just a string.
 
         This function is only used by the API, so no strings need to be
         translated.
@@ -319,29 +317,14 @@ class BaseController(WSGIController):
                 raise ValueError, msg
 
         elif try_url_params and request.GET:
-            # Accept two ways of clients passing the data_dict via a GET
-            # request.
-
-            # First, a client can json-encode the whole data_dict in a single
-            # url parameter named 'data_dict'.
-            if len(request.GET) == 1 and request.GET.keys()[0] == 'data_dict':
-                request_data = request.GET.get('data_dict')
-
-            # Otherwise, the data_dict is flat, and can be constructed from the
-            # url parameters.
-            else:
-                return request.GET.mixed()
+            return request.GET.mixed()
 
         else:
             try:
-                # pylons only puts the request body in `request.body` if it's
-                # a POST or PUT request.  Otherwise, it's only accessible
-                # through the underlying wsgi input stream.
                 if request.method in ['POST', 'PUT']:
                     request_data = request.body
-                elif try_url_params:
-                    request_data = request.environ.get('wsgi.input').read()
-
+                else:
+                    request_data = None
             except Exception, inst:
                 msg = "Could not extract request body data: %s" % \
                       (inst)

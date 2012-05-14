@@ -31,18 +31,6 @@ class TestApi3(Api3TestCase, ApiTestCase):
         params = {'q': 'russian'}
         res = self.app.get(offset, params=params, status=[200])
 
-    def test_readonly_is_get_able_with_json_param(self):
-        '''Test that a read-only action is GET-able
-
-        Picks an action within `get.py` and checks that it works if it's
-        invoked with a http GET request.  The action's data_dict is constructed
-        from a json-encoded string in the 'data_dict' url parameter.
-        '''
-        offset = self.offset('/action/package_search')
-        data_dict = {'q': 'russian'}
-        params = {'data_dict': json.dumps(data_dict)}
-        res = self.app.get(offset, params=params, status=[200])
-
     def test_sideeffect_action_is_not_get_able(self):
         '''Test that a non-readonly action is not GET-able.
 
