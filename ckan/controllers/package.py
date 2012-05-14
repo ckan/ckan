@@ -173,10 +173,6 @@ class PackageController(BaseController):
 
         c.search_url_params = urlencode(_encode_params(params_nopage))
 
-        # Extracted from package/search.html template.
-        c.dumps_url = config.get('ckan.dumps_url')
-        c.dumps_format = config.get('ckan.dumps_format', '')
-
         try:
             c.fields = []
             search_extras = {}

@@ -60,7 +60,7 @@
           <small class="content">
             You can also access this registry using the ${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None, ver=1))}
             (see ${h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html')})
-            <py:if test="c.dumps_url">or download a <a href="${c.dumps_url}">full ${dumps_format} dump</a></py:if>.
+            <py:if test="config.get('ckan.dumps_url')">or download a <a href="${config.get('ckan.dumps_url')}">full ${config.get('ckan.dumps_format', '')} dump</a></py:if>.
           </small>
         </section>
       </content>
