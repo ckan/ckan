@@ -7,7 +7,7 @@
   .box-shadow(0 0 3px rgba(0, 0, 0, 0.3));
 
   background-color: @module-background-color;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .module > .heading {
@@ -28,6 +28,11 @@
 .module > .footer {
   padding: 0 @module-margin-x 7px;
   margin: -17px 0 0;
+}
+
+.module .read-more {
+  font-weight: bold;
+  color: #000;
 }
 
 .module > .pagination {
@@ -58,8 +63,13 @@
   border-right: 0;
 }
 
-//.module > .content .heading {
-//  .module .heading;
-//  margin: 20px -@module-margin-x 20px;
-//  border-top: 1px solid lighten(@module-heading-border-color, 5%);
-//}
+// Module Info
+
+.module.info > .content {
+  padding: 10px;
+}
+
+.module.info small {
+  font-size: 11px;
+  display: block;
+}

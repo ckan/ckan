@@ -51,11 +51,37 @@
   color: #000;
 }
 
+.search-giant {
+  position: relative;
+}
+
+.search-giant input {
+  .box-sizing(border-box);
+  font-size: 16px;
+  padding: 22px 10px;
+  width: 100%;
+}
+
+.search-giant button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  display: block;
+  border: none;
+  padding: 0;
+  margin-top: -15px;
+  width: 30px;
+  height: 30px;
+  background: transparent url("@{image-path}/icon-search-27x26.png") no-repeat center center;
+  text-indent: -900em;
+}
+
 .pill {
   .border-radius(7px);
   background-color: #ccc;
   color: #fff;
-  padding: 1px 8px;
+  padding: 1px 5px 1px 8px;
+  margin-right: 5px;
 }
 
 .pill .remove {
