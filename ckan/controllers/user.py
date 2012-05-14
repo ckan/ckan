@@ -439,8 +439,8 @@ class UserController(BaseController):
             return password1
 
     def followers(self, id=None):
-        context = {'model': model, 'user': c.user or c.author,
-                'for_view': True}
+        context = {'model': model, 'session': model.Session,
+                'user': c.user or c.author, 'for_view': True}
         data_dict = {'id':id, 'user_obj':c.userobj}
         self._setup_template_variables(context, data_dict)
         c.followers = get_action('user_follower_list')(context,
