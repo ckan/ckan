@@ -63,12 +63,15 @@ class UserController(BaseController):
                 {'id': c.user_dict['id']})
 
     def _setup_template_variables(self, context, data_dict):
+        context = {'model': context.get('model'),
+                'session': context.get('session'),
+                'user': context.get('user')}
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
             h.redirect_to(controller='user', action='login', id=None)
-        except NotAuthorised:
+        except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
@@ -113,7 +116,7 @@ class UserController(BaseController):
         return render('user/list.html')
 
     def read(self, id=None):
-        context = {'model': model,
+        context = {'model': model, 'session': model.Session,
                 'user': c.user or c.author, 'for_view': True}
         data_dict = {'id':id,
                      'user_obj':c.userobj}

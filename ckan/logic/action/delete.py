@@ -3,6 +3,7 @@ from pylons.i18n import _
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
+validate = ckan.lib.navl.dictization_functions.validate
 
 # define some shortcuts
 ValidationError = ckan.logic.ValidationError
@@ -216,8 +217,6 @@ def _unfollow(context, data_dict, FollowerClass):
     follower_id = userobj.id
 
     object_id = data_dict.get('id')
-    if object_id is None:
-        raise ValidationError({'id': _('id not in data')})
 
     follower_obj = FollowerClass.get(follower_id, object_id)
     if follower_obj is None:
@@ -229,7 +228,19 @@ def _unfollow(context, data_dict, FollowerClass):
     model.repo.commit()
 
 def unfollow_user(context, data_dict):
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+
     _unfollow(context, data_dict, context['model'].UserFollowingUser)
 
 def unfollow_dataset(context, data_dict):
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_dataset_schema())
+    data_dict, errors = validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+
     _unfollow(context, data_dict, context['model'].UserFollowingDataset)

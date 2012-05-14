@@ -317,6 +317,9 @@ def is_search_supported():
     is_supported_db = not model.engine_is_sqlite()
     return is_supported_db
 
+def are_foreign_keys_supported():
+    return not model.engine_is_sqlite()
+
 def is_regex_supported():
     is_supported_db = not model.engine_is_sqlite()
     return is_supported_db
