@@ -254,8 +254,8 @@ class TestFollow(object):
                 self.testsysadmin.id, self.testsysadmin.name)
 
     def test_02_user_follow_dataset_by_name(self):
-        follow_dataset(self.app, self.annafan.id, self.annafan.apikey,
-                self.annakarenina.id, self.annakarenina.name)
+        follow_dataset(self.app, self.joeadmin.id, self.joeadmin.apikey,
+                self.warandpeace.id, self.warandpeace.name)
 
     def test_03_user_follow_user_already_following(self):
         for object_id in (self.russianfan.id, self.russianfan.name,
@@ -271,8 +271,7 @@ class TestFollow(object):
                     'You are already following ')
 
     def test_03_user_follow_dataset_already_following(self):
-        for object_id in (self.warandpeace.id, self.warandpeace.name,
-                self.annakarenina.id, self.annakarenina.name):
+        for object_id in (self.warandpeace.id, self.warandpeace.name):
             params = json.dumps({'id': object_id})
             extra_environ = {
                     'Authorization': str(self.annafan.apikey),
@@ -298,9 +297,9 @@ class TestFollow(object):
         for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
             params = json.dumps({'id': object_id})
             response = self.app.post('/api/action/user_follower_count',
-                    params=params).json
-            assert response['success'] is True
-            assert response['result'] == 0
+                    params=params, status=409).json
+            assert response['success'] is False
+            assert response['error'].has_key('id')
 
     def test_04_dataset_follower_count_bad_id(self):
         # dataset_follower_count always succeeds, but just returns 0 for bad
@@ -308,23 +307,23 @@ class TestFollow(object):
         for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
             params = json.dumps({'id': object_id})
             response = self.app.post('/api/action/dataset_follower_count',
-                    params=params).json
-            assert response['success'] is True
-            assert response['result'] == 0
+                    params=params, status=409).json
+            assert response['success'] is False
+            assert response['error'].has_key('id')
 
     def test_04_user_follower_count_missing_id(self):
         params = json.dumps({})
         response = self.app.post('/api/action/user_follower_count',
                 params=params, status=409).json
         assert response['success'] is False
-        assert response['error']['id'] == 'id not in data'
+        assert response['error']['id'] == ['Missing value']
 
     def test_04_dataset_follower_count_missing_id(self):
         params = json.dumps({})
         response = self.app.post('/api/action/dataset_follower_count',
                 params=params, status=409).json
         assert response['success'] is False
-        assert response['error']['id'] == 'id not in data'
+        assert response['error']['id'] == ['Missing value']
 
     def test_04_user_follower_count_no_followers(self):
         params = json.dumps({'id': self.annafan.id})
@@ -334,44 +333,41 @@ class TestFollow(object):
         assert response['result'] == 0
 
     def test_04_dataset_follower_count_no_followers(self):
-        params = json.dumps({'id': self.annafan.id})
+        params = json.dumps({'id': self.annakarenina.id})
         response = self.app.post('/api/action/dataset_follower_count',
                 params=params).json
         assert response['success'] is True
         assert response['result'] == 0
 
     def test_04_user_follower_list_bad_id(self):
-        # user_follower_list always succeeds, but just returns [] for bad IDs.
         for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
             params = json.dumps({'id': object_id})
             response = self.app.post('/api/action/user_follower_list',
-                    params=params).json
-            assert response['success'] is True
-            assert response['result'] == []
+                    params=params, status=409).json
+            assert response['success'] is False
+            assert response['error']['id']
 
     def test_04_dataset_follower_list_bad_id(self):
-        # dataset_follower_list always succeeds, but just returns [] for bad
-        # IDs.
         for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
             params = json.dumps({'id': object_id})
             response = self.app.post('/api/action/dataset_follower_list',
-                    params=params).json
-            assert response['success'] is True
-            assert response['result'] == []
+                    params=params, status=409).json
+            assert response['success'] is False
+            assert response['error']['id']
 
     def test_04_user_follower_list_missing_id(self):
         params = json.dumps({})
         response = self.app.post('/api/action/user_follower_list',
                 params=params, status=409).json
         assert response['success'] is False
-        assert response['error']['id'] == 'id not in data'
+        assert response['error']['id'] == ['Missing value']
 
     def test_04_dataset_follower_list_missing_id(self):
         params = json.dumps({})
         response = self.app.post('/api/action/dataset_follower_list',
                 params=params, status=409).json
         assert response['success'] is False
-        assert response['error']['id'] == 'id not in data'
+        assert response['error']['id'] == ['Missing value']
 
     def test_04_user_follower_list_no_followers(self):
         params = json.dumps({'id': self.annafan.id})
@@ -381,28 +377,33 @@ class TestFollow(object):
         assert response['result'] == []
 
     def test_04_dataset_follower_list_no_followers(self):
-        params = json.dumps({'id': self.annafan.id})
+        params = json.dumps({'id': self.annakarenina.id})
         response = self.app.post('/api/action/dataset_follower_list',
                 params=params).json
         assert response['success'] is True
         assert response['result'] == []
 
     def test_04_am_following_dataset_bad_id(self):
-        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
             params = json.dumps({'id': object_id})
             extra_environ = {'Authorization': str(self.annafan.apikey)}
             response = self.app.post('/api/action/am_following_dataset',
-                    params=params, extra_environ=extra_environ).json
-            assert response['success'] is True
-            assert response['result'] is False
+                    params=params, extra_environ=extra_environ,
+                    status=409).json
+            assert response['success'] is False
+            assert response['error']['id'] == [u'Not found: Dataset']
 
     def test_04_am_following_dataset_missing_id(self):
-        params = json.dumps({})
-        extra_environ = {'Authorization': str(self.annafan.apikey)}
-        response = self.app.post('/api/action/am_following_dataset',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error']['id'] == 'id not in data'
+        for id in ('missing', None, ''):
+            if id == 'missing':
+                params = json.dumps({})
+            else:
+                params = json.dumps({'id':id})
+            extra_environ = {'Authorization': str(self.annafan.apikey)}
+            response = self.app.post('/api/action/am_following_dataset',
+                    params=params, extra_environ=extra_environ, status=409).json
+            assert response['success'] is False
+            assert response['error']['id'] == [u'Missing value']
 
     def test_04_am_following_dataset_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
@@ -421,21 +422,26 @@ class TestFollow(object):
         assert response['error']['message'] == 'Access denied'
 
     def test_04_am_following_user_bad_id(self):
-        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
             params = json.dumps({'id': object_id})
             extra_environ = {'Authorization': str(self.annafan.apikey)}
             response = self.app.post('/api/action/am_following_user',
-                    params=params, extra_environ=extra_environ).json
-            assert response['success'] is True
-            assert response['result'] is False
+                    params=params, extra_environ=extra_environ,
+                    status=409).json
+            assert response['success'] is False
+            assert response['error']['id'] == [u'Not found: User']
 
     def test_04_am_following_user_missing_id(self):
-        params = json.dumps({})
-        extra_environ = {'Authorization': str(self.annafan.apikey)}
-        response = self.app.post('/api/action/am_following_user',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error']['id'] == 'id not in data'
+        for id in ('missing', None, ''):
+            if id == 'missing':
+                params = json.dumps({})
+            else:
+                params = json.dumps({'id':id})
+            extra_environ = {'Authorization': str(self.annafan.apikey)}
+            response = self.app.post('/api/action/am_following_user',
+                    params=params, extra_environ=extra_environ, status=409).json
+            assert response['success'] is False
+            assert response['error']['id'] == [u'Missing value']
 
     def test_04_am_following_user_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
@@ -578,7 +584,7 @@ class TestFollowerDelete(object):
         id.
 
         '''
-        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
             params = json.dumps({
                 'id': object_id,
                 })
@@ -586,17 +592,16 @@ class TestFollowerDelete(object):
                     'Authorization': str(self.annafan.apikey),
                     }
             response = self.app.post('/api/action/unfollow_user',
-                params=params, extra_environ=extra_environ, status=404).json
+                params=params, extra_environ=extra_environ, status=409).json
             assert response['success'] == False
-            assert response['error']['message'].startswith(
-                'Not found: Could not find follower ')
+            assert response['error']['id'] == [u'Not found: User']
 
     def test_01_unfollow_dataset_bad_object_id(self):
         '''Test error response when calling unfollow_dataset with a bad object
         id.
 
         '''
-        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
             params = json.dumps({
                 'id': object_id,
                 })
@@ -604,18 +609,21 @@ class TestFollowerDelete(object):
                     'Authorization': str(self.annafan.apikey),
                     }
             response = self.app.post('/api/action/unfollow_dataset',
-                params=params, extra_environ=extra_environ, status=404).json
+                params=params, extra_environ=extra_environ, status=409).json
             assert response['success'] == False
-            assert response['error']['message'].startswith(
-                'Not found: Could not find follower ')
+            assert response['error']['id'] == [u'Not found: Dataset']
 
     def test_01_unfollow_user_missing_object_id(self):
-        params = json.dumps({})
-        extra_environ = {'Authorization': str(self.annafan.apikey),}
-        response = self.app.post('/api/action/unfollow_user',
-            params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] == False
-        assert response['error']['id'] == 'id not in data'
+        for id in ('missing', None, ''):
+            if id == 'missing':
+                params = json.dumps({})
+            else:
+                params = json.dumps({'id':id})
+            extra_environ = {'Authorization': str(self.annafan.apikey),}
+            response = self.app.post('/api/action/unfollow_user',
+                params=params, extra_environ=extra_environ, status=409).json
+            assert response['success'] == False
+            assert response['error']['id'] == [u'Missing value']
 
     def test_01_unfollow_dataset_missing_object_id(self):
         params = json.dumps({})
@@ -623,7 +631,7 @@ class TestFollowerDelete(object):
         response = self.app.post('/api/action/unfollow_dataset',
             params=params, extra_environ=extra_environ, status=409).json
         assert response['success'] == False
-        assert response['error']['id'] == 'id not in data'
+        assert response['error']['id'] == ['Missing value']
 
     def _unfollow_user(self, follower_id, apikey, object_id, object_arg):
         '''Test a user unfollowing a user via the API.
