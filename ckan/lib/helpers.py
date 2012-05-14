@@ -10,6 +10,7 @@ import datetime
 import logging
 import re
 import urllib
+import pprint
 
 from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
@@ -801,6 +802,10 @@ def include_resource(resource):
     r = getattr(html_resources, resource)
     r.need()
 
+def debug_inspect(arg):
+    ''' Output pprint.pformat view of supplied arg '''
+    return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
+
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
 __allowed_functions__ = [
@@ -866,4 +871,5 @@ __allowed_functions__ = [
            'radio',
            'submit',
            'asbool',
+           'debug_inspect',
 ]
