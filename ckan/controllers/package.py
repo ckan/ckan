@@ -796,6 +796,8 @@ class PackageController(BaseController):
                     {'id': c.pkg_dict['id']})
             c.num_followers = len(c.followers)
             self._setup_follow_button(context)
+
+            c.related_count = len(c.pkg.related)
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
