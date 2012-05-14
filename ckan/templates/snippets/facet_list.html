@@ -23,14 +23,16 @@ count_label
   how a facet-item's count is displayed.
   
   -->
-<section class="module" xmlns:py="http://genshi.edgewall.org/">
+<section class="module" xmlns:py="http://genshi.edgewall.org/" py:with="items=h.unselected_facet_items(name, 10)">
   <h2 class="heading">${h.facet_title(title)}</h2>
   <nav>
     <ul class="unstyled nav nav-simple">
-      <py:for each="item in h.unselected_facet_items(name, 10)">
+      <py:for each="item in items">
         ${h.snippet('snippets/facet_item.html', name=name, item=item)}
       </py:for>
     </ul>
   </nav>
-  <p class="footer">View all</p>
+  <p class="footer" py:if="items">
+    <a href="#" class="read-more">Show All ${h.facet_title(title)}</a>
+  </p>
 </section>

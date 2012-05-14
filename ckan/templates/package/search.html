@@ -17,8 +17,10 @@
         <section class="module">
           <div class="content">
             <form id="dataset-search" class="dataset-search clearfix" method="GET">
-              <input type="search" class="search" name="q" value="${c.q}" autocomplete="off" results="0" placeholder="${_('Search...')}" />
-              <input type="submit" hidden="hidden" value="${_('Search')}" class="btn btn-large button" />
+              <span class="search-giant">
+                <input type="text" class="search" name="q" value="${c.q}" autocomplete="off" results="0" placeholder="${_('Search...')}" />
+                <button type="submit" value="${_('Search')}">Submit</button>
+              </span>
               <span py:if="c.fields">
                 <py:for each="(k, v) in c.fields">
                   <input type="hidden" name="${k}" value="${v}" />
@@ -54,13 +56,12 @@
           ${c.page.pager(q=c.q)}
         </section>
 
-
-        <section class="module">
-          <p class="content">
+        <section class="module info">
+          <small class="content">
             You can also access this registry using the ${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None, ver=1))}
             (see ${h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html')})
             <py:if test="c.dumps_url">or download a <a href="${c.dumps_url}">full ${dumps_format} dump</a></py:if>.
-          </p>
+          </small>
         </section>
       </content>
       <sidebar>
