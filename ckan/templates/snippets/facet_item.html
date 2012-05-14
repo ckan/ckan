@@ -1,0 +1,25 @@
+<!--!
+Generate <li>s for facet items.  The generated tags are not wrapped by any
+other tag, ie - it's up to the caller to wrap them in something suitable.
+
+item
+  The facet item itself.
+
+label_function
+  Renders the human-readable label for each facet value.
+  If defined, this should be a callable that accepts a `facet_item`.
+  eg. lambda facet_item: facet_item.display_name.upper()
+  By default it displays the facet item's display name, which should
+  usually be good enough.
+
+count_label
+  A callable which accepts an integer, and returns a string.  This controls
+  how a facet-item's count is displayed.
+
+-->
+<li>
+  <a href="${c.drill_down_url(**{name: item.name})}">
+    ${label_function(item) if vars().has_key('label_function') else item.display_name}
+    ${count_label(item['count']) if vars().has_key('count_label') else ('(%d)' % item['count'])}
+  </a>
+</li>

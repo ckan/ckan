@@ -7,20 +7,68 @@
     <!--! Include matchers nearest first -->
     <xi:include href="../page.html" />
     <xi:include href="sidebar.html" />
-    
+
     <!--! Now include the current page -->
     <head>
       <title>Search for a Dataset</title>
     </head>
     <body>
-      <main>
-        <content id="content" data-wah="">
-          <p>This is search content</p>
-          <p>Hmm</p>
-        </content>
-        <sidebar id="sidebar" data-test="">
-          <p>This is search sidebar</p>
-        </sidebar>
-      </main>
+      <content>
+        <section class="module">
+          <div class="content">
+            <form id="dataset-search" class="dataset-search clearfix" method="GET">
+              <input type="search" class="search" name="q" value="${c.q}" autocomplete="off" results="0" placeholder="${_('Search...')}" />
+              <input type="submit" hidden="hidden" value="${_('Search')}" class="btn btn-large button" />
+              <span py:if="c.fields">
+                <py:for each="(k, v) in c.fields">
+                  <input type="hidden" name="${k}" value="${v}" />
+                </py:for>
+              </span>
+              <div id="dataset-search-ext"></div>
+            </form>
+            <div class="filter-list" py:if="c.fields">
+              <div class="filter-entry" py:for="(field, value) in c.fields">
+                <span class="name">${h.facet_title(field)}</span>
+                <span class="value" py:choose="">
+                  <py:when test="c.translated_fields and c.translated_fields.has_key((field,value))">
+                    ${c.translated_fields[(field,value)]}
+                  </py:when>
+                  <py:otherwise>
+                    ${value}
+                  </py:otherwise>
+                </span>
+                <a href="${c.remove_field(field, value)}">
+                  ${h.icon('unfilter')}
+                </a>
+              </div>  
+            </div>
+            <py:if test="c.query_error">
+              <p i18n:msg="item_count"><strong>There was an error while searching.</strong>
+              Please try again.</p>
+            </py:if>
+            <py:if test="request.params">
+              <h4 i18n:msg="item_count"><strong>${c.page.item_count}</strong> datasets found</h4>
+            </py:if>
+            <py:if test="c.page.item_count == 0 and request.params">
+              <p i18n:msg="">Would you like to <a href="${h.url_for(action='new', id=None)}">create a new dataset?</a></p>
+            </py:if>
+            ${h.snippet('snippets/package_list.html', packages=c.page.items)}
+          </div>
+          ${c.page.pager(q=c.q)}
+        </section>
+
+        <section class="module">
+          <p class="content">
+            You can also access this registry using the ${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None, ver=1))}
+            (see ${h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html')})
+            <py:if test="c.dumps_url">or download a <a href="${c.dumps_url}">full ${dumps_format} dump</a></py:if>.
+          </p>
+        </section>
+      </content>
+      <sidebar>
+        ${h.snippet('snippets/facet_list.html', title='Tags', name='tags', limit=10)}
+        ${h.snippet('snippets/facet_list.html', title='Formats', name='res_format', limit=10)}
+        ${h.snippet('snippets/facet_list.html', title='Groups', name='groups', limit=10)}
+      </sidebar>
     </body>
 </html>

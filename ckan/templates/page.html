@@ -5,23 +5,29 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   <xi:include href="base.html" />
-  <div py:match="main">
+  <body py:match="body">
     <!--! Import the header -->
     <xi:include href="header.html" />
-    
+
     <!--! Wrap <content> and <sidebar> tags -->
-    <div class="content" py:attrs="select('content/@*')">
-      ${select('content')}
+    <div role="main" class="container">
+      <div class="row">
+        <!--! Need an py:if here to exclude if empty. -->
+        <div class="sidebar span3" py:attrs="select('sidebar/@*')">
+          ${select('sidebar')}
+        </div>
+
+        <div class="content span9" py:attrs="select('content/@*')">
+          ${select('content')}
+        </div>
+      </div>
     </div>
-    <!--! Need an py:if here to exclude if empty. -->
-    <div class="sidebar" py:attrs="select('sidebar/@*')">
-      ${select('sidebar')}
-    </div>
-    
+
     <!--! Import the footer -->
     <xi:include href="footer.html" />
-  </div>
+  </body>
 
+  <!--! Ensure the content tags are never included in the page. -->
   <div py:match="content" py:strip="" py:content="select('*|text()')" />
   <div py:match="sidebar" py:strip="" py:content="select('*|text()')" />
 </html>
