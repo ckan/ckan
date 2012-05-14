@@ -26,28 +26,25 @@
               </span>
               <div id="dataset-search-ext"></div>
             </form>
-            <div class="filter-list" py:if="c.fields">
-              <div class="filter-entry" py:for="(field, value) in c.fields">
-                <span class="name">${h.facet_title(field)}</span>
-                <span class="value" py:choose="">
+            <div class="filter-list">
+              <strong py:choose="" class="results">
+                <py:when test="request.params">${c.page.item_count} datasets<py:if test="c.q"> found for &#147;${c.q}&#148;</py:if></py:when>
+                <py:otherwise>All datasets</py:otherwise>
+              </strong>
+              <py:for each="(field, value) in c.fields">
+                <span class="facet">${h.facet_title(field)}:</span>
+                <span class="filtered pill" py:choose="">
                   <py:when test="c.translated_fields and c.translated_fields.has_key((field,value))">
                     ${c.translated_fields[(field,value)]}
                   </py:when>
-                  <py:otherwise>
-                    ${value}
-                  </py:otherwise>
+                  <py:otherwise>${value}</py:otherwise>
+                  <a href="${c.remove_field(field, value)}" class="remove icon-remove icon-white">[remove]</a>
                 </span>
-                <a href="${c.remove_field(field, value)}">
-                  ${h.icon('unfilter')}
-                </a>
-              </div>  
+              </py:for>  
             </div>
             <py:if test="c.query_error">
               <p i18n:msg="item_count"><strong>There was an error while searching.</strong>
               Please try again.</p>
-            </py:if>
-            <py:if test="request.params">
-              <h4 i18n:msg="item_count"><strong>${c.page.item_count}</strong> datasets found</h4>
             </py:if>
             <py:if test="c.page.item_count == 0 and request.params">
               <p i18n:msg="">Would you like to <a href="${h.url_for(action='new', id=None)}">create a new dataset?</a></p>
@@ -56,6 +53,7 @@
           </div>
           ${c.page.pager(q=c.q)}
         </section>
+
 
         <section class="module">
           <p class="content">
