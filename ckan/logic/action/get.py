@@ -1055,10 +1055,20 @@ def term_translation_show(context, data_dict):
     if 'terms' not in data_dict:
         raise ValidationError({'terms': 'terms not in data'})
 
-    q = q.where(trans_table.c.term.in_(_get_or_bust(data_dict, 'terms')))
+    # This action accepts `terms` as either a list of strings, or a single
+    # string.
+    terms = _get_or_bust(data_dict, 'terms')
+    if isinstance(terms, basestring):
+        terms = [terms]
+    q = q.where(trans_table.c.term.in_(terms))
 
+    # This action accepts `lang_codes` as either a list of strings, or a single
+    # string.
     if 'lang_codes' in data_dict:
-        q = q.where(trans_table.c.lang_code.in_(_get_or_bust(data_dict, 'lang_codes')))
+        lang_codes = _get_or_bust(data_dict, 'lang_codes')
+        if isinstance(lang_codes, basestring):
+            lang_codes = [lang_codes]
+        q = q.where(trans_table.c.lang_code.in_(lang_codes))
 
     conn = model.Session.connection()
     cursor = conn.execute(q)
