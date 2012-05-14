@@ -541,8 +541,8 @@ class Page(paginate.Page):
     # our custom layout set as default.
     def pager(self, *args, **kwargs):
         kwargs.update(
-            format=u"<div class='pagination'><ul>$link_previous ~2~ $link_next</ul></div>",
-            symbol_previous=u'« Prev', symbol_next=u'Next »',
+            format=u"<div class='pagination pagination-centered'><ul>$link_previous ~2~ $link_next</ul></div>",
+            symbol_previous=u'«', symbol_next=u'»',
             curpage_attr={'class':'active'}, link_attr={}
         )
         return super(Page, self).pager(*args, **kwargs)
@@ -559,9 +559,10 @@ class Page(paginate.Page):
     def _range(self, regexp_match):
         html = super(Page, self)._range(regexp_match)
         # Convert ..
-        dotdot = '\.\.'
+        dotdot = '<span class="pager_dotdot">..</span>'
         dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
         html = re.sub(dotdot, dotdot_link, html)
+
         # Convert current page
         text = '%s' % self.page
         current_page_span = str(HTML.span(c=text, **self.curpage_attr))
