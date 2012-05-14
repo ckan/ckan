@@ -135,9 +135,18 @@ class PackageController(BaseController):
 
         c.drill_down_url = drill_down_url
 
-        def remove_field(key, value):
+        def remove_field(key, value=None):
+            """
+            Remove a key from the current search parameters. A specific
+            key/value pair can be removed by passing a second value argument
+            otherwise all pairs matching the key will be removed.
+            """
             params = list(params_nopage)
-            params.remove((key, value))
+            if value:
+                params.remove((key, value))
+            else:
+              [params.remove((k, v)) for (k, v) in params[:] if k==key]
+
             return search_url(params)
 
         c.remove_field = remove_field
