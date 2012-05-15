@@ -5,27 +5,23 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   <xi:include href="base.html" />
-  <body py:match="body">
+  <!--! TODO: Work out what the py:attrs isn't excluding the class -->
+  <body py:match="body" py:attrs="select('@*[name()!=\'class\']')">
     <!--! Import the header -->
     <xi:include href="header.html" />
 
     <div role="main">
       <div class="container">
-        <div class="primary" py:attrs="select('primary/@*')">
-          ${select('primary')}
-        </div>
-        <!--! Need an py:if here to exclude if empty. -->
-        <div class="secondary" py:attrs="select('secondary/@*')">
-          ${select('secondary')}
-        </div>
+        <!--! Pulls in <div class="toolbar"></div> -->
+        <py:replace value="select('*[contains(@class, \'toolbar\')]')" />
+        <!--! Pulls in <div class="primary"></div> -->
+        <py:replace value="select('*[contains(@class, \'primary\')]')" />
+        <!--! Pulls in <div class="secondary"></div> -->
+        <py:replace value="select('*[contains(@class, \'secondary\')]')" />
       </div>
     </div>
 
     <!--! Import the footer -->
     <xi:include href="footer.html" />
   </body>
-
-  <!--! Ensure the content tags are never included in the page. -->
-  <div py:match="primary" py:strip="" py:content="select('*|text()')" />
-  <div py:match="secondary" py:strip="" py:content="select('*|text()')" />
 </html>
