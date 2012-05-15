@@ -12,18 +12,30 @@
 .masthead hgroup,
 .masthead nav {
   float: left;
+  .clearfix;
 }
 
 .masthead hgroup h1,
 .masthead hgroup p {
   font-size: 34px;
   line-height: 1.2;
-  display: inline;
+  float:left;
 }
 
 .masthead hgroup p {
   margin-left: 0.3em;
   font-style: italic;
+}
+
+.masthead .logo {
+  float: left;
+  margin-right: 10px;
+}
+
+.masthead .logo img {
+  display: block;
+  max-height: 34px;
+  width: auto;
 }
 
 .masthead nav {
@@ -61,6 +73,10 @@
   padding-top: 7px;
   margin-left: 15px;
   padding-left: 40px;
+}
+
+.masthead nav.account {
+  padding-top: 0;
 }
 
 .masthead .account .image {

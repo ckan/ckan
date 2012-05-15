@@ -7,24 +7,31 @@
   <header class="masthead">
     <div class="container">
       <hgroup>
-        <h1><a href="">My Site Title</a></h1>
-        <p>My Site Tagline</p>
+        <a class="logo" href="${h.url('home')}"><img width="64" src="${h.url_for_static(g.site_logo)}" alt="${g.site_title} Logo" title="${g.site_title} Logo" /></a>
+        <h1><a href="${h.url('home')}">${g.site_title}</a></h1>
+        <p>${g.site_description}</p>
       </hgroup>
-      <div class="account">
-        <a href="#home" class="image">
-          <img src="" width="25" height="25" />
+      <div class="account" py:if="c.userobj">
+        <a href="${h.url_for(controller='user',action='me')}" class="image">
+          ${h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25)}
         </a>
         <span class="links">
-          <a href="#home">username</a>
-          <a class="logout" href="#logout">Log out</a>
+          <a href="${h.url_for(controller='user',action='me')}">${c.user}</a>
+          <a class="logout" href="${h.url_for('/user/_logout')}">Log out</a>
         </span>
       </div>
+      <nav class="account" py:if="not c.userobj">
+        <ul class="unstyled">
+          <li><a href="${h.url_for(controller='user',action='login')}">Login</a></li>
+          <li><a href="${h.url_for(controller='user',action='register')}">Register</a></li>
+        </ul>
+      </nav>
       <nav>
         <ul class="unstyled">
-          <li><a href="#">Find</a></li>
-          <li><a class="active" href="#">Groups</a></li>
+          <li>${h.nav_link(_('Search'), controller='package', action='search', highlight_actions = 'new index')}</li>
+          <li>${h.nav_named_link(_('Groups'), name='%s_index' % h.default_group_type() )}</li>
           <li><a href="#">Share</a></li>
-          <li><a href="#">About</a></li>
+          <li>${h.nav_link(_('About'), controller='home', action='about')}</li>
         </ul>
       </nav>
     </div>
