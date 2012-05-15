@@ -526,7 +526,7 @@ def follow_user(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     # Don't let a user follow herself.
     if userobj.id == data_dict['id']:
@@ -567,7 +567,7 @@ def follow_dataset(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     # Don't let a user follow a dataset she is already following.
     if model.UserFollowingDataset.get(userobj.id, data_dict['id']) is not None:
