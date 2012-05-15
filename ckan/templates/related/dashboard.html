@@ -31,8 +31,12 @@
             <label for="type">Filter by type</label>
             <select name="type">
                 <option value="">All</option>
+                <option value="api" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'api' else None}">API</option>
                 <option value="application" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'application' else None}">Application</option>
                 <option value="idea"  py:attrs="{'selected': 'selected' if c.filters.get('type') == 'idea' else None}">Idea</option>
+                <option value="news-article" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'news-article' else None}">News Article</option>
+                <option value="paper" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'paper' else None}">Paper</option>
+                <option value="post" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'post' else None}">Post</option>
                 <option value="visualization"  py:attrs="{'selected': 'selected' if c.filters.get('type') == 'visualization' else None}">Visualization</option>
             </select>
 
