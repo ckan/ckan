@@ -21,8 +21,18 @@
   box-shadow: @inner-shadow, @outer-shadow;
   cursor: default;
   margin: 2px 5px 3px;
-  padding: 4px 18px;
+  padding: 4px (@module-margin-x - 7);
   background: #000;
   color: #fff;
   border: 1px solid black;
+}
+
+.sidebar .nav-simple > li > a {
+  padding-left:  @sidebar-module-margin-x;
+  padding-right: @sidebar-module-margin-x;
+}
+
+.sideabar .nav-simple > li.selected > a {
+  padding-left:  @sidebar-module-margin-x - 7;
+  padding-right: @sidebar-module-margin-x - 7;
 }
