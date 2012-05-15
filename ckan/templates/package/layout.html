@@ -34,13 +34,19 @@
         </li>
       </py:otherwise>
       </py:choose>
+      <li class="${'active' if c.action=='history' else ''}">${h.subnav_link(h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
+      <li class="${'active' if c.action=='followers' else ''}" style="float:right;">
+        ${h.subnav_link(
+            h.icon('authorization_group') + _('Followers ({num_followers})').format(num_followers=c.num_followers),
+            controller='package', 
+            action='followers',
+            id=c.pkg.name)}
+      </li>
       <li class="${'active' if c.action=='related' else ''}">${h.subnav_link(h.icon('package') + _('Related') + ' (%s)' % c.related_count, controller='related', action='list', id=c.pkg.name)}</li>
-
 
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
         <li class="divider">|</li>
       </py:if>
-      <li class="${'active' if c.action=='history' else ''}">${h.subnav_link(h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
 
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
         <li class="${'active' if c.action=='edit' else ''}">
@@ -50,6 +56,12 @@
 
       <li class="${'active' if c.action=='authz' else ''}" py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
         ${h.subnav_link(h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
+      </li>
+      <li py:if="c.user" style="float:right;">
+        <py:choose test="c.pkg_dict.am_following">
+          <a py:when="True" id="dataset_follow_button" class="btn btn-mini" data-dataset-id="${c.pkg.id}" data-state="unfollow">Unfollow</a>
+          <a py:otherwise="" id="dataset_follow_button" class="btn btn-mini" data-dataset-id="${c.pkg.id}" data-state="follow">Follow</a>
+        </py:choose>
       </li>
     </ul>
   </py:match>
