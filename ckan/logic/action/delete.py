@@ -5,23 +5,26 @@ import ckan.logic.action
 import ckan.plugins as plugins
 validate = ckan.lib.navl.dictization_functions.validate
 
-# define some shortcuts
+# Define some shortcuts
+# Ensure they are module-private so that they don't get loaded as available
+# actions in the action API.
 ValidationError = ckan.logic.ValidationError
 NotFound = ckan.logic.NotFound
-check_access = ckan.logic.check_access
+_check_access = ckan.logic.check_access
+_get_or_bust = ckan.logic.get_or_bust
 
 def package_delete(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     entity = model.Package.get(id)
 
     if entity is None:
         raise NotFound
 
-    check_access('package_delete',context, data_dict)
+    _check_access('package_delete',context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -37,9 +40,7 @@ def package_relationship_delete(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = data_dict['subject']
-    id2 = data_dict['object']
-    rel = data_dict['type']
+    id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
@@ -56,7 +57,7 @@ def package_relationship_delete(context, data_dict):
     revisioned_details = 'Package Relationship: %s %s %s' % (id, rel, id2)
 
     context['relationship'] = relationship
-    check_access('package_relationship_delete', context, data_dict)
+    _check_access('package_relationship_delete', context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -68,14 +69,14 @@ def package_relationship_delete(context, data_dict):
 def related_delete(context, data_dict):
     model = context['model']
     user = context['user']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     entity = model.Related.get(id)
 
     if entity is None:
         raise NotFound
 
-    check_access('related_delete',context, data_dict)
+    _check_access('related_delete',context, data_dict)
 
     entity.delete()
     model.repo.commit()
@@ -99,12 +100,11 @@ def member_delete(context, data_dict=None):
     model = context['model']
     user = context['user']
 
-    group = model.Group.get(data_dict.get('id'))
-    obj_id   = data_dict['object']
-    obj_type = data_dict['object_type']
+    group = model.Group.get(_get_or_bust(data_dict, 'id'))
+    obj_id, obj_type = _get_or_bust(data_dict, ['object', 'object_type'])
 
     # User must be able to update the group to remove a member from it
-    check_access('group_update', context, data_dict)
+    _check_access('group_update', context, data_dict)
 
     member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
@@ -119,7 +119,7 @@ def group_delete(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
 
     group = model.Group.get(id)
     context['group'] = group
@@ -128,7 +128,7 @@ def group_delete(context, data_dict):
 
     revisioned_details = 'Group: %s' % group.name
 
-    check_access('group_delete', context, data_dict)
+    _check_access('group_delete', context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -143,7 +143,7 @@ def group_delete(context, data_dict):
 def task_status_delete(context, data_dict):
     model = context['model']
     user = context['user']
-    id = data_dict['id']
+    id = _get_or_bust(data_dict, 'id')
     model.Session.remove()
     model.Session()._context = context
 
@@ -152,7 +152,7 @@ def task_status_delete(context, data_dict):
     if entity is None:
         raise NotFound
 
-    check_access('task_status_delete', context, data_dict)
+    _check_access('task_status_delete', context, data_dict)
 
     entity.delete()
     model.Session.commit()
@@ -168,7 +168,7 @@ def vocabulary_delete(context, data_dict):
     if vocab_obj is None:
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
-    check_access('vocabulary_delete', context, data_dict)
+    _check_access('vocabulary_delete', context, data_dict)
 
     vocab_obj.delete()
     model.repo.commit()
@@ -178,7 +178,7 @@ def tag_delete(context, data_dict):
 
     if not data_dict.has_key('id') or not data_dict['id']:
         raise ValidationError({'id': _('id not in data')})
-    tag_id_or_name = data_dict['id']
+    tag_id_or_name = _get_or_bust(data_dict, 'id')
 
     vocab_id_or_name = data_dict.get('vocabulary_id')
 
@@ -187,7 +187,7 @@ def tag_delete(context, data_dict):
     if tag_obj is None:
         raise NotFound(_('Could not find tag "%s"') % tag_id_or_name)
 
-    check_access('tag_delete', context, data_dict)
+    _check_access('tag_delete', context, data_dict)
 
     tag_obj.delete()
     model.repo.commit()
