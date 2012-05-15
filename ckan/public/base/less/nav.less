@@ -30,6 +30,20 @@
 .secondary .nav-simple > li > a {
   padding-left:  @secondary-module-margin-x;
   padding-right: @secondary-module-margin-x;
+  position: relative;
+}
+
+.secondary .nav-simple > li > a:hover:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  width: 17px;
+  height: 17px;
+  margin-top: -8px;
+  background: url("@{image-path}/sprite-ckan-icons.png") no-repeat;
+  background-position: -17px 0;
 }
 
 .secondary .nav-simple > li.selected > a {
