@@ -10,15 +10,14 @@
     <xi:include href="header.html" />
 
     <!--! Wrap <content> and <sidebar> tags -->
-    <div role="main" class="container">
-      <div class="row">
-        <!--! Need an py:if here to exclude if empty. -->
-        <div class="sidebar span3" py:attrs="select('sidebar/@*')">
-          ${select('sidebar')}
+    <div role="main">
+      <div class="container">
+        <div class="primary" py:attrs="select('primary/@*')">
+          ${select('primary')}
         </div>
-
-        <div class="content span9" py:attrs="select('content/@*')">
-          ${select('content')}
+        <!--! Need an py:if here to exclude if empty. -->
+        <div class="secondary" py:attrs="select('secondary/@*')">
+          ${select('secondary')}
         </div>
       </div>
     </div>
@@ -28,6 +27,6 @@
   </body>
 
   <!--! Ensure the content tags are never included in the page. -->
-  <div py:match="content" py:strip="" py:content="select('*|text()')" />
-  <div py:match="sidebar" py:strip="" py:content="select('*|text()')" />
+  <div py:match="primary" py:strip="" py:content="select('*|text()')" />
+  <div py:match="secondary" py:strip="" py:content="select('*|text()')" />
 </html>

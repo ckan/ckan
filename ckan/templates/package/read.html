@@ -9,7 +9,7 @@
       <title>${c.pkg_dict.get('title', c.pkg_dict['name'])} - Datasets</title>
     </head>
     <body>
-      <content>
+      <primary>
         <div py:if="c.pkg_revision_id" class="widget info">
           <p py:if="c.pkg_revision_not_latest" class="content">This is an old revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}. It may differ significantly from the <a href="${h.url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
           <p py:if="not c.pkg_revision_not_latest" class="content">This is the current revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}.</p>
@@ -24,8 +24,8 @@
             <span class="insert-comment-thread"></span>
           </section>
         </article>
-      </content>
-      <sidebar>
+      </primary>
+      <secondary>
         <section class="module subscribe">
           <h2 class="heading">Subscribe</h2>
           <ul class="nav nav-simple">
@@ -65,6 +65,6 @@
           <h2 class="heading">Trackback URL</h2>
           <input type="text" value="" />
         </section>
-      </sidebar>
+      </secondary>
     </body>
 </html>

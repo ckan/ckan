@@ -1,4 +1,21 @@
 [role=main] {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: @layout-background-color;
+}
+
+[role=main] > .container > .primary {
+  .makeColumn(9);
+  float: right;
+}
+
+[role=main] > .container > .secondary {
+  .makeColumn(3);
+  margin-left: 0; // Remove grid margin.
+  float: left;
+}
+
+.primary > :last-child,
+.secondary > :last-child {
+  margin-bottom: 0;
 }
