@@ -406,6 +406,10 @@ class IActions(Interface):
         """
         Should return a dict, the keys being the name of the logic
         function and the values being the functions themselves.
+
+        By decorating a function with the `ckan.logic.side_effect_free`
+        decorator, the associated action will be made available by a GET
+        request (as well as the usual POST request) through the action API.
         """
 
 
