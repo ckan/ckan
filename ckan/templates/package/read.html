@@ -10,6 +10,20 @@
     </head>
     <body>
       <content>
+        <div py:if="c.pkg_revision_id" class="widget info">
+          <p py:if="c.pkg_revision_not_latest" class="content">This is an old revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}. It may differ significantly from the <a href="${h.url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
+          <p py:if="not c.pkg_revision_not_latest" class="content">This is the current revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}.</p>
+        </div>
+
+        <article class="module">
+          <section class="content">
+            <h1>${c.pkg_dict.get('title', c.pkg_dict.get('name'))}</h1>
+            <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
+              ${c.pkg_notes_formatted}
+            </div>
+            <span class="insert-comment-thread"></span>
+          </section>
+        </article>
       </content>
       <sidebar>
         <section class="module subscribe">
