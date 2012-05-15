@@ -522,7 +522,7 @@ def follow_user(context, data_dict):
     schema = (context.get('schema')
             or ckan.logic.schema.default_follow_user_schema())
 
-    data_dict, errors = validate(data_dict, schema, context)
+    data_dict, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
@@ -563,7 +563,7 @@ def follow_dataset(context, data_dict):
     schema = (context.get('schema')
             or ckan.logic.schema.default_follow_dataset_schema())
 
-    data_dict, errors = validate(data_dict, schema, context)
+    data_dict, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
