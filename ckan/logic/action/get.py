@@ -804,6 +804,16 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id'
 
+
+        # If this query hasn't come from a controller that has set this flag
+        # then we should remove any mention of capacity from the fq and
+        # instead set it to only retrieve public datasets
+        fq = data_dict.get('fq','')
+        if not context.get('ignore_capacity_check',False):
+            fq = ' '.join(p for p in fq.split(' ')
+                            if not 'capacity:' in p)
+            data_dict['fq'] = fq + ' capacity:"public"'
+
         query = search.query_for(model.Package)
         query.run(data_dict)
 
