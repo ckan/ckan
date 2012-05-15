@@ -5,9 +5,10 @@ from routes import url_for
 from ckan.tests.html_check import HtmlCheckMethods
 import json
 
-class TestActivity(HtmlCheckMethods):
+class TestFollow(HtmlCheckMethods):
+
     @classmethod
-    def setup(cls):
+    def setupClass(cls):
         ckan.tests.CreateTestData.create()
         cls.testsysadmin = ckan.model.User.get('testsysadmin')
         cls.annafan = ckan.model.User.get('annafan')
@@ -48,7 +49,7 @@ class TestActivity(HtmlCheckMethods):
         assert response['success'] is True
 
     @classmethod
-    def teardown(cls):
+    def teardownClass(cls):
         ckan.model.repo.rebuild_db()
 
     def test_dataset_read_not_logged_in(self):
