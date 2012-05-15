@@ -2,6 +2,9 @@ import cli
 from collections import defaultdict
 import datetime
 
+#NB Don't import here - do it in the methods. This is because all logging gets
+#   disabled if you don't _load_config first.
+
 class CreateTestData(cli.CkanCommand):
     '''Create test data in the database.
     Tests can also delete the created objects easily with the delete() method.
@@ -34,10 +37,13 @@ class CreateTestData(cli.CkanCommand):
                        ]
 
     def command(self):
-        from ckan import plugins
         self._load_config()
         self._setup_app()
+        from ckan import plugins
         plugins.load('synchronous_search') # so packages get indexed
+        import logging
+        CreateTestData.log = logging.getLogger(__name__)
+
         if self.args:
             cmd = self.args[0]
         else:
@@ -209,6 +215,10 @@ class CreateTestData(cli.CkanCommand):
                 for field in cls.pkg_core_fields:
                     if item.has_key(field):
                         pkg_dict[field] = unicode(item[field])
+                if model.Package.by_name(pkg_dict['name']):
+                    cls.log.warning('Cannot create package "%s" as it already exists.' % \
+                                    (pkg_dict['name']))
+                    continue
                 pkg = model.Package(**pkg_dict)
                 model.Session.add(pkg)
                 for attr, val in item.items():
@@ -372,6 +382,10 @@ class CreateTestData(cli.CkanCommand):
         assert isinstance(group_dicts, (list, tuple))
         group_attributes = set(('name', 'title', 'description', 'parent_id'))
         for group_dict in group_dicts:
+            if model.Group.by_name(group_dict['name']):
+                cls.log.warning('Cannot create group "%s" as it already exists.' % \
+                                (group_dict['name']))
+                continue
             group = model.Group(name=unicode(group_dict['name']))
             group.type = auth_profile or 'group'
             for key in group_dict:
@@ -552,24 +566,54 @@ left arrow <
 
         model.repo.commit_and_remove()
 
+    @classmethod
+    def create_users(cls, user_dicts):
+        needs_commit = False
+        for user_dict in user_dicts:
+            user = cls._create_user_without_commit(**user_dict)
+            if user:
+                needs_commit = True
+        if needs_commit:
+            model.repo.commit_and_remove()
 
-
-
+    @classmethod
+    def _create_user_without_commit(cls, name='', **user_dict):
+        import ckan.model as model
+        if model.User.by_name(name or user_dict.get('name') or user_dict.get('openid')):
+            cls.log.warning('Cannot create user "%s" as it already exists.' % \
+                            (name or user_dict['name']))
+            return
+        # User objects are not revisioned so no need to create a revision
+        user_ref = name or user_dict['openid']
+        assert user_ref
+        for k, v in user_dict.items():
+            if v:
+                # avoid unicode warnings
+                user_dict[k] = unicode(v)
+        user = model.User(name=unicode(name), **user_dict)
+        model.Session.add(user)
+        cls.user_refs.append(user_ref)
 
     @classmethod
     def create_user(cls, name='', **kwargs):
         import ckan.model as model
-        # User objects are not revisioned
-        user_ref = name or kwargs['openid']
-        assert user_ref
-        for k, v in kwargs.items():
-            if v:
-                # avoid unicode warnings
-                kwargs[k] = unicode(v)
-        user = model.User(name=unicode(name), **kwargs)
-        model.Session.add(user)
+        cls._create_user_without_commit(name, **kwargs)
         model.Session.commit()
-        cls.user_refs.append(user_ref)
+
+    @classmethod
+    def create_roles(cls, roles):
+        '''Each role is a tuple (object_name, role, subject_name).
+        There is clever searching going on to find the objects of any type,
+        by name or ID. You can also use the subject_name='system'.
+        '''
+        import authztool
+        import ckan.model as model
+        for role_tuple in roles:
+            object_name, role, subject_name = role_tuple
+            authztool.RightsTool.make_or_remove_roles('make', object_name, role, subject_name,
+                                                      except_on_error=True,
+                                                      do_commit=False)
+        model.repo.commit_and_remove()    
 
     @classmethod
     def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],

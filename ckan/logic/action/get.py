@@ -1137,10 +1137,13 @@ def roles_show(context, data_dict):
         query = session.query(model.GroupRole).join('group')
     elif isinstance(domain_object, model.AuthorizationGroup):
         query = session.query(model.AuthorizationGroupRole).join('authorization_group')
+    elif domain_object is model.System:
+        query = session.query(model.SystemRole)
     else:
         raise NotFound(_('Cannot list entity of this type: %s') % type(domain_object).__name__)
-    # Filter by the domain_obj
-    query = query.filter_by(id=domain_object.id)
+    # Filter by the domain_obj (apart from if it is the system object)
+    if not isinstance(domain_object, type):
+        query = query.filter_by(id=domain_object.id)
 
     # Filter by the user / authorized_group
     if user_ref:
@@ -1162,7 +1165,7 @@ def roles_show(context, data_dict):
     uors_dictized = [_table_dictize(uor, context) for uor in uors]
 
     result = {'domain_object_type': type(domain_object).__name__,
-              'domain_object_id': domain_object.id,
+              'domain_object_id': domain_object.id if domain_object != model.System else None,
               'roles': uors_dictized}
     if user_ref:
         result['user'] = user.id
