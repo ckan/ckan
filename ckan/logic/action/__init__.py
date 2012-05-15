@@ -26,7 +26,9 @@ def rename_keys(dict_, key_map, reverse=False, destructive=False):
 
 def get_domain_object(model, domain_object_ref):
     '''For an id or name, return the corresponding domain object.
-    (First match returned, in order: package, group, auth_group, user).'''
+    (First match returned, in order: system, package, group, auth_group, user).'''
+    if domain_object_ref in ('system', 'System'):
+        return model.System
     pkg = model.Package.get(domain_object_ref)
     if pkg:
         return pkg

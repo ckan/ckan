@@ -15,6 +15,7 @@ from ckan.tests import setup_test_search_index, search_related
 from ckan.tests import StatusCodes
 from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
+from ckan.tests import TestRoles
 
 from ckan import plugins
 from ckan.plugins import SingletonPlugin, implements, IPackageController
@@ -869,7 +870,7 @@ class TestAction(WsgiAppCase):
                             extra_environ={'Authorization': str(annafan.apikey)},
                             status=200)
         
-        authgroup_roles = self.get_roles(authgroup.id, authgroup_ref=authgroup2.name)
+        authgroup_roles = TestRoles.get_roles(authgroup.id, authgroup_ref=authgroup2.name)
         assert_equal(authgroup_roles, ['"anotherauthzgroup" is "editor" on "anauthzgroup"'])
 
     def test_35_user_role_update(self):
@@ -900,47 +901,12 @@ class TestAction(WsgiAppCase):
                         'user': 'tester'})
         assert_equal(results['roles'], roles_after['roles'])
 
-    def get_roles(self, domain_object_ref, user_ref=None, authgroup_ref=None,
-                  prettify=True):
-        data_dict = {'domain_object': domain_object_ref}
-        if user_ref:
-            data_dict['user'] = user_ref
-        if authgroup_ref:
-            data_dict['authorization_group'] = authgroup_ref
-        role_dicts = get_action('roles_show') \
-                     ({'model': model, 'session': model.Session}, \
-                      data_dict)['roles']
-        if prettify:
-            role_dicts = self.prettify_role_dicts(role_dicts)
-        return role_dicts
-
-    def prettify_role_dicts(self, role_dicts, one_per_line=True):
-        '''Replace ids with names'''
-        pretty_roles = []
-        for role_dict in role_dicts:
-            pretty_role = {}
-            for key, value in role_dict.items():
-                if key.endswith('_id') and value and key != 'user_object_role_id':
-                    pretty_key = key[:key.find('_id')]
-                    domain_object = get_domain_object(model, value)
-                    pretty_value = domain_object.name
-                    pretty_role[pretty_key] = pretty_value
-                else:
-                    pretty_role[key] = value
-            if one_per_line:
-                pretty_role = '"%s" is "%s" on "%s"' % (
-                    pretty_role.get('user') or pretty_role.get('authorized_group'),
-                    pretty_role['role'],
-                    pretty_role.get('package') or pretty_role.get('group') or pretty_role.get('authorization_group'))
-            pretty_roles.append(pretty_role)
-        return pretty_roles
-
     def test_36_user_role_update_for_auth_group(self):
         anna = model.Package.by_name(u'annakarenina')
         annafan = model.User.by_name(u'annafan')
         authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
-        all_roles_before = self.get_roles(anna.id)
-        authgroup_roles_before = self.get_roles(anna.id, authgroup_ref=authgroup.name)
+        all_roles_before = TestRoles.get_roles(anna.id)
+        authgroup_roles_before = TestRoles.get_roles(anna.id, authgroup_ref=authgroup.name)
         assert_equal(len(authgroup_roles_before), 0)
         postparams = '%s=1' % json.dumps({'authorization_group': authgroup.name,
                                           'domain_object': anna.id,
@@ -959,8 +925,8 @@ class TestAction(WsgiAppCase):
         assert_equal(results['roles'][0]['package_id'], anna.id)
         assert_equal(results['roles'][0]['authorized_group_id'], authgroup.id)
         
-        all_roles_after = self.get_roles(anna.id)
-        authgroup_roles_after = self.get_roles(anna.id, authgroup_ref=authgroup.name)
+        all_roles_after = TestRoles.get_roles(anna.id)
+        authgroup_roles_after = TestRoles.get_roles(anna.id, authgroup_ref=authgroup.name)
         assert_equal(set(all_roles_before) ^ set(all_roles_after),
                      set([u'"anauthzgroup" is "editor" on "annakarenina"']))
         
@@ -983,8 +949,8 @@ class TestAction(WsgiAppCase):
     def test_38_user_role_bulk_update(self):
         anna = model.Package.by_name(u'annakarenina')
         annafan = model.User.by_name(u'annafan')
-        all_roles_before = self.get_roles(anna.id)
-        user_roles_before = self.get_roles(anna.id, user_ref=annafan.name)
+        all_roles_before = TestRoles.get_roles(anna.id)
+        user_roles_before = TestRoles.get_roles(anna.id, user_ref=annafan.name)
         roles_before = get_action('roles_show') \
                                  ({'model': model, 'session': model.Session}, \
                                   {'domain_object': anna.id})
@@ -1002,8 +968,8 @@ class TestAction(WsgiAppCase):
         results = json.loads(res.body)['result']
 
         # check there are 2 new roles (not 3 because annafan is already admin)
-        all_roles_after = self.get_roles(anna.id)
-        user_roles_after = self.get_roles(anna.id, user_ref=annafan.name)
+        all_roles_after = TestRoles.get_roles(anna.id)
+        user_roles_after = TestRoles.get_roles(anna.id, user_ref=annafan.name)
         assert_equal(set(all_roles_before) ^ set(all_roles_after),
                      set([u'"annafan" is "editor" on "annakarenina"',
                           u'"russianfan" is "editor" on "annakarenina"']))
