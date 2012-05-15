@@ -1409,7 +1409,7 @@ def user_follower_count(context, data_dict):
     '''Return the number of followers of a user.'''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = validate(data_dict, schema, context)
+    data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors, ckan.logic.action.error_summary(errors))
     return ckan.model.UserFollowingUser.follower_count(data_dict['id'])
@@ -1418,7 +1418,7 @@ def dataset_follower_count(context, data_dict):
     '''Return the number of followers of a dataset.'''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
-    data_dict, errors = validate(data_dict, schema, context)
+    data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors, ckan.logic.action.error_summary(errors))
     return ckan.model.UserFollowingDataset.follower_count(data_dict['id'])
@@ -1440,7 +1440,7 @@ def user_follower_list(context, data_dict):
     '''Return the list of users that are following the given user.'''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = validate(data_dict, schema, context)
+    data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors, ckan.logic.action.error_summary(errors))
     return _follower_list(context, data_dict,
@@ -1450,7 +1450,7 @@ def dataset_follower_list(context, data_dict):
     '''Return the list of users that are following the given dataset.'''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
-    data_dict, errors = validate(data_dict, schema, context)
+    data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors, ckan.logic.action.error_summary(errors))
     return _follower_list(context, data_dict,
@@ -1474,7 +1474,7 @@ def am_following_user(context, data_dict):
     '''Return True if the authorized user is following the given user.'''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = validate(data_dict, schema, context)
+    data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors, ckan.logic.action.error_summary(errors))
 
@@ -1485,7 +1485,7 @@ def am_following_dataset(context, data_dict):
     '''Return True if the authorized user is following the given dataset.'''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
-    data_dict, errors = validate(data_dict, schema, context)
+    data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors, ckan.logic.action.error_summary(errors))
 
