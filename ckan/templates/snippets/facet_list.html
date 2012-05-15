@@ -24,7 +24,7 @@ count_label
   
   -->
 <section class="module" xmlns:py="http://genshi.edgewall.org/" py:with="items=h.unselected_facet_items(name, 10)">
-  <h2 class="heading">${h.facet_title(title)} <a href="${c.remove_field(name)}" class="btn btn-small">Clear All</a></h2>
+  <h2 class="heading">${h.facet_title(title)} <a href="${c.remove_field(name)}" class="action">Clear All</a></h2>
   <nav>
     <ul class="unstyled nav nav-simple">
       <py:for each="item in items">
