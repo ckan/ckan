@@ -1,8 +1,10 @@
+@masthead-padding: 20px;
+
 .masthead {
   .clearfix();
   #gradient > .vertical(@masthead-background-color-start, @masthead-background-color-end);
   color: @masthead-text-color;
-  padding: 20px;
+  padding: @masthead-padding;
 }
 
 .masthead a {
@@ -77,6 +79,32 @@
 
 .masthead nav.account {
   padding-top: 0;
+  padding-left: 10px;
+}
+
+.masthead .account:before,
+.masthead .account:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: -@masthead-padding;
+  left: 0;
+  bottom: -@masthead-padding;
+  width: 1px;
+  background-color: lighten(@masthead-background-color-start, 5);
+  #gradient > .vertical-three-colors(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.1), 0.5, rgba(255, 255, 255, 0));
+  background-color: rgba(255, 255, 255, 0);
+}
+
+
+.masthead .account:before {
+}
+
+.masthead .account:after {
+  left: -1px;
+  background-color: darken(@masthead-background-color-start, 5);
+  #gradient > .vertical-three-colors(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2), 0.5, rgba(0, 0, 0, 0));
+  background-color: rgba(0, 0, 0, 0);
 }
 
 .masthead .account .image {
