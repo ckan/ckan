@@ -143,10 +143,19 @@
           </ul>
         </section>
 
-        <section class="module info related">
-          <h2 class="heading">Related</h2>
+        <section class="module info related" py:if="True">
+          <h2 class="heading">Related <a class="action" href="#">Add Related</a></h2>
           <p class="content">Some interesting summary of this featured item. This
           may or may not have a slideshow.</p>
+        </section>
+
+        <section class="module info related empty" py:if="True">
+          <h2 class="heading">Related</h2>
+          <div class="content">
+            <p>No apps, ideas, news stories or images have been
+            related to this dataset yet, why not add one now?</p>
+            <p class="action"><a class="btn" href="#">Add Item</a></p>
+          </div>
         </section>
 
         <section py:if="c.pkg.license_id" class="module info license">
@@ -161,9 +170,9 @@
           </p>
         </section>
 
-        <section class="module trackback">
+        <section class="module disqus-trackback">
           <h2 class="heading">Trackback URL</h2>
-          <input type="text" value="" />
+          <div class="field"><input type="text" value="http://trackback.com" /></div>
         </section>
       </aside>
     </body>
