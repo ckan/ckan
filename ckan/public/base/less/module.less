@@ -22,7 +22,15 @@
 }
 
 .module > .content {
-  padding: @module-margin-y @module-margin-x;
+  padding: 0 @module-margin-x;
+}
+
+.module > .content:first-child {
+  padding-top: @module-margin-y;
+}
+
+.module > .content:last-child {
+  padding-bottom: @module-margin-y;
 }
 
 .module > .content :last-child {

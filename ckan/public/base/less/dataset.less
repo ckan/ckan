@@ -76,16 +76,25 @@
   text-indent: -900em;
 }
 
-.pill {
-  .border-radius(7px);
-  background-color: #ccc;
-  color: #fff;
-  padding: 1px 5px 1px 8px;
+// Tag List
+
+.tag-list {
+  .unstyled;
+  padding: 10px;
+}
+
+.tag-list li {
+  display: inline-block;
   margin-right: 5px;
 }
 
-.pill .remove {
-  .hide-text;
-  position: relative;
-  top: 1px;
+.tag-list li:last-child {
+  margin-right: 0;
+}
+
+// Additional Info
+
+.additional-info td,
+.additional-info th {
+  width: 50%;
 }

@@ -32,6 +32,92 @@
             </div>
             <span class="insert-comment-thread"></span>
           </section>
+
+          <section id="dataset-resources" class="resources content">
+            <h3>Resources
+              <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
+                ${h.subnav_link(_('(edit)'), controller='package', action='editresources', id=c.pkg.name)}
+              </py:if>
+            </h3>
+            <ul class="resource-list" py:if="len(c.pkg_dict.get('resources', []))">
+              <li py:for="res in c.pkg_dict.get('resources', [])" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
+              <a href="${url}">
+                  ${h.resource_icon(res)}
+                  ${h.resource_display_name(res)}
+                  <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
+                </a>
+                <a class="btn btn-primary" href="${url}">Explore Data</a>
+              </li>
+            </ul>
+            <py:if test="not len(c.pkg_dict.get('resources', []))">
+              (none)
+            </py:if>
+          </section>
+          <section class="tags content">
+            <ul class="well tag-list">
+              <li><a class="tag" href="#">Tags</a></li>
+              <li><a class="tag" href="#">Tags</a></li>
+              <li><a class="tag" href="#">Tags</a></li>
+              <li><a class="tag" href="#">Tags</a></li>
+              <li><a class="tag" href="#">Tags</a></li>
+              <li><a class="tag" href="#">Tags</a></li>
+            </ul>
+          </section>
+          <section class="content additional-info">
+            <h3>Additional Info</h3>
+            <table class="table table-striped table-bordered table-condensed">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr py:if="c.pkg.url">
+                  <th class="dataset-label">Source</th>
+                  <td class="dataset-details" property="foaf:homepage">${c.pkg_url_link}</td>
+                </tr>
+
+                <tr py:if="c.pkg_author_link">
+                  <th class="dataset-label">Author</th>
+                  <td class="dataset-details" property="dc:creator">${c.pkg_author_link}</td>
+                </tr>
+
+                <tr py:if="c.pkg_maintainer_link">
+                  <th class="dataset-label">Maintainer</th>
+                  <td class="dataset-details" property="dc:contributor">${c.pkg_maintainer_link}</td>
+                </tr>
+
+                <tr py:if="c.pkg.version">
+                  <th class="dataset-label">Version</th>
+                  <td class="dataset-details">${c.pkg.version}</td>
+                </tr>
+
+                <tr py:if="c.eu_country">
+                  <th class="dataset-label">Country</th>
+                  <td class="dataset-details">${h.code_to_country(c.eu_country)}</td>
+                </tr>
+
+                <tr py:if="h.check_access('package_update',{'id':c.pkg.id})">
+                  <td class="dataset-label">State</td>
+                  <td class="dataset-details">${c.pkg.state}</td>
+                </tr>
+
+                <tr py:if="c.harvest_catalogue_name">
+                  <th class="dataset-label">Harvest Source</th>
+                  <td class="dataset-details" i18n:msg="harvest_catalogue_name">
+                    <a href="${c.harvest_dataset_url}">Dataset page</a> on 
+                    <a href="${c.harvest_catalogue_url}">${c.harvest_catalogue_name}</a>
+                  </td>
+                </tr>
+
+                <tr py:for="i, (key, value) in enumerate(c.pkg_extras)" rel="dc:relation" resource="_:extra${i}">
+                  <th class="dataset-label" property="rdfs:label">${_(key)}</th>
+                  <td class="dataset-details" property="rdf:value">${value}</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
         </article>
       </div>
 
