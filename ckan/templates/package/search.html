@@ -12,7 +12,7 @@
       <title>Search for a Dataset</title>
     </head>
     <body>
-      <primary>
+      <div class="primary">
         <section class="module">
           <div class="content">
             <form id="dataset-search" class="dataset-search clearfix" method="GET">
@@ -62,11 +62,11 @@
             <py:if test="config.get('ckan.dumps_url')">or download a <a href="${config.get('ckan.dumps_url')}">full ${config.get('ckan.dumps_format', '')} dump</a></py:if>.
           </small>
         </section>
-      </primary>
-      <secondary>
+      </div>
+      <div class="secondary">
         ${h.snippet('snippets/facet_list.html', title='Tags', name='tags', limit=10)}
         ${h.snippet('snippets/facet_list.html', title='Formats', name='res_format', limit=10)}
         ${h.snippet('snippets/facet_list.html', title='Groups', name='groups', limit=10)}
-      </secondary>
+      </div>
     </body>
 </html>
