@@ -1,0 +1,41 @@
+.toolbar {
+  .clearfix;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+
+.toolbar .breadcrumb {
+  .box-shadow(none);
+  float: left;
+  background: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.toolbar .breadcrumb li:after {
+  content: " / ";
+}
+
+.toolbar .breadcrumb li:last-of-type:after {
+  content: "";
+}
+
+.toolbar .breadcrumb a {
+  color: rgba(40, 40, 40, 0.8);
+  line-height: 28px;
+}
+
+.toolbar .actions {
+  .unstyled;
+  float: right;
+}
+
+.toolbar .actions li {
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.toolbar .actions li:last-of-type {
+  margin-right: 0;
+}
