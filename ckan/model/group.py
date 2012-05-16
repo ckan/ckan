@@ -191,6 +191,15 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             q = q.filter(cls.type==group_type)
         return q.order_by(cls.title)
 
+    @classmethod
+    def search_by_name(cls, text_query, group_type=None):
+        # deprecated - not used
+        text_query = text_query.strip().lower()
+        if not group_type:
+            q = Session.query(cls).filter(cls.name.contains(text_query))
+        else:
+            q = Session.query(cls).filter(cls.name.contains(text_query)).filter(cls.type==group_type)
+
     def as_dict(self, ref_package_by='name'):
         _dict = DomainObject.as_dict(self)
         _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
