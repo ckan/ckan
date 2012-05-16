@@ -27,7 +27,7 @@
           <p py:if="not c.pkg_revision_not_latest" class="content">This is the current revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}.</p>
         </div>
 
-        <article class="module">
+        <article class="module prose">
           <section class="content">
             <h1>${c.pkg_dict.get('title', c.pkg_dict.get('name'))}</h1>
             <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
@@ -43,12 +43,13 @@
               </py:if>
             </h3>
             <ul class="resource-list" py:if="len(c.pkg_dict.get('resources', []))">
-              <li py:for="res in c.pkg_dict.get('resources', [])" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
-              <a href="${url}">
-                  ${h.resource_icon(res)}
+              <li class="resource-item" py:for="res in c.pkg_dict.get('resources', [])" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
+                <a class="heading" href="${url}">
+                  <!--! ${h.resource_icon(res)} -->
                   ${h.resource_display_name(res)}
                   <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
                 </a>
+                <p class="description">Some truncated description of the resource. Max one line.</p>
                 <a class="btn btn-primary" href="${url}">Explore Data</a>
               </li>
             </ul>
