@@ -72,8 +72,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def get(cls, reference):
         '''Returns a package object referenced by its id or name.'''
         query = Session.query(cls).filter(cls.id==reference)
-        query = query.options(eagerload_all('package_tags.tag'))
-        query = query.options(eagerload_all('resource_groups_all.resources_all'))
         pkg = query.first()
         if pkg == None:
             pkg = cls.by_name(reference)
