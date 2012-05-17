@@ -13,7 +13,6 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.logic.schema import user_new_form_schema, user_edit_form_schema
-from ckan.logic.action.get import user_activity_list_html
 from ckan.lib.captcha import check_recaptcha, CaptchaError
 
 log = logging.getLogger(__name__)
@@ -47,8 +46,38 @@ class UserController(BaseController):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
-    def _setup_template_variables(self, context):
+    def _setup_follow_button(self, context):
+        '''Setup some template context variables needed for the Follow/Unfollow
+        button.
+
+        '''
+
+        # If the user is logged in set the am_following variable.
+        userid = context.get('user')
+        if not userid:
+            return
+        userobj = model.User.get(userid)
+        if not userobj:
+            return
+        c.user_dict['am_following'] = get_action('am_following_user')(context,
+                {'id': c.user_dict['id']})
+
+    def _setup_template_variables(self, context, data_dict):
+        context = {'model': context.get('model'),
+                'session': context.get('session'),
+                'user': context.get('user')}
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        try:
+            user_dict = get_action('user_show')(context, data_dict)
+        except NotFound:
+            h.redirect_to(controller='user', action='login', id=None)
+        except NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
+        c.user_dict = user_dict
+        c.is_myself = user_dict['name'] == c.user
+        c.num_followers = get_action('user_follower_count')(context,
+                {'id':c.user_dict['id']})
+        self._setup_follow_button(context)
 
     ## end hooks
 
@@ -56,7 +85,7 @@ class UserController(BaseController):
         '''Returns the URL that repoze.who will respond to and perform a
         login or logout.'''
         return getattr(request.environ['repoze.who.plugins']['friendlyform'], handler_name)
-        
+
     def index(self):
         LIMIT = 20
 
@@ -87,7 +116,7 @@ class UserController(BaseController):
         return render('user/list.html')
 
     def read(self, id=None):
-        context = {'model': model,
+        context = {'model': model, 'session': model.Session,
                 'user': c.user or c.author, 'for_view': True}
         data_dict = {'id':id,
                      'user_obj':c.userobj}
@@ -102,11 +131,11 @@ class UserController(BaseController):
         except NotFound:
             h.redirect_to(controller='user', action='login', id=None)
 
-        c.user_dict = user_dict
-        c.is_myself = user_dict['name'] == c.user
-        c.about_formatted = self._format_about(user_dict['about'])
-        c.user_activity_stream = user_activity_list_html(context,
-            {'id':c.user_dict['id']})
+        self._setup_template_variables(context, data_dict)
+
+        c.about_formatted = self._format_about(c.user_dict['about'])
+        c.user_activity_stream = get_action('user_activity_list_html')(
+                context, {'id':c.user_dict['id']})
         return render('user/read.html')
 
     def me(self, locale=None):
@@ -144,7 +173,7 @@ class UserController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context)
+        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         c.form = render(self.new_user_form, extra_vars=vars)
         return render('user/new.html')
 
@@ -223,7 +252,7 @@ class UserController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context)
+        self._setup_template_variables(context, data_dict)
 
         c.is_myself = True
         c.form = render(self.edit_user_form, extra_vars=vars)
@@ -415,3 +444,11 @@ class UserController(BaseController):
                 raise ValueError(_("The passwords you entered do not match."))
             return password1
 
+    def followers(self, id=None):
+        context = {'model': model, 'session': model.Session,
+                'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id':id, 'user_obj':c.userobj}
+        self._setup_template_variables(context, data_dict)
+        c.followers = get_action('user_follower_list')(context,
+                {'id':c.user_dict['id']})
+        return render('user/followers.html')

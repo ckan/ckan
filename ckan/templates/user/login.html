@@ -48,7 +48,7 @@
         <div class="form-actions">
           <button name="s" id="s" type="submit" class="btn btn-primary">${_('Sign In')}</button>
           &mdash; 
-          <a href="${h.url_for('reset')}">Forgot your password?</a>
+          <a href="${h.url_for(controller='user', action='request_reset')}">Forgot your password?</a>
         </div>
       </fieldset>
     </form>

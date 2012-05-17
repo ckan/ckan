@@ -19,13 +19,16 @@ from ckan.logic.action.update import _update_package_relationship
 
 log = logging.getLogger(__name__)
 
-# define some shortcuts
-error_summary = ckan.logic.action.error_summary
-validate = ckan.lib.navl.dictization_functions.validate
-check_access = logic.check_access
-get_action = logic.get_action
+# Define some shortcuts
+# Ensure they are module-private so that they don't get loaded as available
+# actions in the action API.
+_error_summary = ckan.logic.action.error_summary
+_validate = ckan.lib.navl.dictization_functions.validate
+_check_access = logic.check_access
+_get_action = logic.get_action
 ValidationError = logic.ValidationError
 NotFound = logic.NotFound
+_get_or_bust = logic.get_or_bust
 
 def package_create(context, data_dict):
 
@@ -43,7 +46,7 @@ def package_create(context, data_dict):
     except AttributeError:
         schema = package_plugin.form_to_db_schema()
 
-    check_access('package_create', context, data_dict)
+    _check_access('package_create', context, data_dict)
 
     if 'api_version' not in context:
         # old plugins do not support passing the schema so we need
@@ -53,11 +56,11 @@ def package_create(context, data_dict):
         except TypeError:
             package_plugin.check_data_dict(data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -86,7 +89,7 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    return get_action('package_show')(context, {'id':context['id']})
+    return _get_action('package_show')(context, {'id':context['id']})
 
 def package_create_validate(context, data_dict):
     model = context['model']
@@ -94,13 +97,13 @@ def package_create_validate(context, data_dict):
     model.Session.remove()
     model.Session()._context = context
 
-    check_access('package_create',context,data_dict)
+    _check_access('package_create',context,data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
     else:
         return data
 
@@ -110,7 +113,7 @@ def resource_create(context, data_dict):
     model = context['model']
     user = context['user']
 
-    data, errors = validate(data_dict,
+    data, errors = _validate(data_dict,
                             ckan.logic.schema.default_resource_schema(),
                             context)
 
@@ -121,15 +124,15 @@ def related_create(context, data_dict):
     user = context['user']
     userobj = model.User.get(user)
 
-    check_access('related_create', context, data_dict)
+    _check_access('related_create', context, data_dict)
 
     data_dict["owner_id"] = userobj.id
-    data, errors = validate(data_dict,
+    data, errors = _validate(data_dict,
                             ckan.logic.schema.default_related_schema(),
                             context)
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     # Only sys admins can update a related item to make it 1
     if not authz.Authorizer().is_sysadmin(unicode(user)):
@@ -178,9 +181,7 @@ def package_relationship_create(context, data_dict):
     api = context.get('api_version')
     ref_package_by = 'id' if api == 2 else 'name'
 
-    id = data_dict['subject']
-    id2 = data_dict['object']
-    rel_type = data_dict['type']
+    id, id2, rel_type = _get_or_bust(data_dict, ['subject', 'object', 'type'])
     comment = data_dict.get('comment', u'')
 
     pkg1 = model.Package.get(id)
@@ -190,13 +191,13 @@ def package_relationship_create(context, data_dict):
     if not pkg2:
         return NotFound('Object package %r was not found.' % id2)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
-    check_access('package_relationship_create', context, data_dict)
+    _check_access('package_relationship_create', context, data_dict)
 
     # Create a Package Relationship.
     existing_rels = pkg1.get_relationships_with(pkg2, rel_type)
@@ -242,12 +243,10 @@ def member_create(context, data_dict=None):
         rev.message = _(u'REST API: Create member object %s') % data_dict.get("name", "")
 
     group = model.Group.get(data_dict.get('id', ''))
-    obj_id   = data_dict['object']
-    obj_type = data_dict['object_type']
-    capacity = data_dict['capacity']
+    obj_id, obj_type, capacity = _get_or_bust(data_dict, ['object', 'object_type', 'capacity'])
 
     # User must be able to update the group to add a member to it
-    check_access('group_update', context, data_dict)
+    _check_access('group_update', context, data_dict)
 
     # Look up existing, in case it exists
     member = model.Session.query(model.Member).\
@@ -274,7 +273,7 @@ def group_create(context, data_dict):
     session = context['session']
     parent = context.get('parent', None)
 
-    check_access('group_create', context, data_dict)
+    _check_access('group_create', context, data_dict)
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin()
@@ -285,11 +284,11 @@ def group_create(context, data_dict):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -382,13 +381,13 @@ def user_create(context, data_dict):
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
 
-    check_access('user_create', context, data_dict)
+    _check_access('user_create', context, data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     user = model_save.user_dict_save(data, context)
 
@@ -421,10 +420,10 @@ def user_create(context, data_dict):
 
 def package_create_rest(context, data_dict):
 
-    check_access('package_create_rest', context, data_dict)
+    _check_access('package_create_rest', context, data_dict)
 
     dictized_package = model_save.package_api_to_dict(data_dict, context)
-    dictized_after = get_action('package_create')(context, dictized_package)
+    dictized_after = _get_action('package_create')(context, dictized_package)
 
     pkg = context['package']
 
@@ -436,10 +435,10 @@ def package_create_rest(context, data_dict):
 
 def group_create_rest(context, data_dict):
 
-    check_access('group_create_rest', context, data_dict)
+    _check_access('group_create_rest', context, data_dict)
 
     dictized_group = model_save.group_api_to_dict(data_dict, context)
-    dictized_after = get_action('group_create')(context, dictized_group)
+    dictized_after = _get_action('group_create')(context, dictized_group)
 
     group = context['group']
 
@@ -457,13 +456,13 @@ def vocabulary_create(context, data_dict):
     model.Session.remove()
     model.Session()._context = context
 
-    check_access('vocabulary_create', context, data_dict)
+    _check_access('vocabulary_create', context, data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, error_summary(errors))
+        raise ValidationError(errors, _error_summary(errors))
 
     vocabulary = model_save.vocabulary_dict_save(data, context)
 
@@ -490,10 +489,10 @@ def activity_create(context, activity_dict, ignore_auth=False):
         activity_dict['revision_id'] = None
 
     if not ignore_auth:
-        check_access('activity_create', context, activity_dict)
+        _check_access('activity_create', context, activity_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_activity_schema()
-    data, errors = validate(activity_dict, schema, context)
+    data, errors = _validate(activity_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
@@ -514,7 +513,7 @@ def package_relationship_create_rest(context, data_dict):
     # object and type to override the URL parameters.
     data_dict = ckan.logic.action.rename_keys(data_dict, key_map, destructive=False)
 
-    relationship_dict = get_action('package_relationship_create')(context, data_dict)
+    relationship_dict = _get_action('package_relationship_create')(context, data_dict)
     return relationship_dict
 
 def tag_create(context, tag_dict):
@@ -522,10 +521,10 @@ def tag_create(context, tag_dict):
 
     model = context['model']
 
-    check_access('tag_create', context, tag_dict)
+    _check_access('tag_create', context, tag_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_tag_schema()
-    data, errors = validate(tag_dict, schema, context)
+    data, errors = _validate(tag_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
@@ -536,3 +535,81 @@ def tag_create(context, tag_dict):
 
     log.debug("Created tag '%s' " % tag)
     return model_dictize.tag_dictize(tag, context)
+
+def follow_user(context, data_dict):
+
+    if not context.has_key('user'):
+        raise logic.NotAuthorized
+
+    model = context['model']
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise logic.NotAuthorized
+
+    schema = (context.get('schema')
+            or ckan.logic.schema.default_follow_user_schema())
+
+    data_dict, errors = _validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, _error_summary(errors))
+
+    # Don't let a user follow herself.
+    if userobj.id == data_dict['id']:
+        message = _('You cannot follow yourself')
+        raise ValidationError({'message': message})
+
+    # Don't let a user follow someone she is already following.
+    if model.UserFollowingUser.get(userobj.id, data_dict['id']) is not None:
+        message = _(
+                'You are already following {id}').format(id=data_dict['id'])
+        raise ValidationError({'message': message})
+
+    follower = model_save.user_following_user_dict_save(data_dict, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    log.debug('User {follower} started following user {object}'.format(
+        follower=follower.follower_id, object=follower.object_id))
+
+    return model_dictize.user_following_user_dictize(follower, context)
+
+def follow_dataset(context, data_dict):
+
+    if not context.has_key('user'):
+        raise logic.NotAuthorized
+
+    model = context['model']
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise logic.NotAuthorized
+
+    schema = (context.get('schema')
+            or ckan.logic.schema.default_follow_dataset_schema())
+
+    data_dict, errors = _validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, _error_summary(errors))
+
+    # Don't let a user follow a dataset she is already following.
+    if model.UserFollowingDataset.get(userobj.id, data_dict['id']) is not None:
+        message = _(
+                'You are already following {id}').format(id=data_dict['id'])
+        raise ValidationError({'message': message})
+
+
+    follower = model_save.user_following_dataset_dict_save(data_dict, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    log.debug('User {follower} started following dataset {object}'.format(
+        follower=follower.follower_id, object=follower.object_id))
+
+    return model_dictize.user_following_dataset_dictize(follower, context)

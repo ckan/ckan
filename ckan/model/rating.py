@@ -1,32 +1,34 @@
 import datetime
 
-from meta import *
-from core import *
-from package import *
-from types import make_uuid
-from user import User
+from sqlalchemy import orm, types, Column, Table, ForeignKey
+
+import meta
+import package as _package
+import user
+import domain_object
+import types as _types
 
 __all__ = ['Rating']
 
-rating_table = Table('rating', metadata,
-                     Column('id', UnicodeText, primary_key=True, default=make_uuid),
-                     Column('user_id', UnicodeText, ForeignKey('user.id')),
-                     Column('user_ip_address', UnicodeText), # alternative to user_id if not logged in
-                     Column('package_id', UnicodeText, ForeignKey('package.id')),
-                     Column('rating', Float),
-                     Column('created', DateTime, default=datetime.datetime.now),
+rating_table = Table('rating', meta.metadata,
+                     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+                     Column('user_id', types.UnicodeText, ForeignKey('user.id')),
+                     Column('user_ip_address', types.UnicodeText), # alternative to user_id if not logged in
+                     Column('package_id', types.UnicodeText, ForeignKey('package.id')),
+                     Column('rating', types.Float),
+                     Column('created', types.DateTime, default=datetime.datetime.now),
                      )
 
-class Rating(DomainObject):
+class Rating(domain_object.DomainObject):
     pass
 
-mapper(Rating, rating_table,
+meta.mapper(Rating, rating_table,
        properties={
-            'user': orm.relation(User,
+            'user': orm.relation(user.User,
                 backref=orm.backref('ratings',
                 cascade='all, delete, delete-orphan'
                 )),
-            'package': orm.relation(Package,
+            'package': orm.relation(_package.Package,
                 backref=orm.backref('ratings',
                 cascade='all, delete, delete-orphan'
                 )),

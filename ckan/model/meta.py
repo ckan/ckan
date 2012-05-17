@@ -1,23 +1,17 @@
 import datetime
+
 from paste.deploy.converters import asbool
 from pylons import config
 """SQLAlchemy Metadata and Session object"""
-from sqlalchemy import MetaData, __version__ as sqav
-from sqlalchemy.orm import class_mapper
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy import MetaData, and_
 import sqlalchemy.orm as orm
 from sqlalchemy.orm.session import SessionExtension
 
-# TODO: remove these imports from here and put them in client model modules
-from sqlalchemy import Column, MetaData, Table, types, ForeignKey
-from sqlalchemy import or_, and_
-from sqlalchemy.types import *
-from sqlalchemy.orm import scoped_session, sessionmaker, create_session
-from sqlalchemy.orm import relation, backref
+import extension
+import ckan.lib.activity
 
-from ckan.model import extension
+__all__ = ['Session', 'engine_is_sqlite']
 
-from ckan.lib.activity import DatasetActivitySessionExtension
 
 class CkanCacheExtension(SessionExtension):
     ''' This extension checks what tables have been affected by
@@ -89,7 +83,7 @@ class CkanSessionExtension(SessionExtension):
             if not hasattr(obj, '__revision_class__'):
                 continue
             revision_cls = obj.__revision_class__
-            revision_table = class_mapper(revision_cls).mapped_table
+            revision_table = orm.class_mapper(revision_cls).mapped_table
             ## when a normal active transaction happens
             if 'pending' not in obj.state:
                 ### this is asql statement as we do not want it in object cache
@@ -132,24 +126,24 @@ class CkanSessionExtension(SessionExtension):
 # SQLAlchemy database engine. Updated by model.init_model()
 engine = None
 
-Session = scoped_session(sessionmaker(
+Session = orm.scoped_session(orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
     extension=[CkanCacheExtension(),
                CkanSessionExtension(),
                extension.PluginSessionExtension(),
-               DatasetActivitySessionExtension()],
+               ckan.lib.activity.DatasetActivitySessionExtension()],
 ))
 
-create_local_session = sessionmaker(
+create_local_session = orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
     extension=[CkanCacheExtension(),
                CkanSessionExtension(),
                extension.PluginSessionExtension(),
-               DatasetActivitySessionExtension()],
+               ckan.lib.activity.DatasetActivitySessionExtension()],
 )
 
 #mapper = Session.mapper

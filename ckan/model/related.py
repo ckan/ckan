@@ -1,37 +1,42 @@
-import os
 import datetime
-import meta
+
 import sqlalchemy as sa
-from core import DomainObject
-from types import make_uuid
-from package import Package
+from sqlalchemy import orm
+from sqlalchemy import types, Column, Table, ForeignKey, and_
 
+import meta
+import domain_object
+import types as _types
+import package as _package
 
-related_table = meta.Table('related',meta.metadata,
-        meta.Column('id', meta.UnicodeText, primary_key=True, default=make_uuid),
-        meta.Column('type', meta.UnicodeText, default=u'idea'),
-        meta.Column('title', meta.UnicodeText),
-        meta.Column('description', meta.UnicodeText),
-        meta.Column('image_url', meta.UnicodeText),
-        meta.Column('url', meta.UnicodeText),
-        meta.Column('created', meta.DateTime, default=datetime.datetime.now),
-        meta.Column('owner_id', meta.UnicodeText),
-        meta.Column('view_count', meta.Integer, default=0),
-        meta.Column('featured', meta.Integer, default=0)
-        )
+__all__ = ['Related', 'RelatedDataset', 'related_dataset_table',
+           'related_table']
 
-related_dataset_table = meta.Table('related_dataset', meta.metadata,
-    meta.Column('id', meta.UnicodeText, primary_key=True, default=make_uuid),
-    meta.Column('dataset_id', meta.UnicodeText, meta.ForeignKey('package.id'),
-           nullable=False),
-    meta.Column('related_id', meta.UnicodeText, meta.ForeignKey('related.id'), nullable=False),
-    meta.Column('status', meta.UnicodeText, default=u'active'),
+related_table = sa.Table('related',meta.metadata,
+        sa.Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+        sa.Column('type', types.UnicodeText, default=u'idea'),
+        sa.Column('title', types.UnicodeText),
+        sa.Column('description', types.UnicodeText),
+        sa.Column('image_url', types.UnicodeText),
+        sa.Column('url', types.UnicodeText),
+        sa.Column('created', types.DateTime, default=datetime.datetime.now),
+        sa.Column('owner_id', types.UnicodeText),
+        sa.Column('view_count', types.Integer, default=0),
+        sa.Column('featured', types.Integer, default=0)
+)
+
+related_dataset_table = Table('related_dataset', meta.metadata,
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('dataset_id', types.UnicodeText, ForeignKey('package.id'),
+      nullable=False),
+    Column('related_id', types.UnicodeText, ForeignKey('related.id'), nullable=False),
+    Column('status', types.UnicodeText, default=u'active'),
     )
 
-class RelatedDataset(DomainObject):
+class RelatedDataset(domain_object.DomainObject):
     pass
 
-class Related(DomainObject):
+class Related(domain_object.DomainObject):
 
     @classmethod
     def get(cls, id):
@@ -62,13 +67,13 @@ class Related(DomainObject):
 # relation be for 'active' related objects.  For non-active states
 # the caller will have to use get_for_dataset() in Related.
 meta.mapper(RelatedDataset, related_dataset_table, properties={
-    'related': meta.relation(Related),
-    'dataset': meta.relation(Package)
+    'related': orm.relation(Related),
+    'dataset': orm.relation(_package.Package)
 })
 meta.mapper(Related, related_table, properties={
-'datasets': meta.relation(Package,
-    backref=meta.backref('related'),
+'datasets': orm.relation(_package.Package,
+    backref=orm.backref('related'),
     secondary=related_dataset_table,
-    secondaryjoin=sa.and_(related_dataset_table.c.dataset_id==Package.id,
+    secondaryjoin=and_(related_dataset_table.c.dataset_id==_package.Package.id,
                           RelatedDataset.status=='active'))
 })
