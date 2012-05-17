@@ -128,7 +128,6 @@ def augment_data(data, schema):
         if initial_tuple in [initial_key[:len(initial_tuple)]
                              for initial_key in flattented_schema]:
             if data[key] <> []:
-                from nose.tools import set_trace; set_trace()
                 raise DataError('Only lists of dicts can be placed against '
                                 'subschema %s, not %s' % (key,type(data[key])))
 
