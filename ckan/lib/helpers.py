@@ -363,10 +363,13 @@ def _make_menu_item(menu_item, title):
     if menu_item not in _menu_items:
         log.error('menu item `%s` cannot be found' % menu_item)
         return literal('<li><a href="#">') + title + literal('</a></li>')
-    item = copy.copy(_menu_items[menu_item])
+    item = _menu_items[menu_item]
     if 'name' in item:
         link = nav_named_link(title, **item)
+    elif 'url' in item:
+        return literal('<li><a href="%s">' % item.url) + title + literal('</a></li>')
     else:
+        item = copy.copy(_menu_items[menu_item])
         controller = item.pop('controller')
         link = nav_link(title, controller, **item)
     return literal('<li>') + link + literal('</li>')
@@ -382,6 +385,8 @@ _menu_items = {
                     highlight_actions = 'new index search'),
     'default_group': dict(name='%s_index' % default_group_type()),
     'about' : dict(controller='home', action='about'),
+    'login' : dict(controller='user', action='login'),
+    'register' : dict(controller='user', action='register'),
 }
 
 
