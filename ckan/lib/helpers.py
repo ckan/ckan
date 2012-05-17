@@ -861,6 +861,7 @@ __allowed_functions__ = [
            'lang_native_name',
            'unselected_facet_items',
            'include_resource',
+           'debug_inspect',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
@@ -872,5 +873,4 @@ __allowed_functions__ = [
            'radio',
            'submit',
            'asbool',
-           'debug_inspect',
 ]
