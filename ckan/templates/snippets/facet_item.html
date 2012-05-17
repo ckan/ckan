@@ -18,7 +18,7 @@ count_label
 
 -->
 <li>
-  <a href="${c.drill_down_url(**{name: item.name})}">
+  <a href="${c.drill_down_url(name=item.name)}">
     ${label_function(item) if vars().has_key('label_function') else h.truncate(item.display_name, 22)}
     ${count_label(item['count']) if vars().has_key('count_label') else ('(%d)' % item['count'])}
   </a>
