@@ -11,6 +11,8 @@ import logging
 import re
 import urllib
 import pprint
+import copy
+import logging
 
 from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
@@ -39,6 +41,8 @@ import ckan.model as model
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
+
+log = logging.getLogger(__name__)
 
 try:
     from collections import OrderedDict # from python 2.7
@@ -347,8 +351,40 @@ def _subnav_named_route(text, routename, **kwargs):
         class_=('active' if c.action == kwargs['action'] else '')
     )
 
+def build_nav_main(*args):
+    output = ''
+    for item in args:
+        menu_item, title = item
+        output += _make_menu_item(menu_item, title)
+    return output
+
+
+def _make_menu_item(menu_item, title):
+    if menu_item not in _menu_items:
+        log.error('menu item `%s` cannot be found' % menu_item)
+        return literal('<li><a href="#">') + title + literal('</a></li>')
+    item = copy.copy(_menu_items[menu_item])
+    if 'name' in item:
+        link = nav_named_link(title, **item)
+    else:
+        controller = item.pop('controller')
+        link = nav_link(title, controller, **item)
+    return literal('<li>') + link + literal('</li>')
+
+
 def default_group_type():
     return str( config.get('ckan.default.group_type', 'group') )
+
+
+_menu_items = {
+    'search' : dict(controller='package',
+                    action='search',
+                    highlight_actions = 'new index search'),
+    'default_group': dict(name='%s_index' % default_group_type()),
+    'about' : dict(controller='home', action='about'),
+}
+
+
 
 def unselected_facet_items(facet, limit=10):
     '''Return the list of unselected facet items for the given facet, sorted
@@ -861,6 +897,7 @@ __allowed_functions__ = [
            'lang_native_name',
            'unselected_facet_items',
            'include_resource',
+           'build_nav_main',
            'debug_inspect',
     # imported into ckan.lib.helpers
            'literal',
