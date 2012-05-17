@@ -29,7 +29,12 @@ count_label
     <nav>
       <ul class="unstyled nav nav-simple">
         <py:for each="item in items">
-          ${h.snippet('snippets/facet_item.html', name=name, item=item)}
+          <li>
+            <a href="${c.drill_down_url(**{name: item.name})}">
+              ${label_function(item) if vars().has_key('label_function') else h.truncate(item.display_name, 22)}
+              ${count_label(item['count']) if vars().has_key('count_label') else ('(%d)' % item['count'])}
+            </a>
+          </li>
         </py:for>
       </ul>
     </nav>
