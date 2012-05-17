@@ -285,7 +285,7 @@ def _nav_link(text, controller, **kwargs):
         url_for(controller=controller, **kwargs),
         class_=('active' if
                 c.controller == controller and c.action in highlight_actions
-                else '')
+                else None)
     )
 
 def nav_named_link(*args, **kwargs):
