@@ -16,7 +16,7 @@
         </ol>
         <ul class="actions">
           <li><a class="btn" href=""><i class="ckan-icon ckan-icon-rewind"></i> History</a></li>
-          <li><a class="btn" href=""><i class="ckan-icon ckan-icon-tools"></i> Edit</a></li>
+          <li><a class="btn" href="" py:if="h.check_access('package_update',{'id':c.pkg.id})"><i class="ckan-icon ckan-icon-tools"></i> Edit</a></li>
           <li><a class="btn" href=""><i class="ckan-icon ckan-icon-flag"></i> Report Issue</a></li>
         </ul>
       </nav>
@@ -37,15 +37,10 @@
           </section>
 
           <section id="dataset-resources" class="resources content">
-            <h3>Resources
-              <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
-                ${h.subnav_link(_('(edit)'), controller='package', action='editresources', id=c.pkg.name)}
-              </py:if>
-            </h3>
+            <h3>Resources</h3>
             <ul class="resource-list" py:if="len(c.pkg_dict.get('resources', []))">
               <li class="resource-item" py:for="res in c.pkg_dict.get('resources', [])" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
                 <a class="heading" href="${url}">
-                  <!--! ${h.resource_icon(res)} -->
                   ${h.resource_display_name(res)}
                   <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
                 </a>
