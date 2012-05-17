@@ -7,6 +7,7 @@ import ckan.lib.helpers as h
 import urllib
 
 c = base.c
+_get_action=logic.get_action
 
 class RelatedController(base.BaseController):
 
@@ -104,6 +105,8 @@ class RelatedController(base.BaseController):
             base.abort(401, base._('Unauthorized to read package %s') % id)
 
         c.related_count = len(c.pkg.related)
+        c.num_followers = _get_action('dataset_follower_count')(context,
+                {'id':c.pkg.id})
 
         return base.render( "related/related_list.html")
 

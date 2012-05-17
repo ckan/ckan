@@ -138,7 +138,7 @@
           <h5 class="heading" title="${related.title}">${h.markdown_extract(related.title, extract_length=30)}</h5>
           <div class="description" data-truncate="55" py:if="related.description">${h.markdown_extract(related.description, extract_length=1000)}</div>
           <i class="empty" py:if="not related.description">No description for this item</i>
-          <p class="read-more"><a href="${h.url_for('related_read', id=related.id)}">View this related item</a></p>
+          <p class="read-more"><a href="${h.url_for('related_read', id=related.id)}">View this ${related.type}</a></p>
         </div>
       </div>
     </li>

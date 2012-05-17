@@ -122,16 +122,16 @@ This sets a space-separated list of extra field key values which will not be sho
 .. index::
    single: rdf_packages
 
-ckan.dataset.show_related
-^^^^^^^^^^^^^^^^^^^^^^^^^
+ckan.dataset.show_apps_ideas
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-ckan.dataset.show_related::
+ckan.dataset.show_apps_ideas::
 
- ckan.dataset.show_related = false
+ ckan.dataset.show_apps_ideas = false
 
 Default value:  true
 
-When set to false, or no, this setting will hide the related item tab on the package read page. If the value is not set, or is set to true or yes, then the related item tab will shown.
+When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on the package read page. If the value is not set, or is set to true or yes, then the tab will shown.
 
 rdf_packages
 ^^^^^^^^^^^^
