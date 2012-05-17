@@ -352,6 +352,11 @@ def _subnav_named_route(text, routename, **kwargs):
     )
 
 def build_nav_main(*args):
+    ''' build a set of menu items.
+
+    args: tuples of (menu type, title) eg ('login', _('Login'))
+    outputs <li><a href="...">title</a></li>
+    '''
     output = ''
     for item in args:
         menu_item, title = item
