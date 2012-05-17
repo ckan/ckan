@@ -1,5 +1,4 @@
 
-
 import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -18,8 +17,10 @@ class RelatedController(base.BaseController):
 
         try:
             logic.check_access('package_show', context, data_dict)
+        except logic.NotFound:
+            base.abort(404, _('Dataset not found'))
         except logic.NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            base.abort(401, _('Not authorized to see this page'))
 
         try:
             c.pkg_dict = logic.get_action('package_show')(context, data_dict)
