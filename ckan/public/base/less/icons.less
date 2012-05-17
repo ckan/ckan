@@ -1,0 +1,52 @@
+@small-x: 16px;
+@small-y: 16px;
+@medium-x: 17px;
+@medium-y: 17px;
+@medium-offset-y: -@small-y;
+@large-x: 20px;
+@large-y: 20px;
+@large-offset-x: -20px;
+@large-offset-y: -(@small-y + @medium-y);
+
+.ckan-icon {
+  .ie7-restore-right-whitespace;
+  display: inline-block;
+  vertical-align: text-bottom;
+  position: relative;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  background-image: url("@{image-path}/sprite-ckan-icons.png");
+  background-repeat: no-repeat;
+  background-position: 16px 16px;
+}
+
+.ckan-icon-medium {
+  width:  @medium-x;
+  height: @medium-y;
+}
+
+.ckan-icon-large {
+  width:  @large-x;
+  height: @large-y;
+}
+
+.ckan-icon-background-position(@offset, @size) {
+  @w: "@{size}-x";
+  @h: "@{size}-y";
+  @x: "@{size}-offset-x";
+  @y: "@{size}-offset-y";
+  width: @@w;
+  height: @@h;
+  background-position: (@@x * @offset) @@y;
+}
+
+.ckan-icon-lock { .ckan-icon-background-position(0, "large") }
+.ckan-icon-photo { .ckan-icon-background-position(1, "large") }
+.ckan-icon-add { .ckan-icon-background-position(2, "large") }
+.ckan-icon-home { .ckan-icon-background-position(3, "large") }
+.ckan-icon-rewind { .ckan-icon-background-position(4, "large") }
+.ckan-icon-tools { .ckan-icon-background-position(5, "large") }
+.ckan-icon-flag { .ckan-icon-background-position(6, "large") }
+.ckan-icon-clipboard { .ckan-icon-background-position(7, "large") }
+.ckan-icon-share { .ckan-icon-background-position(8, "large") }
