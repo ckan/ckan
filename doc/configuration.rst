@@ -122,6 +122,8 @@ This sets a space-separated list of extra field key values which will not be sho
 .. index::
    single: rdf_packages
 
+.. _config-apps-ideas:
+
 ckan.dataset.show_apps_ideas
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
