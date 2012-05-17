@@ -1,12 +1,15 @@
 @small-x: 16px;
 @small-y: 16px;
+@small-offset-x: -@small-x;
+@small-offset-y: 0;
 @medium-x: 17px;
 @medium-y: 17px;
+@medium-offset-x: -@medium-x;
 @medium-offset-y: -@small-y;
 @large-x: 20px;
 @large-y: 20px;
-@large-offset-x: -20px;
-@large-offset-y: -(@small-y + @medium-y);
+@large-offset-x: -@large-x;
+@large-offset-y: -@small-y - @medium-y;
 
 .ckan-icon {
   .ie7-restore-right-whitespace;
@@ -19,6 +22,11 @@
   background-image: url("@{image-path}/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
+}
+
+.ckan-icon-small {
+  width:  @small-x;
+  height: @small-y;
 }
 
 .ckan-icon-medium {
@@ -40,6 +48,24 @@
   height: @@h;
   background-position: (@@x * @offset) @@y;
 }
+
+// SMALL
+
+.ckan-icon-fb      { .ckan-icon-background-position(0, "small") }
+.ckan-icon-gplus   { .ckan-icon-background-position(1, "small") }
+.ckan-icon-twitter { .ckan-icon-background-position(2, "small") }
+.ckan-icon-email   { .ckan-icon-background-position(3, "small") }
+.ckan-icon-share   { .ckan-icon-background-position(4, "small") }
+.ckan-icon-feed    { .ckan-icon-background-position(5, "small") }
+.ckan-icon-lock    { .ckan-icon-background-position(6, "small") }
+
+// MEDIUM
+
+.ckan-icon-circle-cross { .ckan-icon-background-position(0, "medium") }
+.ckan-icon-circle-add   { .ckan-icon-background-position(1, "medium") }
+.ckan-icon-flame        { .ckan-icon-background-position(2, "medium") }
+
+// LARGE
 
 .ckan-icon-lock { .ckan-icon-background-position(0, "large") }
 .ckan-icon-photo { .ckan-icon-background-position(1, "large") }
