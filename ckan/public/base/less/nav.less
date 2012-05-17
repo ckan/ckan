@@ -10,21 +10,31 @@
 .nav-simple > li > a {
   color: @nav-link-color;
   padding: 7px 25px;
+  font-size: 12px;
   line-height: 14px; // keeps the overall height an even number
 }
 
-.nav-simple > li.selected > a {
-  @inner-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35);
-  @outer-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-  .border-radius(3px);
-  .box-shadow(@inner-shadow);
-  box-shadow: @inner-shadow, @outer-shadow;
-  cursor: default;
-  margin: 2px 5px 3px;
-  padding: 4px (@module-margin-x - 7);
-  background: #000;
-  color: #fff;
-  border: 1px solid black;
+.nav-simple > li > a .ckan-icon {
+  position: relative;
+  top: -1px;
+}
+
+.nav-simple > li.active {
+  background-color: #f2f2f2;
+}
+
+.nav-simple > li.active > a {
+  .tag;
+  .box-sizing(border-box);
+  font-size: 12px;
+  font-weight: bold;
+  position: relative;
+  left: 4px;
+  margin-left: 0;
+  margin-right: 7px;
+  padding-left: 10px;
+  padding-right: 0px;
+  padding: 1px (@module-margin-x - 7);
 }
 
 .secondary .nav-simple > li > a {
@@ -33,17 +43,24 @@
   position: relative;
 }
 
-.secondary .nav-simple > li > a:hover:after {
+.secondary .nav-simple > li > a:hover:after,
+.secondary .nav-simple > li.active > a:hover:after {
+  .ckan-icon;
+  .ckan-icon-circle-add;
   content: "";
-  display: block;
   position: absolute;
   top: 50%;
   right: 5px;
-  width: 17px;
-  height: 17px;
   margin-top: -8px;
-  background: url("@{sprite-path}") no-repeat;
-  background-position: -17px 0;
+}
+
+.secondary .nav-simple > li > a:hover:after {
+  .ckan-icon-circle-add;
+}
+
+.secondary .nav-simple > li.active > a:hover:after {
+  .ckan-icon-circle-cross;
+  right: 3px;
 }
 
 .secondary .nav-simple > li.selected > a {

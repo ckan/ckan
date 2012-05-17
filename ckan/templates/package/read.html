@@ -15,9 +15,9 @@
           <li class="active"><a href="">${c.pkg_dict.get('title', c.pkg_dict.get('name'))}</a></li>
         </ol>
         <ul class="actions">
-          <li><a class="btn" href="">History</a></li>
-          <li><a class="btn" href="">Edit</a></li>
-          <li><a class="btn" href="">Report Issue</a></li>
+          <li><a class="btn" href=""><i class="ckan-icon ckan-icon-rewind"></i> History</a></li>
+          <li><a class="btn" href=""><i class="ckan-icon ckan-icon-tools"></i> Edit</a></li>
+          <li><a class="btn" href=""><i class="ckan-icon ckan-icon-flag"></i> Report Issue</a></li>
         </ul>
       </nav>
 
@@ -127,30 +127,30 @@
 
       <aside class="secondary">
         <section class="module subscribe">
-          <h2 class="heading">Subscribe</h2>
+          <h2 class="heading"><i class="ckan-icon ckan-icon-add"></i> Subscribe</h2>
           <ul class="nav nav-simple">
-            <li><a href="#">Email</a></li>
-            <li><a href="#">RSS</a></li>
+            <li><a href="#"><i class="ckan-icon ckan-icon-email"></i> Email</a></li>
+            <li><a href="#"><i class="ckan-icon ckan-icon-feed"></i> RSS</a></li>
           </ul>
         </section>
 
         <section class="module social">
-          <h2 class="heading">Social</h2>
+          <h2 class="heading"><i class="ckan-icon ckan-icon-share"></i> Social</h2>
           <ul class="nav nav-simple">
-            <li><a href="#">Google+</a></li>
-            <li><a href="#">Twitter</a></li>
-            <li><a href="#">Facebook</a></li>
+            <li><a href="#"><i class="ckan-icon ckan-icon-gplus"></i> Google+</a></li>
+            <li><a href="#"><i class="ckan-icon ckan-icon-twitter"></i> Twitter</a></li>
+            <li><a href="#"><i class="ckan-icon ckan-icon-fb"></i> Facebook</a></li>
           </ul>
         </section>
 
         <section class="module info related" py:if="True">
-          <h2 class="heading">Related <a class="action" href="#">Add Related</a></h2>
+          <h2 class="heading"><i class="ckan-icon ckan-icon-photo"></i> Related <a class="action" href="#">Add Related</a></h2>
           <p class="content">Some interesting summary of this featured item. This
           may or may not have a slideshow.</p>
         </section>
 
         <section class="module info related empty" py:if="True">
-          <h2 class="heading">Related</h2>
+          <h2 class="heading"><i class="ckan-icon ckan-icon-photo"></i> Related</h2>
           <div class="content">
             <p>No apps, ideas, news stories or images have been
             related to this dataset yet, why not add one now?</p>
@@ -158,8 +158,8 @@
           </div>
         </section>
 
-        <section py:if="c.pkg.license_id" class="module info license">
-          <h2 class="heading">License</h2>
+        <section class="module info license" py:if="c.pkg.license_id">
+          <h2 class="heading"><i class="ckan-icon ckan-icon-lock"></i> License</h2>
           <p class="content">
             <a py:if="c.pkg_dict.get('license_url')" href="${c.pkg_dict.get('license_url')}" rel="dc:rights">${c.pkg_dict.get('license_title')}</a>
             <span py:if="c.pkg.license" property="dc:rights">${c.pkg_dict.get('license_title')}</span>
@@ -171,7 +171,7 @@
         </section>
 
         <section class="module disqus-trackback">
-          <h2 class="heading">Trackback URL</h2>
+          <h2 class="heading"><i class="ckan-icon ckan-icon-clipboard"></i> Trackback URL</h2>
           <div class="field"><input type="text" value="http://trackback.com" /></div>
         </section>
       </aside>
