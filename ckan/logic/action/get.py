@@ -1417,3 +1417,90 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     activity_stream = recently_changed_packages_activity_list(context,
             data_dict)
     return _activity_list_to_html(context, activity_stream)
+
+def user_follower_count(context, data_dict):
+    '''Return the number of followers of a user.'''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+    return ckan.model.UserFollowingUser.follower_count(data_dict['id'])
+
+def dataset_follower_count(context, data_dict):
+    '''Return the number of followers of a dataset.'''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_dataset_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+    return ckan.model.UserFollowingDataset.follower_count(data_dict['id'])
+
+def _follower_list(context, data_dict, FollowerClass):
+    # Get the list of Follower objects.
+    model = context['model']
+    object_id = data_dict.get('id')
+    followers = FollowerClass.follower_list(object_id)
+
+    # Convert the list of Follower objects to a list of User objects.
+    users = [model.User.get(follower.follower_id) for follower in followers]
+    users = [user for user in users if user is not None]
+
+    # Dictize the list of user objects.
+    return [model_dictize.user_dictize(user,context) for user in users]
+
+def user_follower_list(context, data_dict):
+    '''Return the list of users that are following the given user.'''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+    return _follower_list(context, data_dict,
+            context['model'].UserFollowingUser)
+
+def dataset_follower_list(context, data_dict):
+    '''Return the list of users that are following the given dataset.'''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_dataset_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+    return _follower_list(context, data_dict,
+            context['model'].UserFollowingDataset)
+
+def _am_following(context, data_dict, FollowerClass):
+    if not context.has_key('user'):
+        raise logic.NotAuthorized
+
+    model = context['model']
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise logic.NotAuthorized
+
+    object_id = data_dict.get('id')
+
+    return FollowerClass.is_following(userobj.id, object_id)
+
+def am_following_user(context, data_dict):
+    '''Return True if the authorized user is following the given user.'''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+
+    return _am_following(context, data_dict,
+            context['model'].UserFollowingUser)
+
+def am_following_dataset(context, data_dict):
+    '''Return True if the authorized user is following the given dataset.'''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_dataset_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+
+    return _am_following(context, data_dict,
+            context['model'].UserFollowingDataset)

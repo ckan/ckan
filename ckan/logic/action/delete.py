@@ -3,6 +3,7 @@ from pylons.i18n import _
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
+validate = ckan.lib.navl.dictization_functions.validate
 
 # Define some shortcuts
 # Ensure they are module-private so that they don't get loaded as available
@@ -204,3 +205,42 @@ def package_relationship_delete_rest(context, data_dict):
     data_dict = ckan.logic.action.rename_keys(data_dict, key_map, destructive=True)
 
     package_relationship_delete(context, data_dict)
+
+def _unfollow(context, data_dict, FollowerClass):
+    model = context['model']
+
+    if not context.has_key('user'):
+        raise ckan.logic.NotAuthorized
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise ckan.logic.NotAuthorized
+    follower_id = userobj.id
+
+    object_id = data_dict.get('id')
+
+    follower_obj = FollowerClass.get(follower_id, object_id)
+    if follower_obj is None:
+        raise NotFound(
+                _('Could not find follower {follower} -> {object}').format(
+                    follower=follower_id, object=object_id))
+
+    follower_obj.delete()
+    model.repo.commit()
+
+def unfollow_user(context, data_dict):
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+
+    _unfollow(context, data_dict, context['model'].UserFollowingUser)
+
+def unfollow_dataset(context, data_dict):
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_dataset_schema())
+    data_dict, errors = validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+
+    _unfollow(context, data_dict, context['model'].UserFollowingDataset)
