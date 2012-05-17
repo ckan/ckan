@@ -28,10 +28,7 @@
       </nav>
       <nav>
         <ul class="unstyled">
-          <li>${h.nav_link(_('Search'), controller='package', action='search', highlight_actions = 'new index')}</li>
-          <li>${h.nav_named_link(_('Groups'), name='%s_index' % h.default_group_type() )}</li>
-          <li><a href="#">Share</a></li>
-          <li>${h.nav_link(_('About'), controller='home', action='about')}</li>
+          ${h.build_nav_main(('search', _('Search')),('default_group', _('Groups')), ('share', _('Share')), ('about', _('About')))}
         </ul>
       </nav>
     </div>
