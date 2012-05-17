@@ -21,17 +21,16 @@
   padding-left: 10px;
   padding-right: 5px;
   margin-right: 11px;
-}
-
-.tag:after {
-  content: "";
-  background: url("@{image-path}/background-tag.png") no-repeat center left;
-  position: absolute;
-  display: block;
-  top: 0;
-  bottom: 0;
-  right: -11px;
-  width: 11px;
+  &:before {
+    content: "";
+    background: url("@{image-path}/background-tag.png") no-repeat center left;
+    position: absolute;
+    display: block;
+    top: 0;
+    bottom: 0;
+    right: -11px;
+    width: 11px;
+  }
 }
 
 .unstyled {
