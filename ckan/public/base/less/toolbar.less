@@ -13,6 +13,13 @@
   border: none;
 }
 
+.toolbar .breadcrumb li:first-of-type:before {
+  content: " ";
+  .ckan-icon;
+  .ckan-icon-home;
+  margin-right: 5px;
+}
+
 .toolbar .breadcrumb li:after {
   content: " / ";
 }
@@ -38,4 +45,9 @@
 
 .toolbar .actions li:last-of-type {
   margin-right: 0;
+}
+
+.toolbar .actions .btn {
+  padding: 2px 6px 3px;
+  border-color: #b7b7b7;
 }
