@@ -29,7 +29,8 @@
             </form>
             <div class="filter-list">
               <strong py:choose="" class="results">
-                <py:when test="request.params">${c.page.item_count} datasets<py:if test="c.q"> found for &#147;${c.q}&#148;</py:if></py:when>
+                <py:when test="request.params and c.page.item_count">${c.page.item_count} datasets<py:if test="c.q"> found for &#147;${c.q}&#148;</py:if></py:when>
+                <py:when test="request.params and c.page.item_count == 0">Sorry no datasets found for &#147;${c.q}&#148;</py:when>
                 <py:otherwise>All datasets</py:otherwise>
               </strong>
               <py:for each="(field, value) in c.fields">
@@ -42,13 +43,12 @@
                   <a href="${c.remove_field(field, value)}" class="remove icon-remove icon-white">[remove]</a>
                 </span>
               </py:for>
+              <p class="extra" py:if="request.params and c.page.item_count == 0">Try another search term,
+              browse the datasets below or <a href="${h.url_for(action='new', id=None)}">add your own data</a>.</p>
             </div>
             <py:if test="c.query_error">
               <p i18n:msg="item_count"><strong>There was an error while searching.</strong>
               Please try again.</p>
-            </py:if>
-            <py:if test="c.page.item_count == 0 and request.params">
-              <p i18n:msg="">Would you like to <a href="${h.url_for(action='new', id=None)}">create a new dataset?</a></p>
             </py:if>
             ${h.snippet('snippets/package_list.html', packages=c.page.items)}
           </div>
