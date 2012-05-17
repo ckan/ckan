@@ -334,14 +334,13 @@ def tag_list(context, data_dict):
     else:
         tags = model.Tag.all(vocab_id_or_name)
 
-    tag_list = []
     if tags:
         if all_fields:
-            for tag in tags:
-                result_dict = model_dictize.tag_dictize(tag, context)
-                tag_list.append(result_dict)
+            tag_list = model_dictize.tag_list_dictize(tags, context)
         else:
-            tag_list.extend([tag.name for tag in tags])
+            tag_list = [tag.name for tag in tags]
+    else:
+        tag_list = []
 
     return tag_list
 

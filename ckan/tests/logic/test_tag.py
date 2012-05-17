@@ -44,18 +44,6 @@ class TestAction(WsgiAppCase):
         assert res_obj['result'][russian_index]['name'] == 'russian'
         assert res_obj['result'][tolstoy_index]['name'] == 'tolstoy'
 
-        # The "moo" package may part of the retrieved packages, depending
-        # upon whether this test is run in isolation from the rest of the
-        # test suite or not.
-        number_of_russian_packages = len(res_obj['result'][russian_index]['packages'])   # warandpeace, annakarenina (moo?)
-        number_of_tolstoy_packages = len(res_obj['result'][tolstoy_index]['packages'])   # annakarenina
-        number_of_flexible_packages = len(res_obj['result'][flexible_index]['packages']) # warandpeace, annakarenina (moo?)
-
-        # Assert we have the correct number of packages, independantly of
-        # whether the "moo" package may exist or not.
-        assert number_of_russian_packages - number_of_tolstoy_packages == 1
-        assert number_of_flexible_packages == (number_of_russian_packages - number_of_tolstoy_packages) + 1
-
         assert 'id' in res_obj['result'][0]
         assert 'id' in res_obj['result'][1]
         assert 'id' in res_obj['result'][2]
