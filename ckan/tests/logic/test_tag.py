@@ -28,7 +28,7 @@ class TestAction(WsgiAppCase):
                 u'Flexible \u30a1', 'tollbooth', 'tolkien', 'toledo',
                 'tolerance'])
         assert resbody['help'].startswith(
-                'Return a list of tag dictionaries.')
+                "Return a list of the site's tags.")
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
         res = self.app.post('/api/action/tag_list', params=postparams)
@@ -73,7 +73,7 @@ class TestAction(WsgiAppCase):
         body = json.loads(res.body)
         assert body['success'] is True
         assert body['result'] == [tag_name]
-        assert body['help'].startswith('Return a list of tag dictionaries.')
+        assert body['help'].startswith("Return a list of the site's tags.")
 
         # check that invalid vocab name results in a 404
         params = '%s=1' % json.dumps({'vocabulary_id': 'invalid-vocab-name'})
@@ -83,7 +83,8 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id':'russian'})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Shows tag details'
+        assert res_obj['help'].startswith(
+                "Return the details of a tag and all its datasets.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == 'russian'
@@ -110,7 +111,8 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id':u'Flexible \u30a1'})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Shows tag details'
+        assert res_obj['help'].startswith(
+                "Return the details of a tag and all its datasets.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == u'Flexible \u30a1'
@@ -279,7 +281,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] == True
         assert res_obj['result'] == []
         assert res_obj['help'].startswith(
-                'Return a list of tag names that contain the given string.')
+                "Return a list of tag names that contain a given string.")
 
         #Normal query
         postparams = '%s=1' % json.dumps({'q':'r'})
@@ -288,7 +290,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] == True
         assert res_obj['result'] == ['russian', 'tolerance']
         assert res_obj['help'].startswith(
-                'Return a list of tag names that contain the given string.')
+                'Return a list of tag names that contain a given string.')
 
     def test_15_tag_autocomplete_tag_with_spaces(self):
         """Asserts autocomplete finds tags that contain spaces"""
