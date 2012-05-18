@@ -15,8 +15,8 @@
           <li class="active"><a href="">${c.pkg_dict.title or c.pkg_dict.name}</a></li>
         </ol>
         <ul class="actions">
-          <li><a class="btn" href=""><i class="ckan-icon ckan-icon-rewind"></i> History</a></li>
-          <li><a class="btn" href="" py:if="h.check_access('package_update',{'id':c.pkg.id})"><i class="ckan-icon ckan-icon-tools"></i> Edit</a></li>
+          <li>${h.nav_link(_('History'), controller='package', action='history', id=c.pkg.id, class_='btn', icon='rewind')}</li>
+          <li>${h.nav_link(_('Edit'), controller='package', action='edit', id=c.pkg.id, class_='btn', icon='tools', condition=h.check_access('package_update',{'id':c.pkg.id}))}</li>
           <li><a class="btn" href=""><i class="ckan-icon ckan-icon-flag"></i> Report Issue</a></li>
         </ul>
       </nav>
