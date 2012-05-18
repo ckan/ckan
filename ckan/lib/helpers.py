@@ -281,16 +281,30 @@ def nav_link(*args, **kwargs):
     return _nav_link(*args, **kwargs)
 
 def _nav_link(text, controller, **kwargs):
-
+    '''
+    params
+    class_: pass extra class(s) to add to the <a> tag
+    icon: name of ckan icon to use within the link
+    condition: if False then no link is returned
+    '''
     highlight_actions = kwargs.pop("highlight_actions",
                                    kwargs["action"]).split()
-    return link_to(
-        text,
-        url_for(controller=controller, **kwargs),
-        class_=('active' if
-                c.controller == controller and c.action in highlight_actions
-                else None)
-    )
+    icon = kwargs.pop('icon', None)
+    if icon:
+        text = literal('<i class="ckan-icon ckan-icon-%s"></i> ' % icon) + text
+    active =(' active' if
+            c.controller == controller and c.action in highlight_actions
+            else '')
+    class_ = kwargs.pop('class_', '') + active
+    if kwargs.pop('condition', True):
+        link = link_to(
+            text,
+            url_for(controller=controller, **kwargs),
+            class_=class_
+        )
+    else:
+        link = ''
+    return link
 
 def nav_named_link(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
