@@ -73,6 +73,7 @@ setup(
     rdf-export = ckan.lib.cli:RDFExport
     tracking = ckan.lib.cli:Tracking
     plugin-info = ckan.lib.cli:PluginInfo
+    profile = ckan.lib.cli:Profile
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
