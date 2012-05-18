@@ -552,6 +552,18 @@ def format_icon(_format):
     if ('xml' in _format): return 'page_white_code'
     return 'page_white'
 
+def dict_list_reduce(list_, key, unique=True):
+    ''' Take a list of dicts and create a new one containing just the
+    values for the key with unique values if requested. '''
+    new_list = []
+    for item in list_:
+        value = item.get(key)
+        if not value or (unique and value in new_list):
+            continue
+        new_list.append(value)
+    return new_list
+
+
 def linked_gravatar(email_hash, size=100, default=None):
     return literal(
         '<a href="https://gravatar.com/" target="_blank"' +
@@ -909,6 +921,7 @@ __allowed_functions__ = [
            'include_resource',
            'build_nav_main',
            'debug_inspect',
+           'dict_list_reduce',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',

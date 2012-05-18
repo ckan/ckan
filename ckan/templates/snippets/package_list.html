@@ -8,9 +8,9 @@
     </div>
     <py:if test="package.resources">
       <ul class="dataset-resources unstyled">
-        <py:for each="resource in package.resources">
-          <li py:if="resource.get('format')">
-            <a href="${resource.get('url')}" class="label resource-url-analytics" title="${resource.get('description')}">${resource.get('format')}</a>
+        <py:for each="resource in h.dict_list_reduce(package.resources, 'format')">
+          <li>
+            <a href="${h.url_for(controller='package', action='read', id=package.get('name'))}" class="label">${resource}</a>
           </li>
         </py:for>
       </ul>
