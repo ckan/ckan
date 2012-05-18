@@ -1,5 +1,6 @@
 import uuid
 import logging
+import json
 
 from pylons import config
 from pylons.i18n import _
@@ -810,13 +811,14 @@ def package_search(context, data_dict):
     results = []
     if not abort:
         # return a list of package ids
-        data_dict['fl'] = 'id'
+        data_dict['fl'] = 'id data_dict'
 
         query = search.query_for(model.Package)
         query.run(data_dict)
 
         for package in query.results:
             # get the package object
+            package, package_dict = package['id'], package.get('data_dict')
             pkg_query = session.query(model.PackageRevision)\
                 .filter(model.PackageRevision.id == package)\
                 .filter(_and_(
@@ -830,9 +832,16 @@ def package_search(context, data_dict):
             if not pkg:
                 log.warning('package %s in index but not in database' % package)
                 continue
-
-            result_dict = model_dictize.package_dictize(pkg,context)
-            results.append(result_dict)
+            ## use data in search index if there
+            if package_dict:
+                ## the package_dict still needs translating when being viewed
+                package_dict = json.loads(package_dict)
+                if context.get('for_view'):
+                    for item in plugins.PluginImplementations( plugins.IPackageController):
+                        package_dict = item.before_view(package_dict)
+                results.append(package_dict)
+            else:
+                results.append(model_dictize.package_dictize(pkg,context))
 
         count = query.count
         facets = query.facets
