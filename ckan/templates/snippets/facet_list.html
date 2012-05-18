@@ -23,7 +23,7 @@ count_label
   how a facet-item's count is displayed.
   
   -->
-<py:with vars="items=h.unselected_facet_items(name, 10)" xmlns:py="http://genshi.edgewall.org/">
+<py:with vars="items=h.unselected_facet_items(name, limit)" xmlns:py="http://genshi.edgewall.org/">
   <section class="module" py:if="len(items)">
     <h2 class="heading">${h.facet_title(title)} <a href="${c.remove_field(name)}" class="action">Clear All</a></h2>
     <nav>
