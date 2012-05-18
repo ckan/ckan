@@ -115,7 +115,7 @@ def related_update(context, data_dict):
 
     if not related:
         logging.error('Could not find related ' + id)
-        raise NotFound(_('Related was not found.'))
+        raise NotFound(_('Item was not found.'))
 
     _check_access('related_update', context, data_dict)
     data, errors = _validate(data_dict, schema, context)
@@ -126,7 +126,7 @@ def related_update(context, data_dict):
 
     # Only sys admins can update a related item to make it 1
     if not authz.Authorizer().is_sysadmin(unicode(user)):
-        data['featured'] = 0
+        del data['featured']
 
     related = model_save.related_dict_save(data, context)
     if not context.get('defer_commit'):
