@@ -1,4 +1,7 @@
+import functools
 import logging
+import types
+
 from ckan.lib.base import _
 import ckan.authz
 from ckan.new_authz import is_authorized
@@ -197,7 +200,7 @@ def get_action(action):
     # First get the default ones in the ckan/logic/action directory
     # Rather than writing them out in full will use __import__
     # to load anything from ckan.logic.action that looks like it might
-    # be an action 
+    # be an action
     for action_module_name in ['get', 'create', 'update','delete']:
         module_path = 'ckan.logic.action.'+action_module_name
         module = __import__(module_path)
@@ -205,7 +208,15 @@ def get_action(action):
             module = getattr(module, part)
         for k, v in module.__dict__.items():
             if not k.startswith('_'):
-                _actions[k] = v
+                # Only load functions from the action module.
+                if isinstance(v, types.FunctionType):
+                    _actions[k] = v
+
+                    # Whitelist all actions defined in logic/action/get.py as
+                    # being side-effect free.
+                    v.side_effect_free = getattr(v, 'side_effect_free', True) and \
+                                         action_module_name == 'get'
+
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
     fetched_actions = {}
@@ -242,12 +253,31 @@ def get_or_bust(data_dict, keys):
     if isinstance(keys, basestring):
         keys = [keys]
     for key in keys:
-        value = data_dict.get(key)
-        if not value:
+        try:
+            value = data_dict[key]
+            values.append(value)
+        except KeyError:
             errors[key] = _('Missing value')
-        values.append(value)
     if errors:
         raise ValidationError(errors)
     if len(values) == 1:
         return values[0]
     return tuple(values)
+
+def side_effect_free(action):
+    '''A decorator that marks the given action as side-effect-free.
+
+    The consequence of which is that the action becomes available through a
+    GET request in the action API.
+
+    This decorator is for users defining their own actions through the IAction
+    interface, and they want to expose their action with a GET request as well
+    as the usual POST request.
+    '''
+
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.side_effect_free = True
+
+    return wrapper

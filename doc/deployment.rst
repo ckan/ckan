@@ -28,7 +28,7 @@ deployment configurations including:
 Deploying CKAN on an Ubuntu Server using Apache and modwsgi
 ===========================================================
 
-These instructions have been tested on Ubuntu 10.04 with CKAN 1.6.1.
+These instructions have been tested on Ubuntu 10.04 with CKAN 1.7.
 
 This is the standard way to deploy CKAN.
 

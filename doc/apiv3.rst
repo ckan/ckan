@@ -30,6 +30,10 @@ The Action API is a powerful RPC-style way of accessing CKAN data. Its intention
 
 A client supplies parameters to the Action API via a JSON dictionary of a POST request, and returns results, help information and any error diagnostics in a JSON dictionary too. This is a departure from the CKAN API versions 1 and 2, which being RESTful required all the request parameters to be part of the URL.
 
+In addition to the above, any of the actions defined in
+`ckan/logic/action/get.py` can be accessed with a GET request to the same URI
+endpoint.  See below for examples.
+
 Requests
 --------
 
@@ -269,14 +273,50 @@ lang_code        "de"                      The language of the translation, a la
 Parameters
 ==========
 
-Requests must be a POST, including parameters in a JSON dictionary. If there are no parameters required, then an empty dictionary is still required (or you get a 400 error).
+All actions accept POST request including parameters in a JSON dictionary. If there are no parameters required, then an empty dictionary is still required (or you get a 400 error).
 
 Examples::
 
  curl http://test.ckan.net/api/action/package_list -d '{}'
  curl http://test.ckan.net/api/action/package_show -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
 
+GET-able Actions
+----------------
 
+Actions defined in get.py can also be accessed with a GET request **in
+addition** to the POST method described just above.
+
+Each parameter is specified as a url parameter, for example: ::
+
+ curl http://test.ckan.net/api/3/action/package_search?q=police
+
+Or if the action expects a list of string for a given paramter, then that
+parameter may be specified more than once, for example: ::
+
+ curl http://test.ckan.net/api/3/action/term_translation_show?terms=russian&terms=romantic%20novel
+
+will result in the following parameters being sent to the
+`term_translation_show` action: ::
+
+  {
+    'terms': ['russian', 'romantic novel']
+  }
+
+This interface is *slightly* more limited than the POST interface because it
+doesn't allow passing nested dicts into the action be accessed.  As a
+consequence of this, currently the *resource_search*, *tag_search* and
+*tag_autocomplete* actions are **limited** in their functionality.
+
+`resource_search`:
+    This action is not currently usable via a GET request as it relies upon
+    a nested dict of fields.
+
+`tag_search` and `tag_autocomplete`:
+    The `fields` argument is not available when accessing this action with a
+    GET request.
+
+Also, it is worth bearing this limitation in mind when creating your own
+actions via the `IActions` interface.
 
 Responses
 =========

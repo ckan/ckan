@@ -151,7 +151,7 @@ def load_environment(global_conf, app_conf):
     config['pylons.app_globals'] = app_globals.Globals()
 
     # add helper functions
-    restrict_helpers = asbool(config.get('ckan.restrict_template_vars', 'false'))
+    restrict_helpers = asbool(config.get('ckan.restrict_template_vars', 'true'))
     helpers = _Helpers(h, restrict_helpers)
     config['pylons.h'] = helpers
 
