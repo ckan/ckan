@@ -38,17 +38,17 @@
 
           <section id="dataset-resources" class="resources content">
             <h3>Resources</h3>
-            <ul class="resource-list" py:if="len(c.pkg_dict.get('resources', []))">
-              <li class="resource-item" py:for="res in c.pkg_dict.get('resources', [])" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
+            <ul class="resource-list" py:if="c.pkg_dict.resources">
+              <li class="resource-item" py:for="res in c.pkg_dict.resources" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
                 <a class="heading" href="${url}">
                   ${h.resource_display_name(res)}
-                  <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
+                  <span py:if="res.format" class="format-box" property="dc:format">${res.format}</span>
                 </a>
                 <p class="description">${h.markdown_extract(res.description, extract_length=80)}</p>
                 <a class="btn btn-primary" href="${url}">Explore Data</a>
               </li>
             </ul>
-            <py:if test="not len(c.pkg_dict.get('resources', []))">
+            <py:if test="not c.pkg_dict.resources">
               (none)
             </py:if>
           </section>
