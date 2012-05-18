@@ -1,0 +1,7 @@
+<ul class="tag-list well" xmlns:py="http://genshi.edgewall.org/">
+    <py:for each="tag in tags">
+    <li py:if="not tag.get('vocabulary_id')">
+      ${h.link_to(tag['display_name'], h.url_for(controller='tag', action='read', id=tag['name']), class_='tag')}
+    </li>
+    </py:for>
+</ul>

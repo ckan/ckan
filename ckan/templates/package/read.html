@@ -53,14 +53,7 @@
             </py:if>
           </section>
           <section class="tags content">
-            <ul class="well tag-list">
-              <li><a class="tag" href="#">Tags</a></li>
-              <li><a class="tag" href="#">Tags</a></li>
-              <li><a class="tag" href="#">Tags</a></li>
-              <li><a class="tag" href="#">Tags</a></li>
-              <li><a class="tag" href="#">Tags</a></li>
-              <li><a class="tag" href="#">Tags</a></li>
-            </ul>
+            ${h.snippet('snippets/tag_list.html', tags=c.pkg_dict.tags)}
           </section>
           <section class="content additional-info">
             <h3>Additional Info</h3>
