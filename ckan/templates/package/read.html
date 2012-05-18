@@ -6,13 +6,13 @@
   xmlns:xi="http://www.w3.org/2001/XInclude">
     <xi:include href="../page.html" />
     <head>
-      <title>${c.pkg_dict.get('title', c.pkg_dict.name)} - Datasets</title>
+      <title>${c.pkg_dict.title or c.pkg_dict.name} - Datasets</title>
     </head>
     <body>
       <nav class="toolbar">
         <ol class="breadcrumb">
           <li>${h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index')}</li>
-          <li class="active"><a href="">${c.pkg_dict.get('title', c.pkg_dict.name)}</a></li>
+          <li class="active"><a href="">${c.pkg_dict.title or c.pkg_dict.name}</a></li>
         </ol>
         <ul class="actions">
           <li><a class="btn" href=""><i class="ckan-icon ckan-icon-rewind"></i> History</a></li>
@@ -29,7 +29,7 @@
 
         <article class="module prose">
           <section class="content">
-            <h1>${c.pkg_dict.get('title', c.pkg_dict.name)}</h1>
+            <h1>${c.pkg_dict.title or c.pkg_dict.name}</h1>
             <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
               ${c.pkg_notes_formatted}
             </div>
