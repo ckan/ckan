@@ -40,11 +40,18 @@
             <h3>Resources</h3>
             <ul class="resource-list" py:if="c.pkg_dict.resources">
               <li class="resource-item" py:for="res in c.pkg_dict.resources" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
-                <a class="heading" href="${url}">
+              <a class="heading" href="${url}" title="${res.name or res.description}">
                   ${h.resource_display_name(res)}
                   <span py:if="res.format" class="format-box" property="dc:format">${res.format}</span>
                 </a>
-                <p class="description">${h.markdown_extract(res.description, extract_length=80)}</p>
+                <p class="description"><py:choose test="">
+                <!-- only show description if name is given as we show
+                the description for the name if none is given -->
+                <py:if test="res.name">
+                ${h.markdown_extract(res.description, extract_length=80)}
+                </py:if>
+                <py:otherwise>&nbsp;</py:otherwise>
+                </py:choose></p>
                 <a class="btn btn-primary" href="${url}">Explore Data</a>
               </li>
             </ul>
