@@ -231,6 +231,7 @@ def group_list(context, data_dict):
     model = context['model']
     user = context['user']
     api = context.get('api_version')
+    groups = data_dict.get('groups')
     ref_group_by = 'id' if api == 2 else 'name';
     order_by = data_dict.get('order_by', 'name')
     if order_by not in set(('name', 'packages')):
@@ -242,6 +243,8 @@ def group_list(context, data_dict):
     query = model.Session.query(model.Group).join(model.GroupRevision)
     query = query.filter(model.GroupRevision.state=='active')
     query = query.filter(model.GroupRevision.current==True)
+    if groups:
+        query = query.filter(model.GroupRevision.name.in_(groups))
 
     if order_by == 'name':
         sort_by, reverse = 'name', False
