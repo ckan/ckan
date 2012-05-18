@@ -6,13 +6,13 @@
   xmlns:xi="http://www.w3.org/2001/XInclude">
     <xi:include href="../page.html" />
     <head>
-      <title>${c.pkg_dict.get('title', c.pkg_dict['name'])} - Datasets</title>
+      <title>${c.pkg_dict.get('title', c.pkg_dict.name)} - Datasets</title>
     </head>
     <body>
       <nav class="toolbar">
         <ol class="breadcrumb">
           <li>${h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index')}</li>
-          <li class="active"><a href="">${c.pkg_dict.get('title', c.pkg_dict.get('name'))}</a></li>
+          <li class="active"><a href="">${c.pkg_dict.get('title', c.pkg_dict.name)}</a></li>
         </ol>
         <ul class="actions">
           <li><a class="btn" href=""><i class="ckan-icon ckan-icon-rewind"></i> History</a></li>
@@ -29,7 +29,7 @@
 
         <article class="module prose">
           <section class="content">
-            <h1>${c.pkg_dict.get('title', c.pkg_dict.get('name'))}</h1>
+            <h1>${c.pkg_dict.get('title', c.pkg_dict.name)}</h1>
             <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
               ${c.pkg_notes_formatted}
             </div>
@@ -149,12 +149,12 @@
         <section class="module info license" py:if="c.pkg.license_id">
           <h2 class="heading"><i class="ckan-icon ckan-icon-lock"></i> License</h2>
           <p class="content">
-            <a py:if="c.pkg_dict.get('license_url')" href="${c.pkg_dict.get('license_url')}" rel="dc:rights">${c.pkg_dict.get('license_title')}</a>
-            <span py:if="c.pkg.license" property="dc:rights">${c.pkg_dict.get('license_title')}</span>
-            <a py:if="c.pkg_dict.get('isopen')" href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+            <a py:if="c.pkg_dict.license_url" href="${c.pkg_dict.license_url}" rel="dc:rights">${c.pkg_dict.license_title}</a>
+            <span py:if="c.pkg.license" property="dc:rights">${c.pkg_dict.license_title}</span>
+            <a py:if="c.pkg_dict.isopen" href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
               <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
             </a>
-            <span py:if="not c.pkg_dict.get('isopen')" class="closed">${h.icon('lock')}</span>
+            <span py:if="not c.pkg_dict.isopen" class="closed">${h.icon('lock')}</span>
           </p>
         </section>
 
