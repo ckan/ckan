@@ -58,6 +58,7 @@
         <section class="module info">
           <small class="content">
             You can also access this registry using the ${h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1))}
+            <!--! FIXME the API Docs link should be for the version of ckan being used but the dev version of ckan needs to point to latest so not trivial -->
             (see ${h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html')})
             <py:if test="config.get('ckan.dumps_url')">or download a <a href="${config.get('ckan.dumps_url')}">full ${config.get('ckan.dumps_format', '')} dump</a></py:if>.
           </small>
