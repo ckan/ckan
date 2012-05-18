@@ -44,7 +44,7 @@
                   ${h.resource_display_name(res)}
                   <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
                 </a>
-                <p class="description">Some truncated description of the resource. Max one line.</p>
+                <p class="description">${h.markdown_extract(res.description, extract_length=80)}</p>
                 <a class="btn btn-primary" href="${url}">Explore Data</a>
               </li>
             </ul>
