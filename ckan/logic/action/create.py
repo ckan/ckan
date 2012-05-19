@@ -30,7 +30,77 @@ NotFound = logic.NotFound
 _get_or_bust = logic.get_or_bust
 
 def package_create(context, data_dict):
+    '''Create a new dataset (package) and return it.
 
+    You must be authorized to create new datasets. If you specify any groups
+    for the new dataset, you must also be authorized to edit these groups.
+
+    Plugins may change the parameters of this function depending on the value
+    of the ``type`` parameter, see the ``IDatasetForm`` plugin interface.
+
+    :param name: the name of the new dataset, must be between 2 and 100
+        characters long and contain only lowercase alphanumeric characters, -
+        and _
+    :type name: string
+    :param title: the title of the dataset (optional, default: same as
+        ``name``)
+    :type title: string
+    :param author: the name of the dataset's author (optional)
+    :type author: string
+    :param author_email: the email address of the dataset's author (optional)
+    :type author_email: string
+    :param maintainer: the name of the dataset's maintainer (optional)
+    :type maintainer: string
+    :param maintainer_email: the email address of the dataset's maintainer
+        (optional)
+    :type maintainer_email: string
+    :param license_id: the id of the dataset's license, see ``license_list()``
+        for available values (optional)
+    :type license_id: license id string
+    :param notes: a description of the dataset (optional)
+    :type notes: string
+    :param url: a URL for the dataset's source (optional)
+    :type url: string
+    :param version: (optional)
+    :type version: string, no longer than 100 characters
+    :param state: the current state of the dataset, e.g. ``'active'`` or
+        ``'deleted'``, only active datasets show up in search results and
+        other lists of datasets, this parameter will be ignored if you are not
+        authorized to change the state of the dataset (optional, default:
+        ``'active'``)
+    :type state: string
+    :param type: the type of the dataset (optional), ``IDatasetForm`` plugins
+        associate themselves with different dataset types and provide custom
+        dataset handling behaviour for these types
+    :type type:
+    :param resources: the dataset's resources, see ``resource_create()``
+        for the format of resource dictionaries (optional)
+    :type resources: list of resource dictionaries
+    :param tags: the dataset's tags, see ``tag_create()`` for the format
+        of tag dictionaries (optional)
+    :type tags: list of tag dictionaries
+    :param extras: the dataset's extras (optional), extras are arbitrary
+        (key: value) metadata items that users can add to datasets, each extra
+        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
+        string), and optionally ``'deleted'``
+    :type extras: list of dataset extra dictionaries
+    :param relationships_as_object: see ``package_relationship_create()`` for
+        the format of relationship dictionaries (optional)
+    :type relationships_as_object: list of relationship dictionaries
+    :param relationships_as_subject: see ``package_relationship_create()`` for
+        the format of relationship dictionaries (optional)
+    :type relationships_as_subject: list of relationship dictionaries
+    :param groups: the groups to which the dataset belongs (optional), each
+        group dictionary should have one or more of the following keys which
+        identify an existing group:
+        ``'id'`` (the id of the group, string), ``'name'`` (the name of the
+        group, string), ``'title'`` (the title of the group, string), to see
+        which groups exist call ``group_list()``
+    :type groups: list of dictionaries
+
+    :rtype: dataset dictionary
+
+    '''
     model = context['model']
     user = context['user']
     model.Session.remove()
