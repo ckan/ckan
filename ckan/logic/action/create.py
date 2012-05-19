@@ -72,7 +72,7 @@ def package_create(context, data_dict):
     :param type: the type of the dataset (optional), ``IDatasetForm`` plugins
         associate themselves with different dataset types and provide custom
         dataset handling behaviour for these types
-    :type type:
+    :type type: string
     :param resources: the dataset's resources, see ``resource_create()``
         for the format of resource dictionaries (optional)
     :type resources: list of resource dictionaries
@@ -80,7 +80,7 @@ def package_create(context, data_dict):
         of tag dictionaries (optional)
     :type tags: list of tag dictionaries
     :param extras: the dataset's extras (optional), extras are arbitrary
-        (key: value) metadata items that users can add to datasets, each extra
+        (key: value) metadata items that can be added to datasets, each extra
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
         string), and optionally ``'deleted'``
     :type extras: list of dataset extra dictionaries
@@ -188,6 +188,31 @@ def resource_create(context, data_dict):
 
 
 def related_create(context, data_dict):
+    '''Add a new related item to a dataset and return the new related item.
+
+    You must provide your API key in the Authorization header to add a
+    related item.
+
+    :param title: the title of the related item
+    :type title: string
+    :param type: the type of the related item, e.g. ``'Application'``,
+        ``'Idea'`` or ``'Visualisation'``
+    :type type: string
+    :param id: the id of the related item (optional)
+    :type id: string
+    :param description: the description of the related item (optional)
+    :type description: string
+    :param url: the URL to the related item (optional)
+    :type url: string
+    :param image_url: the URL to the image for the related item (optional)
+    :type image_url: string
+    :param dataset_id: the name or id of the dataset that the related item
+        belongs to (optional)
+    :type dataset_id: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
     userobj = model.User.get(user)
@@ -216,7 +241,26 @@ def related_create(context, data_dict):
 
 
 def package_relationship_create(context, data_dict):
+    '''Create a relationship between two datasets (packages) and return it.
 
+    You must be authorized to edit both the subject and the object datasets
+    to create a relationship between them.
+
+    :param subject: the id or name of the dataset that is the subject of the
+        relationship
+    :type subject: string
+    :param object: the id or name of the dataset that is the object of the
+        relationship
+    :param type: the type of the relationship, one of ``'depends_on'``,
+        ``'dependency_of'``, ``'derives_from'``, ``'has_derivation'``,
+        ``'links_to'``, ``'linked_from'``, ``'child_of'`` or ``'parent_of'``
+    :type type: string
+    :param comment: a comment about the relationship (optional)
+    :type comment: string
+
+    :rtype: package relationship dictionary
+
+    '''
     model = context['model']
     user = context['user']
     schema = context.get('schema') or ckan.logic.schema.default_create_relationship_schema()
@@ -258,22 +302,27 @@ def package_relationship_create(context, data_dict):
     return relationship_dicts
 
 def member_create(context, data_dict=None):
-    """
-    Add an object as a member to a group. If the membership already exists
-    and is active then the capacity will be overwritten in case it has
-    changed.
+    '''Make an object (e.g. a user, dataset or group) a member of a group.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
+    If the object is already a member of the group then the capacity of the
+    membership will be updated.
 
-    data_dict:
-        id - The ID of the group to which we want to add a new object
-        object - The ID of the object being added as a member
-        object_type - The name of the type being added, all lowercase,
-                      e.g. package, or user
-        capacity - The capacity with which to add this object
-    """
+    You must be authorized to edit a group in order to add an object to it.
+
+    :param id: the id or name of the group to add the object to
+    :type id: string
+    :param object: the id or name of the object to add
+    :type object: string
+    :param object_type: the type of the object being added, e.g. ``'package'``
+        or ``'user'``
+    :type object_type: string
+    :param capacity: the capacity of the membership
+    :type capacity: string
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
 
@@ -310,6 +359,62 @@ def member_create(context, data_dict=None):
     return model_dictize.member_dictize(member, context)
 
 def group_create(context, data_dict):
+    '''Create a new group.
+
+    You must be authorized to create groups to use this function.
+
+    Plugins may change the parameters of this function depending on the value
+    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
+
+    :param name: the name of the group, a string between 2 and 100 characters
+        long, containing only lowercase alphanumeric characters, - and _
+    :type name: string
+    :param id: the id of the group (optional)
+    :type id: string
+    :param title: the title of the group (optional)
+    :type title: string
+    :param description: the description of the group (optional)
+    :type description: string
+    :param image_url: the URL to an image to be displayed on the group's page
+        (optional)
+    :type image_url: string
+    :param type: the type of the group (optional), ``IGroupForm`` plugins
+        associate themselves with different group types and provide custom
+        group handling behaviour for these types
+    :type type: string
+    :param state: the current state of the group, e.g. ``'active'`` or
+        ``'deleted'``, only active groups show up in search results and
+        other lists of groups, this parameter will be ignored if you are not
+        authorized to change the state of the group (optional, default:
+        ``'active'``)
+    :type state: string
+    :param approval_status: (optional)
+    :type approval_status: string
+    :param extras: the group's extras (optional), extras are arbitrary
+        (key: value) metadata items that can be added to groups, each extra
+        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
+        string), and optionally ``'deleted'``
+    :type extras: list of dataset extra dictionaries
+    :param packages: the datasets (packages) that belong to the group, a list
+        of dictionaries each with keys ``'name'`` (string, the id or name of
+        the dataset) and optionally ``'title'`` (string, the title of the
+        dataset)
+    :type packages: list of dictionaries
+    :param groups: the groups that belong to the group, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the group) and
+        optionally ``'capacity'`` (string, the capacity in which the group is
+        a member of the group)
+    :type groups: list of dictionaries
+    :param users: the users that belong to the group, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the user) and
+        optionally ``'capacity'`` (string, the capacity in which the user is
+        a member of the group)
+    :type users: list of dictionaries
+
+    :returns: the newly created group
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
     session = context['session']
