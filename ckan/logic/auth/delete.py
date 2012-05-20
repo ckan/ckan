@@ -75,7 +75,6 @@ def revision_delete(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
 
 def task_status_delete(context, data_dict):
-    model = context['model']
     user = context['user']
 
     authorized =  Authorizer().is_sysadmin(unicode(user))

@@ -14,7 +14,14 @@ _check_access = ckan.logic.check_access
 _get_or_bust = ckan.logic.get_or_bust
 
 def package_delete(context, data_dict):
+    '''Delete a dataset (package).
 
+    You must be authorized to delete the dataset.
+
+    :param id: the id or name of the dataset to delete
+    :type id: string
+
+    '''
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, 'id')
@@ -37,7 +44,21 @@ def package_delete(context, data_dict):
 
 
 def package_relationship_delete(context, data_dict):
+    '''Delete a dataset (package) relationship.
 
+    You must be authorised to delete dataset relationships, and to edit both
+    the subject and the object datasets.
+
+    :param subject: the id or name of the dataset that is the subject of the
+        relationship
+    :type subject: string
+    :param object: the id or name of the dataset that is the object of the
+        relationship
+    :type object: string
+    :param type: the type of the relationship
+    :type type: string
+
+    '''
     model = context['model']
     user = context['user']
     id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
@@ -67,8 +88,15 @@ def package_relationship_delete(context, data_dict):
     model.repo.commit()
 
 def related_delete(context, data_dict):
+    '''Delete a related item from a dataset.
+
+    You must be a sysadmin or the owner of the related item to delete it.
+
+    :param id: the id of the related item
+    :type id: string
+
+    '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, 'id')
 
     entity = model.Related.get(id)
@@ -83,22 +111,20 @@ def related_delete(context, data_dict):
 
 
 def member_delete(context, data_dict=None):
-    """
-    Removes an object as a member of a group. If the membership already exists
-    and is active then it will be deleted.
+    '''Remove an object (e.g. a user, dataset or group) from a group.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
+    You must be authorized to edit a group to remove objects from it.
 
-    data_dict:
-        id - The ID of the group from which we want to remove object
-        object - The ID of the object being removed as a member
-        object_type - The name of the type being removed, all lowercase,
-                      e.g. package, or user
-    """
+    :param id: the id of the group
+    :type id: string
+    :param object: the id of the object to be removed
+    :type object: string
+    :param object_type: the type of the object to be removed, e.g. ``package``
+        or ``user``
+    :type object_type: string
+
+    '''
     model = context['model']
-    user = context['user']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
     obj_id, obj_type = _get_or_bust(data_dict, ['object', 'object_type'])
@@ -116,7 +142,14 @@ def member_delete(context, data_dict=None):
         model.repo.commit()
 
 def group_delete(context, data_dict):
+    '''Delete a group.
 
+    You must be authorized to delete the group.
+
+    :param id: the name or id of the group
+    :type id: string
+
+    '''
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, 'id')
@@ -141,8 +174,15 @@ def group_delete(context, data_dict):
     model.repo.commit()
 
 def task_status_delete(context, data_dict):
+    '''Delete a task status.
+
+    You must be a sysadmin to delete task statuses.
+
+    :param id: the id of the task status to delete
+    :type id: string
+
+    '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, 'id')
     model.Session.remove()
     model.Session()._context = context
@@ -158,6 +198,14 @@ def task_status_delete(context, data_dict):
     model.Session.commit()
 
 def vocabulary_delete(context, data_dict):
+    '''Delete a tag vocabulary.
+
+    You must be a sysadmin to delete vocabularies.
+
+    :param id: the id of the vocabulary
+    :type id: string
+
+    '''
     model = context['model']
 
     vocab_id = data_dict.get('id')
@@ -174,6 +222,17 @@ def vocabulary_delete(context, data_dict):
     model.repo.commit()
 
 def tag_delete(context, data_dict):
+    '''Delete a tag.
+
+    You must be a sysadmin to delete tags.
+
+    :param id: the id or name of the tag
+    :type id: string
+    :param vocabulary_id: the id or name of the vocabulary that the tag belongs
+        to (optional, default: None)
+    :type vocabulary_id: string
+
+    '''
     model = context['model']
 
     if not data_dict.has_key('id') or not data_dict['id']:
@@ -228,6 +287,12 @@ def _unfollow(context, data_dict, FollowerClass):
     model.repo.commit()
 
 def unfollow_user(context, data_dict):
+    '''Stop following a user.
+
+    :param id: the id or name of the user to stop following
+    :type id: string
+
+    '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = validate(data_dict, schema, context)
@@ -237,6 +302,12 @@ def unfollow_user(context, data_dict):
     _unfollow(context, data_dict, context['model'].UserFollowingUser)
 
 def unfollow_dataset(context, data_dict):
+    '''Stop following a dataset.
+
+    :param id: the id or name of the dataset to stop following
+    :type id: string
+
+    '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = validate(data_dict, schema, context)

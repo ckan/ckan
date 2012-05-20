@@ -52,14 +52,21 @@ def _package_list_with_resources(context, package_revision_list):
     return package_list
 
 def site_read(context,data_dict=None):
+    '''Return ``True``.
+
+    :rtype: boolean
+
+    '''
     _check_access('site_read',context,data_dict)
     return True
 
 def package_list(context, data_dict):
-    '''Lists packages by name or id'''
+    '''Return a list of the names of the site's datasets (packages).
 
+    :rtype: list of strings
+
+    '''
     model = context["model"]
-    user = context["user"]
     api = context.get("api_version", 1)
     ref_package_by = 'id' if api == 2 else 'name'
 
@@ -73,9 +80,30 @@ def package_list(context, data_dict):
     return [getattr(p, ref_package_by) for p in packages]
 
 def current_package_list_with_resources(context, data_dict):
+    '''Return a list of the site's datasets (packages) and their resources.
+
+    The list is sorted most-recently-modified first.
+
+    :param limit: if given, the list of datasets will be broken into pages of
+        at most ``limit`` datasets per page and only one page will be returned
+        at a time (optional)
+    :type limit: int
+    :param page: when ``limit`` is given, which page to return
+    :type page: int
+
+    :rtype: list of dictionaries
+
+    '''
     model = context["model"]
-    user = context["user"]
-    limit = data_dict.get("limit")
+    if data_dict.has_key('limit'):
+        try:
+            limit = int(data_dict['limit'])
+            if limit < 0:
+                limit = 0
+        except ValueError, e:
+            raise logic.ParameterError("'limit' should be an int")
+    else:
+        limit = None
     page = int(data_dict.get('page', 1))
 
     _check_access('current_package_list_with_resources', context, data_dict)
@@ -85,14 +113,18 @@ def current_package_list_with_resources(context, data_dict):
     query = query.filter(model.PackageRevision.current==True)
 
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
-    if limit:
-        query = query.limit(int(limit))
+    if limit is not None:
+        query = query.limit(limit)
         query = query.offset((page-1)*limit)
     pack_rev = query.all()
     return _package_list_with_resources(context, pack_rev)
 
 def revision_list(context, data_dict):
+    '''Return a list of the IDs of the site's revisions.
 
+    :rtype: list of strings
+
+    '''
     model = context['model']
 
     _check_access('revision_list', context, data_dict)
@@ -101,6 +133,12 @@ def revision_list(context, data_dict):
     return [rev.id for rev in revs]
 
 def package_revision_list(context, data_dict):
+    '''Return a dataset (package)'s revisions as a list of dictionaries.
+
+    :param id: the id or name of the dataset
+    :type id: string
+
+    '''
     model = context["model"]
     id = _get_or_bust(data_dict, "id")
     pkg = model.Package.get(id)
@@ -118,16 +156,14 @@ def package_revision_list(context, data_dict):
 
 
 def related_show(context, data_dict=None):
-    """
-    Shows a single related item
+    '''Return a single related item.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
+    :param id: the id of the related item to show
+    :type id: string
 
-    data_dict:
-        id - The ID of the related item we want to show
-    """
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
@@ -147,20 +183,18 @@ def related_show(context, data_dict=None):
 
 
 def related_list(context, data_dict=None):
-    """
-    List the related items for a specific package which should be
-    mentioned in the data_dict
+    '''Return a dataset's related items.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
-        session - The current DB session
+    Either the ``id`` or the ``dataset`` parameter must be given.
 
-    data_dict:
-        id - The ID of the dataset to which we want to list related items
-        or
-        dataset - The dataset (package) model
-    """
+    :param id: id or name of the dataset (optional)
+    :type id: string
+    :param dataset: dataset dictionary of the dataset (optional)
+    :type dataset: dictionary
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     session = context['session']
     dataset = data_dict.get('dataset', None)
@@ -180,20 +214,23 @@ def related_list(context, data_dict=None):
 
 
 def member_list(context, data_dict=None):
-    """
-    Returns a list of (id,type,capacity) tuples that are members of the
-    specified group if the user has permission to 'get' the group.
+    '''Return the members of a group.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
+    The user must have permission to 'get' the group.
 
-    data_dict:
-        id - The ID of the group to which we want to list members
-        object_type - The optional name of the type being added, all lowercase,
-                      e.g. package, or user
-        capacity - The optional capacity of objects that we want to retrieve
-    """
+    :param id: the id or name of the group
+    :type id: string
+    :param object_type: restrict the members returned to those of a given type,
+      e.g. ``'user'`` or ``'package'`` (optional, default: ``None``)
+    :type object_type: string
+    :param capacity: restrict the members returned to those with a given
+      capacity, e.g. ``'member'``, ``'editor'``, ``'admin'``, ``'public'``,
+      ``'private'`` (optional, default: ``None``)
+    :type capacity: string
+
+    :rtype: list of (id, type, capacity) tuples
+
+    '''
     model = context['model']
     user = context['user']
 
@@ -226,10 +263,22 @@ def member_list(context, data_dict=None):
              for m in q.all() ]
 
 def group_list(context, data_dict):
-    '''Returns a list of groups'''
+    '''Return a list of the names of the site's groups.
 
+    :param order_by: the field to sort the list by, must be ``'name'`` or
+      ``'packages'`` (optional, default: ``'name'``)
+    :type order_by: string
+    :param groups: a list of names of the groups to return, if given only
+        groups whose names are in this list will be returned (optional)
+    :type groups: list of strings
+    :param all_fields: return full group dictionaries instead of  just names
+        (optional, default: ``False``)
+    :type all_fields: boolean
+
+    :rtype: list of strings
+
+    '''
     model = context['model']
-    user = context['user']
     api = context.get('api_version')
     groups = data_dict.get('groups')
     ref_group_by = 'id' if api == 2 else 'name';
@@ -238,7 +287,7 @@ def group_list(context, data_dict):
         raise logic.ParameterError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
 
-    _check_access('group_list',context, data_dict)
+    _check_access('group_list', context, data_dict)
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
     query = query.filter(model.GroupRevision.state=='active')
@@ -263,11 +312,15 @@ def group_list(context, data_dict):
     return group_list
 
 def group_list_authz(context, data_dict):
-    '''
-    Returns a list of groups which the user is allowed to edit
+    '''Return the list of groups that the user is authorized to edit.
 
-    If 'available_only' is specified, the existing groups in the package are
-    removed.
+    :param available_only: remove the existing groups in the package
+      (optional, default: ``False``)
+    :type available_only: boolean
+
+    :returns: the names of groups that the user is authorized to edit
+    :rtype: list of strings
+
     '''
     model = context['model']
     user = context['user']
@@ -286,6 +339,14 @@ def group_list_authz(context, data_dict):
     return [{'id':group.id,'name':group.name} for group in groups]
 
 def group_revision_list(context, data_dict):
+    '''Return a group's revisions.
+
+    :param id: the name or id of the group
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
     group = model.Group.get(id)
@@ -302,6 +363,11 @@ def group_revision_list(context, data_dict):
     return revision_dicts
 
 def licence_list(context, data_dict):
+    '''Return the list of licenses available for datasets on the site.
+
+    :rtype: list of dictionaries
+
+    '''
     model = context["model"]
 
     _check_access('licence_list',context, data_dict)
@@ -312,15 +378,23 @@ def licence_list(context, data_dict):
     return licences
 
 def tag_list(context, data_dict):
-    '''Return a list of tag dictionaries.
-
-    If a query is provided in the data_dict with key 'query' or 'q', then only
-    tags whose names match the given query will be returned. Otherwise, all
-    tags will be returned.
+    '''Return a list of the site's tags.
 
     By default only free tags (tags that don't belong to a vocabulary) are
-    returned. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be returned instead.
+    returned. If the ``vocabulary_id`` argument is given then only tags
+    belonging to that vocabulary will be returned instead.
+
+    :param query: a tag name query to search for, if given only tags whose
+        names contain this string will be returned (optional)
+    :type query: string
+    :param vocabulary_id: the id or name of a vocabulary, if give only tags
+        that belong to this vocabulary will be returned (optional)
+    :type vocabulary_id: string
+    :param all_fields: return full tag dictionaries instead of just names
+        (optional, default: ``False``)
+    :type all_fields: boolean
+
+    :rtype: list of dictionaries
 
     '''
     model = context['model']
@@ -349,7 +423,18 @@ def tag_list(context, data_dict):
     return tag_list
 
 def user_list(context, data_dict):
-    '''Lists the current users'''
+    '''Return a list of the site's user accounts.
+
+    :param q: restrict the users returned to those whose names contain a string
+      (optional)
+    :type q: string
+    :param order_by: which field to sort the list by (optional, default:
+      ``'name'``)
+    :type order_by: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     user = context['user']
 
@@ -409,7 +494,18 @@ def user_list(context, data_dict):
     return users_list
 
 def package_relationships_list(context, data_dict):
+    '''Return a dataset (package)'s relationships.
 
+    :param id: the id or name of the package
+    :type id: string
+    :param id2:
+    :type id2:
+    :param rel:
+    :type rel:
+
+    :rtype: list of dictionaries
+
+    '''
     ##TODO needs to work with dictization layer
     model = context['model']
     user = context['user']
@@ -448,7 +544,14 @@ def package_relationships_list(context, data_dict):
     return relationship_dicts
 
 def package_show(context, data_dict):
+    '''Return the metadata of a dataset (package) and its resources.
 
+    :param id: the id or name of the dataset
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
@@ -482,6 +585,14 @@ def package_show(context, data_dict):
     return package_dict
 
 def resource_show(context, data_dict):
+    '''Return the metadata of a resource.
+
+    :param id: the id of the resource
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
@@ -495,7 +606,14 @@ def resource_show(context, data_dict):
     return model_dictize.resource_dictize(resource, context)
 
 def resource_status_show(context, data_dict):
+    '''Return the statuses of a resource's tasks.
 
+    :param id: the id of the resource
+    :type id: string
+
+    :rtype: list of (status, date_done, traceback, task_status) dictionaries
+
+    '''
     try:
         import ckan.lib.celery_app as celery_app
     except ImportError:
@@ -517,8 +635,15 @@ def resource_status_show(context, data_dict):
 
     return result_list
 
-
 def revision_show(context, data_dict):
+    '''Return the details of a revision.
+
+    :param id: the id of the revision
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     api = context.get('api_version')
     id = _get_or_bust(data_dict, 'id')
@@ -532,7 +657,14 @@ def revision_show(context, data_dict):
     return rev_dict
 
 def group_show(context, data_dict):
-    '''Shows group details'''
+    '''Return the details of a group.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
@@ -564,9 +696,16 @@ def group_show(context, data_dict):
     return group_dict
 
 def group_package_show(context, data_dict):
-    """
-    Shows all packages belonging to a group.
-    """
+    '''Return the datasets (packages) of a group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :param limit: the maximum number of datasets to return (optional)
+    :type limit: int
+
+    :rtype: list of dictionaries
+
+    '''
     model = context["model"]
     user = context["user"]
     id = _get_or_bust(data_dict, 'id')
@@ -600,8 +739,16 @@ def group_package_show(context, data_dict):
     return result
 
 def tag_show(context, data_dict):
-    '''Shows tag details'''
+    '''Return the details of a tag and all its datasets.
 
+    :param id: the name or id of the tag
+    :type id: string
+
+    :returns: the details of the tag, including a list of all of the tag's
+        datasets and their details
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
@@ -625,7 +772,18 @@ def tag_show(context, data_dict):
     return tag_dict
 
 def user_show(context, data_dict):
-    '''Shows user details'''
+    '''Return a user account.
+
+    Either the ``id`` or the ``user_obj`` parameter must be given.
+
+    :param id: the id or name of the user (optional)
+    :type id: string
+    :param user_obj: the user dictionary of the user (optional)
+    :type user_obj: user dictionary
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
 
@@ -675,7 +833,11 @@ def user_show(context, data_dict):
     return user_dict
 
 def package_show_rest(context, data_dict):
+    '''Return the metadata of a dataset (package) and its resources.
 
+    For parameters see package show.
+
+    '''
     _check_access('package_show_rest',context, data_dict)
 
     logic.get_action('package_show')(context, data_dict)
@@ -687,7 +849,11 @@ def package_show_rest(context, data_dict):
     return package_dict
 
 def group_show_rest(context, data_dict):
+    '''Return a group.
 
+    For parameters see group_show.
+
+    '''
     _check_access('group_show_rest',context, data_dict)
 
     logic.get_action('group_show')(context, data_dict)
@@ -698,7 +864,13 @@ def group_show_rest(context, data_dict):
     return group_dict
 
 def tag_show_rest(context, data_dict):
+    '''Return a list of the IDs of the datasets that belong to a tag.
 
+    For parameters see tag_show.
+
+    :rtype: list of strings
+
+    '''
     _check_access('tag_show_rest',context, data_dict)
 
     logic.get_action('tag_show')(context, data_dict)
@@ -709,9 +881,17 @@ def tag_show_rest(context, data_dict):
     return tag_dict
 
 def package_autocomplete(context, data_dict):
-    '''Returns packages containing the provided string in either the name
-    or the title'''
+    '''Return a list of datasets (packages) that match a string.
 
+    Datasets with names or titles that contain the query string will be
+    returned.
+
+    :param q: the string to search for
+    :type q: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -744,7 +924,17 @@ def package_autocomplete(context, data_dict):
     return pkg_list
 
 def format_autocomplete(context, data_dict):
-    '''Returns formats containing the provided string'''
+    '''Return a list of resource formats whose names contain a string.
+
+    :param q: the string to search for
+    :type q: string
+    :param limit: the maximum number of resource formats to return (optional,
+        default: 5)
+    :type limit: int
+
+    :rtype: list of strings
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -772,7 +962,18 @@ def format_autocomplete(context, data_dict):
     return [resource.format.lower() for resource in query]
 
 def user_autocomplete(context, data_dict):
-    '''Returns users containing the provided string'''
+    '''Return a list of user names that contain a string.
+
+    :param q: the string to search for
+    :type q: string
+    :param limit: the maximum number of user names to return (optional,
+        default: 20)
+    :type limit: int
+
+    :rtype: a list of user dictionaries each with keys ``'name'``,
+        ``'fullname'``, and ``'id'``
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -797,9 +998,25 @@ def user_autocomplete(context, data_dict):
     return user_list
 
 def package_search(context, data_dict):
+    '''
+
+    :param q:
+    :type q:
+    :param fields:
+    :type fields:
+    :param facet_by:
+    :type facet_by:
+    :param limit:
+    :type limit:
+    :param offset:
+    :type offset:
+
+    :returns:
+    :rtype:
+
+    '''
     model = context['model']
     session = context['session']
-    user = context['user']
 
     _check_access('package_search', context, data_dict)
 
@@ -895,6 +1112,21 @@ def package_search(context, data_dict):
     return search_results
 
 def resource_search(context, data_dict):
+    '''
+
+    :param fields:
+    :type fields:
+    :param order_by:
+    :type order_by:
+    :param offset:
+    :type offset:
+    :param limit:
+    :type limit:
+
+    :returns:
+    :rtype:
+
+    '''
     model = context['model']
     session = context['session']
 
@@ -946,18 +1178,6 @@ def resource_search(context, data_dict):
     return {'count': count, 'results': results}
 
 def _tag_search(context, data_dict):
-    '''Return a list of tag objects that contain the given string and
-    the full count (for paging).
-
-    The query string should be provided in the data_dict with key 'query' or
-    'q'.
-
-    By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be searched instead.
-
-    Use 'offset' and 'limit' parameters to page through results.
-    '''
     model = context['model']
 
     query = data_dict.get('query') or data_dict.get('q')
@@ -1002,17 +1222,35 @@ def _tag_search(context, data_dict):
     return q.all(), count
 
 def tag_search(context, data_dict):
-    '''Return a list of tag dictionaries that contain the given string.
+    '''Return a list of tags whose names contain a given string.
 
-    The query string should be provided in the data_dict with key 'query' or
-    'q'.
+    By default only free tags (tags that don't belong to any vocabulary) are
+    searched. If the ``vocabulary_id`` argument is given then only tags
+    belonging to that vocabulary will be searched instead.
 
-    By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be searched instead.
+    :param query: the string to search for
+    :type query: string
+    :param vocabulary_id: the id or name of the tag vocabulary to search in
+      (optional)
+    :type vocabulary_id: string
+    :param fields:
+    :type fields: dictionary
+    :param limit: the maximum number of tags to return
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning tags
+        from
+    :type offset: int
 
-    Returns a dictionary with keys 'count' (the number of tags in the result)
-    and 'results' (the list of tag dicts).
+    :returns: A dictionary with the following keys:
+
+      ``'count'``
+        The number of tags in the result.
+
+      ``'results'``
+        The list of tags whose names contain the given string, a list of
+        dictionaries.
+
+    :rtype: dictionary
 
     '''
     tags, count = _tag_search(context, data_dict)
@@ -1020,14 +1258,26 @@ def tag_search(context, data_dict):
             'results': [_table_dictize(tag, context) for tag in tags]}
 
 def tag_autocomplete(context, data_dict):
-    '''Return a list of tag names that contain the given string.
+    '''Return a list of tag names that contain a given string.
 
-    The query string should be provided in the data_dict with key 'query' or
-    'q'.
+    By default only free tags (tags that don't belong to any vocabulary) are
+    searched. If the ``vocabulary_id`` argument is given then only tags
+    belonging to that vocabulary will be searched instead.
 
-    By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be searched instead.
+    :param query: the string to search for
+    :type query: string
+    :param vocabulary_id: the id or name of the tag vocabulary to search in
+      (optional)
+    :type vocabulary_id: string
+    :param fields:
+    :type fields: dictionary
+    :param limit: the maximum number of tags to return
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning tags
+        from
+    :type offset: int
+
+    :rtype: list of strings
 
     '''
     _check_access('tag_autocomplete', context, data_dict)
@@ -1038,6 +1288,23 @@ def tag_autocomplete(context, data_dict):
         return []
 
 def task_status_show(context, data_dict):
+    '''Return a task status.
+
+    Either the ``id`` parameter *or* the ``entity_id``, ``task_type`` *and*
+    ``key`` parameters must be given.
+
+    :param id: the id of the task status (optional)
+    :type id: string
+    :param entity_id: the entity_id of the task status (optional)
+    :type entity_id: string
+    :param task_type: the task_type of the task status (optional)
+    :type tast_type: string
+    :param key: the key of the task status (optional)
+    :type key: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = data_dict.get('id')
 
@@ -1062,8 +1329,23 @@ def task_status_show(context, data_dict):
     task_status_dict = model_dictize.task_status_dictize(task_status, context)
     return task_status_dict
 
-
 def term_translation_show(context, data_dict):
+    '''Return the translations for the given term(s) and language(s).
+
+    :param terms: the terms to search for translations of, e.g. ``'Russian'``,
+        ``'romantic novel'``
+    :type terms: list of strings
+    :param lang_codes: the language codes of the languages to search for
+        translations into, e.g. ``'en'``, ``'de'`` (optional, default is to
+        search for translations into any language)
+    :type lang_codes: list of language code strings
+
+    :rtype: a list of term translation dictionaries each with keys ``'term'``
+        (the term searched for, in the source language), ``'term_translation'``
+        (the translation of the term into the target language) and
+        ``'lang_code'`` (the language code of the target language)
+
+    '''
     model = context['model']
 
     trans_table = model.term_translation_table
@@ -1098,6 +1380,7 @@ def term_translation_show(context, data_dict):
 
     return results
 
+# Only internal services are allowed to call get_site_user.
 def get_site_user(context, data_dict):
     _check_access('get_site_user', context, data_dict)
     model = context['model']
@@ -1117,13 +1400,18 @@ def get_site_user(context, data_dict):
             'apikey': user.apikey}
 
 def roles_show(context, data_dict):
-    '''Returns the roles that users (and authorization groups) have on a
-    particular domain_object.
+    '''Return the roles of all users and authorization groups for an object.
 
-    If you specify a user (or authorization group) then the resulting roles
-    will be filtered by those of that user (or authorization group).
+    :param domain_object: a package, group or authorization_group name or id
+        to filter the results by
+    :type domain_object: string
+    :param user: a user name or id
+    :type user: string
+    :param authorization_group: an authorization group name or id
+    :type authorization_group: string
 
-    domain_object can be a package/group/authorization_group name or id.
+    :rtype: list of dictionaries
+
     '''
     model = context['model']
     session = context['session']
@@ -1176,7 +1464,7 @@ def roles_show(context, data_dict):
     return result
 
 def status_show(context, data_dict):
-    '''Provides information about the operation of this CKAN instance.'''
+    '''Return a dictionary with information about the site's configuration.'''
     return {
         'site_title': config.get('ckan.site_title'),
         'site_description': config.get('ckan.site_description'),
@@ -1188,11 +1476,24 @@ def status_show(context, data_dict):
         }
 
 def vocabulary_list(context, data_dict):
+    '''Return a list of all the site's tag vocabularies.
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
     return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
 
 def vocabulary_show(context, data_dict):
+    '''Return a single tag vocabulary.
+
+    :param id: the id or name of the vocabulary
+    :type id: string
+    :return: the vocabulary.
+    :rtype: dictionary
+
+    '''
     model = context['model']
     vocab_id = data_dict.get('id')
     if not vocab_id:
@@ -1204,7 +1505,14 @@ def vocabulary_show(context, data_dict):
     return vocabulary_dict
 
 def user_activity_list(context, data_dict):
-    '''Return a user\'s public activity stream as a list of dicts.'''
+    '''Return a user's public activity stream.
+
+    :param id: the id or name of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
@@ -1215,7 +1523,14 @@ def user_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
-    '''Return a package\'s public activity stream as a list of dicts.'''
+    '''Return a package's activity stream.
+
+    :param id: the id or name of the package
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     package_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
@@ -1226,7 +1541,14 @@ def package_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
-    '''Return a group\'s public activity stream as a list of dicts.'''
+    '''Return a group's activity stream.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
@@ -1237,8 +1559,9 @@ def group_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
-    '''Return an activity stream of all recently added or updated packages as
-    a list of dicts.
+    '''Return the activity stream of all recently added or changed packages.
+
+    :rtype: list of dictionaries
 
     '''
     model = context['model']
@@ -1250,7 +1573,12 @@ def recently_changed_packages_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
-    '''Return an activity\'s list of activity detail items, as a list of dicts.
+    '''Return an activity's list of activity detail items.
+
+    :param id: the id of the activity
+    :type id: string
+    :rtype: list of dictionaries.
+
     '''
     model = context['model']
     activity_id = _get_or_bust(data_dict, 'id')
@@ -1258,47 +1586,47 @@ def activity_detail_list(context, data_dict):
         model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
-def render_new_package_activity(context, activity):
+def _render_new_package_activity(context, activity):
     return _render('activity_streams/new_package.html',
         extra_vars = {'activity': activity})
 
-def render_deleted_package_activity(context, activity):
+def _render_deleted_package_activity(context, activity):
     return _render('activity_streams/deleted_package.html',
         extra_vars = {'activity': activity})
 
-def render_new_resource_activity(context, activity, detail):
+def _render_new_resource_activity(context, activity, detail):
     return _render('activity_streams/new_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
-def render_changed_resource_activity(context, activity, detail):
+def _render_changed_resource_activity(context, activity, detail):
     return _render('activity_streams/changed_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
-def render_deleted_resource_activity(context, activity, detail):
+def _render_deleted_resource_activity(context, activity, detail):
     return _render('activity_streams/deleted_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
-def render_added_tag_activity(context, activity, detail):
+def _render_added_tag_activity(context, activity, detail):
     return _render('activity_streams/added_tag.html',
             extra_vars = {'activity': activity, 'detail': detail})
 
-def render_removed_tag_activity(context, activity, detail):
+def _render_removed_tag_activity(context, activity, detail):
     return _render('activity_streams/removed_tag.html',
             extra_vars = {'activity': activity, 'detail': detail})
 
-def render_new_package_extra_activity(context, activity, detail):
+def _render_new_package_extra_activity(context, activity, detail):
     return _render('activity_streams/new_package_extra.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
-def render_changed_package_extra_activity(context, activity, detail):
+def _render_changed_package_extra_activity(context, activity, detail):
     return _render('activity_streams/changed_package_extra.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
-def render_deleted_package_extra_activity(context, activity, detail):
+def _render_deleted_package_extra_activity(context, activity, detail):
     return _render('activity_streams/deleted_package_extra.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
-def render_changed_package_activity(context, activity):
+def _render_changed_package_activity(context, activity):
     details = activity_detail_list(context=context,
         data_dict={'id': activity['id']})
 
@@ -1309,18 +1637,18 @@ def render_changed_package_activity(context, activity):
         detail = details[0]
         activity_detail_renderers = {
             'Resource': {
-              'new': render_new_resource_activity,
-              'changed': render_changed_resource_activity,
-              'deleted': render_deleted_resource_activity
+              'new': _render_new_resource_activity,
+              'changed': _render_changed_resource_activity,
+              'deleted': _render_deleted_resource_activity
               },
             'tag': {
-              'added': render_added_tag_activity,
-              'removed': render_removed_tag_activity,
+              'added': _render_added_tag_activity,
+              'removed': _render_removed_tag_activity,
               },
             'PackageExtra': {
-                'new': render_new_package_extra_activity,
-                'changed': render_changed_package_extra_activity,
-                'deleted': render_deleted_package_extra_activity
+                'new': _render_new_package_extra_activity,
+                'changed': _render_changed_package_extra_activity,
+                'deleted': _render_deleted_package_extra_activity
               },
             }
         object_type = detail['object_type']
@@ -1333,37 +1661,37 @@ def render_changed_package_activity(context, activity):
     return _render('activity_streams/changed_package.html',
         extra_vars = {'activity': activity})
 
-def render_new_user_activity(context, activity):
+def _render_new_user_activity(context, activity):
     return _render('activity_streams/new_user.html',
         extra_vars = {'activity': activity})
 
-def render_changed_user_activity(context, activity):
+def _render_changed_user_activity(context, activity):
     return _render('activity_streams/changed_user.html',
         extra_vars = {'activity': activity})
 
-def render_new_group_activity(context, activity):
+def _render_new_group_activity(context, activity):
     return _render('activity_streams/new_group.html',
         extra_vars = {'activity': activity})
 
-def render_changed_group_activity(context, activity):
+def _render_changed_group_activity(context, activity):
     return _render('activity_streams/changed_group.html',
         extra_vars = {'activity': activity})
 
-def render_deleted_group_activity(context, activity):
+def _render_deleted_group_activity(context, activity):
     return _render('activity_streams/deleted_group.html',
         extra_vars = {'activity': activity})
 
 # Global dictionary mapping activity types to functions that render activity
 # dicts to HTML snippets for including in HTML pages.
 activity_renderers = {
-  'new package' : render_new_package_activity,
-  'changed package' : render_changed_package_activity,
-  'deleted package' : render_deleted_package_activity,
-  'new user' : render_new_user_activity,
-  'changed user' : render_changed_user_activity,
-  'new group' : render_new_group_activity,
-  'changed group' : render_changed_group_activity,
-  'deleted group' : render_deleted_group_activity,
+  'new package' : _render_new_package_activity,
+  'changed package' : _render_changed_package_activity,
+  'deleted package' : _render_deleted_package_activity,
+  'new user' : _render_new_user_activity,
+  'changed user' : _render_changed_user_activity,
+  'new group' : _render_new_group_activity,
+  'changed group' : _render_changed_group_activity,
+  'deleted group' : _render_deleted_group_activity,
   }
 
 def _activity_list_to_html(context, activity_stream):
@@ -1378,41 +1706,58 @@ def _activity_list_to_html(context, activity_stream):
     return webhelpers.html.literal('\n'.join(html))
 
 def user_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a user\'s public activity stream.
+    '''Return a user's public activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: The id or name of the user.
+    :type id: string
+
+    :rtype: string
 
     '''
     activity_stream = user_activity_list(context, data_dict)
     return _activity_list_to_html(context, activity_stream)
 
 def package_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a package\'s public activity stream.
+    '''Return a package's activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: the id or name of the package
+    :type id: string
+
+    :rtype: string
 
     '''
     activity_stream = package_activity_list(context, data_dict)
     return _activity_list_to_html(context, activity_stream)
 
 def group_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a group\'s public activity stream.
+    '''Return a group's activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: string
 
     '''
     activity_stream = group_activity_list(context, data_dict)
     return _activity_list_to_html(context, activity_stream)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of the activity stream of all recently added
-    or updated packages.
+    '''Return the activity stream of all recently changed packages as HTML.
 
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    The activity stream includes all recently added or changed packages. It is
+    rendered as a snippet of HTML meant to be included in an HTML page, i.e. it
+    doesn't have any HTML header or footer.
+
+    :rtype: string
 
     '''
     activity_stream = recently_changed_packages_activity_list(context,
@@ -1420,7 +1765,13 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     return _activity_list_to_html(context, activity_stream)
 
 def user_follower_count(context, data_dict):
-    '''Return the number of followers of a user.'''
+    '''Return the number of followers of a user.
+
+    :param id: the id or name of the user
+    :type id: string
+    :rtype: int
+
+    '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
@@ -1429,7 +1780,13 @@ def user_follower_count(context, data_dict):
     return ckan.model.UserFollowingUser.follower_count(data_dict['id'])
 
 def dataset_follower_count(context, data_dict):
-    '''Return the number of followers of a dataset.'''
+    '''Return the number of followers of a dataset.
+
+    :param id: the id or name of the dataset
+    :type id: string
+    :rtype: int
+
+    '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = _validate(data_dict, schema, context)
@@ -1451,7 +1808,13 @@ def _follower_list(context, data_dict, FollowerClass):
     return [model_dictize.user_dictize(user,context) for user in users]
 
 def user_follower_list(context, data_dict):
-    '''Return the list of users that are following the given user.'''
+    '''Return the list of users that are following the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+    :rtype: list of dictionaries
+
+    '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
@@ -1461,7 +1824,13 @@ def user_follower_list(context, data_dict):
             context['model'].UserFollowingUser)
 
 def dataset_follower_list(context, data_dict):
-    '''Return the list of users that are following the given dataset.'''
+    '''Return the list of users that are following the given dataset.
+
+    :param id: the id or name of the dataset
+    :type id: string
+    :rtype: list of dictionaries
+
+    '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = _validate(data_dict, schema, context)
@@ -1485,7 +1854,13 @@ def _am_following(context, data_dict, FollowerClass):
     return FollowerClass.is_following(userobj.id, object_id)
 
 def am_following_user(context, data_dict):
-    '''Return True if the authorized user is following the given user.'''
+    '''Return ``True`` if you're following the given user, ``False`` if not.
+
+    :param id: the id or name of the user
+    :type id: string
+    :rtype: boolean
+
+    '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
@@ -1496,7 +1871,13 @@ def am_following_user(context, data_dict):
             context['model'].UserFollowingUser)
 
 def am_following_dataset(context, data_dict):
-    '''Return True if the authorized user is following the given dataset.'''
+    '''Return ``True`` if you're following the given dataset, ``False`` if not.
+
+    :param id: the id or name of the dataset
+    :type id: string
+    :rtype: boolean
+
+    '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = _validate(data_dict, schema, context)
