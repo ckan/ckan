@@ -833,11 +833,6 @@ def user_show(context, data_dict):
     return user_dict
 
 def package_show_rest(context, data_dict):
-    '''Return the metadata of a dataset (package) and its resources.
-
-    For parameters see package show.
-
-    '''
     _check_access('package_show_rest',context, data_dict)
 
     logic.get_action('package_show')(context, data_dict)
@@ -849,11 +844,6 @@ def package_show_rest(context, data_dict):
     return package_dict
 
 def group_show_rest(context, data_dict):
-    '''Return a group.
-
-    For parameters see group_show.
-
-    '''
     _check_access('group_show_rest',context, data_dict)
 
     logic.get_action('group_show')(context, data_dict)
@@ -864,13 +854,6 @@ def group_show_rest(context, data_dict):
     return group_dict
 
 def tag_show_rest(context, data_dict):
-    '''Return a list of the IDs of the datasets that belong to a tag.
-
-    For parameters see tag_show.
-
-    :rtype: list of strings
-
-    '''
     _check_access('tag_show_rest',context, data_dict)
 
     logic.get_action('tag_show')(context, data_dict)
