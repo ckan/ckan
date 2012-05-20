@@ -322,7 +322,7 @@ class TestAction(WsgiAppCase):
                             extra_environ={'Authorization': str(self.normal_user.apikey)})
 
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['help'].startswith("Update a user account.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['id'] == self.normal_user.id
@@ -342,7 +342,7 @@ class TestAction(WsgiAppCase):
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
 
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['help'].startswith("Update a user account.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['id'] == self.sysadmin_user.id
@@ -356,7 +356,7 @@ class TestAction(WsgiAppCase):
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
 
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['help'].startswith("Update a user account.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['id'] == self.normal_user.id
@@ -371,14 +371,12 @@ class TestAction(WsgiAppCase):
                             status=StatusCodes.STATUS_403_ACCESS_DENIED)
 
         res_obj = json.loads(res.body)
-        assert res_obj == {
-            'error': {
+        assert res_obj['help'].startswith("Update a user account.")
+        assert res_obj['error'] == {
                 '__type': 'Authorization Error',
                 'message': 'Access denied'
-            },
-            'help': 'Updates the user\'s details',
-            'success': False
-        }
+            }
+        assert res_obj['success'] is False
 
     def test_12_user_update_errors(self):
         test_calls = (
@@ -628,12 +626,9 @@ class TestAction(WsgiAppCase):
             status=StatusCodes.STATUS_403_ACCESS_DENIED
         )
         res_obj = json.loads(res.body)
-        expected_res_obj = {
-            'help': None,
-            'success': False,
-            'error': {'message': 'Access denied', '__type': 'Authorization Error'}
-        }
-        assert res_obj == expected_res_obj, res_obj
+        assert res_obj['help'].startswith("Update a task status.")
+        assert res_obj['success'] is False
+        assert res_obj['error'] == {'message': 'Access denied', '__type': 'Authorization Error'}
 
     def test_23_task_status_validation(self):
         task_status = {}

@@ -1400,7 +1400,7 @@ def get_site_user(context, data_dict):
             'apikey': user.apikey}
 
 def roles_show(context, data_dict):
-    '''Return the roles of a user or authorization groups for an object.
+    '''Return the roles of all users and authorization groups for an object.
 
     :param domain_object: a package, group or authorization_group name or id
         to filter the results by
