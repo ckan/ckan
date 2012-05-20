@@ -285,7 +285,7 @@ class TestAction(WsgiAppCase):
                 'email': ['Missing value'],
                 'password': ['Missing value']
             }
-        assert res_obj['help'].startswith("Creates a new user")
+        assert res_obj['help'].startswith("Create a new user.")
         assert res_obj['success'] is False
 
     def test_11_user_create_wrong_password(self):
@@ -299,14 +299,10 @@ class TestAction(WsgiAppCase):
                             status=StatusCodes.STATUS_409_CONFLICT)
 
         res_obj = json.loads(res.body)
-        assert res_obj == {
-            'error': {
-                '__type': 'Validation Error',
-                'password': ['Your password must be 4 characters or longer']
-            },
-            'help': 'Creates a new user',
-            'success': False
-        }
+        assert res_obj['help'].startswith('Create a new user.')
+        assert res_obj['success'] is False
+        assert res_obj['error'] == { '__type': 'Validation Error',
+                'password': ['Your password must be 4 characters or longer']}
 
     def test_12_user_update(self):
         normal_user_dict = {'id': self.normal_user.id,
@@ -465,7 +461,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id':'david'})
         res = self.app.post('/api/action/group_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'].startswith("Return a group.")
+        assert res_obj['help'].startswith("Return the details of a group.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == 'david'
@@ -486,7 +482,7 @@ class TestAction(WsgiAppCase):
                 '__type': 'Not Found Error',
                 'message': 'Not found'
             }
-        assert res_obj['help'].startswith('Return a group.')
+        assert res_obj['help'].startswith('Return the details of a group.')
         assert res_obj['success'] is False
 
     def test_16_user_autocomplete(self):
@@ -989,11 +985,14 @@ class TestAction(WsgiAppCase):
                INSERT INTO celery_taskmeta (id, task_id, status, result, date_done, traceback) VALUES (2, '51f2105d-85b1-4393-b821-ac11475919d9', 'FAILURE', '52e', '2012-04-20 21:33:01.622557', 'Traceback')'''
         )
         model.Session.commit()
-        res = self.app.post('/api/action/resource_status_show', 
+        res = json.loads(self.app.post('/api/action/resource_status_show',
                             params=json.dumps({'id': '749cdcf2-3fc8-44ae-aed0-5eff8cc5032c'}),
-                            status=200)
+                            status=200).body)
 
-        assert json.loads(res.body) == {"help": None, "success": True, "result": [{"status": "FAILURE", "entity_id": "749cdcf2-3fc8-44ae-aed0-5eff8cc5032c", "task_type": "qa", "last_updated": "2012-04-20T21:32:45.553986", "date_done": "2012-04-20T21:33:01.622557", "entity_type": "resource", "traceback": "Traceback", "value": "51f2105d-85b1-4393-b821-ac11475919d9", "state": None, "key": "celery_task_id", "error": "", "id": "5753adae-cd0d-4327-915d-edd832d1c9a3"}]}
+        assert res['help'].startswith(
+                "Return the statuses of a resource's tasks.")
+        assert res['success'] is True
+        assert res['result'] == [{"status": "FAILURE", "entity_id": "749cdcf2-3fc8-44ae-aed0-5eff8cc5032c", "task_type": "qa", "last_updated": "2012-04-20T21:32:45.553986", "date_done": "2012-04-20T21:33:01.622557", "entity_type": "resource", "traceback": "Traceback", "value": "51f2105d-85b1-4393-b821-ac11475919d9", "state": None, "key": "celery_task_id", "error": "", "id": "5753adae-cd0d-4327-915d-edd832d1c9a3"}]
 
 
 class TestActionTermTranslation(WsgiAppCase):

@@ -147,9 +147,9 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/user_create', params=postparams,
                             status=StatusCodes.STATUS_403_ACCESS_DENIED)
         res_obj = json.loads(res.body)
-        assert res_obj == {'help': 'Creates a new user',
-                           'success': False,
-                           'error': {'message': 'Access denied', '__type': 'Authorization Error'}}
+        assert res_obj['help'].startswith("Create a new user.")
+        assert res_obj['success'] is False
+        assert res_obj['error'] == {'message': 'Access denied', '__type': 'Authorization Error'}
 
     def test_09_user_create(self):
         user_dict = {'name':'test_create_from_action_api',
@@ -161,7 +161,7 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/user_create', params=postparams,
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Creates a new user'
+        assert res_obj['help'].startswith("Create a new user.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == user_dict['name']
