@@ -1,71 +1,26 @@
-import cli
+import logging
 from collections import defaultdict
 import datetime
 
-class CreateTestData(cli.CkanCommand):
-    '''Create test data in the database.
-    Tests can also delete the created objects easily with the delete() method.
+import ckan.model as model
+import authztool
 
-    create-test-data              - annakarenina and warandpeace
-    create-test-data search       - realistic data to test search
-    create-test-data gov          - government style data
-    create-test-data family       - package relationships data
-    create-test-data user         - create a user 'tester' with api key 'tester'
-    create-test-data translations - annakarenina, warandpeace, and some test
-                                    translations of terms
-    create-test-data vocabs  - annakerenina, warandpeace, and some test
-                               vocabularies
+log = logging.getLogger(__name__)
 
-    '''
-    summary = __doc__.split('\n')[0]
-    usage = __doc__
-    max_args = 1
-    min_args = 0
-    author = u'tester'
-
+class CreateTestData(object):
+    # keep track of the objects created by this class so that 
+    # tests can easy call delete() method to delete them all again.
     pkg_names = []
     tag_names = []
     group_names = set()
     user_refs = []
 
+    author = u'tester'
+
     pkg_core_fields = ['name', 'title', 'version', 'url', 'notes',
                        'author', 'author_email',
                        'maintainer', 'maintainer_email',
                        ]
-
-    def command(self):
-        from ckan import plugins
-        self._load_config()
-        self._setup_app()
-        plugins.load('synchronous_search') # so packages get indexed
-        if self.args:
-            cmd = self.args[0]
-        else:
-            cmd = 'basic'
-        if self.verbose:
-            print 'Creating %s test data' % cmd
-        if cmd == 'basic':
-            self.create_basic_test_data()
-        elif cmd == 'user':
-            self.create_test_user()
-            print 'Created user %r with password %r and apikey %r' % ('tester',
-                    'tester', 'tester')
-        elif cmd == 'search':
-            self.create_search_test_data()
-        elif cmd == 'gov':
-            self.create_gov_test_data()
-        elif cmd == 'family':
-            self.create_family_test_data()
-        elif cmd == 'translations':
-            self.create_translations_test_data()
-        elif cmd == 'vocabs':
-            self.create_vocabs_test_data()
-        else:
-            print 'Command %s not recognized' % cmd
-            raise NotImplementedError
-        if self.verbose:
-            print 'Creating %s test data: Complete!' % cmd
-
     @classmethod
     def create_basic_test_data(cls):
         cls.create()
@@ -86,7 +41,6 @@ class CreateTestData(cli.CkanCommand):
 
     @classmethod
     def create_test_user(cls):
-        import ckan.model as model
         tester = model.User.by_name(u'tester')
         if tester is None:
             tester = model.User(name=u'tester', apikey=u'tester',
@@ -190,7 +144,6 @@ class CreateTestData(cli.CkanCommand):
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
         assert isinstance(extra_group_names, (list, tuple))
-        import ckan.model as model
         model.Session.remove()
         new_user_names = extra_user_names
         new_group_names = set()
@@ -209,6 +162,10 @@ class CreateTestData(cli.CkanCommand):
                 for field in cls.pkg_core_fields:
                     if item.has_key(field):
                         pkg_dict[field] = unicode(item[field])
+                if model.Package.by_name(pkg_dict['name']):
+                    log.warning('Cannot create package "%s" as it already exists.' % \
+                                    (pkg_dict['name']))
+                    continue
                 pkg = model.Package(**pkg_dict)
                 model.Session.add(pkg)
                 for attr, val in item.items():
@@ -361,7 +318,6 @@ class CreateTestData(cli.CkanCommand):
         '''A more featured interface for creating groups.
         All group fields can be filled, packages added and they can
         have an admin user.'''
-        import ckan.model as model
         rev = model.repo.new_revision()
         # same name as user we create below
         rev.author = cls.author
@@ -372,6 +328,10 @@ class CreateTestData(cli.CkanCommand):
         assert isinstance(group_dicts, (list, tuple))
         group_attributes = set(('name', 'title', 'description', 'parent_id'))
         for group_dict in group_dicts:
+            if model.Group.by_name(group_dict['name']):
+                log.warning('Cannot create group "%s" as it already exists.' % \
+                                (group_dict['name']))
+                continue
             group = model.Group(name=unicode(group_dict['name']))
             group.type = auth_profile or 'group'
             for key in group_dict:
@@ -393,7 +353,6 @@ class CreateTestData(cli.CkanCommand):
 
     @classmethod
     def create(cls, auth_profile="", package_type=None):
-        import ckan.model as model
         model.Session.remove()
         rev = model.repo.new_revision()
         # same name as user we create below
@@ -552,24 +511,50 @@ left arrow <
 
         model.repo.commit_and_remove()
 
+    @classmethod
+    def create_users(cls, user_dicts):
+        needs_commit = False
+        for user_dict in user_dicts:
+            user = cls._create_user_without_commit(**user_dict)
+            if user:
+                needs_commit = True
+        if needs_commit:
+            model.repo.commit_and_remove()
 
-
-
+    @classmethod
+    def _create_user_without_commit(cls, name='', **user_dict):
+        if model.User.by_name(name) or (user_dict.get('open_id') and model.User.by_openid(user_dict.get('openid'))):
+            log.warning('Cannot create user "%s" as it already exists.' % \
+                            (name or user_dict['name']))
+            return
+        # User objects are not revisioned so no need to create a revision
+        user_ref = name or user_dict['openid']
+        assert user_ref
+        for k, v in user_dict.items():
+            if v:
+                # avoid unicode warnings
+                user_dict[k] = unicode(v)
+        user = model.User(name=unicode(name), **user_dict)
+        model.Session.add(user)
+        cls.user_refs.append(user_ref)
 
     @classmethod
     def create_user(cls, name='', **kwargs):
-        import ckan.model as model
-        # User objects are not revisioned
-        user_ref = name or kwargs['openid']
-        assert user_ref
-        for k, v in kwargs.items():
-            if v:
-                # avoid unicode warnings
-                kwargs[k] = unicode(v)
-        user = model.User(name=unicode(name), **kwargs)
-        model.Session.add(user)
+        cls._create_user_without_commit(name, **kwargs)
         model.Session.commit()
-        cls.user_refs.append(user_ref)
+
+    @classmethod
+    def create_roles(cls, roles):
+        '''Each role is a tuple (object_name, role, subject_name).
+        There is clever searching going on to find the objects of any type,
+        by name or ID. You can also use the subject_name='system'.
+        '''
+        for role_tuple in roles:
+            object_name, role, subject_name = role_tuple
+            authztool.RightsTool.make_or_remove_roles('make', object_name, role, subject_name,
+                                                      except_on_error=True,
+                                                      do_commit=False)
+        model.repo.commit_and_remove()    
 
     @classmethod
     def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],
@@ -587,7 +572,6 @@ left arrow <
     @classmethod
     def delete(cls):
         '''Purges packages etc. that were created by this class.'''
-        import ckan.model as model
         for pkg_name in cls.pkg_names:
             model.Session().autoflush = False
             pkg = model.Package.by_name(unicode(pkg_name))
@@ -627,6 +611,67 @@ left arrow <
     @classmethod
     def get_all_data(cls):
         return cls.pkg_names + list(cls.group_names) + cls.tag_names + cls.user_refs
+
+    @classmethod
+    def make_some_vocab_tags(cls):
+        model.repo.new_revision()
+
+        # Create a couple of vocabularies.
+        genre_vocab = model.Vocabulary(u'genre')
+        model.Session.add(genre_vocab)
+        composers_vocab = model.Vocabulary(u'composers')
+        model.Session.add(composers_vocab)
+
+        # Create some additional free tags for tag search tests.
+        tolkien_tag = model.Tag(name="tolkien")
+        model.Session.add(tolkien_tag)
+        toledo_tag = model.Tag(name="toledo")
+        model.Session.add(toledo_tag)
+        tolerance_tag = model.Tag(name="tolerance")
+        model.Session.add(tolerance_tag)
+        tollbooth_tag = model.Tag(name="tollbooth")
+        model.Session.add(tollbooth_tag)
+        # We have to add free tags to a package or they won't show up in tag results.
+        model.Package.get('warandpeace').add_tags((tolkien_tag, toledo_tag,
+            tolerance_tag, tollbooth_tag))
+
+        # Create some tags that belong to vocabularies.
+        sonata_tag = model.Tag(name=u'sonata', vocabulary_id=genre_vocab.id)
+        model.Session.add(sonata_tag)
+
+        bach_tag = model.Tag(name=u'Bach', vocabulary_id=composers_vocab.id)
+        model.Session.add(bach_tag)
+
+        neoclassical_tag = model.Tag(name='neoclassical',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neoclassical_tag)
+
+        neofolk_tag = model.Tag(name='neofolk', vocabulary_id=genre_vocab.id)
+        model.Session.add(neofolk_tag)
+
+        neomedieval_tag = model.Tag(name='neomedieval',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neomedieval_tag)
+
+        neoprog_tag = model.Tag(name='neoprog',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neoprog_tag)
+
+        neopsychedelia_tag = model.Tag(name='neopsychedelia',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neopsychedelia_tag)
+
+        neosoul_tag = model.Tag(name='neosoul', vocabulary_id=genre_vocab.id)
+        model.Session.add(neosoul_tag)
+
+        nerdcore_tag = model.Tag(name='nerdcore', vocabulary_id=genre_vocab.id)
+        model.Session.add(nerdcore_tag)
+
+        model.Package.get('warandpeace').add_tag(bach_tag)
+        model.Package.get('annakarenina').add_tag(sonata_tag)
+
+        model.Session.commit()
+    
 
 
 search_items = [{'name':'gils',

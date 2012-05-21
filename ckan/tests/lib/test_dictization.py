@@ -878,7 +878,7 @@ class TestBasicDictize:
         expected = {'description': u'',
                     'extras': [{'key': u'genre', 'state': u'active', 'value': u'"horror"'},
                                {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
-                    'tags': [{'capacity': 'public', 'name': u'russian'}],
+                    'tags': [{'capacity': u'public', 'display_name': u'russian', 'name': u'russian'}],
                     'groups': [{'description': u'',
                                'capacity' : 'public',
                                'display_name': u'simple',

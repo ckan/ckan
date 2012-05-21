@@ -5,7 +5,7 @@
   
   <py:def function="page_title">${c.pkg.title or c.pkg.name} - Edit Resources - Datasets</py:def>
   <py:def function="page_heading">Edit Resources: ${c.pkg.title or c.pkg.name}</py:def>
-  <py:def function="body_class">no-sidebar</py:def>
+  <py:def function="body_class">${h.literal('no-sidebar')}</py:def>
 
   <py:def function="optional_head">
     <script>

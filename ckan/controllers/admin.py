@@ -234,6 +234,8 @@ class AdminController(BaseController):
         c.authz_groups = authz_groups
         c.authz_groups_role_dict = authz_groups_role_dict
 
+        c.are_any_authz_groups = bool(model.Session.query(model.AuthorizationGroup).count())
+
         return render('admin/authz.html')
 
     def trash(self):

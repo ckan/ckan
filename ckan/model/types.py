@@ -1,16 +1,19 @@
+## IMPORTS FIXED
 import datetime
 import copy
+import uuid
+import simplejson as json
 
 from sqlalchemy import types
 
-from pylons import config
+import meta
 
-from ckan.model import meta
+__all__ = ['iso_date_to_datetime_for_sqlite', 'make_uuid', 'UuidType',
+           'JsonType', 'JsonDictType']
 
 def make_uuid():
     return unicode(uuid.uuid4())
 
-import uuid
 class UuidType(types.TypeDecorator):
     impl = types.Unicode
 
@@ -30,7 +33,6 @@ class UuidType(types.TypeDecorator):
         return unicode(uuid.uuid4())
 
 
-from ckan.lib.helpers import json
 class JsonType(types.TypeDecorator):
     '''Store data as JSON serializing on save and unserializing on use.
 
@@ -55,7 +57,7 @@ class JsonType(types.TypeDecorator):
 
     def copy(self):
         return JsonType(self.impl.length)
-    
+
     def is_mutable(self):
         return True
 

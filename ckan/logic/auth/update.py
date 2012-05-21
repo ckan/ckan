@@ -141,7 +141,6 @@ def authorization_group_edit_permissions(context, data_dict):
         return {'success': True}
 
 def user_update(context, data_dict):
-    model = context['model']
     user = context['user']
     user_obj = get_user_object(context, data_dict)
 
@@ -180,7 +179,6 @@ def vocabulary_update(context, data_dict):
 
 def term_translation_update(context, data_dict):
 
-    model = context['model']
     user = context['user']
 
     if 'ignore_auth' in context and context['ignore_auth']:

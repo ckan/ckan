@@ -30,8 +30,9 @@ The Action API is a powerful RPC-style way of accessing CKAN data. Its intention
 
 A client supplies parameters to the Action API via a JSON dictionary of a POST request, and returns results, help information and any error diagnostics in a JSON dictionary too. This is a departure from the CKAN API versions 1 and 2, which being RESTful required all the request parameters to be part of the URL.
 
-Requests
---------
+In addition to the above, any of the actions defined in
+`ckan/logic/action/get.py` can be accessed with a GET request to the same URI
+endpoint.  See below for examples.
 
 URL
 ===
@@ -46,237 +47,70 @@ Examples::
  /api/action/package_show
  /api/action/user_create
 
-Actions
-=======
-
-get.py:
-
-====================================== ===========================
-Logic Action                           Parameter keys
-====================================== ===========================
-site_read                              (none)
-package_list                           (none)
-current_package_list_with_resources    limit, page
-revision_list                          (none)
-package_revision_list                  id
-group_list                             all_fields
-group_list_authz                       (none)
-group_list_available                   (none)
-group_revision_list                    id
-licence_list                           (none)
-tag_list                               q, all_fields, limit, offset, return_objects, vocabulary_id
-user_list                              q, order_by
-package_relationships_list             id, id2, rel
-vocabulary_list                        (none)
-package_show                           id
-revision_show                          id
-group_show                             id
-related_show                           id
-related_list                           id
-tag_show                               id
-user_show                              id
-term_translation_show                  "**terms**" A list of strings, the terms that you want to search for translations of, e.g. "russian", "romantic novel". "**lang_codes**" A list of strings, language codes for the languages that you want to search for translations to, e.g. "en", "de". Optional, if no lang_codes are given translations to all languages will be returned.
-package_show_rest                      id
-group_show_rest                        id
-tag_show_rest                          id
-vocabulary_show                        id
-task_status_show                       id
-task_status_show                       entity_id, task_type, key 
-resource_status_show                   id
-package_autocomplete                   q
-tag_autocomplete                       q, fields, offset, limit, vocabulary_id
-format_autocomplete                    q, limit
-user_autocomplete                      q, limit
-package_search                         q, fields, facet_by, limit, offset
-tag_search                             q, fields, offset, limit, vocabulary_id
-roles_show                             domain_object, (user), (authorization_group)
-
-====================================== ===========================
-
-create.py:
-
-====================================== ===========================
-Logic Action                           Parameter keys
-====================================== ===========================
-package_create                         (package keys)
-package_create_validate                (package keys)
-resource_create                        (resource keys)
-package_relationship_create            id, id2, rel, comment
-group_create                           (group keys)
-rating_create                          package, rating
-related_create                         (related keys)
-user_create                            (user keys)
-package_create_rest                    (package keys)
-group_create_rest                      (group keys)
-vocabulary_create                      (vocabulary keys)
-tag_create                             (tag keys)
-====================================== ===========================
-
-update.py:
-
-====================================== ===========================
-Logic Action                           Parameter keys
-====================================== ===========================
-make_latest_pending_package_active     id
-resource_update                        (resource keys)
-package_update                         (package keys)
-package_update_validate                (package keys)
-package_relationship_update            id, id2, rel, comment
-group_update                           (group keys)
-user_update                            (user keys), reset_key
-package_update_rest                    (package keys)
-related_update                         (related keys)
-group_update_rest                      (group keys)
-user_role_update                       user OR authorization_group, domain_object, roles
-user_role_bulk_update                  user_roles, domain_object
-vocabulary_update                      (vocabulary keys)
-term_translation_update                "**term**" The term that you want to create (or update) a translation for, e.g. "russian", "romantic novel". "**term_translation**" the translation of the term, e.g. "Russisch", "Liebesroman". "**lang_code**" the language code for the translation, e.g. "fr", "de".
-term_translation_update_many           "**data**" A list of dictionaries with keys matching the parameter keys for term_translation_update
-====================================== ===========================
-
-delete.py:
-
-====================================== ===========================
-Logic Action                           Parameter keys
-====================================== ===========================
-package_delete                         id
-package_relationship_delete            id, id2, rel
-group_delete                           id
-related_delete                         id
-vocabulary_delete                      id
-tag_delete                             id, vocabulary_id
-====================================== ===========================
-
-In case of doubt, refer to the code of the logic actions, which is found in the CKAN source in the ckan/logic/action directory.
-
-Object dictionaries
-===================
-
-Package:
-
-======================== ====================================================== =============
-key                      example value                                          notes
-======================== ====================================================== =============
-id                       "fd788e57-dce4-481c-832d-497235bf9f78"                 (Read-only) unique identifier
-name                     "uk-spending"                                          Unique identifier. Should be human readable
-title                    "UK Spending"                                          Human readable title of the dataset
-url                      "http://gov.uk/spend-downloads.html"                   Home page for the data
-version                  "1.0"                                                  Version associated with the data. String format.
-author                   "UK Treasury"                                          Name of person responsible for the data
-author_email             "contact@treasury.gov.uk"                              Email address for the person in the 'author' field
-maintainer               null                                                   Name of another person responsible for the data
-maintainer_email         null                                                   Email address for the person in the 'maintainer' field
-notes                    "### About\\r\\n\\r\\nUpdated 1997."                   Other human readable info about the dataset. Markdown format.
-license_id               "cc-by"                                                ID of the license this dataset is released under. You can then look up the license ID to get the title.
-extras                   []
-tags                     [{"name": "government-spending"}, {"name": "climate"}] List of tags associated with this dataset.
-groups                   [{"name": "spending"}, {"name": "country-uk"}]         List of groups this dataset is a member of.
-relationships_as_subject []                                                     List of relationships. The 'type' of the relationship is described in terms of this package being the subject and the related package being the object.
-state                    active                                                 May be ``deleted`` or other custom states like ``pending``.
-revision_id              "f645243a-7334-44e2-b87c-64231700a9a6"                 (Read-only) ID of the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships).
-revision_timestamp       "2010-12-21T15:26:17.345502"                           (Read-only) Time and date when the last revision for the core package object was (doesn't include tags, groups, extra fields, relationships). ISO format. UTC timezone assumed.
-======================== ====================================================== =============
-
-Package Extra:
-
-======================== ====================================== =============
-key                      example value                          notes
-======================== ====================================== =============
-id                       "c10fb749-ad46-4ba2-839a-41e8e2560687" (Read-only)
-key                      "number_of_links"
-value                    "10000"
-package_id               "349259a8-cbff-4610-8089-2c80b34e27c5" (Read-only) Edit package extras with package_update
-state                    "active"                               (Read-only) Edit package extras with package_update
-revision_timestamp       "2010-09-01T08:56:53.696551"           (Read-only)
-revision_id              "233d0c19-fcdc-44b9-9afe-25e2aa9d0a5f" (Read-only)
-======================== ====================================== =============
-
-
-Resource:
-
-======================== ====================================== =============
-key                      example value                          notes
-======================== ====================================== =============
-id                       "888d00e9-6ee5-49ca-9abb-6f216e646345" (Read-only)
-url                      "http://gov.uk/spend-july-2009.csv"    Download URL of the data
-description              ""
-format                   "XLS"                                  Format of the data
-hash                     null                                   Hash of the data e.g. SHA1
-state                    "active"
-position                 0                                      (Read-only) This is set by the order of resources are given in the list when creating/updating the package.
-resource_group_id        "49ddadb0-dd80-9eff-26e9-81c5a466cf6e" (Read-only)
-revision_id              "188ac88b-1573-48bf-9ea6-d3c503db5816" (Read-only)
-revision_timestamp       "2011-07-08T14:48:38.967741"           (Read-only)
-======================== ====================================== =============
-
-Tag:
-
-======================== ====================================== =============
-key                      example value                          notes
-======================== ====================================== =============
-id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754" (Read-only)
-name                     "country-uk"                           (Read-only) Add/remove tags from a package or group using update_package or update_group
-display_name             "country-uk"                           (Read-only) display_name is the name of the tag that is displayed to user (as opposed to name which is used to identify the tag, e.g. in URLs). display_name is is usually the same as name but may be different, for example display_names may be translated by the ckanext-multilingual extension.
-state                    "active"                               (Read-only) Add/remove tags from a package or group using update_package or update_group
-revision_timestamp       "2009-08-08T12:46:40.920443"           (Read-only)
-vocabulary_id            "Genre"                                (Read-only) Vocabulary name or id. Optional.
-======================== ====================================== =============
-
-user_roles:
-
-======================== ====================================== =============
-key                      example value                          notes
-======================== ====================================== =============
-user                     "5ba3985d-447d-4919-867e-2ffe22281c40" Provide exactly one out of "user" and "authorization_group" parameters.
-authorization_group      "16f8f7ba-1a97-4d27-95ce-5e8827a0d75f"
-roles                    ['editor', 'admin']
-======================== ====================================== =============
-
-Related:
-
-======================== ====================================== =============
-key                      example value                          notes
-======================== ====================================== =============
-id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754" (Read-only)
-title                     "A new visualization"                 (Read-only)
-type                      "Visualization"                       (Read-only)
-description               "Describing the visualization"        (Read-only)
-url                       "http://invent.ge/HKjuyc"             (Read-only) Where the item can be found
-image_url                 "http://invent.ge/IR5r7W"             (Read-only) An optional image showing the item
-======================== ====================================== =============
-
-
-Vocabulary:
-
-======================== ===================================================== =============
-key                      example value                                         notes
-======================== ===================================================== =============
-id                       "b10871ea-b4ae-4e2e-bec9-a8d8ff357754"                (Read-only)
-name                     "Genre"
-tags                     [{"name":"government-spending"}, {"name": "climate"}] List of tags belonging to this vocabulary.
-======================== ===================================================== =============
-
-Term Translation:
-
-================ ========================= ==================================
-key              example value             notes
-================ ========================= ==================================
-term             "russian"                 The term that is being translated.
-term_translation "Russisch"                The translation of the term.
-lang_code        "de"                      The language of the translation, a language code string.
-================ ========================= ==================================
-
 Parameters
 ==========
 
-Requests must be a POST, including parameters in a JSON dictionary. If there are no parameters required, then an empty dictionary is still required (or you get a 400 error).
+All actions accept POST request including parameters in a JSON dictionary. If there are no parameters required, then an empty dictionary is still required (or you get a 400 error).
 
 Examples::
 
  curl http://test.ckan.net/api/action/package_list -d '{}'
  curl http://test.ckan.net/api/action/package_show -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
 
+Actions
+=======
 
+.. automodule:: ckan.logic.action.get
+   :members:
+
+.. automodule:: ckan.logic.action.create
+   :members:
+
+.. automodule:: ckan.logic.action.update
+   :members:
+
+.. automodule:: ckan.logic.action.delete
+   :members:
+
+In case of doubt, refer to the code of the logic actions, which is found in the CKAN source in the ``ckan/logic/action`` directory.
+
+GET-able Actions
+----------------
+
+Actions defined in get.py can also be accessed with a GET request **in
+addition** to the POST method described just above.
+
+Each parameter is specified as a url parameter, for example: ::
+
+ curl http://test.ckan.net/api/3/action/package_search?q=police
+
+Or if the action expects a list of string for a given paramter, then that
+parameter may be specified more than once, for example: ::
+
+ curl http://test.ckan.net/api/3/action/term_translation_show?terms=russian&terms=romantic%20novel
+
+will result in the following parameters being sent to the
+`term_translation_show` action: ::
+
+  {
+    'terms': ['russian', 'romantic novel']
+  }
+
+This interface is *slightly* more limited than the POST interface because it
+doesn't allow passing nested dicts into the action be accessed.  As a
+consequence of this, currently the *resource_search*, *tag_search* and
+*tag_autocomplete* actions are **limited** in their functionality.
+
+`resource_search`:
+    This action is not currently usable via a GET request as it relies upon
+    a nested dict of fields.
+
+`tag_search` and `tag_autocomplete`:
+    The `fields` argument is not available when accessing this action with a
+    GET request.
+
+Also, it is worth bearing this limitation in mind when creating your own
+actions via the `IActions` interface.
 
 Responses
 =========

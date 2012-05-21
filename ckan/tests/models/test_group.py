@@ -1,3 +1,5 @@
+from nose.tools import assert_equal
+
 import ckan.model as model
 from ckan.tests import *
 
@@ -50,6 +52,20 @@ class TestGroup(object):
         war = model.Package.by_name(u'warandpeace')
         assert set(grp.active_packages().all()) == set((anna, war)), grp.active_packages().all()
         assert grp in anna.get_groups()
+
+    def test_3_search(self):
+        def search_results(query):
+            results = model.Group.search_by_name_or_title(query)
+            return set([group.name for group in results])
+        assert_equal(search_results('random'), set([]))
+        assert_equal(search_results('david'), set(['david']))
+        assert_equal(search_results('roger'), set(['roger']))
+        assert_equal(search_results('roger '), set(['roger']))
+        assert_equal(search_results('David'), set(['david']))
+        assert_equal(search_results('Dave'), set(['david']))
+        assert_equal(search_results('Dave\'s'), set(['david']))
+        assert_equal(search_results('Dave\'s books'), set(['david']))
+        assert_equal(search_results('Books'), set(['david', 'roger']))
 
 
 class TestGroupRevisions:
