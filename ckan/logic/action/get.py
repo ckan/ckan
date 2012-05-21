@@ -1005,7 +1005,7 @@ def package_search(context, data_dict):
     returns a dictionary of results, including dictized datasets that match
     the search criteria, a search count and also facet information.
 
-    Solr Parameters:
+    **Solr Parameters:**
 
     For more in depth treatment of each paramter, please read the `Solr
     Documentation <http://wiki.apache.org/solr/CommonQueryParameters>`_.
@@ -1027,7 +1027,7 @@ def package_search(context, data_dict):
         returned datasets should begin.
     :type start: int
     :param qf: the dismax query fields to search within, including boosts.  See
-        the `Solr Dismax Documentation
+        the `Solr Dismax Documentation 
         <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
         for further details.
     :type qf: string
@@ -1043,10 +1043,11 @@ def package_search(context, data_dict):
         then the returned facet information is empty.
     :type facet.field: list of strings
 
-    Results:
+    **Results:**
 
     The result of this action is a dict with the following keys:
 
+    :rtype: A dictionary with the following keys
     :param count: the number of results found.  Note, this is the total number
         of results found, not the total number of results returned (which is
         affected by limit and row parameters used in the input).
@@ -1077,7 +1078,7 @@ def package_search(context, data_dict):
                        }
      }
 
-    Limitations:
+    **Limitations:**
 
     The full solr query language is not exposed, including.
 
