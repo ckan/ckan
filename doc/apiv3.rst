@@ -57,25 +57,8 @@ Examples::
  curl http://test.ckan.net/api/action/package_list -d '{}'
  curl http://test.ckan.net/api/action/package_show -d '{"id": "fd788e57-dce4-481c-832d-497235bf9f78"}'
 
-Actions
-=======
-
-.. automodule:: ckan.logic.action.get
-   :members:
-
-.. automodule:: ckan.logic.action.create
-   :members:
-
-.. automodule:: ckan.logic.action.update
-   :members:
-
-.. automodule:: ckan.logic.action.delete
-   :members:
-
-In case of doubt, refer to the code of the logic actions, which is found in the CKAN source in the ``ckan/logic/action`` directory.
-
 GET-able Actions
-----------------
+................
 
 Actions defined in get.py can also be accessed with a GET request **in
 addition** to the POST method described just above.
@@ -111,6 +94,23 @@ consequence of this, currently the *resource_search*, *tag_search* and
 
 Also, it is worth bearing this limitation in mind when creating your own
 actions via the `IActions` interface.
+
+Actions
+=======
+
+.. automodule:: ckan.logic.action.get
+   :members:
+
+.. automodule:: ckan.logic.action.create
+   :members:
+
+.. automodule:: ckan.logic.action.update
+   :members:
+
+.. automodule:: ckan.logic.action.delete
+   :members:
+
+In case of doubt, refer to the code of the logic actions, which is found in the CKAN source in the ``ckan/logic/action`` directory.
 
 Responses
 =========
