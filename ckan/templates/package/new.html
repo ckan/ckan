@@ -22,13 +22,11 @@
       <div class="primary">
         <section class="module">
           <div class="content">
-            <div class="stages">
-              <ol>
-                <li class="active"><a href="">Create dataset</a></li>
-                <li>Add data</li>
-                <li>Additional data</li>
-              </ol>
-            </div>
+            <ol class="stages">
+              <li class="active"><a href="">Create dataset</a></li>
+              <li>Add data</li>
+              <li>Additional data</li>
+            </ol>
             <form class="dataset-form form-horizontal" method="post" py:with="errors = {}; data = {};">
               <div class="alert alert-error error-explanation" py:if="False and error_summary">
                 <h2>Errors in form</h2>

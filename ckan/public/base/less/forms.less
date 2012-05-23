@@ -1,0 +1,42 @@
+.btn,
+label {
+  font-weight: bold;
+}
+
+.stages {
+  .unstyled;
+  .clearfix;
+  color: #aeaeae;
+  counter-reset: stage;
+  margin-bottom: @gutter-y;
+  text-align: right;
+}
+
+.stages li {
+  display: inline-block;
+  line-height: 27px;
+  counter-increment: stage;
+  opacity: 0.5;
+  margin-right: 35px;
+}
+
+.stages li:before {
+  .border-radius(14px);
+  content: counter(stage);
+  display: inline-block;
+  width: 27px;
+  height: 27px;
+  margin-right: 5px;
+  color: #fff;
+  background: #aeaeae;
+  font-weight: bold;
+  text-align: center;
+}
+
+.stages .active {
+  opacity: 0.8;
+}
+
+.stages a {
+  color: #aeaeae;
+}
