@@ -97,10 +97,10 @@
       <div class="secondary">
         <section class="module">
           <h3 class="heading"><i class="ckan-icon ckan-icon-info"></i> Resource Information</h3>
-          <ul class="simple">
+          <ul class="simple-list">
             <li><i class="ckan-icon ckan-icon-calender"></i> Unknown</li>
             <li><i class="ckan-icon ckan-icon-type"></i> CSV</li>
-            <li>${h.snippet('snippets/license.html', dataset=c.pkg_dict)}</li>
+            <li><i class="ckan-icon ckan-icon-license"></i> ${h.snippet('snippets/license.html', dataset=c.pkg_dict)}</li>
           </ul>
         </section>
         ${h.snippet('snippets/social.html')}
