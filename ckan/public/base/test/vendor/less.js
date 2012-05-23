@@ -342,7 +342,7 @@ less.Parser = function Parser(env) {
 
     function getInput(e, env) {
         if (e.filename && env.filename && (e.filename !== env.filename)) {
-            return parser.imports.contents[basename(e.filename)];
+            return parser.imports.contents[basename(e.filename)] || "";
         } else {
             return input;
         }
@@ -350,7 +350,7 @@ less.Parser = function Parser(env) {
 
     function getLocation(index, input) {
         for (var n = index, column = -1;
-                 n >= 0 && input && input.charAt(n) !== '\n';
+                 n >= 0 && input.charAt(n) !== '\n';
                  n--) { column++ }
 
         return { line:   typeof(index) === 'number' ? (input.slice(0, index).match(/\n/g) || "").length : null,
