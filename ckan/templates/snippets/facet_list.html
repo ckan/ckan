@@ -23,9 +23,9 @@ count_label
   how a facet-item's count is displayed.
   
   -->
-<py:with vars="items=h.unselected_facet_items(name, limit)" xmlns:py="http://genshi.edgewall.org/">
+<py:with vars="items=h.unselected_facet_items(name)" xmlns:py="http://genshi.edgewall.org/">
   <section class="module">
-    <h2 class="heading">${h.facet_title(title)} <a href="${c.remove_field(name)}" class="action">Clear All</a></h2>
+    <h2 class="heading">${c.facet_titles.get(name)} <a href="${c.remove_field(name)}" class="action">Clear All</a></h2>
     <nav py:if="items">
       <ul class="unstyled nav nav-simple">
         <py:for each="item in items">
@@ -39,7 +39,8 @@ count_label
       </ul>
     </nav>
     <p class="footer" py:if="items">
-      <a href="#" class="read-more">Show All ${h.facet_title(title)}</a>
+      <a py:if="c.search_facets_limits.get(name)" href="${c.remove_field('_%s_limit' % name, replace=0)}" class="read-more">Show All ${c.facet_titles.get(name)}</a>
+      <a py:if="not c.search_facets_limits.get(name)" href="${c.remove_field('_%s_limit' % name)}" class="read-more">Show Popular ${c.facet_titles.get(name)}</a>
     </p>
   </section>
 </py:with>

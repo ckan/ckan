@@ -135,18 +135,20 @@ class PackageController(BaseController):
 
         c.drill_down_url = drill_down_url
 
-        def remove_field(key, value=None):
+        def remove_field(key, value=None, replace=None):
             """
             Remove a key from the current search parameters. A specific
             key/value pair can be removed by passing a second value argument
             otherwise all pairs matching the key will be removed.
+            If replace is given then a new param key=replace will be added.
             """
             params = list(params_nopage)
             if value:
                 params.remove((key, value))
             else:
               [params.remove((k, v)) for (k, v) in params[:] if k==key]
-
+            if replace is not None:
+                params.append((key, replace))
             return search_url(params)
 
         c.remove_field = remove_field
@@ -226,6 +228,14 @@ class PackageController(BaseController):
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
+        c.search_facets_limits = {}
+        for facet in c.facets.keys():
+            limit = int(request.params.get('_%s_limit' % facet, 10))
+            c.search_facets_limits[facet] = limit
+        c.facet_titles = {'groups' : _('Groups'),
+                          'tags' : _('Tags'),
+                          'res_format' : _('Formats'),
+                          'license' : _('Licence'), }
 
         return render( self._search_template(package_type) )
 

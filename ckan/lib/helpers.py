@@ -438,7 +438,12 @@ def unselected_facet_items(facet, limit=10):
             continue
         if not (facet, facet_item['name']) in request.params.items():
             facets.append(facet_item)
-    return sorted(facets, key=lambda item: item['count'], reverse=True)[:limit]
+    facets = sorted(facets, key=lambda item: item['count'], reverse=True)
+    limit = c.search_facets_limits.get(facet)
+    if limit:
+        return facets[:limit]
+    else:
+        return facets
 
 def facet_items(*args, **kwargs):
     """
@@ -468,6 +473,7 @@ def _facet_items(name, limit=10):
     return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
 
 def facet_title(name):
+    # FIXME this looks like an i18n issue
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
 def am_authorized(c, action, domain_object=None):

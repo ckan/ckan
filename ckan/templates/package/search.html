@@ -33,7 +33,7 @@
                 <py:otherwise>All datasets</py:otherwise>
               </strong>
               <py:for each="(field, value) in c.fields">
-                <span class="facet">${h.facet_title(field)}:</span>
+                <span class="facet">${c.facet_titles.get(field)}:</span>
                 <span class="filtered pill" py:choose="">
                   <py:when test="c.translated_fields and c.translated_fields.has_key((field,value))">
                     ${c.translated_fields[(field,value)]}
@@ -65,9 +65,9 @@
         </section>
       </div>
       <div class="secondary">
-        ${h.snippet('snippets/facet_list.html', title='Tags', name='tags', limit=10)}
-        ${h.snippet('snippets/facet_list.html', title='Formats', name='res_format', limit=10)}
-        ${h.snippet('snippets/facet_list.html', title='Groups', name='groups', limit=10)}
+        ${h.snippet('snippets/facet_list.html', title='Tags', name='tags')}
+        ${h.snippet('snippets/facet_list.html', title='Formats', name='res_format')}
+        ${h.snippet('snippets/facet_list.html', title='Groups', name='groups')}
       </div>
     </body>
 </html>
