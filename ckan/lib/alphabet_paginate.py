@@ -1,6 +1,7 @@
 '''
-Based on webhelpers.paginator, but each page is for items beginning
- with a particular letter.
+Based on webhelpers.paginator, but:
+ * each page is for items beginning with a particular letter
+ * output is suitable for Bootstrap
 
  Example:
         c.page = h.Page(
@@ -43,7 +44,12 @@ class AlphaPage(object):
         self.other_text = other_text
         self.paging_threshold = paging_threshold
         self.controller_name = controller_name
-        self.available = dict( (c,0,) for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" )
+
+        self.letters = [char for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'] + [self.other_text]
+        
+        # Work out which alphabet letters are 'available' i.e. have some results
+        # because we grey-out those which aren't.
+        self.available = dict( (c,0,) for c in self.letters )
         for c in self.collection:
             if isinstance(c, unicode):
                 x = c[0]
@@ -51,35 +57,42 @@ class AlphaPage(object):
                 x = c[self.alpha_attribute][0]
             else:
                 x = getattr(c, self.alpha_attribute)[0]
+            x = x.upper()
+            if x not in self.letters:
+                x = self.other_text
             self.available[x] = self.available.get(x, 0) + 1
 
     def pager(self, q=None):
         '''Returns pager html - for navigating between the pages.
            e.g. Something like this:
-             <div class='pager'>
-                 <span class="pager_curpage">A</span>
-                 <a class="pager_link" href="/package/list?page=B">B</a>
-                 <a class="pager_link" href="/package/list?page=C">C</a>
+             <ul class='pagination pagination-alphabet'>
+                 <li class="active"><a href="/package/list?page=A">A</a></li>
+                 <li><a href="/package/list?page=B">B</a></li>
+                 <li><a href="/package/list?page=C">C</a></li>
                     ...
-                 <a class="pager_link" href="/package/list?page=Z">Z</a
-                 <a class="pager_link" href="/package/list?page=Other">Other</a
-             </div>
+                 <li class="disabled"><a href="/package/list?page=Z">Z</a></li>
+                 <li><a href="/package/list?page=Other">Other</a></li>
+             </ul>
         '''
         if self.item_count < self.paging_threshold:
             return ''
         pages = []
         page = q or self.page
-        letters = [char for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'] + [self.other_text]
-        for letter in letters:
+        for letter in self.letters:
+            href = url_for(controller=self.controller_name, action='index', page=letter)
+            link = HTML.a(href=href, c=letter)
             if letter != page:
                 if self.available.get(letter, 0):
-                    page_element = HTML.a(class_='pager_link', href=url_for(controller=self.controller_name, action='index', page=letter),c=letter)
+                    li_class = ''
                 else:
-                    page_element = HTML.span(class_="pager_empty", c=letter)
+                    li_class = 'disabled'
             else:
-                page_element = HTML.span(class_='pager_curpage', c=letter)
+                li_class = 'active'
+            attributes = {'class_': li_class} if li_class else {}
+            page_element = HTML.li(link, **attributes)
             pages.append(page_element)
-        div = HTML.tag('div', class_='pager', *pages)
+        ul = HTML.tag('ul', *pages)
+        div = HTML.div(ul, class_='pagination pagination-alphabet')
         return div
 
 
