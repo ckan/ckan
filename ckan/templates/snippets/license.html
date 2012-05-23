@@ -3,7 +3,7 @@
   xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/">
   <a py:if="'license_url' in dataset" href="${dataset.license_url}" rel="dc:rights">${dataset.license_title}</a>
-  <span py:if="c.pkg.license" property="dc:rights">${dataset.license_title}</span>
+  <span py:if="not 'license_url' in dataset" property="dc:rights">${dataset.license_title}</span>
   <a py:if="dataset.isopen" href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
     <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
   </a>
