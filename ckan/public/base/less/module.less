@@ -8,7 +8,7 @@
 
 .module > .heading {
   font-size: 14px;
-  padding: 0 @module-margin-x;
+  padding: 0 @gutter-x;
   border-bottom: 1px solid @module-heading-border-color;
   #gradient > .vertical(@module-heading-background-color-start, @module-heading-background-color-end);
 }
@@ -22,18 +22,18 @@
 }
 
 .module > .content {
-  padding: 0 @module-margin-x;
+  padding: 0 @gutter-x;
   margin: 20px 0;
 }
 
 .module > .content:first-child {
   margin-top: 0;
-  padding-top: @module-margin-y;
+  padding-top: @gutter-y;
 }
 
 .module > .content:last-child {
   margin-bottom: 0;
-  padding-bottom: @module-margin-y;
+  padding-bottom: @gutter-y;
 }
 
 .module > .content :last-child {
@@ -41,7 +41,7 @@
 }
 
 .module > .footer {
-  padding: 0 @module-margin-x 7px;
+  padding: 0 @gutter-x 7px;
 }
 
 .module .read-more {
@@ -101,7 +101,7 @@
   .heading,
   .content,
   .footer {
-    padding-left:  @secondary-module-margin-x;
-    padding-right: @secondary-module-margin-x;
+    padding-left:  @gutter-small-x;
+    padding-right: @gutter-small-x;
   }
 }
