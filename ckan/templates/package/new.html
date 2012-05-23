@@ -35,7 +35,7 @@
                   <li py:for="key, error in error_summary.items()">${"%s: %s" % (key if not key=='Name' else 'URL', error)}</li>
                 </ul>
               </div>
-              <div class="control-group" py:with="error = errors.get('title', '')">
+              <div class="control-group control-large control-full" py:with="error = errors.get('title', '')">
                 <label class="control-label" for="field-title">Title</label>
                 <div class="controls">
                   <input id="field-title" name="title" value="${data.get('title', '')}" placeholder="${_('A descriptive title')}" />
@@ -43,7 +43,7 @@
                 </div>
               </div>
 
-              <div class="control-group" py:with="error = errors.get('name', '')">
+              <div class="control-group control-full" py:with="error = errors.get('name', '')">
                 <label class="control-label" for="field-name">URL</label>
                 <div class="controls">
                   <input id="field-name" name="name" value="${data.get('name', '')}" placeholder="${_('my-dataset')}" />
@@ -51,10 +51,10 @@
                 </div>
               </div>
 
-              <div class="control-group" py:with="error = errors.get('notes', '')">
+              <div class="control-group control-full" py:with="error = errors.get('notes', '')">
                 <label class="control-label" for="field-notes">Description</label>
                 <div class="controls editor">
-                  <textarea id="field-notes" name="notes" cols="20" rows="5"></textarea>
+                  <textarea id="field-notes" name="notes" cols="20" rows="5" placeholder="Some useful notes about the data">${data.get('notes', '')}</textarea>
                   <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
                   <span class="error-block" py:if="error">${error}</span>
                 </div>
