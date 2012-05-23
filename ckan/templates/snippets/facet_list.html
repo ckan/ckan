@@ -27,7 +27,7 @@ count_label
   <section class="module">
     <h2 class="heading">${h.facet_title(title)} <a href="${c.remove_field(name)}" class="action">Clear All</a></h2>
     <nav py:if="items">
-      <ul class="unstyled nav nav-simple">
+      <ul class="unstyled nav nav-simple nav-facet">
         <py:for each="item in items">
           <li>
             <a href="${c.drill_down_url(**{name: item.name})}">
