@@ -4,6 +4,8 @@ import datetime
 
 from pylons import config
 from pylons.i18n import _
+from genshi.template import MarkupTemplate
+from genshi.template.text import NewTextTemplate
 
 from ckan.logic import get_action, check_access
 from ckan.lib.helpers import date_str_to_datetime
@@ -19,6 +21,7 @@ import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
+import ckan.lib.accept as accept
 from home import CACHE_PARAMETER
 
 from ckan.lib.plugins import lookup_package_plugin
@@ -221,44 +224,33 @@ class PackageController(BaseController):
 
         return render( self._search_template(package_type) )
 
-    def _content_type_for_format(self, fmt):
+    def _content_type_from_extension(self, ext):
+        ct,mu,ext = accept.parse_extension(ext)
+        if not ct:
+            return None, None, None,
+        return ct, ext, (NewTextTemplate,MarkupTemplate)[mu]
+
+    def _content_type_from_accept(self):
         """
         Given a requested format this method determines the content-type
         to set and the genshi template loader to use in order to render
         it accurately.  TextTemplate must be used for non-xml templates
         whilst all that are some sort of XML should use MarkupTemplate.
         """
-        from genshi.template import MarkupTemplate
-        from genshi.template.text import NewTextTemplate
-
-        types = {
-            "html": ("text/html; charset=utf-8", MarkupTemplate, 'html'),
-            "rdf" : ("application/rdf+xml; charset=utf-8", MarkupTemplate, 'rdf'),
-            "n3" : ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
-            "application/rdf+xml" : ("application/rdf+xml; charset=utf-8", MarkupTemplate,'rdf'),
-            "text/n3": ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
-        }
-        # Check the accept header first
-        accept = request.headers.get('Accept', '')
-        if accept and accept in types:
-            return types[accept][0], types[accept][2], types[accept][1]
-
-        if fmt in types:
-            return types[fmt][0], types[fmt][2], types[fmt][1]
-        return None, "html", (types["html"][1])
+        ct,mu,ext = accept.parse_header(request.headers.get('Accept', ''))
+        return ct, ext, (NewTextTemplate,MarkupTemplate)[mu]
 
 
     def read(self, id, format='html'):
-        # Check we know the content type, if not then it is likely a revision
-        # and therefore we should merge the format onto the end of id
-        ctype,extension,loader = self._content_type_for_format(format)
-        if not ctype:
-            # Reconstitute the ID if we don't know what content type to use
-            ctype = "text/html; charset=utf-8"
-            id = "%s.%s" % (id, format)
-            format = 'html'
+        if not format == 'html':
+            ctype,extension,loader = self._content_type_from_extension(format)
+            if not ctype:
+                # An unknown format, we'll carry on in case it is a
+                # revision specifier and re-constitute the original id
+                id = "%s.%s" % (id, format)
+                ctype, format, loader = "text/html; charset=utf-8", "html", MarkupTemplate
         else:
-            format = extension
+            ctype,extension,loader = self._content_type_from_accept()
 
         response.headers['Content-Type'] = ctype
 
