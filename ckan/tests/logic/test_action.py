@@ -56,12 +56,13 @@ class TestAction(WsgiAppCase):
 
     def test_01_package_list(self):
         postparams = '%s=1' % json.dumps({})
-        res = self.app.post('/api/action/package_list', params=postparams)
-        assert_dicts_equal_ignoring_ordering(
-            json.loads(res.body),
-            {"help": "Lists packages by name or id",
-             "success": True,
-             "result": ["annakarenina", "warandpeace"]})
+        res = json.loads(self.app.post('/api/action/package_list', params=postparams).body)
+        assert res['success'] is True
+        assert len(res['result']) == 2
+        assert 'warandpeace' in res['result']
+        assert 'annakarenina' in res['result']
+        assert res['help'].startswith(
+            "Return a list of the names of the site's datasets (packages).")
 
     def test_01_package_show(self):
         anna_id = model.Package.by_name(u'annakarenina').id
@@ -69,7 +70,8 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/package_show', params=postparams)
         res_dict = json.loads(res.body)
         assert_equal(res_dict['success'], True)
-        assert_equal(res_dict['help'], None)
+        assert res_dict['help'].startswith(
+            "Return the metadata of a dataset (package) and its resources.")
         pkg = res_dict['result']
         assert_equal(pkg['name'], 'annakarenina')
         missing_keys = set(('title', 'groups')) - set(pkg.keys())
@@ -85,7 +87,8 @@ class TestAction(WsgiAppCase):
         msg = res.body[len('jsoncallback')+1:-2]
         res_dict = json.loads(msg)
         assert_equal(res_dict['success'], True)
-        assert_equal(res_dict['help'], None)
+        assert res_dict['help'].startswith(
+            "Return the metadata of a dataset (package) and its resources.")
         pkg = res_dict['result']
         assert_equal(pkg['name'], 'annakarenina')
         missing_keys = set(('title', 'groups')) - set(pkg.keys())
@@ -190,7 +193,8 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/user_list', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Lists the current users'
+        assert res_obj['help'].startswith(
+                "Return a list of the site's user accounts.")
         assert res_obj['success'] == True
         assert len(res_obj['result']) == 7
         assert res_obj['result'][0]['name'] == 'annafan'
@@ -202,7 +206,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id':'annafan'})
         res = self.app.post('/api/action/user_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Shows user details'
+        assert res_obj['help'].startswith("Return a user account.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == 'annafan'
@@ -239,7 +243,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id':'tester'})
         res = self.app.post('/api/action/user_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Shows user details'
+        assert res_obj['help'].startswith("Return a user account.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == 'tester'
@@ -275,16 +279,14 @@ class TestAction(WsgiAppCase):
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
                             status=StatusCodes.STATUS_409_CONFLICT)
         res_obj = json.loads(res.body)
-        assert res_obj == {
-            'error': {
+        assert res_obj['error'] == {
                 '__type': 'Validation Error',
                 'name': ['Missing value'],
                 'email': ['Missing value'],
                 'password': ['Missing value']
-            },
-            'help': 'Creates a new user',
-            'success': False
-        }
+            }
+        assert res_obj['help'].startswith("Create a new user.")
+        assert res_obj['success'] is False
 
     def test_11_user_create_wrong_password(self):
         user_dict = {'name':'test_create_from_action_api_2',
@@ -297,14 +299,10 @@ class TestAction(WsgiAppCase):
                             status=StatusCodes.STATUS_409_CONFLICT)
 
         res_obj = json.loads(res.body)
-        assert res_obj == {
-            'error': {
-                '__type': 'Validation Error',
-                'password': ['Your password must be 4 characters or longer']
-            },
-            'help': 'Creates a new user',
-            'success': False
-        }
+        assert res_obj['help'].startswith('Create a new user.')
+        assert res_obj['success'] is False
+        assert res_obj['error'] == { '__type': 'Validation Error',
+                'password': ['Your password must be 4 characters or longer']}
 
     def test_12_user_update(self):
         normal_user_dict = {'id': self.normal_user.id,
@@ -324,7 +322,7 @@ class TestAction(WsgiAppCase):
                             extra_environ={'Authorization': str(self.normal_user.apikey)})
 
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['help'].startswith("Update a user account.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['id'] == self.normal_user.id
@@ -344,7 +342,7 @@ class TestAction(WsgiAppCase):
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
 
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['help'].startswith("Update a user account.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['id'] == self.sysadmin_user.id
@@ -358,7 +356,7 @@ class TestAction(WsgiAppCase):
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
 
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['help'].startswith("Update a user account.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['id'] == self.normal_user.id
@@ -373,14 +371,12 @@ class TestAction(WsgiAppCase):
                             status=StatusCodes.STATUS_403_ACCESS_DENIED)
 
         res_obj = json.loads(res.body)
-        assert res_obj == {
-            'error': {
+        assert res_obj['help'].startswith("Update a user account.")
+        assert res_obj['error'] == {
                 '__type': 'Authorization Error',
                 'message': 'Access denied'
-            },
-            'help': 'Updates the user\'s details',
-            'success': False
-        }
+            }
+        assert res_obj['success'] is False
 
     def test_12_user_update_errors(self):
         test_calls = (
@@ -419,16 +415,10 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/group_list', params=postparams)
         res_obj = json.loads(res.body)
-        assert_dicts_equal_ignoring_ordering(
-            res_obj,
-            {
-                'result': [
-                    'david',
-                    'roger',
-                    ],
-                'help': 'Returns a list of groups',
-                'success': True
-            })
+        assert res_obj['result'] == ['david', 'roger']
+        assert res_obj['success'] is True
+        assert res_obj['help'].startswith(
+                "Return a list of the names of the site's groups.")
 
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
@@ -469,7 +459,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id':'david'})
         res = self.app.post('/api/action/group_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Shows group details'
+        assert res_obj['help'].startswith("Return the details of a group.")
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == 'david'
@@ -486,26 +476,22 @@ class TestAction(WsgiAppCase):
 
         res_obj = json.loads(res.body)
         pprint(res_obj)
-        assert res_obj == {
-            'error': {
+        assert res_obj['error'] == {
                 '__type': 'Not Found Error',
                 'message': 'Not found'
-            },
-            'help': 'Shows group details',
-            'success': False
-        }
-
+            }
+        assert res_obj['help'].startswith('Return the details of a group.')
+        assert res_obj['success'] is False
 
     def test_16_user_autocomplete(self):
         #Empty query
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/user_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj == {
-            'help': 'Returns users containing the provided string',
-            'result': [],
-            'success': True
-        }
+        assert res_obj['help'].startswith(
+                "Return a list of user names that contain a string.")
+        assert res_obj['result'] == []
+        assert res_obj['success'] is True
 
         #Normal query
         postparams = '%s=1' % json.dumps({'q':'joe'})
@@ -640,12 +626,9 @@ class TestAction(WsgiAppCase):
             status=StatusCodes.STATUS_403_ACCESS_DENIED
         )
         res_obj = json.loads(res.body)
-        expected_res_obj = {
-            'help': None,
-            'success': False,
-            'error': {'message': 'Access denied', '__type': 'Authorization Error'}
-        }
-        assert res_obj == expected_res_obj, res_obj
+        assert res_obj['help'].startswith("Update a task status.")
+        assert res_obj['success'] is False
+        assert res_obj['error'] == {'message': 'Access denied', '__type': 'Authorization Error'}
 
     def test_23_task_status_validation(self):
         task_status = {}
@@ -997,11 +980,14 @@ class TestAction(WsgiAppCase):
                INSERT INTO celery_taskmeta (id, task_id, status, result, date_done, traceback) VALUES (2, '51f2105d-85b1-4393-b821-ac11475919d9', 'FAILURE', '52e', '2012-04-20 21:33:01.622557', 'Traceback')'''
         )
         model.Session.commit()
-        res = self.app.post('/api/action/resource_status_show', 
+        res = json.loads(self.app.post('/api/action/resource_status_show',
                             params=json.dumps({'id': '749cdcf2-3fc8-44ae-aed0-5eff8cc5032c'}),
-                            status=200)
+                            status=200).body)
 
-        assert json.loads(res.body) == {"help": None, "success": True, "result": [{"status": "FAILURE", "entity_id": "749cdcf2-3fc8-44ae-aed0-5eff8cc5032c", "task_type": "qa", "last_updated": "2012-04-20T21:32:45.553986", "date_done": "2012-04-20T21:33:01.622557", "entity_type": "resource", "traceback": "Traceback", "value": "51f2105d-85b1-4393-b821-ac11475919d9", "state": None, "key": "celery_task_id", "error": "", "id": "5753adae-cd0d-4327-915d-edd832d1c9a3"}]}
+        assert res['help'].startswith(
+                "Return the statuses of a resource's tasks.")
+        assert res['success'] is True
+        assert res['result'] == [{"status": "FAILURE", "entity_id": "749cdcf2-3fc8-44ae-aed0-5eff8cc5032c", "task_type": "qa", "last_updated": "2012-04-20T21:32:45.553986", "date_done": "2012-04-20T21:33:01.622557", "entity_type": "resource", "traceback": "Traceback", "value": "51f2105d-85b1-4393-b821-ac11475919d9", "state": None, "key": "celery_task_id", "error": "", "id": "5753adae-cd0d-4327-915d-edd832d1c9a3"}]
 
 
 class TestActionTermTranslation(WsgiAppCase):

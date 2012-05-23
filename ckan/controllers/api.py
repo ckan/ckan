@@ -540,13 +540,11 @@ class ApiController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
-        data_dict = {'all_fields': True}
-
-        tag_list = get_action('tag_list')(context, data_dict)
+        tag_names = get_action('tag_list')(context, {})
         results = []
-        for tag in tag_list:
-            tag_count = len(tag['packages'])
-            results.append((tag['name'], tag_count))
+        for tag_name in tag_names:
+            tag_count = len(context['model'].Tag.get(tag_name).packages)
+            results.append((tag_name, tag_count))
         return self._finish_ok(results)
 
     def throughput(self, ver=None):

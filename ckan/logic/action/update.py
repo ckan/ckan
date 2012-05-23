@@ -59,7 +59,14 @@ def _make_latest_rev_active(context, q):
         context['latest_revision'] = latest_rev.revision_id
 
 def make_latest_pending_package_active(context, data_dict):
+    '''TODO: What does this function do?
 
+    You must be authorized to update the dataset.
+
+    :param id: the name or id of the dataset, e.g. ``'warandpeace'``
+    :type id: string
+
+    '''
     model = context['model']
     session = model.Session
     SQLAlchemySession.setattr(session, 'revisioning_disabled', True)
@@ -102,8 +109,20 @@ def make_latest_pending_package_active(context, data_dict):
 
 
 def related_update(context, data_dict):
+    '''Update a related item.
+
+    You must be the owner of a related item to update it.
+
+    For further parameters see ``related_create()``.
+
+    :param id: the id of the related item to update
+    :type id: string
+
+    :returns: the updated related item
+    :rtype: dictionary
+
+    '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
     schema = context.get('schema') or ckan.logic.schema.default_related_schema()
@@ -131,6 +150,20 @@ def related_update(context, data_dict):
 
 
 def resource_update(context, data_dict):
+    '''Update a resource.
+
+    To update a resource you must be authorized to update the dataset that the
+    resource belongs to.
+
+    For further parameters see ``resource_create()``.
+
+    :param id: the id of the resource to update
+    :type id: string
+
+    :returns: the updated resource
+    :rtype: string
+
+    '''
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
@@ -167,7 +200,24 @@ def resource_update(context, data_dict):
 
 
 def package_update(context, data_dict):
+    '''Update a dataset (package).
 
+    You must be authorized to edit the dataset and the groups that it belongs
+    to.
+
+    Plugins may change the parameters of this function depending on the value
+    of the dataset's ``type`` attribute, see the ``IDatasetForm`` plugin
+    interface.
+
+    For further parameters see ``package_create()``.
+
+    :param id: the name or id of the dataset to update
+    :type id: string
+
+    :returns: the updated dataset
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
     name_or_id = data_dict.get("id") or data_dict['name']
@@ -273,9 +323,30 @@ def _update_package_relationship(relationship, comment, context):
     return rel_dict
 
 def package_relationship_update(context, data_dict):
+    '''Update a relationship between two datasets (packages).
 
+    You must be authorized to edit both the subject and the object datasets.
+
+    :param id: the id of the package relationship to update
+    :type id: string
+    :param subject: the name or id of the dataset that is the subject of the
+        relationship (optional)
+    :type subject: string
+    :param object: the name or id of the dataset that is the object of the
+        relationship (optional)
+    :param type: the type of the relationship, one of ``'depends_on'``,
+        ``'dependency_of'``, ``'derives_from'``, ``'has_derivation'``,
+        ``'links_to'``, ``'linked_from'``, ``'child_of'`` or ``'parent_of'``
+        (optional)
+    :type type: string
+    :param comment: a comment about the relationship (optional)
+    :type comment: string
+
+    :returns: the updated relationship
+    :rtype: dictionary
+
+    '''
     model = context['model']
-    user = context['user']
     schema = context.get('schema') or ckan.logic.schema.default_update_relationship_schema()
 
     id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
@@ -304,6 +375,22 @@ def package_relationship_update(context, data_dict):
     return _update_package_relationship(entity, comment, context)
 
 def group_update(context, data_dict):
+    '''Update a group.
+
+    You must be authorized to edit the group.
+
+    Plugins may change the parameters of this function depending on the value
+    of the group's ``type`` attribute, see the ``IGroupForm`` plugin interface.
+
+    For further parameters see ``group_create()``.
+
+    :param id: the name or id of the group to update
+    :type id: string
+
+    :returns: the updated group
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
     session = context['session']
@@ -397,8 +484,20 @@ def group_update(context, data_dict):
     return model_dictize.group_dictize(group, context)
 
 def user_update(context, data_dict):
-    '''Updates the user\'s details'''
+    '''Update a user account.
 
+    Normal users can only update their own user accounts. Sysadmins can update
+    any user account.
+
+    For further parameters see ``user_create()``.
+
+    :param id: the name or id of the user to update
+    :type id: string
+
+    :returns: the updated user account
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
     session = context['session']
@@ -439,6 +538,31 @@ def user_update(context, data_dict):
     return model_dictize.user_dictize(user, context)
 
 def task_status_update(context, data_dict):
+    '''Update a task status.
+
+    :param id: the id of the task status to update
+    :type id: string
+    :param entity_id:
+    :type entity_id: string
+    :param entity_type:
+    :type entity_type: string
+    :param task_type:
+    :type task_type: string
+    :param key:
+    :type key: string
+    :param value: (optional)
+    :type value:
+    :param state: (optional)
+    :type state:
+    :param last_updated: (optional)
+    :type last_updated:
+    :param error: (optional)
+    :type error:
+
+    :returns: the updated task status
+    :rtype: dictionary
+
+    '''
     model = context['model']
     session = model.meta.create_local_session()
     context['session'] = session
@@ -469,6 +593,16 @@ def task_status_update(context, data_dict):
     return model_dictize.task_status_dictize(task_status, context)
 
 def task_status_update_many(context, data_dict):
+    '''Update many task statuses at once.
+
+    :param data: the task_status dictionaries to update, for the format of task
+        status dictionaries see ``task_status_update()``
+    :type data: list of dictionaries
+
+    :returns: the updated task statuses
+    :rtype: list of dictionaries
+
+    '''
     results = []
     model = context['model']
     deferred = context.get('defer_commit')
@@ -482,6 +616,23 @@ def task_status_update_many(context, data_dict):
     return {'results': results}
 
 def term_translation_update(context, data_dict):
+    '''Create or update a term translation.
+
+    You must be a sysadmin to create or update term translations.
+
+    :param term: the term to be translated, in the original language, e.g.
+        ``'romantic novel'``
+    :type term: string
+    :param term_translation: the translation of the term, e.g.
+        ``'Liebesroman'``
+    :type term_translation: string
+    :param lang_code: the language code of the translation, e.g. ``'de'``
+    :type lang_code: string
+
+    :returns: the newly created or updated term translation
+    :rtype: dictionary
+
+    '''
     model = context['model']
 
     _check_access('term_translation_update', context, data_dict)
@@ -516,6 +667,18 @@ def term_translation_update(context, data_dict):
     return data
 
 def term_translation_update_many(context, data_dict):
+    '''Create or update many term translations at once.
+
+    :param data: the term translation dictionaries to create or update,
+        for the format of term translation dictionaries see
+        ``term_translation_update()``
+    :type data: list of dictionaries
+
+    :returns: a dictionary with key ``'success'`` whose value is a string
+        stating how many term translations were updated
+    :rtype: string
+
+    '''
     model = context['model']
 
 
@@ -588,6 +751,19 @@ def group_update_rest(context, data_dict):
     return group_dict
 
 def vocabulary_update(context, data_dict):
+    '''Update a tag vocabulary.
+
+    You must be a sysadmin to update vocabularies.
+
+    For further parameters see ``vocabulary_create()``.
+
+    :param id: the id of the vocabulary to update
+    :type id: string
+
+    :returns: the updated vocabulary
+    :rtype: dictionary
+
+    '''
     model = context['model']
 
     vocab_id = data_dict.get('id')
@@ -637,11 +813,31 @@ def package_relationship_update_rest(context, data_dict):
     return relationship_dict
 
 def user_role_update(context, data_dict):
-    '''
-    For a named user (or authz group), set his/her authz roles on a domain_object.
+    '''Update a user or authorization group's roles for a domain object.
+
+    Either the ``user`` or the ``authorization_group`` parameter must be given.
+
+    You must be authorized to update the domain object.
+
+    To delete all of a user or authorization group's roles for domain object,
+    pass an empty list ``[]`` to the ``roles`` parameter.
+
+    :param user: the name or id of the user
+    :type user: string
+    :param authorization_group: the name or id of the authorization group
+    :type authorization_group: string
+    :param domain_object: the name or id of the domain object (e.g. a package,
+        group or authorization group)
+    :type domain_object: string
+    :param roles: the new roles, e.g. ``['editor']``
+    :type roles: list of strings
+
+    :returns: the updated roles of all users and authorization_groups for the
+        domain object
+    :rtype: dictionary
+
     '''
     model = context['model']
-    user = context['user'] # the current user, who is making the authz change
 
     new_user_ref = data_dict.get('user') # the user who is being given the new role
     new_authgroup_ref = data_dict.get('authorization_group') # the authgroup who is being given the new role
@@ -699,9 +895,18 @@ def user_role_update(context, data_dict):
     return _get_action('roles_show')(context, data_dict)
 
 def user_role_bulk_update(context, data_dict):
-    '''
-    For a given domain_object, update authz roles that several users have on it.
-    To delete all roles for a user on a domain object, set {roles: []}.
+    '''Update the roles of many users or authorization groups for an object.
+
+    You must be authorized to update the domain object.
+
+    :param user_roles: the updated user roles, for the format of user role
+        dictionaries see ``user_role_update()``
+    :type user_roles: list of dictionaries
+
+    :returns: the updated roles of all users and authorization groups for the
+        domain object
+    :rtype: dictionary
+
     '''
     for user_or_authgroup in ('user', 'authorization_group'):
         # Collate all the roles for each user
