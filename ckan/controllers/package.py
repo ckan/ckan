@@ -4,7 +4,6 @@ import datetime
 
 from pylons import config
 from pylons.i18n import _
-from autoneg.accept import negotiate
 
 from ckan.logic import get_action, check_access
 from ckan.lib.helpers import date_str_to_datetime
@@ -38,14 +37,6 @@ def search_url(params):
     url = h.url_for(controller='package', action='search')
     return url_with_params(url, params)
 
-autoneg_cfg = [
-    ("application", "xhtml+xml", ["html"]),
-    ("text", "html", ["html"]),
-    ("application", "rdf+xml", ["rdf"]),
-    ("application", "turtle", ["ttl"]),
-    ("text", "plain", ["nt"]),
-    ("text", "x-graphviz", ["dot"]),
-    ]
 
 class PackageController(BaseController):
 
