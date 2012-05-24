@@ -594,12 +594,34 @@ def datetime_to_date_str(datetime_):
     return datetime_.isoformat()
 
 def date_str_to_datetime(date_str):
-    '''Takes an ISO format timestamp and returns the equivalent
-    datetime.datetime object.
+    '''Convert ISO-like formatted datestring to datetime object.
+
+    This function converts ISO format date- and datetime-strings into
+    datetime objects.  Times may be specified down to the microsecond.  UTC
+    offset or timezone information may **not** be included in the string.
+
+    Note - Although originally documented as parsing ISO date(-times), this
+           function doesn't fully adhere to the format.  This function will
+           throw a ValueError if the string contains UTC offset information.
+           So in that sense, it is less liberal than ISO format.  On the
+           other hand, it is more liberal of the accepted delimiters between
+           the values in the string.  Also, it allows microsecond precision,
+           despite that not being part of the ISO format.
     '''
-    # Doing this split is more accepting of input variations than doing
-    # a strptime. Also avoids problem with Python 2.5 not having %f.
-    return datetime.datetime(*map(int, re.split('[^\d]', date_str)))
+
+    time_tuple = re.split('[^\d]+', date_str, maxsplit=5)
+
+    # Extract seconds and microseconds
+    if len(time_tuple) >= 6:
+        m = re.match('(?P<seconds>\d{2})(\.(?P<microseconds>\d{6}))?$',
+                     time_tuple[5])
+        if not m:
+            raise ValueError
+        seconds = int(m.groupdict().get('seconds'))
+        microseconds = int(m.groupdict(0).get('microseconds'))
+        time_tuple = time_tuple[:5] + [seconds, microseconds]
+
+    return datetime.datetime(*map(int, time_tuple))
 
 def parse_rfc_2822_date(date_str, assume_utc=True):
     """
