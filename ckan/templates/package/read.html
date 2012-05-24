@@ -129,14 +129,7 @@
           </ul>
         </section>
 
-        <section class="module social">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-share"></i> Social</h2>
-          <ul class="nav nav-simple">
-            <li><a href="#"><i class="ckan-icon ckan-icon-gplus"></i> Google+</a></li>
-            <li><a href="#"><i class="ckan-icon ckan-icon-twitter"></i> Twitter</a></li>
-            <li><a href="#"><i class="ckan-icon ckan-icon-fb"></i> Facebook</a></li>
-          </ul>
-        </section>
+        ${h.snippet('snippets/social.html')}
 
         <section class="module info related" py:if="True">
           <h2 class="heading"><i class="ckan-icon ckan-icon-photo"></i> Related <a class="action" href="#">Add Related</a></h2>
@@ -154,15 +147,8 @@
         </section>
 
         <section class="module info license" py:if="c.pkg.license_id">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-lock"></i> License</h2>
-          <p class="content">
-            <a py:if="'license_url' in c.pkg_dict" href="${c.pkg_dict.license_url}" rel="dc:rights">${c.pkg_dict.license_title}</a>
-            <span py:if="c.pkg.license" property="dc:rights">${c.pkg_dict.license_title}</span>
-            <a py:if="c.pkg_dict.isopen" href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
-              <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
-            </a>
-            <span py:if="not c.pkg_dict.isopen" class="closed">${h.icon('lock')}</span>
-          </p>
+          <h2 class="heading"><i class="ckan-icon ckan-icon-large-lock"></i> License</h2>
+          <p class="content">${h.snippet('snippets/license.html', dataset=c.pkg_dict)}</p>
         </section>
 
         <section class="module disqus-trackback">

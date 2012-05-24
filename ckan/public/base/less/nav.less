@@ -1,22 +1,13 @@
 .nav-simple {
-  .clearfix();
-  padding-bottom: 7px;
-}
-
-.nav-simple > li {
-  border-bottom: 1px dotted #ccc;
+  .simple-list;
 }
 
 .nav-simple > li > a {
   color: @nav-link-color;
-  padding: 7px 25px;
+  margin: -7px -@gutter-x;
+  padding: 7px @gutter-x;
   font-size: 12px;
   line-height: 14px; // keeps the overall height an even number
-}
-
-.nav-simple > li > a .ckan-icon {
-  position: relative;
-  top: -1px;
 }
 
 .nav-simple > li.active {
@@ -34,17 +25,19 @@
   margin-right: 7px;
   padding-left: 10px;
   padding-right: 0px;
-  padding: 1px (@module-margin-x - 7);
+  padding: 1px (@gutter-x - 7);
 }
 
 .secondary .nav-simple > li > a {
-  padding-left:  @secondary-module-margin-x;
-  padding-right: @secondary-module-margin-x;
+  padding-left:  @gutter-small-x;
+  padding-right: @gutter-small-x;
   position: relative;
 }
 
-.secondary .nav-simple > li > a:hover:after,
-.secondary .nav-simple > li.active > a:hover:after {
+// FACET NAVIGATION
+
+.nav-facet > li > a:hover:after,
+.nav-facet > li.active > a:hover:after {
   .ckan-icon;
   .ckan-icon-circle-add;
   content: "";
@@ -54,16 +47,16 @@
   margin-top: -8px;
 }
 
-.secondary .nav-simple > li > a:hover:after {
+.nav-facet > li > a:hover:after {
   .ckan-icon-circle-add;
 }
 
-.secondary .nav-simple > li.active > a:hover:after {
+.nav-facet > li.active > a:hover:after {
   .ckan-icon-circle-cross;
   right: 3px;
 }
 
-.secondary .nav-simple > li.selected > a {
-  padding-left:  @secondary-module-margin-x - 7;
-  padding-right: @secondary-module-margin-x - 7;
+.nav-facet > li.selected > a {
+  padding-left:  @gutter-small-x - 7;
+  padding-right: @gutter-small-x - 7;
 }

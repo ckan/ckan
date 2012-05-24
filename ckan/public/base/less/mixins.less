@@ -37,3 +37,29 @@
   margin: 0;
   list-style: none;
 }
+
+.simple-item {
+  padding: 7px @gutter-x;
+  border-bottom: 1px dotted #ccc;
+}
+
+.simple-list {
+  .clearfix;
+  .unstyled;
+  padding-bottom: 7px;
+
+  & > li {
+    .simple-item;
+  }
+
+  .ckan-icon {
+    position: relative;
+    top: 0px;
+  }
+}
+
+.secondary .simple-list > li {
+  padding-left:  @gutter-small-x;
+  padding-right: @gutter-small-x;
+  position: relative;
+}

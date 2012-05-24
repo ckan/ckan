@@ -1,0 +1,143 @@
+.btn,
+label {
+  font-weight: bold;
+}
+
+label {
+  font-size: 14px;
+  line-height: 2;
+}
+
+label:after {
+  content: ":";
+}
+
+input,
+textarea,
+select,
+.uneditable-input {
+  font-size: 14px;
+  padding: 8px 10px;
+}
+
+select {
+  margin-top: 6px;
+}
+
+textarea {
+  max-width: 100%;
+}
+
+.control-full input,
+.control-full select,
+.control-full textarea {
+  .box-sizing(border-box);
+  height: auto;
+  width: 100%;
+}
+
+.control-large input,
+.control-large .control-label {
+  font-size: 18px;
+  line-height: 2;
+}
+
+.control-large input {
+}
+
+.form-actions {
+  background: none;
+  margin-left: -@gutter-x;
+  margin-right: -@gutter-x;
+  padding-bottom: 0; // Prevents reduces the padding when included in a module.
+  text-align: right;
+}
+
+// Override the default form widths.
+.form-horizontal .control-label {
+  width: 115px;
+}
+
+.form-horizontal .controls {
+  margin-left: 125px;
+}
+
+.form-horizontal .info-block {
+  position: relative;
+  float: right;
+  width: 265px;
+  font-size: 11px;
+  color: #AEAEAE;
+  line-height: 1.3;
+  padding: 6px 0 6px 25px;
+}
+
+.form-horizontal .info-block:after {
+  .ckan-icon;
+  .ckan-icon-info-flat;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+}
+
+.editor textarea {
+  .border-radius(@inputBorderRadius @inputBorderRadius 0 0);
+  border-bottom: none;
+  font-size: 12px;
+}
+
+.editor .info-block {
+  .border-radius(0 0 @inputBorderRadius @inputBorderRadius);
+  display: block;
+  float: none;
+  padding: 4px 10px;
+  background: #ebebeb;
+  width: auto;
+  border: 1px solid @inputBorder;
+  border-top: none;
+  font-size: 11px;
+  color: #282828;
+}
+
+.editor .info-block:after {
+  content: none;
+}
+
+.stages {
+  .unstyled;
+  .clearfix;
+  color: #aeaeae;
+  counter-reset: stage;
+  margin-bottom: @gutter-y;
+  text-align: right;
+}
+
+.stages li {
+  display: inline-block;
+  line-height: 27px;
+  counter-increment: stage;
+  opacity: 0.5;
+  margin-right: 35px;
+}
+
+.stages li:before {
+  .border-radius(14px);
+  content: counter(stage);
+  display: inline-block;
+  width: 27px;
+  height: 27px;
+  margin-right: 5px;
+  color: #fff;
+  background: #aeaeae;
+  font-weight: bold;
+  text-align: center;
+}
+
+.stages .active {
+  opacity: 0.8;
+}
+
+.stages a {
+  color: #aeaeae;
+}
