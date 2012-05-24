@@ -29,23 +29,24 @@ count_label
     <nav py:if="items">
       <ul class="unstyled nav nav-simple nav-facet">
         <py:for each="item in items">
-        <!--! I'd rather not do this but it seems to be the only way genshi is happy -->
         <py:choose test="">
           <py:if test="item.active">
             <li class="active">
-            <a href="${c.drill_down_url(**{name: item.name})}">
+            <a href="${c.remove_field(name, item.name)}">
               ${label_function(item) if vars().has_key('label_function') else h.truncate(item.display_name, 22)}
               ${count_label(item['count']) if vars().has_key('count_label') else ('(%d)' % item['count'])}
             </a>
           </li>
           </py:if>
           <py:otherwise>
+          <py:if test="not item.active">
             <li>
             <a href="${c.drill_down_url(**{name: item.name})}">
               ${label_function(item) if vars().has_key('label_function') else h.truncate(item.display_name, 22)}
               ${count_label(item['count']) if vars().has_key('count_label') else ('(%d)' % item['count'])}
             </a>
           </li>
+          </py:if>
           </py:otherwise>
         </py:choose>
         </py:for>
