@@ -15,7 +15,7 @@
   <xi:include href="add-related.html" />
 
   <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
-  - Related</py:def>
+  - Apps, Ideas etc</py:def>
 
   <py:def function="page_heading" property="dc:title">
   ${c.pkg_dict['title']} - Apps, Ideas etc
@@ -23,7 +23,7 @@
 
   <div py:match="content">
     ${add_related(c.pkg)}
-    <h3>Apps &amp; Ideas  <i class="related-help icon-info-sign" rel="popover" data-content="These are applications, ideas, articles and visualisations that are using this dataset." data-original-title="What are apps and ideas?"></i> <a class="btn btn-small btn-primary pull-right" data-toggle="modal" href=".modal-add-related" py:if="h.check_access('related_create',{'dataset_id':c.pkg.id})"><i class="icon-plus-sign icon-white"></i> Add item</a></h3>
+    <h3>Apps, Ideas etc  <i class="related-help icon-info-sign" rel="popover" data-content="These are applications, ideas, articles and visualisations that are using this dataset." data-original-title="What are apps and ideas?"></i> <a class="btn btn-small btn-primary pull-right" data-toggle="modal" href=".modal-add-related" py:if="h.check_access('related_create',{'dataset_id':c.pkg.id})"><i class="icon-plus-sign icon-white"></i> Add item</a></h3>
     <div>
       <div py:if="not c.pkg.related" class="span8 no-related-items">
           There are no items here yet<span py:if="h.check_access('related_create',{'dataset_id':c.pkg.id})">, why not <a data-toggle="modal" href=".modal-add-related">add one</a>?</span>
