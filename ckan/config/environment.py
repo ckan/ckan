@@ -190,7 +190,7 @@ def load_environment(global_conf, app_conf):
         loader=PackageLoader('ckan', 'templates'),
         extensions=['jinja2.ext.i18n']
     )
-    env.install_gettext_callables(_, N_, newstyle=False)
+    env.install_gettext_callables(_, N_, newstyle=True)
     config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
