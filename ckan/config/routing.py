@@ -141,7 +141,12 @@ def make_map():
                       action='read', url='', conditions=GET)
             m.connect('datastore_write', '/api/data/{id}{url:(/.*)?}',
                       action='write', url='', conditions=PUT_POST_DELETE)
-
+            m.connect('datastore_read_shortcut',
+                      '/dataset/{dataset}/resource/{id}/api{url:(/.*)?}',
+                      action='read', url='', conditions=GET)
+            m.connect('datastore_write_shortcut',
+                      '/dataset/{dataset}/resource/{id}/api{url:(/.*)?}',
+                      action='write', url='', conditions=PUT_POST_DELETE)
 
     map.redirect('/packages', '/dataset')
     map.redirect('/packages/{url:.*}', '/dataset/{url}')
@@ -188,8 +193,14 @@ def make_map():
           )
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('/dataset/{id}', action='read')
-        m.connect('/dataset/{id}/resource/{resource_id}', action='resource_read')
-        m.connect('/dataset/{id}/resource/{resource_id}/embed', action='resource_embedded_dataviewer')
+        m.connect('/dataset/{id}/resource/{resource_id}',
+                  action='resource_read')
+        m.connect('/dataset/{id}/resource/{resource_id}/download',
+                  action='resource_download')
+        m.connect('/dataset/{id}/resource/{resource_id}/embed',
+                  action='resource_embedded_dataviewer')
+        m.connect('/dataset/{id}/resource/{resource_id}/viewer',
+                  action='resource_embedded_dataviewer', width="960", height="800")
 
     # group
     map.redirect('/groups', '/group')
