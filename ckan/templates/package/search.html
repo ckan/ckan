@@ -33,15 +33,17 @@
                 <py:when test="request.params and c.page.item_count == 0">Sorry no datasets found for &#147;${c.q}&#148;</py:when>
                 <py:otherwise>All datasets</py:otherwise>
               </strong>
-              <py:for each="(field, value) in c.fields">
+              <py:for each="field in c.fields_grouped">
                 <span class="facet">${c.facet_titles.get(field)}:</span>
-                <span class="filtered pill" py:choose="">
-                  <py:when test="c.translated_fields and c.translated_fields.has_key((field,value))">
-                    ${c.translated_fields[(field,value)]}
-                  </py:when>
-                  <py:otherwise>${value}</py:otherwise>
-                  <a href="${c.remove_field(field, value)}" class="remove icon-remove icon-white">[remove]</a>
-                </span>
+                <py:for each="value in c.fields_grouped[field]">
+                  <span class="filtered pill" py:choose="">
+                    <py:when test="c.translated_fields and c.translated_fields.has_key((field,value))">
+                      ${c.translated_fields[(field,value)]}
+                    </py:when>
+                    <py:otherwise>${value}</py:otherwise>
+                    <a href="${c.remove_field(field, value)}" class="remove icon-remove icon-white">[remove]</a>
+                  </span>
+                </py:for>
               </py:for>
               <p class="extra" py:if="request.params and c.page.item_count == 0">Try another search term,
               browse the datasets below or <a href="${h.url_for(action='new', id=None)}">add your own data</a>.</p>

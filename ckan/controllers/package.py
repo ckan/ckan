@@ -186,6 +186,9 @@ class PackageController(BaseController):
 
         try:
             c.fields = []
+            # c.fields_grouped will contain a dict of params containing
+            # a list of values eg {'tags':['tag1', 'tag2']}
+            c.fields_grouped = {}
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
@@ -194,6 +197,10 @@ class PackageController(BaseController):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
                         fq += ' %s:"%s"' % (param, value)
+                        if param not in c.fields_grouped:
+                            c.fields_grouped[param] = [value]
+                        else:
+                            c.fields_grouped[param].append(value)
                     else:
                         search_extras[param] = value
 
