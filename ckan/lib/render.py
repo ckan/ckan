@@ -20,7 +20,7 @@ def template_type(template_path):
         return 'genshi-text'
     f = open(template_path, 'r')
     source = f.read()
-    if re.search('\{\[|\%', source):
+    if re.search('\{\{|\{\%', source):
         return 'jinja2'
     return 'genshi'
 
