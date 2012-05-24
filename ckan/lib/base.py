@@ -38,6 +38,8 @@ APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
 ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
+log = logging.getLogger(__name__)
+
 def abort(status_code=None, detail='', headers=None, comment=None):
     if detail and status_code!=503:
         h.flash_error(detail)
@@ -95,6 +97,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         del globs['url']
 
         template_path, template_type = lib.render.template_info(template_name)
+        log.info('rendering %s [%s]' % (template_path, template_type))
 
         # Jinja2 templates
         if template_type == 'jinja2':
