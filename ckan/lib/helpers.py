@@ -410,6 +410,45 @@ _menu_items = {
 
 
 
+def get_facet_items_dict(facet, limit=10, exclude_active=False):
+    '''Return the list of unselected facet items for the given facet, sorted
+    by count.
+
+    Returns the list of unselected facet contraints or facet items (e.g. tag
+    names like "russian" or "tolstoy") for the given search facet (e.g.
+    "tags"), sorted by facet item count (i.e. the number of search results that
+    match each facet item).
+
+    Reads the complete list of facet items for the given facet from
+    c.search_facets, and filters out the facet items that the user has already
+    selected.
+
+    Arguments:
+    facet -- the name of the facet to filter.
+    limit -- the max. number of facet items to return.
+    exclude_active -- only return unselected facets.
+
+    '''
+    if not c.search_facets or \
+       not c.search_facets.get(facet) or \
+       not c.search_facets.get(facet).get('items'):
+        return []
+    facets = []
+    for facet_item in c.search_facets.get(facet)['items']:
+        if not len(facet_item['name'].strip()):
+            continue
+        if not (facet, facet_item['name']) in request.params.items():
+            facets.append(dict(active=False, **facet_item))
+        elif not exclude_active:
+            facets.append(dict(active=True, **facet_item))
+    facets = sorted(facets, key=lambda item: item['count'], reverse=True)
+    limit = c.search_facets_limits.get(facet)
+    print facets
+    if limit:
+        return facets[:limit]
+    else:
+        return facets
+
 def unselected_facet_items(facet, limit=10):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
@@ -428,6 +467,10 @@ def unselected_facet_items(facet, limit=10):
     limit -- the max. number of facet items to return.
 
     '''
+    # TODO if we agree to propossed change then we can just wrap
+    # get_facet_items_dict()
+
+    #return get_facet_items_dict(facet, limit=limit, exclude_active=True)
     if not c.search_facets or \
        not c.search_facets.get(facet) or \
        not c.search_facets.get(facet).get('items'):
@@ -937,6 +980,7 @@ __allowed_functions__ = [
            'convert_to_dict',
            'activity_div',
            'lang_native_name',
+           'get_facet_items_dict',
            'unselected_facet_items',
            'include_resource',
            'build_nav_main',
