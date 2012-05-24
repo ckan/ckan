@@ -162,6 +162,7 @@ def make_map():
           requirements=dict(action='|'.join([
               'list',
               'new',
+              'new_resource',
               'autocomplete',
               'search'
               ]))
