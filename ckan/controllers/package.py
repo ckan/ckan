@@ -785,7 +785,7 @@ class PackageController(BaseController):
 
         if not 'url' in rsc:
             abort(404, _('No download is available'))
-        redirect( rsc['url'] )
+        redirect(rsc['url'])
 
     def followers(self, id=None):
         context = {'model': model, 'session': model.Session,
