@@ -21,17 +21,19 @@
           <div class="content">
             ${h.snippet('package/new_stages.html', stage=2)}
 
-            <form class="dataset-form form-horizontal" method="post" py:with="errors = {}; data = {};">
+            <form class="dataset-form dataset-resource-form form-horizontal" method="post" py:with="errors = {}; data = {};">
               <div class="control-group dataset-form-resource-types">
                 <div class="controls">
-                  <label class="radio inline" for="field-resource-type-file">
+                  <span class="radio-wrapper">
+                    <i class="ckan-icon ckan-icon-link-file"></i>
                     <input id="field-resource-type-file" type="radio" name="resources__0__url" checked="checked" value="file" />
-                    Link to a file
-                  </label>
-                  <label class="radio inline" for="field-resource-type-api">
+                    <label class="radio inline" for="field-resource-type-file">Link to a file</label>
+                  </span>
+                  <span class="radio-wrapper">
+                    <i class="ckan-icon ckan-icon-link-plugin"></i>
                     <input id="field-resource-type-api" type="radio" name="resources__0__url" value="api" />
-                    Link to an API
-                  </label>
+                    <label class="radio inline" for="field-resource-type-api">Link to an API</label>
+                  </span>
                 </div>
               </div>
 
