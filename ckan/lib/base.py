@@ -14,9 +14,10 @@ from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.controllers.util import redirect_to, redirect
 from pylons.decorators import jsonify, validate
-from pylons.i18n import _, ungettext, N_, gettext
+from pylons.i18n import _, ungettext, N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
 from genshi.template import MarkupTemplate
+from genshi.template.base import TemplateSyntaxError
 from genshi.template.text import NewTextTemplate
 from webhelpers.html import literal
 
@@ -24,6 +25,7 @@ import ckan.exceptions
 import ckan
 import ckan.authz as authz
 from ckan.lib import i18n
+import lib.render
 import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
@@ -69,6 +71,12 @@ def render_text(template_name, extra_vars=None, cache_force=None):
                   method='text',
                   loader_class=NewTextTemplate)
 
+def render_jinja2(template_name, extra_vars):
+    env = config['pylons.app_globals'].jinja_env
+    template = env.get_template(template_name)
+    return template.render(**extra_vars)
+
+
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
            cache_force = None):
@@ -86,8 +94,17 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         # we remove it so any bad templates crash and burn
         del globs['url']
 
+        template_path, template_type = lib.render.template_info(template_name)
+
+        # Jinja2 templates
+        if template_type == 'jinja2':
+            # TODO should we raise error if genshi filters??
+            return render_jinja2(template_name, globs)
+
+        # Genshi templates
         template = globs['app_globals'].genshi_loader.load(template_name,
             cls=loader_class)
+
         stream = template.generate(**globs)
 
         for item in PluginImplementations(IGenshiStreamFilter):

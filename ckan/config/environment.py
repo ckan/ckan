@@ -8,8 +8,10 @@ import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
 from pylons import config
+from pylons.i18n import _, N_
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
+from jinja2 import Environment, PackageLoader
 
 import ckan.config.routing as routing
 import ckan.model as model
@@ -167,6 +169,7 @@ def load_environment(global_conf, app_conf):
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
+    config['pylons.app_globals'].template_paths = template_paths
 
     # Translator (i18n)
     translator = Translator(pylons.translator)
@@ -181,6 +184,14 @@ def load_environment(global_conf, app_conf):
     # Create the Genshi TemplateLoader
     config['pylons.app_globals'].genshi_loader = TemplateLoader(
         template_paths, auto_reload=True, callback=template_loaded)
+
+    # Create Jinja2 environment
+    env = config['pylons.app_globals'].jinja_env = Environment(
+        loader=PackageLoader('ckan', 'templates'),
+        extensions=['jinja2.ext.i18n']
+    )
+    env.install_gettext_callables(_, N_, newstyle=False)
+    config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
