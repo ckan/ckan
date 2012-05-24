@@ -13,12 +13,8 @@
     </head>
     <body>
       <div class="toolbar">
-        <ol class="breadcrumb">
-          <li>${h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index')}</li>
-          <li class="active">${h.nav_link(_('Create Dataset'), controller='package', action='new')}</li>
-        </ol>
+        ${h.snippet('package/new_breadcrumb.html')}
       </div>
-
       <div class="primary">
         <section class="module">
           <div class="content">
@@ -35,6 +31,7 @@
                   <li py:for="key, error in error_summary.items()">${"%s: %s" % (key if not key=='Name' else 'URL', error)}</li>
                 </ul>
               </div>
+
               <div class="control-group control-large control-full" py:with="error = errors.get('title', '')">
                 <label class="control-label" for="field-title">Title</label>
                 <div class="controls">
