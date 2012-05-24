@@ -18,11 +18,8 @@
       <div class="primary">
         <section class="module">
           <div class="content">
-            <ol class="stages">
-              <li class="active"><a href="">Create dataset</a></li>
-              <li>Add data</li>
-              <li>Additional data</li>
-            </ol>
+            ${h.snippet('package/new_stages.html', stage=1)}
+
             <form class="dataset-form form-horizontal" method="post" py:with="errors = {}; data = {};">
               <div class="alert alert-error error-explanation" py:if="False and error_summary">
                 <h2>Errors in form</h2>
