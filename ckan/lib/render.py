@@ -32,6 +32,8 @@ def template_info(template_name):
         return t_data['template_type'], t_data['template_type']
 
     template_path = find_template(template_name)
+    if not template_path:
+        raise Exception('Template %s cannot be found' % template_name)
     t_type = template_type(template_path)
 
     t_data = {'template_path' : template_path,
