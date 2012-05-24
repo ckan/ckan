@@ -24,16 +24,18 @@
             <form class="dataset-form dataset-resource-form form-horizontal" method="post" py:with="errors = {}; data = {};">
               <div class="control-group dataset-form-resource-types">
                 <div class="controls">
-                  <span class="radio-wrapper">
-                    <i class="ckan-icon ckan-icon-link-file"></i>
-                    <input id="field-resource-type-file" type="radio" name="resources__0__url" checked="checked" value="file" />
-                    <label class="radio inline" for="field-resource-type-file">Link to a file</label>
-                  </span>
-                  <span class="radio-wrapper">
-                    <i class="ckan-icon ckan-icon-link-plugin"></i>
-                    <input id="field-resource-type-api" type="radio" name="resources__0__url" value="api" />
-                    <label class="radio inline" for="field-resource-type-api">Link to an API</label>
-                  </span>
+                  <!--!
+                  This block uses a slightly odd pattern. Unlike the rest of the radio
+                  buttons which are wrapped _inside_ the labels here we place the label
+                  after the input. This enables us to style the label based on the state
+                  of the radio using css. eg. input[type=radio]+label {}
+                  -->
+                  <i class="ckan-icon ckan-icon-link-file"></i>
+                  <input id="field-resource-type-file" type="radio" name="resources__0__url" checked="checked" value="file" />
+                  <label class="radio inline" for="field-resource-type-file">Link to a file</label>
+                  <i class="ckan-icon ckan-icon-link-plugin"></i>
+                  <input id="field-resource-type-api" type="radio" name="resources__0__url" value="api" />
+                  <label class="radio inline" for="field-resource-type-api">Link to an API</label>
                 </div>
               </div>
 
