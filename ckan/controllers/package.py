@@ -767,6 +767,26 @@ class PackageController(BaseController):
         self._setup_follow_button(context)
         return render('package/resource_read.html')
 
+    def resource_download(self, id, resource_id):
+        """
+        Provides a direct download by redirecting the user to the url stored
+        against this resource.
+        """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            rsc = get_action('resource_show')(context, {'id': resource_id})
+            pkg = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        if not 'url' in rsc:
+            abort(404, _('No download is available'))
+        redirect( rsc['url'] )
+
     def followers(self, id=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
@@ -787,9 +807,12 @@ class PackageController(BaseController):
 
         return render('package/followers.html')
 
-    def resource_embedded_dataviewer(self, id, resource_id):
+    def resource_embedded_dataviewer(self, id, resource_id,
+                                     width=500, height=500):
         """
-        Embeded page for a read-only resource dataview.
+        Embeded page for a read-only resource dataview. Allows
+        for width and height to be specified as part of the
+        querystring (as well as accepting them via routes).
         """
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -816,8 +839,8 @@ class PackageController(BaseController):
 
         c.recline_state = json.dumps(recline_state)
 
-        c.width = max(int(request.params.get('width', 500)), 100)
-        c.height = max(int(request.params.get('height', 500)), 100)
+        c.width = max(int(request.params.get('width', width)), 100)
+        c.height = max(int(request.params.get('height', height)), 100)
         c.embedded = True
 
         return render('package/resource_embedded_dataviewer.html')
