@@ -4,12 +4,18 @@ label {
 }
 
 label {
+  cursor: pointer;
   font-size: 14px;
   line-height: 2;
 }
 
 label:after {
   content: ":";
+}
+
+label.radio:after,
+label.checkbox:after {
+  content: "";
 }
 
 input,
@@ -22,6 +28,7 @@ select,
 
 select {
   margin-top: 6px;
+  padding: 0;
 }
 
 textarea {
@@ -53,6 +60,15 @@ textarea {
   text-align: right;
 }
 
+.form-actions .action-info {
+  float: left;
+  width: 50%;
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: left;
+  color: #707070;
+}
+
 // Override the default form widths.
 .form-horizontal .control-label {
   width: 115px;
@@ -79,6 +95,11 @@ textarea {
   position: absolute;
   left: 0;
   top: 10px;
+}
+
+.form-horizontal .form-actions {
+  padding-left: @gutter-x;
+  padding-right: @gutter-x;
 }
 
 .editor textarea {
