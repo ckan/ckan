@@ -1,0 +1,22 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])} - Datasets - Followers</py:def>
+  <py:def function="page_heading">Followers: ${c.pkg.title or c.pkg.name}</py:def>
+  <py:def function="body_class">no-sidebar</py:def>
+
+  <div py:match="content" class="dataset">
+    <h3>Followers</h3>
+    <ul class="userlist">
+     <li py:for="follower in c.followers" class="user">
+        <ul>
+          ${h.linked_user(follower['name'], maxlength=20)}
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

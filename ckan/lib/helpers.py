@@ -37,6 +37,7 @@ from pylons import c
 from pylons.i18n import _
 
 import html_resources
+from lib.maintain import deprecated
 import ckan.model as model
 
 get_available_locales = i18n.get_available_locales
@@ -488,6 +489,7 @@ def unselected_facet_items(facet, limit=10):
     else:
         return facets
 
+@deprecated()
 def facet_items(*args, **kwargs):
     """
     DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
@@ -519,6 +521,7 @@ def facet_title(name):
     # FIXME this looks like an i18n issue
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
+@deprecated('Please use check_access instead.')
 def am_authorized(c, action, domain_object=None):
     ''' Deprecated. Please use check_access instead'''
     from ckan.authz import Authorizer
@@ -712,8 +715,9 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
     else:
         return ''
 
+@deprecated()
 def datetime_to_date_str(datetime_):
-    '''Takes a datetime.datetime object and returns a string of it
+    '''DEPRECATED: Takes a datetime.datetime object and returns a string of it
     in ISO format.
     '''
     return datetime_.isoformat()

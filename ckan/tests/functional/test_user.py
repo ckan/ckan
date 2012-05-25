@@ -130,7 +130,10 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         main_res = self.main_div(res)
         assert 'spammer2' in res, res
         assert 'spamsite2' not in res, res
-        assert 'Error: Could not parse About text' in res, res
+        # some computers have the Genshi exception and some insert "malformed"
+        # but either are fine
+        assert 'Error: Could not parse About text' in res or\
+               'malformed' in res, res
 
     def test_user_login_page(self):
         offset = url_for(controller='user', action='login', id=None)

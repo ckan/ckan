@@ -175,6 +175,7 @@ class GroupController(BaseController):
             fq = 'capacity:"public"'
             if (c.userobj and c.group and c.userobj.is_in_group(c.group)):
                 fq = ''
+                context['ignore_capacity_check'] = True
 
             data_dict = {
                 'q':q,

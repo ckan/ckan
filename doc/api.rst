@@ -44,6 +44,7 @@ Alternatively, you can access the API using one the dedicated tools or libraries
 * `ckanclient - CKAN Python Client <http://pypi.python.org/pypi/ckanclient>`_: Python client maintained by the core CKAN team
 * `CKAN Ruby <https://github.com/apohllo/ckan>`_: Ruby Client
 * `Ckan_client-PHP <http://github.com/jeffreybarke/Ckan_client-PHP>`_: PHP client
+* `Ckan_client-J <https://github.com/okfn/ckanclient-j>`_: Java client
 * `net-ckan <http://github.com/lukec/net-ckan>`_: PERL client
 * `ckanjs <http://github.com/okfn/ckanjs>`_: sophisticated Javascript client built on Backbone.
 * `Google Refine CKAN Extension <http://ckan.org/2011/07/05/google-refine-extension-for-ckan/>`_: Google Refine client which allows you to get and push data to and from a CKAN instance using Google Refine.
