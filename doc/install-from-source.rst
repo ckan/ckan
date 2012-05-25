@@ -125,7 +125,7 @@ WebOb has to be installed explicitly afterwards because by installing pylons wit
 
 Now to install the remaining dependencies in requires/lucid_present.txt and you are using Ubuntu Lucid 10.04 you can install the system versions::
 
-    sudo apt-get install python-pybabel python-psycopg2 python-lxml 
+    sudo apt-get install python-pybabel python-psycopg2
     sudo apt-get install python-pylons python-repoze.who 
     sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
     
@@ -134,9 +134,6 @@ Alternatively, if you are not using Ubuntu Lucid 10.04 you'll need to install th
 ::
 
     pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_present.txt
-
-This will take a **long** time. Particularly the install of the ``lxml``
-package.
 
 At this point you will need to deactivate and then re-activate your
 virtual environment to ensure that all the scripts point to the correct
