@@ -616,7 +616,8 @@ def date_str_to_datetime(date_str):
         m = re.match('(?P<seconds>\d{2})(\.(?P<microseconds>\d{6}))?$',
                      time_tuple[5])
         if not m:
-            raise ValueError
+            raise ValueError('Unable to parse %s as seconds.microseconds' %
+                             time_tuple[5])
         seconds = int(m.groupdict().get('seconds'))
         microseconds = int(m.groupdict(0).get('microseconds'))
         time_tuple = time_tuple[:5] + [seconds, microseconds]
