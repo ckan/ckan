@@ -36,7 +36,7 @@ setup(
         'ckan': [
             ('**.py', 'python', None),
             ('templates/importer/**', 'ignore', None),
-            ('templates/**.html', 'genshi', None),
+            ('templates/**.html', 'ckan', None),
             ('ckan/templates/home/language.js', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
@@ -46,7 +46,7 @@ setup(
             ('public/**', 'ignore', None),
         ],
         'ckanext/stats/templates': [
-            ('**.html', 'genshi', None),
+            ('**.html', 'ckan', None),
         ]},
     entry_points="""
     [nose.plugins.0.10]
@@ -110,6 +110,8 @@ setup(
     css = html_resources:css
     javascript = html_resources:javascript
 
+    [babel.extractors]
+	    ckan = ckan.lib.extract:extract_ckan
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
