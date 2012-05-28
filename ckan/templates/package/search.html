@@ -12,6 +12,12 @@
       <title>Search for a Dataset</title>
     </head>
     <body>
+      <nav class="toolbar">
+        <ol class="breadcrumb">
+          <li class="active">${h.nav_link(_('Search Datasets'), controller='package', action='search', highlight_actions = 'new index')}</li>
+        </ol>
+      </nav>
+
       <div class="primary">
         <section class="module">
           <div class="content">
