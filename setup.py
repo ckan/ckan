@@ -60,7 +60,7 @@ setup(
 
     [paste.paster_command]
     db = ckan.lib.cli:ManageDb
-    create-test-data = ckan.lib.create_test_data:CreateTestData
+    create-test-data = ckan.lib.cli:CreateTestDataCommand
     sysadmin = ckan.lib.cli:Sysadmin
     user = ckan.lib.cli:UserCmd
     dataset = ckan.lib.cli:DatasetCmd
@@ -73,6 +73,7 @@ setup(
     rdf-export = ckan.lib.cli:RDFExport
     tracking = ckan.lib.cli:Tracking
     plugin-info = ckan.lib.cli:PluginInfo
+    profile = ckan.lib.cli:Profile
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command

@@ -305,6 +305,19 @@ def tag_list_dictize(tag_list, context):
             dictized = d.table_dictize(tag, context, capacity=capacity)
         else:
             dictized = d.table_dictize(tag, context)
+
+        # Add display_names to tag dicts. At first a tag's display_name is just
+        # the same as its name, but the display_name might get changed later
+        # (e.g.  translated into another language by the multilingual
+        # extension).
+        assert not dictized.has_key('display_name')
+        dictized['display_name'] = dictized['name']
+
+        if context.get('for_view'):
+            for item in plugins.PluginImplementations(
+                    plugins.ITagController):
+                dictized = item.before_view(dictized)
+
         result_list.append(dictized)
 
     return result_list
@@ -507,3 +520,9 @@ def tag_to_api2(tag, context):
     # DEPRICIATED set api_version in context and use tag_to_api()
     context['api_version'] = 2
     return tag_to_api(tag, context)
+
+def user_following_user_dictize(follower, context):
+    return d.table_dictize(follower, context)
+
+def user_following_dataset_dictize(follower, context):
+    return d.table_dictize(follower, context)

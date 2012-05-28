@@ -98,6 +98,7 @@ class PackageSearchIndex(SearchIndex):
     def index_package(self, pkg_dict):
         if pkg_dict is None:
             return
+        pkg_dict['data_dict'] = json.dumps(pkg_dict)
 
         # add to string field for sorting
         title = pkg_dict.get('title')

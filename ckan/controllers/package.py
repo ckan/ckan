@@ -4,7 +4,8 @@ import datetime
 
 from pylons import config
 from pylons.i18n import _
-from autoneg.accept import negotiate
+from genshi.template import MarkupTemplate
+from genshi.template.text import NewTextTemplate
 
 from ckan.logic import get_action, check_access
 from ckan.lib.helpers import date_str_to_datetime
@@ -20,7 +21,7 @@ import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
-import ckan.logic.action.get
+import ckan.lib.accept as accept
 from home import CACHE_PARAMETER
 
 from ckan.lib.plugins import lookup_package_plugin
@@ -39,14 +40,6 @@ def search_url(params):
     url = h.url_for(controller='package', action='search')
     return url_with_params(url, params)
 
-autoneg_cfg = [
-    ("application", "xhtml+xml", ["html"]),
-    ("text", "html", ["html"]),
-    ("application", "rdf+xml", ["rdf"]),
-    ("application", "turtle", ["ttl"]),
-    ("text", "plain", ["nt"]),
-    ("text", "x-graphviz", ["dot"]),
-    ]
 
 class PackageController(BaseController):
 
@@ -101,6 +94,18 @@ class PackageController(BaseController):
 
         return pt
 
+    def _setup_follow_button(self, context):
+        '''Setup some template context variables used for the Follow button.'''
+
+        # If the user is logged in set the am_following variable.
+        userid = context.get('user')
+        if not userid:
+            return
+        userobj = model.User.get(userid)
+        if not userobj:
+            return
+        c.pkg_dict['am_following'] = get_action('am_following_dataset')(
+                context, {'id': c.pkg.id})
 
     authorizer = ckan.authz.Authorizer()
 
@@ -186,6 +191,9 @@ class PackageController(BaseController):
 
         try:
             c.fields = []
+            # c.fields_grouped will contain a dict of params containing
+            # a list of values eg {'tags':['tag1', 'tag2']}
+            c.fields_grouped = {}
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
@@ -194,10 +202,13 @@ class PackageController(BaseController):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
                         fq += ' %s:"%s"' % (param, value)
+                        if param not in c.fields_grouped:
+                            c.fields_grouped[param] = [value]
+                        else:
+                            c.fields_grouped[param].append(value)
                     else:
                         search_extras[param] = value
 
-            fq += ' capacity:"public"'
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
@@ -239,44 +250,33 @@ class PackageController(BaseController):
 
         return render( self._search_template(package_type) )
 
-    def _content_type_for_format(self, fmt):
+    def _content_type_from_extension(self, ext):
+        ct,mu,ext = accept.parse_extension(ext)
+        if not ct:
+            return None, None, None,
+        return ct, ext, (NewTextTemplate,MarkupTemplate)[mu]
+
+    def _content_type_from_accept(self):
         """
         Given a requested format this method determines the content-type
         to set and the genshi template loader to use in order to render
         it accurately.  TextTemplate must be used for non-xml templates
         whilst all that are some sort of XML should use MarkupTemplate.
         """
-        from genshi.template import MarkupTemplate
-        from genshi.template.text import NewTextTemplate
-
-        types = {
-            "html": ("text/html; charset=utf-8", MarkupTemplate, 'html'),
-            "rdf" : ("application/rdf+xml; charset=utf-8", MarkupTemplate, 'rdf'),
-            "n3" : ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
-            "application/rdf+xml" : ("application/rdf+xml; charset=utf-8", MarkupTemplate,'rdf'),
-            "text/n3": ("text/n3; charset=utf-8", NewTextTemplate, 'n3'),
-        }
-        # Check the accept header first
-        accept = request.headers.get('Accept', '')
-        if accept and accept in types:
-            return types[accept][0], types[accept][2], types[accept][1]
-
-        if fmt in types:
-            return types[fmt][0], types[fmt][2], types[fmt][1]
-        return None, "html", (types["html"][1])
+        ct,mu,ext = accept.parse_header(request.headers.get('Accept', ''))
+        return ct, ext, (NewTextTemplate,MarkupTemplate)[mu]
 
 
     def read(self, id, format='html'):
-        # Check we know the content type, if not then it is likely a revision
-        # and therefore we should merge the format onto the end of id
-        ctype,extension,loader = self._content_type_for_format(format)
-        if not ctype:
-            # Reconstitute the ID if we don't know what content type to use
-            ctype = "text/html; charset=utf-8"
-            id = "%s.%s" % (id, format)
-            format = 'html'
+        if not format == 'html':
+            ctype,extension,loader = self._content_type_from_extension(format)
+            if not ctype:
+                # An unknown format, we'll carry on in case it is a
+                # revision specifier and re-constitute the original id
+                id = "%s.%s" % (id, format)
+                ctype, format, loader = "text/html; charset=utf-8", "html", MarkupTemplate
         else:
-            format = extension
+            ctype,extension,loader = self._content_type_from_accept()
 
         response.headers['Content-Type'] = ctype
 
@@ -321,8 +321,12 @@ class PackageController(BaseController):
         # template context for the package/read.html template to retrieve
         # later.
         c.package_activity_stream = \
-                ckan.logic.action.get.package_activity_list_html(context,
+                get_action('package_activity_list_html')(context,
                     {'id': c.current_package_id})
+
+        c.num_followers = get_action('dataset_follower_count')(context,
+                {'id':c.pkg.id})
+        self._setup_follow_button(context)
 
         PackageSaver().render_package(c.pkg_dict, context)
 
@@ -386,6 +390,10 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
+
+        c.num_followers = get_action('dataset_follower_count')(
+                context, {'id':c.pkg.id})
+        self._setup_follow_button(context)
 
         format = request.params.get('format', '')
         if format == 'atom':
@@ -512,6 +520,10 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
+
+        c.num_followers = get_action('dataset_follower_count')(context,
+                {'id':c.pkg.id})
+        self._setup_follow_button(context)
 
         if (c.action == u'editresources'):
           return render('package/editresources.html')
@@ -688,6 +700,10 @@ class PackageController(BaseController):
         roles = self._handle_update_of_authz(pkg)
         self._prepare_authz_info_for_render(roles)
 
+        c.num_followers = get_action('dataset_follower_count')(context,
+                {'id':c.pkg.id})
+        self._setup_follow_button(context)
+
         # c.related_count = len(pkg.related)
 
         return render('package/authz.html')
@@ -776,11 +792,57 @@ class PackageController(BaseController):
                 qualified=True)
 
         c.related_count = len(c.pkg.related)
+        c.num_followers = get_action('dataset_follower_count')(context,
+                {'id':c.pkg.id})
+        self._setup_follow_button(context)
         return render('package/resource_read.html')
 
-    def resource_embedded_dataviewer(self, id, resource_id):
+    def resource_download(self, id, resource_id):
         """
-        Embeded page for a read-only resource dataview.
+        Provides a direct download by redirecting the user to the url stored
+        against this resource.
+        """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            rsc = get_action('resource_show')(context, {'id': resource_id})
+            pkg = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        if not 'url' in rsc:
+            abort(404, _('No download is available'))
+        redirect(rsc['url'])
+
+    def followers(self, id=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id}
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg = context['package']
+            c.followers = get_action('dataset_follower_list')(context,
+                    {'id': c.pkg_dict['id']})
+            c.num_followers = len(c.followers)
+            self._setup_follow_button(context)
+
+            c.related_count = len(c.pkg.related)
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        return render('package/followers.html')
+
+    def resource_embedded_dataviewer(self, id, resource_id,
+                                     width=500, height=500):
+        """
+        Embeded page for a read-only resource dataview. Allows
+        for width and height to be specified as part of the
+        querystring (as well as accepting them via routes).
         """
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -807,8 +869,8 @@ class PackageController(BaseController):
 
         c.recline_state = json.dumps(recline_state)
 
-        c.width = max(int(request.params.get('width', 500)), 100)
-        c.height = max(int(request.params.get('height', 500)), 100)
+        c.width = max(int(request.params.get('width', width)), 100)
+        c.height = max(int(request.params.get('height', height)), 100)
         c.embedded = True
 
         return render('package/resource_embedded_dataviewer.html')
@@ -837,4 +899,3 @@ class PackageController(BaseController):
             if k.startswith('view-') and not k.endswith(recline_state['currentView']):
                 recline_state.pop(k)
         return recline_state
-

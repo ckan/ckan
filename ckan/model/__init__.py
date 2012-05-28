@@ -142,6 +142,10 @@ from activity import (
 from term_translation import (
     term_translation_table,
 )
+from follower import (
+    UserFollowingUser,
+    UserFollowingDataset,
+)
 
 import ckan.migration
 

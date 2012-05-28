@@ -291,19 +291,36 @@ class BaseController(WSGIController):
         return model.Tag.get(reference)
 
     @classmethod
-    def _get_request_data(cls):
-        '''Returns a dictionary, extracted from a request. The request data is
-        in POST data and formatted as a dictionary that has been
-        JSON-encoded.
+    def _get_request_data(cls, try_url_params=False):
+        '''Returns a dictionary, extracted from a request.
 
         If there is no data, None or "" is returned.
         ValueError will be raised if the data is not a JSON-formatted dict.
 
+        The data is retrieved as a JSON-encoded dictionary from the request
+        body.  Or, if the `try_url_params` argument is True and the request is
+        a GET request, then an attempt is made to read the data from the url
+        parameters of the request.
+
+        try_url_params
+            If try_url_params is False, then the data_dict is read from the
+            request body.
+
+            If try_url_params is True and the request is a GET request then the
+            data is read from the url parameters.  The resulting dict will only
+            be 1 level deep, with the url-param fields being the keys.  If a
+            single key has more than one value specified, then the value will
+            be a list of strings, otherwise just a string.
+
         This function is only used by the API, so no strings need to be
         translated.
+
+        TODO: If this is only used by the API, then perhaps it should be
+              moved to the api controller class?
         '''
         cls.log.debug('Retrieving request params: %r' % request.params)
         cls.log.debug('Retrieving request POST: %r' % request.POST)
+        cls.log.debug('Retrieving request GET: %r' % request.GET)
         request_data = None
         if request.POST:
             try:
@@ -318,9 +335,16 @@ class BaseController(WSGIController):
                 msg = "Could not find the POST data: %r : %s" % \
                       (request.POST, inst)
                 raise ValueError, msg
+
+        elif try_url_params and request.GET:
+            return request.GET.mixed()
+
         else:
             try:
-                request_data = request.body
+                if request.method in ['POST', 'PUT']:
+                    request_data = request.body
+                else:
+                    request_data = None
             except Exception, inst:
                 msg = "Could not extract request body data: %s" % \
                       (inst)
