@@ -56,6 +56,11 @@ class TestHelpers(TestController):
                       h.date_str_to_datetime,
                       '2008-04-13T20:40:20-01:30')
 
+    def test_date_str_to_datetime_with_timezone_without_colon(self):
+        assert_raises(ValueError,
+                      h.date_str_to_datetime,
+                      '2008-04-13T20:40:20-0130')
+
     def test_date_str_to_datetime_with_garbage_on_end(self):
         assert_raises(ValueError,
                       h.date_str_to_datetime,
