@@ -125,21 +125,30 @@ textarea {
   content: none;
 }
 
+// Stages
+// Builds form stages out of an ordered list. The following CSS uses tag
+// selectors on the .active class to prevent the styles bleeding into the
+// anchor element which can also have an active class.
+
 .stages {
   .unstyled;
   .clearfix;
   color: #aeaeae;
   counter-reset: stage;
-  margin-bottom: @gutter-y;
-  text-align: right;
+  margin: -@gutter-y -@gutter-x @gutter-y;
+  overflow: hidden;
 }
 
 .stages li {
-  display: inline-block;
+  .box-sizing(border-box);
   line-height: 27px;
   counter-increment: stage;
-  opacity: 0.5;
-  margin-right: 35px;
+  width: 33.33%;
+  background-color: #EDEDED;
+  float: left;
+  padding: 10px 20px;
+  position: relative;
+  z-index: 0;
 }
 
 .stages li:before {
@@ -149,16 +158,66 @@ textarea {
   width: 27px;
   height: 27px;
   margin-right: 5px;
-  color: #fff;
-  background: #aeaeae;
   font-weight: bold;
   text-align: center;
+  color: #fff;
+  background: #aeaeae;
+  z-index: 1;
 }
 
-.stages .active {
-  opacity: 0.8;
+.stages li:after {
+  left: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-top-color: #ededed;
+  border-bottom-color: #ededed;
+  border-width: 30px;
+  top: 50%;
+  margin-top: -30px;
+  margin-left: -30px;
+}
+
+.stages li.complete:after {
+  border-top-color: #8cc68a;
+  border-bottom-color: #8cc68a;
+}
+
+.stages li.active,
+.stages li.complete {
+  background: none;
+}
+
+.stages li.active:before,
+.stages li.complete:before {
+  color: #8cc68a;
+  background: #fff;
+}
+
+.stages li.complete:before {
+  color: #c5e2c4;
+  background: #eef6ed;
 }
 
 .stages a {
-  color: #aeaeae;
+  color: #fff;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  line-height: 27px;
+  padding: 10px 52px;
+  text-decoration: none;
+  background: #8cc68a;
+  z-index: -1;
+}
+
+.stages li.complete a {
+  background: #c5e2c4;
+  color: #eef6ed;
 }

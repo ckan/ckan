@@ -5,13 +5,13 @@
     <li>Additional data</li>
   </ol>
   <ol class="stages" py:when="2">
-    <li>${h.nav_link(_('Create Dataset'), controller='package', action='new')}</li>
+    <li class="complete">${h.nav_link(_('Create Dataset'), controller='package', action='new')}</li>
     <li class="active"><a href="">Add data</a></li>
     <li>Additional data</li>
   </ol>
   <ol class="stages" py:when="3">
-    <li>${h.nav_link(_('Create Dataset'), controller='package', action='new')}</li>
-    <li><a href="">Add data</a></li>
+    <li class="complete">${h.nav_link(_('Create Dataset'), controller='package', action='new')}</li>
+    <li class="complete"><a href="">Add data</a></li>
     <li class="active"><a href="">Additional data</a></li>
   </ol>
 </py:choose>
