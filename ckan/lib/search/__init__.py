@@ -261,13 +261,12 @@ def check_solr_schema_version(schema_file=None):
         url = 'file://%s' % schema_file
         res = urllib2.urlopen(url)
 
-    from lxml import etree
-    tree = etree.fromstring(res.read())
+    import xml.dom.minidom
+    tree = xml.dom.minidom.parseString(res.read())
 
-    version = tree.xpath('//schema/@version')
+    version = tree.documentElement.getAttribute('version')
     if not len(version):
         raise SearchError('Could not extract version info from the SOLR schema, using file: \n%s' % url)
-    version = version[0]
 
     if not version in SUPPORTED_SCHEMA_VERSIONS:
         raise SearchError('SOLR schema version not supported: %s. Supported versions are [%s]'
