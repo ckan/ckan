@@ -609,6 +609,7 @@ class PackageController(BaseController):
                 tuplize_dict(parse_params(request.POST))))
             data_dict['type'] = package_type
             context['message'] = data_dict.get('log_message', '')
+            context['api_version'] = 3
             pkg = get_action('package_create')(context, data_dict)
 
             self._form_save_redirect(pkg['name'], 'new')
