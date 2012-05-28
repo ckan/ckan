@@ -25,7 +25,6 @@ from pylons import config
 from routes import redirect_to as _redirect_to
 from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
-from lxml.html import fromstring
 import i18n
 import ckan.exceptions
 from pylons import request
@@ -470,8 +469,7 @@ def group_name_to_title(name):
 def markdown_extract(text, extract_length=190):
     if (text is None) or (text.strip() == ''):
         return ''
-    html = fromstring(markdown(text))
-    plain = html.xpath("string()")
+    plain = re.sub(r'<.*?>', '', markdown(text))
     return unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True))
 
 def icon_url(name):
@@ -634,7 +632,7 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
 
     RFC 2822 is the date format used in HTTP headers.  It should contain timezone
     information, but that cannot be relied upon.
-    
+
     If date_str doesn't contain timezone information, then the 'assume_utc' flag
     determines whether we assume this string is local (with respect to the
     server running this code), or UTC.  In practice, what this means is that if
@@ -643,7 +641,7 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
 
     If timezone information is available in date_str, then the returned datetime
     is 'aware', ie - it has an associated tz_info object.
-    
+
     Returns None if the string cannot be parsed as a valid datetime.
     """
     time_tuple = email.utils.parsedate_tz(date_str)
