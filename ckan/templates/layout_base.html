@@ -215,7 +215,8 @@
       </div>
     </footer>
   </div> <!-- eo #container -->
-
+  
+  <div style="display:none;" id="scripts">
   <script src="${h.url_for_static('/scripts/vendor/jquery/1.7.1/jquery.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/json2.js')}"></script>
   <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.tmpl/beta1/jquery.tmpl.js')}"></script>
@@ -288,6 +289,7 @@
                  });
   </script>
   </py:if>
+  </div> <!-- #scripts -->
 
   <py:if test="defined('optional_footer')">
     ${optional_footer()}
