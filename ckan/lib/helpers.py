@@ -444,7 +444,6 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
             facets.append(dict(active=True, **facet_item))
     facets = sorted(facets, key=lambda item: item['count'], reverse=True)
     limit = c.search_facets_limits.get(facet)
-    print facets
     if limit:
         return facets[:limit]
     else:
