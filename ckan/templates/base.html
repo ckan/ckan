@@ -12,6 +12,7 @@
      <title py:with="title = list(select('title/text()'))">
        <py:if test="title">${title} - </py:if>CKAN
      </title>
+     <link rel="shortcut icon" href="/base/images/ckan.ico" />
      <link rel="stylesheet/less" href="/base/less/main.less" />
      <script src="/base/test/vendor/less.js"></script>
      ${select('*[local-name()!="title"]')}

@@ -21,7 +21,7 @@
         </ul>
       </nav>
 
-      <div class="primary test" data-cake="test">
+      <div class="primary">
         <div py:if="c.pkg_revision_id" class="widget info">
           <p py:if="c.pkg_revision_not_latest" class="content">This is an old revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}. It may differ significantly from the <a href="${h.url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
           <p py:if="not c.pkg_revision_not_latest" class="content">This is the current revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}.</p>
@@ -37,29 +37,32 @@
           </section>
 
           <section id="dataset-resources" class="resources content">
-            <h3>Resources</h3>
+            <h3>Data and Resources</h3>
             <ul class="resource-list" py:if="c.pkg_dict.resources">
               <li class="resource-item" py:for="res in c.pkg_dict.resources" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
-              <a class="heading" href="${url}" title="${res.name or res.description}">
-                  ${h.resource_display_name(res)}
-                  <span py:if="res.format" class="format-box" property="dc:format">${res.format}</span>
+                <a class="heading" href="${url}" title="${res.name or res.description}">
+                  ${h.resource_display_name(res)}<span py:if="res.format" class="format-label" property="dc:format" data-format="${res.format.lower()}">${res.format}</span>
+                  <!--! TODO: Correctly pass localised views into this snippet -->
+                  <py:if test="True" py:with="title=('%s views' % 10)">${h.snippet('snippets/popular.html', title=title)}</py:if>
                 </a>
-                <p class="description"><py:choose test="">
-                <!-- only show description if name is given as we show
-                the description for the name if none is given -->
-                <py:if test="res.name">
-                ${h.markdown_extract(res.description, extract_length=80)}
-                </py:if>
-                <py:otherwise>&nbsp;</py:otherwise>
-                </py:choose></p>
+                <p class="description">
+                  <py:choose test="">
+                    <!-- only show description if name is given as we show
+                    the description for the name if none is given -->
+                    <py:if test="res.name">
+                      ${h.markdown_extract(res.description, extract_length=80)}
+                    </py:if>
+                    <py:otherwise><span class="empty">No description for this resource</span></py:otherwise>
+                  </py:choose>
+                </p>
                 <a class="btn btn-primary" href="${url}">Explore Data</a>
               </li>
             </ul>
             <py:if test="not c.pkg_dict.resources">
-              (none)
+              <p>This dataset has no data, <a href="#">why not add some?</a></p>
             </py:if>
           </section>
-          <section class="tags content">
+          <section class="tags content" py:if="len(c.pkg_dict.tags)">
             ${h.snippet('snippets/tag_list.html', tags=c.pkg_dict.tags)}
           </section>
           <section class="content additional-info">
@@ -121,6 +124,15 @@
       </div>
 
       <aside class="secondary">
+        <!--! TODO: Check to see if the resource has a group and display it. -->
+        <section class="module info group" py:if="True">
+          <div class="content">
+            <img src="http://placehold.it/200x125" width="200" height="125" />
+            <h3>Group name here</h3>
+            <p>Description text here…</p>
+          </div>
+        </section>
+
         <section class="module subscribe">
           <h2 class="heading"><i class="ckan-icon ckan-icon-add"></i> Subscribe</h2>
           <ul class="nav nav-simple">
