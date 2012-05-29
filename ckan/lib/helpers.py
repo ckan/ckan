@@ -161,6 +161,12 @@ def _add_i18n_to_url(url_to_amend, **kw):
 
     return url
 
+
+def full_current_url():
+    ''' Returns the fully qualified current url (eg http://...) useful
+    for sharing etc '''
+    return(url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
+
 def lang():
     ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
@@ -989,6 +995,7 @@ __allowed_functions__ = [
            'build_nav_main',
            'debug_inspect',
            'dict_list_reduce',
+           'full_current_url',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
