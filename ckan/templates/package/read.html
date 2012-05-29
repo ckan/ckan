@@ -59,7 +59,7 @@
               (none)
             </py:if>
           </section>
-          <section class="tags content">
+          <section class="tags content" py:if="len(c.pkg_dict.tags)">
             ${h.snippet('snippets/tag_list.html', tags=c.pkg_dict.tags)}
           </section>
           <section class="content additional-info">
