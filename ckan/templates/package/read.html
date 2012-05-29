@@ -21,7 +21,7 @@
         </ul>
       </nav>
 
-      <div class="primary test" data-cake="test">
+      <div class="primary">
         <div py:if="c.pkg_revision_id" class="widget info">
           <p py:if="c.pkg_revision_not_latest" class="content">This is an old revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}. It may differ significantly from the <a href="${h.url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
           <p py:if="not c.pkg_revision_not_latest" class="content">This is the current revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}.</p>
