@@ -40,9 +40,10 @@
             <h3>Data and Resources</h3>
             <ul class="resource-list" py:if="c.pkg_dict.resources">
               <li class="resource-item" py:for="res in c.pkg_dict.resources" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
-              <a class="heading" href="${url}" title="${res.name or res.description}">
-                  ${h.resource_display_name(res)}
-                  <span py:if="res.format" class="format-label" property="dc:format" data-format="${res.format.lower()}">${res.format}</span>
+                <a class="heading" href="${url}" title="${res.name or res.description}">
+                  ${h.resource_display_name(res)}<span py:if="res.format" class="format-label" property="dc:format" data-format="${res.format.lower()}">${res.format}</span>
+                  <!--! TODO: Correctly pass localised views into this snippet -->
+                  <py:if test="True" py:with="title=('%s views' % 10)">${h.snippet('snippets/popular.html', title=title)}</py:if>
                 </a>
                 <p class="description">
                   <py:choose test="">
