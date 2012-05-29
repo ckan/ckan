@@ -1,0 +1,48 @@
+{% extends "page.jinja.html" %}
+
+{% block breadcrumb %}
+  <ol class="breadcrumb">
+    <li>{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
+    <li>{{ h.nav_link(h.dataset_display_name(c.package), controller='package', action='read', id=c.package.name) }}</li>
+    <li class="active"><a href="">{{ _('Related') }}</a></li>
+  </ol>
+{% endblock %}
+
+{% block actions %}
+  <ul class="actions">
+    <li><a class="btn" href=""><i class="ckan-icon"></i> Add Item</a></li>
+  </ul>
+{% endblock %}
+
+{% block primary_content %}
+  <div class="module">
+    <div class="content">
+      {# TODO: Find out how to pass in arguments to translate #}
+      <h1>{{ _('Related Media for %(dataset)') }}</h1>
+      {% if c.pkg.related %}
+        <ul class="related-list">
+          {% for test in c.pkg.related %}
+            {% include 'related_item.html' %}
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="empty">No related items</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module info">
+    <h2 class="heading"><i class="ckan-icon ckan-icon-info"></i> {{ _('What is Related Media?') }}</h2>
+    <div class="content">
+      {% trans %}
+        <p>Related Media is any app, article, visualisation or idea related to
+        this dataset.</p>
+        <p>For example, it could be a custom visualisation,
+        pictograph or bar chart, an app using all or part of the data or
+        even a news story that references this dataset.</p>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}
