@@ -1,0 +1,32 @@
+{% extends "base.jinja.html" %}
+
+{% block page %}
+  {% block header %}
+    {% include "header.jinja.html" %}
+  {% endblock %}
+  {% block content %}
+    <div role="main">
+      <div class="container">
+        {% block toolbar %}
+          <div class="toolbar">
+            {% block breadcrumb %}{% endblock %}
+            {% block actions %}{% endblock %}
+          </div>
+        {% endblock %}
+        {% block primary %}
+          <div class="primary">
+            {% block primary_content %}{% endblock %}
+          </div>
+        {% endblock %}
+        {% block secondary %}
+          <aside class="secondary">
+            {% block secondary_content %}{% endblock %}
+          </aside>
+        {% endblock %}
+      </div>
+    </div>
+  {% endblock %}
+  {% block footer %}
+    {% include "footer.jinja.html" %}
+  {% endblock %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% block doctype %}<!DOCTYPE html>{% endblock %}
+{% block htmltag %}<html lang="en-gb">{% endblock %}
+  {% block headtag %}<head>{% endblock %}
+    {% block meta %}
+      <meta charset="utf-8" />
+    {% endblock %}
+    <title>{% if title %}{{title}} - {% endif %}CKAN</title>
+    {% block links %}
+      <link rel="shortcut icon" href="/base/images/ckan.ico" />
+    {% endblock %}
+    {% block styles %}
+      <link rel="stylesheet/less" href="/base/less/main.less" />
+      <script src="/base/test/vendor/less.js"></script>
+    {% endblock %}
+  </head>
+  {% block bodytag %}<body>{% endblock %}
+    {% block page %}{% endblock %}
+    {% block scripts %}{% endblock %}
+  </body>
+</html>
