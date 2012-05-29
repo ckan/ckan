@@ -25,7 +25,7 @@ count_label
   -->
 <py:with vars="items=h.get_facet_items_dict(name)" xmlns:py="http://genshi.edgewall.org/">
   <section class="module">
-    <h2 class="heading">${c.facet_titles.get(name)} <a href="${c.remove_field(name)}" class="action">Clear All</a></h2>
+    <h2 class="heading"><i class="ckan-icon ckan-icon-tag"></i> ${c.facet_titles.get(name)} <a href="${c.remove_field(name)}" class="action">Clear All</a></h2>
     <nav py:if="items">
       <ul class="unstyled nav nav-simple nav-facet">
         <py:for each="item in items">
