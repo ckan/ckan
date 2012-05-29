@@ -15,8 +15,12 @@
 
 .dataset-item > .heading {
   font-size: 14px;
-  line-height: 1;
+  line-height: 1.2;
   float: left;
+}
+
+.dataset-item > .heading a {
+  color: #333;
 }
 
 .dataset-item > .content {
@@ -38,17 +42,23 @@
   background-color: #aaa;
 }
 
+.results {
+  margin-right: 360px;
+  border-bottom: 1px dotted #ccc;
+  margin-bottom: 20px;
+  padding-bottom: 25px;
+}
+
+.results strong {
+  display: block;
+  font-size: 24px;
+  color: #000;
+  margin-bottom: 10px;
+}
+
 .filter-list {
   color: #aaa;
   font-weight: bold;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px dotted #ccc;
-}
-
-.filter-list .results {
-  font-size: 24px;
-  color: #000;
 }
 
 .filter-list .extra {
@@ -56,6 +66,10 @@
   font-size: 18px;
   font-weight: normal;
   color: #000;
+}
+
+.dataset-search {
+  position: relative;
 }
 
 .search-giant {
@@ -82,6 +96,21 @@
   height: 30px;
   background: transparent url("@{image-path}/icon-search-27x26.png") no-repeat center center;
   text-indent: -900em;
+}
+
+.control-order-by {
+  position: absolute;
+  bottom: -60px;
+  right: 0;
+}
+
+.control-order-by label,
+.control-order-by select {
+  display: inline;
+}
+
+.control-order-by select {
+  width: 160px;
 }
 
 // Resource List
