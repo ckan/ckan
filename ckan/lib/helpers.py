@@ -406,9 +406,10 @@ def default_group_type():
 
 
 _menu_items = {
+    'add dataset' : dict(controller='package', action='new'),
     'search' : dict(controller='package',
                     action='search',
-                    highlight_actions = 'new index search'),
+                    highlight_actions = 'index search'),
     'default_group': dict(name='%s_index' % default_group_type()),
     'about' : dict(controller='home', action='about'),
     'login' : dict(controller='user', action='login'),
