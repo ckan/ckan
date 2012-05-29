@@ -10,6 +10,10 @@
 @large-y: 20px;
 @large-offset-x: -@large-x;
 @large-offset-y: -@small-y - @medium-y;
+@format-medium-x: 32px;
+@format-medium-y: 35px;
+@format-medium-offset-x: -@format-medium-x;
+@format-medium-offset-y: -62px;
 
 .ckan-icon {
   .ie7-restore-right-whitespace;
@@ -72,3 +76,66 @@
 .ckan-icon-star      { .ckan-icon-background-position(11, "large") }
 .ckan-icon-info-flat { .ckan-icon-background-position(12, "large") }
 .ckan-icon-tag       { .ckan-icon-background-position(13, "large") }
+
+// RESOURCE FORMAT ICONS
+
+.format-label {
+  .ckan-icon;
+
+  text-indent: -900em;
+  background: url("@{image-path}/sprite-resource-icons.png") no-repeat 0 0;
+}
+
+.format-label {
+  .ckan-icon-background-position(0, "format-medium");
+}
+
+.format-label[data-format=rdf],
+.format-label[data-format*=rdf] {
+  .ckan-icon-background-position(1, "format-medium");
+}
+
+.format-label[data-format=pdf],
+.format-label[data-format*=pdf] {
+  .ckan-icon-background-position(2, "format-medium");
+}
+
+.format-label[data-format=api],
+.format-label[data-format*=api] {
+  .ckan-icon-background-position(3, "format-medium");
+}
+
+.format-label[data-format=zip],
+.format-label[data-format*=zip] {
+  .ckan-icon-background-position(4, "format-medium");
+}
+
+.format-label[data-format=xls],
+.format-label[data-format*=xls] {
+  .ckan-icon-background-position(5, "format-medium");
+}
+
+.format-label[data-format=csv],
+.format-label[data-format*=csv] {
+  .ckan-icon-background-position(6, "format-medium");
+}
+
+.format-label[data-format=txt],
+.format-label[data-format*=txt] {
+  .ckan-icon-background-position(7, "format-medium");
+}
+
+.format-label[data-format=xml],
+.format-label[data-format*=xml] {
+  .ckan-icon-background-position(8, "format-medium");
+}
+
+.format-label[data-format=json],
+.format-label[data-format*=json] {
+  .ckan-icon-background-position(9, "format-medium");
+}
+
+.format-label[data-format=html],
+.format-label[data-format*=html] {
+  .ckan-icon-background-position(10, "format-medium");
+}
