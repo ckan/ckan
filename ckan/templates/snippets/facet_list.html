@@ -54,7 +54,7 @@ count_label
     </nav>
     <p class="footer" py:if="items">
       <a py:if="c.search_facets_limits.get(name)" href="${c.remove_field('_%s_limit' % name, replace=0)}" class="read-more">Show All ${c.facet_titles.get(name)}</a>
-      <a py:if="not c.search_facets_limits.get(name)" href="${c.remove_field('_%s_limit' % name)}" class="read-more">Show Popular ${c.facet_titles.get(name)}</a>
+      <a py:if="not c.search_facets_limits.get(name)" href="${c.remove_field('_%s_limit' % name)}" class="read-more">Show Only Popular ${c.facet_titles.get(name)}</a>
     </p>
   </section>
 </py:with>
