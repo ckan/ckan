@@ -21,11 +21,11 @@
   font-weight: bold;
   position: relative;
   left: 4px;
-  margin-left: 0;
-  margin-right: 7px;
+  margin-left: -25px;
+  margin-right: -20px;
   padding-left: 10px;
   padding-right: 0px;
-  padding: 1px (@gutter-x - 7);
+  padding: 1px (@gutter-x - 3);
 }
 
 .secondary .nav-simple > li > a {
@@ -33,6 +33,12 @@
   padding-right: @gutter-small-x;
   position: relative;
 }
+
+.secondary .nav-simple > li.active > a {
+  padding-left:  @gutter-small-x - 3;
+  padding-right: @gutter-small-x - 3;
+}
+
 
 // FACET NAVIGATION
 
@@ -54,9 +60,4 @@
 .nav-facet > li.active > a:hover:after {
   .ckan-icon-circle-cross;
   right: 3px;
-}
-
-.nav-facet > li.selected > a {
-  padding-left:  @gutter-small-x - 7;
-  padding-right: @gutter-small-x - 7;
 }
