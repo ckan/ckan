@@ -26,12 +26,7 @@
                 <input type="text" class="search" name="q" value="${c.q}" autocomplete="off" results="0" placeholder="${_('Search...')}" />
                 <button type="submit" value="${_('Search')}">Submit</button>
               </span>
-              <span class="control-group control-order-by">
-                <label for="field-order-by">Order by</label>
-                <select id="field-order-by" name="sort">
-                  <option selected="selected">Relevance</option>
-                </select>
-              </span>
+              ${h.snippet('snippets/sort_by.html', sort=c.sort_by_selected)}
               <span py:if="c.fields">
                 <py:for each="(k, v) in c.fields">
                   <input type="hidden" name="${k}" value="${v}" />
