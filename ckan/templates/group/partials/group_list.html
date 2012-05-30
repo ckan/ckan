@@ -1,5 +1,7 @@
-<ul>
+<ul class="unstyled media-grid">
   {% for group in c.page.items %}
+    {% set first = loop.index0 % 3 == 0 %}
+    {% set last  = loop.index0 % 3 == 2 %}
     {% include "group/partials/group_item.html" %}
   {% endfor %}
 </ul>
