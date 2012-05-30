@@ -1,0 +1,47 @@
+{% extends "page.jinja.html" %}
+
+{% block title %}{{ c.group_dict.display_name }} - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+  <ol class="breadcrumb">
+    <li>{{ h.nav_link(_('Groups'), controller='group', action='index') }}</li>
+    <li class="current">{{ h.nav_link(c.group_dict.display_name, controller='group', action='read', id=c.group_dict.name) }}</li>
+  </ol>
+{% endblock %}
+
+{% block actions %}
+  <ul class="actions">
+    <li>{{ h.nav_link(_('History'), controller='group', action='history', id=c.group_dict.name, class_='btn', icon='rewind') }}</li>
+  </ul>
+{% endblock %}
+
+{% block primary_content %}
+  <div class="module">
+    <div class="content">
+      <h1 class="page-heading">{{ c.group_dict.display_name }}</h1>
+    </div>
+    {{ c.page.pager() }}
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module info">
+    <h2 class="heading"><i class="ckan-icon ckan-icon-info"></i> {{ _('What are Groups?') }}</h2>
+    <div class="content">
+      {% trans %}
+        <p>Whilst tags are great at collecting datasets together, there are
+        occasions when you want to restrict users from editing a collection.</p>
+        <p>A group can be set-up to specify which users have permission to add or
+        remove datasets from it.</p>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block links %}
+  {{ super() }}
+  {%- set dataset_feed = h.url(controller='feed', action='group', id=c.group_dict.name) -%}
+  {%- set history_feed = h.url(controller='revision', action='list', format='atom', days=1) -%}
+  <link rel="alternate" type="application/atom+xml" title="{{ g.site_title }} - {{ _('Datasets in group: {group}').format(group=c.group_dict.display_name) }}" href="{{ dataset_feed }}" />
+  <link rel="alternate" type="application/atom+xml" title="{{ g.site_title }} - {{ _('Recent Revision History') }}" href="{{ history_feed }}" />
+{% endblock %}
