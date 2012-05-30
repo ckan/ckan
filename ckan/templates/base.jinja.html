@@ -1,11 +1,11 @@
 {# Allows the DOCTYPE to be set on a page by page basis #}
-{% block doctype %}<!DOCTYPE html>{% endblock %}
+{%- block doctype %}<!DOCTYPE html>{% endblock -%}
 
 {# Allows custom attributes to be added to the <html> tag #}
-{% block htmltag %}<html lang="en-gb">{% endblock %}
+{% block htmltag %}<html lang="en-gb">{% endblock -%}
 
   {# Allows custom attributes to be added to the <head> tag #}
-  {% block headtag %}<head>{% endblock %}
+  {% block headtag %}<head>{% endblock -%}
     {#
     Add custom meta tags to the page. Call super() to get the default tags
     such as charset, viewport and generator.
@@ -18,9 +18,9 @@
     {% endblock %}
 
     #}
-    {% block meta %}
+    {%- block meta %}
       <meta charset="utf-8" />
-    {% endblock %}
+    {%- endblock -%}
 
     {#
     Add a custom title to the page by extending the title block. Call super()
@@ -33,14 +33,13 @@
     #}
     <title>{% block title %}CKAN{% endblock %}</title>
 
-
     {#
     The links block allows you to add additonal content before the stylesheets
     such as rss feeds and favicons in the same way as the meta block.
     #}
-    {% block links %}
+    {%- block links -%}
       <link rel="shortcut icon" href="/base/images/ckan.ico" />
-    {% endblock %}
+    {% endblock -%}
 
     {#
     The styles block allows you to add additonal stylesheets to the page in
@@ -54,14 +53,14 @@
         <link rel="stylesheet" href="/base/css/custom.css" />
       {% endblock %}
     #}
-    {% block styles %}
+    {%- block styles -%}
       <link rel="stylesheet/less" href="/base/less/main.less" />
       <script src="/base/test/vendor/less.js"></script>
-    {% endblock %}
+    {% endblock -%}
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
-  {% block bodytag %}<body>{% endblock %}
+  {%- block bodytag %}<body>{% endblock -%}
 
     {#
     The page block allows you to add content to the page. Most of the time it is
@@ -75,7 +74,7 @@
         <div>Some other page content</div>
       {% endblock %}
     #}
-    {% block page %}{% endblock %}
+    {%- block page %}{% endblock -%}
 
     {#
     The scripts block allows you to add additonal scripts to the page. Use the
@@ -88,6 +87,6 @@
         <script src="/base/js/custom.js"></script>
       {% endblock %}
     #}
-    {% block scripts %}{% endblock %}
+    {%- block scripts %}{% endblock -%}
   </body>
 </html>
