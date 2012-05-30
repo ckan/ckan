@@ -1,3 +1,24 @@
+{#
+Creates all the markup required for an input element. Handles matching labels to
+inputs, error messages and other useful elements.
+
+name        - The name of the form parameter.
+id          - The id to use on the input and label. Convention is to prefix with 'field-'.
+label       - The human readable label.
+value       - The value of the input. The alternative is to pass in the data dict
+              which will use the name key as the value.
+placeholder - Some placeholder text.
+type        - The type of input eg. email, url, date (default: text).
+data        - The data dict, used to look up the value using the name.
+errors      - The errors dict, used to look up the error using the name.
+classes     - An array of classes to apply to the control-group.
+
+Examples:
+
+  {% import form from 'macros/form.html' %}
+  {{ form.input('title', label=_('Title'), data=data, errors=errors) }}
+
+#}
 {% macro input(name, id='', label='', value='', placeholder='', type='text', data={}, errors={}, classes=[]) %}
   <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
     <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
@@ -8,6 +29,24 @@
   </div>
 {% endmacro %}
 
+{#
+Creates all the markup required for an select element. Handles matching labels to
+inputs and error messages.
+
+name        - The name of the form parameter.
+id          - The id to use on the input and label. Convention is to prefix with 'field-'.
+label       - The human readable label.
+options     - A dict of value/label pairs to be used as <options>.
+selected    - The value of the selected <option>.
+errors      - The errors dict, used to look up the error using the name.
+classes     - An array of classes to apply to the control-group.
+
+Examples:
+
+  {% import form from 'macros/form.html' %}
+  {{ form.select('year', label=_('Year'), options={2010: 2010, 2011: 2011}, selected=2011, errors=errors) }}
+
+#}
 {% macro select(name, id='', label='', options='', selected='', errors={}, classes=[]) %}
   <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
     <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
@@ -22,12 +61,67 @@
   </div>
 {% endmacro %}
 
+{#
+Creates all the markup required for a Markdown textarea element. Handles
+matching labels to inputs, selected item and error messages.
+
+name        - The name of the form parameter.
+id          - The id to use on the input and label. Convention is to prefix with 'field-'.
+label       - The human readable label.
+value       - The value of the input. The alternative is to pass in the data dict
+              which will use the name key as the value.
+placeholder - Some placeholder text.
+data        - The data dict, used to look up the value using the name.
+errors      - The errors dict, used to look up the error using the name.
+classes     - An array of classes to apply to the control-group.
+
+Examples:
+
+  {% import form from 'macros/form.html' %}
+  {{ form.markdown('desc', id='field-description', label=_('Description'), data=data, errors=errors) }}
+
+#}
 {% macro markdown(name, id='', label='', value='', placeholder='', data={}, errors={}, classes=[]) %}
   <div class="control-group control-full{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
     <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
     <div class="controls editor">
       <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}">{{ data[name] or value | e }}</textarea>
       <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
+      {% if errors[name] %}<span class="error-block">{{ errors[name] }}</span>{% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{#
+Creates all the markup required for an input element with a prefixed segment.
+These are useful for showing url slugs and other fields where the input
+information forms only part of the saved data.
+
+name        - The name of the form parameter.
+id          - The id to use on the input and label. Convention is to prefix with 'field-'.
+label       - The human readable label.
+prepend     - The text that will be prepended before the input.
+value       - The value of the input. The alternative is to pass in the data dict
+              which will use the name key as the value.
+placeholder - Some placeholder text.
+data        - The data dict, used to look up the value using the name.
+errors      - The errors dict, used to look up the error using the name.
+classes     - An array of classes to apply to the control-group.
+
+Examples:
+
+  {% import form from 'macros/form.html' %}
+  {{ form.prepend('slug', id='field-slug', prepend='/dataset/', label=_('Slug'), data=data, errors=errors) }}
+
+#}
+{% macro prepend(name, id='', label='', prepend='', value='', placeholder='', type='text', data={}, errors={}, classes=[]) %}
+  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
+    <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
+    <div class="controls">
+      <div class="input-prepend">
+        {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
+        <input id="{{ id or name }}" name="{{ name }}" value="{{ data[name] or value | e }}" placeholder="{{ placeholder }}" />
+      </div>
       {% if errors[name] %}<span class="error-block">{{ errors[name] }}</span>{% endif %}
     </div>
   </div>
