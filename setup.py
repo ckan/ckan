@@ -110,10 +110,6 @@ setup(
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
 
-    [fanstatic.libraries]
-    css = html_resources:css
-    javascript = html_resources:javascript
-
     [babel.extractors]
 	    ckan = ckan.lib.extract:extract_ckan
     """,
