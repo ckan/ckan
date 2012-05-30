@@ -10,7 +10,7 @@
 
 {% block actions %}
   <ul class="actions">
-    <li><a class="btn" href=""><i class="ckan-icon ckan-icon-plus"></i> Add Group</a></li>
+    <li>{{ h.nav_link(_('Add Group'), controller='group', action='new', class_='btn', icon='plus') }}</li>
   </ul>
 {% endblock %}
 
