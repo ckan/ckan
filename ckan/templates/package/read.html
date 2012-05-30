@@ -43,7 +43,7 @@
                 <a class="heading" href="${url}" title="${res.name or res.description}">
                   ${h.truncate(h.resource_display_name(res), 50)}<span class="format-label" property="dc:format" data-format="${res.format.lower() or 'data'}">${res.format}</span>
                   <!--! popular icon -->
-                  ${h.snippet('snippets/popular.html', title=ungettext('{num} view', '{num} views', res.tracking_summary.total), num=res.tracking_summary.total)}
+                  ${h.popular('views', res.tracking_summary.total, min=10)}
                 </a>
                 <p class="description">
                   <py:choose test="">

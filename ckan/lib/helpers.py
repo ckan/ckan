@@ -34,7 +34,7 @@ import ckan.exceptions
 from pylons import request
 from pylons import session
 from pylons import c
-from pylons.i18n import _
+from pylons.i18n import _, ungettext
 
 import html_resources
 from lib.maintain import deprecated
@@ -940,6 +940,16 @@ def debug_inspect(arg):
     ''' Output pprint.pformat view of supplied arg '''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
 
+def popular(type_, number, min=1, title=None):
+    ''' display a popular icon. '''
+    if type_ == 'views':
+        title = ungettext('{number} view', '{number} views', number)
+    elif type_ == 'recent views':
+        title = ungettext('{number} recent view', '{number} recent views', number)
+    elif not title:
+        raise Exception('popular() did not recieve a valid type_ or title')
+    return snippet('snippets/popular.html', title=title, number=number, min=min)
+
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
 __allowed_functions__ = [
@@ -999,6 +1009,7 @@ __allowed_functions__ = [
            'debug_inspect',
            'dict_list_reduce',
            'full_current_url',
+           'popular',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
