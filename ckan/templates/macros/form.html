@@ -1,0 +1,34 @@
+{% macro input(name, id='', label='', value='', placeholder='', type='text', data={}, errors={}, classes=[]) %}
+  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
+    <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
+    <div class="controls">
+      <input id="{{ id or name }}" name="{{ name }}" value="{{ data[name] or value | e }}" placeholder="{{ placeholder }}" />
+      {% if errors[name] %}<span class="error-block">{{ errors[name] }}</span>{% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro select(name, id='', label='', options='', selected='', errors={}, classes=[]) %}
+  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
+    <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
+    <div class="controls">
+      <select id="{{ id or name }}" name="{{ name }}">
+        {% for value, text in options.iteritems() %}
+          <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ text }}</option>
+        {% endfor %}
+      </select>
+      {% if errors[name] %}<span class="error-block">{{ errors[name] }}</span>{% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro markdown(name, id='', label='', value='', placeholder='', data={}, errors={}, classes=[]) %}
+  <div class="control-group control-full{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
+    <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
+    <div class="controls editor">
+      <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}">{{ data[name] or value | e }}</textarea>
+      <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
+      {% if errors[name] %}<span class="error-block">{{ errors[name] }}</span>{% endif %}
+    </div>
+  </div>
+{% endmacro %}
