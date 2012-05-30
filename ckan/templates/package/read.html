@@ -42,8 +42,8 @@
               <li class="resource-item" py:for="res in c.pkg_dict.resources" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
                 <a class="heading" href="${url}" title="${res.name or res.description}">
                   ${h.truncate(h.resource_display_name(res), 50)}<span class="format-label" property="dc:format" data-format="${res.format.lower() or 'data'}">${res.format}</span>
-                  <!--! TODO: Use tracking data -->
-                  <py:if test="True" >${h.snippet('snippets/popular.html', title=_('{num} views').format(num=10))}</py:if>
+                  <!--! popular icon -->
+                  ${h.snippet('snippets/popular.html', title=ungettext('{num} view', '{num} views', res.tracking_summary.total), num=res.tracking_summary.total)}
                 </a>
                 <p class="description">
                   <py:choose test="">
