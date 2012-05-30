@@ -3,7 +3,7 @@
     <h3 class="heading" py:with="title = package.get('title') or package.get('name')">
       ${h.link_to(h.truncate(title, 80), h.url_for(controller='package', action='read', id=package.get('name')))}
       <!--! TODO: Hook this up to views -->
-      <py:if test="True">${h.snippet('snippets/popular.html', title='10 views')}</py:if>
+      ${h.popular('recent views', package.tracking_summary.recent, min=10)}
     </h3>
     <div class="content" py:with="notes = h.markdown_extract(package.notes)">
       <py:if test="notes">${notes}</py:if>

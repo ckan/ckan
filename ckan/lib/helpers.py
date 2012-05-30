@@ -34,7 +34,7 @@ import ckan.exceptions
 from pylons import request
 from pylons import session
 from pylons import c
-from pylons.i18n import _
+from pylons.i18n import _, ungettext
 
 import html_resources
 from lib.maintain import deprecated
@@ -450,7 +450,8 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
     facets = sorted(facets, key=lambda item: item['count'], reverse=True)
-    limit = c.search_facets_limits.get(facet)
+    if c.search_facets_limits:
+        limit = c.search_facets_limits.get(facet)
     if limit:
         return facets[:limit]
     else:
@@ -489,7 +490,8 @@ def unselected_facet_items(facet, limit=10):
         if not (facet, facet_item['name']) in request.params.items():
             facets.append(facet_item)
     facets = sorted(facets, key=lambda item: item['count'], reverse=True)
-    limit = c.search_facets_limits.get(facet)
+    if c.search_facets_limits:
+        limit = c.search_facets_limits.get(facet)
     if limit:
         return facets[:limit]
     else:
@@ -938,6 +940,16 @@ def debug_inspect(arg):
     ''' Output pprint.pformat view of supplied arg '''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
 
+def popular(type_, number, min=1, title=None):
+    ''' display a popular icon. '''
+    if type_ == 'views':
+        title = ungettext('{number} view', '{number} views', number)
+    elif type_ == 'recent views':
+        title = ungettext('{number} recent view', '{number} recent views', number)
+    elif not title:
+        raise Exception('popular() did not recieve a valid type_ or title')
+    return snippet('snippets/popular.html', title=title, number=number, min=min)
+
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
 __allowed_functions__ = [
@@ -997,6 +1009,7 @@ __allowed_functions__ = [
            'debug_inspect',
            'dict_list_reduce',
            'full_current_url',
+           'popular',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',

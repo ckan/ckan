@@ -20,9 +20,9 @@ def template_type(template_path):
         return 'genshi-text'
     f = open(template_path, 'r')
     source = f.read()
-    if re.search('\{\{|\{\%', source):
-        return 'jinja2'
-    return 'genshi'
+    if re.search('genshi\.edgewall\.org', source):
+        return 'genshi'
+    return 'jinja2'
 
 def template_info(template_name):
     ''' Returns the path and type for a template '''
