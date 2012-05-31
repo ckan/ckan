@@ -147,9 +147,20 @@ class GroupController(BaseController):
 
         c.drill_down_url = drill_down_url
 
-        def remove_field(key, value):
+        def remove_field(key, value=None, replace=None):
+            """
+            Remove a key from the current search parameters. A specific
+            key/value pair can be removed by passing a second value argument
+            otherwise all pairs matching the key will be removed.
+            If replace is given then a new param key=replace will be added.
+            """
             params = list(params_nopage)
-            params.remove((key, value))
+            if value:
+                params.remove((key, value))
+            else:
+              [params.remove((k, v)) for (k, v) in params[:] if k==key]
+            if replace is not None:
+                params.append((key, replace))
             return search_url(params)
 
         c.remove_field = remove_field
@@ -197,6 +208,14 @@ class GroupController(BaseController):
             )
             c.facets = query['facets']
             c.search_facets = query['search_facets']
+            c.facet_titles = {'groups' : _('Groups'),
+                              'tags' : _('Tags'),
+                              'res_format' : _('Formats'),
+                              'license' : _('Licence'), }
+            c.search_facets_limits = {}
+            for facet in c.facets.keys():
+                limit = int(request.params.get('_%s_limit' % facet, 10))
+                c.search_facets_limits[facet] = limit
             c.page.items = query['results']
         except SearchError, se:
             log.error('Group search error: %r', se.args)
