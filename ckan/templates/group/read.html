@@ -11,6 +11,10 @@
 
 {% block actions %}
   <ul class="actions">
+    {% if h.check_access('group_update', {'id': c.group.id}) %}
+      <li>{{ h.nav_link(_('Add Dataset'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='plus') }}</li>
+      <li>{{ h.nav_link(_('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='star') }}</li>
+    {% endif %}
     <li>{{ h.nav_link(_('History'), controller='group', action='history', id=c.group_dict.name, class_='btn', icon='rewind') }}</li>
   </ul>
 {% endblock %}
