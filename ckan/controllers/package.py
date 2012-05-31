@@ -98,13 +98,8 @@ class PackageController(BaseController):
         '''Setup some template context variables used for the Follow button.'''
 
         # If the user is logged in set the am_following variable.
-        userid = context.get('user')
-        if not userid:
-            return
-        userobj = model.User.get(userid)
-        if not userobj:
-            return
-        c.pkg_dict['am_following'] = get_action('am_following_dataset')(
+        if c.user:
+            c.pkg_dict['am_following'] = get_action('am_following_dataset')(
                 context, {'id': c.pkg.id})
 
     authorizer = ckan.authz.Authorizer()
