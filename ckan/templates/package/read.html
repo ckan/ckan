@@ -148,13 +148,20 @@
 
         ${h.snippet('snippets/social.html')}
 
-        <section class="module info related" py:if="True">
+        <section class="module info related" py:if="c.pkg.related">
           <h2 class="heading"><i class="ckan-icon ckan-icon-photo"></i> Related <a class="action" href="#">Add Related</a></h2>
-          <p class="content">Some interesting summary of this featured item. This
-          may or may not have a slideshow.</p>
+          <p class="content">
+          <py:with vars="item = c.pkg.related[0]">
+          ${item.type}
+          ${item.title}
+          ${item.description}
+          ${item.url}
+          ${item.id}
+          </py:with>
+          </p>
         </section>
 
-        <section class="module info related empty" py:if="True">
+        <section class="module info related empty" py:if="not c.pkg.related">
           <h2 class="heading"><i class="ckan-icon ckan-icon-photo"></i> Related</h2>
           <div class="content">
             <p>No apps, ideas, news stories or images have been
