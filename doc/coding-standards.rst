@@ -5,11 +5,84 @@ CKAN Coding Standards
 Commit Guidelines
 =================
 
-TODO
+Generally, follow the `commit guidelines from the Pro Git book`_:
 
-http://git-scm.com/book/en/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines
+- Avoid committing any whitespace errors. One tool you can use to find
+  whitespace errors is the ``git diff --check`` command.
 
-https://github.com/davglass/github-trac
+- Try to make each commit a logically separate, digestible changeset.
+
+- Try to make the first line of the commit message less than 50 characters
+  long, and describe the entire changeset concisely.
+
+- Optionally, follow with a blank line and then a more detailed explanation of
+  the changeset, hard-wrapped to 72 characters, giving the motivation for the
+  change and contrasting the new with the previous behaviour.
+
+- Use the imperative present tense as if you were giving commands to the
+  codebase to change its behaviour, e.g. "Add tests for", "make xyzzy do
+  frotz", not "Adding tests for", "I added tests for", "[This patch] makes
+  xyzzy do frotz" or "[I] changed xyzzy to do frotz".
+
+- Try to write the commit message so that a new CKAN developer could understand
+  it, i.e. using plain English as far as possible, and not referring to too
+  much assumed knowledge or to external resources such as mailing list
+  dicsussions (summarize the relevant points in the commit message instead).
+
+.. _commit guidelines from the Pro Git book: http://git-scm.com/book/en/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines
+
+In CKAN we also refer to `trac.ckan.org`_ ticket numbers in commit messages
+wherever relevant. This makes the release manager's job much easier! There
+should be few commits that don't refer to a trac ticket, e.g. if you find a
+typo in a docstring and quickly fix it you wouldn't bother to create a ticket
+for this.
+
+Use the `github-trac plugin`_'s syntax. Anywhere in the commit message:
+
+::
+
+    closes #123
+
+will automatically close ticket #123 on `trac.ckan.org`_, and add a link to the
+commit to the trac ticket (close, closed, fix, fixed and fixes would also
+work). If your commit relates to a ticket but doesn't close it, then:
+
+::
+
+    see #123
+
+will add a link to the commit to ticket #123 on `trac.ckan.org`_, but will not
+change the status of the ticket (references, refs, ref, addresses and re would
+also work).
+
+.. _github-trac plugin: https://github.com/davglass/github-trac
+
+.. _trac.ckan.org: http://trac.ckan.org/
+
+Example CKAN commit message:
+
+::
+
+ Refactor user controller a little, closes #2304
+
+ Move initialisation of a few more template variables into
+ _setup_template_variables(), and change read(), edit(), and followers() to use
+ it. This removes some code duplication and fixes issues with the followers
+ count and follow button not being initialisd on all user controller pages.
+
+ Change new() to _not_ use _setup_template_variables() as it only needs
+ c.is_sysadmin and not the rest.
+
+ Also fix templates/user/layout.html so that the Followers tab appears on both
+ your own user page (when logged in) and on other user's pages.
+
+Merging
+-------
+
+When merging a feature or bug branch into master:
+
+- Use the ``--no-ff`` option in the ``git merge`` command
+- Add an entry to the ``CHANGELOG`` file
 
 Frontend Coding Standards
 =========================
