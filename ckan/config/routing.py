@@ -158,8 +158,10 @@ def make_map():
     ##map.connect('/package/edit/{id}', controller='package_formalchemy', action='edit')
 
     with SubMapper(map, controller='related') as m:
+        m.connect('related_new',  '/dataset/{id}/related/new', action='new')
+        m.connect('related_edit', '/dataset/{id}/related/edit/{related_id}',
+                  action='edit')
         m.connect('related_list', '/dataset/{id}/related', action='list')
-        m.connect('related_read', '/dataset/{id}/related/{related_id}', action='read')
 
     with SubMapper(map, controller='package') as m:
         m.connect('/dataset', action='search')
