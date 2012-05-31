@@ -39,6 +39,25 @@
   padding-right: @gutter-small-x - 3;
 }
 
+.secondary .nav-simple > li.image {
+  position: relative;
+}
+
+.secondary .nav-simple > li.image > a {
+  padding-left:  @gutter-small-x + 27;
+  padding-right: @gutter-small-x + 27;
+}
+
+.secondary .nav-simple > li.image > img {
+  position: absolute;
+  top: 50%;
+  left: @gutter-small-x;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  z-index: 2;
+}
+
 
 // FACET NAVIGATION
 
