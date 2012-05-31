@@ -98,13 +98,8 @@ class PackageController(BaseController):
         '''Setup some template context variables used for the Follow button.'''
 
         # If the user is logged in set the am_following variable.
-        userid = context.get('user')
-        if not userid:
-            return
-        userobj = model.User.get(userid)
-        if not userobj:
-            return
-        c.pkg_dict['am_following'] = get_action('am_following_dataset')(
+        if c.user:
+            c.pkg_dict['am_following'] = get_action('am_following_dataset')(
                 context, {'id': c.pkg.id})
 
     authorizer = ckan.authz.Authorizer()
@@ -181,6 +176,7 @@ class PackageController(BaseController):
             c.sort_by_fields = []
         else:
             c.sort_by_fields = [ field.split()[0] for field in sort_by.split(',') ]
+        c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
             params = list(params_nopage)
@@ -609,6 +605,7 @@ class PackageController(BaseController):
                 tuplize_dict(parse_params(request.POST))))
             data_dict['type'] = package_type
             context['message'] = data_dict.get('log_message', '')
+            context['api_version'] = 3
             pkg = get_action('package_create')(context, data_dict)
 
             self._form_save_redirect(pkg['name'], 'new')

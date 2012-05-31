@@ -30,7 +30,7 @@ import os.path
 import sys
 import ConfigParser
 
-from fanstatic import Library, Resource, Group
+from fanstatic import Library, Resource, Group, get_library_registry
 from ckan.include.rjsmin import jsmin
 from ckan.include.rcssmin import cssmin
 
@@ -136,8 +136,14 @@ def create_library(name, path):
         setattr(module, group_name, group)
     # finally add the library to this module
     setattr(module, name, library)
+    # add to fanstatic
+    registry = get_library_registry()
+    registry.add(library)
 
 
-# create our library here
-create_library('javascript', 'javascript')
-create_library('css', 'css')
+# create our libraries here from any subdirectories
+for dirname, dirnames, filenames in os.walk(os.path.dirname(__file__)):
+    if dirname == os.path.dirname(__file__):
+        continue
+    lib_name = os.path.basename(dirname)
+    create_library(lib_name, lib_name)

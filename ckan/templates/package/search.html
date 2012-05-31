@@ -12,14 +12,21 @@
       <title>Search for a Dataset</title>
     </head>
     <body>
+      <nav class="toolbar">
+        <ol class="breadcrumb">
+          <li class="active">${h.nav_link(_('Search Datasets'), controller='package', action='search', highlight_actions = 'new index')}</li>
+        </ol>
+      </nav>
+
       <div class="primary">
         <section class="module">
           <div class="content">
             <form id="dataset-search" class="dataset-search clearfix" method="GET">
-              <span class="search-giant">
+              <span class="control-group search-giant">
                 <input type="text" class="search" name="q" value="${c.q}" autocomplete="off" results="0" placeholder="${_('Search...')}" />
                 <button type="submit" value="${_('Search')}">Submit</button>
               </span>
+              ${h.snippet('snippets/sort_by.html', sort=c.sort_by_selected)}
               <span py:if="c.fields">
                 <py:for each="(k, v) in c.fields">
                   <input type="hidden" name="${k}" value="${v}" />
@@ -27,27 +34,30 @@
               </span>
               <div id="dataset-search-ext"></div>
             </form>
-            <div class="filter-list">
-              <strong py:choose="" class="results">
+            <div class="results">
+              <strong py:choose="">
                 <py:when test="request.params and c.page.item_count">${c.page.item_count} datasets<py:if test="c.q"> found for &#147;${c.q}&#148;</py:if></py:when>
                 <py:when test="request.params and c.page.item_count == 0">Sorry no datasets found for &#147;${c.q}&#148;</py:when>
                 <py:otherwise>All datasets</py:otherwise>
               </strong>
-              <py:for each="field in c.fields_grouped">
-                <span class="facet">${c.facet_titles.get(field)}:</span>
-                <py:for each="value in c.fields_grouped[field]">
-                  <span class="filtered pill" py:choose="">
-                    <py:when test="c.translated_fields and c.translated_fields.has_key((field,value))">
+              <div class="filter-list">
+                <py:for each="field in c.fields_grouped">
+                  <span class="facet">${c.facet_titles.get(field)}:</span>
+                  <py:for each="value in c.fields_grouped[field]">
+                    <span class="filtered pill" py:choose="">
+                      <py:when test="c.translated_fields and c.translated_fields.has_key((field,value))">
                       ${c.translated_fields[(field,value)]}
-                    </py:when>
-                    <py:otherwise>${value}</py:otherwise>
-                    <a href="${c.remove_field(field, value)}" class="remove icon-remove icon-white">[remove]</a>
-                  </span>
+                      </py:when>
+                      <py:otherwise>${value}</py:otherwise>
+                      <a href="${c.remove_field(field, value)}" class="remove icon-remove icon-white">[remove]</a>
+                    </span>
+                  </py:for>
                 </py:for>
-              </py:for>
-              <p class="extra" py:if="request.params and c.page.item_count == 0">Try another search term,
-              browse the datasets below or <a href="${h.url_for(action='new', id=None)}">add your own data</a>.</p>
+                <p class="extra" py:if="request.params and c.page.item_count == 0">Try another search term,
+                browse the datasets below or <a href="${h.url_for(action='new', id=None)}">add your own data</a>.</p>
+              </div>
             </div>
+
             <py:if test="c.query_error">
               <p i18n:msg="item_count"><strong>There was an error while searching.</strong>
               Please try again.</p>

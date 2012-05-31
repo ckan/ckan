@@ -316,6 +316,9 @@ def make_map():
     for plugin in routing_plugins:
         map = plugin.after_map(map)
 
+    # sometimes we get requests for favicon.ico we should redirect to
+    # the real favicon location.
+    map.redirect('/favicon.ico', config.get('ckan.favicon'))
 
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')

@@ -36,17 +36,21 @@ setup(
         'ckan': [
             ('**.py', 'python', None),
             ('templates/importer/**', 'ignore', None),
-            ('templates/**.html', 'genshi', None),
+            ('templates/**.html', 'ckan', None),
+            ('templates_legacy/**.html', 'ckan', None),
             ('ckan/templates/home/language.js', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
             ('templates/**.txt', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
+            ('templates_legacy/**.txt', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
             ('public/**', 'ignore', None),
         ],
         'ckanext/stats/templates': [
-            ('**.html', 'genshi', None),
+            ('**.html', 'ckan', None),
         ]},
     entry_points="""
     [nose.plugins.0.10]
@@ -106,10 +110,8 @@ setup(
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
 
-    [fanstatic.libraries]
-    css = html_resources:css
-    javascript = html_resources:javascript
-
+    [babel.extractors]
+	    ckan = ckan.lib.extract:extract_ckan
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
