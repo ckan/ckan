@@ -21,6 +21,35 @@
     {{ form.select('state', label=_('State'), id='field-state', selected=data.state, options={active: _('Active'), deleted: _('Deleted')}, errors=errors) }}
   {% endif %}
 
+  {% if true or action == 'edit' %}
+    {% if data.packages %}
+      <div class="control-group">
+        <label class="control-label">{{ _('Datasets') }}</label>
+        <div class="controls">
+          {% for dataset in data.packages %}
+            <label class="checkbox" for="field-dataset-{{ loop.index }}">
+              <input id="field-dataset-{{ loop.index }}" type="checkbox" name="packages__{{ loop.index }}__name" value="{{ dataset.name }}" checked="checked" />
+              {{ dataset.title }}
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% set dataset_name = 'packages__%s__name' % data.packages|length %}
+    {{ form.input(dataset_name, label=_('Add Dataset'), id="field-dataset", value=data[dataset_name]) }}
+
+    <div class="control-group">
+      <label class="control-label" for="{{ id or name }}-key">{{ _('Custom 1') }}</label>
+      <div class="controls">
+        <div class="input-prepend">
+          <label for="{{ id or name }}-key" class="add-on">Key</label><input id="{{ id or name }}-key" name="{{ name }}" value="{{ data[name] or value | e }}" placeholder="{{ placeholder }}" />
+          <label for="{{ id or name }}-value" class="add-on">Value</label><input id="{{ id or name }}-value" name="{{ name }}" value="{{ data[name] or value | e }}" placeholder="{{ placeholder }}" />
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
   <div class="form-actions">
     {% if action == 'edit' %}
       <button class="btn btn-primary" name="save">{{ _('Edit Group') }}</button>
