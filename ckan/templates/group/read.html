@@ -16,23 +16,41 @@
 {% endblock %}
 
 {% block primary_content %}
-  <div class="module">
+  <article class="module">
     <div class="content">
       <h1 class="page-heading">{{ c.group_dict.display_name }}</h1>
     </div>
     {{ c.page.pager() }}
-  </div>
+  </article>
 {% endblock %}
 
 {% block secondary_content %}
-  <div class="module info">
+  <section class="module info group">
+    <div class="content media media-vertical">
+      <a class="image" href="{{ h.url_for(controller='group', action='read', id=c.group_dict.name) }}">
+        <img src="{{ c.group_dict.image_url or '/base/images/placeholder-group.png' }}" width="200" height="125" />
+      </a>
+      <div class="content">
+        <a href="{{ h.url_for(controller='group', action='read', id=c.group_dict.name) }}">
+          <h3>{{ c.group_dict.display_name }}</h3>
+        </a>
+        {% if c.group_dict.description %}
+          <p>{{ c.group_dict.description }}</p>
+        {% else %}
+          <p class="empty">{{ _('There is no description for this group') }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <section class="module info">
     <h2 class="heading"><i class="ckan-icon ckan-icon-head"></i> {{ _('Administrators') }}</h2>
     <ul class="nav nav-simple">
       {% for admin in c.group_admins %}
         <li class="image">{{ h.linked_user(admin, 30) }}</li>
       {% endfor %}
     </ul>
-  </div>
+  </section>
 {% endblock %}
 
 {% block links %}
