@@ -1,7 +1,31 @@
 [role=main] {
-  padding-top: 20px;
-  padding-bottom: 20px;
+  position: relative;
+  padding-top: 27px;
+  padding-bottom: 27px;
   background-color: @layout-background-color;
+}
+
+[role=main]:after,
+[role=main]:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+  background: #fff;
+  border-style: solid;
+  border-color: #c9c9c9;
+  border-width: 0;
+}
+
+[role=main]:before {
+  top: 0;
+  border-bottom-width: 1px;
+}
+
+[role=main]:after {
+  bottom: 0;
+  border-top-width: 1px;
 }
 
 [role=main] > .container > .primary {
