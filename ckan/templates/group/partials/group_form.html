@@ -23,9 +23,9 @@
 
   <div class="form-actions">
     {% if action == 'edit' %}
-      <button class="btn btn-primary">{{ _('Edit Group') }}</button>
+      <button class="btn btn-primary" name="save">{{ _('Edit Group') }}</button>
     {% else %}
-      <button class="btn btn-primary">{{ _('Create Group') }}</button>
+      <button class="btn btn-primary" name="save">{{ _('Create Group') }}</button>
     {% endif %}
   </div>
 </form>
