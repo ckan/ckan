@@ -46,22 +46,6 @@ class UserController(BaseController):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
-    def _setup_follow_button(self, context):
-        '''Setup some template context variables needed for the Follow/Unfollow
-        button.
-
-        '''
-
-        # If the user is logged in set the am_following variable.
-        userid = context.get('user')
-        if not userid:
-            return
-        userobj = model.User.get(userid)
-        if not userobj:
-            return
-        c.user_dict['am_following'] = get_action('am_following_user')(context,
-                {'id': c.user_dict['id']})
-
     def _setup_template_variables(self, context, data_dict):
         context = {'model': context.get('model'),
                 'session': context.get('session'),
@@ -75,9 +59,6 @@ class UserController(BaseController):
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
-        c.num_followers = get_action('user_follower_count')(context,
-                {'id':c.user_dict['id']})
-        self._setup_follow_button(context)
 
     ## end hooks
 

@@ -819,6 +819,35 @@ def convert_to_dict(object_type, objs):
         items.append(item)
     return items
 
+# these are the types of objects that can be followed
+_follow_objects = ['dataset', 'user']
+
+def follow_button(obj_type, obj_id):
+    ''' returns a follow button for the given object type and id if the
+    user is logged in. '''
+    import ckan.logic as logic
+    obj_type = obj_type.lower()
+    assert obj_type in _follow_objects
+    # If the user is logged in show the follow/unfollow button
+    if c.user:
+        context = {'model' : model, 'session':model.Session, 'user':c.user}
+        action = 'am_following_%s' % obj_type
+        following = logic.get_action(action)(context, {'id': obj_id})
+        return snippet('snippets/follow_button.html',
+                       following=following,
+                       obj_id=obj_id,
+                       obj_type=obj_type)
+    return ''
+
+def follow_count(obj_type, obj_id):
+    ''' returns the number of followers for the object type and id given '''
+    import ckan.logic as logic
+    obj_type = obj_type.lower()
+    assert obj_type in _follow_objects
+    action = '%s_follower_count' % obj_type
+    context = {'model' : model, 'session':model.Session, 'user':c.user}
+    return logic.get_action(action)(context, {'id': obj_id})
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -873,6 +902,8 @@ __allowed_functions__ = [
            'activity_div',
            'lang_native_name',
            'unselected_facet_items',
+           'follow_button',
+           'follow_count',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
