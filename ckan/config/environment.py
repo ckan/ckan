@@ -176,6 +176,53 @@ def load_environment(global_conf, app_conf):
     config['pylons.app_globals'].genshi_loader = TemplateLoader(
         template_paths, auto_reload=True, callback=template_loaded)
 
+    #################################################################
+    #                                                               #
+    #                   HORRIBLE GENSHI HACK                        #
+    #                                                               #
+    #################################################################
+    #                                                               #
+    # Genshi does strange things to get stuff out of the template   #
+    # variables.  This stops it from handling properties in the     #
+    # correct way as it returns the property rather than the actual #
+    # value of the property.                                        #
+    #                                                               #
+    # By overriding lookup_attr() in the LookupBase class we are    #
+    # able to get the required behaviour.  Using @property allows   #
+    # us to move functionality out of templates whilst maintaining  #
+    # backwards compatability.                                      #
+    #                                                               #
+    #################################################################
+
+    from genshi.template.eval import LookupBase
+
+    @classmethod
+    def genshi_lookup_attr(cls, obj, key):
+        __traceback_hide__ = True
+        try:
+            val = getattr(obj, key)
+        except AttributeError:
+            if hasattr(obj.__class__, key):
+                raise
+            else:
+                try:
+                    val = obj[key]
+                except (KeyError, TypeError):
+                    val = cls.undefined(key, owner=obj)
+        if isinstance(val, property):
+            val = val.fget()
+        return val
+
+    setattr(LookupBase, 'lookup_attr', genshi_lookup_attr)
+    del genshi_lookup_attr
+    del LookupBase
+
+    #################################################################
+    #                                                               #
+    #                       END OF GENSHI HACK                      #
+    #                                                               #
+    #################################################################
+
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
 
