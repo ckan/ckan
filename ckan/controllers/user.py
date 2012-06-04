@@ -63,9 +63,6 @@ class UserController(BaseController):
                 {'id': c.user_dict['id']})
 
     def _setup_template_variables(self, context, data_dict):
-        context = {'model': context.get('model'),
-                'session': context.get('session'),
-                'user': context.get('user')}
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         try:
             user_dict = get_action('user_show')(context, data_dict)
@@ -246,7 +243,8 @@ class UserController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context, data_dict)
+        self._setup_template_variables({'model': model,
+            'session': model.Session, 'user': c.user or c.author}, data_dict)
 
         c.is_myself = True
         c.form = render(self.edit_user_form, extra_vars=vars)
