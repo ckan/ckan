@@ -124,13 +124,13 @@ class RelatedController(base.BaseController):
             if is_edit:
                 data = related
 
-        c.types = (
-            ("Application", "application"),
-            ("Idea", "idea"),
-            ("News Article", "news_article"),
-            ("Paper", "paper"),
-            ("Visualization", "visualization")
-        )
+        c.types = {
+            "application": "Application",
+            "idea": "Idea",
+            "news_article": "News Article",
+            "paper": "Paper",
+            "visualization": "Visualization"
+        }
 
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
         c.form = base.render("related/edit_form.html", extra_vars=vars)
