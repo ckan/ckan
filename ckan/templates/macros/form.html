@@ -127,8 +127,35 @@ Examples:
   </div>
 {% endmacro %}
 
-{% macro keyvalue(names=(), id="", label="", values=(), placeholders=(), error="", classes=[]) %}
-  <div class="control-group">
+{#
+Creates all the markup required for an custom key/value input. These are usually
+used to let the user provide custom meta data. Each "field" has three inputs
+one for the key, one for the value and a checkbox to remove it. So the arguments
+for this macro are nearly all tuples containing values for the
+(key, value, delete) fields respectively.
+
+name        - A tuple of names for the three fields.
+id          - An id string to be used for each input.
+label       - The human readable label for the main label.
+values      - A tuple of values for the (key, value, delete) fields. If delete
+              is truthy the checkbox will be checked.
+placeholder - A tuple of placeholder text for the (key, value) fields.
+error       - A descriptive error string for the field as a whole.
+classes     - An array of classes to apply to the control-group.
+
+Examples:
+
+  {% import form from 'macros/form.html' %}
+  {{ form.custom(
+    names=('custom_key', 'custom_value', 'custom_deleted'),
+    id='field-custom',
+    label=_('Custom Field'),
+    values=(extra.key, extra.value, extra.deleted),
+    error=''
+  ) }}
+#}
+{% macro custom(names=(), id="", label="", values=(), placeholders=(), error="", classes=[]) %}
+  <div class="control-group control-custom">
     <label class="control-label" for="{{ id or names[0] }}-key">{{ label or _('Custom') }}</label>
     <div class="controls">
       <div class="input-prepend">

@@ -28,7 +28,7 @@
   {% block custom_fields %}
     {% for extra in data.extras %}
       {% set prefix = 'extras__%d__' % loop.index0 %}
-      {{ form.keyvalue(
+      {{ form.custom(
         names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
         id='field-extras-%d' % loop.index,
         label=_('Custom Field'),
@@ -41,7 +41,7 @@
     {% for extra in range(data.extras|count, 3) %}
       {% set index = (loop.index0 + data.extras|count) %}
       {% set prefix = 'extras__%d__' % index %}
-      {{ form.keyvalue(
+      {{ form.custom(
         names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
         id='field-extras-%d' % index,
         label=_('Custom Field'),
