@@ -3,11 +3,10 @@
 <form class="dataset-form form-horizontal" method="post">
   {% if error_summary %}
     <div class="error-explanation">
-      <h2>{{ _('Errors in form') }}</h2>
       <p>{{ _('The form contains invalid entries:') }}</p>
       <ul>
         {% for key, error in error_summary.items() %}
-          <li>{{ key }} {{ error }}</li>
+          <li>{{ key }}: {{ error }}</li>
         {% endfor %}
       </ul>
     </div>
