@@ -20,7 +20,7 @@ Examples:
 
 #}
 {% macro input(name, id='', label='', value='', placeholder='', type='text', data={}, errors={}, classes=[]) %}
-  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
+  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}">
     <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
     <div class="controls">
       <input id="{{ id or name }}" name="{{ name }}" value="{{ data[name] or value | e }}" placeholder="{{ placeholder }}" />
@@ -48,7 +48,7 @@ Examples:
 
 #}
 {% macro select(name, id='', label='', options='', selected='', errors={}, classes=[]) %}
-  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
+  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}">
     <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
     <div class="controls">
       <select id="{{ id or name }}" name="{{ name }}">
@@ -82,7 +82,7 @@ Examples:
 
 #}
 {% macro markdown(name, id='', label='', value='', placeholder='', data={}, errors={}, classes=[]) %}
-  <div class="control-group control-full{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
+<div class="control-group control-full{% if classes %} {{ classes | join(' ') }}{% endif %}">
     <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
     <div class="controls editor">
       <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}">{{ data[name] or value | e }}</textarea>
@@ -115,7 +115,7 @@ Examples:
 
 #}
 {% macro prepend(name, id='', label='', prepend='', value='', placeholder='', type='text', data={}, errors={}, classes=[]) %}
-  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}" py:with="error = errors.get('title', '')">
+  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}">
     <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
     <div class="controls">
       <div class="input-prepend">
@@ -123,6 +123,21 @@ Examples:
         <input id="{{ id or name }}" name="{{ name }}" value="{{ data[name] or value | e }}" placeholder="{{ placeholder }}" />
       </div>
       {% if errors[name] %}<span class="error-block">{{ errors[name] }}</span>{% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro keyvalue(names=(), id="", label="", values=(), placeholders=(), error="", classes=[]) %}
+  <div class="control-group">
+    <label class="control-label" for="{{ id or names[0] }}-key">{{ label or _('Custom') }}</label>
+    <div class="controls">
+      <div class="input-prepend">
+        <label for="{{ id or names[0] }}-key" class="add-on">Key</label><input id="{{ id or names[0] }}-key" name="{{ names[0] }}" value="{{ values[0] | e }}" placeholder="{{ placeholders[0] }}" />
+        <label for="{{ id or names[1] }}-value" class="add-on">Value</label><input id="{{ id or names[1] }}-value" name="{{ names[1] }}" value="{{ values[1] | e }}" placeholder="{{ placeholders[1] }}" />
+        <label class="checkbox" for="{{ id or names[2] }}-remove">
+          <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} /> {{ _('Remove') }}
+        </label>
+      </div>
     </div>
   </div>
 {% endmacro %}
