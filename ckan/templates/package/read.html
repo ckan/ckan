@@ -149,7 +149,7 @@
         ${h.snippet('snippets/social.html')}
 
         <section class="module info related" py:if="c.pkg.related">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-photo"></i> Related <a class="action" href="#">Add Related</a></h2>
+          <h2 class="heading"><i class="ckan-icon ckan-icon-photo"></i> Related <a class="action" href="${h.url_for(controller='related', action='new', id=c.pkg.name)}">Add Related</a></h2>
           <p class="content">
           <py:with vars="item = c.pkg.related[0]">
           ${item.type}
@@ -167,7 +167,7 @@
           <div class="content">
             <p>No apps, ideas, news stories or images have been
             related to this dataset yet, why not add one now?</p>
-            <p class="action"><a class="btn" href="#">Add Item</a></p>
+            <p class="action"><a class="btn" href="${h.url_for(controller='related', action='new', id=c.pkg.name)}">Add Item</a></p>
           </div>
         </section>
 
