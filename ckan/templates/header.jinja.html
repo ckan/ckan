@@ -5,20 +5,24 @@
       <h1><a href="{{ h.url('home') }}">{{ g.site_title }}</a></h1>
       <p>{{ g.site_description }}</p>
     </hgroup>
-    <div class="account" py:if="c.userobj">
-      <a href="{{ h.url_for(controller='user',action='me') }}" class="image">
-        {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
-      </a>
-      <span class="links">
-        <a href="{{ h.url_for(controller='user',action='me') }}">{{ c.user }}</a>
-        <a class="logout" href="${h.url_for('/user/_logout')}">Log out</a>
-      </span>
-    </div>
-    <nav class="account" py:if="not c.userobj">
-      <ul class="unstyled">
-        {{ h.build_nav_main(('login', _('Login')),('register', _('Register'))) }}
-      </ul>
-    </nav>
+    {% if c.userobj %}
+      <div class="account">
+        <a href="{{ h.url_for(controller='user',action='me') }}" class="image">
+          {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
+        </a>
+        <span class="links">
+          <a href="{{ h.url_for(controller='user',action='me') }}">{{ c.user }}</a>
+          <a class="logout" href="${h.url_for('/user/_logout')}">Log out</a>
+        </span>
+      </div>
+    {% endif %}
+    {% if not c.userobj %}
+      <nav class="account">
+        <ul class="unstyled">
+          {{ h.build_nav_main(('login', _('Login')),('register', _('Register'))) }}
+        </ul>
+      </nav>
+    {% endif %}
     <nav>
       <ul class="unstyled">
         {{ h.build_nav_main(('search', _('Search')),('default_group', _('Groups')), ('add dataset', _('Add Dataset')), ('about', _('About'))) }}
