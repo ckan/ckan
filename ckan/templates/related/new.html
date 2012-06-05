@@ -1,27 +1,7 @@
-{% extends "page.jinja.html" %}
+{% extends "related/pages/related_form_page.html" %}
 
 {% block title %}Create a related item - {{ super() }}{% endblock %}
 
-{% block breadcrumb %}
-  {{ h.snippet('package/new_breadcrumb.html') }}
-{% endblock %}
+{% block breadcrumb_item %}{{ h.nav_link(_('Create Related'), controller='related', action='new', id=c.id) }}{% endblock %}
 
-{% block primary_content %}
-  <section class="module">
-    <div class="content">
-      {{ c.form }}
-    </div>
-  </section>
-{% endblock %}
-
-{% block secondary_content %}
-  <section class="module">
-    <h2 class="heading"><i class="ckan-icon ckan-icon-info"></i> What are related items?</h2>
-    <div class="content">
-      <p>Related Media is any app, article, visualisation or idea related to
-      this dataset. For example, it could be a custom visualisation, pictograph
-      or bar chart, an app using all or part of the data or even a news story
-      that references this dataset.</p>
-    </div>
-  </section>
-{% endblock %}
+{% block page_heading %}{{ _('Create Related Item') }}{% endblock %}
