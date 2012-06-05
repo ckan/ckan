@@ -1,37 +1,27 @@
-<!DOCTYPE html>
-<html
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
-    <!--! Include matchers nearest first -->
-    <xi:include href="../page.html" />
+{% extends "page.jinja.html" %}
 
-    <!--! Now include the current page -->
-    <head>
-      <title>Create a related item</title>
-    </head>
-    <body>
-      <div class="toolbar">
-        ${h.snippet('package/new_breadcrumb.html')}
-      </div>
+{% block title %}Create a related item - {{ super() }}{% endblock %}
 
-      <div class="primary">
-        <section class="module">
-          <div class="content">
-            ${c.form}
-          </div>
-        </section>
-      </div>
+{% block breadcrumb %}
+  {{ h.snippet('package/new_breadcrumb.html') }}
+{% endblock %}
 
-      <div class="secondary">
-        <section class="module">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-info"></i> What are related items?</h2>
-          <div class="content">
-            <p>Related Media is any app, article, visualisation or idea related to this dataset. For example, it could be a custom visualisation, pictograph or bar chart, an app using all or part of the data or even a news story that references this dataset.</p>
-          </div>
-        </section>
-      </div>
+{% block primary_content %}
+  <section class="module">
+    <div class="content">
+      {{ c.form }}
+    </div>
+  </section>
+{% endblock %}
 
-    </body>
-</html>
+{% block secondary_content %}
+  <section class="module">
+    <h2 class="heading"><i class="ckan-icon ckan-icon-info"></i> What are related items?</h2>
+    <div class="content">
+      <p>Related Media is any app, article, visualisation or idea related to
+      this dataset. For example, it could be a custom visualisation, pictograph
+      or bar chart, an app using all or part of the data or even a news story
+      that references this dataset.</p>
+    </div>
+  </section>
+{% endblock %}
