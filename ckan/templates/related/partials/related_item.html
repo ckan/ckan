@@ -1,0 +1,16 @@
+<li class="media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
+  <a class="image" href="{{ related.url }}"><img src="{{ related.image_url or '/base/images/placeholder-group.png' }}" /></a>
+  <div class="content">
+    <h3 class="heading">
+      <a href="{{ related.url }}" title="{{ _('View {name}').format(name=related.title) }}">
+        {{ related.title }}
+      </a>
+    </h3>
+    {% if related.description %}
+      <p>{{ h.truncate(related.description, length=80, whole_word=True) }}</p>
+    {% else %}
+      <p class="empty">{{ _('This item has no description') }}</p>
+    {% endif %}
+    <a class="btn btn-small btn-primary" href="{{ related.url }}">{{ _('Go to {type}').format(type=related.type|capitalize) }}</a>
+  </div>
+</li>

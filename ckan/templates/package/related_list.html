@@ -10,6 +10,7 @@
 
 {% block actions %}
   <ul class="actions">
+    <li>{{ h.nav_link(_('Back to dataset'), controller='package', action='read', id=c.pkg.name, class_='btn', icon='back') }}</li>
     <li>{{ h.nav_link(_('Add Item'), controller='related', action='new', id=c.pkg.name, class_='btn', icon='plus') }}</li>
   </ul>
 {% endblock %}
@@ -17,14 +18,9 @@
 {% block primary_content %}
   <div class="module">
     <div class="content">
-      {# TODO: Find out how to pass in arguments to translate #}
-      <h1>{{ _('Related Media for {dataset}').format(dataset=h.dataset_display_name(c.pkg)) }}</h1>
+      <h1 class="page-heading">{{ _('Related Media for {dataset}').format(dataset=h.dataset_display_name(c.pkg)) }}</h1>
       {% if c.pkg.related %}
-        <ul class="related-list">
-          {% for test in c.pkg.related %}
-            {% include 'package/related_item.html' %}
-          {% endfor %}
-        </ul>
+        {% include "related/partials/related_list.html" %}
       {% else %}
         <p class="empty">No related items</p>
       {% endif %}
