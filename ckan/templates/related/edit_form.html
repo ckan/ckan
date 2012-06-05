@@ -1,29 +1,9 @@
-{% import 'macros/form.html' as form %}
+{% extends "related/pages/form.html" %}
 
-<form class="dataset-form form-horizontal" method="post">
-  {% block error_summary %}
-    {% if error_summary | count %}
-      <div class="alert alert-error error-explanation">
-        <p>The form contains invalid entries:</p>
-        <ul>
-          {% for key, error in error_summary.items() %}
-            <li>{{ key }}: {{ error }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-  {% endblock %}
-
-  {% block fields %}
-    {{ form.input('title', label=_('Title'), id='field-title', placeholder=_('My Related Item'), value=data.title, error=errors.title, classes=['control-full']) }}
-    {{ form.input('url', label=_('URL'), id='field-url', placeholder=_('http://example.com/'), value=data.url, error=errors.url, classes=['control-full']) }}
-    {{ form.input('image_url', label=_('Image URL'), id='field-image-url', placeholder=_('http://example.com/image.png'), value=data.image_url, error=errors.image_url, classes=['control-full']) }}
-    {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=_('A little information about the item...'), value=data.description, error=errors.description) }}
-    {{ form.select('type', label=_('Type'), id='field-types', selected=data.type, options=c.types, error=errors.type) }}
-  {% endblock %}
-
-  <div class="form-actions">
-    <a class="btn" href="">{{ _('Cancel') }}</a>
-    <button class="btn btn-primary" type="submit" name="save">{% block button_text %}{{ _('Save') }}{% endblock %}</button>
-  </div>
-</form>
+{% block button_text %}
+  {% if action == 'update' %}
+    {{ _('Update') }}
+  {% else %}
+    {{ _('Create') }}
+  {% endif %}
+{% endblock %}
