@@ -1,63 +1,29 @@
-<form
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-            class="dataset-form form-horizontal" method="post">
-              <div class="alert alert-error error-explanation" py:if="error_summary">
-                <h2>Errors in form</h2>
-                <p>The form contains invalid entries:</p>
-                <ul>
-                  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key if not key=='Name' else 'URL', error)}</li>
-                </ul>
-              </div>
+{% import 'macros/form.html' as form %}
 
-              <div class="control-group control-large control-full" py:with="error = errors.get('title', '')">
-                <label class="control-label" for="field-title">Title</label>
-                <div class="controls">
-                  <input id="field-title" name="title" value="${data.get('title', '')}" placeholder="${_('A descriptive title')}" />
-                  <span class="error-block" py:if="error">${error}</span>
-                </div>
-              </div>
+<form class="dataset-form form-horizontal" method="post">
+  {% block error_summary %}
+    {% if error_summary | count %}
+      <div class="alert alert-error error-explanation">
+        <p>The form contains invalid entries:</p>
+        <ul>
+          {% for key, error in error_summary.items() %}
+            <li>{{ key }}: {{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endblock %}
 
-              <div class="control-group" py:with="error = errors.get('type', '')">
-                <label class="control-label" for="field-license">Type</label>
-                <div class="controls">
-                  <select id="field-type" name="type">
-                    <py:for each="name, val in c.types">
-                      <option value="${val}" py:attrs="{'selected': 'selected' if data.get('type', '') == val else None}">${name}</option>
-                    </py:for>
-                  </select>
-                  <span class="error-block" py:if="error">${error}</span>
-                </div>
-              </div>
+  {% block fields %}
+    {{ form.input('title', label=_('Title'), id='field-title', placeholder=_('My Related Item'), value=data.title, error=errors.title, classes=['control-full']) }}
+    {{ form.input('url', label=_('URL'), id='field-url', placeholder=_('http://example.com/'), value=data.url, error=errors.url, classes=['control-full']) }}
+    {{ form.input('image_url', label=_('Image URL'), id='field-image-url', placeholder=_('http://example.com/image.png'), value=data.image_url, error=errors.image_url, classes=['control-full']) }}
+    {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=_('A little information about the item...'), value=data.description, error=errors.description) }}
+    {{ form.select('type', label=_('Type'), id='field-types', selected=data.type, options=c.types, error=errors.type) }}
+  {% endblock %}
 
-              <div class="control-group control-full" py:with="error = errors.get('notes', '')">
-                <label class="control-label" for="field-notes">Description</label>
-                <div class="controls editor">
-                  <textarea id="field-notes" name="description" cols="20" rows="5" placeholder="Some useful description about the item">${data.get('description', '')}</textarea>
-                  <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
-                  <span class="error-block" py:if="error">${error}</span>
-                </div>
-              </div>
-
-             <div class="control-group control-large control-full" py:with="error = errors.get('url', '')">
-                <label class="control-label" for="field-title">URL</label>
-                <div class="controls">
-                  <input id="field-url" type="url" name="url" value="${data.get('url', '')}" placeholder="${_('A URL for the related item')}" />
-                  <span class="error-block" py:if="error">${error}</span>
-                </div>
-              </div>
-
-             <div class="control-group control-large control-full" py:with="error = errors.get('image_url', '')">
-                <label class="control-label" for="field-title">Image URL</label>
-                <div class="controls">
-                  <input id="field-image-url" type="image_url" name="image_url" value="${data.get('image_url', '')}" placeholder="${_('URL of an image for this item')}" />
-                  <span class="error-block" py:if="error">${error}</span>
-                </div>
-              </div>
-
-              <div class="form-actions">
-                <a class="btn" href="">Cancel</a>
-                <button class="btn btn-primary" type="submit" name="save">Save</button>
-              </div>
-            </form>
+  <div class="form-actions">
+    <a class="btn" href="">{{ _('Cancel') }}</a>
+    <button class="btn btn-primary" type="submit" name="save">{% block button_text %}{{ _('Save') }}{% endblock %}</button>
+  </div>
+</form>
