@@ -26,6 +26,12 @@ select,
   padding: 8px 10px;
 }
 
+input[type=radio],
+input[type=checkbox] {
+  position: relative;
+  top: 6px;
+}
+
 select {
   margin-top: 6px;
   padding: 4px;
@@ -128,6 +134,32 @@ textarea {
 
 .editor .info-block:after {
   content: none;
+}
+
+// Controls
+
+// Custom Key/Value input
+
+.control-custom {
+  font-size: 0; // Remove whitespace between fields.
+}
+
+.control-custom label {
+  margin-bottom: 0;
+}
+
+.control-custom input {
+  .border-radius(0);
+  width: 150px;
+}
+
+.control-custom .checkbox {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.control-custom .checkbox input {
+  width: auto;
 }
 
 // Stages
