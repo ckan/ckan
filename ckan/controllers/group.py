@@ -251,7 +251,7 @@ class GroupController(BaseController):
         data = data or {}
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new'}
 
         self._setup_template_variables(context,data)
         c.form = render(self._group_form(group_type=group_type), extra_vars=vars)
@@ -289,7 +289,7 @@ class GroupController(BaseController):
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'edit'}
 
         self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type), extra_vars=vars)
