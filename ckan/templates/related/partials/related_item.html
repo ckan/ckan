@@ -1,5 +1,8 @@
-<li class="media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
-  <a class="image" href="{{ related.url }}"><img src="{{ related.image_url or '/base/images/placeholder-group.png' }}" /></a>
+<li class="related-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
+  <a class="image" href="{{ related.url }}">
+    <img src="{{ related.image_url or '/base/images/placeholder-group.png' }}" />
+    <span class="banner">{% if related.type == 'application' %}app{% else %}{{ related.type }}{% endif %}</span>
+  </a>
   <div class="content">
     <h3 class="heading">
       <a href="{{ related.url }}" title="{{ _('View {name}').format(name=related.title) }}">
