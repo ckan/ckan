@@ -1,7 +1,10 @@
+{% set placeholder_map = {
+'application':'/base/images/placeholder-application.png'
+} %}
 <li class="related-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
   <a class="image" href="{{ related.url }}">
-    <img src="{{ related.image_url or '/base/images/placeholder-group.png' }}" />
-    <span class="banner">{% if related.type == 'application' %}app{% else %}{{ related.type }}{% endif %}</span>
+    <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" />
+    <span class="banner">{% if related.type == 'application' %}app{% else %}{{ related.type | replace('news_', '') }}{% endif %}</span>
   </a>
   <div class="content">
     <h3 class="heading">
@@ -14,6 +17,7 @@
     {% else %}
       <p class="empty">{{ _('This item has no description') }}</p>
     {% endif %}
-    <a class="btn btn-small btn-primary" href="{{ related.url }}">{{ _('Go to {type}').format(type=related.type|capitalize) }}</a>
+    <a class="btn btn-small btn-primary" href="{{ related.url }}">{{ _('Go to {type}').format(type=related.type|replace('_', ' ')|title) }}</a>
+    {{ h.nav_link(_('Edit'), controller='related', action='edit', id=c.pkg.name, related_id=related.id, class_='btn btn-small') }}
   </div>
 </li>
