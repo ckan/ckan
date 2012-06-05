@@ -14,8 +14,8 @@ overriding the form blocks depending on the current context
 
 {% block save_text %}
   {%- if action == "edit" -%}
-    {{ _('Edit Group') }}
+    {{ _('Update Group') }}
   {%- else -%}
-    {{ _('Add Group') }}
+    {{ _('Create Group') }}
   {%- endif -%}
 {% endblock %}
