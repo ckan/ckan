@@ -28,7 +28,6 @@ from pylons import config
 from routes import redirect_to as _redirect_to
 from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
-from lxml.html import fromstring
 import i18n
 import ckan.exceptions
 from pylons import request
@@ -590,8 +589,7 @@ def group_name_to_title(name):
 def markdown_extract(text, extract_length=190):
     if (text is None) or (text.strip() == ''):
         return ''
-    html = fromstring(markdown(text))
-    plain = html.xpath("string()")
+    plain = re.sub(r'<.*?>', '', markdown(text))
     return unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True))
 
 def icon_url(name):
@@ -731,12 +729,35 @@ def datetime_to_date_str(datetime_):
     return datetime_.isoformat()
 
 def date_str_to_datetime(date_str):
-    '''Takes an ISO format timestamp and returns the equivalent
-    datetime.datetime object.
+    '''Convert ISO-like formatted datestring to datetime object.
+
+    This function converts ISO format date- and datetime-strings into
+    datetime objects.  Times may be specified down to the microsecond.  UTC
+    offset or timezone information may **not** be included in the string.
+
+    Note - Although originally documented as parsing ISO date(-times), this
+           function doesn't fully adhere to the format.  This function will
+           throw a ValueError if the string contains UTC offset information.
+           So in that sense, it is less liberal than ISO format.  On the
+           other hand, it is more liberal of the accepted delimiters between
+           the values in the string.  Also, it allows microsecond precision,
+           despite that not being part of the ISO format.
     '''
-    # Doing this split is more accepting of input variations than doing
-    # a strptime. Also avoids problem with Python 2.5 not having %f.
-    return datetime.datetime(*map(int, re.split('[^\d]', date_str)))
+
+    time_tuple = re.split('[^\d]+', date_str, maxsplit=5)
+
+    # Extract seconds and microseconds
+    if len(time_tuple) >= 6:
+        m = re.match('(?P<seconds>\d{2})(\.(?P<microseconds>\d{6}))?$',
+                     time_tuple[5])
+        if not m:
+            raise ValueError('Unable to parse %s as seconds.microseconds' %
+                             time_tuple[5])
+        seconds = int(m.groupdict().get('seconds'))
+        microseconds = int(m.groupdict(0).get('microseconds'))
+        time_tuple = time_tuple[:5] + [seconds, microseconds]
+
+    return datetime.datetime(*map(int, time_tuple))
 
 def parse_rfc_2822_date(date_str, assume_utc=True):
     """
@@ -744,7 +765,7 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
 
     RFC 2822 is the date format used in HTTP headers.  It should contain timezone
     information, but that cannot be relied upon.
-    
+
     If date_str doesn't contain timezone information, then the 'assume_utc' flag
     determines whether we assume this string is local (with respect to the
     server running this code), or UTC.  In practice, what this means is that if
@@ -753,7 +774,7 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
 
     If timezone information is available in date_str, then the returned datetime
     is 'aware', ie - it has an associated tz_info object.
-    
+
     Returns None if the string cannot be parsed as a valid datetime.
     """
     time_tuple = email.utils.parsedate_tz(date_str)
