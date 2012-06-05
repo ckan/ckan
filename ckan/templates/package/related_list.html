@@ -10,7 +10,7 @@
 
 {% block actions %}
   <ul class="actions">
-    <li>{{ h.nav_link(_('Back to dataset'), controller='package', action='read', id=c.pkg.name, class_='btn', icon='back') }}</li>
+    <li>{{ h.nav_link(_('Back to dataset'), controller='package', action='read', id=c.pkg.name, class_='btn', icon='arrow-e') }}</li>
     <li>{{ h.nav_link(_('Add Item'), controller='related', action='new', id=c.pkg.name, class_='btn', icon='plus') }}</li>
   </ul>
 {% endblock %}
