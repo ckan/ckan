@@ -243,7 +243,7 @@ def default_related_schema():
         'description': [ignore_missing, unicode],
         'type': [not_empty, unicode],
         'image_url': [ignore_missing, unicode],
-        'url': [ignore_missing, unicode],
+        'url': [not_empty, unicode],
         'owner_id': [not_empty, unicode],
         'created': [ignore],
     }

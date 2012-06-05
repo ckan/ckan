@@ -1,13 +1,22 @@
-
-
 import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+import ckan.lib.navl.dictization_functions as df
+
+import pylons.i18n as i18n
 
 c = base.c
+_ = i18n._
 
 class RelatedController(base.BaseController):
+
+
+    def new(self,id):
+        return self._edit_or_new(id, None, False)
+
+    def edit(self,id,related_id):
+        return self._edit_or_new(id, related_id, True)
 
     def list(self, id):
 
@@ -44,3 +53,85 @@ class RelatedController(base.BaseController):
 
         return base.render( "package/related_list.html")
 
+
+    def _edit_or_new(self, id, related_id, is_edit):
+        """
+        Edit and New were too similar and so I've put the code together
+        and try and do as much up front as possible.
+        """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {}
+
+        if is_edit:
+            tpl = 'related/edit.html'
+            auth_name = 'related_update'
+            auth_dict = {'id': related_id}
+            action_name = 'related_update'
+
+            try:
+                related = logic.get_action('related_show')(context, {'id': related_id})
+            except logic.NotFound:
+                base.abort(404, _('Related item not found'))
+        else:
+            tpl = 'related/new.html'
+            auth_name = 'related_create'
+            auth_dict = {}
+            action_name = 'related_create'
+
+        try:
+            logic.check_access(auth_name, context, auth_dict)
+        except logic.NotAuthorized:
+            base.abort(401, base._('Not authorized'))
+
+        try:
+            package = logic.get_action('package_show')(context, {'id': id})
+        except logic.NotFound:
+            base.abort(404, _('Package not found'))
+
+        data, errors, error_summary = {}, {}, {}
+
+        if base.request.method == "POST":
+            try:
+                data = logic.clean_dict(
+                        df.unflatten(
+                            logic.tuplize_dict(
+                                logic.parse_params(base.request.params)
+                        )))
+
+                if is_edit:
+                    data['id'] = related_id
+                else:
+                    data['dataset_id'] = id
+                data['owner_id'] = c.userobj.id
+
+                related = logic.get_action(action_name)(context, data)
+
+                if not is_edit:
+                    h.flash_success(_("Related item was successfully created"))
+                else:
+                    h.flash_success(_("Related item was successfully updated"))
+
+                h.redirect_to(controller='related',
+                               action='list',
+                               id=package['name'])
+            except df.DataError:
+                base.abort(400, _(u'Integrity Error'))
+            except logic.ValidationError, e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+        else:
+            if is_edit:
+                data = related
+
+        c.types = (
+            ("Application", "application"),
+            ("Idea", "idea"),
+            ("News Article", "news_article"),
+            ("Paper", "paper"),
+            ("Visualization", "visualization")
+        )
+
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        c.form = base.render("related/edit_form.html", extra_vars=vars)
+        return base.render(tpl)
