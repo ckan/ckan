@@ -71,10 +71,6 @@
   {% endblock %}
 
   <div class="form-actions">
-    {% if action == 'edit' %}
-      <button class="btn btn-primary" name="save">{{ _('Edit Group') }}</button>
-    {% else %}
-      <button class="btn btn-primary" name="save">{{ _('Create Group') }}</button>
-    {% endif %}
+    <button class="btn btn-primary" name="save">{% block save_text %}{{ _('Save Group') }}{% endblock %}</button>
   </div>
 </form>

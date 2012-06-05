@@ -11,3 +11,11 @@ overriding the form blocks depending on the current context
 {% block custom_fields %}
   {% if action == "edit" %}{{ super() }}{% endif %}
 {% endblock %}
+
+{% block save_text %}
+  {%- if action == "edit" -%}
+    {{ _('Edit Group') }}
+  {%- else -%}
+    {{ _('Add Group') }}
+  {%- endif -%}
+{% endblock %}
