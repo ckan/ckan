@@ -57,8 +57,8 @@
         <label class="control-label">{{ _('Datasets') }}</label>
         <div class="controls">
           {% for dataset in data.packages %}
-            <label class="checkbox" for="field-dataset-{{ loop.index }}">
-              <input id="field-dataset-{{ loop.index }}" type="checkbox" name="packages__{{ loop.index }}__name" value="{{ dataset.name }}" checked="checked" />
+            <label class="checkbox" for="field-dataset-{{ loop.index0 }}">
+              <input id="field-dataset-{{ loop.index0 }}" type="checkbox" name="packages__{{ loop.index0 }}__name" value="{{ dataset.name }}" checked="checked" />
               {{ dataset.title }}
             </label>
           {% endfor %}
