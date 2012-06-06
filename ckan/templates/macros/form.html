@@ -14,10 +14,10 @@ classes     - An array of classes to apply to the control-group.
 Examples:
 
   {% import form from 'macros/form.html' %}
-  {{ form.input('title', label=_('Title'), data=data, errors=errors) }}
+  {{ form.input('title', label=_('Title'), value=data.title, error=errors.title) }}
 
 #}
-{% macro input(name, id='', label='', value='', placeholder='', type='text', data={}, errors={}, error="", classes=[]) %}
+{% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[]) %}
   <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}">
     <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
     <div class="controls">
@@ -42,7 +42,7 @@ classes     - An array of classes to apply to the control-group.
 Examples:
 
   {% import form from 'macros/form.html' %}
-  {{ form.select('year', label=_('Year'), options={2010: 2010, 2011: 2011}, selected=2011, errors=errors) }}
+  {{ form.select('year', label=_('Year'), options={2010: 2010, 2011: 2011}, selected=2011, errors=error.year) }}
 
 #}
 {% macro select(name, id='', label='', options='', selected='', errors={}, error="", classes=[]) %}
@@ -74,14 +74,14 @@ classes     - An array of classes to apply to the control-group.
 Examples:
 
   {% import form from 'macros/form.html' %}
-  {{ form.markdown('desc', id='field-description', label=_('Description'), data=data, errors=errors) }}
+  {{ form.markdown('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
 
 #}
-{% macro markdown(name, id='', label='', value='', placeholder='', data={}, errors={}, error="", classes=[]) %}
+{% macro markdown(name, id='', label='', value='', placeholder='', error="", classes=[]) %}
 <div class="control-group control-full{% if classes %} {{ classes | join(' ') }}{% endif %}">
     <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
     <div class="controls editor">
-      <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}">{{ data[name] or value | e }}</textarea>
+      <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}">{{ value | e }}</textarea>
       <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
       {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
     </div>
@@ -106,16 +106,16 @@ classes     - An array of classes to apply to the control-group.
 Examples:
 
   {% import form from 'macros/form.html' %}
-  {{ form.prepend('slug', id='field-slug', prepend='/dataset/', label=_('Slug'), data=data, errors=errors, error="") }}
+  {{ form.prepend('slug', id='field-slug', prepend='/dataset/', label=_('Slug'), value=data.slug, error=errors.slug) }}
 
 #}
-{% macro prepend(name, id='', label='', prepend='', value='', placeholder='', type='text', data={}, errors={}, error="", classes=[]) %}
+{% macro prepend(name, id='', label='', prepend='', value='', placeholder='', type='text', error="", classes=[]) %}
   <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}">
     <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
     <div class="controls">
       <div class="input-prepend">
         {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
-        <input id="{{ id or name }}" name="{{ name }}" value="{{ data[name] or value | e }}" placeholder="{{ placeholder }}" />
+        <input id="{{ id or name }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
       </div>
       {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
     </div>
