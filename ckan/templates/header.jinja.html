@@ -1,4 +1,7 @@
 <header class="masthead">
+{% if config.debug %}
+<div style="float:left;width:150px;">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
+{% endif %}
   <div class="container">
     <hgroup>
       <a class="logo" href="{{ h.url('home') }}"><img width="64" src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
