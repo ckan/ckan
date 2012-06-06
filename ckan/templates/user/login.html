@@ -1,0 +1,46 @@
+{% extends "page.jinja.html" %}
+
+{% block title %}{{ _('Login') }} - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+  <ol class="breadcrumb">
+    <li class="current">{{ h.nav_link(_('Login'), controller='user', action='login') }}</li>
+  </ol>
+{% endblock %}
+
+{% block actions %}
+  <ul class="actions">
+    <li>{{ h.nav_link(_('Register'), controller='user', action='register', class_="btn", icon="head") }}</li>
+  </ul>
+{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    <div class="content">
+      <h1 class="page-heading">{{ _('Login') }}</h1>
+      {% include "user/partials/login_form.html" %}
+    </div>
+  </section>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module info">
+    <h2 class="heading">{{ _('Need an Account?') }}</h2>
+    <div class="content">
+      <p>{% trans %}Then sign right up, it only takes a minute.{% endtrans %}</p>
+      <p class="action">
+        <a class="btn" href="{{ h.url_for(controller='user', action='register') }}">{{ _('Create an Account') }}</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="module info">
+    <h2 class="heading">{{ _('Forgotten your details?') }}</h2>
+    <div class="content">
+      <p>{% trans %}No problem, use our password recovery form to reset it.{% endtrans %}</p>
+      <p class="action">
+        <a class="btn" href="{{ h.url_for(controller='user', action='request_reset') }}">{{ _('Forgot your password?') }}</a>
+      </p>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% import 'macros/form.html' as form %}
+
+<form action="{{ c.login_handler }}" method="post" class="form-horizontal">
+  {{ form.input('login', label="Username", id='field-login', value="", error="", classes=["control-full"]) }}
+  {{ form.input('password', label="Password", id='field-password', type="password", value="", error="", classes=["control-full"]) }}
+  {{ form.checkbox('remember', label="Remember me", id='field-remember', checked=true, value="63072000") }}
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">{{ _('Log in') }}</button>
+  </div>
+</form>
