@@ -32,7 +32,7 @@ def template_info(template_name):
 
     if template_name in _template_info_cache:
         t_data = _template_info_cache[template_name]
-        return t_data['template_type'], t_data['template_type']
+        return t_data['template_path'], t_data['template_type']
 
     template_path = find_template(template_name)
     if not template_path:
