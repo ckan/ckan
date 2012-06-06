@@ -5,7 +5,7 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   <header class="masthead">
-  <div py:if="config.debug" style="float:left;width:150px;">Controller : ${c.controller}<br/>Action : ${c.action}</div>
+  <div py:if="config.debug" style="float:left;width:150px;color:yellow;">Controller : ${c.controller}<br/>Action : ${c.action}</div>
     <div class="container">
       <hgroup>
         <a class="logo" href="${h.url('home')}"><img width="64" src="${h.url_for_static(g.site_logo)}" alt="${g.site_title} Logo" title="${g.site_title} Logo" /></a>
