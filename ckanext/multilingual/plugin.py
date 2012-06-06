@@ -69,7 +69,7 @@ def translate_data_dict(data_dict):
             translated_flattened[key] = value
 
         elif isinstance(value, basestring):
-            if desired_translations.has_key(value):
+            if value in desired_translations:
                 translated_flattened[key] = desired_translations[value]
             else:
                 translated_flattened[key] = fallback_translations.get(
@@ -81,11 +81,12 @@ def translate_data_dict(data_dict):
         else:
             translated_value = []
             for item in value:
-                if desired_translations.has_key(value):
-                    translated_flattened[key] = desired_translations[value]
+                if item in desired_translations:
+                    translated_value.append(desired_translations[item])
                 else:
-                    translated_flattened[key] = fallback_translations.get(
-                            value, value)
+                    translated_value.append(
+                        fallback_translations.get(item, item)
+                    )
             translated_flattened[key] = translated_value
 
     # Finally unflatten and return the translated data dict.
