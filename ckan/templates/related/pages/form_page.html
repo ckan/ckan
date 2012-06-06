@@ -2,7 +2,8 @@
 
 {% block breadcrumb %}
   <ol class="breadcrumb">
-    <li>{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
+    <li>{{ h.nav_link(_('Datasets'), controller='package', action='search') }}</li>
+	<li class="active"><a href="{{ h.url_for(controller='package', action='read', id=c.pkg_dict.name) }}" title="{{ c.pkg_dict.title or c.pkg_dict.name }}">{{ h.truncate(c.pkg_dict.title or c.pkg_dict.name, 60) }}</a></li>
     {# TODO: Insert rest of breadcrumb here #}
     <li class="current">{% block breadcrumb_item %}{% endblock %}</li>
   </ol>

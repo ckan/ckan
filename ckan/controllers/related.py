@@ -85,7 +85,7 @@ class RelatedController(base.BaseController):
             base.abort(401, base._('Not authorized'))
 
         try:
-            package = logic.get_action('package_show')(context, {'id': id})
+            c.pkg_dict = logic.get_action('package_show')(context, {'id': id})
         except logic.NotFound:
             base.abort(404, _('Package not found'))
 
@@ -114,7 +114,7 @@ class RelatedController(base.BaseController):
 
                 h.redirect_to(controller='related',
                                action='list',
-                               id=package['name'])
+                               id=c.pkg_dict['name'])
             except df.DataError:
                 base.abort(400, _(u'Integrity Error'))
             except logic.ValidationError, e:
