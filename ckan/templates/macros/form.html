@@ -14,17 +14,13 @@ classes     - An array of classes to apply to the control-group.
 Examples:
 
   {% import form from 'macros/form.html' %}
-  {{ form.input('title', label=_('Title'), data=data, errors=errors) }}
+  {{ form.input('title', label=_('Title'), value=data.title, error=errors.title) }}
 
 #}
-{% macro input(name, id='', label='', value='', placeholder='', type='text', data={}, errors={}, error="", classes=[]) %}
-  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}">
-    <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
-    <div class="controls">
-      <input id="{{ id or name }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
-      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
-    </div>
-  </div>
+{% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[]) %}
+  {% call block(id or name, label or name, error, classes) %}
+  <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
+  {% endcall %}
 {% endmacro %}
 
 {#
@@ -42,21 +38,17 @@ classes     - An array of classes to apply to the control-group.
 Examples:
 
   {% import form from 'macros/form.html' %}
-  {{ form.select('year', label=_('Year'), options={2010: 2010, 2011: 2011}, selected=2011, errors=errors) }}
+  {{ form.select('year', label=_('Year'), options={2010: 2010, 2011: 2011}, selected=2011, error=errors.year) }}
 
 #}
-{% macro select(name, id='', label='', options='', selected='', errors={}, error="", classes=[]) %}
-  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}">
-    <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
-    <div class="controls">
-      <select id="{{ id or name }}" name="{{ name }}">
-        {% for value, text in options.items() %}
-          <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ text }}</option>
-        {% endfor %}
-      </select>
-      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
-    </div>
-  </div>
+{% macro select(name, id='', label='', options='', selected='', error='', classes=[]) %}
+  {% call block(id or name, label or name, error, classes) %}
+    <select id="{{ id or name }}" name="{{ name }}">
+      {% for value, text in options.items() %}
+        <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ text }}</option>
+      {% endfor %}
+    </select>
+  {% endcall %}
 {% endmacro %}
 
 {#
@@ -74,18 +66,16 @@ classes     - An array of classes to apply to the control-group.
 Examples:
 
   {% import form from 'macros/form.html' %}
-  {{ form.markdown('desc', id='field-description', label=_('Description'), data=data, errors=errors) }}
+  {{ form.markdown('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
 
 #}
-{% macro markdown(name, id='', label='', value='', placeholder='', data={}, errors={}, error="", classes=[]) %}
-<div class="control-group control-full{% if classes %} {{ classes | join(' ') }}{% endif %}">
-    <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
-    <div class="controls editor">
-      <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}">{{ data[name] or value | e }}</textarea>
-      <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
-      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
-    </div>
-  </div>
+{% macro markdown(name, id='', label='', value='', placeholder='', error="", classes=[]) %}
+  {% set classes = (classes|list) %}
+  {% do classes.append('control-full') %}
+  {% call block(id or name, label or name, error, classes, control_classes=["editor"]) %}
+    <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}">{{ value | e }}</textarea>
+    <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
+  {% endcall %}
 {% endmacro %}
 
 {#
@@ -106,20 +96,16 @@ classes     - An array of classes to apply to the control-group.
 Examples:
 
   {% import form from 'macros/form.html' %}
-  {{ form.prepend('slug', id='field-slug', prepend='/dataset/', label=_('Slug'), data=data, errors=errors, error="") }}
+  {{ form.prepend('slug', id='field-slug', prepend='/dataset/', label=_('Slug'), value=data.slug, error=errors.slug) }}
 
 #}
-{% macro prepend(name, id='', label='', prepend='', value='', placeholder='', type='text', data={}, errors={}, error="", classes=[]) %}
-  <div class="control-group{% if classes %} {{ classes | join(' ') }}{% endif %}">
-    <label class="control-label" for="{{ id or name }}">{{ label or name }}</label>
-    <div class="controls">
-      <div class="input-prepend">
-        {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
-        <input id="{{ id or name }}" name="{{ name }}" value="{{ data[name] or value | e }}" placeholder="{{ placeholder }}" />
-      </div>
-      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
+{% macro prepend(name, id='', label='', prepend='', value='', placeholder='', type='text', error="", classes=[]) %}
+  {% call block(id or name, label or name, error, classes) %}
+    <div class="input-prepend">
+      {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
+      <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
     </div>
-  </div>
+  {% endcall %}
 {% endmacro %}
 
 {#
@@ -150,16 +136,71 @@ Examples:
   ) }}
 #}
 {% macro custom(names=(), id="", label="", values=(), placeholders=(), error="", classes=[]) %}
-  <div class="control-group control-custom">
-    <label class="control-label" for="{{ id or names[0] }}-key">{{ label or _('Custom') }}</label>
-    <div class="controls">
-      <div class="input-prepend">
-        <label for="{{ id or names[0] }}-key" class="add-on">Key</label><input id="{{ id or names[0] }}-key" name="{{ names[0] }}" value="{{ values[0] | e }}" placeholder="{{ placeholders[0] }}" />
-        <label for="{{ id or names[1] }}-value" class="add-on">Value</label><input id="{{ id or names[1] }}-value" name="{{ names[1] }}" value="{{ values[1] | e }}" placeholder="{{ placeholders[1] }}" />
-        <label class="checkbox" for="{{ id or names[2] }}-remove">
-          <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} /> {{ _('Remove') }}
-        </label>
-      </div>
+  {% set classes = (classes|list) %}
+  {% set label_id = (id or names[0]) ~ "-key" %}
+  {% do classes.append('control-custom') %}
+  {% call block(label_id, label or name, error, classes, control_classes=["editor"]) %}
+    <div class="input-prepend">
+      <label for="{{ label_id }}" class="add-on">Key</label><input id="{{ id or names[0] }}-key" name="{{ names[0] }}" value="{{ values[0] | e }}" placeholder="{{ placeholders[0] }}" />
+      <label for="{{ id or names[1] }}-value" class="add-on">Value</label><input id="{{ id or names[1] }}-value" name="{{ names[1] }}" value="{{ values[1] | e }}" placeholder="{{ placeholders[1] }}" />
+      <label class="checkbox" for="{{ id or names[2] }}-remove">
+        <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} /> {{ _('Remove') }}
+      </label>
+    </div>
+  {% endcall %}
+{% endmacro %}
+
+{#
+A generic block for providing the default markup for CKAN form elements.
+It is expected to be called using a {% call %} block, the contents of which
+will be inserted into the .controls element.
+
+for     - The id for the input that the label should match.
+label   - A human readable label.
+error   - An error string for the field.
+classes - An array of custom classes for the outer element.
+control_classes - An array of custom classes for the .control wrapper.
+
+Example:
+
+  {% import form from 'macros/form.html' %}
+  {% call form.block("field", "My Field") %}
+    <input id="field" type="text" name="{{ name }}" value="{{ value | e }}" />
+  {% endcall %}
+
+#}
+{% macro block(for, label="", error="", classes=[], control_classes=[]) %}
+  <div class="control-group{{ " error" if error }}{{ " " ~ classes | join(' ') }}">
+    <label class="control-label" for="{{ for }}">{{ label or _('Custom') }}</label>
+    <div class="controls{{ " " ~ control_classes | join(' ') }}">
+      {{ caller() }}
+      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
     </div>
   </div>
+{% endmacro %}
+
+{#
+Builds a list of errors for the current form.
+
+errors  - A dict of field/message pairs.
+type    - The alert-* class that should be applied (default: "error")
+classes - A list of classes to apply to the wrapper (default: [])
+
+Example:
+
+  {% import form from 'macros/form.html' %}
+  {{ form.errors(error_summary, type="warning") }}
+
+#}
+{% macro errors(errors={}, type="error", classes=[]) %}
+  {% if errors %}
+    <div class="error-explanation alert alert-{{ type }}{{ " " ~ classes | join(' ') }}">
+      <p>{{ _('The form contains invalid entries:') }}</p>
+      <ul>
+        {% for key, error in errors.items() %}
+          <li data-field-label="{{ key }}">{{ key }}: {{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
 {% endmacro %}
