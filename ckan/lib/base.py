@@ -96,8 +96,12 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         # we remove it so any bad templates crash and burn
         del globs['url']
 
-        template_path, template_type = lib.render.template_info(template_name)
-        log.info('rendering %s [%s]' % (template_path, template_type))
+        try:
+            template_path, template_type = lib.render.template_info(template_name)
+            log.info('rendering %s [%s]' % (template_path, template_type))
+        except lib.render.TemplateNotFound:
+            template_type  = 'genshi'
+            template_path = ''
 
         # Jinja2 templates
         if template_type == 'jinja2':
