@@ -3109,6 +3109,19 @@ this.recline.Backend = this.recline.Backend || {};
         if (results.error) {
           dfd.reject(results.error);
         }
+
+        // Rename duplicate fieldIds as each field name needs to be
+        // unique.
+        var seen = {};
+        _.map(results.fields, function(fieldId, index) {
+          if (fieldId in seen) {
+            seen[fieldId] += 1;
+            results.fields[index] = fieldId + "("+seen[fieldId]+")";
+          } else {
+            seen[fieldId] = 1;
+          }
+        });
+
         dataset.fields.reset(_.map(results.fields, function(fieldId) {
           return {id: fieldId};
           })
