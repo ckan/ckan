@@ -150,7 +150,7 @@ Examples:
   ) }}
 #}
 {% macro custom(names=(), id="", label="", values=(), placeholders=(), error="", classes=[]) %}
-  <div class="control-group control-custom">
+  <div class="control-group control-custom{% if classes %} {{ classes | join(' ') }}{% endif %}">
     <label class="control-label" for="{{ id or names[0] }}-key">{{ label or _('Custom') }}</label>
     <div class="controls">
       <div class="input-prepend">
@@ -162,4 +162,30 @@ Examples:
       </div>
     </div>
   </div>
+{% endmacro %}
+
+{#
+Builds a list of errors for the current form.
+
+errors  - A dict of field/message pairs.
+type    - The alert-* class that should be applied (default: "error")
+classes - A list of classes to apply to the wrapper (default: [])
+
+Example:
+
+  {% import form from 'macros/form.html' %}
+  {{ form.errors(error_summary, type="warning") }}
+
+#}
+{% macro errors(errors={}, type="error", classes=[]) %}
+  {% if errors | count %}
+    <div class="error-explanation alert alert-{{ type }}{% if classes %} {{ classes | join(' ') }}{% endif %}">
+      <p>{{ _('The form contains invalid entries:') }}</p>
+      <ul>
+        {% for key, error in errors.items() %}
+          <li data-field-label="{{ key }}">{{ key }}: {{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
 {% endmacro %}

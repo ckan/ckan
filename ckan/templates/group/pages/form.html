@@ -2,16 +2,7 @@
 
 <form class="dataset-form form-horizontal" method="post">
   {% block error_summary %}
-    {% if error_summary %}
-      <div class="error-explanation">
-        <p>{{ _('The form contains invalid entries:') }}</p>
-        <ul>
-          {% for key, error in error_summary.items() %}
-            <li>{{ key }}: {{ error }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
+    {{ form.errors(error_summary) }}
   {% endblock %}
 
   {% block basic_fields %}
