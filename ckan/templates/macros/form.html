@@ -107,7 +107,7 @@ Examples:
     <div class="input-prepend">
       {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
       <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
-      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
+      {% if error %}<span class="error-block">{{ error | join(', ') }}</span>{% endif %}
     </div>
   {% endcall %}
 {% endmacro %}
