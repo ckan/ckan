@@ -90,7 +90,11 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         globs['actions'] = model.Action
         # add the template name to the context to help us know where we are
         # used in depreciating functions etc
-        c.__template_name = template_name
+        if not c.__template_name:
+            c.__template_name = [template_name]
+        else:
+            if template_name not in c.__template_name:
+                c.__template_name.append(template_name)
 
         # Using pylons.url() directly destroys the localisation stuff so
         # we remove it so any bad templates crash and burn
@@ -103,7 +107,12 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             template_type  = 'genshi'
             template_path = ''
 
-        c.__template_path = template_path
+        if not c.__template_path:
+            c.__template_path = [template_path]
+        else:
+            if template_path not in c.__template_path:
+                c.__template_path.append(template_path)
+
         c.__context = globs
 
         # Jinja2 templates
