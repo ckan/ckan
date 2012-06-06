@@ -54,6 +54,12 @@ textarea {
   width: 100%;
 }
 
+.control-medium input,
+.control-medium select,
+.control-medium textarea {
+  width: 320px;
+}
+
 .control-large input,
 .control-large .control-label {
   font-size: 18px;
@@ -184,10 +190,30 @@ textarea {
   background: @error-border;
   margin: -@input-border-radius 0 0;
   color: @input-background;
+  width: 216px;
+}
+
+.error-block {
+  .border-radius(0 0 @input-border-radius @input-border-radius);
+  display: block;
+  padding: 6px 8px 3px;
+  background: @error-border;
+  margin: -@input-border-radius 0 0;
+  color: @input-background;
+  width: 216px;
+}
+
+.control-medium .error-block {
+  width: 326px;
+}
+
+.control-full .error-block {
+  width: auto;
 }
 
 .control-group.error .input-prepend .error-block {
   margin-left: -1px;
+  width: auto;
 }
 
 // Stages
