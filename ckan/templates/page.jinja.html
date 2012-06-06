@@ -15,6 +15,18 @@
   {%- block content %}
     <div role="main">
       <div class="container">
+
+        {% block flash %}
+          {% set flash_messages = h.flash.pop_messages() | list %}
+          {% for message in flash_messages %}
+            <div class="flash-messages">
+              <div class="alert {{ message.category }}">
+                {{ h.literal(message) }}
+              </div>
+            </div>
+          {% endfor %}
+        {% endblock %}
+
         {% block toolbar %}
           <div class="toolbar">
             {% block breadcrumb %}{% endblock %}
