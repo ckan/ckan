@@ -17,4 +17,16 @@
       <p><small>Maps powered by Leaflet, map data &copy; OpenStreetMap contributors, CC-BY-SA, map imagery &copy; CloudMade</small></p>
     </div>
   </div>
+{% if config.debug %}
+<div class="well" style="color:#333;margin-top:10px;">
+<b>Debug info:</b><br/>
+Controller : {{ c.controller }}<br/>
+Action : {{ c.action }}<br/>
+Template name : {{ c.__template_name }}<br/>
+Template path : {{ c.__template_path }}<br/>
+
+{{h.debug_full_info()}}
+
+</div>
+{% endif %}
 </footer>
