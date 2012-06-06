@@ -961,6 +961,36 @@ def debug_inspect(arg):
     ''' Output pprint.pformat view of supplied arg '''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
 
+def debug_full_info():
+    ''' This dumps the template variables for debugging purposes only. '''
+    out = []
+    ignored_keys = ['c', 'app_globals', 'g', 'h', 'request', 'tmpl_context',
+                    'actions', 'translator', 'session', 'N_', 'ungettext',
+                    'config', 'response', '_']
+    ignored_context_keys = ['__class__', '__context', '__delattr__', '__dict__',
+                            '__doc__', '__format__', '__getattr__',
+                            '__getattribute__', '__hash__', '__init__',
+                            '__module__', '__new__', '__reduce__',
+                            '__reduce_ex__', '__repr__', '__setattr__',
+                            '__sizeof__', '__str__', '__subclasshook__',
+                            '__template_name', '__template_path',
+                            '__weakref__', 'action', 'environ', 'pylons',
+                            'start_response']
+    for key in c.__context.keys():
+        if not key in ignored_keys:
+            out.append('<b>%s<b> : <pre>%s</pre>' %
+                       (key, escape(c.__context.get(key))))
+
+    for key in dir(c.__context['tmpl_context']):
+        if not key in ignored_context_keys:
+            out.append('<b>%s</b> : <pre>%s</pre>' %
+                       (key, escape(pprint.pformat(getattr(c, key)))))
+
+    return literal('<br/>'.join(out))
+
+
+
+
 def popular(type_, number, min=1, title=None):
     ''' display a popular icon. '''
     if type_ == 'views':
@@ -1031,6 +1061,7 @@ __allowed_functions__ = [
            'dict_list_reduce',
            'full_current_url',
            'popular',
+           'debug_full_info',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',

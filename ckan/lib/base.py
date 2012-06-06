@@ -103,6 +103,9 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             template_type  = 'genshi'
             template_path = ''
 
+        c.__template_path = template_path
+        c.__context = globs
+
         # Jinja2 templates
         if template_type == 'jinja2':
             # TODO should we raise error if genshi filters??
