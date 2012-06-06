@@ -1,0 +1,34 @@
+{% extends "page.jinja.html" %}
+
+{% block title %}{{ _('Reset Your Password') }} - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+  <ol class="breadcrumb">
+    <li class="current">{{ h.nav_link(_('Password Reset'), controller='user', action='register') }}</li>
+  </ol>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <h1 class="heading">{{ _('Reset Your Password') }}</h1>
+    <div class="content">
+      {% block form %}
+        <form action="" method="post" class="form-inline control-medium">
+          <label for="field-username">Username</label>
+          <input id="field-username" name="user" value="" />
+          <button type="submit" name="reset" class="btn btn-primary">{{ _("Request Reset") }}</button>
+        </form>
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module info">
+    <h2 class="heading">{{ _('How does this work?') }}</h2>
+    <div class="content">
+      <p>{% trans %}Enter your username into the box and we will send you
+      an email with a link to enter a new password.{% endtrans %}</p>
+    </div>
+  </section>
+{% endblock %}
