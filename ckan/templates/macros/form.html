@@ -100,10 +100,14 @@ Examples:
 
 #}
 {% macro prepend(name, id='', label='', prepend='', value='', placeholder='', type='text', error="", classes=[]) %}
-  {% call block(id or name, label or name, error, classes) %}
+  {# We manually append the error here as it needs to be inside the .input-prepend block %}
+  {% set classes = (classes|list) %}
+  {% do classes.append('error') if error %}
+  {% call block(id or name, label or name, error=false, classes=classes) %}
     <div class="input-prepend">
       {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
       <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
+      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
     </div>
   {% endcall %}
 {% endmacro %}

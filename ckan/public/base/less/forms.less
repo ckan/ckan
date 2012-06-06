@@ -162,6 +162,29 @@ textarea {
   width: auto;
 }
 
+// Errors
+
+.control-group.error input,
+.control-group.error select,
+.control-group.error textarea,
+.control-group.error .input-prepend .add-on,
+.control-group.error .input-append .add-on {
+  border-color: @error-border;
+}
+
+.error-block {
+  .border-radius(0 0 @input-border-radius @input-border-radius);
+  display: block;
+  padding: 6px 8px 3px;
+  background: @error-border;
+  margin: -@input-border-radius 0 0;
+  color: @input-background;
+}
+
+.control-group.error .input-prepend .error-block {
+  margin-left: -1px;
+}
+
 // Stages
 // Builds form stages out of an ordered list. The following CSS uses tag
 // selectors on the .active class to prevent the styles bleeding into the
