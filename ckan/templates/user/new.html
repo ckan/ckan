@@ -1,0 +1,27 @@
+{% extends "page.jinja.html" %}
+
+{% block title %}{{ _('Register') }} - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+  <ol class="breadcrumb">
+    <li class="current">{{ h.nav_link(_('Registration'), controller='user', action='register') }}</li>
+  </ol>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <div class="content">
+      <h1 class="page-heading">{{ _('Register for an Account') }}</h1>
+      {{ c.form | safe }}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module info">
+    <h2 class="heading">{{ _('Why Sign Up?') }}</h2>
+    <div class="content">
+      <p>{% trans %}Create datasets, groups and other exciting things{% endtrans %}</p>
+    </div>
+  </section>
+{% endblock %}
