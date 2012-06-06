@@ -1470,6 +1470,16 @@ CKAN.DataPreview = function ($, my) {
         }
       });
 
+      // Upon failure of the datapreivew to load...
+      // 1. Hide the controls
+      // 2. Hide the space reserved for the preview itself.
+      // 3. Disable the Embed button
+      dataExplorer.model.bind('query:fail', function(error) {
+        $('#ckanext-datapreview .data-view-container').hide();
+        $('#ckanext-datapreview .header').hide();
+        $('.preview-header .btn').hide();
+      });
+
       // -----------------------------
       // Setup the Embed modal dialog.
       // -----------------------------
