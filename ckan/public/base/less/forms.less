@@ -67,17 +67,22 @@ textarea {
   background: none;
   margin-left: -@gutter-x;
   margin-right: -@gutter-x;
-  padding-bottom: 0; // Prevents reduces the padding when included in a module.
+  margin-bottom: 0; // Prevents reduces the padding when included in a module.
+  padding-bottom: 0;
   text-align: right;
 }
 
 .form-actions .action-info {
   float: left;
   width: 50%;
-  font-size: 11px;
-  line-height: 1.2;
+  line-height: 2;
   text-align: left;
   color: #707070;
+}
+
+.form-actions .action-info.small {
+  font-size: 11px;
+  line-height: 1.2;
 }
 
 // Override the default form widths.

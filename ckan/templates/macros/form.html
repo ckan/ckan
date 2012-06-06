@@ -13,7 +13,7 @@ classes     - An array of classes to apply to the control-group.
 
 Examples:
 
-  {% import form from 'macros/form.html' %}
+  {% import 'macros/form.html' as form %}
   {{ form.input('title', label=_('Title'), value=data.title, error=errors.title) }}
 
 #}
@@ -21,6 +21,34 @@ Examples:
   {% call block(id or name, label or name, error, classes) %}
   <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
   {% endcall %}
+{% endmacro %}
+
+{#
+Builds a single checkbox input.
+
+name        - The name of the form parameter.
+id          - The id to use on the input and label. Convention is to prefix with 'field-'.
+label       - The human readable label.
+value       - The value of the input.
+checked     - If true the checkbox will be checked
+error       - An error string for the field.
+classes     - An array of classes to apply to the control-group.
+
+Example:
+
+  {% import 'macros/form.html' as form %}
+  {{ form.checbox('remember', checked=true) }}
+
+#}
+{% macro checkbox(name, id='', label='', value='', checked=false, placeholder='', error="", classes=[]) %}
+  <div class="control-group{{ " " ~ classes | join(" ") }}">
+    <div class="controls">
+      <label class="checkbox" for="{{ id or name }}">
+        <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | e }}" {{ "checked " if checked }}/>
+        {{ label or name }}
+      </label>
+    </div>
+  </div>
 {% endmacro %}
 
 {#
@@ -37,7 +65,7 @@ classes     - An array of classes to apply to the control-group.
 
 Examples:
 
-  {% import form from 'macros/form.html' %}
+  {% import 'macros/form.html' as form %}
   {{ form.select('year', label=_('Year'), options={2010: 2010, 2011: 2011}, selected=2011, error=errors.year) }}
 
 #}
@@ -65,7 +93,7 @@ classes     - An array of classes to apply to the control-group.
 
 Examples:
 
-  {% import form from 'macros/form.html' %}
+  {% import 'macros/form.html' as form %}
   {{ form.markdown('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
 
 #}
@@ -95,7 +123,7 @@ classes     - An array of classes to apply to the control-group.
 
 Examples:
 
-  {% import form from 'macros/form.html' %}
+  {% import 'macros/form.html' as form %}
   {{ form.prepend('slug', id='field-slug', prepend='/dataset/', label=_('Slug'), value=data.slug, error=errors.slug) }}
 
 #}
@@ -130,7 +158,7 @@ classes     - An array of classes to apply to the control-group.
 
 Examples:
 
-  {% import form from 'macros/form.html' %}
+  {% import 'macros/form.html' as form %}
   {{ form.custom(
     names=('custom_key', 'custom_value', 'custom_deleted'),
     id='field-custom',
@@ -167,7 +195,7 @@ control_classes - An array of custom classes for the .control wrapper.
 
 Example:
 
-  {% import form from 'macros/form.html' %}
+  {% import 'macros/form.html' as form %}
   {% call form.block("field", "My Field") %}
     <input id="field" type="text" name="{{ name }}" value="{{ value | e }}" />
   {% endcall %}
@@ -192,7 +220,7 @@ classes - A list of classes to apply to the wrapper (default: [])
 
 Example:
 
-  {% import form from 'macros/form.html' %}
+  {% import 'macros/form.html' as form %}
   {{ form.errors(error_summary, type="warning") }}
 
 #}
