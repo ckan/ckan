@@ -100,7 +100,7 @@ Examples:
 
 #}
 {% macro prepend(name, id='', label='', prepend='', value='', placeholder='', type='text', error="", classes=[]) %}
-  {# We manually append the error here as it needs to be inside the .input-prepend block %}
+  {# We manually append the error here as it needs to be inside the .input-prepend block #}
   {% set classes = (classes|list) %}
   {% do classes.append('error') if error %}
   {% call block(id or name, label or name, error=false, classes=classes) %}
