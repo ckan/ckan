@@ -103,7 +103,7 @@ Examples:
   {# We manually append the error here as it needs to be inside the .input-prepend block #}
   {% set classes = (classes|list) %}
   {% do classes.append('error') if error %}
-  {% call block(id or name, label or name, error=false, classes=classes) %}
+  {% call block(id or name, label or name, error=[], classes=classes) %}
     <div class="input-prepend">
       {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
       <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
