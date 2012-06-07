@@ -42,6 +42,18 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
     # with Lucid) causes an exception when unicode is received.
     detail = detail.encode('utf8')
+
+    # When we have a not authorised 401 and not logged in we want to
+    # show the localised login page. This may not be the nicest place to
+    # do it but we can. The status code has to be changed to allow the
+    # location header to have effect.
+    if status_code == 401 and not c.user:
+        status_code = 307
+        login_url = h.url_for(controller='user',
+                              action='login',
+                              locale=request.environ.get('CKAN_LANG'))
+        headers = [('Location', login_url)]
+
     return _abort(status_code=status_code,
                   detail=detail,
                   headers=headers,
