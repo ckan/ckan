@@ -10,13 +10,13 @@
 
 {% block primary_content %}
   <article class="module">
-    <h1 class="heading">{{ _('Reset Your Password') }}</h1>
     <div class="content">
+      <h1 class="page-heading">{{ _('Reset Your Password') }}</h1>
       {% block form %}
         <form action="" method="post" class="form-inline control-medium">
           <label for="field-username">Username</label>
           <input id="field-username" name="user" value="" />
-          <button type="submit" name="reset" class="btn btn-primary">{{ _("Request Reset") }}</button>
+          <button class="btn btn-large btn-primary" type="submit" name="reset">{{ _("Request Reset") }}</button>
         </form>
       {% endblock %}
     </div>
