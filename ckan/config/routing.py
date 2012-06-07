@@ -170,6 +170,7 @@ def make_map():
               'list',
               'new',
               'new_resource',
+              'new_metadata',
               'autocomplete',
               'search'
               ]))
