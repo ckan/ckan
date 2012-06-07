@@ -1,0 +1,36 @@
+{% extends "page.jinja.html" %}
+
+{% block title %}{{ _('Reset Your Password') }} - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+  <ol class="breadcrumb">
+    <li class="current">{{ _('Password Reset') }}</li>
+    </ol>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <h1 class="heading">{{ _('Reset Your Password') }}</h1>
+    <div class="content">
+      {% block form %}
+        <form class="form-horizontal" action="" method="post">
+          {{ form.errors(error_summary) }}
+          {{ form.input("password1", id="field-password", label=_("Password"), type="password", placeholder="••••••••", value=data.password1, error=errors.password1, classes=["control-medium"]) }}
+          {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", placeholder="••••••••", value=data.password2, error=errors.password1, classes=["control-medium"]) }}
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" name="save">{{ _("Update Password") }}</button>
+          </div>
+        </form>
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module info">
+    <h2 class="heading">{{ _('How does this work?') }}</h2>
+    <div class="content">
+      <p>{% trans %}Simply enter a new password and we'll update your account{% endtrans %}</p>
+    </div>
+  </section>
+{% endblock %}

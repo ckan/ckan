@@ -18,7 +18,9 @@
   <section class="module">
     <div class="content">
       <h1 class="page-heading">{{ _('Login') }}</h1>
-      {% include "user/partials/login_form.html" %}
+      {% block form %}
+        {% include "user/partials/login_form.html" %}
+      {% endblock %}
     </div>
   </section>
 {% endblock %}

@@ -17,9 +17,9 @@ Examples:
   {{ form.input('title', label=_('Title'), value=data.title, error=errors.title) }}
 
 #}
-{% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[]) %}
+{% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={}) %}
   {% call block(id or name, label or name, error, classes) %}
-  <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
+  <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}"{{ attributes(attrs) }} />
   {% endcall %}
 {% endmacro %}
 
@@ -40,11 +40,11 @@ Example:
   {{ form.checbox('remember', checked=true) }}
 
 #}
-{% macro checkbox(name, id='', label='', value='', checked=false, placeholder='', error="", classes=[]) %}
+{% macro checkbox(name, id='', label='', value='', checked=false, placeholder='', error="", classes=[], attrs={}) %}
   <div class="control-group{{ " " ~ classes | join(" ") }}">
     <div class="controls">
       <label class="checkbox" for="{{ id or name }}">
-        <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | e }}" {{ "checked " if checked }}/>
+        <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | e }}" {{ "checked " if checked }}{{ attributes(attrs) }} />
         {{ label or name }}
       </label>
     </div>
@@ -236,3 +236,9 @@ Example:
     </div>
   {% endif %}
 {% endmacro %}
+
+{%- macro attributes(attrs={}) -%}
+  {%- for key, value in attrs.items() -%}
+    {{ key }}="{{ value }}"
+  {%- endfor -%}
+{%- endmacro -%}
