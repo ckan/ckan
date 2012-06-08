@@ -4,7 +4,7 @@
 
 {% block stages %}{{ h.snippet('package/snippets/stages.html', stage=2) }}{% endblock %}
 
-{% block form %}{{ h.snippet('package/snippets/resource_form.html') }}{% endblock %}
+{% block form %}{{ h.snippet('package/snippets/resource_form.html', data=data, errors=errors) }}{% endblock %}
 
 {% block secondary_content %}
   <section class="module">

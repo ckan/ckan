@@ -1,12 +1,17 @@
+{% import 'macros/form.html' as form %}
+
+{% set data = data or {} %}
+{% set errors = errors or {} %}
+
 <form class="dataset-form dataset-resource-form form-horizontal" method="post" py:with="errors = {}; data = {};">
   <div class="control-group dataset-form-resource-types">
     <div class="controls">
-      <!--!
+      {#
       This block uses a slightly odd pattern. Unlike the rest of the radio
       buttons which are wrapped _inside_ the labels here we place the label
       after the input. This enables us to style the label based on the state
       of the radio using css. eg. input[type=radio]+label {}
-      -->
+      #}
       <i class="ckan-icon ckan-icon-link-file"></i>
       <input id="field-resource-type-file" type="radio" name="resources__0__url" checked="checked" value="file" />
       <label class="radio inline" for="field-resource-type-file">Link to a file</label>
@@ -16,51 +21,20 @@
     </div>
   </div>
 
-  <div class="control-group control-large control-full" py:with="error = errors.get('title', '')">
-    <label class="control-label" for="field-resource-url">Resource</label>
-    <div class="controls">
-      <input id="field-resource-url" name="resources__0__url" value="${data.get('title', '')}" placeholder="${_('eg. http://example.com/jan-2011.json')}" />
-      <span class="error-block" py:if="error">${error}</span>
-    </div>
-  </div>
+  {# TODO: Replace the zero with appropriate index #}
+  {{ form.input('resources__0__url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large']) }}
 
-  <div class="control-group control-full" py:with="error = errors.get('name', '')">
-    <label class="control-label" for="field-resources-name">Name</label>
-    <div class="controls">
-      <input id="field-resource-name" name="resources__0__name" value="${data.get('name', '')}" placeholder="${_('eg. January 2011')}" />
-      <span class="error-block" py:if="error">${error}</span>
-    </div>
-  </div>
+  {{ form.input('resources__0__name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
 
-  <div class="control-group control-full" py:with="error = errors.get('notes', '')">
-    <label class="control-label" for="field-resource-description">Description</label>
-    <div class="controls editor">
-      <textarea id="field-resource-description" name="resources__0__description" cols="20" rows="5" placeholder="Some useful notes about the data">${data.get('notes', '')}</textarea>
-      <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
-      <span class="error-block" py:if="error">${error}</span>
-    </div>
-  </div>
+  {{ form.markdown('resources__0__description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
 
-  <div class="control-group control-full" py:with="error = errors.get('', '')">
-    <label class="control-label" for="field-resource-format">Format</label>
-    <div class="controls">
-      <input id="field-resource-name" name="resources__0__format" value="${data.get('', '')}" placeholder="${_('eg. application/json')}" />
-      <span class="error-block" py:if="error">${error}</span>
-    </div>
-  </div>
+  {{ form.input('resources__0__format', id='field-format', label=_('Format'), placeholder=_('eg. application/json'), value=data.format, error=errors.format, classes=['control-full']) }}
 
-  <div class="control-group">
-    <label for="field-resource-type" class="control-label">Resource Type</label>
-    <div class="controls">
-      <select id="field-resource-type" name="resources__0__type">
-        <option selected="selected" value="">Select a type&hellip;</option>
-      </select>
-    </div>
-  </div>
+  {{ form.select('resources__0__type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }}
 
   <div class="form-actions">
-    <a class="btn" href="">Save</a>
-    <a class="btn" href="">Save &amp; add another</a>
-    <button class="btn btn-primary" type="submit">Next: Additional Info</button>
+    <a class="btn" href="">{{ _('Save') }}</a>
+    <a class="btn" href="">{{ _('Save &amp; add another') }}</a>
+    <button class="btn btn-primary" type="submit">{{ _('Next: Additional Info') }}</button>
   </div>
 </form>
