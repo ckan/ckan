@@ -56,7 +56,8 @@ def identify(self, environ):
 
         # we don't do anything with the openid we found ourselves but we put it in here
         # to tell the challenge plugin to initiate the challenge
-        identity['repoze.whoplugins.openid.openid'] = environ['repoze.whoplugins.openid.openid'] = open_id
+        identity['repoze.whoplugins.openid.openid'] = open_id
+        environ['repoze.whoplugins.openid.openid'] = open_id
 
         # this part now is for the case when the openid provider redirects
         # the user back. We should find some openid specific fields in the request.
