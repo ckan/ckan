@@ -19,6 +19,7 @@ def identify(self, environ):
     """
 
     request = Request(environ)
+    logger = environ['repoze.who.logger']
     # #1659 fix - Use PATH_INFO rather than request.path as the former
     #             strips off the mount point.
     path = environ['PATH_INFO']
@@ -47,8 +48,8 @@ def identify(self, environ):
     # in the case we are coming from the login form we should have
     # an openid in here the user entered
         open_id = request.params.get(self.openid_field, None)
-        if environ['repoze.who.logger'] is not None:
-            environ['repoze.who.logger'].debug('checking openid results for : %s ' %open_id)
+        if logger:
+            logger.debug('checking openid results for : %s ' %open_id)
 
         if open_id is not None:
             open_id = open_id.strip()
@@ -83,7 +84,8 @@ def identify(self, environ):
                         except KeyError:
                             pass
 
-                environ['repoze.who.logger'].info('openid request successful for : %s ' %open_id)
+                if logger:
+                    logger.info('openid request successful for : %s ' %open_id)
 
                 display_identifier = info.identity_url
 
@@ -153,7 +155,7 @@ def challenge(self, environ, status, app_headers, forget_headers):
 
     # now we have an openid from the user in the request
     openid_url = request.params[self.openid_field]
-    if logger is not None:
+    if logger:
         logger.debug('starting openid request for : %s ' %openid_url)
 
     try:
@@ -177,12 +179,14 @@ def challenge(self, environ, status, app_headers, forget_headers):
     except consumer.DiscoveryFailure, exc:
         # eventually no openid server could be found
         environ[self.error_field] = 'Error in discovery: %s' %exc[0]
-        logger.info('Error in discovery: %s ' %exc[0])
+        if logger:
+            logger.info('Error in discovery: %s ' %exc[0])
         return self._redirect_to_loginform(environ)
     except KeyError, exc:
         # TODO: when does that happen, why does plone.openid use "pass" here?
         environ[self.error_field] = 'Error in discovery: %s' %exc[0]
-        logger.info('Error in discovery: %s ' %exc[0])
+        if logger:
+            logger.info('Error in discovery: %s ' %exc[0])
         return self._redirect_to_loginform(environ)
         return None
 
@@ -190,7 +194,8 @@ def challenge(self, environ, status, app_headers, forget_headers):
     # should actually been handled by the DiscoveryFailure exception above
     if openid_request is None:
         environ[self.error_field] = 'No OpenID services found for %s' %openid_url
-        logger.info('No OpenID services found for: %s ' %openid_url)
+        if logger:
+            logger.info('No OpenID services found for: %s ' %openid_url)
         return self._redirect_to_loginform(environ)
 
     # we have to tell the openid provider where to send the user after login
@@ -204,7 +209,7 @@ def challenge(self, environ, status, app_headers, forget_headers):
     # return_to is the actual URL to be used for returning to this app
     return_to = request.path_url # we return to this URL here
     trust_root = request.application_url
-    if logger is not None:
+    if logger:
         logger.debug('setting return_to URL to : %s ' %return_to)
 
     # TODO: usually you should check openid_request.shouldSendRedirect()
@@ -218,7 +223,7 @@ def challenge(self, environ, status, app_headers, forget_headers):
     res = Response()
     res.status = 302
     res.location = redirect_url
-    if logger is not None:
+    if logger:
         logger.debug('redirecting to : %s ' %redirect_url)
 
     # now it's redirecting and might come back via the identify() method
