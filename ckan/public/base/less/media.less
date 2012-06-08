@@ -1,4 +1,6 @@
 .media {
+  position: relative;
+  overflow: hidden;
 }
 
 .media .content {
@@ -67,8 +69,22 @@ ol.media-grid {
 }
 
 // Banner
+.transform (@func) {
+  -webkit-transform: @arguments;
+  -moz-transform: @arguments;
+  -o-transform: @arguments;
+  transform: @arguments;
+}
 
+.transform-origin (@x, @y) {
+  -webkit-transform-origin: @arguments;
+  -moz-transform-origin: @arguments;
+  -o-transform-origin: @arguments;
+  transform-origin: @arguments;
+}
 .banner {
+  .transform(rotate(45deg));
+  .transform-origin(center, center);
   position: absolute;
   top: 15px;
   right: -35px;
@@ -79,6 +95,4 @@ ol.media-grid {
   font-size: 11px;
   text-align: center;
   text-transform: uppercase;
-  -webkit-transform: rotate(45deg);
-  -webkit-transform-origin: center center;
 }

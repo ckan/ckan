@@ -1,0 +1,77 @@
+{% extends "page.jinja.html" %}
+
+{% block title %}{{ _("Welcome") }} - {{ super() }}{% endblock %}
+
+{% block maintag %}<div role="main" class="hero">{% endblock %}
+
+{% block primary_content %}
+  <div class="primary">
+    <header>
+      <h1>{{ _("Welcome to CKAN") }}</h1>
+      <p>{% trans %}This is a nice introductory paragraph about CKAN or the site
+      in general. We don't have any copy to go here yet but soon we will
+      {% endtrans %}</p>
+    </header>
+
+    <section class="featured">
+      <h2>{{ _("This is a featured section") }}</h2>
+      <a href="#">
+        <img src="http://placehold.it/420x220" />
+      </a>
+    </section>
+  </div>
+  <div class="secondary">
+    <form class="dataset-search clearfix" method="get">
+      <h3>{{ _("Search Your Data") }}</h3>
+      <span class="control-group search-giant">
+        <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" results="0" placeholder="{{ _('eg. Gold Prices') }}" />
+        <button type="submit" value="{{ _('Search') }}">Submit</button>
+      </span>
+    </form>
+    <h3 class="tag">Popular Tags</h3>
+    <ul>
+      <li class="tag"><a href="">Data</a></li>
+      <li class="tag"><a href="">More data</a></li>
+      <li class="tag"><a href="">Sandwiches</a></li>
+      <li class="tag"><a href="">Cakes</a></li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="carousel">
+    <ul class="media-block">
+      <li class="media media-vertical module">
+        <div class="content">
+          <h3 class="heading"><a href="#">Stuff</a></h3>
+          <span class="banner">Popular</span>
+          <p>Another example block</p>
+        </div>
+      </li>
+      <li class="media module">
+        <div class="content">
+          <h3 class="heading"><a href="#">Stuff</a></h3>
+          <span class="banner">Popular</span>
+          <p>Another example block</p>
+        </div>
+      </li>
+      <li class="media module">
+        <div class="content">
+          <h3 class="heading"><a href="#">Stuff</a></h3>
+          <span class="banner">Popular</span>
+          <p>Another example block</p>
+        </div>
+      </li>
+      <li class="media module">
+        <div class="content">
+          <h3 class="heading"><a href="#">Stuff</a></h3>
+          <span class="banner">Popular</span>
+          <p>Another example block</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+{% endblock %}
+
+{# Remove the toolbar. #}
+{% block toolbar %}{% endblock %}
