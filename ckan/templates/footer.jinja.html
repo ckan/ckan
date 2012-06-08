@@ -17,16 +17,34 @@
       <p><small>Maps powered by Leaflet, map data &copy; OpenStreetMap contributors, CC-BY-SA, map imagery &copy; CloudMade</small></p>
     </div>
   </div>
-{% if config.debug %}
-<div class="well" style="color:#333;margin-top:10px;">
-<b>Debug info:</b><br/>
-Controller : {{ c.controller }}<br/>
-Action : {{ c.action }}<br/>
-Template name : {{ c.__template_name }}<br/>
-Template path : {{ c.__template_path }}<br/>
+  {% if config.debug %}
+    <div class="container">
+      <a id="debug-toggle" href="#debug" style="opacity: 0.6">Debug</a>
+      <pre id="debug" class="well" style="display:none;color:#333;margin-top:10px;">
+<b>Debug info:</b>
 
-{{h.debug_full_info()}}
+<b>Controller</b>: {{ c.controller }}
+<b>Action</b>: {{ c.action }}
+<b>Template name</b>: {{ c.__template_name }}
+<b>Template path</b>: {{ c.__template_path }}
 
-</div>
-{% endif %}
+<b>Context info:</b>
+
+{% for value in h.debug_full_info_as_list() -%}
+  <b>{{ value.0 }}</b>: {{ value.1 }}
+{% endfor -%}
+      </pre>
+      <script>
+        (function toggleDebug() {
+          var debug  = document.getElementById('debug'),
+              toggle = document.getElementById('debug-toggle');
+
+          toggle.onclick = function () {
+            debug.style.display = debug.style.display === 'block' ? 'none' : 'block';
+            return false;
+          };
+        })();
+      </script>
+    </div>
+  {% endif %}
 </footer>

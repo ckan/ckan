@@ -124,6 +124,15 @@ textarea {
   padding-right: @gutter-x;
 }
 
+.form-inline input {
+  padding-bottom: 9px;
+}
+
+.form-inline .btn {
+  margin-left: 5px;
+}
+
+
 .editor textarea {
   .border-radius(@inputBorderRadius @inputBorderRadius 0 0);
   border-bottom: none;
@@ -276,9 +285,17 @@ textarea {
   margin-left: -30px;
 }
 
+.stages li:last-child:after {
+  content: none;
+}
+
 .stages li.complete:after {
   border-top-color: #8cc68a;
   border-bottom-color: #8cc68a;
+}
+
+.stages.stage-3 li.complete:first-child:after {
+  content: none;
 }
 
 .stages li.active,
