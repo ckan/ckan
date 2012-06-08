@@ -141,6 +141,7 @@ def challenge(self, environ, status, app_headers, forget_headers):
 
     """
     request = Request(environ)
+    logger = environ['repoze.who.logger']
 
     # check for the field present, if not redirect to login_form
     if not request.params.has_key(self.openid_field):
@@ -152,8 +153,8 @@ def challenge(self, environ, status, app_headers, forget_headers):
 
     # now we have an openid from the user in the request
     openid_url = request.params[self.openid_field]
-    if environ['repoze.who.logger'] is not None:
-        environ['repoze.who.logger'].debug('starting openid request for : %s ' %openid_url)
+    if logger is not None:
+        logger.debug('starting openid request for : %s ' %openid_url)
 
     try:
     # we create a new Consumer and start the discovery process for the URL given
@@ -176,12 +177,12 @@ def challenge(self, environ, status, app_headers, forget_headers):
     except consumer.DiscoveryFailure, exc:
         # eventually no openid server could be found
         environ[self.error_field] = 'Error in discovery: %s' %exc[0]
-        environ['repoze.who.logger'].info('Error in discovery: %s ' %exc[0])
+        logger.info('Error in discovery: %s ' %exc[0])
         return self._redirect_to_loginform(environ)
     except KeyError, exc:
         # TODO: when does that happen, why does plone.openid use "pass" here?
         environ[self.error_field] = 'Error in discovery: %s' %exc[0]
-        environ['repoze.who.logger'].info('Error in discovery: %s ' %exc[0])
+        logger.info('Error in discovery: %s ' %exc[0])
         return self._redirect_to_loginform(environ)
         return None
 
@@ -189,7 +190,7 @@ def challenge(self, environ, status, app_headers, forget_headers):
     # should actually been handled by the DiscoveryFailure exception above
     if openid_request is None:
         environ[self.error_field] = 'No OpenID services found for %s' %openid_url
-        environ['repoze.who.logger'].info('No OpenID services found for: %s ' %openid_url)
+        logger.info('No OpenID services found for: %s ' %openid_url)
         return self._redirect_to_loginform(environ)
 
     # we have to tell the openid provider where to send the user after login
@@ -203,8 +204,8 @@ def challenge(self, environ, status, app_headers, forget_headers):
     # return_to is the actual URL to be used for returning to this app
     return_to = request.path_url # we return to this URL here
     trust_root = request.application_url
-    if environ['repoze.who.logger'] is not None:
-        environ['repoze.who.logger'].debug('setting return_to URL to : %s ' %return_to)
+    if logger is not None:
+        logger.debug('setting return_to URL to : %s ' %return_to)
 
     # TODO: usually you should check openid_request.shouldSendRedirect()
     # but this might say you have to use a form redirect and I don't get why
@@ -217,8 +218,8 @@ def challenge(self, environ, status, app_headers, forget_headers):
     res = Response()
     res.status = 302
     res.location = redirect_url
-    if environ['repoze.who.logger'] is not None:
-        environ['repoze.who.logger'].debug('redirecting to : %s ' %redirect_url)
+    if logger is not None:
+        logger.debug('redirecting to : %s ' %redirect_url)
 
     # now it's redirecting and might come back via the identify() method
     # from the openid provider once the user logged in there.
