@@ -1,12 +1,6 @@
 from webob import Request, Response
-
-import openid
-from openid.store import memstore, filestore, sqlstore
 from openid.consumer import consumer
-from openid.oidutil import appendArgs
-from openid.cryptutil import randomString
-from openid.fetchers import setDefaultFetcher, Urllib2Fetcher
-from openid.extensions import pape, sreg, ax
+from openid.extensions import sreg, ax
 
 import lib.helpers as h
 
