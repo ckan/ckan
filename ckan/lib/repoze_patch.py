@@ -32,7 +32,7 @@ def identify(self, environ):
         res.status = 302
 
         res.location = get_full_path(self.logged_out_url, environ)
-        
+
         environ['repoze.who.application'] = res
         return {}
 
@@ -44,7 +44,7 @@ def identify(self, environ):
     # when the openid provider redirects the user back.
     if path == self.login_handler_path:
 
-    # in the case we are coming from the login form we should have 
+    # in the case we are coming from the login form we should have
     # an openid in here the user entered
         open_id = request.params.get(self.openid_field, None)
         if environ['repoze.who.logger'] is not None:
@@ -98,7 +98,7 @@ def identify(self, environ):
                 return identity
 
             # TODO: Do we have to check for more failures and such?
-            # 
+            #
         elif mode=="cancel":
             # cancel is a negative assertion in the OpenID protocol,
             # which means the user did not authorize correctly.
@@ -117,12 +117,12 @@ def redirect_to_logged_in(self, environ):
     res = Response()
     res.status = 302
     res.location = url
-    environ['repoze.who.application'] = res    
+    environ['repoze.who.application'] = res
 
 def challenge(self, environ, status, app_headers, forget_headers):
     """the challenge method is called when the ``IChallengeDecider``
-    in ``classifiers.py`` returns ``True``. This is the case for either a 
-    ``401`` response from the client or if the key 
+    in ``classifiers.py`` returns ``True``. This is the case for either a
+    ``401`` response from the client or if the key
     ``repoze.whoplugins.openid.openidrepoze.whoplugins.openid.openid``
     is present in the WSGI environment.
     The name of this key can be adjusted via the ``openid_field`` configuration
@@ -136,7 +136,7 @@ def challenge(self, environ, status, app_headers, forget_headers):
 
     TODO: make the environment key to check also configurable in the challenge_decider.
 
-    For the OpenID flow check `the OpenID library documentation 
+    For the OpenID flow check `the OpenID library documentation
     <http://openidenabled.com/files/python-openid/docs/2.2.1/openid.consumer.consumer-module.html>`_
 
     """
@@ -150,7 +150,7 @@ def challenge(self, environ, status, app_headers, forget_headers):
         res.location = get_full_path(self.login_form_url, environ)+"?%s=%s" %(self.came_from_field, request.url)
         return res
 
-    # now we have an openid from the user in the request 
+    # now we have an openid from the user in the request
     openid_url = request.params[self.openid_field]
     if environ['repoze.who.logger'] is not None:
         environ['repoze.who.logger'].debug('starting openid request for : %s ' %openid_url)
@@ -176,7 +176,7 @@ def challenge(self, environ, status, app_headers, forget_headers):
     except consumer.DiscoveryFailure, exc:
         # eventually no openid server could be found
         environ[self.error_field] = 'Error in discovery: %s' %exc[0]
-        environ['repoze.who.logger'].info('Error in discovery: %s ' %exc[0])     
+        environ['repoze.who.logger'].info('Error in discovery: %s ' %exc[0])
         return self._redirect_to_loginform(environ)
     except KeyError, exc:
         # TODO: when does that happen, why does plone.openid use "pass" here?
@@ -212,7 +212,7 @@ def challenge(self, environ, status, app_headers, forget_headers):
 
     # TODO: we might also want to give the application some way of adding
     # extensions to this message.
-    redirect_url = openid_request.redirectURL(trust_root, return_to) 
+    redirect_url = openid_request.redirectURL(trust_root, return_to)
     # # , immediate=False)
     res = Response()
     res.status = 302
