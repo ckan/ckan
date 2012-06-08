@@ -1,0 +1,40 @@
+{% import 'macros/form.html' as form %}
+
+{% set data = data or {} %}
+{% set errors = errors or {} %}
+
+<form class="dataset-form dataset-resource-form form-horizontal" method="post" py:with="errors = {}; data = {};">
+  <div class="control-group dataset-form-resource-types">
+    <div class="controls">
+      {#
+      This block uses a slightly odd pattern. Unlike the rest of the radio
+      buttons which are wrapped _inside_ the labels here we place the label
+      after the input. This enables us to style the label based on the state
+      of the radio using css. eg. input[type=radio]+label {}
+      #}
+      <i class="ckan-icon ckan-icon-link-file"></i>
+      <input id="field-resource-type-file" type="radio" name="resources__0__url" checked="checked" value="file" />
+      <label class="radio inline" for="field-resource-type-file">Link to a file</label>
+      <i class="ckan-icon ckan-icon-link-plugin"></i>
+      <input id="field-resource-type-api" type="radio" name="resources__0__url" value="api" />
+      <label class="radio inline" for="field-resource-type-api">Link to an API</label>
+    </div>
+  </div>
+
+  {# TODO: Replace the zero with appropriate index #}
+  {{ form.input('resources__0__url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large']) }}
+
+  {{ form.input('resources__0__name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
+
+  {{ form.markdown('resources__0__description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
+
+  {{ form.input('resources__0__format', id='field-format', label=_('Format'), placeholder=_('eg. application/json'), value=data.format, error=errors.format, classes=['control-full']) }}
+
+  {{ form.select('resources__0__type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }}
+
+  <div class="form-actions">
+    <a class="btn" href="">{{ _('Save') }}</a>
+    <a class="btn" href="">{{ _('Save &amp; add another') }}</a>
+    <button class="btn btn-primary" type="submit">{{ _('Next: Additional Info') }}</button>
+  </div>
+</form>

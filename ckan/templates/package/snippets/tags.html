@@ -1,0 +1,5 @@
+{% if tags %}
+  <section class="tags content">
+    {{ h.snippet('snippets/tag_list.html', tags=tags) }}
+  </section>
+{% endif %}

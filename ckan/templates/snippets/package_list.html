@@ -1,22 +1,31 @@
-<ul class="dataset-list unstyled" xmlns:py="http://genshi.edgewall.org/">
-  <li py:for="package in packages" class="dataset-item">
-    <h3 class="heading" py:with="title = package.get('title') or package.get('name')">
-      ${h.link_to(h.truncate(title, 80), h.url_for(controller='package', action='read', id=package.get('name')))}
-      <!--! TODO: Hook this up to views -->
-      ${h.popular('recent views', package.tracking_summary.recent, min=10)}
-    </h3>
-    <div class="content" py:with="notes = h.markdown_extract(package.notes)">
-      <py:if test="notes">${notes}</py:if>
-      <p class="empty" py:if="not notes">This dataset has no description</p>
-    </div>
-    <py:if test="package.resources">
-      <ul class="dataset-resources unstyled">
-        <py:for each="resource in h.dict_list_reduce(package.resources, 'format')">
-          <li>
-            <a href="${h.url_for(controller='package', action='read', id=package.get('name'))}" class="label" data-format="${resource.lower()}">${resource}</a>
-          </li>
-        </py:for>
-      </ul>
-    </py:if>
-  </li>
-</ul>
+{% if packages %}
+  <ul class="dataset-list unstyled">
+    {% for package in packages %}
+      {% set title = package.get('title') or package.get('name') %}
+      {% set notes = h.markdown_extract(package.notes) %}
+
+      <li class="dataset-item">
+        <h3 class="heading">
+          {{ h.link_to(h.truncate(title, 80), h.url_for(controller='package', action='read', id=package.get('name'))) }}
+          {{ h.popular('recent views', package.tracking_summary.recent, min=10) }}
+        </h3>
+        <div class="content">
+          {% if notes %}
+            {{ notes }}
+          {% else %}
+            <p class="empty">{{ _("This dataset has no description") }}</p>
+          {% endif %}
+        </div>
+        {% if package.resources %}
+          <ul class="dataset-resources unstyled">
+            {% for resource in h.dict_list_reduce(package.resources, 'format') %}
+              <li>
+                <a href="{{ h.url_for(controller='package', action='read', id=package.get('name')) }}" class="label" data-format="{{ resource.lower() }}">{{ resource }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

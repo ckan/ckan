@@ -1,0 +1,72 @@
+<section class="content additional-info">
+  <h3>{{ _('Additional Info') }}</h3>
+  <table class="table table-striped table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>{{ _('Field') }}</th>
+        <th>{{ _('Value') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if c.pkg.url %}
+        <tr>
+          <th class="dataset-label">{{ _('Source') }}</th>
+          <td class="dataset-details" property="foaf:homepage">{{ c.pkg_url_link }}</td>
+        </tr>
+      {% endif %}
+
+      {% if c.pkg_author_link %}
+        <tr>
+          <th class="dataset-label">{{ _("Author") }}</th>
+          <td class="dataset-details" property="dc:creator">{{ c.pkg_author_link }}</td>
+        </tr>
+      {% endif %}
+
+      {% if c.pkg_maintainer_link %}
+        <tr>
+          <th class="dataset-label">{{ _('Maintainer') }}</th>
+          <td class="dataset-details" property="dc:contributor">{{ c.pkg_maintainer_link }}</td>
+        </tr>
+      {% endif %}
+
+      {% if c.pkg.version %}
+        <tr>
+          <th class="dataset-label">{{ _("Version") }}</th>
+          <td class="dataset-details">{{ c.pkg.version }}</td>
+        </tr>
+      {% endif %}
+
+      {% if c.eu_country %}
+        <tr>
+          <th class="dataset-label">{{ _("Country") }}</th>
+          <td class="dataset-details">{{ h.code_to_country(c.eu_country) }}</td>
+        </tr>
+      {% endif %}
+
+      {% if h.check_access('package_update',{'id':c.pkg.id}) %}
+        <tr>
+          <th class="dataset-label">{{ _("State") }}</th>
+          <td class="dataset-details">{{ c.pkg.state }}</td>
+        </tr>
+      {% endif %}
+
+      {% if c.harvest_catalogue_name %}
+        <tr>
+          <th class="dataset-label">{{ _('Harvest Source') }}</th>
+          <td class="dataset-details">
+            <a href="{{ c.harvest_dataset_url }}">{{ _('Dataset page') }}</a> on 
+            <a href="{{ c.harvest_catalogue_url }}">{{ c.harvest_catalogue_name }}</a>
+          </td>
+        </tr>
+      {% endif %}
+
+      {% for extra in c.pkg_extras %}
+        {% set key, value = extra %}
+        <tr rel="dc:relation" resource="_:extra{{ i }}">
+          <th class="dataset-label" property="rdfs:label">{{ _(key) }}</th>
+          <td class="dataset-details" property="rdf:value">{{ value }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>

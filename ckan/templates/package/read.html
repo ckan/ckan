@@ -1,185 +1,81 @@
-<!DOCTYPE html>
-<html
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
-    <xi:include href="../page.html" />
-    <head>
-      <title>${c.pkg_dict.title or c.pkg_dict.name} - Datasets</title>
-    </head>
-    <body>
-      <nav class="toolbar">
-        <ol class="breadcrumb" py:with="dataset = c.pkg_dict.title or c.pkg_dict.name">
-          <li>${h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index')}</li>
-          <li class="active"><a href="" title="${dataset}">${h.truncate(dataset, 60)}</a></li>
-        </ol>
-        <ul class="actions">
-          <li>${h.nav_link(_('History'), controller='package', action='history', id=c.pkg.id, class_='btn', icon='rewind')}</li>
-          <li>${h.nav_link(_('Edit'), controller='package', action='edit', id=c.pkg.id, class_='btn', icon='tools', condition=h.check_access('package_update',{'id':c.pkg.id}))}</li>
-          <li><a class="btn" href=""><i class="ckan-icon ckan-icon-flag"></i> Report Issue</a></li>
-        </ul>
-      </nav>
+{% extends "page.jinja.html" %}
 
-      <div class="primary">
-        <div py:if="c.pkg_revision_id" class="widget info">
-          <p py:if="c.pkg_revision_not_latest" class="content">This is an old revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}. It may differ significantly from the <a href="${h.url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
-          <p py:if="not c.pkg_revision_not_latest" class="content">This is the current revision of this dataset, as edited at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}.</p>
-        </div>
+{% block title %}{{ c.pkg_dict.title or c.pkg_dict.name }} - {{ super() }}{% endblock %}
 
-        <article class="module prose">
-          <section class="content">
-            <h1>${c.pkg_dict.title or c.pkg_dict.name}</h1>
-            <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
-              ${c.pkg_notes_formatted}
-            </div>
-            <span class="insert-comment-thread"></span>
-          </section>
+{% block breadcrumb %}
+  {% set dataset = c.pkg_dict.title or c.pkg_dict.name %}
+  <ol class="breadcrumb">
+    <li>{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
+    <li class="active"><a href="" title="{{ dataset }}">{{ h.truncate(dataset, 60) }}</a></li>
+  </ol>
+{% endblock %}
 
-          <section id="dataset-resources" class="resources content">
-            <h3>Data and Resources</h3>
-            <ul class="resource-list" py:if="c.pkg_dict.resources">
-              <li class="resource-item" py:for="res in c.pkg_dict.resources" py:with="url=h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])">
-                <a class="heading" href="${url}" title="${res.name or res.description}">
-                  ${h.truncate(h.resource_display_name(res), 50)}<span class="format-label" property="dc:format" data-format="${res.format.lower() or 'data'}">${res.format}</span>
-                  <!--! popular icon -->
-                  ${h.popular('views', res.tracking_summary.total, min=10)}
-                </a>
-                <p class="description">
-                  <py:choose test="">
-                    <!-- only show description if name is given as we show
-                    the description for the name if none is given -->
-                    <py:if test="res.name">
-                      ${h.markdown_extract(res.description, extract_length=80)}
-                    </py:if>
-                    <py:otherwise><span class="empty">No description for this resource</span></py:otherwise>
-                  </py:choose>
-                </p>
-                <a class="btn btn-primary" href="${url}">Explore Data</a>
-              </li>
-            </ul>
-            <py:if test="not c.pkg_dict.resources">
-              <p>This dataset has no data, <a href="#">why not add some?</a></p>
-            </py:if>
-          </section>
-          <section class="tags content" py:if="len(c.pkg_dict.tags)">
-            ${h.snippet('snippets/tag_list.html', tags=c.pkg_dict.tags)}
-          </section>
-          <section class="content additional-info">
-            <h3>Additional Info</h3>
-            <table class="table table-striped table-bordered table-condensed">
-              <thead>
-                <tr>
-                  <th>Field</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr py:if="c.pkg.url">
-                  <th class="dataset-label">Source</th>
-                  <td class="dataset-details" property="foaf:homepage">${c.pkg_url_link}</td>
-                </tr>
+{% block actions %}
+  <ul class="actions">
+    <li>{{ h.nav_link(_('History'), controller='package', action='history', id=c.pkg.id, class_='btn', icon='rewind') }}</li>
+    <li>{{ h.nav_link(_('Edit'), controller='package', action='edit', id=c.pkg.id, class_='btn', icon='tools', condition=h.check_access('package_update',{'id':c.pkg.id })) }}</li>
+    <li><a class="btn" href=""><i class="ckan-icon ckan-icon-flag"></i> Report Issue</a></li>
+  </ul>
+{% endblock %}
 
-                <tr py:if="c.pkg_author_link">
-                  <th class="dataset-label">Author</th>
-                  <td class="dataset-details" property="dc:creator">${c.pkg_author_link}</td>
-                </tr>
+{% block primary_content %}
+  {% if c.pkg_revision_id %}
+    <div class="widget info">
+      <p class="content">
+        {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
+        {% set url =  h.url(controller='package', action='read', id=c.pkg.name) %}
 
-                <tr py:if="c.pkg_maintainer_link">
-                  <th class="dataset-label">Maintainer</th>
-                  <td class="dataset-details" property="dc:contributor">${c.pkg_maintainer_link}</td>
-                </tr>
-
-                <tr py:if="c.pkg.version">
-                  <th class="dataset-label">Version</th>
-                  <td class="dataset-details">${c.pkg.version}</td>
-                </tr>
-
-                <tr py:if="c.eu_country">
-                  <th class="dataset-label">Country</th>
-                  <td class="dataset-details">${h.code_to_country(c.eu_country)}</td>
-                </tr>
-
-                <tr py:if="h.check_access('package_update',{'id':c.pkg.id})">
-                  <th class="dataset-label">State</th>
-                  <td class="dataset-details">${c.pkg.state}</td>
-                </tr>
-
-                <tr py:if="c.harvest_catalogue_name">
-                  <th class="dataset-label">Harvest Source</th>
-                  <td class="dataset-details" i18n:msg="harvest_catalogue_name">
-                    <a href="${c.harvest_dataset_url}">Dataset page</a> on 
-                    <a href="${c.harvest_catalogue_url}">${c.harvest_catalogue_name}</a>
-                  </td>
-                </tr>
-
-                <tr py:for="i, (key, value) in enumerate(c.pkg_extras)" rel="dc:relation" resource="_:extra${i}">
-                  <th class="dataset-label" property="rdfs:label">${_(key)}</th>
-                  <td class="dataset-details" property="rdf:value">${value}</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
-        </article>
+        {% if c.pkg_revision_not_latest %}
+          {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
+        {% else %}
+          {% trans timestamp=timestamp %}This is the current revision of this dataset, as edited at {{ timestamp }}.{% endtrans %}
+        {% endif %}
       </div>
+    </div>
+  {% endif %}
 
-      <aside class="secondary">
-        <!--! Groups -->
-        <py:for each="group in c.pkg_dict.groups">
-          <section class="module info group">
-            <div class="content">
-              <a href="${h.url_for(controller='group', action='read', id=group.name)}">
-                <img py:if="group.image_url" src="group.image_url" width="200" height="125" />
-                <img py:if="not group.image_url" src="http://placehold.it/200x125" width="200" height="125" />
-                <h3>${group.name}</h3>
-              </a>
-              <p>${group.description}</p>
-            </div>
-          </section>
-        </py:for>
+  <article class="module prose">
+    <section class="content">
+      <h1>{{ c.pkg_dict.title or c.pkg_dict.name }}</h1>
+      {% if c.pkg_notes_formatted %}
+        <div class="notes">
+          {{ c.pkg_notes_formatted }}
+        </div>
+      {% endif %}
+      <span class="insert-comment-thread"></span>
+    </section>
 
-        <section class="module subscribe">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-add"></i> Subscribe</h2>
-          <ul class="nav nav-simple">
-            <li><a href="#"><i class="ckan-icon ckan-icon-email"></i> Email</a></li>
-            <li><a href="#"><i class="ckan-icon ckan-icon-feed"></i> RSS</a></li>
-          </ul>
-        </section>
+    <section id="dataset-resources" class="resources content">
+      <h3>Data and Resources</h3>
+      {% if c.pkg_dict.resources %}
+        <ul class="resource-list">
+          {% for res in c.pkg_dict.resources %}
+            {{ h.snippets('package/snippets/resource_item.html', resource=res) }}
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>{% trans %}This dataset has no data, <a href="#">why not add some?</a>{% endtrans %}</p>
+      {% endif %}
+    </section>
 
-        ${h.snippet('snippets/social.html')}
+    {{ h.snippet('package/snippets/tags.html', tags=c.pkg_dict.tags) }}
 
-        <section class="module info related" py:if="c.pkg.related">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-photo"></i> Related <a class="action" href="${h.url_for(controller='related', action='new', id=c.pkg.name)}">Add Related</a></h2>
-          <p class="content">
-          <py:with vars="item = c.pkg.related[0]">
-          ${item.type}
-          ${item.title}
-          ${item.description}
-          ${item.url}
-          ${item.image_url}
-          ${item.id}
-          </py:with>
-          </p>
-        </section>
+    {{ h.snippet('package/snippets/additional_info.html') }}
+  </article>
+{% endblock %}
 
-        <section class="module info related empty" py:if="not c.pkg.related">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-photo"></i> Related</h2>
-          <div class="content">
-            <p>No apps, ideas, news stories or images have been
-            related to this dataset yet, why not add one now?</p>
-            <p class="action"><a class="btn" href="${h.url_for(controller='related', action='new', id=c.pkg.name)}">Add Item</a></p>
-          </div>
-        </section>
+{% block secondary_content %}
+  {% for group in c.pkg_dict.groups %}
+    {{ h.snippet('snippets/group.html', group=group) }}
+  {% endfor %}
 
-        <section class="module info license" py:if="c.pkg.license_id">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-large-lock"></i> License</h2>
-          <p class="content">${h.snippet('snippets/license.html', dataset=c.pkg_dict)}</p>
-        </section>
+  {{ h.snippet('snippets/subscribe.html') }}
 
-        <section class="module disqus-trackback">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-clipboard"></i> Trackback URL</h2>
-          <div class="field"><input type="text" value="http://trackback.com" /></div>
-        </section>
-      </aside>
-    </body>
-</html>
+  {{ h.snippet('snippets/social.html') }}
+
+  {{ h.snippet('snippets/related.html', pkg=c.pkg) }}
+
+  {{ h.snippet('snippets/license.html', pkg=c.pkg, pkg_dict=c.pkg_dict) }}
+
+  {{ h.snippet('snippets/disqus_trackback.html') }}
+{% endblock %}
