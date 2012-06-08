@@ -37,112 +37,69 @@
   </ul>
 {% endblock %}
 
-<!DOCTYPE html>
-<html
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
-    <!--! Include matchers nearest first -->
-    <xi:include href="../page.html" />
+{% block primary_content %}
+  <section class="module">
+    <div class="content">
+      <h1>{{ h.resource_display_name(c.resource) }}</h1>
 
-    <!--! Now include the current page -->
-    <head>
-      <title>
-        {{ h.dataset_display_name(c.package) }} /
-        {{ h.resource_display_name(c.resource) }} - Dataset - Resource
-      </title>
-    </head>
-    <body>
-      <div class="toolbar">
-        <ol class="breadcrumb">
-          <li>{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
-          <li>{{ h.nav_link(h.dataset_display_name(c.package), controller='package', action='read', id=c.package.get('name')) }}</li>
-          <li class="active"><a href="">{{ h.resource_display_name(c.resource) }}</a></li>
-        </ol>
-        <ul class="actions">
-          <li>
-            <a class="btn resource-url-analytics resource-type-{{ c.resource.get('resource_type') }}" href="{{ c.resource.get('url') }}" py:if="c.resource.get('url')">
-              <py:choose test="c.resource.get('resource_type')">
-                <py:when test="'listing' or 'service'">View</py:when>
-                <py:when test="'api'">API Endpoint</py:when>
-                <py:otherwise><i class="ckan-icon ckan-icon-download"></i> Download</py:otherwise>
-              </py:choose>
-            </a>
-          </li>
-          <li py:if="config.get('ckan.datastore.enabled', False)">
-            <py:if test="c.resource.get('webstore_url')">
-              <a class="btn" data-toggle="modal" href="#modal-data-api-help"><i class="ckan-icon ckan-icon-star"></i> Data API</a>
-            </py:if>
-            <py:if test="not c.resource.get('webstore_url')">
-              <a class="btn disabled" rel="tooltip" title="Data API is unavailable for this resource as DataStore is disabled"><i class="ckan-icon ckan-icon-star"></i> Data API</a>
-            </py:if>
-          </li>
-        </ul>
+      <div class="notes" property="rdfs:label">
+        {{ c.resource.get('description') or '(No description)' }}
+        <py:if test="not c.resource.get('description') and c.package.get('notes')" id="dataset-description">
+          <div>{{ h.markdown_extract(c.package.get('notes')) }}</div>
+          <small i18n:msg="">From the <a href="{{ h.url_for(controller='package', action='read', id=c.package['name']) }}">Dataset</a></small>
+        </py:if>
       </div>
-
-      <div class="primary">
-        <section class="module">
-          <div class="content">
-            <h1>{{ h.resource_display_name(c.resource) }}</h1>
-
-            <div class="notes" property="rdfs:label">
-              {{ c.resource.get('description') or '(No description)' }}
-              <py:if test="not c.resource.get('description') and c.package.get('notes')" id="dataset-description">
-                <div>{{ h.markdown_extract(c.package.get('notes')) }}</div>
-                <small i18n:msg="">From the <a href="{{ h.url_for(controller='package', action='read', id=c.package['name']) }}">Dataset</a></small>
-              </py:if>
-            </div>
-          </div>
-          <div class="resource-preview content">
-            <div class="preview-header">
-              <h3>Preview</h3>
-              <a py:if="c.pkg.is_private" title="Cannot embed as resource is private." style="display: none;" class="btn disabled" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
-              <a py:if="not c.pkg.is_private" style="display: none;" class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
-            </div>
-            <div id="ckanext-datapreview content"></div>
-          </div>
-        </section>
-
-        <section class="module">
-          <div class="content">
-            <h2>Additional Information</h2>
-            <table class="table table-striped table-bordered table-condensed">
-              <thead>
-                <tr>
-                  <th>Field</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>Last Updated</th>
-                  <td>{{ h.time_ago_in_words_from_str(c.resource['last_modified'], granularity='day') }}</td>
-                </tr>
-                <tr>
-                  <th>Licence</th>
-                  <td>{{ h.snippet('snippets/license.html', dataset=c.pkg_dict) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="module" py:if="config.get('ckan.datastore.enabled', False)">
-          {{ data_api_help(c.datastore_api) }}
-        </section>
+    </div>
+    <div class="resource-preview content">
+      <div class="preview-header">
+        <h3>Preview</h3>
+        <a py:if="c.pkg.is_private" title="Cannot embed as resource is private." style="display: none;" class="btn disabled" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
+        <a py:if="not c.pkg.is_private" style="display: none;" class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
       </div>
+      <div id="ckanext-datapreview content"></div>
+    </div>
+  </section>
 
-      <div class="secondary">
-        <section class="module">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-info"></i> Resource Information</h2>
-          <ul class="simple-list">
-            <li><i class="ckan-icon ckan-icon-calendar"></i> Unknown</li>
-            <li><i class="ckan-icon ckan-icon-file"></i> CSV</li>
-            <li><i class="ckan-icon ckan-icon-lock"></i> {{ h.snippet('snippets/license.html', dataset=c.pkg_dict) }}</li>
-          </ul>
-        </section>
-        {{ h.snippet('snippets/social.html') }}
-      </div>
-    </body>
-</html>
+  <section class="module">
+    <div class="content">
+      <h2>Additional Information</h2>
+      <table class="table table-striped table-bordered table-condensed">
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Last Updated</th>
+            <td>{{ h.time_ago_in_words_from_str(c.resource['last_modified'], granularity='day') }}</td>
+          </tr>
+          <tr>
+            <th>Licence</th>
+            <td>{{ h.snippet('snippets/license.html', dataset=c.pkg_dict) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {% if config.get('ckan.datastore.enabled', false) %}
+    <section class="module" py:if="">
+      {{ data_api_help(c.datastore_api) }}
+    </section>
+  {% endif %}
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module">
+    <h2 class="heading"><i class="ckan-icon ckan-icon-info"></i> Resource Information</h2>
+    <ul class="simple-list">
+      <li><i class="ckan-icon ckan-icon-calendar"></i> Unknown</li>
+      <li><i class="ckan-icon ckan-icon-file"></i> CSV</li>
+      <li><i class="ckan-icon ckan-icon-lock"></i> {{ h.snippet('snippets/license.html', dataset=c.pkg_dict) }}</li>
+    </ul>
+  </section>
+
+  {{ h.snippet('snippets/social.html') }}
+{% endblock %}
