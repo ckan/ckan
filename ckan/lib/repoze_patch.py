@@ -8,10 +8,12 @@ from openid.cryptutil import randomString
 from openid.fetchers import setDefaultFetcher, Urllib2Fetcher
 from openid.extensions import pape, sreg, ax
 
+import lib.helpers as h
+
 # #1659 fix - logged_out_url prefixed with mount point
 def get_full_path(path, environ):
     if path.startswith('/'):
-        path = environ.get('SCRIPT_NAME', '') + path
+        path = h.url_for(path)
     return path
 
 def identify(self, environ):
