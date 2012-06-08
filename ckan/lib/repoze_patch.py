@@ -1,17 +1,13 @@
 from webob import Request, Response
-
-import openid
-from openid.store import memstore, filestore, sqlstore
 from openid.consumer import consumer
-from openid.oidutil import appendArgs
-from openid.cryptutil import randomString
-from openid.fetchers import setDefaultFetcher, Urllib2Fetcher
-from openid.extensions import pape, sreg, ax
+from openid.extensions import sreg, ax
+
+import lib.helpers as h
 
 # #1659 fix - logged_out_url prefixed with mount point
 def get_full_path(path, environ):
     if path.startswith('/'):
-        path = environ.get('SCRIPT_NAME', '') + path
+        path = h.url_for(path)
     return path
 
 def identify(self, environ):
@@ -23,6 +19,7 @@ def identify(self, environ):
     """
 
     request = Request(environ)
+    logger = environ['repoze.who.logger']
     # #1659 fix - Use PATH_INFO rather than request.path as the former
     #             strips off the mount point.
     path = environ['PATH_INFO']
@@ -36,7 +33,7 @@ def identify(self, environ):
         res.status = 302
 
         res.location = get_full_path(self.logged_out_url, environ)
-        
+
         environ['repoze.who.application'] = res
         return {}
 
@@ -48,18 +45,19 @@ def identify(self, environ):
     # when the openid provider redirects the user back.
     if path == self.login_handler_path:
 
-    # in the case we are coming from the login form we should have 
+    # in the case we are coming from the login form we should have
     # an openid in here the user entered
         open_id = request.params.get(self.openid_field, None)
-        if environ['repoze.who.logger'] is not None:
-            environ['repoze.who.logger'].debug('checking openid results for : %s ' %open_id)
+        if logger:
+            logger.debug('checking openid results for : %s ' %open_id)
 
         if open_id is not None:
             open_id = open_id.strip()
 
         # we don't do anything with the openid we found ourselves but we put it in here
         # to tell the challenge plugin to initiate the challenge
-        identity['repoze.whoplugins.openid.openid'] = environ['repoze.whoplugins.openid.openid'] = open_id
+        identity['repoze.whoplugins.openid.openid'] = open_id
+        environ['repoze.whoplugins.openid.openid'] = open_id
 
         # this part now is for the case when the openid provider redirects
         # the user back. We should find some openid specific fields in the request.
@@ -87,7 +85,8 @@ def identify(self, environ):
                         except KeyError:
                             pass
 
-                environ['repoze.who.logger'].info('openid request successful for : %s ' %open_id)
+                if logger:
+                    logger.info('openid request successful for : %s ' %open_id)
 
                 display_identifier = info.identity_url
 
@@ -102,7 +101,7 @@ def identify(self, environ):
                 return identity
 
             # TODO: Do we have to check for more failures and such?
-            # 
+            #
         elif mode=="cancel":
             # cancel is a negative assertion in the OpenID protocol,
             # which means the user did not authorize correctly.
@@ -121,12 +120,12 @@ def redirect_to_logged_in(self, environ):
     res = Response()
     res.status = 302
     res.location = url
-    environ['repoze.who.application'] = res    
+    environ['repoze.who.application'] = res
 
 def challenge(self, environ, status, app_headers, forget_headers):
     """the challenge method is called when the ``IChallengeDecider``
-    in ``classifiers.py`` returns ``True``. This is the case for either a 
-    ``401`` response from the client or if the key 
+    in ``classifiers.py`` returns ``True``. This is the case for either a
+    ``401`` response from the client or if the key
     ``repoze.whoplugins.openid.openidrepoze.whoplugins.openid.openid``
     is present in the WSGI environment.
     The name of this key can be adjusted via the ``openid_field`` configuration
@@ -140,11 +139,12 @@ def challenge(self, environ, status, app_headers, forget_headers):
 
     TODO: make the environment key to check also configurable in the challenge_decider.
 
-    For the OpenID flow check `the OpenID library documentation 
+    For the OpenID flow check `the OpenID library documentation
     <http://openidenabled.com/files/python-openid/docs/2.2.1/openid.consumer.consumer-module.html>`_
 
     """
     request = Request(environ)
+    logger = environ['repoze.who.logger']
 
     # check for the field present, if not redirect to login_form
     if not request.params.has_key(self.openid_field):
@@ -154,10 +154,10 @@ def challenge(self, environ, status, app_headers, forget_headers):
         res.location = get_full_path(self.login_form_url, environ)+"?%s=%s" %(self.came_from_field, request.url)
         return res
 
-    # now we have an openid from the user in the request 
+    # now we have an openid from the user in the request
     openid_url = request.params[self.openid_field]
-    if environ['repoze.who.logger'] is not None:
-        environ['repoze.who.logger'].debug('starting openid request for : %s ' %openid_url)
+    if logger:
+        logger.debug('starting openid request for : %s ' %openid_url)
 
     try:
     # we create a new Consumer and start the discovery process for the URL given
@@ -180,12 +180,14 @@ def challenge(self, environ, status, app_headers, forget_headers):
     except consumer.DiscoveryFailure, exc:
         # eventually no openid server could be found
         environ[self.error_field] = 'Error in discovery: %s' %exc[0]
-        environ['repoze.who.logger'].info('Error in discovery: %s ' %exc[0])     
+        if logger:
+            logger.info('Error in discovery: %s ' %exc[0])
         return self._redirect_to_loginform(environ)
     except KeyError, exc:
         # TODO: when does that happen, why does plone.openid use "pass" here?
         environ[self.error_field] = 'Error in discovery: %s' %exc[0]
-        environ['repoze.who.logger'].info('Error in discovery: %s ' %exc[0])
+        if logger:
+            logger.info('Error in discovery: %s ' %exc[0])
         return self._redirect_to_loginform(environ)
         return None
 
@@ -193,7 +195,8 @@ def challenge(self, environ, status, app_headers, forget_headers):
     # should actually been handled by the DiscoveryFailure exception above
     if openid_request is None:
         environ[self.error_field] = 'No OpenID services found for %s' %openid_url
-        environ['repoze.who.logger'].info('No OpenID services found for: %s ' %openid_url)
+        if logger:
+            logger.info('No OpenID services found for: %s ' %openid_url)
         return self._redirect_to_loginform(environ)
 
     # we have to tell the openid provider where to send the user after login
@@ -207,8 +210,8 @@ def challenge(self, environ, status, app_headers, forget_headers):
     # return_to is the actual URL to be used for returning to this app
     return_to = request.path_url # we return to this URL here
     trust_root = request.application_url
-    if environ['repoze.who.logger'] is not None:
-        environ['repoze.who.logger'].debug('setting return_to URL to : %s ' %return_to)
+    if logger:
+        logger.debug('setting return_to URL to : %s ' %return_to)
 
     # TODO: usually you should check openid_request.shouldSendRedirect()
     # but this might say you have to use a form redirect and I don't get why
@@ -216,13 +219,13 @@ def challenge(self, environ, status, app_headers, forget_headers):
 
     # TODO: we might also want to give the application some way of adding
     # extensions to this message.
-    redirect_url = openid_request.redirectURL(trust_root, return_to) 
+    redirect_url = openid_request.redirectURL(trust_root, return_to)
     # # , immediate=False)
     res = Response()
     res.status = 302
     res.location = redirect_url
-    if environ['repoze.who.logger'] is not None:
-        environ['repoze.who.logger'].debug('redirecting to : %s ' %redirect_url)
+    if logger:
+        logger.debug('redirecting to : %s ' %redirect_url)
 
     # now it's redirecting and might come back via the identify() method
     # from the openid provider once the user logged in there.
