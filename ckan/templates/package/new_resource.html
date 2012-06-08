@@ -1,103 +1,16 @@
-<!DOCTYPE html>
-<html
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
-    <!--! Include matchers nearest first -->
-    <xi:include href="../page.html" />
+{% extends "package/pages/form_page.html" %}
 
-    <!--! Now include the current page -->
-    <head>
-      <title>Add data to the dataset</title>
-    </head>
-    <body>
-      <div class="toolbar">
-        ${h.snippet('package/new_breadcrumb.html')}
-      </div>
+{% block title %}{{ _('Add data to the dataset') }} - {{ super }}{% endblock %}
 
-      <div class="primary">
-        <section class="module">
-          <div class="content">
-            ${h.snippet('package/new_stages.html', stage=2)}
+{% block stages %}{{ h.snippet('package/snippets/stages.html', stage=2) }}{% endblock %}
 
-            <form class="dataset-form dataset-resource-form form-horizontal" method="post" py:with="errors = {}; data = {};">
-              <div class="control-group dataset-form-resource-types">
-                <div class="controls">
-                  <!--!
-                  This block uses a slightly odd pattern. Unlike the rest of the radio
-                  buttons which are wrapped _inside_ the labels here we place the label
-                  after the input. This enables us to style the label based on the state
-                  of the radio using css. eg. input[type=radio]+label {}
-                  -->
-                  <i class="ckan-icon ckan-icon-link-file"></i>
-                  <input id="field-resource-type-file" type="radio" name="resources__0__url" checked="checked" value="file" />
-                  <label class="radio inline" for="field-resource-type-file">Link to a file</label>
-                  <i class="ckan-icon ckan-icon-link-plugin"></i>
-                  <input id="field-resource-type-api" type="radio" name="resources__0__url" value="api" />
-                  <label class="radio inline" for="field-resource-type-api">Link to an API</label>
-                </div>
-              </div>
+{% block form %}{{ h.snippet('package/snippets/resource_form.html') }}{% endblock %}
 
-              <div class="control-group control-large control-full" py:with="error = errors.get('title', '')">
-                <label class="control-label" for="field-resource-url">Resource</label>
-                <div class="controls">
-                  <input id="field-resource-url" name="resources__0__url" value="${data.get('title', '')}" placeholder="${_('eg. http://example.com/jan-2011.json')}" />
-                  <span class="error-block" py:if="error">${error}</span>
-                </div>
-              </div>
-
-              <div class="control-group control-full" py:with="error = errors.get('name', '')">
-                <label class="control-label" for="field-resources-name">Name</label>
-                <div class="controls">
-                  <input id="field-resource-name" name="resources__0__name" value="${data.get('name', '')}" placeholder="${_('eg. January 2011')}" />
-                  <span class="error-block" py:if="error">${error}</span>
-                </div>
-              </div>
-
-              <div class="control-group control-full" py:with="error = errors.get('notes', '')">
-                <label class="control-label" for="field-resource-description">Description</label>
-                <div class="controls editor">
-                  <textarea id="field-resource-description" name="resources__0__description" cols="20" rows="5" placeholder="Some useful notes about the data">${data.get('notes', '')}</textarea>
-                  <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
-                  <span class="error-block" py:if="error">${error}</span>
-                </div>
-              </div>
-
-              <div class="control-group control-full" py:with="error = errors.get('', '')">
-                <label class="control-label" for="field-resource-format">Format</label>
-                <div class="controls">
-                  <input id="field-resource-name" name="resources__0__format" value="${data.get('', '')}" placeholder="${_('eg. application/json')}" />
-                  <span class="error-block" py:if="error">${error}</span>
-                </div>
-              </div>
-
-              <div class="control-group">
-                <label for="field-resource-type" class="control-label">Resource Type</label>
-                <div class="controls">
-                  <select id="field-resource-type" name="resources__0__type">
-                    <option selected="selected" value="">Select a type&hellip;</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-actions">
-                <a class="btn" href="">Save</a>
-                <a class="btn" href="">Save &amp; add another</a>
-                <button class="btn btn-primary" type="submit">Next: Additional Info</button>
-              </div>
-            </form>
-          </div>
-        </section>
-      </div>
-
-      <div class="secondary">
-        <section class="module">
-          <h2 class="heading"><i class="ckan-icon ckan-icon-info"></i> What is data?</h2>
-          <div class="content">
-            <p>Data can be any file or link to a file containing useful data.</p>
-          </div>
-        </section>
-      </div>
-    </body>
-</html>
+{% block secondary_content %}
+  <section class="module">
+    <h2 class="heading"><i class="ckan-icon ckan-icon-info"></i> {{ _('What is data?') }}</h2>
+    <div class="content">
+      <p>{{ _('Data can be any file or link to a file containing useful data.') }}</p>
+    </div>
+  </section>
+{% endblock %}
