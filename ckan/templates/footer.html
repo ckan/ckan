@@ -1,27 +1,50 @@
-<html
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  <footer class="site-footer">
-    <div class="container">
-      <nav class="footer-links row-fluid">
-        <ul class="unstyled row-fluid">
-          <li><a href="#">Terms and Conditions</a></li>
-          <li><a href="#">Accessibility</a></li>
-          <li><a href="#">Code of conduct</a></li>
-          <li><a href="#">Moderation policy</a></li>
-          <li><a href="#">FAQ</a></li>
-          <li><a href="#">Privacy</a></li>
-          <li><a href="#">Contact us</a></li>
-          <li><a href="#">Consultation</a></li>
-        </ul>
-      </nav>
-      <div class="attribution">
-        <p><strong>Powered by</strong> <a href="">CityData</a> from <a href="">CKAN</a></p>
-        <p><small>Maps powered by Leaflet, map data &copy; OpenStreetMap contributors, CC-BY-SA, map imagery &copy; CloudMade</small></p>
-      </div>
+<footer class="site-footer">
+  <div class="container">
+    <nav class="footer-links row-fluid">
+      <ul class="unstyled row-fluid">
+        <li><a href="#">Terms and Conditions</a></li>
+        <li><a href="#">Accessibility</a></li>
+        <li><a href="#">Code of conduct</a></li>
+        <li><a href="#">Moderation policy</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Privacy</a></li>
+        <li><a href="#">Contact us</a></li>
+        <li><a href="#">Consultation</a></li>
+      </ul>
+    </nav>
+    <div class="attribution">
+      <p><strong>Powered by</strong> <a href="">CityData</a> from <a href="">CKAN</a></p>
+      <p><small>Maps powered by Leaflet, map data &copy; OpenStreetMap contributors, CC-BY-SA, map imagery &copy; CloudMade</small></p>
     </div>
-  </footer>
-</html>
+  </div>
+  {% if config.debug %}
+    <div class="container">
+      <a id="debug-toggle" href="#debug" style="opacity: 0.6">Debug</a>
+      <pre id="debug" class="well" style="display:none;color:#333;margin-top:10px;">
+<b>Debug info:</b>
+
+<b>Controller</b>: {{ c.controller }}
+<b>Action</b>: {{ c.action }}
+<b>Template name</b>: {{ c.__template_name }}
+<b>Template path</b>: {{ c.__template_path }}
+
+<b>Context info:</b>
+
+{% for value in h.debug_full_info_as_list() -%}
+  <b>{{ value.0 }}</b>: {{ value.1 }}
+{% endfor -%}
+      </pre>
+      <script>
+        (function toggleDebug() {
+          var debug  = document.getElementById('debug'),
+              toggle = document.getElementById('debug-toggle');
+
+          toggle.onclick = function () {
+            debug.style.display = debug.style.display === 'block' ? 'none' : 'block';
+            return false;
+          };
+        })();
+      </script>
+    </div>
+  {% endif %}
+</footer>
