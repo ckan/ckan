@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-'''Script for checking for common translation mistakes in po files.
+'''Script for checking for common translation mistakes in po files, see:
 
-Run this script before commiting new po files to CKAN. Usage:
+    paster check-po-files --help
 
-    ./ckan/i18n/check_po_files.py ckan/i18n/*/LC_MESSAGES/ckan.po
+for usage.
 
 Requires polib <http://pypi.python.org/pypi/polib>:
 
@@ -11,11 +11,11 @@ Requires polib <http://pypi.python.org/pypi/polib>:
 
 '''
 import re
-import sys
 import polib
+import paste.script.command
 
 def simple_conv_specs(s):
-    '''Return a list of the simple Python string conversion in the string s.
+    '''Return the simple Python string conversion specifiers in the string s.
 
     e.g. ['%s', '%i']
 
@@ -90,19 +90,23 @@ def test_replacement_fields():
                     ['{actor}', '{object}', '{target}'])
     assert replacement_fields("{actor} updated their profile") == ['{actor}']
 
-def main():
-    test_simple_conv_specs()
-    test_mapping_keys()
-    test_replacement_fields()
-    for path in sys.argv[1:]:
-        print 'Checking file {}'.format(path)
-        po = polib.pofile(path)
-        for entry in po.translated_entries():
-            for function in (simple_conv_specs, mapping_keys,
-                    replacement_fields):
-                if not function(entry.msgid) == function(entry.msgstr):
-                    print "    Format specifiers don't match:"
-                    print u'    {0} -> {1}'.format(entry.msgid, entry.msgstr)
+class CheckPoFiles(paste.script.command.Command):
 
-if __name__ == "__main__":
-    main()
+    usage = "[FILE] ..."
+    group_name = 'ckan'
+    summary = 'Check po files for common mistakes'
+    parser = paste.script.command.Command.standard_parser(verbose=True)
+
+    def command(self):
+        test_simple_conv_specs()
+        test_mapping_keys()
+        test_replacement_fields()
+        for path in self.args:
+            print 'Checking file {}'.format(path)
+            po = polib.pofile(path)
+            for entry in po.translated_entries():
+                for function in (simple_conv_specs, mapping_keys,
+                        replacement_fields):
+                    if not function(entry.msgid) == function(entry.msgstr):
+                        print "    Format specifiers don't match:"
+                        print u'    {0} -> {1}'.format(entry.msgid, entry.msgstr)
