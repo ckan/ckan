@@ -4,8 +4,13 @@
 }
 
 .media .content {
-  .clearfix;
 }
+
+.media .content:before,
+.media .content:after {
+  
+}
+
 
 .media .content > :last-child {
   margin-bottom: 0;
@@ -66,6 +71,39 @@ ol.media-grid {
 
 .media-grid .first {
   clear: left;
+}
+
+.media-wide {
+  padding: 0;
+  margin-bottom: -20px;
+}
+
+.media-wide .media {
+  .makeColumn(6);
+}
+
+// Overlay
+
+.media-overlay {
+  position: relative;
+}
+
+.media-overlay .heading {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3px 10px;
+  background-color: #000;
+  background-color: rgba(0, 0, 0, 0.8);
+  font-size: 14px;
+  color: #fff;
+}
+
+// Module
+
+.media.module {
+  padding: 0;
 }
 
 // Banner
