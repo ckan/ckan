@@ -1,0 +1,100 @@
+{% extends "page.html" %}
+
+{% block title %}{{ _("Welcome") }} - {{ super() }}{% endblock %}
+
+{% block maintag %}{% endblock %}
+
+{% block content %}
+  <div role="main" class="hero">
+    <div class="container">
+      {{ self.flash() }}
+      {{ self.primary_content() }}
+    </div>
+  </div>
+  <div class="main">
+    <div class="container">
+      {{ self.secondary_content() }}
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block primary_content %}
+  <div class="primary module module-popup">
+    <div class="content">
+      <header>
+        <h1 class="page-heading">{{ _("Welcome to CKAN") }}</h1>
+        <p>{% trans %}This is a nice introductory paragraph about CKAN or the site
+        in general. We don't have any copy to go here yet but soon we will
+        {% endtrans %}</p>
+      </header>
+
+      <section class="featured media-overlay">
+        <h2 class="heading">{{ _("This is a featured section") }}</h2>
+        <a class="image" href="#">
+          <img src="http://placehold.it/420x220" />
+        </a>
+      </section>
+    </div>
+  </div>
+  <div class="secondary">
+    <div class="secondary-inner">
+      <div class="module module-dark info">
+        <form class="dataset-search content clearfix" method="get">
+          <h3 class="heading">{{ _("Search Your Data") }}</h3>
+          <span class="control-group search-giant">
+            <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" results="0" placeholder="{{ _('eg. Gold Prices') }}" />
+            <button type="submit" value="{{ _('Search') }}">Submit</button>
+          </span>
+        </form>
+      </div>
+      <div class="tags">
+        <h3 class="tag">Popular Tags</h3>
+        <ul class="tag-list">
+          <li class="tag"><a href="">Data</a></li>
+          <li class="tag"><a href="">More data</a></li>
+          <li class="tag"><a href="">Sandwiches</a></li>
+          <li class="tag"><a href="">Cakes</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="">
+    <ul class="media-grid media-wide">
+      <li class="media media-vertical module">
+        <div class="content">
+          <h3 class="heading"><a href="#">Stuff</a></h3>
+          <span class="banner">Popular</span>
+          <p>Another example block</p>
+        </div>
+      </li>
+      <li class="media module">
+        <div class="content">
+          <h3 class="heading"><a href="#">Stuff</a></h3>
+          <span class="banner">Popular</span>
+          <p>Another example block</p>
+        </div>
+      </li>
+      <li class="media module">
+        <div class="content">
+          <h3 class="heading"><a href="#">Stuff</a></h3>
+          <span class="banner">Popular</span>
+          <p>Another example block</p>
+        </div>
+      </li>
+      <li class="media module">
+        <div class="content">
+          <h3 class="heading"><a href="#">Stuff</a></h3>
+          <span class="banner">Popular</span>
+          <p>Another example block</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+{% endblock %}
+
+{# Remove the toolbar. #}
+{% block toolbar %}{% endblock %}

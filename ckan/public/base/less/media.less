@@ -1,9 +1,16 @@
 .media {
+  position: relative;
+  overflow: hidden;
 }
 
 .media .content {
-  .clearfix;
 }
+
+.media .content:before,
+.media .content:after {
+  
+}
+
 
 .media .content > :last-child {
   margin-bottom: 0;
@@ -66,9 +73,56 @@ ol.media-grid {
   clear: left;
 }
 
-// Banner
+.media-wide {
+  padding: 0;
+  margin-bottom: -20px;
+}
 
+.media-wide .media {
+  .makeColumn(6);
+}
+
+// Overlay
+
+.media-overlay {
+  position: relative;
+}
+
+.media-overlay .heading {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3px 10px;
+  background-color: #000;
+  background-color: rgba(0, 0, 0, 0.8);
+  font-size: 14px;
+  color: #fff;
+}
+
+// Module
+
+.media.module {
+  padding: 0;
+}
+
+// Banner
+.transform (@func) {
+  -webkit-transform: @arguments;
+  -moz-transform: @arguments;
+  -o-transform: @arguments;
+  transform: @arguments;
+}
+
+.transform-origin (@x, @y) {
+  -webkit-transform-origin: @arguments;
+  -moz-transform-origin: @arguments;
+  -o-transform-origin: @arguments;
+  transform-origin: @arguments;
+}
 .banner {
+  .transform(rotate(45deg));
+  .transform-origin(center, center);
   position: absolute;
   top: 15px;
   right: -35px;
@@ -79,6 +133,4 @@ ol.media-grid {
   font-size: 11px;
   text-align: center;
   text-transform: uppercase;
-  -webkit-transform: rotate(45deg);
-  -webkit-transform-origin: center center;
 }
