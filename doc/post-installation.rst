@@ -4,6 +4,14 @@ Post-Installation Setup
 
 After you have completed installation (from either package or source), follow this section for instructions on setting up an initial user, loading test data, and notes on deploying CKAN. 
 
+.. note::
+
+    If you installed CKAN from source, you will need to activate the virtualenv and switch to the ckan source directory.
+    In this case, you don't need to specifiy the `--plugin` or `--config` parameters when executing the paster commands, e.g.::
+
+        (pyenv):~/pyenv/src/ckan$ paster user list
+
+
 .. _create-admin-user:
 
 Create an Admin User
