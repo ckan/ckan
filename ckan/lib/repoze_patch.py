@@ -7,7 +7,7 @@ import lib.helpers as h
 # #1659 fix - logged_out_url prefixed with mount point
 def get_full_path(path, environ):
     if path.startswith('/'):
-        path = h.url_for(path)
+        path = h._add_i18n_to_url(path)
     return path
 
 def identify(self, environ):
