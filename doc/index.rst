@@ -43,6 +43,7 @@ Customizing and Extending
    filestore
    datastore
    background-tasks
+   harvesting
    geospatial
    multilingual
 
@@ -56,7 +57,6 @@ Publishing Datasets
    loading-data
    authorization
    publisher-profile
-   geospatial
    data-viewer
 
 The CKAN API
