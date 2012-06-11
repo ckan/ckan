@@ -1,4 +1,4 @@
-<!--!
+{#
 Construct a facet module populated with links to filtered results.
 
 name
@@ -22,37 +22,39 @@ count_label
   A callable which accepts an integer, and returns a string.  This controls
   how a facet-item's count is displayed.
 
-  -->
+#}
 {% with items = h.get_facet_items_dict(name) %}
   <section class="module">
-  <h2 class="heading"><i class="ckan-icon ckan-icon-tag"></i> {{ c.facet_titles.get(name) }} <a href="{{ c.remove_field(name) }}" class="action">Clear All</a></h2>
-    <nav py:if="items">
-      <ul class="unstyled nav nav-simple nav-facet">
-        {% for item in items %}
-        {% if item.active %}
-            <li class="active">
-            <a href="{{ c.remove_field(name, item.name) }}">
-              {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
-              {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
-            </a>
-          </li>
-        {% else %}
-            <li>
-            <a href="{{ c.drill_down_url(**{name: item.name}) }}">
-              {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
-              {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
-            </a>
-          </li>
-        {% endif %}
-        {% endfor %}
-      </ul>
-    </nav>
-    <p class="footer" py:if="items">
-        {% if c.search_facets_limits.get(name) %}
-        <a href="{{ c.remove_field('_%s_limit' % name, replace=0) }}" class="read-more">Show All {{ c.facet_titles.get(name) }}</a>
-        {% else %}
-        <a href="{{ c.remove_field('_%s_limit' % name) }}" class="read-more">Show Only Popular {{ c.facet_titles.get(name) }}</a>
-        {% endif %}
-    </p>
+    <h2 class="heading"><i class="ckan-icon ckan-icon-tag"></i> {{ c.facet_titles.get(name) }} <a href="{{ c.remove_field(name) }}" class="action">Clear All</a></h2>
+    {% if items %}
+      <nav>
+        <ul class="unstyled nav nav-simple nav-facet">
+          {% for item in items %}
+            {% if item.active %}
+                <li class="active">
+                <a href="{{ c.remove_field(name, item.name) }}">
+                  {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
+                  {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
+                </a>
+              </li>
+            {% else %}
+                <li>
+                <a href="{{ c.drill_down_url(**{name: item.name}) }}">
+                  {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
+                  {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
+                </a>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </nav>
+      <p class="footer">
+          {% if c.search_facets_limits.get(name) %}
+          <a href="{{ c.remove_field('_%s_limit' % name, replace=0) }}" class="read-more">Show All {{ c.facet_titles.get(name) }}</a>
+          {% else %}
+          <a href="{{ c.remove_field('_%s_limit' % name) }}" class="read-more">Show Only Popular {{ c.facet_titles.get(name) }}</a>
+          {% endif %}
+      </p>
+    {% endif %}
   </section>
 {% endwith %}
