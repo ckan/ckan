@@ -23,38 +23,36 @@ count_label
   how a facet-item's count is displayed.
 
   -->
-<py:with vars="items=h.get_facet_items_dict(name)" xmlns:py="http://genshi.edgewall.org/">
+{% with items = h.get_facet_items_dict(name) %}
   <section class="module">
-    <h2 class="heading"><i class="ckan-icon ckan-icon-tag"></i> ${c.facet_titles.get(name)} <a href="${c.remove_field(name)}" class="action">Clear All</a></h2>
+  <h2 class="heading"><i class="ckan-icon ckan-icon-tag"></i> {{ c.facet_titles.get(name) }} <a href="{{ c.remove_field(name) }}" class="action">Clear All</a></h2>
     <nav py:if="items">
       <ul class="unstyled nav nav-simple nav-facet">
-        <py:for each="item in items">
-        <py:choose test="">
-          <py:if test="item.active">
+        {% for item in items %}
+        {% if item.active %}
             <li class="active">
-            <a href="${c.remove_field(name, item.name)}">
-              ${label_function(item) if vars().has_key('label_function') else h.truncate(item.display_name, 22)}
-              ${count_label(item['count']) if vars().has_key('count_label') else ('(%d)' % item['count'])}
+            <a href="{{ c.remove_field(name, item.name) }}">
+              {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
+              {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
             </a>
           </li>
-          </py:if>
-          <py:otherwise>
-          <py:if test="not item.active">
+        {% else %}
             <li>
-            <a href="${c.drill_down_url(**{name: item.name})}">
-              ${label_function(item) if vars().has_key('label_function') else h.truncate(item.display_name, 22)}
-              ${count_label(item['count']) if vars().has_key('count_label') else ('(%d)' % item['count'])}
+            <a href="{{ c.drill_down_url(**{name: item.name}) }}">
+              {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
+              {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
             </a>
           </li>
-          </py:if>
-          </py:otherwise>
-        </py:choose>
-        </py:for>
+        {% endif %}
+        {% endfor %}
       </ul>
     </nav>
     <p class="footer" py:if="items">
-      <a py:if="c.search_facets_limits.get(name)" href="${c.remove_field('_%s_limit' % name, replace=0)}" class="read-more">Show All ${c.facet_titles.get(name)}</a>
-      <a py:if="not c.search_facets_limits.get(name)" href="${c.remove_field('_%s_limit' % name)}" class="read-more">Show Only Popular ${c.facet_titles.get(name)}</a>
+        {% if c.search_facets_limits.get(name) %}
+        <a href="{{ c.remove_field('_%s_limit' % name, replace=0) }}" class="read-more">Show All {{ c.facet_titles.get(name) }}</a>
+        {% else %}
+        <a href="{{ c.remove_field('_%s_limit' % name) }}" class="read-more">Show Only Popular {{ c.facet_titles.get(name) }}</a>
+        {% endif %}
     </p>
   </section>
-</py:with>
+{% endwith %}
