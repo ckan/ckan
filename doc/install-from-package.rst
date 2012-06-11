@@ -306,7 +306,7 @@ Upgrading a package install
 Starting on CKAN 1.7, the updating process is different depending on wether
 the new version is a major release (e.g. 1.7, 1.8, etc) or a minor release
 (e.g. 1.7.X, 1.7.Y). Major releases can introduce backwards incompatible
-changes, changes on the database and the SOLR schema. Each major release and
+changes, changes on the database and the Solr schema. Each major release and
 its subsequent minor versions has its own apt repository (Please note that this
 was not true for 1.5 and 1.5.1 versions).
 
