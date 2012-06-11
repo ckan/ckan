@@ -42,9 +42,10 @@ class SnippetExtension(Extension):
         return base.render_snippet(template_name, **kwargs)
 
 
-
-
 class UrlForExtension(Extension):
+    ''' Custom url_for tag
+    {% url_for(<params>) %}
+    '''
 
     tags = set(['url_for'])
 
