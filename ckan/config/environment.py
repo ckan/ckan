@@ -21,6 +21,8 @@ import ckan.lib.search as search
 import ckan.lib.app_globals as app_globals
 
 
+import lib.jinja_tags
+
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
 
@@ -193,7 +195,9 @@ def load_environment(global_conf, app_conf):
     env = config['pylons.app_globals'].jinja_env = Environment(
         loader=PackageLoader('ckan', 'templates'),
         autoescape=True,
-        extensions=['jinja2.ext.i18n', 'jinja2.ext.do']
+        extensions=['jinja2.ext.i18n', 'jinja2.ext.do',
+                    lib.jinja_tags.SnippetExtension,
+                    lib.jinja_tags.UrlForExtension]
     )
     env.install_gettext_callables(_, N_, newstyle=True)
     config['pylons.app_globals'].jinja_env = env
