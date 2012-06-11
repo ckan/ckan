@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-04-26 14:49+0200\n"
-"PO-Revision-Date: 2012-05-09 11:03+0000\n"
+"PO-Revision-Date: 2012-06-11 13:59+0000\n"
 "Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"
 "Language-Team: Slovak (http://www.transifex.net/projects/p/ckan/language/sk/)\n"
 "MIME-Version: 1.0\n"
@@ -1943,7 +1943,7 @@ msgstr "{actor} vytvoril skupinu {object}"
 
 #: ckan/templates/activity_streams/new_package.html:8
 msgid "{actor} created the dataset {object}"
-msgstr "{object} vytoril dataset {object}"
+msgstr "{actor} vytoril dataset {object}"
 
 #: ckan/templates/activity_streams/new_package_extra.html:8
 msgid "{actor} added the extra {object} to the dataset {target}"
@@ -2332,7 +2332,7 @@ msgid ""
 "[3:publicly-funded art] in Seattle? Data to answer many, many questions like"
 " these is out there on the Internet somewhere - but it is not always easy to"
 " find."
-msgstr "Aká bola [1:priemerná cena] za dom vo Veľkej Británii v roku 1935? Kedy bude [2:odhadovaná populácia] Indie vyššia než populácia Číny? Kde v Seattli je možné [3:obdivovať verejne financované] umenie? Dáta obsahujúce odpovede na tieto a mnohé ďalšie otázky sa nachádzajú niekde na Internete, no nie vždy je jednoduché ich nájsť."
+msgstr "Portál otvorených dát vznikol v rámci Iniciatívy pre otvorené vládnutie, ktorej zámerom je zlepšovanie vládnutia a spravovania vecí verejných cez zvyšovanie transparentnosti, efektivity a zodpovednosti.\ndata.gov.sk je katalóg obsahujúci rôzne užitočné dáta z Internetu, o ktorý sa starajú ľudia z komunity. Je na ňom možné zbierať odkazy na dáta z webu pre seba a ostatných, alebo vyhľadávať vo zverejnených dátach. Portál otvorených dát je schopný ukladať kópiu dát alebo im poskytnúť priestor v databáze spolu so základnými vizualizačnými nástrojmi podľa typu dát (a formy použitia)\nCiele, ktoré má naplniť portál otvorených dát - data.gov.sk\n•\tZverejňovať diaľkovo prístupné dáta v strojovo spracovateľnej forme s použitím otvorených štandardov a verejných licencií.\n•\tZverejňovať metadáta (t.j. popis dát, význam jednotlivých \"stĺpcov v tabuľke\" či okienok vo formulári), diaľkovo prístupné, v strojovo spracovateľnej forme s použitím otvorených štandardov a verejných licencií\nMedzi základné charakteristiky portálu patria: \n\tPoskytuje  samotné  dáta, ako aj prístup k dátam vo forme spĺňajúcej otvorené a technologicky neutrálne štandardy, s použitím verejných licencií, ktoré umožnia ďalšie využívanie dát.\n\tUmožňuje vyhľadávanie dokumentov - browsovaním, fulltextom, filtrovaním, vyhľadávaním podľa metadát.\n\tUmožňuje spätnú väzbu na dokumenty a zdroje, vrátane systému pre opravy a dopĺňanie metadát (tzv. crowd sourcing).\n\tUvedené dáta a databázy, sprístupnené verejnosti,  budú použiteľné na informatívne a analytické účely, nie na právne úkony.\n\nPortál data.gov.sk funguje na open source katalogizačnom softvéri CKAN, ktorý spravuje Open Knowledge Foundation. Každý záznam na CKAN-e obsahuje popis konkrétnych dát a dodatočné informácie, ako napríklad v ktorom formáte sú dostupné, kto ich vlastní, či sú voľne dostupné a o akej oblasti tieto dáta sú."
 
 #: ckan/templates/home/about.html:16
 #, python-format
@@ -2347,7 +2347,7 @@ msgstr "%(site_title)s je katalóg obsahujúci rôzne užitočné dáta z Intern
 
 #: ckan/templates/home/about.html:23
 msgid "How it works"
-msgstr "Ako to funguje"
+msgstr "Čo sú datasety?"
 
 #: ckan/templates/home/about.html:25
 msgid ""
@@ -2358,7 +2358,7 @@ msgid ""
 "who owns it and whether it is freely available, and what subject areas the "
 "data is about. Other users can improve or add to this information (CKAN "
 "keeps a fully versioned history)."
-msgstr "Tieto stránky sú postavené na robustnom open source katalogizačnom softvéri nazvanom [1:CKAN], ktorý napísala a o ktorý sa stará [2:Open Knowledge Foundation]. Každý \"dataset\" záznam na CKAN-e obsahuje popis konkrétnych dát a dodatočné informácie, ako napríklad, v ktorom formáte sú dostupné, kto ich vlastní a či sú voľne dostupné, a o akej oblasti tieto dáta sú. Ostatní užívatelia môžu vylepšovať alebo pridávať dodatočné informácie (CKAN umožňuje plne zaznamenávať a ukladať zmeny v histórii)."
+msgstr "ieto stránky sú postavené na robustnom open source katalogizačnom softvéri nazvanom CKAN, ktorý napísala a o ktorý sa stará Open Knowledge Foundation. Každý \"dataset\" záznam na CKAN-e obsahuje popis konkrétnych dát a dodatočné informácie, ako napríklad, v ktorom formáte sú dostupné, kto ich vlastní a či sú voľne dostupné, a o akej oblasti tieto dáta sú. Ostatní užívatelia môžu vylepšovať alebo pridávať dodatočné informácie (CKAN umožňuje plne zaznamenávať a ukladať zmeny v histórii).\n\nCKAN podporuje mnoho katalógov dát na Internete. Data Hub je otvorený katalóg dát v štýle Wikipédie a môže ho upravovať ktokoľvek. Britský parlament používa CKAN na prevádzku portálu data.gov.uk, ktorý momentálne obsahuje 8000 vládnych datasetov. Oficiálne verejné dáta z väčšiny európskych krajín sú zaradené v CKAN katalógu na publicdata.eu. Zoznam katalógov z celého sveta podobných tomuto sa nachádza na datacatalogs.org, ktorý je takisto podporovaný CKAN-om."
 
 #: ckan/templates/home/about.html:27
 msgid ""
