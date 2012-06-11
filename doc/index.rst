@@ -87,6 +87,7 @@ For CKAN Developers
 .. toctree::
    :maxdepth: 2
 
+   coding-standards
    domain-model
    domain-model-dataset
    domain-model-resource
