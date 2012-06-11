@@ -41,13 +41,15 @@ class HomeController(BaseController):
             data_dict = {
                 'q':'*:*',
                 'facet.field':g.facets,
-                'rows':0,
+                'rows':10,
                 'start':0,
+                'sort':'views_recent desc',
                 'fq': 'capacity:"public"'
             }
             query = ckan.logic.get_action('package_search')(context,data_dict)
             c.search_facets = query['search_facets']
             c.package_count = query['count']
+            c.datasets = query['results']
             c.facets = query['facets']
             c.facet_titles = {'groups' : _('Groups'),
                           'tags' : _('Tags'),

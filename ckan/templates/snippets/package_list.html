@@ -1,22 +1,27 @@
+{% set list_class = list_class or 'dataset-list unstyled' %}
+{% set item_class = item_class or 'dataset-item' %}
 {% if packages %}
-  <ul class="dataset-list unstyled">
+<ul class="{{ list_class }}">
     {% for package in packages %}
       {% set title = package.get('title') or package.get('name') %}
       {% set notes = h.markdown_extract(package.notes) %}
 
-      <li class="dataset-item">
+      <li class="{{ item_class }} ">
         <h3 class="heading">
           {{ h.link_to(h.truncate(title, 80), h.url_for(controller='package', action='read', id=package.get('name'))) }}
           {{ h.popular('recent views', package.tracking_summary.recent, min=10) }}
         </h3>
         <div class="content">
+          {% if banner %}
+            <span class="banner">Popular</span>
+          {% endif %}
           {% if notes %}
             {{ notes }}
           {% else %}
             <p class="empty">{{ _("This dataset has no description") }}</p>
           {% endif %}
         </div>
-        {% if package.resources %}
+        {% if package.resources and not hide_resources %}
           <ul class="dataset-resources unstyled">
             {% for resource in h.dict_list_reduce(package.resources, 'format') %}
               <li>

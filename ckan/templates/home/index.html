@@ -57,36 +57,7 @@
 
 {% block secondary_content %}
   <div class="">
-    <ul class="media-grid media-wide">
-      <li class="media media-vertical module">
-        <div class="content">
-          <h3 class="heading"><a href="#">Stuff</a></h3>
-          <span class="banner">Popular</span>
-          <p>Another example block</p>
-        </div>
-      </li>
-      <li class="media module">
-        <div class="content">
-          <h3 class="heading"><a href="#">Stuff</a></h3>
-          <span class="banner">Popular</span>
-          <p>Another example block</p>
-        </div>
-      </li>
-      <li class="media module">
-        <div class="content">
-          <h3 class="heading"><a href="#">Stuff</a></h3>
-          <span class="banner">Popular</span>
-          <p>Another example block</p>
-        </div>
-      </li>
-      <li class="media module">
-        <div class="content">
-          <h3 class="heading"><a href="#">Stuff</a></h3>
-          <span class="banner">Popular</span>
-          <p>Another example block</p>
-        </div>
-      </li>
-    </ul>
+      {{ h.snippet('snippets/package_list.html', packages=c.datasets, item_class='media media-vertical module', list_class='media-grid media-wide', hide_resources=True, banner=True) }}
   </div>
 {% endblock %}
 
