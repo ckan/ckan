@@ -13,7 +13,7 @@
 
   {# The content block allows you to replace the content of the page if needed #}
   {%- block content %}
-    <div role="main">
+    {% block maintag %}<div role="main">{% endblock %}
       <div class="container">
 
         {% block flash %}
