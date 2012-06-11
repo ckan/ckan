@@ -315,6 +315,7 @@ def make_map():
                   action='file')
 
     map.connect('/i18n/strings_{lang}.js', controller='i18n', action='strings')
+    map.connect('/util/redirect', controller='util', action='redirect')
 
     for plugin in routing_plugins:
         map = plugin.after_map(map)
