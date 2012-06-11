@@ -195,7 +195,7 @@ def load_environment(global_conf, app_conf):
     env = config['pylons.app_globals'].jinja_env = Environment(
         loader=PackageLoader('ckan', 'templates'),
         autoescape=True,
-        extensions=['jinja2.ext.i18n', 'jinja2.ext.do',
+        extensions=['jinja2.ext.i18n', 'jinja2.ext.do', 'jinja2.ext.with_',
                     lib.jinja_tags.SnippetExtension,
                     lib.jinja_tags.UrlForExtension]
     )
