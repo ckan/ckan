@@ -18,7 +18,7 @@ Installation
 ============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    install-from-package
    install-from-source
