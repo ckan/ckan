@@ -49,13 +49,7 @@
         </form>
       </div>
       <div class="tags">
-        <h3 class="tag">Popular Tags</h3>
-        <ul class="tag-list">
-          <li class="tag"><a href="">Data</a></li>
-          <li class="tag"><a href="">More data</a></li>
-          <li class="tag"><a href="">Sandwiches</a></li>
-          <li class="tag"><a href="">Cakes</a></li>
-        </ul>
+		  {{ h.snippet('snippets/facet_list_static.html', title='Tags', name='tags') }}
       </div>
     </div>
   </div>

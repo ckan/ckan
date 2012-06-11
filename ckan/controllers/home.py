@@ -46,8 +46,13 @@ class HomeController(BaseController):
                 'fq': 'capacity:"public"'
             }
             query = ckan.logic.get_action('package_search')(context,data_dict)
+            c.search_facets = query['search_facets']
             c.package_count = query['count']
             c.facets = query['facets']
+            c.facet_titles = {'groups' : _('Groups'),
+                          'tags' : _('Tags'),
+                          'res_format' : _('Formats'),
+                          'license' : _('Licence'), }
 
             data_dict = {'order_by': 'packages', 'all_fields': 1}
             #only give the terms to group dictize that are returned in the facets
