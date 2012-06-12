@@ -4,6 +4,7 @@
 
 {% block breadcrumb %}
   <ol class="breadcrumb">
+    <li class="home hide-text"><a class="ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">Home</a></li>
     <li>{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
     <li>{{ h.nav_link(h.dataset_display_name(c.package), controller='package', action='read', id=c.package.get('name')) }}</li>
     <li class="active"><a href="">{{ h.resource_display_name(c.resource) }}</a></li>

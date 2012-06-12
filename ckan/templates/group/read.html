@@ -4,6 +4,7 @@
 
 {% block breadcrumb %}
   <ol class="breadcrumb">
+    <li class="home hide-text"><a class="ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">Home</a></li>
     <li>{{ h.nav_link(_('Groups'), controller='group', action='index') }}</li>
     <li class="current">{{ h.nav_link(c.group_dict.display_name, controller='group', action='read', id=c.group_dict.name) }}</li>
   </ol>

@@ -6,6 +6,7 @@
 
 {% block breadcrumb %}
   <ol class="breadcrumb">
+    <li class="home hide-text"><a class="ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">Home</a></li>
     <li>{{ h.nav_link(_('User'), controller='user', action='index') }}</li>
     {% with title = _('Your Profile') if c.is_myself  else user.display_name %}
       <li class="current">{{  h.nav_link(title, controller='user', action='read', id=user.name) }}</li>
