@@ -41,7 +41,7 @@ class HomeController(BaseController):
             data_dict = {
                 'q':'*:*',
                 'facet.field':g.facets,
-                'rows':10,
+                'rows':4,
                 'start':0,
                 'sort':'views_recent desc',
                 'fq': 'capacity:"public"'
