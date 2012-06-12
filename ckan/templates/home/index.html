@@ -49,7 +49,7 @@
         </form>
       </div>
       <div class="tags">
-		  {{ h.snippet('snippets/facet_list_static.html', title='Tags', name='tags') }}
+        {{ h.snippet('snippets/facet_list_static.html', title='Tags', name='tags', limit=3) }}
       </div>
     </div>
   </div>
@@ -57,7 +57,7 @@
 
 {% block secondary_content %}
   <div class="">
-      {{ h.snippet('snippets/package_list.html', packages=c.datasets, item_class='media media-vertical module', list_class='media-grid media-wide', hide_resources=True, banner=True) }}
+    {% snippet 'snippets/package_grid.html', packages=c.datasets[:4] %}
   </div>
 {% endblock %}
 
