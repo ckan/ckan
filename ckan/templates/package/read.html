@@ -50,7 +50,7 @@
       {% if c.pkg_dict.resources %}
         <ul class="resource-list">
           {% for res in c.pkg_dict.resources %}
-            {{ h.snippets('package/snippets/resource_item.html', resource=res) }}
+            {% snippet 'package/snippets/resource_item.html', pkg=c.pkg_dict, res=res %}
           {% endfor %}
         </ul>
       {% else %}

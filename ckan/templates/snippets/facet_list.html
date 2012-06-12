@@ -24,7 +24,7 @@ count_label
 
 #}
 {% with items = h.get_facet_items_dict(name) %}
-  <section class="module">
+  <section class="module info">
     <h2 class="heading"><i class="ckan-icon ckan-icon-tag"></i> {{ c.facet_titles.get(name) }} <a href="{{ c.remove_field(name) }}" class="action">Clear All</a></h2>
     {% if items %}
       <nav>
@@ -55,6 +55,8 @@ count_label
           <a href="{{ c.remove_field('_%s_limit' % name) }}" class="read-more">Show Only Popular {{ c.facet_titles.get(name) }}</a>
           {% endif %}
       </p>
+    {% else %}
+      <p class="content empty">{{ _('There are no filters for this search') }}</p>
     {% endif %}
   </section>
 {% endwith %}
