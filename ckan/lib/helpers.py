@@ -379,7 +379,9 @@ def build_nav_main(*args):
     '''
     output = ''
     for item in args:
-        menu_item, title = item
+        menu_item, title = item[:2]
+        if len(item) == 3 and not check_access(item[2]):
+            continue
         output += _make_menu_item(menu_item, title)
     return output
 
