@@ -5,22 +5,20 @@ Geospatial Capabilities
 CKAN offers a powerful set of geospatial features that allow adding spatial
 information to your datasets.
 
-Most of these features are provided by extensions, so please refer to the
-relevant documentation for information on installation and setup.
-
-
 Spatial metadata for datasets
 =============================
 
 All the features in this section are provided by the `ckanext-spatial`_
-extension (Check the README for requirements and installation).
+extension (check the README for requirements and installation).
 
 .. _ckanext-spatial: http://github.com/okfn/ckanext-spatial
 
-* Spatial model for CKAN datasets and automatic geo-indexing (**spatial_metadata** plugin)
+* Associate geographic data with datasets, with automatic geo-indexing of
+  datasets (**spatial_metadata** plugin)
 
-  When activated, this plugin allows to associate a geometry to a CKAN
-  dataset, via a `GeoJSON`_ extra value, with key **spatial**. For example::
+  When activated, this plugin allows users to associate a geometry with a CKAN
+  dataset, by adding a `GeoJSON`_ extra value to the dataset with key
+  **spatial**. For example::
 
      {"type":"Polygon","coordinates":[[[2.05827, 49.8625],[2.05827, 55.7447], [-6.41736, 55.7447], [-6.41736, 49.8625], [2.05827, 49.8625]]]}
 
@@ -28,8 +26,8 @@ extension (Check the README for requirements and installation).
 
      { "type": "Point", "coordinates": [-3.145,53.078] }
 
-  Every time a dataset is created, updated or deleted, the extension will
-  synchronize the information stored in the extra with the geometry table.
+  Datasets with spatial values are automatically geo-indexed, for example so
+  that they can be searched using spatial filters.
 
   The spatial model requires the installation and configuration of PostGIS on
   your database backend, as described on the `installation instructions`_.
@@ -37,10 +35,10 @@ extension (Check the README for requirements and installation).
 .. _GeoJSON: http://geojson.org
 .. _installation instructions: https://github.com/okfn/ckanext-spatial#setting-up-postgis
 
-* Spatial search integration and API call (**spatial_query** plugin).
+* Search for datasets using spatial queries (**spatial_query** plugin)
 
-  Once your datasets are indexed, you can perform spatial queries by bounding
-  box, via the following API call::
+  Once your datasets are geo-indexed, you can perform spatial queries by
+  bounding box, via the following API call::
 
       /api/2/search/dataset/geo?bbox={minx,miny,maxx,maxy}[&crs={srid}]
 
@@ -58,10 +56,10 @@ extension (Check the README for requirements and installation).
 
   https://github.com/okfn/ckanext-spatial#spatial-query
 
-* Map widget integrated on the search form (**spatial_query_widget** plugin).
+* Add a map widget for spatial search queries (**spatial_query_widget** plugin)
 
-  You can display a small map widget to the dataset form to add a spatial
-  filter to the queries.
+  You can display a small map widget on the dataset search form, users can draw
+  a rectangle on the map to add a spatial filter to their search queries.
 
   Check the documentation on the ckanext-spatial README for more details:
 
@@ -70,9 +68,11 @@ extension (Check the README for requirements and installation).
 .. image:: http://i.imgur.com/WoEwR.png
 
 
-* Map widget showing a dataset extent (**dataset_extent_map** plugin).
+* Add map widgets to datasets (**dataset_extent_map** plugin)
 
-  Check the documentation on the ckanext-spatial README for more details:
+  You can add map widgets to dataset pages, to show the geometric extents of
+  the datasets. Check the documentation in the ckanext-spatial README for more
+  details:
 
   https://github.com/okfn/ckanext-spatial#dataset-extent-map
 
@@ -82,10 +82,14 @@ extension (Check the README for requirements and installation).
 Metadata Conventions
 ====================
 
-Over time some conventions have emerged regarding storing geospatial information on datasets:
+Over time some conventions have emerged for storing geospatial information as
+extra metadata fields in datasets. Follow these conventions when storing
+information in CKAN datasets, so that your datasets will easily integrate with
+CKAN extensions and built-in functions, such as the automatic geo-indexing of
+datasets. The following metadata keys are used:
 
 * spatial-text: Textual representation of the extent / location of the package
-* spatial: `GeoJSON_` representation of the extent of the package (Polygon or Point)
+* spatial: `GeoJSON`_ representation of the extent of the package (Polygon or Point)
 * spatial-uri: Linked Data URI representing the place name
 
 For example::
@@ -100,9 +104,6 @@ or::
     * spatial: {"type": "Point", "coordinates": [38.36, 141.07]}
     * spatial-uri: http://www.geonames.org/2111964
 
-Use of these conventions when storing information in CKAN means that your
-material will easily integrate with any extensions or functionality built into
-CKAN, like for instance the automatic geo-indexing of your dataset.
 
 .. _GeoJSON: http://geojson.org
 
@@ -126,7 +127,7 @@ offers the harvesting infrastucture, `ckanext-inspire`_ implements the
 harvesters for CSW servers and `ckanext-csw`_ is required by the previous one
 and offers the CSW interface.
 
-Please refer to the README of these extensions for instructions on how to
+Please refer to the README files of these extensions for instructions on how to
 install and configure them.
 
 .. _ckanext-harvest: https://github.com/okfn/ckanext-harvest
