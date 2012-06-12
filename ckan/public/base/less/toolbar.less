@@ -2,22 +2,19 @@
   .clearfix;
   margin-top: -10px;
   margin-bottom: 10px;
+  padding: 5px 0;
 }
 
 .toolbar .breadcrumb {
   .box-shadow(none);
+  position: relative;
+  top: -3px;
   float: left;
   background: none;
   margin: 0 0 0 @gutter-small-x;
   padding: 0;
   border: none;
-}
-
-.toolbar .breadcrumb li:first-of-type:before {
-  content: " ";
-  .ckan-icon;
-  .ckan-icon-home;
-  margin-right: 5px;
+  font-size: 20px;
 }
 
 .toolbar .breadcrumb li:after {
@@ -28,9 +25,19 @@
   content: "";
 }
 
+.toolbar .breadcrumb .home {
+  position: relative;
+  top: 4px;
+  margin-left: -3px;
+}
+
 .toolbar .breadcrumb a {
   color: rgba(40, 40, 40, 0.8);
   line-height: 28px;
+}
+
+.toolbar .breadcrumb .active a {
+  font-weight: bold;
 }
 
 .toolbar .actions {
