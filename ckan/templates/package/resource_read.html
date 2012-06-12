@@ -80,7 +80,7 @@
           </tr>
           <tr>
             <th>Licence</th>
-            <td>{{ h.snippet('snippets/license.html', dataset=c.pkg_dict) }}</td>
+            <td>{{ h.snippet('snippets/license.html', pkg_dict=c.pkg_dict, text_only=True) }}</td>
           </tr>
         </tbody>
       </table>
@@ -100,7 +100,7 @@
     <ul class="simple-list">
       <li><i class="ckan-icon ckan-icon-calendar"></i> Unknown</li>
       <li><i class="ckan-icon ckan-icon-file"></i> CSV</li>
-      <li><i class="ckan-icon ckan-icon-lock"></i> {{ h.snippet('snippets/license.html', dataset=c.pkg_dict) }}</li>
+      <li><i class="ckan-icon ckan-icon-lock"></i> {{ h.snippet('snippets/license.html', pkg_dict=c.pkg_dict, text_only=True) }}</li>
     </ul>
   </section>
 

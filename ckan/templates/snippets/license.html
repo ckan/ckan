@@ -1,6 +1,8 @@
 {% if pkg_dict.license_id %}
+{% if not text_only %}
   <section class="module info license">
     <h2 class="heading"><i class="ckan-icon ckan-icon-large-lock"></i> License</h2>
+{% endif %}
     <p class="content">
     {% if 'license_url' in pkg_dict %}
     <a href="{{ pkg_dict.license_url }}" rel="dc:rights">{{ pkg_dict.license_title }}</a>
@@ -15,5 +17,7 @@
       <span class="closed">{{ h.icon('lock') }}</span>
       {% endif %}
     </p>
+{% if not text_only %}
   </section>
+{% endif %}
 {% endif %}

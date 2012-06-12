@@ -5,6 +5,16 @@ import lib.base as base
 import lib.helpers as h
 
 
+class CkanExtend(Extension):
+
+    tags = set(['ckan_extend'])
+
+    def parse(self, parser):
+        node = nodes.Extends(lineno=next(self.stream).lineno)
+        node.template = self.parse_expression()
+        return node
+
+
 class BaseExtension(Extension):
     ''' Base class for creating custom jinja2 tags.
     parse expects a tag of the format
