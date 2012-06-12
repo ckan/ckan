@@ -1,9 +1,9 @@
 <header class="masthead">
   {% if config.debug %}
-    <div style="float:left;width:150px;">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
+    <div class="debug">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
   {% endif %}
   <div class="container">
-    <hgroup class="logo-wrapper">
+    <hgroup class="ir" style="background-image: url({{ '/base/images/ckan-logo.png' }})">
       <a class="logo" href="{{ h.url('home') }}"><img width="64" src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
       <h1><a href="{{ h.url('home') }}">{{ g.site_title }}</a></h1>
       <p>{{ g.site_description }}</p>

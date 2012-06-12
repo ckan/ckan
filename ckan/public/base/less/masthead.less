@@ -20,6 +20,10 @@
   .clearfix;
 }
 
+.masthead hgroup:before {
+  content: attr(data-image-replacement);
+}
+
 .masthead hgroup h1,
 .masthead hgroup p {
   font-size: 34px;
@@ -32,20 +36,27 @@
   font-style: italic;
 }
 
+.masthead .ir {
+  text-indent: -900em;
+  min-height: 50px;
+  background-position: top left;
+  background-repeat: no-repeat;
+}
+
 .masthead .logo {
-  float: left;
   margin-right: 10px;
+  float: left;
 }
 
 .masthead .logo img {
-  display: block;
+  display: inline-block;
   max-height: 34px;
   width: auto;
 }
 
 .masthead .content {
   position: absolute;
-  top: 0;
+  top: 8px;
   right: 0;
   bottom: 0;
 }
@@ -86,12 +97,13 @@
   position: relative;
   padding-top: 7px;
   margin-left: 15px;
-  padding-left: 40px;
+  padding-left: 50px;
 }
 
 .masthead nav.account {
   padding-top: 0;
   padding-left: 10px;
+  margin-right: -10px;
 }
 
 .masthead .section {
@@ -103,15 +115,15 @@
   content: "";
   display: block;
   position: absolute;
-  top: -@masthead-padding;
+  top: -@masthead-padding - 10;
   left: 0;
-  bottom: -@masthead-padding;
+  bottom: -@masthead-padding - 10;
   width: 1px;
   background-color: lighten(@masthead-background-color-start, 5);
+  #gradient > .radial(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
   #gradient > .vertical-three-colors(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.1), 0.5, rgba(255, 255, 255, 0));
   background-color: rgba(255, 255, 255, 0);
 }
-
 
 .masthead .section:before {
 }
@@ -119,13 +131,14 @@
 .masthead .section:after {
   left: -1px;
   background-color: darken(@masthead-background-color-start, 5);
+  #gradient > .radial(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
   #gradient > .vertical-three-colors(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2), 0.5, rgba(0, 0, 0, 0));
   background-color: rgba(0, 0, 0, 0);
 }
 
 .masthead .account .image {
   position: absolute;
-  left: 10px;
+  left: 20px;
   top: 6px;
 }
 
@@ -133,8 +146,14 @@
   display: block;
 }
 
+.masthead .links {
+  display: block;
+  position: relative;
+  top: -2px;
+}
+
 .masthead .account .links a {
-  line-height: 11px;
+  line-height: 13px;
   float: left;
 }
 
@@ -147,8 +166,8 @@
 .masthead .site-search {
   position: relative;
   margin: 0;
-  margin-left: 10px;
-  padding: 0 0 0 10px;
+  margin-left: 20px;
+  padding: 0 0 0 20px;
 }
 
 .masthead .site-search .field {
@@ -164,4 +183,11 @@
 
 .masthead .site-search button {
 
+}
+
+.masthead .debug {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: rgba(255, 255, 255, 0.5);
 }
