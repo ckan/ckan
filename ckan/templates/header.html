@@ -9,7 +9,7 @@
       <p>{{ g.site_description }}</p>
     </hgroup>
     <div class="content">
-      <form class="section site-search simple-input" action="" method="get">
+      <form class="section site-search simple-input" action="{% url_for controller='package', action='search' %}" method="get">
         <div class="field">
           <label for="field-user-search">{{ _('Search Users') }}</label>
           <input id="field-user-search" name="q" placeholder="{{ _('Search') }}" />
