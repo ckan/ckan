@@ -8,7 +8,7 @@ from ckan.lib.search import SearchError
 from ckan.lib.base import *
 from ckan.lib.helpers import url_for
 
-CACHE_PARAMETER = '__cache'
+CACHE_PARAMETERS = ['__cache','__no_cache__']
 
 class HomeController(BaseController):
     repo = model.repo
