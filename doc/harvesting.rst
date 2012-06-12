@@ -1,20 +1,20 @@
-==========================
-Harvesting remote metadata
-==========================
+========================================
+Import ("Harvest") Data from Other Sites
+========================================
 
-The `ckanext-harvest`_ extension provides functionality for harvesting records
-from remote CKAN instances, as well as a framework for writing custom
-harvesters for different metadata sources.
+The `ckanext-harvest`_ extension can automatically import ("harvest") datasets
+from multiple CKAN websites into a single CKAN website, and also provides a
+framework for writing custom harvesters to import data from non-CKAN sources.
 
 .. _ckanext-harvest: https://github.com/okfn/ckanext-harvest
 
 CKAN harvester
 ==============
 
-The CKAN harvester makes really easy to pull datasets from a remote CKAN
-instance to your own. It is highly customizable, allowing to define default
-tags, groups, users and permissions for the created datasets. Please refer to
-the documentation for more details:
+The CKAN harvester plugin makes it really easy to import datasets from a remote
+CKAN instance into your own CKAN instance. It is highly customizable, allowing
+you to define default tags, groups, users and permissions for the imported
+datasets.  Please refer to the documentation for more details:
 
 https://github.com/okfn/ckanext-harvest#the-ckan-harvester
 
@@ -22,7 +22,7 @@ https://github.com/okfn/ckanext-harvest#the-ckan-harvester
 Other harvesters
 ================
 
-Other extensions offer different harvesters for other metadata sources. For
+There are other extensions offer different harvesters for other metadata sources. For
 instance, `ckanext-inspire`_ provides harvesters for CSW records that follow
 the ISO-19193 encoding.
 
