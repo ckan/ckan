@@ -1,7 +1,12 @@
-<ul class="tag-list well" xmlns:py="http://genshi.edgewall.org/">
-    <py:for each="tag in tags">
-    <li py:if="not tag.get('vocabulary_id')">
-      ${h.link_to(tag['display_name'], h.url_for(controller='tag', action='read', id=tag['name']), class_='tag')}
+{#
+render a list of tags linking to the dataset search page
+tags: list of tags
+#}
+{% set _class = _class or 'tag-list' %}
+<ul class="{{ _class }}">
+  {% for tag in tags %}
+    <li>
+      <a class="tag" href="{% url_for controller='package', action='search', tags=tag.name %}">{{ h.truncate(tag.display_name, 22) }}</a>
     </li>
-    </py:for>
+  {% endfor %}
 </ul>
