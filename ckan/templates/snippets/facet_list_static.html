@@ -12,7 +12,7 @@ title
   <ul class="tag-list">
     {% for item in items %}
       <li class="tag">
-      <a href="{% url_for(controller='tag', action='read', id=item.name) %}">{{ h.truncate(item.display_name, 22) }}</a>
+      <a href="{% url_for controller='tag', action='read', id=item.name %}">{{ h.truncate(item.display_name, 22) }}</a>
       </li>
     {% endfor %}
   </ul>

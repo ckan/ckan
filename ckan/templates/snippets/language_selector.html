@@ -1,5 +1,5 @@
 {% with  current_url = request.environ['CKAN_CURRENT_URL'] %}
-  <form action="{% url_for(controller='util', action='redirect') %}" method="POST">
+  <form action="{% url_for controller='util', action='redirect' %}" method="POST">
     <p>Languages</p>
     <select name="url">
       {% for locale in h.get_available_locales() %}
