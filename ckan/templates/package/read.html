@@ -75,7 +75,7 @@
 
   {{ h.snippet('snippets/related.html', pkg=c.pkg) }}
 
-  {{ h.snippet('snippets/license.html', pkg=c.pkg, pkg_dict=c.pkg_dict) }}
+  {{ h.snippet('snippets/license.html', pkg_dict=c.pkg_dict) }}
 
   {{ h.snippet('snippets/disqus_trackback.html') }}
 {% endblock %}
