@@ -22,7 +22,7 @@ import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.lib.accept as accept
-from home import CACHE_PARAMETER
+from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
 
@@ -450,7 +450,7 @@ class PackageController(BaseController):
             return self._save_new(context)
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
-            request.params, ignore_keys=[CACHE_PARAMETER]))))
+            request.params, ignore_keys=CACHE_PARAMETERS))))
         c.resources_json = json.dumps(data.get('resources',[]))
 
         errors = errors or {}

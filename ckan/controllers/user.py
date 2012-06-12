@@ -286,7 +286,8 @@ class UserController(BaseController):
             g.openid_enabled = False
 
         if not c.user:
-            c.login_handler = h.url_for(self._get_repoze_handler('login_handler_path'))
+            came_from = request.params.get('came_from', '')
+            c.login_handler = h.url_for(self._get_repoze_handler('login_handler_path'), came_from=came_from)
             return render('user/login.html')
         else:
             return render('user/logout_first.html')
@@ -295,6 +296,7 @@ class UserController(BaseController):
         # we need to set the language via a redirect
         lang = session.pop('lang', None)
         session.save()
+        came_from = request.params.get('came_from', '')
         if c.user:
             context = {'model': model,
                        'user': c.user}
@@ -304,13 +306,15 @@ class UserController(BaseController):
             user_dict = get_action('user_show')(context,data_dict)
 
             h.flash_success(_("%s is now logged in") % user_dict['display_name'])
+            if came_from:
+                return h.redirect_to(str(came_from))
             return self.me(locale=lang)
         else:
             err = _('Login failed. Bad username or password.')
             if g.openid_enabled:
                 err += _(' (Or if using OpenID, it hasn\'t been associated with a user account.)')
             h.flash_error(err)
-            h.redirect_to(locale=lang, controller='user', action='login')
+            h.redirect_to(locale=lang, controller='user', action='login', came_from=came_from)
 
     def logout(self):
         # save our language in the session so we don't lose it

@@ -8,7 +8,7 @@ from ckan.lib.search import SearchError
 from ckan.lib.base import *
 from ckan.lib.helpers import url_for
 
-CACHE_PARAMETER = '__cache'
+CACHE_PARAMETERS = ['__cache','__no_cache__']
 
 class HomeController(BaseController):
     repo = model.repo
@@ -41,7 +41,7 @@ class HomeController(BaseController):
             data_dict = {
                 'q':'*:*',
                 'facet.field':g.facets,
-                'rows':10,
+                'rows':4,
                 'start':0,
                 'sort':'views_recent desc',
                 'fq': 'capacity:"public"'
