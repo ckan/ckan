@@ -141,6 +141,45 @@ textarea {
   margin-left: 5px;
 }
 
+// Single Field Inputs
+
+.simple-input label,
+.simple-input button {
+  display: none;
+}
+
+.simple-input .field {
+  position: relative;
+  padding: 10px 6px;
+  margin: 0;
+}
+
+.simple-input .field-bordered {
+  border-bottom: 1px dotted #ccc;
+}
+
+.simple-input .field input {
+  .box-sizing(border-box);
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 7px 5px;
+}
+
+.simple-input .field .btn-search {
+  .ckan-icon;
+  .ckan-icon-search;
+  position: absolute;
+  display: block;
+  height: 17px;
+  width: 17px;
+  top: 50%;
+  right: 10px;
+  margin-top: -8px;
+  background-color: transparent;
+  border: none;
+  text-indent: -999em;
+}
 
 .editor textarea {
   .border-radius(@inputBorderRadius @inputBorderRadius 0 0);

@@ -7,13 +7,16 @@
   padding: @masthead-padding;
 }
 
+.masthead .container {
+  position: relative;
+}
+
 .masthead a {
   color: @masthead-link-color;
 }
 
 .masthead hgroup,
 .masthead nav {
-  float: left;
   .clearfix;
 }
 
@@ -40,9 +43,19 @@
   width: auto;
 }
 
+.masthead .content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.masthead .content > * {
+  float: right;
+}
+
 .masthead nav {
   display: inline-block;
-  float: right;
   line-height: 40px;
 }
 
@@ -71,7 +84,6 @@
 
 .masthead .account {
   position: relative;
-  float: right;
   padding-top: 7px;
   margin-left: 15px;
   padding-left: 40px;
@@ -82,8 +94,12 @@
   padding-left: 10px;
 }
 
-.masthead .account:before,
-.masthead .account:after {
+.masthead .section {
+  min-height: 35px;
+}
+
+.masthead .section:before,
+.masthead .section:after {
   content: "";
   display: block;
   position: absolute;
@@ -97,10 +113,10 @@
 }
 
 
-.masthead .account:before {
+.masthead .section:before {
 }
 
-.masthead .account:after {
+.masthead .section:after {
   left: -1px;
   background-color: darken(@masthead-background-color-start, 5);
   #gradient > .vertical-three-colors(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2), 0.5, rgba(0, 0, 0, 0));
@@ -126,4 +142,26 @@
   font-size: 11px;
   clear: left;
   color: rgba(255, 255, 255, 0.6);
+}
+
+.masthead .site-search {
+  position: relative;
+  margin: 0;
+  margin-left: 10px;
+  padding: 0 0 0 10px;
+}
+
+.masthead .site-search .field {
+  padding: 0;
+  margin-top: 5px;
+}
+
+.masthead .site-search input {
+  width: 190px;
+  font-size: 12px;
+  padding: 4px;
+}
+
+.masthead .site-search button {
+
 }
