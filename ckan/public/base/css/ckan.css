@@ -5759,12 +5759,6 @@ textarea {
   margin-left: 0.3em;
   font-style: italic;
 }
-.masthead .ir {
-  text-indent: -900em;
-  min-height: 50px;
-  background-position: top left;
-  background-repeat: no-repeat;
-}
 .masthead .logo {
   margin-right: 10px;
   float: left;
@@ -5908,6 +5902,19 @@ textarea {
   width: 190px;
   font-size: 12px;
   padding: 4px;
+}
+.masthead .header-image {
+  font: inherit;
+  text-indent: -900em;
+  min-height: 50px;
+}
+.masthead .header-image .logo {
+  display: block;
+  width: 240px;
+  height: 50px;
+  background-image: url("../images/ckan-logo.png");
+  background-position: top left;
+  background-repeat: no-repeat;
 }
 .masthead .debug {
   position: absolute;
