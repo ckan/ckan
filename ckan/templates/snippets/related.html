@@ -1,14 +1,17 @@
 {% set item = pkg.related | first %}
 <section class="module info related{{ " related-empty" if not item }}">
   <h2 class="heading"><i class="ckan-icon ckan-icon-photo"></i> Related <a class="action" href="{{ h.url_for(controller='related', action='new', id=pkg.name) }}">Add Related</a></h2>
-  <div class="content">
+  <div class="content media">
     {% if item %}
-      {{ item.type }}
-      {{ item.title }}
-      {{ item.description }}
-      {{ item.url }}
-      {{ item.image_url }}
-      {{ item.id }}
+      {% with url = h.url_for(controller='related', action='list', id=pkg.name) %}
+      <a class="logo" href="{{ url }}">
+          <img src="{{ item.image_url or "http://placehold.it/200x125" }}" width="200" height="125" />
+        </a>
+        <div class="content">
+          <h3 class="heading"><a href="{{ url }}">{{ item.title }}</a></h3>
+          <p>{{ h.markdown_extract(item.description, 70) }}</p>
+        </div>
+      {% endwith %}
     {% else %}
       <p>No apps, ideas, news stories or images have been
       related to this dataset yet, why not add one now?</p>

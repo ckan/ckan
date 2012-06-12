@@ -4,6 +4,6 @@
       <img src="{{ group.image_url or "http://placehold.it/200x125" }}" width="200" height="125" />
       <h3>{{ group.name }}</h3>
     </a>
-    <p>{{ h.markdown_extract(group.description) }}</p>
+    <p>{{ h.markdown_extract(group.description, 70) }}</p>
   </div>
 </section>
