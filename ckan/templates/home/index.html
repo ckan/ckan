@@ -40,7 +40,7 @@
   <div class="secondary">
     <div class="secondary-inner">
       <div class="module module-dark info">
-        <form class="dataset-search content clearfix" method="get">
+		  <form class="dataset-search content clearfix" method="get" action="{% url_for controller='package', action='search' %}">
           <h3 class="heading">{{ _("Search Your Data") }}</h3>
           <span class="control-group search-giant">
             <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" results="0" placeholder="{{ _('eg. Gold Prices') }}" />
