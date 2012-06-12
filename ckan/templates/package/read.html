@@ -7,12 +7,13 @@
   <ol class="breadcrumb">
     <li class="home hide-text"><a class="ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">Home</a></li>
     <li>{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
-    <li class="active"><a href="" title="{{ dataset }}">{{ h.truncate(dataset, 60) }}</a></li>
+    <li class="active"><a href="" title="{{ dataset }}">{{ h.truncate(dataset, 35) }}</a></li>
   </ol>
 {% endblock %}
 
 {% block actions %}
   <ul class="actions">
+    <li>{{ h.nav_link(_('Related'), controller='package', action='related', id=c.pkg.id, class_='btn', icon='photo') }}</li>
     <li>{{ h.nav_link(_('History'), controller='package', action='history', id=c.pkg.id, class_='btn', icon='rewind') }}</li>
     <li>{{ h.nav_link(_('Edit'), controller='package', action='edit', id=c.pkg.id, class_='btn', icon='tools', condition=h.check_access('package_update',{'id':c.pkg.id })) }}</li>
     <li><a class="btn" href=""><i class="ckan-icon ckan-icon-flag"></i> Report Issue</a></li>
