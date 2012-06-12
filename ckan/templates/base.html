@@ -57,8 +57,12 @@
       {% endblock %}
     #}
     {%- block styles -%}
-      <link rel="stylesheet/less" href="/base/less/main.less" />
-      <script src="/base/test/vendor/less.js"></script>
+      {% if config.debug %}
+        <link rel="stylesheet/less" href="/base/less/main.less" />
+        <script src="/base/test/vendor/less.js"></script>
+      {% else %}
+        <link rel="stylesheet" href="/base/css/ckan.css" />
+      {% endif %}
     {% endblock -%}
   </head>
 
