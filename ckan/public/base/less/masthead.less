@@ -36,13 +36,6 @@
   font-style: italic;
 }
 
-.masthead .ir {
-  text-indent: -900em;
-  min-height: 50px;
-  background-position: top left;
-  background-repeat: no-repeat;
-}
-
 .masthead .logo {
   margin-right: 10px;
   float: left;
@@ -183,6 +176,23 @@
 
 .masthead .site-search button {
 
+}
+
+// Logo Image Replacement
+
+.masthead .header-image {
+  font: inherit; // Override Bootstrap .hide-text
+  text-indent: -900em;
+  min-height: 50px;
+}
+
+.masthead .header-image .logo {
+  display: block;
+  width: 240px;
+  height: 50px;
+  background-image: url("@{image-path}/ckan-logo.png");
+  background-position: top left;
+  background-repeat: no-repeat;
 }
 
 .masthead .debug {
