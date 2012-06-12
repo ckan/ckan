@@ -6,6 +6,11 @@ import lib.helpers as h
 
 
 class BaseExtension(Extension):
+    ''' Base class for creating custom jinja2 tags.
+    parse expects a tag of the format
+    {% tag_name args, kw %}
+    after parsing it will call _call(args, kw) which must be defined. '''
+
     def parse(self, parser):
         stream = parser.stream
         tag = stream.next()
@@ -37,7 +42,7 @@ class SnippetExtension(BaseExtension):
 
     {% snippet <template_name> [, <keyword>=<value>].. %}
 
-    This is mostly magic..
+    see lib.helpers.snippet() for more details.
     '''
 
     tags = set(['snippet'])
@@ -50,7 +55,10 @@ class SnippetExtension(BaseExtension):
 
 class UrlForExtension(BaseExtension):
     ''' Custom url_for tag
+
     {% url_for <params> %}
+
+    see lib.helpers.url_for() for more details.
     '''
 
     tags = set(['url_for'])
@@ -62,7 +70,10 @@ class UrlForExtension(BaseExtension):
 
 class LinkForExtension(BaseExtension):
     ''' Custom link_for tag
-    {% url_for <params> %}
+
+    {% link_for <params> %}
+
+    see lib.helpers.nav_link() for more details.
     '''
 
     tags = set(['link_for'])
