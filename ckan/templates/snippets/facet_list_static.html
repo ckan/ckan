@@ -1,18 +1,20 @@
 {#
 Construct a facet module populated with links to filtered results.
 
-name
-  The field name identifying the facet field, eg. "tags"
+name  - The field name identifying the facet field, eg. "tags"
+title - The title of the facet, eg. "Tags", or "Tag Cloud"
+limit - The maximum number of tags to display.
 
-title
-  The title of the facet, eg. "Tags", or "Tag Cloud"
+Example:
+
+  {% snippet 'snippets/facet_list_static', name='tags, title=_('Tags'), limit=10) %}
 #}
-<h3 class="tag">Popular {{ c.facet_titles.get(name) }}</h3>
-{% with items = h.get_facet_items_dict(name) %}
+<h3 class="tag">Popular {{ c.facet_titles.name }}</h3>
+{% with items = h.get_facet_items_dict(name, limit) %}
   <ul class="tag-list">
     {% for item in items %}
       <li class="tag">
-      <a href="{% url_for controller='tag', action='read', id=item.name %}">{{ h.truncate(item.display_name, 22) }}</a>
+        <a href="{% url_for controller='tag', action='read', id=item.name %}">{{ h.truncate(item.display_name, 22) }}</a>
       </li>
     {% endfor %}
   </ul>
