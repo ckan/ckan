@@ -36,33 +36,12 @@
         </tr>
       {% endif %}
 
-      {# THESE ARE NOT PART OF CORE FIXME
-      {% if c.eu_country %}
-        <tr>
-          <th class="dataset-label">{{ _("Country") }}</th>
-          <td class="dataset-details">{{ h.code_to_country(c.eu_country) }}</td>
-        </tr>
-      {% endif %}
-      #}
-
       {% if h.check_access('package_update',{'id':pkg_dict.id}) %}
         <tr>
           <th class="dataset-label">{{ _("State") }}</th>
           <td class="dataset-details">{{ pkg_dict.state }}</td>
         </tr>
       {% endif %}
-
-      {# THESE ARE NOT PART OF CORE FIXME
-      {% if c.harvest_catalogue_name %}
-        <tr>
-          <th class="dataset-label">{{ _('Harvest Source') }}</th>
-          <td class="dataset-details">
-            <a href="{{ c.harvest_dataset_url }}">{{ _('Dataset page') }}</a> on 
-            <a href="{{ c.harvest_catalogue_url }}">{{ c.harvest_catalogue_name }}</a>
-          </td>
-        </tr>
-      {% endif %}
-      #}
 
       {% for extra in h.sorted_extras(pkg_dict.extras) %}
         {% set key, value = extra %}
