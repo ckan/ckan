@@ -124,6 +124,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             # snippets should not pass the context
             if renderer == 'snippet':
                 del globs['c']
+                pass
             return render_jinja2(template_name, globs)
 
         # Genshi templates
