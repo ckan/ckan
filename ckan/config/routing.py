@@ -169,8 +169,6 @@ def make_map():
           requirements=dict(action='|'.join([
               'list',
               'new',
-              'new_resource',
-              'new_metadata',
               'autocomplete',
               'search'
               ]))
@@ -188,6 +186,8 @@ def make_map():
           requirements=dict(action='|'.join([
           'edit',
           'editresources',
+          'new_metadata',
+          'new_resource',
           'authz',
           'history',
           'read_ajax',
