@@ -470,8 +470,7 @@ class PackageController(BaseController):
 
     def new_resource(self, id):
       ''' FIXME: This is a temporary action to allow styling of the forms. '''
-      package_type = self._guess_package_type(True)
-      return render('package/new_resource.html')
+      return render('package/new_resource.html', extra_vars={'pkg_name':id})
 
     def new_metadata(self, data=None, errors=None, error_summary=None):
       ''' FIXME: This is a temporary action to allow styling of the forms. '''
