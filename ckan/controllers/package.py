@@ -604,16 +604,24 @@ class PackageController(BaseController):
         return None
 
     def _save_new(self, context, package_type=None):
+        ckan_phase = request.params.get('_ckan_phase')
+        if ckan_phase:
+            # phased add dataset so use api schema for validation
+            context['api_version'] = 3
         from ckan.lib.search import SearchIndexError
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
             data_dict['type'] = package_type
             context['message'] = data_dict.get('log_message', '')
-            context['api_version'] = 3
-            pkg = get_action('package_create')(context, data_dict)
+            pkg_dict = get_action('package_create')(context, data_dict)
 
-            self._form_save_redirect(pkg['name'], 'new')
+            if ckan_phase:
+                # redirect to add dataset resources
+                url = h.url_for(controller='package', action='new_resource', id=pkg_dict['name'])
+                redirect(url)
+
+            self._form_save_redirect(pkg_dict['name'], 'new')
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:

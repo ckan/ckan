@@ -4,6 +4,7 @@
 {% set errors = errors or {} %}
 
 <form class="dataset-form form-horizontal" method="post">
+  <input type="hidden" name="_ckan_phase" value="dataset_new_1" />
   {{ form.errors(error_summary) }}
 
   {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large']) }}
