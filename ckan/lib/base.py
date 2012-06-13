@@ -59,7 +59,8 @@ def render_snippet(template_name, **kw):
     the extra template variables. '''
     # allow cache_force to be set in render function
     cache_force = kw.pop('cache_force', None)
-    output = render(template_name, extra_vars=kw, cache_force=cache_force)
+    output = render(template_name, extra_vars=kw, cache_force=cache_force,
+                    renderer='snippet')
     output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
                     template_name, output, template_name)
     return literal(output)
@@ -82,7 +83,7 @@ def render_jinja2(template_name, extra_vars):
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
-           cache_force = None):
+           cache_force = None, renderer=None):
     ''' Main genshi template rendering function. '''
 
     def render_template():
@@ -119,6 +120,10 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         # Jinja2 templates
         if template_type == 'jinja2':
             # TODO should we raise error if genshi filters??
+
+            # snippets should not pass the context
+            if renderer == 'snippet':
+                del globs['c']
             return render_jinja2(template_name, globs)
 
         # Genshi templates
