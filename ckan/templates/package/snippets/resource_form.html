@@ -33,8 +33,8 @@
   {{ form.select('resources__0__type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }}
 
   <div class="form-actions">
-    <a class="btn" href="">{{ _('Save') }}</a>
-    <a class="btn" href="">{{ _('Save &amp; add another') }}</a>
-    <button class="btn btn-primary" type="submit">{{ _('Next: Additional Info') }}</button>
+    <button class="btn" name="save" value="save" type="submit">{{ _('Save') }}</button>
+    <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
+    <button class="btn btn-primary" name="save" value="next" type="submit">{{ _('Next: Additional Info') }}</button>
   </div>
 </form>
