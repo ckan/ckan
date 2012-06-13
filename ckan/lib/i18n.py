@@ -103,19 +103,6 @@ def get_available_locales():
         available_locales = map(Locale.parse, get_locales())
     return available_locales
 
-def _set_lang(lang):
-    ''' Allows a custom i18n directory to be specified.
-    Creates a fake config file to pass to pylons.i18n.set_lang, which
-    sets the Pylons root path to desired i18n_directory.
-    This is needed as Pylons will only look for an i18n directory in
-    the application root.'''
-    if config.get('ckan.i18n_directory'):
-        fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
-                       'pylons.package': config['pylons.package']}
-        i18n.set_lang(lang, pylons_config=fake_config)
-    else:
-        i18n.set_lang(lang)
-
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
@@ -140,3 +127,16 @@ def set_lang(language_code):
         language_code = config.get('ckan.locale_default', 'en')
     if language_code != 'en':
         _set_lang(language_code)
+
+def _set_lang(lang):
+    ''' Allows a custom i18n directory to be specified.
+    Creates a fake config file to pass to pylons.i18n.set_lang, which
+    sets the Pylons root path to desired i18n_directory.
+    This is needed as Pylons will only look for an i18n directory in
+    the application root.'''
+    if config.get('ckan.i18n_directory'):
+        fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
+                       'pylons.package': config['pylons.package']}
+        i18n.set_lang(lang, pylons_config=fake_config)
+    else:
+        i18n.set_lang(lang)
