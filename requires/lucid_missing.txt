@@ -6,8 +6,6 @@
 -e svn+https://software.sandia.gov/svn/public/pyutilib/pyutilib.component.core/trunk@1972#egg=pyutilib.component.core
 # vdm>=0.10,<0.11.99
 -e git+https://github.com/okfn/vdm.git@vdm-0.11#egg=vdm
-# flup>=0.5
--e hg+http://hg.saddi.com/flup@301a58656bfb#egg=flup
 
 # Packages already on pypi.python.org
 solrpy==0.9.4

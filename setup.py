@@ -78,6 +78,7 @@ setup(
     tracking = ckan.lib.cli:Tracking
     plugin-info = ckan.lib.cli:PluginInfo
     profile = ckan.lib.cli:Profile
+    check-po-files = ckan.i18n.check_po_files:CheckPoFiles
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
