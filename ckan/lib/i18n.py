@@ -12,14 +12,22 @@ LOCALE_ALIASES['pt'] = 'pt_BR' # Default Portuguese language to
                                # we don't have a Portuguese territory
                                # translation currently.
 
-def _get_locales():
+def get_locales_from_config():
+    locales_offered = config.get('ckan.locales_offered', '').split()
+    filtered_out = config.get('ckan.locales_filtered_out', '').split()
+    locale_default = config.get('ckan.locale_default', 'en')
+    locale_order = config.get('ckan.locale_order', '').split()
+    all_locales = set(locales_offered) | set(locale_order) | set(locale_default)
+    all_locales -= set(filtered_out)
+    return all_locales
 
+def _get_locales():
     assert not config.get('lang'), \
             '"lang" config option not supported - please use ckan.locale_default instead.'
     locales_offered = config.get('ckan.locales_offered', '').split()
     filtered_out = config.get('ckan.locales_filtered_out', '').split()
-    locale_order = config.get('ckan.locale_order', '').split()
     locale_default = config.get('ckan.locale_default', 'en')
+    locale_order = config.get('ckan.locale_order', '').split()
 
     locales = ['en']
     i18n_path = os.path.dirname(ckan.i18n.__file__)
@@ -58,6 +66,7 @@ def _get_locales():
 available_locales = None
 locales = None
 locales_dict = None
+_non_translated_locals = None
 
 def get_locales():
     ''' Get list of available locales
@@ -67,6 +76,13 @@ def get_locales():
     if not locales:
         locales = _get_locales()
     return locales
+
+def non_translated_locals():
+    global _non_translated_locals
+    if not _non_translated_locals:
+        locales = config.get('ckan.locale_order', '').split()
+        _non_translated_locals = [x for x in locales if x not in get_locales()]
+    return _non_translated_locals
 
 def get_locales_dict():
     ''' Get a dict of the available locales
@@ -105,7 +121,7 @@ def handle_request(request, tmpl_context):
     lang = request.environ.get('CKAN_LANG') or \
         config.get('ckan.locale_default', 'en')
     if lang != 'en':
-        _set_lang(lang)
+        set_lang(lang)
     tmpl_context.language = lang
     return lang
 
@@ -117,3 +133,10 @@ def get_lang():
         return langs[0]
     else:
         return 'en'
+
+def set_lang(language_code):
+    ''' Wrapper to pylons call '''
+    if language_code in non_translated_locals():
+        language_code = config.get('ckan.locale_default', 'en')
+    if language_code != 'en':
+        _set_lang(language_code)
