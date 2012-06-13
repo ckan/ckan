@@ -13,6 +13,7 @@ import urllib
 import pprint
 import copy
 import logging
+from urllib import urlencode
 
 from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
@@ -32,7 +33,7 @@ import i18n
 import ckan.exceptions
 from pylons import request
 from pylons import session
-from pylons import c
+from pylons import c, g
 from pylons.i18n import _, ungettext
 
 import html_resources
@@ -529,6 +530,67 @@ def _facet_items(name, limit=10):
 def facet_title(name):
     # FIXME this looks like an i18n issue
     return config.get('search.facets.%s.title' % name, name.capitalize())
+
+def get_facet_title(name):
+    facet_titles = {'groups' : _('Groups'),
+                  'tags' : _('Tags'),
+                  'res_format' : _('Formats'),
+                  'license' : _('Licence'), }
+    return facet_titles.get(name, name)
+
+def get_param_int(name, default=10):
+    return int(request.params.get(name, default))
+
+def remove_field(key, value=None, replace=None):
+    """
+    Remove a key from the current search parameters. A specific
+    key/value pair can be removed by passing a second value argument
+    otherwise all pairs matching the key will be removed.
+    If replace is given then a new param key=replace will be added.
+    """
+    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+    params = list(params_nopage)
+    if value:
+        params.remove((key, value))
+    else:
+      [params.remove((k, v)) for (k, v) in params[:] if k==key]
+    if replace is not None:
+        params.append((key, replace))
+    return _search_url(params)
+
+def drill_down_url(alternative_url=None, **by):
+    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+    params = set(params_nopage)
+    params |= set(by.items())
+    if alternative_url:
+        return _url_with_params(alternative_url, params)
+    return _search_url(params)
+
+
+def _url_with_params(url, params):
+    if not params:
+        return url
+    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                                  for k, v in params]
+    return url + u'?' + urlencode(params)
+
+def _search_url(params):
+    url = url_for(controller='package', action='search')
+    return _url_with_params(url, params)
+
+def sorted_extras(list_):
+    ''' Used for outputting package extras '''
+    output = []
+    for extra in sorted(list_, key=lambda x:x['key']):
+        if extra.get('state') == 'deleted':
+            continue
+        k, v = extra['key'], extra['value']
+        if k in g.package_hide_extras:
+            continue
+        if isinstance(v, (list, tuple)):
+            v = ", ".join(map(unicode, v))
+        output.append((k, v))
+    return output
 
 @deprecated('Please use check_access instead.')
 def am_authorized(c, action, domain_object=None):
@@ -1072,6 +1134,11 @@ __allowed_functions__ = [
            'popular',
            'debug_full_info',
            'debug_full_info_as_list',
+           'remove_field',
+           'drill_down_url',
+           'get_facet_title',
+           'get_param_int',
+           'sorted_extras',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
