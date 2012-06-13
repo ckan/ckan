@@ -62,7 +62,7 @@
 
     {{ h.snippet('package/snippets/tags.html', tags=c.pkg_dict.tags) }}
 
-    {{ h.snippet('package/snippets/additional_info.html') }}
+    {{ h.snippet('package/snippets/additional_info.html', pkg_dict=c.pkg_dict) }}
   </article>
 {% endblock %}
 

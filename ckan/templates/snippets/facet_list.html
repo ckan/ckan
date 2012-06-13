@@ -25,21 +25,21 @@ count_label
 #}
 {% with items = h.get_facet_items_dict(name) %}
   <section class="module info">
-    <h2 class="heading"><i class="ckan-icon ckan-icon-tag"></i> {{ c.facet_titles.get(name) }} <a href="{{ c.remove_field(name) }}" class="action">Clear All</a></h2>
+    <h2 class="heading"><i class="ckan-icon ckan-icon-tag"></i> {{ h.get_facet_title(name) }} <a href="{{ h.remove_field(name) }}" class="action">Clear All</a></h2>
     {% if items %}
       <nav>
         <ul class="unstyled nav nav-simple nav-facet">
           {% for item in items %}
             {% if item.active %}
                 <li class="active">
-                <a href="{{ c.remove_field(name, item.name) }}">
+                <a href="{{ h.remove_field(name, item.name) }}">
                   {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
                   {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
                 </a>
               </li>
             {% else %}
                 <li>
-                <a href="{{ c.drill_down_url(**{name: item.name}) }}">
+                <a href="{{ h.drill_down_url(**{name: item.name}) }}">
                   {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
                   {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
                 </a>
@@ -49,10 +49,10 @@ count_label
         </ul>
       </nav>
       <p class="footer">
-          {% if c.search_facets_limits.get(name) %}
-          <a href="{{ c.remove_field('_%s_limit' % name, replace=0) }}" class="read-more">Show All {{ c.facet_titles.get(name) }}</a>
+          {% if h.get_param_int('_%s_limit' % name) %}
+          <a href="{{ h.remove_field('_%s_limit' % name, replace=0) }}" class="read-more">Show All {{ h.get_facet_title(name) }}</a>
           {% else %}
-          <a href="{{ c.remove_field('_%s_limit' % name) }}" class="read-more">Show Only Popular {{ c.facet_titles.get(name) }}</a>
+          <a href="{{ h.remove_field('_%s_limit' % name) }}" class="read-more">Show Only Popular {{ h.get_facet_title(name) }}</a>
           {% endif %}
       </p>
     {% else %}
