@@ -470,11 +470,15 @@ class PackageController(BaseController):
 
     def new_resource(self, id):
       ''' FIXME: This is a temporary action to allow styling of the forms. '''
+      if request.method == 'POST':
+          # FIXME save here
+          save_action = request.params.get('save')
+          if save_action == 'save' or save_action == 'next':
+              redirect(h.url_for(controller='package', action='new_metadata', id=id))
       return render('package/new_resource.html', extra_vars={'pkg_name':id})
 
-    def new_metadata(self, data=None, errors=None, error_summary=None):
+    def new_metadata(self, id):
       ''' FIXME: This is a temporary action to allow styling of the forms. '''
-      package_type = self._guess_package_type(True)
       return render('package/new_package_metadata.html')
 
     def edit(self, id, data=None, errors=None, error_summary=None):
