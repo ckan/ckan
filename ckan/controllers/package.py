@@ -468,7 +468,7 @@ class PackageController(BaseController):
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
         return render( self._new_template(package_type))
 
-    def new_resource(self, data=None, errors=None, error_summary=None):
+    def new_resource(self, id):
       ''' FIXME: This is a temporary action to allow styling of the forms. '''
       package_type = self._guess_package_type(True)
       return render('package/new_resource.html')
