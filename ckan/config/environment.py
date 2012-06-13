@@ -11,7 +11,7 @@ from pylons import config
 from pylons.i18n import _, N_
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment
 
 import ckan.config.routing as routing
 import ckan.model as model
@@ -193,10 +193,12 @@ def load_environment(global_conf, app_conf):
 
     # Create Jinja2 environment
     env = config['pylons.app_globals'].jinja_env = Environment(
-        loader=PackageLoader('ckan', 'templates'),
+        loader=lib.jinja_tags.CkanFileSystemLoader(template_paths,
+                            ckan_base_path=paths['templates'][0]),
         autoescape=True,
         extensions=['jinja2.ext.i18n', 'jinja2.ext.do', 'jinja2.ext.with_',
                     lib.jinja_tags.SnippetExtension,
+                    lib.jinja_tags.CkanExtend,
                     lib.jinja_tags.UrlForExtension]
     )
     env.install_gettext_callables(_, N_, newstyle=True)

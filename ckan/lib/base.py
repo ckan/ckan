@@ -73,6 +73,7 @@ def render_text(template_name, extra_vars=None, cache_force=None):
                   method='text',
                   loader_class=NewTextTemplate)
 
+
 def render_jinja2(template_name, extra_vars):
     env = config['pylons.app_globals'].jinja_env
     template = env.get_template(template_name)
