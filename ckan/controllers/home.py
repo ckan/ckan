@@ -46,11 +46,7 @@ class HomeController(BaseController):
                 'fq': 'capacity:"public"'
             }
             query = ckan.logic.get_action('package_search')(context,data_dict)
-            #c.package_count = query['count']
-            @property
-            def package_count():
-                return query['count']
-            c.package_count = package_count
+            c.package_count = query['count']
             c.facets = query['facets']
 
             data_dict = {'order_by': 'packages', 'all_fields': 1}
