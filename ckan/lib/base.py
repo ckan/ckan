@@ -186,7 +186,7 @@ class BaseController(WSGIController):
         # exists in our database - we need to do that here. (Another way would
         # be with an userid_checker, but that would mean another db access.
         # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who.plugins.sql )
-        c.user = request.environ.get('REMOTE_USER', '')
+        c.user = request.environ.get('REMOTE_USER_REAL', '')
         if c.user:
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
