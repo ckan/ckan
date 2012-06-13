@@ -199,6 +199,7 @@ def load_environment(global_conf, app_conf):
         extensions=['jinja2.ext.i18n', 'jinja2.ext.do', 'jinja2.ext.with_',
                     lib.jinja_tags.SnippetExtension,
                     lib.jinja_tags.CkanExtend,
+                    lib.jinja_tags.LinkForExtension,
                     lib.jinja_tags.UrlForExtension]
     )
     env.install_gettext_callables(_, N_, newstyle=True)
