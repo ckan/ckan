@@ -455,7 +455,7 @@ class PackageController(BaseController):
 
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new'}
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id})
@@ -512,7 +512,7 @@ class PackageController(BaseController):
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'edit'}
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id}, package_type=package_type)

@@ -1,0 +1,14 @@
+{% extends 'package/pages/form_page.html' %}
+
+{% set pkg = c.pkg_dict %}
+
+{% block breadcrumb %}
+  <ol class="breadcrumb">
+    <li class="home hide-text"><a class="ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">Home</a></li>
+    <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
+    <li>{% link_for pkg.title|truncate(30), controller='package', action='read', id=pkg.name %}</li>
+    <li class="active">{% link_for _('Edit Dataset'), controller='package', action='edit', id=pkg.name %}</li>
+  </ol>
+{% endblock %}
+
+{% block stages %}{% endblock %}
