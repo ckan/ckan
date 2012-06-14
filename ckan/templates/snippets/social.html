@@ -1,13 +1,9 @@
-<html
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/">
-  <section class="module social">
-    <h2 class="heading"><i class="ckan-icon ckan-icon-share"></i> Social</h2>
-    <ul class="nav nav-simple">
-      <li><a href="https://plus.google.com/share?url=${h.full_current_url()}"><i class="ckan-icon ckan-icon-gplus"></i> Google+</a></li>
-      <li><a href="https://twitter.com/share?url=${h.full_current_url()}"><i class="ckan-icon ckan-icon-twitter"></i> Twitter</a></li>
-      <li><a href="https://www.facebook.com/sharer.php?u=${h.full_current_url()}"><i class="ckan-icon ckan-icon-fb"></i> Facebook</a></li>
-    </ul>
-  </section>
-</html>
+{% set current_url = h.full_current_url() %}
+<section class="module social">
+  <h2 class="heading"><i class="ckan-icon ckan-icon-share"></i> Social</h2>
+  <ul class="nav nav-simple">
+    <li><a href="https://plus.google.com/share?url={{ current_url }}"><i class="ckan-icon ckan-icon-gplus"></i> Google+</a></li>
+    <li><a href="https://twitter.com/share?url={{ current_url }}"><i class="ckan-icon ckan-icon-twitter"></i> Twitter</a></li>
+    <li><a href="https://www.facebook.com/sharer.php?u={{ current_url }}"><i class="ckan-icon ckan-icon-fb"></i> Facebook</a></li>
+  </ul>
+</section>
