@@ -284,7 +284,7 @@ def nav_link(*args, **kwargs):
     if len(args) > 2 or (len(args) > 1 and 'controller' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _nav_link(*args[1:], **kwargs)
-        raise Exception('nav_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('nav_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _nav_link(*args, **kwargs)
 
 def _nav_link(text, controller, **kwargs):
@@ -322,7 +322,7 @@ def nav_named_link(*args, **kwargs):
        (len(args) > 1 and 'name' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _nav_named_link(*args[1:], **kwargs)
-        raise Exception('nav_named_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('nav_named_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _nav_named_link(*args, **kwargs)
 
 def _nav_named_link(text, name, **kwargs):
@@ -342,7 +342,7 @@ def subnav_link(*args, **kwargs):
     if len(args) > 2 or (len(args) > 1 and 'action' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _subnav_link(*args[1:], **kwargs)
-        raise Exception('subnav_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('subnav_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _subnav_link(*args, **kwargs)
 
 def _subnav_link(text, action, **kwargs):
@@ -361,7 +361,7 @@ def subnav_named_route(*args, **kwargs):
        (len(args) > 1 and 'routename' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _subnav_named_route(*args[1:], **kwargs)
-        raise Exception('subnav_named_route() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('subnav_named_route() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _subnav_named_route(*args, **kwargs)
 
 def _subnav_named_route(text, routename, **kwargs):
@@ -512,7 +512,7 @@ def facet_items(*args, **kwargs):
     if len(args) > 2 or (len(args) > 0 and 'name' in kwargs) or (len(args) > 1 and 'limit' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _facet_items(*args[1:], **kwargs)
-        raise Exception('facet_items() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('facet_items() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _facet_items(*args, **kwargs)
 
 
@@ -955,8 +955,12 @@ def auto_log_message(*args):
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) and asbool(config.get('ckan.restrict_template_vars', 'false')):
-        raise Exception('auto_log_message() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('auto_log_message() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _auto_log_message()
+
+def _get_template_name():
+    ''' helper function to get the currently/last rendered template name '''
+    return c.__debug_info[-1]['template_name']
 
 def _auto_log_message():
     if (c.action=='new') :
@@ -1037,7 +1041,6 @@ def debug_full_info_as_list(debug_info):
                             '__module__', '__new__', '__reduce__',
                             '__reduce_ex__', '__repr__', '__setattr__',
                             '__sizeof__', '__str__', '__subclasshook__',
-                            '__template_name',
                             '__weakref__', 'action', 'environ', 'pylons',
                             'start_response', '__debug_info']
     for key in debug_info.keys():
