@@ -3,7 +3,7 @@
 {% set data = data or {} %}
 {% set errors = errors or {} %}
 
-<form class="dataset-form dataset-resource-form form-horizontal" method="post" py:with="errors = {}; data = {};">
+<form class="dataset-form dataset-resource-form form-horizontal" method="post">
   {{ form.errors(error_summary) }}
 
   {{ form.input('author', label=_('Author'), id='field-author', placeholder=_('Joe Bloggs'), value=data.author, error=errors.author, classes=['control-medium']) }}
@@ -21,4 +21,5 @@
   <div class="form-actions">
     <button class="btn btn-primary" type="submit">{{ _('Finish') }}</button>
   </div>
+
 </form>

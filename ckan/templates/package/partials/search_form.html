@@ -5,7 +5,7 @@
   </span>
   {{ h.snippet('snippets/sort_by.html', sort=c.sort_by_selected) }}
   {% if c.fields %}
-    <span py:if="c.fields">
+    <span>
       {% for key, value in c.fields %}
         <input type="hidden" name="{{ key }}" value="{{ value }}" />
       {% endfor %}

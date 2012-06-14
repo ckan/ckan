@@ -21,7 +21,7 @@
   </div>
   {% if config.debug %}
     <div class="container">
-      <a id="debug-toggle" href="#debug" style="opacity: 0.6">Debug</a>
+      <a id="debug-toggle" href="#debug" style="opacity: 0.6">Debug {{ c.__debug_info|length }}</a>
       <pre id="debug" class="well" style="display:none;color:#333;margin-top:10px;">
 <b>Debug info:</b>
 
