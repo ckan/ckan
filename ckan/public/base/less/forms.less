@@ -333,7 +333,22 @@ textarea {
   margin-left: -30px;
 }
 
-.stages li:last-child:after {
+.stages li.first,
+.stages li.first a {
+  .border-radius(3px 0 0 0);
+}
+
+.stages li.last {
+  position: relative;
+  right: -1px;
+}
+
+.stages li.last,
+.stages li.last a {
+  .border-radius(0 3px 0 0);
+}
+
+.stages li.last:after {
   content: none;
 }
 

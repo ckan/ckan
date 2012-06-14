@@ -1,19 +1,19 @@
 {% if stage == 1 %}
   <ol class="stages stage-1">
-    <li class="active">{% link_for _('Create Dataset'), controller='package', action='new' %}</li>
+    <li class="active first">{% link_for _('Create Dataset'), controller='package', action='new' %}</li>
     <li>Add data</li>
-    <li>Additional data</li>
+    <li class="last">Additional data</li>
   </ol>
 {% elif stage == 2 %}
   <ol class="stages stage-2">
-    <li class="complete">{% link_for _('Edit Dataset'), controller='package', action='edit', id=pkg_name %}</li>
+    <li class="complete first">{% link_for _('Edit Dataset'), controller='package', action='edit', id=pkg_name %}</li>
     <li class="active"><a href="">Add data</a></li>
-    <li>Additional data</li>
+    <li class="last">Additional data</li>
   </ol>
 {% else %}
   <ol class="stages stage-3">
-    <li class="complete">{% link_for _('Edit Dataset'), controller='package', action='edit', id=pkg_name %}</li>
+    <li class="complete first">{% link_for _('Edit Dataset'), controller='package', action='edit', id=pkg_name %}</li>
     <li class="complete"><a href="">Add data</a></li>
-    <li class="active"><a href="">Additional data</a></li>
+    <li class="active last"><a href="">Additional data</a></li>
   </ol>
 {% endif %}
