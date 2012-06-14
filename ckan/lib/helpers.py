@@ -1051,7 +1051,10 @@ def debug_full_info_as_list(debug_info):
         for key in dir(debug_info['tmpl_context']):
 
             if not key in ignored_context_keys:
-                out.append(('c.%s' % key, pprint.pformat(getattr(debug_info['tmpl_context'], key))))
+                data = pprint.pformat(getattr(debug_info['tmpl_context'], key))
+                data = data.decode('utf-8')
+                out.append(('c.%s' % key, data))
+
     return out
 
 
