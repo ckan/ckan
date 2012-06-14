@@ -1025,7 +1025,7 @@ def debug_inspect(arg):
     ''' Output pprint.pformat view of supplied arg '''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
 
-def debug_full_info_as_list():
+def debug_full_info_as_list(debug_info):
     ''' This dumps the template variables for debugging purposes only. '''
     out = []
     ignored_keys = ['c', 'app_globals', 'g', 'h', 'request', 'tmpl_context',
@@ -1037,30 +1037,20 @@ def debug_full_info_as_list():
                             '__module__', '__new__', '__reduce__',
                             '__reduce_ex__', '__repr__', '__setattr__',
                             '__sizeof__', '__str__', '__subclasshook__',
-                            '__template_name', '__template_path',
+                            '__template_name',
                             '__weakref__', 'action', 'environ', 'pylons',
-                            'start_response']
-
-    for key in c.__context.keys():
+                            'start_response', '__debug_info']
+    for key in debug_info.keys():
         if not key in ignored_keys:
-            out.append((key, c.__context.get(key)))
+            out.append((key, debug_info.get(key)))
 
-    for key in dir(c.__context['tmpl_context']):
-        if not key in ignored_context_keys:
-            out.append((key, pprint.pformat(getattr(c, key))))
+    if 'tmpl_context' in debug_info:
+        for key in dir(debug_info['tmpl_context']):
 
+            if not key in ignored_context_keys:
+                out.append(('c.%s' % key, pprint.pformat(getattr(debug_info['tmpl_context'], key))))
     return out
 
-def debug_full_info():
-    ''' This dumps the template variables for debugging purposes only. '''
-    out  = []
-    info = debug_full_info_as_list()
-
-    for key, value in info:
-        out.append('<b>%s<b> : <pre>%s</pre>' %
-            (key, escape(value)))
-
-    return literal('<br/>'.join(out))
 
 def popular(type_, number, min=1, title=None):
     ''' display a popular icon. '''
@@ -1132,7 +1122,6 @@ __allowed_functions__ = [
            'dict_list_reduce',
            'full_current_url',
            'popular',
-           'debug_full_info',
            'debug_full_info_as_list',
            'remove_field',
            'drill_down_url',

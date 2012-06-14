@@ -92,15 +92,17 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         globs['actions'] = model.Action
         # add the template name to the context to help us know where we are
         # used in depreciating functions etc
-        if not c.__template_name:
-            c.__template_name = [template_name]
-        else:
-            if template_name not in c.__template_name:
-                c.__template_name.append(template_name)
+        # FIXME this should be replaced by c.__debug_info
+        c.__template_name = template_name
 
         # Using pylons.url() directly destroys the localisation stuff so
         # we remove it so any bad templates crash and burn
         del globs['url']
+
+        # snippets should not pass the context
+        if renderer == 'snippet':
+            del globs['c']
+            del globs['tmpl_context']
 
         try:
             template_path, template_type = lib.render.template_info(template_name)
@@ -109,22 +111,18 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             template_type  = 'genshi'
             template_path = ''
 
-        if not c.__template_path:
-            c.__template_path = [template_path]
-        else:
-            if template_path not in c.__template_path:
-                c.__template_path.append(template_path)
-
-        c.__context = globs
+        debug_info = {'template_name' : template_name,
+                      'template_path' : template_path,
+                      'template_type' : template_type,
+                      'vars' : globs,
+                      'renderer' : renderer,}
+        if not c.__debug_info:
+            c.__debug_info = []
+        c.__debug_info.append(debug_info)
 
         # Jinja2 templates
         if template_type == 'jinja2':
             # TODO should we raise error if genshi filters??
-
-            # snippets should not pass the context
-            if renderer == 'snippet':
-                del globs['c']
-                pass
             return render_jinja2(template_name, globs)
 
         # Genshi templates
