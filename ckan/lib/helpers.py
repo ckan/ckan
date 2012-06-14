@@ -717,8 +717,8 @@ def gravatar(email_hash, size=100, default=None):
         default = urllib.quote(default, safe='')
 
     return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
-        class="gravatar" />'''
-        % (email_hash, size, default)
+        class="gravatar" width="%s" height="%s" />'''
+        % (email_hash, size, default, size, size)
         )
 
 def pager_url(page, partial=None, **kwargs):
