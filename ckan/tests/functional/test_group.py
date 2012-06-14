@@ -2,6 +2,7 @@ import re
 
 from nose.tools import assert_equal
 
+from ckan.tests import setup_test_search_index
 from ckan.plugins import SingletonPlugin, implements, IGroupController
 from ckan import plugins
 import ckan.model as model
@@ -156,6 +157,8 @@ class TestEdit(FunctionalTestCase):
         model.Session.add(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
 
+        setup_test_search_index()
+
     @classmethod
     def teardown_class(self):
         model.Session.remove()
@@ -272,6 +275,54 @@ Ho ho ho
         model.Session.remove()
         group = model.Group.by_name(self.groupname)
         assert group.image_url == image_url, group
+
+    def test_edit_change_name(self):
+        group = model.Group.by_name(self.groupname)
+        offset = url_for(controller='group', action='edit', id=self.groupname)
+        res = self.app.get(offset, status=200,
+                           extra_environ={'REMOTE_USER': 'russianfan'})
+        assert 'Edit: %s' % group.title in res, res
+
+        def update_group(res, name, with_pkg=True):
+            form = res.forms['group-edit']
+            titlefn = 'title'
+            descfn = 'description'
+            newtitle = 'xxxxxxx'
+            newdesc = '''### Lots of stuff here
+
+    Ho ho ho
+    '''
+            form[titlefn] = newtitle
+            form[descfn] = newdesc
+            form['name'] = name
+            if with_pkg:
+                pkg = model.Package.by_name(self.packagename)
+                form['packages__2__name'] = pkg.name
+
+            res = form.submit('save', status=302,
+                              extra_environ={'REMOTE_USER': 'russianfan'})
+        update_group(res, self.groupname, True)
+        update_group(res, "newname", False)
+
+        model.Session.remove()
+        group = model.Group.by_name('newname')
+
+        # We have the datasets in the DB, but we should also see that many
+        # on the group read page.
+        assert len(group.active_packages().all()) == 3
+
+        offset = url_for(controller='group', action='read', id='newname')
+        res = self.app.get(offset, status=200,
+                           extra_environ={'REMOTE_USER': 'russianfan'})
+
+        ds = res.body
+        ds = ds[ds.index('datasets')-10:ds.index('datasets')+10]
+        assert '3 datasets found' in res, ds
+
+        # reset the group to how we found it
+        group.name = self.groupname
+        model.Session.add(group)
+
 
     def test_edit_non_existent(self):
         name = u'group_does_not_exist'
