@@ -1,6 +1,7 @@
 import uuid
 import logging
 import json
+import re
 
 from pylons import config
 from pylons.i18n import _
@@ -1653,6 +1654,7 @@ def activity_detail_list(context, data_dict):
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
 
+# These are the activity stream messages
 activity_info = {
   'added tag' : _("{actor} added the tag {tag} to the dataset {dataset}"),
   'changed group' : _("{actor} updated the group {group}"),
@@ -1672,25 +1674,23 @@ activity_info = {
   'removed tag' : _("{actor} removed the tag {tag} from the dataset {dataset}"),
 }
 
-
-import re
-
 def _activity_list_to_html(context, activity_stream):
-
+    ''' A generalised function to try to render all activity streams '''
     def get_snippet(name):
-        ''' return the function/object requested '''
+        ''' get the snippet for the required data '''
         if name == 'actor':
             return h.linked_user(activity['user_id'])
         elif name == 'dataset':
             return h.dataset_link(activity['data']['package'])
         elif name == 'tag':
-            return h.tag_link(detail['data']['tag']),
+            return h.tag_link(detail['data']['tag'])
         elif name == 'group':
             return h.group_link(activity['data']['group'])
         elif name == 'extra':
             return '"%s"' % detail['data']['package_extra']['key']
         elif name == 'resource':
-            return h.resource_link(detail['data']['resource'], activity['data']['package']['id'])
+            return h.resource_link(detail['data']['resource'],
+                                   activity['data']['package']['id'])
         else:
             raise Exception('Unknown key')
 
@@ -1707,7 +1707,7 @@ def _activity_list_to_html(context, activity_stream):
                 if object_type == 'PackageExtra':
                     object_type = 'package_extra'
                 new_activity_type = '%s %s' % (detail['activity_type'],
-                                           object_type)
+                                           object_type.lower())
                 if new_activity_type in activity_info:
                     activity_type = new_activity_type
 

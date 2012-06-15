@@ -206,5 +206,8 @@ class TestActivity(HtmlCheckMethods):
         # By now we've created >15 activities, but only the latest 15 should
         # appear on the page.
         result = self.app.get(offset, status=200)
+        print '#########################'
+        print result.body.count('<div class="activity">')
+        print result.body
         assert result.body.count('<div class="activity">') \
                 == 15
