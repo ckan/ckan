@@ -19,6 +19,7 @@ import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
+import lib.helpers as h
 
 log = logging.getLogger('ckan.logic')
 
@@ -1651,124 +1652,77 @@ def activity_detail_list(context, data_dict):
         model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
-def _render_new_package_activity(context, activity):
-    return _render('activity_streams/new_package.html',
-        extra_vars = {'activity': activity})
 
-def _render_deleted_package_activity(context, activity):
-    return _render('activity_streams/deleted_package.html',
-        extra_vars = {'activity': activity})
+activity_info = {
+  'added tag' : _("{actor} added the tag {tag} to the dataset {dataset}"),
+  'changed group' : _("{actor} updated the group {group}"),
+  'changed package' : _("{actor} updated the dataset {dataset}"),
+  'changed package_extra' : _("{actor} changed the extra {extra} of the dataset {dataset}"),
+  'changed resource' : _("{actor} updated the resource {resource} in the dataset {dataset}"),
+  'changed user' : _("{actor} updated their profile"),
+  'deleted group' : _("{actor} deleted the group {group}"),
+  'deleted package' : _("{actor} deleted the dataset {dataset}"),
+  'deleted package_extra' : _("{actor} deleted the extra {extra} from the dataset {dataset}"),
+  'deleted resource' : _("{actor} deleted the resource {resource} from the dataset {dataset}"),
+  'new group' : _("{actor} created the group {group}"),
+  'new package' : _("{actor} created the dataset {dataset}"),
+  'new package_extra' : _("{actor} added the extra {extra} to the dataset {dataset}"),
+  'new resource' : _("{actor} added the resource {resource} to the dataset {dataset}"),
+  'new user' : _("{actor} signed up"),
+  'removed tag' : _("{actor} removed the tag {tag} from the dataset {dataset}"),
+}
 
-def _render_new_resource_activity(context, activity, detail):
-    return _render('activity_streams/new_resource.html',
-        extra_vars = {'activity': activity, 'detail': detail})
 
-def _render_changed_resource_activity(context, activity, detail):
-    return _render('activity_streams/changed_resource.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_deleted_resource_activity(context, activity, detail):
-    return _render('activity_streams/deleted_resource.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_added_tag_activity(context, activity, detail):
-    return _render('activity_streams/added_tag.html',
-            extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_removed_tag_activity(context, activity, detail):
-    return _render('activity_streams/removed_tag.html',
-            extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_new_package_extra_activity(context, activity, detail):
-    return _render('activity_streams/new_package_extra.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_changed_package_extra_activity(context, activity, detail):
-    return _render('activity_streams/changed_package_extra.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_deleted_package_extra_activity(context, activity, detail):
-    return _render('activity_streams/deleted_package_extra.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_changed_package_activity(context, activity):
-    details = activity_detail_list(context=context,
-        data_dict={'id': activity['id']})
-
-    if len(details) == 1:
-        # If an activity has only one activity detail we try to find an
-        # activity detail renderer to use instead of rendering the normal
-        # 'changed package' template.
-        detail = details[0]
-        activity_detail_renderers = {
-            'Resource': {
-              'new': _render_new_resource_activity,
-              'changed': _render_changed_resource_activity,
-              'deleted': _render_deleted_resource_activity
-              },
-            'tag': {
-              'added': _render_added_tag_activity,
-              'removed': _render_removed_tag_activity,
-              },
-            'PackageExtra': {
-                'new': _render_new_package_extra_activity,
-                'changed': _render_changed_package_extra_activity,
-                'deleted': _render_deleted_package_extra_activity
-              },
-            }
-        object_type = detail['object_type']
-        if activity_detail_renderers.has_key(object_type):
-            activity_type = detail['activity_type']
-            if activity_detail_renderers[object_type].has_key(activity_type):
-                renderer = activity_detail_renderers[object_type][activity_type]
-                return renderer(context, activity, detail)
-
-    return _render('activity_streams/changed_package.html',
-        extra_vars = {'activity': activity})
-
-def _render_new_user_activity(context, activity):
-    return _render('activity_streams/new_user.html',
-        extra_vars = {'activity': activity})
-
-def _render_changed_user_activity(context, activity):
-    return _render('activity_streams/changed_user.html',
-        extra_vars = {'activity': activity})
-
-def _render_new_group_activity(context, activity):
-    return _render('activity_streams/new_group.html',
-        extra_vars = {'activity': activity})
-
-def _render_changed_group_activity(context, activity):
-    return _render('activity_streams/changed_group.html',
-        extra_vars = {'activity': activity})
-
-def _render_deleted_group_activity(context, activity):
-    return _render('activity_streams/deleted_group.html',
-        extra_vars = {'activity': activity})
-
-# Global dictionary mapping activity types to functions that render activity
-# dicts to HTML snippets for including in HTML pages.
-activity_renderers = {
-  'new package' : _render_new_package_activity,
-  'changed package' : _render_changed_package_activity,
-  'deleted package' : _render_deleted_package_activity,
-  'new user' : _render_new_user_activity,
-  'changed user' : _render_changed_user_activity,
-  'new group' : _render_new_group_activity,
-  'changed group' : _render_changed_group_activity,
-  'deleted group' : _render_deleted_group_activity,
-  }
+import re
 
 def _activity_list_to_html(context, activity_stream):
-    html = []
+
+    def get_snippet(name):
+        ''' return the function/object requested '''
+        if name == 'actor':
+            return h.linked_user(activity['user_id'])
+        elif name == 'dataset':
+            return h.dataset_link(activity['data']['package'])
+        elif name == 'tag':
+            return h.tag_link(detail['data']['tag']),
+        elif name == 'group':
+            return h.group_link(activity['data']['group'])
+        elif name == 'extra':
+            return '"%s"' % detail['data']['package_extra']['key']
+        elif name == 'resource':
+            return h.resource_link(detail['data']['resource'], activity['data']['package']['id'])
+        else:
+            raise Exception('Unknown key')
+
+    activity_list = []
     for activity in activity_stream:
         activity_type = activity['activity_type']
-        if not activity_renderers.has_key(activity_type):
-            raise NotImplementedError, ("No activity renderer for activity "
+        # if package changed then we may have extra details
+        if activity_type == 'changed package':
+            details = activity_detail_list(context=context,
+                data_dict={'id': activity['id']})
+            if details:
+                detail = details[0]
+                object_type = detail['object_type']
+                if object_type == 'PackageExtra':
+                    object_type = 'package_extra'
+                new_activity_type = '%s %s' % (detail['activity_type'],
+                                           object_type)
+                if new_activity_type in activity_info:
+                    activity_type = new_activity_type
+
+        if not activity_info.has_key(activity_type):
+            raise NotImplementedError("No activity renderer for activity "
                 "type '%s'" % str(activity_type))
-        activity_html = activity_renderers[activity_type](context, activity)
-        html.append(activity_html)
-    return webhelpers.html.literal('\n'.join(html))
+        activity_msg = activity_info[activity_type]
+        # get the data needed by the message
+        matches = re.findall('\{([^}]*)\}', activity_msg)
+        data = {}
+        for match in matches:
+            data[str(match)] = get_snippet(match)
+        activity_list.append(dict(msg=activity_msg, data=data, timestamp=activity['timestamp']))
+    return webhelpers.html.literal(_render('activity_streams/general.html',
+        extra_vars = {'activities': activity_list}))
 
 def user_activity_list_html(context, data_dict):
     '''Return a user's public activity stream as HTML.
