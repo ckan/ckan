@@ -537,6 +537,7 @@ left arrow <
         user = model.User(name=unicode(name), **user_dict)
         model.Session.add(user)
         cls.user_refs.append(user_ref)
+        return user
 
     @classmethod
     def create_user(cls, name='', **kwargs):
