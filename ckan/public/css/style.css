@@ -719,10 +719,9 @@ body.package.search #menusearch {
 }
 .dataset-search {
   margin-bottom: 35px;
-  padding-right: 100px;
 }
 input.search {
-  width: 100%;
+  width: 380px;
   float: left;
   font-size: 1.2em;
   margin: 0px;
@@ -740,7 +739,6 @@ input.search {
     display: inline-block;
     float: left;
     margin-left: 9px;
-    margin-right: -100px;
 }
 
 

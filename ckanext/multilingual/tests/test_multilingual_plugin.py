@@ -8,7 +8,6 @@ import ckan.tests.html_check
 import routes
 import paste.fixture
 import pylons.test
-import nose
 
 class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
     '''Test the translation of datasets by the multilingual_dataset plugin.
@@ -88,8 +87,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 response.mustcontain('<a href="/tag/%s">' % tag_name)
             for group_name in ('david', 'roger'):
                 response.mustcontain('<a href="/group/%s">' % group_name)
-            nose.tools.assert_raises(IndexError, response.mustcontain,
-                    'this should not be rendered')
+            assert 'this should not be rendered' not in response
 
     def test_tag_read_translation(self):
         '''Test the translation of tag view pages by the multilingual_tag
@@ -118,8 +116,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                                 term])
                     else:
                         response.mustcontain(term)
-                nose.tools.assert_raises(IndexError, response.mustcontain,
-                        'this should not be rendered')
+                assert 'this should not be rendered' not in response
 
     def test_user_read_translation(self):
         '''Test the translation of datasets on user view pages by the
@@ -148,8 +145,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                                 term])
                     else:
                         response.mustcontain(term)
-                nose.tools.assert_raises(IndexError, response.mustcontain,
-                        'this should not be rendered')
+                assert 'this should not be rendered' not in response
 
     def test_group_read_translation(self):
         for (lang_code, translations) in (
@@ -184,8 +180,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                     response.mustcontain(term)
             for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
                 response.mustcontain('%s?tags=%s' % (offset, tag_name))
-            nose.tools.assert_raises(IndexError, response.mustcontain,
-                    'this should not be rendered')
+            assert 'this should not be rendered' not in response
 
     def test_dataset_index_translation(self):
         for (lang_code, translations) in (
@@ -208,8 +203,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 response.mustcontain('/%s/dataset?tags=%s' % (lang_code, tag_name))
             for group_name in ('david', 'roger'):
                 response.mustcontain('/%s/dataset?groups=%s' % (lang_code, group_name))
-            nose.tools.assert_raises(IndexError, response.mustcontain,
-                    'this should not be rendered')
+            assert 'this should not be rendered' not in response
 
     def test_group_index_translation(self):
         for (lang_code, translations) in (
@@ -235,8 +229,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                     response.mustcontain(term)
             for group_name in ('david', 'roger'):
                 response.mustcontain('/%s/group/%s' % (lang_code, group_name))
-            nose.tools.assert_raises(IndexError, response.mustcontain,
-                    'this should not be rendered')
+            assert 'this should not be rendered' not in response
 
     def test_tag_index_translation(self):
         for (lang_code, translations) in (
@@ -262,8 +255,7 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 else:
                     response.mustcontain(term)
                 response.mustcontain('/%s/tag/%s' % (lang_code, term))
-            nose.tools.assert_raises(IndexError, response.mustcontain,
-                    'this should not be rendered')
+            assert 'this should not be rendered' not in response
 
 class TestDatasetSearchIndex():
 

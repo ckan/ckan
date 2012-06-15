@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 import datetime
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_raises
 
 from pylons import config 
 
@@ -38,6 +38,10 @@ class TestHelpers(TestController):
         res = h.datetime_to_date_str(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
         assert_equal(res, '2008-04-13T20:40:20.123456')
 
+    def test_date_str_to_datetime_date_only(self):
+        res = h.date_str_to_datetime('2008-04-13')
+        assert_equal(res, datetime.datetime(2008, 4, 13))
+
     def test_date_str_to_datetime(self):
         res = h.date_str_to_datetime('2008-04-13T20:40:20.123456')
         assert_equal(res, datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
@@ -46,6 +50,26 @@ class TestHelpers(TestController):
         # This occurs in ckan.net timestamps - not sure how they appeared
         res = h.date_str_to_datetime('2008-04-13T20:40:20')
         assert_equal(res, datetime.datetime(2008, 4, 13, 20, 40, 20))
+
+    def test_date_str_to_datetime_with_timezone(self):
+        assert_raises(ValueError,
+                      h.date_str_to_datetime,
+                      '2008-04-13T20:40:20-01:30')
+
+    def test_date_str_to_datetime_with_timezone_without_colon(self):
+        assert_raises(ValueError,
+                      h.date_str_to_datetime,
+                      '2008-04-13T20:40:20-0130')
+
+    def test_date_str_to_datetime_with_garbage_on_end(self):
+        assert_raises(ValueError,
+                      h.date_str_to_datetime,
+                      '2008-04-13T20:40:20foobar')
+
+    def test_date_str_to_datetime_with_ambiguous_microseconds(self):
+        assert_raises(ValueError,
+                      h.date_str_to_datetime,
+                      '2008-04-13T20:40:20.500')
 
     def test_time_ago_in_words_from_str(self):
         two_months_ago = datetime.datetime.now() - datetime.timedelta(days=65)

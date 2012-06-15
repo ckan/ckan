@@ -24,7 +24,7 @@ app_instance_uuid = ${app_instance_uuid}
 
 # List the names of CKAN extensions to activate.
 # Note: This line is required to be here for packaging, even if it is empty.
-ckan.plugins = stats
+ckan.plugins = stats synchronous_search
 
 # If you'd like to fine-tune the individual locations of the cache data dirs
 # for the Cache data, or the Session saves, un-comment the desired settings
@@ -82,13 +82,6 @@ package_form = standard
 # * pyamqplib - AMQP (e.g. for RabbitMQ)
 # * queue - native Python Queue (debugging and tests only)
 #carrot_messaging_library = pyamqplib
-
-## Update the search index synchronously (i.e. in-process rather than
-## out-of-process as would be case if using AMQP framework)
-## Set to false to disable, true to enable
-## Default enabled (and enabled if option entirely absent)
-## NOTE this is mutually exclusive with ckan.async_notifier
-ckan.build_search_index_synchronously = true
 
 ## Perform search just using database (rather than use e.g. solr).
 ## In this setup search is crude and limited .e.g no full-text search, no faceting ...

@@ -16,6 +16,13 @@ The following instructions apply to Ubuntu 10.04 (Lucid), the supported
 platform by the CKAN team. Other versions or distributions may need
 slightly different instructions.
 
+.. note::
+
+    The following instructions deploy Solr on the Jetty server, but CKAN does
+    not require it, you can use Tomcat if that is more convenient on your
+    distribution.
+
+
 .. _solr-single:
 
 Single Solr instance
