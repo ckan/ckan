@@ -56,7 +56,11 @@
           {% endfor %}
         </ul>
       {% else %}
-        <p>{% trans %}This dataset has no data, <a href="#">why not add some?</a>{% endtrans %}</p>
+        <p>
+          {% trans url=h.url_for(controller='package', action='new_resource', id=c.pkg_dict.name) %}
+          This dataset has no data, <a href="{{ url }}">why not add some?</a>
+          {% endtrans %}
+      </p>
       {% endif %}
     </section>
 

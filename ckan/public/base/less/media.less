@@ -8,9 +8,7 @@
 
 .media .content:before,
 .media .content:after {
-  
 }
-
 
 .media .content > :last-child {
   margin-bottom: 0;
@@ -25,7 +23,6 @@
   float: left;
   margin-right: 10px;
   overflow: hidden;
-  max-height: 125px;
 }
 
 .media .image:after {
@@ -52,6 +49,7 @@
 
 .media-vertical .image {
   margin-right: 0;
+  max-height: 125px;
 }
 
 .media-grid,
@@ -71,6 +69,10 @@ ol.media-grid {
 
 .media-grid .first {
   clear: left;
+}
+
+.media-grid .media > .content {
+  min-height: 63px;
 }
 
 .media-wide {

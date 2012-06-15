@@ -1,5 +1,5 @@
 <ol class="breadcrumb">
-  <li class="home"><a href="hide-text ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">{{ _('Home') }}</a></li>
+  <li class="home hide-text"><a class="ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">Home</a></li>
   <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
   <li class="active">{% link_for _('Create Dataset'), controller='package', action='new' %}</li>
 </ol>
