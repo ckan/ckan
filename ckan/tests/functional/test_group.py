@@ -320,8 +320,11 @@ Ho ho ho
         assert '3 datasets found' in res, ds
 
         # reset the group to how we found it
-        group.name = self.groupname
-        model.Session.add(group)
+        offset = url_for(controller='group', action='edit', id='newname')
+        res = self.app.get(offset, status=200,
+                           extra_environ={'REMOTE_USER': 'russianfan'})
+
+        update_group(res, self.groupname, True)
 
 
     def test_edit_non_existent(self):
