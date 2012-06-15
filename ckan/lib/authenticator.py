@@ -1,7 +1,11 @@
+import logging
+
 from zope.interface import implements
 from repoze.who.interfaces import IAuthenticator
 
 from ckan.model import User, Session
+
+log = logging.getLogger(__name__)
 
 class OpenIDAuthenticator(object):
     implements(IAuthenticator)
@@ -25,8 +29,10 @@ class UsernamePasswordAuthenticator(object):
             return None
         user = User.by_name(identity.get('login'))
         if user is None:
+            log.debug('Login failed - username %r not found', identity.get('login'))
             return None
         if user.validate_password(identity.get('password')):
             return user.name
+        log.debug('Login as %r failed - password not valid', identity.get('login'))
         return None
 
