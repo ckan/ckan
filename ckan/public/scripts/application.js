@@ -51,6 +51,24 @@ CKAN.Utils = CKAN.Utils || {};
       CKAN.DataPreview.loadEmbeddedPreview(preload_resource, reclineState);
     }
 
+    if ($(document.body).hasClass('search')) {
+      // Calculate the optimal width for the search input regardless of the
+      // width of the submit button (which can vary depending on translation).
+      (function resizeSearchInput() {
+        var form = $('#dataset-search'),
+            input = form.find('[name=q]'),
+            button = form.find('[type=submit]'),
+            offset = parseFloat(button.css('margin-left'));
+
+        // Grab the horizontal properties of the input that affect the width.
+        $.each(['padding-left', 'padding-right', 'border-left-width', 'border-right-width'], function (i, prop) {
+          offset += parseFloat(input.css(prop)) || 0;
+        });
+
+        input.width(form.outerWidth() - button.outerWidth() - offset);
+      })();
+    }
+
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       // Set up magic URL slug editor

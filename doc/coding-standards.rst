@@ -20,14 +20,14 @@ Generally, follow the `commit guidelines from the Pro Git book`_:
   change and contrasting the new with the previous behaviour.
 
 - Use the imperative present tense as if you were giving commands to the
-  codebase to change its behaviour, e.g. "Add tests for", "make xyzzy do
-  frotz", not "Adding tests for", "I added tests for", "[This patch] makes
-  xyzzy do frotz" or "[I] changed xyzzy to do frotz".
+  codebase to change its behaviour, e.g. *Add tests for*, *make xyzzy do
+  frotz*, **not** *Adding tests for*, *I added tests for*, *[This patch] makes
+  xyzzy do frotz* or *[I] changed xyzzy to do frotz*.
 
 - Try to write the commit message so that a new CKAN developer could understand
   it, i.e. using plain English as far as possible, and not referring to too
   much assumed knowledge or to external resources such as mailing list
-  dicsussions (summarize the relevant points in the commit message instead).
+  discussions (summarize the relevant points in the commit message instead).
 
 .. _commit guidelines from the Pro Git book: http://git-scm.com/book/en/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines
 
@@ -37,34 +37,25 @@ should be few commits that don't refer to a trac ticket, e.g. if you find a
 typo in a docstring and quickly fix it you wouldn't bother to create a ticket
 for this.
 
-Use the `github-trac plugin`_'s syntax. Anywhere in the commit message:
+Put the ticket number in square brackets (e.g. ``[#123]``) at the start of the
+first line of the commit message. You can also reference other Trac tickets
+elsewhere in your commit message by just using the ticket number on its own
+(e.g. ``see #456``). Full example:
 
 ::
 
-    closes #123
-
-will automatically close ticket #123 on `trac.ckan.org`_, and add a link to the
-commit to the trac ticket (close, closed, fix, fixed and fixes would also
-work). If your commit relates to a ticket but doesn't close it, then:
-
-::
-
-    see #123
-
-will add a link to the commit to ticket #123 on `trac.ckan.org`_, but will not
-change the status of the ticket (references, refs, ref, addresses and re would
-also work).
-
-.. _github-trac plugin: https://github.com/davglass/github-trac
+    [#2505] Update source install instructions
+    
+    Following feedback from markw (see #2406).
 
 .. _trac.ckan.org: http://trac.ckan.org/
 
-Example CKAN commit message:
+Longer example CKAN commit message:
 
 ::
 
- Refactor user controller a little, closes #2304
-
+ [#2304] Refactor user controller a little
+ 
  Move initialisation of a few more template variables into
  _setup_template_variables(), and change read(), edit(), and followers() to use
  it. This removes some code duplication and fixes issues with the followers
