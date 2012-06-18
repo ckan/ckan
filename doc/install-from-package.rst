@@ -8,7 +8,7 @@ The overall process is the following:
 
 * :ref:`prepare-your-system`
 * :ref:`run-package-installer`
-* :ref:`upgrading`. If you've already got a CKAN 1.5 installed from packages, follow this guide to upgrade to CKAN 1.5.1
+* :ref:`upgrading`
 
 .. note:: We recommend you use package installation unless you are a core CKAN developer or have no access to Ubuntu 10.04 through any of the methods above, in which case, you should use :doc:`install-from-source`.
 
@@ -33,13 +33,13 @@ You can:
 Run the Package Installer
 -------------------------
 
-On your Ubuntu 10.04 system, open a terminal and run these commands to prepare your system:
+On your Ubuntu 10.04 system, open a terminal and run these commands to prepare your system (replace `MAJOR_VERSION` with a suitable value):
 
 ::
 
     sudo apt-get update
     sudo apt-get install -y wget
-    echo "deb http://apt.ckan.org/ckan-1.6 lucid universe" | sudo tee /etc/apt/sources.list.d/okfn.list
+    echo "deb http://apt.ckan.org/ckan-1.MAJOR_VERSION lucid universe" | sudo tee /etc/apt/sources.list.d/ckan.list
     wget -qO- "http://apt.ckan.org/packages_public.key" | sudo apt-key add -
     sudo apt-get update
 
@@ -328,13 +328,13 @@ First remove the old CKAN code (it doesn't remove your data):
 
 ::
 
-    sudo apt-get remove ckan
+    sudo apt-get autoremove ckan
 
-Then update the repositories:
+Then update the repositories (replace `MAJOR_VERSION` with a suitable value):
 
 ::
 
-    echo "deb http://apt.ckan.org/ckan-1.7 lucid universe" | sudo tee /etc/apt/sources.list.d/ckan.list
+    echo "deb http://apt.ckan.org/ckan-1.MAJOR_VERSION lucid universe" | sudo tee /etc/apt/sources.list.d/ckan.list
     wget -qO- "http://apt.ckan.org/packages_public.key" | sudo apt-key add -
     sudo apt-get update
 
@@ -342,18 +342,22 @@ Install the new CKAN and update all the dependencies:
 
 ::
 
-    sudo apt-get install -y ckan
-    sudo apt-get upgrade
+    sudo apt-get install ckan
 
 Now you need to make some manual changes. In the following commands replace ``std`` with the name of your CKAN instance. Perform these steps for each instance you wish to upgrade.
 
 #. Upgrade the Solr schema
 
+    .. note ::
+
+       This only needs to be done if the Solr schema has been updated between major releases. The CHANGELOG or the announcement
+       emails will specify if this is the case.
+
    Configure ``ckan.site_url`` or ``ckan.site_id`` in ``/etc/ckan/std/std.ini`` for SOLR search-index rebuild to work. eg:
 
    ::
 
-       ckan.site_id = releasetest.ckan.org
+       ckan.site_id = yoursite.ckan.org
 
    The site_id must be unique so the domain name of the CKAN instance is a good choice.
 
@@ -396,7 +400,7 @@ Now you need to make some manual changes. In the following commands replace ``st
 
    ::
 
-       sudo /etc/init.d/apache2 reload
+       sudo /etc/init.d/apache2 restart
 
 
 Upgrading from the same major version
@@ -416,7 +420,7 @@ to 1.7.1 to 1.7, or to 1.7.2 from 1.7.1), then you only need to update the
 After upgrading the package, you need to restart Apache for the effects to take
 place::
 
-   sudo /etc/init.d/apache2 reload
+   sudo /etc/init.d/apache2 restart
 
 
 
