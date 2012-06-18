@@ -1654,28 +1654,30 @@ def activity_detail_list(context, data_dict):
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
 
-# These are the activity stream messages
-activity_info = {
-  'added tag' : _("{actor} added the tag {tag} to the dataset {dataset}"),
-  'changed group' : _("{actor} updated the group {group}"),
-  'changed package' : _("{actor} updated the dataset {dataset}"),
-  'changed package_extra' : _("{actor} changed the extra {extra} of the dataset {dataset}"),
-  'changed resource' : _("{actor} updated the resource {resource} in the dataset {dataset}"),
-  'changed user' : _("{actor} updated their profile"),
-  'deleted group' : _("{actor} deleted the group {group}"),
-  'deleted package' : _("{actor} deleted the dataset {dataset}"),
-  'deleted package_extra' : _("{actor} deleted the extra {extra} from the dataset {dataset}"),
-  'deleted resource' : _("{actor} deleted the resource {resource} from the dataset {dataset}"),
-  'new group' : _("{actor} created the group {group}"),
-  'new package' : _("{actor} created the dataset {dataset}"),
-  'new package_extra' : _("{actor} added the extra {extra} to the dataset {dataset}"),
-  'new resource' : _("{actor} added the resource {resource} to the dataset {dataset}"),
-  'new user' : _("{actor} signed up"),
-  'removed tag' : _("{actor} removed the tag {tag} from the dataset {dataset}"),
-}
 
 def _activity_list_to_html(context, activity_stream):
     ''' A generalised function to try to render all activity streams '''
+
+    # These are the activity stream messages
+    activity_info = {
+      'added tag' : _("{actor} added the tag {tag} to the dataset {dataset}"),
+      'changed group' : _("{actor} updated the group {group}"),
+      'changed package' : _("{actor} updated the dataset {dataset}"),
+      'changed package_extra' : _("{actor} changed the extra {extra} of the dataset {dataset}"),
+      'changed resource' : _("{actor} updated the resource {resource} in the dataset {dataset}"),
+      'changed user' : _("{actor} updated their profile"),
+      'deleted group' : _("{actor} deleted the group {group}"),
+      'deleted package' : _("{actor} deleted the dataset {dataset}"),
+      'deleted package_extra' : _("{actor} deleted the extra {extra} from the dataset {dataset}"),
+      'deleted resource' : _("{actor} deleted the resource {resource} from the dataset {dataset}"),
+      'new group' : _("{actor} created the group {group}"),
+      'new package' : _("{actor} created the dataset {dataset}"),
+      'new package_extra' : _("{actor} added the extra {extra} to the dataset {dataset}"),
+      'new resource' : _("{actor} added the resource {resource} to the dataset {dataset}"),
+      'new user' : _("{actor} signed up"),
+      'removed tag' : _("{actor} removed the tag {tag} from the dataset {dataset}"),
+    }
+
     def get_snippet(name):
         ''' get the snippet for the required data '''
         if name == 'actor':
