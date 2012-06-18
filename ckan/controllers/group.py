@@ -19,8 +19,6 @@ from ckan.lib.plugins import lookup_group_plugin
 
 log = logging.getLogger(__name__)
 
-group_activity_list_html = ckan.action.logic.get.group_activity_list_html
-
 
 class GroupController(BaseController):
 
@@ -214,7 +212,8 @@ class GroupController(BaseController):
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html template to retrieve later.
         c.group_activity_stream = \
-            group_activity_list_html(context, {'id': c.group_dict['id']})
+            get_action('group_activity_list_html')(context,
+                                                   {'id': c.group_dict['id']})
 
         return render(self._read_template(c.group_dict['type']))
 
