@@ -10,6 +10,24 @@
       <p>{{ g.site_description }}</p>
     </hgroup>
     <div class="content">
+      {% if c.userobj %}
+        <div class="account section avatar">
+          <a href="{{ h.url_for(controller='user',action='me') }}" class="image">
+            {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
+          </a>
+          <span class="links">
+            <a href="{{ h.url_for(controller='user',action='me') }}">{{ c.user }}</a>
+            <a class="sub" href="{{ h.url_for('/user/_logout') }}">Log out</a>
+          </span>
+        </div>
+      {% else %}
+        <nav class="account section">
+          <span class="links">
+            {% link_for _('Log in'), controller='user', action='login' %}
+            {% link_for _('Register'), controller='user', action='register', class_='sub' %}
+          </span>
+        </nav>
+      {% endif %}
       <form class="section site-search simple-input" action="{% url_for controller='package', action='search' %}" method="get">
         <div class="field">
           <label for="field-user-search">{{ _('Search Users') }}</label>
@@ -17,25 +35,7 @@
           <button class="btn-search" type="submit">{{ _('Search') }}</button>
         </div>
       </form>
-      {% if c.userobj %}
-        <div class="account section">
-          <a href="{{ h.url_for(controller='user',action='me') }}" class="image">
-            {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
-          </a>
-          <span class="links">
-            <a href="{{ h.url_for(controller='user',action='me') }}">{{ c.user }}</a>
-            <a class="logout" href="{{ h.url_for('/user/_logout') }}">Log out</a>
-          </span>
-        </div>
-      {% endif %}
-      {% if not c.userobj %}
-        <nav class="account section">
-          <ul class="unstyled">
-            {{ h.build_nav_main(('login', _('Login')),('register', _('Register'))) }}
-          </ul>
-        </nav>
-      {% endif %}
-      <nav>
+      <nav class="first section navigation">
         <ul class="unstyled">
           {{ h.build_nav_main(('add dataset', _('Add Dataset'), 'package_create'), ('search', _('Datasets')), ('default_group', _('Groups')), ('about', _('About'))) }}
         </ul>

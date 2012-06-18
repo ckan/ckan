@@ -80,26 +80,24 @@
 
 .masthead nav > ul > li > a.active {
   @inset-box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
-  .border-radius(15px);
+  .border-radius(3px);
   .box-shadow(@inset-box-shadow);
   box-shadow: @inset-box-shadow, 0 1px 0 rgba(255, 255, 255, 0.3);
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .masthead .account {
   position: relative;
   padding-top: 7px;
-  margin-left: 15px;
-  padding-left: 50px;
 }
 
-.masthead nav.account {
-  padding-top: 0;
-  padding-left: 10px;
-  margin-right: -10px;
+.masthead .account.avatar {
+  padding-left: 55px;
 }
 
 .masthead .section {
+  margin-left: 20px;
+  padding-left: 20px;
   min-height: 35px;
 }
 
@@ -129,6 +127,15 @@
   background-color: rgba(0, 0, 0, 0);
 }
 
+.masthead .section.first:after,
+.masthead .section.first:before {
+  content: none;
+}
+
+.masthead .navigation {
+  margin-right: -10px; // Pull nav in to the right.
+}
+
 .masthead .account .image {
   position: absolute;
   left: 20px;
@@ -145,12 +152,12 @@
   top: -2px;
 }
 
-.masthead .account .links a {
+.masthead .links a {
   line-height: 13px;
   float: left;
 }
 
-.masthead .account .links .logout {
+.masthead .links .sub {
   font-size: 11px;
   clear: left;
   color: rgba(255, 255, 255, 0.6);
