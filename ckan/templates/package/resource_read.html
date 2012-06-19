@@ -1,5 +1,7 @@
 {% extends "page.html" %}
 
+{% set pkg = c.pkg_dict %}
+
 {% block title %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(c.resource) }} - {{ super() }}{% endblock %}
 
 {% block breadcrumb_content %}
@@ -10,6 +12,7 @@
 
 {% block actions_content %}
   {% if c.resource.url %}
+    {% snippet 'package/snippets/back_to_package_action.html', pkg=pkg %}
     <li>
       <a class="btn resource-url-analytics resource-type-{{ c.resource.resource_type }}" href="{{ c.resource.url }}">
         {% if c.resource.resource_type in ('listing', 'service') %}
@@ -76,7 +79,7 @@
           </tr>
           <tr>
             <th>Licence</th>
-            <td>{{ h.snippet('snippets/license.html', pkg_dict=c.pkg_dict, text_only=True) }}</td>
+            <td>{{ h.snippet('snippets/license.html', pkg_dict=pkg, text_only=True) }}</td>
           </tr>
         </tbody>
       </table>
@@ -96,7 +99,7 @@
     <ul class="simple-list">
       <li><i class="ckan-icon ckan-icon-calendar"></i> Unknown</li>
       <li><i class="ckan-icon ckan-icon-file"></i> CSV</li>
-      <li><i class="ckan-icon ckan-icon-lock"></i> {{ h.snippet('snippets/license.html', pkg_dict=c.pkg_dict, text_only=True) }}</li>
+      <li><i class="ckan-icon ckan-icon-lock"></i> {{ h.snippet('snippets/license.html', pkg_dict=pkg, text_only=True) }}</li>
     </ul>
   </section>
 

@@ -1,17 +1,19 @@
 {% extends "page.html" %}
 
-{% block title %}{{ c.pkg_dict.title or c.pkg_dict.name }} - {{ super() }}{% endblock %}
+{% set pkg = c.pkg_dict %}
+
+{% block title %}{{ pkg.title or pkg.name }} - {{ super() }}{% endblock %}
 
 {% block breadcrumb_content %}
-  {% set dataset = c.pkg_dict.title or c.pkg_dict.name %}
+  {% set dataset = pkg.title or pkg.name %}
   <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
   <li class="active"><a href="" title="{{ dataset }}">{{ dataset|truncate(35) }}</a></li>
 {% endblock %}
 
 {% block actions_content %}
-  <li>{% link_for _('Related'), controller='package', action='related', id=c.pkg.id, class_='btn', icon='picture' %}</li>
-  <li>{% link_for _('History'), controller='package', action='history', id=c.pkg.id, class_='btn', icon='undo' %}</li>
-  <li>{% link_for _('Edit'), controller='package', action='edit', id=c.pkg.id, class_='btn', icon='wrench', condition=h.check_access('package_update',{'id':c.pkg.id }) %}</li>
+  <li>{% link_for _('Related'), controller='related', action='list', id=pkg.name, class_='btn', icon='picture' %}</li>
+  <li>{% link_for _('History'), controller='package', action='history', id=pkg.name, class_='btn', icon='undo' %}</li>
+  <li>{% link_for _('Edit'), controller='package', action='edit', id=pkg.name, class_='btn', icon='wrench', condition=h.check_access('package_update',{'id':pkg.id }) %}</li>
   <li><a class="btn" href=""><i class="icon-large icon-flag"></i> Report Issue</a></li>
 {% endblock %}
 
@@ -20,7 +22,7 @@
     <div class="widget info">
       <p class="content">
         {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
-        {% set url =  h.url(controller='package', action='read', id=c.pkg.name) %}
+        {% set url =  h.url(controller='package', action='read', id=pkg.name) %}
 
         {% if c.pkg_revision_not_latest %}
           {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
@@ -33,7 +35,7 @@
 
   <article class="module prose">
     <section class="content">
-      <h1>{{ c.pkg_dict.title or c.pkg_dict.name }}</h1>
+      <h1>{{ pkg.title or pkg.name }}</h1>
       {% if c.pkg_notes_formatted %}
         <div class="notes">
           {{ c.pkg_notes_formatted }}
@@ -44,29 +46,29 @@
 
     <section id="dataset-resources" class="resources content">
       <h3>Data and Resources</h3>
-      {% if c.pkg_dict.resources %}
+      {% if pkg.resources %}
         <ul class="resource-list">
-          {% for res in c.pkg_dict.resources %}
-            {% snippet 'package/snippets/resource_item.html', pkg=c.pkg_dict, res=res %}
+          {% for res in pkg.resources %}
+            {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=res %}
           {% endfor %}
         </ul>
       {% else %}
         <p>
-          {% trans url=h.url_for(controller='package', action='new_resource', id=c.pkg_dict.name) %}
+          {% trans url=h.url_for(controller='package', action='new_resource', id=pkg.name) %}
           This dataset has no data, <a href="{{ url }}">why not add some?</a>
           {% endtrans %}
       </p>
       {% endif %}
     </section>
 
-    {{ h.snippet('package/snippets/tags.html', tags=c.pkg_dict.tags) }}
+    {{ h.snippet('package/snippets/tags.html', tags=pkg.tags) }}
 
-    {{ h.snippet('package/snippets/additional_info.html', pkg_dict=c.pkg_dict) }}
+    {{ h.snippet('package/snippets/additional_info.html', pkg_dict=pkg) }}
   </article>
 {% endblock %}
 
 {% block secondary_content %}
-  {% for group in c.pkg_dict.groups %}
+  {% for group in pkg.groups %}
     {{ h.snippet('snippets/group.html', group=group) }}
   {% endfor %}
 
@@ -74,9 +76,9 @@
 
   {{ h.snippet('snippets/social.html') }}
 
-  {{ h.snippet('snippets/related.html', pkg=c.pkg) }}
+  {{ h.snippet('snippets/related.html', pkg=pkg) }}
 
-  {{ h.snippet('snippets/license.html', pkg_dict=c.pkg_dict) }}
+  {{ h.snippet('snippets/license.html', pkg_dict=pkg) }}
 
   {{ h.snippet('snippets/disqus_trackback.html') }}
 {% endblock %}

@@ -1,21 +1,23 @@
 {% extends "page.html" %}
 
+{% set pkg = c.pkg %}
+
 {% block breadcrumb_content %}
   <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li>{% link_for h.truncate(h.dataset_display_name(c.pkg), 30), controller='package', action='read', id=c.pkg.name %}</li>
+  <li>{% link_for h.truncate(h.dataset_display_name(pkg), 30), controller='package', action='read', id=c.pkg.name %}</li>
   <li class="active"><a href="">{{ _('Related') }}</a></li>
 {% endblock %}
 
 {% block actions_content %}
-  <li>{% link_for _('Back to dataset'), controller='package', action='read', id=c.pkg.name, class_='btn', icon='caret-left' %}</li>
-  <li>{% link_for _('Add Item'), controller='related', action='new', id=c.pkg.name, class_='btn', icon='plus' %}</li>
+  {% snippet 'package/snippets/back_to_package_action.html', pkg=pkg %}
+  <li>{% link_for _('Add Item'), controller='related', action='new', id=pkg.name, class_='btn', icon='plus' %}</li>
 {% endblock %}
 
 {% block primary_content %}
   <div class="module">
     <div class="content">
       <h1 class="page-heading">{{ _('Related Media for {dataset}').format(dataset=h.dataset_display_name(c.pkg)) }}</h1>
-      {% if c.pkg.related %}
+      {% if pkg.related %}
         {% include "related/partials/related_list.html" %}
       {% else %}
         <p class="empty">No related items</p>
