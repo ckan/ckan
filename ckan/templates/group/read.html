@@ -2,22 +2,17 @@
 
 {% block title %}{{ c.group_dict.display_name }} - {{ super() }}{% endblock %}
 
-{% block breadcrumb %}
-  <ol class="breadcrumb">
-    <li class="home hide-text"><a class="ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">Home</a></li>
-    <li>{{ h.nav_link(_('Groups'), controller='group', action='index') }}</li>
-    <li class="current">{{ h.nav_link(c.group_dict.display_name, controller='group', action='read', id=c.group_dict.name) }}</li>
-  </ol>
+{% block breadcrumb_content %}
+  <li>{{ h.nav_link(_('Groups'), controller='group', action='index') }}</li>
+  <li class="active">{{ h.nav_link(c.group_dict.display_name, controller='group', action='read', id=c.group_dict.name) }}</li>
 {% endblock %}
 
-{% block actions %}
-  <ul class="actions">
-    {% if h.check_access('group_update', {'id': c.group.id}) %}
-      <li>{{ h.nav_link(_('Add Dataset'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='plus') }}</li>
-      <li>{{ h.nav_link(_('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='star') }}</li>
-    {% endif %}
-    <li>{{ h.nav_link(_('History'), controller='group', action='history', id=c.group_dict.name, class_='btn', icon='rewind') }}</li>
-  </ul>
+{% block actions_content %}
+  {% if h.check_access('group_update', {'id': c.group.id}) %}
+    <li>{{ h.nav_link(_('Add Dataset'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='plus') }}</li>
+    <li>{{ h.nav_link(_('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='star') }}</li>
+  {% endif %}
+  <li>{{ h.nav_link(_('History'), controller='group', action='history', id=c.group_dict.name, class_='btn', icon='rewind') }}</li>
 {% endblock %}
 
 {% block primary_content %}
