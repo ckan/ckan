@@ -3,5 +3,3 @@
 {% block title %}{{ _('Add metadata to the dataset') }} - {{ super }}{% endblock %}
 
 {% block stages %}{{ h.snippet('package/snippets/stages.html', stage=3) }}{% endblock %}
-
-{% block form %}{{ h.snippet('package/snippets/package_metadata_form.html', data=data, errors=errors) }}{% endblock %}

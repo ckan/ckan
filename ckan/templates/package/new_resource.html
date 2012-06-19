@@ -13,7 +13,6 @@
       <p>{{ _('Data can be any file or link to a file containing useful data.') }}</p>
     </div>
   </section>
-
-  {# TODO: Pass in a list of previously created resources and the current package dict #}
-  {% snippet "package/snippets/resources.html", resources=[], pkg={}, action='new_resource' %}
+  
+  {{ self.resources_module() }}
 {% endblock %}

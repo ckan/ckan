@@ -16,16 +16,23 @@
 {% endblock %}
 
 {% block secondary_content %}
-  <section class="module">
-    <h2 class="heading"><i class="icon-large icon-info-sign"></i> {{ _('What are datasets?') }}</h2>
-    <div class="content">
-      <p>
-        {% trans %}
-        Datasets are simply used to group related pieces of data. These
-        can then be found under a single url with a description and
-        licensing information.
-        {% endtrans %}
-      </p>
-    </div>
-  </section>
+  {% block info_module %}
+    <section class="module">
+      <h2 class="heading"><i class="icon-large icon-info-sign"></i> {{ _('What are datasets?') }}</h2>
+      <div class="content">
+        <p>
+          {% trans %}
+          Datasets are simply used to group related pieces of data. These
+          can then be found under a single url with a description and
+          licensing information.
+          {% endtrans %}
+        </p>
+      </div>
+    </section>
+  {% endblock %}
+
+  {% block resources_module %}
+    {# TODO: Pass in a list of previously created resources and the current package dict #}
+    {% snippet "package/snippets/resources.html", resources=[], pkg={}, action='new_resource' %}
+  {% endblock %}
 {% endblock %}
