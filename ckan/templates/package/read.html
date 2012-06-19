@@ -61,24 +61,24 @@
       {% endif %}
     </section>
 
-    {{ h.snippet('package/snippets/tags.html', tags=pkg.tags) }}
+    {% snippet "package/snippets/tags.html", tags=pkg.tags %}
 
-    {{ h.snippet('package/snippets/additional_info.html', pkg_dict=pkg) }}
+    {% snippet "package/snippets/additional_info.html", pkg_dict=pkg %}
   </article>
 {% endblock %}
 
 {% block secondary_content %}
   {% for group in pkg.groups %}
-    {{ h.snippet('snippets/group.html', group=group) }}
+    {% snippet "snippets/group.html", group=group %}
   {% endfor %}
 
-  {{ h.snippet('snippets/subscribe.html') }}
+  {% snippet "snippets/subscribe.html" %}
 
-  {{ h.snippet('snippets/social.html') }}
+  {% snippet "snippets/social.html" %}
 
-  {{ h.snippet('snippets/related.html', pkg=pkg) }}
+  {% snippet "snippets/related.html", pkg=pkg %}
 
-  {{ h.snippet('snippets/license.html', pkg_dict=pkg) }}
+  {% snippet "snippets/license.html", pkg_dict=pkg %}
 
-  {{ h.snippet('snippets/disqus_trackback.html') }}
+  {% snippet "snippets/disqus_trackback.html" %}
 {% endblock %}
