@@ -3,11 +3,11 @@
 {% block title %}{{ _('Groups of Datasets') }} - {{ super() }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{{ h.nav_link(_('Groups'), controller='group', action='index') }}</li>
+  <li class="active">{% link_for _('Groups'), controller='group', action='index' %}</li>
 {% endblock %}
 
 {% block actions_content %}
-  <li>{{ h.nav_link(_('Add Group'), controller='group', action='new', class_='btn', icon='plus') }}</li>
+  <li>{% link_for _('Add Group'), controller='group', action='new', class_='btn', icon='plus' %}</li>
 {% endblock %}
 
 {% block primary_content %}

@@ -4,15 +4,15 @@
 
 {% block breadcrumb_content %}
   {% set dataset = c.pkg_dict.title or c.pkg_dict.name %}
-  <li>{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
-  <li class="active"><a href="" title="{{ dataset }}">{{ h.truncate(dataset, 35) }}</a></li>
+  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
+  <li class="active"><a href="" title="{{ dataset }}">{{ dataset|truncate(35) }}</a></li>
 {% endblock %}
 
 {% block actions_content %}
-  <li>{{ h.nav_link(_('Related'), controller='package', action='related', id=c.pkg.id, class_='btn', icon='photo') }}</li>
-  <li>{{ h.nav_link(_('History'), controller='package', action='history', id=c.pkg.id, class_='btn', icon='rewind') }}</li>
-  <li>{{ h.nav_link(_('Edit'), controller='package', action='edit', id=c.pkg.id, class_='btn', icon='tools', condition=h.check_access('package_update',{'id':c.pkg.id })) }}</li>
-  <li><a class="btn" href=""><i class="ckan-icon ckan-icon-flag"></i> Report Issue</a></li>
+  <li>{% link_for _('Related'), controller='package', action='related', id=c.pkg.id, class_='btn', icon='picture' %}</li>
+  <li>{% link_for _('History'), controller='package', action='history', id=c.pkg.id, class_='btn', icon='undo' %}</li>
+  <li>{% link_for _('Edit'), controller='package', action='edit', id=c.pkg.id, class_='btn', icon='wrench', condition=h.check_access('package_update',{'id':c.pkg.id }) %}</li>
+  <li><a class="btn" href=""><i class="icon-large icon-flag"></i> Report Issue</a></li>
 {% endblock %}
 
 {% block primary_content %}
