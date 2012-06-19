@@ -8,6 +8,7 @@
   <py:match path="minornavigation">
     <ul class="nav nav-pills" py:choose="c.is_myself">
       <py:when test="True">
+        <li class="${'active' if c.action=='dashboard' else ''}"><a href="${h.url_for(controller='user', action='dashboard')}">Dashboard</a></li>
         <li class="${'active' if c.action=='read' else ''}"><a href="${h.url_for(controller='user', action='me')}">My Profile</a></li>
         <li class="${'active' if c.action=='edit' else ''}"><a href="${h.url_for(controller='user', action='edit')}">Edit Profile</a></li>
         <li><a href="${h.url_for('/user/logout')}">Log out</a></li>

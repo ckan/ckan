@@ -451,9 +451,7 @@ class UserController(BaseController):
                 'user': c.user or c.author, 'for_view': True}
         data_dict = {'id':id, 'user_obj':c.userobj}
         self._setup_template_variables(context, data_dict)
-        c.followers = get_action('user_follower_list')(context,
-                {'id':c.user_dict['id']})
-        return render('user/followers.html')
+        return render('user/dashboard.html')
 
 
 
