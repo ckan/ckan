@@ -8,13 +8,16 @@
 .toolbar .breadcrumb {
   .box-shadow(none);
   position: relative;
-  top: -3px;
   float: left;
   background: none;
-  margin: 0 0 0 @gutter-small-x;
+  margin: 0;
   padding: 0;
   border: none;
   font-size: 20px;
+}
+
+.toolbar .breadcrumb li .icon-large:before {
+  width: auto;
 }
 
 .toolbar .breadcrumb li:after {
@@ -25,10 +28,11 @@
   content: "";
 }
 
-.toolbar .breadcrumb .home {
-  position: relative;
-  top: 4px;
-  margin-left: -3px;
+.toolbar .breadcrumb .home:after {
+}
+
+.toolbar .home a {
+  text-decoration: none;
 }
 
 .toolbar .breadcrumb a {
