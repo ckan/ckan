@@ -16,8 +16,8 @@
   font-size: 20px;
 }
 
-.toolbar .breadcrumb li .icon-large:before {
-  width: auto;
+.toolbar li [class^=icon]:before {
+  width: auto; // Fix Bootstrap icon widths
 }
 
 .toolbar .breadcrumb li:after {
@@ -58,7 +58,11 @@
   margin-right: 0;
 }
 
-.toolbar .actions .btn {
-  padding: 1px 10px 3px 8px;
+.toolbar .btn {
+  padding: 4px 10px 3px 8px;
   border-color: #b7b7b7;
+}
+
+.toolbar .btn .icon-large {
+  font-size: 1.1em; // Prevent clipping of circular icons
 }
