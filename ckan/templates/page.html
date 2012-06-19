@@ -29,8 +29,17 @@
 
         {% block toolbar %}
           <div class="toolbar">
-            {% block breadcrumb %}{% endblock %}
-            {% block actions %}{% endblock %}
+            {% block breadcrumb %}
+              <ol class="breadcrumb">
+                <li class="home"><a href="{{ h.url('home') }}"><i class="icon-large icon-home"></i><span class="hide-text"> Home</span></a></li>
+                {% block breadcrumb_content %}{% endblock %}
+              </ol>
+            {% endblock %}
+            {% block actions %}
+              <ul class="actions">
+                {% block actions_content %}{% endblock %}
+              </ul>
+            {% endblock %}
           </div>
         {% endblock %}
 
