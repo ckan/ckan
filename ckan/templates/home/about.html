@@ -3,8 +3,7 @@
 {% block title %}{{ _('About') }} - {{ super() }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="home hide-text"><a class="ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">Home</a></li>
-  <li class="active">{{ h.nav_link(_('About'), controller='home', action='about') }}</li>
+  <li class="active">{% link_for _('About'), controller='home', action='about' %}</li>
 {% endblock %}
 
 {% block primary %}
