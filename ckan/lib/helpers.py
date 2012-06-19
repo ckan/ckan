@@ -298,7 +298,7 @@ def _nav_link(text, controller, **kwargs):
                                    kwargs["action"]).split()
     icon = kwargs.pop('icon', None)
     if icon:
-        text = literal('<i class="ckan-icon ckan-icon-%s"></i> ' % icon) + text
+        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
     active =(' active' if
             c.controller == controller and c.action in highlight_actions
             else '')
