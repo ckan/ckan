@@ -28,9 +28,7 @@
 
   {{ form.markdown('resources__0__description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
 
-  {{ form.input('resources__0__format', id='field-format', label=_('Format'), placeholder=_('eg. application/json'), value=data.format, error=errors.format, classes=['control-full']) }}
-
-  {{ form.select('resources__0__type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }}
+  {{ form.input('resources__0__format', id='field-format', label=_('Format'), placeholder=_('eg. application/json'), value=data.format, error=errors.format, classes=['control-medium']) }}
 
   <div class="form-actions">
     {# TODO: Go back to previous resource form #}
