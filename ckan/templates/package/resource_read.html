@@ -25,9 +25,9 @@
   {% if config.get('ckan.datastore.enabled', false) %}
     <li>
       {% if c.resource.webstore_url %}
-        <a class="btn" data-toggle="modal" href="#modal-data-api-help"><i class="ckan-icon ckan-icon-star"></i> {{ _('Data API') }}</a>
+        <a class="btn" data-toggle="modal" href="#modal-data-api-help"><i class="icon-large icon-beaker"></i> {{ _('Data API') }}</a>
       {% else %}
-        <a class="btn disabled" rel="tooltip" title="{{ _('Data API is unavailable for this resource as DataStore is disabled') }}"><i class="ckan-icon ckan-icon-star"></i> {{ _('Data API') }}</a>
+        <a class="btn disabled" rel="tooltip" title="{{ _('Data API is unavailable for this resource as DataStore is disabled') }}"><i class="icon-large icon-beaker"></i> {{ _('Data API') }}</a>
       {% endif %}
     </li>
   {% endif %}
