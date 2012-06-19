@@ -2,11 +2,8 @@
 
 {% block title %}{{ _('All Users') }} - {{ super() }}{% endblock %}
 
-{% block breadcrumb %}
-  <ol class="breadcrumb">
-    <li class="home hide-text"><a class="ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">Home</a></li>
-    <li class="current">{{ h.nav_link(_('Users'), controller='user', action='index') }}</li>
-  </ol>
+{% block breadcrumb_content %}
+  <li class="active">{{ h.nav_link(_('active'), controller='user', action='index') }}</li>
 {% endblock %}
 
 {% block primary_content %}
