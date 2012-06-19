@@ -1,12 +1,9 @@
 {% extends "page.html" %}
 
-{% block breadcrumb %}
-  <ol class="breadcrumb">
-    <li>{{ h.nav_link(_('Datasets'), controller='package', action='search') }}</li>
-	<li class="active"><a href="{{ h.url_for(controller='package', action='read', id=c.pkg_dict.name) }}" title="{{ c.pkg_dict.title or c.pkg_dict.name }}">{{ h.truncate(c.pkg_dict.title or c.pkg_dict.name, 60) }}</a></li>
-    <li class="home hide-text"><a class="ckan-icon ckan-icon-bookmark" href="{{ h.url('home') }}">Home</a></li>
-    <li class="current">{% block breadcrumb_item %}{% endblock %}</li>
-  </ol>
+{% block breadcrumb_content %}
+  <li>{{ h.nav_link(_('Datasets'), controller='package', action='search') }}</li>
+  <li><a href="{{ h.url_for(controller='package', action='read', id=c.pkg_dict.name) }}" title="{{ c.pkg_dict.title or c.pkg_dict.name }}">{{ h.truncate(c.pkg_dict.title or c.pkg_dict.name, 60) }}</a></li>
+  <li class="active">{% block breadcrumb_item %}{% endblock %}</li>
 {% endblock %}
 
 {% block primary_content %}
