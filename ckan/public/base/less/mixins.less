@@ -19,9 +19,12 @@
   margin-right: 5px;
   .border-radius(7px);
   .remove {
-    .hide-text;
-    position: relative;
-    top: 1px;
+    .hide-text; // Hide the link text
+  }
+  .remove:before {
+    color: white;
+    font-size: 10px; // Show the icon glyph
+    line-height: 1;
   }
 }
 

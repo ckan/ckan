@@ -46,7 +46,6 @@
 
 .results {
   margin-bottom: 20px;
-  padding-right: 360px;
   padding-bottom: 25px;
   border-bottom: 1px dotted #ccc;
 }
@@ -54,9 +53,20 @@
 .results strong {
   display: block;
   font-size: 24px;
+  line-height: 1.3;
   color: #000;
   margin-bottom: 10px;
 }
+
+// Use a before block to space out the area occupied by the sort select box
+// this allows the text content in the strong tag to flow correctly around
+// the input.
+.results strong:before {
+  float: right;
+  content: "";
+  width: 280px;
+}
+
 
 .filter-list {
   color: #aaa;
@@ -103,7 +113,7 @@
 
 .control-order-by {
   position: absolute;
-  bottom: -60px;
+  bottom: -65px;
   right: 0;
 }
 
