@@ -70,14 +70,11 @@ When merging a feature or bug branch into master:
 - Use the ``--no-ff`` option in the ``git merge`` command
 - Add an entry to the ``CHANGELOG`` file
 
-Frontend Coding Standards
-=========================
-
-Javavscript
------------
+Javascript Coding Standards
+===========================
 
 Formatting
-``````````
+----------
 
 .. _OKFN Coding Standards: http://wiki.okfn.org/Coding_Standards#Javascript
 .. _idiomatic.js: https://github.com/rwldrn/idiomatic.js/
@@ -94,7 +91,7 @@ exceptions.
           guide which is recommended by the `OKFN Coding Standards`_.
 
 White Space
-...........
+```````````
 
 Two spaces must be used for indentation at all times. Unlike in idiomatic
 whitespace must not be used _inside_ parentheses between the parentheses
@@ -121,7 +118,7 @@ and their Contents. ::
 .. note:: See section 2.D.1.1 of idiomatic for more examples of this syntax.
 
 Quotes
-......
+``````
 
 Single quotes should be used everywhere unless writing JSON or the string
 contains them. This makes it easier to create strings containing HTML. ::
@@ -136,7 +133,7 @@ Object properties need not be quoted unless required by the interpreter. ::
     };
 
 Variable declarations
-.....................
+`````````````````````
 
 One ``var`` statement must be used per variable assignment. These must be
 declared at the top of the function in which they are being used. ::
@@ -190,7 +187,7 @@ statement. ::
     }
 
 Naming
-``````
+------
 
 All properties, functions and methods must use lowercase camelCase: ::
 
@@ -251,7 +248,7 @@ Named functions are generally easier to debug as they appear named in the
 debugger.
 
 Comments
-````````
+--------
 
 Comments should be used to explain anything that may be unclear when you return
 to it in six months time. Single line comments should be used for all inline
@@ -271,7 +268,7 @@ comments that do not form part of the documentation. ::
     }
 
 File Structure
-``````````````
+--------------
 
 All public JavaScript files should be contained within a _javascript_ directory
 within the _public_ directory and files should be structured accordingly. ::
@@ -318,7 +315,7 @@ test
   test file should be the filename with *-spec* appended.
 
 JSHint
-``````
+------
 
 All JavaScript should pass `JSHint`_ before being committed. This can
 be installed using `npm` (which is bundled with `node`_) by running: ::
@@ -333,20 +330,20 @@ this file.
 .. _jshint: http://www.jshint.com
 
 Documentation
-`````````````
+-------------
 
 _TODO_
 
 Testing
-```````
+-------
 
 _TODO_
 
 Best Practices
-``````````````
+--------------
 
 Forms
-.....
+`````
 
 All forms should work without JavaScript enabled. This means that they must
 submit `application/x-www-form-urlencoded` data to the server and receive an appropriate
@@ -359,7 +356,7 @@ JavaScript after the page has loaded. It's then not part of the HTML document
 and can submit any data format it pleases.
 
 Ajax
-....
+````
 
 Ajax requests can be used to improve the experience of submitting forms and
 other actions that require server interactions. Nearly all requests will
@@ -408,7 +405,7 @@ Disabling the button prevents the form being submitted twice and the error
 feedback should hopefully offer a solution for the error that occurred.
 
 Event Handlers
-..............
+``````````````
 
 When using event handlers to listen for browser events it's a common
 requirement to want to cancel the default browser action. This should be
@@ -432,17 +429,17 @@ alternatives to ``.bind()``, ``.unbind()``, ``.delegate()`` and
 .. _.off(): http://api.jquery.com/off/
 
 Closures
-........
+````````
 
 _TODO_
 
 Templating
-..........
+``````````
 
 _TODO_
 
 Resources
-`````````
+---------
 
 _TODO_
 
