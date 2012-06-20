@@ -46,7 +46,12 @@ class LicenseRegister(object):
         if group_url:
             self.load_licenses(group_url)
         else:
-            default_license_list = [
+            self.licenses = self.get_license_info
+
+    @property
+    def get_license_info(self):
+        # this allows the license info to be localised see #2575
+        default_license_list = [
                 {
                     "domain_content": False, 
                     "domain_data": False, 
@@ -249,7 +254,7 @@ class LicenseRegister(object):
                     "url": ""
                 }
                 ]
-            self._create_license_list(default_license_list)
+        return [License(entity) for entity in default_license_list]
 
     def load_licenses(self, license_url):
         try:
