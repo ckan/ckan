@@ -5,8 +5,13 @@
 
     <py:def function="page_title">${c.user} - Dashboard - User</py:def>
     <py:def function="page_heading">
-        ${c.user_dict.display_name}'s Dashboard
+        ${h.linked_gravatar(c.user_dict['email_hash'],48)}
+        <span class="username">${c.user_dict['name']}</span>
+        <py:if test="c.user_dict['fullname']">
+        <span class="fullname">(${c.user_dict['fullname']})</span>
+        </py:if>
     </py:def>
+
 
     <div py:match="content">
         <h2>What's going on?</h2>

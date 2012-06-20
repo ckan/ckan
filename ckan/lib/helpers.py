@@ -506,7 +506,7 @@ def format_icon(_format):
 
 def linked_gravatar(email_hash, size=100, default=None):
     return literal(
-        '<a href="https://gravatar.com/" target="_blank"' +
+        '<a href="https://gravatar.com/" target="_blank" ' +
         'title="%s">' % _('Update your avatar at gravatar.com') +
         '%s</a>' % gravatar(email_hash,size,default)
         )

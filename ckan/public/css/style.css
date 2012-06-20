@@ -616,6 +616,28 @@ ul.userlist .badge {
 }
 
 /* ================== */
+/* = Dashboard page = */
+/* ================== */
+
+.user.dashboard .page_heading {
+  font-weight: bold;
+}
+
+.user.dashboard .page_heading img.gravatar {
+  padding: 2px;
+  border: solid 1px #ddd;
+  vertical-align: middle;
+  margin-right: 5px;
+  margin-top: -3px;
+}
+
+.user.dashboard .page_heading .fullname {
+  font-weight: normal;
+  color: #999;
+}
+
+
+/* ================== */
 /* = User Read page = */
 /* ================== */
 
