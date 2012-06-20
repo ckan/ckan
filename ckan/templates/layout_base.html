@@ -52,7 +52,7 @@
       <header class="container">
         <div class="menu account">
           <span class="ckan-logged-in" style="display: none;">
-            <a href="${h.url_for(controller='user',action='me')}">${h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=20)}${c.user}</a>
+            <a href="${h.url_for(controller='user',action='dashboard')}">${h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=20)}${c.user}</a>
             <a href="${h.url_for('/user/_logout')}">Logout</a>
           </span>
           <span class="ckan-logged-out">
