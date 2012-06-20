@@ -19,8 +19,8 @@
 
 {% block primary_content %}
   {% if c.pkg_revision_id %}
-    <div class="widget info">
-      <p class="content">
+    <div class="module info">
+      <p class="module-content">
         {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
         {% set url =  h.url(controller='package', action='read', id=pkg.name) %}
 
@@ -34,7 +34,7 @@
   {% endif %}
 
   <article class="module prose">
-    <section class="content">
+    <section class="module-content">
       <h1>{{ pkg.title or pkg.name }}</h1>
       {% if c.pkg_notes_formatted %}
         <div class="notes">
@@ -44,7 +44,7 @@
       <span class="insert-comment-thread"></span>
     </section>
 
-    <section id="dataset-resources" class="resources content">
+    <section id="dataset-resources" class="resources module-content">
       <h3>Data and Resources</h3>
       {% if pkg.resources %}
         <ul class="resource-list">

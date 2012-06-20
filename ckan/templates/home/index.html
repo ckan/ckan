@@ -21,7 +21,7 @@
 
 {% block primary_content %}
   <div class="primary module module-popup">
-    <div class="content">
+    <div class="module-content">
       <header>
         <h1 class="page-heading">{{ _("Welcome to CKAN") }}</h1>
         <p>{% trans %}This is a nice introductory paragraph about CKAN or the site
@@ -30,7 +30,7 @@
       </header>
 
       <section class="featured media-overlay">
-        <h2 class="heading">{{ _("This is a featured section") }}</h2>
+        <h2 class="module-heading">{{ _("This is a featured section") }}</h2>
         <a class="image" href="#">
           <img src="http://placehold.it/420x220" />
         </a>
@@ -39,8 +39,8 @@
   </div>
   <div class="secondary">
     <div class="secondary-inner">
-      <div class="module module-dark info">
-		  <form class="dataset-search content clearfix" method="get" action="{% url_for controller='package', action='search' %}">
+      <div class="module module-shallow module-narrow module-dark info">
+        <form class="dataset-search module-content clearfix" method="get" action="{% url_for controller='package', action='search' %}">
           <h3 class="heading">{{ _("Search Your Data") }}</h3>
           <span class="control-group search-giant">
             <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" results="0" placeholder="{{ _('eg. Gold Prices') }}" />

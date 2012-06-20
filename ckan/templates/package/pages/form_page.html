@@ -8,7 +8,7 @@
 
 {% block primary_content %}
   <section class="module">
-    <div class="content">
+    <div class="module-content">
       {% block stages %}{{ h.snippet('package/snippets/stages.html', stage=1) }}{% endblock %}
       {% block form %}{{ c.form | safe }}{% endblock %}
     </div>
@@ -17,9 +17,9 @@
 
 {% block secondary_content %}
   {% block info_module %}
-    <section class="module">
-      <h2 class="heading"><i class="icon-large icon-info-sign"></i> {{ _('What are datasets?') }}</h2>
-      <div class="content">
+    <section class="module module-narrow">
+      <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What are datasets?') }}</h2>
+      <div class="module-content">
         <p>
           {% trans %}
           Datasets are simply used to group related pieces of data. These

@@ -4693,6 +4693,7 @@ textarea {
   line-height: 2;
   text-align: left;
   color: #707070;
+  margin: 0;
 }
 .form-actions .action-info.small {
   font-size: 11px;

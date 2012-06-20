@@ -39,7 +39,7 @@
 
 {% block primary_content %}
   <section class="module">
-    <div class="content prose">
+    <div class="module-content prose">
       <h1>{{ h.resource_display_name(res) }}</h1>
 
       <div class="notes" property="rdfs:label">
@@ -50,7 +50,7 @@
         {% endif %}
       </div>
     </div>
-    <div class="resource-preview content">
+    <div class="resource-preview module-content">
       {# TODO: Hiding data preview until we have javascript in place #}
       <div class="preview-header" style="display: none;">
         <h3>Preview</h3>
@@ -60,13 +60,13 @@
           <a class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
         {% endif %}
       </div>
-      <div id="ckanext-datapreview content"></div>
+      <div id="ckanext-datapreview module-content"></div>
     </div>
   </section>
 
   {% if res %}
     <section class="module">
-      <div class="content">
+      <div class="module-content">
         <h2>Additional Information</h2>
         <table class="table table-striped table-bordered table-condensed">
           <thead>
@@ -94,8 +94,8 @@
   {% endif %}
 {% endblock %}
 
-{% block secondary_content %}
-  <section class="module">
+{% block secondary_module %}
+  <section class="module module-narrow">
     <h2 class="heading"><i class="icon-large icon-info-sign"></i> Resource Information</h2>
     <ul class="simple-list">
       <li><i class="ckan-icon ckan-icon-calendar"></i> Last Updated: {{ h.render_datetime(res.last_modified) or _("unknown") }}</li>

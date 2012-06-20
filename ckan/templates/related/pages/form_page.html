@@ -8,7 +8,7 @@
 
 {% block primary_content %}
   <section class="module">
-    <div class="content">
+    <div class="module-content">
       <h1 class="page-heading">{% block page_heading %}{{ _('Related Form') }}{% endblock %}</h1>
       {{ c.form | safe }}
     </div>
@@ -16,9 +16,9 @@
 {% endblock %}
 
 {% block secondary_content %}
-  <section class="module">
-    <h2 class="heading"><i class="icon-large icon-info-sign"></i> What are related items?</h2>
-    <div class="content">
+  <section class="module module-narrow">
+    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> What are related items?</h2>
+    <div class="module-content">
       <p>Related Media is any app, article, visualisation or idea related to
       this dataset.</p>
 

@@ -149,3 +149,15 @@
 .format-label[data-format*=html] {
   .ckan-icon-background-position(10, "format-medium");
 }
+
+// Override Font Awesome and it's crazy list handling.
+li {
+  [class^="icon-"],
+  [class*=" icon-"] {
+    width: auto;
+  }
+  .icon-large:before,
+  .icon-large:before {
+    width: auto;
+  }
+}

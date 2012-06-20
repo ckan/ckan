@@ -17,7 +17,7 @@
 
 {% block primary_content %}
   <article class="module profile">
-    <div class="content profile-info">
+    <div class="module-content profile-info">
       <header class="media">
         <span class="image">{{ h.linked_gravatar(user.email_hash, 150) }}</span>
         <div class="description">
@@ -68,10 +68,10 @@
         <li><a href="#activity">{{ _('Activity Stream') }}</a></li>
       </ul>
     </div>
-    <div id="packages" class="content clearfix">
+    <div id="packages" class="module-content clearfix">
       {% snippet 'snippets/package_list.html', packages=user.datasets %}
     </div>
-    <div id="activity" class="content">
+    <div id="activity" class="module-content">
       {{ c.user_activity_stream | safe }}
     </div>
   </article>
