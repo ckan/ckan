@@ -133,7 +133,7 @@ class UserController(BaseController):
         if not c.user:
             h.redirect_to(locale=locale, controller='user', action='login', id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
-        h.redirect_to(locale=locale, controller='user', action='read', id=user_ref)
+        h.redirect_to(locale=locale, controller='user', action='dashboard', id=user_ref)
 
     def register(self, data=None, errors=None, error_summary=None):
         return self.new(data, errors, error_summary)
