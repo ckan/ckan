@@ -450,10 +450,6 @@ class UserController(BaseController):
                 'user': c.user or c.author, 'for_view': True}
         data_dict = {'id':id, 'user_obj':c.userobj}
         self._setup_template_variables(context, data_dict)
-        c.followed_users = get_action('followed_user_list')(context, {'id':c.user_dict['id']})
-        c.followed_datasets = get_action('followed_dataset_list')(context, {'id':c.user_dict['id']})
+        c.dashboard_activity_stream = get_action('dashboard_activity_list_html')(context, {'id':c.user_dict['id']})
 
         return render('user/dashboard.html')
-
-
-

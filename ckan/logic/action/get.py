@@ -1834,6 +1834,7 @@ def user_follower_count(context, data_dict):
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: int
 
     '''
@@ -1849,6 +1850,7 @@ def dataset_follower_count(context, data_dict):
 
     :param id: the id or name of the dataset
     :type id: string
+
     :rtype: int
 
     '''
@@ -1877,6 +1879,7 @@ def user_follower_list(context, data_dict):
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: list of dictionaries
 
     '''
@@ -1893,6 +1896,7 @@ def dataset_follower_list(context, data_dict):
 
     :param id: the id or name of the dataset
     :type id: string
+
     :rtype: list of dictionaries
 
     '''
@@ -1923,6 +1927,7 @@ def am_following_user(context, data_dict):
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: boolean
 
     '''
@@ -1940,6 +1945,7 @@ def am_following_dataset(context, data_dict):
 
     :param id: the id or name of the dataset
     :type id: string
+
     :rtype: boolean
 
     '''
@@ -1952,12 +1958,12 @@ def am_following_dataset(context, data_dict):
     return _am_following(context, data_dict,
             context['model'].UserFollowingDataset)
 
-
 def followed_user_list(context, data_dict):
     '''Return the list of users that are followed by the given user.
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: list of dictionaries
 
     '''
@@ -1984,6 +1990,7 @@ def followed_dataset_list(context, data_dict):
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: list of dictionaries
 
     '''
@@ -2004,3 +2011,46 @@ def followed_dataset_list(context, data_dict):
 
     # Dictize the list of Package objects.
     return [model_dictize.package_dictize(package, context) for package in packages]
+
+def dashboard_activity_list(context, data_dict):
+    '''Return the activity stream of the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    model = context['model']
+    user_id = _get_or_bust(data_dict, 'id')
+
+    activity_query = model.Session.query(model.Activity)
+    user_query = activity_query;
+    followed_users_query = activity_query.join(model.UserFollowingUser, model.UserFollowingUser.object_id == model.Activity.user_id)
+    followed_datasets_query = activity_query.join(model.UserFollowingDataset, model.UserFollowingDataset.object_id == model.Activity.object_id)
+
+    user_query = user_query.filter(model.Activity.user_id==user_id)
+    followed_users_query = followed_users_query.filter(model.UserFollowingUser.follower_id==user_id)
+    followed_datasets_query = followed_datasets_query.filter(model.UserFollowingDataset.follower_id==user_id)
+
+    query = user_query.union(followed_users_query).union(followed_datasets_query)
+    query = query.order_by(_desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+
+    return model_dictize.activity_list_dictize(activity_objects, context)
+
+def dashboard_activity_list_html(context, data_dict):
+    '''Return the dashboard activity stream of the given user as HTML.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: The id or name of the user.
+    :type id: string
+
+    :rtype: string
+
+    '''
+    activity_stream = dashboard_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)

@@ -1,32 +1,19 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">${c.user} - Dashboard - User</py:def>
-  <py:def function="page_heading">
-      ${c.user_dict.display_name}'s Dashboard
-  </py:def>
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    py:strip="">
 
-  <p>XXXX ${len(c.followed_users)} XXXX</p>
-  <p>XXXX ${len(c.followed_datasets)} XXXX</p>
+    <py:def function="page_title">${c.user} - Dashboard - User</py:def>
+    <py:def function="page_heading">
+        ${c.user_dict.display_name}'s Dashboard
+    </py:def>
 
-  <div py:match="content">
-    <ul class="userlist">
-     <li py:for="followed_user in c.followed_users" class="user">
-        <ul>
-          ${h.linked_user(followed_user['name'], maxlength=20)}
-        </ul>
-      </li>
-    </ul>
-    <ul class="userlist">
-     <li py:for="followed_dataset in c.followed_datasets" class="user">
-        <ul>
-          ${h.dataset_link(followed_dataset['name'])}
-        </ul>
-      </li>
-    </ul>
-  </div>
+    <div py:match="content">
+        <h2>What's going on?</h2>
+        <div class="activity-stream">
+            ${c.dashboard_activity_stream}
+        </div>
+    </div>
 
-  <xi:include href="layout.html" />
+    <xi:include href="layout.html" />
 </html>
