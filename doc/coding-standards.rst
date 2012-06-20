@@ -318,7 +318,7 @@ JSHint
 ------
 
 All JavaScript should pass `JSHint`_ before being committed. This can
-be installed using `npm` (which is bundled with `node`_) by running: ::
+be installed using ``npm`` (which is bundled with `node`_) by running: ::
 
     $ npm -g install jshint
 
@@ -332,12 +332,12 @@ this file.
 Documentation
 -------------
 
-_TODO_
+*TODO*
 
 Testing
 -------
 
-_TODO_
+*TODO*
 
 Best Practices
 --------------
@@ -346,8 +346,8 @@ Forms
 `````
 
 All forms should work without JavaScript enabled. This means that they must
-submit `application/x-www-form-urlencoded` data to the server and receive an appropriate
-response. The server should check for the `X-Requested-With: XMLHTTPRequest`
+submit ``application/x-www-form-urlencoded`` data to the server and receive an appropriate
+response. The server should check for the ``X-Requested-With: XMLHTTPRequest``
 header to determine if the request is an ajax one. If so it can return an
 appropriate format, otherwise it should issue a 303 redirect.
 
@@ -356,16 +356,16 @@ JavaScript after the page has loaded. It's then not part of the HTML document
 and can submit any data format it pleases.
 
 Ajax
-````
+````````
 
 Ajax requests can be used to improve the experience of submitting forms and
 other actions that require server interactions. Nearly all requests will
 go through the following states.
 
 1.  User clicks button.
-2.  JavaScript intercepts the click and disables the button (add `disabled`
+2.  JavaScript intercepts the click and disables the button (add ``disabled``
     attr).
-3.  A loading indicator is displayed (add class `.loading` to button).
+3.  A loading indicator is displayed (add class ``.loading`` to button).
 4.  The request is made to the server.
 5.  a) On success the interface is updated.
     b) On error a message is displayed to the user if there is no other way to
@@ -409,7 +409,7 @@ Event Handlers
 
 When using event handlers to listen for browser events it's a common
 requirement to want to cancel the default browser action. This should be
-done by calling the `event.preventDefault()` method: ::
+done by calling the ``event.preventDefault()`` method: ::
 
     jQuery('button').click(function (event) {
       event.preventDefault();
@@ -431,15 +431,17 @@ alternatives to ``.bind()``, ``.unbind()``, ``.delegate()`` and
 Closures
 ````````
 
-_TODO_
+*TODO*
 
 Templating
 ``````````
 
-_TODO_
+*TODO*
 
 Resources
 ---------
+
+*TODO*
 
 HTML Coding Standards
 =====================
@@ -456,16 +458,16 @@ requirement) and all attributes must use double quotes around attributes. ::
       <source src="foo.ogg" type="video/ogg" />
     </video>
 
-HTML5 elements should be used where appropriate reserving `<div>` and `<span>`
+HTML5 elements should be used where appropriate reserving ``<div>`` and ``<span>``
 elements for situations where there is no semantic value (such as wrapping
 elements to provide styling hooks).
 
 Doctype and layout
 ------------------
 
-All documents must be using the HTML5 doctype and the `<html>` element should
-have a `"lang"` attribute. The `<head>` should also at a minimum include
-`"viewport"` and `"charset"` meta tags. ::
+All documents must be using the HTML5 doctype and the ``<html>`` element should
+have a ``"lang"`` attribute. The ``<head>`` should also at a minimum include
+``"viewport"`` and ``"charset"`` meta tags. ::
 
     <!doctype html>
     <html lang="en">
@@ -480,16 +482,16 @@ have a `"lang"` attribute. The `<head>` should also at a minimum include
 Forms
 -----
 
-Form fields must always include a `<label>` element with a `"for"` attribute
-matching the `"id"` on the input. This helps accessibility by focusing the
+Form fields must always include a ``<label>`` element with a ``"for"`` attribute
+matching the ``"id"`` on the input. This helps accessibility by focusing the
 input when the label is clicked, it also helps screen readers match labels to
 their respective inputs. ::
 
     <label for="field-email">email</label>
     <input type="email" id="field-email" name="email" value="" />
 
-Each `<input>` should have an `"id"` that is unique to the page. It does not
-have to match the `"name"` attribute.
+Each ``<input>`` should have an ``"id"`` that is unique to the page. It does not
+have to match the ``"name"`` attribute.
 
 Forms should take advantage of the new HTML5 input types where they make sense
 to do so, placeholder attributes should also be included where relevant.
@@ -509,7 +511,7 @@ tailored inputs and keyboards. ::
       <input type="url" id="field-url" name="url" value="" placeholder="http://example.com" />
     </div>
 
-Wufoo provides an `excellent reference`_ [#attrs] for these attributes.
+Wufoo provides an `excellent reference`_ for these attributes.
 
 .. _excellent reference: http://wufoo.com/html5/
 
@@ -590,14 +592,6 @@ And **not**: ::
 
 CSS Coding Standards
 ====================
-
----
-subtitle: CSS
-layout: styleguide
----
-
-CSS Style Guide
-===============
 
 Formatting
 ----------
@@ -933,7 +927,7 @@ brackets. Where relevant also indicate the default value: (optional, default:
 .. _Sphinx directives: http://sphinx.pocoo.org/markup/desc.html#info-field-lists
 
 You can also use a little inline `reStructuredText markup`_ in docstrings, e.g.
-``*stars for emphasis*`` or ````double-backticks for literal text````.
+``*stars for emphasis*`` or ``double-backticks for literal text``
 
 .. _reStructuredText markup: http://docutils.sourceforge.net/docs/user/rst/quickref.html#inline-markup
 
