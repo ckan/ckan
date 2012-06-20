@@ -188,15 +188,15 @@ class LinkForExtension(BaseExtension):
         return h.nav_link(*args, **kwargs)
 
 
-class IncludeResourceExtension(BaseExtension):
+class ResourceExtension(BaseExtension):
     ''' Custom include_resource tag
 
-    {% include_resource <resource_name> %}
+    {% resource <resource_name> %}
 
     see lib.helpers.include_resource() for more details.
     '''
 
-    tags = set(['include_resource'])
+    tags = set(['resource'])
 
     @classmethod
     def _call(cls, args, kwargs):
