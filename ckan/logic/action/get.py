@@ -1869,7 +1869,7 @@ def _follower_list(context, data_dict, FollowerClass):
     users = [model.User.get(follower.follower_id) for follower in followers]
     users = [user for user in users if user is not None]
 
-    # Dictize the list of user objects.
+    # Dictize the list of User objects.
     return [model_dictize.user_dictize(user,context) for user in users]
 
 def user_follower_list(context, data_dict):
@@ -1951,3 +1951,56 @@ def am_following_dataset(context, data_dict):
 
     return _am_following(context, data_dict,
             context['model'].UserFollowingDataset)
+
+
+def followed_user_list(context, data_dict):
+    '''Return the list of users that are followed by the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+    :rtype: list of dictionaries
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+
+    # Get the list of Follower objects.
+    model = context['model']
+    user_id = data_dict.get('id')
+    followeds = model.UserFollowingUser.followed_list(user_id)
+
+    # Convert the list of Follower objects to a list of User objects.
+    users = [model.User.get(followed.object_id) for followed in followeds]
+    users = [user for user in users if user is not None]
+
+    # Dictize the list of User objects.
+    return [model_dictize.user_dictize(user, context) for user in users]
+
+def followed_dataset_list(context, data_dict):
+    '''Return the list of datasets that are followed by the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+    :rtype: list of dictionaries
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+
+    # Get the list of Follower objects.
+    model = context['model']
+    user_id = data_dict.get('id')
+    followeds = model.UserFollowingDataset.followed_list(user_id)
+
+    # Convert the list of Follower objects to a list of Package objects.
+    packages = [model.Package.get(followed.object_id) for followed in followeds]
+    packages = [package for package in packages if package is not None]
+
+    # Dictize the list of Package objects.
+    return [model_dictize.package_dictize(package, context) for package in packages]

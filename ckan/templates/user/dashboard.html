@@ -8,8 +8,24 @@
       ${c.user_dict.display_name}'s Dashboard
   </py:def>
 
+  <p>XXXX ${len(c.followed_users)} XXXX</p>
+  <p>XXXX ${len(c.followed_datasets)} XXXX</p>
+
   <div py:match="content">
-      Hello World.
+    <ul class="userlist">
+     <li py:for="followed_user in c.followed_users" class="user">
+        <ul>
+          ${h.linked_user(followed_user['name'], maxlength=20)}
+        </ul>
+      </li>
+    </ul>
+    <ul class="userlist">
+     <li py:for="followed_dataset in c.followed_datasets" class="user">
+        <ul>
+          ${h.dataset_link(followed_dataset['name'])}
+        </ul>
+      </li>
+    </ul>
   </div>
 
   <xi:include href="layout.html" />
