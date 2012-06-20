@@ -74,15 +74,109 @@ Frontend Coding Standards
 =========================
 
 TODO
+- i18n
+
+  - In html, don't include line breaks within ``<p>`` blocks.  ie do this: ::
+
+      <p>Blah foo blah</p>
+      <p>New paragraph, blah</p>
+
+    And **not**: ::
+
+      <p>Blah foo blah
+         New paragraph, blah</p>
 
 http://aron.github.com/ckan-style/styleguide/
 
 Backend Coding Standards
 ========================
 
-TODO
+For python code, we follow `PEP 8`_, plus a few of our own rules.  The
+important bits are laid out below, but if in doubt, refer to `PEP 8`_ and
+common sense.
 
-http://wiki.okfn.org/Coding_Standards
+Layout and formatting
+---------------------
+
+- Don't use tabs.  Use 4 spaces.
+
+- Maximum line length is 79 characters.
+
+- Continuation lines should align vertically within the parentheses, or with
+  a hanging indent.  See `PEP 8's Indent Section`_ for more details.
+
+- Avoid extraneous whitespace.  See `PEP 8's Whitespace Section`_ for more details.
+
+- Clean up formatting issues in master, not on a feature branch.  Unless of
+  course you're changing that piece of code anyway.  This will help avoid
+  spurious merge conflicts, and aid in reading pull requests.
+
+- Use the single-quote character, ``'``, rather than the double-quote
+  character, ``"``, for string literals.
+
+.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
+.. _PEP 8's Indent Section: http://www.python.org/dev/peps/pep-0008/#indentation
+.. _PEP 8's Whitespace Section: http://www.python.org/dev/peps/pep-0008/#whitespace-in-expressions-and-statements
+
+Imports
+-------
+
+- Import whole modules, rather than using ``from foo import bar``.  It's ok
+  to alias imported modules to make things more concise, ie this *is*
+  acceptable: ::
+
+    import foo.bar.baz as f
+
+- Make all imports at the start of the file, after the module docstring.
+  Imports should be grouped in the following order:
+
+  1. Standard library imports
+  2. Third-party imports
+  3. CKAN imports
+
+Logging
+-------
+
+- Keep messages short.
+
+- Don't include object representations in the log message.  It **is** useful
+  to include an domain model identifier where appropriate.
+
+- Choose an appropriate log-level:
+
+  +----------+--------------------------------------------------------------+
+  | Level    | Description                                                  |
+  +==========+==============================================================+
+  | DEBUG    | Detailed information, of no interest when everything is      |
+  |          | working well but invaluable when diagnosing problems.        |
+  +----------+--------------------------------------------------------------+
+  | INFO     | Affirmations that things are working as expected, e.g.       |
+  |          | "service has started" or "indexing run complete". Often      |
+  |          | ignored.                                                     |
+  +----------+--------------------------------------------------------------+
+  | WARNING  | There may be a problem in the near future, and this gives    |
+  |          | advance warning of it. But the application is able to proceed|
+  |          | normally.                                                    |
+  +----------+--------------------------------------------------------------+
+  | ERROR    | The application has been unable to proceed as expected, due  |
+  |          | to the problem being logged.                                 |
+  +----------+--------------------------------------------------------------+
+  | CRITICAL | This is a serious error, and some kind of application        |
+  |          | meltdown might be imminent.                                  |
+  +----------+--------------------------------------------------------------+
+
+  (`Source
+  <http://plumberjack.blogspot.co.uk/2009/09/python-logging-101.html>`_)
+
+i18n
+----
+
+To construct an internationalised string, use `str.format`_, giving
+meaningful names to each replacement field.  For example: ::
+
+  _(' ... {foo} ... {bar} ...').format(foo='foo-value', bar='bar-value')
+
+.. _str.format: http://docs.python.org/library/stdtypes.html#str.format
 
 Docstring Standards
 -------------------
@@ -222,3 +316,22 @@ Example of a ckan.logic.action API docstring:
         '''
 
 .. _Autodoc: http://sphinx.pocoo.org/ext/autodoc.html
+
+Tools
+-----
+
+Running the `PEP 8 style guide checker`_ is good for checking adherence to `PEP
+8`_ formatting.  As mentioned above, only perform style clean-ups on master to
+help avoid spurious merge conflicts.
+
+`PyLint`_ is a useful tool for analysing python source code for errors and signs of poor quality.
+
+`pyflakes`_ is another useful tool for passive analysis of python source code.
+There's also a `pyflakes vim plugin`_ which will highlight unused variables,
+undeclared variables, syntax errors and unused imports.
+
+.. _PEP 8 style guide checker: http://pypi.python.org/pypi/pep8
+.. _PyLint: http://www.logilab.org/857
+.. _pyflakes: http://pypi.python.org/pypi/pyflakes
+.. _pyflakes vim plugin: http://www.vim.org/scripts/script.php?script_id=2441
+
