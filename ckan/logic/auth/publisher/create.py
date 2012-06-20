@@ -32,7 +32,9 @@ def related_create(context, data_dict=None):
 
 
 def resource_create(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+    # resource create runs through package_update, so no need to repeat check.  Only here
+    # if extensions need to override this seperately.
+    return {'success': True}
 
 def package_relationship_create(context, data_dict):
     """
