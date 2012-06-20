@@ -62,6 +62,32 @@ Longer example CKAN commit message:
  Also fix templates/user/layout.html so that the Followers tab appears on both
  your own user page (when logged in) and on other user's pages.
 
+Feature Branches
+----------------
+
+All ticketed work should be developed on a corresponding feature branch forked
+from master.  The name of the branch should inlude the `type` of the ticket,
+the ticket's number, and a brief one-line synopsis of the purpose of the
+ticket.  eg: ``enhancement-2298-add-sort-by-controls-to-search-page``.
+
+Once work on the branch has been completed and it is ready to be merged into
+master, make a pull request on github.  Another member of the CKAN team will
+review the changes; and provide feedback through the github pull request page.
+If the piece of work touches on an area of code `owned` by another team member,
+then notify them of the changes by email.
+
+Submitting Code Patches
+-----------------------
+
+See the wiki for instructions on `how to submit a patch`_ via GitHub or email.
+
+.. _how to submit a patch: http://wiki.ckan.org/Submitting_a_code_patch
+
+Releases
+--------
+
+*TODO*
+
 Merging
 -------
 
@@ -69,6 +95,13 @@ When merging a feature or bug branch into master:
 
 - Use the ``--no-ff`` option in the ``git merge`` command
 - Add an entry to the ``CHANGELOG`` file
+
+The full postgresql test suite must pass before merging into master. ::
+
+  nosetests --ckan --with-pylons=test-core.ini ckan
+
+See :doc:`test` for more information on running tests, including running the
+core extension tests.
 
 Python Coding Standards
 =======================
@@ -298,6 +331,14 @@ Example of a ckan.logic.action API docstring:
         '''
 
 .. _Autodoc: http://sphinx.pocoo.org/ext/autodoc.html
+
+Testing
+-------
+
+functional / unit tests
+testing tools
+
+*TODO*
 
 Tools
 -----
