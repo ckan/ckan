@@ -6,7 +6,7 @@
 <form class="dataset-form dataset-resource-form form-horizontal" method="post">
   {{ form.errors(error_summary) }}
 
-  {% snippet 'package/snippets/package_metadata_fields.html', data=data, errors=errors %}
+  {% snippet 'package/snippets/package_metadata_fields.html', data=data, errors=errors, groups_available=c.groups_available %}
 
   <div class="form-actions">
     {# TODO: Go back to previous resource form #}

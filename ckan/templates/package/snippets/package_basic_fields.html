@@ -1,10 +1,12 @@
 {% import 'macros/form.html' as form %}
 
-{{ form.input('title', id='field-title', label=_('Title'), placeholder=_('A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large']) }}
+{{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large']) }}
 
-{{ form.input('name', id='field-name', label=_('URL'), placeholder=_('my-dataset'), value=data.title, error=errors.name, classes=['control-full']) }}
+{{ form.input('name', id='field-name', label=_('URL'), placeholder=_('eg. my-dataset'), value=data.title, error=errors.name, classes=['control-full']) }}
 
-{{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.notes, error=errors.notes) }}
+{{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes) }}
+
+{{ form.input('tags', id='field-tags', label=_('Tags'), placeholder=_('eg. economy, spending, government'), value=data.tags, error=errors.tags, classes=['control-full']) }}
 
 <div class="control-group">
   {% set error = errors.license_id %}
@@ -16,21 +18,11 @@
       {% endfor %}
     </select>
     {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
-    <span class="info-block">{{ _("Don't worry if you don't know which license the data has been released under") }}</span>
+    <span class="info-block icon-large icon-info-sign">
+      {% trans %}
+        License definitions and additional information can be found
+        at <a href="http://opendefinition.org/licenses/">opendefinition.org</a>
+      {% endtrans %}
+    </span>
   </div>
 </div>
-
-{% if groups_available %}
-  <div class="control-group">
-    {% set groups = data.groups or [] %}
-    <label for="field-groups" class="control-label">{{ _('Add to Groups') }}</label>
-    <div class="controls">
-      <select id="field-groups" name="groups__{{ groups | count }}__id">
-        <option value="">{{ _('Select a group...') }}</option>
-        {% for group in groups_available %}
-          <option value="{{ group.id }}">{{ group.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-{% endif %}

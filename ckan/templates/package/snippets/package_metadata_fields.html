@@ -1,5 +1,20 @@
 {% import 'macros/form.html' as form %}
 
+{% if groups_available %}
+  <div class="control-group">
+    {% set groups = data.groups or [] %}
+    <label for="field-groups" class="control-label">{{ _('Add to Groups') }}</label>
+    <div class="controls">
+      <select id="field-groups" name="groups__{{ groups | count }}__id">
+        <option value="">{{ _('Select a group...') }}</option>
+        {% for group in groups_available %}
+          <option value="{{ group.id }}">{{ group.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+{% endif %}
+
 {{ form.input('author', label=_('Author'), id='field-author', placeholder=_('Joe Bloggs'), value=data.author, error=errors.author, classes=['control-medium']) }}
 
 {{ form.input('author_email', label=_('Author Email'), id='field-author-email', placeholder=_('joe@example.com'), value=data.author_email, error=errors.author_email, classes=['control-medium']) }}
