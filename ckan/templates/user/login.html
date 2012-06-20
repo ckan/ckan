@@ -8,7 +8,7 @@
 
 {% block primary_content %}
   <section class="module">
-    <div class="content">
+    <div class="module-content">
       <h1 class="page-heading">{{ _('Login') }}</h1>
       {% block form %}
         {% include "user/partials/login_form.html" %}
@@ -19,8 +19,8 @@
 
 {% block secondary_content %}
   <section class="module module-narrow module-shallow">
-    <h2 class="heading">{{ _('Need an Account?') }}</h2>
-    <div class="content">
+    <h2 class="module-heading">{{ _('Need an Account?') }}</h2>
+    <div class="module-content">
       <p>{% trans %}Then sign right up, it only takes a minute.{% endtrans %}</p>
       <p class="action">
         <a class="btn" href="{{ h.url_for(controller='user', action='register') }}">{{ _('Create an Account') }}</a>
@@ -29,8 +29,8 @@
   </section>
 
   <section class="module module-narrow module-shallow">
-    <h2 class="heading">{{ _('Forgotten your details?') }}</h2>
-    <div class="content">
+    <h2 class="module-heading">{{ _('Forgotten your details?') }}</h2>
+    <div class="module-content">
       <p>{% trans %}No problem, use our password recovery form to reset it.{% endtrans %}</p>
       <p class="action">
         <a class="btn" href="{{ h.url_for(controller='user', action='request_reset') }}">{{ _('Forgot your password?') }}</a>

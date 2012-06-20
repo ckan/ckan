@@ -6,22 +6,23 @@
   margin-bottom: 20px;
 }
 
-.module > .heading {
+.module-heading {
   .border-radius(3px 3px 0 0);
   font-size: 14px;
-  padding: 0 @gutter-x;
+  line-height: 1.3;
+  padding: 7px @gutter-x;
   border-bottom: 1px solid @module-heading-border-color;
   #gradient > .vertical(@module-heading-background-color-start, @module-heading-background-color-end);
 }
 
-.module > .heading [class^=icon]:before {
+.module-heading [class^=icon]:before {
   font-size: 1.2em;
   position: relative;
   top: 1px;
   margin-right: 0.1em;
 }
 
-.module > .heading .action {
+.module-heading .action {
   float: right;
   color: #8c8c8c;
   color: rgba(51, 51, 51, 0.7);
@@ -29,26 +30,26 @@
   text-decoration: underline;
 }
 
-.module > .content {
+.module-content {
   padding: 0 @gutter-x;
   margin: 20px 0;
 }
 
-.module > .content:first-child {
+.module-content:first-child {
   margin-top: 0;
   padding-top: @gutter-y;
 }
 
-.module > .content:last-child {
+.module-content:last-child {
   margin-bottom: 0;
   padding-bottom: @gutter-y;
 }
 
-.module > .content > :last-child {
+.module-content > :last-child {
   margin-bottom: 0;
 }
 
-.module > .footer {
+.module-footer {
   padding: 7px @gutter-x 7px;
   border-top: 1px dotted #ccc;
 }
@@ -94,16 +95,16 @@
 
 // Module Shallow
 
-.module-shallow > .content {
+.module-shallow .module-content {
   padding: 10px;
   margin: 0;
 }
 
-.module-shallow > .content:first-child {
+.module-shallow .module-content:first-child {
   padding-top: 10px;
 }
 
-.module-shallow > .content:last-child {
+.module-shallow .module-content:last-child {
   padding-bottom: 10px;
 }
 
@@ -115,9 +116,9 @@
 // Secondary column specific
 
 .module-narrow {
-  > .heading,
-  > .content,
-  > .footer {
+  > .module-heading,
+  > .module-content,
+  > .module-footer {
     padding-left:  @gutter-small-x;
     padding-right: @gutter-small-x;
   }

@@ -14,7 +14,7 @@ Example:
 #}
 {% if resources %}
   <section class="module resources">
-    <h2 class="heading">{{ _("Resources") }}</h2>
+    <h2 class="module-heading">{{ _("Resources") }}</h2>
     <ul class="nav nav-simple nav-facet">
       {% for resource in resources %}
       <li class="nav-item{{ ' active' if active == resource.id }}">

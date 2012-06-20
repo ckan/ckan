@@ -30,65 +30,65 @@
       </ul>
     </div>
     <section class="module">
-      <h1 class="heading">Heading One</h1>
-      <div class="content">
+      <h1 class="module-heading">Heading One</h1>
+      <div class="module-content">
         {{ lipsum(1) }}
       </div>
     </section>
     <section class="module">
-      <h2 class="heading">Heading Two</h2>
-      <div class="content">
+      <h2 class="module-heading">Heading Two</h2>
+      <div class="module-content">
         {{ lipsum(1) }}
       </div>
     </section>
     <section class="module">
-      <h3 class="heading">Heading Three</h3>
-      <div class="content">
+      <h3 class="module-heading">Heading Three</h3>
+      <div class="module-content">
         {{ lipsum(1) }}
       </div>
     </section>
     <section class="module">
-      <h1 class="heading"><a href="#">Heading with Link</a></h1>
-      <div class="content">
+      <h1 class="module-heading"><a href="#">Heading with Link</a></h1>
+      <div class="module-content">
         {{ lipsum(1) }}
       </div>
     </section>
     <section class="module">
-      <h1 class="heading">Heading Action  <a href="#" class="action">Clear All</a></h1>
-      <div class="content">
+      <h1 class="module-heading">Heading Action  <a href="#" class="action">Clear All</a></h1>
+      <div class="module-content">
         {{ lipsum(1) }}
       </div>
     </section>
     <section class="module">
-      <h1 class="heading">Module with footer</h1>
-      <div class="content">
+      <h1 class="module-heading">Module with footer</h1>
+      <div class="module-content">
         {{ lipsum(1) }}
       </div>
-      <p class="footer">
+      <p class="module-footer">
         <a class="read-more" href="#">Another Link</a>
       </p>
     </section>
     <section class="module">
-      <h1 class="heading"><i class="icon-medium icon-filter"></i> Heading with Icon</h1>
-      <div class="content">
+      <h1 class="module-heading"><i class="icon-medium icon-filter"></i> Heading with Icon</h1>
+      <div class="module-content">
         {{ lipsum(1) }}
       </div>
     </section>
     <section class="module  module-narrow">
-      <h2 class="heading">Narrow Block</h2>
-      <div class="content">
+      <h2 class="module-heading">Narrow Block</h2>
+      <div class="module-content">
         {{ lipsum(1) }}
       </div>
     </section>
     <section class="module  module-narrow  module-shallow">
-      <h2 class="heading">Narrow Shallow Block</h2>
-      <div class="content">
+      <h2 class="module-heading">Narrow Shallow Block</h2>
+      <div class="module-content">
         {{ lipsum(1) }}
       </div>
     </section>
     <section class="module module-narrow" style="width: 280px">
       {% with items=(("First", false), ("Second", true), ("Third", true), ("Fourth", false), ("Last", false)) %}
-        <h2 class="heading">List</h2>
+        <h2 class="module-heading">List</h2>
         <nav>
           <ul class="unstyled nav nav-simple">
             {% for value, active in items %}
@@ -100,7 +100,7 @@
     </section>
     <section class="module module-narrow" style="width: 280px">
       {% with items=(("First", false), ("Second", true), ("Third", true), ("Fourth", false), ("Last", false)) %}
-        <h2 class="heading">Icon List</h2>
+        <h2 class="module-heading">Icon List</h2>
         <nav>
           <ul class="unstyled nav nav-simple nav-icons">
             {% for value, active in items %}
@@ -112,7 +112,7 @@
     </section>
     <section class="module module-narrow" style="width: 280px">
       {% with items=(("First", false), ("Second", true), ("Third", true), ("Fourth", false), ("Last", false)) %}
-        <h2 class="heading"><i class="icon-medium icon-filter"></i>  Facet List <a href="{{ h.remove_field(name) }}" class="action">Clear All</a></h2>
+        <h2 class="module-heading"><i class="icon-medium icon-filter"></i>  Facet List <a href="{{ h.remove_field(name) }}" class="action">Clear All</a></h2>
         <nav>
           <ul class="unstyled nav nav-simple nav-facet">
             {% for value, active in items %}
@@ -120,14 +120,14 @@
             {% endfor %}
           </ul>
         </nav>
-        <p class="footer">
+        <p class="module-footer">
           <a href="#" class="read-more">Read More</a>
         </p>
       {% endwith %}
     </section>
     <section class="module module-narrow" style="width: 280px">
       {% with items=(("First", false), ("Second", true), ("Third", true), ("Fourth", false), ("Last", false)) %}
-        <h2 class="heading"><i class="icon-medium icon-filter"></i> Facet List <a href="{{ h.remove_field(name) }}" class="action">Clear All</a></h2>
+        <h2 class="module-heading"><i class="icon-medium icon-filter"></i> Facet List <a href="{{ h.remove_field(name) }}" class="action">Clear All</a></h2>
         <nav>
           <ul class="unstyled nav nav-simple nav-facet">
             {% for value, active in items %}
@@ -138,8 +138,8 @@
       {% endwith %}
     </section>
     <section class="module module-narrow module-shallow simple-input">
-      <h2 class="heading"><i class="icon-medium icon-link"></i> Module Narrow Input</h2>
-      <div class="content field"><input type="text" value="simple-input" /></div>
+      <h2 class="module-heading"><i class="icon-medium icon-link"></i> Module Narrow Input</h2>
+      <div class="module-content field"><input type="text" value="simple-input" /></div>
     </section>
   </div>
   {% include "footer.html" %}

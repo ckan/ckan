@@ -9,7 +9,7 @@
 
 {% block primary_content %}
   <article class="module">
-    <div class="content">
+    <div class="module-content">
       <h1 class="page-heading">{{ _('{name}\'s Followers').format(name=c.user_dict.display_name) }}</h1>
       <ul class="userlist">
         {% for follower in c.followers %}

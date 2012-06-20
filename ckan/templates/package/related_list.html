@@ -15,7 +15,7 @@
 
 {% block primary_content %}
   <div class="module">
-    <div class="content">
+    <div class="module-content">
       <h1 class="page-heading">{{ _('Related Media for {dataset}').format(dataset=h.dataset_display_name(c.pkg)) }}</h1>
       {% if pkg.related %}
         {% include "related/partials/related_list.html" %}
@@ -28,8 +28,8 @@
 
 {% block secondary_content %}
   <div class="module module-narrow module-shallow">
-    <h2 class="heading"><i class="icon-large icon-info-sign"></i> {{ _('What is Related Media?') }}</h2>
-    <div class="content">
+    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What is Related Media?') }}</h2>
+    <div class="module-content">
       {% trans %}
         <p>Related Media is any app, article, visualisation or idea related to
         this dataset.</p>

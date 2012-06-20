@@ -8,7 +8,7 @@
 
 {% block primary_content %}
   <article class="module">
-    <div class="content">
+    <div class="module-content">
       <h1 class="page-heading">{{ _('Register for an Account') }}</h1>
       {{ c.form | safe }}
     </div>
@@ -17,8 +17,8 @@
 
 {% block secondary_content %}
   <section class="module module-narrow module-shallow">
-    <h2 class="heading">{{ _('Why Sign Up?') }}</h2>
-    <div class="content">
+    <h2 class="module-heading">{{ _('Why Sign Up?') }}</h2>
+    <div class="module-content">
       <p>{% trans %}Create datasets, groups and other exciting things{% endtrans %}</p>
     </div>
   </section>
