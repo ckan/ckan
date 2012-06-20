@@ -1,8 +1,13 @@
 .nav-simple {
-  .simple-list;
+  .simple-list; // Adds border and padding.
+  padding-bottom: 0;
 }
 
-.nav-simple > li > a {
+.nav-item:last-of-type {
+  border-bottom: 0;
+}
+
+.nav-item > a {
   color: @nav-link-color;
   margin: -7px -@gutter-x;
   padding: 7px @gutter-x;
@@ -10,11 +15,11 @@
   line-height: 14px; // keeps the overall height an even number
 }
 
-.nav-simple > li.active {
+.nav-item.active {
   background-color: #f2f2f2;
 }
 
-.nav-simple > li.active > a {
+.nav-item.active > a {
   .tag;
   .box-sizing(border-box);
   font-size: 12px;
@@ -28,27 +33,33 @@
   padding: 1px (@gutter-x - 3);
 }
 
-.secondary .nav-simple > li > a {
+.nav-item > [class^=icon] {
+  position: relative;
+  font-size: 1.2em;
+  left: -1px;
+}
+
+.module-narrow .nav-item > a {
   padding-left:  @gutter-small-x;
   padding-right: @gutter-small-x;
   position: relative;
 }
 
-.secondary .nav-simple > li.active > a {
+.module-narrow .nav-item.active > a {
   padding-left:  @gutter-small-x - 3;
   padding-right: @gutter-small-x - 3;
 }
 
-.secondary .nav-simple > li.image {
+.module-narrow .nav-item.image {
   position: relative;
 }
 
-.secondary .nav-simple > li.image > a {
+.module-narrow .nav-item.image > a {
   padding-left:  @gutter-small-x + 27;
   padding-right: @gutter-small-x + 27;
 }
 
-.secondary .nav-simple > li.image > img {
+.module-narrow .nav-item.image > img {
   position: absolute;
   top: 50%;
   left: @gutter-small-x;
@@ -58,11 +69,10 @@
   z-index: 2;
 }
 
-
 // FACET NAVIGATION
 
-.nav-facet > li > a:hover:after,
-.nav-facet > li.active > a:hover:after {
+.nav-facet .nav-item > a:hover:after,
+.nav-facet .nav-item >.active > a:hover:after {
   .ckan-icon;
   .ckan-icon-circle-add;
   content: "";
@@ -72,11 +82,11 @@
   margin-top: -8px;
 }
 
-.nav-facet > li > a:hover:after {
+.nav-facet .nav-item > a:hover:after {
   .ckan-icon-circle-add;
 }
 
-.nav-facet > li.active > a:hover:after {
+.nav-facet .nav-item > a:hover:after {
   .ckan-icon-circle-cross;
   right: 3px;
 }

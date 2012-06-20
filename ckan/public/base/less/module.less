@@ -49,7 +49,8 @@
 }
 
 .module > .footer {
-  padding: 0 @gutter-x 7px;
+  padding: 7px @gutter-x 7px;
+  border-top: 1px dotted #ccc;
 }
 
 .module .read-more {
@@ -85,27 +86,35 @@
   border-right: 0;
 }
 
-// Module Info
-
-.module.info > .content {
-  padding: 10px;
-  margin: 0;
-}
-
-.module.info small {
-  font-size: 11px;
-  display: block;
-}
-
 // Action
 
 .module .action {
   text-align: center;
 }
 
+// Module Shallow
+
+.module-shallow > .content {
+  padding: 10px;
+  margin: 0;
+}
+
+.module-shallow > .content:first-child {
+  padding-top: 10px;
+}
+
+.module-shallow > .content:last-child {
+  padding-bottom: 10px;
+}
+
+.module-shallow small {
+  font-size: 11px;
+  display: block;
+}
+
 // Secondary column specific
 
-.secondary .module {
+.module-narrow {
   > .heading,
   > .content,
   > .footer {

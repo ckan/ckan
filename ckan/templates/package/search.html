@@ -70,7 +70,7 @@
     {{ c.page.pager(q=c.q) }}
   </section>
 
-  <section class="module info">
+  <section class="module module-narrow module-shallow">
     <small class="content">
       You can also access this registry using the {{ h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1)) }}
       <!--! FIXME the API Docs link should be for the version of ckan being used but the dev version of ckan needs to point to latest so not trivial -->

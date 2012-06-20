@@ -1,5 +1,5 @@
 {% set item = pkg.related | first %}
-<section class="module info related{{ " related-empty" if not item }}">
+<section class="module module-narrow module-shallow related{{ " related-empty" if not item }}">
   <h2 class="heading"><i class="icon-medium icon-picture"></i> Related <a class="action" href="{{ h.url_for(controller='related', action='new', id=pkg.name) }}">Add Related</a></h2>
   <div class="content media">
     {% if item %}

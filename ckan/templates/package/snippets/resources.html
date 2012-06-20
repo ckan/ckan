@@ -17,7 +17,7 @@ Example:
     <h2 class="heading">{{ _("Resources") }}</h2>
     <ul class="nav nav-simple nav-facet">
       {% for resource in resources %}
-      <li{% if active == resource.id %} class="active"{% endif %}>
+      <li class="nav-item{{ ' active' if active == resource.id }}">
           {% link_for resource.name, controller='package', action=action or 'resource_read', id=pkg.name, resource_id=resource.id %}
         </li>
       {% endfor %}

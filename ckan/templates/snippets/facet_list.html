@@ -23,22 +23,22 @@ count_label
   how a facet-item's count is displayed.
 
 #}
-{% with items = h.get_facet_items_dict(name) %}
-  <section class="module info">
+{% with items = items or h.get_facet_items_dict(name) %}
+  <section class="module module-narrow module-shallow">
     <h2 class="heading"><i class="icon-medium icon-filter"></i> {{ h.get_facet_title(name) }} <a href="{{ h.remove_field(name) }}" class="action">Clear All</a></h2>
     {% if items %}
       <nav>
         <ul class="unstyled nav nav-simple nav-facet">
           {% for item in items %}
             {% if item.active %}
-                <li class="active">
+                <li class="nav-item active">
                 <a href="{{ h.remove_field(name, item.name) }}">
                   {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
                   {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
                 </a>
               </li>
             {% else %}
-                <li>
+                <li class="nav-item">
                 <a href="{{ h.drill_down_url(**{name: item.name}) }}">
                   {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
                   {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
