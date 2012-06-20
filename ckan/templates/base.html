@@ -95,7 +95,7 @@
       {% endblock %}
     #}
     {%- block scripts %}
-      <script src="/base/javascript/main.js"></script>
+      {% include_resource 'main' %}
     {% endblock -%}
   </body>
 </html>

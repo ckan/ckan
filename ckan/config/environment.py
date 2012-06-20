@@ -200,6 +200,7 @@ def load_environment(global_conf, app_conf):
                     lib.jinja_tags.SnippetExtension,
                     lib.jinja_tags.CkanExtend,
                     lib.jinja_tags.LinkForExtension,
+                    lib.jinja_tags.IncludeResourceExtension,
                     lib.jinja_tags.UrlForExtension]
     )
     env.install_gettext_callables(_, N_, newstyle=True)
