@@ -70,6 +70,253 @@ When merging a feature or bug branch into master:
 - Use the ``--no-ff`` option in the ``git merge`` command
 - Add an entry to the ``CHANGELOG`` file
 
+Python Coding Standards
+=======================
+
+For python code, we follow `PEP 8`_, plus a few of our own rules.  The
+important bits are laid out below, but if in doubt, refer to `PEP 8`_ and
+common sense.
+
+Layout and formatting
+---------------------
+
+- Don't use tabs.  Use 4 spaces.
+
+- Maximum line length is 79 characters.
+
+- Continuation lines should align vertically within the parentheses, or with
+  a hanging indent.  See `PEP 8's Indent Section`_ for more details.
+
+- Avoid extraneous whitespace.  See `PEP 8's Whitespace Section`_ for more details.
+
+- Clean up formatting issues in master, not on a feature branch.  Unless of
+  course you're changing that piece of code anyway.  This will help avoid
+  spurious merge conflicts, and aid in reading pull requests.
+
+- Use the single-quote character, ``'``, rather than the double-quote
+  character, ``"``, for string literals.
+
+.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
+.. _PEP 8's Indent Section: http://www.python.org/dev/peps/pep-0008/#indentation
+.. _PEP 8's Whitespace Section: http://www.python.org/dev/peps/pep-0008/#whitespace-in-expressions-and-statements
+
+Imports
+-------
+
+- Import whole modules, rather than using ``from foo import bar``.  It's ok
+  to alias imported modules to make things more concise, ie this *is*
+  acceptable: ::
+
+    import foo.bar.baz as f
+
+- Make all imports at the start of the file, after the module docstring.
+  Imports should be grouped in the following order:
+
+  1. Standard library imports
+  2. Third-party imports
+  3. CKAN imports
+
+Logging
+-------
+
+- Keep messages short.
+
+- Don't include object representations in the log message.  It **is** useful
+  to include an domain model identifier where appropriate.
+
+- Choose an appropriate log-level:
+
+  +----------+--------------------------------------------------------------+
+  | Level    | Description                                                  |
+  +==========+==============================================================+
+  | DEBUG    | Detailed information, of no interest when everything is      |
+  |          | working well but invaluable when diagnosing problems.        |
+  +----------+--------------------------------------------------------------+
+  | INFO     | Affirmations that things are working as expected, e.g.       |
+  |          | "service has started" or "indexing run complete". Often      |
+  |          | ignored.                                                     |
+  +----------+--------------------------------------------------------------+
+  | WARNING  | There may be a problem in the near future, and this gives    |
+  |          | advance warning of it. But the application is able to proceed|
+  |          | normally.                                                    |
+  +----------+--------------------------------------------------------------+
+  | ERROR    | The application has been unable to proceed as expected, due  |
+  |          | to the problem being logged.                                 |
+  +----------+--------------------------------------------------------------+
+  | CRITICAL | This is a serious error, and some kind of application        |
+  |          | meltdown might be imminent.                                  |
+  +----------+--------------------------------------------------------------+
+
+  (`Source
+  <http://plumberjack.blogspot.co.uk/2009/09/python-logging-101.html>`_)
+
+i18n
+----
+
+To construct an internationalised string, use `str.format`_, giving
+meaningful names to each replacement field.  For example: ::
+
+  _(' ... {foo} ... {bar} ...').format(foo='foo-value', bar='bar-value')
+
+.. _str.format: http://docs.python.org/library/stdtypes.html#str.format
+
+Docstring Standards
+-------------------
+
+We want CKAN's docstrings to be clear and easy to read for programmers who are
+smart and competent but who may not know a lot of CKAN technical jargon and
+whose first language may not be English. We also want it to be easy to maintain
+the docstrings and keep them up to date with the actual behaviour of the code
+as it changes over time. So:
+
+- Keep docstrings short, describe only what's necessary and no more
+- Keep docstrings simple, use plain English, try not to use a long word
+  where a short one will do, and try to cut out words where possible
+- Try to avoid repetition
+
+PEP 257
+```````
+
+Generally, follow `PEP 257`_. We'll only describe the ways that CKAN differs
+from or extends PEP 257 below.
+
+.. _PEP 257: http://www.python.org/dev/peps/pep-0257/
+
+CKAN docstrings deviate from PEP 257 in a couple of ways:
+
+- We use ``'''triple single quotes'''`` around docstrings, not ``"""triple
+  double quotes"""`` (put triple single quotes around one-line docstrings as
+  well as multi-line ones, it makes them easier to expand later)
+- We use Sphinx directives for documenting parameters, exceptions and return
+  values (see below)
+
+Sphinx
+``````
+Use `Sphinx directives`_ for documenting the parameters, exceptions and returns
+of functions:
+
+- Use ``:param`` and ``:type`` to describe each parameter
+- Use ``:returns`` and ``:rtype`` to describe each return
+- Use ``:raises`` to describe each exception raised
+
+Example of a short docstring:
+
+::
+
+    @property
+    def packages(self):
+        '''Return a list of all packages that have this tag, sorted by name.
+
+        :rtype: list of ckan.model.package.Package objects
+
+        '''
+
+Example of a longer docstring:
+
+::
+
+    @classmethod
+    def search_by_name(cls, search_term, vocab_id_or_name=None):
+        '''Return all tags whose names contain a given string.
+
+        By default only free tags (tags which do not belong to any vocabulary)
+        are returned. If the optional argument ``vocab_id_or_name`` is given
+        then only tags from that vocabulary are returned.
+
+        :param search_term: the string to search for in the tag names
+        :type search_term: string
+        :param vocab_id_or_name: the id or name of the vocabulary to look in
+            (optional, default: None)
+        :type vocab_id_or_name: string
+
+        :returns: a list of tags that match the search term
+        :rtype: list of ckan.model.tag.Tag objects
+
+        '''
+
+
+The phrases that follow ``:param foo:``, ``:type foo:``, or ``:returns:``
+should not start with capital letters or end with full stops. These should be
+short phrases and not full sentences. If more detail is required put it in the
+function description instead.
+
+Indicate optional arguments by ending their descriptions with (optional) in
+brackets. Where relevant also indicate the default value: (optional, default:
+5). It's also helpful to list all required parameters before optional ones.
+
+.. _Sphinx directives: http://sphinx.pocoo.org/markup/desc.html#info-field-lists
+
+You can also use a little inline `reStructuredText markup`_ in docstrings, e.g.
+``*stars for emphasis*`` or ``double-backticks for literal text``
+
+.. _reStructuredText markup: http://docutils.sourceforge.net/docs/user/rst/quickref.html#inline-markup
+
+CKAN Action API Docstrings
+``````````````````````````
+
+Docstrings from CKAN's action API are processed with `autodoc`_ and
+included in the API chapter of CKAN's documentation. The intended audience of
+these docstrings is users of the CKAN API and not (just) CKAN core developers.
+
+In the Python source each API function has the same two arguments (``context``
+and ``data_dict``), but the docstrings should document the keys that the
+functions read from ``data_dict`` and not ``context`` and ``data_dict``
+themselves, as this is what the user has to POST in the JSON dict when calling
+the API.
+
+Where practical, it's helpful to give examples of param and return values in
+API docstrings.
+
+CKAN datasets used to be called packages and the old name still appears in the
+source, e.g. in function names like package_list(). When documenting functions
+like this write dataset not package, but the first time you do this put package
+after it in brackets to avoid any confusion, e.g.
+
+::
+
+    def package_show(context, data_dict):
+        '''Return the metadata of a dataset (package) and its resources.
+
+Example of a ckan.logic.action API docstring:
+
+::
+
+    def vocabulary_create(context, data_dict):
+        '''Create a new tag vocabulary.
+
+        You must be a sysadmin to create vocabularies.
+
+        :param name: the name of the new vocabulary, e.g. ``'Genre'``
+        :type name: string
+        :param tags: the new tags to add to the new vocabulary, for the format of
+            tag dictionaries see ``tag_create()``
+        :type tags: list of tag dictionaries
+
+        :returns: the newly-created vocabulary
+        :rtype: dictionary
+
+        '''
+
+.. _Autodoc: http://sphinx.pocoo.org/ext/autodoc.html
+
+Tools
+-----
+
+Running the `PEP 8 style guide checker`_ is good for checking adherence to `PEP
+8`_ formatting.  As mentioned above, only perform style clean-ups on master to
+help avoid spurious merge conflicts.
+
+`PyLint`_ is a useful tool for analysing python source code for errors and signs of poor quality.
+
+`pyflakes`_ is another useful tool for passive analysis of python source code.
+There's also a `pyflakes vim plugin`_ which will highlight unused variables,
+undeclared variables, syntax errors and unused imports.
+
+.. _PEP 8 style guide checker: http://pypi.python.org/pypi/pep8
+.. _PyLint: http://www.logilab.org/857
+.. _pyflakes: http://pypi.python.org/pypi/pyflakes
+.. _pyflakes vim plugin: http://www.vim.org/scripts/script.php?script_id=2441
+
 Javascript Coding Standards
 ===========================
 
@@ -749,251 +996,4 @@ Resources
 .. _SMACSS: smacss.com
 .. _CSS for Grown Ups: schedule.sxsw.com/2012/events/event_IAP9410
 .. _slides: speakerdeck.com/u/andyhume/p/css-for-grown-ups-maturing-best-practises
-
-Python Coding Standards
-=======================
-
-For python code, we follow `PEP 8`_, plus a few of our own rules.  The
-important bits are laid out below, but if in doubt, refer to `PEP 8`_ and
-common sense.
-
-Layout and formatting
----------------------
-
-- Don't use tabs.  Use 4 spaces.
-
-- Maximum line length is 79 characters.
-
-- Continuation lines should align vertically within the parentheses, or with
-  a hanging indent.  See `PEP 8's Indent Section`_ for more details.
-
-- Avoid extraneous whitespace.  See `PEP 8's Whitespace Section`_ for more details.
-
-- Clean up formatting issues in master, not on a feature branch.  Unless of
-  course you're changing that piece of code anyway.  This will help avoid
-  spurious merge conflicts, and aid in reading pull requests.
-
-- Use the single-quote character, ``'``, rather than the double-quote
-  character, ``"``, for string literals.
-
-.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
-.. _PEP 8's Indent Section: http://www.python.org/dev/peps/pep-0008/#indentation
-.. _PEP 8's Whitespace Section: http://www.python.org/dev/peps/pep-0008/#whitespace-in-expressions-and-statements
-
-Imports
--------
-
-- Import whole modules, rather than using ``from foo import bar``.  It's ok
-  to alias imported modules to make things more concise, ie this *is*
-  acceptable: ::
-
-    import foo.bar.baz as f
-
-- Make all imports at the start of the file, after the module docstring.
-  Imports should be grouped in the following order:
-
-  1. Standard library imports
-  2. Third-party imports
-  3. CKAN imports
-
-Logging
--------
-
-- Keep messages short.
-
-- Don't include object representations in the log message.  It **is** useful
-  to include an domain model identifier where appropriate.
-
-- Choose an appropriate log-level:
-
-  +----------+--------------------------------------------------------------+
-  | Level    | Description                                                  |
-  +==========+==============================================================+
-  | DEBUG    | Detailed information, of no interest when everything is      |
-  |          | working well but invaluable when diagnosing problems.        |
-  +----------+--------------------------------------------------------------+
-  | INFO     | Affirmations that things are working as expected, e.g.       |
-  |          | "service has started" or "indexing run complete". Often      |
-  |          | ignored.                                                     |
-  +----------+--------------------------------------------------------------+
-  | WARNING  | There may be a problem in the near future, and this gives    |
-  |          | advance warning of it. But the application is able to proceed|
-  |          | normally.                                                    |
-  +----------+--------------------------------------------------------------+
-  | ERROR    | The application has been unable to proceed as expected, due  |
-  |          | to the problem being logged.                                 |
-  +----------+--------------------------------------------------------------+
-  | CRITICAL | This is a serious error, and some kind of application        |
-  |          | meltdown might be imminent.                                  |
-  +----------+--------------------------------------------------------------+
-
-  (`Source
-  <http://plumberjack.blogspot.co.uk/2009/09/python-logging-101.html>`_)
-
-i18n
-----
-
-To construct an internationalised string, use `str.format`_, giving
-meaningful names to each replacement field.  For example: ::
-
-  _(' ... {foo} ... {bar} ...').format(foo='foo-value', bar='bar-value')
-
-.. _str.format: http://docs.python.org/library/stdtypes.html#str.format
-
-Docstring Standards
--------------------
-
-We want CKAN's docstrings to be clear and easy to read for programmers who are
-smart and competent but who may not know a lot of CKAN technical jargon and
-whose first language may not be English. We also want it to be easy to maintain
-the docstrings and keep them up to date with the actual behaviour of the code
-as it changes over time. So:
-
-- Keep docstrings short, describe only what's necessary and no more
-- Keep docstrings simple, use plain English, try not to use a long word
-  where a short one will do, and try to cut out words where possible
-- Try to avoid repetition
-
-PEP 257
-```````
-
-Generally, follow `PEP 257`_. We'll only describe the ways that CKAN differs
-from or extends PEP 257 below.
-
-.. _PEP 257: http://www.python.org/dev/peps/pep-0257/
-
-CKAN docstrings deviate from PEP 257 in a couple of ways:
-
-- We use ``'''triple single quotes'''`` around docstrings, not ``"""triple
-  double quotes"""`` (put triple single quotes around one-line docstrings as
-  well as multi-line ones, it makes them easier to expand later)
-- We use Sphinx directives for documenting parameters, exceptions and return
-  values (see below)
-
-Sphinx
-``````
-Use `Sphinx directives`_ for documenting the parameters, exceptions and returns
-of functions:
-
-- Use ``:param`` and ``:type`` to describe each parameter
-- Use ``:returns`` and ``:rtype`` to describe each return
-- Use ``:raises`` to describe each exception raised
-
-Example of a short docstring:
-
-::
-
-    @property
-    def packages(self):
-        '''Return a list of all packages that have this tag, sorted by name.
-
-        :rtype: list of ckan.model.package.Package objects
-
-        '''
-
-Example of a longer docstring:
-
-::
-
-    @classmethod
-    def search_by_name(cls, search_term, vocab_id_or_name=None):
-        '''Return all tags whose names contain a given string.
-
-        By default only free tags (tags which do not belong to any vocabulary)
-        are returned. If the optional argument ``vocab_id_or_name`` is given
-        then only tags from that vocabulary are returned.
-
-        :param search_term: the string to search for in the tag names
-        :type search_term: string
-        :param vocab_id_or_name: the id or name of the vocabulary to look in
-            (optional, default: None)
-        :type vocab_id_or_name: string
-
-        :returns: a list of tags that match the search term
-        :rtype: list of ckan.model.tag.Tag objects
-
-        '''
-
-
-The phrases that follow ``:param foo:``, ``:type foo:``, or ``:returns:``
-should not start with capital letters or end with full stops. These should be
-short phrases and not full sentences. If more detail is required put it in the
-function description instead.
-
-Indicate optional arguments by ending their descriptions with (optional) in
-brackets. Where relevant also indicate the default value: (optional, default:
-5). It's also helpful to list all required parameters before optional ones.
-
-.. _Sphinx directives: http://sphinx.pocoo.org/markup/desc.html#info-field-lists
-
-You can also use a little inline `reStructuredText markup`_ in docstrings, e.g.
-``*stars for emphasis*`` or ``double-backticks for literal text``
-
-.. _reStructuredText markup: http://docutils.sourceforge.net/docs/user/rst/quickref.html#inline-markup
-
-CKAN Action API Docstrings
-``````````````````````````
-
-Docstrings from CKAN's action API are processed with `autodoc`_ and
-included in the API chapter of CKAN's documentation. The intended audience of
-these docstrings is users of the CKAN API and not (just) CKAN core developers.
-
-In the Python source each API function has the same two arguments (``context``
-and ``data_dict``), but the docstrings should document the keys that the
-functions read from ``data_dict`` and not ``context`` and ``data_dict``
-themselves, as this is what the user has to POST in the JSON dict when calling
-the API.
-
-Where practical, it's helpful to give examples of param and return values in
-API docstrings.
-
-CKAN datasets used to be called packages and the old name still appears in the
-source, e.g. in function names like package_list(). When documenting functions
-like this write dataset not package, but the first time you do this put package
-after it in brackets to avoid any confusion, e.g.
-
-::
-
-    def package_show(context, data_dict):
-        '''Return the metadata of a dataset (package) and its resources.
-
-Example of a ckan.logic.action API docstring:
-
-::
-
-    def vocabulary_create(context, data_dict):
-        '''Create a new tag vocabulary.
-
-        You must be a sysadmin to create vocabularies.
-
-        :param name: the name of the new vocabulary, e.g. ``'Genre'``
-        :type name: string
-        :param tags: the new tags to add to the new vocabulary, for the format of
-            tag dictionaries see ``tag_create()``
-        :type tags: list of tag dictionaries
-
-        :returns: the newly-created vocabulary
-        :rtype: dictionary
-
-        '''
-
-.. _Autodoc: http://sphinx.pocoo.org/ext/autodoc.html
-
-Tools
------
-
-Running the `PEP 8 style guide checker`_ is good for checking adherence to `PEP
-8`_ formatting.  As mentioned above, only perform style clean-ups on master to
-help avoid spurious merge conflicts.
-
-`PyLint`_ is a useful tool for analysing python source code for errors and signs of poor quality.
-
-`pyflakes`_ is another useful tool for passive analysis of python source code.
-There's also a `pyflakes vim plugin`_ which will highlight unused variables,
-undeclared variables, syntax errors and unused imports.
-
-.. _PEP 8 style guide checker: http://pypi.python.org/pypi/pep8
-.. _PyLint: http://www.logilab.org/857
-.. _pyflakes: http://pypi.python.org/pypi/pyflakes
-.. _pyflakes vim plugin: http://www.vim.org/scripts/script.php?script_id=2441
 
