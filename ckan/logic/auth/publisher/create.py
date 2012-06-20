@@ -32,9 +32,16 @@ def related_create(context, data_dict=None):
 
 
 def resource_create(context, data_dict):
-    # resource create runs through package_update, so no need to repeat check.  Only here
-    # if extensions need to override this seperately.
-    return {'success': True}
+    # resource_create runs through package_update, no need to
+    # check users eligibility to add resource to package here
+    model = context['model']
+    user = context['user']
+    userobj = model.User.get(user)
+
+    if userobj:
+        return {'success': True}
+    return {'success': False,
+            'msg': _('You must be logged in to create a resource')}
 
 def package_relationship_create(context, data_dict):
     """
