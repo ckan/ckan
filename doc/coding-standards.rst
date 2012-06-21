@@ -280,7 +280,7 @@ brackets. Where relevant also indicate the default value: (optional, default:
 .. _Sphinx directives: http://sphinx.pocoo.org/markup/desc.html#info-field-lists
 
 You can also use a little inline `reStructuredText markup`_ in docstrings, e.g.
-``*stars for emphasis*`` or ``double-backticks for literal text``
+``*stars for emphasis*`` or ````double-backticks for literal text````
 
 .. _reStructuredText markup: http://docutils.sourceforge.net/docs/user/rst/quickref.html#inline-markup
 
