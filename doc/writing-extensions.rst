@@ -334,10 +334,41 @@ e.g. here is the order for these four extensions: ``<Plugin DguInventoryPlugin>`
 
 
 Plugin API Documentation
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
+
+Libraries Available To Extensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As well as using the variables made available to them by implementing various
+plugin hooks, extensions will likely want to be able to use parts of the CKAN
+core library.  To allow this, CKAN provides a stable set of modules that
+extensions can use safe in the knowledge the interface will remain stable,
+backward-compatible and with clear deprecation guidelines as development of
+CKAN core progresses.  This interface is available in
+``ckan.plugins.toolkit.toolkit``.
+
+Guidelines for writing extensions:
+
+- Use the plugins toolkit, described above.
+
+- Extensions should use actions where possible via ``get_action()``.
+
+- No foreign key constraints into core as these cause problems.
+  
+.. Did we decide upon this, this seems like quite a restriction?
+
+- The ``Session`` object is available through the toolkit.
+
+.. todo:: Anything else?
+
+Core Plugin Reference
+~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: ckan.plugins.core
         :members:
+
+CKAN Interface Reference
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: ckan.plugins.interfaces
         :members:

@@ -552,6 +552,12 @@ Templating
 
 *TODO*
 
+Writing Extensions
+------------------
+
+Please see :doc:`writing-extensions` for information about writing ckan
+extensions, including details on the API available to extensions.
+
 
 Javascript Coding Standards
 ===========================
