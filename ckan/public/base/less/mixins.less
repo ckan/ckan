@@ -56,14 +56,18 @@
 }
 
 .simple-item {
+  font-size: 12px;
+  line-height: 14 / 12em;
   padding: 7px @gutterX;
   border-bottom: 1px dotted #ccc;
+  &:last-of-type {
+    border-bottom: 0;
+  }
 }
 
 .simple-list {
   .clearfix;
   .unstyled;
-  padding-bottom: 7px;
 
   & > li {
     .simple-item;

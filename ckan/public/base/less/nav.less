@@ -3,16 +3,10 @@
   padding-bottom: 0;
 }
 
-.nav-item:last-of-type {
-  border-bottom: 0;
-}
-
 .nav-item > a {
   color: @navLinkColor;
   margin: -7px -@gutterX;
   padding: 7px @gutterX;
-  font-size: 12px;
-  line-height: 14px; // keeps the overall height an even number
 }
 
 .nav-item.active {
@@ -34,9 +28,8 @@
 }
 
 .nav-item [class^=icon] {
-  position: relative;
   font-size: 1.2em;
-  left: -1px;
+  margin: -1px 0 -1px -1px;
 }
 
 .module-narrow .nav-item > a {
