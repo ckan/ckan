@@ -2,7 +2,7 @@
 
 {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large']) }}
 
-{{ form.input('name', id='field-name', label=_('URL'), placeholder=_('eg. my-dataset'), value=data.title, error=errors.name, classes=['control-full']) }}
+{{ form.prepend('name', id='field-name', label=_('URL'), prepend=h.url(controller='package', action='index') ~ '/', placeholder=_('eg. my-dataset'), value=data.title, error=errors.name) }}
 
 {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes) }}
 
