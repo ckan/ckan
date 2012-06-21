@@ -18,7 +18,7 @@
 {% block primary_content %}
   <section class="module">
     <div class="module-content">
-      {% include "package/partials/search_form.html" %}
+      {% include "package/snippets/search_form.html" %}
     </div>
     {{ c.page.pager(q=c.q) }}
   </section>
@@ -42,5 +42,5 @@
 
 {% block links %}
   {{ super() }}
-  {% include "group/partials/feeds.html" %}
+  {% include "group/snippets/feeds.html" %}
 {% endblock %}
