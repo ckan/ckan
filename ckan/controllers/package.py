@@ -119,23 +119,20 @@ class PackageController(BaseController):
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
 
         def drill_down_url(alternative_url=None, **by):
-            params = set(params_nopage)
-            params |= set(by.items())
-            if alternative_url:
-                return url_with_params(alternative_url, params)
-            return search_url(params)
+            return h.drill_down_url(alternative_url=alternative_url,
+                                    controller='package', action='search', **by)
 
         c.drill_down_url = drill_down_url
 
-        def remove_field(key, value):
-            params = list(params_nopage)
-            params.remove((key, value))
-            return search_url(params)
+        def remove_field(key, value=None, replace=None):
+            return h.remove_field(key, value=value, repace=replace,
+                                  controller='package', action='search')
 
         c.remove_field = remove_field
 
         sort_by = request.params.get('sort', None)
         params_nosort = [(k, v) for k,v in params_nopage if k != 'sort']
+
         def _sort_by(fields):
             """
             Sort by the given list of fields.
@@ -152,6 +149,7 @@ class PackageController(BaseController):
                 sort_string = ', '.join( '%s %s' % f for f in fields )
                 params.append(('sort', sort_string))
             return search_url(params)
+
         c.sort_by = _sort_by
         if sort_by is None:
             c.sort_by_fields = []
