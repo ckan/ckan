@@ -19,7 +19,7 @@
   <article class="module profile">
     <div class="module-content profile-info">
       <header class="media">
-        <span class="image">{{ h.linked_gravatar(user.email_hash, 150) }}</span>
+        <span class="media-image">{{ h.linked_gravatar(user.email_hash, 150) }}</span>
         <div class="description">
           <h1 class="heading">{{ user.fullname or _('No full name provided') }}</h1>
           {% if user.about_formatted %}

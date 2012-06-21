@@ -13,11 +13,11 @@ Example:
 {% with truncate=truncate or 0, url=h.url_for(controller='group', action='read', id=group.name) %}
   <section class="module module-narrow module-shallow group">
     <div class="module-content media media-vertical">
-      <a class="image" href="{{ url }}">
+      <a class="media-image" href="{{ url }}">
         <img src="{{ group.image_url or h.url_for('/base/images/placeholder-group.png') }}" width="200" height="125" />
       </a>
-      <div class="content">
-        <h3><a href={{ url }}>{{ group.title or group.name }}</a></h3>
+      <div class="media-content">
+        <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>
         {% if group.description %}
           {% if truncate_description %}
             <p>{{ group.description }}</p>

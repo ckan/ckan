@@ -3,29 +3,31 @@
   overflow: hidden;
 }
 
-.media .content {
+.media-content {
 }
 
-.media .content:before,
-.media .content:after {
+.media-content:before,
+.media-content:after {
 }
 
-.media .content > :last-child {
+.media-content > :last-child {
   margin-bottom: 0;
 }
 
-.media .content > .heading {
+.media-heading {
   font-size: 14px;
+  line-height: 1.3em;
+  margin: 5px 0;
 }
 
-.media .image {
+.media-image {
   position: relative;
   float: left;
   margin-right: 10px;
   overflow: hidden;
 }
 
-.media .image:after {
+.media-image:after {
   .box-shadow(inset 0 0 2px rgba(0, 0, 0, 0.3));
   content: "";
   position: absolute;
@@ -36,18 +38,18 @@
   z-index: 1;
 }
 
-.media .image img {
+.media-image img {
   display: block;
   margin: 0 auto;
 }
 
-.media-vertical .image,
-.media-vertical .content {
+.media-vertical .media-image,
+.media-vertical .media-content {
   float: none;
   display: block;
 }
 
-.media-vertical .image {
+.media-vertical .media-image {
   margin-right: 0;
   max-height: 125px;
 }
@@ -71,7 +73,7 @@ ol.media-grid {
   clear: left;
 }
 
-.media-grid .media > .content {
+.media-grid .media .media-content {
   min-height: 63px;
 }
 
@@ -90,26 +92,17 @@ ol.media-grid {
   position: relative;
 }
 
-.media-overlay .heading {
+.media-overlay .media-heading {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 3px 10px;
+  padding: 7px 10px;
+  margin: 0;
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.8);
   font-size: 14px;
   color: #fff;
-}
-
-// Module
-
-.media.module {
-  padding: 0;
-}
-
-.media.module > .heading {
-  background: none;
 }
 
 // Banner
@@ -126,6 +119,7 @@ ol.media-grid {
   -o-transform-origin: @arguments;
   transform-origin: @arguments;
 }
+
 .banner {
   .transform(rotate(45deg));
   .transform-origin(center, center);
