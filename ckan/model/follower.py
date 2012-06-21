@@ -37,13 +37,13 @@ class UserFollowingUser(domain_object.DomainObject):
 
     @classmethod
     def followed_count(cls, follower_id):
-        '''Return the number of the users being followed by a user.'''
+        '''Return the number of the users followed by a user.'''
         return meta.Session.query(UserFollowingUser).filter(
                 UserFollowingUser.follower_id == follower_id).count()
 
     @classmethod
     def followed_list(cls, follower_id):
-        '''Return a list of the users being followed by a user.'''
+        '''Return a list of the users followed by a user.'''
         return meta.Session.query(UserFollowingUser).filter(
                 UserFollowingUser.follower_id == follower_id).all()
 
@@ -110,13 +110,13 @@ class UserFollowingDataset(domain_object.DomainObject):
 
     @classmethod
     def followed_count(cls, follower_id):
-        '''Return the number of the datasets being followed by a user.'''
+        '''Return the number of the datasets followed by a user.'''
         return meta.Session.query(UserFollowingDataset).filter(
                 UserFollowingDataset.follower_id == follower_id).count()
 
     @classmethod
     def followed_list(cls, follower_id):
-        '''Return a list of the datasets being followed by a user.'''
+        '''Return a list of the datasets followed by a user.'''
         return meta.Session.query(UserFollowingDataset).filter(
                 UserFollowingDataset.follower_id == follower_id).all()
 
