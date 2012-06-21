@@ -68,7 +68,6 @@ textarea {
 .control-large input,
 .control-large .control-label {
   font-size: 18px;
-  line-height: 2;
 }
 
 .control-large input {
@@ -99,7 +98,20 @@ textarea {
 
 // Override the default form widths.
 .form-horizontal .control-label {
-  width: 115px;
+  width: 120px;
+  font-size: 13px;
+  line-height: 1.3;
+  padding-top: 12px;
+}
+
+.form-horizontal .control-large input,
+.form-horizontal .control-large .control-label {
+  font-size: 18px;
+  line-height: 2;
+}
+
+.form-horizontal .control-large .control-label {
+  padding-top: 10px;
 }
 
 .form-horizontal .controls {
@@ -185,7 +197,6 @@ textarea {
 .editor textarea {
   .border-radius(@inputBorderRadius @inputBorderRadius 0 0);
   border-bottom: none;
-  font-size: 12px;
 }
 
 .editor .info-block {
