@@ -511,6 +511,7 @@ left arrow <
 
         model.repo.commit_and_remove()
 
+    # method used in DGU and all good tests elsewhere
     @classmethod
     def create_users(cls, user_dicts):
         needs_commit = False
