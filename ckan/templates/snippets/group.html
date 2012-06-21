@@ -1,9 +1,21 @@
-<section class="module module-narrow module-shallow group">
-  <div class="module-content">
-    <a href="{{ h.url_for(controller='group', action='read', id=group.name) }}">
-      <img src="{{ group.image_url or "http://placehold.it/200x125" }}" width="200" height="125" />
-      <h3>{{ group.name }}</h3>
-    </a>
-    <p>{{ h.markdown_extract(group.description, 70) }}</p>
-  </div>
-</section>
+{% with truncate=truncate or 0, url=h.url_for(controller='group', action='read', id=group.name) %}
+  <section class="module module-narrow module-shallow group">
+    <div class="module-content media media-vertical">
+      <a class="image" href="{{ url }}">
+        <img src="{{ group.image_url or h.url_for('/base/images/placeholder-group.png') }}" width="200" height="125" />
+      </a>
+      <div class="content">
+        <h3><a href={{ url }}>{{ group.title or group.name }}</a></h3>
+        {% if group.description %}
+          {% if truncate_description %}
+            <p>{{ group.description }}</p>
+          {% else %}
+            <p>{{ h.markdown_extract(group.description, truncate) }}</p>
+          {% endif %}
+        {% else %}
+          <p class="empty">{{ _('There is no description for this group') }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endwith %}
