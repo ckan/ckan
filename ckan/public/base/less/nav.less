@@ -72,9 +72,8 @@
 // FACET NAVIGATION
 
 .nav-facet .nav-item > a:hover:after,
-.nav-facet .nav-item >.active > a:hover:after {
+.nav-facet .nav-item.active > a:after {
   .ckan-icon;
-  .ckan-icon-circle-add;
   content: "";
   position: absolute;
   top: 50%;
@@ -86,7 +85,7 @@
   .ckan-icon-circle-add;
 }
 
-.nav-facet .nav-item > a:hover:after {
+.nav-facet .nav-item.active > a:after {
   .ckan-icon-circle-cross;
   right: 3px;
 }
