@@ -541,32 +541,6 @@ def get_facet_title(name):
 def get_param_int(name, default=10):
     return int(request.params.get(name, default))
 
-def remove_field(key, value=None, replace=None):
-    """
-    Remove a key from the current search parameters. A specific
-    key/value pair can be removed by passing a second value argument
-    otherwise all pairs matching the key will be removed.
-    If replace is given then a new param key=replace will be added.
-    """
-    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
-    params = list(params_nopage)
-    if value:
-        params.remove((key, value))
-    else:
-      [params.remove((k, v)) for (k, v) in params[:] if k==key]
-    if replace is not None:
-        params.append((key, replace))
-    return _search_url(params)
-
-def drill_down_url(alternative_url=None, **by):
-    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
-    params = set(params_nopage)
-    params |= set(by.items())
-    if alternative_url:
-        return _url_with_params(alternative_url, params)
-    return _search_url(params)
-
-
 def _url_with_params(url, params):
     if not params:
         return url
@@ -1020,6 +994,100 @@ def convert_to_dict(object_type, objs):
         items.append(item)
     return items
 
+# these are the types of objects that can be followed
+_follow_objects = ['dataset', 'user']
+
+def follow_button(obj_type, obj_id):
+    '''Return a follow button for the given object type and id.
+
+    If the user is not logged in return an empty string instead.
+
+    :param obj_type: the type of the object to be followed when the follow
+        button is clicked, e.g. 'user' or 'dataset'
+    :type obj_type: string
+    :param obj_id: the id of the object to be followed when the follow button
+        is clicked
+    :type obj_id: string
+
+    :returns: a follow button as an HTML snippet
+    :rtype: string
+
+    '''
+    import ckan.logic as logic
+    obj_type = obj_type.lower()
+    assert obj_type in _follow_objects
+    # If the user is logged in show the follow/unfollow button
+    if c.user:
+        context = {'model' : model, 'session':model.Session, 'user':c.user}
+        action = 'am_following_%s' % obj_type
+        following = logic.get_action(action)(context, {'id': obj_id})
+        return snippet('snippets/follow_button.html',
+                       following=following,
+                       obj_id=obj_id,
+                       obj_type=obj_type)
+    return ''
+
+def follow_count(obj_type, obj_id):
+    '''Return the number of followers of an object.
+
+    :param obj_type: the type of the object, e.g. 'user' or 'dataset'
+    :type obj_type: string
+    :param obj_id: the id of the object
+    :type obj_id: string
+
+    :returns: the number of followers of the object
+    :rtype: int
+
+    '''
+    import ckan.logic as logic
+    obj_type = obj_type.lower()
+    assert obj_type in _follow_objects
+    action = '%s_follower_count' % obj_type
+    context = {'model' : model, 'session':model.Session, 'user':c.user}
+    return logic.get_action(action)(context, {'id': obj_id})
+
+def _create_url_with_params(params=None, controller=None, action=None):
+    ''' internal function for building urls '''
+    def _encode_params(params):
+        return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                                      for k, v in params]
+
+    def url_with_params(url, params):
+        params = _encode_params(params)
+        return url + u'?' + urlencode(params)
+
+    if not controller:
+        controller = c.controller
+    if not action:
+        action = c.action
+    # can I just set the params here?
+    url = url_for(controller=controller, action=action)
+    return url_with_params(url, params)
+
+def drill_down_url(alternative_url=None, controller=None, action=None, **by):
+    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+    params = set(params_nopage)
+    params |= set(by.items())
+    if alternative_url:
+        return url_with_params(alternative_url, params)
+    return _create_url_with_params(params=params, controller=controller, action=action)
+
+def remove_field(key, value=None, replace=None, controller=None, action=None):
+    """
+    Remove a key from the current search parameters. A specific
+    key/value pair can be removed by passing a second value argument
+    otherwise all pairs matching the key will be removed.
+    If replace is given then a new param key=replace will be added.
+    """
+    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+    params = list(params_nopage)
+    if value:
+        params.remove((key, value))
+    else:
+      [params.remove((k, v)) for (k, v) in params[:] if k==key]
+    if replace is not None:
+        params.append((key, replace))
+    return _create_url_with_params(params=params, controller=controller, action=action)
 
 def include_resource(resource):
     r = getattr(html_resources, resource)
@@ -1129,11 +1197,13 @@ __allowed_functions__ = [
            'full_current_url',
            'popular',
            'debug_full_info_as_list',
-           'remove_field',
-           'drill_down_url',
            'get_facet_title',
            'get_param_int',
            'sorted_extras',
+           'follow_button',
+           'follow_count',
+           'remove_field',
+           'drill_down_url',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',

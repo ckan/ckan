@@ -31,6 +31,8 @@ from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
 
+log = logging.getLogger(__name__)
+
 PAGINATE_ITEMS_PER_PAGE = 50
 
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
@@ -176,6 +178,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         response.headers["Cache-Control"] = "private"
         # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
+    log.debug('Template cache-control: %s' % response.headers["Cache-Control"])
 
     # Render Time :)
     try:

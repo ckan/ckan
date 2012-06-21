@@ -147,27 +147,16 @@ class GroupController(BaseController):
             return url + u'?' + urlencode(params)
 
         def drill_down_url(**by):
-            params = list(params_nopage)
-            params.extend(by.items())
-            return search_url(set(params))
+            return h.drill_down_url(alternative_url=None,
+                                    controller='group', action='read',
+                                    id=c.group_dict.get('name'), **by)
 
         c.drill_down_url = drill_down_url
 
         def remove_field(key, value=None, replace=None):
-            """
-            Remove a key from the current search parameters. A specific
-            key/value pair can be removed by passing a second value argument
-            otherwise all pairs matching the key will be removed.
-            If replace is given then a new param key=replace will be added.
-            """
-            params = list(params_nopage)
-            if value:
-                params.remove((key, value))
-            else:
-              [params.remove((k, v)) for (k, v) in params[:] if k==key]
-            if replace is not None:
-                params.append((key, replace))
-            return search_url(params)
+            return h.remove_field(key, value=value, replace=replace,
+                                  controller='group', action='read',
+                                  id=c.group_dict.get('name'))
 
         c.remove_field = remove_field
 
