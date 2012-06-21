@@ -493,7 +493,59 @@ And the following is run after to make sure that row count is the same: ::
 The Action Layer
 ----------------
 
-*TODO*
+When making changes to the action layer, found in the four modules
+``ckan/logic/action/{create,delete,get,update}`` there are a few things to bear
+in mind.
+
+Server Errors
+`````````````
+
+When writing action layer code, bear in mind that the input provided in the
+``data_dict`` may be user-provided.  This means that required fields should be
+checked for existence and validity prior to use.  For example, code such as ::
+
+  id = data_dict['id']
+
+will raise a ``KeyError`` if the user hasn't provided an ``id`` field in their
+data dict.  This results in a 500 error, and no message to explain what went
+wrong.  The correct response by the action function would be to raise a
+``ValidationError`` instead, as this will be caught and will provide the user
+with a `bad request` response, alongside an error message explaining the issue.
+
+To this end, there's a helper function, ``logic.get_or_bust()`` which can be
+used to safely retrieve a value from a dict: ::
+
+  id = _get_or_bust(data_dict, "id")
+
+Function visibility
+```````````````````
+
+**All** publicly visible functions in the
+``ckan.logic.action.{create,delete,get,update}`` namespaces will be exposed
+through the :doc:`apiv3`.  **This includes functions imported** by those
+modules, **as well as any helper functions** defined within those modules.  To
+prevent inadvertent exposure of non-action functions through the action api,
+care should be taken to:
+
+1. Import modules correctly (see `Imports`_).  For example: ::
+
+     import ckan.lib.search as search
+
+     search.query_for(...)
+
+2. Hide any locally defined helper functions: ::
+
+     def _a_useful_helper_function(x, y, z):
+        '''This function is not exposed because it is marked as private```
+        return x+y+z
+
+3. Bring imported convenience functions into the module namespace as private
+   members: ::
+
+     _get_or_bust = logic.get_or_bust
+
+Controllers
+-----------
 
 Templating
 ----------
