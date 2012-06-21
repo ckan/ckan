@@ -9,6 +9,7 @@ from webhelpers.html.builder import literal
 from ckan.lib.base import BaseController
 from ckan.lib.base import render
 
+
 class ErrorController(BaseController):
 
     """Generates error documents as and when they are required.
@@ -33,9 +34,11 @@ class ErrorController(BaseController):
         if original_request and original_request.path.startswith('/api'):
             return original_response.body
         # Otherwise, decorate original response with error template.
-        c.content = literal(original_response.unicode_body) or cgi.escape(request.GET.get('message', ''))
-        c.prefix=request.environ.get('SCRIPT_NAME', ''),
-        c.code=cgi.escape(request.GET.get('code', str(original_response.status_int))),
+        c.content = literal(original_response.unicode_body) or \
+            cgi.escape(request.GET.get('message', ''))
+        c.prefix = request.environ.get('SCRIPT_NAME', ''),
+        c.code = cgi.escape(request.GET.get('code',
+                            str(original_response.status_int))),
         return render('error_document_template.html')
 
     def img(self, id):
