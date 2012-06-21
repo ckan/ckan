@@ -614,8 +614,9 @@ class PackageController(BaseController):
         out = []
         for tag in tag_string.split(','):
             tag = tag.strip()
-            out.append({'name': tag,
-                        'state': 'active',})
+            if tag:
+                out.append({'name': tag,
+                            'state': 'active',})
         return out
 
     def _save_new(self, context, package_type=None):
