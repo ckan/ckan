@@ -18,7 +18,7 @@
     <div class="module-content">
       <h1 class="page-heading">{{ _('Related Media for {dataset}').format(dataset=h.dataset_display_name(c.pkg)) }}</h1>
       {% if pkg.related %}
-        {% include "related/partials/related_list.html" %}
+        {% include "related/snippets/related_list.html" %}
       {% else %}
         <p class="empty">No related items</p>
       {% endif %}

@@ -7,7 +7,7 @@
 
 {% block primary_content %}
   <div class="module">
-    <div class="content">
+    <div class="module-content">
       <h1 class="page-heading">{% block page_heading %}{{ _('Group Form') }}{% endblock %}</h1>
       {% block form %}
         {{ c.form | safe }}
@@ -18,8 +18,8 @@
 
 {% block secondary_content %}
   <div class="module module-narrow module-shallow">
-    <h2 class="heading"><i class="icon-large icon-info-sign"></i> {{ _('What are Groups?') }}</h2>
-    <div class="content">
+    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What are Groups?') }}</h2>
+    <div class="module-content">
       {% trans %}
         <p>Whilst tags are great at collecting datasets together, there are
         occasions when you want to restrict users from editing a collection.</p>

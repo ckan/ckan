@@ -37,7 +37,7 @@
     <section class="module-content">
       <h1>{{ pkg.title or pkg.name }}</h1>
       {% if c.pkg_notes_formatted %}
-        <div class="notes">
+        <div class="notes embedded-content">
           {{ c.pkg_notes_formatted }}
         </div>
       {% endif %}
@@ -69,14 +69,14 @@
 
 {% block secondary_content %}
   {% for group in pkg.groups %}
-    {% snippet "snippets/group.html", group=group %}
+    {% snippet "snippets/group.html", group=group, truncate=70 %}
   {% endfor %}
 
   {% snippet "snippets/subscribe.html" %}
 
   {% snippet "snippets/social.html" %}
 
-  {% snippet "snippets/related.html", pkg=pkg %}
+  {% snippet "snippets/related.html", item=pkg.related|first, pkg=pkg %}
 
   {% snippet "snippets/license.html", pkg_dict=pkg %}
 

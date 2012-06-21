@@ -68,7 +68,6 @@ textarea {
 .control-large input,
 .control-large .control-label {
   font-size: 18px;
-  line-height: 2;
 }
 
 .control-large input {
@@ -76,8 +75,8 @@ textarea {
 
 .form-actions {
   background: none;
-  margin-left: -@gutter-x;
-  margin-right: -@gutter-x;
+  margin-left: -@gutterX;
+  margin-right: -@gutterX;
   margin-bottom: 0; // Prevents reduces the padding when included in a module.
   padding-bottom: 0;
   text-align: right;
@@ -99,11 +98,23 @@ textarea {
 
 // Override the default form widths.
 .form-horizontal .control-label {
-  width: 115px;
+  width: 120px;
+  line-height: 1.3;
+  padding-top: 9px;
+}
+
+.form-horizontal .control-large input,
+.form-horizontal .control-large .control-label {
+  font-size: 18px;
+  line-height: 2;
+}
+
+.form-horizontal .control-large .control-label {
+  padding-top: 10px;
 }
 
 .form-horizontal .controls {
-  margin-left: 125px;
+  margin-left: 130px;
 }
 
 .form-horizontal .info-block {
@@ -129,8 +140,8 @@ textarea {
 }
 
 .form-horizontal .form-actions {
-  padding-left: @gutter-x;
-  padding-right: @gutter-x;
+  padding-left: @gutterX;
+  padding-right: @gutterX;
 }
 
 .form-inline input {
@@ -161,7 +172,6 @@ textarea {
 }
 
 .simple-input .field input {
-  .box-sizing(border-box);
   width: 100%;
   height: auto;
   margin: 0 -7px; // Pull input out into gutter
@@ -186,7 +196,6 @@ textarea {
 .editor textarea {
   .border-radius(@inputBorderRadius @inputBorderRadius 0 0);
   border-bottom: none;
-  font-size: 12px;
 }
 
 .editor .info-block {
@@ -223,6 +232,10 @@ textarea {
   width: 150px;
 }
 
+.control-custom input:last-of-type {
+  .border-radius(0 3px 3px 0);
+}
+
 .control-custom .checkbox {
   display: inline-block;
   margin-left: 5px;
@@ -235,7 +248,7 @@ textarea {
 // Errors
 
 .alert-danger a, .alert-error a {
-  color: @error-text;
+  color: @errorText;
 }
 
 .control-group.error input,
@@ -243,26 +256,25 @@ textarea {
 .control-group.error textarea,
 .control-group.error .input-prepend .add-on,
 .control-group.error .input-append .add-on {
-  border-color: @error-border;
+  border-color: @errorBorder;
+}
+
+.error-inline {
+  color: @errorText;
+}
+
+.error-block,
+.error-inline {
+  font-size: 12px;
 }
 
 .error-block {
-  .border-radius(0 0 @input-border-radius @input-border-radius);
+  .border-radius(0 0 @inputBorderRadius @inputBorderRadius);
   display: block;
   padding: 6px 8px 3px;
-  background: @error-border;
-  margin: -@input-border-radius 0 0;
-  color: @input-background;
-  width: 216px;
-}
-
-.error-block {
-  .border-radius(0 0 @input-border-radius @input-border-radius);
-  display: block;
-  padding: 6px 8px 3px;
-  background: @error-border;
-  margin: -@input-border-radius 0 0;
-  color: @input-background;
+  background: @errorBorder;
+  margin: -@inputBorderRadius 0 0;
+  color: @inputBackground;
   width: 216px;
 }
 
@@ -274,9 +286,18 @@ textarea {
   width: auto;
 }
 
-.control-group.error .input-prepend .error-block {
+.control-group.error .input-prepend .error-block,
+.control-custom.error .error-block {
   margin-left: -1px;
   width: auto;
+}
+
+.control-custom.error .error-block {
+  width: 429px;
+}
+
+.control-select.error .error-block {
+  width: 204px;
 }
 
 // Stages
@@ -289,7 +310,7 @@ textarea {
   .clearfix;
   color: #aeaeae;
   counter-reset: stage;
-  margin: -@gutter-y -@gutter-x @gutter-y;
+  margin: -@gutterY -@gutterX @gutterY;
   overflow: hidden;
 }
 

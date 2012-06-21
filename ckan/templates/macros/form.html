@@ -37,15 +37,16 @@ classes     - An array of classes to apply to the control-group.
 Example:
 
   {% import 'macros/form.html' as form %}
-  {{ form.checbox('remember', checked=true) }}
+  {{ form.checkbox('remember', checked=true) }}
 
 #}
 {% macro checkbox(name, id='', label='', value='', checked=false, placeholder='', error="", classes=[], attrs={}) %}
-  <div class="control-group{{ " " ~ classes | join(" ") }}">
+  <div class="control-group{{ " " ~ classes | join(" ") }}{% if error %} error{% endif %}">
     <div class="controls">
       <label class="checkbox" for="{{ id or name }}">
         <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | e }}" {{ "checked " if checked }}{{ attributes(attrs) }} />
         {{ label or name }}
+        {% if error %}<strong class="error-inline">{{ error }}</strong>{% endif %}
       </label>
     </div>
   </div>
@@ -70,6 +71,9 @@ Examples:
 
 #}
 {% macro select(name, id='', label='', options='', selected='', error='', classes=[]) %}
+  {% set classes = (classes|list) %}
+  {% do classes.append('control-select') %}
+
   {% call block(id or name, label or name, error, classes) %}
     <select id="{{ id or name }}" name="{{ name }}">
       {% for value, text in options.items() %}
@@ -100,6 +104,7 @@ Examples:
 {% macro markdown(name, id='', label='', value='', placeholder='', error="", classes=[]) %}
   {% set classes = (classes|list) %}
   {% do classes.append('control-full') %}
+
   {% call block(id or name, label or name, error, classes, control_classes=["editor"]) %}
     <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}">{{ value | e }}</textarea>
     <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
@@ -131,11 +136,11 @@ Examples:
   {# We manually append the error here as it needs to be inside the .input-prepend block #}
   {% set classes = (classes|list) %}
   {% do classes.append('error') if error %}
-  {% call block(id or name, label or name, error=[], classes=classes) %}
+  {% call block(id or name, label or name, error='', classes=classes) %}
     <div class="input-prepend">
       {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
       <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
-      {% if error %}<span class="error-block">{{ error | join(', ') }}</span>{% endif %}
+      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
     </div>
   {% endcall %}
 {% endmacro %}
@@ -171,13 +176,16 @@ Examples:
   {% set classes = (classes|list) %}
   {% set label_id = (id or names[0]) ~ "-key" %}
   {% do classes.append('control-custom') %}
+
   {% call block(label_id, label or name, error, classes, control_classes=["editor"]) %}
     <div class="input-prepend">
       <label for="{{ label_id }}" class="add-on">Key</label><input id="{{ id or names[0] }}-key" name="{{ names[0] }}" value="{{ values[0] | e }}" placeholder="{{ placeholders[0] }}" />
       <label for="{{ id or names[1] }}-value" class="add-on">Value</label><input id="{{ id or names[1] }}-value" name="{{ names[1] }}" value="{{ values[1] | e }}" placeholder="{{ placeholders[1] }}" />
-      <label class="checkbox" for="{{ id or names[2] }}-remove">
-        <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} /> {{ _('Remove') }}
-      </label>
+      {% if values[0] or values[1] or error %}
+        <label class="checkbox" for="{{ id or names[2] }}-remove">
+          <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} /> {{ _('Remove') }}
+        </label>
+      {% endif %}
     </div>
   {% endcall %}
 {% endmacro %}
@@ -206,7 +214,7 @@ Example:
     <label class="control-label" for="{{ for }}">{{ label or _('Custom') }}</label>
     <div class="controls{{ " " ~ control_classes | join(' ') }}">
       {{ caller() }}
-      {% if error %}<span class="error-block">{{ error | join(', ') }}</span>{% endif %}
+      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
     </div>
   </div>
 {% endmacro %}

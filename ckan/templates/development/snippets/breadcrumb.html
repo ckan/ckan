@@ -1,0 +1,7 @@
+<div class="toolbar">
+  <ol class="breadcrumb">
+    <li class="home"><a href="#"><i class="icon-large icon-home"></i><span class="hide-text"> Home</span></a></li>
+    {% if stage > 1 %}<li{% if stage == 2 %} class="active"{% endif %}><a href="#">{% if stage == 2 %}Active {% endif %}Breadcrumb Item</a></li>{% endif %}
+    {% if stage > 2 %}<li class="active"><a href="#">Active Breadcrumb Item</a></li>{% endif %}
+  </ol>
+</div>
