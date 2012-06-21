@@ -189,6 +189,33 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/package_create', params=postparams,
                                      status=StatusCodes.STATUS_403_ACCESS_DENIED)
 
+    def test_41_create_resource(self):
+
+        anna_id = model.Package.by_name(u'annakarenina').id
+        resource = {'package_id': anna_id, 'url': 'new_url'}
+
+        postparams = '%s=1' % json.dumps(resource)
+        res = self.app.post('/api/action/resource_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+
+        resource = json.loads(res.body)['result']
+
+        assert resource['url'] == 'new_url'
+
+    def test_42_create_resource_with_error(self):
+
+        anna_id = model.Package.by_name(u'annakarenina').id
+        resource = {'package_id': anna_id, 'url': 'new_url', 'created': 'bad_date'}
+
+        postparams = '%s=1' % json.dumps(resource)
+        res = self.app.post('/api/action/resource_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'},
+                            status=StatusCodes.STATUS_409_CONFLICT)
+
+        assert json.loads(res.body)['error'] ==  {"__type": "Validation Error", "created": ["Date format incorrect"]}
+
+
+
     def test_04_user_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/user_list', params=postparams)

@@ -572,6 +572,8 @@ class PackageController(BaseController):
 
     def _save_edit(self, name_or_id, context):
         from ckan.lib.search import SearchIndexError
+        log.debug('Package save request name: %s POST: %r',
+                  name_or_id, request.POST)
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))

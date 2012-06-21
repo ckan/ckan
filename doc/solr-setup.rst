@@ -16,6 +16,13 @@ The following instructions apply to Ubuntu 10.04 (Lucid), the supported
 platform by the CKAN team. Other versions or distributions may need
 slightly different instructions.
 
+.. note::
+
+    The following instructions deploy Solr on the Jetty server, but CKAN does
+    not require it, you can use Tomcat if that is more convenient on your
+    distribution.
+
+
 .. _solr-single:
 
 Single Solr instance
@@ -191,6 +198,18 @@ Some problems that can be found during the install:
   following configuration option::
 
     <dataDir>${dataDir}</dataDir>
+
+* When running Solr it says `Unable to find a javac compiler; com.sun.tools.javac.Main is not on the classpath. Perhaps JAVA_HOME does not point to the JDK.`
+
+ See the note above about JAVA_HOME. Alternatively you may not have installed the JDK. Check by seeing if javac is installed::
+   
+     which javac
+
+ If it isn't do::
+
+     sudo apt-get install openjdk-6-jdk
+
+ and restart SOLR.
 
 Handling changes in the CKAN schema
 -----------------------------------
