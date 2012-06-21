@@ -468,17 +468,26 @@ class PackageController(BaseController):
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
         return render( self._new_template(package_type))
 
-    def new_resource(self, id):
-      ''' FIXME: This is a temporary action to allow styling of the forms. '''
-      if request.method == 'POST':
-          # FIXME save here
-          save_action = request.params.get('save')
-          if save_action == 'save' or save_action == 'next':
-  ##            context = {'model': model, 'session': model.Session,
-  ##                       'user': c.user or c.author, 'extras_as_string': True,}
-  ##            get_action('resource_create')(context, data_dict)
-              redirect(h.url_for(controller='package', action='new_metadata', id=id))
-      return render('package/new_resource.html', extra_vars={'pkg_name':id})
+    def new_resource(self, id, data=None):
+        ''' FIXME: This is a temporary action to allow styling of the forms. '''
+        if request.method == 'POST':
+            # FIXME save here
+            save_action = request.params.get('save')
+            if save_action == 'again' or save_action == 'next':
+                data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                    request.params, ignore_keys=CACHE_PARAMETERS))))
+                data['package_id'] = id
+                # we don't want to include save as it is part of the form
+                del data['save']
+                context = {'model': model, 'session': model.Session,
+                           'api_version': 3,
+                           'user': c.user or c.author, 'extras_as_string': True,}
+                get_action('resource_create')(context, data)
+                if save_action == 'next':
+                    redirect(h.url_for(controller='package', action='new_metadata', id=id))
+                else:
+                    redirect(h.url_for(controller='package', action='new_resource', id=id))
+        return render('package/new_resource.html', extra_vars={'pkg_name':id})
 
     def new_metadata(self, id):
       ''' FIXME: This is a temporary action to allow styling of the forms. '''
