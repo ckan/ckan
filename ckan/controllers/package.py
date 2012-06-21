@@ -120,7 +120,8 @@ class PackageController(BaseController):
 
         def drill_down_url(alternative_url=None, **by):
             return h.add_url_param(alternative_url=alternative_url,
-                                    controller='package', action='search', **by)
+                                   controller='package', action='search',
+                                   new_params=by)
 
         c.drill_down_url = drill_down_url
 

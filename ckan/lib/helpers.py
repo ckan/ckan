@@ -891,7 +891,7 @@ def _create_url_with_params(params=None, controller=None, action=None,
     return url_with_params(url, params)
 
 def add_url_param(alternative_url=None, controller=None, action=None,
-                   extras=None, **fields):
+                   extras=None, new_params=None):
     '''
     Adds extra parameters to existing ones
 
@@ -901,14 +901,15 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     '''
     params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
     params = set(params_nopage)
-    params |= set(fields.items())
+    if new_params:
+        params |= set(new_params.items())
     if alternative_url:
         return url_with_params(alternative_url, params)
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
-def remove_url_param(key, value=None, replace=None, controller=None, action=None,
-                 extras=None):
+def remove_url_param(key, value=None, replace=None, controller=None,
+                     action=None, extras=None):
     ''' Remove a key from the current parameters. A specific key/value
     pair can be removed by passing a second value argument otherwise all
     pairs matching the key will be removed. If replace is given then a

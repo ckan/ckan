@@ -148,9 +148,9 @@ class GroupController(BaseController):
 
         def drill_down_url(**by):
             return h.add_url_param(alternative_url=None,
-                                    controller='group', action='read',
-                                    extras=dict(id=c.group_dict.get('name')),
-                                    **by)
+                                   controller='group', action='read',
+                                   extras=dict(id=c.group_dict.get('name')),
+                                   new_params=by)
 
         c.drill_down_url = drill_down_url
 
