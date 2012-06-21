@@ -119,13 +119,14 @@ class PackageController(BaseController):
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
 
         def drill_down_url(alternative_url=None, **by):
-            return h.drill_down_url(alternative_url=alternative_url,
-                                    controller='package', action='search', **by)
+            return h.add_url_param(alternative_url=alternative_url,
+                                   controller='package', action='search',
+                                   new_params=by)
 
         c.drill_down_url = drill_down_url
 
         def remove_field(key, value=None, replace=None):
-            return h.remove_field(key, value=value, replace=replace,
+            return h.remove_url_param(key, value=value, replace=replace,
                                   controller='package', action='search')
 
         c.remove_field = remove_field

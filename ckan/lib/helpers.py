@@ -1046,39 +1046,54 @@ def follow_count(obj_type, obj_id):
     context = {'model' : model, 'session':model.Session, 'user':c.user}
     return logic.get_action(action)(context, {'id': obj_id})
 
-def _create_url_with_params(params=None, controller=None, action=None):
-    ''' internal function for building urls '''
-    def _encode_params(params):
-        return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
-                                      for k, v in params]
+def _create_url_with_params(params=None, controller=None, action=None,
+                            extras=None):
+    ''' internal function for building urls with parameters. '''
 
     def url_with_params(url, params):
-        params = _encode_params(params)
-        return url + u'?' + urlencode(params)
+        params = [(k, v.encode('utf-8') if isinstance(v, basestring) else \
+                 str(v)) for k, v in params]
+        return url + u'?' + urllib.urlencode(params)
 
     if not controller:
         controller = c.controller
     if not action:
         action = c.action
-    # can I just set the params here?
-    url = url_for(controller=controller, action=action)
+    if not extras:
+        extras = {}
+
+    url = url_for(controller=controller, action=action, **extras)
     return url_with_params(url, params)
 
-def drill_down_url(alternative_url=None, controller=None, action=None, **by):
+def add_url_param(alternative_url=None, controller=None, action=None,
+                   extras=None, new_params=None):
+    '''
+    Adds extra parameters to existing ones
+
+    controller action & extras (dict) are used to create the base url
+    via url_for(controller=controller, action=action, **extras)
+    controller & action default to the current ones
+    '''
     params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
     params = set(params_nopage)
-    params |= set(by.items())
+    if new_params:
+        params |= set(new_params.items())
     if alternative_url:
         return url_with_params(alternative_url, params)
-    return _create_url_with_params(params=params, controller=controller, action=action)
+    return _create_url_with_params(params=params, controller=controller,
+                                   action=action, extras=extras)
 
-def remove_field(key, value=None, replace=None, controller=None, action=None):
-    """
-    Remove a key from the current search parameters. A specific
-    key/value pair can be removed by passing a second value argument
-    otherwise all pairs matching the key will be removed.
-    If replace is given then a new param key=replace will be added.
-    """
+def remove_url_param(key, value=None, replace=None, controller=None,
+                     action=None, extras=None):
+    ''' Remove a key from the current parameters. A specific key/value
+    pair can be removed by passing a second value argument otherwise all
+    pairs matching the key will be removed. If replace is given then a
+    new param key=replace will be added.
+
+    controller action & extras (dict) are used to create the base url
+    via url_for(controller=controller, action=action, **extras)
+    controller & action default to the current ones
+    '''
     params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
     params = list(params_nopage)
     if value:
@@ -1087,7 +1102,8 @@ def remove_field(key, value=None, replace=None, controller=None, action=None):
       [params.remove((k, v)) for (k, v) in params[:] if k==key]
     if replace is not None:
         params.append((key, replace))
-    return _create_url_with_params(params=params, controller=controller, action=action)
+    return _create_url_with_params(params=params, controller=controller,
+                                   action=action, extras=extras)
 
 def include_resource(resource):
     r = getattr(html_resources, resource)
@@ -1202,8 +1218,8 @@ __allowed_functions__ = [
            'sorted_extras',
            'follow_button',
            'follow_count',
-           'remove_field',
-           'drill_down_url',
+           'remove_url_param',
+           'add_url_param',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
