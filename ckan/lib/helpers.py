@@ -881,8 +881,12 @@ def _create_url_with_params(params=None, controller=None, action=None):
         params = _encode_params(params)
         return url + u'?' + urlencode(params)
 
+    if not controller:
+        controller = c.controller
+    if not action:
+        action = c.action
     # can I just set the params here?
-    url = h.url_for(controller=controller, action=action)
+    url = url_for(controller=controller, action=action)
     return url_with_params(url, params)
 
 def drill_down_url(alternative_url=None, controller=None, action=None, **by):
