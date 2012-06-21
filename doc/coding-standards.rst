@@ -375,6 +375,13 @@ CKAN Code Areas
 This section describes some guidelines for making changes in particular areas
 of the codebase, as well as general concepts particular to CKAN.
 
+General
+-------
+
+Some rules to adhere to when making changes to the codebase in general.
+
+.. todo:: Is there anything to include in this 'General' section?
+
 Domain Models
 -------------
 
@@ -555,13 +562,48 @@ care should be taken to:
 
      _get_or_bust = logic.get_or_bust
 
+Documentation
+`````````````
+
+Please refer to `CKAN Action API Docstrings`_ for information about writing
+docstrings for the action functions.  It is **very** important that action
+functions are documented as they are not only consumed by CKAN developers but
+by CKAN users.
+
 Controllers
 -----------
+
+Guidelines when writing controller actions:
+
+- Use ``get_action``, rather than calling the action directly; and rather than
+  calling the action directly, as this allows extensions to overide the action's
+  behaviour. ie use ::
+
+    ckan.logic.get_action('group_activity_list_html')(...)
+
+  Instead of ::
+
+    ckan.logic.action.get.group_activity_list_html(...)
+
+- Controllers have access to helper functions in ``ckan.lib.helpers``.  When
+  developing for ckan core, only use the helper functions found in
+  ``ckan.lib.helpers.__allowed_functions__`` because any instance may set the
+  ``ckan.restrict_template_vars`` configuration value to ``True``.
+
+.. todo:: Anything else for contrllers?
 
 Templating
 ----------
 
-*TODO*
+Helper Functions
+````````````````
+
+Templates have access to a set of helper functions in ``ckan.lib.helpers``.
+When developing for ckan core, only use the helper functions found in
+``ckan.lib.helpers.__allowed_functions__`` because any instance may set the
+``ckan.restrict_template_vars`` configuration value to ``True``.
+
+.. todo:: Jinja2 templates
 
 Writing Extensions
 ------------------
@@ -569,6 +611,27 @@ Writing Extensions
 Please see :doc:`writing-extensions` for information about writing ckan
 extensions, including details on the API available to extensions.
 
+Deprecation
+-----------
+
+- Anything that may be used by extensions (see :doc:`writing-extensions`) needs
+  to maintain backward compatibility at call-site.  ie - template helper
+  functions and functions defined in the plugins toolkit.
+
+- The length of time of deprecation is evaluated on a function-by-function
+  basis.  At minimum, a function should be marked as deprecated during a point
+  release.
+
+- To mark a helper function, use the ``deprecated`` decorator found in
+  ``ckan.lib.maintain`` eg: ::
+
+    
+    @deprecated()
+    def facet_items(*args, **kwargs):
+        """
+        DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
+        """
+        # rest of function definition.
 
 Javascript Coding Standards
 ===========================
