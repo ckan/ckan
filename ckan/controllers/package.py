@@ -609,6 +609,15 @@ class PackageController(BaseController):
             return pkg.type or 'package'
         return None
 
+    def _tag_string_to_list(self, tag_string):
+        ''' This is used to change tags from a sting to a list of dicts '''
+        out = []
+        for tag in tag_string.split(','):
+            tag = tag.strip()
+            out.append({'name': tag,
+                        'state': 'active',})
+        return out
+
     def _save_new(self, context, package_type=None):
         ckan_phase = request.params.get('_ckan_phase')
         if ckan_phase:
@@ -618,6 +627,10 @@ class PackageController(BaseController):
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
+            if ckan_phase:
+                # sort the tags
+                data_dict['tags'] = self._tag_string_to_list(data_dict['tag_string'])
+
             data_dict['type'] = package_type
             context['message'] = data_dict.get('log_message', '')
             pkg_dict = get_action('package_create')(context, data_dict)
