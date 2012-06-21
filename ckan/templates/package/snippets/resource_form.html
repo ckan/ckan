@@ -2,8 +2,6 @@
 
 {% set data = data or {} %}
 {% set errors = errors or {} %}
-{% set index = 0 %}
-{% set prefix = "resources__" ~ index ~ "__" %}
 
 <form class="dataset-form dataset-resource-form form-horizontal" method="post">
   <div class="control-group dataset-form-resource-types">
@@ -16,27 +14,26 @@
         of the radio using css. eg. input[type=radio]+label {}
         #}
         <i class="ckan-icon ckan-icon-link-file"></i>
-        <input id="field-resource-type-file" type="radio" name="resources__0__url" checked="checked" value="file" />
+        <input id="field-resource-type-file" type="radio" name="resource_type" checked="checked" value="file" />
         <label class="radio inline" for="field-resource-type-file">Link to a file</label>
         <i class="ckan-icon ckan-icon-link-plugin"></i>
-        <input id="field-resource-type-api" type="radio" name="resources__0__url" value="api" />
+        <input id="field-resource-type-api" type="radio" name="resource_type" value="api" />
         <label class="radio inline" for="field-resource-type-api">Link to an API</label>
       </div>
     </div>
 
-    {# TODO: Replace the zero with appropriate index #}
     {{ form.input('url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/gold-prices-jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large']) }}
 
-    {{ form.input(prefix ~ 'name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
+    {{ form.input('name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
 
-    {{ form.markdown(prefix ~ 'description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
+    {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
 
-    {{ form.input(prefix ~ 'format', id='field-format', label=_('Format'), placeholder=_('eg. application/json'), value=data.format, error=errors.format, classes=['control-medium']) }}
+    {{ form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. application/json'), value=data.format, error=errors.format, classes=['control-medium']) }}
   {% endblock %}
 
   {% block metadata_fields %}
     {% if include_metadata %}
-      {{ form.select(prefix ~ 'type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }}
+      {{ form.select('type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }}
       {# TODO: Where do these come from, they don't exist in /package/new_package_form.html #}
     {% endif %} 
   {% endblock %}
