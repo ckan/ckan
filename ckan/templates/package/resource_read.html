@@ -94,9 +94,9 @@
   {% endif %}
 {% endblock %}
 
-{% block secondary_module %}
+{% block secondary_content %}
   <section class="module module-narrow">
-    <h2 class="heading"><i class="icon-large icon-info-sign"></i> Resource Information</h2>
+    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> Resource Information</h2>
     <ul class="simple-list">
       <li><i class="ckan-icon ckan-icon-calendar"></i> Last Updated: {{ h.render_datetime(res.last_modified) or _("unknown") }}</li>
       <li><i class="ckan-icon ckan-icon-file"></i> Format: {{ res.mimetype_inner or res.mimetype or _("unknown") }}</li>
