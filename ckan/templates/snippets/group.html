@@ -1,3 +1,15 @@
+{#
+Embeds a group within the sidebar of a page.
+
+group    - The group dict.
+truncate - A max length for the group description. If not provided the description
+           will be full length.
+
+Example:
+
+    {% snippet 'snippets/group, group=c.group_dict %}
+
+#}
 {% with truncate=truncate or 0, url=h.url_for(controller='group', action='read', id=group.name) %}
   <section class="module module-narrow module-shallow group">
     <div class="module-content media media-vertical">
