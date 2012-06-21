@@ -222,6 +222,10 @@ textarea {
   width: 150px;
 }
 
+.control-custom input:last-of-type {
+  .border-radius(0 3px 3px 0);
+}
+
 .control-custom .checkbox {
   display: inline-block;
   margin-left: 5px;
@@ -245,14 +249,13 @@ textarea {
   border-color: @errorBorder;
 }
 
-.error-block {
-  .border-radius(0 0 @inputBorderRadius @inputBorderRadius);
-  display: block;
-  padding: 6px 8px 3px;
-  background: @errorBorder;
-  margin: -@inputBorderRadius 0 0;
-  color: @inputBackground;
-  width: 216px;
+.error-inline {
+  color: @errorText;
+}
+
+.error-block,
+.error-inline {
+  font-size: 12px;
 }
 
 .error-block {
@@ -273,9 +276,18 @@ textarea {
   width: auto;
 }
 
-.control-group.error .input-prepend .error-block {
+.control-group.error .input-prepend .error-block,
+.control-custom.error .error-block {
   margin-left: -1px;
   width: auto;
+}
+
+.control-custom.error .error-block {
+  width: 429px;
+}
+
+.control-select.error .error-block {
+  width: 204px;
 }
 
 // Stages
