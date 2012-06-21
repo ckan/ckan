@@ -86,7 +86,7 @@ See the wiki for instructions on `how to submit a patch`_ via GitHub or email.
 Releases
 --------
 
-*TODO*
+See :doc:`release-cycle` for details on the release process.
 
 Merging
 -------
