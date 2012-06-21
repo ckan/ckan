@@ -29,6 +29,21 @@
 
     {% snippet 'development/snippets/form.html' %}
     {% snippet 'development/snippets/form.html', error='This field has an error' %}
+
+    <section class="module">
+      <div class="module-content">
+        <h1 class="page-heading">Top level heading (h1)</h1>
+        <h2>Some Rendered Markdown (h2)</h2>
+        <div class="embedded-content">
+          <h1>Heading 1</h1>
+          {{ lipsum(1) }}
+          <h2>Heading 2</h2>
+          {{ lipsum(1) }}
+          <h3>Heading 3</h3>
+          {{ lipsum(1) }}
+        </div>
+      </div>
+    </section>
   </div>
   {% include "footer.html" %}
 {% endblock %}
