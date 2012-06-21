@@ -890,7 +890,7 @@ def _create_url_with_params(params=None, controller=None, action=None,
     url = url_for(controller=controller, action=action, **extras)
     return url_with_params(url, params)
 
-def drill_down_url(alternative_url=None, controller=None, action=None,
+def add_url_param(alternative_url=None, controller=None, action=None,
                    extras=None, **fields):
     '''
     Adds extra parameters to existing ones
@@ -907,7 +907,7 @@ def drill_down_url(alternative_url=None, controller=None, action=None,
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
-def remove_field(key, value=None, replace=None, controller=None, action=None,
+def remove_url_param(key, value=None, replace=None, controller=None, action=None,
                  extras=None):
     ''' Remove a key from the current parameters. A specific key/value
     pair can be removed by passing a second value argument otherwise all
@@ -984,8 +984,8 @@ __allowed_functions__ = [
            'unselected_facet_items',
            'follow_button',
            'follow_count',
-           'remove_field',
-           'drill_down_url',
+           'remove_url_param',
+           'add_url_param',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
