@@ -332,25 +332,6 @@ Example of a ckan.logic.action API docstring:
 
 .. _Autodoc: http://sphinx.pocoo.org/ext/autodoc.html
 
-Testing
--------
-
-- Functional tests which test the behaviour of the web user interface, and the
-  APIs should be placed within ``ckan/tests/functional``.  These tests can be a
-  lot slower to run that unit tests which don't access the database or solr.  So
-  try to bear that in mind, and attempt to cover just what is neccessary, leaving
-  what can be tested via unit-testing in unit-tests.
-
-- ``nose.tools.assert_in`` and ``nose.tools.assert_not_in`` are only available
-  in Python>=2.7.  So import them from ``ckan.tests``, which will provide
-  alternatives if they're not available.
-
-- the `mock`_ library can be used to create and interrogate mock objects.
-
-See :doc:`test` for further information on testing in CKAN.
-
-.. _mock: http://pypi.python.org/pypi/mock
-
 Tools
 -----
 
@@ -604,6 +585,25 @@ When developing for ckan core, only use the helper functions found in
 ``ckan.restrict_template_vars`` configuration value to ``True``.
 
 .. todo:: Jinja2 templates
+
+Testing
+-------
+
+- Functional tests which test the behaviour of the web user interface, and the
+  APIs should be placed within ``ckan/tests/functional``.  These tests can be a
+  lot slower to run that unit tests which don't access the database or solr.  So
+  try to bear that in mind, and attempt to cover just what is neccessary, leaving
+  what can be tested via unit-testing in unit-tests.
+
+- ``nose.tools.assert_in`` and ``nose.tools.assert_not_in`` are only available
+  in Python>=2.7.  So import them from ``ckan.tests``, which will provide
+  alternatives if they're not available.
+
+- the `mock`_ library can be used to create and interrogate mock objects.
+
+See :doc:`test` for further information on testing in CKAN.
+
+.. _mock: http://pypi.python.org/pypi/mock
 
 Writing Extensions
 ------------------
