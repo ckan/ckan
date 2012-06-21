@@ -871,7 +871,7 @@ def follow_count(obj_type, obj_id):
     context = {'model' : model, 'session':model.Session, 'user':c.user}
     return logic.get_action(action)(context, {'id': obj_id})
 
-def _create_url_with_params(params=None, controller=None, action=None):
+def _create_url_with_params(params=None, controller=None, action=None, extras=None):
     ''' internal function for building urls '''
     def _encode_params(params):
         return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
@@ -879,25 +879,27 @@ def _create_url_with_params(params=None, controller=None, action=None):
 
     def url_with_params(url, params):
         params = _encode_params(params)
-        return url + u'?' + urlencode(params)
+        return url + u'?' + urllib.urlencode(params)
 
     if not controller:
         controller = c.controller
     if not action:
         action = c.action
-    # can I just set the params here?
-    url = url_for(controller=controller, action=action)
+    if not extras:
+        extras = {}
+
+    url = url_for(controller=controller, action=action, **extras)
     return url_with_params(url, params)
 
-def drill_down_url(alternative_url=None, controller=None, action=None, **by):
+def drill_down_url(alternative_url=None, controller=None, action=None, extras=None, **by):
     params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
     params = set(params_nopage)
     params |= set(by.items())
     if alternative_url:
         return url_with_params(alternative_url, params)
-    return _create_url_with_params(params=params, controller=controller, action=action)
+    return _create_url_with_params(params=params, controller=controller, action=action, extras=extras)
 
-def remove_field(key, value=None, replace=None, controller=None, action=None):
+def remove_field(key, value=None, replace=None, controller=None, action=None, extras=None):
     """
     Remove a key from the current search parameters. A specific
     key/value pair can be removed by passing a second value argument
@@ -912,7 +914,7 @@ def remove_field(key, value=None, replace=None, controller=None, action=None):
       [params.remove((k, v)) for (k, v) in params[:] if k==key]
     if replace is not None:
         params.append((key, replace))
-    return _create_url_with_params(params=params, controller=controller, action=action)
+    return _create_url_with_params(params=params, controller=controller, action=action, extras=extras)
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true

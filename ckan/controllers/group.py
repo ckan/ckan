@@ -149,14 +149,15 @@ class GroupController(BaseController):
         def drill_down_url(**by):
             return h.drill_down_url(alternative_url=None,
                                     controller='group', action='read',
-                                    id=c.group_dict.get('name'), **by)
+                                    extras=dict(id=c.group_dict.get('name')),
+                                    **by)
 
         c.drill_down_url = drill_down_url
 
         def remove_field(key, value=None, replace=None):
             return h.remove_field(key, value=value, replace=replace,
                                   controller='group', action='read',
-                                  id=c.group_dict.get('name'))
+                                  extras=dict(id=c.group_dict.get('name')))
 
         c.remove_field = remove_field
 
