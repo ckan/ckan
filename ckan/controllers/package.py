@@ -474,6 +474,9 @@ class PackageController(BaseController):
           # FIXME save here
           save_action = request.params.get('save')
           if save_action == 'save' or save_action == 'next':
+  ##            context = {'model': model, 'session': model.Session,
+  ##                       'user': c.user or c.author, 'extras_as_string': True,}
+  ##            get_action('resource_create')(context, data_dict)
               redirect(h.url_for(controller='package', action='new_metadata', id=id))
       return render('package/new_resource.html', extra_vars={'pkg_name':id})
 
