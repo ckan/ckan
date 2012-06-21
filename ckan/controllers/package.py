@@ -638,6 +638,8 @@ class PackageController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if ckan_phase:
+                # Make sure we don't index this dataset
+                data_dict['state'] = 'draft'
                 # sort the tags
                 data_dict['tags'] = self._tag_string_to_list(data_dict['tag_string'])
 
