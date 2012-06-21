@@ -76,8 +76,8 @@ textarea {
 
 .form-actions {
   background: none;
-  margin-left: -@gutter-x;
-  margin-right: -@gutter-x;
+  margin-left: -@gutterX;
+  margin-right: -@gutterX;
   margin-bottom: 0; // Prevents reduces the padding when included in a module.
   padding-bottom: 0;
   text-align: right;
@@ -129,8 +129,8 @@ textarea {
 }
 
 .form-horizontal .form-actions {
-  padding-left: @gutter-x;
-  padding-right: @gutter-x;
+  padding-left: @gutterX;
+  padding-right: @gutterX;
 }
 
 .form-inline input {
@@ -234,7 +234,7 @@ textarea {
 // Errors
 
 .alert-danger a, .alert-error a {
-  color: @error-text;
+  color: @errorText;
 }
 
 .control-group.error input,
@@ -242,26 +242,26 @@ textarea {
 .control-group.error textarea,
 .control-group.error .input-prepend .add-on,
 .control-group.error .input-append .add-on {
-  border-color: @error-border;
+  border-color: @errorBorder;
 }
 
 .error-block {
-  .border-radius(0 0 @input-border-radius @input-border-radius);
+  .border-radius(0 0 @inputBorderRadius @inputBorderRadius);
   display: block;
   padding: 6px 8px 3px;
-  background: @error-border;
-  margin: -@input-border-radius 0 0;
-  color: @input-background;
+  background: @errorBorder;
+  margin: -@inputBorderRadius 0 0;
+  color: @inputBackground;
   width: 216px;
 }
 
 .error-block {
-  .border-radius(0 0 @input-border-radius @input-border-radius);
+  .border-radius(0 0 @inputBorderRadius @inputBorderRadius);
   display: block;
   padding: 6px 8px 3px;
-  background: @error-border;
-  margin: -@input-border-radius 0 0;
-  color: @input-background;
+  background: @errorBorder;
+  margin: -@inputBorderRadius 0 0;
+  color: @inputBackground;
   width: 216px;
 }
 
@@ -288,7 +288,7 @@ textarea {
   .clearfix;
   color: #aeaeae;
   counter-reset: stage;
-  margin: -@gutter-y -@gutter-x @gutter-y;
+  margin: -@gutterY -@gutterX @gutterY;
   overflow: hidden;
 }
 

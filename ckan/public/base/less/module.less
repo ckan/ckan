@@ -2,7 +2,7 @@
   .border-radius(3px);
   .box-shadow(0 0 3px rgba(0, 0, 0, 0.3));
 
-  background-color: @module-background-color;
+  background-color: @moduleBackgroundColor;
   margin-bottom: 20px;
 }
 
@@ -10,9 +10,9 @@
   .border-radius(3px 3px 0 0);
   font-size: 14px;
   line-height: 1.3;
-  padding: 7px @gutter-x;
-  border-bottom: 1px solid @module-heading-border-color;
-  #gradient > .vertical(@module-heading-background-color-start, @module-heading-background-color-end);
+  padding: 7px @gutterX;
+  border-bottom: 1px solid @moduleHeadingBorderColor;
+  #gradient > .vertical(@moduleHeadingBackgroundColorStart, @moduleHeadingBackgroundColorEnd);
 }
 
 .module-heading [class^=icon]:before {
@@ -31,18 +31,18 @@
 }
 
 .module-content {
-  padding: 0 @gutter-x;
+  padding: 0 @gutterX;
   margin: 20px 0;
 }
 
 .module-content:first-child {
   margin-top: 0;
-  padding-top: @gutter-y;
+  padding-top: @gutterY;
 }
 
 .module-content:last-child {
   margin-bottom: 0;
-  padding-bottom: @gutter-y;
+  padding-bottom: @gutterY;
 }
 
 .module-content > :last-child {
@@ -50,7 +50,7 @@
 }
 
 .module-footer {
-  padding: 7px @gutter-x 7px;
+  padding: 7px @gutterX 7px;
   border-top: 1px dotted #ccc;
 }
 
@@ -61,7 +61,7 @@
 
 .module > .pagination {
   height: 34px;
-  border-top: 1px solid @module-heading-border-color;
+  border-top: 1px solid @moduleHeadingBorderColor;
 }
 
 .module > .pagination > ul {
@@ -119,8 +119,8 @@
   > .module-heading,
   > .module-content,
   > .module-footer {
-    padding-left:  @gutter-small-x;
-    padding-right: @gutter-small-x;
+    padding-left:  @gutterSmallX;
+    padding-right: @gutterSmallX;
   }
 }
 

@@ -1,23 +1,23 @@
-@small-x: 16px;
-@small-y: 16px;
-@small-offset-x: -@small-x;
-@small-offset-y: 0;
-@medium-x: 17px;
-@medium-y: 17px;
-@medium-offset-x: -@medium-x;
-@medium-offset-y: -@small-y;
-@large-x: 20px;
-@large-y: 20px;
-@large-offset-x: -@large-x;
-@large-offset-y: -@small-y - @medium-y;
-@huge-x: 25px;
-@huge-y: 25px;
-@huge-offset-x: -@huge-x;
-@huge-offset-y: -@small-y - @medium-y - @large-y;
-@format-medium-x: 32px;
-@format-medium-y: 35px;
-@format-medium-offset-x: -@format-medium-x;
-@format-medium-offset-y: -62px;
+@smallX: 16px;
+@smallY: 16px;
+@smallOffsetX: -@smallX;
+@smallOffsetY: 0;
+@mediumX: 17px;
+@mediumY: 17px;
+@mediumOffsetX: -@mediumX;
+@mediumOffsetY: -@smallY;
+@largeX: 20px;
+@largeY: 20px;
+@largeOffsetX: -@largeX;
+@largeOffsetY: -@smallY - @mediumY;
+@hugeX: 25px;
+@hugeY: 25px;
+@hugeOffsetX: -@hugeX;
+@hugeOffsetY: -@smallY - @mediumY - @largeY;
+@formatMediumX: 32px;
+@formatMediumY: 35px;
+@formatMediumOffsetX: -@formatMediumX;
+@formatMediumOffsetY: -62px;
 
 .ckan-icon {
   .ie7-restore-right-whitespace;
@@ -27,16 +27,16 @@
   top: 2px;
   width: 16px;
   height: 16px;
-  background-image: url("@{image-path}/sprite-ckan-icons.png");
+  background-image: url("@{imagePath}/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
 }
 
 .ckan-icon-background-position(@offset, @size) {
-  @w: "@{size}-x";
-  @h: "@{size}-y";
-  @x: "@{size}-offset-x";
-  @y: "@{size}-offset-y";
+  @w: "@{size}X";
+  @h: "@{size}Y";
+  @x: "@{size}OffsetX";
+  @y: "@{size}OffsetY";
   width: @@w;
   height: @@h;
   background-position: (@@x * @offset) @@y;
@@ -93,61 +93,61 @@
   .ckan-icon;
 
   text-indent: -900em;
-  background: url("@{image-path}/sprite-resource-icons.png") no-repeat 0 0;
+  background: url("@{imagePath}/sprite-resource-icons.png") no-repeat 0 0;
 }
 
 .format-label {
-  .ckan-icon-background-position(0, "format-medium");
+  .ckan-icon-background-position(0, "formatMedium");
 }
 
 .format-label[data-format=rdf],
 .format-label[data-format*=rdf] {
-  .ckan-icon-background-position(1, "format-medium");
+  .ckan-icon-background-position(1, "formatMedium");
 }
 
 .format-label[data-format=pdf],
 .format-label[data-format*=pdf] {
-  .ckan-icon-background-position(2, "format-medium");
+  .ckan-icon-background-position(2, "formatMedium");
 }
 
 .format-label[data-format=api],
 .format-label[data-format*=api] {
-  .ckan-icon-background-position(3, "format-medium");
+  .ckan-icon-background-position(3, "formatMedium");
 }
 
 .format-label[data-format=zip],
 .format-label[data-format*=zip] {
-  .ckan-icon-background-position(4, "format-medium");
+  .ckan-icon-background-position(4, "formatMedium");
 }
 
 .format-label[data-format=xls],
 .format-label[data-format*=xls] {
-  .ckan-icon-background-position(5, "format-medium");
+  .ckan-icon-background-position(5, "formatMedium");
 }
 
 .format-label[data-format=csv],
 .format-label[data-format*=csv] {
-  .ckan-icon-background-position(6, "format-medium");
+  .ckan-icon-background-position(6, "formatMedium");
 }
 
 .format-label[data-format=txt],
 .format-label[data-format*=txt] {
-  .ckan-icon-background-position(7, "format-medium");
+  .ckan-icon-background-position(7, "formatMedium");
 }
 
 .format-label[data-format=xml],
 .format-label[data-format*=xml] {
-  .ckan-icon-background-position(8, "format-medium");
+  .ckan-icon-background-position(8, "formatMedium");
 }
 
 .format-label[data-format=json],
 .format-label[data-format*=json] {
-  .ckan-icon-background-position(9, "format-medium");
+  .ckan-icon-background-position(9, "formatMedium");
 }
 
 .format-label[data-format=html],
 .format-label[data-format*=html] {
-  .ckan-icon-background-position(10, "format-medium");
+  .ckan-icon-background-position(10, "formatMedium");
 }
 
 // Override Font Awesome and it's crazy list handling.
