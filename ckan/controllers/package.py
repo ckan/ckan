@@ -515,6 +515,12 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
+        # are we doing a multiphase add?
+        if data['state'] == 'draft':
+            c.form_action = h.url_for(controller='package', action='new')
+            return self.new(data=data)
+
+
 
         c.pkg = context.get("package")
         c.resources_json = json.dumps(data.get('resources',[]))
@@ -641,6 +647,14 @@ class PackageController(BaseController):
                 context['allow_state_change'] = True
                 # sort the tags
                 data_dict['tags'] = self._tag_string_to_list(data_dict['tag_string'])
+                if data_dict.get('pkg_name'):
+                    data_dict['id'] = data_dict['pkg_name']
+                    del data_dict['pkg_name']
+                    # this is actually an edit not a save
+                    pkg_dict = get_action('package_update')(context, data_dict)
+                    # redirect to add dataset resources
+                    url = h.url_for(controller='package', action='new_resource', id=pkg_dict['name'])
+                    redirect(url)
 
             data_dict['type'] = package_type
             context['message'] = data_dict.get('log_message', '')
