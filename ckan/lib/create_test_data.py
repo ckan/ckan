@@ -511,6 +511,7 @@ left arrow <
 
         model.repo.commit_and_remove()
 
+    # method used in DGU and all good tests elsewhere
     @classmethod
     def create_users(cls, user_dicts):
         needs_commit = False
@@ -537,6 +538,7 @@ left arrow <
         user = model.User(name=unicode(name), **user_dict)
         model.Session.add(user)
         cls.user_refs.append(user_ref)
+        return user
 
     @classmethod
     def create_user(cls, name='', **kwargs):

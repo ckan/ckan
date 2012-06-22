@@ -94,14 +94,6 @@ class PackageController(BaseController):
 
         return pt
 
-    def _setup_follow_button(self, context):
-        '''Setup some template context variables used for the Follow button.'''
-
-        # If the user is logged in set the am_following variable.
-        if c.user:
-            c.pkg_dict['am_following'] = get_action('am_following_dataset')(
-                context, {'id': c.pkg.id})
-
     authorizer = ckan.authz.Authorizer()
 
     def search(self):
@@ -293,10 +285,6 @@ class PackageController(BaseController):
                 get_action('package_activity_list_html')(context,
                     {'id': c.current_package_id})
 
-        c.num_followers = get_action('dataset_follower_count')(context,
-                {'id':c.pkg.id})
-        self._setup_follow_button(context)
-
         PackageSaver().render_package(c.pkg_dict, context)
 
         template = self._read_template( package_type )
@@ -359,10 +347,6 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
-
-        c.num_followers = get_action('dataset_follower_count')(
-                context, {'id':c.pkg.id})
-        self._setup_follow_button(context)
 
         format = request.params.get('format', '')
         if format == 'atom':
@@ -486,10 +470,6 @@ class PackageController(BaseController):
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
 
-        c.num_followers = get_action('dataset_follower_count')(context,
-                {'id':c.pkg.id})
-        self._setup_follow_button(context)
-
         if (c.action == u'editresources'):
           return render('package/editresources.html')
         else:
@@ -592,6 +572,8 @@ class PackageController(BaseController):
 
     def _save_edit(self, name_or_id, context):
         from ckan.lib.search import SearchIndexError
+        log.debug('Package save request name: %s POST: %r',
+                  name_or_id, request.POST)
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
@@ -664,10 +646,6 @@ class PackageController(BaseController):
 
         roles = self._handle_update_of_authz(pkg)
         self._prepare_authz_info_for_render(roles)
-
-        c.num_followers = get_action('dataset_follower_count')(context,
-                {'id':c.pkg.id})
-        self._setup_follow_button(context)
 
         # c.related_count = len(pkg.related)
 
@@ -757,9 +735,6 @@ class PackageController(BaseController):
                 qualified=True)
 
         c.related_count = len(c.pkg.related)
-        c.num_followers = get_action('dataset_follower_count')(context,
-                {'id':c.pkg.id})
-        self._setup_follow_button(context)
         return render('package/resource_read.html')
 
     def resource_download(self, id, resource_id):
@@ -791,8 +766,6 @@ class PackageController(BaseController):
             c.pkg = context['package']
             c.followers = get_action('dataset_follower_list')(context,
                     {'id': c.pkg_dict['id']})
-            c.num_followers = len(c.followers)
-            self._setup_follow_button(context)
 
             c.related_count = len(c.pkg.related)
         except NotFound:
