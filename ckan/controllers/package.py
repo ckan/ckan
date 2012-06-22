@@ -440,10 +440,9 @@ class PackageController(BaseController):
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
         return render( self._new_template(package_type))
 
-    def new_resource(self, id, data=None):
+    def new_resource(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the forms. '''
         if request.method == 'POST':
-            # FIXME save here
             save_action = request.params.get('save')
             if save_action == 'again' or save_action == 'next':
                 data = data or clean_dict(unflatten(tuplize_dict(parse_params(
@@ -459,7 +458,11 @@ class PackageController(BaseController):
                     redirect(h.url_for(controller='package', action='new_metadata', id=id))
                 else:
                     redirect(h.url_for(controller='package', action='new_resource', id=id))
-        return render('package/new_resource.html', extra_vars={'pkg_name':id})
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new'}
+        vars['pkg_name'] = id
+        return render('package/new_resource.html', extra_vars=vars)
 
     def new_metadata(self, id):
       ''' FIXME: This is a temporary action to allow styling of the forms. '''
