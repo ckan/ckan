@@ -464,9 +464,26 @@ class PackageController(BaseController):
         vars['pkg_name'] = id
         return render('package/new_resource.html', extra_vars=vars)
 
-    def new_metadata(self, id):
-      ''' FIXME: This is a temporary action to allow styling of the forms. '''
-      return render('package/new_package_metadata.html')
+    def new_metadata(self, id, data=None, errors=None, error_summary=None):
+        ''' FIXME: This is a temporary action to allow styling of the forms. '''
+        if request.method == 'POST':
+            save_action = request.params.get('save')
+            if save_action:
+                data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                    request.params, ignore_keys=CACHE_PARAMETERS))))
+                data['package_id'] = id
+                # we don't want to include save as it is part of the form
+                del data['save']
+                context = {'model': model, 'session': model.Session,
+                           'api_version': 3,
+                           'user': c.user or c.author, 'extras_as_string': True,}
+                #get_action('resource_create')(context, data)
+                #redirect(h.url_for(controller='package', action='new_resource', id=id))
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new'}
+        vars['pkg_name'] = id
+        return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         package_type = self._get_package_type(id)
