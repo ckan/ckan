@@ -1,5 +1,6 @@
 {% import 'macros/form.html' as form %}
 
+{% set groups_available = h.groups_available() %}
 {% if groups_available %}
   <div class="control-group">
     {% set groups = data.groups or [] %}

@@ -1152,6 +1152,14 @@ def popular(type_, number, min=1, title=None):
         raise Exception('popular() did not recieve a valid type_ or title')
     return snippet('snippets/popular.html', title=title, number=number, min=min)
 
+def groups_available():
+    ''' return a list of available groups '''
+    import ckan.logic as logic
+    context = {'model': model, 'session': model.Session,
+               'user': c.user or c.author}
+    data_dict = {'available_only': True}
+    return logic.get_action('group_list_authz')(context, data_dict)
+
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
 __allowed_functions__ = [
@@ -1220,6 +1228,7 @@ __allowed_functions__ = [
            'follow_count',
            'remove_url_param',
            'add_url_param',
+           'groups_available',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
