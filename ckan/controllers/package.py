@@ -476,8 +476,18 @@ class PackageController(BaseController):
                 context = {'model': model, 'session': model.Session,
                            'api_version': 3,
                            'user': c.user or c.author, 'extras_as_string': True,}
-                #get_action('resource_create')(context, data)
-                #redirect(h.url_for(controller='package', action='new_resource', id=id))
+                data_dict = get_action('package_show')(context, {'id': id})
+
+                data_dict['id'] = id
+                data_dict.update(data)
+                try:
+                    get_action('package_update')(context, data_dict)
+                except ValidationError, e:
+                    errors = e.error_dict
+                    error_summary = e.error_summary
+                    return self.new_metadata(id, data, errors, error_summary)
+                redirect(h.url_for(controller='package', action='read', id=id))
+
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
