@@ -533,7 +533,9 @@ class PackageController(BaseController):
             check_access('package_update',context)
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
-
+        # convert tags if not supplied in data
+        if data and not data.get('tag_string'):
+            data['tag_string'] = ', '.join(h.dict_list_reduce(c.pkg_dict['tags'], 'name'))
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'edit'}
         c.errors_json = json.dumps(errors)
@@ -690,6 +692,11 @@ class PackageController(BaseController):
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
+            if '_ckan_phase' in data_dict:
+                context['api_version'] = 3
+                data_dict['tags'] = self._tag_string_to_list(data_dict['tag_string'])
+                del data_dict['_ckan_phase']
+                del data_dict['save']
             context['message'] = data_dict.get('log_message', '')
             if not context['moderated']:
                 context['pending'] = False
