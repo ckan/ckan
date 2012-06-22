@@ -637,6 +637,8 @@ class PackageController(BaseController):
             if ckan_phase:
                 # Make sure we don't index this dataset
                 data_dict['state'] = 'draft'
+                # allow the state to be changed
+                context['allow_state_change'] = True
                 # sort the tags
                 data_dict['tags'] = self._tag_string_to_list(data_dict['tag_string'])
 
