@@ -341,6 +341,10 @@ def ignore_not_package_admin(key, data, errors, context):
     if (user and pkg and authorized):
         return
 
+    # allow_state_change in the context will allow the state to be changed
+    # FIXME is this the best way to cjeck for state only?
+    if key == ('state',) and context.get('allow_state_change'):
+        return
     data.pop(key)
 
 def ignore_not_group_admin(key, data, errors, context):
