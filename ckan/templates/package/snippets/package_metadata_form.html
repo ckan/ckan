@@ -10,7 +10,7 @@
 
   <div class="form-actions">
     {# TODO: Go back to previous resource form #}
-    <a class="btn" href="">{{ _("Previous") }}</a>
+    {% link_for _('Previous'), controller='package', action='new_resource', id=pkg_name, class_="btn" %}
     <button class="btn btn-primary" name="save" value="finish" type="submit">{{ _('Finish') }}</button>
   </div>
 
