@@ -479,6 +479,10 @@ class PackageController(BaseController):
                 data_dict = get_action('package_show')(context, {'id': id})
 
                 data_dict['id'] = id
+                # we want this to go live when saved
+                data_dict['state'] = 'active'
+                # allow the state to be changed
+                context['allow_state_change'] = True
                 data_dict.update(data)
                 try:
                     get_action('package_update')(context, data_dict)
