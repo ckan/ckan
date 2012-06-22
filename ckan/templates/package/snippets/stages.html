@@ -13,7 +13,7 @@
 {% else %}
   <ol class="stages stage-3">
     <li class="complete first">{% link_for _('Edit Dataset'), controller='package', action='edit', id=pkg_name %}</li>
-    <li class="complete"><a href="">Add data</a></li>
+    <li class="complete">{% link_for _('Add Data'), controller='package', action='new_resource', id=pkg_name %}</li>
     <li class="active last"><a href="">Additional data</a></li>
   </ol>
 {% endif %}
