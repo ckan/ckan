@@ -444,9 +444,9 @@ class PackageController(BaseController):
         ''' FIXME: This is a temporary action to allow styling of the forms. '''
         if request.method == 'POST':
             save_action = request.params.get('save')
-            if save_action == 'again' or save_action == 'next':
+            if save_action in ['again', 'next'] and not data:
                 data = data or clean_dict(unflatten(tuplize_dict(parse_params(
-                    request.params, ignore_keys=CACHE_PARAMETERS))))
+                    request.POST))))
                 data['package_id'] = id
                 # we don't want to include save as it is part of the form
                 del data['save']
@@ -468,10 +468,9 @@ class PackageController(BaseController):
         ''' FIXME: This is a temporary action to allow styling of the forms. '''
         if request.method == 'POST':
             save_action = request.params.get('save')
-            if save_action:
+            if save_action and not data:
                 data = data or clean_dict(unflatten(tuplize_dict(parse_params(
-                    request.params, ignore_keys=CACHE_PARAMETERS))))
-                data['package_id'] = id
+                    request.POST))))
                 # we don't want to include save as it is part of the form
                 del data['save']
                 context = {'model': model, 'session': model.Session,
@@ -481,7 +480,7 @@ class PackageController(BaseController):
                 #redirect(h.url_for(controller='package', action='new_resource', id=id))
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new'}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
         vars['pkg_name'] = id
         return render('package/new_package_metadata.html', extra_vars=vars)
 
