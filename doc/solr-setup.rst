@@ -57,9 +57,18 @@ and the admin site::
 
  http://localhost:8983/solr/admin
 
-.. note:: If you get the message ``Could not start Jetty servlet engine because no Java Development Kit (JDK) was found.`` then you will have to edit the ``JAVA_HOME`` setting in ``/etc/default/jetty`` (adjusting the path for your machine's JDK install):
+.. note::
 
-    ``JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/``
+    If you get the message ``Could not start Jetty servlet engine because no
+    Java Development Kit (JDK) was found.`` then you will have to edit the
+    ``JAVA_HOME`` setting in ``/etc/default/jetty`` to point to your machine's
+    JDK install location. For example::
+
+        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
+
+    or::
+
+        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
 
 Now run::
 
