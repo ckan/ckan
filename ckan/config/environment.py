@@ -273,7 +273,7 @@ def load_environment(global_conf, app_conf):
 
     if ckan_db:
         config['sqlalchemy.url'] = ckan_db
-    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
+    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.', client_encoding='utf8')
 
     if not model.meta.engine:
         model.init_model(engine)
