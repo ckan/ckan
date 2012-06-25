@@ -1240,7 +1240,8 @@ def resource_search(context, data_dict):
         else:
             results.append(result)
 
-    return {'count': count, 'results': results}
+    return {'count': count,
+            'results': model_dictize.resource_list_dictize(results, context)}
 
 def _tag_search(context, data_dict):
     model = context['model']
