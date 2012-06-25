@@ -427,7 +427,7 @@ class PackageController(BaseController):
 
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
-            data['tag_string'] = ', '.join(h.dict_list_reduce(c.pkg_dict['tags'], 'name'))
+            data['tag_string'] = ', '.join(h.dict_list_reduce(data['tags'], 'name'))
 
         errors = errors or {}
         error_summary = error_summary or {}
