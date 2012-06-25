@@ -48,6 +48,13 @@
     </section>
 
     {% snippet 'development/snippets/form_stages.html' %}
+
+    {% snippet 'snippets/package_grid.html', packages=[
+      {'name': "test", 'title': 'Test', 'notes': lipsum(1), 'tracking_summary':{'recent': 10}},
+      {'name': "test", 'title': 'Test', 'notes': lipsum(1), 'tracking_summary':{'recent': 5}},
+      {'name': "test", 'title': 'Test', 'notes': lipsum(1), 'tracking_summary':{'recent': 10}},
+      {'name': "test", 'title': 'Test', 'notes': lipsum(1), 'tracking_summary':{'recent': 10}}
+    ] %}
   </div>
 
   {% include "footer.html" %}
