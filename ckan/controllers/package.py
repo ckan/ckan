@@ -435,7 +435,7 @@ class PackageController(BaseController):
         # we have already completed stage 1
         stage = ['active']
         if c.form_style == 'new':
-            stage = ['active', 'complete', 'complete']
+            stage = ['active', 'complete']
 
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new', 'stage' : stage}
         c.errors_json = json.dumps(errors)
