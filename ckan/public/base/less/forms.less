@@ -347,7 +347,7 @@ textarea {
 }
 
 .stages li:after {
-  left: 100%;
+  left: 0;
   border: solid transparent;
   content: " ";
   height: 0;
@@ -356,9 +356,9 @@ textarea {
   pointer-events: none;
   border-top-color: #ededed;
   border-bottom-color: #ededed;
-  border-width: 30px;
+  border-width: 29px; // Needs to be an odd number
   top: 50%;
-  margin-top: -30px;
+  margin-top: -29px;
   margin-left: -30px;
 }
 
@@ -377,13 +377,18 @@ textarea {
   .border-radius(0 3px 0 0);
 }
 
-.stages li.last:after {
+.stages li.first:after {
   content: none;
 }
 
-.stages li.complete:after {
+.stages li.active:after {
   border-top-color: #8cc68a;
   border-bottom-color: #8cc68a;
+}
+
+.stages li.complete:after {
+  border-top-color: #C5E2C4;
+  border-bottom-color: #C5E2C4;
 }
 
 .stages.stage-3 li.complete:first-child:after {
