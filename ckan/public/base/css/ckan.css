@@ -4654,9 +4654,9 @@ ul.icons li .icon-large:before {
   font-size: 11px;
   display: block;
 }
-.module-narrow > .module-heading,
-.module-narrow > .module-content,
-.module-narrow > .module-footer {
+.module-narrow .module-heading,
+.module-narrow .module-content,
+.module-narrow .module-footer {
   padding-left: 15px;
   padding-right: 15px;
 }
@@ -4692,6 +4692,9 @@ ul.icons li .icon-large:before {
   width: 460px;
   padding-top: 10px;
   padding-bottom: 10px;
+  padding-right: 50px;
+  overflow: hidden;
+  position: relative;
 }
 .group .content img {
   margin: 0 -5px 5px;
@@ -4809,10 +4812,12 @@ ol.media-grid:after {
 .banner {
   -webkit-transform: rotate(45deg);
   -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
   -o-transform: rotate(45deg);
   transform: rotate(45deg);
   -webkit-transform-origin: center center;
   -moz-transform-origin: center center;
+  -ms-transform-origin: center center;
   -o-transform-origin: center center;
   transform-origin: center center;
   position: absolute;
