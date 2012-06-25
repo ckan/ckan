@@ -5,8 +5,9 @@
   margin-bottom: 20px;
 }
 
-.ie {
-  .box-shadow(0 0 6px rgba(0, 0, 0, 0.3));
+.ie .module {
+  // IE9 renders box shadows wildly out.
+  .box-shadow(0 0 5px rgba(0, 0, 0, 0.3));
 }
 
 .module-heading {
