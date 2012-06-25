@@ -433,9 +433,10 @@ class PackageController(BaseController):
         error_summary = error_summary or {}
         # in the phased add dataset we need to know that
         # we have already completed stage 1
-        stage = 1
+        stage = ['active']
         if c.form_style == 'new':
-            stage = 1
+            stage = ['active', 'complete', 'complete']
+
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new', 'stage' : stage}
         c.errors_json = json.dumps(errors)
 
@@ -447,7 +448,7 @@ class PackageController(BaseController):
             c.form = render(self.package_form, extra_vars=vars)
         else:
             c.form = render(self._package_form(package_type=package_type), extra_vars=vars)
-        return render( self._new_template(package_type))
+        return render( self._new_template(package_type), extra_vars={'stage': stage})
 
     def new_resource(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the forms. '''
