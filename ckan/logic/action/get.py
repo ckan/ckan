@@ -1178,18 +1178,24 @@ def package_search(context, data_dict):
 
 def resource_search(context, data_dict):
     '''
+    Searches for resources satisfying a given search criteria.
+
+    It returns a dictionary with 2 fields: ``count`` and ``results``.  The
+    ``count`` field contains the total number of Resources found without the
+    limit or query parameters having an effect.  The ``results`` field is a
+    list of dictized Resource objects.
 
     :param fields:
     :type fields:
-    :param order_by:
-    :type order_by:
-    :param offset:
-    :type offset:
-    :param limit:
-    :type limit:
+    :param order_by: A field on the Resource model that orders the results.
+    :type order_by: string
+    :param offset: Apply an offset to the query.
+    :type offset: int
+    :param limit: Apply a limit to the query.
+    :type limit: int
 
-    :returns:
-    :rtype:
+    :returns:  A dictionary with a ``count`` field, and a ``results`` field.
+    :rtype: dict
 
     '''
     model = context['model']
