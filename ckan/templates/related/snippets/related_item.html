@@ -1,7 +1,7 @@
 {% set placeholder_map = {
 'application':'/base/images/placeholder-application.png'
 } %}
-<li class="related-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
+<li class="related-item media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
   <a class="media-image" href="{{ related.url }}">
     <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" />
     <span class="banner">{% if related.type == 'application' %}app{% else %}{{ related.type | replace('news_', '') }}{% endif %}</span>
