@@ -425,9 +425,18 @@ class PackageController(BaseController):
             request.params, ignore_keys=CACHE_PARAMETERS))))
         c.resources_json = json.dumps(data.get('resources',[]))
 
+        # convert tags if not supplied in data
+        if data and not data.get('tag_string'):
+            data['tag_string'] = ', '.join(h.dict_list_reduce(c.pkg_dict['tags'], 'name'))
+
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new'}
+        # in the phased add dataset we need to know that
+        # we have already completed stage 1
+        stage = 1
+        if c.form_style == 'new':
+            stage = 1
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new', 'stage' : stage}
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id})
@@ -528,6 +537,7 @@ class PackageController(BaseController):
         # are we doing a multiphase add?
         if data['state'] == 'draft':
             c.form_action = h.url_for(controller='package', action='new')
+            c.form_style = 'new'
             return self.new(data=data)
 
 
