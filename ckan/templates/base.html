@@ -2,7 +2,12 @@
 {%- block doctype %}<!DOCTYPE html>{% endblock -%}
 
 {# Allows custom attributes to be added to the <html> tag #}
-{% block htmltag %}<html lang="en-gb">{% endblock -%}
+{% block htmltag -%}
+<!--[if IE 7]> <html lang="en-gb" class="ie ie7"> <![endif]-->
+<!--[if IE 8]> <html lang="en-gb" class="ie ie8"> <![endif]-->
+<!--[if IE]>   <html lang="en-gb" class="ie"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en-gb"> <!--<![endif]-->
+{%- endblock -%}
 
   {# Allows custom attributes to be added to the <head> tag #}
   {% block headtag %}<head>{% endblock -%}
