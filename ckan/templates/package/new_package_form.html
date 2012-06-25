@@ -1,23 +1,23 @@
 {% extends 'package/pages/form.html' %}
 
 {% block metadata_fields %}
-  {% if action == 'edit' %}{{ super() }}{% endif %}
+  {% if c.action == 'edit' %}{{ super() }}{% endif %}
 {% endblock %}
 
 {% block disclaimer %}
-  {% if action != 'edit' %}{{ super() }}{% endif %}
+  {% if c.action != 'edit' %}{{ super() }}{% endif %}
 {% endblock %}
 
 {% block save_button_text %}
-  {% if action != 'edit' %}
+  {% if c.action != 'edit' %}
     {{ super() }}
   {% else %}
-    Update
+    {{ _('Update Dataset') }}
   {% endif %}
 {% endblock %}
 
 {% block cancel_button %}
-  {% if action != 'edit' %}
+  {% if c.action != 'edit' %}
     {{ super() }}
   {% endif %}
 {% endblock %}
