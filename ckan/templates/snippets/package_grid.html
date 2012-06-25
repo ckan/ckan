@@ -13,8 +13,9 @@ Example:
   {% snippet 'snippets/package_grid.html', packages=c.datasets[:4] %}
 
 #}
-{% set list_class = list_class or 'media-grid media-wide' %}
-{% set item_class = item_class or 'media media-vertical module' %}
+
+{% set list_class = list_class or 'module-grid' %}
+{% set item_class = item_class or 'module module-item' %}
 {% set truncate = truncate or 120 %}
 {% set truncate_title = truncate_title or 40 %}
 

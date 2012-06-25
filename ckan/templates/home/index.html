@@ -58,9 +58,7 @@
 {% endblock %}
 
 {% block secondary_content %}
-  <div class="">
-    {% snippet 'snippets/package_grid.html', packages=c.datasets %}
-  </div>
+  {% snippet 'snippets/package_grid.html', packages=c.datasets %}
 {% endblock %}
 
 {# Remove the toolbar. #}
