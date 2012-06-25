@@ -30,21 +30,14 @@ count_label
       <nav>
         <ul class="unstyled nav nav-simple nav-facet">
           {% for item in items %}
-            {% if item.active %}
-                <li class="nav-item active">
-                <a href="{{ h.remove_url_param(name, item.name) }}">
+            {% with href = h.remove_url_param(name, item.name) if item.active else h.add_url_param(new_params={name: item.name}) %}
+              <li class="nav-item{% if item.active %} active{% endif %}">
+                <a href="{{ href }}">
                   {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
                   {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
                 </a>
               </li>
-            {% else %}
-                <li class="nav-item">
-                <a href="{{ h.add_url_param(new_params={name: item.name}) }}">
-                  {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
-                  {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
-                </a>
-              </li>
-            {% endif %}
+            {% endwith %}
           {% endfor %}
         </ul>
       </nav>
