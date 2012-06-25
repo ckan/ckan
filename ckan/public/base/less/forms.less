@@ -363,7 +363,7 @@ textarea {
 }
 
 .stages li.first,
-.stages li.first a {
+.stages li.first .highlight {
   .border-radius(3px 0 0 0);
 }
 
@@ -373,7 +373,7 @@ textarea {
 }
 
 .stages li.last,
-.stages li.last a {
+.stages li.last .highlight {
   .border-radius(0 3px 0 0);
 }
 
@@ -406,8 +406,7 @@ textarea {
   background: #eef6ed;
 }
 
-.stages a {
-  color: #fff;
+.stages li .highlight {
   display: block;
   position: absolute;
   top: 0;
@@ -417,11 +416,15 @@ textarea {
   line-height: 27px;
   padding: 10px 52px;
   text-decoration: none;
-  background: #8cc68a;
   z-index: -1;
 }
 
-.stages li.complete a {
+.stages li.active .highlight {
+  color: #fff;
+  background: #8cc68a;
+}
+
+.stages li.complete .highlight {
   background: #c5e2c4;
   color: #eef6ed;
 }

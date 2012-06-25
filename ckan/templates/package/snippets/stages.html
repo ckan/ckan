@@ -1,19 +1,30 @@
-{% if stage == 1 %}
-  <ol class="stages stage-1">
-    <li class="active first">{% link_for _('Create Dataset'), controller='package', action='new' %}</li>
-    <li>Add data</li>
-    <li class="last">Additional data</li>
-  </ol>
-{% elif stage == 2 %}
-  <ol class="stages stage-2">
-    <li class="complete first">{% link_for _('Edit Dataset'), controller='package', action='edit', id=pkg_name %}</li>
-    <li class="active"><a href="">Add data</a></li>
-    <li class="last">Additional data</li>
-  </ol>
-{% else %}
-  <ol class="stages stage-3">
-    <li class="complete first">{% link_for _('Edit Dataset'), controller='package', action='edit', id=pkg_name %}</li>
-    <li class="complete">{% link_for _('Add Data'), controller='package', action='new_resource', id=pkg_name %}</li>
-    <li class="active last"><a href="">Additional data</a></li>
-  </ol>
-{% endif %}
+{% set s1 = stages[0] or 'active' %}
+{% set s2 = stages[1] or 'uncomplete' %}
+{% set s3 = stages[2] or 'uncomplete' %}
+{% if s1 == 'active' %}{% set class = 'stage-1' %}{% endif %}
+{% if s2 == 'active' %}{% set class = 'stage-2' %}{% endif %}
+{% if s3 == 'active' %}{% set class = 'stage-3' %}{% endif %}
+
+<ol class="stages {{ class }}">
+  <li class="first {{ s1 }}">
+    {% if s1 != 'complete' %}
+      <span class="highlight">{{ _('Create Dataset') }}</span>
+    {% else %}
+      {% link_for _('Create Dataset'), controller='package', action='new', class_="highlight" %}
+    {% endif %}
+  </li>
+  <li class="middle {{ s2 }}">
+    {% if s2 != 'complete' %}
+      <span class="highlight">{{ _('Add data') }}</span>
+    {% else %}
+      {% link_for _('Add data'), controller='package', action='new', class_="highlight" %}
+    {% endif %}
+  </li>
+  <li class="last {{ s3 }}">
+    {% if s3 != 'complete' %}
+      <span class="highlight">{{ _('Additional data') }}</span>
+    {% else %}
+      {% link_for _('Additional data'), controller='package', action='new', class_="highlight" %}
+    {% endif %}
+  </li>
+</ol>
