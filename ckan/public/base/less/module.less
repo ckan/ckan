@@ -121,9 +121,9 @@
 // Secondary column specific
 
 .module-narrow {
-  > .module-heading,
-  > .module-content,
-  > .module-footer {
+  .module-heading,
+  .module-content,
+  .module-footer {
     padding-left:  @gutterSmallX;
     padding-right: @gutterSmallX;
   }
@@ -142,6 +142,9 @@
   .makeColumn(6);
   padding-top: 10px;
   padding-bottom: 10px;
+  padding-right: 50px;
+  overflow: hidden;
+  position: relative;
 }
 
 // GROUP
