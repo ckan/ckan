@@ -36,8 +36,8 @@
     </ul>
   </section>
 
-  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags') }}
-  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format') }}
+  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', extras={'id':c.group_dict.id}) }}
+  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', extras={'id':c.group_dict.id}) }}
 {% endblock %}
 
 {% block links %}

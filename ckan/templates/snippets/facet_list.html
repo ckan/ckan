@@ -22,15 +22,18 @@ count_label
   A callable which accepts an integer, and returns a string.  This controls
   how a facet-item's count is displayed.
 
+extras
+  Extra info passed into the add/remove params to make the url
+
 #}
 {% with items = items or h.get_facet_items_dict(name) %}
   <section class="module module-narrow module-shallow">
-    <h2 class="module-heading"><i class="icon-medium icon-filter"></i> {{ h.get_facet_title(name) }} <a href="{{ h.remove_url_param(name) }}" class="action">Clear All</a></h2>
+    <h2 class="module-heading"><i class="icon-medium icon-filter"></i> {{ h.get_facet_title(name) }} <a href="{{ h.remove_url_param(name, extras=extras) }}" class="action">Clear All</a></h2>
     {% if items %}
       <nav>
         <ul class="unstyled nav nav-simple nav-facet">
           {% for item in items %}
-            {% with href = h.remove_url_param(name, item.name) if item.active else h.add_url_param(new_params={name: item.name}) %}
+            {% with href = h.remove_url_param(name, item.name, extras=extras) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras) %}
               <li class="nav-item{% if item.active %} active{% endif %}">
                 <a href="{{ href }}">
                   {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
@@ -43,9 +46,9 @@ count_label
       </nav>
       <p class="module-footer">
           {% if h.get_param_int('_%s_limit' % name) %}
-          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0) }}" class="read-more">Show All {{ h.get_facet_title(name) }}</a>
+          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras) }}" class="read-more">Show All {{ h.get_facet_title(name) }}</a>
           {% else %}
-          <a href="{{ h.remove_url_param('_%s_limit' % name) }}" class="read-more">Show Only Popular {{ h.get_facet_title(name) }}</a>
+          <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras) }}" class="read-more">Show Only Popular {{ h.get_facet_title(name) }}</a>
           {% endif %}
       </p>
     {% else %}
