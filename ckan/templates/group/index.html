@@ -14,7 +14,7 @@
   <div class="module">
     <div class="module-content">
       <h1 class="page-heading">{{ _('Groups') }}</h1>
-      {% include "group/snippets/group_list.html" %}
+      {% snippet "group/snippets/group_list.html", groups=c.page.items %}
     </div>
     {{ c.page.pager() }}
   </div>
