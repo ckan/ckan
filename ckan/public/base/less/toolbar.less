@@ -6,6 +6,7 @@
 }
 
 .toolbar .breadcrumb {
+  .clearfix;
   .box-shadow(none);
   position: relative;
   float: left;
@@ -24,10 +25,23 @@
   width: auto; // Fix Bootstrap icon widths
 }
 
+.ie .toolbar .breadcrumb li {
+  float: left;
+}
+
 .toolbar .breadcrumb li:after {
   content: " / ";
 }
 
+.ie .toolbar .breadcrumb li:after {
+  margin: 0 0.2em;
+}
+
+.toolbar .breadcrumb li.active:after {
+  content: "";
+}
+
+// Needs to be a separate declaration as IE chokes on the last-of-type.
 .toolbar .breadcrumb li:last-of-type:after {
   content: "";
 }
