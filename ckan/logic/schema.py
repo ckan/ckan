@@ -49,7 +49,7 @@ def default_resource_schema():
         'revision_id': [ignore_missing, unicode],
         'resource_group_id': [ignore],
         'package_id': [ignore],
-        'url': [not_empty, unicode],#, URL(add_http=False)],
+        'url': [ignore_empty, unicode],#, URL(add_http=False)],
         'description': [ignore_missing, unicode],
         'format': [ignore_missing, unicode],
         'hash': [ignore_missing, unicode],
