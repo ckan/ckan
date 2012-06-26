@@ -111,7 +111,7 @@
       $('body').addClass('no-sidebar');
     </script>
 
-    ${jsConditionalForIe(8, '&lt;script type="text/javascript" src="' + h.url_for_static('/scripts/vendor/flot/0.7/excanvas.js') + '"&gt;&lt;/script&gt;', 'lte')}
+    ${jsConditionalForIe(8, '&lt;script language="javascript" type="text/javascript" src="' + h.url_for_static('/scripts/vendor/flot/0.7/excanvas.js') + '"&gt;&lt;/script&gt;', 'lte')}
     <script type="text/javascript" src="${ h.url_for_static('scripts/vendor/flot/0.7/jquery.flot.js') }">//pointless jscript comment</script>
     <script type="text/javascript">
       var options = {
@@ -126,11 +126,17 @@
             position: "nw"
           }
       };
+
+<?python
+    # Need to build the JavaScript array here and use join() so that the last
+    # trailing comma is omitted. This is required for IE to parse it.
+    packages_by_week = [];
+    for week_date, num_packages, cumulative_num_packages in c.num_packages_by_week:
+        packages_by_week.append('[new Date(%s), %s]' % (week_date.replace('-', ','), cumulative_num_packages));
+?>
       var data = [
         [ 
-        <py:for each="week_date, num_packages, cumulative_num_packages in c.num_packages_by_week">
-          [ new Date(${week_date.replace('-', ',')}), ${cumulative_num_packages} ],
-        </py:for>
+          ${",\n".join(packages_by_week)}
         ]
       ];
       $.plot($("#new_packages_graph"), data, options);
@@ -147,25 +153,30 @@
           },
           colors: ["#ffcc33", "#ff8844"]
       };
+<?python
+    all_package_revisions = [];
+    for week_date, revs, num_revisions, cumulative_num_revisions in c.package_revisions_by_week:
+        all_package_revisions.append('[new Date(%s), %s]' % (week_date.replace('-', ','), num_revisions));
+
+    new_datasets = []
+    for week_date, pkgs, num_packages, cumulative_num_packages in c.new_packages_by_week:
+        new_datasets.append('[new Date(%s), %s]' % (week_date.replace('-', ','), num_packages));
+?>
       var data = [
         {label: "All package revisions",
           lines: {
-            fill: 1,
+            fill: 1
             },
-        data: [ 
-        <py:for each="week_date, revs, num_revisions, cumulative_num_revisions in c.package_revisions_by_week">
-          [ new Date(${week_date.replace('-', ',')}), ${num_revisions} ],
-        </py:for>
+        data: [
+          ${",\n".join(all_package_revisions)}
         ]},
         {label: "New datasets",
           lines: {
-            fill: 1,
+            fill: 1
             },
         data: [ 
-        <py:for each="week_date, pkgs, num_packages, cumulative_num_packages in c.new_packages_by_week">
-          [ new Date(${week_date.replace('-', ',')}), ${num_packages} ],
-        </py:for>
-        ]},
+          ${",\n".join(new_datasets)}
+        ]}
       ];
       $.plot($("#package_revisions_graph"), data, options);
     </script>
