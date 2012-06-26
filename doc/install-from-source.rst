@@ -53,7 +53,7 @@ a. Create a Python virtual environment (virtualenv) called ``pyenv`` in your
    home directory (it's important to call your virtualenv ``pyenv`` so that the
    automated deployment tools work correctly) and activate it::
 
-       cd
+       cd ~
        virtualenv --no-site-packages pyenv
        . pyenv/bin/activate
 
