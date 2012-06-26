@@ -1025,8 +1025,7 @@ class TestAction(WsgiAppCase):
 
     def test_42_resource_search_with_single_field_query(self):
         request_body = {
-            'q': ["description:index"],
-            'fields': []
+            'query': ["description:index"],
         }
         postparams = json.dumps(request_body)
         response = self.app.post('/api/action/resource_search',
@@ -1042,8 +1041,7 @@ class TestAction(WsgiAppCase):
 
     def test_42_resource_search_across_multiple_fields(self):
         request_body = {
-            'q': ["description:index", "format:json"],
-            'fields': []
+            'query': ["description:index", "format:json"],
         }
         postparams = json.dumps(request_body)
         response = self.app.post('/api/action/resource_search',
@@ -1070,8 +1068,7 @@ class TestAction(WsgiAppCase):
         Remove this test when removing the fields parameter.  (#????)
         '''
         request_body = {
-            'fields': [("description", "index")],
-            'q': [],
+            'fields': {"description": "index"},
         }
 
         postparams = json.dumps(request_body)
