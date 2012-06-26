@@ -1,4 +1,5 @@
-import os, logging
+import os
+import logging
 
 import ckan.authz as authz
 from ckan.logic import NotAuthorized
@@ -15,8 +16,7 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       not_empty,
                                       empty,
                                       ignore,
-                                      keep_extras,
-                                     )
+                                      keep_extras)
 
 log = logging.getLogger(__name__)
 
@@ -42,10 +42,14 @@ class OrganizationForm(SingletonPlugin):
 
     def before_map(self, map):
         controller = 'ckanext.organizations.controllers:OrganizationController'
-        map.connect('/organization/users/{id}', controller=controller, action='users')
-        map.connect('/organization/apply/{id}', controller=controller, action='apply')
-        map.connect('/organization/apply', controller=controller, action='apply')
-        map.connect('/organization/edit/{id}', controller='group', action='edit')
+        map.connect('/organization/users/{id}', controller=controller,
+                    action='users')
+        map.connect('/organization/apply/{id}', controller=controller,
+                    action='apply')
+        map.connect('/organization/apply', controller=controller,
+                    action='apply')
+        map.connect('/organization/edit/{id}', controller='group',
+                    action='edit')
         map.connect('/organization/new', controller='group', action='new')
         map.connect('/organization/{id}', controller='group', action='read')
         map.connect('/organization',  controller='group', action='index')
@@ -64,8 +68,8 @@ class OrganizationForm(SingletonPlugin):
         rootdir = os.path.dirname(os.path.dirname(here))
         template_dir = os.path.join(rootdir, 'ckanext',
                                     'organizations', 'templates')
-        config['extra_template_paths'] = ','.join([template_dir,
-                config.get('extra_template_paths', '')])
+        config['extra_template_paths'] = ','.\
+            join([template_dir, config.get('extra_template_paths', '')])
 
         # Override /group/* as the default groups urls
         config['ckan.default.group_type'] = 'organization'
@@ -84,7 +88,6 @@ class OrganizationForm(SingletonPlugin):
         """
         return 'organization_index.html'
 
-
     def read_template(self):
         """
         Returns a string representing the location of the template to be
@@ -98,7 +101,6 @@ class OrganizationForm(SingletonPlugin):
         rendered for the read page
         """
         return 'organization_history.html'
-
 
     def group_form(self):
         """
@@ -159,7 +161,7 @@ class OrganizationForm(SingletonPlugin):
         """
         c.user_groups = c.userobj.get_groups('organization')
         local_ctx = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                     'user': c.user or c.author}
 
         try:
             check_access('group_create', local_ctx)
@@ -177,6 +179,7 @@ class OrganizationForm(SingletonPlugin):
             if grps:
                 c.parent = grps[0]
             c.users = group.members_of_type(model.User)
+
 
 class OrganizationDatasetForm(SingletonPlugin):
 
@@ -226,7 +229,6 @@ class OrganizationDatasetForm(SingletonPlugin):
     def package_form(self):
         return 'organization_package_form.html'
 
-
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
@@ -244,9 +246,10 @@ class OrganizationDatasetForm(SingletonPlugin):
     def setup_template_variables(self, context, data_dict):
         from pylons import config
 
-        data_dict.update({'available_only':True})
+        data_dict.update({'available_only': True})
 
-        c.groups_available = c.userobj and c.userobj.get_groups('organization') or []
+        c.groups_available = c.userobj and \
+            c.userobj.get_groups('organization') or []
         c.licences = [('', '')] + base.model.Package.get_license_options()
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
 
