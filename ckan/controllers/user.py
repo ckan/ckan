@@ -289,7 +289,7 @@ class UserController(BaseController):
         # we need to set the language via a redirect
         lang = session.pop('lang', None)
         session.save()
-t di
+
         # we need to set the language explicitly here or the flash
         # messages will not be translated.
         ckan.lib.i18n.set_lang(lang)
