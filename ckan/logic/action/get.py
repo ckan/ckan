@@ -1958,10 +1958,42 @@ def am_following_dataset(context, data_dict):
     return _am_following(context, data_dict,
             context['model'].UserFollowingDataset)
 
+def user_followee_count(context, data_dict):
+    '''Return the number of users that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+    return ckan.model.UserFollowingUser.followee_count(data_dict['id'])
+
+def dataset_followee_count(context, data_dict):
+    '''Return the number of datasets that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+    return ckan.model.UserFollowingDataset.followee_count(data_dict['id'])
+
 def user_followee_list(context, data_dict):
     '''Return the list of users that are followed by the given user.
 
-    :param id: the id or name of the user
+    :param id: the id of the user
     :type id: string
 
     :rtype: list of dictionaries
