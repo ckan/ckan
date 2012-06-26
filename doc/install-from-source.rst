@@ -29,21 +29,20 @@ http://wiki.ckan.org/Install for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-mercurial              `Source control <http://mercurial.selenic.com/>`_
-python                 `Python v2.5-2.7 <http://www.python.org/getit/>`_
-postgresql             `PostgreSQL database <http://www.postgresql.org/download/>`_
-libpq                  `PostgreSQL library <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
-libxml2                `XML library development files <http://xmlsoft.org/>`_
-libxslt                `XSLT library development files <http://www.linuxfromscratch.org/blfs/view/6.3/general/libxslt.html>`_
+Mercurial              `A source control management tool <http://mercurial.selenic.com/>`_
+Python                 `The Python programming language, v2.5-2.7 <http://www.python.org/getit/>`_
+PostgreSQL             `The PostgreSQL database system <http://www.postgresql.org/download/>`_
+libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
+libxml2                `An XML C parser and toolkit <http://xmlsoft.org/>`_
+libxslt                `An XSLT C library <http://www.linuxfromscratch.org/blfs/view/6.3/general/libxslt.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
-virtualenv             `Python virtual environments <http://pypi.python.org/pypi/virtualenv>`_
-wget                   `Command line tool for downloading from the web <http://www.gnu.org/s/wget/>`_
-build-essential        Tools for building source code (or up-to-date Xcode on Mac)
-git                    `Git source control (for getting MarkupSafe src) <http://book.git-scm.com/2_installing_git.html>`_
-subversion             `Subversion source control (for pyutilib) <http://subversion.apache.org/packages.html>`_
-solr                   `Search engine <http://lucene.apache.org/solr>`_
-jetty                  `HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr)
-openjdk-6-jdk          `OpenJDK Java library <http://openjdk.java.net/install/>`_
+virtualenv             `The virtual Python environment builder <http://pypi.python.org/pypi/virtualenv>`_
+GNU Wget                   `A commandline tool for downloading files from the Internet <http://www.gnu.org/s/wget/>`_
+build-essential        A collection of packages for building source code (build-essential is a Debian/Ubuntu package, if you're using another operating system you have to find the equivalent set of packages for your operating system, e.g. on OS X you would install an up-to-date version of Xcode)
+Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
+Apache Solr                   `A search platform <http://lucene.apache.org/solr>`_
+Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr)
+OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
 =====================  ===============================================
 
 
