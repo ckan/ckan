@@ -105,8 +105,8 @@
       $('body').addClass('no-sidebar');
     </script>
 
-    <!--[if lte IE8]><script type="text/javascript" src="http://assets.okfn.org/ext/flot/0.6/excanvas.min.js"></script><![endif]-->
-    <script type="text/javascript" src="http://assets.okfn.org/ext/flot/0.6/jquery.flot.min.js">//pointless jscript comment</script>
+    ${jsConditionalForIe(8, '&lt;script type="text/javascript" src="' + h.url_for_static('/scripts/vendor/flot/0.7/excanvas.js') + '"&gt;&lt;/script&gt;', 'lte')}
+    <script type="text/javascript" src="${ h.url_for_static('scripts/vendor/flot/0.7/jquery.flot.js') }">//pointless jscript comment</script>
     <script type="text/javascript">
       var options = {
           xaxis: {
