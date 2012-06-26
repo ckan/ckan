@@ -5,6 +5,7 @@ from ckan.lib.jsonp import jsonpify
 from ckan.logic import get_action, check_access
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 
+
 class DatastoreController(BaseController):
     def _make_redirect(self, id, url=''):
         index_name = 'ckan-%s' % g.site_id
@@ -21,9 +22,7 @@ class DatastoreController(BaseController):
         try:
             resource = get_action('resource_show')(context, {'id': id})
             if not resource.get('webstore_url', ''):
-                return {
-                    'error': 'DataStore is disabled for this resource'
-                    }
+                return {'error': 'DataStore is disabled for this resource'}
             self._make_redirect(id, url)
             return ''
         except NotFound:
@@ -40,9 +39,7 @@ class DatastoreController(BaseController):
             if not resource:
                 abort(404, _('Resource not found'))
             if not resource.webstore_url:
-                return {
-                    'error': 'DataStore is disabled for this resource'
-                    }
+                return {'error': 'DataStore is disabled for this resource'}
             context["resource"] = resource
             check_access('resource_update', context, {'id': id})
             self._make_redirect(id, url)
@@ -51,4 +48,3 @@ class DatastoreController(BaseController):
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-

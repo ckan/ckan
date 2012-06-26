@@ -8,20 +8,22 @@ import ckan.forms
 from ckan.lib.helpers import Page
 from ckan.logic import NotAuthorized, check_access
 
+
 class AuthorizationGroupController(BaseController):
-    
+
     def __init__(self):
         BaseController.__init__(self)
-    
+
     def index(self):
         from ckan.lib.helpers import Page
         try:
-            context = {'model':model,'user': c.user or c.author}
-            check_access('site_read',context)
+            context = {'model': model, 'user': c.user or c.author}
+            check_access('site_read', context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
-        query = ckan.authz.Authorizer().authorized_query(c.user, model.AuthorizationGroup)
+        query = ckan.authz.Authorizer().authorized_query(
+            c.user, model.AuthorizationGroup)
         query = query.options(eagerload_all('users'))
         c.page = Page(
             collection=query,
@@ -32,19 +34,20 @@ class AuthorizationGroupController(BaseController):
 
     def _get_authgroup_by_name_or_id(self, id):
         return model.AuthorizationGroup.by_name(id) or\
-               model.Session.query(model.AuthorizationGroup).get(id)
+            model.Session.query(model.AuthorizationGroup).get(id)
 
     def read(self, id):
         c.authorization_group = self._get_authgroup_by_name_or_id(id)
         if c.authorization_group is None:
             abort(404)
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, 
+        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ,
                                                       c.authorization_group)
         if not auth_for_read:
             abort(401, _('Not authorized to read %s') % id.encode('utf8'))
-        
+
         import ckan.misc
-        c.authorization_group_admins = self.authorizer.get_admins(c.authorization_group)
+        c.authorization_group_admins = self.authorizer.get_admins(
+            c.authorization_group)
 
         c.page = Page(
             collection=c.authorization_group.users,
@@ -56,16 +59,17 @@ class AuthorizationGroupController(BaseController):
     def new(self):
         record = model.AuthorizationGroup
         c.error = ''
-        
-        auth_for_create = self.authorizer.am_authorized(c, model.Action.AUTHZ_GROUP_CREATE, model.System())
+
+        auth_for_create = self.authorizer.am_authorized(
+            c, model.Action.AUTHZ_GROUP_CREATE, model.System())
         if not auth_for_create:
             abort(401, _('Unauthorized to create a group'))
-        
+
         is_admin = self.authorizer.is_sysadmin(c.user)
-        
+
         fs = ckan.forms.get_authorization_group_fieldset(is_admin=is_admin)
 
-        if request.params.has_key('save'):
+        if 'save' in request.params:
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
@@ -78,41 +82,48 @@ class AuthorizationGroupController(BaseController):
                 return render('authorization_group/edit.html')
             # do not use groupname from id as may have changed
             c.authzgroupname = c.fs.name.value
-            authorization_group = model.AuthorizationGroup.by_name(c.authzgroupname)
+            authorization_group = model.AuthorizationGroup.by_name(
+                c.authzgroupname)
             assert authorization_group
             user = model.User.by_name(c.user)
             model.setup_default_user_roles(authorization_group, [user])
-            users = [model.User.by_name(name) for name in \
+            users = [model.User.by_name(name) for name in
                      request.params.getall('AuthorizationGroup-users-current')]
             authorization_group.users = list(set(users))
-            usernames = request.params.getall('AuthorizationGroupUser--user_name')
+            usernames = request.params.getall(
+                'AuthorizationGroupUser--user_name')
             for username in usernames:
                 if username:
                     usr = model.User.by_name(username)
                     if usr and usr not in authorization_group.users:
-                        model.add_user_to_authorization_group(usr, authorization_group, model.Role.READER)
+                        model.add_user_to_authorization_group(
+                            usr, authorization_group, model.Role.READER)
             model.repo.commit_and_remove()
-            h.redirect_to(controller='authorization_group', action='read', id=c.authzgroupname)
+            h.redirect_to(controller='authorization_group', action='read',
+                          id=c.authzgroupname)
 
         c.form = self._render_edit_form(fs)
         return render('authorization_group/new.html')
 
-    def edit(self, id=None): # allow id=None to allow posting
+    def edit(self, id=None):
+        # allow id=None to allow posting
         c.error = ''
         authorization_group = self._get_authgroup_by_name_or_id(id)
         if authorization_group is None:
             abort(404, '404 Not Found')
-        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, authorization_group)
+        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT,
+                                                 authorization_group)
         if not am_authz:
             abort(401, _('User %r not authorized to edit %r') % (c.user, id))
-            
+
         is_admin = self.authorizer.is_sysadmin(c.user)
-        
+
         if not 'save' in request.params:
             c.authorization_group = authorization_group
             c.authorization_group_name = authorization_group.name
-            
-            fs = ckan.forms.get_authorization_group_fieldset(is_admin=is_admin).bind(authorization_group)
+
+            fs = ckan.forms.get_authorization_group_fieldset(
+                is_admin=is_admin).bind(authorization_group)
             c.form = self._render_edit_form(fs)
             return render('authorization_group/edit.html')
         else:
@@ -133,17 +144,20 @@ class AuthorizationGroupController(BaseController):
                 c.form = self._render_edit_form(fs)
                 return render('authorization_group/edit.html')
             user = model.User.by_name(c.user)
-            users = [model.User.by_name(name) for name in \
+            users = [model.User.by_name(name) for name in
                      request.params.getall('AuthorizationGroup-users-current')]
             authorization_group.users = list(set(users))
-            usernames = request.params.getall('AuthorizationGroupUser--user_name')
+            usernames = request.params.\
+                getall('AuthorizationGroupUser--user_name')
             for username in usernames:
                 if username:
                     usr = model.User.by_name(username)
                     if usr and usr not in authorization_group.users:
-                        model.add_user_to_authorization_group(usr, authorization_group, model.Role.READER)
+                        model.add_user_to_authorization_group(
+                            usr, authorization_group, model.Role.READER)
             model.repo.commit_and_remove()
-            h.redirect_to(controller='authorization_group', action='read', id=c.authorization_group_name)
+            h.redirect_to(controller='authorization_group', action='read',
+                          id=c.authorization_group_name)
 
     def authz(self, id):
         authorization_group = self._get_authgroup_by_name_or_id(id)
@@ -153,15 +167,16 @@ class AuthorizationGroupController(BaseController):
         c.authorization_group_name = authorization_group.name
         c.authorization_group = authorization_group
 
-        c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, 
-                                                         authorization_group)
+        c.authz_editable = self.authorizer.am_authorized(
+            c, model.Action.EDIT_PERMISSIONS, authorization_group)
         if not c.authz_editable:
-            abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
+            abort(401,
+                  gettext('User %r not authorized to edit %s authorizations')
+                  % (c.user, id))
 
         roles = self._handle_update_of_authz(authorization_group)
         self._prepare_authz_info_for_render(roles)
         return render('authorization_group/authz.html')
-
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors

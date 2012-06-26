@@ -15,7 +15,7 @@ config = ConfigParser.ConfigParser()
 config_file = os.environ.get('CKAN_CONFIG')
 
 if not config_file:
-    config_file =  os.path.join(
+    config_file = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '../../development.ini')
 config.read(config_file)
 
@@ -25,14 +25,14 @@ if not sqlalchemy_url:
     sqlalchemy_url = config.get('app:main', 'sqlalchemy.url')
 
 
-default_config = dict( 
-    BROKER_BACKEND = 'sqlalchemy',
-    BROKER_HOST = sqlalchemy_url,
-    CELERY_RESULT_DBURI = sqlalchemy_url,
-    CELERY_RESULT_BACKEND = 'database',
-    CELERY_RESULT_SERIALIZER = 'json',
-    CELERY_TASK_SERIALIZER = 'json',
-    CELERY_IMPORTS = [],
+default_config = dict(
+    BROKER_BACKEND='sqlalchemy',
+    BROKER_HOST=sqlalchemy_url,
+    CELERY_RESULT_DBURI=sqlalchemy_url,
+    CELERY_RESULT_BACKEND='database',
+    CELERY_RESULT_SERIALIZER='json',
+    CELERY_TASK_SERIALIZER='json',
+    CELERY_IMPORTS=[],
 )
 
 for entry_point in iter_entry_points(group='ckan.celery_task'):
