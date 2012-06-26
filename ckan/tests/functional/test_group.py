@@ -157,6 +157,7 @@ class TestEdit(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        setup_test_search_index()
         model.Session.remove()
         CreateTestData.create()
         self.groupname = u'david'
@@ -165,7 +166,6 @@ class TestEdit(FunctionalTestCase):
         model.Session.add(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
 
-        setup_test_search_index()
 
     @classmethod
     def teardown_class(self):

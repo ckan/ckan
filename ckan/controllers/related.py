@@ -35,11 +35,4 @@ class RelatedController(base.BaseController):
 
         c.related_count = len(c.pkg.related)
 
-        f = logic.get_action('dataset_follower_count')
-        c.num_followers = f(context, {'id': c.pkg_dict['id']})
-        # If the user is logged in set the am_following variable.
-        if c.user:
-            f = logic.get_action('am_following_dataset')
-            c.pkg_dict['am_following'] = f(context, {'id': c.pkg.id})
-
         return base.render("package/related_list.html")

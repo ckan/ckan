@@ -138,11 +138,11 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False):
         If a dataset id is provided, only this dataset will be reindexed.
         When reindexing all datasets, if only_missing is True, only the
         datasets not already indexed will be processed. If force equals
-        True, if an execption is found, the exception will be logged, but
+        True, if an exception is found, the exception will be logged, but
         the process will carry on.
     '''
     from ckan import model
-    log.debug("Rebuilding search index...")
+    log.info("Rebuilding search index...")
 
     package_index = index_for(model.Package)
 
@@ -150,13 +150,14 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False):
         pkg_dict = get_action('package_show')(
             {'model': model, 'ignore_auth': True, 'validate': False},
             {'id': package_id})
+        log.info('Indexing just package %r...', pkg_dict['name'])
         package_index.remove_dict(pkg_dict)
         package_index.insert_dict(pkg_dict)
     else:
         package_ids = [r[0] for r in model.Session.query(model.Package.id).
                        filter(model.Package.state == 'active').all()]
         if only_missing:
-            log.debug('Indexing only missing packages...')
+            log.info('Indexing only missing packages...')
             package_query = query_for(model.Package)
             indexed_pkg_ids = set(package_query.get_all_entity_ids(
                 max_results=len(package_ids)))
@@ -164,10 +165,10 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False):
             package_ids = set(package_ids) - indexed_pkg_ids
 
             if len(package_ids) == 0:
-                log.debug('All datasets are already indexed')
+                log.info('All datasets are already indexed')
                 return
         else:
-            log.debug('Rebuilding the whole index...')
+            log.info('Rebuilding the whole index...')
             # When refreshing, the index is not previously cleared
             if not refresh:
                 package_index.clear()
@@ -191,7 +192,7 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False):
                     raise
 
     model.Session.commit()
-    log.debug('Finished rebuilding search index.')
+    log.info('Finished rebuilding search index.')
 
 
 def check():
