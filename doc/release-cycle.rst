@@ -9,11 +9,11 @@ Point releases (e.g 1.8)
 ------------------------
 
 These will be branched from master at a certain point (we aim to do a point
-release roughly every two months). There will be a period of three weeks until
-the actual release. During the first two weeks changes would be allowed  to
-stabilize the code, update i18n etc. During the last week only critical bug
-fixes will be allowed. Point releases are merged back into master after the
-actual release.
+release roughly every two or three months). There will be a period of three
+weeks until the actual release. During the first two weeks changes would be
+allowed  to stabilize the code, update i18n etc. During the last week only
+critical bug fixes will be allowed. Point releases are merged back into master
+after the actual release.
 
 Point point releases (e.g 1.8.1)
 --------------------------------
