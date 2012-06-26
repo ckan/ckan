@@ -1675,16 +1675,7 @@ def _render_new_package_activity(context, activity):
     return _render('activity_streams/new_package.html',
         extra_vars = {'activity': activity})
 
-<<<<<<< HEAD
-def render_new_related_activity(context, activity):
-    return render('activity_streams/new_related_item.html',
-        extra_vars = {'activity': activity,
-                      'type': activity['data']['related']['type']})
-
-def render_deleted_package_activity(context, activity):
-=======
 def _render_deleted_package_activity(context, activity):
->>>>>>> master
     return _render('activity_streams/deleted_package.html',
         extra_vars = {'activity': activity})
 
@@ -1696,15 +1687,7 @@ def _render_changed_resource_activity(context, activity, detail):
     return _render('activity_streams/changed_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
-<<<<<<< HEAD
-def render_deleted_related_activity(context, activity):
-    return render('activity_streams/deleted_related_item.html',
-        extra_vars = {'activity': activity})
-
-def render_deleted_resource_activity(context, activity, detail):
-=======
 def _render_deleted_resource_activity(context, activity, detail):
->>>>>>> master
     return _render('activity_streams/deleted_resource.html',
         extra_vars = {'activity': activity, 'detail': detail})
 
@@ -1783,21 +1766,18 @@ def _render_deleted_group_activity(context, activity):
     return _render('activity_streams/deleted_group.html',
         extra_vars = {'activity': activity})
 
+def _render_new_related_activity(context, activity):
+    return _render('activity_streams/new_related_item.html',
+        extra_vars = {'activity': activity})
+
+def _render_deleted_related_activity(context, activity):
+    return _render('activity_streams/deleted_related_item.html',
+        extra_vars = {'activity': activity})
+
+
 # Global dictionary mapping activity types to functions that render activity
 # dicts to HTML snippets for including in HTML pages.
 activity_renderers = {
-<<<<<<< HEAD
-  'new package' : render_new_package_activity,
-  'changed package' : render_changed_package_activity,
-  'deleted package' : render_deleted_package_activity,
-  'new user' : render_new_user_activity,
-  'changed user' : render_changed_user_activity,
-  'new group' : render_new_group_activity,
-  'changed group' : render_changed_group_activity,
-  'deleted group' : render_deleted_group_activity,
-  'new related item': render_new_related_activity,
-  'deleted related item': render_deleted_related_activity
-=======
   'new package' : _render_new_package_activity,
   'changed package' : _render_changed_package_activity,
   'deleted package' : _render_deleted_package_activity,
@@ -1806,7 +1786,8 @@ activity_renderers = {
   'new group' : _render_new_group_activity,
   'changed group' : _render_changed_group_activity,
   'deleted group' : _render_deleted_group_activity,
->>>>>>> master
+  'new related item': _render_new_related_activity,
+  'deleted related item': _render_deleted_related_activity
   }
 
 def _activity_list_to_html(context, activity_stream):

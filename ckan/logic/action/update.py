@@ -124,6 +124,7 @@ def related_update(context, data_dict):
 
     '''
     model = context['model']
+    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
     schema = context.get('schema') or ckan.logic.schema.default_related_schema()
