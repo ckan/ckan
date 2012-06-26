@@ -1269,6 +1269,9 @@ def resource_search(context, data_dict):
                 {'query': _('Must be {field}:{value} pair(s)')})
 
     else:
+        log.warning('Use of the "fields" parameter in resource_search is '
+                            'deprecated.  Use the "query" parameter instead')
+
         # The legacy fields paramter splits string terms.
         # So maintain that behaviour
         split_terms = {}
