@@ -1,6 +1,7 @@
 from ckan.lib.base import *
 from genshi.template.loader import TemplateNotFound
 
+
 class TemplateController(BaseController):
 
     def view(self, url):
@@ -35,4 +36,3 @@ class TemplateController(BaseController):
                 return render(url)
             except TemplateNotFound:
                 abort(404)
-
