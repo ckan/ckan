@@ -20,6 +20,15 @@ from ckan.lib.navl.validators import (ignore_missing,
 
 log = logging.getLogger(__name__)
 
+
+def group_required(key, data, errors, context):
+    """ We want at least a group in the data we are provided """
+    has_group = ('groups', 0, 'id') in data
+    if not has_group:
+        errors[('Organizations', '')] = \
+            [_('Please choose an organization to add the dataset to')]
+
+
 class OrganizationForm(SingletonPlugin):
     """
     This plugin implements an IGroupForm for form associated with a
@@ -221,33 +230,16 @@ class OrganizationDatasetForm(SingletonPlugin):
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        #schema = default_package_schema()
-        #schema['groups']['capacity'] = [ ignore_missing, unicode ]
-        #return schema
 
     def form_to_db_schema(self):
         schema = default_package_schema()
-        schema['groups']['capacity'] = [ ignore_missing, unicode ]
+        schema['groups']['capacity'] = [ignore_missing, unicode]
+        schema['__after'] = [group_required]
         return schema
 
     def check_data_dict(self, data_dict, schema=None):
         '''Check if the return data is correct, mostly for checking out
         if spammers are submitting only part of the form'''
-
-        # Resources might not exist yet (eg. Add Dataset)
-        surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                               'extras_validation', 'save', 'return_to',
-                               'resources', 'type']
-
-#        if not schema:
-#            schema = self.form_to_db_schema()
-#        schema_keys = schema.keys()
-#        keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
-
-#        missing_keys = keys_in_schema - set(data_dict.keys())
-#        if missing_keys:
-#            log.info('incorrect form fields posted, missing %s' % missing_keys)
-#            raise DataError(data_dict)
 
     def setup_template_variables(self, context, data_dict):
         from pylons import config
