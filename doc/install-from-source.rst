@@ -20,7 +20,7 @@ ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install mercurial python-dev postgresql libpq-dev libxml2-dev libxslt-dev python-pip python-virtualenv wget build-essential git-core solr-jetty openjdk-6-jdk
+    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -29,16 +29,11 @@ http://wiki.ckan.org/Install for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Mercurial              `A source control management tool <http://mercurial.selenic.com/>`_
 Python                 `The Python programming language, v2.5-2.7 <http://www.python.org/getit/>`_
 PostgreSQL             `The PostgreSQL database system <http://www.postgresql.org/download/>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
-libxml2                `An XML C parser and toolkit <http://xmlsoft.org/>`_
-libxslt                `An XSLT C library <http://www.linuxfromscratch.org/blfs/view/6.3/general/libxslt.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
 virtualenv             `The virtual Python environment builder <http://pypi.python.org/pypi/virtualenv>`_
-GNU Wget                   `A commandline tool for downloading files from the Internet <http://www.gnu.org/s/wget/>`_
-build-essential        A collection of packages for building source code (build-essential is a Debian/Ubuntu package, if you're using another operating system you have to find the equivalent set of packages for your operating system, e.g. on OS X you would install an up-to-date version of Xcode)
 Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
 Apache Solr                   `A search platform <http://lucene.apache.org/solr>`_
 Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr)
