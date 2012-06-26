@@ -1,3 +1,7 @@
+# This file lists CKAN's dependencies so that you can install them (e.g. into
+# a Python virtual environment) after you have installed CKAN, with a command
+# like: pip install -r pip-requirements.txt. See the Install from Source
+# instructions in CKAN's documentation for full installation instructions.
 Genshi==0.6
 sqlalchemy-migrate==0.7.1
 sqlalchemy==0.7.3
