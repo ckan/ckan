@@ -20,7 +20,7 @@ ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install mercurial python-dev postgresql libpq-dev libxml2-dev libxslt-dev python-pip python-virtualenv wget build-essential git-core subversion solr-jetty openjdk-6-jdk
+    sudo apt-get install mercurial python-dev postgresql libpq-dev libxml2-dev libxslt-dev python-pip python-virtualenv wget build-essential git-core solr-jetty openjdk-6-jdk
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
