@@ -1260,9 +1260,11 @@ def resource_search(context, data_dict):
     elif query is not None:
         if isinstance(query, basestring):
             query = [query]
-
-        # TODO: escape ':' with '\:'
-        fields = dict(pair.split(":", 1) for pair in query)
+        try:
+            fields = dict(pair.split(":", 1) for pair in query)
+        except ValueError:
+            raise ValidationError(
+                {'query': _('Must be {field}:{value} pair(s)')})
     else:
         # legacy fields paramter would split string terms
         # maintain that behaviour
@@ -1284,7 +1286,10 @@ def resource_search(context, data_dict):
         if isinstance(terms, basestring):
             terms = [terms]
         if field not in resource_fields:
-            raise search.SearchError('Field "%s" not recognised in Resource search.' % field)
+            raise ValidationError(
+                {'query':
+                    _('Field "{field}" not recognised in resource_search.')\
+                        .format(field=field)})
         for term in terms:
             term = misc.escape_sql_like_special_characters(term)
             model_attr = getattr(model.Resource, field)
