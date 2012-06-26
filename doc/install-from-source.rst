@@ -4,9 +4,10 @@ Option 2: Install from Source
 
 This section describes how to install CKAN from source. Although
 :doc:`install-from-package` is simpler, it requires Ubuntu 10.04. Installing
-CKAN from source works with other versions of Ubuntu (e.g. 12.04) and with
-other operating systems. If you install CKAN from source on your own operating
-system, please share your experiences on our wiki: http://wiki.ckan.org/Install
+CKAN from source works with Ubuntu 10.04, with other versions of Ubuntu (e.g.
+12.04) and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
+you install CKAN from source on your own operating system, please share your
+experiences on our wiki: http://wiki.ckan.org/Install
 
 From source is also the right installation method for developers who want to
 work on CKAN.
