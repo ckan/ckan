@@ -42,6 +42,15 @@
     <title>{% block title %}CKAN{% endblock %}</title>
 
     {#
+    The html5shim allows you to modify/override the html5 shim. This is useful
+    for modifying it's behaviour or removing it completely.
+    #}
+    {% block html5shim -%}
+      {# Temporary link until we get resource helper working #}
+      <!--[if lte IE 8]><script src="/base/javascript/vendor/html5.js"></script><![endif]-->
+    {%- endblock -%}
+
+    {#
     The links block allows you to add additonal content before the stylesheets
     such as rss feeds and favicons in the same way as the meta block.
     #}
