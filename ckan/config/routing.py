@@ -314,10 +314,11 @@ def make_map():
         m.connect('storage_file', '/storage/f/{label:.*}',
                   action='file')
 
-    map.connect('/i18n/strings_{lang}.js', controller='i18n', action='strings')
-    map.connect('/util/redirect', controller='util', action='redirect')
-    map.connect('/test/primer', controller='development', action='primer')
-    map.connect('/test/markup', controller='development', action='markup')
+    with SubMapper(map, controller='util') as m:
+        m.connect('/i18n/strings_{lang}.js', action='i18n_js_strings')
+        m.connect('/util/redirect', action='redirect')
+        m.connect('/test/primer', action='primer')
+        m.connect('/test/markup', action='markup')
 
     for plugin in routing_plugins:
         map = plugin.after_map(map)
