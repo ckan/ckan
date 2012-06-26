@@ -186,7 +186,11 @@ class ResourceSearchQuery(SearchQuery):
         else:
             options.update(kwargs)
 
-        context = {'model':model, 'session': model.Session}
+        context = {
+            'model':model,
+            'session': model.Session,
+            'search_query': True,
+        }
         data_dict = {
             'fields': fields,
             'offset': options.get('offset'),

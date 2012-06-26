@@ -1227,6 +1227,11 @@ def resource_search(context, data_dict):
     The ``fields`` parameter is deprecated as it is not compatible with calling
     this action with a GET request to the action API.
 
+    The context may contain a flag, `search_query`, which if True will make
+    this action behave as if being used by the internal search api.  ie - the
+    results will not be dictized, and SearchErrors are thrown for bad search
+    queries (rather than ValidationErrors).
+
     :param query: The search criteria.  See above for description.
     :type query: string or list of strings of the form "{field}:{term1}"
     :param fields: Deprecated
@@ -1294,10 +1299,16 @@ def resource_search(context, data_dict):
             terms = [terms]
 
         if field not in resource_fields:
-            raise ValidationError(
-                {'query':
-                    _('Field "{field}" not recognised in resource_search.')\
-                        .format(field=field)})
+            msg = _('Field "{field}" not recognised in resource_search.')\
+                    .format(field=field)
+
+            # Running in the context of the internal search api.
+            if context.get('search_query', False):
+                raise search.SearchError(msg)
+
+            # Otherwise, assume we're in the context of an external api
+            # and need to provide meaningful external error messages.
+            raise ValidationError({'query': msg})
 
         for term in terms:
 
@@ -1341,8 +1352,12 @@ def resource_search(context, data_dict):
         else:
             results.append(result)
 
+    # If run in the context of a search query, then don't dictize the results.
+    if not context.get('search_query', False):
+        results = model_dictize.resource_list_dictize(results, context)
+
     return {'count': count,
-            'results': model_dictize.resource_list_dictize(results, context)}
+            'results': results}
 
 def _tag_search(context, data_dict):
     model = context['model']
