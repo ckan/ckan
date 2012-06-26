@@ -202,4 +202,5 @@ class ResourceExtension(BaseExtension):
     def _call(cls, args, kwargs):
         assert len(args) == 1
         assert len(kwargs) == 0
-        return h.include_resource(args[0], **kwargs)
+        h.include_resource(args[0], **kwargs)
+        return ''
