@@ -9,6 +9,7 @@ import pylons.i18n as i18n
 c = base.c
 _ = i18n._
 
+
 class RelatedController(base.BaseController):
 
 
@@ -35,7 +36,7 @@ class RelatedController(base.BaseController):
         try:
             c.pkg_dict = logic.get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            c.resources_json = h.json.dumps(c.pkg_dict.get('resources',[]))
+            c.resources_json = h.json.dumps(c.pkg_dict.get('resources', []))
         except logic.NotFound:
             base.abort(404, base._('Dataset not found'))
         except logic.NotAuthorized:
