@@ -1,3 +1,20 @@
+{#
+Renders a media item for a group. This should be used in a list.
+
+group - A group dict.
+first - Pass true if this is the first item in a row.
+last  - Pass true if this is the last item in a row.
+
+Example:
+
+    <ul class="media-grid">
+      {% for group in groups %}
+        {% set first = loop.index0 % 3 == 0 %}
+        {% set last  = loop.index0 % 3 == 2 %}
+        {% snippet "group/snippets/group_item.html", group=group, first=first, last=last %}
+      {% endfor %}
+    </ul>
+#}
 {% set url = h.url_for(group.type ~ '_read', action='read', id=group.name) %}
 <li class="media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
   <a class="media-image" href="{{ url }}"><img src="{{ group.image_url or '/base/images/placeholder-group.png' }}" /></a>
