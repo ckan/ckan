@@ -9,11 +9,15 @@
   .box-shadow(none);
   position: relative;
   float: left;
-  background: none;
   margin: 0;
   padding: 0;
   border: none;
+  background: none;
   font-size: 20px;
+}
+
+.ie .toolbar .breadcrumb {
+  filter: none; // Remove filter set by the gradient mixin.
 }
 
 .toolbar li [class^=icon]:before {
