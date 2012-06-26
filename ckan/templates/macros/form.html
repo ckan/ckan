@@ -46,7 +46,7 @@ Example:
       <label class="checkbox" for="{{ id or name }}">
         <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | e }}" {{ "checked " if checked }}{{ attributes(attrs) }} />
         {{ label or name }}
-        {% if error %}<strong class="error-inline">{{ error }}</strong>{% endif %}
+        {% if error %}<strong class="error-inline">{{ error|join(', ') }}</strong>{% endif %}
       </label>
     </div>
   </div>
@@ -140,7 +140,7 @@ Examples:
     <div class="input-prepend">
       {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
       <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}" />
-      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
+      {% if error %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
     </div>
   {% endcall %}
 {% endmacro %}
@@ -214,7 +214,7 @@ Example:
     <label class="control-label" for="{{ for }}">{{ label or _('Custom') }}</label>
     <div class="controls{{ " " ~ control_classes | join(' ') }}">
       {{ caller() }}
-      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
+      {% if error %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
     </div>
   </div>
 {% endmacro %}
