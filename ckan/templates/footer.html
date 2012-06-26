@@ -19,58 +19,5 @@
       <p><small>Maps powered by Leaflet, map data &copy; OpenStreetMap contributors, CC-BY-SA, map imagery &copy; CloudMade</small></p>
     </div>
   </div>
-  {% if config.debug %}
-    <div class="container">
-      <a id="debug-toggle" href="#debug" style="opacity: 0.6">Debug {{ c.__debug_info|length }}</a>
-      <pre id="debug" class="well" style="display:none;color:#333;margin-top:10px;">
-<b>Debug info:</b>
-
-<b>Controller</b>: {{ c.controller }}
-<b>Action</b>: {{ c.action }}
-<b>Templates Rendered</b>: {{ c.__debug_info|length }}
-{% for info in c.__debug_info %}
-<b>Template name</b>: {{ info.template_name }}
-<b>Template path</b>: {{ info.template_path }}
-<b>Template type</b>: {{ info.template_type }}
-<b>Renderer</b>: {{ info.renderer }}
-{% set debug_info = h.debug_full_info_as_list(info.vars) %}
-{% if debug_info %}
-<a class="toggle-debug-vars" style="color:#333"><b>Variables (toggle)</b></a>
-<p style="display:block;">
-{%- for value in debug_info %}{{ value.0 }}   {% endfor %}
-</p><p style="display:none;">
-{% for value in debug_info -%}
-  <b>{{ value.0 }}</b>: {{ value.1 }}
-{% endfor -%}
-</p>
-{%- else -%}
-<p>{ no variables passed to template}</p>
-{%- endif -%}
-<hr/>
-{%- endfor %}
-      </pre>
-      <script>
-        (function toggleDebug() {
-          var debug  = document.getElementById('debug'),
-              toggle = document.getElementById('debug-toggle');
-
-          toggle.onclick = function () {
-            debug.style.display = debug.style.display === 'block' ? 'none' : 'block';
-            return false;
-          };
-        })();
-        (function toggleDebug() {
-          var buttons  = document.getElementsByClassName('toggle-debug-vars');
-          for (var i = 0; i < buttons.length; i++){
-            buttons[i].onclick = function () {
-              var vars = this.nextElementSibling;
-              vars.style.display = vars.style.display === 'block' ? 'none' : 'block';
-              vars = vars.nextElementSibling;
-              vars.style.display = vars.style.display === 'block' ? 'none' : 'block';
-            };
-          }
-        })();
-      </script>
-    </div>
-  {% endif %}
+  {% include 'snippets/debug.html' if config.debug %}
 </footer>
