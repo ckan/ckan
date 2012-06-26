@@ -71,22 +71,26 @@
   margin: 0;
 }
 
-.masthead nav > ul > li {
+.masthead nav li {
   display: inline-block;
 }
 
-.ie7 .masthead nav > ul > li {
-  .ie7-inline-block();
+.ie7 .masthead nav ul {
+  margin-top: 5px;
 }
 
-.masthead nav > ul > li > a {
+.ie7 .masthead nav li {
+  float: left;
+}
+
+.masthead nav li a {
   display: block;
   font-size: 14px;
   font-weight: bold;
   padding: 4px 10px;
 }
 
-.masthead nav > ul > li > a.active {
+.masthead nav li a.active {
   @insetBoxShadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
   .border-radius(3px);
   .box-shadow(@insetBoxShadow);
