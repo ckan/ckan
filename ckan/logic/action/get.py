@@ -1244,18 +1244,21 @@ def resource_search(context, data_dict):
     '''
     model = context['model']
 
-    # Allow either query or fields parameter to be given, but not both.
-    # Once ``fields`` parameter is dropped, this can be made simpler.
+    # Allow either the `query` or `fields` parameter to be given, but not both.
+    # Once `fields` parameter is dropped, this can be made simpler.
     # The result of all this gumpf is to populate the local `fields` variable
     # with mappings from field names to list of search terms, or a single
     # search-term string.
     query = data_dict.get('query')
     fields = data_dict.get('fields')
+
     if query is None and fields is None:
         raise ValidationError({'query': _('Missing value')})
+
     elif query is not None and fields is not None:
         raise ValidationError(
             {'fields': _('Do not specify if using "query" parameter')})
+
     elif query is not None:
         if isinstance(query, basestring):
             query = [query]
@@ -1264,9 +1267,10 @@ def resource_search(context, data_dict):
         except ValueError:
             raise ValidationError(
                 {'query': _('Must be {field}:{value} pair(s)')})
+
     else:
-        # legacy fields paramter would split string terms
-        # maintain that behaviour
+        # The legacy fields paramter splits string terms.
+        # So maintain that behaviour
         split_terms = {}
         for field, terms in fields.items():
             if isinstance(terms, basestring):
@@ -1282,18 +1286,29 @@ def resource_search(context, data_dict):
     q = model.Session.query(model.Resource)
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
+
         if isinstance(terms, basestring):
             terms = [terms]
+
         if field not in resource_fields:
             raise ValidationError(
                 {'query':
                     _('Field "{field}" not recognised in resource_search.')\
                         .format(field=field)})
+
         for term in terms:
+
+            # prevent pattern injection
             term = misc.escape_sql_like_special_characters(term)
+
             model_attr = getattr(model.Resource, field)
+
+            # Treat the has field separately, see docstring.
             if field == 'hash':
                 q = q.filter(model_attr.ilike(unicode(term) + '%'))
+
+            # Resource extras are stored in a json blob.  So searching for
+            # matching fields is a bit trickier.  See the docstring.
             elif field in model.Resource.get_extra_columns():
                 model_attr = getattr(model.Resource, 'extras')
 
@@ -1302,6 +1317,8 @@ def resource_search(context, data_dict):
                     model_attr.ilike(u'''%%"%s": "%%%s%%"}''' % (field, term))
                 )
                 q = q.filter(like)
+
+            # Just a regular field
             else:
                 q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
 
