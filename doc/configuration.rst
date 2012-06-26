@@ -474,25 +474,6 @@ Search Settings
 ---------------
 
 .. index::
-   single: build_search_index_synchronously
-
-build_search_index_synchronously
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.build_search_index_synchronously=
-
-Default (if you don't define it)::
- indexing is on
-
-This controls the operation of the CKAN search indexing. If you don't define this option then indexing is on. You will want to turn this off if you have a non-synchronous search index extension installed. In this case you need to define the option equal to blank (as in the example).
-
-Another way to turn indexing on is to add ``synchronous_search`` to ``ckan.plugins``::
-
- ckan.plugins = synchronous_search
-
-.. index::
    single: ckan.site_id
 
 ckan.site_id

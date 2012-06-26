@@ -9,6 +9,7 @@ import urllib
 c = base.c
 _get_action=logic.get_action
 
+
 class RelatedController(base.BaseController):
 
     def dashboard(self):
@@ -97,7 +98,7 @@ class RelatedController(base.BaseController):
         try:
             c.pkg_dict = logic.get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            c.resources_json = h.json.dumps(c.pkg_dict.get('resources',[]))
+            c.resources_json = h.json.dumps(c.pkg_dict.get('resources', []))
         except logic.NotFound:
             base.abort(404, base._('Dataset not found'))
         except logic.NotAuthorized:
@@ -106,6 +107,4 @@ class RelatedController(base.BaseController):
         c.related_count = len(c.pkg.related)
         c.num_followers = _get_action('dataset_follower_count')(context,
                 {'id':c.pkg.id})
-
         return base.render( "related/related_list.html")
-

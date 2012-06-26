@@ -51,6 +51,24 @@ CKAN.Utils = CKAN.Utils || {};
       CKAN.DataPreview.loadEmbeddedPreview(preload_resource, reclineState);
     }
 
+    if ($(document.body).hasClass('search')) {
+      // Calculate the optimal width for the search input regardless of the
+      // width of the submit button (which can vary depending on translation).
+      (function resizeSearchInput() {
+        var form = $('#dataset-search'),
+            input = form.find('[name=q]'),
+            button = form.find('[type=submit]'),
+            offset = parseFloat(button.css('margin-left'));
+
+        // Grab the horizontal properties of the input that affect the width.
+        $.each(['padding-left', 'padding-right', 'border-left-width', 'border-right-width'], function (i, prop) {
+          offset += parseFloat(input.css(prop)) || 0;
+        });
+
+        input.width(form.outerWidth() - button.outerWidth() - offset);
+      })();
+    }
+
     var isDatasetNew = $('body.package.new').length > 0;
     if (isDatasetNew) {
       // Set up magic URL slug editor
@@ -1406,16 +1424,15 @@ CKAN.Utils = function($, my) {
   function followButtonClicked(event) {
     var button = event.currentTarget;
     if (button.id === 'user_follow_button') {
-        var object_id = button.getAttribute('data-user-id');
         var object_type = 'user';
     } else if (button.id === 'dataset_follow_button') {
-        var object_id = button.getAttribute('data-dataset-id');
         var object_type = 'dataset';
     }
     else {
         // This shouldn't happen.
         return;
     }
+	var object_id = button.getAttribute('data-obj-id');
     if (button.getAttribute('data-state') === "follow") {
         if (object_type == 'user') {
             var url = '/api/action/follow_user';
@@ -1429,7 +1446,7 @@ CKAN.Utils = function($, my) {
           id: object_id,
         });
         var nextState = 'unfollow';
-        var nextString = 'Unfollow';
+        var nextString = CKAN.Strings.unfollow;
     } else if (button.getAttribute('data-state') === "unfollow") {
         if (object_type == 'user') {
             var url = '/api/action/unfollow_user';
@@ -1443,7 +1460,7 @@ CKAN.Utils = function($, my) {
           id: object_id,
         });
         var nextState = 'follow';
-        var nextString = 'Follow';
+        var nextString = CKAN.Strings.follow;
     }
     else {
         // This shouldn't happen.

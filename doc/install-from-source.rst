@@ -65,13 +65,13 @@ work correctly.
     `virtualenv source distribution <http://pypi.python.org/pypi/virtualenv/>`_
     and then run ``python virtualenv.py pyenv`` instead.
 
-    To help with automatically installing CKAN dependencies we use a tool
-    called ``pip``. Make sure you have activated your environment (see step 3)
-    and then install it from an activated shell like this:
+To help with automatically installing CKAN dependencies we use a tool
+called ``pip``. Make sure you have activated your environment (see step 3)
+and then install it from an activated shell like this:
 
-    ::
+::
 
-        easy_install pip
+    easy_install pip
 
 3. Activate your virtual environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,7 +104,7 @@ Here is how to install the latest code (HEAD on the master branch)::
 
 If you want to install a specific version, e.g. for v1.5.1::
 
-    pip install --ignore-installed -e git+https://github.com/okfn/ckan.git@ckan-1.5.1c#egg=ckan
+    pip install --ignore-installed -e git+https://github.com/okfn/ckan.git@ckan-1.7#egg=ckan
 
 5. Install Additional Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -125,7 +125,7 @@ WebOb has to be installed explicitly afterwards because by installing pylons wit
 
 Now to install the remaining dependencies in requires/lucid_present.txt and you are using Ubuntu Lucid 10.04 you can install the system versions::
 
-    sudo apt-get install python-pybabel python-psycopg2 python-lxml 
+    sudo apt-get install python-pybabel python-psycopg2
     sudo apt-get install python-pylons python-repoze.who 
     sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
     
@@ -134,9 +134,6 @@ Alternatively, if you are not using Ubuntu Lucid 10.04 you'll need to install th
 ::
 
     pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_present.txt
-
-This will take a **long** time. Particularly the install of the ``lxml``
-package.
 
 At this point you will need to deactivate and then re-activate your
 virtual environment to ensure that all the scripts point to the correct
@@ -156,7 +153,7 @@ List existing databases:
 
     sudo -u postgres psql -l
 
-It is advisable to ensure that the encoding of databases is 'UTF8', or 
+Check that the encoding of databases is 'UTF8', if not
 internationalisation may be a problem. Since changing the encoding of PostgreSQL
 may mean deleting existing databases, it is suggested that this is fixed before
 continuing with the CKAN install.

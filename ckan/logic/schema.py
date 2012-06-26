@@ -95,7 +95,7 @@ def default_tags_schema():
 
 def default_create_tag_schema():
     schema = default_tags_schema()
-    # When creating a tag via the create_tag() logic action function, a
+    # When creating a tag via the tag_create() logic action function, a
     # vocabulary_id _must_ be given (you cannot create free tags via this
     # function).
     schema['vocabulary_id'] = [not_missing, not_empty, unicode,

@@ -2,26 +2,27 @@
 Testing for Developers
 ======================
 
-If you are installing CKAN from source, or developing extensions, then you need to know how to run CKAN tests.
-
-This section describes testing topics for developers, including basic tests, migration testing and testing against PostgreSQL. 
+If you're a CKAN developer, if you're developing an extension for CKAN, or if
+you're just installing CKAN from source, you should make sure that CKAN's tests
+pass for your copy of CKAN. This section explains how to run CKAN's tests.
 
 .. _basic-tests:
 
-Basic Tests
------------
+Installing Additional Dependencies
+----------------------------------
 
-After completing your source installation of CKAN, you should check that tests pass. You should also check this before checking in changes to CKAN code. 
-
-Make sure you've created a config file at ``pyenv/ckan/development.ini``. Then activate the Python environment::
+Some additional dependencies are needed to run the tests. Make sure you've
+created a config file at ``pyenv/ckan/development.ini``, then activate your
+virtual environment::
 
     . pyenv/bin/activate
 
-Install nose and other test-specific dependencies into your virtual environment::
+Install nose and other test-specific CKAN dependencies into your virtual
+environment::
 
     pip install --ignore-installed -r pyenv/src/ckan/pip-requirements-test.txt
 
-At this point you will need to deactivate and then re-activate your
+At this point you'll need to deactivate and then re-activate your
 virtual environment to ensure that all the scripts point to the correct
 locations:
 
@@ -30,85 +31,99 @@ locations:
     deactivate
     . pyenv/bin/activate
 
-Then run the quick development tests::
+Testing with SQLite
+-------------------
+
+To run the CKAN tests using SQLite as the database library::
 
     cd pyenv/src/ckan
-    nosetests ckan/tests --ckan
+    nosetests --ckan ckan
 
 You *must* run the tests from the CKAN directory as shown above, otherwise the
-``--ckan`` plugin won't work correctly. 
+``--ckan`` plugin won't work correctly.
 
-.. warning ::
+In deployment CKAN uses PostgreSQL, not SQLite. Running the tests with SQLite
+is less thorough but much quicker than with PostgreSQL, good enough for an
+initial check but you should run the tests with PostgreSQL before deploying
+anything or releasing any code.
 
-   By default, the test run is 'quick and dirty' - only good enough as an initial check. 
+Testing Core Extensions
+```````````````````````
 
+CKAN's core extensions (those extensions that are kept in the CKAN codebase
+alongside CKAN itself) have their own tests. For example, to run the tests for
+the stats extension do::
 
-Testing against PostgreSQL
---------------------------
+    nosetests --ckan ckanext/stats
 
-The default way to run tests is defined in ``test.ini`` (which is the default config file for nose - change it with option ``--with-pylons``). This specifies using SQLite and sets ``faster_db_test_hacks``, which are compromises.
+To run the tests for all of the core extensions at once::
 
-::
+    nosetests --ckan ckanext
 
-    cd pyenv/src/ckan
-    nosetests ckan/tests --ckan
+Or to run the CKAN tests and the core extensions tests together::
 
-Although SQLite is useful for testing a large proportion of CKAN, actually in deployment, CKAN must run with PostgreSQL. 
+    nosetests --ckan ckan ckanext
 
-Running the tests against PostgreSQL is slower but more thorough for two reasons:
+Testing with PostgreSQL
+-----------------------
 
- 1. You test subtleties of PostgreSQL
- 2. CKAN's default search relies on PostgreSQL's custom full-text search, so these (100 or so) tests are skipped when running against SQLite.
+First, make sure you have specified a PostgreSQL database with the
+``sqlalchemy.url`` parameter in your ``development.ini`` file.
 
-So when making changes to anything involved with search or closely related to the database, it is wise to test against PostgreSQL.
+CKAN's default nose configuration file (``test.ini``) specifies SQLite as the
+database library (it also sets ``faster_db_test_hacks``). To run the tests more
+thoroughly with PostgreSQL, specify the ``test-core.ini`` nose configuration
+file instead, for example::
 
-To test against PostgreSQL:
+     nosetests --ckan --with-pylons=test-core.ini ckan
+     nosetests --ckan --with-pylons=test-core.ini ckanext/stats
+     nosetests --ckan --with-pylons=test-core.ini ckanext
+     nosetests --ckan --with-pylons=test-core.ini ckan ckanext
 
- 1. Edit your local ``development.ini`` to specify a PostgreSQL database with the ``sqlalchemy.url`` parameter.
- 2. Tell nose to use ``test-core.ini`` (which imports settings from ``development.ini``)
-
-::
-
-     nosetests ckan/tests --ckan --with-pylons=test-core.ini
- 
-The test suite takes a long time to run against standard PostgreSQL (approx. 15 minutes, or close to an hour on Ubuntu/10.04 Lucid).
-
-This can be improved to between 5 and 15 minutes by running PostgreSQL in memory and turning off durability, as described `in the PostgreSQL documentation <http://www.postgresql.org/docs/9.0/static/non-durability.html>`_. 
+The speed of the PostgreSQL tesrs can be improved by running PostgreSQL in
+memory and turning off durability, as described
+`in the PostgreSQL documentation <http://www.postgresql.org/docs/9.0/static/non-durability.html>`_. 
 
 .. _migrationtesting:
 
 Migration Testing
 -----------------
 
-If your changes require a model change, you'll need to write a migration script. To ensure this is tested as well, you should instead run the tests this way::
+If you're a CKAN developer or extension developer and your new code requires a
+change to CKAN's model, you'll need to write a migration script. To ensure that
+the migration script itself gets tested, you should run the tests with
+they ``--ckan-migration`` option, for example::
 
-     nosetests ckan/tests --ckan --ckan-migration --with-pylons=test-core.ini
- 
-By default, tests are run using the model defined in ``ckan/model``, but by using the ``--ckan-migration`` option the tests will run using a database that has been created using the migration scripts, which is the way the database is created and upgraded in production. These tests are the most thorough and will take around 20 minutes.
+     nosetests --ckan --ckan-migration --with-pylons=test-core.ini ckan
+
+By default tests are run using the model defined in ``ckan/model``.
+With the ``--ckan-migration`` option the tests will run using a database that
+has been created by running the migration scripts in ``ckan/migration``, which
+is how the database is created and upgraded in production.
 
 .. caution ::
 
-    Ordinarily, you should set ``development.ini`` to specify a PostgreSQL database
-    so these also get used when running ``test-core.ini``, since ``test-core.ini``
-    inherits from ``development.ini``. If you were to change the ``sqlalchemy.url``
-    option in your ``development.ini`` file to use SQLite, the command above would
-    actually test SQLite rather than PostgreSQL, so always check the setting in
-    ``development.ini`` to ensure you are running the full tests.
+    Ordinarily, you should set ``development.ini`` to specify a PostgreSQL
+    database so these also get used when running ``test-core.ini``, since
+    ``test-core.ini`` inherits from ``development.ini``. If you were to change
+    the ``sqlalchemy.url`` option in your ``development.ini`` file to use
+    SQLite, the command above would actually test SQLite rather than
+    PostgreSQL, so always check the setting in ``development.ini`` to ensure
+    you are running the full tests.
 
 .. warning ::
 
-   A common error when wanting to run tests against a particular database is to change ``sqlalchemy.url`` in ``test.ini`` or ``test-core.ini``. The problem is that these are versioned files and people have checked in these by mistake, creating problems for other developers and the CKAN buildbot. This is easily avoided by only changing ``sqlalchemy.url`` in your local ``development.ini`` and testing ``--with-pylons=test-core.ini``.
-
-Testing Core Extensions
------------------------
-
-Some extensions are in the CKAN core codebase and have their own suite of tests. For example::
-
-    nosetests --ckan ckanext/stats/tests
+   A common error when wanting to run tests against a particular database is to
+   change ``sqlalchemy.url`` in ``test.ini`` or ``test-core.ini``. The problem
+   is that these are versioned files and people have checked in these by
+   mistake, creating problems for other developers and the CKAN buildbot. This
+   is easily avoided by only changing ``sqlalchemy.url`` in your local
+   ``development.ini`` and testing ``--with-pylons=test-core.ini``.
 
 Common error messages
 ---------------------
 
-Often errors are due to set-up errors. Always refer to the CKAN buildbot as the canonical build.
+Often errors are due to set-up errors. Always refer to the CKAN buildbot as the
+canonical build.
 
 Consult :doc:`common-error-messages` for solutions to a range of setup problems.

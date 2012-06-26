@@ -31,7 +31,78 @@ NotFound = logic.NotFound
 _get_or_bust = logic.get_or_bust
 
 def package_create(context, data_dict):
+    '''Create a new dataset (package).
 
+    You must be authorized to create new datasets. If you specify any groups
+    for the new dataset, you must also be authorized to edit these groups.
+
+    Plugins may change the parameters of this function depending on the value
+    of the ``type`` parameter, see the ``IDatasetForm`` plugin interface.
+
+    :param name: the name of the new dataset, must be between 2 and 100
+        characters long and contain only lowercase alphanumeric characters,
+        ``-`` and ``_``, e.g. ``'warandpeace'``
+    :type name: string
+    :param title: the title of the dataset (optional, default: same as
+        ``name``)
+    :type title: string
+    :param author: the name of the dataset's author (optional)
+    :type author: string
+    :param author_email: the email address of the dataset's author (optional)
+    :type author_email: string
+    :param maintainer: the name of the dataset's maintainer (optional)
+    :type maintainer: string
+    :param maintainer_email: the email address of the dataset's maintainer
+        (optional)
+    :type maintainer_email: string
+    :param license_id: the id of the dataset's license, see ``license_list()``
+        for available values (optional)
+    :type license_id: license id string
+    :param notes: a description of the dataset (optional)
+    :type notes: string
+    :param url: a URL for the dataset's source (optional)
+    :type url: string
+    :param version: (optional)
+    :type version: string, no longer than 100 characters
+    :param state: the current state of the dataset, e.g. ``'active'`` or
+        ``'deleted'``, only active datasets show up in search results and
+        other lists of datasets, this parameter will be ignored if you are not
+        authorized to change the state of the dataset (optional, default:
+        ``'active'``)
+    :type state: string
+    :param type: the type of the dataset (optional), ``IDatasetForm`` plugins
+        associate themselves with different dataset types and provide custom
+        dataset handling behaviour for these types
+    :type type: string
+    :param resources: the dataset's resources, see ``resource_create()``
+        for the format of resource dictionaries (optional)
+    :type resources: list of resource dictionaries
+    :param tags: the dataset's tags, see ``tag_create()`` for the format
+        of tag dictionaries (optional)
+    :type tags: list of tag dictionaries
+    :param extras: the dataset's extras (optional), extras are arbitrary
+        (key: value) metadata items that can be added to datasets, each extra
+        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
+        string), and optionally ``'deleted'``
+    :type extras: list of dataset extra dictionaries
+    :param relationships_as_object: see ``package_relationship_create()`` for
+        the format of relationship dictionaries (optional)
+    :type relationships_as_object: list of relationship dictionaries
+    :param relationships_as_subject: see ``package_relationship_create()`` for
+        the format of relationship dictionaries (optional)
+    :type relationships_as_subject: list of relationship dictionaries
+    :param groups: the groups to which the dataset belongs (optional), each
+        group dictionary should have one or more of the following keys which
+        identify an existing group:
+        ``'id'`` (the id of the group, string), ``'name'`` (the name of the
+        group, string), ``'title'`` (the title of the group, string), to see
+        which groups exist call ``group_list()``
+    :type groups: list of dictionaries
+
+    :returns: the newly created dataset
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
     model.Session.remove()
@@ -108,17 +179,96 @@ def package_create_validate(context, data_dict):
         return data
 
 def resource_create(context, data_dict):
-    #TODO This doesn't actually do anything
+    '''Appends a new resource to a datasets list of resources.
 
+    :param package_id: id of package that the resource needs should be added to.
+    :type package_id: string
+    :param url: url of resource
+    :type url: string
+    :param revision_id: (optional)
+    :type revisiion_id: string
+    :param description: (optional)
+    :type description: string
+    :param format: (optional)
+    :type format: string
+    :param hash: (optional)
+    :type hash: string
+    :param name: (optional)
+    :type name: string
+    :param resource_type: (optional)
+    :type resource_type: string
+    :param mimetype: (optional)
+    :type mimetype: string
+    :param mimetype_inner: (optional)
+    :type mimetype_inner: string
+    :param webstore_url: (optional)
+    :type webstore_url: string
+    :param cache_url: (optional)
+    :type cache_url: string
+    :param size: (optional)
+    :type size: int
+    :param created: (optional)
+    :type created: iso date string
+    :param last_modified: (optional)
+    :type last_modified: iso date string
+    :param cache_last_updated: (optional)
+    :type cache_last_updated: iso date string
+    :param webstore_last_updated: (optional)
+    :type webstore_last_updated: iso date string
+
+    :returns: the newly created resource
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
 
-    data, errors = _validate(data_dict,
-                            ckan.logic.schema.default_resource_schema(),
-                            context)
+    package_id = _get_or_bust(data_dict, 'package_id')
+    data_dict.pop('package_id')
+
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+
+    _check_access('resource_create', context, data_dict)
+
+    if not 'resources' in pkg_dict:
+        pkg_dict['resources'] = []
+    pkg_dict['resources'].append(data_dict)
+
+    try:
+        pkg_dict = _get_action('package_update')(context, pkg_dict)
+    except ValidationError, e:
+        errors = e.error_dict['resources'][-1]
+        raise ValidationError(errors, _error_summary(errors))
+
+    return pkg_dict['resources'][-1]
 
 
 def related_create(context, data_dict):
+    '''Add a new related item to a dataset.
+
+    You must provide your API key in the Authorization header.
+
+    :param title: the title of the related item
+    :type title: string
+    :param type: the type of the related item, e.g. ``'Application'``,
+        ``'Idea'`` or ``'Visualisation'``
+    :type type: string
+    :param id: the id of the related item (optional)
+    :type id: string
+    :param description: the description of the related item (optional)
+    :type description: string
+    :param url: the URL to the related item (optional)
+    :type url: string
+    :param image_url: the URL to the image for the related item (optional)
+    :type image_url: string
+    :param dataset_id: the name or id of the dataset that the related item
+        belongs to (optional)
+    :type dataset_id: string
+
+    :returns: the newly created related item
+    :rtype: dictionary
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -174,7 +324,26 @@ def related_create(context, data_dict):
 
 
 def package_relationship_create(context, data_dict):
+    '''Create a relationship between two datasets (packages).
 
+    You must be authorized to edit both the subject and the object datasets.
+
+    :param subject: the id or name of the dataset that is the subject of the
+        relationship
+    :type subject: string
+    :param object: the id or name of the dataset that is the object of the
+        relationship
+    :param type: the type of the relationship, one of ``'depends_on'``,
+        ``'dependency_of'``, ``'derives_from'``, ``'has_derivation'``,
+        ``'links_to'``, ``'linked_from'``, ``'child_of'`` or ``'parent_of'``
+    :type type: string
+    :param comment: a comment about the relationship (optional)
+    :type comment: string
+
+    :returns: the newly created package relationship
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
     schema = context.get('schema') or ckan.logic.schema.default_create_relationship_schema()
@@ -216,22 +385,27 @@ def package_relationship_create(context, data_dict):
     return relationship_dicts
 
 def member_create(context, data_dict=None):
-    """
-    Add an object as a member to a group. If the membership already exists
-    and is active then the capacity will be overwritten in case it has
-    changed.
+    '''Make an object (e.g. a user, dataset or group) a member of a group.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
+    If the object is already a member of the group then the capacity of the
+    membership will be updated.
 
-    data_dict:
-        id - The ID of the group to which we want to add a new object
-        object - The ID of the object being added as a member
-        object_type - The name of the type being added, all lowercase,
-                      e.g. package, or user
-        capacity - The capacity with which to add this object
-    """
+    You must be authorized to edit the group.
+
+    :param id: the id or name of the group to add the object to
+    :type id: string
+    :param object: the id or name of the object to add
+    :type object: string
+    :param object_type: the type of the object being added, e.g. ``'package'``
+        or ``'user'``
+    :type object_type: string
+    :param capacity: the capacity of the membership
+    :type capacity: string
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
 
@@ -268,6 +442,63 @@ def member_create(context, data_dict=None):
     return model_dictize.member_dictize(member, context)
 
 def group_create(context, data_dict):
+    '''Create a new group.
+
+    You must be authorized to create groups.
+
+    Plugins may change the parameters of this function depending on the value
+    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
+
+    :param name: the name of the group, a string between 2 and 100 characters
+        long, containing only lowercase alphanumeric characters, ``-`` and
+        ``_``
+    :type name: string
+    :param id: the id of the group (optional)
+    :type id: string
+    :param title: the title of the group (optional)
+    :type title: string
+    :param description: the description of the group (optional)
+    :type description: string
+    :param image_url: the URL to an image to be displayed on the group's page
+        (optional)
+    :type image_url: string
+    :param type: the type of the group (optional), ``IGroupForm`` plugins
+        associate themselves with different group types and provide custom
+        group handling behaviour for these types
+    :type type: string
+    :param state: the current state of the group, e.g. ``'active'`` or
+        ``'deleted'``, only active groups show up in search results and
+        other lists of groups, this parameter will be ignored if you are not
+        authorized to change the state of the group (optional, default:
+        ``'active'``)
+    :type state: string
+    :param approval_status: (optional)
+    :type approval_status: string
+    :param extras: the group's extras (optional), extras are arbitrary
+        (key: value) metadata items that can be added to groups, each extra
+        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
+        string), and optionally ``'deleted'``
+    :type extras: list of dataset extra dictionaries
+    :param packages: the datasets (packages) that belong to the group, a list
+        of dictionaries each with keys ``'name'`` (string, the id or name of
+        the dataset) and optionally ``'title'`` (string, the title of the
+        dataset)
+    :type packages: list of dictionaries
+    :param groups: the groups that belong to the group, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the group) and
+        optionally ``'capacity'`` (string, the capacity in which the group is
+        a member of the group)
+    :type groups: list of dictionaries
+    :param users: the users that belong to the group, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the user) and
+        optionally ``'capacity'`` (string, the capacity in which the user is
+        a member of the group)
+    :type users: list of dictionaries
+
+    :returns: the newly created group
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context['user']
     session = context['session']
@@ -341,7 +572,22 @@ def group_create(context, data_dict):
     return model_dictize.group_dictize(group, context)
 
 def rating_create(context, data_dict):
+    '''Rate a dataset (package).
 
+    You must provide your API key in the Authorization header.
+
+    :param package: the name or id of the dataset to rate
+    :type package: string
+    :param rating: the rating to give to the dataset, an integer between 1 and
+        5
+    :type rating: int
+
+    :returns: a dictionary with two keys: ``'rating average'`` (the average
+        rating of the dataset you rated) and ``'rating count'`` (the number of
+        times the dataset has been rated)
+    :rtype: dictionary
+
+    '''
     model = context['model']
     user = context.get("user")
 
@@ -375,8 +621,32 @@ def rating_create(context, data_dict):
     return ret_dict
 
 def user_create(context, data_dict):
-    '''Creates a new user'''
+    '''Create a new user.
 
+    You must be authorized to create users.
+
+    :param name: the name of the new user, a string between 2 and 100
+        characters in length, containing only lowercase alphanumeric
+        characters, ``-`` and ``_``
+    :type name: string
+    :param email: the email address for the new user
+    :type email: string
+    :param password: the password of the new user, a string of at least 4
+        characters
+    :type password: string
+    :param id: the id of the new user (optional)
+    :type id: string
+    :param fullname: the full name of the new user (optional)
+    :type fullname: string
+    :param about: a description of the new user (optional)
+    :type about: string
+    :param openid: (optional)
+    :type openid: string
+
+    :returns: the newly created yser
+    :rtype: dictionary
+
+    '''
     model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
@@ -449,7 +719,20 @@ def group_create_rest(context, data_dict):
     return group_dict
 
 def vocabulary_create(context, data_dict):
+    '''Create a new tag vocabulary.
 
+    You must be a sysadmin to create vocabularies.
+
+    :param name: the name of the new vocabulary, e.g. ``'Genre'``
+    :type name: string
+    :param tags: the new tags to add to the new vocabulary, for the format of
+        tag dictionaries see ``tag_create()``
+    :type tags: list of tag dictionaries
+
+    :returns: the newly-created vocabulary
+    :rtype: dictionary
+
+    '''
     model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_create_vocabulary_schema()
 
@@ -474,12 +757,28 @@ def vocabulary_create(context, data_dict):
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
 def activity_create(context, activity_dict, ignore_auth=False):
-    '''Create a new activity stream activity and return a dictionary
-    representation of it.
+    '''Create a new activity stream activity.
+
+    You must be a sysadmin to create new activities.
+
+    :param user_id: the name or id of the user who carried out the activity,
+        e.g. ``'seanh'``
+    :type user_id: string
+    :param object_id: the name or id of the object of the activity, e.g.
+        ``'my_dataset'``
+    :param activity_type: the type of the activity, this must be an activity
+        type that CKAN knows how to render, e.g. ``'new package'``,
+        ``'changed user'``, ``'deleted group'`` etc. (for a full list see
+        ``activity_renderers`` in ``ckan/logic/action/get.py``
+    :type activity_type: string
+    :param data: any additional data about the activity
+    :type data: dictionary
+
+    :returns: the newly created activity
+    :rtype: dictionary
 
     '''
     model = context['model']
-    user = context['user']
 
     # Any revision_id that the caller attempts to pass in the activity_dict is
     # ignored and overwritten here.
@@ -517,8 +816,26 @@ def package_relationship_create_rest(context, data_dict):
     return relationship_dict
 
 def tag_create(context, tag_dict):
-    '''Create a new tag and return a dictionary representation of it.'''
+    '''Create a new vocabulary tag.
 
+    You must be a sysadmin to create vocabulary tags.
+
+    You can only use this function to create tags that belong to a vocabulary,
+    not to create free tags. (To create a new free tag simply add the tag to
+    a package, e.g. using the ``package_update`` function.)
+
+    :param name: the name for the new tag, a string between 2 and 100
+        characters long containing only alphanumeric characters and ``-``,
+        ``_`` and ``.``, e.g. ``'Jazz'``
+    :type name: string
+    :param vocabulary_id: the name or id of the vocabulary that the new tag
+        should be added to, e.g. ``'Genre'``
+    :type vocabulary_id: string
+
+    :returns: the newly-created tag
+    :rtype: dictionary
+
+    '''
     model = context['model']
 
     _check_access('tag_create', context, tag_dict)
@@ -537,7 +854,18 @@ def tag_create(context, tag_dict):
     return model_dictize.tag_dictize(tag, context)
 
 def follow_user(context, data_dict):
+    '''Start following another user.
 
+    You must provide your API key in the Authorization header.
+
+    :param id: the id or name of the user to follow, e.g. ``'joeuser'``
+    :type id: string
+
+    :returns: a representation of the 'follower' relationship between yourself
+        and the other user
+    :rtype: dictionary
+
+    '''
     if not context.has_key('user'):
         raise logic.NotAuthorized
 
@@ -578,6 +906,18 @@ def follow_user(context, data_dict):
     return model_dictize.user_following_user_dictize(follower, context)
 
 def follow_dataset(context, data_dict):
+    '''Start following a dataset.
+
+    You must provide your API key in the Authorization header.
+
+    :param id: the id or name of the dataset to follow, e.g. ``'warandpeace'``
+    :type id: string
+
+    :returns: a representation of the 'follower' relationship between yourself
+        and the dataset
+    :rtype: dictionary
+
+    '''
 
     if not context.has_key('user'):
         raise logic.NotAuthorized
