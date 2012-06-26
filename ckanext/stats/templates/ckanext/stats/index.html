@@ -9,6 +9,12 @@
     Statistics
   </py:def>
 
+  <py:def function="optional_feed">
+    <!--! Hellish hack to get excanvas to work in IE8. We disable html5shiv from
+    overriding the createElement() method on this page. -->
+    <!--[if lte IE 8 ]><script>var html5 = {shivMethods: false};</script><![endif]-->
+  </py:def>
+
   <py:def function="optional_head">
     <style type="text/css">
       body #sidebar {
