@@ -14,6 +14,29 @@
   transform-origin: @arguments;
 }
 
+// Allows use of rgba() in gradients. This will not provide a fallback for IE.
+.rgba-vertial-gradient(@startColor:#555, @endColor:#333) {
+  background-color: mix(@startColor, @endColor, 60%);
+  background-image: -moz-linear-gradient(top, @startColor, @endColor); // FF 3.6+
+  background-image: -ms-linear-gradient(top, @startColor, @endColor); // IE10
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@startColor), to(@endColor)); // Safari 4+, Chrome 2+
+  background-image: -webkit-linear-gradient(top, @startColor, @endColor); // Safari 5.1+, Chrome 10+
+  background-image: -o-linear-gradient(top, @startColor, @endColor); // Opera 11.10
+  background-image: linear-gradient(top, @startColor, @endColor); // The standard
+  background-repeat: repeat-x;
+}
+
+.rgba-vertical-gradient-three-colors(@startColor: #00b3ee, @midColor: #7a43b6, @colorStop: 50%, @endColor: #c3325f) {
+  background-color: mix(@midColor, @endColor, 80%);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@startColor), color-stop(@colorStop, @midColor), to(@endColor));
+  background-image: -webkit-linear-gradient(@startColor, @midColor @colorStop, @endColor);
+  background-image: -moz-linear-gradient(top, @startColor, @midColor @colorStop, @endColor);
+  background-image: -ms-linear-gradient(@startColor, @midColor @colorStop, @endColor);
+  background-image: -o-linear-gradient(@startColor, @midColor @colorStop, @endColor);
+  background-image: linear-gradient(@startColor, @midColor @colorStop, @endColor);
+  background-repeat: no-repeat;
+}
+
 .pill {
   background-color: #ccc;
   color: #fff;

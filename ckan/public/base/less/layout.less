@@ -57,7 +57,9 @@
 }
 
 .hero:after {
-  #gradient > .vertical(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
+  // Need to manually declare this here. If you pass rgba() through to
+  // #gradient it breaks the filter property in IE7.
+  .rgba-vertial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
   background-color: transparent;
   top: 7px;
   bottom: auto;
