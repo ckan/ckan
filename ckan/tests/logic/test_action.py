@@ -1075,7 +1075,7 @@ class TestAction(WsgiAppCase):
     def test_42_resource_search_fields_parameter_still_accepted(self):
         '''The fields parameter is deprecated, but check it still works.
 
-        Remove this test when removing the fields parameter.  (#????)
+        Remove this test when removing the fields parameter.  (#2603)
         '''
         request_body = {
             'fields': {"description": "index"},
