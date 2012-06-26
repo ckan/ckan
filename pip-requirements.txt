@@ -2,7 +2,7 @@ Genshi==0.6
 sqlalchemy-migrate==0.7.1
 sqlalchemy==0.7.3
 webhelpers==1.2
--e svn+https://software.sandia.gov/svn/public/pyutilib/pyutilib.component.core/trunk@1972#egg=pyutilib.component.core
+PyUtilib==4.0.2848
 -e git+https://github.com/okfn/vdm.git@vdm-0.11#egg=vdm
 solrpy==0.9.4
 formalchemy==1.4.1
