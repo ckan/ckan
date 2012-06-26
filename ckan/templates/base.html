@@ -3,10 +3,11 @@
 
 {# Allows custom attributes to be added to the <html> tag #}
 {% block htmltag -%}
-<!--[if IE 7]> <html lang="en-gb" class="ie ie7"> <![endif]-->
-<!--[if IE 8]> <html lang="en-gb" class="ie ie8"> <![endif]-->
-<!--[if IE]>   <html lang="en-gb" class="ie"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en-gb"> <!--<![endif]-->
+{% set lang = 'en-gb' %}
+<!--[if IE 7]> <html lang="{{ lang }}" class="ie ie7"> <![endif]-->
+<!--[if IE 8]> <html lang="{{ lang }}" class="ie ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="{{ lang }}" class="ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="{{ lang }}"> <!--<![endif]-->
 {%- endblock -%}
 
   {# Allows custom attributes to be added to the <head> tag #}
