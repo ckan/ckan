@@ -12,11 +12,10 @@ _ = i18n._
 
 class RelatedController(base.BaseController):
 
-
-    def new(self,id):
+    def new(self, id):
         return self._edit_or_new(id, None, False)
 
-    def edit(self,id,related_id):
+    def edit(self, id, related_id):
         return self._edit_or_new(id, related_id, True)
 
     def list(self, id):
@@ -44,8 +43,7 @@ class RelatedController(base.BaseController):
 
         c.related_count = len(c.pkg.related)
 
-        return base.render( "package/related_list.html")
-
+        return base.render("package/related_list.html")
 
     def _edit_or_new(self, id, related_id, is_edit):
         """
@@ -63,7 +61,8 @@ class RelatedController(base.BaseController):
             action_name = 'related_update'
 
             try:
-                related = logic.get_action('related_show')(context, {'id': related_id})
+                related = logic.get_action('related_show')(
+                    context, {'id': related_id})
             except logic.NotFound:
                 base.abort(404, _('Related item not found'))
         else:

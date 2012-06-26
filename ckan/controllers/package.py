@@ -233,10 +233,10 @@ class PackageController(BaseController):
         for facet in c.facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
-        c.facet_titles = {'groups' : _('Groups'),
-                          'tags' : _('Tags'),
-                          'res_format' : _('Formats'),
-                          'license' : _('Licence'), }
+        c.facet_titles = {'groups': _('Groups'),
+                          'tags': _('Tags'),
+                          'res_format': _('Formats'),
+                          'license': _('Licence'), }
 
         return render(self._search_template(package_type))
 
@@ -449,7 +449,8 @@ class PackageController(BaseController):
 
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
-            data['tag_string'] = ', '.join(h.dict_list_reduce(data['tags'], 'name'))
+            data['tag_string'] = ', '.join(
+                h.dict_list_reduce(data['tags'], 'name'))
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -461,7 +462,7 @@ class PackageController(BaseController):
 
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary,
-                'action': 'new', 'stage' : stage}
+                'action': 'new', 'stage': stage}
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id})
@@ -473,11 +474,12 @@ class PackageController(BaseController):
         else:
             c.form = render(self._package_form(package_type=package_type),
                             extra_vars=vars)
-        return render( self._new_template(package_type),
+        return render(self._new_template(package_type),
                       extra_vars={'stage': stage})
 
     def new_resource(self, id, data=None, errors=None, error_summary=None):
-        ''' FIXME: This is a temporary action to allow styling of the forms. '''
+        ''' FIXME: This is a temporary action to allow styling of the
+        forms. '''
         if request.method == 'POST':
             save_action = request.params.get('save')
             if save_action in ['again', 'next'] and not data:
@@ -488,15 +490,19 @@ class PackageController(BaseController):
                 del data['save']
                 context = {'model': model, 'session': model.Session,
                            'api_version': 3,
-                           'user': c.user or c.author, 'extras_as_string': True,}
+                           'user': c.user or c.author,
+                           'extras_as_string': True}
                 get_action('resource_create')(context, data)
                 if save_action == 'next':
-                    redirect(h.url_for(controller='package', action='new_metadata', id=id))
+                    redirect(h.url_for(controller='package',
+                                       action='new_metadata', id=id))
                 else:
-                    redirect(h.url_for(controller='package', action='new_resource', id=id))
+                    redirect(h.url_for(controller='package',
+                                       action='new_resource', id=id))
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new'}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'new'}
         vars['pkg_name'] = id
   ## FIXME Resources selector in side bar think, think, think
   ##      context = {'model': model, 'session': model.Session,
@@ -507,7 +513,8 @@ class PackageController(BaseController):
         return render('package/new_resource.html', extra_vars=vars)
 
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
-        ''' FIXME: This is a temporary action to allow styling of the forms. '''
+        ''' FIXME: This is a temporary action to allow styling of the
+        forms. '''
         if request.method == 'POST':
             save_action = request.params.get('save')
             if save_action and not data:
@@ -517,7 +524,8 @@ class PackageController(BaseController):
                 del data['save']
                 context = {'model': model, 'session': model.Session,
                            'api_version': 3,
-                           'user': c.user or c.author, 'extras_as_string': True,}
+                           'user': c.user or c.author,
+                           'extras_as_string': True}
                 data_dict = get_action('package_show')(context, {'id': id})
 
                 data_dict['id'] = id
@@ -567,8 +575,6 @@ class PackageController(BaseController):
             c.form_style = 'new'
             return self.new(data=data)
 
-
-
         c.pkg = context.get("package")
         c.resources_json = json.dumps(data.get('resources', []))
 
@@ -578,7 +584,8 @@ class PackageController(BaseController):
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
-            data['tag_string'] = ', '.join(h.dict_list_reduce(c.pkg_dict['tags'], 'name'))
+            data['tag_string'] = ', '.join(h.dict_list_reduce(
+                c.pkg_dict['tags'], 'name'))
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'edit'}
@@ -610,8 +617,8 @@ class PackageController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'extras_as_string': True,
-                   'schema': self._form_to_db_schema(package_type=
-                                                     package_type),
+                   'schema': self._form_to_db_schema(
+                                    package_type=package_type),
                    'revision_id': revision}
         try:
             data = get_action('package_show')(context, {'id': id})
@@ -682,7 +689,7 @@ class PackageController(BaseController):
             tag = tag.strip()
             if tag:
                 out.append({'name': tag,
-                            'state': 'active',})
+                            'state': 'active'})
         return out
 
     def _save_new(self, context, package_type=None):
@@ -700,14 +707,17 @@ class PackageController(BaseController):
                 # allow the state to be changed
                 context['allow_state_change'] = True
                 # sort the tags
-                data_dict['tags'] = self._tag_string_to_list(data_dict['tag_string'])
+                data_dict['tags'] = self._tag_string_to_list(
+                    data_dict['tag_string'])
                 if data_dict.get('pkg_name'):
                     data_dict['id'] = data_dict['pkg_name']
                     del data_dict['pkg_name']
                     # this is actually an edit not a save
                     pkg_dict = get_action('package_update')(context, data_dict)
                     # redirect to add dataset resources
-                    url = h.url_for(controller='package', action='new_resource', id=pkg_dict['name'])
+                    url = h.url_for(controller='package',
+                                    action='new_resource',
+                                    id=pkg_dict['name'])
                     redirect(url)
 
             data_dict['type'] = package_type
@@ -716,7 +726,9 @@ class PackageController(BaseController):
 
             if ckan_phase:
                 # redirect to add dataset resources
-                url = h.url_for(controller='package', action='new_resource', id=pkg_dict['name'])
+                url = h.url_for(controller='package',
+                                action='new_resource',
+                                id=pkg_dict['name'])
                 redirect(url)
 
             self._form_save_redirect(pkg_dict['name'], 'new')
@@ -743,7 +755,8 @@ class PackageController(BaseController):
                 tuplize_dict(parse_params(request.POST))))
             if '_ckan_phase' in data_dict:
                 context['api_version'] = 3
-                data_dict['tags'] = self._tag_string_to_list(data_dict['tag_string'])
+                data_dict['tags'] = self._tag_string_to_list(
+                    data_dict['tag_string'])
                 del data_dict['_ckan_phase']
                 del data_dict['save']
             context['message'] = data_dict.get('log_message', '')

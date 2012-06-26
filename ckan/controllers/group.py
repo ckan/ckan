@@ -203,10 +203,10 @@ class GroupController(BaseController):
             )
             c.facets = query['facets']
             c.search_facets = query['search_facets']
-            c.facet_titles = {'groups' : _('Groups'),
-                              'tags' : _('Tags'),
-                              'res_format' : _('Formats'),
-                              'license' : _('Licence'), }
+            c.facet_titles = {'groups': _('Groups'),
+                              'tags': _('Tags'),
+                              'res_format': _('Formats'),
+                              'license': _('Licence'), }
             c.search_facets_limits = {}
             for facet in c.facets.keys():
                 limit = int(request.params.get('_%s_limit' % facet, 10))
@@ -246,7 +246,8 @@ class GroupController(BaseController):
         data = data or {}
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'new'}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'new'}
 
         self._setup_template_variables(context, data)
         c.form = render(self._group_form(group_type=group_type),
@@ -285,7 +286,8 @@ class GroupController(BaseController):
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary, 'action': 'edit'}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'edit'}
 
         self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type), extra_vars=vars)

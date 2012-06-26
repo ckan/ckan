@@ -8,7 +8,7 @@ from ckan.lib.search import SearchError
 from ckan.lib.base import *
 from ckan.lib.helpers import url_for
 
-CACHE_PARAMETERS = ['__cache','__no_cache__']
+CACHE_PARAMETERS = ['__cache', '__no_cache__']
 
 
 class HomeController(BaseController):
@@ -44,7 +44,7 @@ class HomeController(BaseController):
                 'facet.field': g.facets,
                 'rows': 4,
                 'start': 0,
-                'sort':'views_recent desc',
+                'sort': 'views_recent desc',
                 'fq': 'capacity:"public"'
             }
             query = ckan.logic.get_action('package_search')(
@@ -53,10 +53,10 @@ class HomeController(BaseController):
             c.package_count = query['count']
             c.datasets = query['results']
             c.facets = query['facets']
-            c.facet_titles = {'groups' : _('Groups'),
-                          'tags' : _('Tags'),
-                          'res_format' : _('Formats'),
-                          'license' : _('Licence'), }
+            c.facet_titles = {'groups': _('Groups'),
+                          'tags': _('Tags'),
+                          'res_format': _('Formats'),
+                          'license': _('Licence'), }
 
             data_dict = {'order_by': 'packages', 'all_fields': 1}
             # only give the terms to group dictize that are returned in the

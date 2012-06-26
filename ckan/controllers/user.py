@@ -310,7 +310,8 @@ class UserController(BaseController):
                 err += _(' (Or if using OpenID, it hasn\'t been associated '
                          'with a user account.)')
             h.flash_error(err)
-            h.redirect_to(locale=lang, controller='user', action='login', came_from=came_from)
+            h.redirect_to(locale=lang, controller='user',
+                          action='login', came_from=came_from)
 
     def logout(self):
         # save our language in the session so we don't lose it
