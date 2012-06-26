@@ -214,9 +214,10 @@ class BaseController(WSGIController):
                 session.save()
 
                 ev = request.environ
-                pth = getattr(ev['repoze.who.plugins']['friendlyform'],
-                              'logout_handler_path')
-                h.redirect_to(pth)
+                if 'repoze.who.plugins' in ev:
+                    pth = getattr(ev['repoze.who.plugins']['friendlyform'],
+                                  'logout_handler_path')
+                    h.redirect_to(pth)
         else:
             c.userobj = self._get_user_for_apikey()
             if c.userobj is not None:
