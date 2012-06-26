@@ -1023,6 +1023,69 @@ class TestAction(WsgiAppCase):
         except KeyError:
             assert True
 
+    def test_42_resource_search_with_single_field_query(self):
+        request_body = {
+            'q': ["description:index"],
+            'fields': []
+        }
+        postparams = json.dumps(request_body)
+        response = self.app.post('/api/action/resource_search',
+                                 params=postparams)
+        result = json.loads(response.body)['result']['results']
+
+        ## Due to the side-effect of previously run tests, there may be extra
+        ## resources in the results.  So just check that each found Resource
+        ## matches the search criteria
+        assert result is not []
+        for resource in result:
+            assert "index" in resource['description'].lower()
+
+    def test_42_resource_search_across_multiple_fields(self):
+        request_body = {
+            'q': ["description:index", "format:json"],
+            'fields': []
+        }
+        postparams = json.dumps(request_body)
+        response = self.app.post('/api/action/resource_search',
+                                 params=postparams)
+        result = json.loads(response.body)['result']['results']
+
+        ## Due to the side-effect of previously run tests, there may be extra
+        ## resources in the results.  So just check that each found Resource
+        ## matches the search criteria
+        assert result is not []
+        for resource in result:
+            assert "index" in resource['description'].lower()
+            assert "json" in resource['format'].lower()
+
+    def test_42_resource_search_test_percentage_is_escaped(self):
+        pass
+
+    def test_42_resource_search_escaped_colons(self):
+        pass
+
+    def test_42_resource_search_fields_parameter_still_accepted(self):
+        '''The fields parameter is deprecated, but check it still works.
+
+        Remove this test when removing the fields parameter.  (#????)
+        '''
+        request_body = {
+            'fields': [("description", "index")],
+            'q': [],
+        }
+
+        postparams = json.dumps(request_body)
+        response = self.app.post('/api/action/resource_search',
+                                 params=postparams)
+        result = json.loads(response.body)['result']['results']
+
+        ## Due to the side-effect of previously run tests, there may be extra
+        ## resources in the results.  So just check that each found Resource
+        ## matches the search criteria
+        assert result is not []
+        for resource in result:
+            assert "index" in resource['description'].lower()
+
 class TestActionTermTranslation(WsgiAppCase):
 
     @classmethod
