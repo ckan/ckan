@@ -5,9 +5,13 @@
   margin-bottom: 20px;
 }
 
-.ie .module {
+.ie9 .module {
   // IE9 renders box shadows wildly out.
   .box-shadow(0 0 5px rgba(0, 0, 0, 0.3));
+}
+
+.ie .module {
+  border: 1px solid #ccc;
 }
 
 .module-heading {
@@ -127,6 +131,12 @@
     padding-left:  @gutterSmallX;
     padding-right: @gutterSmallX;
   }
+}
+
+// Module Popup
+
+.ie .module-popup {
+  border-bottom: none;
 }
 
 // Module Grid
