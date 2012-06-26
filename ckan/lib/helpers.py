@@ -871,6 +871,20 @@ def follow_count(obj_type, obj_id):
     context = {'model' : model, 'session':model.Session, 'user':c.user}
     return logic.get_action(action)(context, {'id': obj_id})
 
+def dashboard_activity_stream(user_id):
+    '''Return the dashboard activity stream of the given user.
+
+    :param user_id: the id of the user
+    :type user_id: string
+
+    :returns: an activity stream as an HTML snippet
+    :rtype: string
+
+    '''
+    import ckan.logic as logic
+    context = {'model' : model, 'session':model.Session, 'user':c.user}
+    return logic.get_action('dashboard_activity_list_html')(context, {'user_id': user_id})
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -927,6 +941,7 @@ __allowed_functions__ = [
            'unselected_facet_items',
            'follow_button',
            'follow_count',
+           'dashboard_activity_stream',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',

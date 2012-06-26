@@ -1958,7 +1958,7 @@ def am_following_dataset(context, data_dict):
     return _am_following(context, data_dict,
             context['model'].UserFollowingDataset)
 
-def followed_user_list(context, data_dict):
+def user_followee_list(context, data_dict):
     '''Return the list of users that are followed by the given user.
 
     :param id: the id or name of the user
@@ -1976,16 +1976,16 @@ def followed_user_list(context, data_dict):
     # Get the list of Follower objects.
     model = context['model']
     user_id = data_dict.get('id')
-    followeds = model.UserFollowingUser.followed_list(user_id)
+    followees = model.UserFollowingUser.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of User objects.
-    users = [model.User.get(followed.object_id) for followed in followeds]
+    users = [model.User.get(followee.object_id) for followee in followees]
     users = [user for user in users if user is not None]
 
     # Dictize the list of User objects.
     return [model_dictize.user_dictize(user, context) for user in users]
 
-def followed_dataset_list(context, data_dict):
+def dataset_followee_list(context, data_dict):
     '''Return the list of datasets that are followed by the given user.
 
     :param id: the id or name of the user
@@ -2003,17 +2003,17 @@ def followed_dataset_list(context, data_dict):
     # Get the list of Follower objects.
     model = context['model']
     user_id = data_dict.get('id')
-    followeds = model.UserFollowingDataset.followed_list(user_id)
+    followees = model.UserFollowingDataset.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of Package objects.
-    packages = [model.Package.get(followed.object_id) for followed in followeds]
-    packages = [package for package in packages if package is not None]
+    datasets = [model.Package.get(followee.object_id) for followee in followees]
+    datasets = [dataset for dataset in datasets if dataset is not None]
 
     # Dictize the list of Package objects.
-    return [model_dictize.package_dictize(package, context) for package in packages]
+    return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
 
 def dashboard_activity_list(context, data_dict):
-    '''Return the activity stream of the given user.
+    '''Return the dashboard activity stream of the given user.
 
     :param id: the id or name of the user
     :type id: string
@@ -2022,18 +2022,18 @@ def dashboard_activity_list(context, data_dict):
 
     '''
     model = context['model']
-    user_id = _get_or_bust(data_dict, 'id')
+    user_id = _get_or_bust(data_dict, 'user_id')
 
     activity_query = model.Session.query(model.Activity)
     user_query = activity_query;
-    followed_users_query = activity_query.join(model.UserFollowingUser, model.UserFollowingUser.object_id == model.Activity.user_id)
-    followed_datasets_query = activity_query.join(model.UserFollowingDataset, model.UserFollowingDataset.object_id == model.Activity.object_id)
+    user_followees_query = activity_query.join(model.UserFollowingUser, model.UserFollowingUser.object_id == model.Activity.user_id)
+    dataset_followees_query = activity_query.join(model.UserFollowingDataset, model.UserFollowingDataset.object_id == model.Activity.object_id)
 
     user_query = user_query.filter(model.Activity.user_id==user_id)
-    followed_users_query = followed_users_query.filter(model.UserFollowingUser.follower_id==user_id)
-    followed_datasets_query = followed_datasets_query.filter(model.UserFollowingDataset.follower_id==user_id)
+    user_followees_query = user_followees_query.filter(model.UserFollowingUser.follower_id==user_id)
+    dataset_followees_query = dataset_followees_query.filter(model.UserFollowingDataset.follower_id==user_id)
 
-    query = user_query.union(followed_users_query).union(followed_datasets_query)
+    query = user_query.union(user_followees_query).union(dataset_followees_query)
     query = query.order_by(_desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()

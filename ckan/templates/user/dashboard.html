@@ -16,7 +16,8 @@
     <div py:match="content">
         <h2>What's going on?</h2>
         <div class="activity-stream">
-            ${c.dashboard_activity_stream}
+            <!--checkpoint:my-dashboard-->
+            ${h.dashboard_activity_stream(c.user_dict['id'])}
         </div>
     </div>
 
