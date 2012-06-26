@@ -86,7 +86,7 @@ so, create a symbolic link to the schema file in the config folder. Use the late
 supported by the CKAN version you are installing (it will generally be the highest one)::
 
  sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
- sudo ln -s ~/pyenv/ckan/ckan/config/solr/schema-1.4.xml /etc/solr/conf/schema.xml
+ sudo ln -s ~/pyenv/src/ckan/ckan/config/solr/schema-1.4.xml /etc/solr/conf/schema.xml
 
 Now restart jetty::
 
