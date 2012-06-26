@@ -1185,8 +1185,52 @@ def resource_search(context, data_dict):
     limit or query parameters having an effect.  The ``results`` field is a
     list of dictized Resource objects.
 
-    :param fields:
-    :type fields:
+    The 'q' parameter is a required field.  It is a string of the form
+    ``{field}:{term}`` or a list of strings, each of the same form.  Within
+    each string, ``{field}`` is a field or extra field on the Resource domain
+    object.
+
+    If ``{field}`` is ``"hash"``, then an attempt is made to match the
+    `{term}` as a *prefix* of the ``Resource.hash`` field.
+
+    If ``{field}`` is an extra field, then an attempt is made to match against
+    the extra fields stored against the Resource.
+
+    Note: The search is limited to search against extra fields declared in
+    the config setting ``ckan.extra_resource_fields``.
+
+    Note: Due to a Resource's extra fields being stored as a json blob, the
+    match is made against the json string representation.  As such, false
+    positives may occur:
+
+    If the search criteria is: ::
+
+        query = "field1:term1"
+
+    Then a json blob with the string representation of: ::
+
+        {"field1": "foo", "field2": "term1"}
+
+    will match the search criteria!  This is a known short-coming of this
+    approach.
+
+    All matches are made ignoring case; and apart from the ``"hash"`` field,
+    a term matches if it is a substring of the field's value.
+
+    Finally, when specifying more than one search criteria, the criteria are
+    AND-ed together.
+
+    The ``order`` parameter is used to control the ordering of the results.
+    Currently only ordering one field is available, and in ascending order
+    only.
+
+    The ``fields`` parameter is deprecated as it is not compatible with calling
+    this action with a GET request to the action API.
+
+    :param query: The search criteria.  See above for description.
+    :type query: string or list of strings of the form "{field}:{term1}"
+    :param fields: Deprecated
+    :type fields: dict of fields to search terms.
     :param order_by: A field on the Resource model that orders the results.
     :type order_by: string
     :param offset: Apply an offset to the query.
@@ -1201,15 +1245,21 @@ def resource_search(context, data_dict):
     model = context['model']
     session = context['session']
 
+    query = _get_or_bust(data_dict, 'query')
     fields = _get_or_bust(data_dict, 'fields')
     order_by = data_dict.get('order_by')
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
 
+    if isinstance(query, basestring):
+        query = [query]
+
+    # TODO: escape ':' with '\:'
+    fields = dict(pair.split(":", 1) for pair in query)
+
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Resource)
     resource_fields = model.Resource.get_columns()
-
     for field, terms in fields.items():
         if isinstance(terms, basestring):
             terms = terms.split()
