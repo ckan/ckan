@@ -2,7 +2,7 @@
 {%- block doctype %}<!DOCTYPE html>{% endblock -%}
 
 {# Allows custom attributes to be added to the <html> tag #}
-{% block htmltag -%}
+{%- block htmltag -%}
 {% set lang = 'en-gb' %}
 <!--[if IE 7]> <html lang="{{ lang }}" class="ie ie7"> <![endif]-->
 <!--[if IE 8]> <html lang="{{ lang }}" class="ie ie8"> <![endif]-->
@@ -27,7 +27,7 @@
     {% endblock %}
 
     #}
-    {%- block meta %}
+    {%- block meta -%}
       <meta charset="utf-8" />
     {%- endblock -%}
 
@@ -46,7 +46,7 @@
     The html5shim allows you to modify/override the html5 shim. This is useful
     for modifying it's behaviour or removing it completely.
     #}
-    {% block html5shim -%}
+    {%- block html5shim -%}
       {# Temporary link until we get resource helper working #}
       <!--[if lte IE 8]><script src="/base/javascript/vendor/html5.js"></script><![endif]-->
     {%- endblock -%}
@@ -72,13 +72,8 @@
       {% endblock %}
     #}
     {%- block styles -%}
-      {% if config.debug %}
-        <link rel="stylesheet/less" href="/base/less/main.less" />
-        <script src="/base/test/vendor/less.js"></script>
-      {% else %}
-        <link rel="stylesheet" href="/base/css/ckan.css" />
-      {% endif %}
-    {% endblock -%}
+      <link rel="stylesheet" href="/base/css/{{ 'main.debug.css' if config.debug else 'main.css' }}" />
+    {% endblock %}
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
