@@ -1245,24 +1245,44 @@ def resource_search(context, data_dict):
     model = context['model']
     session = context['session']
 
-    query = _get_or_bust(data_dict, 'query')
-    fields = _get_or_bust(data_dict, 'fields')
+    # Allow either query or fields parameter to be given, but not both.
+    # Once ``fields`` parameter is dropped, this can be made simpler.
+    # The result of all this gumpf is to populate the local `fields` variable
+    # with mappings from field names to list of search terms, or a single
+    # search-term string.
+    query = data_dict.get('query')
+    fields = data_dict.get('fields')
+    if query is None and fields is None:
+        raise ValidationError({'query': _('Missing value')})
+    elif query is not None and fields is not None:
+        raise ValidationError(
+            {'fields': _('Do not specify if using "query" parameter')})
+    elif query is not None:
+        if isinstance(query, basestring):
+            query = [query]
+
+        # TODO: escape ':' with '\:'
+        fields = dict(pair.split(":", 1) for pair in query)
+    else:
+        # legacy fields paramter would split string terms
+        # maintain that behaviour
+        split_terms = {}
+        for field, terms in fields.items():
+            if isinstance(terms, basestring):
+                terms = terms.split()
+            split_terms[field] = terms
+        fields = split_terms
+
     order_by = data_dict.get('order_by')
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
-
-    if isinstance(query, basestring):
-        query = [query]
-
-    # TODO: escape ':' with '\:'
-    fields = dict(pair.split(":", 1) for pair in query)
 
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Resource)
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
         if isinstance(terms, basestring):
-            terms = terms.split()
+            terms = [terms]
         if field not in resource_fields:
             raise search.SearchError('Field "%s" not recognised in Resource search.' % field)
         for term in terms:
