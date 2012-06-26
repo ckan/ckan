@@ -1286,6 +1286,7 @@ def resource_search(context, data_dict):
         if field not in resource_fields:
             raise search.SearchError('Field "%s" not recognised in Resource search.' % field)
         for term in terms:
+            term = misc.escape_sql_like_special_characters(term)
             model_attr = getattr(model.Resource, field)
             if field == 'hash':
                 q = q.filter(model_attr.ilike(unicode(term) + '%'))

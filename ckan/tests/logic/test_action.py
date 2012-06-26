@@ -1031,11 +1031,12 @@ class TestAction(WsgiAppCase):
         response = self.app.post('/api/action/resource_search',
                                  params=postparams)
         result = json.loads(response.body)['result']['results']
+        count = json.loads(response.body)['result']['count']
 
         ## Due to the side-effect of previously run tests, there may be extra
         ## resources in the results.  So just check that each found Resource
         ## matches the search criteria
-        assert result is not []
+        assert count > 0
         for resource in result:
             assert "index" in resource['description'].lower()
 
@@ -1047,20 +1048,29 @@ class TestAction(WsgiAppCase):
         response = self.app.post('/api/action/resource_search',
                                  params=postparams)
         result = json.loads(response.body)['result']['results']
+        count = json.loads(response.body)['result']['count']
 
         ## Due to the side-effect of previously run tests, there may be extra
         ## resources in the results.  So just check that each found Resource
         ## matches the search criteria
-        assert result is not []
+        assert count > 0
         for resource in result:
             assert "index" in resource['description'].lower()
             assert "json" in resource['format'].lower()
 
     def test_42_resource_search_test_percentage_is_escaped(self):
-        pass
+        request_body = {
+            'query': ["description:index%"],
+        }
+        postparams = json.dumps(request_body)
+        response = self.app.post('/api/action/resource_search',
+                                 params=postparams)
+        count = json.loads(response.body)['result']['count']
 
-    def test_42_resource_search_escaped_colons(self):
-        pass
+        # There shouldn't be any results.  If the '%' character wasn't
+        # escaped correctly, then the search would match because of the
+        # unescaped wildcard.
+        assert count is 0
 
     def test_42_resource_search_fields_parameter_still_accepted(self):
         '''The fields parameter is deprecated, but check it still works.
@@ -1075,11 +1085,12 @@ class TestAction(WsgiAppCase):
         response = self.app.post('/api/action/resource_search',
                                  params=postparams)
         result = json.loads(response.body)['result']['results']
+        count = json.loads(response.body)['result']['count']
 
         ## Due to the side-effect of previously run tests, there may be extra
         ## resources in the results.  So just check that each found Resource
         ## matches the search criteria
-        assert result is not []
+        assert count > 0
         for resource in result:
             assert "index" in resource['description'].lower()
 
