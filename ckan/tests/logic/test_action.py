@@ -1094,6 +1094,21 @@ class TestAction(WsgiAppCase):
         for resource in result:
             assert "index" in resource['description'].lower()
 
+    def test_42_resource_search_accessible_via_get_request(self):
+        response = self.app.get('/api/action/resource_search'
+                                '?query=description:index&query=format:json')
+
+        result = json.loads(response.body)['result']['results']
+        count = json.loads(response.body)['result']['count']
+
+        ## Due to the side-effect of previously run tests, there may be extra
+        ## resources in the results.  So just check that each found Resource
+        ## matches the search criteria
+        assert count > 0
+        for resource in result:
+            assert "index" in resource['description'].lower()
+            assert "json" in resource['format'].lower()
+
 class TestActionTermTranslation(WsgiAppCase):
 
     @classmethod
