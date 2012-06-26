@@ -1243,7 +1243,6 @@ def resource_search(context, data_dict):
 
     '''
     model = context['model']
-    session = context['session']
 
     # Allow either query or fields parameter to be given, but not both.
     # Once ``fields`` parameter is dropped, this can be made simpler.
