@@ -255,6 +255,33 @@ You need to create two directories for CKAN to put temporary files:
 
     mkdir data sstore
 
+11. Install front end dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The front end stylesheets are written using `LESS <http://lesscss.org/>`. This depends on `node <http://nodejs.org/>` being
+installed on the system.
+
+Instructions for installing node can be found on the `project website <http://nodejs.org/#download>`.
+
+Less can then be installed via the node package manager which is bundled with
+node. ``cd`` into the ``pyenv/src/ckan`` and run::
+
+    $ npm install less
+
+A watcher script can then be used to compile the CSS whenever the LESS
+changes::
+
+    $ ./bin/less
+
+This will generate a main.debug.css file. To commit the production CSS into the
+repository run::
+
+    $ ENV=production ./bin/less
+
+This will generate the main.css file that should be committed for use in
+packaged versions of CKAN.
+
+(If someone could move this into a paster script that would be great)
 
 11. Link to who.ini
 ~~~~~~~~~~~~~~~~~~~
