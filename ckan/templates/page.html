@@ -31,7 +31,7 @@
           <div class="toolbar">
             {% block breadcrumb %}
               <ol class="breadcrumb">
-                <li class="home"><a href="{{ h.url('home') }}"><i class="icon-large icon-home"></i><span class="hide-text"> Home</span></a></li>
+                {% snippet 'snippets/home_breadcrumb_item.html' %}
                 {% block breadcrumb_content %}{% endblock %}
               </ol>
             {% endblock %}
