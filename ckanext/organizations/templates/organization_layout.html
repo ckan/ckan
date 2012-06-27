@@ -33,11 +33,8 @@
         <li class="${'active' if c.action=='index' else ''}">
           ${h.subnav_named_route(c, h.icon('group') + _('List Organizations'), "organization_index", action="index" )}
         </li>
-        <li style="display:none;" class="ckan-logged-in ${'active' if c.action=='new' else ''}">
+        <li py:if="h.check_access('group_create')" class="${'active' if c.action=='new' else ''}">
           ${ h.subnav_named_route(c, h.icon('group_add') + _('Add an Organization'), "organization_new", action='new')}
-        </li>
-        <li class="ckan-logged-out ${'active' if c.action=='new' else ''}">
-          ${h.subnav_link(c, h.icon('group_add') + _('Login to Add an Organization'), controller='group', action='new')}
         </li>
       </py:otherwise>
     </ul>
