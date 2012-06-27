@@ -473,7 +473,7 @@ CKAN.View.ResourceEditor = Backbone.View.extend({
 CKAN.View.Resource = Backbone.View.extend({
   initialize: function() {
     this.el = $(this.el);
-    _.bindAll(this,'updateName','updateIcon','name','askToDelete','openMyPanel','setErrors','setupDynamicExtras','addDynamicExtra', 'onDatastoreEnabledChange');
+    _.bindAll(this,'updateName','updateIcon','name','askToDelete','openMyPanel','setErrors','setupDynamicExtras','addDynamicExtra' );
     this.render();
   },
   render: function() {
@@ -508,12 +508,8 @@ CKAN.View.Resource = Backbone.View.extend({
     // Hook to open panel link
     this.li.find('.resource-open-my-panel').click(this.openMyPanel);
     this.table.find('.js-resource-edit-delete').click(this.askToDelete);
-    this.table.find('.js-datastore-enabled-checkbox').change(this.onDatastoreEnabledChange);
     // Hook to markdown editor
     CKAN.Utils.setupMarkdownEditor(this.table.find('.markdown-editor'));
-    if (resource_object.resource.webstore_url) {
-      this.table.find('.js-datastore-enabled-checkbox').prop('checked', true);
-    }
 
     // Set initial state
     this.updateName();
@@ -711,12 +707,6 @@ CKAN.View.Resource = Backbone.View.extend({
   removeFromDom: function() {
     this.li.remove();
     this.table.remove();
-  },
-  onDatastoreEnabledChange: function(e) {
-    var isChecked = this.table.find('.js-datastore-enabled-checkbox').prop('checked');
-    var webstore_url = isChecked ? 'enabled' : null;
-    this.model.set({webstore_url: webstore_url});
-    this.table.find('.js-datastore-enabled-text').val(webstore_url);
   }
 });
 
@@ -849,7 +839,6 @@ CKAN.View.ResourceAddUpload = Backbone.View.extend({
             , hash: data._checksum
             , cache_url: data._location
             , cache_url_updated: lastmod
-            , webstore_url: data._location
           }
           , {
             error: function(model, error) {
@@ -916,7 +905,6 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
              size: data.size,
              mimetype: data.mimetype,
              last_modified: data.last_modified,
-             webstore_url: 'enabled',
              url_error: (data.url_errors || [""])[0]
            });
            self.collection.add(newResource);
@@ -926,9 +914,6 @@ CKAN.View.ResourceAddUrl = Backbone.View.extend({
      }
      else {
        newResource.set({url: urlVal, resource_type: this.options.mode});
-       if (newResource.get('resource_type')=='file') {
-         newResource.set({webstore_url: 'enabled'});
-       }
        this.collection.add(newResource);
        this.resetForm();
      }
@@ -1657,7 +1642,7 @@ CKAN.DataPreview = function ($, my) {
     }
 
     // 4 situations
-    // a) have a webstore_url
+    // a) webstore_url is active (something was posted to the datastore)
     // b) csv or xls (but not webstore)
     // c) can be treated as plain text
     // d) none of the above but worth iframing (assumption is
