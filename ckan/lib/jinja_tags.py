@@ -157,6 +157,20 @@ class SnippetExtension(BaseExtension):
         assert len(args) == 1
         return base.render_snippet(args[0], **kwargs)
 
+class UrlForStaticExtension(BaseExtension):
+    ''' Custom url_for_static tag for getting a path for static assets.
+
+    {% url_for_static <path> %}
+
+    see lib.helpers.url_for_static() for more details.
+    '''
+
+    tags = set(['url_for_static'])
+
+    @classmethod
+    def _call(cls, args, kwargs):
+        assert len(args) == 1
+        return h.url_for_static(args[0], **kwargs)
 
 class UrlForExtension(BaseExtension):
     ''' Custom url_for tag
@@ -186,7 +200,6 @@ class LinkForExtension(BaseExtension):
     @classmethod
     def _call(cls, args, kwargs):
         return h.nav_link(*args, **kwargs)
-
 
 class ResourceExtension(BaseExtension):
     ''' Custom include_resource tag

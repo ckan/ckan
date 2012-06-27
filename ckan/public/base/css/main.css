@@ -4551,10 +4551,13 @@ ul.icons li .icon-large:before {
   background-color: #ffffff;
   margin-bottom: 20px;
 }
-.ie .module {
+.ie9 .module {
   -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
   -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+.ie .module {
+  border: 1px solid #ccc;
 }
 .module-heading {
   -webkit-border-radius: 3px 3px 0 0;
@@ -4659,6 +4662,9 @@ ul.icons li .icon-large:before {
 .module-narrow .module-footer {
   padding-left: 15px;
   padding-right: 15px;
+}
+.ie .module-popup {
+  border-bottom: none;
 }
 .module-grid {
   margin: 0;
@@ -4830,6 +4836,11 @@ ol.media-grid:after {
   font-size: 11px;
   text-align: center;
   text-transform: uppercase;
+}
+.ie .banner {
+  top: 0;
+  right: 0;
+  width: auto;
 }
 .nav-simple {
   *zoom: 1;

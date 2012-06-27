@@ -1,8 +1,8 @@
 @mastheadPadding: 10px;
 
 .masthead {
-  .clearfix();
   #gradient > .vertical(@mastheadBackgroundColorStart, @mastheadBackgroundColorEnd);
+  .clearfix();
   color: @mastheadTextColor;
   padding: @mastheadPadding;
 }
@@ -18,10 +18,6 @@
 .masthead hgroup,
 .masthead nav {
   .clearfix;
-}
-
-.masthead hgroup:before {
-  content: attr(data-image-replacement);
 }
 
 .masthead hgroup h1,
@@ -47,6 +43,10 @@
   width: auto;
 }
 
+.ie7 .masthead .logo img {
+  .ie7-inline-block();
+}
+
 .masthead .content {
   position: absolute;
   top: 8px;
@@ -63,22 +63,34 @@
   line-height: 40px;
 }
 
+.ie7 .masthead nav {
+  .ie7-inline-block();
+}
+
 .masthead nav ul {
   margin: 0;
 }
 
-.masthead nav > ul > li {
+.masthead nav li {
   display: inline-block;
 }
 
-.masthead nav > ul > li > a {
+.ie7 .masthead nav ul {
+  margin-top: 5px;
+}
+
+.ie7 .masthead nav li {
+  float: left;
+}
+
+.masthead nav li a {
   display: block;
   font-size: 14px;
   font-weight: bold;
   padding: 4px 10px;
 }
 
-.masthead nav > ul > li > a.active {
+.masthead nav li a.active {
   @insetBoxShadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
   .border-radius(3px);
   .box-shadow(@insetBoxShadow);
@@ -112,7 +124,7 @@
   width: 1px;
   background-color: lighten(@mastheadBackgroundColorStart, 5);
   #gradient > .radial(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-  #gradient > .vertical-three-colors(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.1), 0.5, rgba(255, 255, 255, 0));
+  .rgba-vertical-gradient-three-colors(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.1), 0.5, rgba(255, 255, 255, 0));
   background-color: rgba(255, 255, 255, 0);
 }
 
@@ -123,7 +135,7 @@
   left: -1px;
   background-color: darken(@mastheadBackgroundColorStart, 5);
   #gradient > .radial(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
-  #gradient > .vertical-three-colors(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2), 0.5, rgba(0, 0, 0, 0));
+  .rgba-vertical-gradient-three-colors(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2), 0.5, rgba(0, 0, 0, 0));
   background-color: rgba(0, 0, 0, 0);
 }
 

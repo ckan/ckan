@@ -5,9 +5,13 @@
   margin-bottom: 20px;
 }
 
-.ie .module {
+.ie9 .module {
   // IE9 renders box shadows wildly out.
   .box-shadow(0 0 5px rgba(0, 0, 0, 0.3));
+}
+
+.ie .module {
+  border: 1px solid #ccc;
 }
 
 .module-heading {
@@ -64,12 +68,13 @@
   color: #000;
 }
 
-.module > .pagination {
+.module .pagination {
   height: 34px;
+  margin-bottom: 0;
   border-top: 1px solid @moduleHeadingBorderColor;
 }
 
-.module > .pagination > ul {
+.module .pagination > ul {
   .border-radius(0);
   border: 0;
 }
@@ -85,11 +90,16 @@
 }
 
 .module .pagination li:first-child a {
-  border-left: 0;
+  border-left-width: 0;
 }
 
 .module .pagination li:last-child a {
-  border-right: 0;
+  border-right-width: 0;
+}
+
+.module .pagination li.active a {
+  border-left-width: 1px;
+  border-right-width: 1px;
 }
 
 // Action
@@ -127,6 +137,12 @@
     padding-left:  @gutterSmallX;
     padding-right: @gutterSmallX;
   }
+}
+
+// Module Popup
+
+.ie .module-popup {
+  border-bottom: none;
 }
 
 // Module Grid

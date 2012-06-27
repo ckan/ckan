@@ -2,11 +2,12 @@
 {%- block doctype %}<!DOCTYPE html>{% endblock -%}
 
 {# Allows custom attributes to be added to the <html> tag #}
-{% block htmltag -%}
-<!--[if IE 7]> <html lang="en-gb" class="ie ie7"> <![endif]-->
-<!--[if IE 8]> <html lang="en-gb" class="ie ie8"> <![endif]-->
-<!--[if IE]>   <html lang="en-gb" class="ie"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en-gb"> <!--<![endif]-->
+{%- block htmltag -%}
+{% set lang = 'en-gb' %}
+<!--[if IE 7]> <html lang="{{ lang }}" class="ie ie7"> <![endif]-->
+<!--[if IE 8]> <html lang="{{ lang }}" class="ie ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="{{ lang }}" class="ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="{{ lang }}"> <!--<![endif]-->
 {%- endblock -%}
 
   {# Allows custom attributes to be added to the <head> tag #}
@@ -26,7 +27,7 @@
     {% endblock %}
 
     #}
-    {%- block meta %}
+    {%- block meta -%}
       <meta charset="utf-8" />
     {%- endblock -%}
 
@@ -42,11 +43,20 @@
     <title>{% block title %}CKAN{% endblock %}</title>
 
     {#
+    The html5shim allows you to modify/override the html5 shim. This is useful
+    for modifying it's behaviour or removing it completely.
+    #}
+    {%- block html5shim -%}
+      {# Temporary link until we get resource helper working #}
+      <!--[if lte IE 8]><script src="{% url_for_static '/base/javascript/vendor/html5.js' %}"></script><![endif]-->
+    {%- endblock -%}
+
+    {#
     The links block allows you to add additonal content before the stylesheets
     such as rss feeds and favicons in the same way as the meta block.
     #}
-    {%- block links -%}
-      <link rel="shortcut icon" href="/base/images/ckan.ico" />
+    {% block links -%}
+      <link rel="shortcut icon" href="{% url_for_static '/base/images/ckan.ico' %}" />
     {% endblock -%}
 
     {#
@@ -61,14 +71,10 @@
         <link rel="stylesheet" href="/base/css/custom.css" />
       {% endblock %}
     #}
-    {%- block styles -%}
-      {% if config.debug %}
-        <link rel="stylesheet/less" href="/base/less/main.less" />
-        <script src="/base/test/vendor/less.js"></script>
-      {% else %}
-        <link rel="stylesheet" href="/base/css/ckan.css" />
-      {% endif %}
-    {% endblock -%}
+    {%- block styles %}
+      <!--[if IE 7]> <link rel="stylesheet" href="{% url_for_static '/base/css/vendor/font-awesome-ie7.css' %}" /> <![endif]-->
+      <link rel="stylesheet" href="{% url_for_static ('/base/css/main.debug.css' if config.debug else '/base/css/main.css') %}" />
+    {% endblock %}
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}

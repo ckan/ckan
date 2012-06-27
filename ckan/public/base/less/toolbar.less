@@ -6,37 +6,65 @@
 }
 
 .toolbar .breadcrumb {
+  .clearfix;
   .box-shadow(none);
   position: relative;
   float: left;
-  background: none;
   margin: 0;
   padding: 0;
   border: none;
+  background: none;
   font-size: 20px;
+}
+
+.ie .toolbar .breadcrumb {
+  filter: none; // Remove filter set by the gradient mixin.
 }
 
 .toolbar li [class^=icon]:before {
   width: auto; // Fix Bootstrap icon widths
 }
 
+.ie .toolbar .breadcrumb li {
+  float: left; // Fixes inline block display issues.
+}
+
+.ie7 .toolbar .breadcrumb li {
+  margin-right: 0.5em; // No :after support in IE7 so just pad items.
+}
+
 .toolbar .breadcrumb li:after {
   content: " / ";
 }
 
-.toolbar .breadcrumb li:last-of-type:after {
+.ie .toolbar .breadcrumb li:after {
+  margin: 0 0.2em;
+}
+
+.toolbar .breadcrumb li.active:after {
   content: "";
 }
 
-.toolbar .breadcrumb .home:after {
+// Needs to be a separate declaration as IE chokes on the last-of-type.
+.toolbar .breadcrumb li:last-of-type:after {
+  content: "";
 }
 
 .toolbar .home a {
   text-decoration: none;
 }
 
+.toolbar .home span {
+  .hide-text;
+}
+
+.ie7 .toolbar .home span {
+  display: none; // Fixes traces of text in IE
+}
+
+
 .toolbar .breadcrumb a {
-  color: rgba(40, 40, 40, 0.8);
+  color: #505050;
   line-height: 28px;
 }
 
@@ -51,6 +79,10 @@
 .toolbar .actions li {
   display: inline-block;
   margin-right: 5px;
+}
+
+.toolbar .actions li {
+  .ie7-inline-block;
 }
 
 .toolbar .actions li:last-of-type {
