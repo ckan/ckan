@@ -1,6 +1,12 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.8
+====
+
+* requirements have been updated see doc/install-from-source.rst
+users will need to do a new pip install (#2592)
+
 v1.7.1 2012-06-20
 =================
 
