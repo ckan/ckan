@@ -883,7 +883,7 @@ def dashboard_activity_stream(user_id):
     '''
     import ckan.logic as logic
     context = {'model' : model, 'session':model.Session, 'user':c.user}
-    return logic.get_action('dashboard_activity_list_html')(context, {'user_id': user_id})
+    return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
 
 
 # these are the functions that will end up in `h` template helpers

@@ -96,13 +96,50 @@ class TestActivity:
         ckan.tests.CreateTestData.create()
         self.sysadmin_user = model.User.get('testsysadmin')
         self.normal_user = model.User.get('annafan')
+        self.follower = model.User.get('tester')
         self.warandpeace = model.Package.get('warandpeace')
         self.annakarenina = model.Package.get('annakarenina')
         self.app = paste.fixture.TestApp(pylonsapp)
 
+        # Make follower follow everything else.
+        params = {'id': 'testsysadmin'}
+        extra_environ = {'Authorization': str(self.follower.apikey)}
+        response = self.app.post('/api/action/follow_user',
+            params=json.dumps(params), extra_environ=extra_environ).json
+        assert response['success'] is True
+        params = {'id': 'annafan'}
+        extra_environ = {'Authorization': str(self.follower.apikey)}
+        response = self.app.post('/api/action/follow_user',
+            params=json.dumps(params), extra_environ=extra_environ).json
+        assert response['success'] is True
+        params = {'id': 'warandpeace'}
+        extra_environ = {'Authorization': str(self.follower.apikey)}
+        response = self.app.post('/api/action/follow_dataset',
+            params=json.dumps(params), extra_environ=extra_environ).json
+        assert response['success'] is True
+        params = {'id': 'annakarenina'}
+        extra_environ = {'Authorization': str(self.follower.apikey)}
+        response = self.app.post('/api/action/follow_dataset',
+            params=json.dumps(params), extra_environ=extra_environ).json
+        assert response['success'] is True
+
+        self.followees = \
+            [
+                self.sysadmin_user.id,
+                self.normal_user.id,
+                self.follower.id,
+                self.warandpeace.id,
+                self.annakarenina.id
+            ]
+
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
+
+    def dashboard_activity_stream(self, user_id):
+        response = self.app.get("/api/2/rest/user/%s/dashboard_activity" % user_id)
+        return json.loads(response.body)
 
     def user_activity_stream(self, user_id):
         response = self.app.get("/api/2/rest/user/%s/activity" % user_id)
@@ -145,8 +182,24 @@ class TestActivity:
         details['recently changed datasets stream'] = \
                 self.recently_changed_datasets_stream()
 
+        details['follower dashboard activity stream'] = \
+                                self.dashboard_activity_stream(self.follower.id)
+
         details['time'] = datetime.datetime.now()
         return details
+
+    def check_dashboard(
+            self,
+            before, after, wanted_difference,
+            potential_followees):
+        difference = find_new_activities(
+                    before['follower dashboard activity stream'],
+                    after['follower dashboard activity stream'])
+        if any(potential_followee in self.followees for potential_followee in potential_followees):
+            assert difference == wanted_difference
+        else:
+            assert len(difference) == 0
+
 
     def _create_package(self, user, name=None):
         if user:
@@ -188,6 +241,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user_id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package_created['id'], \
@@ -297,6 +352,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
+        self.check_dashboard(before, after, user_new_activities, [user_id, package.id])
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
             str(activity['object_id'])
@@ -385,6 +442,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user_id, package_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -480,6 +539,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
+        self.check_dashboard(before, after, user_new_activities, [user_id, package_dict['id']])
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
             str(activity['object_id'])
@@ -570,6 +631,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
+        self.check_dashboard(before, after, user_new_activities, [user_id, package_dict['id']])
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
             str(activity['object_id'])
@@ -628,6 +691,8 @@ class TestActivity:
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
 
+        self.check_dashboard(before, after, user_new_activities, [user.id, package.id])
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == params['object_id'], (
             str(activity['object_id']))
@@ -671,6 +736,8 @@ class TestActivity:
             after['group activity stream']) == new_activities, ("The same "
             "activity should also appear in the group's activity stream.")
 
+        self.check_dashboard(before, after, new_activities, [user.id])
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group.id, str(activity['object_id'])
         assert activity['user_id'] == user.id, str(activity['user_id'])
@@ -711,6 +778,9 @@ class TestActivity:
         assert find_new_activities(before["group activity stream"],
             after['group activity stream']) == new_activities, ("The same "
             "activity should also appear in the group's activity stream.")
+
+        self.check_dashboard(before, after, new_activities, [user.id])
+
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group.id, str(activity['object_id'])
@@ -757,6 +827,8 @@ class TestActivity:
         assert len(new_activities) == 1, ("There should be 1 new activity in "
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
+
+        self.check_dashboard(before, after, new_activities, [user.id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == user.id, str(activity['object_id'])
@@ -821,6 +893,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [package.id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
@@ -905,6 +979,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
+        self.check_dashboard(before, after, user_new_activities, [user_id, package.id])
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
             str(activity['object_id']))
@@ -981,6 +1057,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
+        self.check_dashboard(before, after, user_new_activities, [user_id, package.id])
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
             str(activity['object_id']))
@@ -1048,6 +1126,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [self.sysadmin_user.id, package.id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
@@ -1159,6 +1239,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user.id, pkg_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == pkg_dict['id'], (
@@ -1416,6 +1498,8 @@ class TestActivity:
         assert after['group activity stream'] == new_activities, ("The same "
             "activity should also appear in the group's activity stream.")
 
+        self.check_dashboard(before, after, new_activities, [user.id])
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group_created['id'], \
             str(activity['object_id'])
@@ -1495,6 +1579,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user.id, pkg_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == pkg_dict['id'], (

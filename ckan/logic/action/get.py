@@ -2054,7 +2054,7 @@ def dashboard_activity_list(context, data_dict):
 
     '''
     model = context['model']
-    user_id = _get_or_bust(data_dict, 'user_id')
+    user_id = _get_or_bust(data_dict, 'id')
 
     activity_query = model.Session.query(model.Activity)
     user_query = activity_query;
