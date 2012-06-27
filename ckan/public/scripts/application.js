@@ -1553,6 +1553,14 @@ CKAN.DataPreview = function ($, my) {
   my.loadPreviewDialog = function(resourceData) {
     my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
 
+    function showError(msg){
+      msg = msg || CKAN.Strings.errorLoadingPreview;
+      return $('#ckanext-datapreview')
+        .append('<div></div>')
+        .addClass('alert alert-error fade in')
+        .html(msg);
+    }
+
     function initializeDataExplorer(dataset) {
       var views = [
         {
@@ -1585,6 +1593,7 @@ CKAN.DataPreview = function ($, my) {
           readOnly: true
         }
       });
+
 
       // -----------------------------
       // Setup the Embed modal dialog.
@@ -1665,14 +1674,38 @@ CKAN.DataPreview = function ($, my) {
     if (resourceData.webstore_url) {
       resourceData.elasticsearch_url = '/api/data/' + resourceData.id;
       var dataset = new recline.Model.Dataset(resourceData, 'elasticsearch');
-      initializeDataExplorer(dataset);
+      var errorMsg = CKAN.Strings.errorLoadingPreview + ': ' + CKAN.Strings.errorDataStore;
+      dataset.fetch()
+        .done(function(dataset){
+            initializeDataExplorer(dataset);
+        })
+        .fail(function(error){
+          if (error.message) errorMsg += ' (' + error.message + ')';
+          showError(errorMsg);
+        });
+
     }
     else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
       // set format as this is used by Recline in setting format for DataProxy
       resourceData.format = resourceData.formatNormalized;
       var dataset = new recline.Model.Dataset(resourceData, 'dataproxy');
-      initializeDataExplorer(dataset);
-      $('.recline-query-editor .text-query').hide();
+      var errorMsg = CKAN.Strings.errorLoadingPreview + ': ' +CKAN.Strings.errorDataProxy;
+      dataset.fetch()
+        .done(function(dataset){
+
+          dataset.bind('query:fail', function(error) {
+            $('#ckanext-datapreview .data-view-container').hide();
+            $('#ckanext-datapreview .header').hide();
+            $('.preview-header .btn').hide();
+          });
+
+          initializeDataExplorer(dataset);
+          $('.recline-query-editor .text-query').hide();
+        })
+        .fail(function(error){
+          if (error.message) errorMsg += ' (' + error.message + ')';
+          showError(errorMsg);
+        });
     }
     else if (resourceData.formatNormalized in {
         'rdf+xml': '',
