@@ -65,7 +65,7 @@ def create_library(name, path):
         f.close()
         print 'minified %s' % path
 
-    def create_resource(filename):
+    def create_resource(filename, path, filepath):
         ''' create the fanstatic Resource '''
         # resource_name is name of the file without the .js/.css
         resource_name = '.'.join(filename.split('.')[:-1])
@@ -85,7 +85,8 @@ def create_library(name, path):
 
         resource = Resource(library, filename, **kw)
         # add the resource to this module
-        setattr(module, resource_name, resource)
+        fanstatic_name = '%s/%s' % (filepath, resource_name)
+        setattr(module, fanstatic_name, resource)
 
     order = []
     dont_bundle = []
@@ -122,16 +123,17 @@ def create_library(name, path):
         for f in filenames:
             if f.endswith('.js') and not f.endswith('.min.js'):
                 minify(f, jsmin)
-                create_resource(f)
+                create_resource(f, resource_path, path)
             if f.endswith('.css') and not f.endswith('.min.css'):
                 minify(f, cssmin)
-                create_resource(f)
+                create_resource(f, resource_path, path)
 
     # add groups
     for group_name in groups:
         members = []
         for member in groups[group_name]:
-            members.append(getattr(module, member))
+            fanstatic_name = '%s/%s' % (path, member)
+            members.append(getattr(module, fanstatic_name))
         group = Group(members)
         setattr(module, group_name, group)
     # finally add the library to this module
