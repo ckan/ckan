@@ -26,7 +26,11 @@
 }
 
 .ie .toolbar .breadcrumb li {
-  float: left;
+  float: left; // Fixes inline block display issues.
+}
+
+.ie7 .toolbar .breadcrumb li {
+  margin-right: 0.5em; // No :after support in IE7 so just pad items.
 }
 
 .toolbar .breadcrumb li:after {
@@ -46,15 +50,21 @@
   content: "";
 }
 
-.toolbar .breadcrumb .home:after {
-}
-
 .toolbar .home a {
   text-decoration: none;
 }
 
+.toolbar .home span {
+  .hide-text;
+}
+
+.ie7 .toolbar .home span {
+  display: none; // Fixes traces of text in IE
+}
+
+
 .toolbar .breadcrumb a {
-  color: rgba(40, 40, 40, 0.8);
+  color: #505050;
   line-height: 28px;
 }
 
