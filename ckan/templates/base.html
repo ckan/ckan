@@ -72,6 +72,7 @@
       {% endblock %}
     #}
     {%- block styles -%}
+      <!--[if IE 7]> <link rel="stylesheet" href="/base/css/vendor/font-awesome-ie7.css" /> <![endif]-->
       <link rel="stylesheet" href="/base/css/{{ 'main.debug.css' if config.debug else 'main.css' }}" />
     {% endblock %}
   </head>
