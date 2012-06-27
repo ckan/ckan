@@ -258,10 +258,10 @@ You need to create two directories for CKAN to put temporary files:
 11. Install front end dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The front end stylesheets are written using `LESS <http://lesscss.org/>`. This depends on `node <http://nodejs.org/>` being
+The front end stylesheets are written using `LESS <http://lesscss.org/>`_. This depends on `node <http://nodejs.org/>`_ being
 installed on the system.
 
-Instructions for installing node can be found on the `project website <http://nodejs.org/#download>`.
+Instructions for installing node can be found on the `project website <http://nodejs.org/>`_.
 
 Less can then be installed via the node package manager which is bundled with
 node. ``cd`` into the ``pyenv/src/ckan`` and run::
