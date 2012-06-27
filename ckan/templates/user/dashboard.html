@@ -21,5 +21,16 @@
         </div>
     </div>
 
+    <div py:match="primarysidebar">
+        <h3>Nothing new on CKAN?</h3>
+        <h4>So, why don't you ...</h4>
+        <ul>
+            <li><a href="${h.url(controller='package', action='new')}">Add a new dataset</a></li>
+            <li><a href="${h.url(controller='user', action='index')}">Follow another user</a></li>
+            <li><a href="${h.url(controller='group', action='index')}">Create a group or a tag</a></li>
+            <li><a href="${h.url(controller='package', action='search')}">Or simply browse the repository</a></li>
+        </ul>
+    </div>
+
     <xi:include href="layout.html" />
 </html>
