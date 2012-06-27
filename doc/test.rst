@@ -12,7 +12,7 @@ Installing Additional Dependencies
 ----------------------------------
 
 Some additional dependencies are needed to run the tests. Make sure you've
-created a config file at ``pyenv/ckan/development.ini``, then activate your
+created a config file at ``~/pyenv/ckan/development.ini``, then activate your
 virtual environment::
 
     . ~/pyenv/bin/activate

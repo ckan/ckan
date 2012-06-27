@@ -46,12 +46,11 @@ OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/instal
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 a. Create a Python virtual environment (virtualenv) to install CKAN into (in
-   this example we created a virtualenv called ``pyenv`` in our home
+   this example we create a virtualenv called ``pyenv`` in our home
    directory), and activate it::
 
-       cd ~
-       virtualenv --no-site-packages pyenv
-       . pyenv/bin/activate
+       virtualenv --no-site-packages ~/pyenv
+       . ~/pyenv/bin/activate
 
 b. Install the CKAN source code into your virtualenv. To install the latest
    development version of CKAN (the most recent commit on the master branch of
@@ -65,7 +64,7 @@ b. Install the CKAN source code into your virtualenv. To install the latest
 
 c. Install the Python modules that CKAN requires into your virtualenv::
 
-       pip install -r pyenv/src/ckan/pip-requirements.txt
+       pip install -r ~/pyenv/src/ckan/pip-requirements.txt
 
 3. Setup a PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,7 +102,7 @@ Create the database (owned by ``ckanuser``), which we'll call ``ckantest``::
 With your virtualenv activated, change to the ckan directory and create a CKAN
 config file::
 
-    cd pyenv/src/ckan
+    cd ~/pyenv/src/ckan
     paster make-config ckan development.ini
 
 .. tip ::
@@ -147,7 +146,7 @@ config variables in your CKAN config file:
 Now that you have a configuration file that has the correct settings for your
 database, you'll need to create the tables. Make sure you are still in an
 activated environment with ``(pyenv)`` at the front of the command prompt and
-then from the ``pyenv/src/ckan`` directory run this command::
+then from the ``~/pyenv/src/ckan`` directory run this command::
 
     paster --plugin=ckan db init
 
@@ -170,7 +169,7 @@ You should see ``Initialising DB: SUCCESS``.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create the ``data`` and ``sstore`` directories, in the same directory that
-contains your CKAN config file (e.g. ``pyenv/src/ckan``)::
+contains your CKAN config file (e.g. ``~/pyenv/src/ckan``)::
 
     mkdir data sstore
 
@@ -186,10 +185,10 @@ the ``who.ini`` file.
 
 ``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
 same directory as your CKAN config file. So if your config file is not in
-``pyenv/src/ckan``, then cd to the directory with your config file and create a
+``~/pyenv/src/ckan``, then cd to the directory with your config file and create a
 symbolic link to ``who.ini``. e.g.::
 
-    ln -s pyenv/src/ckan/who.ini
+    ln -s ~/pyenv/src/ckan/who.ini
 
 9. Run CKAN in the development web server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -199,7 +198,7 @@ This is a simple and lightweight way to serve CKAN that is useful for
 development and testing. For production it's better to serve CKAN using
 Apache or nginx (see :doc:`post-installation`).
 
-With your virtualenv activated, run this command from the ``pyenv/src/ckan``
+With your virtualenv activated, run this command from the ``~/pyenv/src/ckan``
 directory::
 
     paster serve development.ini
