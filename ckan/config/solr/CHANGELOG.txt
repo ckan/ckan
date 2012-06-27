@@ -1,6 +1,11 @@
 CKAN SOLR schemas changelog
 ===========================
 
+v1.4 - (ckan>=1.8)
+------------------
+* Add vocab_* dynamic field so it is possible to facet by vocabulary tags
+* Add copyField for text with source vocab_*
+
 v1.4 - (ckan>=1.7)
 --------------------
 * Add Ascii folding filter to text fields.
