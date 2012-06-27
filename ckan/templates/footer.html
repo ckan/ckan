@@ -19,5 +19,7 @@
       <p><small>Maps powered by Leaflet, map data &copy; OpenStreetMap contributors, CC-BY-SA, map imagery &copy; CloudMade</small></p>
     </div>
   </div>
-  {% include 'snippets/debug.html' if config.debug %}
+  {% if config.debug %}
+    {% include 'snippets/debug.html' %}
+  {% endif %}
 </footer>
