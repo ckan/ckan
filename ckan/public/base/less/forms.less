@@ -356,7 +356,7 @@ textarea {
 
 .stages li:after {
   left: 0;
-  border: solid transparent;
+  border: solid rgba(237, 237, 237, 0);
   content: " ";
   height: 0;
   width: 0;
@@ -387,14 +387,17 @@ textarea {
 
 .stages li.first:after {
   content: none;
+  border: none;
 }
 
 .stages li.active:after {
+  border-color: rgba(140, 198, 138, 0);
   border-top-color: #8cc68a;
   border-bottom-color: #8cc68a;
 }
 
 .stages li.complete:after {
+  border-color: rgba(197, 226, 196, 0);
   border-top-color: #C5E2C4;
   border-bottom-color: #C5E2C4;
 }
