@@ -14,7 +14,7 @@
   {# The content block allows you to replace the content of the page if needed #}
   {%- block content %}
     {% block maintag %}<div role="main">{% endblock %}
-      <div class="container">
+      <div id="content" class="container">
 
         {% block flash %}
           {% set flash_messages = h.flash.pop_messages() | list %}
