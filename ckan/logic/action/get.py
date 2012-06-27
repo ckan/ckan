@@ -1271,7 +1271,7 @@ def resource_search(context, data_dict):
             fields = dict(pair.split(":", 1) for pair in query)
         except ValueError:
             raise ValidationError(
-                {'query': _('Must be {field}:{value} pair(s)')})
+                {'query': _('Must be <field>:<value> pair(s)')})
 
     else:
         log.warning('Use of the "fields" parameter in resource_search is '
