@@ -80,7 +80,7 @@ the CKAN install.
 
 Next you'll need to create a database user if one doesn't already exist.
 
-  .. tip ::
+.. tip ::
 
     If you choose a database name, user or password which are different from
     the example values suggested below then you'll need to change the
