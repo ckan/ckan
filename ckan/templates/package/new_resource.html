@@ -14,5 +14,6 @@
     </div>
   </section>
 
-  {{ self.resources_module() }}
+  {% snippet 'package/snippets/resources.html', pkg=pkg_dict %}
+
 {% endblock %}
