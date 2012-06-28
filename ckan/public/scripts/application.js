@@ -1001,7 +1001,7 @@ CKAN.Utils = function($, my) {
 
         input_box.attr('name', new_name);
         input_box.attr('id', new_name);
-        
+
         var $new = $('<div class="ckan-dataset-to-add"><p></p></div>');
         $new.append($('<input type="hidden" />').attr('name', old_name).val(ui.item.value));
         $new.append('<i class="icon-plus-sign"></i> ');
@@ -1447,7 +1447,7 @@ CKAN.Utils = function($, my) {
       },
     });
   };
-  
+
   // This only needs to happen on dataset pages, but it doesn't seem to do
   // any harm to call it anyway.
   $('#user_follow_button').on('click', followButtonClicked);

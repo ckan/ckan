@@ -76,9 +76,9 @@ class MockProxyServer(object):
         assert elastic_search_offset
 
         if data:
-            res = requests.post('http: //%s%s' % (self.elastic_search_host, elastic_search_offset), data=json.dumps(data))
+            res = requests.post('http://%s%s' % (self.elastic_search_host, elastic_search_offset), data=json.dumps(data))
         else:
-            res = requests.get('http: //%s%s' % (self.elastic_search_host, elastic_search_offset))
+            res = requests.get('http://%s%s' % (self.elastic_search_host, elastic_search_offset))
 
         return res
 
@@ -111,12 +111,12 @@ class TestDatastoreController(TestController):
 
         # Check if Elastic Search is available, otherwise skip tests
         try:
-            requests.get('http: //%s/_status' % ELASTIC_SEARCH_HOST, timeout=2)
+            requests.get('http://%s/_status' % ELASTIC_SEARCH_HOST, timeout=2)
         except (requests.exceptions.RequestException, socket.timeout), e:
             raise SkipTest('Could not reach Elastic Search, skipping... (%r)' % e)
 
         # Push dummy data to create the test index
-        requests.put('http: //%s/ckan-%s/' % (ELASTIC_SEARCH_HOST, config.get('ckan.site_id')))
+        requests.put('http://%s/ckan-%s/' % (ELASTIC_SEARCH_HOST, config.get('ckan.site_id')))
 
         model.repo.init_db()
         CreateTestData.create()
@@ -125,7 +125,7 @@ class TestDatastoreController(TestController):
     def teardown_class(self):
 
         # Delete the test index on ES
-        requests.delete('http: //%s/ckan-%s/' % (ELASTIC_SEARCH_HOST, config.get('ckan.site_id')))
+        requests.delete('http://%s/ckan-%s/' % (ELASTIC_SEARCH_HOST, config.get('ckan.site_id')))
 
         model.repo.rebuild_db()
 
