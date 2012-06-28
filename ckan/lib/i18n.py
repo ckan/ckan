@@ -13,6 +13,8 @@ LOCALE_ALIASES['pt'] = 'pt_BR' # Default Portuguese language to
                                # translation currently.
 
 def get_locales_from_config():
+    ''' despite the name of this function it gets the locales defined by
+    the config AND also the locals available subject to the config. '''
     locales_offered = config.get('ckan.locales_offered', '').split()
     filtered_out = config.get('ckan.locales_filtered_out', '').split()
     locale_default = config.get('ckan.locale_default', 'en')
@@ -23,6 +25,7 @@ def get_locales_from_config():
     return all_locales
 
 def _get_locales():
+    # FIXME this wants cleaning up and merging with get_locales_from_config()
     assert not config.get('lang'), \
             '"lang" config option not supported - please use ckan.locale_default instead.'
     locales_offered = config.get('ckan.locales_offered', '').split()
@@ -79,6 +82,8 @@ def get_locales():
     return locales
 
 def non_translated_locals():
+    ''' These are the locales that are available but for which there are
+    no translations. returns a list like ['en', 'de', ...] '''
     global _non_translated_locals
     if not _non_translated_locals:
         locales = config.get('ckan.locale_order', '').split()
