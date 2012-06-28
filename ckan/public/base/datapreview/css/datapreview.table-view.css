@@ -136,7 +136,7 @@ label[for=dataexplorer-tableview-nav-editor]  {
 	display: inline-block;
 	width: 12px;
 	height: 12px;
-	background: url(jquery-ui/css/ckan/images/ui-icons_444444_256x240.png) no-repeat -68px -17px;
+	background: url(../images/ui-icons_444444_256x240.png) no-repeat -68px -17px;
 }
 
 .dataexplorer-tableview-editor-hide-info h1 span {
@@ -166,7 +166,7 @@ label[for=dataexplorer-tableview-nav-editor]  {
 	padding: 3px 6px 2px 21px;
 	font-size: 12px;
 	font-weight: bold;
-	background: #fff url(./icon-sprite.png) no-repeat 5px 6px;
+	background: #fff url(../images/icon-sprite.png) no-repeat 5px 6px;
 	-webkit-border-radius: 4px;
 	-moz-border-radius: 4px;
 	-ms-border-radius: 4px;
@@ -207,7 +207,7 @@ label[for=dataexplorer-tableview-nav-editor]  {
 .preview .resource-preview-loading:active {
 	color: #aaa;
 	border: 1px solid #eaeaea;
-	background-image: url(./loading.gif);
+	background-image: url(../images/loading.gif);
 	background-position: 3px 5px;
 	cursor: default;
 }
