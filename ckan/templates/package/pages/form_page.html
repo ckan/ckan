@@ -33,6 +33,6 @@
 
   {% block resources_module %}
     {# TODO: Pass in a list of previously created resources and the current package dict #}
-    {% snippet "package/snippets/resources.html", resources=[], pkg={}, action='new_resource' %}
+    {% snippet "package/snippets/resources.html", pkg={}, action='new_resource' %}
   {% endblock %}
 {% endblock %}
