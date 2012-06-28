@@ -81,4 +81,9 @@
   {% snippet "snippets/license.html", pkg_dict=pkg %}
 {% endblock %}
 
-{% resource 'datapreview/application' %}
+{#
+Toby, ideally I'd like to include this line and it include the whole contents of
+html_resources/datapreview. As individual script tags in development and as one
+file in production. Can this be done with the .ini files using fanstatic?
+#}
+{% resource 'datapreview' %}
