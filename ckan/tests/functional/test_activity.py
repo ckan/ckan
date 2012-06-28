@@ -25,8 +25,9 @@ class TestActivity(HtmlCheckMethods):
     def teardown(cls):
         ckan.model.repo.rebuild_db()
 
-    def test_activity(self):
-        """Test activity streams HTML rendering."""
+
+    def test_user_activity(self):
+        """Test user activity streams HTML rendering."""
 
         # Register a new user.
         user_dict = {'name': 'billybeane',
@@ -208,3 +209,10 @@ class TestActivity(HtmlCheckMethods):
         result = self.app.get(offset, status=200)
         assert result.body.count('<div class="activity">') \
                 == 15
+
+        # The latest 15 should also appear on the dashboard
+        offset = url_for(controller='user', action='dashboard')
+        params = {'id': user['id']}
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
+        response = self.app.post(offset, params=params, extra_environ=extra_environ, status=200)
+        assert result.body.count('<div class="activity">') == 15

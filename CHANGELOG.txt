@@ -6,6 +6,14 @@ v1.8
 
 * requirements have been updated see doc/install-from-source.rst
 users will need to do a new pip install (#2592)
+* New 'follow' feature. You'll now see a 'Followers' tab on user and dataset
+  pages, where you can see how many users are following that user or dataset.
+  If you're logged in, you'll see a 'Follow' button on the pages of datasets
+  and other users that you can click to follow them. Also when logged in, if
+  you go to your own user page you'll see a new 'Dashboard' tab where you can
+  see an activity stream from of all the users and datasets that you're
+  following. There are also API calls for the follow features, see the Action
+  API reference documentation.
 
 v1.7.1 2012-06-20
 =================
