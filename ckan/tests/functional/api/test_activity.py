@@ -4,7 +4,9 @@ logger = logging.getLogger(__name__)
 
 import ckan
 import ckan.model as model
-from ckan.logic.action.create import package_create as _package_create, user_create, group_create
+from ckan.logic.action.create import package_create as _package_create
+from ckan.logic.action.create import user_create, group_create, follow_dataset
+from ckan.logic.action.create import follow_user
 from ckan.logic.action.update import package_update as _package_update, resource_update
 from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
@@ -2025,3 +2027,106 @@ class TestActivity:
                 "Need some packages with extras to test")
         for package_dict in packages_with_extras:
             self._delete_extra(package_dict, None)
+
+    def test_follow_dataset(self):
+        user = self.normal_user
+        before = self.record_details(user.id)
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user.name,
+            }
+        data = {'id': self.warandpeace.id}
+        follow_dataset(context, data)
+        after = self.record_details(user.id, self.warandpeace.id)
+
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = after['package activity stream']
+        for activity in user_new_activities:
+            assert activity in pkg_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user.id])
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == self.warandpeace.id, \
+            str(activity['object_id'])
+        assert activity['user_id'] == user.id, str(activity['user_id'])
+        assert activity['activity_type'] == 'follow dataset', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object should have an id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity object should have a revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert timestamp >= before['time'] and timestamp <= \
+            after['time'], str(activity['timestamp'])
+
+        assert len(self.activity_details(activity)) == 0
+
+    def test_follow_user(self):
+        user = self.normal_user
+        before = self.record_details(user.id)
+        followee_before = self.record_details(self.sysadmin_user.id)
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user.name,
+            }
+        data = {'id': self.sysadmin_user.id}
+        follow_user(context, data)
+        after = self.record_details(user.id)
+        followee_after = self.record_details(self.sysadmin_user.id)
+
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # Check that the new activity appears in the user's private activity
+        # stream.
+        user_new_activities = (find_new_activities(
+            before['follower dashboard activity stream'],
+            after['follower dashboard activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(user_new_activities))
+        assert user_new_activities[0] == activity
+
+        # Check that the new activity appears in the followee's private
+        # activity stream.
+        followee_new_activities = (find_new_activities(
+            followee_before['follower dashboard activity stream'],
+            followee_after['follower dashboard activity stream']))
+        assert len(followee_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" % 
+            len(followee_new_activities))
+        assert followee_new_activities[0] == activity
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == self.sysadmin_user.id, \
+            str(activity['object_id'])
+        assert activity['user_id'] == user.id, str(activity['user_id'])
+        assert activity['activity_type'] == 'follow user', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object should have an id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity object should have a revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert timestamp >= before['time'] and timestamp <= \
+            after['time'], str(activity['timestamp'])
+
+        assert len(self.activity_details(activity)) == 0
