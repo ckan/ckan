@@ -14,13 +14,13 @@ pairtree==0.7.1-T
 ofs==0.4.1
 apachemiddleware==0.1.1
 markupsafe==0.15
-babel==0.9.4
-psycopg2==2.0.13
+babel==0.9.6
+psycopg2==2.4.5
 webob==1.0.8
 Pylons==0.9.7
 repoze.who==1.0.19
 tempita==0.5.1
-zope.interface==3.5.3
+zope.interface==4.0.1
 repoze.who.plugins.openid==0.5.3
 repoze.who-friendlyform==1.0.8
 routes==1.13
