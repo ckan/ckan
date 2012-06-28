@@ -480,7 +480,7 @@ class PackageController(BaseController):
     def new_resource(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
         forms. '''
-        if request.method == 'POST':
+        if request.method == 'POST' and not data:
             save_action = request.params.get('save')
             if save_action in ['again', 'next'] and not data:
                 data = data or clean_dict(unflatten(tuplize_dict(parse_params(
@@ -492,7 +492,12 @@ class PackageController(BaseController):
                            'api_version': 3,
                            'user': c.user or c.author,
                            'extras_as_string': True}
-                get_action('resource_create')(context, data)
+                try:
+                    get_action('resource_create')(context, data)
+                except ValidationError, e:
+                    errors = e.error_dict
+                    error_summary = e.error_summary
+                    return self.new_resource(id, data, errors, error_summary)
                 if save_action == 'next':
                     redirect(h.url_for(controller='package',
                                        action='new_metadata', id=id))
@@ -504,12 +509,12 @@ class PackageController(BaseController):
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'new'}
         vars['pkg_name'] = id
-  ## FIXME Resources selector in side bar think, think, think
-  ##      context = {'model': model, 'session': model.Session,
-  ##                 'user': c.user or c.author, 'extras_as_string': True,}
-  ##      get_action('package_show')(context, {'id': id})
-  ##      # required for nav menu
-  ##      vars['pkg'] = context['package']
+        # get resources for sidebar
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,}
+        pkg_dict = get_action('package_show')(context, {'id': id})
+        # required for nav menu
+        vars['pkg_dict'] = pkg_dict
         return render('package/new_resource.html', extra_vars=vars)
 
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
