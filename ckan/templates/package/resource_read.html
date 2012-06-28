@@ -73,7 +73,7 @@
           </thead>
           <tbody>
             {% with blacklist = ["name", "description", "url"] %}
-              {% for key,value in res.items()|sort if key not in blacklist %}
+              {% for key,value in res.items()|sort if value and key not in blacklist %}
                 <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
               {% endfor %}
             {% endwith %}
