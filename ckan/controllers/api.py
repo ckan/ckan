@@ -251,6 +251,7 @@ class ApiController(base.BaseController):
             ('dataset', 'activity'): 'package_activity_list',
             ('group', 'activity'): 'group_activity_list',
             ('user', 'activity'): 'user_activity_list',
+            ('user', 'dashboard_activity'): 'dashboard_activity_list',
             ('activity', 'details'): 'activity_detail_list',
         }
 

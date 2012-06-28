@@ -27,24 +27,39 @@ class UserFollowingUser(domain_object.DomainObject):
         return query.first()
 
     @classmethod
-    def follower_count(cls, object_id):
-        '''Return the number of users following a user.'''
-        return meta.Session.query(UserFollowingUser).filter(
-                UserFollowingUser.object_id == object_id).count()
-
-    @classmethod
-    def follower_list(cls, object_id):
-        '''Return a list of all of the followers of a user.'''
-        return meta.Session.query(UserFollowingUser).filter(
-                UserFollowingUser.object_id == object_id).all()
-
-    @classmethod
     def is_following(cls, follower_id, object_id):
         '''Return True if follower_id is currently following object_id, False
         otherwise.
 
         '''
         return UserFollowingUser.get(follower_id, object_id) is not None
+
+
+    @classmethod
+    def followee_count(cls, follower_id):
+        '''Return the number of users followed by a user.'''
+        return meta.Session.query(UserFollowingUser).filter(
+                UserFollowingUser.follower_id == follower_id).count()
+
+    @classmethod
+    def followee_list(cls, follower_id):
+        '''Return a list of users followed by a user.'''
+        return meta.Session.query(UserFollowingUser).filter(
+                UserFollowingUser.follower_id == follower_id).all()
+
+
+    @classmethod
+    def follower_count(cls, user_id):
+        '''Return the number of followers of a user.'''
+        return meta.Session.query(UserFollowingUser).filter(
+                UserFollowingUser.object_id == user_id).count()
+
+    @classmethod
+    def follower_list(cls, user_id):
+        '''Return a list of followers of a user.'''
+        return meta.Session.query(UserFollowingUser).filter(
+                UserFollowingUser.object_id == user_id).all()
+
 
 user_following_user_table = sqlalchemy.Table('user_following_user',
         meta.metadata,
@@ -85,24 +100,39 @@ class UserFollowingDataset(domain_object.DomainObject):
         return query.first()
 
     @classmethod
-    def follower_count(cls, object_id):
-        '''Return the number of users following a dataset.'''
-        return meta.Session.query(UserFollowingDataset).filter(
-                UserFollowingDataset.object_id == object_id).count()
-
-    @classmethod
-    def follower_list(cls, object_id):
-        '''Return a list of all of the followers of a dataset.'''
-        return meta.Session.query(UserFollowingDataset).filter(
-                UserFollowingDataset.object_id == object_id).all()
-
-    @classmethod
     def is_following(cls, follower_id, object_id):
         '''Return True if follower_id is currently following object_id, False
         otherwise.
 
         '''
         return UserFollowingDataset.get(follower_id, object_id) is not None
+
+
+    @classmethod
+    def followee_count(cls, follower_id):
+        '''Return the number of datasets followed by a user.'''
+        return meta.Session.query(UserFollowingDataset).filter(
+                UserFollowingDataset.follower_id == follower_id).count()
+
+    @classmethod
+    def followee_list(cls, follower_id):
+        '''Return a list of datasets followed by a user.'''
+        return meta.Session.query(UserFollowingDataset).filter(
+                UserFollowingDataset.follower_id == follower_id).all()
+
+
+    @classmethod
+    def follower_count(cls, dataset_id):
+        '''Return the number of followers of a dataset.'''
+        return meta.Session.query(UserFollowingDataset).filter(
+                UserFollowingDataset.object_id == dataset_id).count()
+
+    @classmethod
+    def follower_list(cls, dataset_id):
+        '''Return a list of followers of a dataset.'''
+        return meta.Session.query(UserFollowingDataset).filter(
+                UserFollowingDataset.object_id == dataset_id).all()
+
 
 user_following_dataset_table = sqlalchemy.Table('user_following_dataset',
         meta.metadata,

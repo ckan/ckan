@@ -1834,6 +1834,7 @@ def user_follower_count(context, data_dict):
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: int
 
     '''
@@ -1849,6 +1850,7 @@ def dataset_follower_count(context, data_dict):
 
     :param id: the id or name of the dataset
     :type id: string
+
     :rtype: int
 
     '''
@@ -1869,7 +1871,7 @@ def _follower_list(context, data_dict, FollowerClass):
     users = [model.User.get(follower.follower_id) for follower in followers]
     users = [user for user in users if user is not None]
 
-    # Dictize the list of user objects.
+    # Dictize the list of User objects.
     return [model_dictize.user_dictize(user,context) for user in users]
 
 def user_follower_list(context, data_dict):
@@ -1877,6 +1879,7 @@ def user_follower_list(context, data_dict):
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: list of dictionaries
 
     '''
@@ -1893,6 +1896,7 @@ def dataset_follower_list(context, data_dict):
 
     :param id: the id or name of the dataset
     :type id: string
+
     :rtype: list of dictionaries
 
     '''
@@ -1923,6 +1927,7 @@ def am_following_user(context, data_dict):
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: boolean
 
     '''
@@ -1940,6 +1945,7 @@ def am_following_dataset(context, data_dict):
 
     :param id: the id or name of the dataset
     :type id: string
+
     :rtype: boolean
 
     '''
@@ -1951,3 +1957,132 @@ def am_following_dataset(context, data_dict):
 
     return _am_following(context, data_dict,
             context['model'].UserFollowingDataset)
+
+def user_followee_count(context, data_dict):
+    '''Return the number of users that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+    return ckan.model.UserFollowingUser.followee_count(data_dict['id'])
+
+def dataset_followee_count(context, data_dict):
+    '''Return the number of datasets that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+    return ckan.model.UserFollowingDataset.followee_count(data_dict['id'])
+
+def user_followee_list(context, data_dict):
+    '''Return the list of users that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+
+    # Get the list of Follower objects.
+    model = context['model']
+    user_id = data_dict.get('id')
+    followees = model.UserFollowingUser.followee_list(user_id)
+
+    # Convert the list of Follower objects to a list of User objects.
+    users = [model.User.get(followee.object_id) for followee in followees]
+    users = [user for user in users if user is not None]
+
+    # Dictize the list of User objects.
+    return [model_dictize.user_dictize(user, context) for user in users]
+
+def dataset_followee_list(context, data_dict):
+    '''Return the list of datasets that are followed by the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+
+    # Get the list of Follower objects.
+    model = context['model']
+    user_id = data_dict.get('id')
+    followees = model.UserFollowingDataset.followee_list(user_id)
+
+    # Convert the list of Follower objects to a list of Package objects.
+    datasets = [model.Package.get(followee.object_id) for followee in followees]
+    datasets = [dataset for dataset in datasets if dataset is not None]
+
+    # Dictize the list of Package objects.
+    return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
+
+def dashboard_activity_list(context, data_dict):
+    '''Return the dashboard activity stream of the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    model = context['model']
+    user_id = _get_or_bust(data_dict, 'id')
+
+    activity_query = model.Session.query(model.Activity)
+    user_query = activity_query;
+    user_followees_query = activity_query.join(model.UserFollowingUser, model.UserFollowingUser.object_id == model.Activity.user_id)
+    dataset_followees_query = activity_query.join(model.UserFollowingDataset, model.UserFollowingDataset.object_id == model.Activity.object_id)
+
+    user_query = user_query.filter(model.Activity.user_id==user_id)
+    user_followees_query = user_followees_query.filter(model.UserFollowingUser.follower_id==user_id)
+    dataset_followees_query = dataset_followees_query.filter(model.UserFollowingDataset.follower_id==user_id)
+
+    query = user_query.union(user_followees_query).union(dataset_followees_query)
+    query = query.order_by(_desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+
+    return model_dictize.activity_list_dictize(activity_objects, context)
+
+def dashboard_activity_list_html(context, data_dict):
+    '''Return the dashboard activity stream of the given user as HTML.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: The id or name of the user.
+    :type id: string
+
+    :rtype: string
+
+    '''
+    activity_stream = dashboard_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)
