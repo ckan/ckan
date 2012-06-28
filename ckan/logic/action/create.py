@@ -534,7 +534,8 @@ def group_create(context, data_dict):
         'defer_commit':True,
         'session': session
     }
-    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -648,7 +649,8 @@ def user_create(context, data_dict):
             'object_id': user.id,
             'activity_type': 'new user',
             }
-    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -885,7 +887,8 @@ def follow_user(context, data_dict):
         'defer_commit':True,
         'session': session
     }
-    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -952,7 +955,8 @@ def follow_dataset(context, data_dict):
         'defer_commit':True,
         'session': session
     }
-    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
