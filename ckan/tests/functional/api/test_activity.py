@@ -229,7 +229,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -279,20 +279,20 @@ class TestActivity:
                 str(detail['activity_id'])
 
             if detail['object_id'] == package_created['id']:
-                assert detail['activity_type'] == "new", ( 
+                assert detail['activity_type'] == "new", (
                     str(detail['activity_type']))
                 assert detail['object_type'] == "Package", \
                     str(detail['object_type'])
 
             elif (detail['object_id'] in
                 [resource['id'] for resource in package_created['resources']]):
-                assert detail['activity_type'] == "new", ( 
+                assert detail['activity_type'] == "new", (
                     str(detail['activity_type']))
                 assert detail['object_type'] == "Resource", (
                     str(detail['object_type']))
 
             else:
-                assert detail['activity_type'] == "added", ( 
+                assert detail['activity_type'] == "added", (
                     str(detail['activity_type']))
                 assert detail['object_type'] == "tag", (
                     str(detail['object_type']))
@@ -337,7 +337,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -381,9 +381,9 @@ class TestActivity:
             resource_ids_before]
         assert len(new_resource_ids) == 1
         new_resource_id = new_resource_ids[0]
-        assert detail['object_id'] == new_resource_id, ( 
+        assert detail['object_id'] == new_resource_id, (
             str(detail['object_id']))
-        assert detail['object_type'] == "Resource", ( 
+        assert detail['object_type'] == "Resource", (
             str(detail['object_type']))
         assert detail['activity_type'] == "new", (
             str(detail['activity_type']))
@@ -428,7 +428,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -524,7 +524,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -616,7 +616,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -672,7 +672,7 @@ class TestActivity:
     def _create_activity(self, user, package, params):
         before = self.record_details(user.id, package.id)
 
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         assert response.json['success'] == True
@@ -683,7 +683,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -879,7 +879,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -964,7 +964,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -1005,7 +1005,7 @@ class TestActivity:
         assert detail['activity_id'] == activity['id'], \
             str(detail['activity_id'])
         assert detail['object_id'] == package.id, str(detail['object_id'])
-        assert detail['object_type'] == "Package", ( 
+        assert detail['object_type'] == "Package", (
             str(detail['object_type']))
         assert detail['activity_type'] == "changed", (
             str(detail['activity_type']))
@@ -1042,7 +1042,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -1112,7 +1112,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -1150,7 +1150,7 @@ class TestActivity:
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
         assert len(details) == 1
-        detail = details[0]        
+        detail = details[0]
         assert detail['activity_id'] == activity['id'], \
             str(detail['activity_id'])
         assert detail['object_id'] == package.id, str(detail['object_id'])
@@ -1225,7 +1225,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -1565,7 +1565,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -1644,7 +1644,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params), status=403)
         assert response.json['success'] == False
 
@@ -1659,7 +1659,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.normal_user.apikey)},
             status=403)
@@ -1676,7 +1676,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': 'xxxxxxxxxx'},
             status=403)
@@ -1697,9 +1697,9 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         self._create_activity(self.sysadmin_user, self.warandpeace, params)
-        assert activity_id not in [activity['id'] for activity in 
+        assert activity_id not in [activity['id'] for activity in
                 self.user_activity_stream(user.id)]
-        assert activity_id not in [activity['id'] for activity in 
+        assert activity_id not in [activity['id'] for activity in
                 self.package_activity_stream(package.id)]
 
     def test_activity_create_with_timestamp(self):
@@ -1714,7 +1714,7 @@ class TestActivity:
             'timestamp': str(datetime.datetime.max),
         }
         self._create_activity(self.sysadmin_user, self.warandpeace, params)
-        params['timestamp'] = 'foobar' 
+        params['timestamp'] = 'foobar'
         self._create_activity(self.sysadmin_user, self.warandpeace, params)
 
     def test_activity_create_with_revision(self):
@@ -1732,9 +1732,9 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         self._create_activity(self.sysadmin_user, self.warandpeace, params)
-        assert revision_id not in [activity['revision_id'] for activity in 
+        assert revision_id not in [activity['revision_id'] for activity in
                 self.user_activity_stream(user.id)]
-        assert revision_id not in [activity['revision_id'] for activity in 
+        assert revision_id not in [activity['revision_id'] for activity in
                 self.package_activity_stream(package.id)]
 
     def test_activity_create_user_id_missing(self):
@@ -1746,7 +1746,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
@@ -1765,7 +1765,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
@@ -1775,7 +1775,7 @@ class TestActivity:
                 response.json['error'][u'user_id'])
 
         params['user_id'] = None
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
@@ -1794,7 +1794,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
@@ -2044,7 +2044,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -2090,7 +2090,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -2100,7 +2100,7 @@ class TestActivity:
             before['follower dashboard activity stream'],
             after['follower dashboard activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         assert user_new_activities[0] == activity
 
@@ -2110,7 +2110,7 @@ class TestActivity:
             followee_before['follower dashboard activity stream'],
             followee_after['follower dashboard activity stream']))
         assert len(followee_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(followee_new_activities))
         assert followee_new_activities[0] == activity
 
