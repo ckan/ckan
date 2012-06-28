@@ -37,12 +37,14 @@
   {% endif %}
 {% endblock %}
 
-{% block primary_content %}
-  <section class="module">
-    <div class="module-content prose">
-      <h1>{{ h.resource_display_name(res) }}</h1>
+{% block main_content %}
+  {{ self.flash() }}
+  {{ self.toolbar() }}
 
-      <div class="notes" property="rdfs:label">
+  <section class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ h.resource_display_name(res) }}</h1>
+      <div class="prose notes" property="rdfs:label">
         {{ res.description or _('(No description)') }}
         {% if not res.description and c.package.notes %}
           <div>{{ h.markdown_extract(c.package.get('notes')) }}</div>
@@ -50,20 +52,14 @@
         {% endif %}
       </div>
     </div>
-    <div class="resource-preview module-content">
-      {# TODO: Hiding data preview until we have javascript in place #}
-      <div class="preview-header" style="display: none;">
-        <h3>Preview</h3>
-        {% if c.pkg.is_private %}
-          <span title="Cannot embed as resource is private." class="btn disabled">Embed</span>
-        {% else %}
-          <a class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
-        {% endif %}
-      </div>
-      <div id="ckanext-datapreview module-content"></div>
-    </div>
+    <div id="ckanext-datapreview" class="module-content"></div>
   </section>
 
+  {{ self.primary() }}
+  {{ self.secondary() }}
+{% endblock %}
+
+{% block primary_content %}
   {% if res %}
     <section class="module">
       <div class="module-content">
@@ -107,6 +103,57 @@
   {% snippet "package/snippets/resources.html", resources=pkg.resources, pkg=pkg, active=res.id %}
 
   {% snippet "snippets/social.html" %}
+
+  {# TODO: Embed this with javascript
+  <section class="module">
+    <div class="resource-preview module-content">
+      <div class="preview-header" style="display: none;">
+        <h3>Preview</h3>
+        {% if c.pkg.is_private %}
+          <span title="Cannot embed as resource is private." class="btn disabled">Embed</span>
+        {% else %}
+          <a class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
+        {% endif %}
+      </div>
+      <div id="ckanext-datapreview module-content">
+        {# {% snippet 'snippets/datapreview_embed_dialog.html' %} #}
+      </div>
+    </div>
+  </section>
+  #}
 {% endblock %}
 
-{% resource 'datapreview/datapreview' %}
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/leaflet.css' %}" />
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/leaflet.ie.css' %}" />
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/slick.grid.css' %}" />
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/slick.columnpicker.css' %}" />
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/recline.grid.css' %}" />
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/recline.map.css' %}" />
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/recline.graph.css' %}" />
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/datapreview.css' %}" />
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/datapreview.table-view.css' %}" />
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{% url_for_static '/base/javascript/vendor/jquery.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/vendor/jquery.flot.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/vendor/jquery.mustache.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/vendor/jquery.event.drag.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/vendor/underscore.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/vendor/backbone.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/vendor/leaflet.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/vendor/slick.grid.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/vendor/slick.columnpicker.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/vendor/recline.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/datapreview.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/table-view.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/table-view.ui.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/javascript/table-view-template.js' %}"></script>
+  <script>
+    var preload_resource = {{ h.literal(c.resource_json) }};
+    var embedPath = "{{ h.url_for(controller='package', action='resource_embedded_dataviewer', id=c.package.id, resource_id=c.resource.id, qualified=True) }}";
+  </script>
+{% endblock %}
