@@ -156,10 +156,17 @@ class TagSearchQuery(SearchQuery):
         else:
             options.update(kwargs)
 
+        if isinstance(query, basestring):
+            query = [query]
+
+        query = query[:]
+        for field, value in fields.items():
+            if field in ('tag', 'tags'):
+                query.append(value)
+
         context = {'model': model, 'session': model.Session}
         data_dict = {
             'query': query,
-            'fields': fields,
             'offset': options.get('offset'),
             'limit': options.get('limit')
         }

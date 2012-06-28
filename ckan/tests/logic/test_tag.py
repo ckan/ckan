@@ -202,6 +202,16 @@ class TestAction(WsgiAppCase):
         assert len(tag_dicts) == 1
         assert tag_dicts[0]['name'] == 'russian'
 
+    def test_15a_tag_search_with_one_match_using_fields_parameter(self):
+        paramd = {'fields': {'tags': 'russ'} }
+        params = json.dumps(paramd)
+        res = self.app.post('/api/action/tag_search', params=params)
+        assert res.json['success'] is True
+        assert res.json['result']['count'] == 1
+        tag_dicts = res.json['result']['results']
+        assert len(tag_dicts) == 1
+        assert tag_dicts[0]['name'] == 'russian'
+
     def test_15a_tag_search_with_many_matches(self):
         paramd = {'q': 'tol' }
         params = json.dumps(paramd)
