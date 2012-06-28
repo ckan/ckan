@@ -1245,10 +1245,10 @@ def resource_search(context, data_dict):
 def _tag_search(context, data_dict):
     model = context['model']
 
-    query = data_dict.get('query') or data_dict.get('q')
-    if query:
-        query = query.strip()
-    terms = [query] if query else []
+    terms = data_dict.get('query') or data_dict.get('q') or []
+    if isinstance(terms, basestring):
+        terms = [terms]
+    terms = [ t.strip() for t in terms if t.strip() ]
 
     fields = data_dict.get('fields', {})
     offset = data_dict.get('offset')
