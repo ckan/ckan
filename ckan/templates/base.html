@@ -106,7 +106,7 @@
       {% endblock %}
     #}
     {%- block scripts %}
-      {% resource 'ckan/main' %}
+       <script src="{% url_for_static '/base/javascript/main.js' %}"></script>
     {% endblock -%}
   </body>
 </html>
