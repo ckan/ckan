@@ -17,6 +17,9 @@ v1.8
   where you can see an activity stream from of all the users and datasets that
   you're following. There are also API calls for the follow features, see the
   Action API reference documentation.
+* [#2345] New action API reference docs. The documentation for CKAN's Action
+  API has been rewritten, with each function and its arguments and return
+  values now individually documented.
 
 v1.7.1 2012-06-20
 =================
