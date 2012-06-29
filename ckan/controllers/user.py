@@ -117,7 +117,8 @@ class UserController(BaseController):
             h.redirect_to(locale=locale, controller='user',
                           action='login', id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
-        h.redirect_to(locale=locale, controller='user', action='dashboard', id=user_ref)
+        h.redirect_to(locale=locale, controller='user', action='dashboard',
+                      id=user_ref)
 
     def register(self, data=None, errors=None, error_summary=None):
         return self.new(data, errors, error_summary)
@@ -447,7 +448,7 @@ class UserController(BaseController):
 
     def dashboard(self, id=None):
         context = {'model': model, 'session': model.Session,
-                'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id':id, 'user_obj':c.userobj}
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard.html')
