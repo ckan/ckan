@@ -615,9 +615,9 @@ ul.userlist .badge {
   margin-top: 5px;
 }
 
-/* ================== */
-/* = User Read page = */
-/* ================== */
+/* ================================= */
+/* = User Read and Dashboard pages = */
+/* ================================= */
 
 body.user.read #sidebar { display: none; }
 body.user.read #content {
@@ -625,11 +625,11 @@ body.user.read #content {
   width: 950px;
 }
 
-.user.read .page_heading {
+.user.read .page_heading, .user.dashboard .page_heading {
   font-weight: bold;
 }
 
-.user.read .page_heading img.gravatar {
+.user.read .page_heading img.gravatar, .user.dashboard .page_heading img.gravatar {
   padding: 2px;
   border: solid 1px #ddd;
   vertical-align: middle;
@@ -637,7 +637,7 @@ body.user.read #content {
   margin-top: -3px;
 }
 
-.user.read .page_heading .fullname {
+.user.read .page_heading .fullname, .user.dashboard .page_heading .fullname {
   font-weight: normal;
   color: #999;
 }
@@ -719,10 +719,9 @@ body.package.search #menusearch {
 }
 .dataset-search {
   margin-bottom: 35px;
-  padding-right: 100px;
 }
 input.search {
-  width: 100%;
+  width: 380px;
   float: left;
   font-size: 1.2em;
   margin: 0px;
@@ -740,7 +739,6 @@ input.search {
     display: inline-block;
     float: left;
     margin-left: 9px;
-    margin-right: -100px;
 }
 
 

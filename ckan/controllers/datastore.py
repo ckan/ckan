@@ -5,6 +5,7 @@ from ckan.logic import get_action, check_access
 from ckan.logic import NotFound, NotAuthorized
 
 
+
 class DatastoreController(BaseController):
     def _make_redirect(self, id, url=''):
         index_name = 'ckan-%s' % g.site_id

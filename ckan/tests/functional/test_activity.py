@@ -3,6 +3,7 @@ import paste.fixture
 import ckan
 from routes import url_for
 from ckan.logic.action.create import package_create, user_create, group_create
+from ckan.logic.action.create import follow_dataset, follow_user
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
@@ -25,8 +26,9 @@ class TestActivity(HtmlCheckMethods):
     def teardown(cls):
         ckan.model.repo.rebuild_db()
 
-    def test_activity(self):
-        """Test activity streams HTML rendering."""
+
+    def test_user_activity(self):
+        """Test user activity streams HTML rendering."""
 
         # Register a new user.
         user_dict = {'name': 'billybeane',
@@ -111,6 +113,20 @@ class TestActivity(HtmlCheckMethods):
         assert '%s deleted the resource %s from the dataset %s' % \
                 (user['fullname'], resource['name'], package['title']) \
                 in stripped, stripped
+
+        # Follow the package.
+        follow_dataset(context, {'id': package['id']})
+        result = self.app.get(offset, status=200)
+        stripped = self.strip_tags(result)
+        assert '%s started following %s' % (user['fullname'],
+                package['title']) in stripped, stripped
+
+        # Follow another user.
+        follow_user(context, {'id': 'joeadmin'})
+        result = self.app.get(offset, status=200)
+        stripped = self.strip_tags(result)
+        assert '%s started following %s' % (user['fullname'],
+                'joeadmin') in stripped, stripped
 
         # Create a new group.
         group = {
@@ -208,3 +224,10 @@ class TestActivity(HtmlCheckMethods):
         result = self.app.get(offset, status=200)
         assert result.body.count('<div class="activity">') \
                 == 15
+
+        # The latest 15 should also appear on the dashboard
+        offset = url_for(controller='user', action='dashboard')
+        params = {'id': user['id']}
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
+        response = self.app.post(offset, params=params, extra_environ=extra_environ, status=200)
+        assert result.body.count('<div class="activity">') == 15

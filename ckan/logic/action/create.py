@@ -178,16 +178,14 @@ def package_create_validate(context, data_dict):
         return data
 
 def resource_create(context, data_dict):
-    '''Add a resource to a dataset.
+    '''Appends a new resource to a datasets list of resources.
 
-    TODO: This function doesn't actually do anything yet.
-
-    :param id: (optional)
-    :type id: string
+    :param package_id: id of package that the resource needs should be added to.
+    :type package_id: string
+    :param url: url of resource
+    :type url: string
     :param revision_id: (optional)
     :type revisiion_id: string
-    :param url: (optional)
-    :type url: string
     :param description: (optional)
     :type description: string
     :param format: (optional)
@@ -224,9 +222,24 @@ def resource_create(context, data_dict):
     model = context['model']
     user = context['user']
 
-    data, errors = _validate(data_dict,
-                            ckan.logic.schema.default_resource_schema(),
-                            context)
+    package_id = _get_or_bust(data_dict, 'package_id')
+    data_dict.pop('package_id')
+
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+
+    _check_access('resource_create', context, data_dict)
+
+    if not 'resources' in pkg_dict:
+        pkg_dict['resources'] = []
+    pkg_dict['resources'].append(data_dict)
+
+    try:
+        pkg_dict = _get_action('package_update')(context, pkg_dict)
+    except ValidationError, e:
+        errors = e.error_dict['resources'][-1]
+        raise ValidationError(errors, _error_summary(errors))
+
+    return pkg_dict['resources'][-1]
 
 
 def related_create(context, data_dict):
@@ -521,7 +534,8 @@ def group_create(context, data_dict):
         'defer_commit':True,
         'session': session
     }
-    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -635,7 +649,8 @@ def user_create(context, data_dict):
             'object_id': user.id,
             'activity_type': 'new user',
             }
-    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -829,6 +844,7 @@ def follow_user(context, data_dict):
         raise logic.NotAuthorized
 
     model = context['model']
+    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -856,6 +872,24 @@ def follow_user(context, data_dict):
 
     follower = model_save.user_following_user_dict_save(data_dict, context)
 
+    activity_dict = {
+            'user_id': userobj.id,
+            'object_id': data_dict['id'],
+            'activity_type': 'follow user',
+            }
+    activity_dict['data'] = {
+            'user': ckan.lib.dictization.table_dictize(
+                model.User.get(data_dict['id']), context),
+            }
+    activity_create_context = {
+        'model': model,
+        'user': userobj,
+        'defer_commit':True,
+        'session': session
+    }
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
+
     if not context.get('defer_commit'):
         model.repo.commit()
 
@@ -882,6 +916,7 @@ def follow_dataset(context, data_dict):
         raise logic.NotAuthorized
 
     model = context['model']
+    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -904,6 +939,24 @@ def follow_dataset(context, data_dict):
 
 
     follower = model_save.user_following_dataset_dict_save(data_dict, context)
+
+    activity_dict = {
+            'user_id': userobj.id,
+            'object_id': data_dict['id'],
+            'activity_type': 'follow dataset',
+            }
+    activity_dict['data'] = {
+            'dataset': ckan.lib.dictization.table_dictize(
+                model.Package.get(data_dict['id']), context),
+            }
+    activity_create_context = {
+        'model': model,
+        'user': userobj,
+        'defer_commit':True,
+        'session': session
+    }
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()

@@ -18,7 +18,7 @@ Installation
 ============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    install-from-package
    install-from-source
@@ -43,6 +43,7 @@ Customizing and Extending
    filestore
    datastore
    background-tasks
+   harvesting
    geospatial
    multilingual
 
@@ -56,7 +57,6 @@ Publishing Datasets
    loading-data
    authorization
    publisher-profile
-   geospatial
    data-viewer
 
 The CKAN API
@@ -87,6 +87,7 @@ For CKAN Developers
 .. toctree::
    :maxdepth: 2
 
+   coding-standards
    domain-model
    domain-model-dataset
    domain-model-resource

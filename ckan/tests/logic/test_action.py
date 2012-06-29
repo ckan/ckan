@@ -189,6 +189,33 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/package_create', params=postparams,
                                      status=StatusCodes.STATUS_403_ACCESS_DENIED)
 
+    def test_41_create_resource(self):
+
+        anna_id = model.Package.by_name(u'annakarenina').id
+        resource = {'package_id': anna_id, 'url': 'new_url'}
+
+        postparams = '%s=1' % json.dumps(resource)
+        res = self.app.post('/api/action/resource_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+
+        resource = json.loads(res.body)['result']
+
+        assert resource['url'] == 'new_url'
+
+    def test_42_create_resource_with_error(self):
+
+        anna_id = model.Package.by_name(u'annakarenina').id
+        resource = {'package_id': anna_id, 'url': 'new_url', 'created': 'bad_date'}
+
+        postparams = '%s=1' % json.dumps(resource)
+        res = self.app.post('/api/action/resource_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'},
+                            status=StatusCodes.STATUS_409_CONFLICT)
+
+        assert json.loads(res.body)['error'] ==  {"__type": "Validation Error", "created": ["Date format incorrect"]}
+
+
+
     def test_04_user_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/user_list', params=postparams)
@@ -843,16 +870,16 @@ class TestAction(WsgiAppCase):
         annafan = model.User.by_name(u'annafan')
         authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
         authgroup2 = model.AuthorizationGroup.by_name(u'anotherauthzgroup')
-        
+
         model.add_authorization_group_to_role(authgroup2, 'editor', authgroup)
         model.repo.commit_and_remove()
-        
+
         postparams = '%s=1' % json.dumps({'domain_object': authgroup.id,
                                           'authorization_group': authgroup2.id})
         res = self.app.post('/api/action/roles_show', params=postparams,
                             extra_environ={'Authorization': str(annafan.apikey)},
                             status=200)
-        
+
         authgroup_roles = TestRoles.get_roles(authgroup.id, authgroup_ref=authgroup2.name)
         assert_equal(authgroup_roles, ['"anotherauthzgroup" is "editor" on "anauthzgroup"'])
 
@@ -877,7 +904,7 @@ class TestAction(WsgiAppCase):
         assert_equal(results['roles'][0]['role'], 'reader')
         assert_equal(results['roles'][0]['package_id'], anna.id)
         assert_equal(results['roles'][0]['user_id'], tester.id)
-        
+
         roles_after = get_action('roles_show') \
                       ({'model': model, 'session': model.Session}, \
                        {'domain_object': anna.id,
@@ -907,12 +934,12 @@ class TestAction(WsgiAppCase):
         assert_equal(results['roles'][0]['role'], 'editor')
         assert_equal(results['roles'][0]['package_id'], anna.id)
         assert_equal(results['roles'][0]['authorized_group_id'], authgroup.id)
-        
+
         all_roles_after = TestRoles.get_roles(anna.id)
         authgroup_roles_after = TestRoles.get_roles(anna.id, authgroup_ref=authgroup.name)
         assert_equal(set(all_roles_before) ^ set(all_roles_after),
                      set([u'"anauthzgroup" is "editor" on "annakarenina"']))
-        
+
         roles_after = get_action('roles_show') \
                       ({'model': model, 'session': model.Session}, \
                        {'domain_object': anna.id,
@@ -989,6 +1016,12 @@ class TestAction(WsgiAppCase):
         assert res['success'] is True
         assert res['result'] == [{"status": "FAILURE", "entity_id": "749cdcf2-3fc8-44ae-aed0-5eff8cc5032c", "task_type": "qa", "last_updated": "2012-04-20T21:32:45.553986", "date_done": "2012-04-20T21:33:01.622557", "entity_type": "resource", "traceback": "Traceback", "value": "51f2105d-85b1-4393-b821-ac11475919d9", "state": None, "key": "celery_task_id", "error": "", "id": "5753adae-cd0d-4327-915d-edd832d1c9a3"}]
 
+    def test_41_missing_action(self):
+        try:
+            get_action('unicorns')
+            assert False, "We found a non-existent action"
+        except KeyError:
+            assert True
 
 class TestActionTermTranslation(WsgiAppCase):
 
@@ -1213,7 +1246,7 @@ class MockPackageSearchPlugin(SingletonPlugin):
         return search_results
 
     def before_view(self, data_dict):
-        
+
         data_dict['title'] = 'string_not_found_in_rest_of_template'
 
         return data_dict
@@ -1279,7 +1312,7 @@ class TestSearchPluginInterface(WsgiAppCase):
         res = self.app.post('/api/action/package_search', params=search_params)
 
         res_dict = json.loads(res.body)['result']
-        assert res_dict['count'] == 0 
+        assert res_dict['count'] == 0
         assert len(res_dict['results']) == 0
 
         # all datasets should get abcabcabc
@@ -1296,8 +1329,8 @@ class TestSearchPluginInterface(WsgiAppCase):
         res = self.app.get('/dataset/annakarenina')
 
         assert 'string_not_found_in_rest_of_template' in res.body
-        
+
         res = self.app.get('/dataset?q=')
         assert res.body.count('string_not_found_in_rest_of_template') == 2
-        
+
 

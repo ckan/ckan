@@ -34,7 +34,9 @@ CONTENT_TYPES = {
     'text': 'text/plain;charset=utf-8',
     'html': 'text/html;charset=utf-8',
     'json': 'application/json;charset=utf-8',
-    }
+}
+
+
 class ApiController(base.BaseController):
 
     _actions = {}
@@ -50,10 +52,11 @@ class ApiController(base.BaseController):
 
         self._identify_user()
         try:
-            context = {'model':model,'user': c.user or c.author}
-            logic.check_access('site_read',context)
+            context = {'model': model, 'user': c.user or c.author}
+            logic.check_access('site_read', context)
         except NotAuthorized:
-            response_msg = self._finish(403, _('Not authorized to see this page'))
+            response_msg = self._finish(403,
+                                        _('Not authorized to see this page'))
             # Call start_response manually instead of the parent __call__
             # because we want to end the request instead of continuing.
             response_msg = response_msg.encode('utf8')
@@ -83,9 +86,9 @@ class ApiController(base.BaseController):
             else:
                 response_msg = response_data
             # Support "JSONP" callback.
-            if status_int==200 and request.params.has_key('callback') and \
-                   (request.method == 'GET' or \
-                    c.logic_function and request.method == 'POST'):
+            if status_int == 200 and 'callback' in request.params and \
+                (request.method == 'GET' or
+                 c.logic_function and request.method == 'POST'):
                 # escape callback to remove '<', '&', '>' chars
                 callback = cgi.escape(request.params['callback'])
                 response_msg = self._wrap_jsonp(callback, response_msg)
@@ -133,8 +136,9 @@ class ApiController(base.BaseController):
         try:
             value = str(value)
         except Exception, inst:
-            msg = "Couldn't convert '%s' header value '%s' to string: %s" % (name, value, inst)
-            raise Exception, msg
+            msg = "Couldn't convert '%s' header value '%s' to string: %s" % \
+                (name, value, inst)
+            raise Exception(msg)
         response.headers[name] = value
 
     def get_api(self, ver=None):
@@ -143,19 +147,21 @@ class ApiController(base.BaseController):
         return self._finish_ok(response_data)
 
     def action(self, logic_function, ver=None):
-        function = get_action(logic_function)
-        if not function:
+        try:
+            function = get_action(logic_function)
+        except KeyError:
             log.error('Can\'t find logic function: %s' % logic_function)
             return self._finish_bad_request(
                 gettext('Action name not known: %s') % str(logic_function))
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version':ver}
+                   'api_version': ver}
         model.Session()._context = context
         return_dict = {'help': function.__doc__}
         try:
             side_effect_free = getattr(function, 'side_effect_free', False)
-            request_data = self._get_request_data(try_url_params=side_effect_free)
+            request_data = self._get_request_data(try_url_params=
+                                                  side_effect_free)
         except ValueError, inst:
             log.error('Bad request data: %s' % str(inst))
             return self._finish_bad_request(
@@ -164,8 +170,8 @@ class ApiController(base.BaseController):
             # this occurs if request_data is blank
             log.error('Bad request data - not dict: %r' % request_data)
             return self._finish_bad_request(
-                gettext('Bad request data: %s') % \
-                'Request data JSON decoded to %r but ' \
+                gettext('Bad request data: %s') %
+                'Request data JSON decoded to %r but '
                 'it needs to be a dictionary.' % request_data)
         try:
             result = function(context, request_data)
@@ -174,8 +180,8 @@ class ApiController(base.BaseController):
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
             #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') + \
-                                ': %s - %s' %  (e.error, request_data))
+            return self._finish(400, _(u'Integrity Error') +
+                                ': %s - %s' % (e.error, request_data))
         except NotAuthorized:
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
@@ -197,25 +203,27 @@ class ApiController(base.BaseController):
             return self._finish(409, return_dict, content_type='json')
         except logic.ParameterError, e:
             return_dict['error'] = {'__type': 'Parameter Error',
-                                    'message': '%s: %s' % \
+                                    'message': '%s: %s' %
                                     (_('Parameter Error'), e.extra_msg)}
             return_dict['success'] = False
             log.error('Parameter error: %r' % e.extra_msg)
             return self._finish(409, return_dict, content_type='json')
         except search.SearchQueryError, e:
             return_dict['error'] = {'__type': 'Search Query Error',
-                                    'message': 'Search Query is invalid: %r' % e.args }
+                                    'message': 'Search Query is invalid: %r' %
+                                    e.args}
             return_dict['success'] = False
             return self._finish(400, return_dict, content_type='json')
         except search.SearchError, e:
             return_dict['error'] = {'__type': 'Search Error',
-                                    'message': 'Search error: %r' % e.args }
+                                    'message': 'Search error: %r' % e.args}
             return_dict['success'] = False
             return self._finish(409, return_dict, content_type='json')
         return self._finish_ok(return_dict)
 
     def _get_action_from_map(self, action_map, register, subregister):
-        # Helper function to get the action function specified in the action map
+        ''' Helper function to get the action function specified in
+            the action map'''
 
         # translate old package calls to use dataset
         if register == 'package':
@@ -243,6 +251,7 @@ class ApiController(base.BaseController):
             ('dataset', 'activity'): 'package_activity_list',
             ('group', 'activity'): 'group_activity_list',
             ('user', 'activity'): 'user_activity_list',
+            ('user', 'dashboard_activity'): 'dashboard_activity_list',
             ('activity', 'details'): 'activity_detail_list',
         }
 
@@ -258,7 +267,8 @@ class ApiController(base.BaseController):
         except NotAuthorized:
             return self._finish_not_authz()
 
-    def show(self, ver=None, register=None, subregister=None, id=None, id2=None):
+    def show(self, ver=None, register=None, subregister=None,
+             id=None, id2=None):
         action_map = {
             'revision': 'revision_show',
             'group': 'group_show_rest',
@@ -289,15 +299,17 @@ class ApiController(base.BaseController):
             return self._finish_not_authz()
 
     def _represent_package(self, package):
-        return package.as_dict(ref_package_by=self.ref_package_by, ref_group_by=self.ref_group_by)
+        return package.as_dict(ref_package_by=self.ref_package_by,
+                               ref_group_by=self.ref_group_by)
 
-    def create(self, ver=None, register=None, subregister=None, id=None, id2=None):
+    def create(self, ver=None, register=None, subregister=None,
+               id=None, id2=None):
 
         action_map = {
-             'group': 'group_create_rest',
-             'dataset': 'package_create_rest',
-             'rating': 'rating_create',
-             'related': 'related_create',
+            'group': 'group_create_rest',
+            'dataset': 'package_create_rest',
+            'rating': 'rating_create',
+            'related': 'related_create',
             ('dataset', 'relationships'): 'package_relationship_create_rest',
         }
         for type in model.PackageRelationship.get_all_types():
@@ -317,14 +329,15 @@ class ApiController(base.BaseController):
         action = self._get_action_from_map(action_map, register, subregister)
         if not action:
             return self._finish_bad_request(
-                gettext('Cannot create new entity of this type: %s %s') % \
+                gettext('Cannot create new entity of this type: %s %s') %
                 (register, subregister))
 
         try:
             response_data = action(context, data_dict)
             location = None
             if "id" in data_dict:
-                location = str('%s/%s' % (request.path.replace('package', 'dataset'),
+                location = str('%s/%s' % (request.path.replace('package',
+                                                               'dataset'),
                                           data_dict.get("id")))
             return self._finish_ok(response_data,
                                    resource_location=location)
@@ -339,19 +352,23 @@ class ApiController(base.BaseController):
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
             #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') + \
-                                ': %s - %s' %  (e.error, request_data))
+            return self._finish(400, _(u'Integrity Error') +
+                                ': %s - %s' % (e.error, request_data))
         except search.SearchIndexError:
-            log.error('Unable to add package to search index: %s' % request_data)
-            return self._finish(500, _(u'Unable to add package to search index') % request_data)
+            log.error('Unable to add package to search index: %s' %
+                      request_data)
+            return self._finish(500,
+                                _(u'Unable to add package to search index') %
+                                request_data)
         except:
             model.Session.rollback()
             raise
 
-    def update(self, ver=None, register=None, subregister=None, id=None, id2=None):
+    def update(self, ver=None, register=None, subregister=None,
+               id=None, id2=None):
         action_map = {
-             'dataset': 'package_update_rest',
-             'group': 'group_update_rest',
+            'dataset': 'package_update_rest',
+            'group': 'group_update_rest',
             ('dataset', 'relationships'): 'package_relationship_update_rest',
         }
         for type in model.PackageRelationship.get_all_types():
@@ -371,8 +388,8 @@ class ApiController(base.BaseController):
         action = self._get_action_from_map(action_map, register, subregister)
         if not action:
             return self._finish_bad_request(
-                gettext('Cannot update entity of this type: %s') % \
-                    register.encode('utf-8'))
+                gettext('Cannot update entity of this type: %s') %
+                register.encode('utf-8'))
         try:
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
@@ -387,17 +404,19 @@ class ApiController(base.BaseController):
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
             #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') + \
-                                ': %s - %s' %  (e.error, request_data))
+            return self._finish(400, _(u'Integrity Error') +
+                                ': %s - %s' % (e.error, request_data))
         except search.SearchIndexError:
             log.error('Unable to update search index: %s' % request_data)
-            return self._finish(500, _(u'Unable to update search index') % request_data)
+            return self._finish(500, _(u'Unable to update search index') %
+                                request_data)
 
-    def delete(self, ver=None, register=None, subregister=None, id=None, id2=None):
+    def delete(self, ver=None, register=None, subregister=None,
+               id=None, id2=None):
         action_map = {
-             'group': 'group_delete',
-             'dataset': 'package_delete',
-             'related': 'related_delete',
+            'group': 'group_delete',
+            'dataset': 'package_delete',
+            'related': 'related_delete',
             ('dataset', 'relationships'): 'package_relationship_delete_rest',
         }
         for type in model.PackageRelationship.get_all_types():
@@ -413,7 +432,7 @@ class ApiController(base.BaseController):
         action = self._get_action_from_map(action_map, register, subregister)
         if not action:
             return self._finish_bad_request(
-                gettext('Cannot delete entity of this type: %s %s') %\
+                gettext('Cannot delete entity of this type: %s %s') %
                 (register, subregister or ''))
         try:
             response_data = action(context, data_dict)
@@ -432,7 +451,7 @@ class ApiController(base.BaseController):
         log.debug('search %s params: %r' % (register, request.params))
         if register == 'revision':
             since_time = None
-            if request.params.has_key('since_id'):
+            if 'since_id' in request.params:
                 id = request.params['since_id']
                 if not id:
                     return self._finish_bad_request(
@@ -442,7 +461,7 @@ class ApiController(base.BaseController):
                     return self._finish_not_found(
                         gettext(u'There is no revision with id: %s') % id)
                 since_time = rev.timestamp
-            elif request.params.has_key('since_time'):
+            elif 'since_time' in request.params:
                 since_time_str = request.params['since_time']
                 try:
                     since_time = h.date_str_to_datetime(since_time_str)
@@ -450,8 +469,10 @@ class ApiController(base.BaseController):
                     return self._finish_bad_request('ValueError: %s' % inst)
             else:
                 return self._finish_bad_request(
-                    gettext("Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"))
-            revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
+                    gettext("Missing search term ('since_id=UUID' or " +
+                            " 'since_time=TIMESTAMP')"))
+            revs = model.Session.query(model.Revision).\
+                filter(model.Revision.timestamp > since_time)
             return self._finish_ok([rev.id for rev in revs])
         elif register in ['dataset', 'package', 'resource']:
             try:
@@ -482,7 +503,7 @@ class ApiController(base.BaseController):
                     for field, value in params.items():
                         field = field.strip()
                         if field in search.DEFAULT_OPTIONS.keys() or \
-                           field in IGNORE_FIELDS:
+                                field in IGNORE_FIELDS:
                             continue
                         values = [value]
                         if isinstance(value, list):
@@ -491,14 +512,18 @@ class ApiController(base.BaseController):
                             query_fields.add(field, v)
 
                     results = query.run(
-                        query=params.get('q'), fields=query_fields, options=options
+                        query=params.get('q'),
+                        fields=query_fields,
+                        options=options
                     )
                 else:
                     # For package searches in API v3 and higher, we can pass
                     # parameters straight to Solr.
                     if ver in [1, 2]:
-                        # Otherwise, put all unrecognised ones into the q parameter
-                        params = search.convert_legacy_parameters_to_solr(params)
+                        # Otherwise, put all unrecognised ones into the q
+                        # parameter
+                        params = search.\
+                            convert_legacy_parameters_to_solr(params)
                     query = search.query_for(model.Package)
                     results = query.run(params)
                 return self._finish_ok(results)
@@ -512,20 +537,23 @@ class ApiController(base.BaseController):
 
     @classmethod
     def _get_search_params(cls, request_params):
-        if request_params.has_key('qjson'):
+        if 'qjson' in request_params:
             try:
                 params = h.json.loads(request_params['qjson'], encoding='utf8')
             except ValueError, e:
-                raise ValueError, gettext('Malformed qjson value') + ': %r' % e
+                raise ValueError(gettext('Malformed qjson value') + ': %r'
+                                 % e)
         elif len(request_params) == 1 and \
-                 len(request_params.values()[0]) < 2 and \
-                 request_params.keys()[0].startswith('{'):
+            len(request_params.values()[0]) < 2 and \
+                request_params.keys()[0].startswith('{'):
             # e.g. {some-json}='1' or {some-json}=''
             params = h.json.loads(request_params.keys()[0], encoding='utf8')
         else:
             params = request_params
         if not isinstance(params, (UnicodeMultiDict, dict)):
-            raise ValueError, _('Request params must be in form of a json encoded dictionary.')
+            msg = _('Request params must be in form ' +
+                    'of a json encoded dictionary.')
+            raise ValueError(msg)
         return params
 
     def markdown(self, ver=None):
@@ -559,7 +587,8 @@ class ApiController(base.BaseController):
         for t in range(0, period):
             expr = '%s/%s*' % (
                 timing_cache_path,
-                (datetime.datetime.now() - datetime.timedelta(0,t)).isoformat()[0:19],
+                (datetime.datetime.now() -
+                 datetime.timedelta(0, t)).isoformat()[0:19],
             )
             call_count += len(glob.glob(expr))
         # Todo: Clear old records.
@@ -574,9 +603,9 @@ class ApiController(base.BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
 
-            data_dict = {'q':q,'limit':limit}
+            data_dict = {'q': q, 'limit': limit}
 
-            user_list = get_action('user_autocomplete')(context,data_dict)
+            user_list = get_action('user_autocomplete')(context, data_dict)
         return user_list
 
     @jsonp.jsonpify
@@ -591,15 +620,16 @@ class ApiController(base.BaseController):
         limit = min(50, limit)
 
         query = model.Group.search_by_name_or_title(q, t)
+
         def convert_to_dict(user):
             out = {}
             for k in ['id', 'name', 'title']:
                 out[k] = getattr(user, k)
             return out
+
         query = query.limit(limit)
         out = map(convert_to_dict, query.all())
         return out
-
 
     @jsonp.jsonpify
     def authorizationgroup_autocomplete(self):
@@ -612,11 +642,13 @@ class ApiController(base.BaseController):
         limit = min(50, limit)
 
         query = model.AuthorizationGroup.search(q)
+
         def convert_to_dict(user):
             out = {}
             for k in ['id', 'name']:
                 out[k] = getattr(user, k)
             return out
+
         query = query.limit(limit)
         out = map(convert_to_dict, query.all())
         return out
@@ -626,13 +658,13 @@ class ApiController(base.BaseController):
         slugtype = request.params.get('type') or ''
         # TODO: We need plugins to be able to register new disallowed names
         disallowed = ['new', 'edit', 'search']
-        if slugtype==u'package':
+        if slugtype == u'package':
             response_data = dict(valid=not bool(common.package_exists(slug)
-                                 or slug in disallowed ))
+                                 or slug in disallowed))
             return self._finish_ok(response_data)
-        if slugtype==u'group':
+        if slugtype == u'group':
             response_data = dict(valid=not bool(common.group_exists(slug) or
-                                slug in disallowed ))
+                                 slug in disallowed))
             return self._finish_ok(response_data)
         return self._finish_bad_request('Bad slug type: %s' % slugtype)
 
@@ -647,7 +679,8 @@ class ApiController(base.BaseController):
 
             data_dict = {'q': q, 'limit': limit}
 
-            package_dicts = get_action('package_autocomplete')(context, data_dict)
+            package_dicts = get_action('package_autocomplete')(context,
+                                                               data_dict)
 
         resultSet = {'ResultSet': {'Result': package_dicts}}
         return self._finish_ok(resultSet)
@@ -706,9 +739,9 @@ class ApiController(base.BaseController):
     def format_icon(self):
         f = request.params.get('format')
         out = {
-            'format' : f,
-            'icon'   : h.icon_url(h.format_icon(f))
-            }
+            'format': f,
+            'icon': h.icon_url(h.format_icon(f))
+        }
         return self._finish_ok(out)
 
     def status(self):

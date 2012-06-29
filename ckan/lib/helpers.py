@@ -506,7 +506,7 @@ def format_icon(_format):
 
 def linked_gravatar(email_hash, size=100, default=None):
     return literal(
-        '<a href="https://gravatar.com/" target="_blank"' +
+        '<a href="https://gravatar.com/" target="_blank" ' +
         'title="%s">' % _('Update your avatar at gravatar.com') +
         '%s</a>' % gravatar(email_hash,size,default)
         )
@@ -819,6 +819,72 @@ def convert_to_dict(object_type, objs):
         items.append(item)
     return items
 
+# these are the types of objects that can be followed
+_follow_objects = ['dataset', 'user']
+
+def follow_button(obj_type, obj_id):
+    '''Return a follow button for the given object type and id.
+
+    If the user is not logged in return an empty string instead.
+
+    :param obj_type: the type of the object to be followed when the follow
+        button is clicked, e.g. 'user' or 'dataset'
+    :type obj_type: string
+    :param obj_id: the id of the object to be followed when the follow button
+        is clicked
+    :type obj_id: string
+
+    :returns: a follow button as an HTML snippet
+    :rtype: string
+
+    '''
+    import ckan.logic as logic
+    obj_type = obj_type.lower()
+    assert obj_type in _follow_objects
+    # If the user is logged in show the follow/unfollow button
+    if c.user:
+        context = {'model' : model, 'session':model.Session, 'user':c.user}
+        action = 'am_following_%s' % obj_type
+        following = logic.get_action(action)(context, {'id': obj_id})
+        return snippet('snippets/follow_button.html',
+                       following=following,
+                       obj_id=obj_id,
+                       obj_type=obj_type)
+    return ''
+
+def follow_count(obj_type, obj_id):
+    '''Return the number of followers of an object.
+
+    :param obj_type: the type of the object, e.g. 'user' or 'dataset'
+    :type obj_type: string
+    :param obj_id: the id of the object
+    :type obj_id: string
+
+    :returns: the number of followers of the object
+    :rtype: int
+
+    '''
+    import ckan.logic as logic
+    obj_type = obj_type.lower()
+    assert obj_type in _follow_objects
+    action = '%s_follower_count' % obj_type
+    context = {'model' : model, 'session':model.Session, 'user':c.user}
+    return logic.get_action(action)(context, {'id': obj_id})
+
+def dashboard_activity_stream(user_id):
+    '''Return the dashboard activity stream of the given user.
+
+    :param user_id: the id of the user
+    :type user_id: string
+
+    :returns: an activity stream as an HTML snippet
+    :rtype: string
+
+    '''
+    import ckan.logic as logic
+    context = {'model' : model, 'session':model.Session, 'user':c.user}
+    return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -873,6 +939,9 @@ __allowed_functions__ = [
            'activity_div',
            'lang_native_name',
            'unselected_facet_items',
+           'follow_button',
+           'follow_count',
+           'dashboard_activity_stream',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
