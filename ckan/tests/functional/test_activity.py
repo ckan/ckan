@@ -3,6 +3,7 @@ import paste.fixture
 import ckan
 from routes import url_for
 from ckan.logic.action.create import package_create, user_create, group_create
+from ckan.logic.action.create import follow_dataset, follow_user
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
@@ -112,6 +113,20 @@ class TestActivity(HtmlCheckMethods):
         assert '%s deleted the resource %s from the dataset %s' % \
                 (user['fullname'], resource['name'], package['title']) \
                 in stripped, stripped
+
+        # Follow the package.
+        follow_dataset(context, {'id': package['id']})
+        result = self.app.get(offset, status=200)
+        stripped = self.strip_tags(result)
+        assert '%s started following %s' % (user['fullname'],
+                package['title']) in stripped, stripped
+
+        # Follow another user.
+        follow_user(context, {'id': 'joeadmin'})
+        result = self.app.get(offset, status=200)
+        stripped = self.strip_tags(result)
+        assert '%s started following %s' % (user['fullname'],
+                'joeadmin') in stripped, stripped
 
         # Create a new group.
         group = {

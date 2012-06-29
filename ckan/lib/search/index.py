@@ -1,7 +1,6 @@
 import socket
 import string
 import logging
-import itertools
 import collections
 import json
 
@@ -14,6 +13,7 @@ from ckan.model import PackageRelationship
 import ckan.model as model
 from ckan.plugins import (PluginImplementations,
                           IPackageController)
+import ckan.logic as logic
 
 log = logging.getLogger(__name__)
 
@@ -122,10 +122,27 @@ class PackageSearchIndex(SearchIndex):
                 pkg_dict[key] = value
         pkg_dict.pop('extras', None)
 
-        #Add tags and groups
+        # add tags, removing vocab tags from 'tags' list and adding them as
+        # vocab_<tag name> so that they can be used in facets
+        non_vocab_tag_names = []
         tags = pkg_dict.pop('tags', [])
-        pkg_dict['tags'] = [tag['name'] for tag in tags]
+        context = {'model': model}
 
+        for tag in tags:
+            if tag.get('vocabulary_id'):
+                data = {'id': tag['vocabulary_id']}
+                vocab = logic.get_action('vocabulary_show')(context, data)
+                key = u'vocab_%s' % vocab['name']
+                if key in pkg_dict:
+                    pkg_dict[key].append(tag['name'])
+                else:
+                    pkg_dict[key] = [tag['name']]
+            else:
+                non_vocab_tag_names.append(tag['name'])
+
+        pkg_dict['tags'] = non_vocab_tag_names
+
+        # add groups
         groups = pkg_dict.pop('groups', [])
 
         # Capacity is different to the default only if using organizations
@@ -196,7 +213,6 @@ class PackageSearchIndex(SearchIndex):
         # add a unique index_id to avoid conflicts
         import hashlib
         pkg_dict['index_id'] = hashlib.md5('%s%s' % (pkg_dict['id'],config.get('ckan.site_id'))).hexdigest()
-
 
         for item in PluginImplementations(IPackageController):
             pkg_dict = item.before_index(pkg_dict)
