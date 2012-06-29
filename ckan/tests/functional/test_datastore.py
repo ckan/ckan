@@ -111,7 +111,17 @@ class TestDatastoreController(TestController):
 
         # Check if Elastic Search is available, otherwise skip tests
         try:
-            requests.get('http://%s/_status' % ELASTIC_SEARCH_HOST, timeout=2)
+            res = requests.get('http://%s/_status' % ELASTIC_SEARCH_HOST, timeout=2)
+            if res.status_code == 200:
+                try:
+                    content = json.loads(res.content)
+                    if not 'ok'in content or not '_shards' in content:
+                        raise ValueError
+                except ValueError:
+                    raise SkipTest('This does not look like Elastic Search, skipping...')
+            else:
+                raise SkipTest('Could not reach Elastic Search, skipping...')
+
         except (requests.exceptions.RequestException, socket.timeout), e:
             raise SkipTest('Could not reach Elastic Search, skipping... (%r)' % e)
 
