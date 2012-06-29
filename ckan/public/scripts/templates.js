@@ -27,7 +27,6 @@ CKAN.Templates.resourceEntry = ' \
   </li>';
 
 var youCanUseMarkdownString = CKAN.Strings.youCanUseMarkdown.replace('%a', '<a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">').replace('%b', '</a>');
-var shouldADataStoreBeEnabledString = CKAN.Strings.shouldADataStoreBeEnabled.replace('%a', '<a href="http://docs.ckan.org/en/latest/datastore.html" target="_blank">').replace('%b', '</a>');
 var datesAreInISOString = CKAN.Strings.datesAreInISO.replace('%a', '<a href="http://en.wikipedia.org/wiki/ISO_8601#Calendar_dates" target="_blank">').replace('%b', '</a>').replace('%c', '<strong>').replace('%d', '</strong>');
 
 // TODO it would be nice to unify this with the markdown editor specified in helpers.py
@@ -91,16 +90,6 @@ CKAN.Templates.resourceDetails = ' \
             {{/each}} \
           </select> \
         {{/if}} \
-      </div> \
-    </div> \
-    <div class="control-group datastore-enabled"> \
-      <label for="" class="control-label" property="rdfs:label">'+CKAN.Strings.datastoreEnabled+'</label> \
-      <div class="controls"> \
-        <label class="checkbox"> \
-          <input type="checkbox" class="js-datastore-enabled-checkbox" /> \
-          <input type="hidden" name="resources__${num}__webstore_url" value="${resource.webstore_url}" class="js-datastore-enabled-text" /> \
-          <span class="hint">'+shouldADataStoreBeEnabledString+'</span> \
-        </label> \
       </div> \
     </div> \
     <div class="control-group"> \
