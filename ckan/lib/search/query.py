@@ -150,7 +150,10 @@ class SearchQuery(object):
 
 class TagSearchQuery(SearchQuery):
     """Search for tags."""
-    def run(self, query=[], fields={}, options=None, **kwargs):
+    def run(self, query=None, fields=None, options=None, **kwargs):
+        query = [] if query is None else query
+        fields = {} if fields is None else fields
+
         if options is None:
             options = QueryOptions(**kwargs)
         else:
@@ -159,7 +162,7 @@ class TagSearchQuery(SearchQuery):
         if isinstance(query, basestring):
             query = [query]
 
-        query = query[:]
+        query = query[:] # don't alter caller's query list.
         for field, value in fields.items():
             if field in ('tag', 'tags'):
                 query.append(value)
