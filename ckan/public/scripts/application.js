@@ -1443,7 +1443,7 @@ CKAN.Utils = function($, my) {
             return;
         }
         var data = JSON.stringify({
-          id: object_id,
+          id: object_id
         });
         var nextState = 'unfollow';
         var nextString = CKAN.Strings.unfollow;
@@ -1457,7 +1457,7 @@ CKAN.Utils = function($, my) {
             return;
         }
         var data = JSON.stringify({
-          id: object_id,
+          id: object_id
         });
         var nextState = 'follow';
         var nextString = CKAN.Strings.follow;
@@ -1476,7 +1476,7 @@ CKAN.Utils = function($, my) {
       success: function(data) {
         button.setAttribute('data-state', nextState);
         button.innerHTML = nextString;
-      },
+      }
     });
   };
   
