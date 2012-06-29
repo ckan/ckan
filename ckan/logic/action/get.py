@@ -1746,6 +1746,14 @@ def _render_deleted_group_activity(context, activity):
     return _render('activity_streams/deleted_group.html',
         extra_vars = {'activity': activity})
 
+def _render_follow_dataset_activity(context, activity):
+    return _render('activity_streams/follow_dataset.html',
+        extra_vars = {'activity': activity})
+
+def _render_follow_user_activity(context, activity):
+    return _render('activity_streams/follow_user.html',
+        extra_vars = {'activity': activity})
+
 # Global dictionary mapping activity types to functions that render activity
 # dicts to HTML snippets for including in HTML pages.
 activity_renderers = {
@@ -1757,6 +1765,8 @@ activity_renderers = {
   'new group' : _render_new_group_activity,
   'changed group' : _render_changed_group_activity,
   'deleted group' : _render_deleted_group_activity,
+  'follow dataset': _render_follow_dataset_activity,
+  'follow user': _render_follow_user_activity,
   }
 
 def _activity_list_to_html(context, activity_stream):
@@ -2057,15 +2067,16 @@ def dashboard_activity_list(context, data_dict):
     user_id = _get_or_bust(data_dict, 'id')
 
     activity_query = model.Session.query(model.Activity)
-    user_query = activity_query;
     user_followees_query = activity_query.join(model.UserFollowingUser, model.UserFollowingUser.object_id == model.Activity.user_id)
     dataset_followees_query = activity_query.join(model.UserFollowingDataset, model.UserFollowingDataset.object_id == model.Activity.object_id)
 
-    user_query = user_query.filter(model.Activity.user_id==user_id)
+    from_user_query = activity_query.filter(model.Activity.user_id==user_id)
+    about_user_query = activity_query.filter(model.Activity.object_id==user_id)
     user_followees_query = user_followees_query.filter(model.UserFollowingUser.follower_id==user_id)
     dataset_followees_query = dataset_followees_query.filter(model.UserFollowingDataset.follower_id==user_id)
 
-    query = user_query.union(user_followees_query).union(dataset_followees_query)
+    query = from_user_query.union(about_user_query).union(
+            user_followees_query).union(dataset_followees_query)
     query = query.order_by(_desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
