@@ -3,7 +3,7 @@
 # like: pip install -r pip-requirements.txt. See the Install from Source
 # instructions in CKAN's documentation for full installation instructions.
 Genshi==0.6
-sqlalchemy-migrate==0.7.1
+sqlalchemy-migrate==0.7.2
 sqlalchemy==0.7.3
 webhelpers==1.3
 pyutilib.component.core==4.5.3
