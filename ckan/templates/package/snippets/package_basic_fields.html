@@ -1,8 +1,12 @@
 {% import 'macros/form.html' as form %}
 
-{{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large']) }}
+{{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large'], attrs={'data-module': 'slug-preview-target'}) }}
 
-{{ form.prepend('name', id='field-name', label=_('URL'), prepend=h.url_for(controller='package', action='read', id=''), placeholder=_('eg. my-dataset'), value=data.name, error=errors.name) }}
+{% set prefix = h.url_for(controller='package', action='read', id='') %}
+{% set domain = 'demo.ckan.org' ~ prefix %}
+{% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>'} %}
+
+{{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_('eg. my-dataset'), value=data.name, error=errors.name, attrs=attrs) }}
 
 {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes) }}
 
