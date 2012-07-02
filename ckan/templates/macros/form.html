@@ -107,7 +107,7 @@ Examples:
 
   {% call block(id or name, label or name, error, classes, control_classes=["editor"]) %}
     <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}">{{ value | e }}</textarea>
-    <span class="info-block">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> editing here</span>
+    <span class="info-block">{% trans %}You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here{% endtrans %}</span>
   {% endcall %}
 {% endmacro %}
 
