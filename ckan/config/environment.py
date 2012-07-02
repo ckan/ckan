@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
 
+
 class _Helpers(object):
     ''' Helper object giving access to template helpers stopping
     missing functions from causing template exceptions. Useful if
@@ -94,13 +95,16 @@ def load_environment(global_conf, app_conf):
     from pylons.wsgiapp import PylonsApp
     import pkg_resources
     find_controller_generic = PylonsApp.find_controller
+
     # This is from pylons 1.0 source, will monkey-patch into 0.9.7
     def find_controller(self, controller):
         if controller in self.controller_classes:
             return self.controller_classes[controller]
         # Check to see if its a dotted name
         if '.' in controller or ':' in controller:
-            mycontroller = pkg_resources.EntryPoint.parse('x=%s' % controller).load(False)
+            mycontroller = pkg_resources \
+                .EntryPoint \
+                .parse('x=%s' % controller).load(False)
             self.controller_classes[controller] = mycontroller
             return mycontroller
         return find_controller_generic(self, controller)
@@ -126,7 +130,7 @@ def load_environment(global_conf, app_conf):
     # Load the synchronous search plugin, unless already loaded or
     # explicitly disabled
     if not 'synchronous_search' in config.get('ckan.plugins') and \
-        asbool(config.get('ckan.search.automatic_indexing',True)):
+            asbool(config.get('ckan.search.automatic_indexing', True)):
         log.debug('Loading the synchronous search plugin')
         p.load('synchronous_search')
 
@@ -160,11 +164,13 @@ def load_environment(global_conf, app_conf):
     config['pylons.app_globals'] = app_globals.Globals()
 
     # add helper functions
-    restrict_helpers = asbool(config.get('ckan.restrict_template_vars', 'true'))
+    restrict_helpers = asbool(
+        config.get('ckan.restrict_template_vars', 'true'))
     helpers = _Helpers(h, restrict_helpers)
     config['pylons.h'] = helpers
 
-    ## redo template setup to use genshi.search_path (so remove std template setup)
+    # Redo template setup to use genshi.search_path
+    # (so remove std template setup)
     template_paths = [paths['templates'][0]]
     extra_template_paths = config.get('extra_template_paths', '')
     if extra_template_paths:
@@ -173,6 +179,7 @@ def load_environment(global_conf, app_conf):
 
     # Translator (i18n)
     translator = Translator(pylons.translator)
+
     def template_loaded(template):
         translator.setup(template)
 
@@ -202,8 +209,6 @@ def load_environment(global_conf, app_conf):
     # backwards compatability.                                      #
     #                                                               #
     #################################################################
-
-
 
     '''
     This code is based on Genshi code
@@ -273,11 +278,14 @@ def load_environment(global_conf, app_conf):
 
     # Setup the SQLAlchemy database engine
     # Suppress a couple of sqlalchemy warnings
-    warnings.filterwarnings('ignore', '^Unicode type received non-unicode bind param value', sqlalchemy.exc.SAWarning)
-    warnings.filterwarnings('ignore', "^Did not recognize type 'BIGINT' of column 'size'", sqlalchemy.exc.SAWarning)
-    warnings.filterwarnings('ignore', "^Did not recognize type 'tsvector' of column 'search_vector'", sqlalchemy.exc.SAWarning)
+    msgs = ['^Unicode type received non-unicode bind param value',
+            "^Did not recognize type 'BIGINT' of column 'size'",
+            "^Did not recognize type 'tsvector' of column 'search_vector'"
+            ]
+    for msg in msgs:
+        warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
-    ckan_db = os.environ.get('CKAN_DB') 
+    ckan_db = os.environ.get('CKAN_DB')
 
     if ckan_db:
         config['sqlalchemy.url'] = ckan_db
@@ -296,4 +304,3 @@ def load_environment(global_conf, app_conf):
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
-
