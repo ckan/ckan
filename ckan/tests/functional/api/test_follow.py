@@ -23,12 +23,19 @@ def follow_user(app, follower_id, apikey, object_id, object_arg):
         the object that will be followed, could be the object's id or name.
 
     '''
-    # Record the user's number of followers before.
+    # Record the object's followers count before.
     params = json.dumps({'id': object_id})
     response = app.post('/api/action/user_follower_count',
             params=params).json
     assert response['success'] is True
-    count_before = response['result']
+    follower_count_before = response['result']
+
+    # Record the follower's followees count before.
+    params = json.dumps({'id': follower_id})
+    response = app.post('/api/action/user_followee_count',
+            params=params).json
+    assert response['success'] is True
+    followee_count_before = response['result']
 
     # Check that the user is not already following the object.
     params = json.dumps({'id': object_id})
@@ -61,23 +68,39 @@ def follow_user(app, follower_id, apikey, object_id, object_arg):
     assert response['success'] is True
     assert response['result'] is True
 
-    # Check that the user appears in the object's list of followers.
+    # Check that the follower appears in the object's list of followers.
     params = json.dumps({'id': object_id})
     response = app.post('/api/action/user_follower_list',
             params=params).json
     assert response['success'] is True
     assert response['result']
     followers = response['result']
-    assert len(followers) == count_before + 1
-    assert len([follower for follower in followers if follower['id'] ==
-            follower_id]) == 1
+    assert len(followers) == follower_count_before + 1
+    assert len([follower for follower in followers if follower['id'] == follower_id]) == 1
+
+    # Check that the object appears in the follower's list of followees.
+    params = json.dumps({'id': follower_id})
+    response = app.post('/api/action/user_followee_list',
+            params=params).json
+    assert response['success'] is True
+    assert response['result']
+    followees = response['result']
+    assert len(followees) == followee_count_before + 1
+    assert len([followee for followee in followees if followee['id'] == object_id]) == 1
 
     # Check that the object's follower count has increased by 1.
     params = json.dumps({'id': object_id})
     response = app.post('/api/action/user_follower_count',
             params=params).json
     assert response['success'] is True
-    assert response['result'] == count_before + 1
+    assert response['result'] == follower_count_before + 1
+
+    # Check that the follower's followee count has increased by 1.
+    params = json.dumps({'id': follower_id})
+    response = app.post('/api/action/user_followee_count',
+            params=params).json
+    assert response['success'] is True
+    assert response['result'] == followee_count_before + 1
 
 def follow_dataset(app, follower_id, apikey, dataset_id, dataset_arg):
     '''Test a user starting to follow a dataset via the API.
@@ -89,12 +112,19 @@ def follow_dataset(app, follower_id, apikey, dataset_id, dataset_arg):
         the dataset that will be followed, could be the dataset's id or name.
 
     '''
-    # Record the dataset's number of followers before.
+    # Record the dataset's followers count before.
     params = json.dumps({'id': dataset_id})
     response = app.post('/api/action/dataset_follower_count',
             params=params).json
     assert response['success'] is True
-    count_before = response['result']
+    follower_count_before = response['result']
+
+    # Record the follower's followees count before.
+    params = json.dumps({'id': follower_id})
+    response = app.post('/api/action/dataset_followee_count',
+            params=params).json
+    assert response['success'] is True
+    followee_count_before = response['result']
 
     # Check that the user is not already following the dataset.
     params = json.dumps({'id': dataset_id})
@@ -127,23 +157,39 @@ def follow_dataset(app, follower_id, apikey, dataset_id, dataset_arg):
     assert response['success'] is True
     assert response['result'] is True
 
-    # Check that the user appears in the dataset's list of followers.
+    # Check that the follower appears in the dataset's list of followers.
     params = json.dumps({'id': dataset_id})
     response = app.post('/api/action/dataset_follower_list',
             params=params).json
     assert response['success'] is True
     assert response['result']
     followers = response['result']
-    assert len(followers) == count_before + 1
-    assert len([follower for follower in followers if follower['id'] ==
-            follower_id]) == 1
+    assert len(followers) == follower_count_before + 1
+    assert len([follower for follower in followers if follower['id'] == follower_id]) == 1
+
+    # Check that the dataset appears in the follower's list of followees.
+    params = json.dumps({'id': follower_id})
+    response = app.post('/api/action/dataset_followee_list',
+            params=params).json
+    assert response['success'] is True
+    assert response['result']
+    followees = response['result']
+    assert len(followees) == followee_count_before + 1
+    assert len([followee for followee in followees if followee['id'] == dataset_id]) == 1
 
     # Check that the dataset's follower count has increased by 1.
     params = json.dumps({'id': dataset_id})
     response = app.post('/api/action/dataset_follower_count',
             params=params).json
     assert response['success'] is True
-    assert response['result'] == count_before + 1
+    assert response['result'] == follower_count_before + 1
+
+    # Check that the follower's followee count has increased by 1.
+    params = json.dumps({'id': follower_id})
+    response = app.post('/api/action/dataset_followee_count',
+            params=params).json
+    assert response['success'] is True
+    assert response['result'] == followee_count_before + 1
 
 class TestFollow(object):
     '''Tests for the follower API.'''

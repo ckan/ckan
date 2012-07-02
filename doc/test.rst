@@ -12,31 +12,22 @@ Installing Additional Dependencies
 ----------------------------------
 
 Some additional dependencies are needed to run the tests. Make sure you've
-created a config file at ``pyenv/ckan/development.ini``, then activate your
+created a config file at ``~/pyenv/ckan/development.ini``, then activate your
 virtual environment::
 
-    . pyenv/bin/activate
+    . ~/pyenv/bin/activate
 
 Install nose and other test-specific CKAN dependencies into your virtual
 environment::
 
-    pip install --ignore-installed -r pyenv/src/ckan/pip-requirements-test.txt
-
-At this point you'll need to deactivate and then re-activate your
-virtual environment to ensure that all the scripts point to the correct
-locations:
-
-::
-
-    deactivate
-    . pyenv/bin/activate
+    pip install -r ~/pyenv/src/ckan/pip-requirements-test.txt
 
 Testing with SQLite
 -------------------
 
 To run the CKAN tests using SQLite as the database library::
 
-    cd pyenv/src/ckan
+    cd ~/pyenv/src/ckan
     nosetests --ckan ckan
 
 You *must* run the tests from the CKAN directory as shown above, otherwise the
@@ -122,8 +113,5 @@ is how the database is created and upgraded in production.
 
 Common error messages
 ---------------------
-
-Often errors are due to set-up errors. Always refer to the CKAN buildbot as the
-canonical build.
 
 Consult :doc:`common-error-messages` for solutions to a range of setup problems.

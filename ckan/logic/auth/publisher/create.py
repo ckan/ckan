@@ -81,7 +81,7 @@ def group_create(context, data_dict=None):
     model = context['model']
     user  = context['user']
 
-    if not user:
+    if not model.User.get(user):
         return {'success': False, 'msg': _('User is not authorized to create groups') }
 
     if Authorizer.is_sysadmin(user):

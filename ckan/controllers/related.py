@@ -34,5 +34,5 @@ class RelatedController(base.BaseController):
             base.abort(401, base._('Unauthorized to read package %s') % id)
 
         c.related_count = len(c.pkg.related)
-
+        c.action = 'related'
         return base.render("package/related_list.html")
