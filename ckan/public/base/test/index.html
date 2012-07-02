@@ -7,23 +7,34 @@
   </head>
   <body>
     <div id="mocha"></div>
+    <div id="fixture" style="position: absolute; top: -9999px; left: -9999px"></div>
 
     <!-- Test Runner -->
     <script src="./vendor/mocha.js"></script>
     <script src="./vendor/chai.js"></script>
     <script>
       mocha.setup('bdd');
-      assert = chai.assert;
+      var assert = chai.assert;
     </script>
 
     <!-- Source -->
     <script src="../javascript/vendor/jquery.js"></script>
     <script src="../javascript/plugins/jquery.url-helpers.js"></script>
+    <script src="../javascript/plugins/jquery.slug.js"></script>
 
     <!-- Suite -->
     <script src="./spec/plugins/jquery.url-helpers.spec.js"></script>
+    <script src="./spec/plugins/jquery.slug.spec.js"></script>
 
     <script>
+      beforeEach(function () {
+        this.fixture = jQuery('#fixture').empty();
+      });
+
+      after(function () {
+        this.fixture.empty();
+      });
+
       mocha.run().globals(['ckan']);
     </script>
   </body>
