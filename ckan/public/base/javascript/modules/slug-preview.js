@@ -5,6 +5,10 @@
   var parent = slug.parents('.control-group');
   var preview;
 
+  if (!(target.length && parent.length)) {
+    return;
+  }
+
   // Leave the slug field visible
   if (!parent.hasClass('error')) {
     preview = parent.slugPreview({
