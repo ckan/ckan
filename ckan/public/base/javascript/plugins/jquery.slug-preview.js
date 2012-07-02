@@ -1,3 +1,25 @@
+/* Creates a new preview element for a slug field that displays an example of
+ * what the slug will look like. Also provides an edit button to toggle back
+ * to the original form element.
+ *
+ * options - An object of plugin options (defaults to slugPreview.defaults).
+ *           prefix: An optional prefix to apply before the slug field.
+ *           placeholder: Optional placeholder when there is no slug.
+ *           trans: Provide alternative translations for the plugin string.
+ *           template: Provide alternative markup for the plugin.
+ *
+ * Examples
+ *
+ *   var previews = jQuery('[name=slug]').slugPreview({
+ *     prefix: 'example.com/resource/',
+ *     placeholder: '<id>',
+ *     trans: {edit: 'éditer'}
+ *   });
+ *   // previews === preview objects.
+ *   // previews.end() === [name=slug] objects.
+ *
+ * Returns the newly created collection of preview elements..
+ */
 (function ($, window) {
   var escape = $.url.escape;
 
@@ -30,6 +52,8 @@
       return preview[0];
     });
 
+    // Append the new elements to the current jQuery stack so that the caller
+    // can modify the elements. Then restore the originals by calling .end().
     return this.pushStack(collected);
   }
 

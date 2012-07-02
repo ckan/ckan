@@ -1,5 +1,5 @@
 /*globals beforeEach describe it assert jQuery*/
-describe('jQuery.slug()', function () {
+describe('jQuery.fn.slug()', function () {
   beforeEach(function () {
     this.input = jQuery('<input />').slug();
     this.fixture.append(this.input);
