@@ -186,9 +186,23 @@ class ResourceSearchQuery(SearchQuery):
         else:
             options.update(kwargs)
 
-        context = {'model':model, 'session': model.Session}
+        context = {
+            'model':model,
+            'session': model.Session,
+            'search_query': True,
+        }
+
+        # Transform fields into structure required by the resource_search
+        # action.
+        query = []
+        for field, terms in fields.items():
+            if isinstance(terms, basestring):
+                terms = terms.split()
+            for term in terms:
+                query.append(':'.join([field, term]))
+
         data_dict = {
-            'fields': fields,
+            'query': query,
             'offset': options.get('offset'),
             'limit': options.get('limit'),
             'order_by': options.get('order_by')
