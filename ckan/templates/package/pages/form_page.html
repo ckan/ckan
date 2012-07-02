@@ -36,3 +36,12 @@
     {% snippet "package/snippets/resources.html", pkg={}, action='new_resource' %}
   {% endblock %}
 {% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{% url_for_static "/base/javascript/vendor/jquery.js" %}"></script>
+  <script src="{% url_for_static "/base/javascript/plugins/jquery.url-helpers.js" %}"></script>
+  <script src="{% url_for_static "/base/javascript/plugins/jquery.slug.js" %}"></script>
+  <script src="{% url_for_static "/base/javascript/plugins/jquery.slug-preview.js" %}"></script>
+  <script src="{% url_for_static "/base/javascript/modules/slug-preview.js" %}"></script>
+{% endblock %}
