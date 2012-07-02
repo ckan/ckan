@@ -1362,10 +1362,14 @@ def resource_search(context, data_dict):
 def _tag_search(context, data_dict):
     model = context['model']
 
-    query = data_dict.get('query') or data_dict.get('q')
-    if query:
-        query = query.strip()
-    terms = [query] if query else []
+    terms = data_dict.get('query') or data_dict.get('q') or []
+    if isinstance(terms, basestring):
+        terms = [terms]
+    terms = [ t.strip() for t in terms if t.strip() ]
+
+    if 'fields' in data_dict:
+        log.warning('"fields" parameter is deprecated.  '
+                    'Use the "query" parameter instead')
 
     fields = data_dict.get('fields', {})
     offset = data_dict.get('offset')
@@ -1410,12 +1414,12 @@ def tag_search(context, data_dict):
     searched. If the ``vocabulary_id`` argument is given then only tags
     belonging to that vocabulary will be searched instead.
 
-    :param query: the string to search for
-    :type query: string
+    :param query: the string(s) to search for
+    :type query: string or list of strings
     :param vocabulary_id: the id or name of the tag vocabulary to search in
       (optional)
     :type vocabulary_id: string
-    :param fields:
+    :param fields: deprecated
     :type fields: dictionary
     :param limit: the maximum number of tags to return
     :type limit: int
@@ -1451,7 +1455,7 @@ def tag_autocomplete(context, data_dict):
     :param vocabulary_id: the id or name of the tag vocabulary to search in
       (optional)
     :type vocabulary_id: string
-    :param fields:
+    :param fields: deprecated
     :type fields: dictionary
     :param limit: the maximum number of tags to return
     :type limit: int
