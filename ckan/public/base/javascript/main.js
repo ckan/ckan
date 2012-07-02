@@ -1,3 +1,11 @@
+// Global ckan namespace
+this.ckan = this.ckan || {};
+
+// Fake localisation function.
+this.ckan.trans = function (string) {
+  return string;
+};
+
 // Temporary banner to let users on IE7 know that it may not display as
 // expected.
 (function showIEBanner() {
