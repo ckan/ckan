@@ -2,12 +2,12 @@ this.ckan = this.ckan || {};
 
 (function (ckan, $) {
   // An empty jQuery object to use for event management.
-  ckan.events = jQuery({});
+  ckan.events = $({});
 
   ckan.sandbox = function (element, options) {
     return {
       /* The jQuery element for the current module */
-      el: jQuery(element),
+      el: $(element),
 
       /* The options object passed into the module either via data-* attributes
        * or the default settings.
