@@ -19,6 +19,7 @@ import ckan.lib.helpers as h
 import ckan.lib.search as search
 import ckan.lib.app_globals as app_globals
 
+log = logging.getLogger(__name__)
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
@@ -121,6 +122,13 @@ def load_environment(global_conf, app_conf):
 
     # load all CKAN plugins
     p.load_all(config)
+
+    # Load the synchronous search plugin, unless already loaded or
+    # explicitly disabled
+    if not 'synchronous_search' in config.get('ckan.plugins') and \
+        asbool(config.get('ckan.search.automatic_indexing',True)):
+        log.debug('Loading the synchronous search plugin')
+        p.load('synchronous_search')
 
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
