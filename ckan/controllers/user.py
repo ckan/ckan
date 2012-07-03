@@ -5,6 +5,7 @@ import genshi
 from urllib import quote
 
 import ckan.misc
+import ckan.lib.i18n
 from ckan.lib.base import *
 from ckan.lib import mailer
 from ckan.authz import Authorizer
@@ -288,6 +289,11 @@ class UserController(BaseController):
         # we need to set the language via a redirect
         lang = session.pop('lang', None)
         session.save()
+
+        # we need to set the language explicitly here or the flash
+        # messages will not be translated.
+        ckan.lib.i18n.set_lang(lang)
+
         if c.user:
             context = {'model': model,
                        'user': c.user}
