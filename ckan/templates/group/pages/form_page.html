@@ -29,3 +29,8 @@
     </div>
   </div>
 {% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% snippet "snippets/scripts.html" %}
+{% endblock %}
