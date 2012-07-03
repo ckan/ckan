@@ -11,3 +11,11 @@ this.ckan.i18n = {
     };
   }
 };
+
+this.ckan.sandbox.extend({
+  /* An alias for ckan.i18n */
+  i18n: this.ckan.i18n,
+
+  /* An alias for ckan.l18n.translate() */
+  translate: this.ckan.i18n.translate
+});
