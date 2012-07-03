@@ -9,8 +9,10 @@
     {% set attrs = {'data-module': 'slug-preview-target'} %}
     {{ form.input('title', label=_('Title'), id='field-title', placeholder=_('My Group'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
+    {# Perhaps these should be moved into the controller? #}
     {% set prefix = h.url_for(controller='group', action='read', id='') %}
-    {% set domain = 'demo.ckan.org' ~ prefix %}
+    {% set domain = h.url_for(controller='group', action='read', id='', qualified=true) %}
+    {% set domain = domain|replace("http://", "")|replace("https://", "") %}
     {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<group>'} %}
 
     {{ form.prepend('name', label=_('URL'), prepend=prefix, id='field-url', placeholder=_('my-group'), value=data.name, error=errors.name, attrs=attrs) }}
