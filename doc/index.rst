@@ -36,6 +36,7 @@ Customizing and Extending
    commenting
    extensions
    writing-extensions
+   toolkit
    forms
    tag-vocabularies
    form-integration
