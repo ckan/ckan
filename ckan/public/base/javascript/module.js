@@ -71,7 +71,7 @@ this.ckan = this.ckan || {};
     factory.defaults = defaults || {};
     module.registry[name] = factory;
 
-    return module;
+    return ckan;
   }
 
   /* Holds all of the registered module functions */
@@ -89,12 +89,12 @@ this.ckan = this.ckan || {};
   module.initialize = function () {
     var registry = module.registry;
 
-    $('[data-module]').each(function () {
+    $('[data-module]', document.body).each(function () {
       var name = this.getAttribute(MODULE_PREFIX);
       var factory = registry[name];
 
-      if (module && typeof module === 'function') {
-        module.createModule(factory, this);
+      if (factory && typeof factory === 'function') {
+        module.createInstance(factory, this);
       }
     });
 
@@ -112,20 +112,20 @@ this.ckan = this.ckan || {};
    *
    * Examples
    *
-   *   module.createModule(function (sb, opts, _) {
+   *   module.createInstance(function (sb, opts, _) {
    *     this  === sb.el[0];     // The div passed in as the second arg.
    *     opts  === sb.opts;      // Any data-module-* options on the div.
    *     _     === sb.translate; // A translation function.
-   *   }, document.createElement('div'));
+   *   }, document.createInstance('div'));
    *
    * Returns nothing.
    */
-  module.createModule = function (factory, element) {
-    var defaults = $.extend({}, module.defaults);
+  module.createInstance = function (factory, element) {
+    var defaults = $.extend({}, factory.defaults);
     var options  = $.extend(defaults, module.extractOptions(element));
     var sandbox  = ckan.sandbox(element, options);
 
-    factory.call(element, sandbox, sandbox.options, ckan.i18n.translate);
+    factory.call(element, sandbox, sandbox.options, sandbox.i18n.translate);
   };
 
   /* Extracts any properties starting with MODULE_OPTION_PREFIX from the
