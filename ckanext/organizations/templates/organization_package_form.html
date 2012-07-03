@@ -105,24 +105,24 @@ if organization:
 ?>
         <py:if test="c.groups_available and ((not 'name' in organization) or c.is_sysadmin or c.auth_for_change_state)">
           <select id="groups__0__id" name="groups__0__id" class="chzn-select">
-            <option value="">(None)</option>
             <py:for each="group in c.groups_available">
-            <option value="${group['id']}" py:attrs="{'selected':'selected'} if organization.get('id','') == group['id'] else {}">${group['title']}</option>
+            <!-- if  ...-->
+            <option value="${group['id']}" py:attrs="{'selected':'selected'} if organization and organization.get('id','') == group['id'] else {}">${group['title']}</option>
             </py:for>
           </select>
 
           <label for='cap_public'>
-          <input id='cap_public' type='radio' name='groups__0__capacity' value='public' py:attrs="{'checked':'checked'} if organization.get('capacity','') in ['public', ''] else {}"/>
+          <input id='cap_public' type='radio' name='groups__0__capacity' value='public' py:attrs="{'checked':'checked'} if organization and organization.get('capacity','') in ['public', ''] else {}"/>
           Public</label>
 
           <label for='cap_private'>
-          <input id='cap_private' type='radio' name='groups__0__capacity' value='private' py:attrs="{'checked':'checked'} if organization.get('capacity','') == 'private' else {}"/>
+          <input id='cap_private' type='radio' name='groups__0__capacity' value='private' py:attrs="{'checked':'checked'} if organization and organization.get('capacity','') == 'private' else {}"/>
           Private</label>
          </py:if>
         <py:if test="not (c.is_sysadmin or c.auth_for_change_state)">
             <span>${organization.get('title', '')}</span>
          </py:if>
-        <em py:if="not c.groups_available">Cannot add any organizations.</em>
+        <em py:if="not c.groups_available">Cannot add to any organizations. Please join an organization</em>
     </div>
 </div>
 
