@@ -81,16 +81,12 @@ will result in the following parameters being sent to the
 
 This interface is *slightly* more limited than the POST interface because it
 doesn't allow passing nested dicts into the action be accessed.  As a
-consequence of this, currently the *resource_search*, *tag_search* and
-*tag_autocomplete* actions are **limited** in their functionality.
+consequence of this, currently the *resource_search* action is **limited** in
+its functionality when accessed with a GET request.
 
 `resource_search`:
     This action is not currently usable via a GET request as it relies upon
     a nested dict of fields.
-
-`tag_search` and `tag_autocomplete`:
-    The `fields` argument is not available when accessing this action with a
-    GET request.
 
 Also, it is worth bearing this limitation in mind when creating your own
 actions via the `IActions` interface.
