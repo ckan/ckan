@@ -62,7 +62,7 @@ this.ckan = this.ckan || {};
 
     /* A scoped find function restricted to the current scope. */
     $: function (selector) {
-      return this.el(selector);
+      return this.el.find(selector);
     },
 
     /* An alias for jQuery.ajax() */
