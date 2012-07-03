@@ -1,11 +1,6 @@
 // Global ckan namespace
 this.ckan = this.ckan || {};
 
-// Fake localisation function.
-this.ckan.trans = function (string) {
-  return string;
-};
-
 this.ckan.initialize = function () {
   this.module.initialize();
 };

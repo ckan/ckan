@@ -17,8 +17,8 @@ this.ckan = this.ckan || {};
  *
  *   // For element: <select data-module="language-picker"></select>
  *
- *   // Function recieves the sandbox, options and trans() arguments.
- *   ckan.module('language-picker', function (sb, options, __) {
+ *   // Function recieves the sandbox, options and translate() arguments.
+ *   ckan.module('language-picker', function (sb, options, _) {
  *     // .el is the dom node the element was created with.
  *     sb.el.on('change', function () {
  *
@@ -26,8 +26,8 @@ this.ckan = this.ckan || {};
  *       sb.publish('lang', this.selected);
  *
  *       // Display a localized notification to the user.
- *       // NOTE: __ is an alias for sb.trans()
- *       sb.alert(__('Language changed to: ' + this.selected));
+ *       // NOTE: _ is an alias for sb.translate()
+ *       sb.alert(_('Language changed to: ' + this.selected).fetch());
  *     });
  *
  *     // listen for other updates to lang.
@@ -50,10 +50,10 @@ this.ckan = this.ckan || {};
    *
    * Examples
    *
-   *   ckan.module('like-button', function (mod, options, trans) {
+   *   ckan.module('like-button', function (mod, options, _) {
    *     mod.element.on('click', function () {
    *       var url = options.endpoint;
-   *       var message = trans('Dataset was liked!');
+   *       var message = _('Dataset was liked!').fetch();
    *       mod.ajax( ... );
    *     });
    *   }, {
@@ -112,10 +112,10 @@ this.ckan = this.ckan || {};
    *
    * Examples
    *
-   *   module.createModule(function (sb, opts, trans) {
-   *     this  === sb.el[0]; // The div passed in as the second arg.
-   *     opts  === sb.opts;  // Any data-module-* options on the div.
-   *     trans === sb.trans; // A translation function.
+   *   module.createModule(function (sb, opts, _) {
+   *     this  === sb.el[0];     // The div passed in as the second arg.
+   *     opts  === sb.opts;      // Any data-module-* options on the div.
+   *     _     === sb.translate; // A translation function.
    *   }, document.createElement('div'));
    *
    * Returns nothing.
@@ -125,7 +125,7 @@ this.ckan = this.ckan || {};
     var options  = $.extend(defaults, module.extractOptions(element));
     var sandbox  = ckan.sandbox(element, options);
 
-    factory.call(element, sandbox, sandbox.options, sandbox.trans);
+    factory.call(element, sandbox, sandbox.options, ckan.i18n.translate);
   };
 
   /* Extracts any properties starting with MODULE_OPTION_PREFIX from the

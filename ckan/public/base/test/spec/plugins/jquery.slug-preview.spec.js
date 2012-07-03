@@ -26,7 +26,7 @@ describe('jQuery.fn.slugPreview()', function () {
 
   it('should allow translations for strings to be provided', function () {
     var target = this.element.slugPreview({
-      trans: {edit: 'translated'}
+      i18n: {'Edit': 'translated'}
     });
     assert.equal(target.find('button').text(), 'translated');
   });

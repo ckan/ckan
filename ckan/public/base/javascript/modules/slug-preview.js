@@ -17,7 +17,7 @@ this.ckan.module('slug-preview-target', function (mod) {
   });
 });
 
-this.ckan.module('slug-preview-slug', function (mod, options, __) {
+this.ckan.module('slug-preview-slug', function (mod, options, _) {
   var slug = mod.el.slug();
   var parent = slug.parents('.control-group');
   var preview;
@@ -31,8 +31,8 @@ this.ckan.module('slug-preview-slug', function (mod, options, __) {
     preview = parent.slugPreview({
       prefix: options.prefix,
       placeholder: options.placeholder,
-      trans: {
-        edit: __('Edit')
+      i18n: {
+        'Edit': _('Edit').fetch()
       }
     });
 

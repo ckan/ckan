@@ -5,7 +5,7 @@
  * options - An object of plugin options (defaults to slugPreview.defaults).
  *           prefix: An optional prefix to apply before the slug field.
  *           placeholder: Optional placeholder when there is no slug.
- *           trans: Provide alternative translations for the plugin string.
+ *           i18n: Provide alternative translations for the plugin string.
  *           template: Provide alternative markup for the plugin.
  *
  * Examples
@@ -13,7 +13,7 @@
  *   var previews = jQuery('[name=slug]').slugPreview({
  *     prefix: 'example.com/resource/',
  *     placeholder: '<id>',
- *     trans: {edit: 'éditer'}
+ *     i18n: {edit: 'éditer'}
  *   });
  *   // previews === preview objects.
  *   // previews.end() === [name=slug] objects.
@@ -38,7 +38,7 @@
       }
 
       preview.find('.slug-preview-prefix').text(options.prefix);
-      preview.find('button').text(options.trans.edit).click(function (event) {
+      preview.find('button').text(options.i18n['Edit']).click(function (event) {
         event.preventDefault();
         element.show();
         preview.hide();
@@ -60,8 +60,8 @@
   slugPreview.defaults = {
     prefix: '',
     placeholder: '',
-    trans: {
-      edit: 'Edit'
+    i18n: {
+      'Edit': 'Edit'
     },
     template: [
       '<div class="slug-preview">',

@@ -19,8 +19,11 @@ this.ckan = this.ckan || {};
         return this.el(selector);
       },
 
-      /* An alias for ckan.trans() */
-      trans: ckan.trans,
+      /* An alias for ckan.i18n */
+      i18n: ckan.i18n,
+
+      /* An alias for ckan.l18n.translate() */
+      translate: ckan.i18n.translate,
 
       /* Publishes an event to all modules. Can be used to notify other modules
        * that an area of the site has changed.
