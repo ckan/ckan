@@ -12,7 +12,9 @@
 {% endblock %}
 
 {% block actions_content %}
-  <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='cog' %}</li>
+  {% if h.check_access('user_update', user) %}
+    <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='cog' %}</li>
+  {% endif %}
 {% endblock %}
 
 {% block primary_content %}
@@ -37,8 +39,13 @@
       </header>
       <ul class="listing unstyled">
         <li>
-          <b class="key">{{ _('Username') }}:</b>
-          <span class="value">{{ user.name }}</span>
+          {% if user.name.startswith('http://') or user.name.startswith('https://') %}
+            <b class="key">{{ _('Open ID') }}:</b>
+            {{ user.name|urlize(25) }}{# Be great if this just showed the domain #}
+          {% else %}
+            <b class="key">{{ _('Username') }}:</b>
+            <span class="value">{{ user.name }}</span>
+          {% endif %}
         </li>
         {% if c.is_myself %}
           <li>
