@@ -78,7 +78,7 @@
 
   {% snippet "snippets/social.html" %}
 
-  {% snippet "snippets/related.html", item=pkg.related|first, pkg=pkg %}
+  {% snippet "snippets/related.html", item=c.pkg.related|last, pkg_name=pkg.name %}
 
   {% snippet "snippets/license.html", pkg_dict=pkg %}
 
