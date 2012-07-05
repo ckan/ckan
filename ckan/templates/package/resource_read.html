@@ -83,11 +83,14 @@
     </section>
   {% endif %}
 
+  {#
   {% if config.get('ckan.datastore.enabled', false) %}
     <section class="module">
       {{ data_api_help(c.datastore_api) }}
     </section>
   {% endif %}
+  #}
+
 {% endblock %}
 
 {% block secondary_content %}
