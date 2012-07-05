@@ -1,3 +1,14 @@
+// Global ckan namespace
+this.ckan = this.ckan || {};
+
+this.ckan.initialize = function () {
+  this.module.initialize();
+};
+
+this.jQuery(function () {
+  ckan.initialize();
+});
+
 // Temporary banner to let users on IE7 know that it may not display as
 // expected.
 (function showIEBanner() {

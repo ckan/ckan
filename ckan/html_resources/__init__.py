@@ -135,7 +135,8 @@ def create_library(name, path):
             fanstatic_name = '%s/%s' % (path, member)
             members.append(getattr(module, fanstatic_name))
         group = Group(members)
-        setattr(module, group_name, group)
+        fanstatic_name = '%s/%s' % (path, group_name)
+        setattr(module, fanstatic_name, group)
     # finally add the library to this module
     setattr(module, name, library)
     # add to fanstatic

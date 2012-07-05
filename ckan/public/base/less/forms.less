@@ -221,6 +221,11 @@ textarea {
   color: #282828;
 }
 
+.editor .info-block a {
+  color: @layoutLinkColor;
+  text-decoration: none;
+}
+
 .editor .info-block:after {
   content: none;
 }
@@ -356,7 +361,7 @@ textarea {
 
 .stages li:after {
   left: 0;
-  border: solid transparent;
+  border: solid rgba(237, 237, 237, 0);
   content: " ";
   height: 0;
   width: 0;
@@ -387,14 +392,17 @@ textarea {
 
 .stages li.first:after {
   content: none;
+  border: none;
 }
 
 .stages li.active:after {
+  border-color: rgba(140, 198, 138, 0);
   border-top-color: #8cc68a;
   border-bottom-color: #8cc68a;
 }
 
 .stages li.complete:after {
+  border-color: rgba(197, 226, 196, 0);
   border-top-color: #C5E2C4;
   border-bottom-color: #C5E2C4;
 }
@@ -446,4 +454,22 @@ textarea {
 
 .alert > :last-child {
   margin-bottom: 0;
+}
+
+// Slug Preview Field
+
+.slug-preview {
+  font-size: 14px;
+  margin-top: 8px;
+  margin-left: 10px;
+}
+
+.slug-preview-value {
+  background-color: #faedcf;
+}
+
+.slug-preview .btn {
+ padding-top: 3px;
+ padding-bottom: 3px;
+ margin-left: 5px;
 }

@@ -1,0 +1,55 @@
+.recline-graph .graph {
+  height: 500px;
+  margin-right: 200px;
+}
+
+.recline-graph .legend table {
+  width: auto;
+  margin-bottom: 0;
+}
+
+.recline-graph .legend td {
+  padding: 5px;
+  line-height: 13px;
+}
+
+.recline-graph .graph .alert {
+  width: 450px;
+  margin: auto;
+}
+
+/**********************************************************
+  * Editor
+  *********************************************************/
+
+.recline-graph .editor {
+  float: right;
+  width: 200px;
+  padding-left: 0px;
+}
+
+.recline-graph .editor-info {
+  padding-left: 4px;
+}
+
+.recline-graph .editor-info {
+	cursor: pointer;
+}
+
+.recline-graph .editor form {
+  padding-left: 4px;
+}
+
+.recline-graph .editor select {
+	width: 100%;
+}
+
+.recline-graph .editor-info {
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 10px;
+}
+
+.recline-graph .editor-hide-info p {
+	display: none;
+}
+

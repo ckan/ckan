@@ -69,9 +69,11 @@
       </ul>
     </div>
     <div id="packages" class="module-content clearfix">
+      <h3>{{ _('Datasets') }}</h3>
       {% snippet 'snippets/package_list.html', packages=user.datasets %}
     </div>
     <div id="activity" class="module-content">
+      <h3>{{ _('Activity Stream') }}</h3>
       {{ c.user_activity_stream | safe }}
     </div>
   </article>

@@ -1,11 +1,11 @@
 <span class="form-select control-group control-order-by">
   <label for="field-order-by">Order by</label>
   <select id="field-order-by" name="sort">
-    <option value="relevance asc"{% if sort =='relevance asc' %} selected="selected"{% endif %}>Relevance</option>
-    <option value="title_string asc"{% if sort=='title_string asc' %} selected="selected"{% endif %}>Name asc</option>
-    <option value="title_string desc"{% if sort=='title_string desc' %} selected="selected"{% endif %}>Name desc</option>
-    <option value="metadata_modified desc"{% if sort=='metadata_modified desc' %} selected="selected"{% endif %}>Last Modified</option>
-    <option value="views_recent desc"{% if sort=='views_recent desc' %} selected="selected"{% endif %}>Popular</option>
+    <option value="relevance asc"{% if sort =='relevance asc' %} selected="selected"{% endif %}>{{ _('Relevance') }}</option>
+    <option value="title_string asc"{% if sort=='title_string asc' %} selected="selected"{% endif %}>{{ _('Name Ascending') }}</option>
+    <option value="title_string desc"{% if sort=='title_string desc' %} selected="selected"{% endif %}>{{ _('Name Descending') }}</option>
+    <option value="metadata_modified desc"{% if sort=='metadata_modified desc' %} selected="selected"{% endif %}>{{ _('Last Modified') }}</option>
+    <option value="views_recent desc"{% if sort=='views_recent desc' %} selected="selected"{% endif %}>{{ _('Popular') }}</option>
   </select>
   <button class="btn" type="submit">Go</button>
 </span>

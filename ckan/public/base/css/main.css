@@ -5897,6 +5897,10 @@ textarea {
   font-size: 11px;
   color: #282828;
 }
+.editor .info-block a {
+  color: #005772;
+  text-decoration: none;
+}
 .editor .info-block:after {
   content: none;
 }
@@ -6024,7 +6028,7 @@ textarea {
 }
 .stages li:after {
   left: 0;
-  border: solid transparent;
+  border: solid rgba(237, 237, 237, 0);
   content: " ";
   height: 0;
   width: 0;
@@ -6055,12 +6059,15 @@ textarea {
 }
 .stages li.first:after {
   content: none;
+  border: none;
 }
 .stages li.active:after {
+  border-color: rgba(140, 198, 138, 0);
   border-top-color: #8cc68a;
   border-bottom-color: #8cc68a;
 }
 .stages li.complete:after {
+  border-color: rgba(197, 226, 196, 0);
   border-top-color: #C5E2C4;
   border-bottom-color: #C5E2C4;
 }
@@ -6102,6 +6109,19 @@ textarea {
 }
 .alert > :last-child {
   margin-bottom: 0;
+}
+.slug-preview {
+  font-size: 14px;
+  margin-top: 8px;
+  margin-left: 10px;
+}
+.slug-preview-value {
+  background-color: #faedcf;
+}
+.slug-preview .btn {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  margin-left: 5px;
 }
 .dataset-item {
   border-bottom: 1px dotted #ccc;
@@ -7227,8 +7247,13 @@ li .icon-large:before {
 .profile > .content {
   padding-bottom: 20px;
 }
-.js #activity {
-  display: none;
+.activity {
+  padding: 7px 0;
+  border-bottom: 1px dotted #ccc;
+}
+.activity .actor img {
+  margin-top: -2px;
+  margin-right: 5px;
 }
 body {
   background-color: #00536b;
