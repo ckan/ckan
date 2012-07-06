@@ -152,6 +152,11 @@ def default_update_package_schema():
 
     return schema
 
+def package_form_schema():
+    # This function is deprecated and was replaced by
+    # form_to_db_package_schema(), it remains here for backwards compatibility.
+    return form_to_db_package_schema()
+
 def form_to_db_package_schema():
 
     schema = default_package_schema()
