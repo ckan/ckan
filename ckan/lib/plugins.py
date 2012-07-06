@@ -228,8 +228,8 @@ class DefaultDatasetForm(object):
         else:
             return self.form_to_db_schema()
 
-    def form_to_db_schema(self, options):
-        return logic.schema.package_form_schema()
+    def form_to_db_schema(self):
+        return logic.schema.form_to_db_package_schema()
 
     def form_to_db_schema_api_create(self):
         return logic.schema.default_create_package_schema()
@@ -397,7 +397,7 @@ class DefaultGroupForm(object):
                                'extras_validation', 'save', 'return_to',
                                'resources']
 
-        schema_keys = package_form_schema().keys()
+        schema_keys = form_to_db_package_schema().keys()
         keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
 
         missing_keys = keys_in_schema - set(data_dict.keys())
