@@ -221,11 +221,21 @@ class DefaultDatasetForm(object):
 
         if options.get('api'):
             if options.get('type') == 'create':
-                return logic.schema.default_create_package_schema()
+                return self.form_to_db_schema_api_create()
             else:
-                return logic.schema.default_update_package_schema()
+                assert options.get('type') == 'update'
+                return self.form_to_db_schema_api_update()
         else:
-            return logic.schema.package_form_schema()
+            return self.form_to_db_schema()
+
+    def form_to_db_schema(self, options):
+        return logic.schema.package_form_schema()
+
+    def form_to_db_schema_api_create(self):
+        return logic.schema.default_create_package_schema()
+
+    def form_to_db_schema_api_update(self):
+        return logic.schema.default_update_package_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
