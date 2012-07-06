@@ -175,7 +175,7 @@ def package_form_schema():
     schema.pop('relationships_as_subject')
     return schema
 
-def db_to_form_schema():
+def db_to_form_package_schema():
     schema = default_package_schema()
     # Workaround a bug in CKAN's convert_from_tags() function.
     # TODO: Fix this issue in convert_from_tags().
