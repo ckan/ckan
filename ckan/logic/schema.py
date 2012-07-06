@@ -194,6 +194,9 @@ def db_to_form_package_schema():
     # TODO: Fix this elsewhere so we don't need to workaround it here.
     schema['resources'].update({
         'created': [ckan.lib.navl.validators.ignore_missing],
+        'last_modified': [ckan.lib.navl.validators.ignore_missing],
+        'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
+        'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
     })
     return schema
 
