@@ -9,7 +9,6 @@ from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 import ckan.logic.schema as default_schema
 from ckan.logic.schema import group_form_schema
-from ckan.logic.schema import package_form_schema
 import ckan.logic.validators as val
 from ckan.lib.base import BaseController, render, c, model, abort, request
 from ckan.lib.base import redirect, _, config, h

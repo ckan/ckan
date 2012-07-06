@@ -152,7 +152,7 @@ def default_update_package_schema():
 
     return schema
 
-def package_form_schema():
+def form_to_db_package_schema():
 
     schema = default_package_schema()
     ##new
