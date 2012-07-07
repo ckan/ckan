@@ -1137,13 +1137,12 @@ def package_search(context, data_dict):
 
     search_results = {
         'count': count,
-        'facets': facets,
         'results': results
     }
 
     # Transform facets into a more useful data structure.
     restructured_facets = {}
-    for key, value in search_results['facets'].items():
+    for key, value in facets.items():
         restructured_facets[key] = {
                 'title': key,
                 'items': []

@@ -216,13 +216,11 @@ class PackageController(BaseController):
                 item_count=query['count'],
                 items_per_page=limit
             )
-            c.facets = query['facets']
             c.search_facets = query['search_facets']
             c.page.items = query['results']
         except SearchError, se:
             log.error('Dataset search error: %r', se.args)
             c.query_error = True
-            c.facets = {}
             c.page = h.Page(collection=[])
 
         return render(self._search_template(package_type))

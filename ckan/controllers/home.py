@@ -49,13 +49,14 @@ class HomeController(BaseController):
             query = ckan.logic.get_action('package_search')(
                 context, data_dict)
             c.package_count = query['count']
-            c.facets = query['facets']
+            c.search_facets = query['search_facets']
 
             data_dict = {'order_by': 'packages', 'all_fields': 1}
             # only give the terms to group dictize that are returned in the
             # facets as full results take a lot longer
-            if 'groups' in c.facets:
-                data_dict['groups'] = c.facets['groups'].keys()
+            if 'groups' in c.search_facets:
+                data_dict['groups'] = [ item['name'] for item in
+                    c.search_facets['groups']['items'] ]
             c.groups = ckan.logic.get_action('group_list')(context, data_dict)
         except SearchError, se:
             c.package_count = 0
