@@ -66,9 +66,10 @@ Feature Branches
 ----------------
 
 All ticketed work should be developed on a corresponding feature branch forked
-from master.  The name of the branch should inlude the `type` of the ticket,
-the ticket's number, and a brief one-line synopsis of the purpose of the
-ticket.  eg: ``enhancement-2298-add-sort-by-controls-to-search-page``.
+from master.  The name of the branch should inlude the ticket's number, the
+ticket type, and a brief one-line synopsis of the purpose of the ticket.  eg:
+``2298-feature-add-sort-by-controls-to-search-page``.  This allows the ticket
+number to be esaily searchable through github's web interface.
 
 Once work on the branch has been completed and it is ready to be merged into
 master, make a pull request on github.  Another member of the CKAN team will
