@@ -389,7 +389,7 @@ CKAN currently uses to manage these scripts.  When you deploy new code to a
 CKAN instance, as part of the process you run any required migration scripts
 with: ::
 
- paster db upgrade
+ paster --plugin=ckan db upgrade --config={.ini file}
 
 The scripts give their model version numbers in their filenames and are stored
 in ``ckan/migration/versions/``.
@@ -428,14 +428,16 @@ made:
 
 1. Get a dump of the database schema before you add your new migrate scripts. ::
 
-     paster db clean
-     paster db upgrade
+     paster --plugin=ckan db clean --config={.ini file}
+     paster --plugin=ckan db upgrade --config={.ini file}
      pg_dump -h host -s -f old.sql dbname
 
 2. Get a dump of the database as you have specified it in the model. ::
 
-     paster db clean
-     paster db create-from-model  #this makes the database as defined in the model
+     paster --plugin=ckan db clean --config={.ini file}
+
+     #this makes the database as defined in the model
+     paster --plugin=ckan db create-from-model -config={.ini file}
      pg_dump -h host -s -f new.sql dbname
 
 3. Get agpdiff (apt-get it). It produces sql it thinks that you need to run on
