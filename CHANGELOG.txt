@@ -24,6 +24,12 @@ v1.8
   API has been rewritten, with each function and its arguments and return
   values now individually documented.
 
+API changes and deprecation:
+* [#2313] Deprecated functions related to the old faceting data structure have
+  been removed.  `helpers.py:facet_items()`, `facets.html:facet_sidebar()`,
+  `facets.html:facet_list_items()` and the context is no longer populated with
+  `facets` field, use `search_facets` instead.
+
 v1.7.1 2012-06-20
 =================
 
