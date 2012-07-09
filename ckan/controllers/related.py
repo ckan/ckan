@@ -104,6 +104,7 @@ class RelatedController(base.BaseController):
         except logic.NotAuthorized:
             base.abort(401, base._('Unauthorized to read package %s') % id)
 
+        c.action = 'related'
         c.related_count = len(c.pkg.related)
         c.num_followers = _get_action('dataset_follower_count')(context,
                 {'id':c.pkg.id})

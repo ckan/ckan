@@ -615,9 +615,9 @@ ul.userlist .badge {
   margin-top: 5px;
 }
 
-/* ================== */
-/* = User Read page = */
-/* ================== */
+/* ================================= */
+/* = User Read and Dashboard pages = */
+/* ================================= */
 
 body.user.read #sidebar { display: none; }
 body.user.read #content {
@@ -625,11 +625,11 @@ body.user.read #content {
   width: 950px;
 }
 
-.user.read .page_heading {
+.user.read .page_heading, .user.dashboard .page_heading {
   font-weight: bold;
 }
 
-.user.read .page_heading img.gravatar {
+.user.read .page_heading img.gravatar, .user.dashboard .page_heading img.gravatar {
   padding: 2px;
   border: solid 1px #ddd;
   vertical-align: middle;
@@ -637,7 +637,7 @@ body.user.read #content {
   margin-top: -3px;
 }
 
-.user.read .page_heading .fullname {
+.user.read .page_heading .fullname, .user.dashboard .page_heading .fullname {
   font-weight: normal;
   color: #999;
 }
