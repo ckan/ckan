@@ -1502,7 +1502,7 @@ CKAN.DataPreview = function ($, my) {
       views = [ {
         id: 'grid',
         label: 'Grid',
-        view: new recline.View.Grid({
+        view: new recline.View.SlickGrid({
           model: dataset,
           state: reclineState['view-grid']
         })
@@ -1528,7 +1528,7 @@ CKAN.DataPreview = function ($, my) {
     }
 
     // Finally, construct the DataExplorer.  Again, passing in the reclineState.
-    var dataExplorer = new recline.View.DataExplorer({
+    var dataExplorer = new recline.View.MultiView({
       el: my.$dialog,
       model: dataset,
       state: reclineState,
@@ -1583,7 +1583,7 @@ CKAN.DataPreview = function ($, my) {
         {
           id: 'grid',
           label: 'Grid',
-          view: new recline.View.Grid({
+          view: new recline.View.SlickGrid({
             model: dataset
           })
         },
@@ -1602,7 +1602,8 @@ CKAN.DataPreview = function ($, my) {
           })
         }
       ];
-      var dataExplorer = new recline.View.DataExplorer({
+
+      var dataExplorer = new recline.View.MultiView({
         el: my.$dialog,
         model: dataset,
         views: views,
@@ -1689,8 +1690,9 @@ CKAN.DataPreview = function ($, my) {
     }
 
     if (resourceData.webstore_url) {
-      resourceData.elasticsearch_url = '/api/data/' + resourceData.id;
-      var dataset = new recline.Model.Dataset(resourceData, 'elasticsearch');
+      resourceData.url = '/api/data/' + resourceData.id;
+      resourceData.backend =  'elasticsearch';
+      var dataset = new recline.Model.Dataset(resourceData);
       var errorMsg = CKAN.Strings.errorLoadingPreview + ': ' + CKAN.Strings.errorDataStore;
       dataset.fetch()
         .done(function(dataset){
@@ -1705,7 +1707,8 @@ CKAN.DataPreview = function ($, my) {
     else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
       // set format as this is used by Recline in setting format for DataProxy
       resourceData.format = resourceData.formatNormalized;
-      var dataset = new recline.Model.Dataset(resourceData, 'dataproxy');
+      resourceData.backend = 'dataproxy';
+      var dataset = new recline.Model.Dataset(resourceData);
       var errorMsg = CKAN.Strings.errorLoadingPreview + ': ' +CKAN.Strings.errorDataProxy;
       dataset.fetch()
         .done(function(dataset){
