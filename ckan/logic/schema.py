@@ -153,6 +153,11 @@ def default_update_package_schema():
     return schema
 
 def package_form_schema():
+    # This function is deprecated and was replaced by
+    # form_to_db_package_schema(), it remains here for backwards compatibility.
+    return form_to_db_package_schema()
+
+def form_to_db_package_schema():
 
     schema = default_package_schema()
     ##new
@@ -173,6 +178,26 @@ def package_form_schema():
     schema.pop('relationships_as_object')
     schema.pop('revision_id')
     schema.pop('relationships_as_subject')
+    return schema
+
+def db_to_form_package_schema():
+    schema = default_package_schema()
+    # Workaround a bug in CKAN's convert_from_tags() function.
+    # TODO: Fix this issue in convert_from_tags().
+    schema.update({
+        'tags': {
+            '__extras': [ckan.lib.navl.validators.keep_extras,
+                ckan.logic.converters.free_tags_only]
+            },
+        })
+    # Workaround a bug in CKAN.
+    # TODO: Fix this elsewhere so we don't need to workaround it here.
+    schema['resources'].update({
+        'created': [ckan.lib.navl.validators.ignore_missing],
+        'last_modified': [ckan.lib.navl.validators.ignore_missing],
+        'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
+        'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
+    })
     return schema
 
 def default_group_schema():

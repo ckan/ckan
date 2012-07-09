@@ -221,11 +221,21 @@ class DefaultDatasetForm(object):
 
         if options.get('api'):
             if options.get('type') == 'create':
-                return logic.schema.default_create_package_schema()
+                return self.form_to_db_schema_api_create()
             else:
-                return logic.schema.default_update_package_schema()
+                assert options.get('type') == 'update'
+                return self.form_to_db_schema_api_update()
         else:
-            return logic.schema.package_form_schema()
+            return self.form_to_db_schema()
+
+    def form_to_db_schema(self):
+        return logic.schema.form_to_db_package_schema()
+
+    def form_to_db_schema_api_create(self):
+        return logic.schema.default_create_package_schema()
+
+    def form_to_db_schema_api_update(self):
+        return logic.schema.default_update_package_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
@@ -387,7 +397,7 @@ class DefaultGroupForm(object):
                                'extras_validation', 'save', 'return_to',
                                'resources']
 
-        schema_keys = package_form_schema().keys()
+        schema_keys = form_to_db_package_schema().keys()
         keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
 
         missing_keys = keys_in_schema - set(data_dict.keys())
