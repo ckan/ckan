@@ -1446,7 +1446,7 @@ class TestRevisions(TestPackageBase):
         res = form.submit()
         res = res.follow()
         main_res = self.main_div(res)
-        assert 'error' not in main_res.lower(), main_res
+        assert 'form-errors' not in main_res.lower(), main_res
         assert 'Revision Differences' in main_res, main_res
         assert self.pkg1.name in main_res, main_res
         assert '<tr><td>notes</td><td><pre>- Written by Puccini\n+ Written off</pre></td></tr>' in main_res, main_res

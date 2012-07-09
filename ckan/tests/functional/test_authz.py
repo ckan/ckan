@@ -115,7 +115,9 @@ class AuthzTestBase(object):
 
         r = res.body
         r = r.replace('form_errors', '')
-        tests['error string'] = bool('error' not in r)
+        # Commenting as it seems a very ineffective way of checking for errors
+        # (e.g. tests fail if there is a JS string with the word 'error' on it)
+        # tests['error string'] = bool('error' not in r)
         tests['status'] = bool(res.status in (200, 201))
         tests['0 packages found'] = bool(u'<strong>0</strong> packages found' not in res)
         is_ok = False not in tests.values()

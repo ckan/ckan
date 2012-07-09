@@ -168,7 +168,7 @@ class TestPlugins(TestCase):
         config['ckan.plugins'] = 'mapper_plugin'
         plugins.load_all(config)
         CreateTestData.create_arbitrary([{'name':u'testpkg'}])
-        mapper_plugin = PluginGlobals.plugin_registry['MapperPlugin'].__instance__
+        mapper_plugin = PluginGlobals.env_registry['pca'].plugin_registry['MapperPlugin'].__instance__
         assert len(mapper_plugin.added) == 2 # resource group table added automatically
         assert mapper_plugin.added[0].name == 'testpkg'
 
@@ -176,7 +176,7 @@ class TestPlugins(TestCase):
         local_config = appconfig('config:%s' % config['__file__'], relative_to=conf_dir)
         local_config.local_conf['ckan.plugins'] = 'routes_plugin'
         app = make_app(local_config.global_conf, **local_config.local_conf)
-        routes_plugin = PluginGlobals.plugin_registry['RoutesPlugin'].__instance__
+        routes_plugin = PluginGlobals.env_registry['pca'].plugin_registry['RoutesPlugin'].__instance__
         assert routes_plugin.calls_made == ['before_map', 'after_map'], \
                routes_plugin.calls_made
 

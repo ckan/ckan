@@ -157,6 +157,7 @@ class TestEdit(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        setup_test_search_index()
         model.Session.remove()
         CreateTestData.create()
         self.groupname = u'david'
@@ -165,7 +166,6 @@ class TestEdit(FunctionalTestCase):
         model.Session.add(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
 
-        setup_test_search_index()
 
     @classmethod
     def teardown_class(self):
@@ -555,7 +555,7 @@ class TestRevisions(FunctionalTestCase):
         res = form.submit()
         res = res.follow()
         main_res = self.main_div(res)
-        assert 'error' not in main_res.lower(), main_res
+        assert 'form-errors' not in main_res.lower(), main_res
         assert 'Revision Differences' in main_res, main_res
         assert self.grp.name in main_res, main_res
         assert "<tr><td>description</td><td><pre>- Written by Puccini\n+" + \

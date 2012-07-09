@@ -1,9 +1,10 @@
 from ckan.lib.base import BaseController, abort, _, c, response, request, g
 import ckan.model as model
-from ckan.lib.helpers import json
 from ckan.lib.jsonp import jsonpify
 from ckan.logic import get_action, check_access
-from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import NotFound, NotAuthorized
+
+
 
 class DatastoreController(BaseController):
     def _make_redirect(self, id, url=''):
@@ -20,10 +21,6 @@ class DatastoreController(BaseController):
 
         try:
             resource = get_action('resource_show')(context, {'id': id})
-            if not resource.get('webstore_url', ''):
-                return {
-                    'error': 'DataStore is disabled for this resource'
-                    }
             self._make_redirect(id, url)
             return ''
         except NotFound:
@@ -36,19 +33,15 @@ class DatastoreController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         try:
-            resource = model.Resource.get(id)
-            if not resource:
-                abort(404, _('Resource not found'))
-            if not resource.webstore_url:
-                return {
-                    'error': 'DataStore is disabled for this resource'
-                    }
-            context["resource"] = resource
             check_access('resource_update', context, {'id': id})
+            resource_dict = get_action('resource_show')(context,{'id':id})
+            if not resource_dict['webstore_url']:
+                resource_dict['webstore_url'] = u'active'
+                get_action('resource_update')(context,resource_dict)
+
             self._make_redirect(id, url)
             return ''
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-

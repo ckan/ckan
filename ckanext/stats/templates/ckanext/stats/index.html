@@ -9,6 +9,15 @@
     Statistics
   </py:def>
 
+  <py:def function="optional_feed">
+    <!--!
+    Hellish hack to get excanvas to work in IE8. We disable html5shiv from
+    overriding the createElement() method on this page.
+    See: http://stackoverflow.com/questions/10208062/using-flot-with-bootstrap-ie8-incompatibility
+    -->
+    <!--[if lte IE 8 ]><script>var html5 = {shivMethods: false};</script><![endif]-->
+  </py:def>
+
   <py:def function="optional_head">
     <style type="text/css">
       body #sidebar {
@@ -19,8 +28,8 @@
         width: 950px;
       }
 
-      .legend table {
-        width: auto;
+      h3 {
+        margin-top: 20px;
       }
 
       .graph {
@@ -28,6 +37,11 @@
         height: 300px;
         margin-bottom: 20px;
       }
+
+      .metric {
+          width: 30%;
+      }
+
     </style>
   </py:def>
 
@@ -47,8 +61,8 @@
     <div id="package_revisions_graph" class="graph"></div>
 
     <h3>Top Rated Datasets</h3>
-    <table py:if="c.top_rated_packages">
-      <tr><th>Dataset</th><th>Average rating</th><th>Number of ratings</th></tr>
+    <table py:if="c.top_rated_packages" class="table table-bordered table-striped">
+      <tr><th>Dataset</th><th>Average rating</th><th class="metric">Number of ratings</th></tr>
       <tr py:for="package, rating, num_ratings in c.top_rated_packages">
         <td>${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}</td><td>${rating}</td><td>${num_ratings}</td>
       </tr>
@@ -56,32 +70,32 @@
     <p py:if="not c.top_rated_packages">No ratings</p>
 
     <h3>Most Edited Datasets</h3>
-    <table>
-      <tr><th>Dataset</th><th>Number of edits</th></tr>
+    <table class="table table-bordered table-striped">
+      <tr><th>Dataset</th><th class="metric">Number of edits</th></tr>
       <tr py:for="package, edits in c.most_edited_packages">
         <td>${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}</td><td>${edits}</td>
       </tr>
     </table>
 
     <h3>Largest Groups</h3>
-    <table>
-      <tr><th>Group</th><th>Number of datasets</th></tr>
+    <table class="table table-bordered table-striped">
+      <tr><th>Group</th><th class="metric">Number of datasets</th></tr>
       <tr py:for="group, num_packages in c.largest_groups">
         <td>${h.link_to(group.title or group.name, h.url_for(controller='group', action='read', id=group.name))}</td><td>${num_packages}</td>
       </tr>
     </table>
 
     <h3>Top Tags</h3>
-    <table>
+    <table class="table table-bordered table-striped">
       <tr py:for="tag, num_packages in c.top_tags">
-        <td>${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}</td><td>${num_packages}</td>
+        <td>${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}</td><td class="metric">${num_packages}</td>
       </tr>
     </table>
   
     <h3>Users owning most datasets</h3>
-    <table>
+    <table class="table table-bordered table-striped">
       <tr py:for="user, num_packages in c.top_package_owners">
-        <td>${h.linked_user(user)}</td><td>${num_packages}</td>
+        <td>${h.linked_user(user)}</td><td class="metric">${num_packages}</td>
       </tr>
     </table>
 
@@ -100,8 +114,8 @@
       $('body').addClass('no-sidebar');
     </script>
 
-    <!--[if IE]><script language="javascript" type="text/javascript" src="http://assets.okfn.org/ext/flot/0.6/excanvas.min.js"></script><![endif]-->
-    <script type="text/javascript" src="http://assets.okfn.org/ext/flot/0.6/jquery.flot.min.js">//pointless jscript comment</script>
+    ${jsConditionalForIe(8, '&lt;script language="javascript" type="text/javascript" src="' + h.url_for_static('/scripts/vendor/flot/0.7/excanvas.js') + '"&gt;&lt;/script&gt;', 'lte')}
+    <script type="text/javascript" src="${ h.url_for_static('scripts/vendor/flot/0.7/jquery.flot.js') }">//pointless jscript comment</script>
     <script type="text/javascript">
       var options = {
           xaxis: {
@@ -117,9 +131,7 @@
       };
       var data = [
         [ 
-        <py:for each="week_date, num_packages, cumulative_num_packages in c.num_packages_by_week">
-          [ new Date(${week_date.replace('-', ',')}), ${cumulative_num_packages} ],
-        </py:for>
+          ${",".join(c.packages_by_week)}
         ]
       ];
       $.plot($("#new_packages_graph"), data, options);
@@ -138,23 +150,11 @@
       };
       var data = [
         {label: "All package revisions",
-          lines: {
-            fill: 1,
-            },
-        data: [ 
-        <py:for each="week_date, revs, num_revisions, cumulative_num_revisions in c.package_revisions_by_week">
-          [ new Date(${week_date.replace('-', ',')}), ${num_revisions} ],
-        </py:for>
-        ]},
+         lines: {fill: 1 },
+         data: [${",".join(c.all_package_revisions)}]},
         {label: "New datasets",
-          lines: {
-            fill: 1,
-            },
-        data: [ 
-        <py:for each="week_date, pkgs, num_packages, cumulative_num_packages in c.new_packages_by_week">
-          [ new Date(${week_date.replace('-', ',')}), ${num_packages} ],
-        </py:for>
-        ]},
+         lines: {fill: 1},
+         data: [${",".join(c.new_datasets)}]}
       ];
       $.plot($("#package_revisions_graph"), data, options);
     </script>
