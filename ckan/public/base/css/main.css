@@ -5250,9 +5250,6 @@ ul.icons li .icon-large:before {
 }
 .listing li {
   text-align: right;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   margin-bottom: 5px;
 }
 .listing .key {
@@ -5532,11 +5529,11 @@ ol.media-grid:after {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 7px 10px;
+  padding: 12px 10px;
   margin: 0;
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.8);
-  font-size: 14px;
+  font-size: 13px;
   color: #fff;
 }
 .banner {
@@ -6360,6 +6357,19 @@ textarea {
 .group .media-vertical .image {
   margin: 0 -5px 5px;
 }
+.group-list:nth-child(odd) {
+  clear: left;
+}
+.group-list .module-heading {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.group-list .module-heading h3 {
+  margin-bottom: 2px;
+}
+.group-list .module-heading h3 a {
+  color: #333;
+}
 .toolbar {
   *zoom: 1;
   margin-top: -10px;
@@ -6786,13 +6796,13 @@ li .icon-large:before {
   bottom: 0;
   border-top-width: 1px;
 }
-[role=main] > .container > .primary {
+[role=main] .primary {
   float: left;
   margin-left: 20px;
   width: 700px;
   float: right;
 }
-[role=main] > .container > .secondary {
+[role=main] .secondary {
   float: left;
   margin-left: 20px;
   width: 220px;
@@ -6822,30 +6832,31 @@ li .icon-large:before {
 }
 .hero {
   padding-bottom: 0;
+  min-height: 0;
 }
 .hero > .container {
   position: relative;
   padding-bottom: 0;
 }
-.hero > .container > .primary,
-.hero > .container > .secondary {
+.hero-primary,
+.hero-secondary {
   float: left;
   margin-left: 20px;
   width: 460px;
 }
-.hero > .container > .primary {
+.hero-primary {
   margin-left: 0;
 }
-.hero > .container > .primary {
+.hero-primary {
   margin-left: 0;
   margin-bottom: 0;
 }
-.hero > .container > .secondary {
+.hero-secondary {
   position: absolute;
   bottom: 0;
   right: 0;
 }
-.hero > .container > .secondary .secondary-inner {
+.hero-secondary-inner {
   bottom: 0;
   left: 0;
   right: 0;
@@ -7142,6 +7153,7 @@ li .icon-large:before {
   color: #ffffff;
   padding: 10px;
   font-size: 12px;
+  padding: 20px 0;
 }
 .site-footer:before,
 .site-footer:after {
@@ -7162,7 +7174,11 @@ li .icon-large:before {
   opacity: 0.8;
   filter: alpha(opacity=80);
   float: left;
-  width: 50%;
+  margin-left: 20px;
+  width: 460px;
+}
+.footer-links {
+  margin-left: 0;
 }
 .footer-links li {
   display: inline-block;
@@ -7170,12 +7186,16 @@ li .icon-large:before {
   margin-right: 5%;
   margin-bottom: 5px;
 }
-.attribution strong {
-  display: block;
-}
 .attribution small {
   color: #ffffff;
   font-size: 12px;
+}
+.attribution .ckan-footer-logo {
+  display: block;
+  width: 65px;
+  height: 21px;
+  margin-top: 2px;
+  background: url("../images/ckan-logo-footer.png") no-repeat top left;
 }
 .profile-info {
   *zoom: 1;
