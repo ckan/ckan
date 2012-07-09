@@ -1,6 +1,7 @@
 .site-footer {
   .masthead;
   font-size: 12px;
+  padding: 20px 0;
 }
 
 .site-footer a {
@@ -14,8 +15,11 @@
 .footer-links,
 .attribution {
   .opacity(80);
-  float: left;
-  width: 50%;
+  .makeColumn(6);
+}
+
+.footer-links {
+  margin-left: 0;
 }
 
 .footer-links li {
@@ -25,11 +29,15 @@
   margin-bottom: 5px;
 }
 
-.attribution strong {
-  //display: block;
-}
-
 .attribution small {
   color: @mastheadTextColor;
   font-size: 12px;
+}
+
+.attribution .ckan-footer-logo {
+  display: block;
+  width: 65px;
+  height: 21px;
+  margin-top: 2px;
+  background: url("@{imagePath}/ckan-logo-footer.png") no-repeat top left;
 }
