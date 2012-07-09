@@ -1915,7 +1915,7 @@ activity_renderers = {
   'changed group' : _render_changed_group_activity,
   'deleted group' : _render_deleted_group_activity,
   'new related item': _render_new_related_activity,
-  'deleted related item': _render_deleted_related_activity
+  'deleted related item': _render_deleted_related_activity,
   'follow dataset': _render_follow_dataset_activity,
   'follow user': _render_follow_user_activity,
   }
