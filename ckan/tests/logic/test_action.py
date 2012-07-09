@@ -1023,6 +1023,92 @@ class TestAction(WsgiAppCase):
         except KeyError:
             assert True
 
+    def test_42_resource_search_with_single_field_query(self):
+        request_body = {
+            'query': ["description:index"],
+        }
+        postparams = json.dumps(request_body)
+        response = self.app.post('/api/action/resource_search',
+                                 params=postparams)
+        result = json.loads(response.body)['result']['results']
+        count = json.loads(response.body)['result']['count']
+
+        ## Due to the side-effect of previously run tests, there may be extra
+        ## resources in the results.  So just check that each found Resource
+        ## matches the search criteria
+        assert count > 0
+        for resource in result:
+            assert "index" in resource['description'].lower()
+
+    def test_42_resource_search_across_multiple_fields(self):
+        request_body = {
+            'query': ["description:index", "format:json"],
+        }
+        postparams = json.dumps(request_body)
+        response = self.app.post('/api/action/resource_search',
+                                 params=postparams)
+        result = json.loads(response.body)['result']['results']
+        count = json.loads(response.body)['result']['count']
+
+        ## Due to the side-effect of previously run tests, there may be extra
+        ## resources in the results.  So just check that each found Resource
+        ## matches the search criteria
+        assert count > 0
+        for resource in result:
+            assert "index" in resource['description'].lower()
+            assert "json" in resource['format'].lower()
+
+    def test_42_resource_search_test_percentage_is_escaped(self):
+        request_body = {
+            'query': ["description:index%"],
+        }
+        postparams = json.dumps(request_body)
+        response = self.app.post('/api/action/resource_search',
+                                 params=postparams)
+        count = json.loads(response.body)['result']['count']
+
+        # There shouldn't be any results.  If the '%' character wasn't
+        # escaped correctly, then the search would match because of the
+        # unescaped wildcard.
+        assert count is 0
+
+    def test_42_resource_search_fields_parameter_still_accepted(self):
+        '''The fields parameter is deprecated, but check it still works.
+
+        Remove this test when removing the fields parameter.  (#2603)
+        '''
+        request_body = {
+            'fields': {"description": "index"},
+        }
+
+        postparams = json.dumps(request_body)
+        response = self.app.post('/api/action/resource_search',
+                                 params=postparams)
+        result = json.loads(response.body)['result']['results']
+        count = json.loads(response.body)['result']['count']
+
+        ## Due to the side-effect of previously run tests, there may be extra
+        ## resources in the results.  So just check that each found Resource
+        ## matches the search criteria
+        assert count > 0
+        for resource in result:
+            assert "index" in resource['description'].lower()
+
+    def test_42_resource_search_accessible_via_get_request(self):
+        response = self.app.get('/api/action/resource_search'
+                                '?query=description:index&query=format:json')
+
+        result = json.loads(response.body)['result']['results']
+        count = json.loads(response.body)['result']['count']
+
+        ## Due to the side-effect of previously run tests, there may be extra
+        ## resources in the results.  So just check that each found Resource
+        ## matches the search criteria
+        assert count > 0
+        for resource in result:
+            assert "index" in resource['description'].lower()
+            assert "json" in resource['format'].lower()
+
 class TestActionTermTranslation(WsgiAppCase):
 
     @classmethod

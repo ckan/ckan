@@ -496,6 +496,23 @@ Optionally, ``solr_user`` and ``solr_password`` can also be configured to specif
 
 Note, if you change this value, you need to rebuild the search index.
 
+.. index::
+   single: ckan.search.automatic_indexing
+
+ckan.search.automatic_indexing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.automatic_indexing = 1
+
+Make all changes immediately available via the search after editing or
+creating a dataset. Default is true. If for some reason you need the indexing
+to occur asynchronously, set this option to 0.
+
+Note, this is equivalent to explicitly load the `synchronous_search` plugin.
+
+
 simple_search
 ^^^^^^^^^^^^^
 

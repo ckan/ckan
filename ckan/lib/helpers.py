@@ -676,7 +676,7 @@ def dict_list_reduce(list_, key, unique=True):
 
 def linked_gravatar(email_hash, size=100, default=None):
     return literal(
-        '<a href="https://gravatar.com/" target="_blank"' +
+        '<a href="https://gravatar.com/" target="_blank" ' +
         'title="%s">' % _('Update your avatar at gravatar.com') +
         '%s</a>' % gravatar(email_hash,size,default)
         )
@@ -1160,6 +1160,21 @@ def groups_available():
     data_dict = {'available_only': True}
     return logic.get_action('group_list_authz')(context, data_dict)
 
+def dashboard_activity_stream(user_id):
+    '''Return the dashboard activity stream of the given user.
+
+    :param user_id: the id of the user
+    :type user_id: string
+
+    :returns: an activity stream as an HTML snippet
+    :rtype: string
+
+    '''
+    import ckan.logic as logic
+    context = {'model' : model, 'session':model.Session, 'user':c.user}
+    return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
+
+
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
 __allowed_functions__ = [
@@ -1229,6 +1244,7 @@ __allowed_functions__ = [
            'remove_url_param',
            'add_url_param',
            'groups_available',
+           'dashboard_activity_stream',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',

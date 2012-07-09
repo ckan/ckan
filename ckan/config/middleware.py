@@ -21,7 +21,7 @@ from fanstatic import Fanstatic
 
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
-from ckan.lib.i18n import get_locales
+from ckan.lib.i18n import get_locales_from_config
 
 from ckan.config.environment import load_environment
 
@@ -167,7 +167,7 @@ class I18nMiddleware(object):
     def __init__(self, app, config):
         self.app = app
         self.default_locale = config.get('ckan.locale_default', 'en')
-        self.local_list = get_locales()
+        self.local_list = get_locales_from_config()
 
     def __call__(self, environ, start_response):
         # strip the language selector from the requested url

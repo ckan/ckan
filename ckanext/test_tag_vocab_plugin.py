@@ -7,7 +7,7 @@ from genshi.input import HTML
 from genshi.filters import Transformer
 from ckan.logic import get_action
 from ckan.logic.converters import convert_to_tags, convert_from_tags, free_tags_only
-from ckan.logic.schema import package_form_schema, default_package_schema
+from ckan.logic.schema import default_package_schema
 from ckan.lib.navl.validators import ignore_missing, keep_extras
 from ckan import plugins
 

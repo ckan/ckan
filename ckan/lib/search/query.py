@@ -150,16 +150,26 @@ class SearchQuery(object):
 
 class TagSearchQuery(SearchQuery):
     """Search for tags."""
-    def run(self, query=[], fields={}, options=None, **kwargs):
+    def run(self, query=None, fields=None, options=None, **kwargs):
+        query = [] if query is None else query
+        fields = {} if fields is None else fields
+
         if options is None:
             options = QueryOptions(**kwargs)
         else:
             options.update(kwargs)
 
+        if isinstance(query, basestring):
+            query = [query]
+
+        query = query[:] # don't alter caller's query list.
+        for field, value in fields.items():
+            if field in ('tag', 'tags'):
+                query.append(value)
+
         context = {'model': model, 'session': model.Session}
         data_dict = {
             'query': query,
-            'fields': fields,
             'offset': options.get('offset'),
             'limit': options.get('limit')
         }
@@ -186,9 +196,23 @@ class ResourceSearchQuery(SearchQuery):
         else:
             options.update(kwargs)
 
-        context = {'model':model, 'session': model.Session}
+        context = {
+            'model':model,
+            'session': model.Session,
+            'search_query': True,
+        }
+
+        # Transform fields into structure required by the resource_search
+        # action.
+        query = []
+        for field, terms in fields.items():
+            if isinstance(terms, basestring):
+                terms = terms.split()
+            for term in terms:
+                query.append(':'.join([field, term]))
+
         data_dict = {
-            'fields': fields,
+            'query': query,
             'offset': options.get('offset'),
             'limit': options.get('limit'),
             'order_by': options.get('order_by')

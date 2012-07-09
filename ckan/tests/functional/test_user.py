@@ -3,7 +3,6 @@ from nose.tools import assert_equal
 from pylons import config
 import hashlib
 
-from pprint import pprint
 from ckan.tests import search_related, CreateTestData
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
@@ -185,15 +184,15 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert res.header('Location').startswith('http://localhost/user/logged_in') or \
                res.header('Location').startswith('/user/logged_in')
 
-        # then get redirected to user page
+        # then get redirected to user's dashboard
         res = res.follow()
         assert_equal(res.status, 302)
-        assert res.header('Location').startswith('http://localhost/user/testlogin') or \
-               res.header('Location').startswith('/user/testlogin')
+        assert res.header('Location').startswith('http://localhost/user/dashboard') or \
+               res.header('Location').startswith('/user/dashboard')
         res = res.follow()
         assert_equal(res.status, 200)
         assert 'testlogin is now logged in' in res.body
-        assert 'checkpoint:is-myself' in res.body
+        assert 'checkpoint:my-dashboard' in res.body
 
         # check user object created
         user = model.User.by_name(username)
@@ -207,9 +206,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'testlogin!userid_type:unicode' in cookie, cookie
 
         # navigate to another page and check username still displayed
-        print res.body
         res = res.click('Search')
-        print res
         assert 'testlogin' in res.body, res.body
 
     def test_login_remembered(self):
@@ -947,7 +944,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         create_reset_key(model.User.by_name(u'bob'))
         reset_password_link = get_reset_link(model.User.by_name(u'bob'))
         offset = reset_password_link.replace('http://test.ckan.net', '')
-        print offset
         res = self.app.get(offset)
 
         # Reset password form
