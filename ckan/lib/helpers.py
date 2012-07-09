@@ -885,6 +885,11 @@ def dashboard_activity_stream(user_id):
     context = {'model' : model, 'session':model.Session, 'user':c.user}
     return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
 
+def get_request_param(parameter_name, default=None):
+    ''' This function allows templates to access query string parameters
+    from the request. This is useful for things like sort order in
+    searches. '''
+    return request.params.get(parameter_names, default)
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -942,6 +947,7 @@ __allowed_functions__ = [
            'follow_button',
            'follow_count',
            'dashboard_activity_stream',
+           'get_request_param',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
