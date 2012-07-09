@@ -77,8 +77,8 @@
 
 {% block secondary_content %}
   <div class="row">
-    {% for group in c.groups %}
-      {% snippet 'snippets/group_item.html', group=group, packages=c.datasets, truncate=100 %}
+    {% for group in c.group_package_stuff %}
+      {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=100 %}
     {% endfor %}
   </div>
 {% endblock %}
