@@ -255,7 +255,7 @@ CKAN.DataPreview = function ($, my) {
       var el = $('<iframe></iframe>');
       el.attr('src', resourceData.url);
       el.attr('width', '100%');
-      el.attr('height', '100%');
+      el.attr('height', '400px');
       my.$dialog.append(el);
     }
     // images
