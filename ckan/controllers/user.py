@@ -118,6 +118,8 @@ class UserController(BaseController):
             h.redirect_to(locale=locale, controller='user',
                           action='login', id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
+        return self.read(id=c.username)
+        # FIXME what is dashboard
         h.redirect_to(locale=locale, controller='user', action='dashboard',
                       id=user_ref)
 
