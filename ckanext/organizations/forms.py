@@ -11,7 +11,7 @@ from ckan.lib.navl.dictization_functions import DataError
 from ckan.plugins import IGroupForm, IDatasetForm, IConfigurer, IRoutes
 from ckan.plugins import implements, SingletonPlugin
 from ckan.logic import check_access
-
+from ckan.logic.validators import tag_string_convert
 from ckan.lib.navl.validators import (ignore_missing,
                                       not_empty,
                                       empty,
@@ -237,6 +237,7 @@ class OrganizationDatasetForm(SingletonPlugin):
         schema = default_package_schema()
         schema['groups']['capacity'] = [ignore_missing, unicode]
         schema['__after'] = [group_required]
+        schema['tag_string'] = [ignore_missing, tag_string_convert]
         return schema
 
     def check_data_dict(self, data_dict, schema=None):
