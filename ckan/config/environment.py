@@ -32,7 +32,7 @@ class _Helpers(object):
     not been enabled. '''
     def __init__(self, helpers, restrict=True):
         functions = {}
-        allowed = helpers.__allowed_functions__
+        allowed = helpers.__allowed_functions__[:]
         # list of functions due to be deprecated
         self.deprecated = []
 
@@ -42,7 +42,12 @@ class _Helpers(object):
                 if restrict:
                     continue
             functions[helper] = getattr(helpers, helper)
+            allowed.remove(helper)
         self.functions = functions
+
+        if allowed:
+            raise Exception('Template helper function(s) `%s` not defined'
+                            % ', '.join(allowed))
 
         # extend helper functions with ones supplied by plugins
         extra_helpers = []
