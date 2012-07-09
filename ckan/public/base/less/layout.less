@@ -36,12 +36,12 @@
   border-top-width: 1px;
 }
 
-[role=main] > .container > .primary {
+[role=main] .primary {
   .makeColumn(9);
   float: right;
 }
 
-[role=main] > .container > .secondary {
+[role=main] .secondary {
   .makeColumn(3);
   margin-left: 0; // Remove grid margin.
   float: left;
@@ -76,27 +76,27 @@
   padding-bottom: 0;
 }
 
-.hero > .container > .primary,
-.hero > .container > .secondary {
+.hero-primary,
+.hero-secondary {
   .makeColumn(6);
 }
 
-.hero > .container > .primary {
+.hero-primary {
   margin-left: 0; // Remove grid margin.
 }
 
-.hero > .container > .primary {
+.hero-primary {
   margin-left: 0; // Remove grid margin.
   margin-bottom: 0;
 }
 
-.hero > .container > .secondary {
+.hero-secondary {
   position: absolute;
   bottom: 0;
   right: 0;
 }
 
-.hero > .container > .secondary .secondary-inner {
+.hero-secondary-inner {
   bottom: 0;
   left: 0;
   right: 0;
