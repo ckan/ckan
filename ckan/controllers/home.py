@@ -125,7 +125,7 @@ class HomeController(BaseController):
             group_dict = ckan.logic.get_action('group_show')(context, data_dict)
 
             data_dict = {
-                'q': '',
+                'q': ' groups: "%s"' % group_dict.get('name'),
                 'fq': 'capacity:"public"',
                 'facet.field': g.facets,
                 'rows': 2,
