@@ -9,9 +9,9 @@
       <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>
       {% if group.description %}
         {% if truncate == 0 %}
-          <p>{{ group.description }}</p>
+          <p>{{ h.markdown_extract(group.description)|urlize }}</p>
         {% else %}
-          <p>{{ h.markdown_extract(group.description, truncate) }}</p>
+          <p>{{ h.markdown_extract(group.description, truncate)|urlize }}</p>
         {% endif %}
       {% else %}
         <p class="empty">{{ _('There is no description for this group') }}</p>
