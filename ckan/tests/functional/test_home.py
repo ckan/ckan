@@ -25,7 +25,8 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        assert 'Add a dataset' in res
+        # Non logged in users can no longer add datasets
+        assert not 'Add a dataset' in res
         assert 'Could not change language' not in res
         assert "Dave's books has 2 datasets" in res, res
         assert "Roger's books has 1 datasets" in res, res
