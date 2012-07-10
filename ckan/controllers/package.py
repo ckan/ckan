@@ -601,7 +601,11 @@ class PackageController(BaseController):
         except DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
-            abort(500, _(u'Unable to add package to search index.'))
+            try:
+                exc_str = unicode(repr(e.args))
+            except:
+                exc_str = unicode(str(e))
+            abort(500, _(u'Unable to add package to search index.') + exc_str)
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -633,7 +637,11 @@ class PackageController(BaseController):
         except DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
-            abort(500, _(u'Unable to update search index.'))
+            try:
+                exc_str = unicode(repr(e.args))
+            except:
+                exc_str = unicode(str(e))
+            abort(500, _(u'Unable to update search index.') + exc_str)
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
