@@ -886,6 +886,14 @@ def dashboard_activity_stream(user_id):
     return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
 
 
+def render_markdown(data):
+    ''' returns the data as rendered markdown '''
+    # cope with data == None
+    if not data:
+        return ''
+    return literal(ckan.misc.MarkdownFormat().to_html(data))
+
+
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
 __allowed_functions__ = [
@@ -942,6 +950,7 @@ __allowed_functions__ = [
            'follow_button',
            'follow_count',
            'dashboard_activity_stream',
+           'render_markdown',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
