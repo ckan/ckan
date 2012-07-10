@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
   xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/" 
+  xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
 
@@ -39,8 +39,14 @@
         width: ${c.width-2}px;
         height: ${c.height-81}px;
       }
+
       .recline-slickgrid {
         height: ${c.height-81}px;
+      }
+
+      .slick-header-column {
+        border-top: 0 !important;
+        border-bottom: 0 !important;
       }
 
       .recline-graph .graph {
