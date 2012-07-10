@@ -1535,7 +1535,6 @@ CKAN.DataPreview = function ($, my) {
       views: views
     });
 
-    Backbone.history.start();
   };
 
   // **Public: Creates a link to the embeddable page.
@@ -1667,8 +1666,6 @@ CKAN.DataPreview = function ($, my) {
       // Finally, since we have a DataExplorer, we can show the embed button.
       $('.preview-header .btn').show();
 
-      // will have to refactor if this can get called multiple times
-      Backbone.history.start();
     }
 
     // 4 situations
