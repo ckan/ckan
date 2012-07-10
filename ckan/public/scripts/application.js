@@ -1612,6 +1612,9 @@ CKAN.DataPreview = function ($, my) {
         }
       });
 
+      // Hide the fields control by default
+      // (This should be done in recline!)
+      $('.menu-right a[data-action="fields"]').click();
 
       // -----------------------------
       // Setup the Embed modal dialog.
