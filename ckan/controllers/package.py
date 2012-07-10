@@ -772,11 +772,6 @@ class PackageController(BaseController):
         c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
                                     qualified=True)
 
-        c.resource_desc_formatted = ckan.misc.MarkdownFormat().to_html(
-            c.resource.get('description',''))
-        c.pkg_notes_formatted = ckan.misc.MarkdownFormat().to_html(
-            c.package.get('notes',''))
-
         c.related_count = len(c.pkg.related)
         return render('package/resource_read.html')
 
