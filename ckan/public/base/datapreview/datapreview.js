@@ -9,7 +9,7 @@ CKAN.Strings = CKAN.Strings || {};
 CKAN.Strings.errorLoadingPreview = "Could not load preview";
 CKAN.Strings.errorDataProxy = "DataProxy returned an error";
 CKAN.Strings.errorDataStore = "DataStore returned an error";
-
+CKAN.Strings.previewNotAvailableForDataType = "Preview not available for data type: ";
 
 (function ($) {
   $(document).ready(function () {
