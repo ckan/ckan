@@ -1,0 +1,23 @@
+.recline-query-editor form, .recline-query-editor .text-query {
+  height: 28px;
+}
+
+.recline-query-editor .pagination ul {
+  margin: 0;
+  padding: 0;
+}
+
+.recline-slickgrid {
+  height: 550px;
+}
+
+/* needed for Chrome but not FF */
+.header .recline-query-editor .add-on {
+  margin-left: -27px;
+}
+
+/* needed for FF but not chrome */
+.header .recline-query-editor .input-prepend {
+  vertical-align: top;
+}
+

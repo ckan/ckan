@@ -1,0 +1,7 @@
+{% extends "related/pages/form_page.html" %}
+
+{% block title %}Create a related item - {{ super() }}{% endblock %}
+
+{% block breadcrumb_item %}{{ h.nav_link(_('Create Related'), controller='related', action='new', id=c.id) }}{% endblock %}
+
+{% block page_heading %}{{ _('Create Related Item') }}{% endblock %}

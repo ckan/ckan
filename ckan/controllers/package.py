@@ -29,7 +29,7 @@ import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.lib.accept as accept
-from home import CACHE_PARAMETER
+from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
 
@@ -132,18 +132,15 @@ class PackageController(BaseController):
                          if k != 'page']
 
         def drill_down_url(alternative_url=None, **by):
-            params = set(params_nopage)
-            params |= set(by.items())
-            if alternative_url:
-                return url_with_params(alternative_url, params)
-            return search_url(params)
+            return h.add_url_param(alternative_url=alternative_url,
+                                   controller='package', action='search',
+                                   new_params=by)
 
         c.drill_down_url = drill_down_url
 
-        def remove_field(key, value):
-            params = list(params_nopage)
-            params.remove((key, value))
-            return search_url(params)
+        def remove_field(key, value=None, replace=None):
+            return h.remove_url_param(key, value=value, replace=replace,
+                                  controller='package', action='search')
 
         c.remove_field = remove_field
 
@@ -173,6 +170,7 @@ class PackageController(BaseController):
         else:
             c.sort_by_fields = [field.split()[0]
                                 for field in sort_by.split(',')]
+        c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
             params = list(params_nopage)
@@ -183,6 +181,9 @@ class PackageController(BaseController):
 
         try:
             c.fields = []
+            # c.fields_grouped will contain a dict of params containing
+            # a list of values eg {'tags':['tag1', 'tag2']}
+            c.fields_grouped = {}
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
@@ -191,6 +192,10 @@ class PackageController(BaseController):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
                         fq += ' %s:"%s"' % (param, value)
+                        if param not in c.fields_grouped:
+                            c.fields_grouped[param] = [value]
+                        else:
+                            c.fields_grouped[param].append(value)
                     else:
                         search_extras[param] = value
 
@@ -224,6 +229,14 @@ class PackageController(BaseController):
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
+        c.search_facets_limits = {}
+        for facet in c.facets.keys():
+            limit = int(request.params.get('_%s_limit' % facet, 10))
+            c.search_facets_limits[facet] = limit
+        c.facet_titles = {'groups': _('Groups'),
+                          'tags': _('Tags'),
+                          'res_format': _('Formats'),
+                          'license': _('Licence'), }
 
         return render(self._search_template(package_type))
 
@@ -431,13 +444,25 @@ class PackageController(BaseController):
             return self._save_new(context)
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
-            request.params, ignore_keys=[CACHE_PARAMETER]))))
+            request.params, ignore_keys=CACHE_PARAMETERS))))
         c.resources_json = json.dumps(data.get('resources', []))
+
+        # convert tags if not supplied in data
+        if data and not data.get('tag_string'):
+            data['tag_string'] = ', '.join(
+                h.dict_list_reduce(data['tags'], 'name'))
 
         errors = errors or {}
         error_summary = error_summary or {}
+        # in the phased add dataset we need to know that
+        # we have already completed stage 1
+        stage = ['active']
+        if c.form_style == 'new':
+            stage = ['active', 'complete']
+
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary}
+                'error_summary': error_summary,
+                'action': 'new', 'stage': stage}
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id})
@@ -449,7 +474,84 @@ class PackageController(BaseController):
         else:
             c.form = render(self._package_form(package_type=package_type),
                             extra_vars=vars)
-        return render(self._new_template(package_type))
+        return render(self._new_template(package_type),
+                      extra_vars={'stage': stage})
+
+    def new_resource(self, id, data=None, errors=None, error_summary=None):
+        ''' FIXME: This is a temporary action to allow styling of the
+        forms. '''
+        if request.method == 'POST' and not data:
+            save_action = request.params.get('save')
+            if save_action in ['again', 'next'] and not data:
+                data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                    request.POST))))
+                data['package_id'] = id
+                # we don't want to include save as it is part of the form
+                del data['save']
+                context = {'model': model, 'session': model.Session,
+                           'api_version': 3,
+                           'user': c.user or c.author,
+                           'extras_as_string': True}
+                try:
+                    get_action('resource_create')(context, data)
+                except ValidationError, e:
+                    errors = e.error_dict
+                    error_summary = e.error_summary
+                    return self.new_resource(id, data, errors, error_summary)
+                if save_action == 'next':
+                    redirect(h.url_for(controller='package',
+                                       action='new_metadata', id=id))
+                else:
+                    redirect(h.url_for(controller='package',
+                                       action='new_resource', id=id))
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'new'}
+        vars['pkg_name'] = id
+        # get resources for sidebar
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,}
+        pkg_dict = get_action('package_show')(context, {'id': id})
+        # required for nav menu
+        vars['pkg_dict'] = pkg_dict
+        return render('package/new_resource.html', extra_vars=vars)
+
+    def new_metadata(self, id, data=None, errors=None, error_summary=None):
+        ''' FIXME: This is a temporary action to allow styling of the
+        forms. '''
+        if request.method == 'POST':
+            save_action = request.params.get('save')
+            if save_action and not data:
+                data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                    request.POST))))
+                # we don't want to include save as it is part of the form
+                del data['save']
+                context = {'model': model, 'session': model.Session,
+                           'api_version': 3,
+                           'user': c.user or c.author,
+                           'extras_as_string': True}
+                data_dict = get_action('package_show')(context, {'id': id})
+
+                data_dict['id'] = id
+                # we want this to go live when saved
+                data_dict['state'] = 'active'
+                # allow the state to be changed
+                context['allow_state_change'] = True
+                data_dict.update(data)
+                try:
+                    get_action('package_update')(context, data_dict)
+                except ValidationError, e:
+                    errors = e.error_dict
+                    error_summary = e.error_summary
+                    return self.new_metadata(id, data, errors, error_summary)
+                redirect(h.url_for(controller='package', action='read', id=id))
+
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars['pkg_name'] = id
+        return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         package_type = self._get_package_type(id)
@@ -472,6 +574,11 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
+        # are we doing a multiphase add?
+        if data['state'] == 'draft':
+            c.form_action = h.url_for(controller='package', action='new')
+            c.form_style = 'new'
+            return self.new(data=data)
 
         c.pkg = context.get("package")
         c.resources_json = json.dumps(data.get('resources', []))
@@ -480,10 +587,13 @@ class PackageController(BaseController):
             check_access('package_update', context)
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
-
+        # convert tags if not supplied in data
+        if data and not data.get('tag_string'):
+            data['tag_string'] = ', '.join(h.dict_list_reduce(
+                c.pkg_dict['tags'], 'name'))
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary}
+                'error_summary': error_summary, 'action': 'edit'}
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id},
@@ -512,8 +622,8 @@ class PackageController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'extras_as_string': True,
-                   'schema': self._form_to_db_schema(package_type=
-                                                     package_type),
+                   'schema': self._form_to_db_schema(
+                                    package_type=package_type),
                    'revision_id': revision}
         try:
             data = get_action('package_show')(context, {'id': id})
@@ -577,16 +687,56 @@ class PackageController(BaseController):
             return pkg.type or 'package'
         return None
 
+    def _tag_string_to_list(self, tag_string):
+        ''' This is used to change tags from a sting to a list of dicts '''
+        out = []
+        for tag in tag_string.split(','):
+            tag = tag.strip()
+            if tag:
+                out.append({'name': tag,
+                            'state': 'active'})
+        return out
+
     def _save_new(self, context, package_type=None):
+        ckan_phase = request.params.get('_ckan_phase')
+        if ckan_phase:
+            # phased add dataset so use api schema for validation
+            context['api_version'] = 3
         from ckan.lib.search import SearchIndexError
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
+            if ckan_phase:
+                # Make sure we don't index this dataset
+                data_dict['state'] = 'draft'
+                # allow the state to be changed
+                context['allow_state_change'] = True
+                # sort the tags
+                data_dict['tags'] = self._tag_string_to_list(
+                    data_dict['tag_string'])
+                if data_dict.get('pkg_name'):
+                    data_dict['id'] = data_dict['pkg_name']
+                    del data_dict['pkg_name']
+                    # this is actually an edit not a save
+                    pkg_dict = get_action('package_update')(context, data_dict)
+                    # redirect to add dataset resources
+                    url = h.url_for(controller='package',
+                                    action='new_resource',
+                                    id=pkg_dict['name'])
+                    redirect(url)
+
             data_dict['type'] = package_type
             context['message'] = data_dict.get('log_message', '')
-            pkg = get_action('package_create')(context, data_dict)
+            pkg_dict = get_action('package_create')(context, data_dict)
 
-            self._form_save_redirect(pkg['name'], 'new')
+            if ckan_phase:
+                # redirect to add dataset resources
+                url = h.url_for(controller='package',
+                                action='new_resource',
+                                id=pkg_dict['name'])
+                redirect(url)
+
+            self._form_save_redirect(pkg_dict['name'], 'new')
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
@@ -607,6 +757,12 @@ class PackageController(BaseController):
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
+            if '_ckan_phase' in data_dict:
+                context['api_version'] = 3
+                data_dict['tags'] = self._tag_string_to_list(
+                    data_dict['tag_string'])
+                del data_dict['_ckan_phase']
+                del data_dict['save']
             context['message'] = data_dict.get('log_message', '')
             if not context['moderated']:
                 context['pending'] = False

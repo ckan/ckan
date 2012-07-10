@@ -32,12 +32,17 @@ def resource_create(context, data_dict):
     # check users eligibility to add resource to package here.
     model = context['model']
     user = context['user']
-    userobj = model.User.get(user)
+    check1 = logic.check_access_old(model.System(), model.Action.PACKAGE_CREATE, context)
 
-    if userobj:
-        return {'success': True}
-    return {'success': False,
-            'msg': _('You must be logged in to create a resource')}
+    if not check1:
+        return {'success': False, 'msg': _('User %s not authorized to create packages') % str(user)}
+    else:
+
+        check2 = _check_group_auth(context,data_dict)
+        if not check2:
+            return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
+
+    return {'success': True}
 
 def package_relationship_create(context, data_dict):
     model = context['model']

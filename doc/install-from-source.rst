@@ -173,12 +173,13 @@ contains your CKAN config file (e.g. ``~/pyenv/src/ckan``)::
 
     mkdir data sstore
 
-The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
-is specified by the ``cache_dir`` setting in your CKAN config file.
 
 The location of the ``sstore`` directory, which CKAN uses as its Repoze.who
 OpenID session directory, is specified by the ``store_file_path`` setting in
 the ``who.ini`` file.
+
+The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
+is specified by the ``cache_dir`` setting in your CKAN config file.
 
 8. Link to who.ini
 ~~~~~~~~~~~~~~~~~~
@@ -210,13 +211,42 @@ front page.
  the web browser on that same machine. For example run the textual web browser
  `w3m` in a separate ssh session to the one running `paster serve`.
 
-10. Run the CKAN Tests
+10. Install front end dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The front end stylesheets are written using `LESS <http://lesscss.org/>`_. This depends on `node <http://nodejs.org/>`_ being
+installed on the system.
+
+Instructions for installing node can be found on the `project website <http://nodejs.org/>`_.
+
+Less can then be installed via the node package manager which is bundled with
+node. ``cd`` into the ``pyenv/src/ckan`` and run::
+
+    $ npm install less
+
+A watcher script can then be used to compile the CSS whenever the LESS
+changes::
+
+    $ ./bin/less
+
+This will generate a main.debug.css file. To commit the production CSS into the
+repository run::
+
+    $ ENV=production ./bin/less
+
+This will generate the main.css file that should be committed for use in
+packaged versions of CKAN.
+
+(If someone could move this into a paster script that would be great)
+
+
+11. Run the CKAN Tests
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Now that you've installed CKAN, you should run CKAN's tests to make sure that
 they all pass. See :doc:`test`.
 
-11. You're done!
+12. You're done!
 ~~~~~~~~~~~~~~~~
 
 You can now proceed to :doc:`post-installation` which covers creating a CKAN

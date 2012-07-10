@@ -1,0 +1,475 @@
+.btn,
+label {
+  font-weight: bold;
+}
+
+label {
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 2;
+}
+
+label:after {
+  content: ":";
+}
+
+label.radio:after,
+label.checkbox:after {
+  content: "";
+}
+
+input,
+textarea,
+select,
+.uneditable-input {
+  font-size: 14px;
+  padding: 8px 10px;
+}
+
+input[type=radio],
+input[type=checkbox] {
+  position: relative;
+  top: 6px;
+}
+
+select {
+  margin-top: 6px;
+  padding: 4px;
+}
+
+textarea {
+  max-width: 100%;
+}
+
+.input-prepend .add-on {
+  padding: 8px 8px;
+  font-size: 14px;
+}
+
+.control-group .btn {
+  position: relative;
+  top: -2px;
+}
+
+.control-full input,
+.control-full select,
+.control-full textarea {
+  .box-sizing(border-box);
+  height: auto;
+  width: 100%;
+}
+
+.control-medium input,
+.control-medium select,
+.control-medium textarea {
+  width: 320px;
+}
+
+.control-large input,
+.control-large .control-label {
+  font-size: 18px;
+}
+
+.control-large input {
+}
+
+.form-actions {
+  background: none;
+  margin-left: -@gutterX;
+  margin-right: -@gutterX;
+  margin-bottom: 0; // Prevents reduces the padding when included in a module.
+  padding-bottom: 0;
+  text-align: right;
+}
+
+.form-actions .action-info {
+  float: left;
+  width: 50%;
+  line-height: 2;
+  text-align: left;
+  color: #707070;
+  margin: 0;
+}
+
+.form-actions .action-info.small {
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+// Override the default form widths.
+.form-horizontal .control-label {
+  width: 120px;
+  line-height: 1.3;
+  padding-top: 9px;
+}
+
+.form-horizontal .control-large input,
+.form-horizontal .control-large .control-label {
+  font-size: 18px;
+  line-height: 2;
+}
+
+.form-horizontal .control-large .control-label {
+  padding-top: 10px;
+}
+
+.form-horizontal .controls {
+  margin-left: 130px;
+}
+
+.ie7 .form-horizontal .controls {
+  margin-left: 0;
+}
+
+.form-horizontal .info-block {
+  position: relative;
+  float: right;
+  width: 265px;
+  font-size: 11px;
+  color: #AEAEAE;
+  line-height: 1.3;
+  padding: 6px 0 6px 25px;
+}
+
+.form-horizontal .info-block:before {
+  font-size: 2.2em;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.form-horizontal .info-block a {
+  color: #AEAEAE;
+  text-decoration: underline;
+}
+
+.form-horizontal .form-actions {
+  padding-left: @gutterX;
+  padding-right: @gutterX;
+}
+
+.form-inline input {
+  padding-bottom: 9px;
+}
+
+.form-inline select {
+  margin-top: 0;
+}
+
+.form-inline .btn {
+  margin-left: 5px;
+}
+
+// Inline Select Forms
+
+.form-select label {
+  margin-right: 5px;
+}
+
+// Single Field Inputs
+
+.simple-input label,
+.simple-input button {
+  display: none;
+}
+
+.simple-input .field {
+  position: relative;
+}
+
+.simple-input .field-bordered {
+  border-bottom: 1px dotted #ccc;
+}
+
+.simple-input .field input {
+  width: 100%;
+  height: auto;
+  margin: 0 -7px; // Pull input out into gutter
+  padding: 7px 5px;
+}
+
+.simple-input .field .btn-search {
+  .ckan-icon;
+  .ckan-icon-search;
+  position: absolute;
+  display: block;
+  height: 17px;
+  width: 17px;
+  top: 50%;
+  right: 0;
+  margin-top: -8px;
+  background-color: transparent;
+  border: none;
+  text-indent: -999em;
+}
+
+.editor textarea {
+  .border-radius(@inputBorderRadius @inputBorderRadius 0 0);
+  border-bottom: none;
+}
+
+.editor .info-block {
+  .border-radius(0 0 @inputBorderRadius @inputBorderRadius);
+  display: block;
+  float: none;
+  padding: 4px 10px;
+  background: #ebebeb;
+  width: auto;
+  border: 1px solid @inputBorder;
+  border-top: none;
+  font-size: 11px;
+  color: #282828;
+}
+
+.editor .info-block a {
+  color: @layoutLinkColor;
+  text-decoration: none;
+}
+
+.editor .info-block:after {
+  content: none;
+}
+
+// Controls
+
+// Custom Key/Value input
+
+.control-custom {
+  font-size: 0; // Remove whitespace between fields.
+}
+
+.control-custom label {
+  margin-bottom: 0;
+}
+
+.control-custom input {
+  .border-radius(0);
+  width: 140px;
+}
+
+.control-custom input:last-of-type {
+  .border-radius(0 3px 3px 0);
+}
+
+.control-custom .checkbox {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.ie7 .control-custom .checkbox {
+  .ie7-inline-block;
+}
+
+.control-custom .checkbox input {
+  width: auto;
+}
+
+// Errors
+
+.alert-danger a, .alert-error a {
+  color: @errorText;
+}
+
+.control-group.error input,
+.control-group.error select,
+.control-group.error textarea,
+.control-group.error .input-prepend .add-on,
+.control-group.error .input-append .add-on {
+  border-color: @errorBorder;
+}
+
+.error-inline {
+  color: @errorText;
+}
+
+.error-block,
+.error-inline {
+  font-size: 12px;
+}
+
+.error-block {
+  .border-radius(0 0 @inputBorderRadius @inputBorderRadius);
+  display: block;
+  padding: 6px 8px 3px;
+  background: @errorBorder;
+  margin: -@inputBorderRadius 0 0;
+  color: @inputBackground;
+  width: 216px;
+}
+
+.control-medium .error-block {
+  width: 326px;
+}
+
+.control-full .error-block {
+  width: auto;
+}
+
+.control-group.error .input-prepend .error-block,
+.control-custom.error .error-block {
+  margin-left: -1px;
+  width: auto;
+}
+
+.control-custom.error .error-block {
+  width: 409px;
+}
+
+.control-select.error .error-block {
+  width: 204px;
+}
+
+// Stages
+// Builds form stages out of an ordered list. The following CSS uses tag
+// selectors on the .active class to prevent the styles bleeding into the
+// anchor element which can also have an active class.
+
+.stages {
+  .unstyled;
+  .clearfix;
+  color: #aeaeae;
+  counter-reset: stage;
+  margin: -@gutterY -@gutterX @gutterY;
+  overflow: hidden;
+}
+
+.stages li {
+  .box-sizing(border-box);
+  line-height: 27px;
+  counter-increment: stage;
+  width: 33.33%;
+  background-color: #EDEDED;
+  float: left;
+  padding: 10px 20px;
+  position: relative;
+  z-index: 0;
+}
+
+.stages li:before {
+  .border-radius(14px);
+  content: counter(stage);
+  display: inline-block;
+  width: 27px;
+  height: 27px;
+  margin-right: 5px;
+  font-weight: bold;
+  text-align: center;
+  color: #fff;
+  background: #aeaeae;
+  z-index: 1;
+}
+
+.stages li:after {
+  left: 0;
+  border: solid rgba(237, 237, 237, 0);
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-top-color: #ededed;
+  border-bottom-color: #ededed;
+  border-width: 29px; // Needs to be an odd number
+  top: 50%;
+  margin-top: -29px;
+  margin-left: -30px;
+}
+
+.stages li.first,
+.stages li.first .highlight {
+  .border-radius(3px 0 0 0);
+}
+
+.stages li.last {
+  position: relative;
+  right: -1px;
+}
+
+.stages li.last,
+.stages li.last .highlight {
+  .border-radius(0 3px 0 0);
+}
+
+.stages li.first:after {
+  content: none;
+  border: none;
+}
+
+.stages li.active:after {
+  border-color: rgba(140, 198, 138, 0);
+  border-top-color: #8cc68a;
+  border-bottom-color: #8cc68a;
+}
+
+.stages li.complete:after {
+  border-color: rgba(197, 226, 196, 0);
+  border-top-color: #C5E2C4;
+  border-bottom-color: #C5E2C4;
+}
+
+.stages.stage-3 li.complete:first-child:after {
+  content: none;
+}
+
+.stages li.active,
+.stages li.complete {
+  background: none;
+}
+
+.stages li.active:before,
+.stages li.complete:before {
+  color: #8cc68a;
+  background: #fff;
+}
+
+.stages li.complete:before {
+  color: #c5e2c4;
+  background: #eef6ed;
+}
+
+.stages li .highlight {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  line-height: 27px;
+  padding: 10px 52px;
+  text-decoration: none;
+  z-index: -1;
+}
+
+.stages li.active .highlight {
+  color: #fff;
+  background: #8cc68a;
+}
+
+.stages li.complete .highlight {
+  background: #c5e2c4;
+  color: #eef6ed;
+}
+
+// Errors
+
+.alert > :last-child {
+  margin-bottom: 0;
+}
+
+// Slug Preview Field
+
+.slug-preview {
+  font-size: 14px;
+  margin-top: 8px;
+  margin-left: 10px;
+}
+
+.slug-preview-value {
+  background-color: #faedcf;
+}
+
+.slug-preview .btn {
+ padding-top: 3px;
+ padding-bottom: 3px;
+ margin-left: 5px;
+}

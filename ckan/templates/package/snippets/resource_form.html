@@ -1,0 +1,47 @@
+{% import 'macros/form.html' as form %}
+
+{% set data = data or {} %}
+{% set errors = errors or {} %}
+
+<form class="dataset-form dataset-resource-form form-horizontal" method="post">
+  <div class="control-group dataset-form-resource-types">
+    {% block basic_fields %}
+      <div class="controls">
+        {#
+        This block uses a slightly odd pattern. Unlike the rest of the radio
+        buttons which are wrapped _inside_ the labels here we place the label
+        after the input. This enables us to style the label based on the state
+        of the radio using css. eg. input[type=radio]+label {}
+        #}
+        <i class="ckan-icon ckan-icon-link-file"></i>
+        <input id="field-resource-type-file" type="radio" name="resource_type" checked="checked" value="file" />
+        <label class="radio inline" for="field-resource-type-file">Link to a file</label>
+        <i class="ckan-icon ckan-icon-link-plugin"></i>
+        <input id="field-resource-type-api" type="radio" name="resource_type" value="api" />
+        <label class="radio inline" for="field-resource-type-api">Link to an API</label>
+      </div>
+    </div>
+
+    {{ form.input('url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/gold-prices-jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large']) }}
+
+    {{ form.input('name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
+
+    {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
+
+    {{ form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. application/json'), value=data.format, error=errors.format, classes=['control-medium']) }}
+  {% endblock %}
+
+  {% block metadata_fields %}
+    {% if include_metadata %}
+      {{ form.select('type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }}
+      {# TODO: Where do these come from, they don't exist in /package/new_package_form.html #}
+    {% endif %} 
+  {% endblock %}
+
+  <div class="form-actions">
+    {# TODO: Go back to previous resource form #}
+    {% link_for _('Previous'), controller='package', action='edit', id=pkg_name, class_="btn" %}
+    <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
+    <button class="btn btn-primary" name="save" value="next" type="submit">{{ _('Next: Additional Info') }}</button>
+  </div>
+</form>

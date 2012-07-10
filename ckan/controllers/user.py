@@ -118,6 +118,8 @@ class UserController(BaseController):
             h.redirect_to(locale=locale, controller='user',
                           action='login', id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
+        return self.read(id=c.username)
+        # FIXME what is dashboard
         h.redirect_to(locale=locale, controller='user', action='dashboard',
                       id=user_ref)
 
@@ -279,8 +281,10 @@ class UserController(BaseController):
             g.openid_enabled = False
 
         if not c.user:
+            came_from = request.params.get('came_from', '')
             c.login_handler = h.url_for(
-                self._get_repoze_handler('login_handler_path'))
+                self._get_repoze_handler('login_handler_path'),
+                came_from=came_from)
             return render('user/login.html')
         else:
             return render('user/logout_first.html')
@@ -289,6 +293,7 @@ class UserController(BaseController):
         # we need to set the language via a redirect
         lang = session.pop('lang', None)
         session.save()
+        came_from = request.params.get('came_from', '')
 
         # we need to set the language explicitly here or the flash
         # messages will not be translated.
@@ -304,6 +309,8 @@ class UserController(BaseController):
 
             h.flash_success(_("%s is now logged in") %
                             user_dict['display_name'])
+            if came_from:
+                return h.redirect_to(str(came_from))
             return self.me(locale=lang)
         else:
             err = _('Login failed. Bad username or password.')
@@ -311,7 +318,8 @@ class UserController(BaseController):
                 err += _(' (Or if using OpenID, it hasn\'t been associated '
                          'with a user account.)')
             h.flash_error(err)
-            h.redirect_to(locale=lang, controller='user', action='login')
+            h.redirect_to(locale=lang, controller='user',
+                          action='login', came_from=came_from)
 
     def logout(self):
         # save our language in the session so we don't lose it

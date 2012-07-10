@@ -1,0 +1,19 @@
+{% extends "package/pages/form_page.html" %}
+
+{% block title %}{{ _('Add data to the dataset') }} - {{ super }}{% endblock %}
+
+{% block stages %}{{ h.snippet('package/snippets/stages.html', stages=['complete', 'active'], pkg_name=pkg_name) }}{% endblock %}
+
+{% block form %}{{ h.snippet('package/snippets/resource_form.html', data=data, errors=errors, include_metadata=false, pkg_name=pkg_name) }}{% endblock %}
+
+{% block secondary_content %}
+  <section class="module module-narrow">
+    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What is data?') }}</h2>
+    <div class="module-content">
+      <p>{{ _('Data can be any file or link to a file containing useful data.') }}</p>
+    </div>
+  </section>
+
+  {% snippet 'package/snippets/resources.html', pkg=pkg_dict %}
+
+{% endblock %}

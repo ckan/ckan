@@ -8,8 +8,10 @@ from ckan.lib.search import SearchError
 from ckan.lib.base import *
 from ckan.lib.helpers import url_for
 
-CACHE_PARAMETER = '__cache'
+CACHE_PARAMETERS = ['__cache', '__no_cache__']
 
+# horrible hack
+dirty_cached_group_stuff = None
 
 class HomeController(BaseController):
     repo = model.repo
@@ -42,14 +44,21 @@ class HomeController(BaseController):
             data_dict = {
                 'q': '*:*',
                 'facet.field': g.facets,
-                'rows': 0,
+                'rows': 4,
                 'start': 0,
+                'sort': 'views_recent desc',
                 'fq': 'capacity:"public"'
             }
             query = ckan.logic.get_action('package_search')(
                 context, data_dict)
+            c.search_facets = query['search_facets']
             c.package_count = query['count']
+            c.datasets = query['results']
             c.facets = query['facets']
+            c.facet_titles = {'groups': _('Groups'),
+                          'tags': _('Tags'),
+                          'res_format': _('Formats'),
+                          'license': _('Licence'), }
 
             data_dict = {'order_by': 'packages', 'all_fields': 1}
             # only give the terms to group dictize that are returned in the
@@ -89,6 +98,47 @@ class HomeController(BaseController):
         c.recently_changed_packages_activity_stream = \
             ckan.logic.action.get.recently_changed_packages_activity_list_html(
                 context, {})
+
+        # START OF DIRTYNESS
+        def get_group(id):
+            def _get_group_type(id):
+                """
+                Given the id of a group it determines the type of a group given
+                a valid id/name for the group.
+                """
+                group = model.Group.get(id)
+                if not group:
+                    return None
+                return group.type
+
+            def _form_to_db_schema(group_type=None):
+                from ckan.lib.plugins import lookup_group_plugin
+                return lookup_group_plugin(group_type).form_to_db_schema()
+
+            group_type = _get_group_type(id.split('@')[0])
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author,
+                       'schema': _form_to_db_schema(group_type=group_type),
+                       'for_view': True}
+            data_dict = {'id': id}
+
+            group_dict = ckan.logic.get_action('group_show')(context, data_dict)
+
+            # We get all the packages or at least too many so
+            # limit it to just 2
+            group_dict['packages'] = group_dict['packages'][:2]
+            return {'group_dict' :group_dict}
+
+        global dirty_cached_group_stuff
+        if not dirty_cached_group_stuff:
+            # ARON
+            # uncomment the first for testing
+            # the second for demo - different data
+            #dirty_cached_group_stuff = [get_group('access-to-medicines'), get_group('archaeology')]
+            dirty_cached_group_stuff = [get_group('data-explorer'), get_group('geo-examples')]
+
+        c.group_package_stuff = dirty_cached_group_stuff
+        # END OF DIRTYNESS
 
         return render('home/index.html', cache_force=True)
 

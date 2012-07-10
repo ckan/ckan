@@ -1,0 +1,7 @@
+<ul class="media-grid">
+  {% for related in c.pkg.related %}
+    {% set first = loop.index0 % 3 == 0 %}
+    {% set last  = loop.index0 % 3 == 2 %}
+    {% include "related/snippets/related_item.html" %}
+  {% endfor %}
+</ul>

@@ -1,0 +1,9 @@
+{% extends "related/pages/form.html" %}
+
+{% block button_text %}
+  {% if action == 'update' %}
+    {{ _('Update') }}
+  {% else %}
+    {{ _('Create') }}
+  {% endif %}
+{% endblock %}

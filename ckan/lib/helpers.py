@@ -10,6 +10,10 @@ import datetime
 import logging
 import re
 import urllib
+import pprint
+import copy
+import logging
+from urllib import urlencode
 
 from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
@@ -29,13 +33,17 @@ import i18n
 import ckan.exceptions
 from pylons import request
 from pylons import session
-from pylons import c
-from pylons.i18n import _
+from pylons import c, g
+from pylons.i18n import _, ungettext
 
+import html_resources
 from lib.maintain import deprecated
 import ckan.model as model
+
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
+
+log = logging.getLogger(__name__)
 
 try:
     from collections import OrderedDict # from python 2.7
@@ -152,6 +160,12 @@ def _add_i18n_to_url(url_to_amend, **kw):
         raise ckan.exceptions.CkanUrlException('There is a broken url being created %s' % kw)
 
     return url
+
+
+def full_current_url():
+    ''' Returns the fully qualified current url (eg http://...) useful
+    for sharing etc '''
+    return(url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
 
 def lang():
     ''' Return the language code for the current locale eg `en` '''
@@ -270,20 +284,34 @@ def nav_link(*args, **kwargs):
     if len(args) > 2 or (len(args) > 1 and 'controller' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _nav_link(*args[1:], **kwargs)
-        raise Exception('nav_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('nav_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _nav_link(*args, **kwargs)
 
 def _nav_link(text, controller, **kwargs):
-
+    '''
+    params
+    class_: pass extra class(s) to add to the <a> tag
+    icon: name of ckan icon to use within the link
+    condition: if False then no link is returned
+    '''
     highlight_actions = kwargs.pop("highlight_actions",
                                    kwargs["action"]).split()
-    return link_to(
-        text,
-        url_for(controller=controller, **kwargs),
-        class_=('active' if
-                c.controller == controller and c.action in highlight_actions
-                else '')
-    )
+    icon = kwargs.pop('icon', None)
+    if icon:
+        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+    active =(' active' if
+            c.controller == controller and c.action in highlight_actions
+            else '')
+    class_ = kwargs.pop('class_', '') + active
+    if kwargs.pop('condition', True):
+        link = link_to(
+            text,
+            url_for(controller=controller, **kwargs),
+            class_=class_
+        )
+    else:
+        link = ''
+    return link
 
 def nav_named_link(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
@@ -294,7 +322,7 @@ def nav_named_link(*args, **kwargs):
        (len(args) > 1 and 'name' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _nav_named_link(*args[1:], **kwargs)
-        raise Exception('nav_named_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('nav_named_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _nav_named_link(*args, **kwargs)
 
 def _nav_named_link(text, name, **kwargs):
@@ -314,7 +342,7 @@ def subnav_link(*args, **kwargs):
     if len(args) > 2 or (len(args) > 1 and 'action' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _subnav_link(*args[1:], **kwargs)
-        raise Exception('subnav_link() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('subnav_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _subnav_link(*args, **kwargs)
 
 def _subnav_link(text, action, **kwargs):
@@ -333,7 +361,7 @@ def subnav_named_route(*args, **kwargs):
        (len(args) > 1 and 'routename' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _subnav_named_route(*args[1:], **kwargs)
-        raise Exception('subnav_named_route() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('subnav_named_route() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _subnav_named_route(*args, **kwargs)
 
 def _subnav_named_route(text, routename, **kwargs):
@@ -344,8 +372,92 @@ def _subnav_named_route(text, routename, **kwargs):
         class_=('active' if c.action == kwargs['action'] else '')
     )
 
+def build_nav_main(*args):
+    ''' build a set of menu items.
+
+    args: tuples of (menu type, title) eg ('login', _('Login'))
+    outputs <li><a href="...">title</a></li>
+    '''
+    output = ''
+    for item in args:
+        menu_item, title = item[:2]
+        if len(item) == 3 and not check_access(item[2]):
+            continue
+        output += _make_menu_item(menu_item, title)
+    return output
+
+
+def _make_menu_item(menu_item, title):
+    if menu_item not in _menu_items:
+        log.error('menu item `%s` cannot be found' % menu_item)
+        return literal('<li><a href="#">') + title + literal('</a></li>')
+    item = _menu_items[menu_item]
+    if 'name' in item:
+        link = nav_named_link(title, **item)
+    elif 'url' in item:
+        return literal('<li><a href="%s">' % item.url) + title + literal('</a></li>')
+    else:
+        item = copy.copy(_menu_items[menu_item])
+        controller = item.pop('controller')
+        link = nav_link(title, controller, **item)
+    return literal('<li>') + link + literal('</li>')
+
+
 def default_group_type():
     return str( config.get('ckan.default.group_type', 'group') )
+
+
+_menu_items = {
+    'add dataset' : dict(controller='package', action='new'),
+    'search' : dict(controller='package',
+                    action='search',
+                    highlight_actions = 'index search'),
+    'default_group': dict(name='%s_index' % default_group_type()),
+    'about' : dict(controller='home', action='about'),
+    'login' : dict(controller='user', action='login'),
+    'register' : dict(controller='user', action='register'),
+}
+
+
+
+def get_facet_items_dict(facet, limit=10, exclude_active=False):
+    '''Return the list of unselected facet items for the given facet, sorted
+    by count.
+
+    Returns the list of unselected facet contraints or facet items (e.g. tag
+    names like "russian" or "tolstoy") for the given search facet (e.g.
+    "tags"), sorted by facet item count (i.e. the number of search results that
+    match each facet item).
+
+    Reads the complete list of facet items for the given facet from
+    c.search_facets, and filters out the facet items that the user has already
+    selected.
+
+    Arguments:
+    facet -- the name of the facet to filter.
+    limit -- the max. number of facet items to return.
+    exclude_active -- only return unselected facets.
+
+    '''
+    if not c.search_facets or \
+       not c.search_facets.get(facet) or \
+       not c.search_facets.get(facet).get('items'):
+        return []
+    facets = []
+    for facet_item in c.search_facets.get(facet)['items']:
+        if not len(facet_item['name'].strip()):
+            continue
+        if not (facet, facet_item['name']) in request.params.items():
+            facets.append(dict(active=False, **facet_item))
+        elif not exclude_active:
+            facets.append(dict(active=True, **facet_item))
+    facets = sorted(facets, key=lambda item: item['count'], reverse=True)
+    if c.search_facets_limits:
+        limit = c.search_facets_limits.get(facet)
+    if limit:
+        return facets[:limit]
+    else:
+        return facets
 
 def unselected_facet_items(facet, limit=10):
     '''Return the list of unselected facet items for the given facet, sorted
@@ -365,6 +477,10 @@ def unselected_facet_items(facet, limit=10):
     limit -- the max. number of facet items to return.
 
     '''
+    # TODO if we agree to propossed change then we can just wrap
+    # get_facet_items_dict()
+
+    #return get_facet_items_dict(facet, limit=limit, exclude_active=True)
     if not c.search_facets or \
        not c.search_facets.get(facet) or \
        not c.search_facets.get(facet).get('items'):
@@ -375,7 +491,13 @@ def unselected_facet_items(facet, limit=10):
             continue
         if not (facet, facet_item['name']) in request.params.items():
             facets.append(facet_item)
-    return sorted(facets, key=lambda item: item['count'], reverse=True)[:limit]
+    facets = sorted(facets, key=lambda item: item['count'], reverse=True)
+    if c.search_facets_limits:
+        limit = c.search_facets_limits.get(facet)
+    if limit:
+        return facets[:limit]
+    else:
+        return facets
 
 @deprecated()
 def facet_items(*args, **kwargs):
@@ -390,7 +512,7 @@ def facet_items(*args, **kwargs):
     if len(args) > 2 or (len(args) > 0 and 'name' in kwargs) or (len(args) > 1 and 'limit' in kwargs):
         if not asbool(config.get('ckan.restrict_template_vars', 'false')):
             return _facet_items(*args[1:], **kwargs)
-        raise Exception('facet_items() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('facet_items() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _facet_items(*args, **kwargs)
 
 
@@ -406,7 +528,43 @@ def _facet_items(name, limit=10):
     return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
 
 def facet_title(name):
+    # FIXME this looks like an i18n issue
     return config.get('search.facets.%s.title' % name, name.capitalize())
+
+def get_facet_title(name):
+    facet_titles = {'groups' : _('Groups'),
+                  'tags' : _('Tags'),
+                  'res_format' : _('Formats'),
+                  'license' : _('Licence'), }
+    return facet_titles.get(name, name)
+
+def get_param_int(name, default=10):
+    return int(request.params.get(name, default))
+
+def _url_with_params(url, params):
+    if not params:
+        return url
+    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                                  for k, v in params]
+    return url + u'?' + urlencode(params)
+
+def _search_url(params):
+    url = url_for(controller='package', action='search')
+    return _url_with_params(url, params)
+
+def sorted_extras(list_):
+    ''' Used for outputting package extras '''
+    output = []
+    for extra in sorted(list_, key=lambda x:x['key']):
+        if extra.get('state') == 'deleted':
+            continue
+        k, v = extra['key'], extra['value']
+        if k in g.package_hide_extras:
+            continue
+        if isinstance(v, (list, tuple)):
+            v = ", ".join(map(unicode, v))
+        output.append((k, v))
+    return output
 
 @deprecated('Please use check_access instead.')
 def am_authorized(c, action, domain_object=None):
@@ -504,6 +662,18 @@ def format_icon(_format):
     if ('xml' in _format): return 'page_white_code'
     return 'page_white'
 
+def dict_list_reduce(list_, key, unique=True):
+    ''' Take a list of dicts and create a new one containing just the
+    values for the key with unique values if requested. '''
+    new_list = []
+    for item in list_:
+        value = item.get(key)
+        if not value or (unique and value in new_list):
+            continue
+        new_list.append(value)
+    return new_list
+
+
 def linked_gravatar(email_hash, size=100, default=None):
     return literal(
         '<a href="https://gravatar.com/" target="_blank" ' +
@@ -521,8 +691,8 @@ def gravatar(email_hash, size=100, default=None):
         default = urllib.quote(default, safe='')
 
     return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
-        class="gravatar" />'''
-        % (email_hash, size, default)
+        class="gravatar" width="%s" height="%s" />'''
+        % (email_hash, size, default, size, size)
         )
 
 def pager_url(page, partial=None, **kwargs):
@@ -539,8 +709,8 @@ class Page(paginate.Page):
     # our custom layout set as default.
     def pager(self, *args, **kwargs):
         kwargs.update(
-            format=u"<div class='pagination'><ul>$link_previous ~2~ $link_next</ul></div>",
-            symbol_previous=u'« Prev', symbol_next=u'Next »',
+            format=u"<div class='pagination pagination-centered'><ul>$link_previous ~2~ $link_next</ul></div>",
+            symbol_previous=u'«', symbol_next=u'»',
             curpage_attr={'class':'active'}, link_attr={}
         )
         return super(Page, self).pager(*args, **kwargs)
@@ -557,9 +727,10 @@ class Page(paginate.Page):
     def _range(self, regexp_match):
         html = super(Page, self)._range(regexp_match)
         # Convert ..
-        dotdot = '\.\.'
+        dotdot = '<span class="pager_dotdot">..</span>'
         dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
         html = re.sub(dotdot, dotdot_link, html)
+
         # Convert current page
         text = '%s' % self.page
         current_page_span = str(HTML.span(c=text, **self.curpage_attr))
@@ -758,8 +929,12 @@ def auto_log_message(*args):
     # throws error if ckan.restrict_template_vars is True
     # When we move to strict helpers then this should be removed as a wrapper
     if len(args) and asbool(config.get('ckan.restrict_template_vars', 'false')):
-        raise Exception('auto_log_message() calling has been changed. remove c in template %s or included one' % c.__template_name)
+        raise Exception('auto_log_message() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _auto_log_message()
+
+def _get_template_name():
+    ''' helper function to get the currently/last rendered template name '''
+    return c.__debug_info[-1]['template_name']
 
 def _auto_log_message():
     if (c.action=='new') :
@@ -871,6 +1046,120 @@ def follow_count(obj_type, obj_id):
     context = {'model' : model, 'session':model.Session, 'user':c.user}
     return logic.get_action(action)(context, {'id': obj_id})
 
+def _create_url_with_params(params=None, controller=None, action=None,
+                            extras=None):
+    ''' internal function for building urls with parameters. '''
+
+    def url_with_params(url, params):
+        params = [(k, v.encode('utf-8') if isinstance(v, basestring) else \
+                 str(v)) for k, v in params]
+        return url + u'?' + urllib.urlencode(params)
+
+    if not controller:
+        controller = c.controller
+    if not action:
+        action = c.action
+    if not extras:
+        extras = {}
+
+    url = url_for(controller=controller, action=action, **extras)
+    return url_with_params(url, params)
+
+def add_url_param(alternative_url=None, controller=None, action=None,
+                   extras=None, new_params=None):
+    '''
+    Adds extra parameters to existing ones
+
+    controller action & extras (dict) are used to create the base url
+    via url_for(controller=controller, action=action, **extras)
+    controller & action default to the current ones
+    '''
+    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+    params = set(params_nopage)
+    if new_params:
+        params |= set(new_params.items())
+    if alternative_url:
+        return url_with_params(alternative_url, params)
+    return _create_url_with_params(params=params, controller=controller,
+                                   action=action, extras=extras)
+
+def remove_url_param(key, value=None, replace=None, controller=None,
+                     action=None, extras=None):
+    ''' Remove a key from the current parameters. A specific key/value
+    pair can be removed by passing a second value argument otherwise all
+    pairs matching the key will be removed. If replace is given then a
+    new param key=replace will be added.
+
+    controller action & extras (dict) are used to create the base url
+    via url_for(controller=controller, action=action, **extras)
+    controller & action default to the current ones
+    '''
+    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+    params = list(params_nopage)
+    if value:
+        params.remove((key, value))
+    else:
+      [params.remove((k, v)) for (k, v) in params[:] if k==key]
+    if replace is not None:
+        params.append((key, replace))
+    return _create_url_with_params(params=params, controller=controller,
+                                   action=action, extras=extras)
+
+def include_resource(resource):
+    r = getattr(html_resources, resource)
+    r.need()
+
+def debug_inspect(arg):
+    ''' Output pprint.pformat view of supplied arg '''
+    return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
+
+def debug_full_info_as_list(debug_info):
+    ''' This dumps the template variables for debugging purposes only. '''
+    out = []
+    ignored_keys = ['c', 'app_globals', 'g', 'h', 'request', 'tmpl_context',
+                    'actions', 'translator', 'session', 'N_', 'ungettext',
+                    'config', 'response', '_']
+    ignored_context_keys = ['__class__', '__context', '__delattr__', '__dict__',
+                            '__doc__', '__format__', '__getattr__',
+                            '__getattribute__', '__hash__', '__init__',
+                            '__module__', '__new__', '__reduce__',
+                            '__reduce_ex__', '__repr__', '__setattr__',
+                            '__sizeof__', '__str__', '__subclasshook__',
+                            '__weakref__', 'action', 'environ', 'pylons',
+                            'start_response', '__debug_info']
+    for key in debug_info.keys():
+        if not key in ignored_keys:
+            out.append((key, debug_info.get(key)))
+
+    if 'tmpl_context' in debug_info:
+        for key in dir(debug_info['tmpl_context']):
+
+            if not key in ignored_context_keys:
+                data = pprint.pformat(getattr(debug_info['tmpl_context'], key))
+                data = data.decode('utf-8')
+                out.append(('c.%s' % key, data))
+
+    return out
+
+
+def popular(type_, number, min=1, title=None):
+    ''' display a popular icon. '''
+    if type_ == 'views':
+        title = ungettext('{number} view', '{number} views', number)
+    elif type_ == 'recent views':
+        title = ungettext('{number} recent view', '{number} recent views', number)
+    elif not title:
+        raise Exception('popular() did not recieve a valid type_ or title')
+    return snippet('snippets/popular.html', title=title, number=number, min=min)
+
+def groups_available():
+    ''' return a list of available groups '''
+    import ckan.logic as logic
+    context = {'model': model, 'session': model.Session,
+               'user': c.user or c.author}
+    data_dict = {'available_only': True}
+    return logic.get_action('group_list_authz')(context, data_dict)
+
 def dashboard_activity_stream(user_id):
     '''Return the dashboard activity stream of the given user.
 
@@ -938,9 +1227,23 @@ __allowed_functions__ = [
            'convert_to_dict',
            'activity_div',
            'lang_native_name',
+           'get_facet_items_dict',
            'unselected_facet_items',
+           'include_resource',
+           'build_nav_main',
+           'debug_inspect',
+           'dict_list_reduce',
+           'full_current_url',
+           'popular',
+           'debug_full_info_as_list',
+           'get_facet_title',
+           'get_param_int',
+           'sorted_extras',
            'follow_button',
            'follow_count',
+           'remove_url_param',
+           'add_url_param',
+           'groups_available',
            'dashboard_activity_stream',
     # imported into ckan.lib.helpers
            'literal',

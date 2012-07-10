@@ -9,8 +9,10 @@ import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
 from pylons import config
+from pylons.i18n import _, N_
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
+from jinja2 import Environment
 
 import ckan.config.routing as routing
 import ckan.model as model
@@ -20,6 +22,8 @@ import ckan.lib.search as search
 import ckan.lib.app_globals as app_globals
 
 log = logging.getLogger(__name__)
+
+import lib.jinja_tags
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
@@ -153,6 +157,10 @@ def load_environment(global_conf, app_conf):
                           'ckan.site_id for SOLR search-index rebuild to work.'
         config['ckan.site_id'] = ckan_host
 
+    # ensure that a favicon has been set
+    favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
+    config['ckan.favicon'] = favicon
+
     # Init SOLR settings and check if the schema is compatible
     #from ckan.lib.search import SolrSettings, check_solr_schema_version
     search.SolrSettings.init(config.get('solr_url'),
@@ -169,13 +177,20 @@ def load_environment(global_conf, app_conf):
     helpers = _Helpers(h, restrict_helpers)
     config['pylons.h'] = helpers
 
-    # Redo template setup to use genshi.search_path
-    # (so remove std template setup)
-    template_paths = [paths['templates'][0]]
+    ## redo template setup to use genshi.search_path
+    ## (so remove std template setup)
+    legacy_templates_path = os.path.join(root, 'templates_legacy')
+    if asbool(config.get('ckan.legacy_templates', 'no')):
+        template_paths = [legacy_templates_path]
+    else:
+        template_paths = [paths['templates'][0]]
+        template_paths.append(legacy_templates_path)
+
     extra_template_paths = config.get('extra_template_paths', '')
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
+    config['pylons.app_globals'].template_paths = template_paths
 
     # Translator (i18n)
     translator = Translator(pylons.translator)
@@ -272,6 +287,23 @@ def load_environment(global_conf, app_conf):
     #                       END OF GENSHI HACK                      #
     #                                                               #
     #################################################################
+
+
+    # Create Jinja2 environment
+    env = config['pylons.app_globals'].jinja_env = Environment(
+        loader=lib.jinja_tags.CkanFileSystemLoader(template_paths,
+                            ckan_base_path=paths['templates'][0]),
+        autoescape=True,
+        extensions=['jinja2.ext.i18n', 'jinja2.ext.do', 'jinja2.ext.with_',
+                    lib.jinja_tags.SnippetExtension,
+                    lib.jinja_tags.CkanExtend,
+                    lib.jinja_tags.LinkForExtension,
+                    lib.jinja_tags.ResourceExtension,
+                    lib.jinja_tags.UrlForStaticExtension,
+                    lib.jinja_tags.UrlForExtension]
+    )
+    env.install_gettext_callables(_, N_, newstyle=True)
+    config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
