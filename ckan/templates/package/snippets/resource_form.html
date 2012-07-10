@@ -6,7 +6,7 @@
 <form class="dataset-form dataset-resource-form form-horizontal" method="post">
   <div class="control-group dataset-form-resource-types">
     {% block basic_fields %}
-      <div class="controls">
+      <div class="controls" data-module="resource-upload-field">
         {#
         This block uses a slightly odd pattern. Unlike the rest of the radio
         buttons which are wrapped _inside_ the labels here we place the label
