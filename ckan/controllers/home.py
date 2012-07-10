@@ -124,18 +124,10 @@ class HomeController(BaseController):
 
             group_dict = ckan.logic.get_action('group_show')(context, data_dict)
 
-            data_dict = {
-                'q': ' groups: "%s"' % group_dict.get('name'),
-                'fq': 'capacity:"public"',
-                'facet.field': g.facets,
-                'rows': 2,
-                'start': 0,
-                'extras': {}
-            }
-
-            pkg_dict = ckan.logic.get_action('package_search')(context, data_dict)
-            return {'group_dict' :group_dict,
-                    'pkg_dict' :pkg_dict,}
+            # We get all the packages or at least too many so
+            # limit it to just 2
+            group_dict['packages'] = group_dict['packages'][:2]
+            return {'group_dict' :group_dict}
 
         global dirty_cached_group_stuff
         if not dirty_cached_group_stuff:
