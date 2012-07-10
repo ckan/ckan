@@ -192,7 +192,7 @@ class TestAction(WsgiAppCase):
     def test_41_create_resource(self):
 
         anna_id = model.Package.by_name(u'annakarenina').id
-        resource = {'package_id': anna_id, 'url': 'new_url'}
+        resource = {'package_id': anna_id, 'url': 'http://new_url'}
 
         postparams = '%s=1' % json.dumps(resource)
         res = self.app.post('/api/action/resource_create', params=postparams,
@@ -200,7 +200,7 @@ class TestAction(WsgiAppCase):
 
         resource = json.loads(res.body)['result']
 
-        assert resource['url'] == 'new_url'
+        assert resource['url'] == 'http://new_url'
 
     def test_42_create_resource_with_error(self):
 

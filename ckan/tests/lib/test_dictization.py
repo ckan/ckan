@@ -364,7 +364,7 @@ class TestBasicDictize:
         anna_dictized = package_dictize(anna1, context)
 
         anna_dictized["name"] = u'annakarenina_changed'
-        anna_dictized["resources"][0]["url"] = u'new_url'
+        anna_dictized["resources"][0]["url"] = u'http://new_url'
 
         model.repo.new_revision()
         package_dict_save(anna_dictized, context)
@@ -402,7 +402,7 @@ class TestBasicDictize:
         anna_dictized = package_dictize(anna1, context)
 
         anna_dictized['name'] = u'annakarenina_changed2'
-        anna_dictized['resources'][0]['url'] = u'new_url2'
+        anna_dictized['resources'][0]['url'] = u'http://new_url2'
         anna_dictized['tags'][0]['name'] = u'new_tag'
         anna_dictized['tags'][0].pop('id') #test if
         anna_dictized['extras'][0]['value'] = u'"new_value"'
@@ -496,7 +496,7 @@ class TestBasicDictize:
         anna_dictized['notes'] = 'wee'
         anna_dictized['resources'].append({
                             'format': u'plain text',
-                            'url': u'newurl'}
+                            'url': u'http://newurl'}
                             )
         anna_dictized['tags'].append({'name': u'newnew_tag'})
         anna_dictized['extras'].append({'key': 'david',
@@ -676,7 +676,7 @@ class TestBasicDictize:
         second_dictized = self.remove_changable_columns(package_dictize(anna1, context))
 
         first_dictized["name"] = u'annakarenina_changed'
-        first_dictized["resources"][0]["url"] = u'new_url'
+        first_dictized["resources"][0]["url"] = u'http://new_url'
 
         assert second_dictized == first_dictized
 
@@ -684,7 +684,7 @@ class TestBasicDictize:
         third_dictized = self.remove_changable_columns(package_dictize(anna1, context))
 
         second_dictized['name'] = u'annakarenina_changed2'
-        second_dictized['resources'][0]['url'] = u'new_url2'
+        second_dictized['resources'][0]['url'] = u'http://new_url2'
         second_dictized['tags'][0]['name'] = u'new_tag'
         second_dictized['tags'][0]['display_name'] = u'new_tag'
         second_dictized['extras'][0]['value'] = u'"new_value"'
@@ -711,7 +711,7 @@ class TestBasicDictize:
             u'size': None,
             u'state': u'active',
             u'tracking_summary': {'total': 0, 'recent': 0},
-            u'url': u'newurl',
+            u'url': u'http://newurl',
             u'webstore_last_updated': None,
             u'webstore_url': None})
 
@@ -741,7 +741,7 @@ class TestBasicDictize:
             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
             'format': u'plain text',
             'tracking_summary': {'recent': 0, 'total': 0},
-            'url': u'test_new',
+            'url': u'http://test_new',
             'cache_url': None,
             'webstore_url': None,
             'cache_last_updated': None,
@@ -760,7 +760,7 @@ class TestBasicDictize:
         model.Session.commit()
         model.Session.remove()
 
-        res = model.Session.query(model.Resource).filter_by(url=u'test_new').one()
+        res = model.Session.query(model.Resource).filter_by(url=u'http://test_new').one()
 
         res_dictized = self.remove_changable_columns(resource_dictize(res, context))
 
