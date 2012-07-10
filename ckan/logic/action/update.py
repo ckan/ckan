@@ -249,7 +249,11 @@ def package_update(context, data_dict):
         except TypeError:
             package_plugin.check_data_dict(data_dict)
 
-    data, errors = _validate(data_dict, schema, context)
+    data, errors = validate(data_dict, schema, context)
+    log.debug('package_update validate_errs=%r user=%s package=%s data_dict=%r',
+              errors, context.get('user'),
+              context.get('package').name if context.get('package') else '',
+              data_dict)
 
     if errors:
         model.Session.rollback()
@@ -268,7 +272,9 @@ def package_update(context, data_dict):
         item.edit(pkg)
     if not context.get('defer_commit'):
         model.repo.commit()
-    return _get_action('package_show')(context, data_dict)
+
+    log.debug('Updated object %s' % str(pkg.name))
+    return get_action('package_show')(context, data_dict)
 
 def package_update_validate(context, data_dict):
     model = context['model']
@@ -413,7 +419,12 @@ def group_update(context, data_dict):
 
     _check_access('group_update', context, data_dict)
 
-    data, errors = _validate(data_dict, schema, context)
+    data, errors = validate(data_dict, schema, context)
+    log.debug('group_update validate_errs=%r user=%s group=%s data_dict=%r',
+              errors, context.get('user'),
+              context.get('group').name if context.get('group') else '',
+              data_dict)
+
     if errors:
         session.rollback()
         raise ValidationError(errors, _error_summary(errors))
@@ -435,10 +446,15 @@ def group_update(context, data_dict):
             current = session.query(model.Member).\
                filter(model.Member.table_id == group.id).\
                filter(model.Member.table_name == "group").all()
+            if current:
+                log.debug('Parents of group %s deleted: %r', group.name,
+                          [membership.group.name for membership in current])
             for c in current:
                 session.delete(c)
             member = model.Member(group=parent_group, table_id=group.id, table_name='group')
             session.add(member)
+            log.debug('Group %s is made child of group %s',
+                      group.name, parent_group.name)
 
 
     for item in plugins.PluginImplementations(plugins.IGroupController):
