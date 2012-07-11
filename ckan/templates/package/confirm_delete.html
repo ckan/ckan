@@ -1,0 +1,13 @@
+{% extends "page.html" %}
+
+{% block title %}{{ _("Confirm Delete") }} - {{ super() }}{% endblock %}
+
+{% block maintag %}{% endblock %}
+
+{% block primary_content %}
+<div>
+  Delete dataset {{ c.pkg_dict.name }}
+	  <a class="btn" href="{% url_for controller='package', action='edit', id=c.pkg_dict.name %}">{{ _('Cancel') }}</a>
+	  <a class="btn" href="{% url_for controller='package', action='delete', id=c.pkg_dict.name, confirm='yes' %}">{{ _('Confirm Delete') }}</a>
+</div>
+{% endblock %}

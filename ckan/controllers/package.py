@@ -843,6 +843,18 @@ class PackageController(BaseController):
 
         return render('package/authz.html')
 
+    def delete(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.pkg_dict = get_action('package_show')(context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete package %s') % '')
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        return render('package/confirm_delete.html')
+
     def autocomplete(self):
         # DEPRECATED in favour of /api/2/util/dataset/autocomplete
         q = unicode(request.params.get('q', ''))

@@ -193,6 +193,7 @@ def make_map():
           'read_ajax',
           'history_ajax',
           'followers',
+          'delete',
           ]))
           )
         m.connect('/dataset/{id}.{format}', action='read')

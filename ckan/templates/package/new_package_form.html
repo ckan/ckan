@@ -22,3 +22,9 @@
     {{ super() }}
   {% endif %}
 {% endblock %}
+
+{% block delete_button %}
+  {% if form_style == 'edit' %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
