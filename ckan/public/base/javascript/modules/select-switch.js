@@ -15,15 +15,22 @@
  *
  * Returns .
  */
-this.ckan.module('select-switch', function (sandbox, options) {
-  sandbox.el.on('change', options.target, function () {
-    sandbox.el.submit();
-  });
+this.ckan.module('select-switch', {
 
-  if (options.button) {
-    sandbox.$(options.button).hide();
+  options: {
+    target: 'select',
+    button: '[type=submit]'
+  },
+
+  initialize: function () {
+    var _this = this;
+
+    this.el.on('change', this.options.target, function () {
+      _this.el.submit();
+    });
+
+    if (this.options.button) {
+      _this.sandbox.$(_this.options.button).hide();
+    }
   }
-}, {
-  target: 'select',
-  button: '[type=submit]'
 });
