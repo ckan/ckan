@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block delete_button %}
-  {% if form_style == 'edit' %}
+  {% if form_style == 'edit' and h.check_access('package_delete', {'id': c.pkg_dict.id}) %}
     {{ super() }}
   {% endif %}
 {% endblock %}
