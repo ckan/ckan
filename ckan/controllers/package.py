@@ -848,6 +848,14 @@ class PackageController(BaseController):
                    'user': c.user or c.author}
 
         try:
+            check_access('package_delete', context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete package %s') % '')
+
+        try:
+            if request.params.get('confirm') == 'yes':
+                get_action('package_delete')(context, {'id': id})
+                h.redirect_to(controller='package', action='search')
             c.pkg_dict = get_action('package_show')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete package %s') % '')
