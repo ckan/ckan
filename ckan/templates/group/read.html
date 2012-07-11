@@ -12,7 +12,7 @@
     <li>{% link_for _('Add Dataset'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='plus' %}</li>
     <li>{% link_for _('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='cog' %}</li>
   {% endif %}
-  <li>{% link_for _('History'), controller='group', action='history', id=c.group_dict.name, class_='btn', icon='undo' %}</li>
+  {# <li>{% link_for _('History'), controller='group', action='history', id=c.group_dict.name, class_='btn', icon='undo' %}</li> #}
 {% endblock %}
 
 {% block primary_content %}
