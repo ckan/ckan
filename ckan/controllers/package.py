@@ -575,7 +575,7 @@ class PackageController(BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
         # are we doing a multiphase add?
-        if data['state'] == 'draft':
+        if data.get('state') == 'draft':
             c.form_action = h.url_for(controller='package', action='new')
             c.form_style = 'new'
             return self.new(data=data)
