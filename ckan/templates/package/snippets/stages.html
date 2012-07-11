@@ -24,21 +24,31 @@ Example:
     {% if s1 != 'complete' %}
       <span class="highlight">{{ _('Create Dataset') }}</span>
     {% else %}
-      {% link_for _('Create Dataset'), controller='package', action='new', class_="highlight" %}
+      {% link_for _('Create Dataset'), controller='package', action='edit', id=pkg_name, class_="highlight" %}
     {% endif %}
   </li>
   <li class="middle {{ s2 }}">
     {% if s2 != 'complete' %}
       <span class="highlight">{{ _('Add data') }}</span>
     {% else %}
-      {% link_for _('Add data'), controller='package', action='new', class_="highlight" %}
+      {% if s1 == 'active' %}
+        {# stage 1 #}
+        <button class="btn btn-primary" name="save" value="go-resources" type="submit">{{ _('Add data') }}</button>
+      {% else %}
+        {% link_for _('Add data'), controller='package', action='new', class_="highlight" %}
+      {% endif %}
     {% endif %}
   </li>
   <li class="last {{ s3 }}">
     {% if s3 != 'complete' %}
       <span class="highlight">{{ _('Additional data') }}</span>
     {% else %}
-      {% link_for _('Additional data'), controller='package', action='new', class_="highlight" %}
+      {% if s1 == 'active' %}
+        {# stage 1 #}
+        <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{{ _('Additional data') }}</button>
+      {% else %}
+        {% link_for _('Additional data'), controller='package', action='new', class_="highlight" %}
+      {% endif %}
     {% endif %}
   </li>
 </ol>
