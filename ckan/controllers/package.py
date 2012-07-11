@@ -93,6 +93,13 @@ class PackageController(BaseController):
             Guess the type of package from the URL handling the case
             where there is a prefix on the URL (such as /data/package)
         """
+
+        # Special case: if the rot URL '/' has been redirected to the package
+        # controller (e.g. by an IRoutes extension) then there's nothing to do
+        # here.
+        if request.path == '/':
+            return 'dataset'
+
         parts = [x for x in request.path.split('/') if x]
 
         idx = -1
