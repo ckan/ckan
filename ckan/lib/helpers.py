@@ -893,6 +893,7 @@ def dataset_link(package_or_package_dict):
 def resource_display_name(resource_dict):
     name = resource_dict.get('name', None)
     description = resource_dict.get('description', None)
+    url = resource_dict.get('url')
     if name:
         return name
     elif description:
@@ -900,6 +901,8 @@ def resource_display_name(resource_dict):
         max_len = 60;
         if len(description)>max_len: description = description[:max_len]+'...'
         return description
+    elif url:
+        return url
     else:
         noname_string = _('no name')
         return '[%s] %s' % (noname_string, resource_dict['id'])
