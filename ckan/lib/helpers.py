@@ -1189,6 +1189,25 @@ def escape_js(str_to_escape):
                         .replace('\'', '\\\'') \
                         .replace('"', '\\\"')
 
+def get_extra(pkg_dict, key, default=None):
+    '''Returns the value for the dataset extra with the provided key.
+
+    If the key is not found, it returns a default value, which is None by
+    default.
+
+    :param pkg_dict: dictized dataset
+    :key: extra key to lookup
+    :default: default value returned if not found
+    '''
+
+    extras = pkg_dict['extras'] if 'extras' in pkg_dict else []
+
+    for extra in extras:
+        if extra['key'] == key:
+            return extra['value']
+
+    return default
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -1261,6 +1280,7 @@ __allowed_functions__ = [
            'groups_available',
            'dashboard_activity_stream',
            'escape_js',
+           'get_extra',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
