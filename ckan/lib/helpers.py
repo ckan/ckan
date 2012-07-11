@@ -1177,6 +1177,18 @@ def dashboard_activity_stream(user_id):
     context = {'model' : model, 'session':model.Session, 'user':c.user}
     return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
 
+def escape_js(str_to_escape):
+    '''Escapes special characters from a JS string.
+
+       Useful e.g. when you need to pass JSON to the templates
+
+       :param str_to_escape: string to be escaped
+       :rtype: string
+    '''
+    return str_to_escape.replace('\\', '\\\\') \
+                        .replace('\'', '\\\'') \
+                        .replace('"', '\\\"')
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -1248,6 +1260,7 @@ __allowed_functions__ = [
            'add_url_param',
            'groups_available',
            'dashboard_activity_stream',
+           'escape_js',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
