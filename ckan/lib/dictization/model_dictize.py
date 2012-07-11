@@ -102,6 +102,10 @@ def resource_dictize(res, context):
         model = context['model']
         tracking = model.TrackingSummary.get_for_resource(res.url)
         resource['tracking_summary'] = tracking
+    # some urls do not have the protocol this adds http:// to these
+    url = resource['url']
+    if not (url.startswith('http://') or url.startswith('https://')):
+        resource['url'] = u'http://' + url
     return resource
 
 def related_dictize(rel, context):
