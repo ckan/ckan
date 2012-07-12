@@ -885,6 +885,11 @@ def dashboard_activity_stream(user_id):
     context = {'model' : model, 'session':model.Session, 'user':c.user}
     return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
 
+def get_request_param(parameter_name, default=None):
+    ''' This function allows templates to access query string parameters
+    from the request. This is useful for things like sort order in
+    searches. '''
+    return request.params.get(parameter_names, default)
 
 def render_markdown(data):
     ''' returns the data as rendered markdown '''
@@ -950,8 +955,8 @@ __allowed_functions__ = [
            'follow_button',
            'follow_count',
            'dashboard_activity_stream',
+           'get_request_param',
            'render_markdown',
-    # imported into ckan.lib.helpers
            'literal',
            'link_to',
            'get_available_locales',
