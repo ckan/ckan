@@ -90,10 +90,9 @@
   {%- block footer %}
     {% include "footer.html" %}
   {% endblock -%}
-
 {%- endblock -%}
 
 {%- block scripts %}
-{{ super() }}
-{% snippet "snippets/scripts.html" %}
+  {{ super() }}
+  {% snippet "snippets/scripts.html" %}
 {% endblock -%}
