@@ -3,8 +3,9 @@
 {% set data = data or {} %}
 {% set errors = errors or {} %}
 
-<form class="dataset-form dataset-resource-form form-horizontal" method="post">
+<form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{% url_for controller='package', action='new_resource', id=pkg_name %}" >
   {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name) }}
+  <input name="id" value="{{ data.id }}" type="hidden"/>
   <div class="control-group dataset-form-resource-types">
     {% block basic_fields %}
       <div class="controls">

@@ -479,6 +479,17 @@ class PackageController(BaseController):
         return render(self._new_template(package_type),
                       extra_vars={'stage': stage})
 
+    def resource_edit(self, id, resource_id):
+        context = {'model': model, 'session': model.Session,
+                   'api_version': 3,
+                   'user': c.user or c.author,}
+        resource_dict = get_action('resource_show')(context, {'id': resource_id})
+        fields = ['url', 'resource_type', 'format', 'name', 'description', 'id']
+        data = {}
+        for field in fields:
+            data[field] = resource_dict[field]
+        return self.new_resource(id, data=data)
+
     def new_resource(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
         forms. '''
@@ -488,6 +499,8 @@ class PackageController(BaseController):
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
+            resource_id = data['id']
+            del data['id']
 
             context = {'model': model, 'session': model.Session,
                        'api_version': 3,
@@ -522,7 +535,11 @@ class PackageController(BaseController):
 
             data['package_id'] = id
             try:
-                get_action('resource_create')(context, data)
+                if resource_id:
+                    data['id'] = resource_id
+                    get_action('resource_update')(context, data)
+                else:
+                    get_action('resource_create')(context, data)
             except ValidationError, e:
                 errors = e.error_dict
                 error_summary = e.error_summary
