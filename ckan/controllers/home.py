@@ -4,6 +4,7 @@ from pylons.i18n import set_lang
 import sqlalchemy.exc
 
 import ckan.logic
+import ckan.lib.maintain as maintain
 from ckan.lib.search import SearchError
 from ckan.lib.base import *
 from ckan.lib.helpers import url_for
@@ -49,7 +50,12 @@ class HomeController(BaseController):
             query = ckan.logic.get_action('package_search')(
                 context, data_dict)
             c.package_count = query['count']
+
             c.facets = query['facets']
+            maintain.deprecate_context_item(
+              'facets',
+              'Use `c.search_facets` instead.')
+
             c.search_facets = query['search_facets']
 
             data_dict = {'order_by': 'packages', 'all_fields': 1}
