@@ -128,9 +128,9 @@ def package_create(context, data_dict):
 
     data, errors = _validate(data_dict, schema, context)
     data, errors = validate(data_dict, schema, context)
-    log.debug('package_create validate_errs=%r user=%s package=%s data_dict=%r',
+    log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
-              data_dict.get('name'), data_dict)
+              data.get('name'), data_dict)
 
     if errors:
         model.Session.rollback()
