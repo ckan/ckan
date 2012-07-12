@@ -1189,7 +1189,7 @@ def escape_js(str_to_escape):
                         .replace('\'', '\\\'') \
                         .replace('"', '\\\"')
 
-def get_extra(pkg_dict, key, default=None):
+def get_pkg_dict_extra(pkg_dict, key, default=None):
     '''Returns the value for the dataset extra with the provided key.
 
     If the key is not found, it returns a default value, which is None by
@@ -1280,7 +1280,7 @@ __allowed_functions__ = [
            'groups_available',
            'dashboard_activity_stream',
            'escape_js',
-           'get_extra',
+           'get_pkg_dict_extra',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',
