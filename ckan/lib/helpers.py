@@ -891,6 +891,14 @@ def get_request_param(parameter_name, default=None):
     searches. '''
     return request.params.get(parameter_names, default)
 
+def render_markdown(data):
+    ''' returns the data as rendered markdown '''
+    # cope with data == None
+    if not data:
+        return ''
+    return literal(ckan.misc.MarkdownFormat().to_html(data))
+
+
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
 __allowed_functions__ = [
@@ -948,7 +956,7 @@ __allowed_functions__ = [
            'follow_count',
            'dashboard_activity_stream',
            'get_request_param',
-    # imported into ckan.lib.helpers
+           'render_markdown',
            'literal',
            'link_to',
            'get_available_locales',

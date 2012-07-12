@@ -47,11 +47,11 @@ class TestSync:
 
     def test_0_no_change(self):
         pkg_name, user = self._new_pkg(0)
-        before_roles = { 'visitor': 'editor',
-                         'logged_in': 'editor',
+        before_roles = { 'visitor': 'reader',
+                         'logged_in': 'reader',
                          user.name: 'admin' }
-        after_roles  = { 'visitor': 'editor',
-                         'logged_in': 'editor',
+        after_roles  = { 'visitor': 'reader',
+                         'logged_in': 'reader',
                          user.name: 'admin' }
         num_prs_before = model.Session.query(model.PackageRole).filter_by(user_id=user.id).count()
         self._test_change(before_roles, after_roles, pkg_name)

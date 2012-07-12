@@ -43,13 +43,13 @@ class InitialStateTestCase(object):
         authorizer = Authorizer()
         auth_for_create = authorizer.is_authorized(\
             u'johndoe', model.Action.PACKAGE_CREATE, model.System())
-        assert auth_for_create
+        assert not auth_for_create
 
     def test_default_system_user_roles(self):
         uors = model.Session.query(model.UserObjectRole).all()
         uors_str = [repr(uor) for uor in uors]
         expected_uors_str = [
-            '<SystemRole user="visitor" role="anon_editor" context="System">',
+            '<SystemRole user="visitor" role="reader" context="System">',
             '<SystemRole user="logged_in" role="editor" context="System">',
             ]
         uor_differences = set(uors_str) ^ set(expected_uors_str)

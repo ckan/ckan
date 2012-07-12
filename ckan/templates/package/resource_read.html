@@ -126,19 +126,21 @@
       </dl>
     </div>
 
-    <div class="notes" property="rdfs:label">
+    <div class="notes" property="rdfs:label" py:if="c.resource.get('description')">
       <div id="notes-extract">
-        ${c.resource.get('description') or '(No description)'}
+        ${ h.render_markdown(c.resource.get('description')) }
       </div>
     </div>
 
-    <div py:if="not c.resource.get('description') and c.package.get('notes')" id="dataset-description">
+    <div py:if="not c.resource.get('description') and c.package.get('notes')">
       <div>
         <strong i18n:msg="">
           From the <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">Dataset</a>:
         </strong>
       </div>
-      <div>${h.markdown_extract(c.package.get('notes'), 300)}</div>
+      <div class="notes">
+        <div id="notes-extract">${h.render_markdown(c.package.get('notes')) }</div>
+      </div>
     </div>
 
     <div class="resource-preview">
