@@ -889,7 +889,7 @@ def get_request_param(parameter_name, default=None):
     ''' This function allows templates to access query string parameters
     from the request. This is useful for things like sort order in
     searches. '''
-    return request.params.get(parameter_names, default)
+    return request.params.get(parameter_name, default)
 
 def render_markdown(data):
     ''' returns the data as rendered markdown '''
