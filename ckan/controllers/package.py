@@ -484,56 +484,63 @@ class PackageController(BaseController):
         forms. '''
         if request.method == 'POST' and not data:
             save_action = request.params.get('save')
-            if save_action in ['again', 'next'] and not data:
-                data = data or clean_dict(unflatten(tuplize_dict(parse_params(
-                    request.POST))))
-                # we don't want to include save as it is part of the form
-                del data['save']
+            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                request.POST))))
+            # we don't want to include save as it is part of the form
+            del data['save']
 
-                context = {'model': model, 'session': model.Session,
-                           'api_version': 3,
-                           'user': c.user or c.author,
-                           'extras_as_string': True}
+            context = {'model': model, 'session': model.Session,
+                       'api_version': 3,
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
 
-                # see if we have any data that we are trying to save
-                data_provided = False
-                for key, value in data.iteritems():
-                    if value and key != 'resource_type':
-                        data_provided = True
-                        break
+            # see if we have any data that we are trying to save
+            data_provided = False
+            for key, value in data.iteritems():
+                if value and key != 'resource_type':
+                    data_provided = True
+                    break
 
-                if not data_provided:
-                    # see if we have added any resources
-                    try:
-                        data_dict = get_action('package_show')(context, {'id': id})
-                    except NotAuthorized:
-                        abort(401, _('Unauthorized to update dataset'))
-                    if not len(data_dict['resources']):
-                        # no data so keep on page
-                        h.flash_error(_('You must add at least one data resource'))
-                        redirect(h.url_for(controller='package',
-                                           action='new_resource', id=id))
-                    # we have a resource so let them add metadata
-                    redirect(h.url_for(controller='package',
-                                       action='new_metadata', id=id))
-
-                data['package_id'] = id
-                try:
-                    get_action('resource_create')(context, data)
-                except ValidationError, e:
-                    errors = e.error_dict
-                    error_summary = e.error_summary
-                    return self.new_resource(id, data, errors, error_summary)
-                except NotAuthorized:
-                    abort(401, _('Unauthorized to create a resource'))
-                if save_action == 'next':
+            if not data_provided:
+                if save_action == 'go-dataset':
                     # go to final stage of adddataset
                     redirect(h.url_for(controller='package',
-                                       action='new_metadata', id=id))
-                else:
-                    # add more resources
+                                       action='edit', id=id))
+                # see if we have added any resources
+                try:
+                    data_dict = get_action('package_show')(context, {'id': id})
+                except NotAuthorized:
+                    abort(401, _('Unauthorized to update dataset'))
+                if not len(data_dict['resources']):
+                    # no data so keep on page
+                    h.flash_error(_('You must add at least one data resource'))
                     redirect(h.url_for(controller='package',
                                        action='new_resource', id=id))
+                # we have a resource so let them add metadata
+                redirect(h.url_for(controller='package',
+                                   action='new_metadata', id=id))
+
+            data['package_id'] = id
+            try:
+                get_action('resource_create')(context, data)
+            except ValidationError, e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+                return self.new_resource(id, data, errors, error_summary)
+            except NotAuthorized:
+                abort(401, _('Unauthorized to create a resource'))
+            if save_action == 'go-metadata':
+                # go to final stage of add dataset
+                redirect(h.url_for(controller='package',
+                                   action='new_metadata', id=id))
+            elif save_action == 'go-dataset':
+                # go to first stage of add dataset
+                redirect(h.url_for(controller='package',
+                                   action='edit', id=id))
+            else:
+                # add more resources
+                redirect(h.url_for(controller='package',
+                                   action='new_resource', id=id))
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
@@ -545,48 +552,52 @@ class PackageController(BaseController):
         pkg_dict = get_action('package_show')(context, {'id': id})
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
+        vars['stage'] = ['complete', 'active', 'complete']
         return render('package/new_resource.html', extra_vars=vars)
 
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
         forms. '''
-        if request.method == 'POST':
+        if request.method == 'POST' and not data:
             save_action = request.params.get('save')
-            if save_action and not data:
-                data = data or clean_dict(unflatten(tuplize_dict(parse_params(
-                    request.POST))))
-                # we don't want to include save as it is part of the form
-                del data['save']
-                context = {'model': model, 'session': model.Session,
-                           'api_version': 3,
-                           'user': c.user or c.author,
-                           'extras_as_string': True}
-                data_dict = get_action('package_show')(context, {'id': id})
+            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                request.POST))))
+            # we don't want to include save as it is part of the form
+            del data['save']
+            context = {'model': model, 'session': model.Session,
+                       'api_version': 3,
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
+            data_dict = get_action('package_show')(context, {'id': id})
 
-                data_dict['id'] = id
-                # update the state
-                if save_action == 'finish':
-                    # we want this to go live when saved
-                    data_dict['state'] = 'active'
-                elif save_action == 'resources':
-                    data_dict['state'] = 'draft-complete'
-                # allow the state to be changed
-                context['allow_state_change'] = True
-                data_dict.update(data)
-                try:
-                    get_action('package_update')(context, data_dict)
-                except ValidationError, e:
-                    errors = e.error_dict
-                    error_summary = e.error_summary
-                    return self.new_metadata(id, data, errors, error_summary)
-                except NotAuthorized:
-                    abort(401, _('Unauthorized to update dataset'))
-                if save_action == 'resources':
-                    # we want to go back to the add resources form stage
-                    redirect(h.url_for(controller='package',
-                                       action='new_resource', id=id))
+            data_dict['id'] = id
+            # update the state
+            if save_action == 'finish':
+                # we want this to go live when saved
+                data_dict['state'] = 'active'
+            elif save_action == 'resources':
+                data_dict['state'] = 'draft-complete'
+            # allow the state to be changed
+            context['allow_state_change'] = True
+            data_dict.update(data)
+            try:
+                get_action('package_update')(context, data_dict)
+            except ValidationError, e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+                return self.new_metadata(id, data, errors, error_summary)
+            except NotAuthorized:
+                abort(401, _('Unauthorized to update dataset'))
+            if save_action == 'go-resources':
+                # we want to go back to the add resources form stage
+                redirect(h.url_for(controller='package',
+                                   action='new_resource', id=id))
+            elif save_action == 'go-dataset':
+                # we want to go back to the add dataset stage
+                redirect(h.url_for(controller='package',
+                                   action='edit', id=id))
 
-                redirect(h.url_for(controller='package', action='read', id=id))
+            redirect(h.url_for(controller='package', action='read', id=id))
 
         errors = errors or {}
         error_summary = error_summary or {}

@@ -39,9 +39,8 @@
   {% endblock %}
 
   <div class="form-actions">
-    {# TODO: Go back to previous resource form #}
-    {% link_for _('Previous'), controller='package', action='edit', id=pkg_name, class_="btn" %}
+    <button class="btn" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
     <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
-    <button class="btn btn-primary" name="save" value="next" type="submit">{{ _('Next: Additional Info') }}</button>
+    <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{{ _('Next: Additional Info') }}</button>
   </div>
 </form>
