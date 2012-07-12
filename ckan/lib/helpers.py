@@ -876,7 +876,6 @@ __allowed_functions__ = [
            'subnav_link',
            'subnav_named_route',
            'default_group_type',
-           'facet_items',
            'facet_title',
          #  am_authorized, # deprecated
            'check_access',
