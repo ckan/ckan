@@ -1,5 +1,5 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ckan.module()', function () {
+describe('ckan.module(id, properties|callback)', function () {
   beforeEach(function () {
     ckan.module.registry = {};
     ckan.module.instances = {};
@@ -10,6 +10,20 @@ describe('ckan.module()', function () {
     ckan.module('test', this.factory);
 
     assert.instanceOf(new ckan.module.registry.test(), ckan.module.BaseModule);
+  });
+
+  it('should allow a function to be provided', function () {
+    var target = sinon.stub().returns({});
+    ckan.module('test', target);
+
+    assert.called(target);
+  });
+
+  it('should pass jQuery, i18n.translate() and i18n into the function', function () {
+    var target = sinon.stub().returns({});
+    ckan.module('test', target);
+
+    assert.calledWith(target, jQuery, ckan.i18n.translate, ckan.i18n);
   });
 
   it('should throw an exception if the module is already defined', function () {
@@ -64,7 +78,7 @@ describe('ckan.module()', function () {
     });
   });
 
-  describe('.createInstance()', function () {
+  describe('.createInstance(Module, element)', function () {
     beforeEach(function () {
       this.element = document.createElement('div');
       this.factory = ckan.module.BaseModule;
@@ -144,7 +158,7 @@ describe('ckan.module()', function () {
     });
   });
 
-  describe('.extractOptions()', function () {
+  describe('.extractOptions(element)', function () {
     it('should extract the data keys from the element', function () {
       var element = jQuery('<div>', {
         'data-not-module': 'skip',

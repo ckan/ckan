@@ -11,30 +11,45 @@ this.ckan = this.ckan || {};
  * Modules are initialized through the DOM keeping boilerplate setup code to a
  * minimum. If an element in the page has a "data-module" attribute then an
  * instance of that module (if registered) will be created when the page loads
- * and will recieve the element and the sandbox mentioned above.
+ * and will receive the element and the sandbox mentioned above.
  *
  * Examples
  *
  *   // For element: <select data-module="language-picker"></select>
  *
- *   // Function recieves the sandbox, options and translate() arguments.
- *   ckan.module('language-picker', function (sb, options, _) {
- *     // .el is the dom node the element was created with.
- *     sb.el.on('change', function () {
+ *   // Register a new module object, .initialize() is called on load.
+ *   ckan.module('language-picker', {
+ *     initialize: function () {
+ *       var el = this.el;
+ *       var sandbox = this.sandbox;
+ *       var _ = this.sandbox.translate;
  *
- *       // Publish the new language so other modules can update.
- *       sb.publish('lang', this.selected);
+ *       // .el is the dom node the element was created with.
+ *       this.el.on('change', function () {
  *
- *       // Display a localized notification to the user.
- *       // NOTE: _ is an alias for sb.translate()
- *       sb.alert(_('Language changed to: ' + this.selected).fetch());
- *     });
+ *         // Publish the new language so other modules can update.
+ *         sandbox.publish('lang', this.selected);
  *
- *     // listen for other updates to lang.
- *     sb.subscribe('lang', function (lang) {
- *       // Update the element select box.
- *       sb.el.select(lang);
- *     });
+ *         // Display a localized notification to the user.
+ *         // NOTE: _ is an alias for sb.translate()
+ *         sandbox.notify(_('Language changed to: ' + this.selected).fetch());
+ *       });
+ *
+ *       // listen for other updates to lang.
+ *       sandbox.subscribe('lang', function (lang) {
+ *         // Update the element select box.
+ *         el.select(lang);
+ *       });
+ *     }
+ *   });
+ *
+ *   // Can also provide a function that returns this object. The function will
+ *   // be passed jQuery, i18n.translate() and i18n objects. This can save
+ *   // typing when using these objects a lot.
+ *   ckan.module('language-picker', function (jQuery, translate, i18n) {
+ *     return {
+ *       // Module code.
+ *     }
  *   });
  */
 (function (ckan, $, window) {
@@ -150,7 +165,7 @@ this.ckan = this.ckan || {};
     // If a function is provided then call it to get a returns object of
     // properties.
     if (typeof properties === 'function') {
-      properties = properties();
+      properties = properties($, ckan.i18n.translate, ckan.i18n);
     }
 
     // Provide a named constructor, this helps with debugging in the Webkit
