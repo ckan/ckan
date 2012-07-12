@@ -6091,9 +6091,12 @@ textarea {
   left: 0;
   right: 0;
   bottom: 0;
-  line-height: 27px;
+  width: 100%;
   padding: 10px 52px;
+  border: none;
+  text-align: left;
   text-decoration: none;
+  line-height: 27px;
   z-index: -1;
 }
 .stages li.active .highlight {
@@ -6363,6 +6366,9 @@ textarea {
 .group-list .module-heading {
   padding-top: 15px;
   padding-bottom: 15px;
+}
+.group-list .dataset-content {
+  min-height: 54px;
 }
 .group-list .module-heading h3 {
   margin-bottom: 2px;
@@ -7306,6 +7312,9 @@ mark {
 }
 blockquote p {
   font-size: 1em;
+}
+iframe {
+  border: none;
 }
 .embedded-content h1 {
   font-size: 1.4em;
