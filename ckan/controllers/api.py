@@ -148,7 +148,8 @@ class ApiController(base.BaseController):
 
     def snippet(self, snippet_path, ver=None):
         ''' Renders and returns a snippet used by ajax calls '''
-        # FIXME add some sort of security to this
+        # we only allow snippets in templates/ajax_snippets and it's subdirs
+        snippet_path = u'ajax_snippets/' + snippet_path
         return base.render(snippet_path)
 
     def action(self, logic_function, ver=None):
