@@ -1038,6 +1038,8 @@ def package_search(context, data_dict):
     :param results: ordered list of datasets matching the query, where the
         ordering defined by the sort parameter used in the query.
     :type results: list of dictized datasets.
+    :param facets: DEPRECATED.  Aggregated information about facet counts.
+    :type facets: DEPRECATED dict
     :param search_facets: aggregated information about facet counts.  The outer
         dict is keyed by the facet field name (as used in the search query).
         Each entry of the outer dict is itself a dict, with a "title" key, and
@@ -1137,6 +1139,7 @@ def package_search(context, data_dict):
 
     search_results = {
         'count': count,
+        'facets': facets,
         'results': results
     }
 

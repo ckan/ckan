@@ -49,6 +49,7 @@ class HomeController(BaseController):
             query = ckan.logic.get_action('package_search')(
                 context, data_dict)
             c.package_count = query['count']
+            c.facets = query['facets']
             c.search_facets = query['search_facets']
 
             data_dict = {'order_by': 'packages', 'all_fields': 1}
