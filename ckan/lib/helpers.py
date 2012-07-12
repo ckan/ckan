@@ -1129,7 +1129,7 @@ def debug_full_info_as_list(debug_info):
                             '__reduce_ex__', '__repr__', '__setattr__',
                             '__sizeof__', '__str__', '__subclasshook__',
                             '__weakref__', 'action', 'environ', 'pylons',
-                            'start_response', '__debug_info']
+                            'start_response']
     for key in debug_info.keys():
         if not key in ignored_keys:
             out.append((key, debug_info.get(key)))
