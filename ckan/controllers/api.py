@@ -146,6 +146,11 @@ class ApiController(base.BaseController):
         response_data['version'] = ver
         return self._finish_ok(response_data)
 
+    def snippet(self, snippet_path, ver=None):
+        ''' Renders and returns a snippet used by ajax calls '''
+        # FIXME add some sort of security to this
+        return base.render(snippet_path)
+
     def action(self, logic_function, ver=None):
         try:
             function = get_action(logic_function)

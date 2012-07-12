@@ -128,6 +128,7 @@ def make_map():
                   action='munge_title_to_package_name')
         m.connect('/util/tag/munge', action='munge_tag')
         m.connect('/util/status', action='status')
+        m.connect('/util/snippet/{snippet_path:.*}', action='snippet')
 
     ###########
     ## /END API
