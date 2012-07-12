@@ -83,13 +83,6 @@ class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
         search.clear()
 
     @search_related
-    def test_minornavigation_2(self):
-        offset = url_for(controller='package', action='search')
-        res = self.app.get(offset)
-        res = res.click('Register it now')
-        assert 'Add - Datasets' in res
-
-    @search_related
     def test_search(self):
         offset = url_for(controller='package', action='search')
         print offset

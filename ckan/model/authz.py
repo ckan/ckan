@@ -406,9 +406,9 @@ def give_all_packages_default_user_roles():
 
 # default user roles - used when the config doesn\'t specify them
 default_default_user_roles = {
-    'Package': {"visitor": ["editor"], "logged_in": ["editor"]},
+    'Package': {"visitor": ["reader"], "logged_in": ["reader"]},
     'Group': {"visitor": ["reader"], "logged_in": ["reader"]},
-    'System': {"visitor": ["anon_editor"], "logged_in": ["editor"]},
+    'System': {"visitor": ["reader"], "logged_in": ["editor"]},
     'AuthorizationGroup': {"visitor": ["reader"], "logged_in": ["reader"]},
     }
 
