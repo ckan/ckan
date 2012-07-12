@@ -24,7 +24,7 @@ Example:
     {% if s1 != 'complete' %}
       <span class="highlight">{{ _('Create dataset') }}</span>
     {% else %}
-        <button class="" name="save" value="go-dataset" type="submit">{{ _('Create dataset') }}</button>
+      <button class="highlight" name="save" value="go-dataset" type="submit">{{ _('Create dataset') }}</button>
     {% endif %}
   </li>
   <li class="middle {{ s2 }}">
@@ -33,7 +33,7 @@ Example:
     {% else %}
       {% if s1 == 'active' or s3 == 'active'%}
         {# stage 1 #}
-        <button class="" name="save" value="go-resources" type="submit">{{ _('Add data') }}</button>
+        <button class="highlight" name="save" value="go-resources" type="submit">{{ _('Add data') }}</button>
       {% else %}
         {% link_for _('Add data'), controller='package', action='new', class_="highlight" %}
       {% endif %}
@@ -41,11 +41,11 @@ Example:
   </li>
   <li class="last {{ s3 }}">
     {% if s3 != 'complete' %}
-    <span class="highlight">{{ s3 }}{{ _('Additional data') }}</span>
+      <span class="highlight">{{ _('Additional data') }}</span>
     {% else %}
       {% if s1 == 'active' or s2 == 'active' %}
         {# stage 1 #}
-        <button class="" name="save" value="go-metadata" type="submit">{{ _('Additional data') }}</button>
+        <button class="highlight" name="save" value="go-metadata" type="submit">{{ _('Additional data') }}</button>
       {% else %}
         {% link_for _('Additional data'), controller='package', action='new', class_="highlight" %}{{ s2 }}
       {% endif %}
