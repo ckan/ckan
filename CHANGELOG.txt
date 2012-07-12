@@ -9,17 +9,27 @@ v1.8
   Some of CKAN's dependencies have been updated and some removed.
 * Requirements have been updated see doc/install-from-source.rst
   users will need to do a new pip install (#2592)
-* [#2304,#2305] New 'follow' feature. You'll now see a 'Followers' tab on user
-  and dataset pages, where you can see how many users are following that user
-  or dataset.  If you're logged in, you'll see a 'Follow' button on the pages
-  of datasets and other users that you can click to follow them. Also when
-  logged in, if you go to your own user page you'll see a new 'Dashboard' tab
-  where you can see an activity stream from of all the users and datasets that
-  you're following. There are also API calls for the follow features, see the
-  Action API reference documentation.
+* [#2304] New 'follow' feature. You'll now see a 'Followers' tab on user and
+  dataset pages, where you can see how many users are following that user or
+  dataset.  If you're logged in, you'll see a 'Follow' button on the pages of
+  datasets and other users that you can click to follow them. There are also
+  API calls for the follow features, see the Action API reference
+  documentation.
+* [#2305] New user dashboards, implemented by Sven R. Kunze
+  (https://github.com/kunsv) as part of his Masters thesis. When logged in, if
+  you go to your own user page you'll see a new 'Dashboard' tab where you can
+  see an activity stream from of all the users and datasets that you're
+  following.
 * [#2345] New action API reference docs. The documentation for CKAN's Action
   API has been rewritten, with each function and its arguments and return
   values now individually documented.
+* Template helper functions are now restricted by default. This is
+  part of a process of refactoring the CKAN code. By default only
+  those helper functions listed in lib.helpers.__allowed_functions__
+  are available to templates. The full functions can still be made
+  available by `setting ckan.restrict_template_vars = false` in your
+  .ini config file. Only restricted functions will be allowed in
+  future versions of CKAN.
 
 v1.7.1 2012-06-20
 =================

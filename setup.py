@@ -45,8 +45,13 @@ setup(
             }),
             ('public/**', 'ignore', None),
         ],
-        'ckanext/stats/templates': [
+        'ckanext': [
+            ('**.py', 'python', None),
             ('**.html', 'genshi', None),
+            ('multilingual/solr/*.txt', 'ignore', None),
+            ('**.txt', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
         ]},
     entry_points="""
     [nose.plugins.0.10]

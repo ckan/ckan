@@ -1178,24 +1178,114 @@ def package_search(context, data_dict):
 
 def resource_search(context, data_dict):
     '''
+    Searches for resources satisfying a given search criteria.
 
-    :param fields:
-    :type fields:
-    :param order_by:
-    :type order_by:
-    :param offset:
-    :type offset:
-    :param limit:
-    :type limit:
+    It returns a dictionary with 2 fields: ``count`` and ``results``.  The
+    ``count`` field contains the total number of Resources found without the
+    limit or query parameters having an effect.  The ``results`` field is a
+    list of dictized Resource objects.
 
-    :returns:
-    :rtype:
+    The 'q' parameter is a required field.  It is a string of the form
+    ``{field}:{term}`` or a list of strings, each of the same form.  Within
+    each string, ``{field}`` is a field or extra field on the Resource domain
+    object.
+
+    If ``{field}`` is ``"hash"``, then an attempt is made to match the
+    `{term}` as a *prefix* of the ``Resource.hash`` field.
+
+    If ``{field}`` is an extra field, then an attempt is made to match against
+    the extra fields stored against the Resource.
+
+    Note: The search is limited to search against extra fields declared in
+    the config setting ``ckan.extra_resource_fields``.
+
+    Note: Due to a Resource's extra fields being stored as a json blob, the
+    match is made against the json string representation.  As such, false
+    positives may occur:
+
+    If the search criteria is: ::
+
+        query = "field1:term1"
+
+    Then a json blob with the string representation of: ::
+
+        {"field1": "foo", "field2": "term1"}
+
+    will match the search criteria!  This is a known short-coming of this
+    approach.
+
+    All matches are made ignoring case; and apart from the ``"hash"`` field,
+    a term matches if it is a substring of the field's value.
+
+    Finally, when specifying more than one search criteria, the criteria are
+    AND-ed together.
+
+    The ``order`` parameter is used to control the ordering of the results.
+    Currently only ordering one field is available, and in ascending order
+    only.
+
+    The ``fields`` parameter is deprecated as it is not compatible with calling
+    this action with a GET request to the action API.
+
+    The context may contain a flag, `search_query`, which if True will make
+    this action behave as if being used by the internal search api.  ie - the
+    results will not be dictized, and SearchErrors are thrown for bad search
+    queries (rather than ValidationErrors).
+
+    :param query: The search criteria.  See above for description.
+    :type query: string or list of strings of the form "{field}:{term1}"
+    :param fields: Deprecated
+    :type fields: dict of fields to search terms.
+    :param order_by: A field on the Resource model that orders the results.
+    :type order_by: string
+    :param offset: Apply an offset to the query.
+    :type offset: int
+    :param limit: Apply a limit to the query.
+    :type limit: int
+
+    :returns:  A dictionary with a ``count`` field, and a ``results`` field.
+    :rtype: dict
 
     '''
     model = context['model']
-    session = context['session']
 
-    fields = _get_or_bust(data_dict, 'fields')
+    # Allow either the `query` or `fields` parameter to be given, but not both.
+    # Once `fields` parameter is dropped, this can be made simpler.
+    # The result of all this gumpf is to populate the local `fields` variable
+    # with mappings from field names to list of search terms, or a single
+    # search-term string.
+    query = data_dict.get('query')
+    fields = data_dict.get('fields')
+
+    if query is None and fields is None:
+        raise ValidationError({'query': _('Missing value')})
+
+    elif query is not None and fields is not None:
+        raise ValidationError(
+            {'fields': _('Do not specify if using "query" parameter')})
+
+    elif query is not None:
+        if isinstance(query, basestring):
+            query = [query]
+        try:
+            fields = dict(pair.split(":", 1) for pair in query)
+        except ValueError:
+            raise ValidationError(
+                {'query': _('Must be <field>:<value> pair(s)')})
+
+    else:
+        log.warning('Use of the "fields" parameter in resource_search is '
+                            'deprecated.  Use the "query" parameter instead')
+
+        # The legacy fields paramter splits string terms.
+        # So maintain that behaviour
+        split_terms = {}
+        for field, terms in fields.items():
+            if isinstance(terms, basestring):
+                terms = terms.split()
+            split_terms[field] = terms
+        fields = split_terms
+
     order_by = data_dict.get('order_by')
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
@@ -1203,16 +1293,36 @@ def resource_search(context, data_dict):
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Resource)
     resource_fields = model.Resource.get_columns()
-
     for field, terms in fields.items():
+
         if isinstance(terms, basestring):
-            terms = terms.split()
+            terms = [terms]
+
         if field not in resource_fields:
-            raise search.SearchError('Field "%s" not recognised in Resource search.' % field)
+            msg = _('Field "{field}" not recognised in resource_search.')\
+                    .format(field=field)
+
+            # Running in the context of the internal search api.
+            if context.get('search_query', False):
+                raise search.SearchError(msg)
+
+            # Otherwise, assume we're in the context of an external api
+            # and need to provide meaningful external error messages.
+            raise ValidationError({'query': msg})
+
         for term in terms:
+
+            # prevent pattern injection
+            term = misc.escape_sql_like_special_characters(term)
+
             model_attr = getattr(model.Resource, field)
+
+            # Treat the has field separately, see docstring.
             if field == 'hash':
                 q = q.filter(model_attr.ilike(unicode(term) + '%'))
+
+            # Resource extras are stored in a json blob.  So searching for
+            # matching fields is a bit trickier.  See the docstring.
             elif field in model.Resource.get_extra_columns():
                 model_attr = getattr(model.Resource, 'extras')
 
@@ -1221,6 +1331,8 @@ def resource_search(context, data_dict):
                     model_attr.ilike(u'''%%"%s": "%%%s%%"}''' % (field, term))
                 )
                 q = q.filter(like)
+
+            # Just a regular field
             else:
                 q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
 
@@ -1240,15 +1352,24 @@ def resource_search(context, data_dict):
         else:
             results.append(result)
 
-    return {'count': count, 'results': results}
+    # If run in the context of a search query, then don't dictize the results.
+    if not context.get('search_query', False):
+        results = model_dictize.resource_list_dictize(results, context)
+
+    return {'count': count,
+            'results': results}
 
 def _tag_search(context, data_dict):
     model = context['model']
 
-    query = data_dict.get('query') or data_dict.get('q')
-    if query:
-        query = query.strip()
-    terms = [query] if query else []
+    terms = data_dict.get('query') or data_dict.get('q') or []
+    if isinstance(terms, basestring):
+        terms = [terms]
+    terms = [ t.strip() for t in terms if t.strip() ]
+
+    if 'fields' in data_dict:
+        log.warning('"fields" parameter is deprecated.  '
+                    'Use the "query" parameter instead')
 
     fields = data_dict.get('fields', {})
     offset = data_dict.get('offset')
@@ -1293,12 +1414,12 @@ def tag_search(context, data_dict):
     searched. If the ``vocabulary_id`` argument is given then only tags
     belonging to that vocabulary will be searched instead.
 
-    :param query: the string to search for
-    :type query: string
+    :param query: the string(s) to search for
+    :type query: string or list of strings
     :param vocabulary_id: the id or name of the tag vocabulary to search in
       (optional)
     :type vocabulary_id: string
-    :param fields:
+    :param fields: deprecated
     :type fields: dictionary
     :param limit: the maximum number of tags to return
     :type limit: int
@@ -1334,7 +1455,7 @@ def tag_autocomplete(context, data_dict):
     :param vocabulary_id: the id or name of the tag vocabulary to search in
       (optional)
     :type vocabulary_id: string
-    :param fields:
+    :param fields: deprecated
     :type fields: dictionary
     :param limit: the maximum number of tags to return
     :type limit: int
