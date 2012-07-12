@@ -162,7 +162,7 @@ class TestHelpers(TestController):
         assert_equal(output_str, expected_str)
 
 
-    def test_get_extra(self):
+    def test_get_pkg_dict_extra(self):
 
         from ckan.lib.create_test_data import CreateTestData
         from ckan import model
@@ -172,8 +172,8 @@ class TestHelpers(TestController):
 
         pkg_dict = get_action('package_show')({'model':model,'user':u'tester'},{'id': 'annakarenina'})
 
-        assert_equal(h.get_extra(pkg_dict, 'genre'), '"romantic novel"')
+        assert_equal(h.get_pkg_dict_extra(pkg_dict, 'genre'), '"romantic novel"')
 
-        assert_equal(h.get_extra(pkg_dict, 'extra_not_found'), None)
+        assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found'), None)
 
-        assert_equal(h.get_extra(pkg_dict, 'extra_not_found','default_value'), 'default_value')
+        assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found','default_value'), 'default_value')
