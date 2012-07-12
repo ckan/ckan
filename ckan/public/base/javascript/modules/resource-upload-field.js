@@ -83,8 +83,10 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
     },
 
     _onUploadAdd: function (event, data) {
-      var key = this.generateKey(data.files[0].name);
-      this.authenticate(key, data);
+      if (data.files && data.files.length) {
+        var key = this.generateKey(data.files[0].name);
+        this.authenticate(key, data);
+      }
     },
 
     _onUploadFail: function () {
