@@ -575,7 +575,7 @@ class PackageController(BaseController):
             if save_action == 'finish':
                 # we want this to go live when saved
                 data_dict['state'] = 'active'
-            elif save_action == 'resources':
+            elif save_action in ['go-resources', 'go-dataset']:
                 data_dict['state'] = 'draft-complete'
             # allow the state to be changed
             context['allow_state_change'] = True
@@ -760,10 +760,11 @@ class PackageController(BaseController):
                 tuplize_dict(parse_params(request.POST))))
             if ckan_phase:
                 # Make sure we don't index this dataset
-                if request.params['save'] != 'go-metadata':
+                if request.params['save'] not in ['go-resource', 'go-metadata']:
                     data_dict['state'] = 'draft'
                 # allow the state to be changed
                 context['allow_state_change'] = True
+                context['allow_partial_update'] = True
                 # sort the tags
                 data_dict['tags'] = self._tag_string_to_list(
                     data_dict['tag_string'])
