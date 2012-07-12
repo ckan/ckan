@@ -4,6 +4,7 @@
 {% set errors = errors or {} %}
 
 <form class="dataset-form dataset-resource-form form-horizontal" method="post">
+  {{ h.snippet('package/snippets/stages.html', stages=['complete', 'complete', 'active'], pkg_name=pkg_name) }}
   {{ form.errors(error_summary) }}
 
   {% snippet 'package/snippets/package_metadata_fields.html', data=data, errors=errors, groups_available=groups_available %}

@@ -2,6 +2,7 @@
 {% set action = c.form_action or '' %}
 
 <form class="dataset-form form-horizontal" method="post" action="{{ action }}">
+      {{ h.snippet('package/snippets/stages.html', stages=stage) }}
   <input type="hidden" name="_ckan_phase" value="dataset_new_1" />
   {# pkg_name used in 3 stage edit #}
   <input type="hidden" name="pkg_name" value="{{ data.name }}" />

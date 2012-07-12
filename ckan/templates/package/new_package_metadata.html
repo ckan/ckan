@@ -2,6 +2,4 @@
 
 {% block title %}{{ _('Add metadata to the dataset') }} - {{ super }}{% endblock %}
 
-{% block stages %}{{ h.snippet('package/snippets/stages.html', stages=['complete', 'complete', 'active'], pkg_name=pkg_name) }}{% endblock %}
-
 {% block form %}{{ h.snippet('package/snippets/package_metadata_form.html', data=data, errors=errors, include_metadata=false, pkg_name=pkg_name) }}{% endblock %}
