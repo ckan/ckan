@@ -51,3 +51,8 @@
   vertical-align: top;
 }
 
+#ckanext-datapreview iframe {
+  min-height: 480px;
+  border: 1px solid #ccc;
+  padding: 7px;
+}

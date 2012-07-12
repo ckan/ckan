@@ -1,10 +1,13 @@
 {% import 'macros/form.html' as form %}
 {% set action = c.form_action or '' %}
 
+{# This provides a full page that renders a form for adding a dataset. It can
+then itself be extended to add/remove blocks of functionality. #}
 <form class="dataset-form form-horizontal" method="post" action="{{ action }}">
-	{% if 'state' not in c.pkg_dict or c.pkg_dict.state.startswith('draft') %}
-      {{ h.snippet('package/snippets/stages.html', stages=stage) }}
-	{% endif %}
+  {% block stages %}
+    {{ h.snippet('package/snippets/stages.html', stages=stage) }}
+  {% endblock %}
+
   <input type="hidden" name="_ckan_phase" value="dataset_new_1" />
   {# pkg_name used in 3 stage edit #}
   <input type="hidden" name="pkg_name" value="{{ data.name }}" />

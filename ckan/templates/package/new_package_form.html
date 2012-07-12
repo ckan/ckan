@@ -1,6 +1,13 @@
-{% extends 'package/pages/form.html' %}
+{% extends 'package/snippets/package_form.html' %}
 
 {% set form_style = c.form_style or c.action %}
+
+{% block stages %}
+  {% if form_style != 'edit' %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
 {% block metadata_fields %}
   {% if form_style == 'edit' %}{{ super() }}{% endif %}
 {% endblock %}
