@@ -52,7 +52,7 @@ this.ckan = this.ckan || {};
  *     }
  *   });
  */
-(function (ckan, $, window) {
+(function (ckan, jQuery, window) {
   // Prefixes for the HTML attributes use to pass options into the modules.
   var MODULE_PREFIX = 'data-module';
   var MODULE_OPTION_PREFIX = 'data-module-';
@@ -77,12 +77,12 @@ this.ckan = this.ckan || {};
    * Returns a new BaseModule instance.
    */
   function BaseModule(el, options, sandbox) {
-    this.el = el instanceof $ ? el : $(el);
-    this.options = $.extend(true, {}, this.options, options);
+    this.el = el instanceof jQuery ? el : jQuery(el);
+    this.options = jQuery.extend(true, {}, this.options, options);
     this.sandbox = sandbox;
   }
 
-  $.extend(BaseModule.prototype, {
+  jQuery.extend(BaseModule.prototype, {
     /* The jQuery element for the current module */
     el: null,
 
@@ -92,7 +92,7 @@ this.ckan = this.ckan || {};
     options: null,
 
     /* A scoped find function restricted to the current scope. */
-    $: function (selector) {
+    jQuery: function (selector) {
       return this.el.find(selector);
     },
 
@@ -165,19 +165,19 @@ this.ckan = this.ckan || {};
     // If a function is provided then call it to get a returns object of
     // properties.
     if (typeof properties === 'function') {
-      properties = properties($, ckan.i18n.translate, ckan.i18n);
+      properties = properties(jQuery, ckan.i18n.translate, ckan.i18n);
     }
 
     // Provide a named constructor, this helps with debugging in the Webkit
     // Web Inspector.
-    properties = $.extend({
+    properties = jQuery.extend({
       constructor: function Module() {
         BaseModule.apply(this, arguments);
       }
     }, properties);
 
     // Extend the instance.
-    module.registry[name] = $.inherit(BaseModule, properties, {namespace: name});
+    module.registry[name] = jQuery.inherit(BaseModule, properties, {namespace: name});
 
     return ckan;
   }
@@ -200,7 +200,7 @@ this.ckan = this.ckan || {};
   module.initialize = function () {
     var registry = module.registry;
 
-    $('[data-module]', document.body).each(function () {
+    jQuery('[data-module]', document.body).each(function () {
       var name = this.getAttribute(MODULE_PREFIX);
       var Module = registry[name];
 
@@ -281,7 +281,7 @@ this.ckan = this.ckan || {};
         // Attempt to parse the string as JSON. If this fails then simply use
         // the attribute value as is.
         try {
-          value = $.parseJSON(attr.value);
+          value = jQuery.parseJSON(attr.value);
         } catch (error) {
           if (error instanceof window.SyntaxError) {
             value = attr.value;
@@ -290,7 +290,7 @@ this.ckan = this.ckan || {};
           }
         }
 
-        options[$.camelCase(prop)] = value;
+        options[jQuery.camelCase(prop)] = value;
       }
     }
 
