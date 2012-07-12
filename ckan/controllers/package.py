@@ -483,12 +483,22 @@ class PackageController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'api_version': 3,
                    'user': c.user or c.author,}
+        pkg_dict = get_action('package_show')(context, {'id': id})
+        if pkg_dict['state'].startswith('draft'):
+            # dataset has not yet been fully created
+            resource_dict = get_action('resource_show')(context, {'id': resource_id})
+            fields = ['url', 'resource_type', 'format', 'name', 'description', 'id']
+            data = {}
+            for field in fields:
+                data[field] = resource_dict[field]
+            return self.new_resource(id, data=data)
+        # resource is fully created
         resource_dict = get_action('resource_show')(context, {'id': resource_id})
-        fields = ['url', 'resource_type', 'format', 'name', 'description', 'id']
-        data = {}
-        for field in fields:
-            data[field] = resource_dict[field]
-        return self.new_resource(id, data=data)
+        c.pkg_dict = pkg_dict
+        c.resource = resource_dict
+        return render('package/resource_edit.html')
+
+
 
     def new_resource(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the

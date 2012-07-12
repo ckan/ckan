@@ -1,0 +1,17 @@
+{% extends "page.html" %}
+
+{% set pkg = c.pkg_dict %}
+{% set res = c.resource %}
+
+{% block title %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }} - {{ super() }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
+  <li>{% link_for h.dataset_display_name(c.package)|truncate(20), controller='package', action='read', id=c.package.get('name') %}</li>
+  <li class="active"><a href="">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
+{% endblock %}
+
+{% block main_content %}
+{{ pkg }}
+{{ res }}
+{% endblock %}

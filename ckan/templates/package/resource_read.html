@@ -35,6 +35,7 @@
       {% endif %}
     </li>
   {% endif %}
+  <a class="btn" href="{% url_for controller='package', action='resource_edit', id=c.package.id, resource_id=res.id %}"><i class="icon-large icon-wrench"></i> {{ _('Edit') }}</a>
 {% endblock %}
 
 {% block main_content %}
