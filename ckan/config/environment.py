@@ -135,7 +135,7 @@ def load_environment(global_conf, app_conf):
 
     # Load the synchronous search plugin, unless already loaded or
     # explicitly disabled
-    if not 'synchronous_search' in config.get('ckan.plugins') and \
+    if not 'synchronous_search' in config.get('ckan.plugins',[]) and \
             asbool(config.get('ckan.search.automatic_indexing', True)):
         log.debug('Loading the synchronous search plugin')
         p.load('synchronous_search')
