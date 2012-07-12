@@ -1,4 +1,4 @@
-describe('Client', function () {
+describe('ckan.Client()', function () {
   var Client = ckan.Client;
 
   beforeEach(function () {
