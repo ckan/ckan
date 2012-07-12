@@ -42,7 +42,8 @@ class _Helpers(object):
                 if restrict:
                     continue
             functions[helper] = getattr(helpers, helper)
-            allowed.remove(helper)
+            if helper in allowed:
+                allowed.remove(helper)
         self.functions = functions
 
         if allowed:
