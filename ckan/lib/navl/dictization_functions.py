@@ -2,6 +2,7 @@ import copy
 import formencode as fe
 import inspect
 from pylons.i18n import _
+from pylons import config
 
 class Missing(object):
     def __unicode__(self):
@@ -226,10 +227,12 @@ def validate(data, schema, context=None):
     flattened = flatten_dict(data)
     converted_data, errors = _validate(flattened, schema, context)
 
-    # repopulate the empty lists
-    for key in empty_lists:
-        if key not in converted_data:
-            converted_data[(key,)] = []
+    # check config for partial update fix option
+    if config.get('ckan.fix_partial_updates', False):
+        # repopulate the empty lists
+        for key in empty_lists:
+            if key not in converted_data:
+                converted_data[(key,)] = []
 
     converted_data = unflatten(converted_data)
 
