@@ -150,7 +150,7 @@ class ApiController(base.BaseController):
         ''' Renders and returns a snippet used by ajax calls '''
         # we only allow snippets in templates/ajax_snippets and it's subdirs
         snippet_path = u'ajax_snippets/' + snippet_path
-        return base.render(snippet_path)
+        return base.render(snippet_path, extra_vars=dict(request.params))
 
     def action(self, logic_function, ver=None):
         try:
