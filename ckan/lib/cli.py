@@ -167,12 +167,14 @@ class ManageDb(CkanCommand):
         pg_dump_cmd += ' %(db_name)s' % self.db_details
         pg_dump_cmd += ' > %s' % filepath
         self._run_cmd(pg_dump_cmd)
+        print 'Dumped database to: %s' % filepath
 
     def _postgres_load(self, filepath):
         import ckan.model as model
         assert not model.repo.are_tables_created(), "Tables already found. You need to 'db clean' before a load."
         pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
         self._run_cmd(pg_cmd)
+        print 'Loaded CKAN database: %s' % filepath
 
     def _run_cmd(self, command_line):
         import subprocess
