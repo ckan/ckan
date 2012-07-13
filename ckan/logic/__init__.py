@@ -165,6 +165,7 @@ def check_access(action, context, data_dict=None):
         #    log.debug('Valid API key needed to make changes')
         #    raise NotAuthorized
         logic_authorization = is_authorized(action, context, data_dict)
+        print '@@@@', action, logic_authorization, data_dict
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)

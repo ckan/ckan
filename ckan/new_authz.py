@@ -12,6 +12,7 @@ class AuthFunctions:
     _functions = {}
 
 def is_authorized(action, context,data_dict=None):
+    print '~~~~', action, data_dict
     auth_function = _get_auth_function(action)
     if auth_function:
         return auth_function(context, data_dict)
