@@ -217,8 +217,20 @@ def validate(data, schema, context=None):
     context = context or {}
 
     assert isinstance(data, dict)
+
+    # store any empty lists in the data as they will get stripped out by
+    # the _validate function. We do this so we can differentiate between
+    # empty fields and missing fields when doing partial updates.
+    empty_lists = [key for key, value in data.items() if value == []]
+
     flattened = flatten_dict(data)
     converted_data, errors = _validate(flattened, schema, context)
+
+    # repopulate the empty lists
+    for key in empty_lists:
+        if key not in converted_data:
+            converted_data[(key,)] = []
+
     converted_data = unflatten(converted_data)
 
     errors_unflattened = unflatten(errors)
