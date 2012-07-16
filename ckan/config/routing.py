@@ -128,6 +128,7 @@ def make_map():
                   action='munge_title_to_package_name')
         m.connect('/util/tag/munge', action='munge_tag')
         m.connect('/util/status', action='status')
+        m.connect('/util/snippet/{snippet_path:.*}', action='snippet')
 
     ###########
     ## /END API
@@ -193,12 +194,15 @@ def make_map():
           'read_ajax',
           'history_ajax',
           'followers',
+          'delete',
           ]))
           )
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('/dataset/{id}', action='read')
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
+        m.connect('/dataset/{id}/resource_edit/{resource_id}',
+                  action='resource_edit')
         m.connect('/dataset/{id}/resource/{resource_id}/download',
                   action='resource_download')
         m.connect('/dataset/{id}/resource/{resource_id}/embed',

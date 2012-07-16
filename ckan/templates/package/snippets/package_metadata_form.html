@@ -3,14 +3,15 @@
 {% set data = data or {} %}
 {% set errors = errors or {} %}
 
-<form class="dataset-form dataset-resource-form form-horizontal" method="post">
+<form class="dataset-form dataset-resource-form form-horizontal" method="post" >
+  {{ h.snippet('package/snippets/stages.html', stages=['complete', 'complete', 'active'], pkg_name=pkg_name) }}
   {{ form.errors(error_summary) }}
 
   {% snippet 'package/snippets/package_metadata_fields.html', data=data, errors=errors, groups_available=groups_available %}
 
   <div class="form-actions">
     {# TODO: Go back to previous resource form #}
-    {% link_for _('Previous'), controller='package', action='new_resource', id=pkg_name, class_="btn" %}
+    <button class="btn" name="save" value="go-resources" type="submit">{{ _('Previous') }}</button>
     <button class="btn btn-primary" name="save" value="finish" type="submit">{{ _('Finish') }}</button>
   </div>
 

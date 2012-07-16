@@ -3,7 +3,12 @@
 {% set data = data or {} %}
 {% set errors = errors or {} %}
 
-<form class="dataset-form dataset-resource-form form-horizontal" method="post" data-module="resource-form">
+<form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{% url_for controller='package', action='new_resource', id=pkg_name %}" >
+
+  {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name) }}
+
+  <input name="id" value="{{ data.id }}" type="hidden"/>
+
   <div class="control-group dataset-form-resource-types">
     {% block basic_fields %}
       <div class="controls" data-module="resource-upload-field">
@@ -54,9 +59,8 @@
   {% endblock %}
 
   <div class="form-actions">
-    {# TODO: Go back to previous resource form #}
-    {% link_for _('Previous'), controller='package', action='edit', id=pkg_name, class_="btn" %}
+    <button class="btn" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
     <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
-    <button class="btn btn-primary" name="save" value="next" type="submit">{{ _('Next: Additional Info') }}</button>
+    <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{{ _('Next: Additional Info') }}</button>
   </div>
 </form>

@@ -893,6 +893,7 @@ def dataset_link(package_or_package_dict):
 def resource_display_name(resource_dict):
     name = resource_dict.get('name', None)
     description = resource_dict.get('description', None)
+    url = resource_dict.get('url')
     if name:
         return name
     elif description:
@@ -900,6 +901,8 @@ def resource_display_name(resource_dict):
         max_len = 60;
         if len(description)>max_len: description = description[:max_len]+'...'
         return description
+    elif url:
+        return url
     else:
         noname_string = _('no name')
         return '[%s] %s' % (noname_string, resource_dict['id'])
@@ -1126,7 +1129,7 @@ def debug_full_info_as_list(debug_info):
                             '__reduce_ex__', '__repr__', '__setattr__',
                             '__sizeof__', '__str__', '__subclasshook__',
                             '__weakref__', 'action', 'environ', 'pylons',
-                            'start_response', '__debug_info']
+                            'start_response']
     for key in debug_info.keys():
         if not key in ignored_keys:
             out.append((key, debug_info.get(key)))
@@ -1173,6 +1176,37 @@ def dashboard_activity_stream(user_id):
     import ckan.logic as logic
     context = {'model' : model, 'session':model.Session, 'user':c.user}
     return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
+
+def escape_js(str_to_escape):
+    '''Escapes special characters from a JS string.
+
+       Useful e.g. when you need to pass JSON to the templates
+
+       :param str_to_escape: string to be escaped
+       :rtype: string
+    '''
+    return str_to_escape.replace('\\', '\\\\') \
+                        .replace('\'', '\\\'') \
+                        .replace('"', '\\\"')
+
+def get_pkg_dict_extra(pkg_dict, key, default=None):
+    '''Returns the value for the dataset extra with the provided key.
+
+    If the key is not found, it returns a default value, which is None by
+    default.
+
+    :param pkg_dict: dictized dataset
+    :key: extra key to lookup
+    :default: default value returned if not found
+    '''
+
+    extras = pkg_dict['extras'] if 'extras' in pkg_dict else []
+
+    for extra in extras:
+        if extra['key'] == key:
+            return extra['value']
+
+    return default
 
 
 # these are the functions that will end up in `h` template helpers
@@ -1245,6 +1279,8 @@ __allowed_functions__ = [
            'add_url_param',
            'groups_available',
            'dashboard_activity_stream',
+           'escape_js',
+           'get_pkg_dict_extra',
     # imported into ckan.lib.helpers
            'literal',
            'link_to',

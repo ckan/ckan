@@ -114,9 +114,9 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
                       'template_type' : template_type,
                       'vars' : globs,
                       'renderer' : renderer,}
-        if not c.__debug_info:
-            c.__debug_info = []
-        c.__debug_info.append(debug_info)
+        if 'CKAN_DEBUG_INFO' not in request.environ:
+            request.environ['CKAN_DEBUG_INFO'] = []
+        request.environ['CKAN_DEBUG_INFO'].append(debug_info)
 
         # Jinja2 templates
         if template_type == 'jinja2':

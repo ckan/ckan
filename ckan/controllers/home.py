@@ -122,7 +122,10 @@ class HomeController(BaseController):
                        'for_view': True}
             data_dict = {'id': id}
 
-            group_dict = ckan.logic.get_action('group_show')(context, data_dict)
+            try:
+                group_dict = ckan.logic.get_action('group_show')(context, data_dict)
+            except ckan.logic.NotFound:
+                return {'group_dict' :{}}
 
             # We get all the packages or at least too many so
             # limit it to just 2

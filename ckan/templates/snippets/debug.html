@@ -1,12 +1,12 @@
 <div class="container">
-  <a id="debug-toggle" href="#debug" style="opacity: 0.6">Debug {{ c.__debug_info|length }}</a>
+  <a id="debug-toggle" href="#debug" style="opacity: 0.6">Debug {{ request.environ['CKAN_DEBUG_INFO']|length }}</a>
   <pre id="debug" class="well" style="display:none;color:#333;margin-top:10px;">
 <b>Debug info:</b>
 
 <b>Controller</b>: {{ c.controller }}
 <b>Action</b>: {{ c.action }}
-<b>Templates Rendered</b>: {{ c.__debug_info|length }}
-{% for info in c.__debug_info %}
+<b>Templates Rendered</b>: {{ request.environ['CKAN_DEBUG_INFO']|length }}
+{% for info in request.environ['CKAN_DEBUG_INFO'] %}
 <b>Template name</b>: {{ info.template_name }}
 <b>Template path</b>: {{ info.template_path }}
 <b>Template type</b>: {{ info.template_type }}

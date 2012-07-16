@@ -9,7 +9,6 @@
 {% block primary_content %}
   <section class="module">
     <div class="module-content">
-      {% block stages %}{{ h.snippet('package/snippets/stages.html', stages=stage) }}{% endblock %}
       {% block form %}{{ c.form | safe }}{% endblock %}
     </div>
   </section>

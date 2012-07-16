@@ -21,20 +21,15 @@
         {% elif  res.resource_type == 'api' %}
           {{ _('API Endpoint') }}
         {% else %}
-          <i class="icon-large icon-download"></i> Download
+          <i class="icon-large icon-download"></i> {{ _('Download') }}
         {%endif %}
       </a>
     </li>
   {% endif %}
-  {% if config.get('ckan.datastore.enabled', false) %}
-    <li>
-      {% if res.webstore_url %}
-        <a class="btn" data-toggle="modal" href="#modal-data-api-help"><i class="icon-large icon-beaker"></i> {{ _('Data API') }}</a>
-      {% else %}
-        <a class="btn disabled" rel="tooltip" title="{{ _('Data API is unavailable for this resource as DataStore is disabled') }}"><i class="icon-large icon-beaker"></i> {{ _('Data API') }}</a>
-      {% endif %}
-    </li>
+  {% if config.get('ckan.datastore.enabled', False) %}
+	{% snippet 'package/snippets/data-api-button.html', resource=res, datastore_root_url=c.datastore_api %}
   {% endif %}
+  <a class="btn" href="{% url_for controller='package', action='resource_edit', id=c.package.id, resource_id=res.id %}"><i class="icon-large icon-wrench"></i> {{ _('Edit') }}</a>
 {% endblock %}
 
 {% block main_content %}
@@ -119,7 +114,7 @@
         {% endif %}
       </div>
       <div id="ckanext-datapreview module-content">
-        {# {% snippet 'snippets/datapreview_embed_dialog.html' %} #}
+        {% snippet 'snippets/datapreview_embed_dialog.html' %}
       </div>
     </div>
   </section>
@@ -128,33 +123,36 @@
 
 {% block styles %}
   {{ super() }}
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/leaflet.css' %}" />
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/leaflet.ie.css' %}" />
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/slick.grid.css' %}" />
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/slick.columnpicker.css' %}" />
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/recline.grid.css' %}" />
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/recline.map.css' %}" />
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/recline.graph.css' %}" />
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/vendor/slickgrid/2.0.1/slick.grid.css' %}" />
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/vendor/leaflet/0.3.1/leaflet.css' %}" />
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/vendor/leaflet/0.3.1/leaflet.ie.css' %}" />
+  <![endif]-->
+  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/vendor/recline/css/recline.css' %}" />
   <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/datapreview.css' %}" />
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/datapreview.table-view.css' %}" />
+  
 {% endblock %}
 
 {% block scripts %}
   {{ super() }}
   <script src="{% url_for_static '/base/javascript/vendor/jquery.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/vendor/jquery.flot.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/vendor/jquery.mustache.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/vendor/jquery.event.drag.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/vendor/underscore.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/vendor/backbone.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/vendor/leaflet.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/vendor/slick.grid.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/vendor/slick.columnpicker.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/vendor/recline.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/datapreview.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/table-view.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/table-view.ui.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/javascript/table-view-template.js' %}"></script>
+
+  <script src="{% url_for_static '/base/datapreview/vendor/underscore/1.1.6/underscore.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/vendor/backbone/0.5.1/backbone.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/vendor/mustache/0.5.0-dev/mustache.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/vendor/bootstrap/2.0.3/bootstrap.min.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/vendor/jquery.mustache/jquery.mustache.js' %}"></script>
+
+  <script src="{% url_for_static '/base/datapreview/vendor/slickgrid/2.0.1/jquery-ui-1.8.16.custom.min.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/vendor/slickgrid/2.0.1/jquery.event.drag-2.0.min.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/vendor/slickgrid/2.0.1/slick.grid.min.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/vendor/flot/0.7/jquery.flot.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/vendor/moment/1.6.2/moment.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/vendor/leaflet/0.3.1/leaflet.js'%}"></script>
+
+  <script src="{% url_for_static '/base/datapreview/vendor/recline/recline.js' %}"></script>
+  <script src="{% url_for_static '/base/datapreview/datapreview.js' %}"></script>
+
   <script>
     var preload_resource = {{ h.literal(c.resource_json) }};
     var embedPath = "{{ h.url_for(controller='package', action='resource_embedded_dataviewer', id=c.package.id, resource_id=c.resource.id, qualified=True) }}";
