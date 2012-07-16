@@ -54,6 +54,7 @@
     <script src="./spec/plugins/jquery.inherit.spec.js"></script>
     <script src="./spec/plugins/jquery.proxy-all.spec.js"></script>
     <script src="./spec/plugins/jquery.url-helpers.spec.js"></script>
+    <script src="./spec/plugins/jquery.date-helpers.spec.js"></script>
     <script src="./spec/plugins/jquery.slug.spec.js"></script>
     <script src="./spec/plugins/jquery.slug-preview.spec.js"></script>
 
@@ -66,7 +67,7 @@
         this.fixture.empty();
       });
 
-      mocha.run().globals(['ckan']);
+      mocha.run().globals(['ckan', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval']);
     </script>
   </body>
 </html>
