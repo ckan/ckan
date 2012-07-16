@@ -381,6 +381,26 @@ class GroupController(BaseController):
         self._prepare_authz_info_for_render(roles)
         return render('group/authz.html')
 
+    def delete(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            check_access('group_delete', context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s') % '')
+
+        try:
+            if request.params.get('confirm') == 'yes':
+                get_action('group_delete')(context, {'id': id})
+                h.redirect_to(controller='group', action='index')
+            c.group_dict = get_action('group_show')(context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s') % '')
+        except NotFound:
+            abort(404, _('Group not found'))
+        return render('group/confirm_delete.html')
+
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
             try:
