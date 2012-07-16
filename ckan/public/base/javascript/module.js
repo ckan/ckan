@@ -92,7 +92,7 @@ this.ckan = this.ckan || {};
     options: null,
 
     /* A scoped find function restricted to the current scope. */
-    jQuery: function (selector) {
+    $: function (selector) {
       return this.el.find(selector);
     },
 
