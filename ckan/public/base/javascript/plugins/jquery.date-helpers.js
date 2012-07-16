@@ -15,12 +15,12 @@ this.jQuery.date = {
 
   /* Returns a date string for the format provided.
    *
-   * date   - A date object to output.
    * format - A format string in the form "yyyy-MM-dd"
+   * date   - A date object to output.
    *
    * Returns a formatted date string.
    */
-  format: function (date, format) {
+  format: function (format, date) {
     var map = this.METHODS;
 
     date = date || new Date();
@@ -59,7 +59,7 @@ this.jQuery.date = {
     if (date.toISOString) {
       return date.toISOString();
     } else {
-      return this.format(date, this.ISO8061);
+      return this.format(this.ISO8061, date);
     }
   }
 };
