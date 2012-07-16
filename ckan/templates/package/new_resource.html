@@ -15,3 +15,12 @@
   {% snippet 'package/snippets/resources.html', pkg=pkg_dict, action='resource_edit', active=data.id %}
 
 {% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{% url_for_static "/base/vendor/jquery.ui.widget.js" %}"></script>
+  <script src="{% url_for_static "/base/vendor/jquery-fileupload/jquery.iframe-transport.js" %}"></script>
+  <script src="{% url_for_static "/base/vendor/jquery-fileupload/jquery.fileupload.js" %}"></script>
+  <script src="{% url_for_static "/base/javascript/modules/resource-form.js" %}"></script>
+  <script src="{% url_for_static "/base/javascript/modules/resource-upload-field.js" %}"></script>
+{% endblock %}
