@@ -1,3 +1,4 @@
+/*globals describe beforeEach afterEach it assert sinon ckan jQuery */
 describe('ckan.Client()', function () {
   var Client = ckan.Client;
 
@@ -27,7 +28,7 @@ describe('ckan.Client()', function () {
     });
 
     it('should call request a new auth token', function () {
-      function success () {}
+      function success() {}
       function error() {}
 
       var target = this.client.getStorageAuth('filename', success, error);
