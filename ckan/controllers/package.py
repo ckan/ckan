@@ -579,7 +579,10 @@ class PackageController(BaseController):
         pkg_dict = get_action('package_show')(context, {'id': id})
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
-        vars['stage'] = ['complete', 'active', 'complete']
+        if pkg_dict['state'] == 'draft':
+            vars['stage'] = ['complete', 'active']
+        else:
+            vars['stage'] = ['complete', 'active', 'complete']
         return render('package/new_resource.html', extra_vars=vars)
 
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
