@@ -19,11 +19,11 @@
         of the radio using css. eg. input[type=radio]+label {}
         #}
         <i class="ckan-icon ckan-icon-link-file"></i>
-        <input id="field-resource-source-file" type="radio" name="resource_source" checked="checked" value="file" />
-        <label class="radio inline" for="field-resource-source-file">{{ _('Link to a file') }}</label>
+        <input id="field-resource-type-file" type="radio" name="resource_type" checked="checked" value="file" />
+        <label class="radio inline" for="field-resource-type-file">{{ _('Link to a file') }}</label>
         <i class="ckan-icon ckan-icon-link-plugin"></i>
-        <input id="field-resource-source-api" type="radio" name="resource_source" value="api" />
-        <label class="radio inline" for="field-resource-source-api">{{ _('Link to an API') }}</label>
+        <input id="field-resource-type-api" type="radio" name="resource_type" value="api" />
+        <label class="radio inline" for="field-resource-type-api">{{ _('Link to an API') }}</label>
       </div>
     </div>
 
@@ -39,7 +39,7 @@
   {% block metadata_fields %}
     {% if include_metadata %}
       {# TODO: Where do these come from, they don't exist in /package/new_package_form.html #}
-      {{ form.select('resource_type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }}
+      {# {{ form.select('resource_type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }} #}
 
       {{ form.input('last_modified', id='field-last-modified', label=_('Last Modified'), placeholder=_('eg. 2012-06-05'), value=data.last_modified, error=errors.last_modified, classes=[]) }}
 
@@ -49,7 +49,6 @@
 
       {{ form.input('mimetype_inner', id='field-mimetype-inner', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype_inner, error=errors.mimetype_inner, classes=[]) }}
     {% else %}
-      <input type="hidden" name="resource_type" value="{{ data.resource_type }}" />
       <input type="hidden" name="last_modified" value="{{ data.last_modified }}" />
       <input type="hidden" name="size" value="{{ data.size }}" />
       <input type="hidden" name="mimetype" value="{{ data.mimetype }}" />
