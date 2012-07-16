@@ -984,7 +984,7 @@ class Tracking(CkanCommand):
                     FROM tracking_summary t2
                     WHERE t1.package_id = t2.package_id
                     AND t2.tracking_date <= t1.tracking_date
-                 ) + t1.count
+                 )
                  ,recent_views = (
                     SELECT sum(count)
                     FROM tracking_summary t2
