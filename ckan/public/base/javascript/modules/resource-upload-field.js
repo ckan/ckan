@@ -143,6 +143,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
 
     _onMetadataSuccess: function (data, response) {
       var resource = this.sandbox.client.convertStorageMetadataToResource(response);
+
       this.sandbox.notify(_('Resource uploaded').fetch(), '', 'success');
       this.sandbox.publish('resource:uploaded', resource);
 
