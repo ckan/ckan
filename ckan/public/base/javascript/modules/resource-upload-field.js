@@ -19,9 +19,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       form: {
         method: 'POST',
         file: 'file',
-        params: {
-          'x-goog-meta-uploaded-by': 'c03155ce-8319-46ef-b4b2-4bf3303735d3'
-        }
+        params: []
       },
       template: [
         '<span class="resource-upload-field">',
@@ -56,7 +54,6 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
 
       this.upload.find('label').text(_('Upload a file').fetch());
       this.upload.find('input[type=file]').fileupload({
-        url: options.form.action,
         type: options.form.method,
         paramName: options.form.file,
         forceIframeTransport: true, // Required for XDomain request. 
@@ -222,7 +219,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
      */
     _onAuthSuccess: function (data, response) {
       data.url = response.action;
-      data.formData = response.fields;
+      data.formData = this.options.form.params.concat(response.fields);
       data.submit();
     },
 
