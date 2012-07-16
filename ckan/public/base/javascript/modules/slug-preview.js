@@ -54,6 +54,14 @@ this.ckan.module('slug-preview-slug', {
         }
       });
 
+      // If the user manually enters text into the input we cancel the slug
+      // listeners so that we don't clobber the slug when the title next changes.
+      slug.keypress(function () {
+        if (event.charCode) {
+          sandbox.publish('slug-preview-modified', preview[0]);
+        }
+      });
+
       sandbox.publish('slug-preview-created', preview[0]);
     }
 
@@ -61,14 +69,6 @@ this.ckan.module('slug-preview-slug', {
     // triggering the "change" event manually.
     sandbox.subscribe('slug-target-changed', function (value) {
       slug.val(value).trigger('change');
-    });
-
-    // If the user manually enters text into the input we cancel the slug
-    // listeners so that we don't clobber the slug when the title next changes.
-    slug.keypress(function () {
-      if (event.charCode) {
-        sandbox.publish('slug-preview-modified', preview[0]);
-      }
     });
   }
 });
