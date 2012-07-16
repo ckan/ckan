@@ -193,7 +193,14 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
 
     /* Callback called when jQuery file upload plugin successfully uploads a file */
     _onUploadDone: function (event, data) {
-      this.lookupMetadata(data.key, data);
+      // Need to check for a result key. A Google upload can return a 404 if
+      // the bucket does not exist, this is still treated as a success by the
+      // form upload plugin.
+      if (data.result) {
+        this.lookupMetadata(data.key, data);
+      } else {
+        this._onUploadFail(event, data);
+      }
     },
 
     /* Callback called when jQuery file upload plugin completes a request
