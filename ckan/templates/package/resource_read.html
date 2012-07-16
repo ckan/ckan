@@ -12,8 +12,13 @@
 {% endblock %}
 
 {% block actions_content %}
+  {% snippet 'package/snippets/back_to_package_action.html', pkg=pkg %}
+
+  {% if h.check_access('package_update', {'id':pkg.id }) %}
+    <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
+  {% endif %}
+
   {% if res.url %}
-    {% snippet 'package/snippets/back_to_package_action.html', pkg=pkg %}
     <li>
       <a class="btn resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
         {% if res.resource_type in ('listing', 'service') %}
@@ -26,10 +31,10 @@
       </a>
     </li>
   {% endif %}
+
   {% if config.get('ckan.datastore.enabled', False) %}
-	{% snippet 'package/snippets/data-api-button.html', resource=res, datastore_root_url=c.datastore_api %}
+    {% snippet 'package/snippets/data-api-button.html', resource=res, datastore_root_url=c.datastore_api %}
   {% endif %}
-  <a class="btn" href="{% url_for controller='package', action='resource_edit', id=c.package.id, resource_id=res.id %}"><i class="icon-large icon-wrench"></i> {{ _('Edit') }}</a>
 {% endblock %}
 
 {% block main_content %}
