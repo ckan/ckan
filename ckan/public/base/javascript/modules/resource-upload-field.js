@@ -1,4 +1,9 @@
-/* See: http://docs.ckan.org/en/latest/filestore.html 
+/* Events:
+ *
+ * Publishes the 'resource:uploaded' event when a file is successfully
+ * uploaded. An callbacks receive an object of resource data.
+ *
+ * See: http://docs.ckan.org/en/latest/filestore.html 
  *
  * param - comment
  *
@@ -21,33 +26,37 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       template: [
         '<span class="resource-upload-field">',
         '<i class="ckan-icon ckan-icon-link-plugin"></i>',
-        '<input id="field-resource-type-file" type="file" />',
-        '<label class="radio inline" for="field-resource-type-file"></label>',
+        '<input type="file" />',
+        '<input id="field-resource-source-file" type="radio" name="resource_source" value="file.upload" />',
+        '<label class="radio inline" for="field-resource-source-file"></label>',
         '</span>'
       ].join('\n')
     },
 
     initialize: function () {
-      var options = this.options;
-      var upload  = jQuery(options.template);
-
       jQuery.proxyAll(this, /_on/);
 
-      upload.find('label').text(_('Upload a file').fetch());
-      upload.find('input').fileupload({
+      this.upload = jQuery(this.options.template);
+      this.setupFileUpload();
+      this.el.append(this.upload);
+    },
+
+    setupFileUpload: function () {
+      var options = this.options;
+
+      this.upload.find('label').text(_('Upload a file').fetch());
+      this.upload.find('input[type=file]').fileupload({
         url: options.form.action,
         type: options.form.method,
         paramName: options.form.file,
         forceIframeTransport: true, // Required for XDomain request. 
-        replaceFileInput: false,
+        replaceFileInput: true,
         autoUpload: false,
         add:  this._onUploadAdd,
         send: this._onUploadSend,
         done: this._onUploadDone,
         fail: this._onUploadFail
       });
-
-      this.el.append(upload);
     },
 
     loading: function (show) {
@@ -85,6 +94,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
     _onUploadAdd: function (event, data) {
       if (data.files && data.files.length) {
         var key = this.generateKey(data.files[0].name);
+
         this.authenticate(key, data);
       }
     },
@@ -126,9 +136,11 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
     },
 
     _onMetadataSuccess: function (data, response) {
-      var resource = this.sandbox.client.convertStorageMetadataToResource(data.key, response);
+      var resource = this.sandbox.client.convertStorageMetadataToResource(response);
       this.sandbox.notify(_('Resource uploaded').fetch(), '', 'success');
       this.sandbox.publish('resource:uploaded', resource);
+
+      this.$('input[type=radio]').prop('checked', true);
     },
 
     _onMetadataError: function () {
