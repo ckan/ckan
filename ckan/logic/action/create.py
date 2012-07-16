@@ -127,7 +127,6 @@ def package_create(context, data_dict):
             package_plugin.check_data_dict(data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-    data, errors = validate(data_dict, schema, context)
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               data.get('name'), data_dict)
@@ -174,7 +173,6 @@ def package_create_validate(context, data_dict):
     _check_access('package_create',context,data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors, _error_summary(errors))
@@ -337,7 +335,6 @@ def package_relationship_create(context, data_dict):
         return NotFound('Object package %r was not found.' % id2)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors, _error_summary(errors))
@@ -491,7 +488,7 @@ def group_create(context, data_dict):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'), data_dict.get('name'), data_dict)
 

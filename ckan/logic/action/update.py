@@ -137,7 +137,6 @@ def related_update(context, data_dict):
 
     _check_access('related_update', context, data_dict)
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors, _error_summary(errors))
@@ -180,7 +179,6 @@ def resource_update(context, data_dict):
     _check_access('resource_update', context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors, _error_summary(errors))
@@ -249,7 +247,7 @@ def package_update(context, data_dict):
         except TypeError:
             package_plugin.check_data_dict(data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               context.get('package').name if context.get('package') else '',
@@ -274,7 +272,7 @@ def package_update(context, data_dict):
         model.repo.commit()
 
     log.debug('Updated object %s' % str(pkg.name))
-    return get_action('package_show')(context, data_dict)
+    return _get_action('package_show')(context, data_dict)
 
 def package_update_validate(context, data_dict):
     model = context['model']
@@ -303,8 +301,6 @@ def package_update_validate(context, data_dict):
     _check_access('package_update', context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors, _error_summary(errors))
@@ -365,7 +361,6 @@ def package_relationship_update(context, data_dict):
         return NotFound('Object package %r was not found.' % id2)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors, _error_summary(errors))
@@ -419,7 +414,7 @@ def group_update(context, data_dict):
 
     _check_access('group_update', context, data_dict)
 
-    data, errors = validate(data_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
     log.debug('group_update validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'),
               context.get('group').name if context.get('group') else '',
@@ -597,7 +592,6 @@ def task_status_update(context, data_dict):
     _check_access('task_status_update', context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         session.rollback()
         raise ValidationError(errors, _error_summary(errors))
@@ -658,7 +652,6 @@ def term_translation_update(context, data_dict):
               'lang_code': [validators.not_empty, unicode]}
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -799,7 +792,6 @@ def vocabulary_update(context, data_dict):
 
     schema = context.get('schema') or ckan.logic.schema.default_update_vocabulary_schema()
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
