@@ -1,11 +1,15 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ResourceFormModule()', function () {
+describe('ckan.modules.ResourceFormModule()', function () {
   var ResourceFormModule = ckan.module.registry['resource-form'];
 
   beforeEach(function () {
     this.el = document.createElement('form');
     this.sandbox = ckan.sandbox();
     this.module = new ResourceFormModule(this.el, {}, this.sandbox);
+  });
+
+  afterEach(function () {
+    this.module.teardown();
   });
 
   describe('.initialize()', function () {
