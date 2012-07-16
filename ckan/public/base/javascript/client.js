@@ -82,17 +82,20 @@
      *
      * Returns an object of dataset keys.
      */
-    convertStorageMetadataToResource: function (key, meta) {
+    convertStorageMetadataToResource: function (meta) {
       var modified = new Date(meta._last_modified);
       var modifiedISO = jQuery.date.toISOString(modified);
+      var filename = meta['filename-original'] || meta.key;
+      var format = meta._format || filename.split('.').pop();
 
       return {
         url: meta._location,
-        name: key,
+        key: meta.key, /* Not strictly Resource data but may be useful */
+        name: filename,
         size: meta._content_length,
         last_modified: modifiedISO,
-        format: meta._format,
-        mimetype: meta._format,
+        format: format,
+        mimetype: format,
         resource_type: 'file.upload', // Is this standard?
         owner: meta['uploaded-by'],
         hash: meta._checksum,
