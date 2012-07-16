@@ -1,20 +1,20 @@
-/* Events:
+/* This module creates a new resource_type field for an uploaded file and
+ * appends file input into the page.
+ *
+ * Events:
  *
  * Publishes the 'resource:uploaded' event when a file is successfully
  * uploaded. An callbacks receive an object of resource data.
  *
  * See: http://docs.ckan.org/en/latest/filestore.html 
  *
- * param - comment
+ * options - form: General form overrides for the upload.
+ *           template: Optional template can be provided.
  *
- * Examples
- *
- *   example
- *
- * Returns .
  */
 this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
   return {
+    /* Default options for the module */
     options: {
       form: {
         method: 'POST',
@@ -33,6 +33,12 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       ].join('\n')
     },
 
+    /* Initializes the module,  creates new elements and registers event
+     * listeners etc. This method is called by ckan.initialize() if there
+     * is a corresponding element on the page.
+     *
+     * Returns nothing.
+     */
     initialize: function () {
       jQuery.proxyAll(this, /_on/);
 
@@ -41,6 +47,10 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       this.el.append(this.upload);
     },
 
+    /* Sets up the jQuery.fileUpload() plugin with the provided options.
+     *
+     * Returns nothing.
+     */
     setupFileUpload: function () {
       var options = this.options;
 
@@ -60,29 +70,94 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       });
     },
 
+    /* Displays a loading spinner next to the input while uploading. This
+     * can be cancelled by recalling the method passing false as the first
+     * argument.
+     *
+     * show - If false hides the spinner (default: true).
+     *
+     * Examples
+     *
+     *   module.loading(); // Show spinner
+     *
+     *   module.loading(false); // Hide spinner.
+     *
+     * Returns nothing.
+     */
     loading: function (show) {
       this.upload.toggleClass('loading', show);
     },
 
+    /* Requests Authentication for the upload from CKAN. Uses the
+     * _onAuthSuccess/_onAuthError callbacks.
+     *
+     * key  - A unique key for the file that is to be uploaded.
+     * data - The file data object from the jQuery.fileUpload() plugin.
+     *
+     * Examples
+     *
+     *   onFileAdd: function (event, data) {
+     *     this.authenticate('my-file', data);
+     *   }
+     *
+     * Returns an jqXHR promise.
+     */
     authenticate: function (key, data) {
       data.key = key;
 
       var request = this.sandbox.client.getStorageAuth(key);
       var onSuccess = jQuery.proxy(this._onAuthSuccess, this, data);
-      request.then(onSuccess, this._onAuthError);
+      return request.then(onSuccess, this._onAuthError);
     },
 
+    /* Requests file metadata for the uploaded file and calls the
+     * _onMetadataSuccess/_onMetadataError callbacks.
+     *
+     * key  - A unique key for the file that is to be uploaded.
+     * data - The file data object from the jQuery.fileUpload() plugin.
+     *
+     * Examples
+     *
+     *   onFileUploaded: function (event, data) {
+     *     this.lookupMetadata('my-file', data);
+     *   }
+     *
+     * Returns an jqXHR promise.
+     */
     lookupMetadata: function (key, data) {
       var request = this.sandbox.client.getStorageMetadata(key);
       var onSuccess = jQuery.proxy(this._onMetadataSuccess, this, data);
-      request.then(onSuccess, this._onMetadataError);
+      return request.then(onSuccess, this._onMetadataError);
     },
 
+    /* Displays a global notification for the upload status.
+     *
+     * message - A message string to display.
+     * type    - The type of message eg. error/info/warning
+     *
+     * Examples
+     *
+     *   module.notify('Upload failed', 'error');
+     *
+     * Returns nothing.
+     */
     notify: function (message, type) {
       var title = _('An Error Occurred').fetch();
       this.sandbox.notify(title, message, type);
     },
 
+    /* Creates a unique key for the filename provided. This is a url
+     * safe string with a timestamp prepended.
+     *
+     * filename - The filename for the upload.
+     *
+     * Examples
+     *
+     *   module.generateKey('my file');
+     *   // => '2012-06-05T12:00:00.000Z/my-file'
+     *
+     * Returns a unique string.
+     */
     generateKey: function (filename) {
       var parts = filename.split('.');
       var extension = jQuery.url.slugify(parts.pop());
@@ -92,6 +167,13 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       return jQuery.date.toISOString() + '/' + filename;
     },
 
+    /* Callback called when the jQuery file upload plugin receives a file.
+     *
+     * event - The jQuery event object.
+     * data  - An object of file data.
+     *
+     * Returns nothing.
+     */
     _onUploadAdd: function (event, data) {
       if (data.files && data.files.length) {
         var key = this.generateKey(data.files[0].name);
@@ -100,23 +182,31 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       }
     },
 
+    /* Callback called when the jQuery file upload plugin fails to upload
+     * a file.
+     */
     _onUploadFail: function () {
       this.sandbox.notify(_('Unable to upload file').fetch());
     },
 
+    /* Callback called when jQuery file upload plugin sends a file */
     _onUploadSend: function () {
       this.loading();
     },
 
+    /* Callback called when jQuery file upload plugin successfully uploads a file */
     _onUploadDone: function (event, data) {
       this.lookupMetadata(data.key, data);
     },
 
+    /* Callback called when jQuery file upload plugin completes a request
+     * regardless of it's success/failure.
+    */
     _onUploadComplete: function () {
       this.loading(false);
     },
 
-    /* Callback function for a successfull Auth request. This cannot be
+    /* Callback function for a successful Auth request. This cannot be
      * used straight up but requires the data object to be passed in
      * as the first argument.
      *
@@ -136,11 +226,13 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       data.submit();
     },
 
+    /* Called when the request for auth credentials fails. */
     _onAuthError: function (event, data) {
       this.sandbox.notify(_('Unable to authenticate upload').fetch());
       this._onUploadComplete();
     },
 
+    /* Called when the request for file metadata succeeds */
     _onMetadataSuccess: function (data, response) {
       var resource = this.sandbox.client.convertStorageMetadataToResource(response);
 
@@ -148,6 +240,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       this.sandbox.publish('resource:uploaded', resource);
     },
 
+    /* Called when the request for file metadata fails */
     _onMetadataError: function () {
       this.sandbox.notify(_('Unable to get data for uploaded file').fetch());
       this._onUploadComplete();
