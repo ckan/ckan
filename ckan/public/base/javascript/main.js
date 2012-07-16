@@ -2,6 +2,10 @@
 this.ckan = this.ckan || {};
 
 (function (ckan, jQuery) {
+  ckan.PRODUCTION = 'production';
+  ckan.DEVELOPMENT = 'development';
+  ckan.TESTING = 'testing';
+
   ckan.initialize = function () {
     var body = jQuery('body');
     var trailingSlash = /\/$/;
@@ -35,20 +39,23 @@ this.ckan = this.ckan || {};
   ckan.url = function (path, includeLocale) {
     if (typeof path === 'boolean') {
       includeLocale = path;
-      path = '';
+      path = null;
     }
 
-    path = path.replace(/^\//, '');
+    path = (path || '').replace(/^\//, '');
 
-    var root = includeLocale ? ckan.SITE_ROOT : ckan.LOCALE_ROOT;
+    var root = includeLocale ? ckan.LOCALE_ROOT : ckan.SITE_ROOT;
     return path ? root + '/' + path : root;
   };
 
   ckan.sandbox.extend({url: ckan.url});
 
-  jQuery(function () {
-    ckan.initialize();
-  });
+  if (ckan.ENV !== ckan.TESTING) {
+    jQuery(function () {
+      ckan.initialize();
+    });
+  }
+
 })(this.ckan, this.jQuery);
 
 // Temporary banner to let users on IE7 know that it may not display as
