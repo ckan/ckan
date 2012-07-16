@@ -19,7 +19,7 @@ function compile(event, filename) {
     filename = 'main.debug.css';
   }
 
-  exec('`npm bin`/lessc ckan/public/base/less/main.less > ckan/public/base/css/' + filename, function (err, stdout, stderr) {
+  exec('`npm bin`/lessc ' + __dirname + '/../ckan/public/base/less/main.less > ' + __dirname + '/../ckan/public/base/css/' + filename, function (err, stdout, stderr) {
     var duration = Date.now() - start;
 
     if (err) {

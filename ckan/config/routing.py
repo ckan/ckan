@@ -228,6 +228,7 @@ def make_map():
           requirements=dict(action='|'.join([
           'edit',
           'authz',
+          'delete',
           'history'
           ]))
           )

@@ -579,7 +579,10 @@ class PackageController(BaseController):
         pkg_dict = get_action('package_show')(context, {'id': id})
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
-        vars['stage'] = ['complete', 'active', 'complete']
+        if pkg_dict['state'] == 'draft':
+            vars['stage'] = ['complete', 'active']
+        else:
+            vars['stage'] = ['complete', 'active', 'complete']
         return render('package/new_resource.html', extra_vars=vars)
 
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
@@ -626,6 +629,10 @@ class PackageController(BaseController):
 
             redirect(h.url_for(controller='package', action='read', id=id))
 
+        if not data:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author, 'extras_as_string': True,}
+            data = get_action('package_show')(context, {'id': id})
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}

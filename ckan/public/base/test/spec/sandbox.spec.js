@@ -1,29 +1,74 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
 describe('ckan.sandbox()', function () {
+  it('should create an instance of Sandbox', function () {
+    var target = sinon.stub(ckan.sandbox, 'Sandbox');
+    ckan.sandbox();
+    sinon.assert.called(target);
+    target.restore();
+  });
+
+  it('should pass in sandbox.callbacks', function () {
+    var target = sinon.stub(ckan.sandbox, 'Sandbox');
+    ckan.sandbox();
+    sinon.assert.calledWith(target, ckan.sandbox.callbacks);
+    target.restore();
+  });
+
   describe('Sandbox()', function () {
     var Sandbox = ckan.sandbox.Sandbox;
 
     beforeEach(function () {
-      this.el = document.createElement('div');
-      this.options = {prop1: 1, prop2: 2, prop3: 3};
     });
 
-    describe('.options', function () {
-      it('should be a reference to the options passed into Sandbox');
-    });
+    it('should call each callback provided with itself', function () {
+      var callbacks = [sinon.spy(), sinon.spy(), sinon.spy()];
 
-    describe('.el', function () {
-      it('should the element passed into Sandbox wrapped in jQuery');
-    });
+      var target = new Sandbox(callbacks);
 
-    describe('.$()', function () {
-      it('should find elements within the .el property');
+      jQuery.each(callbacks, function () {
+        sinon.assert.called(this);
+        sinon.assert.calledWith(this, target);
+      });
     });
 
     describe('.ajax()', function () {
       it('should be an alias for the jQuery.ajax() method', function () {
-        var target = new Sandbox(this.el, this.options);
+        var target = new Sandbox();
         assert.strictEqual(target.ajax, jQuery.ajax);
+      });
+    });
+
+    describe('.jQuery()', function () {
+      it('should be a reference to jQuery', function () {
+        var target = new Sandbox();
+        assert.strictEqual(target.jQuery, jQuery);
+      });
+    });
+  });
+
+  describe('sandbox.extend()', function () {
+    it('should extend the Sandbox.prototype with properties', function () {
+      var method = sinon.spy();
+
+      ckan.sandbox.extend({method: method});
+
+      assert.equal(ckan.sandbox().method, method);
+    });
+  });
+
+  describe('sandbox.setup()', function () {
+    it('should register a function to be called when the sandbox is initialized', function () {
+      var target = sinon.spy();
+
+      ckan.sandbox.setup(target);
+      ckan.sandbox();
+
+      sinon.assert.called(target);
+    });
+
+    it('should throw an error if a non function is provided', function () {
+      assert.throws(function () {
+        ckan.sandbox.setup('not a function');
       });
     });
   });

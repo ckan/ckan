@@ -1,0 +1,80 @@
+.recline-data-explorer .header .navigation,
+.recline-data-explorer .header .navigation li,
+.recline-data-explorer .header .pagination,
+.recline-data-explorer .header .pagination form
+{
+  display: inline;
+}
+
+.recline-data-explorer .header .navigation {
+  float: left;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.recline-data-explorer .header .menu-right {
+  float: right;
+  margin-left: 5px;
+  padding-left: 5px;
+  border-left: solid 2px #ddd;
+}
+
+.header .recline-results-info {
+  line-height: 28px;
+  margin-left: 20px;
+  display: inline;
+}
+
+.header .recline-query-editor {
+  float: right;
+  height: 30px;
+}
+
+.header .recline-query-editor .input-prepend {
+  margin-bottom: auto;
+}
+
+.recline-query-editor .add-on {
+  float: left;
+}
+
+.header .recline-query-editor .pagination input {
+  width: 30px;
+  height: 18px;
+  padding: 2px 4px;
+  margin-top: -4px;
+}
+
+.header .recline-query-editor .pagination a {
+  line-height: 26px;
+  padding: 0 6px;
+}
+
+.header .recline-query-editor form button {
+  vertical-align: top;
+}
+
+.recline-data-explorer .data-view-container {
+  display: block;
+  clear: both;
+}
+
+.recline-filter-editor .filter-term .input-append a {
+  margin-left: -5px;
+}
+
+.recline-facet-viewer .facet-summary label {
+  display: inline;
+}
+
+/**********************************************************
+  * Notifications
+  *********************************************************/
+
+.recline-data-explorer .notification-loader {
+  width: 18px;
+  margin-left: 5px;
+  background: url(images/small-spinner.gif) no-repeat;
+  display: inline-block;
+}
+

@@ -1,13 +1,62 @@
 // Global ckan namespace
 this.ckan = this.ckan || {};
 
-this.ckan.initialize = function () {
-  this.module.initialize();
-};
+(function (ckan, jQuery) {
+  ckan.PRODUCTION = 'production';
+  ckan.DEVELOPMENT = 'development';
+  ckan.TESTING = 'testing';
 
-this.jQuery(function () {
-  ckan.initialize();
-});
+  ckan.initialize = function () {
+    var body = jQuery('body');
+    var trailingSlash = /\/$/;
+    var location = window.location;
+    var root = location.protocol + location.host;
+
+    this.SITE_ROOT   = (body.data('siteRoot') || root).replace(trailingSlash, '');
+    this.LOCALE_ROOT = (body.data('localeRoot') || root).replace(trailingSlash, '');
+
+    this.module.initialize();
+  };
+
+  /* Returns a full url for the current site with the provided path appended.
+   *
+   * path          - A path to append to the url (default: '/')
+   * includeLocale - If true the current locale will be added to the page.
+   *
+   * Examples
+   *
+   *   var imageUrl = sandbox.url('/my-image.png');
+   *   // => http://example.ckan.org/my-image.png
+   *
+   *   var imageUrl = sandbox.url('/my-image.png', true);
+   *   // => http://example.ckan.org/en/my-image.png
+   *
+   *   var localeUrl = sandbox.url(true);
+   *   // => http://example.ckan.org/en
+   *
+   * Returns a url string.
+   */
+  ckan.url = function (path, includeLocale) {
+    if (typeof path === 'boolean') {
+      includeLocale = path;
+      path = null;
+    }
+
+    path = (path || '').replace(/^\//, '');
+
+    var root = includeLocale ? ckan.LOCALE_ROOT : ckan.SITE_ROOT;
+    return path ? root + '/' + path : root;
+  };
+
+  ckan.sandbox.extend({url: ckan.url});
+
+  if (ckan.ENV !== ckan.TESTING) {
+    jQuery(function () {
+      ckan.initialize();
+    });
+  }
+
+})(this.ckan, this.jQuery);
 
 // Temporary banner to let users on IE7 know that it may not display as
 // expected.
