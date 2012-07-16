@@ -14,6 +14,38 @@ this.ckan = this.ckan || {};
     this.module.initialize();
   };
 
+  /* Returns a full url for the current site with the provided path appended.
+   *
+   * path          - A path to append to the url (default: '/')
+   * includeLocale - If true the current locale will be added to the page.
+   *
+   * Examples
+   *
+   *   var imageUrl = sandbox.url('/my-image.png');
+   *   // => http://example.ckan.org/my-image.png
+   *
+   *   var imageUrl = sandbox.url('/my-image.png', true);
+   *   // => http://example.ckan.org/en/my-image.png
+   *
+   *   var localeUrl = sandbox.url(true);
+   *   // => http://example.ckan.org/en
+   *
+   * Returns a url string.
+   */
+  ckan.url = function (path, includeLocale) {
+    if (typeof path === 'boolean') {
+      includeLocale = path;
+      path = '';
+    }
+
+    path = path.replace(/^\//, '');
+
+    var root = includeLocale ? ckan.SITE_ROOT : ckan.LOCALE_ROOT;
+    return path ? root + '/' + path : root;
+  };
+
+  ckan.sandbox.extend({url: ckan.url});
+
   jQuery(function () {
     ckan.initialize();
   });
