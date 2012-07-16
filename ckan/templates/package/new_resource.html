@@ -2,7 +2,7 @@
 
 {% block title %}{{ _('Add data to the dataset') }} - {{ super }}{% endblock %}
 
-{% block form %}{{ h.snippet('package/snippets/resource_form.html', data=data, errors=errors, include_metadata=false, pkg_name=pkg_name, stage=stage) }}{% endblock %}
+{% block form %}{% snippet 'package/snippets/resource_form.html', data=data, errors=errors, include_metadata=false, pkg_name=pkg_name, stage=stage %}{% endblock %}
 
 {% block secondary_content %}
   <section class="module module-narrow">

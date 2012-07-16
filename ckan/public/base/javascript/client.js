@@ -87,9 +87,16 @@
       var modifiedISO = jQuery.date.toISOString(modified);
       var filename = meta['filename-original'] || meta.key;
       var format = meta._format || filename.split('.').pop();
+      var url = meta._location;
+
+      // If this is a local upload then the returned url will not have a domain
+      // and we should add one.
+      if (url.indexOf('://') === -1) {
+        url = ckan.url(url);
+      }
 
       return {
-        url: meta._location,
+        url: url,
         key: meta.key, /* Not strictly Resource data but may be useful */
         name: filename,
         size: meta._content_length,

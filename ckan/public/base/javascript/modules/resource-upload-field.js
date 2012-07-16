@@ -27,8 +27,8 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
         '<span class="resource-upload-field">',
         '<i class="ckan-icon ckan-icon-link-plugin"></i>',
         '<input type="file" />',
-        '<input id="field-resource-source-file" type="radio" name="resource_source" value="file.upload" />',
-        '<label class="radio inline" for="field-resource-source-file"></label>',
+        '<input id="field-resource-type-file" type="radio" name="resource_type" value="file.upload" />',
+        '<label class="radio inline" for="field-resource-type-file"></label>',
         '</span>'
       ].join('\n')
     },
@@ -143,10 +143,9 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
 
     _onMetadataSuccess: function (data, response) {
       var resource = this.sandbox.client.convertStorageMetadataToResource(response);
+
       this.sandbox.notify(_('Resource uploaded').fetch(), '', 'success');
       this.sandbox.publish('resource:uploaded', resource);
-
-      this.$('input[type=radio]').prop('checked', true);
     },
 
     _onMetadataError: function () {

@@ -8,9 +8,20 @@ this.ckan.module('resource-form', function (jQuery, _) {
       this.sandbox.unsubscribe('resource:uploaded', this._onResourceUploaded);
     },
     _onResourceUploaded: function (resource) {
-      for (var key in resource) {
+      var key;
+      var field;
+
+      for (key in resource) {
         if (resource.hasOwnProperty(key)) {
-          this.$('[name="' + key + '"]').val(resource[key]);
+          field = this.$('[name="' + key + '"]');
+
+          if (field.is(':checkbox, :radio')) {
+            this.$('[value="' + resource[key] + '"]').prop('checked', true);
+          } else if (field.is('select')) {
+            field.prop('selected', resource[key]);
+          } else {
+            field.val(resource[key]);
+          }
         }
       }
     }
