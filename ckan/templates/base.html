@@ -3,7 +3,7 @@
 
 {# Allows custom attributes to be added to the <html> tag #}
 {%- block htmltag -%}
-{% set lang = 'en-gb' %}
+{% set lang = h.lang() %}
 <!--[if IE 7]> <html lang="{{ lang }}" class="ie ie7"> <![endif]-->
 <!--[if IE 8]> <html lang="{{ lang }}" class="ie ie8"> <![endif]-->
 <!--[if IE 9]> <html lang="{{ lang }}" class="ie9"> <![endif]-->
@@ -11,7 +11,7 @@
 {%- endblock -%}
 
   {# Allows custom attributes to be added to the <head> tag #}
-  {% block headtag %}<head>{% endblock -%}
+  <head{% block headtag %}{% endblock %}>
     {# Append a .js class to the html element #}
     <script>document.getElementsByTagName('html')[0].className += ' js';</script>
 
@@ -78,7 +78,7 @@
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
-  {%- block bodytag %}<body>{% endblock -%}
+  <body{% block bodytag %} data-site-root="{{ h.url('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url('/', qualified=true) }}"{% endblock %}>
 
     {#
     The page block allows you to add content to the page. Most of the time it is
