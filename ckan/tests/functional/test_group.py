@@ -58,6 +58,47 @@ class TestGroup(FunctionalTestCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
+    def test_children(self):
+        group_name = 'deletetest'
+        CreateTestData.create_groups([{'name': group_name,
+                                       'packages': []},
+                                       {'name': "parent_group",
+                                       'packages': []}],
+                                     admin_user_name='russianfan')
+
+        parent = model.Group.by_name("parent_group")
+        group = model.Group.by_name(group_name)
+
+        rev = model.repo.new_revision()
+        rev.author = "none"
+
+        member = model.Member(group_id=parent.id, table_id=group.id,
+                              table_name='group', capacity='member')
+        model.Session.add(member)
+        model.repo.commit_and_remove()
+
+        offset = url_for(controller='group', action='edit', id=group_name)
+        res = self.app.get(offset, status=200,
+                           extra_environ={'REMOTE_USER': 'russianfan'})
+        main_res = self.main_div(res)
+        assert 'Edit: %s' % group.title in main_res, main_res
+        assert 'value="active" selected' in main_res, main_res
+
+        parent = model.Group.by_name("parent_group")
+        assert_equal(len(parent.get_children_groups()), 1)
+
+        # delete
+        form = res.forms['group-edit']
+        form['state'] = 'deleted'
+        res = form.submit('save', status=302,
+                          extra_environ={'REMOTE_USER': 'russianfan'})
+
+        group = model.Group.by_name(group_name)
+        assert_equal(group.state, 'deleted')
+
+        parent = model.Group.by_name("parent_group")
+        assert_equal(len(parent.get_children_groups()), 0)
+
     def test_mainmenu(self):
         # the home page does a package search so have to skip this test if
         # search is not supported

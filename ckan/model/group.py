@@ -164,7 +164,8 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         # if returns the full depth of the hierarchy.
         results = meta.Session.query("id","name", "title").\
                 from_statement(HIERARCHY_CTE).params(id=self.id, type=type).all()
-        return [ { "id":idf, "name": name, "title": title } for idf,name,title in results ]
+        return [{ "id":idf, "name": name, "title": title }
+                for idf, name, title in results]
 
     def active_packages(self, load_eager=True, with_private=False):
         query = meta.Session.query(_package.Package).\
@@ -287,5 +288,5 @@ HIERARCHY_CTE =  """
 
     SELECT G.* FROM subtree AS ST
     INNER JOIN public.group G ON G.id = ST.table_id
-    WHERE group_id = :id AND G.type = :type and table_name='group'
+    WHERE group_id = :id AND G.type = :type and table_name='group' and G.state='active'
 """
