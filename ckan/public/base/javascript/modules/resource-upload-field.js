@@ -55,12 +55,13 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
         add:  this._onUploadAdd,
         send: this._onUploadSend,
         done: this._onUploadDone,
-        fail: this._onUploadFail
+        fail: this._onUploadFail,
+        always: this._onUploadComplete
       });
     },
 
     loading: function (show) {
-      this.el.addClass();
+      this.upload.toggleClass('loading', show);
     },
 
     authenticate: function (key, data) {
@@ -111,6 +112,10 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       this.lookupMetadata(data.key, data);
     },
 
+    _onUploadComplete: function () {
+      this.loading(false);
+    },
+
     /* Callback function for a successfull Auth request. This cannot be
      * used straight up but requires the data object to be passed in
      * as the first argument.
@@ -133,6 +138,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
 
     _onAuthError: function (event, data) {
       this.sandbox.notify(_('Unable to authenticate upload').fetch());
+      this._onUploadComplete();
     },
 
     _onMetadataSuccess: function (data, response) {
@@ -145,6 +151,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
 
     _onMetadataError: function () {
       this.sandbox.notify(_('Unable to get data for uploaded file').fetch());
+      this._onUploadComplete();
     }
   };
 });
