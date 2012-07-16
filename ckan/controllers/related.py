@@ -74,7 +74,8 @@ class RelatedController(base.BaseController):
         if not related:
             abort(404, _('The requested related item was not found'))
 
-        related.view_count += 1
+        related.view_count = model.Related.view_count + 1
+
         model.Session.add(related)
         model.Session.commit()
 
