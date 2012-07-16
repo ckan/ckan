@@ -218,6 +218,13 @@ describe('ckan.modules.ResourceUploadFieldModule()', function () {
 
       assert.called(target);
     });
+
+    it('should call the fail handler if the "result" object has an "error" key', function () {
+      var target = sinon.stub(this.module, '_onUploadFail');
+      this.module._onUploadDone({}, {result: {error: 'failed'}});
+
+      assert.called(target);
+    });
   });
 
   describe('._onUploadComplete()', function () {
