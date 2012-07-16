@@ -1,13 +1,23 @@
 // Global ckan namespace
 this.ckan = this.ckan || {};
 
-this.ckan.initialize = function () {
-  this.module.initialize();
-};
+(function (ckan, jQuery) {
+  ckan.initialize = function () {
+    var body = jQuery('body');
+    var trailingSlash = /\/$/;
+    var location = window.location;
+    var root = location.protocol + location.host;
 
-this.jQuery(function () {
-  ckan.initialize();
-});
+    this.SITE_ROOT   = (body.data('siteRoot') || root).replace(trailingSlash, '');
+    this.LOCALE_ROOT = (body.data('localeRoot') || root).replace(trailingSlash, '');
+
+    this.module.initialize();
+  };
+
+  jQuery(function () {
+    ckan.initialize();
+  });
+})(this.ckan, this.jQuery);
 
 // Temporary banner to let users on IE7 know that it may not display as
 // expected.
