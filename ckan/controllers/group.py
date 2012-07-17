@@ -255,6 +255,8 @@ class GroupController(BaseController):
         return render(self._new_template(group_type))
 
     def edit(self, id, data=None, errors=None, error_summary=None):
+        if 'delete' in request.params:
+            return self.delete(id)
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
@@ -385,13 +387,16 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
+        if 'cancel' in request.params:
+            h.redirect_to(controller='group', action='edit', id=id)
+
         try:
             check_access('group_delete', context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
 
         try:
-            if request.params.get('confirm') == 'yes':
+            if request.params.get('confirm_delete') == 'yes':
                 get_action('group_delete')(context, {'id': id})
                 h.redirect_to(controller='group', action='index')
             c.group_dict = get_action('group_show')(context, {'id': id})

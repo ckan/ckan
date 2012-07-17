@@ -33,7 +33,10 @@ then itself be extended to add/remove blocks of functionality. #}
         </p>
       {% endblock %}
       {% block delete_button %}
-        <a class="btn btn-danger pull-left" href="{% url_for controller='package', action='delete', id=c.pkg_dict.name %}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+        {% if h.check_access('package_delete', {'id': data.id})  %}
+          <button class="btn btn-danger pull-left" type="submit" name="delete">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</button>
+          <input type="hidden" name="confirm_delete" value="" />
+        {% endif %}
       {% endblock %}
       {% block cancel_button %}
         <a class="btn" href="">{% block cancel_button_text %}{{ _('Cancel') }}{% endblock %}</a>
