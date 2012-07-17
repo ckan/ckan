@@ -76,6 +76,17 @@ describe('ckan.module(id, properties|callback)', function () {
     it('should return the module object', function () {
       assert.equal(ckan.module.initialize(), ckan.module);
     });
+
+    it('should initialize more than one module sepearted by a space', function () {
+      this.fixture.empty();
+      this.element4 = jQuery('<div data-module="test1 test2">').appendTo(this.fixture);
+      this.test2 = ckan.module.registry.test2 = sinon.spy();
+
+      ckan.module.initialize();
+
+      assert.calledWith(this.target, this.test1, this.element4[0]);
+      assert.calledWith(this.target, this.test2, this.element4[0]);
+    });
   });
 
   describe('.createInstance(Module, element)', function () {
