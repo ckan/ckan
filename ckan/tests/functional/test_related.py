@@ -29,12 +29,15 @@ class TestRelated:
         model.Session.commit()
 
         # To get the RelatedDataset objects (for state change)
+        assert p.related_count == 1, p.related_count
         assert len(model.Related.get_for_dataset(p)) == 1
         assert len(model.Related.get_for_dataset(p,status='inactive')) == 0
         p.related.remove(r)
         model.Session.delete(r)
+        model.Session.commit()
 
         assert len(p.related) == 0
+        assert p.related_count == 0, p.related_count
 
 
     def test_inactive_related(self):
@@ -46,11 +49,13 @@ class TestRelated:
         model.Session.commit()
 
         # To get the RelatedDataset objects (for state change)
+        assert p.related_count == 1, p.related_count
         assert len(model.Related.get_for_dataset(p,status='active')) == 1
         assert len(model.Related.get_for_dataset(p,status='inactive')) == 0
         r.deactivate( p )
         r.deactivate( p ) # Does nothing.
         model.Session.refresh(p)
+        assert p.related_count == 0, p.related_count
         assert len(model.Related.get_for_dataset(p,status='active')) == 0
         assert len(model.Related.get_for_dataset(p,status='inactive')) == 1
 
@@ -140,6 +145,7 @@ class TestRelated:
         model.Session.commit()
 
         assert len(p.related) == 2
+        assert p.related_count == 2, p.related_count
 
         usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
         context = dict(model=model, user=usr['name'], session=model.Session)

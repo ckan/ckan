@@ -2,7 +2,7 @@ import datetime
 
 import sqlalchemy as sa
 from sqlalchemy import orm
-from sqlalchemy import types, Column, Table, ForeignKey, and_
+from sqlalchemy import types, Column, Table, ForeignKey, and_, func
 
 import meta
 import domain_object
@@ -77,3 +77,17 @@ meta.mapper(Related, related_table, properties={
     secondaryjoin=and_(related_dataset_table.c.dataset_id==_package.Package.id,
                           RelatedDataset.status=='active'))
 })
+
+def _related_count(dataset):
+    """
+    Returns the *number* of (active) related items for the given dataset.
+    """
+    return meta.Session.query(func.count(RelatedDataset.id)).\
+                        filter(RelatedDataset.dataset_id==dataset.id).\
+                        filter(RelatedDataset.status=='active').\
+                        scalar()
+
+if hasattr(_package.Package, 'related_count'):
+    raise Exception, 'Unable to attach `related_count` to Package class.'
+
+_package.Package.related_count = property(_related_count)
