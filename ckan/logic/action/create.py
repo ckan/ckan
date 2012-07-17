@@ -479,7 +479,8 @@ def group_create(context, data_dict):
     _check_access('group_create', context, data_dict)
 
     # get the schema
-    group_plugin = lib_plugins.lookup_group_plugin()
+    group_plugin = lib_plugins.lookup_group_plugin(
+            group_type=data_dict.get('type'))
     try:
         schema = group_plugin.form_to_db_schema_options({'type':'create',
                                                'api':'api_version' in context,
