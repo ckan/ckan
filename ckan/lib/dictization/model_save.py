@@ -46,7 +46,7 @@ def resource_dict_save(res_dict, context):
         del obj.extras[delete_me]
 
     if context.get('pending'):
-        if session.is_modified(obj, include_collections=False):
+        if session.is_modified(obj, include_collections=False, passive=True):
             obj.state = u'pending'
     else:
         obj.state = u'active'
