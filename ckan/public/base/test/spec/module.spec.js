@@ -1,15 +1,29 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ckan.module()', function () {
+describe('ckan.module(id, properties|callback)', function () {
   beforeEach(function () {
     ckan.module.registry = {};
-
-    this.factory = function () {};
+    ckan.module.instances = {};
+    this.factory = {};
   });
 
   it('should add a new item to the registry', function () {
-    ckan.module('name', this.factory);
+    ckan.module('test', this.factory);
 
-    assert.equal(ckan.module.registry.name, this.factory);
+    assert.instanceOf(new ckan.module.registry.test(), ckan.module.BaseModule);
+  });
+
+  it('should allow a function to be provided', function () {
+    var target = sinon.stub().returns({});
+    ckan.module('test', target);
+
+    assert.called(target);
+  });
+
+  it('should pass jQuery, i18n.translate() and i18n into the function', function () {
+    var target = sinon.stub().returns({});
+    ckan.module('test', target);
+
+    assert.calledWith(target, jQuery, ckan.i18n.translate, ckan.i18n);
   });
 
   it('should throw an exception if the module is already defined', function () {
@@ -17,13 +31,6 @@ describe('ckan.module()', function () {
     assert.throws(function () {
       ckan.module('name', this.factory);
     });
-  });
-
-  it('should assign the default object to the factory function', function () {
-    var defaults = {};
-
-    ckan.module('name', this.factory, defaults);
-    assert.equal(this.factory.defaults, defaults);
   });
 
   it('should return the ckan object', function () {
@@ -36,7 +43,7 @@ describe('ckan.module()', function () {
       this.element2 = jQuery('<div data-module="test1">').appendTo(this.fixture);
       this.element3 = jQuery('<div data-module="test2">').appendTo(this.fixture);
 
-      this.test1 = sinon.spy('test1');
+      this.test1 = sinon.spy();
 
       // Add test1 to the registry.
       ckan.module.registry = {
@@ -52,18 +59,18 @@ describe('ckan.module()', function () {
 
     it('should find all elements with the "data-module" attribute', function () {
       ckan.module.initialize();
-      sinon.assert.called(this.target);
+      assert.called(this.target);
     });
 
     it('should skip modules that are not functions', function () {
       ckan.module.initialize();
-      sinon.assert.calledTwice(this.target);
+      assert.calledTwice(this.target);
     });
 
     it('should call module.createInstance() with the element and factory', function () {
       ckan.module.initialize();
-      sinon.assert.calledWith(this.target, this.test1, this.element1[0]);
-      sinon.assert.calledWith(this.target, this.test1, this.element2[0]);
+      assert.calledWith(this.target, this.test1, this.element1[0]);
+      assert.calledWith(this.target, this.test1, this.element2[0]);
     });
 
     it('should return the module object', function () {
@@ -71,16 +78,15 @@ describe('ckan.module()', function () {
     });
   });
 
-  describe('.createInstance()', function () {
+  describe('.createInstance(Module, element)', function () {
     beforeEach(function () {
       this.element = document.createElement('div');
-      this.factory = sinon.spy('factory()');
-      this.factory.defaults = this.defaults = {test1: 'a', test2: 'b', test3: 'c'};
+      this.factory = ckan.module.BaseModule;
+      this.factory.options = this.defaults = {test1: 'a', test2: 'b', test3: 'c'};
 
       this.sandbox = {
-        options: {},
         i18n: {
-          translate: sinon.spy('i18n.translate()')
+          translate: sinon.spy()
         }
       };
       sinon.stub(ckan, 'sandbox').returns(this.sandbox);
@@ -97,8 +103,8 @@ describe('ckan.module()', function () {
     it('should extract the options from the element', function () {
       ckan.module.createInstance(this.factory, this.element);
 
-      sinon.assert.called(ckan.module.extractOptions);
-      sinon.assert.calledWith(ckan.module.extractOptions, this.element);
+      assert.called(ckan.module.extractOptions);
+      assert.calledWith(ckan.module.extractOptions, this.element);
     });
 
     it('should not modify the defaults object', function () {
@@ -110,26 +116,61 @@ describe('ckan.module()', function () {
 
     it('should create a sandbox object', function () {
       ckan.module.createInstance(this.factory, this.element);
-      sinon.assert.called(ckan.sandbox);
-      sinon.assert.calledWith(ckan.sandbox, this.element);
+      assert.called(ckan.sandbox);
+      assert.calledWith(ckan.sandbox, this.element);
     });
 
-    it('should call the module factory with the sandbox, options and translate function', function () {
-      ckan.module.createInstance(this.factory, this.element);
+    it('should initialize the module factory with the sandbox, options and translate function', function () {
+      var target = sinon.spy();
+      ckan.module.createInstance(target, this.element);
 
-      sinon.assert.called(this.factory);
-      sinon.assert.calledWith(this.factory, this.sandbox, this.sandbox.options, this.sandbox.i18n.translate);
+      assert.called(target);
+      assert.calledWith(target, this.element, this.extractedOptions, this.sandbox);
     });
 
-    it('should set the module factory scope to the element', function () {
-      ckan.module.createInstance(this.factory, this.element);
+    it('should initialize the module as a constructor', function () {
+      var target = sinon.spy();
+      ckan.module.createInstance(target, this.element);
 
-      sinon.assert.called(this.factory);
-      sinon.assert.calledOn(this.factory, this.element);
+      assert.calledWithNew(target);
+
     });
+
+    it('should call the .initialize() method if one exists', function () {
+      var init = sinon.spy();
+      var target = sinon.stub().returns({
+        initialize: init
+      });
+
+      ckan.module.createInstance(target, this.element);
+
+      assert.called(init);
+    });
+
+    it('should push the new instance into an array under ckan.module.instances', function () {
+      var target = function MyModule() { return {'mock': 'instance'}; };
+      target.namespace = 'test';
+
+      ckan.module.createInstance(target, this.element);
+
+      assert.deepEqual(ckan.module.instances.test, [{'mock': 'instance'}]);
+    });
+
+    it('should push further instances into the existing array under ckan.module.instances', function () {
+      var target = function MyModule() { return {'mock': 'instance3'}; };
+      target.namespace = 'test';
+
+      ckan.module.instances.test = [{'mock': 'instance1'}, {'mock': 'instance2'}];
+      ckan.module.createInstance(target, this.element);
+
+      assert.deepEqual(ckan.module.instances.test, [
+        {'mock': 'instance1'}, {'mock': 'instance2'}, {'mock': 'instance3'}
+      ]);
+    });
+
   });
 
-  describe('.extractOptions()', function () {
+  describe('.extractOptions(element)', function () {
     it('should extract the data keys from the element', function () {
       var element = jQuery('<div>', {
         'data-not-module': 'skip',

@@ -34,39 +34,39 @@ this.ckan = this.ckan || {};
  *
  */
 (function (ckan, $) {
+  var callbacks = [];
 
   /* Creates a new instance of Sandbox.
    *
-   * element - An element that the sandbox is bound to.
-   * options - An object of key/value pairs.
-   *
    * Examples
    *
-   *   new Sandbox(element, {a: 1, b: 2, c: 3});
+   *   new Sandbox();
    *
    * Returns a new instance of Sandbox.
    */
-  function Sandbox(element, options) {
-    this.el = element instanceof $ ? element : $(element);
-    this.options = options || {};
+  function Sandbox(callbacks) {
+    var index = 0;
+    var length = callbacks ? callbacks.length : 0;
+
+    // Allow libraries to add objects/arrays to the sandbox object as they
+    // cannot be added to the prototype without being shared.
+    for (; index < length; index += 1) {
+      callbacks[index](this);
+    }
   }
 
   $.extend(Sandbox.prototype, {
-    /* The jQuery element for the current module */
-    el: null,
-
-    /* The options object passed into the module either via data-* attributes
-     * or the default settings.
-     */
-    options: null,
-
     /* A scoped find function restricted to the current scope. */
-    $: function (selector) {
-      return this.el.find(selector);
-    },
+    jQuery: $,
 
     /* An alias for jQuery.ajax() */
     ajax: $.ajax,
+
+    body: $(document.body),
+
+    location: window.location,
+
+    window: window
   });
 
   /* Factory function for creating new sandbox instances. This should be
@@ -74,9 +74,9 @@ this.ckan = this.ckan || {};
    *
    * Returns a new Sandbox instance.
    */
-  ckan.sandbox = function (element, options) {
-    return new Sandbox(element, options);
-  };
+  function sandbox(element, options) {
+    return new sandbox.Sandbox(ckan.sandbox.callbacks);
+  }
 
   /* Allows the extension of the Sandbox prototype by other core libraries.
    *
@@ -92,12 +92,40 @@ this.ckan = this.ckan || {};
    *
    * Returns the ckan object.
    */
-  ckan.sandbox.extend = function (props) {
+  sandbox.extend = function (props) {
     $.extend(Sandbox.prototype, props || {});
     return ckan;
   };
 
+  /* Allows the extension of the Sandbox with objects and arrays. These
+   * cannot be added to the prototype without them being shared across
+   * all instances.
+   *
+   * fn - A callback that receives the sandbox object.
+   *
+   * Examples
+   *
+   *   ckan.sandbox.setup(function (sandbox) {
+   *     sandbox.myObject = {};
+   *     sandbox.myArray = [];
+   *   });
+   *
+   * Returns the ckan object.
+   */
+  sandbox.setup = function setup(fn) {
+    var callbacks = ckan.sandbox.callbacks = ckan.sandbox.callbacks || [];
+
+    if (typeof fn === 'function') {
+      callbacks.push(fn);
+    } else {
+      throw new Error('ckan.sandbox.setup() must be passed a function');
+    }
+
+    return ckan;
+  };
+
   // Export Sandbox for testing.
+  ckan.sandbox = sandbox;
   ckan.sandbox.Sandbox = Sandbox;
 
 })(this.ckan, this.jQuery);

@@ -1132,7 +1132,9 @@ def debug_full_info_as_list(debug_info):
                             'start_response']
     for key in debug_info.keys():
         if not key in ignored_keys:
-            out.append((key, debug_info.get(key)))
+            data = pprint.pformat(debug_info.get(key))
+            data = data.decode('utf-8')
+            out.append((key, data))
 
     if 'tmpl_context' in debug_info:
         for key in dir(debug_info['tmpl_context']):

@@ -19,7 +19,7 @@ Examples:
 #}
 {% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={}) %}
   {% call block(id or name, label or name, error, classes) %}
-  <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}"{{ attributes(attrs) }} />
+  <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}"{{ attributes(attrs) }} />
   {% endcall %}
 {% endmacro %}
 
@@ -44,7 +44,7 @@ Example:
   <div class="control-group{{ " " ~ classes | join(" ") }}{% if error %} error{% endif %}">
     <div class="controls">
       <label class="checkbox" for="{{ id or name }}">
-        <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | e }}" {{ "checked " if checked }}{{ attributes(attrs) }} />
+        <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | empty_and_escape }}" {{ "checked " if checked }}{{ attributes(attrs) }} />
         {{ label or name }}
         {% if error %}<strong class="error-inline">{{ error|join(', ') }}</strong>{% endif %}
       </label>
@@ -106,7 +106,7 @@ Examples:
   {% do classes.append('control-full') %}
 
   {% call block(id or name, label or name, error, classes, control_classes=["editor"]) %}
-    <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}"{{ attributes(attrs) }}>{{ value | e }}</textarea>
+    <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}"{{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
     <span class="info-block">{% trans %}You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here{% endtrans %}</span>
   {% endcall %}
 {% endmacro %}
@@ -139,7 +139,7 @@ Examples:
   {% call block(id or name, label or name, error='', classes=classes) %}
     <div class="input-prepend">
       {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
-      <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | e }}" placeholder="{{ placeholder }}"{{ attributes(attrs) }} />
+      <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}"{{ attributes(attrs) }} />
       {% if error %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
     </div>
   {% endcall %}
@@ -179,8 +179,8 @@ Examples:
 
   {% call block(label_id, label or name, error, classes, control_classes=["editor"]) %}
     <div class="input-prepend" {{ attributes(attrs) }}>
-      <label for="{{ label_id }}" class="add-on">Key</label><input id="{{ id or names[0] }}-key" name="{{ names[0] }}" value="{{ values[0] | e }}" placeholder="{{ placeholders[0] }}" />
-      <label for="{{ id or names[1] }}-value" class="add-on">Value</label><input id="{{ id or names[1] }}-value" name="{{ names[1] }}" value="{{ values[1] | e }}" placeholder="{{ placeholders[1] }}" />
+      <label for="{{ label_id }}" class="add-on">Key</label><input id="{{ id or names[0] }}-key" name="{{ names[0] }}" value="{{ values[0] | empty_and_escape }}" placeholder="{{ placeholders[0] }}" />
+      <label for="{{ id or names[1] }}-value" class="add-on">Value</label><input id="{{ id or names[1] }}-value" name="{{ names[1] }}" value="{{ values[1] | empty_and_escape }}" placeholder="{{ placeholders[1] }}" />
       {% if values[0] or values[1] or error %}
         <label class="checkbox" for="{{ id or names[2] }}-remove">
           <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} /> {{ _('Remove') }}
@@ -205,7 +205,7 @@ Example:
 
   {% import 'macros/form.html' as form %}
   {% call form.block("field", "My Field") %}
-    <input id="field" type="text" name="{{ name }}" value="{{ value | e }}" />
+    <input id="field" type="text" name="{{ name }}" value="{{ value | empty_and_escape }}" />
   {% endcall %}
 
 #}

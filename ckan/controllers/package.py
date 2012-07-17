@@ -479,7 +479,37 @@ class PackageController(BaseController):
         return render(self._new_template(package_type),
                       extra_vars={'stage': stage})
 
-    def resource_edit(self, id, resource_id):
+    def resource_edit(self, id, resource_id, data=None, errors=None,
+                      error_summary=None):
+        if request.method == 'POST' and not data:
+            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                request.POST))))
+            # we don't want to include save as it is part of the form
+            del data['save']
+
+            context = {'model': model, 'session': model.Session,
+                       'api_version': 3,
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
+
+            data['package_id'] = id
+            try:
+                if resource_id:
+                    data['id'] = resource_id
+                    get_action('resource_update')(context, data)
+                else:
+                    get_action('resource_create')(context, data)
+            except ValidationError, e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+                return self.resource_edit(id, resource_id, data,
+                                          errors, error_summary)
+            except NotAuthorized:
+                abort(401, _('Unauthorized to edit this resource'))
+            redirect(h.url_for(controller='package', action='resource_read',
+                               id=id, resource_id=resource_id))
+
+
         context = {'model': model, 'session': model.Session,
                    'api_version': 3,
                    'user': c.user or c.author,}
@@ -493,10 +523,24 @@ class PackageController(BaseController):
                 data[field] = resource_dict[field]
             return self.new_resource(id, data=data)
         # resource is fully created
-        resource_dict = get_action('resource_show')(context, {'id': resource_id})
+        try:
+            resource_dict = get_action('resource_show')(context, {'id': resource_id})
+        except NotFound:
+            # FIXME need to handle this
+            pass
         c.pkg_dict = pkg_dict
         c.resource = resource_dict
-        return render('package/resource_edit.html')
+        # set the form action
+        c.form_action = h.url_for(controller='package',
+                                  action='resource_edit',
+                                  resource_id=resource_id,
+                                  id=id)
+        data = resource_dict
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'new'}
+        return render('package/resource_edit.html', extra_vars=vars)
 
 
 
@@ -579,7 +623,10 @@ class PackageController(BaseController):
         pkg_dict = get_action('package_show')(context, {'id': id})
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
-        vars['stage'] = ['complete', 'active', 'complete']
+        if pkg_dict['state'] == 'draft':
+            vars['stage'] = ['complete', 'active']
+        else:
+            vars['stage'] = ['complete', 'active', 'complete']
         return render('package/new_resource.html', extra_vars=vars)
 
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
@@ -626,6 +673,10 @@ class PackageController(BaseController):
 
             redirect(h.url_for(controller='package', action='read', id=id))
 
+        if not data:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author, 'extras_as_string': True,}
+            data = get_action('package_show')(context, {'id': id})
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
@@ -633,6 +684,8 @@ class PackageController(BaseController):
         return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
+        if 'delete' in request.params:
+            return self.delete(id)
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
@@ -687,14 +740,7 @@ class PackageController(BaseController):
             c.form = render(self._package_form(package_type=package_type),
                             extra_vars=vars)
 
-        if (c.action == u'editresources'):
-            return render('package/editresources.html')
-        else:
-            return render('package/edit.html')
-
-    def editresources(self, id, data=None, errors=None, error_summary=None):
-        '''Hook method made available for routing purposes.'''
-        return self.edit(id, data, errors, error_summary)
+        return render('package/edit.html')
 
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
@@ -935,14 +981,18 @@ class PackageController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
+        if 'cancel' in request.params:
+            h.redirect_to(controller='package', action='edit', id=id)
+
         try:
             check_access('package_delete', context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete package %s') % '')
 
         try:
-            if request.params.get('confirm') == 'yes':
+            if request.params.get('confirm_delete') == 'yes':
                 get_action('package_delete')(context, {'id': id})
+                h.flash_notice(_('Dataset has been deleted.'))
                 h.redirect_to(controller='package', action='search')
             c.pkg_dict = get_action('package_show')(context, {'id': id})
         except NotAuthorized:

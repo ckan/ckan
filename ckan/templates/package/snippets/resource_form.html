@@ -2,13 +2,20 @@
 
 {% set data = data or {} %}
 {% set errors = errors or {} %}
+{% set action = form_action or h.url_for(controller='package', action='new_resource', id=pkg_name) %}
 
-<form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{% url_for controller='package', action='new_resource', id=pkg_name %}" >
-  {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name) }}
+<form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="resource-form">
+  {% block stages %}
+    {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name) }}
+  {% endblock %}
+
+  {{ form.errors(error_summary) }}
+
   <input name="id" value="{{ data.id }}" type="hidden"/>
+
   <div class="control-group dataset-form-resource-types">
     {% block basic_fields %}
-      <div class="controls">
+      <div class="controls" data-module="resource-upload-field">
         {#
         This block uses a slightly odd pattern. Unlike the rest of the radio
         buttons which are wrapped _inside_ the labels here we place the label
@@ -17,10 +24,10 @@
         #}
         <i class="ckan-icon ckan-icon-link-file"></i>
         <input id="field-resource-type-file" type="radio" name="resource_type" checked="checked" value="file" />
-        <label class="radio inline" for="field-resource-type-file">Link to a file</label>
+        <label class="radio inline" for="field-resource-type-file">{{ _('Link to a file') }}</label>
         <i class="ckan-icon ckan-icon-link-plugin"></i>
         <input id="field-resource-type-api" type="radio" name="resource_type" value="api" />
-        <label class="radio inline" for="field-resource-type-api">Link to an API</label>
+        <label class="radio inline" for="field-resource-type-api">{{ _('Link to an API') }}</label>
       </div>
     </div>
 
@@ -35,14 +42,32 @@
 
   {% block metadata_fields %}
     {% if include_metadata %}
-      {{ form.select('type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }}
       {# TODO: Where do these come from, they don't exist in /package/new_package_form.html #}
-    {% endif %} 
+      {# {{ form.select('resource_type', id='field-type', label=_('Resource Type'), options={empty: _('Select a type…')}, selected="empty", error=errors.type) }} #}
+
+      {{ form.input('last_modified', id='field-last-modified', label=_('Last Modified'), placeholder=_('eg. 2012-06-05'), value=data.last_modified, error=errors.last_modified, classes=[]) }}
+
+      {{ form.input('size', id='field-size', label=_('File Size'), placeholder=_('eg. 1024'), value=data.size, error=errors.size, classes=[]) }}
+
+      {{ form.input('mimetype', id='field-mimetype', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype, error=errors.mimetype, classes=[]) }}
+
+      {{ form.input('mimetype_inner', id='field-mimetype-inner', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype_inner, error=errors.mimetype_inner, classes=[]) }}
+    {% else %}
+      <input type="hidden" name="last_modified" value="{{ data.last_modified }}" />
+      <input type="hidden" name="size" value="{{ data.size }}" />
+      <input type="hidden" name="mimetype" value="{{ data.mimetype }}" />
+      <input type="hidden" name="mimetype_inner" value="{{ data.mimetype_inner }}" />
+      <input type="hidden" name="hash" value="{{ data.hash }}" />
+    {% endif %}
   {% endblock %}
 
   <div class="form-actions">
-    <button class="btn" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
-    <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
-    <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{{ _('Next: Additional Info') }}</button>
+    {% block previous_button %}
+      <button class="btn" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
+    {% endblock %}
+    {% block again_button %}
+      <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
+    {% endblock %}
+    <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Next: Additional Info') }}{% endblock %}</button>
   </div>
 </form>

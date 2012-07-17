@@ -1,7 +1,7 @@
 this.ckan = this.ckan || {};
 
 /* The module system ties JavaScript code to elements on the page. A module is
- * simply a function that recieves an element and a sandboxed module object.
+ * simply a function that receives an element and a sandboxed module object.
  *
  * The sandbox provides useful methods for querying within the module element
  * as well as making ajax calls and talking to other modules. The idea being to
@@ -11,71 +11,182 @@ this.ckan = this.ckan || {};
  * Modules are initialized through the DOM keeping boilerplate setup code to a
  * minimum. If an element in the page has a "data-module" attribute then an
  * instance of that module (if registered) will be created when the page loads
- * and will recieve the element and the sandbox mentioned above.
+ * and will receive the element and the sandbox mentioned above.
  *
  * Examples
  *
  *   // For element: <select data-module="language-picker"></select>
  *
- *   // Function recieves the sandbox, options and translate() arguments.
- *   ckan.module('language-picker', function (sb, options, _) {
- *     // .el is the dom node the element was created with.
- *     sb.el.on('change', function () {
+ *   // Register a new module object, .initialize() is called on load.
+ *   ckan.module('language-picker', {
+ *     initialize: function () {
+ *       var el = this.el;
+ *       var sandbox = this.sandbox;
+ *       var _ = this.sandbox.translate;
  *
- *       // Publish the new language so other modules can update.
- *       sb.publish('lang', this.selected);
+ *       // .el is the dom node the element was created with.
+ *       this.el.on('change', function () {
  *
- *       // Display a localized notification to the user.
- *       // NOTE: _ is an alias for sb.translate()
- *       sb.alert(_('Language changed to: ' + this.selected).fetch());
- *     });
+ *         // Publish the new language so other modules can update.
+ *         sandbox.publish('lang', this.selected);
  *
- *     // listen for other updates to lang.
- *     sb.subscribe('lang', function (lang) {
- *       // Update the element select box.
- *       sb.el.select(lang);
- *     });
+ *         // Display a localized notification to the user.
+ *         // NOTE: _ is an alias for sb.translate()
+ *         sandbox.notify(_('Language changed to: ' + this.selected).fetch());
+ *       });
+ *
+ *       // listen for other updates to lang.
+ *       sandbox.subscribe('lang', function (lang) {
+ *         // Update the element select box.
+ *         el.select(lang);
+ *       });
+ *     }
+ *   });
+ *
+ *   // Can also provide a function that returns this object. The function will
+ *   // be passed jQuery, i18n.translate() and i18n objects. This can save
+ *   // typing when using these objects a lot.
+ *   ckan.module('language-picker', function (jQuery, translate, i18n) {
+ *     return {
+ *       // Module code.
+ *     }
  *   });
  */
-(function (ckan, $, window) {
+(function (ckan, jQuery, window) {
   // Prefixes for the HTML attributes use to pass options into the modules.
   var MODULE_PREFIX = 'data-module';
   var MODULE_OPTION_PREFIX = 'data-module-';
 
+  /* BaseModule is the core of the CKAN website. It represents a single element
+   * in the current document and is used to add functionality to that element.
+   *
+   * I should not be used itself but rather subclasses using the ckan.module()
+   * method.
+   *
+   * It receives a sandbox element with various libraries and utility functions
+   * and should use this rather than the global objects (jQuery for instance)
+   * as it makes the modules much easier to test.
+   *
+   * The options property can be used to set defaults, these can be overridden
+   * by the user through data-* attributes on the element.
+   *
+   * element - An element that the sandbox is bound to.
+   * options - An object of key/value pairs.
+   * sandbox - A sandbox instance.
+   *
+   * Returns a new BaseModule instance.
+   */
+  function BaseModule(el, options, sandbox) {
+    this.el = el instanceof jQuery ? el : jQuery(el);
+    this.options = jQuery.extend(true, {}, this.options, options);
+    this.sandbox = sandbox;
+  }
+
+  jQuery.extend(BaseModule.prototype, {
+    /* The jQuery element for the current module */
+    el: null,
+
+    /* The options object passed into the module either via data-* attributes
+     * or the default settings.
+     */
+    options: null,
+
+    /* A scoped find function restricted to the current scope. */
+    $: function (selector) {
+      return this.el.find(selector);
+    },
+
+    /* Should be defined by the extending module to provide initialization
+     * code. This will be called directly after the instance has been
+     * invoked.
+     */
+    initialize: function () {},
+
+    /* Called just before the element is removed from the DOM, use it to
+     * un-subscribe any listeners and clean up memory.
+     *
+     * Examples
+     *
+     *   teardown: function () {
+     *     this.sandbox.unsubscribe('lang', this.onLangChange);
+     *     this.sandbox.unsubscribe('login', this.onLogin);
+     *   }
+     *
+     * Returns nothing.
+     */
+    teardown: function () {},
+
+    /* Removes the module element from the document.
+     *
+     * Returns nothing.
+     */
+    remove: function () {
+      this.teardown();
+      this.el.remove();
+    }
+  });
+
   /* Add a new module to the registry.
    *
-   * name     - A unique name for the module to be registered.
-   * factory  - This function will be called when the module is initialized.
-   * defaults - An object of default options for the module.
+   * This expects an object of methods/properties to be provided. These will
+   * then be used to create a new BaseModule subclass which will be invoked each
+   * time that a module appears on the page.
+   *
+   * name       - A unique name for the module to be registered.
+   * properties - An object of module properties or a function that returns
+   *              an object.
    *
    * Examples
    *
-   *   ckan.module('like-button', function (mod, options, _) {
-   *     mod.element.on('click', function () {
-   *       var url = options.endpoint;
-   *       var message = _('Dataset was liked!').fetch();
-   *       mod.ajax( ... );
-   *     });
-   *   }, {
-   *     endpoint: '/api/v2/like'
+   *   ckan.module('like-button', {
+   *     options: {
+   *        endpoint: '/api/v2/like'
+   *     },
+   *     initialize: function () {
+   *       var options = this.options,
+   *           sandbox = this.sandbox,
+   *           _ = sandbox.translate;
+   *
+   *       this.el.on('click', function () {
+   *         var url = options.endpoint;
+   *         var message = _('Dataset was liked!').fetch();
+   *         sandbox.ajax( ... );
+   *       });
+   *     }
    *   });
    *
-   * Returns the module object.
+   * Returns the ckan object.
    */
-  function module(name, factory, defaults) {
+  function module(name, properties) {
     if (module.registry[name]) {
       throw new Error('There is already a module registered as "' + name  + '"');
     }
 
-    // Store the default options on the function and add to registry.
-    factory.defaults = defaults || {};
-    module.registry[name] = factory;
+    // If a function is provided then call it to get a returns object of
+    // properties.
+    if (typeof properties === 'function') {
+      properties = properties(jQuery, ckan.i18n.translate, ckan.i18n);
+    }
+
+    // Provide a named constructor, this helps with debugging in the Webkit
+    // Web Inspector.
+    properties = jQuery.extend({
+      constructor: function Module() {
+        BaseModule.apply(this, arguments);
+      }
+    }, properties);
+
+    // Extend the instance.
+    module.registry[name] = jQuery.inherit(BaseModule, properties, {namespace: name});
 
     return ckan;
   }
 
   /* Holds all of the registered module functions */
   module.registry = {};
+
+  /* Holds all initialized instances */
+  module.instances = {};
 
   /* Searches the document for modules and initializes them. This should only
    * be called once on page load.
@@ -89,12 +200,12 @@ this.ckan = this.ckan || {};
   module.initialize = function () {
     var registry = module.registry;
 
-    $('[data-module]', document.body).each(function () {
+    jQuery('[data-module]', document.body).each(function () {
       var name = this.getAttribute(MODULE_PREFIX);
-      var factory = registry[name];
+      var Module = registry[name];
 
-      if (factory && typeof factory === 'function') {
-        module.createInstance(factory, this);
+      if (Module && typeof Module === 'function') {
+        module.createInstance(Module, this);
       }
     });
 
@@ -120,12 +231,19 @@ this.ckan = this.ckan || {};
    *
    * Returns nothing.
    */
-  module.createInstance = function (factory, element) {
-    var defaults = $.extend({}, factory.defaults);
-    var options  = $.extend(defaults, module.extractOptions(element));
+  module.createInstance = function (Module, element) {
+    var options  = module.extractOptions(element);
     var sandbox  = ckan.sandbox(element, options);
 
-    factory.call(element, sandbox, sandbox.options, sandbox.i18n.translate);
+    var instance = new Module(element, options, sandbox);
+
+    if (typeof instance.initialize === 'function') {
+      instance.initialize();
+    }
+
+    var instances = module.instances[Module.namespace] || [];
+    instances.push(instance);
+    module.instances[Module.namespace] = instances;
   };
 
   /* Extracts any properties starting with MODULE_OPTION_PREFIX from the
@@ -163,7 +281,7 @@ this.ckan = this.ckan || {};
         // Attempt to parse the string as JSON. If this fails then simply use
         // the attribute value as is.
         try {
-          value = $.parseJSON(attr.value);
+          value = jQuery.parseJSON(attr.value);
         } catch (error) {
           if (error instanceof window.SyntaxError) {
             value = attr.value;
@@ -172,7 +290,7 @@ this.ckan = this.ckan || {};
           }
         }
 
-        options[$.camelCase(prop)] = value;
+        options[jQuery.camelCase(prop)] = value;
       }
     }
 
@@ -180,5 +298,6 @@ this.ckan = this.ckan || {};
   };
 
   ckan.module = module;
+  ckan.module.BaseModule = BaseModule;
 
 })(this.ckan, this.jQuery, this);

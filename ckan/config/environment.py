@@ -303,6 +303,8 @@ def load_environment(global_conf, app_conf):
                     lib.jinja_tags.UrlForExtension]
     )
     env.install_gettext_callables(_, N_, newstyle=True)
+    # custom filters
+    env.filters['empty_and_escape'] = lib.jinja_tags.empty_and_escape
     config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override

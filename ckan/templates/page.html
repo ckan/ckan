@@ -18,13 +18,13 @@
         {% block main_content %}
           {% block flash %}
             {% set flash_messages = h.flash.pop_messages() | list %}
-            {% for message in flash_messages %}
-              <div class="flash-messages">
-                <div class="alert {{ message.category }}">
+            <div class="flash-messages">
+              {% for message in flash_messages %}
+                <div class="alert fade in {{ message.category }}">
                   {{ h.literal(message) }}
                 </div>
-              </div>
-            {% endfor %}
+              {% endfor %}
+            </div>
           {% endblock %}
 
           {% block toolbar %}
@@ -91,3 +91,8 @@
     {% include "footer.html" %}
   {% endblock -%}
 {%- endblock -%}
+
+{%- block scripts %}
+  {{ super() }}
+  {% snippet "snippets/scripts.html" %}
+{% endblock -%}

@@ -21,9 +21,6 @@
 
     {{ form.input('image_url', label=_('Image URL'), id='field-url', type='url', placeholder=_('http://example.com/my-image.jpg'), value=data.image_url, error=errors.image_url, classes=['control-full']) }}
 
-    {% if c.is_sysadmin or c.auth_for_change_state %}
-      {{ form.select('state', label=_('State'), id='field-state', selected=data.state, options={active: _('Active'), deleted: _('Deleted')}, error=errors.state) }}
-    {% endif %}
   {% endblock %}
 
   {% block custom_fields %}
@@ -72,6 +69,12 @@
   {% endblock %}
 
   <div class="form-actions">
+      {% block delete_button %}
+        {% if h.check_access('group_delete', {'id': data.id})  %}
+          <button class="btn btn-danger pull-left" type="submit" name="delete">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</button>
+          <input type="hidden" name="confirm_delete" value="" />
+        {% endif %}
+      {% endblock %}
     <button class="btn btn-primary" name="save">{% block save_text %}{{ _('Save Group') }}{% endblock %}</button>
   </div>
 </form>

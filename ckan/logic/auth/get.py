@@ -1,5 +1,6 @@
 import ckan.logic as logic
 from ckan.authz import Authorizer
+import ckan.new_authz
 from ckan.lib.base import _
 from ckan.logic.auth import (get_package_object, get_group_object,
                             get_resource_object, get_related_object)
@@ -89,6 +90,16 @@ def package_show(context, data_dict):
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
     else:
+        # draft state indicates package is still in the creation process
+        # so we need to check we have creation rights.
+        if package.state.startswith('draft'):
+            auth = ckan.new_authz.is_authorized('package_update',
+                                                context, data_dict)
+            if not auth.get('success'):
+                msg = _('User %s not authorized to read package %s') \
+                        % (str(user),package.id)
+                return {'success': False, 'msg': msg}
+
         return {'success': True}
 
 def related_show(context, data_dict=None):

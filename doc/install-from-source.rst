@@ -219,6 +219,10 @@ installed on the system.
 
 Instructions for installing node can be found on the `project website <http://nodejs.org/>`_.
 
+On ubuntu node can be installed via::
+
+    $ apt-get install nodejs
+
 Less can then be installed via the node package manager which is bundled with
 node. ``cd`` into the ``pyenv/src/ckan`` and run::
 
@@ -229,10 +233,10 @@ changes::
 
     $ ./bin/less
 
-This will generate a main.debug.css file. To commit the production CSS into the
-repository run::
+This will generate a main.debug.css file. To build the production CSS to commit
+into the repository run::
 
-    $ ENV=production ./bin/less
+    $ ./bin/less --production
 
 This will generate the main.css file that should be committed for use in
 packaged versions of CKAN.
