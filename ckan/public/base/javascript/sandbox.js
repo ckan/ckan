@@ -60,7 +60,13 @@ this.ckan = this.ckan || {};
     jQuery: $,
 
     /* An alias for jQuery.ajax() */
-    ajax: $.ajax
+    ajax: $.ajax,
+
+    body: $(document.body),
+
+    location: window.location,
+
+    window: window
   });
 
   /* Factory function for creating new sandbox instances. This should be

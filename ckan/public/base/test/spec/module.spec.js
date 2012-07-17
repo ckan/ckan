@@ -148,14 +148,26 @@ describe('ckan.module(id, properties|callback)', function () {
     });
 
     it('should push the new instance into an array under ckan.module.instances', function () {
-
-      var target = function () { return {'mock': 'instance'}; };
+      var target = function MyModule() { return {'mock': 'instance'}; };
       target.namespace = 'test';
 
       ckan.module.createInstance(target, this.element);
 
       assert.deepEqual(ckan.module.instances.test, [{'mock': 'instance'}]);
     });
+
+    it('should push further instances into the existing array under ckan.module.instances', function () {
+      var target = function MyModule() { return {'mock': 'instance3'}; };
+      target.namespace = 'test';
+
+      ckan.module.instances.test = [{'mock': 'instance1'}, {'mock': 'instance2'}];
+      ckan.module.createInstance(target, this.element);
+
+      assert.deepEqual(ckan.module.instances.test, [
+        {'mock': 'instance1'}, {'mock': 'instance2'}, {'mock': 'instance3'}
+      ]);
+    });
+
   });
 
   describe('.extractOptions(element)', function () {
