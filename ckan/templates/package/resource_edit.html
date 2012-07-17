@@ -1,17 +1,16 @@
-{% extends "page.html" %}
-
-{% set pkg = c.pkg_dict %}
+{% set pkg_dict = c.pkg_dict %}
 {% set res = c.resource %}
+{% set data = pkg_dict %}
+{% set errors = {} %}
 
-{% block title %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }} - {{ super() }}{% endblock %}
+{% extends "package/new_resource.html" %}
+
+{% block title %}{{ h.dataset_display_name(pkg_dict) }} - {{ h.resource_display_name(res) }} - {{ super() }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li>{% link_for h.dataset_display_name(c.package)|truncate(20), controller='package', action='read', id=c.package.get('name') %}</li>
-  <li class="active"><a href="">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
+  <li>{% link_for h.dataset_display_name(pkg_dict)|truncate(30), controller='package', action='read', id=pkg_dict.name %}</li>
+  <li class="active">{% link_for _('Edit Resource'), controller='package', action='edit_resource', id=pkg_dict.name, resource_id=res.id %}</li>
 {% endblock %}
 
-{% block main_content %}
-{{ pkg }}
-{{ res }}
-{% endblock %}
+{% block form %}{{ h.snippet('package/snippets/resource_edit_form.html', data=data, errors=errors, pkg_name=pkg_dict.name) }}{% endblock %}

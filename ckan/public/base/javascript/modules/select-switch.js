@@ -30,7 +30,7 @@ this.ckan.module('select-switch', {
     });
 
     if (this.options.button) {
-      _this.sandbox.$(_this.options.button).hide();
+      this.$(this.options.button).hide();
     }
   }
 });

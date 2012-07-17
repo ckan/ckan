@@ -1,7 +1,7 @@
-{% extends "related/pages/form.html" %}
+{% extends "related/snippets/related_form.html" %}
 
 {% block button_text %}
-  {% if action == 'update' %}
+  {% if data.id %}
     {{ _('Update') }}
   {% else %}
     {{ _('Create') }}

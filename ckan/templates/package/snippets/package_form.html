@@ -41,7 +41,7 @@ then itself be extended to add/remove blocks of functionality. #}
       {% block cancel_button %}
         <a class="btn" href="">{% block cancel_button_text %}{{ _('Cancel') }}{% endblock %}</a>
       {% endblock %}
-      <button class="btn btn-primary" type="submit" name="save">{% block save_button_text %}Next: Add Data{% endblock %}</button>
+      <button class="btn btn-primary" type="submit" name="save">{% block save_button_text %}{{ _('Next: Add Data' }}{% endblock %}</button>
     </div>
   {% endblock %}
 </form>
