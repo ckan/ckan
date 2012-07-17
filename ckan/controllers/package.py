@@ -701,10 +701,6 @@ class PackageController(BaseController):
         else:
             return render('package/edit.html')
 
-    def editresources(self, id, data=None, errors=None, error_summary=None):
-        '''Hook method made available for routing purposes.'''
-        return self.edit(id, data, errors, error_summary)
-
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
