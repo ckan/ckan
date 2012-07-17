@@ -287,6 +287,10 @@ def group_list(context, data_dict):
         raise logic.ParameterError('"order_by" value %r not implemented.' % order_by)
     all_fields = data_dict.get('all_fields',None)
 
+    # We want the default for packages to be highest first
+    default_order_dir = ("asc", "desc")[order_by == 'packages']
+    order_direction = data_dict.get('order_direction', default_order_dir)
+
     _check_access('group_list', context, data_dict)
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
@@ -295,16 +299,10 @@ def group_list(context, data_dict):
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
 
-    if order_by == 'name':
-        sort_by, reverse = 'name', False
-
     groups = query.all()
-
-    if order_by == 'packages':
-        sort_by, reverse = 'packages', True
-
     group_list = model_dictize.group_list_dictize(groups, context,
-                                    lambda x:x[sort_by], reverse)
+                                                  lambda x:x[order_by],
+                                                  order_direction == 'desc')
 
     if not all_fields:
         group_list = [group[ref_group_by] for group in group_list]
@@ -1009,7 +1007,7 @@ def package_search(context, data_dict):
         returned datasets should begin.
     :type start: int
     :param qf: the dismax query fields to search within, including boosts.  See
-        the `Solr Dismax Documentation 
+        the `Solr Dismax Documentation
         <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
         for further details.
     :type qf: string
