@@ -9,6 +9,8 @@
     {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name) }}
   {% endblock %}
 
+  {{ form.errors(error_summary) }}
+
   <input name="id" value="{{ data.id }}" type="hidden"/>
 
   <div class="control-group dataset-form-resource-types">
