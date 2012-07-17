@@ -13,6 +13,9 @@ this.jQuery.date = {
   /* Formatting of an ISO8601 compatible date */
   ISO8601: "yyyy-MM-ddTHH:mm:ss.fffZ",
 
+  /* Formatting of a CKAN compatible ISO string. See helpers.py */
+  CKAN8601: "yyyy-MM-ddTHH:mm:ss",
+
   /* Returns a date string for the format provided.
    *
    * format - A format string in the form "yyyy-MM-dd"
@@ -43,7 +46,21 @@ this.jQuery.date = {
     });
   },
 
-  /* Generates a ISO8061 timestamp. Uses the native methods if available.
+  /* Generates a CKAN friendly ISO8601 timestamp.
+   *
+   * date - A date object to convert.
+   *
+   * Examples
+   *
+   *   var timestamp = jQuery.date.toCKANString(new Date());
+   *
+   * Returns a timestamp string.
+   */
+  toCKANString: function (date) {
+    return this.format(this.CKAN8601, date);
+  },
+
+  /* Generates a ISO8601 timestamp. Uses the native methods if available.
    *
    * date - A date object to convert.
    *
@@ -59,7 +76,7 @@ this.jQuery.date = {
     if (date.toISOString) {
       return date.toISOString();
     } else {
-      return this.format(this.ISO8061, date);
+      return this.format(this.ISO8601, date);
     }
   }
 };
