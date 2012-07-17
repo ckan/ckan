@@ -377,8 +377,10 @@ def user_dictize(user, context):
     session = model.Session
 
     if context.get('with_related'):
-        result_dict['related_items'] = session.query(model.Related).\
+        related_items = session.query(model.Related).\
                         filter(model.Related.owner_id==user.id).all()
+        result_dict['related_items'] = related_list_dictize(related_items,
+                                                            context)
 
     return result_dict
 
