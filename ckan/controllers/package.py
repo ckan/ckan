@@ -696,10 +696,7 @@ class PackageController(BaseController):
             c.form = render(self._package_form(package_type=package_type),
                             extra_vars=vars)
 
-        if (c.action == u'editresources'):
-            return render('package/editresources.html')
-        else:
-            return render('package/edit.html')
+        return render('package/edit.html')
 
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
