@@ -25,8 +25,8 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
         '<span class="resource-upload-field">',
         '<i class="ckan-icon ckan-icon-link-plugin"></i>',
         '<input type="file" />',
-        '<input id="field-resource-type-file" type="radio" name="resource_type" value="file.upload" />',
-        '<label class="radio inline" for="field-resource-type-file"></label>',
+        '<input id="field-resource-type-upload" type="radio" name="resource_type" value="file.upload" />',
+        '<label class="radio inline" for="field-resource-type-upload"></label>',
         '</span>'
       ].join('\n')
     },
