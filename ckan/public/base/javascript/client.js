@@ -84,7 +84,11 @@
      */
     convertStorageMetadataToResource: function (meta) {
       var modified = new Date(meta._last_modified);
-      var modifiedISO = jQuery.date.toISOString(modified);
+      var created = new Date(meta._creation_date);
+
+      var createdISO  = jQuery.date.toCKANString(created);
+      var modifiedISO = jQuery.date.toCKANString(modified);
+
       var filename = meta['filename-original'] || meta.key;
       var format = meta._format || filename.split('.').pop();
       var url = meta._location;
@@ -100,9 +104,10 @@
         key: meta.key, /* Not strictly Resource data but may be useful */
         name: filename,
         size: meta._content_length,
+        created: createdISO,
         last_modified: modifiedISO,
         format: format,
-        mimetype: format,
+        mimetype: meta._format || null,
         resource_type: 'file.upload', // Is this standard?
         owner: meta['uploaded-by'],
         hash: meta._checksum,
