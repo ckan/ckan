@@ -241,7 +241,7 @@ this.ckan = this.ckan || {};
       instance.initialize();
     }
 
-    var instances = module.instances[Module.name] || [];
+    var instances = module.instances[Module.namespace] || [];
     instances.push(instance);
     module.instances[Module.namespace] = instances;
   };
