@@ -1889,7 +1889,8 @@ def _render_deleted_group_activity(context, activity):
 
 def _render_new_related_activity(context, activity):
     return _render('activity_streams/new_related_item.html',
-        extra_vars = {'activity': activity})
+        extra_vars = {'activity': activity,
+                      'type': activity['data']['related']['type']})
 
 def _render_deleted_related_activity(context, activity):
     return _render('activity_streams/deleted_related_item.html',
