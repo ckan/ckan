@@ -11,4 +11,4 @@
   <li class="active">{% link_for _('Edit Resource'), controller='package', action='edit_resource', id=pkg_dict.name, resource_id=res.id %}</li>
 {% endblock %}
 
-{% block form %}{{ h.snippet('package/snippets/resource_edit_form.html', data=data, errors=errors, pkg_name=pkg_dict.name) }}{% endblock %}
+{% block form %}{{ h.snippet('package/snippets/resource_edit_form.html', data=data, errors=errors, error_summary=error_summary, pkg_name=pkg_dict.name, form_action=c.form_action) }}{% endblock %}
