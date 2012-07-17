@@ -398,6 +398,7 @@ class GroupController(BaseController):
         try:
             if request.params.get('confirm_delete') == 'yes':
                 get_action('group_delete')(context, {'id': id})
+                h.flash_notice(_('Group has been deleted.'))
                 h.redirect_to(controller='group', action='index')
             c.group_dict = get_action('group_show')(context, {'id': id})
         except NotAuthorized:
