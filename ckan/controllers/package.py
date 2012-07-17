@@ -603,7 +603,7 @@ class PackageController(BaseController):
         except SearchIndexError, e:
             try:
                 exc_str = unicode(repr(e.args))
-            except:
+            except Exception:  # We don't like bare excepts
                 exc_str = unicode(str(e))
             abort(500, _(u'Unable to add package to search index.') + exc_str)
         except ValidationError, e:
@@ -639,7 +639,7 @@ class PackageController(BaseController):
         except SearchIndexError, e:
             try:
                 exc_str = unicode(repr(e.args))
-            except:
+            except Exception:  # We don't like bare excepts
                 exc_str = unicode(str(e))
             abort(500, _(u'Unable to update search index.') + exc_str)
         except ValidationError, e:
