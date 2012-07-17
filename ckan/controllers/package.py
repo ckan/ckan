@@ -479,7 +479,37 @@ class PackageController(BaseController):
         return render(self._new_template(package_type),
                       extra_vars={'stage': stage})
 
-    def resource_edit(self, id, resource_id):
+    def resource_edit(self, id, resource_id, data=None, errors=None,
+                      error_summary=None):
+        if request.method == 'POST' and not data:
+            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                request.POST))))
+            # we don't want to include save as it is part of the form
+            del data['save']
+
+            context = {'model': model, 'session': model.Session,
+                       'api_version': 3,
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
+
+            data['package_id'] = id
+            try:
+                if resource_id:
+                    data['id'] = resource_id
+                    get_action('resource_update')(context, data)
+                else:
+                    get_action('resource_create')(context, data)
+            except ValidationError, e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+                return self.resource_edit(id, resource_id, data,
+                                          errors, error_summary)
+            except NotAuthorized:
+                abort(401, _('Unauthorized to edit this resource'))
+            redirect(h.url_for(controller='package', action='resource_read',
+                               id=id, resource_id=resource_id))
+
+
         context = {'model': model, 'session': model.Session,
                    'api_version': 3,
                    'user': c.user or c.author,}
@@ -493,10 +523,24 @@ class PackageController(BaseController):
                 data[field] = resource_dict[field]
             return self.new_resource(id, data=data)
         # resource is fully created
-        resource_dict = get_action('resource_show')(context, {'id': resource_id})
+        try:
+            resource_dict = get_action('resource_show')(context, {'id': resource_id})
+        except NotFound:
+            # FIXME need to handle this
+            pass
         c.pkg_dict = pkg_dict
         c.resource = resource_dict
-        return render('package/resource_edit.html')
+        # set the form action
+        c.form_action = h.url_for(controller='package',
+                                  action='resource_edit',
+                                  resource_id=resource_id,
+                                  id=id)
+        data = resource_dict
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'new'}
+        return render('package/resource_edit.html', extra_vars=vars)
 
 
 
