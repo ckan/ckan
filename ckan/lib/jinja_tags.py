@@ -4,11 +4,22 @@ from jinja2 import nodes
 from jinja2 import loaders
 from jinja2.ext import Extension
 from jinja2.exceptions import TemplateNotFound
-from jinja2.utils import open_if_exists
+from jinja2.utils import open_if_exists, escape
 
 import lib.base as base
 import lib.helpers as h
 
+### Filters
+
+def empty_and_escape(value):
+    ''' returns '' for a None value else escapes the content useful for form
+    elements. '''
+    if value is None:
+        return ''
+    else:
+        return escape(value)
+
+### Tags
 
 class CkanExtend(Extension):
     ''' Custom {% ckan_extends <template> %} tag that allows templates
