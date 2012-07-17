@@ -41,7 +41,29 @@ describe('ckan.sandbox()', function () {
     describe('.jQuery()', function () {
       it('should be a reference to jQuery', function () {
         var target = new Sandbox();
-        assert.strictEqual(target.jQuery, jQuery);
+        assert.ok(target.jQuery === jQuery);
+      });
+    });
+
+    describe('.body', function () {
+      it('should be a jQuery wrapped body object', function () {
+        var target = new Sandbox();
+        assert.ok(target.body instanceof jQuery);
+        assert.ok(target.body[0] === window.document.body);
+      });
+    });
+
+    describe('.location', function () {
+      it('should be a reference to window.location', function () {
+        var target = new Sandbox();
+        assert.ok(target.location === window.location);
+      });
+    });
+
+    describe('.window', function () {
+      it('should be a reference to window', function () {
+        var target = new Sandbox();
+        assert.ok(target.window === window);
       });
     });
   });
