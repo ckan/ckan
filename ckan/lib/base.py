@@ -38,8 +38,9 @@ APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
 ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
+
 def abort(status_code=None, detail='', headers=None, comment=None):
-    if detail and status_code!=503:
+    if detail and status_code != 503:
         h.flash_error(detail)
     # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
     # with Lucid) causes an exception when unicode is received.
@@ -59,8 +60,9 @@ def render_snippet(template_name, **kw):
     cache_force = kw.pop('cache_force', None)
     output = render(template_name, extra_vars=kw, cache_force=cache_force)
     output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
-                    template_name, output, template_name)
+        template_name, output, template_name)
     return literal(output)
+
 
 def render_text(template_name, extra_vars=None, cache_force=None):
     ''' Helper function to render a genshi NewTextTemplate without
@@ -71,9 +73,10 @@ def render_text(template_name, extra_vars=None, cache_force=None):
                   method='text',
                   loader_class=NewTextTemplate)
 
+
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
-           cache_force = None):
+           cache_force=None):
     ''' Main genshi template rendering function. '''
 
     def render_template():
@@ -89,7 +92,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         del globs['url']
 
         template = globs['app_globals'].genshi_loader.load(template_name,
-            cls=loader_class)
+                                                           cls=loader_class)
         stream = template.generate(**globs)
 
         for item in PluginImplementations(IGenshiStreamFilter):
@@ -98,8 +101,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         if loader_class == NewTextTemplate:
             return literal(stream.render(method="text", encoding=None))
 
-        return literal(stream.render(method=method, encoding=None, strip_whitespace=True))
-
+        return literal(stream.render(method=method, encoding=None,
+                                     strip_whitespace=True))
 
     if 'Pragma' in response.headers:
         del response.headers["Pragma"]
@@ -133,7 +136,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         response.headers["Cache-Control"] = "public"
         try:
             cache_expire = int(config.get('ckan.cache_expires', 0))
-            response.headers["Cache-Control"] += ", max-age=%s, must-revalidate" % cache_expire
+            response.headers["Cache-Control"] += \
+                ", max-age=%s, must-revalidate" % cache_expire
         except ValueError:
             pass
     else:
@@ -145,14 +149,17 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
     # Render Time :)
     try:
-        return cached_template(template_name, render_template, loader_class=loader_class)
+        return cached_template(template_name, render_template,
+                               loader_class=loader_class)
     except ckan.exceptions.CkanUrlException, e:
-        raise ckan.exceptions.CkanUrlException('\nAn Exception has been raised for template %s\n%s'
-                        % (template_name, e.message))
+        raise ckan.exceptions.CkanUrlException(
+            '\nAn Exception has been raised for template %s\n%s' %
+            (template_name, e.message))
 
 
 class ValidationException(Exception):
     pass
+
 
 class BaseController(WSGIController):
     repo = model.repo
@@ -182,25 +189,35 @@ class BaseController(WSGIController):
         # see if it was proxied first
         c.remote_addr = request.environ.get('HTTP_X_FORWARDED_FOR', '')
         if not c.remote_addr:
-            c.remote_addr = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
+            c.remote_addr = request.environ.get('REMOTE_ADDR',
+                                                'Unknown IP Address')
 
-        # environ['REMOTE_USER'] is set by repoze.who if it authenticates a user's
-        # cookie or OpenID. But repoze.who doesn't check the user (still)
-        # exists in our database - we need to do that here. (Another way would
-        # be with an userid_checker, but that would mean another db access.
-        # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who.plugins.sql )
+        # environ['REMOTE_USER'] is set by repoze.who if it authenticates
+        # a user's cookie or OpenID. But repoze.who doesn't check the user
+        # (still) exists in our database - we need to do that here. (Another
+        # way would be with an userid_checker, but that would mean another db
+        # access.
+        # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
+        # .plugins.sql )
         c.user = request.environ.get('REMOTE_USER', '')
         if c.user:
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
             if c.userobj is None:
                 # This occurs when you are logged in, clean db
-                # and then restart i.e. only really for testers. There is no
-                # user object, so even though repoze thinks you are logged in
-                # and your cookie has ckan_display_name, we need to force user
-                # to logout and login again to get the User object.
-                c.user = None
-                self.log.warn('Logout to login')
+                # and then restart (or when you change your username)
+                # There is no user object, so even though repoze thinks you
+                # are logged in and your cookie has ckan_display_name, we
+                # need to force user to logout and login again to get the
+                # User object.
+                session['lang'] = request.environ.get('CKAN_LANG')
+                session.save()
+
+                ev = request.environ
+                if 'repoze.who.plugins' in ev:
+                    pth = getattr(ev['repoze.who.plugins']['friendlyform'],
+                                  'logout_handler_path')
+                    h.redirect_to(pth)
         else:
             c.userobj = self._get_user_for_apikey()
             if c.userobj is not None:
@@ -241,12 +258,14 @@ class BaseController(WSGIController):
                 if not is_valid_cookie_data:
                     if session.id:
                         if not session.get('lang'):
-                            self.log.debug('No session data any more - deleting session')
+                            self.log.debug('No session data any more - '
+                                           'deleting session')
                             self.log.debug('Session: %r', session.items())
                             session.delete()
                     else:
                         response.delete_cookie(cookie)
-                        self.log.debug('No session data any more - deleting session cookie')
+                        self.log.debug('No session data any more - '
+                                       'deleting session cookie')
             # Remove auth_tkt repoze.who cookie if user not logged in.
             elif cookie == 'auth_tkt' and not session.id:
                 response.delete_cookie(cookie)
@@ -258,8 +277,10 @@ class BaseController(WSGIController):
 
     def _set_cors(self):
         response.headers['Access-Control-Allow-Origin'] = "*"
-        response.headers['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE, OPTIONS"
-        response.headers['Access-Control-Allow-Headers'] = "X-CKAN-API-KEY, Authorization, Content-Type"
+        response.headers['Access-Control-Allow-Methods'] = \
+            "POST, PUT, GET, DELETE, OPTIONS"
+        response.headers['Access-Control-Allow-Headers'] = \
+            "X-CKAN-API-KEY, Authorization, Content-Type"
 
     def _get_user(self, reference):
         return model.User.by_name(reference)
@@ -310,14 +331,14 @@ class BaseController(WSGIController):
                 keys = request.POST.keys()
                 # Parsing breaks if there is a = in the value, so for now
                 # we will check if the data is actually all in a single key
-                if keys and request.POST[ keys[0] ] in [u'1',u'']:
+                if keys and request.POST[keys[0]] in [u'1', u'']:
                     request_data = keys[0]
                 else:
                     request_data = urllib.unquote_plus(request.body)
             except Exception, inst:
                 msg = "Could not find the POST data: %r : %s" % \
                       (request.POST, inst)
-                raise ValueError, msg
+                raise ValueError(msg)
 
         elif try_url_params and request.GET:
             return request.GET.mixed()
@@ -331,22 +352,22 @@ class BaseController(WSGIController):
             except Exception, inst:
                 msg = "Could not extract request body data: %s" % \
                       (inst)
-                raise ValueError, msg
+                raise ValueError(msg)
             cls.log.debug('Retrieved request body: %r' % request.body)
             if not request_data:
                 msg = "No request body data"
-                raise ValueError, msg
+                raise ValueError(msg)
         if request_data:
             try:
                 request_data = json.loads(request_data, encoding='utf8')
             except ValueError, e:
-                raise ValueError, 'Error decoding JSON data. ' \
-                                    'Error: %r ' \
-                                    'JSON data extracted from the request: %r' % \
-                                    (e, request_data)
+                raise ValueError('Error decoding JSON data. '
+                                 'Error: %r '
+                                 'JSON data extracted from the request: %r' %
+                                 (e, request_data))
             if not isinstance(request_data, dict):
-                raise ValueError, 'Request data JSON decoded to %r but ' \
-                                  'it needs to be a dictionary.' % request_data
+                raise ValueError('Request data JSON decoded to %r but '
+                                 'it needs to be a dictionary.' % request_data)
             # ensure unicode values
             for key, val in request_data.items():
                 # if val is str then assume it is ascii, since json converts
@@ -375,7 +396,8 @@ class BaseController(WSGIController):
             return entity
 
     def _get_user_for_apikey(self):
-        apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY, APIKEY_HEADER_NAME_DEFAULT)
+        apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
+                                        APIKEY_HEADER_NAME_DEFAULT)
         apikey = request.headers.get(apikey_header_name, '')
         if not apikey:
             apikey = request.environ.get(apikey_header_name, '')
@@ -403,10 +425,10 @@ class BaseController(WSGIController):
     def _get_user_editable_groups(cls):
         if not hasattr(c, 'user'):
             c.user = model.PSEUDO_USER__VISITOR
-        import ckan.authz # Todo: Move import to top of this file?
-        groups = ckan.authz.Authorizer.authorized_query(c.user, model.Group,
-            action=model.Action.EDIT).all()
-        return [g for g in groups if g.state==model.State.ACTIVE]
+        import ckan.authz   # Todo: Move import to top of this file?
+        groups = ckan.authz.Authorizer.authorized_query(
+            c.user, model.Group, action=model.Action.EDIT).all()
+        return [g for g in groups if g.state == model.State.ACTIVE]
 
     def _get_package_dict(self, *args, **kwds):
         import ckan.forms
@@ -468,10 +490,10 @@ class BaseController(WSGIController):
             update_or_add = None
 
         # Work out what role checkboxes are checked or unchecked
-        checked_roles = [ box_id for (box_id, value) in request.params.items() \
-                          if (value == u'on')]
-        unchecked_roles = [ box_id for (box_id, value) in request.params.items() \
-                          if (value == u'submitted')]
+        checked_roles = [box_id for (box_id, value) in request.params.items()
+                         if (value == u'on')]
+        unchecked_roles = [box_id for (box_id, value) in request.params.items()
+                           if (value == u'submitted')]
 
         action = None
         if update_or_add is 'update':
@@ -534,42 +556,43 @@ class BaseController(WSGIController):
         possible_roles = model.Role.get_all()
 
         # uniquify and sort
-        users = sorted(list(set([uor['user_id'] for uor in user_object_roles['roles'] if uor['user_id']])))
-        authz_groups = sorted(list(set([uor['authorized_group_id'] \
-                                        for uor in user_object_roles['roles'] \
+        users = sorted(list(set([uor['user_id']
+                                 for uor in user_object_roles['roles']
+                                 if uor['user_id']])))
+        authz_groups = sorted(list(set([uor['authorized_group_id']
+                                        for uor in user_object_roles['roles']
                                         if uor['authorized_group_id']])))
 
         # make a dictionary from (user, role) to True, False
-        users_roles = [( uor['user_id'], uor['role']) \
-                       for uor in user_object_roles['roles'] \
+        users_roles = [(uor['user_id'], uor['role'])
+                       for uor in user_object_roles['roles']
                        if uor['user_id']]
-        user_role_dict={}
+        user_role_dict = {}
         for u in users:
             for r in possible_roles:
-                if (u,r) in users_roles:
-                    user_role_dict[(u,r)]=True
-                else:
-                    user_role_dict[(u,r)]=False
+                user_role_dict[(u, r)] = (u, r) in users_roles
 
-        # and similarly make a dictionary from (authz_group, role) to True, False
-        authz_groups_roles = [( uor['authorized_group_id'], uor['role']) \
+        # and similarly make a dictionary from (authz_group, role) to True
+        # , False
+        authz_groups_roles = [(uor['authorized_group_id'], uor['role'])
                               for uor in user_object_roles['roles']
                               if uor['authorized_group_id']]
-        authz_groups_role_dict={}
+        authz_groups_role_dict = {}
         for u in authz_groups:
             for r in possible_roles:
-                if (u,r) in authz_groups_roles:
-                    authz_groups_role_dict[(u,r)]=True
+                if (u, r) in authz_groups_roles:
+                    authz_groups_role_dict[(u, r)] = True
                 else:
-                    authz_groups_role_dict[(u,r)]=False
+                    authz_groups_role_dict[(u, r)] = False
 
         c.roles = possible_roles
         c.users = users
         c.user_role_dict = user_role_dict
         c.authz_groups = authz_groups
         c.authz_groups_role_dict = authz_groups_role_dict
-        c.are_any_authz_groups = bool(model.Session.query(model.AuthorizationGroup).count())
+        c.are_any_authz_groups = bool(model.Session.query(
+            model.AuthorizationGroup).count())
 
 # Include the '_' function in the public names
-__all__ = [__name for __name in locals().keys() if not __name.startswith('_') \
+__all__ = [__name for __name in locals().keys() if not __name.startswith('_')
            or __name == '_']

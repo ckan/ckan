@@ -133,7 +133,7 @@ def table_dict_save(table_dict, ModelClass, context):
         setattr(obj, key, value)
 
     if context.get('pending'):
-        if session.is_modified(obj, include_collections=False):
+        if session.is_modified(obj, include_collections=False, passive=True):
             if table_dict.get('state', '') == 'deleted':
                 obj.state = 'pending-deleted'
             else:
