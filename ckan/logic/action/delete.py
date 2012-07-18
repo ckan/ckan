@@ -297,7 +297,7 @@ def unfollow_user(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
 
     _unfollow(context, data_dict, context['model'].UserFollowingUser)
 
@@ -312,6 +312,6 @@ def unfollow_dataset(context, data_dict):
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
 
     _unfollow(context, data_dict, context['model'].UserFollowingDataset)
