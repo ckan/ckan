@@ -5,6 +5,7 @@ from jinja2 import loaders
 from jinja2.ext import Extension
 from jinja2.exceptions import TemplateNotFound
 from jinja2.utils import open_if_exists, escape
+from jinja2.filters import do_truncate
 
 import lib.base as base
 import lib.helpers as h
@@ -18,6 +19,17 @@ def empty_and_escape(value):
         return ''
     else:
         return escape(value)
+
+def truncate(value, length=255, killwords=None, end='...'):
+    ''' A more clever truncate. If killwords is supplied we use the default
+    truncate.  Otherwise we try to truncate using killwords=False, if this
+    truncates the whole value we try again with killwords=True '''
+    if killwords is not None:
+        return do_truncate(value, length=length, killwords=killwords, end=end)
+    result = do_truncate(value, length=length, killwords=False, end=end)
+    if result != end:
+        return result
+    return do_truncate(value, length=length, killwords=True, end=end)
 
 ### Tags
 
