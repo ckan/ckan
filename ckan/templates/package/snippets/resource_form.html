@@ -6,7 +6,10 @@
 
 <form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form">
   {% block stages %}
-    {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name) }}
+    {# An empty stages variable will not show the stages #}
+    {% if stages %}
+      {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name) }}
+    {% endif %}
   {% endblock %}
 
   {{ form.errors(error_summary) }}
