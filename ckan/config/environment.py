@@ -23,7 +23,7 @@ import ckan.lib.app_globals as app_globals
 
 log = logging.getLogger(__name__)
 
-import lib.jinja_tags
+import lib.jinja_extensions
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
@@ -291,21 +291,21 @@ def load_environment(global_conf, app_conf):
 
     # Create Jinja2 environment
     env = config['pylons.app_globals'].jinja_env = Environment(
-        loader=lib.jinja_tags.CkanFileSystemLoader(template_paths,
+        loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths,
                             ckan_base_path=paths['templates'][0]),
         autoescape=True,
         extensions=['jinja2.ext.i18n', 'jinja2.ext.do', 'jinja2.ext.with_',
-                    lib.jinja_tags.SnippetExtension,
-                    lib.jinja_tags.CkanExtend,
-                    lib.jinja_tags.LinkForExtension,
-                    lib.jinja_tags.ResourceExtension,
-                    lib.jinja_tags.UrlForStaticExtension,
-                    lib.jinja_tags.UrlForExtension]
+                    lib.jinja_extensions.SnippetExtension,
+                    lib.jinja_extensions.CkanExtend,
+                    lib.jinja_extensions.LinkForExtension,
+                    lib.jinja_extensions.ResourceExtension,
+                    lib.jinja_extensions.UrlForStaticExtension,
+                    lib.jinja_extensions.UrlForExtension]
     )
     env.install_gettext_callables(_, N_, newstyle=True)
     # custom filters
-    env.filters['empty_and_escape'] = lib.jinja_tags.empty_and_escape
-    env.filters['truncate'] = lib.jinja_tags.truncate
+    env.filters['empty_and_escape'] = lib.jinja_extensions.empty_and_escape
+    env.filters['truncate'] = lib.jinja_extensions.truncate
     config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
