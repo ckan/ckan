@@ -20,7 +20,7 @@
           <li py:if="errordict">
             Resource ${idx}:
             <ul>
-              <li py:for="thiskey, thiserror in errordict.items()">${thiskey}: <py:for each="errorinfo in thiserror">###${errorinfo}; </py:for></li>
+              <li py:for="thiskey, thiserror in errordict.items()">${thiskey}: <py:for each="errorinfo in thiserror">${errorinfo}; </py:for></li>
             </ul>
           </li>
         </py:for>
