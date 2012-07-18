@@ -1,6 +1,7 @@
 import functools
 import logging
 import types
+import re
 
 from ckan.lib.base import _
 import ckan.authz
@@ -50,8 +51,37 @@ class ParameterError(ActionError):
 class ValidationError(ParameterError):
     def __init__(self, error_dict, error_summary=None, extra_msg=None):
         self.error_dict = error_dict
-        self.error_summary = error_summary
+        self._error_summary = error_summary
         self.extra_msg = extra_msg
+
+    @property
+    def error_summary(self):
+        if self._error_summary:
+            print self._error_summary
+            return self._error_summary
+        return self._summary(self.error_dict)
+
+    def _summary(self, error_dict):
+        ''' Do some i18n stuff on the error_dict keys '''
+
+        def prettify(field_name):
+            field_name = re.sub('(?<!\w)[Uu]rl(?!\w)', 'URL',
+                                field_name.replace('_', ' ').capitalize())
+            return _(field_name.replace('_', ' '))
+
+        summary = {}
+        for key, error in error_dict.iteritems():
+            if key == 'resources':
+                summary[_('Resources')] = _('Package resource(s) invalid')
+            elif key == 'extras':
+                summary[_('Extras')] = _('Missing Value')
+            elif key == 'extras_validation':
+                summary[_('Extras')] = error[0]
+            elif key == 'tags':
+                summary[_('Tags')] = ', '.join(error['name'])
+            else:
+                summary[_(prettify(key))] = error[0]
+        return summary
 
     def __str__(self):
         err_msgs = (super(ValidationError, self).__str__(),
