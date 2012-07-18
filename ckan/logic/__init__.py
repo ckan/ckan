@@ -52,7 +52,6 @@ class ValidationError(ParameterError):
 
     def __init__(self, error_dict, error_summary=None, extra_msg=None):
         # tags errors are a mess so let's clean them up
-        error_dict['tags'] = [{'name': [u'Tag ":" length is less than minimum 2', u'Tag ":" must be alphanumeric characters or symbols: -_.']}]
         if 'tags' in error_dict:
             tag_errors = []
             for error in error_dict['tags']:
@@ -86,6 +85,7 @@ class ValidationError(ParameterError):
                 else:
                     summary[_(prettify(key))] = error[0]
             return summary
+
         if self._error_summary:
             return self._error_summary
         return summarise(self.error_dict)
