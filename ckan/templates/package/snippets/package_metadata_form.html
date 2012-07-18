@@ -3,7 +3,7 @@
 {% set data = data or {} %}
 {% set errors = errors or {} %}
 
-<form class="dataset-form dataset-resource-form form-horizontal" method="post" >
+<form class="dataset-form dataset-resource-form form-horizontal" method="post" data-module="basic-form">
   {{ h.snippet('package/snippets/stages.html', stages=['complete', 'complete', 'active'], pkg_name=pkg_name) }}
   {{ form.errors(error_summary) }}
 

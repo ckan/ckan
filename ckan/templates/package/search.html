@@ -54,7 +54,7 @@
         </div>
         {% if request.params and c.page.item_count == 0 %}
           <p class="extra">Try another search term,
-          browse the datasets below or <a href="{{ h.url_for(action='new', id=None) }}">{{ _('add your own data') }}</a>.
+          browse the datasets below or <a href="{{ h.url_for(controller='package', action='new') }}">{{ _('add your own data') }}</a>.
           </p>
         {% endif %}
       </div>

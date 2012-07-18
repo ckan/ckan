@@ -200,13 +200,16 @@ this.ckan = this.ckan || {};
   module.initialize = function () {
     var registry = module.registry;
 
-    jQuery('[data-module]', document.body).each(function () {
-      var name = this.getAttribute(MODULE_PREFIX);
-      var Module = registry[name];
+    jQuery('[data-module]', document.body).each(function (index, element) {
+      var names = jQuery.trim(this.getAttribute(MODULE_PREFIX)).split(' ');
 
-      if (Module && typeof Module === 'function') {
-        module.createInstance(Module, this);
-      }
+      jQuery.each(names, function (index, name) {
+        var Module = registry[name];
+
+        if (Module && typeof Module === 'function') {
+          module.createInstance(Module, element);
+        }
+      });
     });
 
     return module;
