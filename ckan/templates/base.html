@@ -48,7 +48,7 @@
     #}
     {%- block html5shim -%}
       {# Temporary link until we get resource helper working #}
-      <!--[if lte IE 8]><script src="{% url_for_static '/base/javascript/vendor/html5.js' %}"></script><![endif]-->
+      <!--[if lte IE 8]><script src="{% url_for_static '/base/vendor/html5.js' %}"></script><![endif]-->
     {%- endblock -%}
 
     {#
@@ -72,7 +72,7 @@
       {% endblock %}
     #}
     {%- block styles %}
-      <!--[if IE 7]> <link rel="stylesheet" href="{% url_for_static '/base/css/vendor/font-awesome-ie7.css' %}" /> <![endif]-->
+      <!--[if IE 7]> <link rel="stylesheet" href="{% url_for_static '/base/vendor/font-awesome/css/font-awesome-ie7.css' %}" /> <![endif]-->
       <link rel="stylesheet" href="{% url_for_static ('/base/css/main.debug.css' if config.debug else '/base/css/main.css') %}" />
     {% endblock %}
   </head>
