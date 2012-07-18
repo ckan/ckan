@@ -710,7 +710,8 @@ class PackageController(BaseController):
         if data.get('state', '').startswith('draft'):
             c.form_action = h.url_for(controller='package', action='new')
             c.form_style = 'new'
-            return self.new(data=data)
+            return self.new(data=data, errors=errors,
+                            error_summary=error_summary)
 
         c.pkg = context.get("package")
         c.resources_json = json.dumps(data.get('resources', []))
@@ -731,6 +732,13 @@ class PackageController(BaseController):
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
         c.related_count = len(c.pkg.related)
+
+        # we have already completed stage 1
+        vars['stage'] = ['active']
+        if data.get('state') == 'draft':
+            vars['stage'] = ['active', 'complete']
+        elif data.get('state') == 'draft-complete':
+            vars['stage'] = ['active', 'complete', 'complete']
 
         # TODO: This check is to maintain backwards compatibility with the
         # old way of creating custom forms. This behaviour is now deprecated.
@@ -823,6 +831,10 @@ class PackageController(BaseController):
         return out
 
     def _save_new(self, context, package_type=None):
+        # The staged add dataset used the new functionality when the dataset is
+        # partially created so we need to know if we actually are updating or
+        # this is a real new.
+        is_an_update = False
         ckan_phase = request.params.get('_ckan_phase')
         if ckan_phase:
             # phased add dataset so use api schema for validation
@@ -832,16 +844,14 @@ class PackageController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if ckan_phase:
-                # Make sure we don't index this dataset
-                if request.params['save'] not in ['go-resource', 'go-metadata']:
-                    data_dict['state'] = 'draft'
-                # allow the state to be changed
-                context['allow_state_change'] = True
+                # prevent clearing of groups etc
                 context['allow_partial_update'] = True
                 # sort the tags
                 data_dict['tags'] = self._tag_string_to_list(
                     data_dict['tag_string'])
                 if data_dict.get('pkg_name'):
+                    is_an_update = True
+                    # This is actually an update not a save
                     data_dict['id'] = data_dict['pkg_name']
                     del data_dict['pkg_name']
                     # this is actually an edit not a save
@@ -858,6 +868,11 @@ class PackageController(BaseController):
                                         action='new_resource',
                                         id=pkg_dict['name'])
                     redirect(url)
+                # Make sure we don't index this dataset
+                if request.params['save'] not in ['go-resource', 'go-metadata']:
+                    data_dict['state'] = 'draft'
+                # allow the state to be changed
+                context['allow_state_change'] = True
 
             data_dict['type'] = package_type
             context['message'] = data_dict.get('log_message', '')
@@ -882,6 +897,14 @@ class PackageController(BaseController):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
+            if is_an_update:
+                # we need to get the state of the dataset to show the stage we
+                # are on.
+                pkg_dict = get_action('package_show')(context, data_dict)
+                data_dict['state'] = pkg_dict['state']
+                return self.edit(data_dict['id'], data_dict,
+                                 errors, error_summary)
+            data_dict['state'] = 'none'
             return self.new(data_dict, errors, error_summary)
 
     def _save_edit(self, name_or_id, context):
