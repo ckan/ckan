@@ -71,8 +71,7 @@
   <div class="form-actions">
       {% block delete_button %}
         {% if h.check_access('group_delete', {'id': data.id})  %}
-          <button class="btn btn-danger pull-left" type="submit" name="delete">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</button>
-          <input type="hidden" name="confirm_delete" value="" />
+          <a class="btn btn-danger pull-left" href="{% url_for controller='group', action='delete', id=data.id %}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
         {% endif %}
       {% endblock %}
     <button class="btn btn-primary" name="save">{% block save_text %}{{ _('Save Group') }}{% endblock %}</button>

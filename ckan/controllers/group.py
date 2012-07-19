@@ -255,8 +255,6 @@ class GroupController(BaseController):
         return render(self._new_template(group_type))
 
     def edit(self, id, data=None, errors=None, error_summary=None):
-        if 'delete' in request.params:
-            return self.delete(id)
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
@@ -384,11 +382,11 @@ class GroupController(BaseController):
         return render('group/authz.html')
 
     def delete(self, id):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-
         if 'cancel' in request.params:
             h.redirect_to(controller='group', action='edit', id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
 
         try:
             check_access('group_delete', context, {'id': id})
@@ -396,7 +394,7 @@ class GroupController(BaseController):
             abort(401, _('Unauthorized to delete group %s') % '')
 
         try:
-            if request.params.get('confirm_delete') == 'yes':
+            if request.method == 'POST':
                 get_action('group_delete')(context, {'id': id})
                 h.flash_notice(_('Group has been deleted.'))
                 h.redirect_to(controller='group', action='index')
