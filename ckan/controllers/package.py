@@ -1023,6 +1023,33 @@ class PackageController(BaseController):
             abort(404, _('Dataset not found'))
         return render('package/confirm_delete.html')
 
+    def resource_delete(self, id, resource_id):
+
+        if 'cancel' in request.params:
+            h.redirect_to(controller='package', action='resource_edit', resource_id=resource_id, id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            check_access('package_delete', context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete package %s') % '')
+
+        try:
+            if request.method == 'POST':
+                # FIXME we have no resource delete
+              #  get_action('package_delete')(context, {'id': id})
+                h.flash_notice(_('Resource has been deleted.'))
+                h.redirect_to(controller='package', action='read', id=id)
+            c.resource_dict = get_action('resource_show')(context, {'id': resource_id})
+            c.pkg_id = id
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete resource %s') % '')
+        except NotFound:
+            abort(404, _('Resource not found'))
+        return render('package/confirm_delete_resource.html')
+
     def autocomplete(self):
         # DEPRECATED in favour of /api/2/util/dataset/autocomplete
         q = unicode(request.params.get('q', ''))
