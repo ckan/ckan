@@ -55,12 +55,12 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
      * Returns nothing.
      */
     delete: function () {
-      // This needs to be reconsidered, at the moment it needs to look for
-      // a "confirm_delete" field set it's value to "y" and re-click the
-      // delete button. Instead the button should be a url to the confirm
-      // page and this action should just POST to the url to delete.
-      this.el.parent().find('[name=confirm_delete]').val('yes');
-      this.el.off('click', this._onClick).click();
+      // create a form and submit it to confirm the deletion
+      var form = jQuery('<form/>', {
+        action: this.el.attr('href'),
+        method: 'POST'
+      });
+      form.appendTo('body').submit();
     },
 
     /* Creates the modal dialog, attaches event listeners and localised
