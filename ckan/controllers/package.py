@@ -1042,8 +1042,7 @@ class PackageController(BaseController):
 
         try:
             if request.method == 'POST':
-                # FIXME we have no resource delete
-              #  get_action('package_delete')(context, {'id': id})
+                get_action('resource_delete')(context, {'id': resource_id})
                 h.flash_notice(_('Resource has been deleted.'))
                 h.redirect_to(controller='package', action='read', id=id)
             c.resource_dict = get_action('resource_show')(context, {'id': resource_id})
