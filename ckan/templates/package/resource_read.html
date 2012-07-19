@@ -43,7 +43,7 @@
 
   <section class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ h.resource_display_name(res) }}</h1>
+      <h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>
       <div class="prose notes" property="rdfs:label">
         {{ res.description or _('(No description)') }}
         {% if not res.description and c.package.notes %}
