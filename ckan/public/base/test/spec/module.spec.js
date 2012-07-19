@@ -287,5 +287,68 @@ describe('ckan.module(id, properties|callback)', function () {
         assert.equal(this.module.$('input').length, 2);
       });
     });
+
+    describe('.i18n()', function () {
+      beforeEach(function () {
+        this.i18n = {
+          first: 'first string',
+          second: {fetch: sinon.stub().returns('second string')},
+          third: sinon.stub().returns('third string')
+        };
+
+        this.module.options.i18n = this.i18n;
+      });
+
+      it('should return the translation string', function () {
+        var target = this.module.i18n('first');
+        assert.equal(target, 'first string');
+      });
+
+      it('should call fetch on the translation string if it exists', function () {
+        var target = this.module.i18n('second');
+        assert.equal(target, 'second string');
+      });
+
+      it('should return just the key if no translation exists', function () {
+        var target = this.module.i18n('missing');
+        assert.equal(target, 'missing');
+      });
+
+      it('should call the translation function if one is provided', function () {
+        var target = this.module.i18n('third');
+        assert.equal(target, 'third string');
+      });
+
+      it('should pass the argments after the key into trans.fetch()', function () {
+        var target = this.module.options.i18n.second.fetch;
+        this.module.i18n('second', 1, 2, 3);
+        assert.called(target);
+        assert.calledWith(target, 1, 2, 3);
+      });
+
+      it('should pass the argments after the key into the translation function', function () {
+        var target = this.module.options.i18n.third;
+        this.module.i18n('third', 1, 2, 3);
+        assert.called(target);
+        assert.calledWith(target, 1, 2, 3);
+      });
+    });
+
+    describe('.remove()', function () {
+      it('should teardown the module', function () {
+        var target = sinon.stub(this.module, 'teardown');
+
+        this.module.remove();
+
+        assert.called(target);
+      });
+
+      it('should remove the element from the page', function () {
+        this.fixture.append(this.module.el);
+        this.module.remove();
+
+        assert.equal(this.fixture.children().length, 0);
+      });
+    });
   });
 });

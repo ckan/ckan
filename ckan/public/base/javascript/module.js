@@ -91,9 +91,66 @@ this.ckan = this.ckan || {};
      */
     options: null,
 
-    /* A scoped find function restricted to the current scope. */
+    /* A scoped find function restricted to the current scope. Essentially
+     * the same as doing this.el.find(selector);
+     * 
+     * selector - A standard jQuery/CSS selector query.
+     *
+     * Example
+     *
+     *   this.$('input'); // jQuery collection of child inputs.
+     *
+     * Returns a jQuery collection.
+     */
     $: function (selector) {
       return this.el.find(selector);
+    },
+
+    /* Helper function for getting i18n properties from the options object.
+     * It should be called with an i18n key and any arguments that are to
+     * be passed into the .fetch() method.
+     *
+     * An i18n option can either be a string, an object returned by
+     * ckan.i18n.translate or a function that returns one of the above. If
+     * a function is provided then it will be passed the same arguments that
+     * were passed to i18n().
+     *
+     * key     - The translation key to use.
+     * args... - All successive arguments are passed into the factory function.
+     *
+     * Example
+     *
+     *   ckan.module.translate('trans', function (jQuery, _) {
+     *     options: {
+     *       saved: _('Saved!'), // A translation object.
+     *       loading: 'Loading', // A plain string (not a good idea).
+     *       itemCount: function (items) {
+     *         // A function can be used to provide more complex translations
+     *         // where the arguments may affect the outcome.
+     *         return _('There is one item').isPlural(items, 'There are %d items')
+     *       }
+     *     },
+     *     example: function () {
+     *       this.i18n('saved');        // 'Saved!'
+     *       this.i18n('loading');      // 'Loading'
+     *       this.i18n('itemCount', 1); // 'There is one item'
+     *       this.i18n('itemCount', 3); // 'There are 3 items'
+     *     }
+     *
+     *  Returns the translated string or the key if not found.
+     */
+    i18n: function (key /* args... */) {
+      var args  = [].slice.call(arguments, 1);
+      var i18n  = this.options.i18n;
+      var trans = (i18n && i18n[key]) || key;
+
+      // Allow the option to be a getter function that returns a Jed instance.
+      if (typeof trans === 'function') {
+        trans = trans.apply(null, args);
+      }
+
+      // If the result has a fetch method, call it with the args.
+      return typeof trans.fetch === 'function' ? trans.fetch.apply(trans, args) : trans;
     },
 
     /* Should be defined by the extending module to provide initialization
