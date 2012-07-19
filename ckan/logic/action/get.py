@@ -691,8 +691,7 @@ def group_show(context, data_dict):
         schema = group_plugin.db_to_form_schema()
 
     if schema:
-        package_dict, errors = _validate(group_dict, schema, context=context)
-
+        group_dict, errors = _validate(group_dict, schema, context=context)
     return group_dict
 
 def group_package_show(context, data_dict):
