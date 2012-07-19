@@ -11,7 +11,8 @@
 
 {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes) }}
 
-{{ form.input('tag_string', id='field-tags', label=_('Tags'), placeholder=_('eg. economy, mental health, government'), value=data.tag_string, error=errors.tags, classes=['control-full']) }}
+{% set tag_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?'} %}
+{{ form.input('tag_string', id='field-tags', label=_('Tags'), placeholder=_('eg. economy, mental health, government'), value=data.tag_string, error=errors.tags, classes=['control-full'], attrs=tag_attrs) }}
 
 <div class="control-group">
   {% set error = errors.license_id %}
