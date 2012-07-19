@@ -244,4 +244,48 @@ describe('ckan.module(id, properties|callback)', function () {
       });
     });
   });
+
+  describe('BaseModule(element, options, sandbox)', function () {
+    var BaseModule = ckan.module.BaseModule;
+
+    beforeEach(function () {
+      this.el = jQuery('<div />');
+      this.options = {};
+      this.sandbox = ckan.sandbox();
+      this.module = new BaseModule(this.el, this.options, this.sandbox);
+    });
+
+    it('should assign .el as the element option', function () {
+      assert.ok(this.module.el === this.el);
+    });
+
+    it('should wrap .el in jQuery if not already wrapped', function () {
+      var element = document.createElement('div');
+      var target = new BaseModule(element, this.options, this.sandbox);
+
+      assert.ok(target.el instanceof jQuery);
+    });
+
+    it('should deep extend the options object', function () {
+      // Lazy check :/
+      var target = sinon.stub(jQuery, 'extend');
+      new BaseModule(this.el, this.options, this.sandbox);
+
+      assert.called(target);
+      assert.calledWith(target, true, {}, BaseModule.prototype.options, this.options);
+
+      target.restore();
+    });
+
+    it('should assign the sandbox property', function () {
+      assert.equal(this.module.sandbox, this.sandbox);
+    });
+
+    describe('.$(selector)', function () {
+      it('should find children within the module element', function () {
+        this.module.el.append(jQuery('<input /><input />'));
+        assert.equal(this.module.$('input').length, 2);
+      });
+    });
+  });
 });
