@@ -41,15 +41,8 @@ class License(object):
 class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""
 
-    def __init__(self):
-        group_url = config.get('licenses_group_url', None)
-        if group_url:
-            self.load_licenses(group_url)
-        else:
-            self.licenses = self.get_license_info
-
     @property
-    def get_license_info(self):
+    def licenses(self):
         # this allows the license info to be localised see #2575
         default_license_list = [
                 {
@@ -256,6 +249,13 @@ class LicenseRegister(object):
                 ]
         return [License(entity) for entity in default_license_list]
 
+    def __init__(self):
+        group_url = config.get('licenses_group_url', None)
+        if group_url:
+            # this will override licenses function
+            self.load_licenses(group_url)
+
+
     def load_licenses(self, license_url):
         try:
             response = urllib2.urlopen(license_url)
@@ -272,9 +272,11 @@ class LicenseRegister(object):
 
     def _create_license_list(self, license_data):
         if isinstance(license_data, dict):
-            self.licenses = [License(entity) for entity in license_data.values()]
+            # override the class attribute
+            self.__class__.licenses = [License(entity) for entity in license_data.values()]
         elif isinstance(license_data, list):
-            self.licenses = [License(entity) for entity in license_data]
+            # override the class attribute
+            self.__class__.licenses = [License(entity) for entity in license_data]
         else:
             msg = "Licenses at %s must be dictionary or list" % license_url
             raise ValueError(msg)
