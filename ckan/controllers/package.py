@@ -684,8 +684,6 @@ class PackageController(BaseController):
         return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
-        if 'delete' in request.params:
-            return self.delete(id)
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
@@ -1001,11 +999,12 @@ class PackageController(BaseController):
         return render('package/authz.html')
 
     def delete(self, id):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
 
         if 'cancel' in request.params:
             h.redirect_to(controller='package', action='edit', id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
 
         try:
             check_access('package_delete', context, {'id': id})
@@ -1013,7 +1012,7 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to delete package %s') % '')
 
         try:
-            if request.params.get('confirm_delete') == 'yes':
+            if request.method == 'POST':
                 get_action('package_delete')(context, {'id': id})
                 h.flash_notice(_('Dataset has been deleted.'))
                 h.redirect_to(controller='package', action='search')
