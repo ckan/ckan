@@ -526,8 +526,7 @@ class PackageController(BaseController):
         try:
             resource_dict = get_action('resource_show')(context, {'id': resource_id})
         except NotFound:
-            # FIXME need to handle this
-            pass
+            abort(404, _('Resource not found'))
         c.pkg_dict = pkg_dict
         c.resource = resource_dict
         # set the form action
