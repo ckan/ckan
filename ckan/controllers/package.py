@@ -568,7 +568,7 @@ class PackageController(BaseController):
                     data_provided = True
                     break
 
-            if not data_provided:
+            if not data_provided and save_action != "go-dataset-complete":
                 if save_action == 'go-dataset':
                     # go to final stage of adddataset
                     redirect(h.url_for(controller='package',
@@ -608,6 +608,10 @@ class PackageController(BaseController):
                 # go to first stage of add dataset
                 redirect(h.url_for(controller='package',
                                    action='edit', id=id))
+            elif save_action == 'go-dataset-complete':
+                # go to first stage of add dataset
+                redirect(h.url_for(controller='package',
+                                   action='read', id=id))
             else:
                 # add more resources
                 redirect(h.url_for(controller='package',
@@ -625,7 +629,7 @@ class PackageController(BaseController):
         vars['pkg_dict'] = pkg_dict
         if pkg_dict['state'] == 'draft':
             vars['stage'] = ['complete', 'active']
-        else:
+        elif pkg_dict['state'] == 'draft-complete':
             vars['stage'] = ['complete', 'active', 'complete']
         return render('package/new_resource.html', extra_vars=vars)
 

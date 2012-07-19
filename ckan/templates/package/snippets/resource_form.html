@@ -66,7 +66,7 @@
 
   <div class="form-actions">
     {% block delete_button %}
-      {% if not stage %}
+      {% if data.id %}
         {# FIXME is this the right permission?? #}
         {% if h.check_access('package_delete', {'id': pkg_name})  %}
           {% set locale = h.dump_json({'content': _('Are you sure you want to delete this resource?')}) %}
@@ -74,6 +74,7 @@
         {% endif %}
       {% endif %}
     {% endblock %}
+    {% if stage %}
     {% block previous_button %}
       <button class="btn" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
     {% endblock %}
@@ -81,5 +82,8 @@
       <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
     {% endblock %}
     <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Next: Additional Info') }}{% endblock %}</button>
+    {% else %}
+      <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>
+    {% endif %}
   </div>
 </form>
