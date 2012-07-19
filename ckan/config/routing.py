@@ -162,6 +162,8 @@ def make_map():
         m.connect('related_new',  '/dataset/{id}/related/new', action='new')
         m.connect('related_edit', '/dataset/{id}/related/edit/{related_id}',
                   action='edit')
+        m.connect('related_delete', '/dataset/{id}/related/delete/{related_id}',
+                  action='delete')
         m.connect('related_list', '/dataset/{id}/related', action='list')
 
     with SubMapper(map, controller='package') as m:

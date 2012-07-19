@@ -123,7 +123,34 @@ class RelatedController(base.BaseController):
             "paper": "Paper",
             "visualization": "Visualization"
         }
-
+        c.pkg_id = id
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
         c.form = base.render("related/edit_form.html", extra_vars=vars)
         return base.render(tpl)
+
+    def delete(self, id, related_id):
+
+        if 'cancel' in base.request.params:
+            h.redirect_to(controller='related', action='edit',
+                          id=id, related_id=related_id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            logic.check_access('related_delete', context, {'id': id})
+        except logic.NotAuthorized:
+            base.abort(401, _('Unauthorized to delete package %s') % '')
+
+        try:
+            if base.request.method == 'POST':
+                logic.get_action('related_delete')(context, {'id': related_id})
+                h.flash_notice(_('Related item has been deleted.'))
+                h.redirect_to(controller='package', action='read', id=id)
+            c.related_dict = logic.get_action('related_show')(context, {'id': related_id})
+            c.pkg_id = id
+        except logic.NotAuthorized:
+            base.abort(401, _('Unauthorized to delete related item %s') % '')
+        except logic.NotFound:
+            base.abort(404, _('Related item not found'))
+        return base.render('related/confirm_delete.html')
