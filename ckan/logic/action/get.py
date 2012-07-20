@@ -1972,7 +1972,7 @@ def user_follower_count(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
     return ckan.model.UserFollowingUser.follower_count(data_dict['id'])
 
 def dataset_follower_count(context, data_dict):
@@ -1988,7 +1988,7 @@ def dataset_follower_count(context, data_dict):
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
     return ckan.model.UserFollowingDataset.follower_count(data_dict['id'])
 
 def _follower_list(context, data_dict, FollowerClass):
@@ -2017,7 +2017,7 @@ def user_follower_list(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
     return _follower_list(context, data_dict,
             context['model'].UserFollowingUser)
 
@@ -2034,7 +2034,7 @@ def dataset_follower_list(context, data_dict):
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
     return _follower_list(context, data_dict,
             context['model'].UserFollowingDataset)
 
@@ -2065,7 +2065,7 @@ def am_following_user(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
 
     return _am_following(context, data_dict,
             context['model'].UserFollowingUser)
@@ -2083,7 +2083,7 @@ def am_following_dataset(context, data_dict):
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
 
     return _am_following(context, data_dict,
             context['model'].UserFollowingDataset)
@@ -2101,7 +2101,7 @@ def user_followee_count(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
     return ckan.model.UserFollowingUser.followee_count(data_dict['id'])
 
 def dataset_followee_count(context, data_dict):
@@ -2117,7 +2117,7 @@ def dataset_followee_count(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
     return ckan.model.UserFollowingDataset.followee_count(data_dict['id'])
 
 def user_followee_list(context, data_dict):
@@ -2133,7 +2133,7 @@ def user_followee_list(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
 
     # Get the list of Follower objects.
     model = context['model']
@@ -2160,7 +2160,7 @@ def dataset_followee_list(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
 
     # Get the list of Follower objects.
     model = context['model']

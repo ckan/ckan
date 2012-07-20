@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Ensure they are module-private so that they don't get loaded as available
 # actions in the action API.
 _validate = ckan.lib.navl.dictization_functions.validate
-_error_summary = logic.action.error_summary
 _get_action = logic.get_action
 _check_access = logic.check_access
 NotFound = logic.NotFound
@@ -140,7 +139,7 @@ def related_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     related = model_save.related_dict_save(data, context)
     if not context.get('defer_commit'):
@@ -183,7 +182,7 @@ def resource_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -253,7 +252,7 @@ def package_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -301,7 +300,7 @@ def package_update_validate(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
     return data
 
 
@@ -362,7 +361,7 @@ def package_relationship_update(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     _check_access('package_relationship_update', context, data_dict)
 
@@ -416,7 +415,7 @@ def group_update(context, data_dict):
     data, errors = _validate(data_dict, schema, context)
     if errors:
         session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -514,7 +513,7 @@ def user_update(context, data_dict):
     data, errors = _validate(data_dict, schema, context)
     if errors:
         session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     user = model_save.user_dict_save(data, context)
 
@@ -584,7 +583,7 @@ def task_status_update(context, data_dict):
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     task_status = model_save.task_status_dict_save(data, context)
 
