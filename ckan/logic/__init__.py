@@ -55,7 +55,10 @@ class ValidationError(ParameterError):
         if 'tags' in error_dict:
             tag_errors = []
             for error in error_dict['tags']:
-                tag_errors.append(', '.join(error['name']))
+                try:
+                    tag_errors.append(', '.join(error['name']))
+                except KeyError:
+                    pass
             error_dict['tags'] = tag_errors
         self.error_dict = error_dict
         self._error_summary = error_summary
