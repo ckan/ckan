@@ -830,7 +830,6 @@ class Celery(CkanCommand):
     def clean(self):
         self._load_config()
         import ckan.model as model
-        import pprint
         tasks_initially = model.Session.execute("select * from kombu_message").rowcount
         if not tasks_initially:
             print 'No tasks to delete'
