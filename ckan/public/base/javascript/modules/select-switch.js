@@ -19,7 +19,6 @@ this.ckan.module('select-switch', {
 
   options: {
     target: 'select',
-    button: '[type=submit]'
   },
 
   initialize: function () {
@@ -28,9 +27,5 @@ this.ckan.module('select-switch', {
     this.el.on('change', this.options.target, function () {
       _this.el.submit();
     });
-
-    if (this.options.button) {
-      this.$(this.options.button).hide();
-    }
   }
 });
