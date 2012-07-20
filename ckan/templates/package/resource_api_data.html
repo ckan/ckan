@@ -1,0 +1,19 @@
+{% extends "page.html" %}
+
+{% block title %}{{ _('API Info') }} - {{ super() }}{% endblock %}
+
+{% block breadcrumb_content %}
+{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('API Info') }}</h1>
+      {% block about %}
+        {% snippet 'ajax_snippets/api_info.html' %}
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

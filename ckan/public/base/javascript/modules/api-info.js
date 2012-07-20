@@ -1,9 +1,9 @@
 /* Loads the API Info snippet into a modal dialog. Retrieves the snippet
- * url from the href on the module element.
+ * url from the data-snippet-url on the module element.
  *
  * Examples
  *
- *   <a href="http://example.com/path/to/template" data-module="api-info">API</a>
+ *   <a data-snippet-url="http://example.com/path/to/template" data-module="api-info">API</a>
  *
  */
 this.ckan.module('api-info', function (jQuery, _) {
@@ -17,7 +17,7 @@ this.ckan.module('api-info', function (jQuery, _) {
       this.el.on('click', this._onClick);
       this.el.button();
 
-      this.options.template = this.options.template || this.el.attr('href');
+      this.options.template = this.options.template || this.el.data('snippet-url');
     },
     loading: function (loading) {
       this.el.button(loading !== false ? 'loading' : 'reset');
@@ -32,6 +32,9 @@ this.ckan.module('api-info', function (jQuery, _) {
 
       this.loadTemplate().done(function (html) {
         module.modal = jQuery(html);
+        // we need to make this for modal
+        module.modal.addClass('modal');
+        module.modal.find('.x_modal-body').addClass('modal-body');
         module.modal.find('.modal-header :header').append('<button class="close" data-dismiss="modal">×</button>');
         module.modal.modal().appendTo(sandbox.body);
       });

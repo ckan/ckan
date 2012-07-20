@@ -1162,6 +1162,9 @@ class PackageController(BaseController):
             abort(404, _('No download is available'))
         redirect(rsc['url'])
 
+    def api_data(self, id=None):
+        return render('package/resource_api_data.html', {'datastore_root_url': id})
+
     def followers(self, id=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
