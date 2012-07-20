@@ -781,11 +781,12 @@ class Celery(CkanCommand):
     Usage:
         celeryd       - run the celery daemon
         celeryd run   - run the celery daemon
-        celeryd run concurrency=1 - run the celery daemon with argument 'concurrency'
+        celeryd run concurrency - run the celery daemon with argument 'concurrency'
         celeryd view  - view all tasks in the queue
         celeryd clean - delete all tasks in the queue
     '''
     min_args = 0
+    max_args = 2
     summary = __doc__.split('\n')[0]
     usage = __doc__
 
@@ -807,7 +808,9 @@ class Celery(CkanCommand):
     def run_(self):
         os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
         from ckan.lib.celery_app import celery
-        celery_args = ['--%s' % arg for arg in self.args[1:]]
+        celery_args = []
+        if len(self.args) == 2 and self.args[1] == 'concurrency':
+            celery_args.append['--concurrency=1']
         celery.worker_main(argv=['celeryd', '--loglevel=INFO'] + celery_args)
 
     def view(self):
