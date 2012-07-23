@@ -31,7 +31,9 @@
       }
 
       var formatter = options && options.format || this.parseCompletions;
-      return jQuery.ajax({url: url}).pipe(formatter).then(success, error);
+      var request = jQuery.ajax({url: url});
+
+      return request.pipe(formatter).promise(request).then(success, error);
     },
 
     /* Takes a JSON response from an auto complete endpoint and normalises

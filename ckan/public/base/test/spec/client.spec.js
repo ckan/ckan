@@ -16,6 +16,7 @@ describe('ckan.Client()', function () {
     beforeEach(function () {
       this.fakePiped  = sinon.stub(jQuery.Deferred());
       this.fakePiped.then.returns(this.fakePiped);
+      this.fakePiped.promise.returns(this.fakePiped);
 
       this.fakePromise = sinon.stub(jQuery.Deferred());
       this.fakePromise.pipe.returns(this.fakePiped);
