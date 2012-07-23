@@ -53,10 +53,27 @@ describe('ckan.modules.AutocompleteModule()', function () {
 
       assert.called(this.select2);
       assert.calledWith(this.select2, {
+        query: this.module._onQuery,
+        formatResult: this.module.formatResult,
+        formatNoMatches: this.module.formatNoMatches,
+        formatInputTooShort: this.module.formatInputTooShort,
+        createSearchChoice: this.module.formatTerm, // Not used by tags.
+        initSelection: this.module.formatInitialValue
+      });
+    });
+
+    it('should initialize the autocomplete plugin with a tags callback if options.tags is true', function () {
+      this.module.options.tags = true;
+      this.module.setupAutoComplete();
+
+      assert.called(this.select2);
+      assert.calledWith(this.select2, {
         tags: this.module._onQuery,
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
-        formatInputTooShort: this.module.formatInputTooShort
+        formatInputTooShort: this.module.formatInputTooShort,
+        createSearchChoice: this.module.formatTerm, // Not used by tags.
+        initSelection: this.module.formatInitialValue
       });
     });
   });
@@ -156,6 +173,33 @@ describe('ckan.modules.AutocompleteModule()', function () {
     it('should return the singular input too short string', function () {
       var target = this.module.formatInputTooShort('term', 1);
       assert.equal(target, 'Input is too short, must be at least one character');
+    });
+  });
+
+  describe('.formatTerm()', function () {
+    it('should return an item object with id and text properties', function () {
+      assert.deepEqual(this.module.formatTerm('test'), {id: 'test', text: 'test'});
+    });
+
+    it('should trim whitespace from the value', function () {
+      assert.deepEqual(this.module.formatTerm(' test  '), {id: 'test', text: 'test'});
+    });
+
+    it('should convert commas in ids into unicode characters', function () {
+      assert.deepEqual(this.module.formatTerm('test, test'), {id: 'test\u002C test', text: 'test, test'});
+    });
+  });
+
+  describe('.formatInitialValue()', function () {
+    it('should return an item object with id and text properties', function () {
+      var target = jQuery('<input value="test"/>');
+      assert.deepEqual(this.module.formatInitialValue(target), {id: 'test', text: 'test'});
+    });
+
+    it('should return an array of properties if options.tags is true', function () {
+      this.module.options.tags = true;
+      var target = jQuery('<input />', {value: "test, test"});
+      assert.deepEqual(this.module.formatInitialValue(target), [{id: 'test', text: 'test'}, {id: 'test', text: 'test'}]);
     });
   });
 

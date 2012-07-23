@@ -44,8 +44,6 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns nothing.
      */
     setupAutoComplete: function () {
-      var module = this;
-      var isTagField = this.options.tags;
       var settings = {
         formatResult: this.formatResult,
         formatNoMatches: this.formatNoMatches,
@@ -56,7 +54,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
 
       // Different keys are required depending on whether the select is
       // tags or generic completion.
-      if (isTagField) {
+      if (this.options.tags) {
         settings.tags = this._onQuery;
 
         // Also need to watch for changes so we can handle formatting
@@ -183,7 +181,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       var value = jQuery.trim(element.val() || '');
 
       if (this.options.tags) {
-        return jQuery(value.split(",")).map(this.formatTerm);
+        return jQuery.map(value.split(","), this.formatTerm);
       } else {
         return this.formatTerm(value);
       }
