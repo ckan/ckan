@@ -93,20 +93,21 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       // old data.
       this._lastTerm = string;
 
-      if (string && !this._debounced) {
-        // Set a timer to prevent the search lookup occurring too often.
-        this._debounced = setTimeout(function () {
-          delete module._debounced;
+      if (string) {
+        if (!this._debounced) {
+          // Set a timer to prevent the search lookup occurring too often.
+          this._debounced = setTimeout(function () {
+            delete module._debounced;
 
-          // Cancel the previous request if it hasn't yet completed.
-          if (module._last) {
-            module._last.abort();
-          }
+            // Cancel the previous request if it hasn't yet completed.
+            if (module._last) {
+              module._last.abort();
+            }
 
-          module._last = module.getCompletions(module._lastTerm, fn);
-        }, this.options.interval);
-
-      } else if (!string) {
+            module._last = module.getCompletions(module._lastTerm, fn);
+          }, this.options.interval);
+        }
+      } else {
         fn({results: []});
       }
     },
