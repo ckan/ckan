@@ -47,7 +47,9 @@ this.ckan.module('autocomplete', function (jQuery, _) {
         formatResult: this.formatResult,
         formatNoMatches: this.formatNoMatches,
         formatInputTooShort: this.formatInputTooShort
-      });
+      }).data('select2');
+
+      this.el.on('change', this._onChange);
     },
 
     /* Looks up the completions for the current search term and passes them
@@ -146,6 +148,23 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      */
     _onQuery: function (options) {
       this.lookup(options.term, options.callback);
+    },
+
+    /* Called when the input changes. Used to split any comma separated tags
+     * into individual items. This is a bit of a workaround as select2 doesn't
+     * handle this yet.
+     *
+     * select2('val') actually parses comma separated input correctly but
+     * doesn't render them. So we give it a gentle nudge.
+     *
+     * Returns nothing.
+     */
+    _onChange: function (event) {
+      var parsed = jQuery.map(this.el.select2('val'), function (item) {
+        return {id: item, text: item};
+      });
+
+      this.el.select2('val', parsed);
     }
   };
 });

@@ -169,4 +169,8 @@ describe('ckan.modules.AutocompleteModule()', function () {
       assert.calledWith(target, 'term', 'callback');
     });
   });
+
+  describe('._onChange', function () {
+    it('should reassign value of the select2 element to ensure comma sepeated values are rendered correctly');
+  });
 });
