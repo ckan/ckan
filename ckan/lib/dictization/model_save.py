@@ -1,10 +1,13 @@
 import datetime
 import uuid
+import logging
+
 from sqlalchemy.orm import class_mapper
+
 import ckan.lib.dictization as d
 import ckan.lib.helpers as h
 
-##package saving
+log = logging.getLogger(__name__)
 
 def resource_dict_save(res_dict, context):
     model = context["model"]
@@ -379,9 +382,12 @@ def group_dict_save(group_dict, context):
     context['group'] = group
 
     pkgs_edited = group_member_save(context, group_dict, 'packages')
-    group_member_save(context, group_dict, 'users')
-    group_member_save(context, group_dict, 'groups')
-    group_member_save(context, group_dict, 'tags')
+    group_users_changed = group_member_save(context, group_dict, 'users')
+    group_groups_changed = group_member_save(context, group_dict, 'groups')
+    group_tags_changed = group_member_save(context, group_dict, 'tags')
+    log.debug('Group save membership changes - Packages: %r  Users: %r  '
+              'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
+              group_groups_changed, group_tags_changed)
 
     # We will get a list of packages that we have either added or
     # removed from the group, and trigger a re-index.
