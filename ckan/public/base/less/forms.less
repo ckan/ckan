@@ -509,10 +509,18 @@ textarea {
 }
 
 // Select2
-
+.select2-container .select2-choice,
 .select2-container-multi .select2-choices .select2-search-field input {
   // Need to compensate for box-sizing: border-box
   height: 29px;
+}
+
+.select2-container .select2-choice {
+  padding: 4px 8px 2px;
+}
+
+.select2-container .select2-choice div b {
+  background-position: 0 5px;
 }
 
 .select2-container-multi .select2-choices .select2-search-choice {
