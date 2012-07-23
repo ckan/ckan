@@ -40,7 +40,7 @@ def _get_auth_function(action, profile=None):
     if auth_profile:
         module_root = '%s.%s' % (module_root, auth_profile)
 
-    log.info('Using auth profile at %s' % module_root)
+    log.debug('Using auth profile at %s' % module_root)
 
     for auth_module_name in ['get', 'create', 'update','delete']:
         module_path = '%s.%s' % (module_root, auth_module_name,)

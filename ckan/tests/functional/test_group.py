@@ -836,15 +836,19 @@ Ho ho ho
         userobj = model.User.get('russianfan')
         grp = model.Group.by_name(self.groupname)
 
+        # Monkey patch
+        old_method = model.User.get_groups
         def gg(*args, **kwargs):
             return [grp]
         model.User.get_groups = gg
-
-        context = {'group': grp, 'model': model, 'user': 'russianfan'}
         try:
-            self.auth.check_access('group_update', context, {})
-        except NotAuthorized, e:
-            assert False, "The user should have access"
+            context = { 'group': grp, 'model': model, 'user': 'russianfan' }
+            try:
+                self.auth.check_access('group_update',context, {})
+            except NotAuthorized, e:
+                assert False, "The user should have access"
+        finally:
+            model.User.get_groups = old_method
 
     def test_delete(self):
         group_name = 'deletetest'

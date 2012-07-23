@@ -52,3 +52,50 @@ class TestUser:
         out = model.User.get(u'http:/sandra.owndomain.com/')
         assert out
         assert out.fullname == u'Sandra'
+
+def to_names(domain_obj_list):
+    '''Takes a list of domain objects and returns a corresponding list
+    of their names.'''
+    objs = []
+    for obj in domain_obj_list:
+        objs.append(obj.name if obj else None)
+    return objs
+
+class TestUserGroups:
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create_arbitrary([{'name': 'testpkg'}],
+                                        extra_user_names=['brian', 'sandra'])
+        CreateTestData.create_groups([
+            {'name': 'grp1',
+             'phone': '1234',
+             }
+            ])
+        model.repo.new_revision()
+        grp1 = model.Group.by_name(u'grp1')
+        brian = model.User.by_name(u'brian')
+        model.Session.add(model.Member(group=grp1,
+                                       table_id=brian.id,
+                                       table_name='user',
+                                       capacity='admin')
+                         )
+        model.repo.commit_and_remove()
+        
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+    
+    def test_get_groups(self):
+        brian = model.User.by_name(u'brian')
+        groups = brian.get_groups()
+        assert_equal(to_names(groups), ['grp1'])
+        assert_equal(groups[0].extras, {'phone': '1234'})
+
+        # check cache works between sessions
+        model.Session.expunge_all()
+        #don't refresh brian user since this is how c.user works
+        # i.e. don't do this: brian = model.User.by_name(u'brian')
+        groups = brian.get_groups()
+        assert_equal(to_names(groups), ['grp1'])
+        assert_equal(groups[0].extras, {'phone': '1234'})
+

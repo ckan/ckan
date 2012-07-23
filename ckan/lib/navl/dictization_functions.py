@@ -302,7 +302,6 @@ def _validate(data, schema, context):
             except StopOnError:
                 break
 
-
     return converted_data, errors
 
 
