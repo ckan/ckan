@@ -265,9 +265,11 @@ class StorageAPIController(BaseController):
             url = "https://%s/%s%s" % (self.ofs.conn.server_name(), bucket, label)
         else:
             url = h.url_for('storage_file',
-                    label=label,
-                    qualified=False
-                    )
+                            label=label,
+                            qualified=False)
+
+            if url.startswith('/'):
+                url = config.get('ckan.site_url', '') + url
         if not self.ofs.exists(bucket, label):
             abort(404)
         metadata = self.ofs.get_metadata(bucket, label)
