@@ -6,3 +6,10 @@
 	{{ c.content}}
 {% endblock %}
 
+{% block breadcrumb %}
+{% endblock %}
+
+{% block flash %}
+    {# eat the flash messages caused by the 404 #}
+    {% set flash_messages = h.flash.pop_messages() %}
+{% endblock %}

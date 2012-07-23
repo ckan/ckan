@@ -526,8 +526,7 @@ class PackageController(BaseController):
         try:
             resource_dict = get_action('resource_show')(context, {'id': resource_id})
         except NotFound:
-            # FIXME need to handle this
-            pass
+            abort(404, _('Resource not found'))
         c.pkg_dict = pkg_dict
         c.resource = resource_dict
         # set the form action
@@ -568,7 +567,7 @@ class PackageController(BaseController):
                     data_provided = True
                     break
 
-            if not data_provided:
+            if not data_provided and save_action != "go-dataset-complete":
                 if save_action == 'go-dataset':
                     # go to final stage of adddataset
                     redirect(h.url_for(controller='package',
@@ -608,6 +607,10 @@ class PackageController(BaseController):
                 # go to first stage of add dataset
                 redirect(h.url_for(controller='package',
                                    action='edit', id=id))
+            elif save_action == 'go-dataset-complete':
+                # go to first stage of add dataset
+                redirect(h.url_for(controller='package',
+                                   action='read', id=id))
             else:
                 # add more resources
                 redirect(h.url_for(controller='package',
@@ -625,7 +628,7 @@ class PackageController(BaseController):
         vars['pkg_dict'] = pkg_dict
         if pkg_dict['state'] == 'draft':
             vars['stage'] = ['complete', 'active']
-        else:
+        elif pkg_dict['state'] == 'draft-complete':
             vars['stage'] = ['complete', 'active', 'complete']
         return render('package/new_resource.html', extra_vars=vars)
 
@@ -684,8 +687,6 @@ class PackageController(BaseController):
         return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
-        if 'delete' in request.params:
-            return self.delete(id)
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
@@ -1001,11 +1002,12 @@ class PackageController(BaseController):
         return render('package/authz.html')
 
     def delete(self, id):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
 
         if 'cancel' in request.params:
             h.redirect_to(controller='package', action='edit', id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
 
         try:
             check_access('package_delete', context, {'id': id})
@@ -1013,7 +1015,7 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to delete package %s') % '')
 
         try:
-            if request.params.get('confirm_delete') == 'yes':
+            if request.method == 'POST':
                 get_action('package_delete')(context, {'id': id})
                 h.flash_notice(_('Dataset has been deleted.'))
                 h.redirect_to(controller='package', action='search')
@@ -1023,6 +1025,32 @@ class PackageController(BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
         return render('package/confirm_delete.html')
+
+    def resource_delete(self, id, resource_id):
+
+        if 'cancel' in request.params:
+            h.redirect_to(controller='package', action='resource_edit', resource_id=resource_id, id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            check_access('package_delete', context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete package %s') % '')
+
+        try:
+            if request.method == 'POST':
+                get_action('resource_delete')(context, {'id': resource_id})
+                h.flash_notice(_('Resource has been deleted.'))
+                h.redirect_to(controller='package', action='read', id=id)
+            c.resource_dict = get_action('resource_show')(context, {'id': resource_id})
+            c.pkg_id = id
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete resource %s') % '')
+        except NotFound:
+            abort(404, _('Resource not found'))
+        return render('package/confirm_delete_resource.html')
 
     def autocomplete(self):
         # DEPRECATED in favour of /api/2/util/dataset/autocomplete
