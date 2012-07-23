@@ -9,7 +9,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
         emptySearch: _('Start typing…'),
         inputTooShort: function (n) {
           return _('Input is too short, must be at least one character')
-          .ifPlural(n, 'Input is too short, must be at least one character');
+          .ifPlural(n, 'Input is too short, must be at least %d characters');
         }
       }
     },
@@ -20,7 +20,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       this.source = jQuery.isArray(this.options.source) ? this.options.source : [];
 
       this.el.select2({
-        tags: this._onQuery,
+        tags: this._onQuery, /* this needs to be "query" for non tags */
         formatNoMatches: this.formatNoMatches,
         formatInputTooShort: this.formatInputTooShort
       });
@@ -29,27 +29,10 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       var parts  = this.options.source.split('?');
       var end    = parts.pop();
       var source = parts.join('?') + string + end;
-      var module = this;
+      var client = this.sandbox.client;
+      var options = {format: client.parseCompletionsForPlugin};
 
-      jQuery.getJSON(source, function (data) {
-        var map = {};
-        var items = jQuery.map(data.ResultSet.Result, function (item) {
-          item = typeof item === 'string' ? item : item.Name || '';
-
-          var lowercased = item.toLowerCase();
-
-          if (lowercased && !map[lowercased]) {
-            map[lowercased] = 1;
-            return item;
-          }
-
-          return null;
-        });
-
-        items = jQuery.grep(items, function (item) { return item !== null; });
-
-        fn({results: module.createItems(items)});
-      });
+      client.getCompletions(source, options, fn);
     },
     lookup: function () {
       var module = this;
@@ -63,12 +46,6 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       } else {
         this.typeahead._lookup();
       }
-    },
-    createItem: function (item) {
-      return {id: item, text: item};
-    },
-    createItems: function (items) {
-      return jQuery.map(items, this.createItem);
     },
     formatNoMatches: function (term) {
       return !term ? this.i18n('emptySearch') : this.i18n('noMatches');
