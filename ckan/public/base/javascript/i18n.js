@@ -1,21 +1,16 @@
 this.ckan = this.ckan || {};
 
-// Fake localisation function. A basic drop in for Jed.
-// See: http://slexaxton.github.com/Jed/
-this.ckan.i18n = {
-  translate: function (string) {
-    return {
-      fetch: function () {
-        return string;
-      }
-    };
-  }
-};
+(function (ckan, jQuery, Jed) {
+  // Fake localisation function. A basic drop in for Jed.
+  // See: http://slexaxton.github.com/Jed/
+  ckan.i18n = new Jed({});
+  ckan.i18n.translate = jQuery.proxy(ckan.i18n.translate, ckan.i18n);
 
-this.ckan.sandbox.extend({
-  /* An alias for ckan.i18n */
-  i18n: this.ckan.i18n,
+  ckan.sandbox.extend({
+    /* An alias for ckan.i18n */
+    i18n: ckan.i18n,
 
-  /* An alias for ckan.l18n.translate() */
-  translate: this.ckan.i18n.translate
-});
+    /* An alias for ckan.l18n.translate() */
+    translate: ckan.i18n.translate
+  });
+})(this.ckan, this.jQuery, this.Jed);
