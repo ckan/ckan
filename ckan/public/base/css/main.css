@@ -5440,8 +5440,15 @@ textarea {
   background: url("../images/loading-spinner.gif") no-repeat center right;
   padding-right: 5px;
 }
+.select2-container .select2-choice,
 .select2-container-multi .select2-choices .select2-search-field input {
   height: 29px;
+}
+.select2-container .select2-choice {
+  padding: 4px 8px 2px;
+}
+.select2-container .select2-choice div b {
+  background-position: 0 5px;
 }
 .select2-container-multi .select2-choices .select2-search-choice {
   padding: 5px 8px 5px 22px;
