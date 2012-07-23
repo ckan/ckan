@@ -23,8 +23,10 @@ class TestPublisherGroups(FunctionalTestCase):
         model.Session.remove()
         CreateTestData.create(auth_profile='publisher')
         self.groupname = u'david'
+        self.deleted_group_name = u'roger'
         self.packagename = u'testpkg'
         model.repo.new_revision()
+        model.Group.by_name(u'roger').delete()
         model.Session.add(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
 
@@ -34,8 +36,8 @@ class TestPublisherGroups(FunctionalTestCase):
         model.repo.rebuild_db()
         model.Session.remove()
 
-    def _run_fail_test( self, username, action):
-        grp = model.Group.by_name(self.groupname)        
+    def _run_fail_test( self, username, action, group_name=None):
+        grp = model.Group.by_name(group_name or self.groupname)   
         context = { 'group': grp, 'model': model, 'user': username }
         try:
             self.auth.check_access(action,context, {})
@@ -43,9 +45,9 @@ class TestPublisherGroups(FunctionalTestCase):
         except NotAuthorized, e:
             pass
     
-    def _run_success_test( self, username, action):    
+    def _run_success_test( self, username, action, group_name=None):
         userobj = model.User.get(username)
-        grp = model.Group.by_name(self.groupname)        
+        grp = model.Group.by_name(group_name or self.groupname)        
         f = model.User.get_groups
         def gg(*args, **kwargs):
             return [grp]
@@ -100,6 +102,15 @@ class TestPublisherGroups(FunctionalTestCase):
     def test_delete_unknown_fail(self):
         self._run_fail_test( 'nosuchuser', 'group_delete' )
         
+    def test_read_deleted_success(self):
+        """ Success because user in group """
+        self._run_success_test('testsysadmin', 'group_show',
+                               group_name=self.deleted_group_name)
+        
+    def test_read_deleted_fail(self):
+        """ Fail because user not in group """
+        self._run_fail_test('annafan', 'group_show',
+                            group_name=self.deleted_group_name)
 
 class TestPublisherShow(FunctionalTestCase):
     
@@ -175,7 +186,6 @@ class TestPublisherShow(FunctionalTestCase):
             pass
         model.Package.get_groups = g
         pkg.state = "active"
-        
         
 
 
