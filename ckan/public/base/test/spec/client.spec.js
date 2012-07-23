@@ -79,6 +79,20 @@ describe('ckan.Client()', function () {
       assert.deepEqual(target, ["1 percent", "18thc", "19thcentury"]);
     });
 
+    it('should return a string of formats for a ResultSet collection', function () {
+      var data = {
+        ResultSet: {
+          Result: [
+            {"Format": "json"}, {"Format": "csv"}, {"Format": "text"}
+          ]
+        }
+      };
+
+      var target = this.client.parseCompletions(data);
+
+      assert.deepEqual(target, ["json", "csv", "text"]);
+    });
+
     it('should strip out duplicates with a case insensitive comparison', function () {
       var data = {
         ResultSet: {

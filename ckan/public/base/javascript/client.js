@@ -55,7 +55,7 @@
       var raw = data.ResultSet && data.ResultSet.Result || {};
 
       var items = jQuery.map(raw, function (item) {
-        item = typeof item === 'string' ? item : item.Name || '';
+        item = typeof item === 'string' ? item : item.Name || item.Format || '';
         item = jQuery.trim(item);
 
         var lowercased = item.toLowerCase();
