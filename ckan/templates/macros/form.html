@@ -259,6 +259,6 @@ Example
 #}
 {%- macro attributes(attrs={}) -%}
   {%- for key, value in attrs.items() -%}
-    {{ key }}="{{ value }}"
+  {{ " " }}{{ key }}{% if value != "" %}="{{ value }}"{% endif %}
   {%- endfor -%}
 {%- endmacro -%}
