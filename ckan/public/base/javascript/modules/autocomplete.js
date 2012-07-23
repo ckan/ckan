@@ -4,6 +4,7 @@
  * source   - A url pointing to an API autocomplete endpoint.
  * interval - The interval between requests in milliseconds (default: 1000).
  * items    - The max number of items to display (default: 10)
+ * tags     - Boolean attribute if true will create a tag input.
  *
  * Examples
  *
@@ -14,6 +15,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
   return {
     /* Options for the module */
     options: {
+      tags: false,
       items: 10,
       source: null,
       interval: 1000,
@@ -42,14 +44,29 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns nothing.
      */
     setupAutoComplete: function () {
-      this.el.select2({
-        tags: this._onQuery, /* this needs to be "query" for non tags */
+      var module = this;
+      var isTagField = this.options.tags;
+      var settings = {
         formatResult: this.formatResult,
         formatNoMatches: this.formatNoMatches,
-        formatInputTooShort: this.formatInputTooShort
-      }).data('select2');
+        formatInputTooShort: this.formatInputTooShort,
+        createSearchChoice: this.formatTerm, // Not used by tags.
+        initSelection: this.formatInitialValue
+      };
 
-      this.el.on('change', this._onChange);
+      // Different keys are required depending on whether the select is
+      // tags or generic completion.
+      if (isTagField) {
+        settings.tags = this._onQuery;
+
+        // Also need to watch for changes so we can handle formatting
+        // inconsistencies that occur when dealing with tags.
+        this.el.on('change', this._onChange);
+      } else {
+        settings.query = this._onQuery;
+      }
+
+      this.el.select2(settings);
     },
 
     /* Looks up the completions for the current search term and passes them
@@ -142,6 +159,36 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       return this.i18n('inputTooShort', min);
     },
 
+    /* Takes a string and converts it into an object used by the select2 plugin.
+     *
+     * term - The term to convert.
+     *
+     * Returns an object for use in select2.
+     */
+    formatTerm: function (term) {
+      term = jQuery.trim(term || '');
+
+      // Need to replace comma with a unicode character to trick the plugin
+      // as it won't split this into multiple items.
+      return {id: term.replace(/,/g, '\u002C'), text: term};
+    },
+
+    /* Callback function that parses the initial field value.
+     *
+     * element - The initialized input element wrapped in jQuery.
+     *
+     * Returns a term object or an array depending on the type.
+     */
+    formatInitialValue: function (element) {
+      var value = jQuery.trim(element.val() || '');
+
+      if (this.options.tags) {
+        return jQuery(value.split(",")).map(this.formatTerm);
+      } else {
+        return this.formatTerm(value);
+      }
+    },
+
     /* Callback triggered when the select2 plugin needs to make a request.
      *
      * Returns nothing.
@@ -160,9 +207,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns nothing.
      */
     _onChange: function (event) {
-      var parsed = jQuery.map(this.el.select2('val'), function (item) {
-        return {id: item, text: item};
-      });
+      var parsed = jQuery.map(this.el.select2('val'), this.formatTerm);
 
       this.el.select2('val', parsed);
     }

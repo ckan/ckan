@@ -341,7 +341,8 @@ this.ckan = this.ckan || {};
         // Attempt to parse the string as JSON. If this fails then simply use
         // the attribute value as is.
         try {
-          value = jQuery.parseJSON(attr.value);
+          // If we have a boolean attribute (no value) then set to true.
+          value = attr.value === "" ? true : jQuery.parseJSON(attr.value);
         } catch (error) {
           if (error instanceof window.SyntaxError) {
             value = attr.value;

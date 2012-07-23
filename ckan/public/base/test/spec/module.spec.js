@@ -243,6 +243,16 @@ describe('ckan.module(id, properties|callback)', function () {
         'reallyVeryLongProperty': 'longer'
       });
     });
+
+    it('should set boolean attributes to true', function () {
+      var element = jQuery('<div>', {
+        'data-module-long-property': ''
+      })[0];
+
+      var target = ckan.module.extractOptions(element);
+
+      assert.deepEqual(target, {'longProperty': true});
+    });
   });
 
   describe('BaseModule(element, options, sandbox)', function () {
