@@ -1,4 +1,5 @@
 from pylons import config
+from solr import SolrException
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
 from ckan import model
@@ -286,7 +287,6 @@ class PackageSearchQuery(SearchQuery):
 
         May raise SearchQueryError or SearchError.
         '''
-        from solr import SolrException
         assert isinstance(query, (dict, MultiDict))
         # check that query keys are valid
         if not set(query.keys()) <= VALID_SOLR_PARAMETERS:

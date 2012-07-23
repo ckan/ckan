@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Ensure they are module-private so that they don't get loaded as available
 # actions in the action API.
 _validate = ckan.lib.navl.dictization_functions.validate
-_error_summary = logic.action.error_summary
 _get_action = logic.get_action
 _check_access = logic.check_access
 NotFound = logic.NotFound
@@ -137,10 +136,9 @@ def related_update(context, data_dict):
 
     _check_access('related_update', context, data_dict)
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     related = model_save.related_dict_save(data, context)
     if not context.get('defer_commit'):
@@ -180,10 +178,9 @@ def resource_update(context, data_dict):
     _check_access('resource_update', context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -250,10 +247,14 @@ def package_update(context, data_dict):
             package_plugin.check_data_dict(data_dict)
 
     data, errors = _validate(data_dict, schema, context)
+    log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
+              errors, context.get('user'),
+              context.get('package').name if context.get('package') else '',
+              data)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -268,6 +269,8 @@ def package_update(context, data_dict):
         item.edit(pkg)
     if not context.get('defer_commit'):
         model.repo.commit()
+
+    log.debug('Updated object %s' % str(pkg.name))
     return _get_action('package_show')(context, data_dict)
 
 def package_update_validate(context, data_dict):
@@ -297,11 +300,9 @@ def package_update_validate(context, data_dict):
     _check_access('package_update', context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
-
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
     return data
 
 
@@ -359,10 +360,9 @@ def package_relationship_update(context, data_dict):
         return NotFound('Object package %r was not found.' % id2)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     _check_access('package_relationship_update', context, data_dict)
 
@@ -414,9 +414,14 @@ def group_update(context, data_dict):
     _check_access('group_update', context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
+    log.debug('group_update validate_errs=%r user=%s group=%s data_dict=%r',
+              errors, context.get('user'),
+              context.get('group').name if context.get('group') else '',
+              data_dict)
+
     if errors:
         session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -435,10 +440,15 @@ def group_update(context, data_dict):
             current = session.query(model.Member).\
                filter(model.Member.table_id == group.id).\
                filter(model.Member.table_name == "group").all()
+            if current:
+                log.debug('Parents of group %s deleted: %r', group.name,
+                          [membership.group.name for membership in current])
             for c in current:
                 session.delete(c)
             member = model.Member(group=parent_group, table_id=group.id, table_name='group')
             session.add(member)
+            log.debug('Group %s is made child of group %s',
+                      group.name, parent_group.name)
 
 
     for item in plugins.PluginImplementations(plugins.IGroupController):
@@ -514,7 +524,7 @@ def user_update(context, data_dict):
     data, errors = _validate(data_dict, schema, context)
     if errors:
         session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     user = model_save.user_dict_save(data, context)
 
@@ -581,10 +591,9 @@ def task_status_update(context, data_dict):
     _check_access('task_status_update', context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     task_status = model_save.task_status_dict_save(data, context)
 
@@ -642,7 +651,6 @@ def term_translation_update(context, data_dict):
               'lang_code': [validators.not_empty, unicode]}
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -783,7 +791,6 @@ def vocabulary_update(context, data_dict):
 
     schema = context.get('schema') or ckan.logic.schema.default_update_vocabulary_schema()
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)

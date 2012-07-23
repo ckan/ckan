@@ -167,12 +167,14 @@ class ManageDb(CkanCommand):
         pg_dump_cmd += ' %(db_name)s' % self.db_details
         pg_dump_cmd += ' > %s' % filepath
         self._run_cmd(pg_dump_cmd)
+        print 'Dumped database to: %s' % filepath
 
     def _postgres_load(self, filepath):
         import ckan.model as model
         assert not model.repo.are_tables_created(), "Tables already found. You need to 'db clean' before a load."
         pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
         self._run_cmd(pg_cmd)
+        print 'Loaded CKAN database: %s' % filepath
 
     def _run_cmd(self, command_line):
         import subprocess
@@ -777,12 +779,15 @@ class Celery(CkanCommand):
     '''Celery daemon
 
     Usage:
-        celeryd       - run the celery daemon
-        celeryd run   - run the celery daemon
-        celeryd view  - view all tasks in the queue
-        celeryd clean - delete all tasks in the queue
+        celeryd                 - run the celery daemon
+        celeryd run             - run the celery daemon
+        celeryd run concurrency - run the celery daemon with
+                                  argument 'concurrency'
+        celeryd view            - view all tasks in the queue
+        celeryd clean           - delete all tasks in the queue
     '''
     min_args = 0
+    max_args = 2
     summary = __doc__.split('\n')[0]
     usage = __doc__
 
@@ -804,7 +809,10 @@ class Celery(CkanCommand):
     def run_(self):
         os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
         from ckan.lib.celery_app import celery
-        celery.worker_main(argv=['celeryd', '--loglevel=INFO'])
+        celery_args = []
+        if len(self.args) == 2 and self.args[1] == 'concurrency':
+            celery_args.append['--concurrency=1']
+        celery.worker_main(argv=['celeryd', '--loglevel=INFO'] + celery_args)
 
     def view(self):
         self._load_config()
@@ -823,19 +831,21 @@ class Celery(CkanCommand):
     def clean(self):
         self._load_config()
         import ckan.model as model
-        import pprint
-        tasks_initially = model.Session.execute("select * from kombu_message").rowcount
+        query = model.Session.execute("select * from kombu_message")
+        tasks_initially = query.rowcount
         if not tasks_initially:
             print 'No tasks to delete'
             sys.exit(0)
         query = model.Session.execute("delete from kombu_message")
-        tasks_afterwards = model.Session.execute("select * from kombu_message").rowcount
+        query = model.Session.execute("select * from kombu_message")
+        tasks_afterwards = query.rowcount
         print '%i of %i tasks deleted' % (tasks_initially - tasks_afterwards,
                                           tasks_initially)
         if tasks_afterwards:
             print 'ERROR: Failed to delete all tasks'
             sys.exit(1)
         model.repo.commit_and_remove()
+
 
 class Ratings(CkanCommand):
     '''Manage the ratings stored in the db
@@ -984,7 +994,7 @@ class Tracking(CkanCommand):
                     FROM tracking_summary t2
                     WHERE t1.package_id = t2.package_id
                     AND t2.tracking_date <= t1.tracking_date
-                 ) + t1.count
+                 )
                  ,recent_views = (
                     SELECT sum(count)
                     FROM tracking_summary t2

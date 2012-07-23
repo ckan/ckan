@@ -192,24 +192,25 @@ class TestAction(WsgiAppCase):
     def test_41_create_resource(self):
 
         anna_id = model.Package.by_name(u'annakarenina').id
-        resource = {'package_id': anna_id, 'url': 'new_url'}
-
+        resource = {'package_id': anna_id, 'url': 'http://new_url'}
+        api_key = model.User.get('annafan').apikey.encode('utf8')
         postparams = '%s=1' % json.dumps(resource)
         res = self.app.post('/api/action/resource_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
+                            extra_environ={'Authorization': api_key })
 
         resource = json.loads(res.body)['result']
 
-        assert resource['url'] == 'new_url'
+        assert resource['url'] == 'http://new_url'
 
     def test_42_create_resource_with_error(self):
 
         anna_id = model.Package.by_name(u'annakarenina').id
         resource = {'package_id': anna_id, 'url': 'new_url', 'created': 'bad_date'}
+        api_key = model.User.get('annafan').apikey.encode('utf8')
 
         postparams = '%s=1' % json.dumps(resource)
         res = self.app.post('/api/action/resource_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'},
+                            extra_environ={'Authorization': api_key},
                             status=StatusCodes.STATUS_409_CONFLICT)
 
         assert json.loads(res.body)['error'] ==  {"__type": "Validation Error", "created": ["Date format incorrect"]}

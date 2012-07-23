@@ -245,7 +245,7 @@ class GroupController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context, data)
+        self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type=group_type),
                         extra_vars=vars)
         return render(self._new_template(group_type))

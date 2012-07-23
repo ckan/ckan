@@ -25,9 +25,8 @@ class TestStorageController:
         from ckan.model.authz import Action
         import ckan.model as model
         import ckan.authz as authz
-        john = model.User(name=u'john')
-        model.Session.add(john)        
-        is_authorized = authz.Authorizer.is_authorized(john.name, Action.UPLOAD_ACTION, model.System()) 
+
+        is_authorized = authz.Authorizer.is_authorized(u'tester', Action.UPLOAD_ACTION, model.System()) 
         assert is_authorized
 
     def test_03_authorization_wui(self):

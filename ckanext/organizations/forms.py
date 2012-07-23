@@ -3,7 +3,7 @@ import logging
 
 import ckan.authz as authz
 from ckan.logic import NotAuthorized
-from ckan.logic.schema import group_form_schema, default_package_schema
+from ckan.logic.schema import group_form_schema, form_to_db_package_schema
 from ckan.lib import base
 from ckan.lib.base import c, model, abort, request
 from ckan.lib.base import redirect, _, config, h
@@ -11,7 +11,7 @@ from ckan.lib.navl.dictization_functions import DataError
 from ckan.plugins import IGroupForm, IDatasetForm, IConfigurer, IRoutes
 from ckan.plugins import implements, SingletonPlugin
 from ckan.logic import check_access
-
+from ckan.logic.validators import tag_string_convert
 from ckan.lib.navl.validators import (ignore_missing,
                                       not_empty,
                                       empty,
@@ -234,7 +234,7 @@ class OrganizationDatasetForm(SingletonPlugin):
         into a format suitable for the form (optional)'''
 
     def form_to_db_schema(self):
-        schema = default_package_schema()
+        schema = form_to_db_package_schema()
         schema['groups']['capacity'] = [ignore_missing, unicode]
         schema['__after'] = [group_required]
         return schema
