@@ -3,7 +3,7 @@ describe('ckan.module.BasicFormModule()', function () {
   var BasicFormModule = ckan.module.registry['basic-form'];
 
   beforeEach(function () {
-    jQuery.fn.incompleteFormWarning = sinon.spy();
+    sinon.stub(jQuery.fn, 'incompleteFormWarning');
 
     this.el = document.createElement('button');
     this.sandbox = ckan.sandbox();
@@ -13,6 +13,7 @@ describe('ckan.module.BasicFormModule()', function () {
 
   afterEach(function () {
     this.module.teardown();
+    jQuery.fn.incompleteFormWarning.restore();
   });
 
   describe('.initialize()', function () {

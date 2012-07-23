@@ -11,7 +11,7 @@ describe('jQuery.fn.slugPreview()', function () {
 
   it('should restore the stack when .end() is called', function () {
     var target = this.element.slugPreview();
-    assert.equal(target.end(), this.element);
+    assert.ok(target.end() === this.element);
   });
 
   it('should allow a prefix to be provided', function () {
