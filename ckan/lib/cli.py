@@ -779,11 +779,12 @@ class Celery(CkanCommand):
     '''Celery daemon
 
     Usage:
-        celeryd       - run the celery daemon
-        celeryd run   - run the celery daemon
-        celeryd run concurrency - run the celery daemon with argument 'concurrency'
-        celeryd view  - view all tasks in the queue
-        celeryd clean - delete all tasks in the queue
+        celeryd                 - run the celery daemon
+        celeryd run             - run the celery daemon
+        celeryd run concurrency - run the celery daemon with
+                                  argument 'concurrency'
+        celeryd view            - view all tasks in the queue
+        celeryd clean           - delete all tasks in the queue
     '''
     min_args = 0
     max_args = 2
@@ -830,18 +831,21 @@ class Celery(CkanCommand):
     def clean(self):
         self._load_config()
         import ckan.model as model
-        tasks_initially = model.Session.execute("select * from kombu_message").rowcount
+        query = model.Session.execute("select * from kombu_message")
+        tasks_initially = query.rowcount
         if not tasks_initially:
             print 'No tasks to delete'
             sys.exit(0)
         query = model.Session.execute("delete from kombu_message")
-        tasks_afterwards = model.Session.execute("select * from kombu_message").rowcount
+        query = model.Session.execute("select * from kombu_message")
+        tasks_afterwards = query.rowcount
         print '%i of %i tasks deleted' % (tasks_initially - tasks_afterwards,
                                           tasks_initially)
         if tasks_afterwards:
             print 'ERROR: Failed to delete all tasks'
             sys.exit(1)
         model.repo.commit_and_remove()
+
 
 class Ratings(CkanCommand):
     '''Manage the ratings stored in the db
