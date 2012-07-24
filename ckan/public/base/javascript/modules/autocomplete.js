@@ -118,6 +118,8 @@ this.ckan.module('autocomplete', function (jQuery, _) {
         if (!this._debounced) {
           // Set a timer to prevent the search lookup occurring too often.
           this._debounced = setTimeout(function () {
+            var term = module._lastTerm;
+
             delete module._debounced;
 
             // Cancel the previous request if it hasn't yet completed.
@@ -125,8 +127,13 @@ this.ckan.module('autocomplete', function (jQuery, _) {
               module._last.abort();
             }
 
-            module._last = module.getCompletions(module._lastTerm, fn);
+            module._last = module.getCompletions(term, function (terms) {
+              fn(module._lastResults = terms);
+            });
           }, this.options.interval);
+        } else {
+          // Re-use the last set of terms.
+          fn(this._lastResults || {results: []});
         }
       } else {
         fn({results: []});
