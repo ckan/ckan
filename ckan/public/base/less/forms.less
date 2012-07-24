@@ -509,18 +509,24 @@ textarea {
 }
 
 // Select2
-.select2-container .select2-choice,
-.select2-container-multi .select2-choices .select2-search-field input {
-  // Need to compensate for box-sizing: border-box
-  height: 29px;
+
+.select2-container .select2-choice input,
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+  font-size: 14px;
 }
 
-.select2-container .select2-choice {
-  padding: 4px 8px 2px;
+.select2-container .select2-choice input,
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+  // Only apply if there are no other tags (ie. is the first child)
+  padding-left: 10px;
 }
 
-.select2-container .select2-choice div b {
-  background-position: 0 5px;
+.select2-container {
+  margin-top: 5px;
+}
+
+.select2-container-multi {
+  margin-top: 0;
 }
 
 .select2-container-multi .select2-choices .select2-search-choice {
@@ -557,4 +563,10 @@ textarea {
 
 .select2-container-multi .select2-drop {
   margin-top: -2px;
+}
+
+.control-full .select2-container {
+  // Important is bad but select2 incorrectly calculates the width and
+  // sets it on the element.
+  width: 520px !important;
 }
