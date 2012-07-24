@@ -30,7 +30,7 @@ def datastore_create(context, data_dict):
     model = _get_or_bust(context, 'model')
     resource_id = _get_or_bust(data_dict, 'resource_id')
     fields = data_dict.get('fields')
-    records = _get_or_bust(data_dict, 'records')
+    records = data_dict.get('records')
 
     _check_access('datastore_create', context, data_dict)
 
