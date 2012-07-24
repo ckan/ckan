@@ -56,12 +56,6 @@
       {{ form.input('mimetype', id='field-mimetype', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype, error=errors.mimetype, classes=[]) }}
 
       {{ form.input('mimetype_inner', id='field-mimetype-inner', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype_inner, error=errors.mimetype_inner, classes=[]) }}
-    {% else %}
-      <input type="hidden" name="last_modified" value="{{ data.last_modified }}" />
-      <input type="hidden" name="size" value="{{ data.size }}" />
-      <input type="hidden" name="mimetype" value="{{ data.mimetype }}" />
-      <input type="hidden" name="mimetype_inner" value="{{ data.mimetype_inner }}" />
-      <input type="hidden" name="hash" value="{{ data.hash }}" />
     {% endif %}
   {% endblock %}
 
