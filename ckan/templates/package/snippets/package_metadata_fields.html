@@ -6,7 +6,7 @@
     {% set groups = h.dict_list_reduce(data.groups, 'id') %}
     <label for="field-groups" class="control-label">{{ _('Add to Groups') }}</label>
     <div class="controls">
-      <select id="field-groups" name="groups__{{ groups | count }}__id">
+      <select id="field-groups" name="groups__{{ groups | count }}__id" data-module="autocomplete">
         <option value="">{{ _('Select a group...') }}</option>
         {% for group in groups_available %}
         <option value="{{ group.id }}" {% if group.id in groups %}selected="selected"{% endif %}>{{ group.name }}</option>

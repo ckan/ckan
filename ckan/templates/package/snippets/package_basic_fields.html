@@ -18,8 +18,8 @@
   {% set error = errors.license_id %}
   <label class="control-label" for="field-license">{{ _("License") }}</label>
   <div class="controls">
-    <select id="field-license" name="license_id">
-      {% for licence_desc, licence_id in licences if licence_desc  %}
+    <select id="field-license" name="license_id" data-module="autocomplete">
+      {% for licence_desc, licence_id in licences|sort if licence_desc  %}
         <option value="{{ licence_id }}" {% if data.get('license_id', '') == licence_id %}selected="selected"{% endif %}>{{ licence_desc }}</option>
       {% endfor %}
     </select>
