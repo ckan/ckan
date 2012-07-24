@@ -20,7 +20,7 @@
   <div class="controls">
     <select id="field-license" name="license_id" data-module="autocomplete">
       {% for licence_desc, licence_id in licences|sort if licence_desc  %}
-        <option value="{{ licence_id }}" {% if data.get('license_id', '') == licence_id %}selected="selected"{% endif %}>{{ licence_desc }}</option>
+        <option value="{{ licence_id }}" {% if data.get('license_id', 'notspecified') == licence_id %}selected="selected"{% endif %}>{{ licence_desc }}</option>
       {% endfor %}
     </select>
     {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
