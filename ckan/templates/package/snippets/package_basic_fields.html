@@ -32,3 +32,8 @@
     </span>
   </div>
 </div>
+
+{# if we have a default group then this wants remembering #}
+{% if data.group_id %}
+  <input type="hidden" name="groups__0__id" value="{{ data.group_id }}" />
+{% endif %}

@@ -444,9 +444,8 @@ class PackageController(BaseController):
             return self._save_new(context)
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
-            request.params, ignore_keys=CACHE_PARAMETERS))))
+            request.POST, ignore_keys=CACHE_PARAMETERS))))
         c.resources_json = json.dumps(data.get('resources', []))
-
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
             data['tag_string'] = ', '.join(
@@ -461,6 +460,11 @@ class PackageController(BaseController):
             stage = ['active', 'complete']
         elif data.get('state') == 'draft-complete':
             stage = ['active', 'complete', 'complete']
+
+        # if we are creating from a group then this allows the group to be
+        # set automatically
+        data['group_id'] = request.params.get('group') or \
+            request.params.get('groups__0__id')
 
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary,
