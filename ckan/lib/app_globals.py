@@ -54,4 +54,4 @@ class Globals(object):
         self.datasets_per_page = int(config.get('ckan.datasets_per_page', '20'))
 
         # cusom styling
-        self._set_main_css('base/css/main.css')
+        self._set_main_css('/base/css/main.css')
