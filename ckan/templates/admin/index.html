@@ -1,0 +1,26 @@
+{% extends "page.html" %}
+
+{% block title %}{{ _('Administration') }} - {{ super() }}{% endblock %}
+
+{% block breadcrumb_content %}
+{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Current Sysadmins') }}</h1>
+      <p>You can change sysadmins on the
+        <a href="{% url_for controller='admin', action='authz' %}">authorization page</a>
+      .</p>
+      <ul>
+        {% for user in c.sysadmins %}
+          <li py:for="user in c.sysadmins">
+            {{ h.linked_user(user) }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </article>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}
