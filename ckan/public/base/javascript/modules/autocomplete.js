@@ -60,11 +60,12 @@ this.ckan.module('autocomplete', function (jQuery, _) {
         settings.query = this._onQuery;
       }
 
-      this.el.select2(settings);
+      var select2 = this.el.select2(settings).data('select2');
 
-      if (this.options.tags) {
-        // find the "fake" input created by select2 and add the keypress event
-        this.el.next().find('input').on('keydown', this._onKeydown);
+      if (this.options.tags && select2 && select2.search) {
+        // find the "fake" input created by select2 and add the keypress event.
+        // This is not part of the plugins API and so may break at any time.
+        select2.search.on('keydown', this._onKeydown);
       }
     },
 
