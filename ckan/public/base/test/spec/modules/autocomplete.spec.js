@@ -7,7 +7,11 @@ describe('ckan.modules.AutocompleteModule()', function () {
     if (jQuery.fn.select2) {
       this.select2 = sinon.stub(jQuery.fn, 'select2');
     } else {
-      this.select2 = jQuery.fn.select2 = sinon.spy();
+      this.select2 = jQuery.fn.select2 = sinon.stub().returns({
+        data: sinon.stub().returns({
+          on: sinon.stub()
+        })
+      });
     }
 
     this.el = document.createElement('input');
@@ -75,6 +79,8 @@ describe('ckan.modules.AutocompleteModule()', function () {
         createSearchChoice: this.module.formatTerm, // Not used by tags.
         initSelection: this.module.formatInitialValue
       });
+
+      it('should watch the keydown event on the select2 input');
     });
   });
 
@@ -214,7 +220,42 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
   });
 
-  describe('._onChange', function () {
-    it('should reassign value of the select2 element to ensure comma sepeated values are rendered correctly');
+  describe('._onKeydown(event)', function () {
+    beforeEach(function () {
+      this.keyDownEvent = jQuery.Event("keydown", { which: 188 });
+      this.fakeEvent = {};
+      this.clock = sinon.useFakeTimers();
+      this.jQuery = sinon.stub(jQuery.fn, 'init', jQuery.fn.init);
+      this.Event  = sinon.stub(jQuery, 'Event').returns(this.fakeEvent);
+      this.trigger  = sinon.stub(jQuery.fn, 'trigger');
+    });
+
+    afterEach(function () {
+      this.clock.restore();
+      this.jQuery.restore();
+      this.Event.restore();
+      this.trigger.restore();
+    });
+  
+    it('should trigger fake "return" keypress if a comma is pressed', function () {
+      this.module._onKeydown(this.keyDownEvent);
+
+      this.clock.tick(100);
+
+      assert.called(this.jQuery);
+      assert.called(this.Event);
+      assert.called(this.trigger);
+      assert.calledWith(this.trigger, this.fakeEvent);
+    });
+
+    it('should do nothing if another key is pressed', function () {
+      this.keyDownEvent.which = 200;
+
+      this.module._onKeydown(this.keyDownEvent);
+
+      this.clock.tick(100);
+
+      assert.notCalled(this.Event);
+    });
   });
 });
