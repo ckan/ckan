@@ -46,7 +46,7 @@ extras
       </nav>
       <p class="module-footer">
           {% if h.get_param_int('_%s_limit' % name) %}
-          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras) }}" class="read-more">Show All {{ h.get_facet_title(name) }}</a>
+          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras) }}" class="read-more">Show More {{ h.get_facet_title(name) }}</a>
           {% else %}
           <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras) }}" class="read-more">Show Only Popular {{ h.get_facet_title(name) }}</a>
           {% endif %}
