@@ -47,17 +47,19 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       var settings = {
         formatResult: this.formatResult,
         formatNoMatches: this.formatNoMatches,
-        formatInputTooShort: this.formatInputTooShort,
-        createSearchChoice: this.formatTerm, // Not used by tags.
-        initSelection: this.formatInitialValue
+        formatInputTooShort: this.formatInputTooShort
       };
 
       // Different keys are required depending on whether the select is
       // tags or generic completion.
-      if (this.options.tags) {
-        settings.tags = this._onQuery;
-      } else {
-        settings.query = this._onQuery;
+      if (!this.el.is('select')) {
+        if (this.options.tags) {
+          settings.tags = this._onQuery;
+        } else {
+          settings.query = this._onQuery;
+          settings.createSearchChoice = this.formatTerm;
+        }
+        settings.initSelection = this.formatInitialValue;
       }
 
       var select2 = this.el.select2(settings).data('select2');

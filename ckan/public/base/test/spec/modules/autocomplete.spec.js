@@ -76,7 +76,6 @@ describe('ckan.modules.AutocompleteModule()', function () {
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
         formatInputTooShort: this.module.formatInputTooShort,
-        createSearchChoice: this.module.formatTerm, // Not used by tags.
         initSelection: this.module.formatInitialValue
       });
 
