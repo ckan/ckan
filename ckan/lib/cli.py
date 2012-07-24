@@ -977,13 +977,13 @@ class Tracking(CkanCommand):
                     FROM tracking_summary t2
                     WHERE t1.url = t2.url
                     AND t2.tracking_date <= t1.tracking_date
-                 ) + t1.count
+                 )
                  ,recent_views = (
                     SELECT sum(count)
                     FROM tracking_summary t2
                     WHERE t1.url = t2.url
                     AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
-                 ) + t1.count
+                 )
                  WHERE t1.running_total = 0 AND tracking_type = 'resource';'''
         engine.execute(sql)
 
@@ -1000,7 +1000,7 @@ class Tracking(CkanCommand):
                     FROM tracking_summary t2
                     WHERE t1.package_id = t2.package_id
                     AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
-                 ) + t1.count
+                 )
                  WHERE t1.running_total = 0 AND tracking_type = 'page'
                  AND t1.package_id IS NOT NULL
                  AND t1.package_id != '~~not~found~~';'''
