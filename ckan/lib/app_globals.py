@@ -10,6 +10,16 @@ class Globals(object):
 
     """
 
+    def _set_main_css(self, css_file):
+        ''' Sets the main_css using debug css if needed.  The css_file
+        must be of the form file.css '''
+        assert css_file.endswith('.css')
+        if config.debug and css_file == 'base/css/main.css':
+            self.main_css = 'base/css/main.debug.css'
+        else:
+            self.main_css = css_file
+        print 'using css file %s' % self.main_css
+
     def __init__(self):
         """One instance of Globals is created during application
         initialization and is available during requests via the
@@ -42,3 +52,6 @@ class Globals(object):
         self.recaptcha_privatekey = config.get('ckan.recaptcha.privatekey', '')
         
         self.datasets_per_page = int(config.get('ckan.datasets_per_page', '20'))
+
+        # cusom styling
+        self._set_main_css('base/css/main.css')
