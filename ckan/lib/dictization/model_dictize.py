@@ -70,10 +70,6 @@ def extras_dict_dictize(extras_dict, context):
         if not extra.state == 'active':
             continue
         value = dictized["value"]
-        ## This is to make sure the frontend does not show a plain string
-        ## as json with brackets.
-        if not(context.get("extras_as_string") and isinstance(value, basestring)):
-            dictized["value"] = h.json.dumps(value)
         result_list.append(dictized)
 
     return sorted(result_list, key=lambda x: x["key"])
