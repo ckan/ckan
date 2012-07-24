@@ -15,6 +15,7 @@ from ckan.lib.base import (request,
                            model,
                            abort, h, g, c)
 from ckan.lib.base import response, redirect, gettext
+import ckan.lib.maintain as maintain
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.lib.helpers import json
@@ -232,6 +233,9 @@ class PackageController(BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
 
+        maintain.deprecate_context_item(
+          'facets',
+          'Use `c.search_facets` instead.')
         return render(self._search_template(package_type))
 
     def _content_type_from_extension(self, ext):

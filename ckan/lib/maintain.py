@@ -35,3 +35,36 @@ def deprecated(message=''):
             return fn(*args, **kw)
         return wrapped
     return decorator
+
+def deprecate_context_item(item_name, message=''):
+    ''' Deprecate a named item in the global context object.
+
+    It logs a warning when the item is accessed.  If a mesage is passed, it is
+    also logged.  This can be useful to indicate for example that a different
+    function should be used instead.
+
+    No warnings are given when an attempt to change or delete the named item
+    from the context object.
+
+    Example usage:
+
+    >>> c.facets = "Foobar"
+    >>> deprecate_context_item('facets', 'Use `c.search_facets` instead')
+    >>> print c.facets
+    2012-07-12 13:27:06,294 WARNI [ckan.lib.maintain] c.facets has been deprecated [...]
+    Foobar
+
+    This function works by attaching a property to the underlying
+    `pylons.util.AttribSafeContextObj` object which provides the storage of the
+    context object.  ie - it adds a class-level attribute to the
+    `pylons.util.AttribSafeContextObj` at runtime.
+    '''
+    # prevent a circular import
+    from ckan.lib.base import c
+
+    def get_item(self):
+        log.warning('c.%s has been deprecated. %s', item_name, message)
+        return getattr(c._current_obj(), item_name)
+
+    setattr(c.__class__, item_name, property(get_item))
+

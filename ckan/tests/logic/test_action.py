@@ -1319,7 +1319,7 @@ class MockPackageSearchPlugin(SingletonPlugin):
 
         assert 'results' in search_results
         assert 'count' in search_results
-        assert 'facets' in search_results
+        assert 'search_facets' in search_results
 
         if 'extras' in search_params and 'ext_avoid' in search_params['extras']:
             # Remove results with a certain value

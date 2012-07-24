@@ -377,34 +377,6 @@ def unselected_facet_items(facet, limit=10):
             facets.append(facet_item)
     return sorted(facets, key=lambda item: item['count'], reverse=True)[:limit]
 
-@deprecated()
-def facet_items(*args, **kwargs):
-    """
-    DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
-    """
-    _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
-    # facet_items() used to need c passing as the first arg
-    # this is deprecated as pointless
-    # throws error if ckan.restrict_template_vars is True
-    # When we move to strict helpers then this should be removed as a wrapper
-    if len(args) > 2 or (len(args) > 0 and 'name' in kwargs) or (len(args) > 1 and 'limit' in kwargs):
-        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
-            return _facet_items(*args[1:], **kwargs)
-        raise Exception('facet_items() calling has been changed. remove c in template %s or included one' % c.__template_name)
-    return _facet_items(*args, **kwargs)
-
-
-def _facet_items(name, limit=10):
-    if not c.facets or not c.facets.get(name):
-        return []
-    facets = []
-    for k, v in c.facets.get(name).items():
-        if not len(k.strip()):
-            continue
-        if not (name, k) in request.params.items():
-            facets.append((k, v))
-    return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
-
 def facet_title(name):
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
@@ -917,7 +889,6 @@ __allowed_functions__ = [
            'subnav_link',
            'subnav_named_route',
            'default_group_type',
-           'facet_items',
            'facet_title',
          #  am_authorized, # deprecated
            'check_access',
