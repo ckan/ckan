@@ -33,14 +33,14 @@ extras
       <nav>
         <ul class="unstyled nav nav-simple nav-facet">
           {% for item in items %}
-            {% with href = h.remove_url_param(name, item.name, extras=extras) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras) %}
+            {% set href = h.remove_url_param(name, item.name, extras=extras) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras) %}
+            {% set label = label_function(item) if label_function else h.truncate(item.display_name, 22) %}
+            {% set count = count_label(item['count']) if count_label else ('(%d)' % item['count']) %}
               <li class="nav-item{% if item.active %} active{% endif %}">
                 <a href="{{ href }}">
-                  {{ label_function(item) if label_function else h.truncate(item.display_name, 22) }}
-                  {{ count_label(item['count']) if count_label else ('(%d)' % item['count']) }}
+                  <span>{{ label }}{{ count }}</span>
                 </a>
               </li>
-            {% endwith %}
           {% endfor %}
         </ul>
       </nav>
