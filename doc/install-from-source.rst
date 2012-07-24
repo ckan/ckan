@@ -211,46 +211,14 @@ front page.
  the web browser on that same machine. For example run the textual web browser
  `w3m` in a separate ssh session to the one running `paster serve`.
 
-10. Install front end dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The front end stylesheets are written using `LESS <http://lesscss.org/>`_. This depends on `node <http://nodejs.org/>`_ being
-installed on the system.
-
-Instructions for installing node can be found on the `project website <http://nodejs.org/>`_.
-
-On ubuntu node can be installed via::
-
-    $ apt-get install nodejs
-
-Less can then be installed via the node package manager which is bundled with
-node. ``cd`` into the ``pyenv/src/ckan`` and run::
-
-    $ npm install less
-
-A watcher script can then be used to compile the CSS whenever the LESS
-changes::
-
-    $ ./bin/less
-
-This will generate a main.debug.css file. To build the production CSS to commit
-into the repository run::
-
-    $ ./bin/less --production
-
-This will generate the main.css file that should be committed for use in
-packaged versions of CKAN.
-
-(If someone could move this into a paster script that would be great)
-
-
-11. Run the CKAN Tests
+10. Run the CKAN Tests
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Now that you've installed CKAN, you should run CKAN's tests to make sure that
 they all pass. See :doc:`test`.
 
-12. You're done!
+11. You're done!
 ~~~~~~~~~~~~~~~~
 
 You can now proceed to :doc:`post-installation` which covers creating a CKAN
