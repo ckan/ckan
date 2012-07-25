@@ -20,13 +20,6 @@ class TestDatastore(tests.WsgiAppCase):
     def teardown_class(cls):
         model.repo.rebuild_db()
 
-    def test_create_empty_fails(self):
-        postparams = '%s=1' % json.dumps({})
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
@@ -38,15 +31,48 @@ class TestDatastore(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
-    def test_create_invalid_field(self):
+    def test_create_empty_fails(self):
+        postparams = '%s=1' % json.dumps({})
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_create_invalid_field_type(self):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
             'resource_id': resource.id,
-            'fields': [{'id': 'book', 'label': 'Name', 'type': 'INVALID'},
-                       {'id': 'author', 'label': 'Author ', 'type': 'INVALID'}]
+            'fields': [{'id': 'book', 'type': 'INVALID'},
+                       {'id': 'author', 'type': 'INVALID'}]
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_create_invalid_field_name(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'fields': [{'id': '_book', 'type': 'text'},
+                       {'id': '_author', 'type': 'text'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+        data = {
+            'resource_id': resource.id,
+            'fields': [{'id': '"book"', 'type': 'text'},
+                       {'id': '"author', 'type': 'text'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
         res = self.app.post('/api/action/datastore_create', params=postparams,
                             extra_environ=auth, status=409)
         res_dict = json.loads(res.body)
@@ -56,8 +82,8 @@ class TestDatastore(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
             'resource_id': resource.id,
-            'fields': [{'id': 'book', 'label': 'Name', 'type': 'text'},
-                       {'id': 'author', 'label': 'Author ', 'type': 'text'}],
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
             'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
                         {'book': 'warandpeace', 'author': 'tolstoy'}]
         }

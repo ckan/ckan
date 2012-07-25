@@ -1,12 +1,20 @@
 import sqlalchemy
+import ckan.plugins as p
 
 _pg_types = {}
 _type_names = set()
 _engines = {}
 
 
-class InvalidType(Exception):
-    pass
+def _is_valid_field_name(name):
+    '''
+    Check that field name is valid:
+    * can't start with underscore
+    * can't contain double quote (")
+    '''
+    if name.startswith('_') or '"' in name:
+        return False
+    return True
 
 
 def _get_engine(context, data_dict):
@@ -36,24 +44,75 @@ def _get_type(context, oid):
     return _pg_types[oid]
 
 
+def _guess_type(field):
+    'Simple guess type of field, only allowed are integer, numeric and text'
+    data_types = set([int, float])
+
+    for data_type in list(data_types):
+        try:
+            data_type(field)
+        except (TypeError, ValueError):
+            data_types.discard(data_type)
+            if not data_types:
+                break
+
+    if int in data_types:
+        return 'integer'
+    elif float in data_types:
+        return 'numeric'
+    else:
+        return 'text'
+
+
 def check_fields(context, fields):
     'Check if field types are valid.'
     _cache_types(context)
     for field in fields:
         if not field['type'] in _type_names:
-            raise InvalidType('%s is not a valid type' % field['type'])
+            raise p.toolkit.ValidationError({
+                'fields': '{0} is not a valid field type'.format(field['type'])
+            })
+        elif not _is_valid_field_name(field['id']):
+            raise p.toolkit.ValidationError({
+                'fields': '{0} is not a valid field name'.format(field['id'])
+            })
 
 
 def create_table(context, data_dict):
-    '''create table from combination of fields and first row of data'''
+    'Create table from combination of fields and first row of data.'
     check_fields(context, data_dict.get('fields'))
-    pass
+
+    create_string = 'create table "{0}" ('.format(data_dict['resource_id'])
+
+    # add datastore fields: _id and _full_text
+    create_string += '_id serial primary key, '
+    create_string += '_full_text tsvector, '
+
+    # add fields
+    for field in data_dict.get('fields'):
+        create_string += '"{0}" {1}, '.format(field['id'], field['type'])
+
+    # check first row of data for additional fields
+    field_ids = [field['id'] for field in data_dict.get('fields', [])]
+    records = data_dict.get('records')
+    if records:
+        extra_field_ids = records[0].keys()
+        for field_id in extra_field_ids:
+            if not field_id in field_ids:
+                field_type = _guess_type(records[0][field_id])
+                create_string += '"{0}" {1}, '.format(field_id, field_type)
+
+    # remove last 2 characters (a comma and a space)
+    # and close the create table statement
+    create_string = create_string[0:len(create_string) - 2]
+    create_string += ');'
+
+    context['connection'].execute(create_string)
 
 
 def alter_table(context, data_dict):
     '''alter table from combination of fields and first row of data'''
     check_fields(context, data_dict.get('fields'))
-    pass
 
 
 def insert_data(context, data_dict):
@@ -99,6 +158,7 @@ def create(context, data_dict):
         else:
             alter_table(context, data_dict)
         insert_data(context, data_dict)
+        return data_dict
     except:
         trans.rollback()
         raise

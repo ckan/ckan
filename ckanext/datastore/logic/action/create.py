@@ -44,7 +44,4 @@ def datastore_create(context, data_dict):
 
     data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
 
-    try:
-        return db.create(context, data_dict)
-    except db.InvalidType as e:
-        raise p.toolkit.ValidationError({'fields': e.message})
+    return db.create(context, data_dict)
