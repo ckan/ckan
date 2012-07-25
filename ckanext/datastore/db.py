@@ -135,7 +135,6 @@ def insert_data(context, data_dict):
         return
 
     fields = _get_fields(context, data_dict)
-    insert_string = ''
 
     for record in data_dict['records']:
         # check that number of record values is correct
@@ -148,14 +147,8 @@ def insert_data(context, data_dict):
                 'records': error_msg
             })
 
-        insert_string += 'insert into "{0}" ('.format(data_dict['resource_id'])
-
-        for field in fields:
-            insert_string += '"{0}", '.format(field['name'])
-        insert_string = insert_string[0:len(insert_string) - 2]
-        insert_string += ') '
-
-        insert_string += 'values ('
+        sql_columns = ", ".join(['"%s"' % f['name'] for f in fields])
+        sql_values = []
 
         for field in fields:
             if not field['name'] in record:
@@ -164,14 +157,19 @@ def insert_data(context, data_dict):
                 })
 
             if field['type'] == 'text':
-                insert_string += "'{0}', ".format(record[field['name']])
+                sql_values.append("'{0}'".format(record[field['name']]))
             else:
-                insert_string += '{0}, '.format(record[field['name']])
+                sql_values.append('{0}'.format(record[field['name']]))
 
-        insert_string = insert_string[0:len(insert_string) - 2]
-        insert_string += ');'
+        sql_values = ", ".join(['%s' % v for v in sql_values])
 
-    context['connection'].execute(insert_string)
+        sql_string = 'insert into "{0}" ({1}) values ({2});'.format(
+            data_dict['resource_id'],
+            sql_columns,
+            sql_values
+        )
+
+        context['connection'].execute(sql_string)
 
 
 def create(context, data_dict):
