@@ -18,7 +18,7 @@
     <li>{% link_for _('Edit'), controller='package', action='edit', id=pkg.name, class_='btn', icon='wrench' %}</li>
   {% endif %}
   {% if h.check_access('package_update', {'id':pkg.id }) %}
-    <li>{% link_for _('Add resource'), controller='package', action='new_resource', id=pkg.name, class_='btn' %}</li>
+    <li>{% link_for _('Add resource'), controller='package', action='new_resource', id=pkg.name, class_='btn', icon='plus' %}</li>
   {% endif %}
 {% endblock %}
 
