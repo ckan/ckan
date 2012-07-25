@@ -15,9 +15,11 @@ class Globals(object):
         must be of the form file.css '''
         assert css_file.endswith('.css')
         if config.debug and css_file == 'base/css/main.css':
-            self.main_css = 'base/css/main.debug.css'
+            new_css = 'base/css/main.debug.css'
         else:
-            self.main_css = css_file
+            new_css = css_file
+        # FIXME we should check the css file exists
+        self.main_css = new_css
         print 'using css file %s' % self.main_css
 
     def __init__(self):
