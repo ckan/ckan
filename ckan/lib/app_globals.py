@@ -19,7 +19,7 @@ class Globals(object):
         else:
             new_css = css_file
         # FIXME we should check the css file exists
-        self.main_css = new_css
+        self.main_css = str(new_css)
         print 'using css file %s' % self.main_css
 
     def __init__(self):
