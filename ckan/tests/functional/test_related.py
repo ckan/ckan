@@ -5,6 +5,8 @@ import ckan.model as model
 import ckan.logic as logic
 import ckan.tests.functional.api.base as base
 
+from nose.tools import assert_equal, assert_raises, assert_regexp_matches
+
 class TestRelated:
 
     @classmethod
@@ -29,12 +31,15 @@ class TestRelated:
         model.Session.commit()
 
         # To get the RelatedDataset objects (for state change)
+        assert p.related_count == 1, p.related_count
         assert len(model.Related.get_for_dataset(p)) == 1
         assert len(model.Related.get_for_dataset(p,status='inactive')) == 0
         p.related.remove(r)
         model.Session.delete(r)
+        model.Session.commit()
 
         assert len(p.related) == 0
+        assert p.related_count == 0, p.related_count
 
 
     def test_inactive_related(self):
@@ -46,11 +51,13 @@ class TestRelated:
         model.Session.commit()
 
         # To get the RelatedDataset objects (for state change)
+        assert p.related_count == 1, p.related_count
         assert len(model.Related.get_for_dataset(p,status='active')) == 1
         assert len(model.Related.get_for_dataset(p,status='inactive')) == 0
         r.deactivate( p )
         r.deactivate( p ) # Does nothing.
         model.Session.refresh(p)
+        assert p.related_count == 0, p.related_count
         assert len(model.Related.get_for_dataset(p,status='active')) == 0
         assert len(model.Related.get_for_dataset(p,status='inactive')) == 1
 
@@ -88,6 +95,96 @@ class TestRelated:
         except logic.ValidationError, e:
             assert 'type' in e.error_dict and e.error_dict['type'] == [u'Missing value']
 
+    def test_related_create_featured_as_sysadmin(self):
+        '''Sysadmin can create featured related items'''
+        usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+
+        context = {
+            'model': model,
+            'user': usr['name'],
+            'session': model.Session
+        }
+
+        data_dict = {
+            'title': 'Title',
+            'description': 'Description',
+            'type': 'visualization',
+            'url': 'http://ckan.org',
+            'image_url': 'http://ckan.org/files/2012/03/ckanlogored.png',
+            'featured': 1,
+        }
+
+        result = logic.get_action("related_create")(context, data_dict)
+
+        assert_equal(result['featured'], 1)
+
+    def test_related_create_featured_as_non_sysadmin_fails(self):
+        '''Non-sysadmin users should not be able to create featured relateds'''
+
+        context = {
+            'model': model,
+            'user': 'annafan',
+            'session': model.Session
+        }
+
+        data_dict = {
+            'title': 'Title',
+            'description': 'Description',
+            'type': 'visualization',
+            'url': 'http://ckan.org',
+            'image_url': 'http://ckan.org/files/2012/03/ckanlogored.png',
+            'featured': 1,
+        }
+
+        assert_raises(
+            logic.NotAuthorized,
+            logic.get_action('related_create'),
+            context,
+            data_dict)
+
+    def test_related_create_not_featured_as_non_sysadmin_succeeds(self):
+        '''Non-sysadmins can set featured to false'''
+
+        context = {
+            'model': model,
+            'user': 'annafan',
+            'session': model.Session
+        }
+
+        data_dict = {
+            'title': 'Title',
+            'description': 'Description',
+            'type': 'visualization',
+            'url': 'http://ckan.org',
+            'image_url': 'http://ckan.org/files/2012/03/ckanlogored.png',
+            'featured': 0,
+        }
+
+        result = logic.get_action("related_create")(context, data_dict)
+
+        assert_equal(result['featured'], 0)
+
+    def test_related_create_featured_empty_as_non_sysadmin_succeeds(self):
+        '''Non-sysadmins can leave featured empty.'''
+
+        context = {
+            'model': model,
+            'user': 'annafan',
+            'session': model.Session
+        }
+
+        data_dict = {
+            'title': 'Title',
+            'description': 'Description',
+            'type': 'visualization',
+            'url': 'http://ckan.org',
+            'image_url': 'http://ckan.org/files/2012/03/ckanlogored.png',
+        }
+
+        result = logic.get_action("related_create")(context, data_dict)
+
+        assert_equal(result['featured'], 0)
+
     def test_related_delete(self):
         rel = self._related_create("Title", "Description",
                         "visualization",
@@ -113,6 +210,87 @@ class TestRelated:
         data_dict['title'] = "New Title"
         result = logic.get_action('related_update')(context,data_dict)
         assert result['title'] == 'New Title'
+
+    def test_sysadmin_changes_related_items_featured_field(self):
+        '''Sysadmins can change featured field'''
+        rel = self._related_create(
+            "Title",
+            "Description",
+            "visualization",
+            "http://ckan.org",
+            "http://ckan.org/files/2012/03/ckanlogored.png")
+
+        usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+        context = {
+            'model': model,
+            'user': usr['name'],
+            'session': model.Session
+        }
+
+        data_dict = rel
+        data_dict['title'] = "New Title"
+        data_dict['featured'] = 1
+        result = logic.get_action('related_update')(context,data_dict)
+        assert_equal(result['title'], 'New Title')
+        assert_equal(result['featured'], 1)
+
+    def test_non_sysadmin_changes_related_items_featured_field_fails(self):
+        '''Non-sysadmins cannot change featured field'''
+
+        context = {
+            'model': model,
+            'user': 'annafan',
+            'session': model.Session
+        }
+
+        data_dict = {
+            'title': 'Title',
+            'description': 'Description',
+            'type': 'visualization',
+            'url': 'http://ckan.org',
+            'image_url': 'http://ckan.org/files/2012/03/ckanlogored.png',
+        }
+
+        # Create the related item as annafan
+        result = logic.get_action('related_create')(context, data_dict)
+
+        # Try to change it to a featured item
+        result['featured'] = 1
+
+        try:
+            logic.get_action('related_update')(context, result)
+        except logic.NotAuthorized, e:
+            # Check it's the correct authorization error
+            assert_regexp_matches(str(e), 'featured')
+
+    def test_non_sysadmin_can_update_related_item(self):
+        '''Non-sysadmins can change related item.
+
+        If they don't change the featured field.
+        '''
+
+        context = {
+            'model': model,
+            'user': 'annafan',
+            'session': model.Session
+        }
+
+        data_dict = {
+            'title': 'Title',
+            'description': 'Description',
+            'type': 'visualization',
+            'url': 'http://ckan.org',
+            'image_url': 'http://ckan.org/files/2012/03/ckanlogored.png',
+        }
+
+        # Create the related item as annafan
+        result = logic.get_action('related_create')(context, data_dict)
+
+        # Try to change it to a featured item
+        result['title'] = 'New Title'
+
+        result = logic.get_action('related_update')(context, result)
+        assert_equal(result['title'], 'New Title')
 
     def test_related_show(self):
         rel = self._related_create("Title", "Description",
@@ -140,6 +318,7 @@ class TestRelated:
         model.Session.commit()
 
         assert len(p.related) == 2
+        assert p.related_count == 2, p.related_count
 
         usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
         context = dict(model=model, user=usr['name'], session=model.Session)

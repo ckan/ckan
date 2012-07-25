@@ -9,7 +9,7 @@
   py:def="add_related(dataset)">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">×</a>
-    <h3 class="heading">Add related item</h3>
+    <h3 class="heading">Add item</h3>
   </div>
   <div class="modal-body">
     <form id="form-add-related" action="" method="POST" class="well">
@@ -21,8 +21,12 @@
       <div class="control-group">
         <label for="related-type">Type of item</label>
         <select id="related-type" name="type" class="span6 chzn-select">
-          <option value="app">Application</option>
+          <option value="api">API</option>
+          <option value="application">Application</option>
           <option value="idea">Idea</option>
+          <option value="news-article">News Article</option>
+          <option value="paper">Paper</option>
+          <option value="post">Post</option>
           <option value="visualization">Visualization</option>
         </select>
       </div>
