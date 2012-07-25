@@ -30,14 +30,16 @@ class AdminController(base.BaseController):
 
     def config(self):
         app_globals = base.pylons_globals().get('g')
-        style = request.POST.get('style')
+        data = request.POST
+        style = data.get('style')
         if style:
             style ='/base/css/%s.css' % style
-            app_globals._set_main_css(style)
+            app_globals.set_main_css(style)
         styles = ['main', 'red', 'green', 'fuchsia']
-
+        data = {}
+        vars = {'data': data, 'errors': {}, 'styles': styles}
         return base.render('admin/config.html',
-                           extra_vars = {'styles': styles })
+                           extra_vars = vars)
 
     def index(self):
         #now pass the list of sysadmins
