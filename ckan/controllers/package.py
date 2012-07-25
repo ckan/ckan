@@ -263,7 +263,7 @@ class PackageController(BaseController):
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'for_view': True}
+                   'for_view': extension != 'rdf'}
         data_dict = {'id': id}
 
         # interpret @<revision_id> or @<date> suffix
