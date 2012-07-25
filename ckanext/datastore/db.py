@@ -10,7 +10,7 @@ class InvalidType(Exception):
 
 
 def _get_engine(context, data_dict):
-    '''Get either read or write engine'''
+    'Get either read or write engine.'
     connection_url = data_dict['connection_url']
     engine = _engines.get(connection_url)
 
@@ -20,7 +20,7 @@ def _get_engine(context, data_dict):
     return engine
 
 
-def _cache_types(context, data_dict=None):
+def _cache_types(context):
     if not _pg_types:
         connection = context['connection']
         results = connection.execute(
@@ -37,9 +37,11 @@ def _get_type(context, oid):
 
 
 def check_fields(context, fields):
+    'Check if field types are valid.'
     _cache_types(context)
-    ## check if fieds are in in _type_names
-    pass
+    for field in fields:
+        if not field['type'] in _type_names:
+            raise InvalidType('%s is not a valid type' % field['type'])
 
 
 def create_table(context, data_dict):

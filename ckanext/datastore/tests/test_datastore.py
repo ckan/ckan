@@ -38,6 +38,20 @@ class TestDatastore(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
+    def test_create_invalid_field(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'book', 'label': 'Name', 'type': 'INVALID'},
+                       {'id': 'author', 'label': 'Author ', 'type': 'INVALID'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
     def test_create_basic(self):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
