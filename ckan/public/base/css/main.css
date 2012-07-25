@@ -5498,6 +5498,11 @@ textarea {
 .select2-container-multi .select2-drop {
   margin-top: -2px;
 }
+.select2-container .select2-results li {
+  line-height: 18px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
 .control-full .select2-container {
   width: 520px !important;
 }
