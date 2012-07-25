@@ -103,11 +103,12 @@ class TestRevisionController(TestController):
         package = self.get_package(name)
         if 'resources' in kwds:
             resources = kwds.pop('resources')
-            package.resource_groups[0].resources = []
+            for resource in package.resource_groups_all[0].resources_all:
+                resource.state = 'deleted'
             for resource in resources:
                 resource = model.Resource(**resource)
                 model.Session.add(resource)
-                package.resources.append(resource)
+                package.resource_groups_all[0].resources_all.append(resource)
         if 'extras' in kwds:
             extras_data = kwds.pop('extras')
         #    extras = []
