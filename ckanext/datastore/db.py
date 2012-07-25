@@ -1,22 +1,24 @@
 import sqlalchemy
-from pylons import config
 
 _pg_types = {}
 _type_names = set()
 _engines = {}
 
+
+class InvalidType(Exception):
+    pass
+
+
 def _get_engine(context, data_dict):
-    ''' Get either read or write engine'''
-    connection_type = data_dict.get('connection_type', 'write')
-    engine = _engines.get(connection_type)
+    '''Get either read or write engine'''
+    connection_url = data_dict['connection_url']
+    engine = _engines.get(connection_url)
 
     if not engine:
-        config_option = 'ckan.datastore_{}_url'.format(connection_type)
-        url = config.get(config_option)
-        assert url, 'Config option ' + config_option + ' not defined'
-        engine = sqlalchemy.create_engine(url)
-        _engines[connection_type] = engine
+        engine = sqlalchemy.create_engine(connection_url)
+        _engines[connection_url] = engine
     return engine
+
 
 def _cache_types(context, data_dict=None):
     if not _pg_types:
@@ -28,28 +30,34 @@ def _cache_types(context, data_dict=None):
             _pg_types[result[0]] = result[1]
             _type_names.add(result[1])
 
+
 def _get_type(context, oid):
     _cache_types(context)
     return _pg_types[oid]
+
 
 def check_fields(context, fields):
     _cache_types(context)
     ## check if fieds are in in _type_names
     pass
 
+
 def create_table(context, data_dict):
     '''create table from combination of fields and first row of data'''
     check_fields(context, data_dict.get('fields'))
     pass
+
 
 def alter_table(context, data_dict):
     '''alter table from combination of fields and first row of data'''
     check_fields(context, data_dict.get('fields'))
     pass
 
+
 def insert_data(context, data_dict):
     '''insert all data from records'''
     pass
+
 
 def create(context, data_dict):
     '''
@@ -73,12 +81,12 @@ def create(context, data_dict):
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
     '''
-
-    engine = _get_engine(context, {'connection_type': 'write'})
+    engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    ## close connection at all cost.
+
+    # close connection at all cost.
     try:
-        ## check if table already existes
+        # check if table already existes
         trans = context['connection'].begin()
         result = context['connection'].execute(
             'select * from pg_tables where tablename = %s',
@@ -94,4 +102,3 @@ def create(context, data_dict):
         raise
     finally:
         context['connection'].close()
-

@@ -1,4 +1,5 @@
 import logging
+import pylons
 import ckan.logic as logic
 import ckan.logic.action
 import ckan.lib.dictization
@@ -28,19 +29,19 @@ def datastore_create(context, data_dict):
 
     '''
     model = _get_or_bust(context, 'model')
-    resource_id = _get_or_bust(data_dict, 'resource_id')
-    fields = data_dict.get('fields')
-    records = data_dict.get('records')
 
     _check_access('datastore_create', context, data_dict)
 
-    # Not sure need schema as will be too dificulut to make 
-    # as records could be deeply nested..
+    # TODO: remove this check for resource ID when the resource_id_exists
+    #       validator has been created.
+    _get_or_bust(data_dict, 'resource_id')
 
-    #schema = ckanext.datastore.logic.schema.default_datastore_create_schema()
-    #data, errors = _validate(data_dict, schema, context)
-    #if errors:
-    #    model.Session.rollback()
-    #    raise p.toolkit.ValidationError(errors)
+    schema = ckanext.datastore.logic.schema.default_datastore_create_schema()
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise p.toolkit.ValidationError(errors)
+
+    data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
 
     return db.create(context, data_dict)
