@@ -144,10 +144,6 @@ def related_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors, _error_summary(errors))
 
-    # Only sys admins can update a related item to make it 1
-    if not authz.Authorizer().is_sysadmin(unicode(user)):
-        del data['featured']
-
     related = model_save.related_dict_save(data, context)
     if not context.get('defer_commit'):
         model.repo.commit()
