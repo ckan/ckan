@@ -4,17 +4,15 @@
   padding: 20px 0;
 }
 
-.site-footer a {
-  color: @mastheadLinkColor;
-}
-
+.site-footer,
+.site-footer a,
 .site-footer label {
-  color: @mastheadLinkColor;
+  color: #fff;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .footer-links,
 .attribution {
-  .opacity(80);
   .makeColumn(6);
 }
 
@@ -40,4 +38,8 @@
   height: 21px;
   margin-top: 2px;
   background: url("@{imagePath}/ckan-logo-footer.png") no-repeat top left;
+}
+
+.attribution .select2-drop {
+  color: #000;
 }

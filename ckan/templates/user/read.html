@@ -5,7 +5,7 @@
 {% block title %}{{ user.display_name }} - {{ super() }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('User'), controller='user', action='index' %}</li>
+  <li>{% link_for _('Users'), controller='user', action='index' %}</li>
   {% with title = _('Your Profile') if c.is_myself  else user.display_name %}
     <li class="active">{% link_for title|truncate(35), controller='user', action='read', id=user.name %}</li>
   {% endwith %}

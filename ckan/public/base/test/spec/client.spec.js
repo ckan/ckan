@@ -12,6 +12,33 @@ describe('ckan.Client()', function () {
     assert.instanceOf(target, Client);
   });
 
+  it('should set the .endpoint property to options.endpoint', function () {
+    var client = new Client({endpoint: 'http://example.com'});
+    assert.equal(client.endpoint, 'http://example.com');
+  });
+
+  it('should default the endpoint to a blank string', function () {
+    assert.equal(this.client.endpoint, '');
+  });
+
+  describe('.url(path)', function () {
+    beforeEach(function () {
+      this.client.endpoint = 'http://api.example.com';
+    });
+
+    it('should return the path with the enpoint prepended', function () {
+      assert.equal(this.client.url('/api/endpoint'), 'http://api.example.com/api/endpoint');
+    });
+
+    it('should normalise preceding slashes in the path', function () {
+      assert.equal(this.client.url('api/endpoint'), 'http://api.example.com/api/endpoint');
+    });
+
+    it('should return the string if it already has a protocol', function () {
+      assert.equal(this.client.url('http://example.com/my/endpoint'), 'http://example.com/my/endpoint');
+    });
+  });
+
   describe('.getCompletions(url, options, success, error)', function () {
     beforeEach(function () {
       this.fakePiped  = sinon.stub(jQuery.Deferred());
@@ -40,7 +67,7 @@ describe('ckan.Client()', function () {
       var target = this.client.getCompletions('url', success, error);
 
       assert.called(jQuery.ajax);
-      assert.calledWith(jQuery.ajax, {url: 'url'});
+      assert.calledWith(jQuery.ajax, {url: '/url'});
 
       assert.called(this.fakePiped.then);
       assert.calledWith(this.fakePiped.then, success, error);
@@ -64,7 +91,7 @@ describe('ckan.Client()', function () {
 
   });
 
-  describe('.parseCompletions(data)', function () {
+  describe('.parseCompletions(data, options)', function () {
     it('should return a string of tags for a ResultSet collection', function () {
       var data = {
         ResultSet: {
@@ -106,6 +133,34 @@ describe('ckan.Client()', function () {
 
       assert.deepEqual(target, ["Test"]);
     });
+
+    it('should return an array of objects if options.objects is true', function () {
+      var data = {
+        ResultSet: {
+          Result: [
+            {"Format": "json"}, {"Format": "csv"}, {"Format": "text"}
+          ]
+        }
+      };
+
+      var target = this.client.parseCompletions(data, {objects: true});
+
+      assert.deepEqual(target, [
+        {id: "json", text: "json"},
+        {id: "csv", text: "csv"},
+        {id: "text", text: "text"}
+      ]);
+    });
+
+    it('should call .parsePackageCompletions() id data is a string', function () {
+      var data = 'Name|id';
+      var target = sinon.stub(this.client, 'parsePackageCompletions');
+
+      this.client.parseCompletions(data, {objects: true});
+
+      assert.called(target);
+      assert.calledWith(target, data);
+    });
   });
 
   describe('.parseCompletionsForPlugin(data)', function () {
@@ -128,7 +183,26 @@ describe('ckan.Client()', function () {
         ]
       });
     });
+  });
 
+  describe('.parsePackageCompletions(string, options)', function () {
+    it('should parse the package completions string', function () {
+      var data = 'Package 1|package-1\nPackage 2|package-2\nPackage 3|package-3\n';
+      var target = this.client.parsePackageCompletions(data);
+
+      assert.deepEqual(target, ['package-1', 'package-2', 'package-3']);
+    });
+
+    it('should return an object if options.object is true', function () {
+      var data = 'Package 1|package-1\nPackage 2|package-2\nPackage 3|package-3\n';
+      var target = this.client.parsePackageCompletions(data, {objects: true});
+
+      assert.deepEqual(target, [
+        {id: 'package-1', text: 'Package 1'},
+        {id: 'package-2', text: 'Package 2'},
+        {id: 'package-3', text: 'Package 3'}
+      ]);
+    });
   });
 
   describe('.getStorageAuth()', function () {

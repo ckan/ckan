@@ -4,6 +4,7 @@ from pylons.i18n import set_lang
 import sqlalchemy.exc
 
 import ckan.logic
+import ckan.lib.maintain as maintain
 from ckan.lib.search import SearchError
 from ckan.lib.base import *
 from ckan.lib.helpers import url_for
@@ -54,7 +55,14 @@ class HomeController(BaseController):
             c.search_facets = query['search_facets']
             c.package_count = query['count']
             c.datasets = query['results']
+
             c.facets = query['facets']
+            maintain.deprecate_context_item(
+              'facets',
+              'Use `c.search_facets` instead.')
+
+            c.search_facets = query['search_facets']
+
             c.facet_titles = {'groups': _('Groups'),
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
@@ -63,8 +71,9 @@ class HomeController(BaseController):
             data_dict = {'order_by': 'packages', 'all_fields': 1}
             # only give the terms to group dictize that are returned in the
             # facets as full results take a lot longer
-            if 'groups' in c.facets:
-                data_dict['groups'] = c.facets['groups'].keys()
+            if 'groups' in c.search_facets:
+                data_dict['groups'] = [ item['name'] for item in
+                    c.search_facets['groups']['items'] ]
             c.groups = ckan.logic.get_action('group_list')(context, data_dict)
         except SearchError, se:
             c.package_count = 0

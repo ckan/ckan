@@ -4730,7 +4730,8 @@ ul.icons li .icon-large:before {
   line-height: 1.3em;
   margin: 5px 0;
 }
-.media-image {
+.media-image,
+.media .gravatar {
   position: relative;
   float: left;
   margin-right: 10px;
@@ -5440,15 +5441,22 @@ textarea {
   background: url("../images/loading-spinner.gif") no-repeat center right;
   padding-right: 5px;
 }
-.select2-container .select2-choice,
+.select2-container .select2-choice input,
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+  font-size: 14px;
+}
 .select2-container-multi .select2-choices .select2-search-field input {
   height: 29px;
 }
-.select2-container .select2-choice {
-  padding: 4px 8px 2px;
+.select2-container .select2-choice input,
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+  padding-left: 10px;
 }
-.select2-container .select2-choice div b {
-  background-position: 0 5px;
+.select2-container {
+  margin-top: 5px;
+}
+.select2-container-multi {
+  margin-top: 0;
 }
 .select2-container-multi .select2-choices .select2-search-choice {
   padding: 5px 8px 5px 22px;
@@ -5490,6 +5498,14 @@ textarea {
 }
 .select2-container-multi .select2-drop {
   margin-top: -2px;
+}
+.select2-container .select2-results li {
+  line-height: 18px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.control-full .select2-container {
+  width: 520px !important;
 }
 .dataset-item {
   border-bottom: 1px dotted #ccc;
@@ -6538,16 +6554,14 @@ li .icon-large:before {
 .site-footer:after {
   clear: both;
 }
-.site-footer a {
-  color: #ffffff;
-}
+.site-footer,
+.site-footer a,
 .site-footer label {
-  color: #ffffff;
+  color: #fff;
+  color: rgba(255, 255, 255, 0.8);
 }
 .footer-links,
 .attribution {
-  opacity: 0.8;
-  filter: alpha(opacity=80);
   float: left;
   margin-left: 20px;
   width: 460px;
@@ -6571,6 +6585,9 @@ li .icon-large:before {
   height: 21px;
   margin-top: 2px;
   background: url("../images/ckan-logo-footer.png") no-repeat top left;
+}
+.attribution .select2-drop {
+  color: #000;
 }
 .profile-info {
   *zoom: 1;

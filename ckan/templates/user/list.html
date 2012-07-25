@@ -3,7 +3,7 @@
 {% block title %}{{ _('All Users') }} - {{ super() }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{{ h.nav_link(_('active'), controller='user', action='index') }}</li>
+  <li class="active">{{ h.nav_link(_('Users'), controller='user', action='index') }}</li>
 {% endblock %}
 
 {% block primary_content %}
@@ -12,7 +12,7 @@
       <h1 class="page-heading">{{ _('Users') }}</h1>
       <table class="table table-bordered">
         {% for user in c.page.items %}
-          <tr><td>{{ h.linked_user(user['name'], maxlength=20) }}</td></tr>
+          <tr><td class="media">{{ h.linked_user(user['name'], maxlength=20) }}</td></tr>
         {% endfor %}
       </table>
     </div>

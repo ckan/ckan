@@ -130,6 +130,8 @@ def group_show(context, data_dict):
     user = context.get('user')
     group = get_group_object(context, data_dict)
     userobj = model.User.get( user )
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
 
     if group.state == 'deleted':
         if not user or \

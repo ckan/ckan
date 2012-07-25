@@ -126,6 +126,9 @@ def package_create(context, data_dict):
             package_plugin.check_data_dict(data_dict)
 
     data, errors = _validate(data_dict, schema, context)
+    log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
+              errors, context.get('user'),
+              data.get('name'), data_dict)
 
     if errors:
         model.Session.rollback()
@@ -169,7 +172,6 @@ def package_create_validate(context, data_dict):
     _check_access('package_create',context,data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -332,7 +334,6 @@ def package_relationship_create(context, data_dict):
         return NotFound('Object package %r was not found.' % id2)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -478,7 +479,8 @@ def group_create(context, data_dict):
     _check_access('group_create', context, data_dict)
 
     # get the schema
-    group_plugin = lib_plugins.lookup_group_plugin()
+    group_plugin = lib_plugins.lookup_group_plugin(
+            group_type=data_dict.get('type'))
     try:
         schema = group_plugin.form_to_db_schema_options({'type':'create',
                                                'api':'api_version' in context,
@@ -487,6 +489,8 @@ def group_create(context, data_dict):
         schema = group_plugin.form_to_db_schema()
 
     data, errors = _validate(data_dict, schema, context)
+    log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
+              errors, context.get('user'), data_dict.get('name'), data_dict)
 
     if errors:
         session.rollback()
@@ -507,6 +511,8 @@ def group_create(context, data_dict):
         if parent_group:
             member = model.Member(group=parent_group, table_id=group.id, table_name='group')
             session.add(member)
+            log.debug('Group %s is made child of group %s',
+                      group.name, parent_group.name)
 
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]

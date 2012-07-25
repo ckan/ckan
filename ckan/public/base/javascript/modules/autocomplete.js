@@ -47,24 +47,28 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       var settings = {
         formatResult: this.formatResult,
         formatNoMatches: this.formatNoMatches,
-        formatInputTooShort: this.formatInputTooShort,
-        createSearchChoice: this.formatTerm, // Not used by tags.
-        initSelection: this.formatInitialValue
+        formatInputTooShort: this.formatInputTooShort
       };
 
       // Different keys are required depending on whether the select is
       // tags or generic completion.
-      if (this.options.tags) {
-        settings.tags = this._onQuery;
-
-        // Also need to watch for changes so we can handle formatting
-        // inconsistencies that occur when dealing with tags.
-        this.el.on('change', this._onChange);
-      } else {
-        settings.query = this._onQuery;
+      if (!this.el.is('select')) {
+        if (this.options.tags) {
+          settings.tags = this._onQuery;
+        } else {
+          settings.query = this._onQuery;
+          settings.createSearchChoice = this.formatTerm;
+        }
+        settings.initSelection = this.formatInitialValue;
       }
 
-      this.el.select2(settings);
+      var select2 = this.el.select2(settings).data('select2');
+
+      if (this.options.tags && select2 && select2.search) {
+        // find the "fake" input created by select2 and add the keypress event.
+        // This is not part of the plugins API and so may break at any time.
+        select2.search.on('keydown', this._onKeydown);
+      }
     },
 
     /* Looks up the completions for the current search term and passes them
@@ -114,6 +118,8 @@ this.ckan.module('autocomplete', function (jQuery, _) {
         if (!this._debounced) {
           // Set a timer to prevent the search lookup occurring too often.
           this._debounced = setTimeout(function () {
+            var term = module._lastTerm;
+
             delete module._debounced;
 
             // Cancel the previous request if it hasn't yet completed.
@@ -121,8 +127,13 @@ this.ckan.module('autocomplete', function (jQuery, _) {
               module._last.abort();
             }
 
-            module._last = module.getCompletions(module._lastTerm, fn);
+            module._last = module.getCompletions(term, function (terms) {
+              fn(module._lastResults = terms);
+            });
           }, this.options.interval);
+        } else {
+          // Re-use the last set of terms.
+          fn(this._lastResults || {results: []});
         }
       } else {
         fn({results: []});
@@ -195,19 +206,19 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       this.lookup(options.term, options.callback);
     },
 
-    /* Called when the input changes. Used to split any comma separated tags
-     * into individual items. This is a bit of a workaround as select2 doesn't
-     * handle this yet.
-     *
-     * select2('val') actually parses comma separated input correctly but
-     * doesn't render them. So we give it a gentle nudge.
+    /* Called when a key is pressed.  If the key is a comma we block it and
+     * then simulate pressing return.
      *
      * Returns nothing.
      */
-    _onChange: function (event) {
-      var parsed = jQuery.map(this.el.select2('val'), this.formatTerm);
-
-      this.el.select2('val', parsed);
+    _onKeydown: function (event) {
+      if (event.which === 188) {
+        event.preventDefault();
+        setTimeout(function () {
+          var e = jQuery.Event("keydown", { which: 13 });
+          jQuery(event.target).trigger(e);
+        }, 10);
+      }
     }
   };
 });

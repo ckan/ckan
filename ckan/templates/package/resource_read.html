@@ -7,7 +7,7 @@
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li>{% link_for h.dataset_display_name(c.package)|truncate(20), controller='package', action='read', id=c.package.get('name') %}</li>
+  <li>{% link_for h.dataset_display_name(c.package)|truncate(15), controller='package', action='read', id=c.package.get('name') %}</li>
   <li class="active"><a href="">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
 {% endblock %}
 
@@ -135,7 +135,7 @@
   <![endif]-->
   <link rel="stylesheet" href="{% url_for_static '/base/datapreview/vendor/recline/css/recline.css' %}" />
   <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/datapreview.css' %}" />
-  
+
 {% endblock %}
 
 {% block scripts %}

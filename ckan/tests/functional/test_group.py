@@ -7,7 +7,7 @@ from ckan.plugins import SingletonPlugin, implements, IGroupController
 from ckan import plugins
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
-from ckan.logic import check_access, NotAuthorized
+from ckan.logic import check_access, NotAuthorized, get_action
 
 from pylons import config
 
@@ -57,6 +57,96 @@ class TestGroup(FunctionalTestCase):
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
+
+    def test_children(self):
+        group_name = 'deletetest'
+        CreateTestData.create_groups([{'name': group_name,
+                                       'packages': []},
+                                       {'name': "parent_group",
+                                       'packages': []}],
+                                     admin_user_name='russianfan')
+
+        parent = model.Group.by_name("parent_group")
+        group = model.Group.by_name(group_name)
+
+        rev = model.repo.new_revision()
+        rev.author = "none"
+
+        member = model.Member(group_id=parent.id, table_id=group.id,
+                              table_name='group', capacity='member')
+        model.Session.add(member)
+        model.repo.commit_and_remove()
+
+        offset = url_for(controller='group', action='edit', id=group_name)
+        res = self.app.get(offset, status=200,
+                           extra_environ={'REMOTE_USER': 'russianfan'})
+        main_res = self.main_div(res)
+        assert 'Edit: %s' % group.title in main_res, main_res
+        assert 'value="active" selected' in main_res, main_res
+
+        parent = model.Group.by_name("parent_group")
+        assert_equal(len(parent.get_children_groups()), 1)
+
+        # delete
+        form = res.forms['group-edit']
+        form['state'] = 'deleted'
+        res = form.submit('save', status=302,
+                          extra_environ={'REMOTE_USER': 'russianfan'})
+
+        group = model.Group.by_name(group_name)
+        assert_equal(group.state, 'deleted')
+
+        parent = model.Group.by_name("parent_group")
+        assert_equal(len(parent.get_children_groups()), 0)
+
+    def test_sorting(self):
+        model.repo.rebuild_db()
+
+        pkg1 = model.Package(name="pkg1")
+        pkg2 = model.Package(name="pkg2")
+        model.Session.add(pkg1)
+        model.Session.add(pkg2)
+
+        CreateTestData.create_groups([{'name': "alpha", 'packages': []},
+                                       {'name': "beta",
+                                        'packages': ["pkg1", "pkg2"]},
+                                       {'name': "delta",
+                                        'packages': ["pkg1"]},
+                                       {'name': "gamma", 'packages': []}],
+                                     admin_user_name='russianfan')
+
+        context = {'model': model, 'session': model.Session,
+                   'user': 'russianfan', 'for_view': True,
+                   'with_private': False}
+        data_dict = {'all_fields': True}
+        results = get_action('group_list')(context, data_dict)
+        assert results[0]['name'] == u'alpha', results[0]['name']
+        assert results[-1]['name'] == u'gamma', results[-1]['name']
+
+        # Test name reverse
+        data_dict = {'all_fields': True, 'sort': 'name desc'}
+        results = get_action('group_list')(context, data_dict)
+        assert results[0]['name'] == u'gamma', results[0]['name']
+        assert results[-1]['name'] == u'alpha', results[-1]['name']
+
+        # Test packages reversed
+        data_dict = {'all_fields': True, 'sort': 'packages desc'}
+        results = get_action('group_list')(context, data_dict)
+        assert results[0]['name'] == u'beta', results[0]['name']
+        assert results[1]['name'] == u'delta', results[1]['name']
+
+        # Test packages forward
+        data_dict = {'all_fields': True, 'sort': 'packages asc'}
+        results = get_action('group_list')(context, data_dict)
+        assert results[-2]['name'] == u'delta', results[-2]['name']
+        assert results[-1]['name'] == u'beta', results[-1]['name']
+
+        # Default ordering for packages
+        data_dict = {'all_fields': True, 'sort': 'packages'}
+        results = get_action('group_list')(context, data_dict)
+        assert results[0]['name'] == u'beta', results[0]['name']
+        assert results[1]['name'] == u'delta', results[1]['name']
+
 
     def test_mainmenu(self):
         # the home page does a package search so have to skip this test if
@@ -795,15 +885,19 @@ Ho ho ho
         userobj = model.User.get('russianfan')
         grp = model.Group.by_name(self.groupname)
 
+        # Monkey patch
+        old_method = model.User.get_groups
         def gg(*args, **kwargs):
             return [grp]
         model.User.get_groups = gg
-
-        context = {'group': grp, 'model': model, 'user': 'russianfan'}
         try:
-            self.auth.check_access('group_update', context, {})
-        except NotAuthorized, e:
-            assert False, "The user should have access"
+            context = { 'group': grp, 'model': model, 'user': 'russianfan' }
+            try:
+                self.auth.check_access('group_update',context, {})
+            except NotAuthorized, e:
+                assert False, "The user should have access"
+        finally:
+            model.User.get_groups = old_method
 
     def test_delete(self):
         group_name = 'deletetest'

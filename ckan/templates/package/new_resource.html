@@ -1,8 +1,14 @@
 {% extends "package/base_form_page.html" %}
 
-{% block title %}{{ _('Add data to the dataset') }} - {{ super }}{% endblock %}
+{% if c.userobj %}
+  {% set logged_in = true %}
+{% else %}
+  {% set logged_in = false %}
+{% endif %}
 
-{% block form %}{% snippet 'package/snippets/resource_form.html', data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage %}{% endblock %}
+{% block title %}{{ _('Add data to the dataset') }} - {{ super() }}{% endblock %}
+
+{% block form %}{% snippet 'package/snippets/resource_form.html', data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage, allow_upload=logged_in %}{% endblock %}
 
 {% block secondary_content %}
   <section class="module module-narrow module-shallow">
@@ -22,4 +28,10 @@
   <script src="{% url_for_static "/base/vendor/jquery-fileupload/jquery.fileupload.js" %}"></script>
   <script src="{% url_for_static "/base/javascript/modules/resource-form.js" %}"></script>
   <script src="{% url_for_static "/base/javascript/modules/resource-upload-field.js" %}"></script>
+{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
+  <li>{% link_for h.dataset_display_name(pkg_dict)|truncate(30), controller='package', action='read', id=pkg_dict.name %}</li>
+  <li class="active"><a href="">Add resource</a></li>
 {% endblock %}

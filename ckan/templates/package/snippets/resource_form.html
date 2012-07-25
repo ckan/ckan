@@ -18,7 +18,7 @@
 
   <div class="control-group dataset-form-resource-types">
     {% block basic_fields %}
-      <div class="controls" data-module="resource-upload-field">
+      <div class="controls"{% if allow_upload %} data-module="resource-upload-field"{% endif %}>
         {#
         This block uses a slightly odd pattern. Unlike the rest of the radio
         buttons which are wrapped _inside_ the labels here we place the label
@@ -41,7 +41,7 @@
     {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
 
     {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/resource/format_autocomplete?incomplete=?'} %}
-    {{ form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. application/json'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs) }}
+    {{ form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. CSV, XML or JSON'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs) }}
   {% endblock %}
 
   {% block metadata_fields %}
@@ -56,12 +56,6 @@
       {{ form.input('mimetype', id='field-mimetype', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype, error=errors.mimetype, classes=[]) }}
 
       {{ form.input('mimetype_inner', id='field-mimetype-inner', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype_inner, error=errors.mimetype_inner, classes=[]) }}
-    {% else %}
-      <input type="hidden" name="last_modified" value="{{ data.last_modified }}" />
-      <input type="hidden" name="size" value="{{ data.size }}" />
-      <input type="hidden" name="mimetype" value="{{ data.mimetype }}" />
-      <input type="hidden" name="mimetype_inner" value="{{ data.mimetype_inner }}" />
-      <input type="hidden" name="hash" value="{{ data.hash }}" />
     {% endif %}
   {% endblock %}
 

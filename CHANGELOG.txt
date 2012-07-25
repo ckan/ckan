@@ -23,6 +23,22 @@ v1.8
 * [#2345] New action API reference docs. The documentation for CKAN's Action
   API has been rewritten, with each function and its arguments and return
   values now individually documented.
+* Template helper functions are now restricted by default. This is
+  part of a process of refactoring the CKAN code. By default only
+  those helper functions listed in lib.helpers.__allowed_functions__
+  are available to templates. The full functions can still be made
+  available by `setting ckan.restrict_template_vars = false` in your
+  .ini config file. Only restricted functions will be allowed in
+  future versions of CKAN.
+
+API changes and deprecation:
+* [#2313] Deprecated functions related to the old faceting data structure have
+  been removed:  `helpers.py:facet_items()`, `facets.html:facet_sidebar()`,
+  `facets.html:facet_list_items()`.
+  Internal use of the old facets datastructure (attached to the context,
+  `c.facets`) has been superseded by use of the improved facet data structure,
+  `c.search_facets`.  The old data structure is still available on `c.facets`,
+  but is deprecated, and will be removed in v1.9.
 
 v1.7.1 2012-06-20
 =================
