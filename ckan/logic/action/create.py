@@ -1,6 +1,7 @@
 import logging
 from pylons.i18n import _
 
+import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -270,8 +271,11 @@ def related_create(context, data_dict):
 
     '''
     model = context['model']
+    session = context['session']
     user = context['user']
     userobj = model.User.get(user)
+
+    _check_access('related_create', context, data_dict)
 
     data_dict["owner_id"] = userobj.id
     data, errors = _validate(data_dict,
@@ -290,10 +294,30 @@ def related_create(context, data_dict):
         dataset.related.append( related )
         model.repo.commit_and_remove()
 
+    session.flush()
+
+    related_dict = model_dictize.related_dictize(related, context)
+    activity_dict = {
+            'user_id': userobj.id,
+            'object_id': related.id,
+            'activity_type': 'new related item',
+            }
+    activity_dict['data'] = {
+            'related': related_dict
+    }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit':True,
+        'session': session
+    }
+    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    session.commit()
+
     context["related"] = related
     context["id"] = related.id
     log.debug('Created object %s' % str(related.title))
-    return model_dictize.related_dictize(related, context)
+    return related_dict
 
 
 def package_relationship_create(context, data_dict):
