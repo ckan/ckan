@@ -176,6 +176,7 @@ class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
         self.sort_order = sort_order
         self.label = label
         self.extras = extras or {}
+        self.state = 'active'
 
         extra_columns = self.get_extra_columns()
         for field in extra_columns:
@@ -260,35 +261,8 @@ ResourceGroupRevision = vdm.sqlalchemy.create_object_version(
 ResourceGroupRevision.related_packages = lambda self: [self.continuity.package]
 ResourceRevision.related_packages = lambda self: [self.continuity.resouce_group.package]
 
-# TODO: move this into vdm
-def add_stateful_m21(object_to_alter, m21_property_name,
-        underlying_m21_attrname, identifier, **kwargs):
-    def _f(obj_to_delete):
-        sess = orm.object_session(obj_to_delete)
-        if sess: # for tests at least must support obj not being sqlalchemy
-            sess.expunge(obj_to_delete)
-
-    active_list = vdm.sqlalchemy.stateful.DeferredProperty(
-            underlying_m21_attrname,
-            vdm.sqlalchemy.stateful.StatefulList,
-            # these args are passed to StatefulList
-            # identifier if url (could use id but have issue with None)
-            identifier=identifier,
-            unneeded_deleter=_f,
-            base_modifier=lambda x: x.get_as_of()
-            )
-    setattr(object_to_alter, m21_property_name, active_list)
-
 def resource_identifier(obj):
     return obj.id
-
-
-add_stateful_m21(_package.Package, 'resource_groups', 'resource_groups_all',
-                 resource_identifier)
-add_stateful_m21(ResourceGroup, 'resources', 'resources_all',
-                 resource_identifier)
-
-
 
 class DictProxy(object):
 

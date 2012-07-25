@@ -34,6 +34,7 @@
         </li>
       </py:otherwise>
       </py:choose>
+      <li py:if="h.asbool(config.get('ckan.dataset.show_apps_ideas', 'true'))" class="${'active' if c.action=='related' else ''}">${h.subnav_link(h.icon('package') + _('Apps, Ideas etc') + ' (%s)' % c.related_count, controller='related', action='list', id=c.pkg.name)}</li>
       <li class="${'active' if c.action=='history' else ''}">${h.subnav_link(h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
       <li class="${'active' if c.action=='followers' else ''}" style="float:right;">
         ${h.subnav_link(
@@ -42,7 +43,6 @@
             action='followers',
             id=c.pkg.name)}
       </li>
-      <li class="${'active' if c.action=='related' else ''}">${h.subnav_link(h.icon('package') + _('Related') + ' (%s)' % c.related_count, controller='related', action='list', id=c.pkg.name)}</li>
 
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})">
         <li class="divider">|</li>

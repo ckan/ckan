@@ -64,14 +64,14 @@ class TestBasicDictize:
 
         self.remove_changable_columns(result)
 
-        pprint(result)
-
         result['name'] = 'anna2'
+        # we need to remove these as they have been added
+        del result['relationships_as_object']
+        del result['relationships_as_subject']
 
         converted_data, errors = validate(result, default_package_schema(), self.context)
 
 
-        pprint(errors)
         assert converted_data == {'extras': [{'key': u'genre', 'value': u'"romantic novel"'},
                                             {'key': u'original media', 'value': u'"book"'}],
                                    'groups': [{u'name': u'david',
@@ -140,6 +140,12 @@ class TestBasicDictize:
         group = model.Session.query(model.Group).first()
 
         data = group_dictize(group, self.context)
+
+        # we don't want these here
+        del data['groups']
+        del data['users']
+        del data['tags']
+        del data['extras']
 
         converted_data, errors = validate(data, default_group_schema(), self.context)
         group_pack = sorted(group.active_packages().all(), key=lambda x:x.id)
