@@ -1,9 +1,11 @@
 /* Loads the API Info snippet into a modal dialog. Retrieves the snippet
  * url from the data-snippet-url on the module element.
  *
+ * template - The url to the template to display in a modal.
+ *
  * Examples
  *
- *   <a data-snippet-url="http://example.com/path/to/template" data-module="api-info">API</a>
+ *   <a data-module="api-info" data-module-template="http://example.com/path/to/template">API</a>
  *
  */
 this.ckan.module('api-info', function (jQuery, _) {
@@ -16,8 +18,6 @@ this.ckan.module('api-info', function (jQuery, _) {
 
       this.el.on('click', this._onClick);
       this.el.button();
-
-      this.options.template = this.options.template || this.el.data('snippet-url');
     },
     loading: function (loading) {
       this.el.button(loading !== false ? 'loading' : 'reset');
@@ -32,9 +32,6 @@ this.ckan.module('api-info', function (jQuery, _) {
 
       this.loadTemplate().done(function (html) {
         module.modal = jQuery(html);
-        // we need to make this for modal
-        module.modal.addClass('modal');
-        module.modal.find('.x_modal-body').addClass('modal-body');
         module.modal.find('.modal-header :header').append('<button class="close" data-dismiss="modal">×</button>');
         module.modal.modal().appendTo(sandbox.body);
       });
@@ -45,6 +42,11 @@ this.ckan.module('api-info', function (jQuery, _) {
       }
     },
     loadTemplate: function () {
+      if (!this.options.template) {
+        this.sandbox.notify(_('There is no API data to load for this resource').fetch());
+        return jQuery.Deferred().reject().promise();
+      }
+
       if (!this.promise) {
         this.loading();
 

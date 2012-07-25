@@ -1163,7 +1163,8 @@ class PackageController(BaseController):
         redirect(rsc['url'])
 
     def api_data(self, id=None):
-        return render('package/resource_api_data.html', {'datastore_root_url': id})
+        url = h.url_for('datastore_read', id=id, qualified=True)
+        return render('package/resource_api_data.html', {'datastore_root_url': url})
 
     def followers(self, id=None):
         context = {'model': model, 'session': model.Session,
