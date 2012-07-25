@@ -26,6 +26,6 @@
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li><a href="{% url_for controller='package', action='read', id=pkg_dict.name %}" title="{{ pkg_dict.name }}">{{ pkg_dict.name|truncate(35) }}</a></li>
+  <li>{% link_for h.dataset_display_name(pkg_dict)|truncate(30), controller='package', action='read', id=pkg_dict.name %}</li>
   <li class="active"><a href="">Add resource</a></li>
 {% endblock %}
