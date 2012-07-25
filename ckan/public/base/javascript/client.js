@@ -1,8 +1,103 @@
 (function (ckan, jQuery) {
 
-  function Client() {}
+  function Client() {
+    jQuery.proxyAll(this, /parse/);
+  }
 
   jQuery.extend(Client.prototype, {
+
+    /* Retrieves a list of auto-completions from one of the various endpoints
+     * and normalises the results into an array of tags.
+     *
+     * url     - An API endpoint for the auto complete.
+     * options - An object of options for the function (optional).
+     *           formatter: A function that takes the response and parses it.
+     * success - A function to be called on success (optional).
+     * error   - A function to be called on error (optional).
+     *
+     * Examples
+     *
+     *   client.getCompletions(tagEndpoint).done(function (tags) {
+     *     // tags == array of formatted tags.
+     *   });
+     *
+     * Returns a jqXHR promise object.
+     */
+    getCompletions: function (url, options, success, error) {
+      if (typeof options === 'function') {
+        error = success;
+        success = options;
+        options = {};
+      }
+
+      var formatter = options && options.format || this.parseCompletions;
+      var request = jQuery.ajax({url: url});
+
+      return request.pipe(formatter).promise(request).then(success, error);
+    },
+
+    /* Takes a JSON response from an auto complete endpoint and normalises
+     * the data into an array of strings. This also will remove duplicates
+     * from the results (this is case insensitive).
+     *
+     * data - The parsed JSON response from the server.
+     *
+     * Examples
+     *
+     *   jQuery.getJSON(tagCompletionUrl, function (data) {
+     *     var parsed = client.parseCompletions(data);
+     *   });
+     *
+     * Returns the parsed object.
+     */
+    parseCompletions: function (data) {
+      var map = {};
+      var raw = data.ResultSet && data.ResultSet.Result || {};
+
+      var items = jQuery.map(raw, function (item) {
+        item = typeof item === 'string' ? item : item.Name || item.Format || '';
+        item = jQuery.trim(item);
+
+        var lowercased = item.toLowerCase();
+
+        if (lowercased && !map[lowercased]) {
+          map[lowercased] = 1;
+          return item;
+        }
+
+        return null;
+      });
+
+      // Remove duplicates.
+      items = jQuery.grep(items, function (item) { return item !== null; });
+
+      return items;
+    },
+
+    /* Returns each item as an object with an "id" and "text" property as this
+     * format is used by a number of auto complete plugins.
+     *
+     * data - The parsed JSON response from the server.
+     *
+     * Example
+     *
+     *   var opts = {format: client.parseCompletionsForPlugin};
+     *   client.getCompletions(tagEndpoint, opts).done(function (tags) {
+     *     // tags    == {results: [{...}, {...}, {...}}
+     *     // tags[0] == {id: "string", text: "string"}
+     *   });
+     *
+     * Returns an object of item objects.
+     */
+    parseCompletionsForPlugin: function (data) {
+      var items = this.parseCompletions(data);
+
+      items = jQuery.map(items, function (item) {
+        return {id: item, text: item};
+      });
+
+      return {results: items};
+    },
 
     /* Requests config options for a file upload.
      *

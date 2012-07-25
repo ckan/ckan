@@ -42,6 +42,27 @@ def package_delete(context, data_dict):
     entity.delete()
     model.repo.commit()
 
+def resource_delete(context, data_dict):
+    '''Delete a resource from a dataset.
+
+    You must be a sysadmin or the owner of the resource to delete it.
+
+    :param id: the id of the resource
+    :type id: string
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    entity = model.Resource.get(id)
+
+    if entity is None:
+        raise NotFound
+
+    _check_access('resource_delete',context, data_dict)
+
+    entity.delete()
+    model.repo.commit()
 
 def package_relationship_delete(context, data_dict):
     '''Delete a dataset (package) relationship.

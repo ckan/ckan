@@ -1,3 +1,7 @@
+.js .js-hide {
+  display:none;
+}
+
 .btn,
 label {
   font-weight: bold;
@@ -464,18 +468,19 @@ textarea {
 
 .slug-preview {
   font-size: 14px;
-  margin-top: 8px;
+  line-height: 1.5;
+  margin-top: 5px;
   margin-left: 10px;
 }
 
 .slug-preview-value {
   background-color: #faedcf;
+  margin-right: 3px;
 }
 
 .slug-preview .btn {
  padding-top: 3px;
  padding-bottom: 3px;
- margin-left: 5px;
 }
 
 // Upload File
@@ -501,4 +506,71 @@ textarea {
   display: inline-block;
   background: url("@{imagePath}/loading-spinner.gif") no-repeat center right;
   padding-right: 5px;
+}
+
+// Select2
+
+.select2-container .select2-choice input,
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+  font-size: 14px;
+}
+
+.select2-container-multi .select2-choices .select2-search-field input {
+  height: 29px;
+}
+
+.select2-container .select2-choice input,
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+  // Only apply if there are no other tags (ie. is the first child)
+  padding-left: 10px;
+}
+
+.select2-container {
+  margin-top: 5px;
+}
+
+.select2-container-multi {
+  margin-top: 0;
+}
+
+.select2-container-multi .select2-choices .select2-search-choice {
+  padding: 5px 8px 5px 22px;
+}
+
+.select2-container-multi.select2-container .select2-choices {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+.select2-search-choice-close,
+.select2-container-multi .select2-search-choice-close {
+  top: 6px;
+  left: 5px;
+}
+
+.select2-container-multi .select2-choices {
+  .border-radius(3px);
+  .box-shadow(inset 0 1px 1px rgba(0,0,0,.075));
+  @transition: border linear .2s, box-shadow linear .2s;
+  .transition(@transition);
+  background-color: @inputBackground;
+  border: 1px solid @inputBorder;
+}
+
+.select2-container-active .select2-choices,
+.select2-container-multi.select2-container-active .select2-choices {
+  border-color: rgba(82,168,236,.8);
+  outline: 0;
+  outline: thin dotted \9; /* IE6-9 */
+  .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6)");
+}
+
+.select2-container-multi .select2-drop {
+  margin-top: -2px;
+}
+
+.control-full .select2-container {
+  // Important is bad but select2 incorrectly calculates the width and
+  // sets it on the element.
+  width: 520px !important;
 }

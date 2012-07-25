@@ -76,6 +76,17 @@ describe('ckan.module(id, properties|callback)', function () {
     it('should return the module object', function () {
       assert.equal(ckan.module.initialize(), ckan.module);
     });
+
+    it('should initialize more than one module sepearted by a space', function () {
+      this.fixture.empty();
+      this.element4 = jQuery('<div data-module="test1 test2">').appendTo(this.fixture);
+      this.test2 = ckan.module.registry.test2 = sinon.spy();
+
+      ckan.module.initialize();
+
+      assert.calledWith(this.target, this.test1, this.element4[0]);
+      assert.calledWith(this.target, this.test2, this.element4[0]);
+    });
   });
 
   describe('.createInstance(Module, element)', function () {
@@ -230,6 +241,123 @@ describe('ckan.module(id, properties|callback)', function () {
       assert.deepEqual(target, {
         'longProperty': 'long',
         'reallyVeryLongProperty': 'longer'
+      });
+    });
+
+    it('should set boolean attributes to true', function () {
+      var element = jQuery('<div>', {
+        'data-module-long-property': ''
+      })[0];
+
+      var target = ckan.module.extractOptions(element);
+
+      assert.deepEqual(target, {'longProperty': true});
+    });
+  });
+
+  describe('BaseModule(element, options, sandbox)', function () {
+    var BaseModule = ckan.module.BaseModule;
+
+    beforeEach(function () {
+      this.el = jQuery('<div />');
+      this.options = {};
+      this.sandbox = ckan.sandbox();
+      this.module = new BaseModule(this.el, this.options, this.sandbox);
+    });
+
+    it('should assign .el as the element option', function () {
+      assert.ok(this.module.el === this.el);
+    });
+
+    it('should wrap .el in jQuery if not already wrapped', function () {
+      var element = document.createElement('div');
+      var target = new BaseModule(element, this.options, this.sandbox);
+
+      assert.ok(target.el instanceof jQuery);
+    });
+
+    it('should deep extend the options object', function () {
+      // Lazy check :/
+      var target = sinon.stub(jQuery, 'extend');
+      new BaseModule(this.el, this.options, this.sandbox);
+
+      assert.called(target);
+      assert.calledWith(target, true, {}, BaseModule.prototype.options, this.options);
+
+      target.restore();
+    });
+
+    it('should assign the sandbox property', function () {
+      assert.equal(this.module.sandbox, this.sandbox);
+    });
+
+    describe('.$(selector)', function () {
+      it('should find children within the module element', function () {
+        this.module.el.append(jQuery('<input /><input />'));
+        assert.equal(this.module.$('input').length, 2);
+      });
+    });
+
+    describe('.i18n()', function () {
+      beforeEach(function () {
+        this.i18n = {
+          first: 'first string',
+          second: {fetch: sinon.stub().returns('second string')},
+          third: sinon.stub().returns('third string')
+        };
+
+        this.module.options.i18n = this.i18n;
+      });
+
+      it('should return the translation string', function () {
+        var target = this.module.i18n('first');
+        assert.equal(target, 'first string');
+      });
+
+      it('should call fetch on the translation string if it exists', function () {
+        var target = this.module.i18n('second');
+        assert.equal(target, 'second string');
+      });
+
+      it('should return just the key if no translation exists', function () {
+        var target = this.module.i18n('missing');
+        assert.equal(target, 'missing');
+      });
+
+      it('should call the translation function if one is provided', function () {
+        var target = this.module.i18n('third');
+        assert.equal(target, 'third string');
+      });
+
+      it('should pass the argments after the key into trans.fetch()', function () {
+        var target = this.module.options.i18n.second.fetch;
+        this.module.i18n('second', 1, 2, 3);
+        assert.called(target);
+        assert.calledWith(target, 1, 2, 3);
+      });
+
+      it('should pass the argments after the key into the translation function', function () {
+        var target = this.module.options.i18n.third;
+        this.module.i18n('third', 1, 2, 3);
+        assert.called(target);
+        assert.calledWith(target, 1, 2, 3);
+      });
+    });
+
+    describe('.remove()', function () {
+      it('should teardown the module', function () {
+        var target = sinon.stub(this.module, 'teardown');
+
+        this.module.remove();
+
+        assert.called(target);
+      });
+
+      it('should remove the element from the page', function () {
+        this.fixture.append(this.module.el);
+        this.module.remove();
+
+        assert.equal(this.fixture.children().length, 0);
       });
     });
   });

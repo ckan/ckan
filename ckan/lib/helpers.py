@@ -294,6 +294,8 @@ def _nav_link(text, controller, **kwargs):
     icon: name of ckan icon to use within the link
     condition: if False then no link is returned
     '''
+    if kwargs.get('inner_span'):
+        text = literal('<span>') + text + literal('</span>')
     highlight_actions = kwargs.pop("highlight_actions",
                                    kwargs["action"]).split()
     icon = kwargs.pop('icon', None)

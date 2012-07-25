@@ -23,3 +23,9 @@
   <script src="{% url_for_static "/base/javascript/modules/resource-form.js" %}"></script>
   <script src="{% url_for_static "/base/javascript/modules/resource-upload-field.js" %}"></script>
 {% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
+  <li><a href="{% url_for controller='package', action='read', id=pkg_dict.name %}" title="{{ pkg_dict.name }}">{{ pkg_dict.name|truncate(35) }}</a></li>
+  <li class="active"><a href="">Add resource</a></li>
+{% endblock %}

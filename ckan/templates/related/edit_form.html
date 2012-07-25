@@ -7,3 +7,9 @@
     {{ _('Create') }}
   {% endif %}
 {% endblock %}
+
+{% block delete_button %}
+  {% if data.id %}
+  {{ super() }}
+  {% endif %}
+{% endblock %}

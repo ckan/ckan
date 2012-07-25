@@ -64,6 +64,8 @@ describe('ckan.module.ConfirmDeleteModule()', function () {
       assert.calledTwice(target);
       assert.calledWith(target, 'click', '.btn-primary', this.module._onConfirmSuccess);
       assert.calledWith(target, 'click', '.btn-cancel', this.module._onConfirmCancel);
+
+      target.restore();
     });
 
     it('should initialise the modal plugin', function () {

@@ -117,6 +117,7 @@ class HomeController(BaseController):
 
             group_type = _get_group_type(id.split('@')[0])
             context = {'model': model, 'session': model.Session,
+                       'ignore_auth': True,
                        'user': c.user or c.author,
                        'schema': _form_to_db_schema(group_type=group_type),
                        'for_view': True}

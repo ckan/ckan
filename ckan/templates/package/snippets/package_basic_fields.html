@@ -11,15 +11,16 @@
 
 {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes) }}
 
-{{ form.input('tag_string', id='field-tags', label=_('Tags'), placeholder=_('eg. economy, mental health, government'), value=data.tag_string, error=errors.tags, classes=['control-full']) }}
+{% set tag_attrs = {'data-module': 'autocomplete', 'data-module-tags': '', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?'} %}
+{{ form.input('tag_string', id='field-tags', label=_('Tags'), placeholder=_('eg. economy, mental health, government'), value=data.tag_string, error=errors.tags, classes=['control-full'], attrs=tag_attrs) }}
 
 <div class="control-group">
   {% set error = errors.license_id %}
   <label class="control-label" for="field-license">{{ _("License") }}</label>
   <div class="controls">
-    <select id="field-license" name="license_id">
-      {% for licence_desc, licence_id in licences if licence_desc  %}
-        <option value="{{ licence_id }}" {% if data.get('license_id', '') == licence_id %}selected="selected"{% endif %}>{{ licence_desc }}</option>
+    <select id="field-license" name="license_id" data-module="autocomplete">
+      {% for licence_desc, licence_id in licences|sort if licence_desc  %}
+        <option value="{{ licence_id }}" {% if data.get('license_id', 'notspecified') == licence_id %}selected="selected"{% endif %}>{{ licence_desc }}</option>
       {% endfor %}
     </select>
     {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
@@ -31,3 +32,8 @@
     </span>
   </div>
 </div>
+
+{# if we have a default group then this wants remembering #}
+{% if data.group_id %}
+  <input type="hidden" name="groups__0__id" value="{{ data.group_id }}" />
+{% endif %}

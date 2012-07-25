@@ -12,6 +12,125 @@ describe('ckan.Client()', function () {
     assert.instanceOf(target, Client);
   });
 
+  describe('.getCompletions(url, options, success, error)', function () {
+    beforeEach(function () {
+      this.fakePiped  = sinon.stub(jQuery.Deferred());
+      this.fakePiped.then.returns(this.fakePiped);
+      this.fakePiped.promise.returns(this.fakePiped);
+
+      this.fakePromise = sinon.stub(jQuery.Deferred());
+      this.fakePromise.pipe.returns(this.fakePiped);
+
+      sinon.stub(jQuery, 'ajax').returns(this.fakePromise);
+    });
+
+    afterEach(function () {
+      jQuery.ajax.restore();
+    });
+
+    it('should return a jQuery promise', function () {
+      var target = this.client.getCompletions('url');
+      assert.ok(target === this.fakePiped, 'target === this.fakePiped');
+    });
+
+    it('should make an ajax request for the url provided', function () {
+      function success() {}
+      function error() {}
+
+      var target = this.client.getCompletions('url', success, error);
+
+      assert.called(jQuery.ajax);
+      assert.calledWith(jQuery.ajax, {url: 'url'});
+
+      assert.called(this.fakePiped.then);
+      assert.calledWith(this.fakePiped.then, success, error);
+    });
+
+    it('should pipe the result through .parseCompletions()', function () {
+      var target = this.client.getCompletions('url');
+
+      assert.called(this.fakePromise.pipe);
+      assert.calledWith(this.fakePromise.pipe, this.client.parseCompletions);
+    });
+
+    it('should allow a custom format option to be provided', function () {
+      function format() {}
+
+      var target = this.client.getCompletions('url', {format: format});
+
+      assert.called(this.fakePromise.pipe);
+      assert.calledWith(this.fakePromise.pipe, format);
+    });
+
+  });
+
+  describe('.parseCompletions(data)', function () {
+    it('should return a string of tags for a ResultSet collection', function () {
+      var data = {
+        ResultSet: {
+          Result: [
+            {"Name": "1 percent"}, {"Name": "18thc"}, {"Name": "19thcentury"}
+          ]
+        }
+      };
+
+      var target = this.client.parseCompletions(data);
+
+      assert.deepEqual(target, ["1 percent", "18thc", "19thcentury"]);
+    });
+
+    it('should return a string of formats for a ResultSet collection', function () {
+      var data = {
+        ResultSet: {
+          Result: [
+            {"Format": "json"}, {"Format": "csv"}, {"Format": "text"}
+          ]
+        }
+      };
+
+      var target = this.client.parseCompletions(data);
+
+      assert.deepEqual(target, ["json", "csv", "text"]);
+    });
+
+    it('should strip out duplicates with a case insensitive comparison', function () {
+      var data = {
+        ResultSet: {
+          Result: [
+            {"Name": " Test"}, {"Name": "test"}, {"Name": "TEST"}
+          ]
+        }
+      };
+
+      var target = this.client.parseCompletions(data);
+
+      assert.deepEqual(target, ["Test"]);
+    });
+  });
+
+  describe('.parseCompletionsForPlugin(data)', function () {
+    it('should return a string of tags for a ResultSet collection', function () {
+      var data = {
+        ResultSet: {
+          Result: [
+            {"Name": "1 percent"}, {"Name": "18thc"}, {"Name": "19thcentury"}
+          ]
+        }
+      };
+
+      var target = this.client.parseCompletionsForPlugin(data);
+
+      assert.deepEqual(target, {
+        results: [
+          {id: "1 percent", text: "1 percent"},
+          {id: "18thc", text:  "18thc"},
+          {id: "19thcentury", text: "19thcentury"}
+        ]
+      });
+    });
+
+  });
+
   describe('.getStorageAuth()', function () {
     beforeEach(function () {
       this.fakePromise = sinon.mock(jQuery.Deferred());

@@ -9,7 +9,7 @@
 {% block primary_content %}
   <section class="module">
     <div class="module-content">
-      <form id="dataset-search" class="dataset-search clearfix" method="get" data-module="select-switch" data-module-button="#submit-order-by">
+      <form id="dataset-search" class="dataset-search clearfix" method="get" data-module="select-switch">
         <span class="control-group search-giant">
           <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" results="0" placeholder="{{ _('Search...') }}" />
           <button type="submit" value="{{ _('Search') }}">Submit</button>
@@ -54,7 +54,7 @@
         </div>
         {% if request.params and c.page.item_count == 0 %}
           <p class="extra">Try another search term,
-          browse the datasets below or <a href="{{ h.url_for(action='new', id=None) }}">{{ _('add your own data') }}</a>.
+          browse the datasets below or <a href="{{ h.url_for(controller='package', action='new') }}">{{ _('add your own data') }}</a>.
           </p>
         {% endif %}
       </div>

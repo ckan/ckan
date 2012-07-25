@@ -5,7 +5,8 @@ datastore_root_url: the root url of the datastore
 
 #}
 {% if resource.webstore_url %}
-  <a class="btn btn-success" href="{% url_for controller='api', action='snippet', ver=1, snippet_path='api_info.html', datastore_root_url=datastore_root_url %}">Data API</a>
+  {% set loading_text = _('Loading...') %}
+  <a class="btn btn-success" href="{% url_for controller='api', action='snippet', ver=1, snippet_path='api_info.html', datastore_root_url=datastore_root_url %}" data-module="api-info" data-loading-text="{{ loading_text }}">Data API</a>
 {% else %}
   <a class="btn disabled" rel="tooltip" title="Data API is unavailable for this resource as DataStore is disabled">Data API</a>
 {% endif %}
