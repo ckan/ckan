@@ -328,12 +328,14 @@ def nav_named_link(*args, **kwargs):
     return _nav_named_link(*args, **kwargs)
 
 def _nav_named_link(text, name, **kwargs):
+    highlight_actions = kwargs.pop('highlight_actions','').split()
+    controller = kwargs.get('controller')
     return link_to(
         text,
         url_for(name, **kwargs),
-#        class_=('active' if
-#                c.action in highlight_actions
-#                else '')
+        class_=('active' if
+                c.action in highlight_actions and c.controller == controller
+                else '')
     )
 
 def subnav_link(*args, **kwargs):
@@ -414,7 +416,9 @@ _menu_items = {
     'search' : dict(controller='package',
                     action='search',
                     highlight_actions = 'index search'),
-    'default_group': dict(name='%s_index' % default_group_type()),
+    'default_group': dict(name='%s_index' % default_group_type(),
+                          controller='group',
+                          highlight_actions='index search'),
     'about' : dict(controller='home', action='about'),
     'login' : dict(controller='user', action='login'),
     'register' : dict(controller='user', action='register'),
