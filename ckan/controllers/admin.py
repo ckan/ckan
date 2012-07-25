@@ -1,4 +1,5 @@
-from ckan.lib.base import *
+import ckan.lib.base as base
+import ckan.lib.helpers as h
 import ckan.authz
 import ckan.lib.authztool
 import ckan.model as model
@@ -8,16 +9,20 @@ roles = Role.get_all()
 role_tuples = [(x, x) for x in roles]
 
 
+c = base.c
+request = base.request
+_ = base._
+
 def get_sysadmins():
     q = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
     return [uor.user for uor in q.all() if uor.user]
 
 
-class AdminController(BaseController):
+class AdminController(base.BaseController):
     def __before__(self, action, **params):
         super(AdminController, self).__before__(action, **params)
         if not ckan.authz.Authorizer().is_sysadmin(unicode(c.user)):
-            abort(401, _('Need to be system administrator to administer'))
+            base.abort(401, _('Need to be system administrator to administer'))
         c.revision_change_state_allowed = (
             c.user and self.authorizer.is_authorized(c.user,
                                                      model.Action.CHANGE_STATE,
@@ -27,7 +32,7 @@ class AdminController(BaseController):
         #now pass the list of sysadmins
         c.sysadmins = [a.name for a in get_sysadmins()]
 
-        return render('admin/index.html')
+        return base.render('admin/index.html')
 
     def authz(self):
         def action_save_form(users_or_authz_groups):
@@ -251,7 +256,7 @@ class AdminController(BaseController):
         count = model.Session.query(model.AuthorizationGroup).count()
         c.are_any_authz_groups = bool(count)
 
-        return render('admin/authz.html')
+        return base.render('admin/authz.html')
 
     def trash(self):
         c.deleted_revisions = model.Session.query(
@@ -260,7 +265,7 @@ class AdminController(BaseController):
             model.Package).filter_by(state=model.State.DELETED)
         if not request.params or (len(request.params) == 1 and '__no_cache__'
                                   in request.params):
-            return render('admin/trash.html')
+            return base.render('admin/trash.html')
         else:
             # NB: we repeat retrieval of of revisions
             # this is obviously inefficient (but probably not *that* bad)
