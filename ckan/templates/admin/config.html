@@ -1,0 +1,24 @@
+{% extends "page.html" %}
+
+{% block title %}{{ _('Administration') }} - {{ super() }}{% endblock %}
+
+{% block breadcrumb_content %}
+{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Configuration Settings') }}</h1>
+      <form method='post' action="">
+        <select name="style">
+          {% for style in styles|sort %}
+            <option value="{{ style }}" >{{ style }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" >Update</button>
+      </form>
+    </div>
+  </article>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

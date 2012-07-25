@@ -28,6 +28,17 @@ class AdminController(base.BaseController):
                                                      model.Action.CHANGE_STATE,
                                                      model.Revision))
 
+    def config(self):
+        app_globals = base.pylons_globals().get('g')
+        style = request.POST.get('style')
+        if style:
+            style ='/base/css/%s.css' % style
+            app_globals._set_main_css(style)
+        styles = ['main', 'red', 'green', 'fuchsia']
+
+        return base.render('admin/config.html',
+                           extra_vars = {'styles': styles })
+
     def index(self):
         #now pass the list of sysadmins
         c.sysadmins = [a.name for a in get_sysadmins()]
