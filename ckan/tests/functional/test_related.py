@@ -5,6 +5,8 @@ import ckan.model as model
 import ckan.logic as logic
 import ckan.tests.functional.api.base as base
 
+from nose.tools import assert_equal, assert_raises
+
 class TestRelated:
 
     @classmethod
@@ -92,6 +94,96 @@ class TestRelated:
             assert False, "Create succeeded with missing field"
         except logic.ValidationError, e:
             assert 'type' in e.error_dict and e.error_dict['type'] == [u'Missing value']
+
+    def test_related_create_featured_as_sysadmin(self):
+        '''Sysadmin can create featured related items'''
+        usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+
+        context = {
+            'model': model,
+            'user': usr['name'],
+            'session': model.Session
+        }
+
+        data_dict = {
+            'title': 'Title',
+            'description': 'Description',
+            'type': 'visualization',
+            'url': 'http://ckan.org',
+            'image_url': 'http://ckan.org/files/2012/03/ckanlogored.png',
+            'featured': 1,
+        }
+
+        result = logic.get_action("related_create")(context, data_dict)
+
+        assert_equal(result['featured'], '1')
+
+    def test_related_create_featured_as_non_sysadmin_fails(self):
+        '''Non-sysadmin users should not be able to create featured relateds'''
+
+        context = {
+            'model': model,
+            'user': 'annafan',
+            'session': model.Session
+        }
+
+        data_dict = {
+            'title': 'Title',
+            'description': 'Description',
+            'type': 'visualization',
+            'url': 'http://ckan.org',
+            'image_url': 'http://ckan.org/files/2012/03/ckanlogored.png',
+            'featured': 1,
+        }
+
+        assert_raises(
+            logic.NotAuthorized,
+            logic.get_action('related_create'),
+            context,
+            data_dict)
+
+    def test_related_create_not_featured_as_non_sysadmin_succeeds(self):
+        '''Non-sysadmins can set featured to false'''
+
+        context = {
+            'model': model,
+            'user': 'annafan',
+            'session': model.Session
+        }
+
+        data_dict = {
+            'title': 'Title',
+            'description': 'Description',
+            'type': 'visualization',
+            'url': 'http://ckan.org',
+            'image_url': 'http://ckan.org/files/2012/03/ckanlogored.png',
+            'featured': 0,
+        }
+
+        result = logic.get_action("related_create")(context, data_dict)
+
+        assert_equal(result['featured'], '0')
+
+    def test_related_create_featured_empty_as_non_sysadmin_succeeds(self):
+        '''Non-sysadmins can leave featured empty.'''
+
+        context = {
+            'model': model,
+            'user': 'annafan',
+            'session': model.Session
+        }
+
+        data_dict = {
+            'title': 'Title',
+            'description': 'Description',
+            'type': 'visualization',
+            'url': 'http://ckan.org',
+            'image_url': 'http://ckan.org/files/2012/03/ckanlogored.png',
+        }
+
+        result = logic.get_action("related_create")(context, data_dict)
+
+        assert_equal(result['featured'], 0)
 
     def test_related_delete(self):
         rel = self._related_create("Title", "Description",
