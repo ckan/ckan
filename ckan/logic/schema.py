@@ -272,7 +272,7 @@ def default_related_schema():
         'url': [ignore_missing, unicode, url_validator],
         'owner_id': [not_empty, unicode],
         'created': [ignore],
-        'featured': [ignore_missing, unicode],
+        'featured': [ignore_missing, int],
     }
     return schema
 

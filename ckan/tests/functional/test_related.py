@@ -116,7 +116,7 @@ class TestRelated:
 
         result = logic.get_action("related_create")(context, data_dict)
 
-        assert_equal(result['featured'], '1')
+        assert_equal(result['featured'], 1)
 
     def test_related_create_featured_as_non_sysadmin_fails(self):
         '''Non-sysadmin users should not be able to create featured relateds'''
@@ -162,7 +162,7 @@ class TestRelated:
 
         result = logic.get_action("related_create")(context, data_dict)
 
-        assert_equal(result['featured'], '0')
+        assert_equal(result['featured'], 0)
 
     def test_related_create_featured_empty_as_non_sysadmin_succeeds(self):
         '''Non-sysadmins can leave featured empty.'''
