@@ -158,6 +158,7 @@ def create(context, data_dict):
         else:
             alter_table(context, data_dict)
         insert_data(context, data_dict)
+        trans.commit()
         return data_dict
     except:
         trans.rollback()
