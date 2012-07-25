@@ -928,6 +928,7 @@ __allowed_functions__ = [
            'dashboard_activity_stream',
            'get_request_param',
            'render_markdown',
+           # imported into ckan.lib.helpers
            'literal',
            'link_to',
            'get_available_locales',
