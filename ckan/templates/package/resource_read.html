@@ -32,7 +32,6 @@
     </li>
   {% endif %}
 
-  {% snippet 'package/snippets/data_api_button.html', resource=res, datastore_root_url=c.datastore_api %}
   {% if config.get('ckan.datastore.enabled', False) %}
     {% snippet 'package/snippets/data_api_button.html', resource=res, datastore_root_url=c.datastore_api %}
   {% endif %}
