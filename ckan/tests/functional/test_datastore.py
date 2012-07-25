@@ -11,7 +11,7 @@ import ckan.model as model
 from ckan.lib.helpers import url_for
 
 
-ELASTIC_SEARCH_HOST = config.get('elastic_search_host', '0.0.0.0: 9200')
+ELASTIC_SEARCH_HOST = config.get('elastic_search_host', '0.0.0.0:9200')
 
 
 class MockResponse(object):
@@ -24,7 +24,7 @@ class MockResponse(object):
 
     def __init__(self, res):
         '''
-            : param res: a response object returned by the paster test app
+            :param res: a response object returned by the paster test app
         '''
         self.status_code = res.status
         self.content = res.body
@@ -43,7 +43,7 @@ class MockProxyServer(object):
 
     def __init__(self, app):
         '''
-            : param app: a paster test application
+            :param app: a paster test application
         '''
 
         self.elastic_search_host = ELASTIC_SEARCH_HOST
@@ -52,7 +52,7 @@ class MockProxyServer(object):
 
     def _get_elastic_search_offset(self, res):
         '''
-            : param res: a response object returned by the paster test app
+            :param res: a response object returned by the paster test app
         '''
 
         redirect = dict(res.headers).get('X-Accel-Redirect')
@@ -62,8 +62,8 @@ class MockProxyServer(object):
 
     def _forward_request(self, res, data=None):
         '''
-            : param res: a response object returned by the paster test app
-            : param data: a dictionary of data to be sent to ES. Will produce
+            :param res: a response object returned by the paster test app
+            :param data: a dictionary of data to be sent to ES. Will produce
                 a POST request
         '''
 
@@ -82,25 +82,25 @@ class MockProxyServer(object):
 
         return res
 
-    def get(self, offset, ckan_status=200):
+    def get(self, offset, ckan_status=200, extra_environ=None):
         '''
-            : param offset: CKAN route to request
-            : param ckan_status: expected status to be returned, will throw an
+            :param offset: CKAN route to request
+            :param ckan_status: expected status to be returned, will throw an
                 exception if different from the actually returned
         '''
 
-        res = self.app.get(offset, status=ckan_status)
+        res = self.app.get(offset, status=ckan_status, extra_environ=extra_environ)
         return self._forward_request(res)
 
-    def post(self, offset, data=None, ckan_status=200):
+    def post(self, offset, data=None, ckan_status=200, extra_environ=None):
         '''
-            : param offset: CKAN route to request
-            : param data: a dictionary of data to be sent to ES.
-            : param ckan_status: expected status to be returned, will throw an
+            :param offset: CKAN route to request
+            :param data: a dictionary of data to be sent to ES.
+            :param ckan_status: expected status to be returned, will throw an
                 exception if different from the actually returned
         '''
 
-        res = self.app.post(offset, params=data, status=ckan_status)
+        res = self.app.post(offset, params=data, status=ckan_status, extra_environ=extra_environ)
         return self._forward_request(res, data)
 
 
@@ -181,7 +181,12 @@ class TestDatastoreController(TestController):
 
         # Push some stuff via the data API
         data = {'a': 1, 'b': 2.78, 'c': 'test'}
-        res = mock_server.post(offset_write + '/1', data)
+
+        # Non logged users can not push the datastore
+        res = mock_server.post(offset_write + '/1', data, ckan_status=302)
+
+        extra_environ = {'REMOTE_USER':'annafan'}
+        res = mock_server.post(offset_write + '/1', data, extra_environ=extra_environ)
 
         content = json.loads(res.content)
         assert content['ok'] == True
