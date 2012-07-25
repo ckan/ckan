@@ -41,7 +41,7 @@
       {% block title %}My Subtitle - {{ super() }}{% endblock %}
 
     #}
-    <title>{% block title %}CKAN{% endblock %}</title>
+    <title>{% block title %}{{ g.site_title }}{% endblock %}</title>
 
     {#
     The html5shim allows you to modify/override the html5 shim. This is useful

@@ -35,6 +35,9 @@ class AdminController(base.BaseController):
         if style:
             style ='/base/css/%s.css' % style
             app_globals.set_main_css(style)
+        site_title = data.get('title')
+        if site_title:
+            app_globals.set_global('site_title', site_title)
         styles = ['main', 'red', 'green', 'fuchsia']
         data = {}
         vars = {'data': data, 'errors': {}, 'styles': styles}

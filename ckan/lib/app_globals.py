@@ -22,6 +22,9 @@ class Globals(object):
         self.main_css = str(new_css)
         print 'using css file %s' % self.main_css
 
+    def set_global(self, key, value):
+        setattr(self, key, value)
+
     def __init__(self):
         """One instance of Globals is created during application
         initialization and is available during requests via the
