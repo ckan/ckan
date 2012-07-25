@@ -501,34 +501,6 @@ def unselected_facet_items(facet, limit=10):
     else:
         return facets
 
-@deprecated()
-def facet_items(*args, **kwargs):
-    """
-    DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
-    """
-    _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
-    # facet_items() used to need c passing as the first arg
-    # this is deprecated as pointless
-    # throws error if ckan.restrict_template_vars is True
-    # When we move to strict helpers then this should be removed as a wrapper
-    if len(args) > 2 or (len(args) > 0 and 'name' in kwargs) or (len(args) > 1 and 'limit' in kwargs):
-        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
-            return _facet_items(*args[1:], **kwargs)
-        raise Exception('facet_items() calling has been changed. remove c in template %s or included one' % _get_template_name())
-    return _facet_items(*args, **kwargs)
-
-
-def _facet_items(name, limit=10):
-    if not c.facets or not c.facets.get(name):
-        return []
-    facets = []
-    for k, v in c.facets.get(name).items():
-        if not len(k.strip()):
-            continue
-        if not (name, k) in request.params.items():
-            facets.append((k, v))
-    return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
-
 def facet_title(name):
     # FIXME this looks like an i18n issue
     return config.get('search.facets.%s.title' % name, name.capitalize())
@@ -1212,6 +1184,19 @@ def get_pkg_dict_extra(pkg_dict, key, default=None):
 
     return default
 
+def get_request_param(parameter_name, default=None):
+    ''' This function allows templates to access query string parameters
+    from the request. This is useful for things like sort order in
+    searches. '''
+    return request.params.get(parameter_name, default)
+
+def render_markdown(data):
+    ''' returns the data as rendered markdown '''
+    # cope with data == None
+    if not data:
+        return ''
+    return literal(ckan.misc.MarkdownFormat().to_html(data))
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -1231,7 +1216,6 @@ __allowed_functions__ = [
            'subnav_link',
            'subnav_named_route',
            'default_group_type',
-           'facet_items',
            'facet_title',
          #  am_authorized, # deprecated
            'check_access',
@@ -1286,6 +1270,8 @@ __allowed_functions__ = [
            'escape_js',
            'get_pkg_dict_extra',
     # imported into ckan.lib.helpers
+           'get_request_param',
+           'render_markdown',
            'literal',
            'link_to',
            'get_available_locales',

@@ -7,6 +7,7 @@ from ckan.lib.base import BaseController, c, model, request, render, h, g
 from ckan.lib.base import ValidationException, abort, gettext
 from pylons.i18n import get_lang, _
 from ckan.lib.helpers import Page
+import ckan.lib.maintain as maintain
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
@@ -201,7 +202,12 @@ class GroupController(BaseController):
                 item_count=query['count'],
                 items_per_page=limit
             )
+
             c.facets = query['facets']
+            maintain.deprecate_context_item(
+              'facets',
+              'Use `c.search_facets` instead.')
+
             c.search_facets = query['search_facets']
             c.facet_titles = {'groups': _('Groups'),
                               'tags': _('Tags'),
@@ -249,7 +255,7 @@ class GroupController(BaseController):
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'new'}
 
-        self._setup_template_variables(context, data)
+        self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type=group_type),
                         extra_vars=vars)
         return render(self._new_template(group_type))

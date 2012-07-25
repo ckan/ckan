@@ -1675,7 +1675,6 @@ CKAN.DataPreview = function ($, my) {
     // that if we got here (i.e. preview shown) worth doing
     // something ...)
     resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
-
     resourceData.url  = my.normalizeUrl(resourceData.url);
     if (resourceData.formatNormalized === '') {
       var tmp = resourceData.url.split('/');
@@ -1702,7 +1701,7 @@ CKAN.DataPreview = function ($, my) {
         });
 
     }
-    else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
+    else if (resourceData.formatNormalized in {'csv': '', 'xls': '', 'tsv':''}) {
       // set format as this is used by Recline in setting format for DataProxy
       resourceData.format = resourceData.formatNormalized;
       var dataset = new recline.Model.Dataset(resourceData, 'dataproxy');

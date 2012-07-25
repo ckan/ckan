@@ -15,6 +15,7 @@ from ckan.lib.base import (request,
                            model,
                            abort, h, g, c)
 from ckan.lib.base import response, redirect, gettext
+import ckan.lib.maintain as maintain
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.lib.helpers import json
@@ -93,6 +94,13 @@ class PackageController(BaseController):
             Guess the type of package from the URL handling the case
             where there is a prefix on the URL (such as /data/package)
         """
+
+        # Special case: if the rot URL '/' has been redirected to the package
+        # controller (e.g. by an IRoutes extension) then there's nothing to do
+        # here.
+        if request.path == '/':
+            return 'dataset'
+
         parts = [x for x in request.path.split('/') if x]
 
         idx = -1
@@ -238,6 +246,9 @@ class PackageController(BaseController):
                           'res_format': _('Formats'),
                           'license': _('Licence'), }
 
+        maintain.deprecate_context_item(
+          'facets',
+          'Use `c.search_facets` instead.')
         return render(self._search_template(package_type))
 
     def _content_type_from_extension(self, ext):
@@ -898,7 +909,11 @@ class PackageController(BaseController):
         except DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
-            abort(500, _(u'Unable to add package to search index.'))
+            try:
+                exc_str = unicode(repr(e.args))
+            except Exception:  # We don't like bare excepts
+                exc_str = unicode(str(e))
+            abort(500, _(u'Unable to add package to search index.') + exc_str)
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -946,7 +961,11 @@ class PackageController(BaseController):
         except DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
-            abort(500, _(u'Unable to update search index.'))
+            try:
+                exc_str = unicode(repr(e.args))
+            except Exception:  # We don't like bare excepts
+                exc_str = unicode(str(e))
+            abort(500, _(u'Unable to update search index.') + exc_str)
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
