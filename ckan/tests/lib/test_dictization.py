@@ -175,7 +175,7 @@ class TestBasicDictize:
 
         ## resource
 
-        resource = pkg.resource_groups[0].resources[0]
+        resource = pkg.resource_groups_all[0].resources_all[0]
 
         result = resource_dictize(resource, context)
         self.remove_changable_columns(result)
@@ -375,7 +375,7 @@ class TestBasicDictize:
 
         package_dictized = package_dictize(pkg, context)
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups[0].id).all()
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
 
         sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
         for res in sorted_resources:
@@ -426,7 +426,7 @@ class TestBasicDictize:
         assert str(sorted_packages[1].expired_timestamp) != '9999-12-31 00:00:00'
         assert str(sorted_packages[2].expired_timestamp) != '9999-12-31 00:00:00'
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups[0].id).all()
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
         sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
 
         for pkg in sorted_resources:
@@ -507,7 +507,7 @@ class TestBasicDictize:
         model.Session.commit()
         model.Session.remove()
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups[0].id).all()
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
 
         sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
         pprint(anna_dictized['resources'])
@@ -593,7 +593,7 @@ class TestBasicDictize:
         assert sorted_packages[2].state == 'active'
         assert sorted_packages[3].state == 'active'
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups[0].id).all()
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
         sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
 
         assert len(sorted_resources) == 5

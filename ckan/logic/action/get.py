@@ -202,14 +202,34 @@ def related_list(context, data_dict=None):
     if not dataset:
         dataset = model.Package.get(data_dict.get('id'))
 
-    if not dataset:
-        raise NotFound
-
     _check_access('related_show',context, data_dict)
 
-    relateds = model.Related.get_for_dataset(dataset, status='active')
-    related_items = (r.related for r in relateds)
-    related_list = model_dictize.related_list_dictize( related_items, context)
+    related_list = []
+    if not dataset:
+        related_list = model.Session.query(model.Related)
+
+        filter_on_type = data_dict.get('type_filter', None)
+        if filter_on_type:
+            related_list = related_list.filter(model.Related.type == filter_on_type)
+
+        sort = data_dict.get('sort', None)
+        if sort:
+            sortables = {
+                'view_count_asc' : model.Related.view_count.asc,
+                'view_count_desc': model.Related.view_count.desc,
+                'created_asc' : model.Related.created.asc,
+                'created_desc': model.Related.created.desc,
+            }
+            s = sortables.get(sort, None)
+            if s:
+                related_list = related_list.order_by( s() )
+
+        if data_dict.get('featured', False):
+            related_list = related_list.filter(model.Related.featured == 1)
+    else:
+        relateds = model.Related.get_for_dataset(dataset, status='active')
+        related_items = (r.related for r in relateds)
+        related_list = model_dictize.related_list_dictize( related_items, context)
     return related_list
 
 
@@ -266,8 +286,12 @@ def group_list(context, data_dict):
     '''Return a list of the names of the site's groups.
 
     :param order_by: the field to sort the list by, must be ``'name'`` or
-      ``'packages'`` (optional, default: ``'name'``)
+      ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
+    :param sort: sorting of the search results.  Optional.  Default:
+        "name asc" string of field name and sort-order. The allowed fields are
+        'name' and 'packages'
+    :type sort: string
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
     :type groups: list of strings
@@ -278,14 +302,30 @@ def group_list(context, data_dict):
     :rtype: list of strings
 
     '''
+
     model = context['model']
     api = context.get('api_version')
     groups = data_dict.get('groups')
     ref_group_by = 'id' if api == 2 else 'name';
-    order_by = data_dict.get('order_by', 'name')
-    if order_by not in set(('name', 'packages')):
-        raise logic.ParameterError('"order_by" value %r not implemented.' % order_by)
-    all_fields = data_dict.get('all_fields',None)
+
+    sort = data_dict.get('sort', 'name')
+    # order_by deprecated in ckan 1.8
+    # if it is supplied and sort isn't use order_by and raise a warning
+    order_by = data_dict.get('order_by')
+    if order_by:
+        log.warn('`order_by` deprecated please use `sort`')
+        if not data_dict.get('sort'):
+            sort = order_by
+    # if the sort is packages and no sort direction is supplied we want to do a
+    # reverse sort to maintain compatibility.
+    if sort.strip() == 'packages':
+        sort = 'packages desc'
+
+    sort_info = _unpick_search(sort,
+                               allowed_fields=['name', 'packages'],
+                               total=1)
+
+    all_fields = data_dict.get('all_fields', None)
 
     _check_access('group_list', context, data_dict)
 
@@ -295,16 +335,10 @@ def group_list(context, data_dict):
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
 
-    if order_by == 'name':
-        sort_by, reverse = 'name', False
-
     groups = query.all()
-
-    if order_by == 'packages':
-        sort_by, reverse = 'packages', True
-
     group_list = model_dictize.group_list_dictize(groups, context,
-                                    lambda x:x[sort_by], reverse)
+                                                  lambda x:x[sort_info[0][0]],
+                                                  sort_info[0][1] == 'desc')
 
     if not all_fields:
         group_list = [group[ref_group_by] for group in group_list]
@@ -1009,7 +1043,7 @@ def package_search(context, data_dict):
         returned datasets should begin.
     :type start: int
     :param qf: the dismax query fields to search within, including boosts.  See
-        the `Solr Dismax Documentation 
+        the `Solr Dismax Documentation
         <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
         for further details.
     :type qf: string
@@ -1868,6 +1902,15 @@ def _render_deleted_group_activity(context, activity):
     return _render('activity_streams/deleted_group.html',
         extra_vars = {'activity': activity})
 
+def _render_new_related_activity(context, activity):
+    return _render('activity_streams/new_related_item.html',
+        extra_vars = {'activity': activity,
+                      'type': activity['data']['related']['type']})
+
+def _render_deleted_related_activity(context, activity):
+    return _render('activity_streams/deleted_related_item.html',
+        extra_vars = {'activity': activity})
+
 def _render_follow_dataset_activity(context, activity):
     return _render('activity_streams/follow_dataset.html',
         extra_vars = {'activity': activity})
@@ -1887,6 +1930,8 @@ activity_renderers = {
   'new group' : _render_new_group_activity,
   'changed group' : _render_changed_group_activity,
   'deleted group' : _render_deleted_group_activity,
+  'new related item': _render_new_related_activity,
+  'deleted related item': _render_deleted_related_activity,
   'follow dataset': _render_follow_dataset_activity,
   'follow user': _render_follow_user_activity,
   }
@@ -2219,3 +2264,30 @@ def dashboard_activity_list_html(context, data_dict):
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
     return _activity_list_to_html(context, activity_stream)
+
+
+def _unpick_search(sort, allowed_fields=None, total=None):
+    ''' This is a helper function that takes a sort string
+    eg 'name asc, last_modified desc' and returns a list of
+    split field order eg [('name', 'asc'), ('last_modified', 'desc')]
+    allowed_fields can limit which field names are ok.
+    total controls how many sorts can be specifed '''
+    sorts = []
+    split_sort = sort.split(',')
+    for part in split_sort:
+        split_part = part.strip().split()
+        field = split_part[0]
+        if len(split_part) > 1:
+            order = split_part[1].lower()
+        else:
+            order = 'asc'
+        if allowed_fields:
+            if field not in allowed_fields:
+                raise logic.ParameterError('Cannot sort by field `%s`' % field)
+        if order not in ['asc', 'desc']:
+            raise logic.ParameterError('Invalid sort direction `%s`' % order)
+        sorts.append((field, order))
+    if total and len(sorts) > total:
+        raise logic.ParameterError(
+            'Too many sort criteria provided only %s allowed' % total)
+    return sorts
