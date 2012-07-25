@@ -124,31 +124,25 @@ class TestGroup(FunctionalTestCase):
         assert results[-1]['name'] == u'gamma', results[-1]['name']
 
         # Test name reverse
-        data_dict = {'all_fields': True, 'order_by': 'name', 'order_direction': 'desc'}
-        results = get_action('group_list')(context, data_dict)
-        assert results[0]['name'] == u'gamma', results[0]['name']
-        assert results[-1]['name'] == u'alpha', results[-1]['name']
-
-        # Test default (name) reverse
-        data_dict = {'all_fields': True, 'order_direction': 'desc'}
+        data_dict = {'all_fields': True, 'sort': 'name desc'}
         results = get_action('group_list')(context, data_dict)
         assert results[0]['name'] == u'gamma', results[0]['name']
         assert results[-1]['name'] == u'alpha', results[-1]['name']
 
         # Test packages reversed
-        data_dict = {'all_fields': True, 'order_by': 'packages', 'order_direction': 'desc'}
+        data_dict = {'all_fields': True, 'sort': 'packages desc'}
         results = get_action('group_list')(context, data_dict)
         assert results[0]['name'] == u'beta', results[0]['name']
         assert results[1]['name'] == u'delta', results[1]['name']
 
         # Test packages forward
-        data_dict = {'all_fields': True, 'order_by': 'packages', 'order_direction': 'asc'}
+        data_dict = {'all_fields': True, 'sort': 'packages asc'}
         results = get_action('group_list')(context, data_dict)
         assert results[-2]['name'] == u'delta', results[-2]['name']
         assert results[-1]['name'] == u'beta', results[-1]['name']
 
         # Default ordering for packages
-        data_dict = {'all_fields': True, 'order_by': 'packages'}
+        data_dict = {'all_fields': True, 'sort': 'packages'}
         results = get_action('group_list')(context, data_dict)
         assert results[0]['name'] == u'beta', results[0]['name']
         assert results[1]['name'] == u'delta', results[1]['name']
