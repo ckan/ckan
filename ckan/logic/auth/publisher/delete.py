@@ -32,14 +32,15 @@ def package_relationship_delete(context, data_dict):
 def related_delete(context, data_dict):
     model = context['model']
     user = context['user']
-    if not user:
+    userobj = model.User.get( user )
+
+    if not user or not userobj:
         return {'success': False, 'msg': _('Only the owner can delete a related item')}
 
     if Authorizer().is_sysadmin(unicode(user)):
         return {'success': True}
 
     related = get_related_object(context, data_dict)
-    userobj = model.User.get( user )
 
     if related.datasets:
         package = related.datasets[0]
