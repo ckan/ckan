@@ -876,8 +876,8 @@ class TestBasicDictize:
         group_dictized = group_dictize(group, context)
 
         expected = {'description': u'',
-                    'extras': [{'key': u'genre', 'state': u'active', 'value': u'horror'},
-                               {'key': u'media', 'state': u'active', 'value': u'dvd'}],
+                    'extras': [{'key': u'genre', 'state': u'active', 'value': u'"horror"'},
+                               {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
                     'tags': [{'capacity': u'public', 'display_name': u'russian', 'name': u'russian'}],
                     'groups': [{'description': u'',
                                'capacity' : 'public',
