@@ -12,6 +12,33 @@ describe('ckan.Client()', function () {
     assert.instanceOf(target, Client);
   });
 
+  it('should set the .endpoint property to options.endpoint', function () {
+    var client = new Client({endpoint: 'http://example.com'});
+    assert.equal(client.endpoint, 'http://example.com');
+  });
+
+  it('should default the endpoint to a blank string', function () {
+    assert.equal(this.client.endpoint, '');
+  });
+
+  describe('.url(path)', function () {
+    beforeEach(function () {
+      this.client.endpoint = 'http://api.example.com';
+    });
+
+    it('should return the path with the enpoint prepended', function () {
+      assert.equal(this.client.url('/api/endpoint'), 'http://api.example.com/api/endpoint');
+    });
+
+    it('should normalise preceding slashes in the path', function () {
+      assert.equal(this.client.url('api/endpoint'), 'http://api.example.com/api/endpoint');
+    });
+
+    it('should return the string if it already has a protocol', function () {
+      assert.equal(this.client.url('http://example.com/my/endpoint'), 'http://example.com/my/endpoint');
+    });
+  });
+
   describe('.getCompletions(url, options, success, error)', function () {
     beforeEach(function () {
       this.fakePiped  = sinon.stub(jQuery.Deferred());
@@ -40,7 +67,7 @@ describe('ckan.Client()', function () {
       var target = this.client.getCompletions('url', success, error);
 
       assert.called(jQuery.ajax);
-      assert.calledWith(jQuery.ajax, {url: 'url'});
+      assert.calledWith(jQuery.ajax, {url: '/url'});
 
       assert.called(this.fakePiped.then);
       assert.calledWith(this.fakePiped.then, success, error);

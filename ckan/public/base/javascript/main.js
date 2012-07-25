@@ -9,7 +9,7 @@ this.ckan = this.ckan || {};
   ckan.initialize = function () {
     var body = jQuery('body');
     var location = window.location;
-    var root = location.protocol + location.host;
+    var root = location.protocol + '//' + location.host;
 
     function getRootFromData(key) {
       return (body.data(key) || root).replace(/\/$/, '');

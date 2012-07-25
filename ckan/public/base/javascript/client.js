@@ -1,10 +1,29 @@
 (function (ckan, jQuery) {
 
-  function Client() {
+  function Client(options) {
+    this.endpoint = options && options.endpoint || '';
     jQuery.proxyAll(this, /parse/);
   }
 
   jQuery.extend(Client.prototype, {
+
+    /* Creates an API url from the path provided. If a fully qualified url
+     * is provided then this function just returns the input.
+     *
+     * path - A path to add the API domain to.
+     *
+     * Examples
+     *
+     *   client.url('/datasets'); // http://api.example.com/datasets
+     *
+     * Returns an url string.
+     */
+    url: function (path) {
+      if (!(/^https?:\/\//i).test(path)) {
+        path = this.endpoint + '/' + path.replace(/^\//, '');
+      }
+      return path;
+    },
 
     /* Retrieves a list of auto-completions from one of the various endpoints
      * and normalises the results into an array of tags.
@@ -31,7 +50,7 @@
       }
 
       var formatter = options && options.format || this.parseCompletions;
-      var request = jQuery.ajax({url: url});
+      var request = jQuery.ajax({url: this.url(url)});
 
       return request.pipe(formatter).promise(request).then(success, error);
     },
@@ -154,7 +173,7 @@
       }
 
       return jQuery.ajax({
-        url: '/api/storage/auth/form/' + key,
+        url: this.url('/api/storage/auth/form/' + key),
         success: success,
         error: error
       });
@@ -182,7 +201,7 @@
       }
 
       return jQuery.ajax({
-        url: '/api/storage/metadata/' + key,
+        url: this.url('/api/storage/metadata/' + key),
         success: success,
         error: error
       });
@@ -238,7 +257,7 @@
   });
 
   ckan.sandbox.setup(function (instance) {
-    instance.client = new Client();
+    instance.client = new Client({endpoint: ckan.API_ROOT});
   });
 
   ckan.Client = Client;
