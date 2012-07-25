@@ -309,6 +309,9 @@ class PackageController(BaseController):
         template = self._read_template( package_type )
         template = template[:template.index('.')+1] + format
 
+        if extension == 'rdf':
+            return render( template, method="xml", loader_class=loader)
+
         return render( template, loader_class=loader)
 
 
