@@ -6553,16 +6553,14 @@ li .icon-large:before {
 .site-footer:after {
   clear: both;
 }
-.site-footer a {
-  color: #ffffff;
-}
+.site-footer,
+.site-footer a,
 .site-footer label {
-  color: #ffffff;
+  color: #fff;
+  color: rgba(255, 255, 255, 0.8);
 }
 .footer-links,
 .attribution {
-  opacity: 0.8;
-  filter: alpha(opacity=80);
   float: left;
   margin-left: 20px;
   width: 460px;
@@ -6586,6 +6584,9 @@ li .icon-large:before {
   height: 21px;
   margin-top: 2px;
   background: url("../images/ckan-logo-footer.png") no-repeat top left;
+}
+.attribution .select2-drop {
+  color: #000;
 }
 .profile-info {
   *zoom: 1;
