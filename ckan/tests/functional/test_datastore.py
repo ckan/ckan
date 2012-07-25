@@ -82,17 +82,17 @@ class MockProxyServer(object):
 
         return res
 
-    def get(self, offset, ckan_status=200):
+    def get(self, offset, ckan_status=200, extra_environ=None):
         '''
             :param offset: CKAN route to request
             :param ckan_status: expected status to be returned, will throw an
                 exception if different from the actually returned
         '''
 
-        res = self.app.get(offset, status=ckan_status)
+        res = self.app.get(offset, status=ckan_status, extra_environ=extra_environ)
         return self._forward_request(res)
 
-    def post(self, offset, data=None, ckan_status=200):
+    def post(self, offset, data=None, ckan_status=200, extra_environ=None):
         '''
             :param offset: CKAN route to request
             :param data: a dictionary of data to be sent to ES.
@@ -100,7 +100,7 @@ class MockProxyServer(object):
                 exception if different from the actually returned
         '''
 
-        res = self.app.post(offset, params=data, status=ckan_status)
+        res = self.app.post(offset, params=data, status=ckan_status, extra_environ=extra_environ)
         return self._forward_request(res, data)
 
 
@@ -181,7 +181,12 @@ class TestDatastoreController(TestController):
 
         # Push some stuff via the data API
         data = {'a': 1, 'b': 2.78, 'c': 'test'}
-        res = mock_server.post(offset_write + '/1', data)
+
+        # Non logged users can not push the datastore
+        res = mock_server.post(offset_write + '/1', data, ckan_status=302)
+
+        extra_environ = {'REMOTE_USER':'annafan'}
+        res = mock_server.post(offset_write + '/1', data, extra_environ=extra_environ)
 
         content = json.loads(res.content)
         assert content['ok'] == True
