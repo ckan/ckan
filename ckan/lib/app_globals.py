@@ -10,7 +10,7 @@ class Globals(object):
 
     """
 
-    def _set_main_css(self, css_file):
+    def set_main_css(self, css_file):
         ''' Sets the main_css using debug css if needed.  The css_file
         must be of the form file.css '''
         assert css_file.endswith('.css')
@@ -56,4 +56,4 @@ class Globals(object):
         self.datasets_per_page = int(config.get('ckan.datasets_per_page', '20'))
 
         # cusom styling
-        self._set_main_css('/base/css/main.css')
+        self.set_main_css('/base/css/main.css')
