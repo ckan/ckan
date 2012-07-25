@@ -34,10 +34,13 @@ def datastore_create(context, data_dict):
 
     _check_access('datastore_create', context, data_dict)
 
-    schema = ckanext.datastore.logic.schema.default_datastore_create_schema()
-    data, errors = _validate(data_dict, schema, context)
-    if errors:
-        model.Session.rollback()
-        raise p.toolkit.ValidationError(errors)
+    # Not sure need schema as will be too dificulut to make 
+    # as records could be deeply nested..
 
-    return db.create(resource_id, fields, records)
+    #schema = ckanext.datastore.logic.schema.default_datastore_create_schema()
+    #data, errors = _validate(data_dict, schema, context)
+    #if errors:
+    #    model.Session.rollback()
+    #    raise p.toolkit.ValidationError(errors)
+
+    return db.create(context, data_dict)
