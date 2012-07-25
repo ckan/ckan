@@ -1,6 +1,6 @@
 {% extends "package/base_form_page.html" %}
 
-{% block title %}{{ _('Add data to the dataset') }} - {{ super }}{% endblock %}
+{% block title %}{{ _('Add data to the dataset') }} - {{ super() }}{% endblock %}
 
 {% block form %}{% snippet 'package/snippets/resource_form.html', data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage %}{% endblock %}
 
