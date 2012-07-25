@@ -64,7 +64,7 @@ describe('ckan.Client()', function () {
 
   });
 
-  describe('.parseCompletions(data)', function () {
+  describe('.parseCompletions(data, options)', function () {
     it('should return a string of tags for a ResultSet collection', function () {
       var data = {
         ResultSet: {
@@ -106,6 +106,34 @@ describe('ckan.Client()', function () {
 
       assert.deepEqual(target, ["Test"]);
     });
+
+    it('should return an array of objects if options.objects is true', function () {
+      var data = {
+        ResultSet: {
+          Result: [
+            {"Format": "json"}, {"Format": "csv"}, {"Format": "text"}
+          ]
+        }
+      };
+
+      var target = this.client.parseCompletions(data, {objects: true});
+
+      assert.deepEqual(target, [
+        {id: "json", text: "json"},
+        {id: "csv", text: "csv"},
+        {id: "text", text: "text"}
+      ]);
+    });
+
+    it('should call .parsePackageCompletions() id data is a string', function () {
+      var data = 'Name|id';
+      var target = sinon.stub(this.client, 'parsePackageCompletions');
+
+      this.client.parseCompletions(data, {objects: true});
+
+      assert.called(target);
+      assert.calledWith(target, data);
+    });
   });
 
   describe('.parseCompletionsForPlugin(data)', function () {
@@ -128,7 +156,26 @@ describe('ckan.Client()', function () {
         ]
       });
     });
+  });
 
+  describe('.parsePackageCompletions(string, options)', function () {
+    it('should parse the package completions string', function () {
+      var data = 'Package 1|package-1\nPackage 2|package-2\nPackage 3|package-3\n';
+      var target = this.client.parsePackageCompletions(data);
+
+      assert.deepEqual(target, ['package-1', 'package-2', 'package-3']);
+    });
+
+    it('should return an object if options.object is true', function () {
+      var data = 'Package 1|package-1\nPackage 2|package-2\nPackage 3|package-3\n';
+      var target = this.client.parsePackageCompletions(data, {objects: true});
+
+      assert.deepEqual(target, [
+        {id: 'package-1', text: 'Package 1'},
+        {id: 'package-2', text: 'Package 2'},
+        {id: 'package-3', text: 'Package 3'}
+      ]);
+    });
   });
 
   describe('.getStorageAuth()', function () {

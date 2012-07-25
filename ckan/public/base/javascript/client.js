@@ -40,7 +40,9 @@
      * the data into an array of strings. This also will remove duplicates
      * from the results (this is case insensitive).
      *
-     * data - The parsed JSON response from the server.
+     * data    - The parsed JSON response from the server.
+     * options - An object of options for the method.
+     *           objects: If true returns an object of results.
      *
      * Examples
      *
@@ -50,7 +52,13 @@
      *
      * Returns the parsed object.
      */
-    parseCompletions: function (data) {
+    parseCompletions: function (data, options) {
+      if (typeof data === 'string') {
+        // Package completions are returned as a crazy string. So we handle
+        // them separately.
+        return this.parsePackageCompletions(data, options);
+      }
+
       var map = {};
       var raw = data.ResultSet && data.ResultSet.Result || {};
 
@@ -59,10 +67,11 @@
         item = jQuery.trim(item);
 
         var lowercased = item.toLowerCase();
+        var returnObject = options && options.objects === true;
 
         if (lowercased && !map[lowercased]) {
           map[lowercased] = 1;
-          return item;
+          return returnObject ? {id: item, text: item} : item;
         }
 
         return null;
@@ -90,13 +99,29 @@
      * Returns an object of item objects.
      */
     parseCompletionsForPlugin: function (data) {
-      var items = this.parseCompletions(data);
+      return {
+        results: this.parseCompletions(data, {objects: true})
+      };
+    },
 
-      items = jQuery.map(items, function (item) {
-        return {id: item, text: item};
+    /* Parses the string returned by the package autocomplete endpoint which
+     * is a newline separated list of packages. Each package consists of
+     * a name and an id separated by a pipe (|) character.
+     *
+     * string - The string returned by the API.
+     *
+     * Returns an array of parsed packages.
+     */
+    parsePackageCompletions: function (string, options) {
+      var packages = jQuery.trim(string).split('\n');
+      var parsed = [];
+
+      return jQuery.map(packages, function (pkg) {
+        var parts = pkg.split('|');
+        var id    = jQuery.trim(parts.pop() || '');
+        var text  = jQuery.trim(parts.join('|') || '');
+        return options && options.objects === true ? {id: id, text: text} : id;
       });
-
-      return {results: items};
     },
 
     /* Requests config options for a file upload.

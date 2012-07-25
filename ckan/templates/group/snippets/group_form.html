@@ -65,7 +65,8 @@
     {% endif %}
 
     {% set dataset_name = 'packages__%s__name' % data.packages|length %}
-    {{ form.input(dataset_name, label=_('Add Dataset'), id="field-dataset", value=data[dataset_name]) }}
+    {% set dataset_attrs = {'data-module': 'autocomplete', 'data-module-source': '/dataset/autocomplete?q=?'} %}
+    {{ form.input(dataset_name, label=_('Add Dataset'), id="field-dataset", value=data[dataset_name], classes=['control-medium'], attrs=dataset_attrs) }}
   {% endblock %}
 
   <div class="form-actions">
