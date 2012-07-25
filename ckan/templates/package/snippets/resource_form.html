@@ -18,7 +18,7 @@
 
   <div class="control-group dataset-form-resource-types">
     {% block basic_fields %}
-      <div class="controls" data-module="resource-upload-field">
+      <div class="controls"{% if allow_upload %} data-module="resource-upload-field"{% endif %}>
         {#
         This block uses a slightly odd pattern. Unlike the rest of the radio
         buttons which are wrapped _inside_ the labels here we place the label
