@@ -96,32 +96,35 @@ def create_table(context, data_dict):
     'Create table from combination of fields and first row of data.'
     check_fields(context, data_dict.get('fields'))
 
-    create_string = 'create table "{0}" ('.format(data_dict['resource_id'])
-
-    # add datastore fields: _id and _full_text
-    create_string += '_id serial primary key, '
-    create_string += '_full_text tsvector, '
-
-    # add fields
-    for field in data_dict.get('fields'):
-        create_string += '"{0}" {1}, '.format(field['id'], field['type'])
+    datastore_fields = [
+        {'id': '_id', 'type': 'serial primary key'},
+        {'id': '_full_text', 'type': 'tsvector'},
+    ]
 
     # check first row of data for additional fields
+    extra_fields = []
     field_ids = [field['id'] for field in data_dict.get('fields', [])]
     records = data_dict.get('records')
+
     if records:
         extra_field_ids = records[0].keys()
         for field_id in extra_field_ids:
             if not field_id in field_ids:
-                field_type = _guess_type(records[0][field_id])
-                create_string += '"{0}" {1}, '.format(field_id, field_type)
+                extra_fields.append({
+                    'id': field_id,
+                    'type': _guess_type(records[0][field_id])
+                })
 
-    # remove last 2 characters (a comma and a space)
-    # and close the create table statement
-    create_string = create_string[0:len(create_string) - 2]
-    create_string += ');'
+    fields = datastore_fields + data_dict.get('fields', []) + extra_fields
+    sql_fields = ", ".join(['"{0}" {1}'.format(f['id'], f['type'])
+                            for f in fields])
 
-    context['connection'].execute(create_string)
+    sql_string = 'create table "{0}" ({1});'.format(
+        data_dict['resource_id'],
+        sql_fields
+    )
+
+    context['connection'].execute(sql_string)
 
 
 def alter_table(context, data_dict):
