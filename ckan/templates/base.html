@@ -80,12 +80,12 @@
 
     {# defined in the config.ini under "ckan.template_head_end" #}
     {% block head_extras %}
-      {{ config.get('ckan.template_head_end') | safe }}
+      {{ config.get('ckan.template_head_end', '') | safe }}
     {% endblock %}
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
-  <body{% block bodytag %} data-site-root="{{ h.url('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url('/', qualified=true) }}" data-api-root="{{ config.get('ckan.api_url') }}"{% endblock %}>
+  <body{% block bodytag %} data-site-root="{{ h.url('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url('/', qualified=true) }}" data-api-root="{{ config.get('ckan.api_url', '') }}"{% endblock %}>
 
     {#
     The page block allows you to add content to the page. Most of the time it is
@@ -116,8 +116,8 @@
     {% endblock -%}
 
     {# defined in the config.ini under "ckan.template_footer_end" #}
-    {% block body_extras %}
-      {{ config.get('ckan.template_footer_end') | safe }}
-    {% endblock %}
+    {% block body_extras -%}
+      {{ config.get('ckan.template_footer_end', '') | safe }}
+    {%- endblock %}
   </body>
 </html>
