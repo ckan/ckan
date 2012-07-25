@@ -64,6 +64,20 @@ def _guess_type(field):
         return 'text'
 
 
+def _get_fields(context, data_dict):
+    fields = []
+    all_fields = context['connection'].execute(
+        'select * from "{0}" limit 1'.format(data_dict['resource_id'])
+    )
+    for field in all_fields.cursor.description:
+        if not field[0].startswith('_'):
+            fields.append({
+                'name': field[0],
+                'type': _get_type(context, field[1])
+            })
+    return fields
+
+
 def check_fields(context, fields):
     'Check if field types are valid.'
     _cache_types(context)
@@ -117,7 +131,47 @@ def alter_table(context, data_dict):
 
 def insert_data(context, data_dict):
     '''insert all data from records'''
-    pass
+    if not data_dict.get('records'):
+        return
+
+    fields = _get_fields(context, data_dict)
+    insert_string = ''
+
+    for record in data_dict['records']:
+        # check that number of record values is correct
+        # TODO: is this necessary?
+        if not len(record.keys()) == len(fields):
+            error_msg = 'Field count ({0}) does not match table ({1})'.format(
+                len(record.keys()), len(fields)
+            )
+            raise p.toolkit.ValidationError({
+                'records': error_msg
+            })
+
+        insert_string += 'insert into "{0}" ('.format(data_dict['resource_id'])
+
+        for field in fields:
+            insert_string += '"{0}", '.format(field['name'])
+        insert_string = insert_string[0:len(insert_string) - 2]
+        insert_string += ') '
+
+        insert_string += 'values ('
+
+        for field in fields:
+            if not field['name'] in record:
+                raise p.toolkit.ValidationError({
+                    'records': 'Field {0} not found'.format(field['name'])
+                })
+
+            if field['type'] == 'text':
+                insert_string += "'{0}', ".format(record[field['name']])
+            else:
+                insert_string += '{0}, '.format(record[field['name']])
+
+        insert_string = insert_string[0:len(insert_string) - 2]
+        insert_string += ');'
+
+    context['connection'].execute(insert_string)
 
 
 def create(context, data_dict):

@@ -78,6 +78,23 @@ class TestDatastore(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
+    def test_create_invalid_record_field(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
+                        {'book': 'warandpeace', 'published': '1869'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is False
+
     def test_create_basic(self):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
@@ -97,3 +114,11 @@ class TestDatastore(tests.WsgiAppCase):
         assert res_dict['result']['resource_id'] == data['resource_id']
         assert res_dict['result']['fields'] == data['fields']
         assert res_dict['result']['records'] == data['records']
+
+        c = model.Session.connection()
+        results = c.execute('select * from "{0}"'.format(resource.id))
+
+        assert results.rowcount == 2
+        for i, row in enumerate(results):
+            assert data['records'][i]['book'] == row['book']
+            assert data['records'][i]['author'] == row['author']
