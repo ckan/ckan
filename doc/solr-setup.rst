@@ -1,3 +1,5 @@
+.. _setting up solr:
+
 ===============
 Setting up Solr
 ===============
