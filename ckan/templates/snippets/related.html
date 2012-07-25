@@ -14,7 +14,7 @@
     {% else %}
       <p>No apps, ideas, news stories or images have been
       related to this dataset yet, why not add one now?</p>
-      <p class="action"><a class="btn" href="{{ h.url_for(controller='related', action='new', id=pkg_name) }}">Add Item</a></p>
+      <p class="action">{% link_for _('Add Item'), controller='related', action='new', id=pkg_name, icon='plus', class_='btn' %}</p>
     {% endif %}
   </div>
 </section>
