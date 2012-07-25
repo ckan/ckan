@@ -56,7 +56,9 @@
     such as rss feeds and favicons in the same way as the meta block.
     #}
     {% block links -%}
-      <link rel="shortcut icon" href="{% url_for_static '/base/images/ckan.ico' %}" />
+    {%- with favicon = config.get('ckan.favicon') or h.url_for_static('/base/images/ckan.ico') -%}
+      <link rel="shortcut icon" href="{{ favicon }}" />
+    {% endwith -%}
     {% endblock -%}
 
     {#
@@ -83,7 +85,7 @@
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
-  <body{% block bodytag %} data-site-root="{{ h.url('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url('/', qualified=true) }}"{% endblock %}>
+  <body{% block bodytag %} data-site-root="{{ h.url('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url('/', qualified=true) }}" data-api-root="{{ config.get('ckan.api_url') }}"{% endblock %}>
 
     {#
     The page block allows you to add content to the page. Most of the time it is

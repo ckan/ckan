@@ -8,12 +8,16 @@ this.ckan = this.ckan || {};
 
   ckan.initialize = function () {
     var body = jQuery('body');
-    var trailingSlash = /\/$/;
     var location = window.location;
     var root = location.protocol + location.host;
 
-    this.SITE_ROOT   = (body.data('siteRoot') || root).replace(trailingSlash, '');
-    this.LOCALE_ROOT = (body.data('localeRoot') || root).replace(trailingSlash, '');
+    function getRootFromData(key) {
+      return (body.data(key) || root).replace(/\/$/, '');
+    }
+
+    this.SITE_ROOT   = getRootFromData('siteRoot');
+    this.LOCALE_ROOT = getRootFromData('localeRoot');
+    this.API_ROOT    = getRootFromData('apiRoot');
 
     this.module.initialize();
   };
