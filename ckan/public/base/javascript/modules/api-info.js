@@ -10,6 +10,10 @@
  */
 this.ckan.module('api-info', function (jQuery, _) {
   return {
+
+    /* holds the loaded lightbox */
+    modal: null,
+
     options: {
       template: null,
       i18n: {
@@ -17,15 +21,42 @@ this.ckan.module('api-info', function (jQuery, _) {
         loadError: _('Failed to load data API information').fetch()
       }
     },
+
+    /* Sets up the API info module.
+     *
+     * Returns nothing.
+     */
     initialize: function () {
       jQuery.proxyAll(this, /_on/);
 
       this.el.on('click', this._onClick);
       this.el.button();
     },
+
+    /* Displays a loading message in the button. If false is provided as an
+     * argument the message is reset.
+     *
+     * loading - Resets the message if false.
+     *
+     * Examples
+     *
+     *   module.loading();      // Show
+     *   module.loading(false); // Hide
+     *
+     * Returns nothing.
+     */
     loading: function (loading) {
       this.el.button(loading !== false ? 'loading' : 'reset');
     },
+
+    /* Displays the API info box.
+     *
+     * Examples
+     *
+     *   module.show()
+     *
+     * Returns nothing.
+     */
     show: function () {
       var sandbox = this.sandbox,
           module = this;
@@ -40,11 +71,30 @@ this.ckan.module('api-info', function (jQuery, _) {
         module.modal.modal().appendTo(sandbox.body);
       });
     },
+
+    /* Hides the modal.
+     *
+     * Examples
+     *
+     *   module.hide();
+     *
+     * Returns nothing.
+     */
     hide: function () {
       if (this.modal) {
         this.modal.modal('hide');
       }
     },
+
+    /* Loads the template and returns a promise that on complete will
+     * receive the html content for the modal.
+     *
+     * Examples
+     *
+     *   module.loadTemplate().then(onSuccess, onError);
+     *
+     * Returns a promise instance.
+     */
     loadTemplate: function () {
       if (!this.options.template) {
         this.sandbox.notify(this.options.i18n.noTemplate);
@@ -60,13 +110,19 @@ this.ckan.module('api-info', function (jQuery, _) {
       }
       return this.promise;
     },
+
+    /* Event handler for clicking on the element */
     _onClick: function (event) {
       event.preventDefault();
       this.show();
     },
+
+    /* Success handler for when the template is loaded */
     _onTemplateSuccess: function () {
       this.loading(false);
     },
+
+    /* error handler when the template fails to load */
     _onTemplateError: function () {
       this.loading(false);
       this.sandbox.notify(this.options.i18n.loadError);
