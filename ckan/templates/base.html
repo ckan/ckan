@@ -75,6 +75,11 @@
       <!--[if IE 7]> <link rel="stylesheet" href="{% url_for_static '/base/vendor/font-awesome/css/font-awesome-ie7.css' %}" /> <![endif]-->
       <link rel="stylesheet" href="{% url_for_static ('/base/css/main.debug.css' if config.debug else '/base/css/main.css') %}" />
     {% endblock %}
+
+    {# defined in the config.ini under "ckan.template_head_end" #}
+    {% block head_extras %}
+      {{ config.get('ckan.template_head_end') | safe }}
+    {% endblock %}
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
@@ -107,5 +112,10 @@
     #}
     {%- block scripts %}
     {% endblock -%}
+
+    {# defined in the config.ini under "ckan.template_footer_end" #}
+    {% block body_extras %}
+      {{ config.get('ckan.template_footer_end') | safe }}
+    {% endblock %}
   </body>
 </html>
