@@ -294,26 +294,33 @@ def _nav_link(text, controller, **kwargs):
     icon: name of ckan icon to use within the link
     condition: if False then no link is returned
     '''
+    kwargs['controller'] = controller
     if kwargs.get('inner_span'):
         text = literal('<span>') + text + literal('</span>')
-    highlight_actions = kwargs.pop("highlight_actions",
-                                   kwargs["action"]).split()
     icon = kwargs.pop('icon', None)
     if icon:
         text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-    active =(' active' if
-            c.controller == controller and c.action in highlight_actions
-            else '')
-    class_ = kwargs.pop('class_', '') + active
+    class_ = _link_class(kwargs)
     if kwargs.pop('condition', True):
         link = link_to(
             text,
-            url_for(controller=controller, **kwargs),
+            url_for(**kwargs),
             class_=class_
         )
     else:
         link = ''
     return link
+
+def _link_class(kwargs):
+    ''' creates classes for the link_to calls '''
+    highlight_actions = kwargs.pop('highlight_actions',
+                                   kwargs.get('action')).split()
+    if (c.controller == kwargs.get('controller')
+                and c.action in highlight_actions):
+        active = ' active'
+    else:
+        active = ''
+    return kwargs.pop('class_', '') + active
 
 def nav_named_link(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
@@ -328,14 +335,11 @@ def nav_named_link(*args, **kwargs):
     return _nav_named_link(*args, **kwargs)
 
 def _nav_named_link(text, name, **kwargs):
-    highlight_actions = kwargs.pop('highlight_actions','').split()
-    controller = kwargs.get('controller')
+    class_ = _link_class(kwargs)
     return link_to(
         text,
         url_for(name, **kwargs),
-        class_=('active' if
-                c.action in highlight_actions and c.controller == controller
-                else '')
+        class_=class_
     )
 
 def subnav_link(*args, **kwargs):
@@ -350,10 +354,12 @@ def subnav_link(*args, **kwargs):
     return _subnav_link(*args, **kwargs)
 
 def _subnav_link(text, action, **kwargs):
+    kwargs['action'] = action
+    class_ = _link_class(kwargs)
     return link_to(
         text,
         url_for(action=action, **kwargs),
-        class_=('active' if c.action == action else '')
+        class_=class_
     )
 
 def subnav_named_route(*args, **kwargs):
@@ -370,10 +376,13 @@ def subnav_named_route(*args, **kwargs):
 
 def _subnav_named_route(text, routename, **kwargs):
     """ Generate a subnav element based on a named route """
+    # FIXME this is the same as _nav_named_link
+    # they should be combined
+    class_ = _link_class(kwargs)
     return link_to(
         text,
         url_for(str(routename), **kwargs),
-        class_=('active' if c.action == kwargs['action'] else '')
+        class_=class_
     )
 
 def build_nav_main(*args):
