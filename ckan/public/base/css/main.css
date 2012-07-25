@@ -4730,7 +4730,8 @@ ul.icons li .icon-large:before {
   line-height: 1.3em;
   margin: 5px 0;
 }
-.media-image {
+.media-image,
+.media .gravatar {
   position: relative;
   float: left;
   margin-right: 10px;
