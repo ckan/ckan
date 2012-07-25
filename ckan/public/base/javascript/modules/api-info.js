@@ -11,7 +11,11 @@
 this.ckan.module('api-info', function (jQuery, _) {
   return {
     options: {
-      template: null
+      template: null,
+      i18n: {
+        noTemplate: _('There is no API data to load for this resource').fetch(),
+        loadError: _('Failed to load data API information').fetch()
+      }
     },
     initialize: function () {
       jQuery.proxyAll(this, /_on/);
@@ -43,7 +47,7 @@ this.ckan.module('api-info', function (jQuery, _) {
     },
     loadTemplate: function () {
       if (!this.options.template) {
-        this.sandbox.notify(_('There is no API data to load for this resource').fetch());
+        this.sandbox.notify(this.options.i18n.noTemplate);
         return jQuery.Deferred().reject().promise();
       }
 
@@ -65,7 +69,7 @@ this.ckan.module('api-info', function (jQuery, _) {
     },
     _onTemplateError: function () {
       this.loading(false);
-      this.sandbox.notify(_('Failed to load data API information').fetch());
+      this.sandbox.notify(this.options.i18n.loadError);
     }
   };
 });
