@@ -29,6 +29,7 @@
     #}
     {%- block meta -%}
       <meta charset="utf-8" />
+      {% block meta_generator %}<meta name="generator" value="ckan {{ c.__version__ }}" />{% endblock %}
     {%- endblock -%}
 
     {#
