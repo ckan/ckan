@@ -11,7 +11,7 @@ import ckan.model as model
 from ckan.lib.helpers import url_for
 
 
-ELASTIC_SEARCH_HOST = config.get('elastic_search_host', '0.0.0.0: 9200')
+ELASTIC_SEARCH_HOST = config.get('elastic_search_host', '0.0.0.0:9200')
 
 
 class MockResponse(object):
@@ -24,7 +24,7 @@ class MockResponse(object):
 
     def __init__(self, res):
         '''
-            : param res: a response object returned by the paster test app
+            :param res: a response object returned by the paster test app
         '''
         self.status_code = res.status
         self.content = res.body
@@ -43,7 +43,7 @@ class MockProxyServer(object):
 
     def __init__(self, app):
         '''
-            : param app: a paster test application
+            :param app: a paster test application
         '''
 
         self.elastic_search_host = ELASTIC_SEARCH_HOST
@@ -52,7 +52,7 @@ class MockProxyServer(object):
 
     def _get_elastic_search_offset(self, res):
         '''
-            : param res: a response object returned by the paster test app
+            :param res: a response object returned by the paster test app
         '''
 
         redirect = dict(res.headers).get('X-Accel-Redirect')
@@ -62,8 +62,8 @@ class MockProxyServer(object):
 
     def _forward_request(self, res, data=None):
         '''
-            : param res: a response object returned by the paster test app
-            : param data: a dictionary of data to be sent to ES. Will produce
+            :param res: a response object returned by the paster test app
+            :param data: a dictionary of data to be sent to ES. Will produce
                 a POST request
         '''
 
@@ -84,8 +84,8 @@ class MockProxyServer(object):
 
     def get(self, offset, ckan_status=200):
         '''
-            : param offset: CKAN route to request
-            : param ckan_status: expected status to be returned, will throw an
+            :param offset: CKAN route to request
+            :param ckan_status: expected status to be returned, will throw an
                 exception if different from the actually returned
         '''
 
@@ -94,9 +94,9 @@ class MockProxyServer(object):
 
     def post(self, offset, data=None, ckan_status=200):
         '''
-            : param offset: CKAN route to request
-            : param data: a dictionary of data to be sent to ES.
-            : param ckan_status: expected status to be returned, will throw an
+            :param offset: CKAN route to request
+            :param data: a dictionary of data to be sent to ES.
+            :param ckan_status: expected status to be returned, will throw an
                 exception if different from the actually returned
         '''
 
