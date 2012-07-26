@@ -35,7 +35,7 @@ class Globals(object):
         self.site_about = config.get('ckan.site_about', '')
 
         # cusom styling
-        self.set_main_css('/base/css/main.css')
+        self.set_main_css(config.get('ckan.main_css','/base/css/main.css'))
 
     def __init__(self):
         """One instance of Globals is created during application
