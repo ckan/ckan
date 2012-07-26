@@ -16,8 +16,8 @@
           <label for="style" class="control-label">Style</label>
           <div class="controls">
         <select name="style">
-          {% for style in styles|sort %}
-            <option value="{{ style }}" >{{ style }}</option>
+          {% for style, css in styles|sort %}
+          <option value="{{ css }}" {% if css == data.style %}selected="selected"{% endif %} >{{ style }}</option>
           {% endfor %}
       </select>
   </div>
