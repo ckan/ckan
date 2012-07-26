@@ -31,7 +31,8 @@ class AdminController(base.BaseController):
     def config(self):
         app_globals = base.pylons_globals().get('g')
         data = request.POST
-        if data:
+        if 'save' in data:
+            # update config from form
             style = data.get('style')
             app_globals.set_main_css(style)
 
@@ -43,6 +44,10 @@ class AdminController(base.BaseController):
 
             about = data.get('about')
             app_globals.set_global('site_about', about)
+
+        if 'reset' in data:
+            # reset to values in config
+            app_globals.reset()
 
         styles = [('Default', '/base/css/main.css'),
                   ('Red', '/base/css/red.css'),
