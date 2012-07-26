@@ -183,7 +183,7 @@ Examples:
       <label for="{{ id or names[1] }}-value" class="add-on">Value</label><input id="{{ id or names[1] }}-value" name="{{ names[1] }}" value="{{ values[1] | empty_and_escape }}" placeholder="{{ placeholders[1] }}" />
       {% if values[0] or values[1] or error %}
         <label class="checkbox" for="{{ id or names[2] }}-remove">
-          <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} /> {{ _('Remove') }}
+          <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} /> <span>{{ _('Remove') }}</span>
         </label>
       {% endif %}
     </div>

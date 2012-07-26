@@ -11,7 +11,7 @@ Example:
 #}
 {% import "macros/form.html" as form %}
 
-<div data-module="custom-fields" data-module-pattern="">
+<div data-module="custom-fields">
   {% for extra in extras %}
     {% set prefix = 'extras__%d__' % loop.index0 %}
     {{ form.custom(
