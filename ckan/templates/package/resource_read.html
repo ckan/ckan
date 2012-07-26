@@ -45,10 +45,15 @@
     <div class="module-content">
       <h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>
       <div class="prose notes" property="rdfs:label">
-        {{ res.description or _('(No description)') }}
+        {% if res.description %}
+          {{ res.description }}
+        {% else %}
+          <p class="empty">{{ _('There is no description for this resource') }}</p>
+        {% endif %}
         {% if not res.description and c.package.notes %}
-          <div>{{ h.markdown_extract(c.package.get('notes')) }}</div>
-          <small>From the <a href="{{ h.url_for(controller='package', action='read', id=c.package['name']) }}">Dataset</a></small>
+          <h3>{{ _('From the dataset abstract') }}</h3>
+          <blockquote>{{ h.markdown_extract(c.package.get('notes')) }}</blockquote>
+          <p>{% trans dataset=c.package.title, url=h.url_for(controller='package', action='read', id=c.package['name']) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
         {% endif %}
       </div>
     </div>
