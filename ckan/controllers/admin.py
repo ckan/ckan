@@ -31,13 +31,11 @@ class AdminController(base.BaseController):
     def config(self):
         app_globals = base.pylons_globals().get('g')
         data = request.POST
-
-        style = data.get('style')
-        if style:
+        if data:
+            style = data.get('style')
             app_globals.set_main_css(style)
 
-        site_title = data.get('title')
-        if site_title:
+            site_title = data.get('title')
             app_globals.set_global('site_title', site_title)
 
         styles = [('Default', '/base/css/main.css'),
