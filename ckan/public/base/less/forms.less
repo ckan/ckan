@@ -268,6 +268,55 @@ textarea {
   width: auto;
 }
 
+.control-custom.disabled label,
+.control-custom.disabled input {
+  color: #aaa;
+  text-decoration: line-through;
+  text-shadow: none;
+}
+
+.control-custom.disabled input {
+  .box-shadow(none);
+  background-color: #f3f3f3;
+}
+
+.control-custom.disabled .checkbox {
+  color: #444;
+  text-decoration: none;
+}
+
+// JavaScript Enabled Remove Button
+
+.control-custom .checkbox.btn {
+  .border-radius(15px);
+  position: relative;
+  top: 0;
+  left: 5px;
+  height: 3px;
+  width: 8px;
+  padding: 3px 8px;
+}
+
+.control-custom .checkbox.btn span {
+  display: none;
+  width: 30px;
+}
+
+.control-custom .checkbox.btn:before {
+  position: relative;
+  top: 1px;
+  left: -1px;
+  color: #fff;
+}
+
+.control-custom .checkbox.btn input {
+  display: none;
+}
+
+.control-custom.disabled .checkbox.btn {
+  .btn-primary;
+}
+
 // Errors
 
 .alert-danger a, .alert-error a {
