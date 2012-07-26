@@ -11,26 +11,32 @@ Example:
 #}
 {% import "macros/form.html" as form %}
 
-{% for extra in extras %}
-  {% set prefix = 'extras__%d__' % loop.index0 %}
-  {{ form.custom(
-    names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
-    id='field-extras-%d' % loop.index,
-    label=_('Custom Field'),
-    values=(extra.key, extra.value, extra.deleted),
-    error=errors[prefix ~ 'key'] or errors[prefix ~ 'value']
-  ) }}
-{% endfor %}
+<div data-module="custom-fields" data-module-pattern="">
+  {% for extra in extras %}
+    {% set prefix = 'extras__%d__' % loop.index0 %}
+    {{ form.custom(
+      names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
+      id='field-extras-%d' % loop.index,
+      label=_('Custom Field'),
+      values=(extra.key, extra.value, extra.deleted),
+      error=errors[prefix ~ 'key'] or errors[prefix ~ 'value']
+    ) }}
+  {% endfor %}
 
-{# Add a max if 3 empty columns #}
-{% for extra in range(extras|count, limit or 3) %}
-  {% set index =loop.index0 + (extras|count) %}
-  {% set prefix = 'extras__%d__' % index %}
-  {{ form.custom(
-    names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
-    id='field-extras-%d' % index,
-    label=_('Custom Field'),
-    values=(extra.key, extra.value, extra.deleted),
-    error=errors[prefix ~ 'key'] or errors[prefix ~ 'value']
-  ) }}
-{% endfor %}
+  {# Add a max of 3 empty columns #}
+  {% set total_extras = extras|count %}
+  {% set empty_extras = (limit or 3) - total_extras %}
+  {% if empty_extras <= 0 %}{% set empty_extras = 1 %}{% endif %}
+
+  {% for extra in range(total_extras, total_extras + empty_extras) %}
+    {% set index = loop.index0 + (extras|count) %}
+    {% set prefix = 'extras__%d__' % index %}
+    {{ form.custom(
+      names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
+      id='field-extras-%d' % index,
+      label=_('Custom Field'),
+      values=(extra.key, extra.value, extra.deleted),
+      error=errors[prefix ~ 'key'] or errors[prefix ~ 'value']
+    ) }}
+  {% endfor %}
+</div>
