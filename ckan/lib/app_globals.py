@@ -25,23 +25,31 @@ class Globals(object):
     def set_global(self, key, value):
         setattr(self, key, value)
 
+    def reset(self):
+        ''' set updatable values from config '''
+
+        self.site_title = config.get('ckan.site_title', '')
+        self.site_logo = config.get('ckan.site_logo', '')
+        self.site_url = config.get('ckan.site_url', '')
+        self.site_description = config.get('ckan.site_description', '')
+        self.site_about = config.get('ckan.site_about', '')
+
+        # cusom styling
+        self.set_main_css('/base/css/main.css')
+
     def __init__(self):
         """One instance of Globals is created during application
         initialization and is available during requests via the
         'app_globals' variable
 
         """
-        self.site_title = config.get('ckan.site_title', '')
+
+        self.reset()
         self.favicon = config.get('ckan.favicon',
                                   '/images/icons/ckan.ico')
-        self.site_logo = config.get('ckan.site_logo', '')
-        self.site_url = config.get('ckan.site_url', '')
         self.site_url_nice = self.site_url.replace('http://','').replace('www.','')
-        self.site_description = config.get('ckan.site_description', '')
-        self.site_about = config.get('ckan.site_about', '')
-        
         self.facets = config.get('search.facets', 'groups tags res_format license').split()
-        
+
         # has been setup in load_environment():
         self.site_id = config.get('ckan.site_id')
 
@@ -55,8 +63,6 @@ class Globals(object):
 
         self.recaptcha_publickey = config.get('ckan.recaptcha.publickey', '')
         self.recaptcha_privatekey = config.get('ckan.recaptcha.privatekey', '')
-        
+
         self.datasets_per_page = int(config.get('ckan.datasets_per_page', '20'))
 
-        # cusom styling
-        self.set_main_css('/base/css/main.css')
