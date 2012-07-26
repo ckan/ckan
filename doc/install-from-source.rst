@@ -260,7 +260,15 @@ version.
 
 4. If you are upgrading to a new major version of CKAN (for example if you are
    upgrading to CKAN 1.7, 1.8 or 1.9, etc.), update your CKAN database's schema
-   using the ``ckan db upgrade`` command, for example::
+   using the ``ckan db upgrade`` command.
+
+    .. warning ::
+
+        To avoid problems during the database upgrade, comment out any
+        plugins that you have enabled on your ini file. You can uncomment
+        them back when the upgrade finishes.
+
+   For example::
 
     paster --plugin=ckan db upgrade --config=/path/to/your/ckan.ini
 
@@ -271,7 +279,9 @@ version.
    See :ref:`upgrade migration` for details of the ``ckan db upgrade`` command.
 
 5. If CKAN's Solr schema version has changed between the CKAN versions you're
-   upgrading from and to, then you need to update your solr schema symlink.
+   upgrading from and to, then you need to update your solr schema symlink
+   (Check the CHANGELOG to see if it necessary to update the schema, otherwise
+   you can skip this step).
 
    When :ref:`setting up solr` you created a symlink
    ``/etc/solr/conf/schema.xml`` linking to a CKAN Solr schema file such as
