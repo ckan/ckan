@@ -38,6 +38,9 @@ class AdminController(base.BaseController):
             site_title = data.get('title')
             app_globals.set_global('site_title', site_title)
 
+            tag_line = data.get('tagline')
+            app_globals.set_global('site_description', tag_line)
+
         styles = [('Default', '/base/css/main.css'),
                   ('Red', '/base/css/red.css'),
                   ('Green', '/base/css/green.css'),
@@ -46,6 +49,7 @@ class AdminController(base.BaseController):
 
         data['title'] = app_globals.site_title
         data['style'] = app_globals.main_css
+        data['tagline'] = app_globals.site_description
 
         vars = {'data': data, 'errors': {}, 'styles': styles}
         return base.render('admin/config.html',
