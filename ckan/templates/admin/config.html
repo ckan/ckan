@@ -24,7 +24,8 @@
   </div>
 {{ form.input('title', id='field-title', label=_('Site Title'), placeholder=_('eg. CKAN'), value=data.title, error=errors.title) }}
 {{ form.input('tagline', id='field-tagline', label=_('Tag Line'), placeholder=_('eg. The Open Source Data Portal'), value=data.tagline, error=errors.tagline) }}
-        <button type="submit" class="btn btn-primary" >Update</button>
+{{ form.markdown('about', id='field-about', label=_('About Text'), placeholder=_('About contents'), value=data.about, error=errors.about) }}
+        <button type="submit" class="btn btn-primary" name="save">Update</button>
       </form>
     </div>
   </article>
