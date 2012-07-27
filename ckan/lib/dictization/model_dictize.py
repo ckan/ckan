@@ -102,6 +102,10 @@ def resource_dictize(res, context):
         model = context['model']
         tracking = model.TrackingSummary.get_for_resource(res.url)
         resource['tracking_summary'] = tracking
+    # some urls do not have the protocol this adds http:// to these
+    url = resource['url']
+    if not (url.startswith('http://') or url.startswith('https://')):
+        resource['url'] = u'http://' + url
     return resource
 
 def related_dictize(rel, context):
@@ -368,6 +372,15 @@ def user_dictize(user, context):
     result_dict['email_hash'] = user.email_hash
     result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_administered_packages'] = user.number_administered_packages()
+
+    model = context['model']
+    session = model.Session
+
+    if context.get('with_related'):
+        related_items = session.query(model.Related).\
+                        filter(model.Related.owner_id==user.id).all()
+        result_dict['related_items'] = related_list_dictize(related_items,
+                                                            context)
 
     return result_dict
 

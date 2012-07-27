@@ -3,6 +3,7 @@ from pylons.i18n import _
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
+import ckan.lib.dictization.model_dictize as model_dictize
 validate = ckan.lib.navl.dictization_functions.validate
 
 # Define some shortcuts
@@ -12,6 +13,7 @@ ValidationError = ckan.logic.ValidationError
 NotFound = ckan.logic.NotFound
 _check_access = ckan.logic.check_access
 _get_or_bust = ckan.logic.get_or_bust
+_get_action = ckan.logic.get_action
 
 def package_delete(context, data_dict):
     '''Delete a dataset (package).
@@ -97,6 +99,10 @@ def related_delete(context, data_dict):
 
     '''
     model = context['model']
+    session = context['session']
+    user = context['user']
+    userobj = model.User.get(user)
+
     id = _get_or_bust(data_dict, 'id')
 
     entity = model.Related.get(id)
@@ -105,6 +111,25 @@ def related_delete(context, data_dict):
         raise NotFound
 
     _check_access('related_delete',context, data_dict)
+
+    related_dict = model_dictize.related_dictize(entity, context)
+    activity_dict = {
+        'user_id': userobj.id,
+        'object_id': entity.id,
+        'activity_type': 'deleted related item',
+    }
+    activity_dict['data'] = {
+        'related': related_dict
+    }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit':True,
+        'session': session
+    }
+
+    _get_action('activity_create')(activity_create_context, activity_dict, ignore_auth=True)
+    session.commit()
 
     entity.delete()
     model.repo.commit()
@@ -297,7 +322,7 @@ def unfollow_user(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
 
     _unfollow(context, data_dict, context['model'].UserFollowingUser)
 
@@ -312,6 +337,6 @@ def unfollow_dataset(context, data_dict):
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
 
     _unfollow(context, data_dict, context['model'].UserFollowingDataset)

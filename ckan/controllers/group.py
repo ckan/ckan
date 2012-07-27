@@ -7,6 +7,7 @@ from ckan.lib.base import BaseController, c, model, request, render, h, g
 from ckan.lib.base import ValidationException, abort, gettext
 from pylons.i18n import get_lang, _
 from ckan.lib.helpers import Page
+import ckan.lib.maintain as maintain
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
@@ -100,7 +101,7 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._form_to_db_schema(group_type=group_type),
-                   'for_view': True}
+                   'for_view': True, 'extras_as_string': True}
         data_dict = {'id': id}
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', '')
@@ -201,7 +202,12 @@ class GroupController(BaseController):
                 item_count=query['count'],
                 items_per_page=limit
             )
+
             c.facets = query['facets']
+            maintain.deprecate_context_item(
+              'facets',
+              'Use `c.search_facets` instead.')
+
             c.search_facets = query['search_facets']
             c.page.items = query['results']
         except SearchError, se:
@@ -240,7 +246,7 @@ class GroupController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context, data)
+        self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type=group_type),
                         extra_vars=vars)
         return render(self._new_template(group_type))

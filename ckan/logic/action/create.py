@@ -1,6 +1,7 @@
 import logging
 from pylons.i18n import _
 
+import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -21,7 +22,6 @@ log = logging.getLogger(__name__)
 # Define some shortcuts
 # Ensure they are module-private so that they don't get loaded as available
 # actions in the action API.
-_error_summary = ckan.logic.action.error_summary
 _validate = ckan.lib.navl.dictization_functions.validate
 _check_access = logic.check_access
 _get_action = logic.get_action
@@ -127,10 +127,13 @@ def package_create(context, data_dict):
             package_plugin.check_data_dict(data_dict)
 
     data, errors = _validate(data_dict, schema, context)
+    log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
+              errors, context.get('user'),
+              data.get('name'), data_dict)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -170,10 +173,9 @@ def package_create_validate(context, data_dict):
     _check_access('package_create',context,data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
     else:
         return data
 
@@ -237,7 +239,7 @@ def resource_create(context, data_dict):
         pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError, e:
         errors = e.error_dict['resources'][-1]
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     return pkg_dict['resources'][-1]
 
@@ -269,8 +271,11 @@ def related_create(context, data_dict):
 
     '''
     model = context['model']
+    session = context['session']
     user = context['user']
     userobj = model.User.get(user)
+
+    _check_access('related_create', context, data_dict)
 
     data_dict["owner_id"] = userobj.id
     data, errors = _validate(data_dict,
@@ -278,7 +283,7 @@ def related_create(context, data_dict):
                             context)
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     related = model_save.related_dict_save(data, context)
     if not context.get('defer_commit'):
@@ -289,10 +294,30 @@ def related_create(context, data_dict):
         dataset.related.append( related )
         model.repo.commit_and_remove()
 
+    session.flush()
+
+    related_dict = model_dictize.related_dictize(related, context)
+    activity_dict = {
+            'user_id': userobj.id,
+            'object_id': related.id,
+            'activity_type': 'new related item',
+            }
+    activity_dict['data'] = {
+            'related': related_dict
+    }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit':True,
+        'session': session
+    }
+    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    session.commit()
+
     context["related"] = related
     context["id"] = related.id
     log.debug('Created object %s' % str(related.title))
-    return model_dictize.related_dictize(related, context)
+    return related_dict
 
 
 def package_relationship_create(context, data_dict):
@@ -333,10 +358,9 @@ def package_relationship_create(context, data_dict):
         return NotFound('Object package %r was not found.' % id2)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     _check_access('package_relationship_create', context, data_dict)
 
@@ -479,7 +503,8 @@ def group_create(context, data_dict):
     _check_access('group_create', context, data_dict)
 
     # get the schema
-    group_plugin = lib_plugins.lookup_group_plugin()
+    group_plugin = lib_plugins.lookup_group_plugin(
+            group_type=data_dict.get('type'))
     try:
         schema = group_plugin.form_to_db_schema_options({'type':'create',
                                                'api':'api_version' in context,
@@ -488,10 +513,12 @@ def group_create(context, data_dict):
         schema = group_plugin.form_to_db_schema()
 
     data, errors = _validate(data_dict, schema, context)
+    log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
+              errors, context.get('user'), data_dict.get('name'), data_dict)
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -508,6 +535,8 @@ def group_create(context, data_dict):
         if parent_group:
             member = model.Member(group=parent_group, table_id=group.id, table_name='group')
             session.add(member)
+            log.debug('Group %s is made child of group %s',
+                      group.name, parent_group.name)
 
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
@@ -630,7 +659,7 @@ def user_create(context, data_dict):
 
     if errors:
         session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     user = model_save.user_dict_save(data, context)
 
@@ -719,7 +748,7 @@ def vocabulary_create(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     vocabulary = model_save.vocabulary_dict_save(data, context)
 
@@ -857,7 +886,7 @@ def follow_user(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     # Don't let a user follow herself.
     if userobj.id == data_dict['id']:
@@ -929,7 +958,7 @@ def follow_dataset(context, data_dict):
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors, _error_summary(errors))
+        raise ValidationError(errors)
 
     # Don't let a user follow a dataset she is already following.
     if model.UserFollowingDataset.get(userobj.id, data_dict['id']) is not None:

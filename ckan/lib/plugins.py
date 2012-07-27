@@ -285,7 +285,7 @@ class DefaultDatasetForm(object):
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
 
         if c.pkg:
-            c.related_count = len(c.pkg.related)
+            c.related_count = c.pkg.related_count
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
