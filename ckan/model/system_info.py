@@ -4,7 +4,8 @@ import meta
 import core
 import domain_object
 
-__all__ = ['system_info_revision_table', 'system_info_table', 'SystemInfo']
+__all__ = ['system_info_revision_table', 'system_info_table', 'SystemInfo',
+          'get_system_info', 'set_system_info']
 
 system_info_table = Table('system_info', meta.metadata,
         Column('id', types.Integer() ,  primary_key=True, nullable=False),
@@ -22,3 +23,26 @@ class SystemInfo(domain_object.DomainObject):
 
 
 meta.mapper(SystemInfo, system_info_table)
+
+
+def get_system_info(key, default=None):
+    ''' get data from system_info table '''
+    obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
+    if obj:
+        return obj.value
+    else:
+        return default
+
+def set_system_info(key, value):
+    ''' save data in the system_info table '''
+
+    obj = None
+    obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
+    if obj and obj.value == unicode(value):
+        return
+    if not obj:
+        obj = SystemInfo(key, value)
+    else:
+        obj.value = unicode(value)
+    meta.Session.add(obj)
+    meta.Session.commit()

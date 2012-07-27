@@ -5,27 +5,6 @@ from pylons import config
 
 import ckan.model as model
 
-def get_system_info(key, default=None):
-    ''' get data from system_info table '''
-    obj = model.Session.query(model.SystemInfo).filter_by(key=key).first()
-    if obj:
-        return obj.value
-    else:
-        return default
-
-def set_system_info(key, value):
-    ''' save data in the system_info table '''
-
-    obj = None
-    obj = model.Session.query(model.SystemInfo).filter_by(key=key).first()
-    if obj and obj.value == unicode(value):
-        return
-    if not obj:
-        obj = model.SystemInfo(key, value)
-    else:
-        obj.value = unicode(value)
-    model.Session.add(obj)
-    model.Session.commit()
 
 class Globals(object):
 
@@ -58,14 +37,14 @@ class Globals(object):
 
     def set_global(self, key, value):
         ''' helper function for getting value from database or config file '''
-        set_system_info(key, value)
+        model.set_system_info(key, value)
         setattr(self, self.mappings[key], value)
 
     def reset(self):
         ''' set updatable values from config '''
 
         def grab(key, default):
-            value = get_system_info(key, config.get(key, default))
+            value = model.get_system_info(key, config.get(key, default))
             setattr(self, self.mappings[key], value)
 
         grab('ckan.site_title', '')
@@ -75,7 +54,7 @@ class Globals(object):
         grab('ckan.site_about', '')
 
         # cusom styling
-        self.set_main_css(get_system_info('ckan.main_css',
+        self.set_main_css(model.get_system_info('ckan.main_css',
                 config.get('ckan.main_css','/base/css/main.css')))
 
         self.site_url_nice = self.site_url.replace('http://','').replace('www.','')
