@@ -6,6 +6,7 @@ from pylons import config
 import ckan.model as model
 
 def get_system_info(key, default=None):
+    ''' get data from system_info table '''
     obj = model.Session.query(model.SystemInfo).filter_by(key=key).first()
     if obj:
         return obj.value
@@ -13,6 +14,8 @@ def get_system_info(key, default=None):
         return default
 
 def set_system_info(key, value):
+    ''' save data in the system_info table '''
+
     obj = None
     obj = model.Session.query(model.SystemInfo).filter_by(key=key).first()
     if obj and obj.value == unicode(value):
@@ -30,6 +33,9 @@ class Globals(object):
     life of the application
 
     """
+
+    # mappings translate between config settings and globals because our naming
+    # conventions are not defined and/or implemented
     mappings = {
         'ckan.site_title': 'site_title',
         'ckan.site_logo': 'site_logo',
@@ -51,6 +57,7 @@ class Globals(object):
         self.main_css = str(new_css)
 
     def set_global(self, key, value):
+        ''' helper function for getting value from database or config file '''
         set_system_info(key, value)
         setattr(self, self.mappings[key], value)
 
