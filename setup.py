@@ -35,6 +35,7 @@ setup(
     message_extractors = {
         'ckan': [
             ('**.py', 'python', None),
+            ('**.js', 'javascript', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'ckan', None),
             ('templates_legacy/**.html', 'ckan', None),
