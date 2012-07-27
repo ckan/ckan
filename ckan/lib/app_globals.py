@@ -3,12 +3,41 @@
 from paste.deploy.converters import asbool
 from pylons import config
 
+import ckan.model as model
+
+def get_system_info(key, default=None):
+    obj = model.Session.query(model.SystemInfo).filter_by(key=key).first()
+    if obj:
+        return obj.value
+    else:
+        return default
+
+def set_system_info(key, value):
+    obj = None
+    obj = model.Session.query(model.SystemInfo).filter_by(key=key).first()
+    if obj and obj.value == unicode(value):
+        return
+    if not obj:
+        obj = model.SystemInfo(key, value)
+    else:
+        obj.value = unicode(value)
+    model.Session.add(obj)
+    model.Session.commit()
+
 class Globals(object):
 
     """Globals acts as a container for objects available throughout the
     life of the application
 
     """
+    mappings = {
+        'ckan.site_title': 'site_title',
+        'ckan.site_logo': 'site_logo',
+        'ckan.site_url': 'site_url',
+        'ckan.site_description': 'site_description',
+        'ckan.site_about': 'site_about',
+        'ckan.main_css': 'main_css',
+    }
 
     def set_main_css(self, css_file):
         ''' Sets the main_css using debug css if needed.  The css_file
@@ -20,22 +49,29 @@ class Globals(object):
             new_css = css_file
         # FIXME we should check the css file exists
         self.main_css = str(new_css)
-        print 'using css file %s' % self.main_css
 
     def set_global(self, key, value):
-        setattr(self, key, value)
+        set_system_info(key, value)
+        setattr(self, self.mappings[key], value)
 
     def reset(self):
         ''' set updatable values from config '''
 
-        self.site_title = config.get('ckan.site_title', '')
-        self.site_logo = config.get('ckan.site_logo', '')
-        self.site_url = config.get('ckan.site_url', '')
-        self.site_description = config.get('ckan.site_description', '')
-        self.site_about = config.get('ckan.site_about', '')
+        def grab(key, default):
+            value = get_system_info(key, config.get(key, default))
+            setattr(self, self.mappings[key], value)
+
+        grab('ckan.site_title', '')
+        grab('ckan.site_logo', '')
+        grab('ckan.site_url', '')
+        grab('ckan.site_description', '')
+        grab('ckan.site_about', '')
 
         # cusom styling
-        self.set_main_css(config.get('ckan.main_css','/base/css/main.css'))
+        self.set_main_css(get_system_info('ckan.main_css',
+                config.get('ckan.main_css','/base/css/main.css')))
+
+        self.site_url_nice = self.site_url.replace('http://','').replace('www.','')
 
     def __init__(self):
         """One instance of Globals is created during application
@@ -44,10 +80,8 @@ class Globals(object):
 
         """
 
-        self.reset()
         self.favicon = config.get('ckan.favicon',
                                   '/images/icons/ckan.ico')
-        self.site_url_nice = self.site_url.replace('http://','').replace('www.','')
         self.facets = config.get('search.facets', 'groups tags res_format license').split()
 
         # has been setup in load_environment():

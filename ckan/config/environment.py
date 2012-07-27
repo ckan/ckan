@@ -343,5 +343,6 @@ def load_environment(global_conf, app_conf):
     if not model.meta.engine:
         model.init_model(engine)
 
+
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
